@@ -52,7 +52,6 @@ repos:
       - id: check-added-large-files
         exclude: ^.*\.(geojson)$|^docs/static/img/screenshots/.*|^superset-frontend/CHANGELOG\.md$|^superset/examples/.*/data\.parquet$
       - id: check-yaml
-        exclude: ^helm/superset/templates/
       - id: debug-statements
       - id: end-of-file-fixer
         exclude: .*/lerna\.json$|^docs/static/img/logos/
@@ -100,13 +99,6 @@ repos:
     hooks:
       - id: blacklist
         args: ["--blacklisted-names=make_url", "--ignore=tests/"]
-  - repo: https://github.com/norwoodj/helm-docs
-    rev: v1.14.2
-    hooks:
-      - id: helm-docs
-        files: helm
-        verbose: false
-        args: ["--log-level", "error"]
   # Using local hooks ensures ruff version matches requirements/development.txt
   - repo: local
     hooks:
