@@ -68,8 +68,7 @@ superset/
 ├── superset-frontend/packages/
 │   └── superset-ui-core/       # UI component library (USE THIS)
 ├── tests/                      # Python/integration tests
-├── docs/                       # Documentation (UPDATE FOR CHANGES)
-└── UPDATING.md                 # Breaking changes log
+└── docs/                       # Documentation (UPDATE FOR CHANGES)
 ```
 
 ## Code Standards
@@ -89,7 +88,7 @@ superset/
 
 ### Apache License Headers
 - **New files require ASF license headers** - When creating new code files, include the standard Apache Software Foundation license header
-- **LLM instruction files are excluded** - Files like AGENTS.md, CLAUDE.md, etc. are in `.rat-excludes` to avoid header token overhead
+- **LLM instruction files are excluded** - Files like AGENTS.md, CLAUDE.md, etc. don't need the header, to avoid token overhead
 
 ### Code Comments
 - **Avoid time-specific language** - Don't use words like "now", "currently", "today" in code comments as they become outdated
@@ -98,7 +97,6 @@ superset/
 ## Documentation Requirements
 
 - **docs/**: Update for any user-facing changes
-- **UPDATING.md**: Add breaking changes here
 - **Docstrings**: Required for new functions/classes
 
 ## Developer Portal: Storybook-to-MDX Documentation

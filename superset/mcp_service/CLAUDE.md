@@ -35,7 +35,7 @@ Use this exact template at the top of EVERY Python file:
 # under the License.
 ```
 
-**Note**: LLM instruction files like `CLAUDE.md`, `AGENTS.md`, etc. are excluded from this requirement (listed in `.rat-excludes`) to avoid token overhead, but ALL other Python files require it.
+**Note**: LLM instruction files like `CLAUDE.md`, `AGENTS.md`, etc. are excluded from this requirement to avoid token overhead, but ALL other Python files require it.
 
 ## Architecture Overview
 
@@ -565,7 +565,7 @@ def my_function(param: Optional[str] = None) -> Optional[int]:
 # under the License.
 ```
 
-**Note**: LLM instruction files like `CLAUDE.md`, `AGENTS.md`, etc. are excluded from this requirement (listed in `.rat-excludes`) to avoid token overhead.
+**Note**: LLM instruction files like `CLAUDE.md`, `AGENTS.md`, etc. are excluded from this requirement to avoid token overhead.
 
 ### 9. ❌ Using `@tool()` with Empty Parentheses
 **Problem**: Inconsistent decorator style.
