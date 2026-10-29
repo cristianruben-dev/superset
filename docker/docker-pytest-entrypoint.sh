@@ -136,12 +136,6 @@ else
   echo "Tip: Use FORCE_RELOAD=true to reinitialize the test database"
 fi
 
-# Create missing scripts needed for tests
-if [ ! -f "/app/scripts/tag_latest_release.sh" ]; then
-  echo "Creating missing tag_latest_release.sh script for tests..."
-  cp /app/docker/tag_latest_release.sh /app/scripts/tag_latest_release.sh 2>/dev/null || true
-fi
-
 # Install pip module for Shillelagh compatibility (aligns with CI environment)
 echo "Installing pip module for Shillelagh compatibility..."
 uv pip install pip
