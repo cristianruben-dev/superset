@@ -2537,6 +2537,9 @@ DISTRIBUTED_LOCK_DEFAULT_TTL = 30
 # Channel prefix for task abort pub/sub messages
 TASKS_ABORT_CHANNEL_PREFIX = "gtf:abort:"
 
+# Mi BI fork defaults (branding, theme, languages, palettes)
+from superset.mibi_config import *  # noqa: E402, F403
+
 # -------------------------------------------------------------------
 # *                WARNING:  STOP EDITING  HERE                    *
 # -------------------------------------------------------------------

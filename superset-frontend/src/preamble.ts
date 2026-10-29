@@ -28,6 +28,8 @@ import { User } from './types/bootstrapTypes';
 import getBootstrapData, { applicationRoot } from './utils/getBootstrapData';
 import { makeUrl } from './utils/pathUtils';
 import './hooks/useLocale';
+// Mi BI global skin, shipped with every entry that includes the preamble
+import './assets/mibi/skin.css';
 
 // Import dayjs plugin types for global TypeScript support
 import 'dayjs/plugin/utc';

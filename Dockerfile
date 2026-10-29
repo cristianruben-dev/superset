@@ -23,8 +23,8 @@ ARG PY_VER=3.11.14-slim-trixie
 # If BUILDPLATFORM is null, set it to 'amd64' (or leave as is otherwise).
 ARG BUILDPLATFORM=${BUILDPLATFORM:-amd64}
 
-# Include translations in the final build
-ARG BUILD_TRANSLATIONS="false"
+# Include translations in the final build (Mi BI: on by default for the language selector)
+ARG BUILD_TRANSLATIONS="true"
 
 ######################################################################
 # superset-node-ci used as a base for building frontend assets and CI
@@ -133,8 +133,13 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     . /app/.venv/bin/activate && /app/docker/pip-install.sh --requires-build-essential -r requirements/translations.txt
 
 COPY superset/translations/ /app/translations_mo/
+COPY docker/mibi/compile_translations.py /app/compile_translations.py
 RUN if [ "${BUILD_TRANSLATIONS}" = "true" ]; then \
-        pybabel compile -d /app/translations_mo | true; \
+        for po in /app/translations_mo/*/LC_MESSAGES/messages.po; do \
+            lang=$(basename "$(dirname "$(dirname "$po")")"); \
+            /app/.venv/bin/python /app/compile_translations.py /app/translations_mo "$lang" \
+                || echo "Skipping translations for $lang"; \
+        done; \
     fi; \
     rm -f /app/translations_mo/*/*/*.[po,json]
 
