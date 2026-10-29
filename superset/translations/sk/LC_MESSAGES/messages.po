@@ -17,7 +17,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-27 21:53-0300\n"
+"POT-Creation-Date: 2026-10-29 06:07+0000\n"
 "PO-Revision-Date: 2026-05-18 15:42+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: sk\n"
@@ -8979,6 +8979,12 @@ msgstr "Najvyššia hodnota za každé obdobie."
 msgid "Histogram"
 msgstr "Histogram"
 
+msgid ""
+"Hive requires a partition filter for this table. Add a filter on the "
+"partition column, or a time range on a column with a working partition "
+"mapping, and try again."
+msgstr ""
+
 msgid "Home"
 msgstr "Domů"
 
@@ -9217,6 +9223,9 @@ msgstr "V tomto pohľadu môžete prohlédnúť první 25 riadkov."
 #, fuzzy
 msgid "Inactive"
 msgstr "Aktívny"
+
+msgid "Include :value in the transform to represent the filter value."
+msgstr ""
 
 msgid "Include Series"
 msgstr "Zahrnúť série"
@@ -12752,6 +12761,9 @@ msgstr ""
 
 msgid "Preview"
 msgstr "Náhľad"
+
+msgid "Preview temporarily unavailable"
+msgstr ""
 
 msgid "Preview this version"
 msgstr ""
@@ -17323,7 +17335,7 @@ msgstr "Port je uzavretý."
 msgid "The port number is invalid."
 msgstr "Číslo portu je neplatné."
 
-msgid "The preview could not be loaded."
+msgid "The preview could not be loaded. Try again."
 msgstr ""
 
 msgid "The primary metric is used to define the arc segment sizes"
@@ -17690,7 +17702,9 @@ msgstr ""
 #, python-format
 msgid ""
 "The transform returned %(returned)s for %(column)s, which is %(kind)s. "
-"Mirrored filters on this mapping would fail at the database."
+"Mirrored filters on this mapping would fail at the database. Return a "
+"value compatible with %(type)s; use an explicit CAST in the transform if "
+"appropriate."
 msgstr ""
 
 #, python-format
@@ -17698,6 +17712,11 @@ msgid ""
 "The transform returned %(returned)s for %(column)s, which this database "
 "cannot write into a query as a %(type)s value without changing it. "
 "Filters on this mapping will not be mirrored."
+msgstr ""
+
+msgid ""
+"The transform returned NULL for one or more preview values, so no "
+"partition filter was generated."
 msgstr ""
 
 #, fuzzy
@@ -17774,14 +17793,14 @@ msgid ""
 msgstr ""
 
 msgid ""
-"The value transform could not be parsed. The mapping is saved but stays "
-"inactive until it does."
+"The value transform could not be parsed. Fix the expression to preview "
+"it. Filters will not be mirrored while it is invalid."
 msgstr ""
 
 #, python-format
 msgid ""
-"The value transform could not be parsed: %(detail)s The mapping is saved "
-"but stays inactive until it does."
+"The value transform could not be parsed: %(detail)s Fix the expression to"
+" preview it. Filters will not be mirrored while it is invalid."
 msgstr ""
 
 msgid ""
@@ -19111,6 +19130,9 @@ msgid "Token Request URI"
 msgstr "URI žádosti o token"
 
 msgid "Too many preview requests for this dataset. Wait a moment and try again."
+msgstr ""
+
+msgid "Too many preview requests. Wait a moment and try again."
 msgstr ""
 
 msgid "Too many requests. Please wait and try again."
@@ -22558,6 +22580,10 @@ msgstr "späť"
 msgid "unknown type icon"
 msgstr "ikona neznámého typu"
 
+#, python-format
+msgid "unmatched parenthesis at position %(position)d."
+msgstr ""
+
 msgid "unset"
 msgstr "nenastaveno"
 
@@ -22570,6 +22596,9 @@ msgid ""
 msgstr ""
 "horní percentil musí byť väčší než 0 a menší než 100. Musí byť vyšší než "
 "dolní percentil."
+
+msgid "use a single SQL expression; this transform contains multiple expressions."
+msgstr ""
 
 msgid "use latest_partition template"
 msgstr "použít šablonu nejnovejšího_oddílu"

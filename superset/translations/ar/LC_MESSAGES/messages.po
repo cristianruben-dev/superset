@@ -24,7 +24,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version:  \n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-27 21:53-0300\n"
+"POT-Creation-Date: 2026-10-29 06:07+0000\n"
 "PO-Revision-Date: 2024-07-14 15:10+0300\n"
 "Last-Translator: Abdalrahim G. Fakhouri <abdilra7eem@yahoo.com>\n"
 "Language: ar\n"
@@ -9657,6 +9657,12 @@ msgstr "أعلى قيمة لكل فترة."
 msgid "Histogram"
 msgstr "الرسم البياني"
 
+msgid ""
+"Hive requires a partition filter for this table. Add a filter on the "
+"partition column, or a time range on a column with a working partition "
+"mapping, and try again."
+msgstr ""
+
 msgid "Home"
 msgstr "Home"
 
@@ -9908,6 +9914,9 @@ msgstr "في هذا العرض يمكنك معاينة أول 25 صفاً. "
 #, fuzzy
 msgid "Inactive"
 msgstr "نشط"
+
+msgid "Include :value in the transform to represent the filter value."
+msgstr ""
 
 msgid "Include Series"
 msgstr "قم بتضمين السلسلة"
@@ -13623,6 +13632,9 @@ msgstr ""
 
 msgid "Preview"
 msgstr "استطلاع"
+
+msgid "Preview temporarily unavailable"
+msgstr ""
 
 msgid "Preview this version"
 msgstr ""
@@ -18455,7 +18467,7 @@ msgstr "المنفذ مغلق."
 msgid "The port number is invalid."
 msgstr "رقم المنفذ غير صالح."
 
-msgid "The preview could not be loaded."
+msgid "The preview could not be loaded. Try again."
 msgstr ""
 
 msgid "The primary metric is used to define the arc segment sizes"
@@ -18839,7 +18851,9 @@ msgstr ""
 #, python-format
 msgid ""
 "The transform returned %(returned)s for %(column)s, which is %(kind)s. "
-"Mirrored filters on this mapping would fail at the database."
+"Mirrored filters on this mapping would fail at the database. Return a "
+"value compatible with %(type)s; use an explicit CAST in the transform if "
+"appropriate."
 msgstr ""
 
 #, python-format
@@ -18847,6 +18861,11 @@ msgid ""
 "The transform returned %(returned)s for %(column)s, which this database "
 "cannot write into a query as a %(type)s value without changing it. "
 "Filters on this mapping will not be mirrored."
+msgstr ""
+
+msgid ""
+"The transform returned NULL for one or more preview values, so no "
+"partition filter was generated."
 msgstr ""
 
 #, fuzzy
@@ -18928,14 +18947,14 @@ msgid ""
 msgstr ""
 
 msgid ""
-"The value transform could not be parsed. The mapping is saved but stays "
-"inactive until it does."
+"The value transform could not be parsed. Fix the expression to preview "
+"it. Filters will not be mirrored while it is invalid."
 msgstr ""
 
 #, python-format
 msgid ""
-"The value transform could not be parsed: %(detail)s The mapping is saved "
-"but stays inactive until it does."
+"The value transform could not be parsed: %(detail)s Fix the expression to"
+" preview it. Filters will not be mirrored while it is invalid."
 msgstr ""
 
 msgid ""
@@ -20342,6 +20361,9 @@ msgid "Token Request URI"
 msgstr "عنوان URI لطلب الرمز"
 
 msgid "Too many preview requests for this dataset. Wait a moment and try again."
+msgstr ""
+
+msgid "Too many preview requests. Wait a moment and try again."
 msgstr ""
 
 msgid "Too many requests. Please wait and try again."
@@ -23943,6 +23965,10 @@ msgstr "التراجع"
 msgid "unknown type icon"
 msgstr "رمز نوع غير معروف"
 
+#, python-format
+msgid "unmatched parenthesis at position %(position)d."
+msgstr ""
+
 #, fuzzy
 msgid "unset"
 msgstr "حزيران (يونيو)"
@@ -23956,6 +23982,9 @@ msgid ""
 msgstr ""
 "يجب أن تكون النسبة المئوية العليا أكبر من 0 وأقل من 100. يجب أن تكون أعلى"
 " من النسبة المئوية الأقل."
+
+msgid "use a single SQL expression; this transform contains multiple expressions."
+msgstr ""
 
 msgid "use latest_partition template"
 msgstr "استخدم أحدث قالب_التقسيم"
