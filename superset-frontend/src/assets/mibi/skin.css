@@ -1,0 +1,577 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+/*
+ * Mi BI global skin (navbar, lists, explore, SQL Lab, menus, modals, chart gallery).
+ * Bundled through src/preamble.ts, so it ships with every entry (spa, menu, embedded).
+ *
+ * Rules:
+ * - Colors come from the theme tokens in superset/mibi_config.py. Here only structure,
+ *   spacing, type and translucent borders/shadows, so light/dark and per-dashboard
+ *   themes keep working.
+ * - Stable selectors only: ant-*, data-test and Superset's semantic classes. Never the
+ *   hashed superset-xxxx / css-xxxx classes. Review after rebasing onto a new release.
+ */
+
+:root {
+  --mb-hairline: rgba(120, 120, 135, 0.16);
+  --mb-hairline-strong: rgba(120, 120, 135, 0.26);
+  --mb-hover: rgba(120, 120, 135, 0.08);
+  --mb-active: rgba(120, 120, 135, 0.13);
+  --mb-shadow-card:
+    0 1px 2px rgba(10, 10, 15, 0.04), 0 6px 20px -14px rgba(10, 10, 15, 0.16);
+  --mb-shadow-pop:
+    0 18px 44px -14px rgba(10, 10, 15, 0.28), 0 2px 8px rgba(10, 10, 15, 0.06);
+  --mb-focus: 0 0 0 3px rgba(91, 91, 214, 0.22);
+}
+
+/* ---------------------------------------------------------------- Base */
+
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: 'cv11', 'ss01';
+  letter-spacing: -0.006em;
+}
+
+table,
+.ant-table,
+.ant-pagination,
+.row-count-label,
+.big_number,
+.header-line {
+  font-variant-numeric: tabular-nums;
+}
+
+::selection {
+  background: rgba(91, 91, 214, 0.2);
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--mb-hairline-strong) transparent;
+}
+
+/* ---------------------------------------------------------------- Navbar */
+
+#main-menu {
+  min-height: 56px;
+  border-bottom: 1px solid var(--mb-hairline);
+  box-shadow: none;
+  position: relative;
+  z-index: 20;
+}
+
+#main-menu > .ant-row {
+  align-items: center;
+  min-height: 56px;
+  padding: 0 20px;
+}
+
+#main-menu > .ant-row > .ant-col,
+#main-menu > .ant-row > .ant-col > span,
+#main-menu > .ant-row > .ant-col > div {
+  display: flex;
+  align-items: center;
+}
+
+#main-menu > .ant-row > .ant-col:last-child,
+#main-menu > .ant-row > .ant-col:last-child > div {
+  justify-content: flex-end;
+}
+
+#main-menu .navbar-brand {
+  display: flex;
+  align-items: center;
+  padding: 0 20px 0 0;
+  margin-right: 8px;
+  border-right: 1px solid var(--mb-hairline);
+}
+
+#main-menu .ant-menu-horizontal {
+  border-bottom: 0;
+  line-height: 32px;
+  background: transparent;
+  align-items: center;
+}
+
+#main-menu .ant-menu-horizontal > .ant-menu-item,
+#main-menu .ant-menu-horizontal > .ant-menu-submenu {
+  height: 32px;
+  line-height: 32px;
+  margin: 0 2px;
+  padding: 0 12px !important;
+  border-radius: 8px;
+  top: 0;
+  font-weight: 500;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+}
+
+#main-menu .ant-menu-horizontal > .ant-menu-item::after,
+#main-menu .ant-menu-horizontal > .ant-menu-submenu::after {
+  display: none !important;
+}
+
+#main-menu .ant-menu-horizontal > .ant-menu-item:hover,
+#main-menu .ant-menu-horizontal > .ant-menu-submenu:hover {
+  background: var(--mb-hover);
+}
+
+#main-menu .ant-menu-horizontal > .ant-menu-item-selected,
+#main-menu .ant-menu-horizontal > .ant-menu-submenu-selected {
+  background: var(--mb-active);
+}
+
+#main-menu .ant-menu-submenu-title {
+  padding: 0 !important;
+}
+
+/* ---------------------------------------------------------------- Page header (lists) */
+
+.ant-layout-content > div:has(> .menu) {
+  background: transparent !important;
+}
+
+.ant-layout-content > div > .menu {
+  padding: 20px 24px 8px;
+  border-bottom: 0;
+  background: transparent;
+  align-items: center;
+}
+
+.ant-layout-content > div > .menu .header {
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.024em;
+  line-height: 1.2;
+}
+
+.ant-layout-content > div > .menu .nav-right {
+  gap: 8px;
+}
+
+/* ---------------------------------------------------------------- Buttons & inputs */
+
+.ant-btn {
+  font-weight: 500;
+  border-radius: 8px;
+  box-shadow: none;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    transform 0.05s ease;
+}
+
+.ant-btn:active:not(:disabled) {
+  transform: translateY(0.5px);
+}
+
+.ant-btn-primary:not(:disabled) {
+  box-shadow:
+    0 1px 2px rgba(10, 10, 15, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.16);
+}
+
+.ant-btn-default {
+  border-color: var(--mb-hairline-strong);
+}
+
+/* Validation states (status-error / status-warning) keep Ant's own colored borders */
+.ant-input:not([class*='status-'], .ant-form-item-has-error *),
+.ant-input-affix-wrapper:not([class*='status-'], .ant-form-item-has-error *),
+.ant-select:not([class*='status-'], .ant-form-item-has-error *)
+  .ant-select-selector,
+.ant-picker:not([class*='status-'], .ant-form-item-has-error *),
+.ant-input-number:not([class*='status-'], .ant-form-item-has-error *) {
+  border-color: var(--mb-hairline-strong) !important;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.ant-input:not([class*='status-']):focus,
+.ant-input-affix-wrapper-focused:not([class*='status-']),
+.ant-select-focused:not([class*='status-']) .ant-select-selector,
+.ant-picker-focused:not([class*='status-']),
+.ant-input-number-focused:not([class*='status-']) {
+  box-shadow: var(--mb-focus) !important;
+}
+
+:focus-visible {
+  outline: none;
+  box-shadow: var(--mb-focus);
+}
+
+.ant-tag {
+  border-radius: 999px;
+  padding-inline: 8px;
+  font-weight: 500;
+}
+
+/* ---------------------------------------------------------------- List views */
+
+.superset-list-view {
+  padding: 0 24px 32px !important;
+}
+
+.superset-list-view > .header {
+  padding: 4px 0 16px;
+}
+
+.superset-list-view .controls label,
+.superset-list-view .controls .filter-label {
+  font-size: 12px;
+  font-weight: 500;
+  opacity: 0.75;
+}
+
+.superset-list-view .ant-table {
+  border: 1px solid var(--mb-hairline);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: var(--mb-shadow-card);
+}
+
+.superset-list-view .ant-table-thead > tr > th {
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  opacity: 0.85;
+  padding-top: 10px !important;
+  padding-bottom: 10px !important;
+  border-bottom: 1px solid var(--mb-hairline) !important;
+}
+
+.superset-list-view .ant-table-thead > tr > th::before {
+  display: none;
+}
+
+.superset-list-view .ant-table-column-sort {
+  background: transparent !important;
+}
+
+.superset-list-view .ant-table-tbody > tr > td {
+  padding-top: 14px !important;
+  padding-bottom: 14px !important;
+  border-bottom: 1px solid var(--mb-hairline) !important;
+}
+
+.superset-list-view .ant-table-tbody > tr:last-child > td {
+  border-bottom: 0 !important;
+}
+
+.superset-list-view .ant-table-tbody > tr > td a {
+  font-weight: 500;
+}
+
+.superset-list-view .actions {
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.superset-list-view .ant-table-row:hover .actions {
+  opacity: 1;
+}
+
+.superset-list-view .ant-pagination {
+  margin-top: 20px !important;
+}
+
+.ant-pagination-item,
+.ant-pagination-prev .ant-pagination-item-link,
+.ant-pagination-next .ant-pagination-item-link {
+  border-radius: 8px;
+}
+
+/* Card view of lists */
+.superset-list-view .ant-card {
+  border-radius: 14px;
+  border: 1px solid var(--mb-hairline);
+  box-shadow: var(--mb-shadow-card);
+  overflow: hidden;
+  transition:
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+.superset-list-view .ant-card:hover {
+  box-shadow: var(--mb-shadow-pop);
+  transform: translateY(-1px);
+}
+
+/* ---------------------------------------------------------------- Home */
+
+.ant-collapse {
+  border-radius: 12px;
+}
+
+.ant-collapse-header {
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+/* Home sections as stacked cards */
+.ant-layout-content > div > .ant-collapse {
+  margin: 4px 40px 32px;
+  border: 1px solid var(--mb-hairline);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: var(--mb-shadow-card);
+}
+
+.ant-layout-content > div > .ant-collapse > .ant-collapse-item {
+  border-bottom: 1px solid var(--mb-hairline);
+}
+
+.ant-layout-content > div > .ant-collapse > .ant-collapse-item:last-child {
+  border-bottom: 0;
+}
+
+.ant-layout-content
+  > div
+  > .ant-collapse
+  > .ant-collapse-item
+  > .ant-collapse-header {
+  padding: 14px 18px !important;
+  font-size: 14.5px;
+}
+
+/* ---------------------------------------------------------------- Explore (chart editor) */
+
+[data-test='editable-title-input'],
+.header-with-actions .title-panel input {
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.header-with-actions {
+  border-bottom: 1px solid var(--mb-hairline);
+}
+
+.explore-column {
+  border-right: 1px solid var(--mb-hairline);
+}
+
+.explore-column .ant-tabs-nav {
+  margin-bottom: 4px;
+}
+
+.explore-column .ant-tabs-tab {
+  font-weight: 500;
+}
+
+[data-test='collapsible-control-panel-header'] {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+
+[data-test='control-label'] {
+  font-size: 12.5px;
+  font-weight: 500;
+}
+
+.explore-column .ControlHeader {
+  margin-bottom: 6px;
+}
+
+.explore-column [data-test='control-item'] {
+  margin-bottom: 14px;
+}
+
+/* Drop zones for columns / metrics */
+[data-test='dnd-labels-container'] {
+  border-radius: 8px !important;
+  border-color: var(--mb-hairline-strong) !important;
+  padding: 4px !important;
+}
+
+[data-test='dnd-labels-container'] .option-label,
+.metric-option,
+.column-option-label {
+  border-radius: 6px;
+}
+
+/* Field list in the data source panel */
+[data-test='DatasourcePanelDragOption'] {
+  border-radius: 6px;
+  transition: background-color 0.12s ease;
+}
+
+[data-test='DatasourcePanelDragOption']:hover {
+  background: var(--mb-hover);
+}
+
+[data-test='fast-viz-switcher'] > div {
+  border-radius: 8px;
+}
+
+[data-test='run-query-button'] {
+  height: 36px;
+  border-radius: 9px;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+}
+
+.main-explore-content .chart-container,
+.main-explore-content .panel-body {
+  border-radius: 12px;
+}
+
+[data-test='row-count-label'],
+[data-test='last-queried-label'] {
+  border-radius: 999px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Chart type gallery: no tags (neither the sidebar section nor the chips under the description) */
+.ant-modal-content:has([data-test='viz-type-control__search-input'])
+  .ant-collapse-ghost
+  > .ant-collapse-item:not(:has([data-test='category'])) {
+  display: none;
+}
+
+.ant-modal-content:has([data-test='viz-type-control__search-input'])
+  .ant-modal-body
+  .ant-tag {
+  display: none;
+}
+
+/* ---------------------------------------------------------------- SQL Lab */
+
+[data-test='sql-editor-left-bar'] {
+  background: rgba(120, 120, 135, 0.035);
+  border-right: 1px solid var(--mb-hairline);
+  padding: 14px 12px !important;
+}
+
+[data-test='sql-editor-left-bar'] .tree-node {
+  border-radius: 6px;
+}
+
+[data-test='sql-editor-left-bar'] .tree-node:hover {
+  background: var(--mb-hover);
+}
+
+.SqlLab .sqllab-body {
+  padding-left: 0;
+}
+
+.SqlEditorTabs .ant-tabs-nav {
+  padding: 8px 12px 0;
+  margin-bottom: 0 !important;
+}
+
+.ant-tabs-card > .ant-tabs-nav .ant-tabs-tab {
+  border-radius: 8px 8px 0 0 !important;
+  font-weight: 500;
+}
+
+.SqlEditor .queryPane {
+  padding: 12px 16px 16px !important;
+}
+
+.SqlEditor .sql-container {
+  border: 1px solid var(--mb-hairline-strong);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: var(--mb-shadow-card);
+}
+
+[data-test='run-query-action'] {
+  border-radius: 8px !important;
+  font-weight: 600;
+  padding-inline: 14px !important;
+}
+
+[data-test='south-pane'] .ant-tabs-tab {
+  font-weight: 500;
+}
+
+.ace_editor,
+.ace_gutter {
+  font-feature-settings: 'calt' 0;
+}
+
+/* ---------------------------------------------------------------- Dashboards (chrome only) */
+
+.dashboard-header,
+[data-test='dashboard-header-container'] {
+  border-bottom: 1px solid var(--mb-hairline);
+}
+
+/* ---------------------------------------------------------------- Popovers, menus, modals (portals) */
+
+.ant-dropdown .ant-dropdown-menu,
+.ant-menu-submenu-popup .ant-menu,
+.ant-select-dropdown,
+.ant-picker-dropdown .ant-picker-panel-container,
+.ant-popover .ant-popover-inner {
+  border-radius: 12px !important;
+  border: 1px solid var(--mb-hairline);
+  box-shadow: var(--mb-shadow-pop) !important;
+  padding: 4px !important;
+}
+
+.ant-dropdown-menu-item,
+.ant-menu-submenu-popup .ant-menu-item,
+.ant-select-item {
+  border-radius: 7px !important;
+  margin: 1px 0;
+}
+
+.ant-menu-submenu-popup .ant-menu-item-group-title {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  opacity: 0.6;
+}
+
+.ant-modal .ant-modal-content {
+  border-radius: 16px;
+  border: 1px solid var(--mb-hairline);
+  box-shadow: var(--mb-shadow-pop);
+}
+
+.ant-modal .ant-modal-header {
+  border-bottom: 0;
+}
+
+.ant-modal .ant-modal-title {
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.ant-modal-mask {
+  backdrop-filter: blur(3px);
+}
+
+.ant-tooltip .ant-tooltip-inner {
+  border-radius: 8px;
+  font-size: 12px;
+}
