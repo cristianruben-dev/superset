@@ -20,7 +20,13 @@ import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { t } from '@apache-superset/core/translation';
 import { logging } from '@apache-superset/core/utils';
 import { styled } from '@apache-superset/core/theme';
-import { SupersetClient } from '@superset-ui/core';
+import {
+  ErrorTypeEnum,
+  getClientErrorObject,
+  SupersetClient,
+  SupersetError,
+} from '@superset-ui/core';
+import { OAuth2RedirectMessage } from 'src/components/ErrorMessage';
 import { Select } from '@superset-ui/core/components';
 import { Spin } from '@superset-ui/core/components/Spin';
 import { Icons } from '@superset-ui/core/components/Icons';
@@ -156,6 +162,42 @@ export default function AddSemanticViewModal({
   // --- Misc ---
   const [saving, setSaving] = useState(false);
   const fetchGenRef = useRef(0);
+  const [authentication, setAuthentication] = useState<{
+    error: SupersetError<{ url: string; tab_id: string }>;
+    retry: () => void;
+  }>();
+  const captureAuthenticationError = useCallback(
+    async (
+      error: Parameters<typeof getClientErrorObject>[0],
+      retry: () => void,
+      isCurrent: () => boolean,
+    ): Promise<boolean> => {
+      const parsed = await getClientErrorObject(error);
+      if (!isCurrent()) return true;
+      const oauthError = parsed.errors?.find(
+        item => item.error_type === ErrorTypeEnum.OAUTH2_REDIRECT,
+      );
+      if (
+        oauthError &&
+        typeof oauthError.extra?.url === 'string' &&
+        typeof oauthError.extra?.tab_id === 'string'
+      ) {
+        setAuthentication({
+          error: {
+            ...oauthError,
+            extra: {
+              url: oauthError.extra.url,
+              tab_id: oauthError.extra.tab_id,
+            },
+          },
+          retry,
+        });
+        return true;
+      }
+      return false;
+    },
+    [],
+  );
 
   // =========================================================================
   // Fetch helpers
@@ -181,7 +223,11 @@ export default function AddSemanticViewModal({
   };
 
   const fetchViews = useCallback(
-    async (uuid: string, rData: Record<string, unknown>, gen: number) => {
+    async (
+      uuid: string,
+      rData: Record<string, unknown>,
+      gen: number,
+    ): Promise<void> => {
       setLoadingViews(true);
       setAvailableViews([]);
       setSelectedViewNames([]);
@@ -192,14 +238,24 @@ export default function AddSemanticViewModal({
         });
         if (gen !== fetchGenRef.current) return;
         setAvailableViews(json.result ?? []);
-      } catch {
+      } catch (error) {
         if (gen !== fetchGenRef.current) return;
+        if (
+          await captureAuthenticationError(
+            error,
+            () => {
+              fetchViews(uuid, rData, gen);
+            },
+            () => gen === fetchGenRef.current,
+          )
+        )
+          return;
         addDangerToast(t('An error occurred while fetching available views'));
       } finally {
         if (gen === fetchGenRef.current) setLoadingViews(false);
       }
     },
-    [addDangerToast],
+    [addDangerToast, captureAuthenticationError],
   );
 
   const lastSchemaJsonRef = useRef('');
@@ -251,11 +307,12 @@ export default function AddSemanticViewModal({
   // =========================================================================
 
   const handleLayerChange = useCallback(
-    async (uuid: string) => {
+    async (uuid: string): Promise<void> => {
       fetchGenRef.current += 1;
       const gen = fetchGenRef.current;
 
       setSelectedLayerUuid(uuid);
+      setAuthentication(undefined);
       if (schemaTimerRef.current) clearTimeout(schemaTimerRef.current);
       if (viewsTimerRef.current) clearTimeout(viewsTimerRef.current);
       setRuntimeSchema(null);
@@ -292,8 +349,18 @@ export default function AddSemanticViewModal({
         } else {
           applyRuntimeSchema(schema);
         }
-      } catch {
+      } catch (error) {
         if (gen !== fetchGenRef.current) return;
+        if (
+          await captureAuthenticationError(
+            error,
+            () => {
+              handleLayerChange(uuid);
+            },
+            () => gen === fetchGenRef.current,
+          )
+        )
+          return;
         addDangerToast(
           t('An error occurred while fetching the runtime schema'),
         );
@@ -301,7 +368,12 @@ export default function AddSemanticViewModal({
         if (gen === fetchGenRef.current) setLoadingRuntime(false);
       }
     },
-    [applyRuntimeSchema, fetchViews, addDangerToast],
+    [
+      applyRuntimeSchema,
+      fetchViews,
+      addDangerToast,
+      captureAuthenticationError,
+    ],
   );
 
   // =========================================================================
@@ -315,7 +387,7 @@ export default function AddSemanticViewModal({
     }: {
       data: Record<string, unknown>;
       errors?: ErrorObject[];
-    }) => {
+    }): void => {
       setRuntimeData(data);
       errorsRef.current = errors ?? [];
 
@@ -364,6 +436,22 @@ export default function AddSemanticViewModal({
                   refreshGen !== schemaRefreshGenRef.current
                 )
                   return;
+                if (
+                  await captureAuthenticationError(
+                    error,
+                    () => {
+                      lastDepSnapshotRef.current = '';
+                      handleRuntimeFormChange({
+                        data,
+                        errors: errorsRef.current,
+                      });
+                    },
+                    () =>
+                      gen === fetchGenRef.current &&
+                      refreshGen === schemaRefreshGenRef.current,
+                  )
+                )
+                  return;
                 logging.error('Runtime schema refresh failed', error);
                 // Allow exactly one retry per dependency state: clearing the
                 // committed snapshot lets the next change event re-attempt
@@ -405,7 +493,13 @@ export default function AddSemanticViewModal({
         scheduleFetchViews(selectedLayerUuid, data);
       }
     },
-    [selectedLayerUuid, applyRuntimeSchema, scheduleFetchViews, addDangerToast],
+    [
+      selectedLayerUuid,
+      applyRuntimeSchema,
+      scheduleFetchViews,
+      addDangerToast,
+      captureAuthenticationError,
+    ],
   );
 
   // After a schema refresh settles, JSON Forms re-validates and fires
@@ -438,6 +532,7 @@ export default function AddSemanticViewModal({
       if (schemaTimerRef.current) clearTimeout(schemaTimerRef.current);
       if (viewsTimerRef.current) clearTimeout(viewsTimerRef.current);
       setLayers([]);
+      setAuthentication(undefined);
       setSelectedLayerUuid(null);
       setLoadingLayers(false);
       setRuntimeSchema(null);
@@ -594,6 +689,16 @@ export default function AddSemanticViewModal({
       saveLoading={saving}
     >
       <ModalContent>
+        {authentication && (
+          <OAuth2RedirectMessage
+            error={authentication.error}
+            source="crud"
+            errorMitigationFunction={() => {
+              setAuthentication(undefined);
+              authentication.retry();
+            }}
+          />
+        )}
         {/* Semantic Layer */}
         <ModalFormField label={t('Semantic Layer')}>
           <Select

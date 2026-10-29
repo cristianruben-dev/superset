@@ -53,6 +53,7 @@ from superset_core.semantic_layers.view import (
 from superset.common.query_object import QueryObject
 from superset.exceptions import (
     InvalidPostProcessingError,
+    OAuth2RedirectError,
     QueryObjectValidationError,
 )
 from superset.explorables.base import TimeGrainDict
@@ -66,7 +67,7 @@ from superset.semantic_layers.registry import (
     semantic_layer_context,
 )
 from superset.utils import json
-from superset.utils.core import GenericDataType
+from superset.utils.core import GenericDataType, get_user_id
 
 if TYPE_CHECKING:
     from superset.superset_typing import ExplorableData, QueryObjectDict
@@ -268,12 +269,19 @@ class SemanticLayer(AuditMixinNullable, Model):
         """
         Return semantic layer implementation.
         """
-        # TODO (betodealmeida):
-        # return extension_manager.get_contribution("semanticLayers", self.type)
+        return self.get_implementation()
+
+    def get_implementation(
+        self, view_uuid: str | None = None
+    ) -> SemanticLayerABC[Any, SemanticViewABC]:
+        """Build a provider with the resource that requested authentication."""
         class_ = registry[self.type]
-        with semantic_layer_context(self.type):
+        layer_uuid = str(self.uuid)
+        with semantic_layer_context(self.type, layer_uuid, view_uuid):
             implementation = class_.from_configuration(json.loads(self.configuration))
-        return contextualize_semantic_layer(self.type, implementation)
+        return contextualize_semantic_layer(
+            self.type, implementation, layer_uuid, view_uuid
+        )
 
 
 class SemanticView(AuditMixinNullable, Model):
@@ -366,7 +374,7 @@ class SemanticView(AuditMixinNullable, Model):
         """
         Return semantic view implementation.
         """
-        return self.semantic_layer.implementation.get_semantic_view(
+        return self.semantic_layer.get_implementation(str(self.uuid)).get_semantic_view(
             self.name,
             json.loads(self.configuration),
         )
@@ -448,6 +456,8 @@ class SemanticView(AuditMixinNullable, Model):
             )
             try:
                 result = self.implementation.get_values(dimension, {narrowing})
+            except OAuth2RedirectError:
+                raise
             except Exception:  # pylint: disable=broad-exception-caught
                 # The narrowing filter is best-effort: a provider that cannot
                 # apply it must degrade to the bounded first page (the picker
@@ -706,7 +716,8 @@ class SemanticView(AuditMixinNullable, Model):
         return self.data
 
     def get_extra_cache_keys(self, query_obj: QueryObjectDict) -> list[Hashable]:
-        return []
+        """Partition provider results and async query work by requesting user."""
+        return [("semantic_layer_user", get_user_id())]
 
     @property
     def catalog_perm(self) -> str | None:

@@ -37,6 +37,8 @@ import {
   FeatureFlag,
   makeApi,
   SupersetClient,
+  ErrorTypeEnum,
+  SupersetError,
 } from '@superset-ui/core';
 import { logging } from '@apache-superset/core/utils';
 import getBootstrapData from 'src/utils/getBootstrapData';
@@ -92,6 +94,7 @@ type Waiter = {
   taskIds: string[];
   pending: Set<string>;
   failed: boolean;
+  failedTaskIds: string[];
   // Re-issue the original chart-data request once every task has succeeded; the
   // per-query DATA cache is now warm, so it returns synchronously (200).
   resolve: () => void;
@@ -225,6 +228,26 @@ const unregister = (waiter: Waiter) => {
   });
 };
 
+// Status notifications contain no result payload. Read actionable errors from
+// the protected task detail API, which checks the current user's subscription.
+const fetchOAuthErrors = async (taskIds: string[]) => {
+  const results = await Promise.allSettled(
+    taskIds.map(async taskId => {
+      const { json } = await SupersetClient.get({
+        endpoint: `/api/v1/task/${taskId}`,
+      });
+      const errors: SupersetError<Record<string, unknown>>[] =
+        json.result?.properties?.errors ?? [];
+      return errors.filter(
+        error => error.error_type === ErrorTypeEnum.OAUTH2_REDIRECT,
+      );
+    }),
+  );
+  return results.flatMap(result =>
+    result.status === 'fulfilled' ? result.value : [],
+  );
+};
+
 const settle = (waiter: Waiter, error?: unknown) => {
   unregister(waiter);
   if (waiter.signal && waiter.onAbort) {
@@ -233,9 +256,13 @@ const settle = (waiter: Waiter, error?: unknown) => {
   if (error !== undefined) {
     waiter.reject(error);
   } else if (waiter.failed) {
-    waiter.reject(
-      new Error('One or more chart-data queries failed'), // surfaced via getClientErrorObject
-    );
+    fetchOAuthErrors(waiter.failedTaskIds).then(errors => {
+      waiter.reject(
+        errors.length
+          ? { errors }
+          : new Error('One or more chart-data queries failed'),
+      );
+    });
   } else {
     waiter.resolve();
   }
@@ -271,6 +298,7 @@ const applyStatus = (taskId: string, status: string) => {
   [...waiters].forEach(waiter => {
     waiter.pending.delete(taskId);
     if (status !== STATUS_SUCCESS) waiter.failed = true;
+    if (status === 'failure') waiter.failedTaskIds.push(taskId);
     if (waiter.pending.size === 0) settle(waiter);
   });
   waitersByTaskId.delete(taskId);
@@ -509,6 +537,7 @@ export const waitForAsyncData = async <T = unknown[]>(
       taskIds,
       pending: new Set(taskIds),
       failed: false,
+      failedTaskIds: [],
       resolve,
       reject,
       signal,

@@ -258,7 +258,8 @@ def test_semantic_layer_implementation() -> None:
         result = layer.implementation
 
     mock_class.from_configuration.assert_called_once_with({"key": "value"})
-    assert result == mock_impl
+    result.get_semantic_views({})
+    mock_impl.get_semantic_views.assert_called_once_with({})
 
 
 # =============================================================================
@@ -419,8 +420,9 @@ def test_semantic_view_get_query_str() -> None:
 def test_semantic_view_get_extra_cache_keys() -> None:
     """Test SemanticView get_extra_cache_keys method."""
     view = SemanticView()
-    result = view.get_extra_cache_keys({})
-    assert result == []
+    with patch("superset.semantic_layers.models.get_user_id", return_value=42):
+        result = view.get_extra_cache_keys({})
+    assert result == [("semantic_layer_user", 42)]
 
 
 def test_semantic_view_perm() -> None:
@@ -1146,9 +1148,8 @@ def test_semantic_view_implementation() -> None:
 
     mock_semantic_layer = MagicMock()
     mock_semantic_view_impl = MagicMock()
-    mock_semantic_layer.implementation.get_semantic_view.return_value = (
-        mock_semantic_view_impl
-    )
+    mock_layer_impl = mock_semantic_layer.get_implementation.return_value
+    mock_layer_impl.get_semantic_view.return_value = mock_semantic_view_impl
     view.semantic_layer = mock_semantic_layer
 
     # Clear cached property if it exists
@@ -1157,7 +1158,7 @@ def test_semantic_view_implementation() -> None:
 
     result = view.implementation
 
-    mock_semantic_layer.implementation.get_semantic_view.assert_called_once_with(
+    mock_layer_impl.get_semantic_view.assert_called_once_with(
         "Test View",
         {"key": "value"},
     )
@@ -2402,3 +2403,20 @@ def test_values_for_column_search_rejection_falls_back_unfiltered(
     assert mock_implementation.get_values.call_args.args[1] is None
     assert "rejected the value-search filter" in caplog.text
     assert "category" in caplog.text
+
+
+def test_personal_results_have_distinct_query_cache_keys() -> None:
+    """Two users cannot reuse each other's provider data or shared query task."""
+    from superset.common.query_object import QueryObject
+
+    view = SemanticView(id=1)
+    view.__dict__["implementation"] = MagicMock()
+    view.implementation.uid.return_value = "semantic-view-1"
+    query = QueryObject(datasource=view, columns=["country"])
+    with patch("superset.semantic_layers.models.get_user_id", return_value=42):
+        first = query.cache_key(extra_cache_keys=view.get_extra_cache_keys({}))
+        repeated = query.cache_key(extra_cache_keys=view.get_extra_cache_keys({}))
+    with patch("superset.semantic_layers.models.get_user_id", return_value=43):
+        second = query.cache_key(extra_cache_keys=view.get_extra_cache_keys({}))
+    assert first == repeated
+    assert first != second
