@@ -104,6 +104,31 @@ services:
         condition: service_completed_successfully
     volumes: *superset-volumes
 
+  # MCP service: lets AI agents (e.g. Claude) work with charts, dashboards and
+  # datasets. It acts as MCP_DEV_USERNAME (see docker/pythonpath_dev), so the port
+  # is only published on localhost.
+  superset-mcp:
+    env_file:
+      - path: docker/.env # default
+        required: true
+      - path: docker/.env-local # optional override
+        required: false
+    build:
+      <<: *common-build
+    command: ["/app/docker/docker-bootstrap.sh", "mcp"]
+    restart: unless-stopped
+    environment:
+      MCP_PORT: 5008
+    ports:
+      - "127.0.0.1:${MCP_PORT:-5008}:5008"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    user: *superset-user
+    depends_on:
+      superset-init:
+        condition: service_completed_successfully
+    volumes: *superset-volumes
+
   superset-websocket:
     build: ./superset-websocket
     ports:

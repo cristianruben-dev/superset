@@ -114,6 +114,10 @@ WEBDRIVER_BASEURL_USER_FRIENDLY = (
 )
 SQLLAB_CTAS_NO_LIMIT = True
 
+# User the MCP service (superset-mcp in docker-compose.yml) acts as when an AI
+# agent connects without a JWT. Local development only.
+MCP_DEV_USERNAME = os.getenv("MCP_DEV_USERNAME", "admin")
+
 log_level_text = os.getenv("SUPERSET_LOG_LEVEL", "INFO")
 LOG_LEVEL = getattr(logging, log_level_text.upper(), logging.INFO)
 
