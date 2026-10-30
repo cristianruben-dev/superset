@@ -60,6 +60,7 @@ import {
   DeletableReport,
 } from 'src/features/reports/ReportModal/actions';
 import { PageHeaderWithActions } from '@superset-ui/core/components/PageHeaderWithActions';
+import { DashboardWorkspaceChip } from 'src/mibi/workspaces/DashboardWorkspaceChip';
 import { useUnsavedChangesPrompt } from 'src/hooks/useUnsavedChangesPrompt';
 import DashboardEmbedModal from '../EmbeddedModal';
 import OverwriteConfirm from '../OverwriteConfirm';
@@ -650,6 +651,12 @@ const Header = (): JSX.Element => {
         />
       ),
       !editMode && !isEmbedded && metadataBar,
+      !editMode && !isEmbedded && dashboardInfo.id && (
+        <DashboardWorkspaceChip
+          key="workspace-chip"
+          dashboardId={dashboardInfo.id}
+        />
+      ),
     ],
     [
       boundActionCreators.savePublished,

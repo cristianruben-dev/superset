@@ -16815,3 +16815,162 @@ msgstr "Vista de lista"
 
 msgid "Select schema"
 msgstr "Elige un esquema"
+
+msgid "%s was removed from the workspace"
+msgstr "%s se ha quitado del área de trabajo"
+
+msgid "Add dashboards to %s"
+msgstr "Añadir paneles de control a %s"
+
+msgid "Add dashboards"
+msgstr "Añadir paneles"
+
+msgid "Already here"
+msgstr "Ya está aquí"
+
+msgid "Already in this workspace"
+msgstr "Ya está en esta área de trabajo"
+
+msgid "Back to workspaces"
+msgstr "Volver a las áreas de trabajo"
+
+msgid "Breadcrumb"
+msgstr "Ruta de navegación"
+
+msgid "Change"
+msgstr "Cambiar"
+
+msgid "Create a dashboard here or bring existing ones."
+msgstr "Crea un panel de control aquí o trae otros que ya tengas."
+
+msgid "Create your first workspace"
+msgstr "Crea tu primera área de trabajo"
+
+msgid "Created by %s"
+msgstr "Creada por %s"
+
+msgid "Delete workspace"
+msgstr "Eliminar área de trabajo"
+
+msgid "Delete workspace?"
+msgstr "¿Eliminar el área de trabajo?"
+
+msgid "Drag an image here, or upload one. PNG, JPEG or WebP up to 2 MB."
+msgstr "Arrastra una imagen aquí o súbela. PNG, JPEG o WebP de hasta 2 MB."
+
+msgid "E.g. Sales, Finance, Operations"
+msgstr "Por ejemplo: Ventas, Finanzas, Operaciones"
+
+msgid "Edit workspace"
+msgstr "Editar área de trabajo"
+
+msgid "For a team, an area or a project"
+msgstr "Para un equipo, un área o un proyecto"
+
+msgid "Group your dashboards by team, area or project."
+msgstr "Organiza tus paneles de control por equipo, área o proyecto."
+
+msgid "Its dashboards will show up here."
+msgstr "Sus paneles de control aparecerán aquí."
+
+msgid "More options"
+msgstr "Más opciones"
+
+msgid "Moves from %s"
+msgstr "Se moverá desde %s"
+
+msgid "New workspace"
+msgstr "Nueva área de trabajo"
+
+msgid "No dashboards found"
+msgstr "No se han encontrado paneles de control"
+
+msgid "No description"
+msgstr "Sin descripción"
+
+msgid "Remove from workspace"
+msgstr "Quitar del área de trabajo"
+
+msgid "Remove picture"
+msgstr "Quitar foto"
+
+msgid "Search dashboards"
+msgstr "Buscar paneles de control"
+
+msgid "Search workspaces"
+msgstr "Buscar áreas de trabajo"
+
+msgid "The dashboard could not be created"
+msgstr "No se ha podido crear el panel de control"
+
+msgid "The dashboard could not be removed"
+msgstr "No se ha podido quitar el panel de control"
+
+msgid "The dashboards could not be added"
+msgstr "No se han podido añadir los paneles de control"
+
+msgid "The image is larger than 2 MB"
+msgstr "La imagen ocupa más de 2 MB"
+
+msgid "The workspace could not be deleted"
+msgstr "No se ha podido eliminar el área de trabajo"
+
+msgid "The workspace could not be saved"
+msgstr "No se ha podido guardar el área de trabajo"
+
+msgid "This workspace does not exist"
+msgstr "Esta área de trabajo no existe"
+
+msgid "This workspace has no dashboards yet"
+msgstr "Esta área de trabajo aún no tiene paneles de control"
+
+msgid "Use a PNG, JPEG, GIF or WebP image"
+msgstr "Usa una imagen PNG, JPEG, GIF o WebP"
+
+msgid "What is this workspace for?"
+msgstr "¿Para qué es esta área de trabajo?"
+
+msgid "Workspace created"
+msgstr "Área de trabajo creada"
+
+msgid "Workspace deleted"
+msgstr "Área de trabajo eliminada"
+
+msgid "Workspace picture"
+msgstr "Foto del área de trabajo"
+
+msgid "Workspace updated"
+msgstr "Área de trabajo actualizada"
+
+msgid "Workspace"
+msgstr "Área de trabajo"
+
+msgid "Workspaces"
+msgstr "Áreas de trabajo"
+
+msgid "Updated %s"
+msgstr "Actualizada %s"
+
+msgid "A workspace keeps the dashboards of a team or project together, with its own name, picture and description."
+msgstr "Un área de trabajo reúne los paneles de control de un equipo o proyecto, con su propio nombre, foto y descripción."
+
+msgid "The workspace %s will be deleted. Its dashboards are kept and stay available in the dashboard list."
+msgstr "Se eliminará el área de trabajo %s. Sus paneles de control se conservan y siguen disponibles en la lista de paneles."
+
+#, python-format
+msgid "%s dashboard"
+msgid_plural "%s dashboards"
+msgstr[0] "%s panel"
+msgstr[1] "%s paneles"
+
+#, python-format
+msgid "Add %s dashboard"
+msgid_plural "Add %s dashboards"
+msgstr[0] "Añadir %s panel"
+msgstr[1] "Añadir %s paneles"
+
+#, python-format
+msgid "%s dashboard added to %s"
+msgid_plural "%s dashboards added to %s"
+msgstr[0] "%s panel añadido a %s"
+msgstr[1] "%s paneles añadidos a %s"

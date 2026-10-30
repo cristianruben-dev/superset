@@ -64,6 +64,7 @@ test('groups the menu into primary, SQL, admin and extra sections', () => {
   ]);
   expect(sections[0].items.map(item => item.key)).toEqual([
     'Home',
+    'Workspaces',
     'Dashboards',
     'Datasets',
     'Databases',
@@ -101,11 +102,21 @@ test('drops sections the user cannot access', () => {
 
 test('matches the current location to a navigation item', () => {
   const [main, sql] = buildNavSections(menu);
-  const [home, dashboards] = main.items;
+  const [home, workspaces, dashboards] = main.items;
 
   expect(isNavItemActive(home, '/superset/welcome/')).toBe(true);
   expect(isNavItemActive(home, '/dashboard/list/')).toBe(false);
   expect(isNavItemActive(dashboards, '/dashboard/list/')).toBe(true);
+  expect(isNavItemActive(workspaces, '/workspace/list/')).toBe(true);
+  expect(isNavItemActive(workspaces, '/workspace/3/')).toBe(true);
   expect(isNavItemActive(dashboards, '/superset/dashboard/1/')).toBe(false);
   expect(isNavItemActive(sql.items[1], '/sqllab/history/')).toBe(true);
+});
+
+test('shows workspaces only to users who can see dashboards', () => {
+  const [main] = buildNavSections([
+    { name: 'Datasets', label: 'Datasets', url: '/tablemodelview/list/' },
+  ]);
+
+  expect(main.items.map(item => item.key)).toEqual(['Home', 'Datasets']);
 });

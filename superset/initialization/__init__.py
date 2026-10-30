@@ -175,6 +175,7 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
         from superset.extensions.view import ExtensionsView
         from superset.importexport.api import ImportExportRestApi
         from superset.mibi.api import MibiRestApi
+        from superset.mibi.workspaces import WorkspaceRestApi, WorkspaceView
         from superset.queries.api import QueryRestApi
         from superset.queries.saved_queries.api import SavedQueryRestApi
         from superset.reports.api import ReportScheduleRestApi
@@ -255,6 +256,7 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
         appbuilder.add_api(DashboardPermalinkRestApi)
         appbuilder.add_api(DashboardRestApi)
         appbuilder.add_api(MibiRestApi)
+        appbuilder.add_api(WorkspaceRestApi)
         appbuilder.add_api(DatabaseRestApi)
         appbuilder.add_api(DatasetRestApi)
         appbuilder.add_api(DatasetColumnsRestApi)
@@ -439,6 +441,7 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
         #
         appbuilder.add_view_no_menu(Api)
         appbuilder.add_view_no_menu(Dashboard)
+        appbuilder.add_view_no_menu(WorkspaceView)
         appbuilder.add_view_no_menu(Datasource)
         appbuilder.add_view_no_menu(DatasetEditor)
         appbuilder.add_view_no_menu(EmbeddedView)

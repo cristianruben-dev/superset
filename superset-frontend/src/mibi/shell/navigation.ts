@@ -58,6 +58,7 @@ export interface NavSection {
 }
 
 const HOME_URL = '/superset/welcome/';
+const WORKSPACES_URL = '/workspace/list/';
 
 const ICONS: Record<string, NavIconName> = {
   Dashboards: 'DashboardOutlined',
@@ -135,6 +136,17 @@ export function buildNavSections(menu: MenuObjectProps[]): NavSection[] {
       key: 'main',
       items: [
         { key: 'Home', label: t('Home'), url: HOME_URL, icon: 'HomeOutlined' },
+        // Workspaces hold dashboards, so they follow the dashboard permission
+        ...(byName.has('Dashboards')
+          ? [
+              {
+                key: 'Workspaces',
+                label: t('Workspaces'),
+                url: WORKSPACES_URL,
+                icon: 'AppstoreOutlined' as NavIconName,
+              },
+            ]
+          : []),
         ...pick(PRIMARY),
       ],
     },

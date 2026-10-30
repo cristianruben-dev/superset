@@ -69,6 +69,20 @@ const ThemeList = lazy(
   () => import(/* webpackChunkName: "ThemeList" */ 'src/pages/ThemeList'),
 );
 
+const WorkspaceList = lazy(
+  () =>
+    import(
+      /* webpackChunkName: "WorkspaceList" */ 'src/mibi/workspaces/WorkspaceListPage'
+    ),
+);
+
+const WorkspacePage = lazy(
+  () =>
+    import(
+      /* webpackChunkName: "WorkspacePage" */ 'src/mibi/workspaces/WorkspacePage'
+    ),
+);
+
 const DashboardList = lazy(
   () =>
     import(/* webpackChunkName: "DashboardList" */ 'src/pages/DashboardList'),
@@ -222,6 +236,14 @@ export const routes: Routes = [
   {
     path: '/superset/file-handler',
     Component: FileHandler,
+  },
+  {
+    path: '/workspace/list/',
+    Component: WorkspaceList,
+  },
+  {
+    path: '/workspace/:workspaceId/',
+    Component: WorkspacePage,
   },
   {
     path: '/dashboard/list/',

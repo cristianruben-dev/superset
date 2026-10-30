@@ -19,7 +19,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import rison from 'rison';
-import { t } from '@apache-superset/core/translation';
+import { t, tn } from '@apache-superset/core/translation';
 import { css, styled } from '@apache-superset/core/theme';
 import { SupersetClient } from '@superset-ui/core';
 import { FaveStar, Skeleton } from '@superset-ui/core/components';
@@ -27,7 +27,14 @@ import { Icons } from '@superset-ui/core/components/Icons';
 import { useToasts } from 'src/components/MessageToasts/withToasts';
 import getBootstrapData from 'src/utils/getBootstrapData';
 import { useFavoriteStatus } from 'src/views/CRUD/hooks';
+import { relativeTime } from '../time';
 import { DashboardCard, useDashboardPreviews } from '../dashboards';
+import {
+  fetchWorkspaces,
+  WorkspaceAvatar,
+  workspaceUrl,
+  type Workspace,
+} from '../workspaces';
 
 export interface DashboardCardData {
   id: number;
@@ -272,6 +279,54 @@ const RecentList = styled.div`
   `}
 `;
 
+const WorkspaceStrip = styled.div`
+  ${({ theme }) => css`
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: ${theme.sizeUnit * 3}px;
+
+    a {
+      display: flex;
+      align-items: center;
+      gap: ${theme.sizeUnit * 3}px;
+      padding: ${theme.sizeUnit * 3}px;
+      border-radius: ${theme.borderRadiusLG}px;
+      border: 1px solid ${theme.colorBorderSecondary};
+      background: ${theme.colorBgContainer};
+      color: ${theme.colorText};
+      transition:
+        border-color ${theme.motionDurationMid},
+        box-shadow ${theme.motionDurationMid},
+        transform ${theme.motionDurationMid};
+
+      &:hover {
+        text-decoration: none;
+        border-color: ${theme.colorPrimaryBorder};
+        box-shadow: ${theme.boxShadowTertiary};
+        transform: translateY(-1px);
+      }
+    }
+
+    .text {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .name {
+      font-weight: ${theme.fontWeightStrong};
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .count {
+      font-size: ${theme.fontSizeSM}px;
+      color: ${theme.colorTextTertiary};
+    }
+  `}
+`;
+
 const EmptyCard = styled.div`
   ${({ theme }) => css`
     grid-column: 1 / -1;
@@ -295,24 +350,7 @@ const EmptyCard = styled.div`
 
 const locale = () => getBootstrapData().common?.locale || 'en';
 
-/** "hace 5 minutos" style text for an epoch in milliseconds. */
-export function relativeTime(epochMs: number, now = Date.now()): string {
-  const seconds = Math.round((epochMs - now) / 1000);
-  const units: [Intl.RelativeTimeFormatUnit, number][] = [
-    ['year', 31536000],
-    ['month', 2592000],
-    ['week', 604800],
-    ['day', 86400],
-    ['hour', 3600],
-    ['minute', 60],
-  ];
-  const format = new Intl.RelativeTimeFormat(locale(), { numeric: 'auto' });
-  const [unit, size] = units.find(([, size]) => Math.abs(seconds) >= size) || [
-    'second',
-    1,
-  ];
-  return format.format(Math.round(seconds / size), unit);
-}
+export { relativeTime };
 
 export function greeting(hour = new Date().getHours()): string {
   if (hour < 12) {
@@ -441,6 +479,7 @@ export function HomeContent() {
     null,
   );
   const [recents, setRecents] = useState<RecentItem[]>([]);
+  const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
   const dashboardIds = useMemo(
     () => (dashboards || []).map(dashboard => dashboard.id),
     [dashboards],
@@ -452,6 +491,12 @@ export function HomeContent() {
     dashboardIds,
     addDangerToast,
   );
+
+  useEffect(() => {
+    fetchWorkspaces()
+      .then(setWorkspaces)
+      .catch(() => setWorkspaces([]));
+  }, []);
 
   useEffect(() => {
     fetchRecents()
@@ -491,6 +536,35 @@ export function HomeContent() {
               </Link>
             ))}
           </RecentList>
+        </Section>
+      )}
+      {workspaces.length > 0 && (
+        <Section>
+          <SectionHeader>
+            <h2>{t('Workspaces')}</h2>
+            <Link className="see-all" to="/workspace/list/">
+              {t('See all')}
+              <Icons.ArrowRightOutlined iconSize="s" />
+            </Link>
+          </SectionHeader>
+          <WorkspaceStrip>
+            {workspaces.slice(0, 8).map(workspace => (
+              <Link key={workspace.id} to={workspaceUrl(workspace.id)}>
+                <WorkspaceAvatar workspace={workspace} size="m" />
+                <span className="text">
+                  <span className="name">{workspace.name}</span>
+                  <span className="count">
+                    {tn(
+                      '%s dashboard',
+                      '%s dashboards',
+                      workspace.dashboard_count,
+                      workspace.dashboard_count,
+                    )}
+                  </span>
+                </span>
+              </Link>
+            ))}
+          </WorkspaceStrip>
         </Section>
       )}
       <Section>
