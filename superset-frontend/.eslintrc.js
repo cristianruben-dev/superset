@@ -84,7 +84,6 @@ module.exports = {
     'eslint:recommended',
     'plugin:import/recommended',
     'plugin:react-prefer-function-component/recommended',
-    'plugin:storybook/recommended',
     'prettier',
   ],
   parser: '@babel/eslint-parser',
@@ -215,9 +214,6 @@ module.exports = {
     'react-you-might-not-need-an-effect/no-chain-state-updates': 'error',
     'react-you-might-not-need-an-effect/no-event-handler': 'error',
     'react-you-might-not-need-an-effect/no-derived-state': 'error',
-
-    // Storybook
-    'storybook/prefer-pascal-case': 'error',
 
     // File progress
     'file-progress/activate': 1,

@@ -221,8 +221,6 @@ if (!isDevMode) {
 // SWC handles transpilation; this plugin handles type checking separately.
 // build: true enables project references so .d.ts files are auto-generated.
 // mode: 'write-references' writes .d.ts output (no manual `npm run plugins:build` needed).
-// Story files are excluded because they import @storybook-shared which resolves
-// outside plugin rootDir ("src"), causing errors in --build mode.
 if (isDevMode) {
   plugins.push(
     new ForkTsCheckerWebpackPlugin({
@@ -236,12 +234,7 @@ if (isDevMode) {
             skipLibCheck: true,
             incremental: true,
           },
-          exclude: [
-            'src/**/*.js',
-            'src/**/*.jsx',
-            '**/*.test.*',
-            '**/*.stories.*',
-          ],
+          exclude: ['src/**/*.js', 'src/**/*.jsx', '**/*.test.*'],
         },
       },
     }),
@@ -451,7 +444,6 @@ const config = {
       path.resolve(APP_DIR, 'plugins'),
     ],
     alias: {
-      '@storybook-shared': path.resolve(APP_DIR, '.storybook/shared'),
       react: path.resolve(path.join(APP_DIR, './node_modules/react')),
       // TODO: remove Handlebars alias once Handlebars NPM package has been updated to
       // correctly support webpack import (https://github.com/handlebars-lang/handlebars.js/issues/953)
@@ -505,8 +497,8 @@ const config = {
         // include source code for plugins, but exclude node_modules and test files within them
         exclude: [/superset-ui.*\/node_modules\//, /\.test.jsx?$/],
         include: [
-          new RegExp(`${APP_DIR}/(src|.storybook|plugins|packages)`),
-          ...['./src', './.storybook', './plugins', './packages'].map(p =>
+          new RegExp(`${APP_DIR}/(src|plugins|packages)`),
+          ...['./src', './plugins', './packages'].map(p =>
             path.resolve(__dirname, p),
           ), // redundant but required for windows
           /@encodable/,
@@ -590,20 +582,6 @@ const config = {
         test: /\.geojson$/,
         type: 'asset/resource',
       },
-      // {
-      //   test: /\.mdx?$/,
-      //   use: [
-      //     {
-      //       loader: require.resolve('@storybook/mdx2-csf/loader'),
-      //       options: {
-      //         skipCsf: false,
-      //         mdxCompileOptions: {
-      //           remarkPlugins: [remarkGfm],
-      //         },
-      //       },
-      //     },
-      //   ],
-      // },
     ],
   },
   externals: {

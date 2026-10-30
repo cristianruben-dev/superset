@@ -19,7 +19,16 @@
 import { fireEvent, render } from '@superset-ui/core/spec';
 
 import { Label } from '.';
-import { LabelGallery, options } from './Label.stories';
+import type { LabelType } from './types';
+
+const labelTypes: LabelType[] = [
+  'default',
+  'info',
+  'success',
+  'warning',
+  'error',
+  'primary',
+];
 
 // test the basic component
 test('renders the base component (no onClick)', () => {
@@ -39,13 +48,7 @@ test('renders with monospace prop', () => {
   expect(getByText('monospace text')).toBeInTheDocument();
 });
 
-// test stories from the storybook!
-test('renders all the storybook gallery variants', () => {
-  // @ts-expect-error: Suppress TypeScript error for LabelGallery usage
-  const { container } = render(<LabelGallery />);
-  const nonInteractiveLabelCount = 4;
-  const renderedLabelCount = options.length * 2 + nonInteractiveLabelCount;
-  expect(container.querySelectorAll('.ant-tag')).toHaveLength(
-    renderedLabelCount,
-  );
+test.each(labelTypes)('renders the %s label type', type => {
+  const { getByText } = render(<Label type={type}>{type}</Label>);
+  expect(getByText(type).closest('.ant-tag')).toBeInTheDocument();
 });

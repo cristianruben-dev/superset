@@ -18,11 +18,7 @@
  */
 import { fireEvent, render } from '@superset-ui/core/spec';
 import { Button } from '.';
-import {
-  ButtonGallery,
-  SIZES as buttonSizes,
-  STYLES as buttonStyles,
-} from './Button.stories';
+import type { ButtonSize, ButtonStyle } from './types';
 import {
   getSecondaryButtonStyle,
   getSecondaryButtonHoverStyles,
@@ -43,14 +39,34 @@ test('does not handle onClicks when disabled', () => {
   expect(mockAction).toHaveBeenCalledTimes(0);
 });
 
-// test stories from the storybook!
-test('All the sorybook gallery variants mount', () => {
-  const { getAllByRole } = render(<ButtonGallery />);
-  const permutationCount =
-    Object.values(buttonStyles.options).filter(o => o).length *
-    Object.values(buttonSizes.options).length;
+const buttonStyles: ButtonStyle[] = [
+  'primary',
+  'secondary',
+  'dashed',
+  'danger',
+  'link',
+];
+const buttonSizes: ButtonSize[] = ['xsmall', 'small', 'default'];
 
-  expect(getAllByRole('button')).toHaveLength(permutationCount);
+test('every style and size combination mounts', () => {
+  const { getAllByRole } = render(
+    <>
+      {buttonSizes.flatMap(size =>
+        buttonStyles.map(style => (
+          <Button
+            key={`${style}_${size}`}
+            buttonStyle={style}
+            buttonSize={size}
+          >
+            {style}
+          </Button>
+        )),
+      )}
+    </>,
+  );
+  expect(getAllByRole('button')).toHaveLength(
+    buttonStyles.length * buttonSizes.length,
+  );
 });
 
 test('secondary button renders without errors', () => {

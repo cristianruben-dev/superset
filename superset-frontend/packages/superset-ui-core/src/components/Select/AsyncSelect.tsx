@@ -104,8 +104,7 @@ const getQueryCacheKey = (value: string, page: number, pageSize: number) =>
  * It is divided into two macro categories, Static and Async.
  * The Static type accepts a static array of options.
  * The Async type accepts a promise that will return the options.
- * Each of the categories come with different abilities. For a comprehensive guide please refer to
- * the storybook in @superset-ui/core/components/Select/Select.stories.tsx.
+ * Each of the categories come with different abilities.
  */
 const AsyncSelect = forwardRef(
   (
