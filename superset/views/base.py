@@ -291,8 +291,8 @@ def menu_data(user: User) -> dict[str, Any]:
         },
         "environment_tag": get_environment_tag(),
         "navbar_right": {
-            # show the watermark if the default app icon has been overridden
-            "show_watermark": ("superset-logo-horiz" not in appbuilder.app_icon),
+            # the "Powered by" watermark is controlled by MIBI_SHOW_POWERED_BY
+            "show_watermark": app.config.get("MIBI_SHOW_POWERED_BY", False),
             "bug_report_url": app.config["BUG_REPORT_URL"],
             "bug_report_icon": app.config["BUG_REPORT_ICON"],
             "bug_report_text": app.config["BUG_REPORT_TEXT"],

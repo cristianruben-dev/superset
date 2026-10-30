@@ -34,7 +34,9 @@ from superset.themes.types import Theme
 
 APP_NAME = "Mi BI"
 APP_ICON = "/static/assets/images/mibi/logo.svg"
-FAVICONS = [{"href": "/static/assets/images/mibi/favicon.svg"}]
+FAVICONS = [{"href": "/static/assets/images/mibi/favicon.svg", "type": "image/svg+xml"}]
+# The navbar's "Powered by Apache Superset" watermark
+MIBI_SHOW_POWERED_BY = False
 
 # --- Charts -----------------------------------------------------------------
 # Every chart belongs to at most one dashboard, as in Power BI, instead of being a

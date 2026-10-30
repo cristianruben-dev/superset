@@ -16,17 +16,23 @@
   specific language governing permissions and limitations
   under the License.
 -->
-<svg viewBox='-36 -25 72 50' xmlns='http://www.w3.org/2000/svg' overflow='visible'>
+<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none">
   <defs>
-    <filter id='shadow1' x='-50%' y='-50%' width='200%' height='200%'>
-      <feDropShadow dx='1' dy='1' stdDeviation='2' flood-color='rgba(0,0,0,0.3)' />
-    </filter>
-    <path id='morphPath' d='M 0,0 C 7,16 22,8.7 22,0 22,-8.7 7,-16 0,0 -7,16 -22,8.7 -22,-0 -22,-8.7 -7,-16 0,0 Z' stroke-width='7' fill='transparent' filter='url(#shadow1)'>
-      <animate attributeName='d' dur='8s' repeatCount='indefinite' values='M 0,0 C 7,16 22,8.7 22,0 22,-8.7 7,-16 0,0 -7,16 -22,8.7 -22,-0 -22,-8.7 -7,-16 0,0 Z;M 0,0 C 7,16 22,8.7 22,0 22,-8.7 7,-16 0,0 -7,16 -22,8.7 -22,-0 -22,-8.7 -7,-16 0,0 Z;M 0,-16 C 8.7,-16 16,-8.7 16,0 16,8.7 8.7,16 0,16 -8.7,16 -16,8.7 -16,-0 -16,-8.7 -8.7,-16 0,-16 Z;M 0,-16 C 8.7,-16 16,-8.7 16,0 16,8.7 8.7,16 0,16 -8.7,16 -16,8.7 -16,-0 -16,-8.7 -8.7,-16 0,-16 Z;M 0,0 C 7,-16 22,-8.7 22,0 22,8.7 7,16 0,0 -7,-16 -22,-8.7 -22,0 -22,8.7 -7,16 0,0 Z;M 0,0 C 7,-16 22,-8.7 22,0 22,8.7 7,16 0,0 -7,-16 -22,-8.7 -22,0 -22,8.7 -7,16 0,0 Z;M 0,16 C 8.7,16 16,8.7 16,0 16,-8.7 8.7,-16 0,-16 -8.7,-16 -16,-8.7 -16,0 -16,8.7 -8.7,16 0,16 Z;M 0,16 C 8.7,16 16,8.7 16,0 16,-8.7 8.7,-16 0,-16 -8.7,-16 -16,-8.7 -16,0 -16,8.7 -8.7,16 0,16 Z;M 0,0 C 7,16 22,8.7 22,0 22,-8.7 7,-16 0,0 -7,16 -22,8.7 -22,-0 -22,-8.7 -7,-16 0,0 Z' keyTimes='0;0.1;0.2;0.4;0.5;0.6;0.7;0.9;1' />
-    </path>
+    <linearGradient id="mibiSpinnerGradient" x1="0" y1="0" x2="24" y2="24" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#7B7BF0" />
+      <stop offset="1" stop-color="#4B4BC4" />
+    </linearGradient>
   </defs>
-  <use href='#morphPath' stroke='rgb(80, 165, 197)' />
-  <use href='#morphPath' stroke='rgb(72, 72, 72)' stroke-dasharray='108 10'>
-    <animate attributeName='stroke-dashoffset' from='0' to='130' dur='.8s' repeatCount='indefinite' />
-  </use>
+  <rect x="3" y="4" width="4.5" height="16" rx="2.25" fill="url(#mibiSpinnerGradient)">
+    <animate attributeName="height" values="6;16;6" dur="1.1s" repeatCount="indefinite" begin="0s" calcMode="spline" keySplines="0.4 0 0.2 1;0.4 0 0.2 1" />
+    <animate attributeName="y" values="14;4;14" dur="1.1s" repeatCount="indefinite" begin="0s" calcMode="spline" keySplines="0.4 0 0.2 1;0.4 0 0.2 1" />
+  </rect>
+  <rect x="9.75" y="4" width="4.5" height="16" rx="2.25" fill="url(#mibiSpinnerGradient)">
+    <animate attributeName="height" values="6;16;6" dur="1.1s" repeatCount="indefinite" begin="0.18s" calcMode="spline" keySplines="0.4 0 0.2 1;0.4 0 0.2 1" />
+    <animate attributeName="y" values="14;4;14" dur="1.1s" repeatCount="indefinite" begin="0.18s" calcMode="spline" keySplines="0.4 0 0.2 1;0.4 0 0.2 1" />
+  </rect>
+  <rect x="16.5" y="4" width="4.5" height="16" rx="2.25" fill="url(#mibiSpinnerGradient)">
+    <animate attributeName="height" values="6;16;6" dur="1.1s" repeatCount="indefinite" begin="0.36s" calcMode="spline" keySplines="0.4 0 0.2 1;0.4 0 0.2 1" />
+    <animate attributeName="y" values="14;4;14" dur="1.1s" repeatCount="indefinite" begin="0.36s" calcMode="spline" keySplines="0.4 0 0.2 1;0.4 0 0.2 1" />
+  </rect>
 </svg>

@@ -1,12 +1,12 @@
 {
-  "name": "Apache Superset",
-  "short_name": "Superset",
-  "description": "Modern data exploration and visualization platform",
-  "start_url": "/superset/welcome/",
+  "name": "Mi BI",
+  "short_name": "Mi BI",
+  "description": "Paneles e informes de Mi BI",
+  "start_url": "/dashboard/list/",
   "scope": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#20a7c9",
+  "background_color": "#F8F8FA",
+  "theme_color": "#5B5BD6",
   "icons": [
     {
       "src": "/static/assets/images/pwa/icon-192.png",
@@ -31,22 +31,6 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
-    }
-  ],
-  "screenshots": [
-    {
-      "src": "/static/assets/images/pwa/screenshot-wide.png",
-      "sizes": "1280x720",
-      "type": "image/png",
-      "form_factor": "wide",
-      "label": "Apache Superset Dashboard"
-    },
-    {
-      "src": "/static/assets/images/pwa/screenshot-narrow.png",
-      "sizes": "540x720",
-      "type": "image/png",
-      "form_factor": "narrow",
-      "label": "Apache Superset Mobile View"
     }
   ],
   "file_handlers": [
