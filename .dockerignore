@@ -37,7 +37,6 @@
 **/node_modules/
 
 tests/
-docs/
 install/
 superset-frontend/coverage/
 superset-frontend/.temp_cache/

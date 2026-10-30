@@ -67,8 +67,7 @@ superset/
 │   └── SqlLab/                 # SQL editor
 ├── superset-frontend/packages/
 │   └── superset-ui-core/       # UI component library (USE THIS)
-├── tests/                      # Python/integration tests
-└── docs/                       # Documentation (UPDATE FOR CHANGES)
+└── tests/                      # Python/integration tests
 ```
 
 ## Code Standards
@@ -96,32 +95,7 @@ superset/
 
 ## Documentation Requirements
 
-- **docs/**: Update for any user-facing changes
 - **Docstrings**: Required for new functions/classes
-
-## Developer Portal: Storybook-to-MDX Documentation
-
-The Developer Portal auto-generates MDX documentation from Storybook stories. **Stories are the single source of truth.**
-
-### Core Philosophy
-- **Fix issues in the STORY, not the generator** - When something doesn't render correctly, update the story file first
-- **Generator should be lightweight** - It extracts and passes through data; avoid special cases
-- **Stories define everything** - Props, controls, galleries, examples all come from story metadata
-
-### Story Requirements for Docs Generation
-- Use `export default { title: '...' }` (inline), not `const meta = ...; export default meta;`
-- Name interactive stories `Interactive${ComponentName}` (e.g., `InteractiveButton`)
-- Define `args` for default prop values
-- Define `argTypes` at the story level (not meta level) with control types and descriptions
-- Use `parameters.docs.gallery` for size×style variant grids
-- Use `parameters.docs.sampleChildren` for components that need children
-- Use `parameters.docs.liveExample` for custom live code blocks
-- Use `parameters.docs.staticProps` for complex object props that can't be parsed inline
-
-### Generator Location
-- Script: `docs/scripts/generate-superset-components.mjs`
-- Wrapper: `docs/src/components/StorybookWrapper.jsx`
-- Output: `docs/developer_portal/components/`
 
 ## Architecture Patterns
 

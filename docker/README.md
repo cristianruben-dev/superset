@@ -110,10 +110,6 @@ From a subdirectory, use: `make -C $(git rev-parse --show-toplevel) up`
 While running, the container server will reload on modification of the Superset Python and JavaScript source code.
 Don't forget to reload the page to take the new frontend into account though.
 
-## Production
-
-It is possible to run Superset in non-development mode by using [`docker-compose-non-dev.yml`](../docker-compose-non-dev.yml). This file excludes the volumes needed for development.
-
 ## Resource Constraints
 
 If you are attempting to build on macOS and it exits with 137 you need to increase your Docker resources. See instructions [here](https://docs.docker.com/docker-for-mac/#advanced) (search for memory)

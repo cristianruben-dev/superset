@@ -30,54 +30,10 @@ The Superset Model Context Protocol (MCP) service provides a modular, schema-dri
 
 ## 🚀 Quickstart
 
-### Option 1: Docker Setup (Recommended) 🎯
+### Setup
 
-The fastest way to get everything running with Docker:
 
-**Prerequisites:** Docker and Docker Compose installed
-
-```bash
-# 1. Clone the repository
-git clone https://github.com/apache/superset.git
-cd superset
-
-# 2. Start Superset and MCP service with docker-compose-light
-docker-compose -f docker-compose-light.yml --profile mcp build
-docker-compose -f docker-compose-light.yml --profile mcp up -d
-
-# 3. Initialize Superset (first time only)
-docker exec -it superset-superset-light-1 superset fab create-admin \
-  --username admin \
-  --firstname Admin \
-  --lastname Admin \
-  --email admin@localhost \
-  --password admin
-
-docker exec -it superset-superset-light-1 superset db upgrade
-docker exec -it superset-superset-light-1 superset init
-```
-
-**That's it!** ✨
-- Superset frontend is running at http://localhost:9001 (login: admin/admin)
-- MCP service is running on port 5008
-- Now configure Claude Desktop (see Step 2 below)
-
-#### What Docker Compose does:
-- Sets up PostgreSQL database
-- Builds and runs Superset containers
-- Starts the MCP service (with `--profile mcp`)
-- Handles all networking and dependencies
-- Provides hot-reload for development
-
-#### Customizing ports:
-```bash
-# Use different ports if defaults are in use
-NODE_PORT=9002 MCP_PORT=5009 docker-compose -f docker-compose-light.yml --profile mcp up -d
-```
-
-### Option 2: Manual Setup
-
-If Docker is not available, you can set up manually:
+Set up Superset with the MCP dependencies:
 
 ```bash
 # 1. Clone the repository

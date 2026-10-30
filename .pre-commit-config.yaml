@@ -54,7 +54,7 @@ repos:
       - id: check-yaml
       - id: debug-statements
       - id: end-of-file-fixer
-        exclude: .*/lerna\.json$|^docs/static/img/logos/
+        exclude: .*/lerna\.json$
       - id: trailing-whitespace
         exclude: ^.*\.(snap)
         args: ["--markdown-linebreak-ext=md"]
@@ -80,12 +80,6 @@ repos:
         language: system
         pass_filenames: true
         files: ^superset-frontend/.*\.(js|jsx|ts|tsx)$
-      - id: eslint-docs
-        name: eslint (docs)
-        entry: bash -c 'cd docs && FILES=$(printf "%s\n" "$@" | sed "s|^docs/||" | tr "\n" " ") && yarn eslint --fix --quiet $FILES'
-        language: system
-        pass_filenames: true
-        files: ^docs/.*\.(js|jsx|ts|tsx)$
       - id: type-checking-frontend
         name: Type-Checking (Frontend)
         entry: ./scripts/check-type.js package=superset-frontend
@@ -140,12 +134,4 @@ repos:
         language: system
         files: ^superset/db_engine_specs/.*\.py$
         exclude: ^superset/db_engine_specs/(base|lib|lint_metadata|__init__)\.py$
-        pass_filenames: false
-  - repo: local
-    hooks:
-      - id: feature-flags-sync
-        name: feature flags documentation sync
-        entry: bash -c 'python scripts/extract_feature_flags.py > docs/static/feature-flags.json.tmp && if ! diff -q docs/static/feature-flags.json docs/static/feature-flags.json.tmp > /dev/null 2>&1; then mv docs/static/feature-flags.json.tmp docs/static/feature-flags.json && echo "Updated docs/static/feature-flags.json" && exit 1; else rm docs/static/feature-flags.json.tmp; fi'
-        language: system
-        files: ^superset/config\.py$
         pass_filenames: false
