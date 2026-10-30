@@ -24,20 +24,8 @@ import { FixedSizeList as List } from 'react-window';
 import { createFilter } from 'react-search-input';
 import { t } from '@apache-superset/core/translation';
 import { styled, css } from '@apache-superset/core/theme';
-import {
-  Button,
-  Checkbox,
-  InfoTooltip,
-  Input,
-  Loading,
-  Select,
-} from '@superset-ui/core/components';
+import { Button, Input, Loading, Select } from '@superset-ui/core/components';
 import { Icons } from '@superset-ui/core/components/Icons';
-import {
-  LocalStorageKeys,
-  getItem,
-  setItem,
-} from 'src/utils/localStorageHelpers';
 import {
   CHART_TYPE,
   NEW_COMPONENT_SOURCE_TYPE,
@@ -62,6 +50,7 @@ export type SliceAdderProps = {
     userId?: number,
     filter_value?: string,
     sortColumn?: string,
+    dashboardId?: number,
   ) => Promise<void>;
   updateSlices: (slices: {
     [id: number]: Slice;
@@ -81,7 +70,6 @@ type SliceAdderState = {
   searchTerm: string;
   sortBy: keyof Slice;
   selectedSliceIdsSet: Set<number>;
-  showOnlyMyCharts: boolean;
 };
 
 const KEYS_TO_FILTERS = ['slice_name', 'viz_type', 'datasource_name'];
@@ -111,6 +99,13 @@ const Controls = styled.div`
 const StyledSelect = styled(Select)<{ id?: string }>`
   margin-left: ${({ theme }) => theme.sizeUnit * 2}px;
   min-width: 150px;
+`;
+
+const EmptyMessage = styled.div`
+  ${({ theme }) => css`
+    padding: 0 ${theme.sizeUnit * 3}px;
+    color: ${theme.colorTextSecondary};
+  `}
 `;
 
 const NewChartButtonContainer = styled.div`
@@ -160,19 +155,17 @@ function getFilteredSortedSlices(
   slices: SliceAdderProps['slices'],
   searchTerm: string,
   sortBy: keyof Slice,
-  showOnlyMyCharts: boolean,
-  userId: number,
 ) {
   return Object.values(slices)
-    .filter(slice =>
-      showOnlyMyCharts
-        ? slice?.owners?.find(owner => owner.id === userId) ||
-          slice?.created_by?.id === userId
-        : true,
-    )
     .filter(createFilter(searchTerm, KEYS_TO_FILTERS))
     .sort(sortByComparator(sortBy));
 }
+
+/**
+ * Charts belong to a single dashboard (Mi BI), so the editor only lists the charts
+ * of this dashboard, e.g. the ones created from it that are not placed in the
+ * layout yet. Charts of other dashboards can't be added.
+ */
 class SliceAdder extends Component<SliceAdderProps, SliceAdderState> {
   private slicesRequest?: AbortController | Promise<void>;
 
@@ -189,28 +182,31 @@ class SliceAdder extends Component<SliceAdderProps, SliceAdderState> {
       searchTerm: '',
       sortBy: DEFAULT_SORT_KEY,
       selectedSliceIdsSet: new Set(props.selectedSliceIds),
-      showOnlyMyCharts: getItem(
-        LocalStorageKeys.DashboardEditorShowOnlyMyCharts,
-        true,
-      ),
     };
     this.rowRenderer = this.rowRenderer.bind(this);
     this.searchUpdated = this.searchUpdated.bind(this);
     this.handleSelect = this.handleSelect.bind(this);
-    this.userIdForFetch = this.userIdForFetch.bind(this);
-    this.onShowOnlyMyCharts = this.onShowOnlyMyCharts.bind(this);
+    this.fetchDashboardSlices = this.fetchDashboardSlices.bind(this);
+    this.onWindowFocus = this.onWindowFocus.bind(this);
   }
 
-  userIdForFetch() {
-    return this.state.showOnlyMyCharts ? this.props.userId : undefined;
+  fetchDashboardSlices(searchTerm: string, sortBy: keyof Slice) {
+    this.slicesRequest = this.props.fetchSlices(
+      undefined,
+      searchTerm,
+      sortBy,
+      this.props.dashboardId,
+    );
+  }
+
+  // "Create new chart" opens Explore in another tab; refresh when coming back
+  onWindowFocus() {
+    this.fetchDashboardSlices(this.state.searchTerm, this.state.sortBy);
   }
 
   componentDidMount() {
-    this.slicesRequest = this.props.fetchSlices(
-      this.userIdForFetch(),
-      '',
-      this.state.sortBy,
-    );
+    this.fetchDashboardSlices('', this.state.sortBy);
+    window.addEventListener('focus', this.onWindowFocus);
   }
 
   componentDidUpdate(prevProps: SliceAdderProps) {
@@ -220,8 +216,6 @@ class SliceAdder extends Component<SliceAdderProps, SliceAdderState> {
         this.props.slices,
         this.state.searchTerm,
         this.state.sortBy,
-        this.state.showOnlyMyCharts,
-        this.props.userId,
       );
     }
 
@@ -235,6 +229,7 @@ class SliceAdder extends Component<SliceAdderProps, SliceAdderState> {
   }
 
   componentWillUnmount() {
+    window.removeEventListener('focus', this.onWindowFocus);
     // Clears the redux store keeping only selected items
     const selectedSlices = pickBy(this.props.slices, (value: Slice) =>
       this.state.selectedSliceIdsSet.has(value.slice_id),
@@ -248,11 +243,7 @@ class SliceAdder extends Component<SliceAdderProps, SliceAdderState> {
 
   handleChange = debounce(value => {
     this.searchUpdated(value);
-    this.slicesRequest = this.props.fetchSlices(
-      this.userIdForFetch(),
-      value,
-      this.state.sortBy,
-    );
+    this.fetchDashboardSlices(value, this.state.sortBy);
   }, 300);
 
   searchUpdated(searchTerm: string) {
@@ -262,8 +253,6 @@ class SliceAdder extends Component<SliceAdderProps, SliceAdderState> {
         this.props.slices,
         searchTerm,
         prevState.sortBy,
-        prevState.showOnlyMyCharts,
-        this.props.userId,
       ),
     }));
   }
@@ -275,15 +264,9 @@ class SliceAdder extends Component<SliceAdderProps, SliceAdderState> {
         this.props.slices,
         prevState.searchTerm,
         sortBy,
-        prevState.showOnlyMyCharts,
-        this.props.userId,
       ),
     }));
-    this.slicesRequest = this.props.fetchSlices(
-      this.userIdForFetch(),
-      this.state.searchTerm,
-      sortBy,
-    );
+    this.fetchDashboardSlices(this.state.searchTerm, sortBy);
   }
 
   rowRenderer({ index, style }: { index: number; style: React.CSSProperties }) {
@@ -334,27 +317,6 @@ class SliceAdder extends Component<SliceAdderProps, SliceAdderState> {
     );
   }
 
-  onShowOnlyMyCharts = (showOnlyMyCharts: boolean) => {
-    if (!showOnlyMyCharts) {
-      this.slicesRequest = this.props.fetchSlices(
-        undefined,
-        this.state.searchTerm,
-        this.state.sortBy,
-      );
-    }
-    this.setState(prevState => ({
-      showOnlyMyCharts,
-      filteredSlices: getFilteredSortedSlices(
-        this.props.slices,
-        prevState.searchTerm,
-        prevState.sortBy,
-        showOnlyMyCharts,
-        this.props.userId,
-      ),
-    }));
-    setItem(LocalStorageKeys.DashboardEditorShowOnlyMyCharts, showOnlyMyCharts);
-  };
-
   render() {
     const { theme } = this.props;
     return (
@@ -386,11 +348,7 @@ class SliceAdder extends Component<SliceAdderProps, SliceAdderState> {
         </NewChartButtonContainer>
         <Controls>
           <Input
-            placeholder={
-              this.state.showOnlyMyCharts
-                ? t('Filter your charts')
-                : t('Filter charts')
-            }
+            placeholder={t('Filter charts')}
             className="search-input"
             onChange={ev => this.handleChange(ev.target.value)}
             data-test="dashboard-charts-filter-search-input"
@@ -406,31 +364,16 @@ class SliceAdder extends Component<SliceAdderProps, SliceAdderState> {
             placeholder={t('Sort by')}
           />
         </Controls>
-        <div
-          css={theme => css`
-            display: flex;
-            flex-direction: row;
-            justify-content: flex-start;
-            align-items: center;
-            gap: ${theme.sizeUnit}px;
-            padding: 0 ${theme.sizeUnit * 3}px ${theme.sizeUnit * 4}px
-              ${theme.sizeUnit * 3}px;
-          `}
-        >
-          <Checkbox
-            onChange={e => this.onShowOnlyMyCharts(e.target.checked)}
-            checked={this.state.showOnlyMyCharts}
-          />
-          {t('Show only my charts')}
-          <InfoTooltip
-            placement="top"
-            tooltip={t(
-              `You can choose to display all charts that you have access to or only the ones you own.
-              Your filter selection will be saved and remain active until you choose to change it.`,
-            )}
-          />
-        </div>
         {this.props.isLoading && <Loading />}
+        {!this.props.isLoading &&
+          !this.props.errorMessage &&
+          this.state.filteredSlices.length === 0 && (
+            <EmptyMessage data-test="slice-adder-empty">
+              {t(
+                'Charts you create for this dashboard appear here, ready to drag into the layout.',
+              )}
+            </EmptyMessage>
+          )}
         {!this.props.isLoading && this.state.filteredSlices.length > 0 && (
           <ChartList>
             <AutoSizer>

@@ -218,15 +218,20 @@ const RightMenu = ({
       perm: 'can_sqllab',
       view: 'Superset',
     },
-    {
-      label: t('Chart'),
-      url: Number.isInteger(dashboardId)
-        ? `/chart/add?dashboard_id=${dashboardId}`
-        : '/chart/add',
-      icon: <Icons.BarChartOutlined data-test={`menu-item-${t('Chart')}`} />,
-      perm: 'can_write',
-      view: 'Chart',
-    },
+    // Charts belong to a single dashboard (Mi BI): only offered inside one
+    ...(Number.isInteger(dashboardId)
+      ? [
+          {
+            label: t('Chart'),
+            url: `/chart/add?dashboard_id=${dashboardId}`,
+            icon: (
+              <Icons.BarChartOutlined data-test={`menu-item-${t('Chart')}`} />
+            ),
+            perm: 'can_write',
+            view: 'Chart',
+          },
+        ]
+      : []),
     {
       label: t('Dashboard'),
       url: '/dashboard/new',

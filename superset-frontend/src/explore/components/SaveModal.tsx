@@ -60,9 +60,6 @@ import { Dashboard } from 'src/types/Dashboard';
 import { TabNode, TabTreeNode } from '../types';
 import { CHART_WIDTH, CHART_HEIGHT } from 'src/dashboard/constants';
 
-// Session storage key for recent dashboard
-const SK_DASHBOARD_ID = 'save_chart_recent_dashboard';
-
 interface SaveModalProps extends RouteComponentProps {
   addDangerToast: (msg: string) => void;
   actions: Record<string, any>;
@@ -85,6 +82,8 @@ type SaveModalState = {
   isLoading: boolean;
   saveStatus?: string | null;
   dashboard?: { label: string; value: string | number };
+  // the chart already belongs to (or is created from) this dashboard
+  isDashboardLocked: boolean;
   selectedTab?: { label: string; value: string | number };
   tabsData: TabTreeNode[];
 };
@@ -106,6 +105,7 @@ class SaveModal extends Component<SaveModalProps, SaveModalState> {
         : ChartStatusType.saveas,
       isLoading: false,
       dashboard: undefined,
+      isDashboardLocked: false,
       tabsData: [],
       selectedTab: undefined,
     };
@@ -129,16 +129,23 @@ class SaveModal extends Component<SaveModalProps, SaveModalState> {
     );
   }
 
+  /**
+   * Charts belong to a single dashboard (Mi BI): a saved chart stays in its
+   * dashboard and a new one goes to the dashboard it was created from, so the
+   * dashboard is only chosen for charts that don't have one yet.
+   */
   async componentDidMount() {
     let { dashboardId } = this.props;
-    if (!dashboardId) {
-      let lastDashboard = null;
+    if (this.props.slice?.slice_id) {
       try {
-        lastDashboard = sessionStorage.getItem(SK_DASHBOARD_ID);
+        const sliceDashboards: number[] =
+          (await this.props.actions.getSliceDashboards(this.props.slice)) ?? [];
+        if (sliceDashboards.length) {
+          [dashboardId] = sliceDashboards;
+        }
       } catch (error) {
-        // continue regardless of error
+        logging.warn(error);
       }
-      dashboardId = lastDashboard && parseInt(lastDashboard, 10);
     }
     if (dashboardId) {
       try {
@@ -146,6 +153,7 @@ class SaveModal extends Component<SaveModalProps, SaveModalState> {
         if (canUserEditDashboard(result, this.props.user)) {
           this.setState({
             dashboard: { label: result.dashboard_title, value: result.id },
+            isDashboardLocked: true,
           });
           await this.loadTabs(dashboardId);
         }
@@ -316,16 +324,6 @@ class SaveModal extends Component<SaveModalProps, SaveModalState> {
             );
           }
         }
-      }
-
-      try {
-        if (dashboard) {
-          sessionStorage.setItem(SK_DASHBOARD_ID, `${dashboard.id}`);
-        } else {
-          sessionStorage.removeItem(SK_DASHBOARD_ID);
-        }
-      } catch (error) {
-        // continue regardless of error
       }
 
       // Go to new dashboard url
@@ -655,27 +653,41 @@ class SaveModal extends Component<SaveModalProps, SaveModalState> {
             />
           </FormItem>
         )}
-        <FormItem
-          label={t('Add to dashboard')}
-          data-test="save-chart-modal-select-dashboard-form"
-        >
-          <AsyncSelect
-            allowClear
-            allowNewOptions
-            ariaLabel={t('Select a dashboard')}
-            options={this.loadDashboards}
-            onChange={this.onDashboardChange}
-            value={this.state.dashboard}
-            placeholder={
-              <div>
-                <b>{t('Select')}</b>
-                {t(' a dashboard OR ')}
-                <b>{t('create')}</b>
-                {t(' a new one')}
-              </div>
-            }
-          />
-        </FormItem>
+        {this.state.isDashboardLocked ? (
+          <FormItem
+            label={t('Dashboard')}
+            data-test="save-chart-modal-locked-dashboard"
+          >
+            <Input
+              name="dashboard"
+              type="text"
+              value={this.state.dashboard?.label}
+              disabled
+            />
+          </FormItem>
+        ) : (
+          <FormItem
+            label={t('Add to dashboard')}
+            required
+            data-test="save-chart-modal-select-dashboard-form"
+          >
+            <AsyncSelect
+              allowNewOptions
+              ariaLabel={t('Select a dashboard')}
+              options={this.loadDashboards}
+              onChange={this.onDashboardChange}
+              value={this.state.dashboard}
+              placeholder={
+                <div>
+                  <b>{t('Select')}</b>
+                  {t(' a dashboard OR ')}
+                  <b>{t('create')}</b>
+                  {t(' a new one')}
+                </div>
+              }
+            />
+          </FormItem>
+        )}
         {this.state.action === ChartStatusType.saveas && (
           <FormItem
             label={t('Add to tabs')}
@@ -762,6 +774,7 @@ class SaveModal extends Component<SaveModalProps, SaveModalState> {
         disabled={
           this.state.isLoading ||
           !this.state.newSliceName ||
+          !this.state.dashboard ||
           (this.props.datasource?.type !== DatasourceType.Table &&
             !this.state.datasetName)
         }

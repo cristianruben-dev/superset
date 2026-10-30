@@ -28,6 +28,7 @@ import { Link, withRouter, RouteComponentProps } from 'react-router-dom';
 import {
   AsyncSelect,
   Button,
+  EmptyState,
   Loading,
   Steps,
 } from '@superset-ui/core/components';
@@ -325,6 +326,24 @@ export class ChartCreation extends PureComponent<
 
     if (this.state.loading) {
       return <Loading />;
+    }
+
+    // Charts belong to a single dashboard (Mi BI), so they're created from one
+    if (!isDefined(getUrlParam(URL_PARAMS.dashboardId))) {
+      return (
+        <StyledContainer data-test="chart-creation-requires-dashboard">
+          <EmptyState
+            size="large"
+            image="chart.svg"
+            title={t('Charts are created from a dashboard')}
+            description={t(
+              'Open a dashboard, switch to edit mode and use "Create new chart". The chart will belong to that dashboard.',
+            )}
+            buttonText={t('Go to dashboards')}
+            buttonAction={() => this.props.history.push('/dashboard/list/')}
+          />
+        </StyledContainer>
+      );
     }
 
     return (

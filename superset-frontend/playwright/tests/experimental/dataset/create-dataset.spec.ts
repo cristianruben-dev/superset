@@ -20,10 +20,8 @@
 import { test, expect } from '../../../helpers/fixtures/testAssets';
 import type { TestAssets } from '../../../helpers/fixtures/testAssets';
 import type { Page, TestInfo } from '@playwright/test';
-import { ExplorePage } from '../../../pages/ExplorePage';
 import { CreateDatasetPage } from '../../../pages/CreateDatasetPage';
 import { DatasetListPage } from '../../../pages/DatasetListPage';
-import { ChartCreationPage } from '../../../pages/ChartCreationPage';
 import { ENDPOINTS } from '../../../helpers/api/dataset';
 import { waitForPost } from '../../../helpers/api/intercepts';
 import { expectStatusOneOf } from '../../../helpers/api/assertions';
@@ -129,7 +127,7 @@ async function setupGsheetsDataset(
 }
 
 test('should create a dataset via wizard', async ({ page, testAssets }) => {
-  const { sheetName, createDatasetPage } = await setupGsheetsDataset(
+  const { createDatasetPage } = await setupGsheetsDataset(
     page,
     testAssets,
     test.info(),
@@ -155,28 +153,12 @@ test('should create a dataset via wizard', async ({ page, testAssets }) => {
     testAssets.trackDataset(newDatasetId);
   }
 
-  // Verify we navigated to Chart Creation page with dataset pre-selected
+  // Charts are created from a dashboard (Mi BI): without one, Chart Creation
+  // points to the dashboards instead of opening Explore
   await page.waitForURL(/.*\/chart\/add.*/);
-  const chartCreationPage = new ChartCreationPage(page);
-  await chartCreationPage.waitForPageLoad();
-
-  // Verify the dataset is pre-selected
-  await chartCreationPage.expectDatasetSelected(sheetName);
-
-  // Select a visualization type and create chart
-  await chartCreationPage.selectVizType('Table');
-
-  // Click "Create new chart" to go to Explore
-  await chartCreationPage.clickCreateNewChart();
-
-  // Verify we navigated to Explore page
-  await page.waitForURL(/.*\/explore\/.*/);
-  const explorePage = new ExplorePage(page);
-  await explorePage.waitForPageLoad();
-
-  // Verify the dataset name is shown in Explore
-  const loadedDatasetName = await explorePage.getDatasetName();
-  expect(loadedDatasetName).toContain(sheetName);
+  await expect(
+    page.getByTestId('chart-creation-requires-dashboard'),
+  ).toBeVisible();
 });
 
 test('should create a dataset without exploring', async ({

@@ -17214,3 +17214,50 @@ msgstr "área del «zoom»"
 
 msgid "© Layer attribution"
 msgstr "© Atribución de la capa"
+
+# Mi BI: charts belong to a single dashboard (superset/mibi/single_dashboard.py)
+msgid "A chart can only belong to one dashboard."
+msgstr "Un gráfico solo puede pertenecer a un panel de control."
+
+msgid ""
+"This chart already belongs to another dashboard. Charts can't be moved or "
+"shared between dashboards."
+msgstr ""
+"Este gráfico ya pertenece a otro panel de control. Los gráficos no se "
+"pueden mover ni compartir entre paneles de control."
+
+#, python-format
+msgid ""
+"A chart can only belong to one dashboard. These charts already belong to "
+"another dashboard: %(chart_ids)s"
+msgstr ""
+"Un gráfico solo puede pertenecer a un panel de control. Estos gráficos "
+"ya pertenecen a otro panel de control: %(chart_ids)s"
+
+#, python-format
+msgid ""
+"A chart can only belong to one dashboard. Charts in more than one "
+"dashboard: %(details)s"
+msgstr ""
+"Un gráfico solo puede pertenecer a un panel de control. Gráficos en más "
+"de un panel de control: %(details)s"
+
+msgid "Charts are created from a dashboard"
+msgstr "Los gráficos se crean desde un panel de control"
+
+msgid ""
+"Open a dashboard, switch to edit mode and use \"Create new chart\". The "
+"chart will belong to that dashboard."
+msgstr ""
+"Abre un panel de control, pasa al modo de edición y usa \"Crear nuevo "
+"gráfico\". El gráfico pertenecerá a ese panel de control."
+
+msgid "Go to dashboards"
+msgstr "Ir a los paneles de control"
+
+msgid ""
+"Charts you create for this dashboard appear here, ready to drag into the "
+"layout."
+msgstr ""
+"Los gráficos que crees para este panel de control aparecen aquí, listos "
+"para arrastrarlos al diseño."

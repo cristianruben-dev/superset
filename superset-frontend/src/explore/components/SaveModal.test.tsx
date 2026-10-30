@@ -27,6 +27,7 @@ import {
   within,
 } from 'spec/helpers/testing-library';
 import fetchMock from 'fetch-mock';
+import { SupersetClient } from '@superset-ui/core';
 
 import * as saveModalActions from 'src/explore/actions/saveModalActions';
 import SaveModal, { PureSaveModal } from 'src/explore/components/SaveModal';
@@ -835,4 +836,80 @@ test('addChartToDashboardTab handles empty position_json', async () => {
     SupersetClient.put = originalPut;
     mockNanoid.mockRestore();
   }
+});
+
+const dashboardEditor = {
+  userId: 1,
+  username: 'admin',
+  isActive: true,
+  isAnonymous: false,
+  firstName: 'admin',
+  lastName: 'admin',
+  createdOn: '2021-04-27T18:12:38.952304',
+  email: 'admin',
+  permissions: {},
+  roles: { Admin: [['can_write', 'Dashboard']] },
+};
+
+test('saves a chart into its own dashboard without asking', async () => {
+  const getSpy = jest
+    .spyOn(SupersetClient, 'get')
+    .mockImplementation(({ endpoint }: { endpoint?: string }) =>
+      Promise.resolve({
+        json: endpoint?.endsWith('/tabs')
+          ? { result: { tab_tree: [] } }
+          : {
+              result: {
+                id: 55,
+                dashboard_title: 'Ventas',
+                owners: [{ id: 1 }],
+              },
+            },
+      } as any),
+    );
+  const getSliceDashboards = jest.fn(() => Promise.resolve([55]));
+
+  const { findByTestId, queryByTestId } = render(
+    <TestSaveModal
+      {...defaultProps}
+      actions={{ ...defaultProps.actions, getSliceDashboards }}
+      slice={{ slice_id: 1, slice_name: 'title', owners: [1] }}
+      sliceName="title"
+      user={dashboardEditor}
+      dashboardId={null}
+      isVisible
+      dispatch={jest.fn()}
+    />,
+    { useRouter: true, store: initialStore },
+  );
+
+  const lockedDashboard = await findByTestId(
+    'save-chart-modal-locked-dashboard',
+  );
+  expect(within(lockedDashboard).getByRole('textbox')).toHaveValue('Ventas');
+  expect(within(lockedDashboard).getByRole('textbox')).toBeDisabled();
+  expect(queryByTestId('mock-async-select')).not.toBeInTheDocument();
+  expect(getSliceDashboards).toHaveBeenCalled();
+  getSpy.mockRestore();
+});
+
+test('requires a dashboard for a chart that has none', async () => {
+  const tableStore = mockStore({
+    ...initialState,
+    explore: { ...initialState.explore, datasource: { type: 'table' } },
+  });
+  const { getByTestId } = setup(
+    { ...defaultProps, sliceName: 'title' },
+    tableStore,
+  );
+  const saveButton = within(getByTestId('save-modal-footer')).getByRole(
+    'button',
+    { name: 'Save' },
+  );
+  expect(saveButton).toBeDisabled();
+
+  fireEvent.change(getByTestId('mock-async-select'), {
+    target: { value: 'New dashboard' },
+  });
+  await waitFor(() => expect(saveButton).toBeEnabled());
 });

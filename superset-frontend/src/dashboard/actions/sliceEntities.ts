@@ -125,6 +125,7 @@ export function fetchSlices(
   userId?: number,
   filter_value?: string,
   sortColumn = 'changed_on',
+  dashboardId?: number,
 ) {
   return (dispatch: Dispatch) => {
     dispatch(fetchAllSlicesStarted());
@@ -139,6 +140,10 @@ export function fetchSlices(
 
     if (userId) {
       filters.push({ col: 'owners', opr: 'rel_m_m', value: userId });
+    }
+
+    if (dashboardId) {
+      filters.push({ col: 'dashboards', opr: 'rel_m_m', value: dashboardId });
     }
 
     return SupersetClient.get({

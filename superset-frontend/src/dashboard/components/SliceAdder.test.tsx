@@ -67,7 +67,7 @@ const defaultProps: Omit<SliceAdderProps, 'theme'> = {
   updateSlices: jest.fn(),
   selectedSliceIds: [127, 128],
   userId: 1,
-  dashboardId: 0,
+  dashboardId: 5,
   editMode: false,
   errorMessage: '',
   isLoading: false,
@@ -99,19 +99,25 @@ describe('SliceAdder', () => {
     expect(screen.getByText(errorMessage)).toBeInTheDocument();
   });
 
-  test('fetches slices on mount', () => {
+  test('fetches only the charts of this dashboard on mount', () => {
     renderSliceAdder();
-    expect(defaultProps.fetchSlices).toHaveBeenCalledWith(1, '', 'changed_on');
+    expect(defaultProps.fetchSlices).toHaveBeenCalledWith(
+      undefined,
+      '',
+      'changed_on',
+      5,
+    );
   });
 
   test('handles search input changes', async () => {
     renderSliceAdder();
-    const searchInput = screen.getByPlaceholderText('Filter your charts');
+    const searchInput = screen.getByPlaceholderText('Filter charts');
     await userEvent.type(searchInput, 'test search');
     expect(defaultProps.fetchSlices).toHaveBeenCalledWith(
-      1,
+      undefined,
       'test search',
       'changed_on',
+      5,
     );
   });
 
@@ -122,18 +128,35 @@ describe('SliceAdder', () => {
     await userEvent.click(sortSelect);
     const vizTypeOption = screen.getByText('Sort by viz type');
     await userEvent.click(vizTypeOption);
-    expect(defaultProps.fetchSlices).toHaveBeenCalledWith(1, '', 'viz_type');
+    expect(defaultProps.fetchSlices).toHaveBeenCalledWith(
+      undefined,
+      '',
+      'viz_type',
+      5,
+    );
   });
 
-  test('handles show only my charts toggle', async () => {
+  test('does not offer charts of other dashboards', () => {
     renderSliceAdder();
-    const checkbox = screen.getByRole('checkbox');
-    await userEvent.click(checkbox);
+    expect(screen.queryByRole('checkbox')).not.toBeInTheDocument();
+    expect(screen.queryByText('Show only my charts')).not.toBeInTheDocument();
+  });
+
+  test('refetches the charts when the window gets focus again', () => {
+    renderSliceAdder();
+    jest.clearAllMocks();
+    fireEvent.focus(window);
     expect(defaultProps.fetchSlices).toHaveBeenCalledWith(
       undefined,
       '',
       'changed_on',
+      5,
     );
+  });
+
+  test('explains where charts come from when the dashboard has none', () => {
+    renderSliceAdder({ ...defaultProps, slices: {}, lastUpdated: 1 });
+    expect(screen.getByTestId('slice-adder-empty')).toBeInTheDocument();
   });
 
   test('opens new chart in new tab when create new chart is clicked', () => {
@@ -142,7 +165,7 @@ describe('SliceAdder', () => {
     const createButton = screen.getByText('Create new chart');
     fireEvent.click(createButton);
     expect(windowSpy).toHaveBeenCalledWith(
-      '/chart/add?dashboard_id=0',
+      '/chart/add?dashboard_id=5',
       '_blank',
       'noopener noreferrer',
     );
@@ -233,7 +256,6 @@ describe('SliceAdder', () => {
   test('should update selectedSliceIdsSet when props change', () => {
     const { rerender } = renderSliceAdder();
     rerender(<SliceAdder {...defaultProps} selectedSliceIds={[129]} />);
-    // Verify the internal state was updated by checking if new charts are available
-    expect(screen.getByRole('checkbox')).toBeInTheDocument();
+    expect(screen.getByText('Create new chart')).toBeInTheDocument();
   });
 });

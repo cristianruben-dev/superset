@@ -396,13 +396,17 @@ test('should render the dropdown items', async () => {
   expect(
     screen.getByTestId(`menu-item-${dropdownItems[1].label}`),
   ).toBeInTheDocument();
-  expect(await screen.findByText(dropdownItems[2].label)).toHaveAttribute(
+  expect(await screen.findByText(dropdownItems[3].label)).toHaveAttribute(
     'href',
-    dropdownItems[2].url,
+    dropdownItems[3].url,
   );
   expect(
-    screen.getByTestId(`menu-item-${dropdownItems[2].label}`),
+    screen.getByTestId(`menu-item-${dropdownItems[3].label}`),
   ).toBeInTheDocument();
+  // Charts are created from a dashboard (Mi BI), so not offered outside one
+  expect(
+    screen.queryByTestId(`menu-item-${dropdownItems[2].label}`),
+  ).not.toBeInTheDocument();
 });
 
 test('should render the Settings', async () => {

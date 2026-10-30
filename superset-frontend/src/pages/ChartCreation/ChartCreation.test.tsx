@@ -88,6 +88,11 @@ const routeProps = {
   match: {} as any,
 };
 
+// Charts are created from a dashboard (Mi BI)
+beforeEach(() => {
+  window.history.replaceState({}, '', '/chart/add?dashboard_id=7');
+});
+
 async function renderComponent(user = mockUser) {
   const rendered = render(
     <ChartCreation
@@ -190,7 +195,8 @@ test('double-click viz type submits with formatted URL if datasource is selected
   expect(
     screen.getByRole('button', { name: 'Create new chart' }),
   ).toBeEnabled();
-  const formattedUrl = '/explore/?viz_type=table&datasource=table_1__table';
+  const formattedUrl =
+    '/explore/?viz_type=table&datasource=table_1__table&dashboard_id=7';
   expect(history.push).toHaveBeenCalledWith(formattedUrl);
 });
 
@@ -253,7 +259,7 @@ test('handles special characters in dataset name from URL parameter', async () =
   Object.defineProperty(window, 'location', {
     value: {
       ...originalLocation,
-      search: '?dataset=flights%C3%86%20test',
+      search: '?dataset=flights%C3%86%20test&dashboard_id=7',
     },
     writable: true,
   });
@@ -288,7 +294,7 @@ test('pre-selects the dataset from URL parameter and shows it in dropdown', asyn
 
   const originalLocation = window.location;
   Object.defineProperty(window, 'location', {
-    value: { ...originalLocation, search: '?dataset=flights' },
+    value: { ...originalLocation, search: '?dataset=flights&dashboard_id=7' },
     writable: true,
   });
 
@@ -329,7 +335,7 @@ test('shows loading spinner when dataset parameter is present in URL', async () 
 
   const originalLocation = window.location;
   Object.defineProperty(window, 'location', {
-    value: { ...originalLocation, search: '?dataset=flights' },
+    value: { ...originalLocation, search: '?dataset=flights&dashboard_id=7' },
     writable: true,
   });
 
@@ -406,7 +412,7 @@ test('shows only exact match when loading dataset from URL, not partial matches'
 
   const originalLocation = window.location;
   Object.defineProperty(window, 'location', {
-    value: { ...originalLocation, search: '?dataset=flights' },
+    value: { ...originalLocation, search: '?dataset=flights&dashboard_id=7' },
     writable: true,
   });
 
@@ -419,4 +425,19 @@ test('shows only exact match when loading dataset from URL, not partial matches'
     value: originalLocation,
     writable: true,
   });
+});
+
+test('asks to create charts from a dashboard when there is no dashboard_id', async () => {
+  window.history.replaceState({}, '', '/chart/add');
+  await renderComponent();
+
+  expect(
+    screen.getByTestId('chart-creation-requires-dashboard'),
+  ).toBeInTheDocument();
+  expect(
+    screen.queryByRole('combobox', { name: 'Dataset' }),
+  ).not.toBeInTheDocument();
+
+  userEvent.click(screen.getByRole('button', { name: 'Go to dashboards' }));
+  expect(history.push).toHaveBeenCalledWith('/dashboard/list/');
 });
