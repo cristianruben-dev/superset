@@ -1087,9 +1087,8 @@ msgstr "Añadir nuevo formateador"
 msgid "Add or edit display controls"
 msgstr "Añadir o editar filtros"
 
-#, fuzzy
 msgid "Add or edit filters and controls"
-msgstr "Añadir o editar filtros"
+msgstr "Añadir o editar filtros y controles"
 
 #, fuzzy
 msgid "Add report"
@@ -6362,9 +6361,8 @@ msgstr "Filtra tus gráficos"
 msgid "Filters"
 msgstr "Filtros"
 
-#, fuzzy
 msgid "Filters and controls"
-msgstr "Controles adicionales"
+msgstr "Filtros y controles"
 
 msgid "Filters by columns"
 msgstr "Filtros por columnas"
@@ -17327,3 +17325,15 @@ msgstr "%s-%s de %s"
 
 msgid "Empty dashboard"
 msgstr "Panel vacío"
+
+msgid "Cross-filtering"
+msgstr "Filtros cruzados"
+
+msgid "Click a chart to filter the rest of the dashboard"
+msgstr "Haz clic en un gráfico para filtrar el resto del panel"
+
+msgid "Undo"
+msgstr "Deshacer"
+
+msgid "Redo"
+msgstr "Rehacer"

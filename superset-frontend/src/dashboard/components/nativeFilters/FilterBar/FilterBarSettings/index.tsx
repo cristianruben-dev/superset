@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { t } from '@apache-superset/core/translation';
 import { styled, useTheme, css } from '@apache-superset/core/theme';
@@ -71,6 +71,10 @@ const FilterBarSettings = () => {
   const [crossFiltersEnabled, setCrossFiltersEnabled] = useState<boolean>(
     isCrossFiltersEnabled,
   );
+  // Cross-filtering can also be toggled elsewhere (the filter bar switch)
+  useEffect(() => {
+    setCrossFiltersEnabled(isCrossFiltersEnabled);
+  }, [isCrossFiltersEnabled]);
   const canEdit = useSelector<RootState, boolean>(
     ({ dashboardInfo }) => dashboardInfo.dash_edit_perm,
   );

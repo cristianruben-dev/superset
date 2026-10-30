@@ -90,7 +90,8 @@ import { matrixifyControls } from './matrixifyControls';
 const categoricalSchemeRegistry = getCategoricalSchemeRegistry();
 const sequentialSchemeRegistry = getSequentialSchemeRegistry();
 
-export const PRIMARY_COLOR = { r: 0, g: 122, b: 135, a: 1 };
+// Mi BI brand color (#5B5BD6)
+export const PRIMARY_COLOR = { r: 91, g: 91, b: 214, a: 1 };
 
 const ROW_LIMIT_OPTIONS = [10, 50, 100, 250, 500, 1000, 5000, 10000, 50000];
 const SERIES_LIMITS = [5, 10, 25, 50, 100, 500];

@@ -41,6 +41,8 @@ export function ThemeVariables() {
           --mb-text-tertiary: ${theme.colorTextTertiary};
           --mb-border: ${theme.colorBorder};
           --mb-border-secondary: ${theme.colorBorderSecondary};
+          --mb-success: ${theme.colorSuccess};
+          --mb-error: ${theme.colorError};
           --mb-logo: ${theme.brandLogoUrl
             ? `url('${ensureStaticPrefix(theme.brandLogoUrl)}')`
             : 'none'};

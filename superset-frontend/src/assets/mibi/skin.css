@@ -559,6 +559,200 @@ table,
   border-bottom: 1px solid var(--mb-hairline);
 }
 
+/* Header: title, favorite, status and metadata, then the actions */
+[data-test='dashboard-header-container'] .header-with-actions {
+  min-height: 64px;
+  padding: 0 24px 0 28px;
+}
+
+[data-test='dashboard-header-container'] .dynamic-title-input {
+  font-size: 20px !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.02em;
+}
+
+[data-test='dashboard-header-container'] .title-panel .ant-tag {
+  border-radius: 999px;
+  border: 0;
+  padding: 1px 10px;
+  font-size: 12px;
+}
+
+[data-test='dashboard-header-container'] [data-test='metadata-bar'] {
+  border: 0;
+  background: var(--mb-fill);
+  border-radius: 999px;
+  padding: 2px 12px;
+  color: var(--mb-text-secondary);
+}
+
+[data-test='dashboard-header-container'] [data-test='refresh-button'],
+[data-test='dashboard-header-container'] [data-test='fave-unfave-icon'] {
+  color: var(--mb-text-tertiary);
+}
+
+[data-test='dashboard-header-container'] [data-test='edit-dashboard-button'] {
+  height: 34px;
+  padding: 0 16px;
+  border-radius: 10px;
+  font-weight: 600;
+}
+
+[data-test='dashboard-header-container'] [data-test='actions-trigger'] {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border-color: var(--mb-border-secondary);
+}
+
+/* Breathing room on both sides of the grid */
+.dashboard-content > [data-test='grid-container'] {
+  margin-left: 8px !important;
+  margin-right: 28px !important;
+}
+
+/* Visuals as cards */
+.dashboard-component-chart-holder {
+  border-radius: 14px !important;
+  border: 1px solid var(--mb-border-secondary);
+  box-shadow: var(--mb-shadow-card);
+  transition:
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.dashboard-component-chart-holder:hover {
+  border-color: var(--mb-border);
+  box-shadow: var(--mb-shadow-pop);
+}
+
+.dashboard-component-chart-holder .chart-slice [data-test='slice-header'] {
+  min-height: 28px;
+}
+
+.dashboard-component-chart-holder .header-title,
+.dashboard-component-chart-holder .editable-title {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--mb-text);
+}
+
+/* The chart menu shows up on hover (always on touch screens) */
+@media (hover: hover) {
+  .dashboard-component-chart-holder .header-controls {
+    opacity: 0;
+    transition: opacity 0.15s ease;
+  }
+
+  .dashboard-component-chart-holder:hover .header-controls,
+  .dashboard-component-chart-holder:focus-within .header-controls,
+  .dashboard-component-chart-holder .header-controls:has(.ant-dropdown-open) {
+    opacity: 1;
+  }
+}
+
+.dashboard-component-chart-holder .header-controls .dot {
+  color: var(--mb-text-tertiary);
+}
+
+/* Dashboard tabs (kept at the top) */
+[data-test='dashboard-content-wrapper'] .ant-tabs-top > .ant-tabs-nav {
+  margin-bottom: 16px;
+}
+
+[data-test='dashboard-content-wrapper'] .ant-tabs-top > .ant-tabs-nav::before {
+  border-bottom-color: var(--mb-border-secondary);
+}
+
+[data-test='dashboard-content-wrapper'] .ant-tabs-tab {
+  padding: 12px 4px;
+  font-weight: 500;
+  color: var(--mb-text-secondary);
+  transition: color 0.15s ease;
+}
+
+[data-test='dashboard-content-wrapper'] .ant-tabs-tab:hover {
+  color: var(--mb-text);
+}
+
+[data-test='dashboard-content-wrapper'] .ant-tabs-tab + .ant-tabs-tab {
+  margin-left: 28px;
+}
+
+[data-test='dashboard-content-wrapper'] .ant-tabs-tab-active .ant-tabs-tab-btn {
+  color: var(--mb-primary) !important;
+  font-weight: 600;
+}
+
+[data-test='dashboard-content-wrapper'] .ant-tabs-ink-bar {
+  height: 3px !important;
+  border-radius: 3px 3px 0 0;
+  background: var(--mb-primary);
+}
+
+/* Filter bar */
+[data-test='filter-bar'] {
+  background: var(--mb-bg-container);
+  border-right: 1px solid var(--mb-border-secondary);
+}
+
+[data-test='filter-bar'] .ant-form-item-label > label,
+[data-test='filter-bar'] .filter-name {
+  font-weight: 600;
+  font-size: 12px;
+}
+
+[data-test='filter-bar__apply-button'] {
+  height: 36px;
+  border-radius: 10px;
+  font-weight: 600;
+}
+
+/* Edit mode: a dotted canvas and a brand line under the header */
+.dashboard--editing .dashboard-content {
+  background-image: radial-gradient(var(--mb-border) 1px, transparent 1px);
+  background-size: 18px 18px;
+}
+
+body:has(.dashboard--editing) [data-test='dashboard-header-container'] {
+  box-shadow: inset 0 -2px 0 var(--mb-primary);
+}
+
+/* KPI cards (Big Number) */
+.superset-legacy-chart-big-number .header-line {
+  font-weight: 650;
+  letter-spacing: -0.035em;
+  color: var(--mb-text);
+}
+
+.superset-legacy-chart-big-number .kicker,
+.superset-legacy-chart-big-number .metric-name {
+  color: var(--mb-text-secondary);
+  font-weight: 500;
+}
+
+.superset-legacy-chart-big-number .subheader-line {
+  color: var(--mb-text-secondary);
+  font-weight: 500;
+}
+
+/* Period-over-period change in green or red */
+.superset-legacy-chart-big-number.positive .subheader-line {
+  color: var(--mb-success);
+  font-weight: 600;
+}
+
+.superset-legacy-chart-big-number.negative .subheader-line {
+  color: var(--mb-error);
+  font-weight: 600;
+}
+
+/* Markdown blocks match the cards */
+.dashboard-component-markdown {
+  border-radius: 14px;
+}
+
 /* ---------------------------------------------------------------- Popovers, menus, modals (portals) */
 
 .ant-dropdown .ant-dropdown-menu,
