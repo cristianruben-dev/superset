@@ -88,9 +88,14 @@ const Hero = styled.header`
 const Actions = styled.div`
   ${({ theme }) => css`
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    /* Four in a row, or two by two: never a lonely card on its own row */
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: ${theme.sizeUnit * 4}px;
     margin-bottom: ${theme.sizeUnit * 10}px;
+
+    @media (max-width: 1279px) {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
   `}
 `;
 

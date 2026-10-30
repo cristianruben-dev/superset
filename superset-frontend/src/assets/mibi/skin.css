@@ -1028,8 +1028,30 @@ body:has(.dashboard--editing) [data-test='dashboard-header-container'] {
   box-shadow: var(--mb-shadow-pop);
 }
 
+/* Title, body and footer share one 24px gutter */
 .ant-modal .ant-modal-header {
   border-bottom: 0;
+  padding: 20px 56px 4px 24px !important;
+  margin-bottom: 0 !important;
+}
+
+.ant-modal .ant-modal-body {
+  padding-left: 24px;
+  padding-right: 24px;
+}
+
+.ant-modal .ant-modal-footer {
+  padding: 12px 24px 20px !important;
+}
+
+.ant-modal .ant-modal-close {
+  top: 18px;
+  right: 16px;
+}
+
+/* The database modal lays out its own 16px gutter */
+[data-test='database-modal'] .ant-modal-header {
+  padding-left: 16px !important;
 }
 
 .ant-modal .ant-modal-title {

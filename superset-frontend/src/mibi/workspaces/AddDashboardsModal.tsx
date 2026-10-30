@@ -210,6 +210,17 @@ export function AddDashboardsModal({
     return map;
   }, [workspaces]);
 
+  // Dashboards already in this workspace go last: they cannot be picked
+  const sorted = useMemo(
+    () =>
+      [...(dashboards || [])].sort(
+        (a, b) =>
+          Number(homeOf.get(a.id)?.id === workspace.id) -
+          Number(homeOf.get(b.id)?.id === workspace.id),
+      ),
+    [dashboards, homeOf, workspace.id],
+  );
+
   const toggle = (id: number) =>
     setSelected(current => {
       const next = new Set(current);
@@ -251,7 +262,12 @@ export function AddDashboardsModal({
       width="560px"
       primaryButtonName={
         selected.size
-          ? tn('Add %s dashboard', 'Add %s dashboards', selected.size, selected.size)
+          ? tn(
+              'Add %s dashboard',
+              'Add %s dashboards',
+              selected.size,
+              selected.size,
+            )
           : t('Add')
       }
       primaryButtonLoading={saving}
@@ -272,7 +288,7 @@ export function AddDashboardsModal({
         {dashboards?.length === 0 && (
           <div className="empty">{t('No dashboards found')}</div>
         )}
-        {dashboards?.map(dashboard => {
+        {sorted.map(dashboard => {
           const home = homeOf.get(dashboard.id);
           const here = home?.id === workspace.id;
           const checked = here || selected.has(dashboard.id);
@@ -302,7 +318,11 @@ export function AddDashboardsModal({
               {home && (
                 <span
                   className="where"
-                  title={here ? t('Already in this workspace') : t('Moves from %s', home.name)}
+                  title={
+                    here
+                      ? t('Already in this workspace')
+                      : t('Moves from %s', home.name)
+                  }
                 >
                   <WorkspaceAvatar workspace={home} size="s" />
                   <span>{here ? t('Already here') : home.name}</span>

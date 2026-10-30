@@ -216,6 +216,7 @@ const ConnectionCard = styled.div`
       color: ${theme.colorTextSecondary};
 
       .datasets {
+        flex-basis: 100%;
         font-weight: 500;
         color: ${theme.colorText};
       }

@@ -91,9 +91,10 @@ const Stack = styled.span<{ px: number }>`
       height: ${px}px;
       border-radius: 50%;
       box-shadow: 0 0 0 2px ${theme.colorBgContainer};
-      font-size: ${Math.round(px * 0.4)}px;
+      position: relative;
+      font-size: ${Math.max(9, Math.round(px * 0.36))}px;
       font-weight: 600;
-      letter-spacing: 0.02em;
+      letter-spacing: 0;
     }
 
     .person {
@@ -107,7 +108,7 @@ const Stack = styled.span<{ px: number }>`
 
     .person + .person,
     .person + .more {
-      margin-left: -${Math.round(px * 0.28)}px;
+      margin-left: -${Math.round(px * 0.12)}px;
     }
 
     .more {
@@ -129,12 +130,14 @@ export function MemberAvatars({ members, total, size = 26 }: MemberAvatarsProps)
   const rest = total - shown.length;
   return (
     <Stack px={size} data-test="workspace-member-avatars">
-      {shown.map(member => (
+      {shown.map((member, index) => (
         <Tooltip
           key={member.id}
           title={`${userName(member)} · ${roleLabel(member.role)}`}
         >
-          <span className="person">{userInitials(member)}</span>
+          <span className="person" style={{ zIndex: shown.length - index }}>
+            {userInitials(member)}
+          </span>
         </Tooltip>
       ))}
       {rest > 0 && <span className="more">+{rest}</span>}

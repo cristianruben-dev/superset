@@ -179,7 +179,9 @@ export function WorkspaceCard({ workspace }: WorkspaceCardProps) {
         style={cover}
       />
       <WorkspaceAvatar workspace={workspace} size="l" className="avatar" />
-      {workspace.role && (
+      {/* Admin is the common case (and every Superset admin's), so only the
+          narrower roles get a badge */}
+      {workspace.role && workspace.role !== 'admin' && (
         <span className="role">
           <RoleBadge role={workspace.role} />
         </span>
@@ -209,7 +211,7 @@ export function WorkspaceCard({ workspace }: WorkspaceCardProps) {
             <MemberAvatars
               members={workspace.members}
               total={workspace.member_count}
-              size={22}
+              size={24}
             />
           </span>
         </span>

@@ -193,6 +193,8 @@ const Hero = styled.header`
 
     .actions {
       flex-wrap: wrap;
+      justify-content: flex-end;
+      margin-left: auto;
       display: flex;
       align-items: center;
       gap: ${theme.sizeUnit * 2}px;

@@ -85,14 +85,24 @@ const Body = styled.div`
   `}
 `;
 
-const formatOptions = () => [
+export const formatOptions = () => [
   { value: '', label: t('Automatic') },
-  { value: ',d', label: t('Whole number (12,345)') },
+  { value: ',.0f', label: t('Whole number (12,345)') },
   { value: ',.2f', label: t('Decimal (12,345.68)') },
   { value: '.1%', label: t('Percentage (12.3%)') },
   { value: '$,.2f', label: t('Currency ($12,345.68)') },
   { value: '.3s', label: t('Short (12.3k)') },
 ];
+
+/** The friendly name of a number format, or the format itself when custom. */
+export const formatLabel = (format: string) =>
+  formatOptions().find(option => option.value === format)?.label || format;
+
+/** The preset formats, plus the metric's own one when it is not a preset. */
+const withCustomFormat = (format: string) =>
+  formatOptions().some(option => option.value === format)
+    ? formatOptions()
+    : [...formatOptions(), { value: format, label: format }];
 
 export interface MetricModalProps {
   show: boolean;
@@ -222,7 +232,7 @@ export function MetricModal({
             {t('Number format')}
             <Select
               ariaLabel={t('Number format')}
-              options={formatOptions()}
+              options={withCustomFormat(format)}
               value={format}
               onChange={value => setFormat((value as string) || '')}
             />

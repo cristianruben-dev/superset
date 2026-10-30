@@ -41,10 +41,11 @@ import { useToasts } from 'src/components/MessageToasts/withToasts';
 import type { ColumnObject, DatasetObject } from 'src/features/datasets/types';
 import type { UserWithPermissionsAndRoles } from 'src/types/bootstrapTypes';
 import { findPermission } from 'src/utils/findPermission';
+import getBootstrapData from 'src/utils/getBootstrapData';
 import { VizTypeIcon } from '../vizIcons/VizTypeIcon';
 import { Page } from '../workspaces/WorkspaceListPage';
 import { fetchEditableDataset } from './api';
-import { MetricModal, type MetricFields } from './MetricModal';
+import { formatLabel, MetricModal, type MetricFields } from './MetricModal';
 
 type Tab = 'columns' | 'metrics' | 'preview' | 'usage';
 
@@ -124,8 +125,9 @@ const Hero = styled.header`
     }
 
     .titles {
-      flex: 1;
-      min-width: 240px;
+      /* Room for the title first: the actions wrap below when space runs out */
+      flex: 1 1 420px;
+      min-width: 0;
     }
 
     h1 {
@@ -163,7 +165,9 @@ const Hero = styled.header`
 
     .actions {
       display: flex;
+      flex-wrap: wrap;
       gap: ${theme.sizeUnit * 2}px;
+      margin-left: auto;
     }
   `}
 `;
@@ -274,6 +278,7 @@ const Panel = styled.section`
 
     code {
       display: inline-block;
+      align-self: flex-start;
       max-width: 100%;
       margin-top: ${theme.sizeUnit}px;
       padding: 1px ${theme.sizeUnit * 2}px;
@@ -313,6 +318,16 @@ const Panel = styled.section`
         background: ${theme.colorPrimaryBg};
         color: ${theme.colorPrimary};
       }
+    }
+
+    .format {
+      flex-shrink: 0;
+      padding: 0 ${theme.sizeUnit * 2}px;
+      border-radius: 999px;
+      background: ${theme.colorFillTertiary};
+      font-size: 11px;
+      line-height: 20px;
+      color: ${theme.colorTextSecondary};
     }
 
     .metric-icon {
@@ -368,6 +383,17 @@ const Panel = styled.section`
         font-variant-numeric: tabular-nums;
       }
 
+      th,
+      td {
+        &:first-of-type {
+          padding-left: ${theme.sizeUnit * 4}px;
+        }
+
+        &:last-of-type {
+          padding-right: ${theme.sizeUnit * 4}px;
+        }
+      }
+
       th {
         position: sticky;
         top: 0;
@@ -395,6 +421,10 @@ const Panel = styled.section`
 
       .number {
         text-align: right;
+      }
+
+      .empty-value {
+        color: ${theme.colorTextQuaternary};
       }
     }
 
@@ -451,6 +481,18 @@ export function genericType(
   if (/DATE|TIME/.test(type)) return GenericDataType.Temporal;
   return GenericDataType.String;
 }
+
+const numberFormat = new Intl.NumberFormat(
+  getBootstrapData().common?.locale || 'en',
+  { maximumFractionDigits: 2 },
+);
+
+/** A sampled value as text: grouped numbers, a dash for empty values. */
+export const formatCell = (value: unknown): string => {
+  if (value === null || value === undefined) return '—';
+  if (typeof value === 'number') return numberFormat.format(value);
+  return String(value);
+};
 
 const metricPayload = (metric: Metric | MetricFields) => ({
   ...(metric.id ? { id: metric.id } : {}),
@@ -516,6 +558,17 @@ export default function DatasetPage() {
         );
     }
   }, [tab, id, samples, samplesError, related]);
+
+  // Columns whose sampled values are numbers, aligned to the right
+  const numericColumns = useMemo(
+    () =>
+      new Set(
+        (samples?.colnames || []).filter(name =>
+          samples?.data.some(row => typeof row[name] === 'number'),
+        ),
+      ),
+    [samples],
+  );
 
   const columnNames = useMemo(
     () =>
@@ -737,7 +790,7 @@ export default function DatasetPage() {
                 )}
               </span>
               {metric.d3format && (
-                <span className="type">{metric.d3format}</span>
+                <span className="format">{formatLabel(metric.d3format)}</span>
               )}
               {canWrite && (
                 <span className="item-actions">
@@ -803,7 +856,14 @@ export default function DatasetPage() {
                   <thead>
                     <tr>
                       {samples.colnames.map(name => (
-                        <th key={name}>{name}</th>
+                        <th
+                          key={name}
+                          className={
+                            numericColumns.has(name) ? 'number' : undefined
+                          }
+                        >
+                          {name}
+                        </th>
                       ))}
                     </tr>
                   </thead>
@@ -818,12 +878,14 @@ export default function DatasetPage() {
                             <td
                               key={name}
                               className={
-                                typeof value === 'number' ? 'number' : undefined
+                                value === null || value === undefined
+                                  ? 'empty-value'
+                                  : numericColumns.has(name)
+                                    ? 'number'
+                                    : undefined
                               }
                             >
-                              {value === null || value === undefined
-                                ? '—'
-                                : String(value)}
+                              {formatCell(value)}
                             </td>
                           );
                         })}
