@@ -16974,3 +16974,81 @@ msgid "%s dashboard added to %s"
 msgid_plural "%s dashboards added to %s"
 msgstr[0] "%s panel añadido a %s"
 msgstr[1] "%s paneles añadidos a %s"
+
+msgid "%s was added to the workspace"
+msgstr "%s se ha añadido al área de trabajo"
+
+msgid "%s was removed"
+msgstr "%s se ha quitado"
+
+msgid "(you)"
+msgstr "(tú)"
+
+msgid "A workspace needs at least one admin"
+msgstr "Un área de trabajo necesita al menos un administrador"
+
+msgid "Access to %s"
+msgstr "Acceso a %s"
+
+msgid "Add people"
+msgstr "Añadir personas"
+
+msgid "Adds, creates and edits dashboards and charts"
+msgstr "Añade, crea y edita paneles y gráficos"
+
+msgid "Admin"
+msgstr "Administrador"
+
+msgid "Contributor"
+msgstr "Colaborador"
+
+msgid "Viewer"
+msgstr "Lector"
+
+msgid "Leave the workspace"
+msgstr "Salir del área de trabajo"
+
+msgid "Manage access"
+msgstr "Gestionar acceso"
+
+msgid "Manages the workspace, its members and its dashboards"
+msgstr "Gestiona el área de trabajo, sus miembros y sus paneles"
+
+msgid "Members"
+msgstr "Miembros"
+
+msgid "Remove %s"
+msgstr "Quitar a %s"
+
+msgid "Remove from the workspace"
+msgstr "Quitar del área de trabajo"
+
+msgid "Role of %s"
+msgstr "Rol de %s"
+
+msgid "Role updated"
+msgstr "Rol actualizado"
+
+msgid "Search by name, user or email"
+msgstr "Busca por nombre, usuario o correo"
+
+msgid "Search people"
+msgstr "Buscar personas"
+
+msgid "Sees the workspace and its dashboards"
+msgstr "Ve el área de trabajo y sus paneles"
+
+msgid "The change could not be saved"
+msgstr "No se ha podido guardar el cambio"
+
+msgid "You left the workspace"
+msgstr "Has salido del área de trabajo"
+
+msgid "Dashboards in a workspace are only visible to its members. To see the data, people also need access to the datasets."
+msgstr "Los paneles de un área de trabajo solo los ven sus miembros. Para ver los datos, además necesitan acceso a los conjuntos de datos."
+
+#, python-format
+msgid "%s member"
+msgid_plural "%s members"
+msgstr[0] "%s miembro"
+msgstr[1] "%s miembros"

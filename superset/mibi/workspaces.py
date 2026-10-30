@@ -26,11 +26,25 @@ from flask_appbuilder import expose
 from flask_appbuilder.api import protect, safe
 from flask_appbuilder.security.decorators import has_access
 from marshmallow import fields, Schema, validate, ValidationError
+from sqlalchemy import or_
 
 from superset import db, security_manager
 from superset.daos.dashboard import DashboardDAO
 from superset.exceptions import SupersetSecurityException
-from superset.mibi.models import Workspace, WorkspaceDashboard
+from superset.mibi.models import (
+    ROLE_ADMIN,
+    ROLE_CONTRIBUTOR,
+    ROLE_VIEWER,
+    ROLES,
+    Workspace,
+    WorkspaceDashboard,
+    WorkspaceMember,
+)
+from superset.mibi.workspace_access import (
+    member_workspace_ids,
+    role_rank,
+    workspace_role,
+)
 from superset.superset_typing import FlaskResponse
 from superset.utils.core import get_user_id
 from superset.views.base import BaseSupersetView
@@ -66,18 +80,18 @@ class WorkspaceSchema(Schema):
     )
 
 
+class WorkspaceMemberSchema(Schema):
+    """A user and the role to give them."""
+
+    user_id = fields.Integer(required=True)
+    role = fields.String(required=True, validate=validate.OneOf(ROLES))
+
+
 class WorkspaceDashboardsSchema(Schema):
     """Dashboards to move into or out of a workspace."""
 
     add = fields.List(fields.Integer(), load_default=list)
     remove = fields.List(fields.Integer(), load_default=list)
-
-
-def can_edit(workspace: Workspace) -> bool:
-    """Admins and the user who created the workspace can change it."""
-    return security_manager.is_admin() or (
-        workspace.created_by_fk is not None and workspace.created_by_fk == get_user_id()
-    )
 
 
 def accessible_dashboard_ids(workspace: Workspace) -> list[int]:
@@ -95,9 +109,22 @@ def image_url(workspace: Workspace) -> str | None:
     return f"/api/v1/workspace/{workspace.id}/image/?v={version}"
 
 
-def serialize(workspace: Workspace) -> dict[str, Any]:
+def user_dict(user: Any) -> dict[str, Any]:
+    return {
+        "id": user.id,
+        "first_name": user.first_name,
+        "last_name": user.last_name,
+    }
+
+
+def serialize(workspace: Workspace, role: str | None = None) -> dict[str, Any]:
+    """The workspace as the API returns it, with the current user's rights."""
+    role = role or workspace_role(workspace.id)
     dashboard_ids = accessible_dashboard_ids(workspace)
-    creator = workspace.created_by
+    members = sorted(
+        workspace.members,
+        key=lambda member: (-role_rank(member.role), member.user_id),
+    )
     return {
         "id": workspace.id,
         "uuid": str(workspace.uuid) if workspace.uuid else None,
@@ -110,14 +137,16 @@ def serialize(workspace: Workspace) -> dict[str, Any]:
         "changed_on": workspace.changed_on.isoformat()
         if workspace.changed_on
         else None,
-        "created_by": {
-            "id": creator.id,
-            "first_name": creator.first_name,
-            "last_name": creator.last_name,
-        }
-        if creator
-        else None,
-        "can_edit": can_edit(workspace),
+        "created_by": user_dict(workspace.created_by) if workspace.created_by else None,
+        "role": role,
+        "can_edit": role == ROLE_ADMIN,
+        "can_contribute": role_rank(role) >= role_rank(ROLE_CONTRIBUTOR),
+        "member_count": len(members),
+        "members": [
+            {**user_dict(member.user), "role": member.role}
+            for member in members[:5]
+            if member.user
+        ],
     }
 
 
@@ -133,6 +162,10 @@ class WorkspaceRestApi(BaseSupersetApi):
         "get_image": "read",
         "of_dashboard": "read",
         "get_dashboards": "read",
+        "get_members": "read",
+        "put_member": "write",
+        "delete_member": "write",
+        "member_candidates": "write",
         "post": "write",
         "put": "write",
         "delete": "write",
@@ -142,16 +175,20 @@ class WorkspaceRestApi(BaseSupersetApi):
     }
     openapi_spec_tag = "Mi BI"
 
-    def _find(self, pk: int) -> Workspace | None:
-        return db.session.query(Workspace).filter(Workspace.id == pk).one_or_none()
-
-    def _find_editable(self, pk: int) -> tuple[Workspace | None, Response | None]:
-        workspace = self._find(pk)
-        if workspace is None:
-            return None, self.response_404()
-        if not can_edit(workspace):
-            return None, self.response_403()
-        return workspace, None
+    def _find(
+        self, pk: int, min_role: str = ROLE_VIEWER
+    ) -> tuple[Workspace | None, str | None, Response | None]:
+        """
+        The workspace, the user's role in it, or the error to return: 404 when the
+        user does not belong to it, 403 when their role is below ``min_role``.
+        """
+        workspace = db.session.query(Workspace).filter(Workspace.id == pk).one_or_none()
+        role = workspace_role(pk) if workspace else None
+        if workspace is None or role is None:
+            return None, None, self.response_404()
+        if role_rank(role) < role_rank(min_role):
+            return None, None, self.response_403()
+        return workspace, role, None
 
     @expose("/", methods=("GET",))
     @protect()
@@ -168,7 +205,10 @@ class WorkspaceRestApi(BaseSupersetApi):
             401:
               $ref: '#/components/responses/401'
         """
-        workspaces = db.session.query(Workspace).order_by(Workspace.name).all()
+        query = db.session.query(Workspace)
+        if not security_manager.is_admin():
+            query = query.filter(Workspace.id.in_(member_workspace_ids(get_user_id())))
+        workspaces = query.order_by(Workspace.name).all()
         return self.response(200, result=[serialize(ws) for ws in workspaces])
 
     @expose("/<int:pk>/", methods=("GET",))
@@ -191,10 +231,10 @@ class WorkspaceRestApi(BaseSupersetApi):
             404:
               $ref: '#/components/responses/404'
         """
-        workspace = self._find(pk)
+        workspace, role, error_response = self._find(pk)
         if workspace is None:
-            return self.response_404()
-        return self.response(200, result=serialize(workspace))
+            return error_response
+        return self.response(200, result=serialize(workspace, role))
 
     @expose("/", methods=("POST",))
     @protect()
@@ -222,6 +262,9 @@ class WorkspaceRestApi(BaseSupersetApi):
         except ValidationError as error:
             return self.response_400(message=error.messages)
         workspace = Workspace(**data)
+        if user_id := get_user_id():
+            # Whoever creates a workspace administers it
+            workspace.members.append(WorkspaceMember(user_id=user_id, role=ROLE_ADMIN))
         db.session.add(workspace)
         db.session.commit()  # pylint: disable=consider-using-transaction
         return self.response(201, result=serialize(workspace))
@@ -256,7 +299,7 @@ class WorkspaceRestApi(BaseSupersetApi):
             404:
               $ref: '#/components/responses/404'
         """
-        workspace, error_response = self._find_editable(pk)
+        workspace, _, error_response = self._find(pk, ROLE_ADMIN)
         if workspace is None:
             return error_response
         try:
@@ -290,7 +333,7 @@ class WorkspaceRestApi(BaseSupersetApi):
             404:
               $ref: '#/components/responses/404'
         """
-        workspace, error_response = self._find_editable(pk)
+        workspace, _, error_response = self._find(pk, ROLE_ADMIN)
         if workspace is None:
             return error_response
         db.session.delete(workspace)
@@ -316,7 +359,7 @@ class WorkspaceRestApi(BaseSupersetApi):
             404:
               $ref: '#/components/responses/404'
         """
-        workspace = self._find(pk)
+        workspace, _, _ = self._find(pk)
         if workspace is None or not workspace.image or not workspace.image_type:
             return self.response_404()
         response = Response(workspace.image, mimetype=workspace.image_type)
@@ -359,7 +402,7 @@ class WorkspaceRestApi(BaseSupersetApi):
             404:
               $ref: '#/components/responses/404'
         """
-        workspace, error_response = self._find_editable(pk)
+        workspace, _, error_response = self._find(pk, ROLE_ADMIN)
         if workspace is None:
             return error_response
         upload = request.files.get("image")
@@ -399,7 +442,7 @@ class WorkspaceRestApi(BaseSupersetApi):
             404:
               $ref: '#/components/responses/404'
         """
-        workspace, error_response = self._find_editable(pk)
+        workspace, _, error_response = self._find(pk, ROLE_ADMIN)
         if workspace is None:
             return error_response
         workspace.image = None
@@ -427,9 +470,9 @@ class WorkspaceRestApi(BaseSupersetApi):
             404:
               $ref: '#/components/responses/404'
         """
-        workspace = self._find(pk)
+        workspace, _, error_response = self._find(pk)
         if workspace is None:
-            return self.response_404()
+            return error_response
         ids = [link.dashboard_id for link in workspace.dashboards]
         dashboards = DashboardDAO.find_by_ids(ids) if ids else []
         dashboards = sorted(
@@ -460,7 +503,8 @@ class WorkspaceRestApi(BaseSupersetApi):
         """Move dashboards into or out of a workspace.
 
         A dashboard lives in one workspace: adding it here takes it out of the
-        previous one. Only the dashboard owners (and admins) can move it.
+        previous one. Contributors and admins of the workspace move dashboards, and
+        adding one also needs the right to change it.
         ---
         put:
           summary: Move dashboards into or out of a workspace
@@ -494,7 +538,7 @@ class WorkspaceRestApi(BaseSupersetApi):
             404:
               $ref: '#/components/responses/404'
         """
-        workspace, error_response = self._find_editable(pk)
+        workspace, _, error_response = self._find(pk, ROLE_CONTRIBUTOR)
         if workspace is None:
             return error_response
         try:
@@ -507,8 +551,10 @@ class WorkspaceRestApi(BaseSupersetApi):
         if set(dashboards) != requested:
             return self.response_404()
         try:
-            for dashboard in dashboards.values():
-                security_manager.raise_for_ownership(dashboard)
+            # Bringing a dashboard in needs the right to change it; taking one
+            # out only needs a contributor role here
+            for dashboard_id in data["add"]:
+                security_manager.raise_for_ownership(dashboards[dashboard_id])
         except SupersetSecurityException:
             return self.response_403()
 
@@ -558,7 +604,9 @@ class WorkspaceRestApi(BaseSupersetApi):
             .filter(WorkspaceDashboard.dashboard_id == dashboard_id)
             .one_or_none()
         )
-        if link is None:
+        role = workspace_role(link.workspace_id) if link else None
+        if link is None or role is None:
+            # Workspaces the user does not belong to stay private
             return self.response(200, result=None)
         workspace = link.workspace
         return self.response(
@@ -568,8 +616,217 @@ class WorkspaceRestApi(BaseSupersetApi):
                 "name": workspace.name,
                 "color": workspace.color,
                 "image_url": image_url(workspace),
+                "role": role,
             },
         )
+
+    @expose("/<int:pk>/members/", methods=("GET",))
+    @protect()
+    @safe
+    @statsd_metrics
+    def get_members(self, pk: int) -> Response:
+        """The members of a workspace and their roles.
+        ---
+        get:
+          summary: List the members of a workspace
+          parameters:
+          - in: path
+            schema:
+              type: integer
+            name: pk
+          responses:
+            200:
+              description: Members, admins first
+            404:
+              $ref: '#/components/responses/404'
+        """
+        workspace, _, error_response = self._find(pk)
+        if workspace is None:
+            return error_response
+        members = sorted(
+            (member for member in workspace.members if member.user),
+            key=lambda member: (
+                -role_rank(member.role),
+                (member.user.first_name or "").lower(),
+            ),
+        )
+        return self.response(
+            200,
+            result=[
+                {
+                    **user_dict(member.user),
+                    "username": member.user.username,
+                    "role": member.role,
+                }
+                for member in members
+            ],
+        )
+
+    @expose("/<int:pk>/members/", methods=("PUT",))
+    @protect()
+    @safe
+    @statsd_metrics
+    def put_member(self, pk: int) -> Response:
+        """Add a member to a workspace, or change their role.
+        ---
+        put:
+          summary: Add a member or change their role
+          parameters:
+          - in: path
+            schema:
+              type: integer
+            name: pk
+          requestBody:
+            required: true
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    user_id:
+                      type: integer
+                    role:
+                      type: string
+                      enum: [viewer, contributor, admin]
+          responses:
+            200:
+              description: The workspace
+            400:
+              $ref: '#/components/responses/400'
+            403:
+              $ref: '#/components/responses/403'
+            404:
+              $ref: '#/components/responses/404'
+        """
+        workspace, role, error_response = self._find(pk, ROLE_ADMIN)
+        if workspace is None:
+            return error_response
+        try:
+            data = WorkspaceMemberSchema().load(request.json or {})
+        except ValidationError as error:
+            return self.response_400(message=error.messages)
+        user = (
+            db.session.query(security_manager.user_model)
+            .filter(security_manager.user_model.id == data["user_id"])
+            .one_or_none()
+        )
+        if user is None or not user.active:
+            return self.response_404()
+
+        member = next(
+            (m for m in workspace.members if m.user_id == data["user_id"]), None
+        )
+        if member is None:
+            workspace.members.append(
+                WorkspaceMember(user_id=user.id, role=data["role"])
+            )
+        else:
+            if self._is_last_admin(workspace, member) and data["role"] != ROLE_ADMIN:
+                return self.response_400(message="A workspace needs at least one admin")
+            member.role = data["role"]
+        db.session.commit()  # pylint: disable=consider-using-transaction
+        db.session.refresh(workspace)
+        return self.response(200, result=serialize(workspace, role))
+
+    @expose("/<int:pk>/members/<int:user_id>/", methods=("DELETE",))
+    @protect()
+    @safe
+    @statsd_metrics
+    def delete_member(self, pk: int, user_id: int) -> Response:
+        """Remove a member. Admins remove anyone; any member can leave.
+        ---
+        delete:
+          summary: Remove a member from a workspace
+          parameters:
+          - in: path
+            schema:
+              type: integer
+            name: pk
+          - in: path
+            schema:
+              type: integer
+            name: user_id
+          responses:
+            200:
+              description: The workspace, or null when the user left it
+            400:
+              $ref: '#/components/responses/400'
+            403:
+              $ref: '#/components/responses/403'
+            404:
+              $ref: '#/components/responses/404'
+        """
+        leaving = user_id == get_user_id()
+        workspace, _, error_response = self._find(
+            pk, ROLE_VIEWER if leaving else ROLE_ADMIN
+        )
+        if workspace is None:
+            return error_response
+        member = next((m for m in workspace.members if m.user_id == user_id), None)
+        if member is None:
+            return self.response_404()
+        if self._is_last_admin(workspace, member):
+            return self.response_400(message="A workspace needs at least one admin")
+        workspace.members.remove(member)
+        db.session.commit()  # pylint: disable=consider-using-transaction
+        db.session.refresh(workspace)
+        role = workspace_role(workspace.id)
+        return self.response(200, result=serialize(workspace, role) if role else None)
+
+    @expose("/<int:pk>/member_candidates/", methods=("GET",))
+    @protect()
+    @safe
+    @statsd_metrics
+    def member_candidates(self, pk: int) -> Response:
+        """Active users who are not members yet, to add to the workspace.
+        ---
+        get:
+          summary: Search users to add to a workspace
+          parameters:
+          - in: path
+            schema:
+              type: integer
+            name: pk
+          - in: query
+            schema:
+              type: string
+            name: q
+          responses:
+            200:
+              description: Up to 20 users
+            403:
+              $ref: '#/components/responses/403'
+            404:
+              $ref: '#/components/responses/404'
+        """
+        workspace, _, error_response = self._find(pk, ROLE_ADMIN)
+        if workspace is None:
+            return error_response
+        user_model = security_manager.user_model
+        query = db.session.query(user_model).filter(
+            user_model.active.is_(True),
+            ~user_model.id.in_([member.user_id for member in workspace.members]),
+        )
+        if text := (request.args.get("q") or "").strip():
+            pattern = f"%{text}%"
+            query = query.filter(
+                or_(
+                    user_model.first_name.ilike(pattern),
+                    user_model.last_name.ilike(pattern),
+                    user_model.username.ilike(pattern),
+                    user_model.email.ilike(pattern),
+                )
+            )
+        users = query.order_by(user_model.first_name).limit(20).all()
+        return self.response(
+            200,
+            result=[{**user_dict(user), "username": user.username} for user in users],
+        )
+
+    @staticmethod
+    def _is_last_admin(workspace: Workspace, member: WorkspaceMember) -> bool:
+        admins = [m for m in workspace.members if m.role == ROLE_ADMIN]
+        return member.role == ROLE_ADMIN and len(admins) == 1
 
 
 class WorkspaceView(BaseSupersetView):

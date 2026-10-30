@@ -45,7 +45,11 @@ const workspace = (overrides: Partial<Workspace> = {}): Workspace => ({
   dashboard_count: 2,
   changed_on: new Date().toISOString(),
   created_by: { id: 1, first_name: 'Ana', last_name: 'Ruiz' },
+  role: 'admin',
   can_edit: true,
+  can_contribute: true,
+  member_count: 1,
+  members: [{ id: 1, first_name: 'Ana', last_name: 'Ruiz', role: 'admin' }],
   ...overrides,
 });
 
@@ -61,7 +65,10 @@ test('builds up to two initials', () => {
 
 test('lists the workspaces as cards', async () => {
   fetchMock.get('glob:*/api/v1/workspace/', {
-    result: [workspace(), workspace({ id: 2, name: 'Finance', description: null })],
+    result: [
+      workspace(),
+      workspace({ id: 2, name: 'Finance', description: null }),
+    ],
   });
 
   render(<WorkspaceListPage />, { useRouter: true, useRedux: true });
@@ -75,7 +82,10 @@ test('lists the workspaces as cards', async () => {
 
 test('filters the workspaces by name and description', async () => {
   fetchMock.get('glob:*/api/v1/workspace/', {
-    result: [workspace(), workspace({ id: 2, name: 'Finance', description: null })],
+    result: [
+      workspace(),
+      workspace({ id: 2, name: 'Finance', description: null }),
+    ],
   });
   render(<WorkspaceListPage />, { useRouter: true, useRedux: true });
   await screen.findAllByTestId('workspace-card');
@@ -162,10 +172,9 @@ test('uploads the picture after saving the workspace', async () => {
 });
 
 test('rejects pictures that are not images', async () => {
-  render(
-    <WorkspaceModal show onHide={jest.fn()} onSaved={jest.fn()} />,
-    { useRedux: true },
-  );
+  render(<WorkspaceModal show onHide={jest.fn()} onSaved={jest.fn()} />, {
+    useRedux: true,
+  });
 
   const file = new File(['<svg/>'], 'logo.svg', { type: 'image/svg+xml' });
   fireEvent.change(screen.getByTestId('workspace-image-input'), {
@@ -192,9 +201,7 @@ test('shows nothing for dashboards outside any workspace', async () => {
 
   render(<DashboardWorkspaceChip dashboardId={3} />, { useRouter: true });
 
-  await waitFor(() =>
-    expect(fetchMock.callHistory.called()).toBe(true),
-  );
+  await waitFor(() => expect(fetchMock.callHistory.called()).toBe(true));
   expect(
     screen.queryByTestId('dashboard-workspace-chip'),
   ).not.toBeInTheDocument();

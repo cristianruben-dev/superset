@@ -170,10 +170,15 @@ class GetExploreCommand(BaseCommand, ABC):
             if slc.changed_by:
                 metadata["changed_by"] = slc.changed_by.get_full_name()
 
+        slice_data = slc.data if slc else None
+        if slc and slice_data is not None:
+            # Owners, admins and (Mi BI) workspace contributors overwrite it
+            slice_data["can_edit"] = security_manager.is_owner(slc)
+
         result: dict[str, Any] = {
             "dataset": sanitize_datasource_data(datasource_data),
             "form_data": form_data,
-            "slice": slc.data if slc else None,
+            "slice": slice_data,
             "message": message,
             "metadata": metadata,
         }

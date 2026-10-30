@@ -17,6 +17,7 @@
 import re
 from typing import Any, Mapping, Union
 
+from flask import g
 from marshmallow import fields, post_dump, post_load, pre_load, Schema
 from marshmallow.validate import Length, ValidationError
 
@@ -245,8 +246,10 @@ class DashboardGetResponseSchema(Schema):
     uuid = fields.UUID(allow_none=True)
 
     # pylint: disable=unused-argument
-    @post_dump()
-    def post_dump(self, serialized: dict[str, Any], **kwargs: Any) -> dict[str, Any]:
+    @post_dump(pass_original=True)
+    def post_dump(
+        self, serialized: dict[str, Any], original: Any, **kwargs: Any
+    ) -> dict[str, Any]:
         # Handle custom_tags → tags renaming when flag is enabled
         # When DASHBOARD_LIST_CUSTOM_TAGS_ONLY=True, FAB populates custom_tags
         # Rename it to tags for frontend compatibility
@@ -257,6 +260,9 @@ class DashboardGetResponseSchema(Schema):
             del serialized["owners"]
             del serialized["changed_by_name"]
             del serialized["changed_by"]
+        elif getattr(g, "user", None) is not None and getattr(original, "id", None):
+            # Owners, admins and (Mi BI) workspace contributors can change it
+            serialized["can_edit"] = security_manager.is_owner(original)
         return serialized
 
 

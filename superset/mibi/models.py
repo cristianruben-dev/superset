@@ -26,6 +26,13 @@ from superset.models.helpers import AuditMixinNullable, UUIDMixin
 
 WORKSPACES_TABLE = "mibi_workspaces"
 WORKSPACE_DASHBOARDS_TABLE = "mibi_workspace_dashboards"
+WORKSPACE_MEMBERS_TABLE = "mibi_workspace_members"
+
+# Workspace roles, from the least to the most rights
+ROLE_VIEWER = "viewer"
+ROLE_CONTRIBUTOR = "contributor"
+ROLE_ADMIN = "admin"
+ROLES = (ROLE_VIEWER, ROLE_CONTRIBUTOR, ROLE_ADMIN)
 
 
 class Workspace(AuditMixinNullable, UUIDMixin, Model):
@@ -44,6 +51,12 @@ class Workspace(AuditMixinNullable, UUIDMixin, Model):
 
     dashboards = relationship(
         "WorkspaceDashboard",
+        back_populates="workspace",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+    )
+    members = relationship(
+        "WorkspaceMember",
         back_populates="workspace",
         cascade="all, delete-orphan",
         passive_deletes=True,
@@ -69,3 +82,33 @@ class WorkspaceDashboard(Model):
     )
 
     workspace = relationship("Workspace", back_populates="dashboards")
+
+
+class WorkspaceMember(Model):
+    """A user with a role in a workspace.
+
+    * viewer: sees the workspace and its dashboards
+    * contributor: also adds, creates and edits its dashboards and charts
+    * admin: also changes the workspace and who belongs to it
+    """
+
+    __tablename__ = WORKSPACE_MEMBERS_TABLE
+    __table_args__ = (
+        sa.UniqueConstraint(
+            "workspace_id", "user_id", name="uq_mibi_workspace_members"
+        ),
+    )
+
+    id = sa.Column(sa.Integer, primary_key=True)
+    workspace_id = sa.Column(
+        sa.Integer,
+        sa.ForeignKey(f"{WORKSPACES_TABLE}.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    user_id = sa.Column(
+        sa.Integer, sa.ForeignKey("ab_user.id", ondelete="CASCADE"), nullable=False
+    )
+    role = sa.Column(sa.String(20), nullable=False, default=ROLE_VIEWER)
+
+    workspace = relationship("Workspace", back_populates="members")
+    user = relationship("User", foreign_keys=[user_id])

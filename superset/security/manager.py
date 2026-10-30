@@ -2693,6 +2693,14 @@ class SupersetSecurityManager(  # pylint: disable=too-many-public-methods
             if self.is_admin() or self.is_owner(dashboard):
                 return
 
+            # Mi BI: a dashboard inside a workspace is for the workspace members
+            from superset.mibi.workspace_access import can_see_dashboard
+
+            if not can_see_dashboard(dashboard.id):
+                raise SupersetSecurityException(
+                    self.get_dashboard_access_error_object(dashboard)
+                )
+
             # TODO: Once a better sharing flow is in place, we should move the
             # dashboard.published check here so that it's applied to both
             # regular RBAC and DASHBOARD_RBAC
@@ -3133,6 +3141,13 @@ class SupersetSecurityManager(  # pylint: disable=too-many-public-methods
 
         if self.is_admin():
             return
+
+        # Mi BI: workspace contributors and admins edit the workspace dashboards
+        from superset.mibi.workspace_access import edits_as_workspace_member
+
+        if edits_as_workspace_member(resource):
+            return
+
         orig_resource = self.session.query(resource.__class__).get(resource.id)
         owners = orig_resource.owners if hasattr(orig_resource, "owners") else []
 

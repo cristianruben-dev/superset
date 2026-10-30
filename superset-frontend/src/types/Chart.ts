@@ -63,6 +63,8 @@ export interface Chart {
 }
 
 export type Slice = {
+  /** Whether the current user can overwrite it (owners, admins, workspace contributors) */
+  can_edit?: boolean;
   id?: number;
   slice_id: number;
   slice_name: string;

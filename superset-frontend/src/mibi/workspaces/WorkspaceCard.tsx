@@ -20,8 +20,8 @@ import { Link } from 'react-router-dom';
 import { t, tn } from '@apache-superset/core/translation';
 import { css, styled } from '@apache-superset/core/theme';
 import { Icons } from '@superset-ui/core/components/Icons';
-import { relativeTime } from '../time';
 import { workspaceUrl, type Workspace } from './api';
+import { MemberAvatars, RoleBadge } from './roles';
 import { WorkspaceAvatar, workspaceGradient } from './WorkspaceAvatar';
 
 const Card = styled(Link)`
@@ -90,6 +90,12 @@ const Card = styled(Link)`
         ${theme.boxShadowTertiary};
     }
 
+    .role {
+      position: absolute;
+      top: 94px;
+      right: ${theme.sizeUnit * 5}px;
+    }
+
     .body {
       display: flex;
       flex: 1;
@@ -147,8 +153,8 @@ const Card = styled(Link)`
       }
 
       .when {
+        display: inline-flex;
         margin-left: auto;
-        color: ${theme.colorTextTertiary};
       }
     }
   `}
@@ -173,6 +179,11 @@ export function WorkspaceCard({ workspace }: WorkspaceCardProps) {
         style={cover}
       />
       <WorkspaceAvatar workspace={workspace} size="l" className="avatar" />
+      {workspace.role && (
+        <span className="role">
+          <RoleBadge role={workspace.role} />
+        </span>
+      )}
       <span className="body">
         <span className="name" title={workspace.name}>
           {workspace.name}
@@ -194,11 +205,13 @@ export function WorkspaceCard({ workspace }: WorkspaceCardProps) {
               workspace.dashboard_count,
             )}
           </span>
-          {workspace.changed_on && (
-            <span className="when">
-              {relativeTime(new Date(workspace.changed_on).getTime())}
-            </span>
-          )}
+          <span className="when">
+            <MemberAvatars
+              members={workspace.members}
+              total={workspace.member_count}
+              size={22}
+            />
+          </span>
         </span>
       </span>
     </Card>

@@ -45,6 +45,13 @@ MIBI_SHOW_POWERED_BY = False
 
 MIBI_SINGLE_DASHBOARD_CHARTS = True
 
+# --- Workspaces ---------------------------------------------------------------
+# Dashboards inside a workspace are only for its members (viewers, contributors and
+# admins) and their owners; contributors and admins edit them. With False,
+# workspaces only group dashboards. See superset/mibi/workspace_access.py.
+
+MIBI_WORKSPACE_ACCESS = True
+
 # --- Databases --------------------------------------------------------------
 # Presto is not offered, but its engine spec stays: Hive, Spark and Databricks
 # build on it. The Hive driver (pyhive) also registers the Presto dialect, so it

@@ -34,6 +34,8 @@ export interface Dashboard {
   changed_on: string;
   charts: string[]; // just chart names, unfortunately...
   owners: Owner[];
+  /** Whether the current user can change it (owners, admins, workspace contributors) */
+  can_edit?: boolean;
   roles: Role[];
   theme?: {
     id: number;

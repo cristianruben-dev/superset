@@ -24,6 +24,19 @@ export interface WorkspaceUser {
   last_name: string;
 }
 
+export type WorkspaceRole = 'viewer' | 'contributor' | 'admin';
+
+export const WORKSPACE_ROLES: WorkspaceRole[] = [
+  'admin',
+  'contributor',
+  'viewer',
+];
+
+export interface WorkspaceMember extends WorkspaceUser {
+  role: WorkspaceRole;
+  username?: string;
+}
+
 export interface Workspace {
   id: number;
   uuid: string | null;
@@ -35,7 +48,15 @@ export interface Workspace {
   dashboard_count: number;
   changed_on: string | null;
   created_by: WorkspaceUser | null;
+  /** The current user's role; Superset admins administer every workspace */
+  role: WorkspaceRole | null;
+  /** Change the workspace and its members */
   can_edit: boolean;
+  /** Add, create and edit its dashboards */
+  can_contribute: boolean;
+  member_count: number;
+  /** The first members, admins first */
+  members: WorkspaceMember[];
 }
 
 export interface WorkspaceSummary {
@@ -43,6 +64,7 @@ export interface WorkspaceSummary {
   name: string;
   color: string | null;
   image_url: string | null;
+  role?: WorkspaceRole | null;
 }
 
 export interface WorkspaceFields {
@@ -181,7 +203,59 @@ export async function fetchWorkspaceDashboards(
   return json.result as WorkspaceDashboard[];
 }
 
+export async function fetchWorkspaceMembers(
+  id: number,
+): Promise<WorkspaceMember[]> {
+  const { json } = await SupersetClient.get({
+    endpoint: `${BASE}${id}/members/`,
+  });
+  return json.result as WorkspaceMember[];
+}
+
+/** Add a member or change their role. */
+export async function setWorkspaceMember(
+  id: number,
+  userId: number,
+  role: WorkspaceRole,
+): Promise<Workspace> {
+  const { json } = await SupersetClient.put({
+    endpoint: `${BASE}${id}/members/`,
+    jsonPayload: { user_id: userId, role },
+  });
+  return json.result as Workspace;
+}
+
+/** Remove a member; null when the current user left the workspace. */
+export async function removeWorkspaceMember(
+  id: number,
+  userId: number,
+): Promise<Workspace | null> {
+  const { json } = await SupersetClient.delete({
+    endpoint: `${BASE}${id}/members/${userId}/`,
+  });
+  return (json.result as Workspace | null) ?? null;
+}
+
+/** Active users who are not members yet. */
+export async function searchMemberCandidates(
+  id: number,
+  text: string,
+): Promise<WorkspaceMember[]> {
+  const { json } = await SupersetClient.get({
+    endpoint: `${BASE}${id}/member_candidates/?q=${encodeURIComponent(text)}`,
+  });
+  return json.result as WorkspaceMember[];
+}
+
 export const workspaceUrl = (id: number) => `/workspace/${id}/`;
+
+export const userName = (user: WorkspaceUser) =>
+  [user.first_name, user.last_name].filter(Boolean).join(' ');
+
+export const userInitials = (user: WorkspaceUser) =>
+  (
+    `${user.first_name?.[0] || ''}${user.last_name?.[0] || ''}` || '?'
+  ).toUpperCase();
 
 /** Up to two initials for the workspace avatar. */
 export function workspaceInitials(name: string): string {

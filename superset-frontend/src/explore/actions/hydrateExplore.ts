@@ -154,9 +154,9 @@ export const hydrateExplore =
       // which will be manipulable by future reducers.
       can_add: findPermission('can_write', 'Chart', user?.roles),
       can_download: findPermission('can_csv', 'Superset', user?.roles),
-      can_overwrite: ensureIsArray(slice?.owners).includes(
-        user?.userId as number,
-      ),
+      can_overwrite:
+        ensureIsArray(slice?.owners).includes(user?.userId as number) ||
+        slice?.can_edit === true,
       isDatasourceMetaLoading: false,
       isStarred: false,
       triggerRender: false,

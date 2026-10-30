@@ -49,7 +49,10 @@ export const canUserEditDashboard = (
   user?: UserWithPermissionsAndRoles | UndefinedUser | null,
 ) =>
   isUserWithPermissionsAndRoles(user) &&
-  (isUserAdmin(user) || isUserDashboardOwner(dashboard, user)) &&
+  (isUserAdmin(user) ||
+    isUserDashboardOwner(dashboard, user) ||
+    // Set by the API, e.g. for Mi BI workspace contributors
+    dashboard.can_edit === true) &&
   findPermission('can_write', 'Dashboard', user?.roles);
 
 export function userHasPermission(

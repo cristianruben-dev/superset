@@ -97,24 +97,6 @@ def test_update_and_delete(
     assert client.get(f"/api/v1/workspace/{pk}/").status_code == 404
 
 
-def test_only_creator_or_admin_can_edit(
-    mocker: MockerFixture, client: Any, workspaces: list[Dashboard], session: Session
-) -> None:
-    workspace = Workspace(name="Otro", created_by_fk=999)
-    session.add(workspace)
-    session.flush()
-    mocker.patch.object(security_manager, "is_admin", return_value=False)
-    mocker.patch("superset.mibi.workspaces.get_user_id", return_value=1)
-
-    assert (
-        client.get(f"/api/v1/workspace/{workspace.id}/").json["result"]["can_edit"]
-        is False
-    )
-    response = client.put(f"/api/v1/workspace/{workspace.id}/", json={"name": "X"})
-    assert response.status_code == 403
-    assert client.delete(f"/api/v1/workspace/{workspace.id}/").status_code == 403
-
-
 def test_dashboards_move_between_workspaces(
     client: Any, workspaces: list[Dashboard], session: Session
 ) -> None:
@@ -244,3 +226,206 @@ def test_workspace_dashboards(
     assert response.json["result"][0]["dashboard_title"] == "A"
     assert response.json["result"][0]["url"] == a.url
     assert client.get("/api/v1/workspace/404/dashboards/").status_code == 404
+
+
+# --------------------------------------------------------------------- members
+
+
+@pytest.fixture
+def people(session: Session, workspaces: list[Dashboard]) -> dict[str, Any]:
+    """Three users; the API acts as whoever ``as_user`` picks (admin by default)."""
+    user_model = security_manager.user_model
+    users = {
+        name: user_model(
+            first_name=name.title(),
+            last_name="Test",
+            username=name,
+            email=f"{name}@example.com",
+            active=True,
+        )
+        for name in ("ana", "bea", "carlos")
+    }
+    session.add_all(users.values())
+    session.flush()
+    return users
+
+
+def as_user(mocker: MockerFixture, user: Any | None) -> None:
+    """Act as a regular user (not a Superset admin), or as an admin with None."""
+    mocker.patch.object(security_manager, "is_admin", return_value=user is None)
+    user_id = user.id if user else None
+    mocker.patch("superset.mibi.workspaces.get_user_id", return_value=user_id)
+    mocker.patch("superset.mibi.workspace_access.get_user_id", return_value=user_id)
+
+
+def create_as(mocker: MockerFixture, client: Any, user: Any, name: str) -> int:
+    as_user(mocker, user)
+    return client.post("/api/v1/workspace/", json={"name": name}).json["result"]["id"]
+
+
+def test_creator_administers_the_workspace(
+    mocker: MockerFixture, client: Any, people: dict[str, Any]
+) -> None:
+    pk = create_as(mocker, client, people["ana"], "Ventas")
+
+    result = client.get(f"/api/v1/workspace/{pk}/").json["result"]
+
+    assert result["role"] == "admin"
+    assert result["can_edit"] is True
+    assert result["can_contribute"] is True
+    assert result["member_count"] == 1
+    members = client.get(f"/api/v1/workspace/{pk}/members/").json["result"]
+    assert [(m["id"], m["role"]) for m in members] == [(people["ana"].id, "admin")]
+
+
+def test_workspaces_are_private_to_their_members(
+    mocker: MockerFixture, client: Any, people: dict[str, Any]
+) -> None:
+    pk = create_as(mocker, client, people["ana"], "Ventas")
+    create_as(mocker, client, people["bea"], "Finanzas")
+
+    as_user(mocker, people["ana"])
+    assert [w["name"] for w in client.get("/api/v1/workspace/").json["result"]] == [
+        "Ventas"
+    ]
+
+    as_user(mocker, people["bea"])
+    assert client.get(f"/api/v1/workspace/{pk}/").status_code == 404
+    assert client.get(f"/api/v1/workspace/{pk}/dashboards/").status_code == 404
+    assert client.get(f"/api/v1/workspace/{pk}/members/").status_code == 404
+
+    # Superset admins see every workspace
+    as_user(mocker, None)
+    assert len(client.get("/api/v1/workspace/").json["result"]) == 2
+
+
+def test_roles_decide_what_members_can_do(
+    mocker: MockerFixture,
+    client: Any,
+    people: dict[str, Any],
+    workspaces: list[Dashboard],
+) -> None:
+    ana, bea, carlos = people["ana"], people["bea"], people["carlos"]
+    pk = create_as(mocker, client, ana, "Ventas")
+    client.put(
+        f"/api/v1/workspace/{pk}/members/", json={"user_id": bea.id, "role": "viewer"}
+    )
+    client.put(
+        f"/api/v1/workspace/{pk}/members/",
+        json={"user_id": carlos.id, "role": "contributor"},
+    )
+    mocker.patch.object(security_manager, "raise_for_ownership")
+    dashboard = workspaces[0].id
+
+    as_user(mocker, bea)
+    viewer = client.get(f"/api/v1/workspace/{pk}/").json["result"]
+    assert (viewer["role"], viewer["can_contribute"]) == ("viewer", False)
+    move = {"add": [dashboard]}
+    assert (
+        client.put(f"/api/v1/workspace/{pk}/dashboards/", json=move).status_code == 403
+    )
+    assert client.put(f"/api/v1/workspace/{pk}/", json={"name": "X"}).status_code == 403
+
+    as_user(mocker, carlos)
+    assert (
+        client.put(f"/api/v1/workspace/{pk}/dashboards/", json=move).status_code == 200
+    )
+    assert client.put(f"/api/v1/workspace/{pk}/", json={"name": "X"}).status_code == 403
+    member = {"user_id": bea.id, "role": "admin"}
+    assert (
+        client.put(f"/api/v1/workspace/{pk}/members/", json=member).status_code == 403
+    )
+
+    as_user(mocker, ana)
+    assert client.put(f"/api/v1/workspace/{pk}/", json={"name": "X"}).status_code == 200
+
+
+def test_member_roles_are_validated(
+    mocker: MockerFixture, client: Any, people: dict[str, Any]
+) -> None:
+    pk = create_as(mocker, client, people["ana"], "Ventas")
+    url = f"/api/v1/workspace/{pk}/members/"
+
+    assert (
+        client.put(url, json={"user_id": people["bea"].id, "role": "owner"}).status_code
+        == 400
+    )
+    assert client.put(url, json={"user_id": 9999, "role": "viewer"}).status_code == 404
+
+
+def test_a_workspace_keeps_one_admin(
+    mocker: MockerFixture, client: Any, people: dict[str, Any]
+) -> None:
+    ana, bea = people["ana"], people["bea"]
+    pk = create_as(mocker, client, ana, "Ventas")
+    url = f"/api/v1/workspace/{pk}/members/"
+
+    assert (
+        client.put(url, json={"user_id": ana.id, "role": "viewer"}).status_code == 400
+    )
+    assert client.delete(f"{url}{ana.id}/").status_code == 400
+
+    client.put(url, json={"user_id": bea.id, "role": "admin"})
+    assert (
+        client.put(url, json={"user_id": ana.id, "role": "viewer"}).status_code == 200
+    )
+
+
+def test_members_can_leave(
+    mocker: MockerFixture, client: Any, people: dict[str, Any]
+) -> None:
+    ana, bea = people["ana"], people["bea"]
+    pk = create_as(mocker, client, ana, "Ventas")
+    client.put(
+        f"/api/v1/workspace/{pk}/members/", json={"user_id": bea.id, "role": "viewer"}
+    )
+
+    as_user(mocker, bea)
+    assert client.delete(f"/api/v1/workspace/{pk}/members/{ana.id}/").status_code == 403
+    response = client.delete(f"/api/v1/workspace/{pk}/members/{bea.id}/")
+
+    assert response.status_code == 200
+    assert response.json["result"] is None
+    assert client.get(f"/api/v1/workspace/{pk}/").status_code == 404
+
+
+def test_member_candidates(
+    mocker: MockerFixture, client: Any, people: dict[str, Any]
+) -> None:
+    pk = create_as(mocker, client, people["ana"], "Ventas")
+
+    names = [
+        u["username"]
+        for u in client.get(f"/api/v1/workspace/{pk}/member_candidates/?q=a").json[
+            "result"
+        ]
+    ]
+
+    assert "ana" not in names
+    assert {"bea", "carlos"} <= set(names)
+    only = client.get(f"/api/v1/workspace/{pk}/member_candidates/?q=carl").json
+    assert [u["username"] for u in only["result"]] == ["carlos"]
+
+
+def test_of_dashboard_hides_foreign_workspaces(
+    mocker: MockerFixture,
+    client: Any,
+    people: dict[str, Any],
+    workspaces: list[Dashboard],
+) -> None:
+    pk = create_as(mocker, client, people["ana"], "Ventas")
+    mocker.patch.object(security_manager, "raise_for_ownership")
+    dashboard = workspaces[0].id
+    client.put(f"/api/v1/workspace/{pk}/dashboards/", json={"add": [dashboard]})
+
+    assert (
+        client.get(f"/api/v1/workspace/of_dashboard/{dashboard}/").json["result"][
+            "role"
+        ]
+        == "admin"
+    )
+    as_user(mocker, people["bea"])
+    assert (
+        client.get(f"/api/v1/workspace/of_dashboard/{dashboard}/").json["result"]
+        is None
+    )

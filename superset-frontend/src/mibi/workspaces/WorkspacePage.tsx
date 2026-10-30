@@ -18,7 +18,7 @@
  */
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useHistory, useParams } from 'react-router-dom';
-import { t } from '@apache-superset/core/translation';
+import { t, tn } from '@apache-superset/core/translation';
 import { css, styled } from '@apache-superset/core/theme';
 import { getClientErrorObject, SupersetClient } from '@superset-ui/core';
 import {
@@ -42,6 +42,8 @@ import {
   type WorkspaceDashboard,
 } from './api';
 import { AddDashboardsModal } from './AddDashboardsModal';
+import { MemberAvatars, RoleBadge } from './roles';
+import { WorkspaceAccessModal } from './WorkspaceAccessModal';
 import { WorkspaceAvatar, workspaceGradient } from './WorkspaceAvatar';
 import { Grid, Page } from './WorkspaceListPage';
 import { WorkspaceModal } from './WorkspaceModal';
@@ -105,9 +107,19 @@ const Hero = styled.header`
     .content {
       display: flex;
       align-items: flex-end;
-      flex-wrap: wrap;
       gap: ${theme.sizeUnit * 5}px;
-      padding: 0 ${theme.sizeUnit * 7}px ${theme.sizeUnit * 6}px;
+      padding: 0 ${theme.sizeUnit * 7}px ${theme.sizeUnit * 5}px;
+    }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: ${theme.sizeUnit * 3}px;
+      padding: ${theme.sizeUnit * 3}px ${theme.sizeUnit * 7}px;
+      border-top: 1px solid ${theme.colorBorderSecondary};
+      background: ${theme.colorFillQuaternary};
     }
 
     .avatar {
@@ -146,7 +158,6 @@ const Hero = styled.header`
       flex-wrap: wrap;
       align-items: center;
       gap: ${theme.sizeUnit * 4}px;
-      margin-top: ${theme.sizeUnit * 3}px;
       font-size: ${theme.fontSizeSM}px;
       color: ${theme.colorTextTertiary};
 
@@ -162,7 +173,26 @@ const Hero = styled.header`
       }
     }
 
+    .members-link {
+      all: unset;
+      display: inline-flex;
+      align-items: center;
+      gap: ${theme.sizeUnit * 2}px;
+      cursor: pointer;
+      color: ${theme.colorTextSecondary};
+
+      &:hover {
+        color: ${theme.colorPrimary};
+      }
+
+      &:focus-visible {
+        outline: 2px solid ${theme.colorPrimaryBorder};
+        border-radius: 999px;
+      }
+    }
+
     .actions {
+      flex-wrap: wrap;
       display: flex;
       align-items: center;
       gap: ${theme.sizeUnit * 2}px;
@@ -235,11 +265,6 @@ const EmptyDashboards = styled.div`
   `}
 `;
 
-const fullName = (workspace: Workspace) =>
-  [workspace.created_by?.first_name, workspace.created_by?.last_name]
-    .filter(Boolean)
-    .join(' ');
-
 /** A workspace: its header and the dashboards that live in it. */
 export default function WorkspacePage() {
   const { workspaceId } = useParams<{ workspaceId: string }>();
@@ -254,6 +279,7 @@ export default function WorkspacePage() {
   const [editing, setEditing] = useState(false);
   const [adding, setAdding] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [managingAccess, setManagingAccess] = useState(false);
   const [creatingDashboard, setCreatingDashboard] = useState(false);
 
   const dashboardIds = useMemo(
@@ -346,8 +372,8 @@ export default function WorkspacePage() {
   const cover = workspace.image_url
     ? { backgroundImage: `url("${workspace.image_url}")` }
     : { background: workspaceGradient(workspace.color, 110) };
-  const creator = fullName(workspace);
   const canEdit = workspace.can_edit;
+  const canContribute = workspace.can_contribute;
 
   const newDashboardButton = (
     <Button
@@ -389,40 +415,61 @@ export default function WorkspacePage() {
             {workspace.description && (
               <p className="description">{workspace.description}</p>
             )}
-            <div className="meta">
-              <span>
-                <Icons.DashboardOutlined iconSize="m" />
-                <strong>{workspace.dashboard_count}</strong>
-                {workspace.dashboard_count === 1
-                  ? t('dashboard')
-                  : t('dashboards')}
-              </span>
-              {creator && (
-                <span>
-                  <Icons.UserOutlined iconSize="m" />
-                  {t('Created by %s', creator)}
-                </span>
-              )}
-              {workspace.changed_on && (
-                <span>
-                  <Icons.ClockCircleOutlined iconSize="m" />
-                  {t(
-                    'Updated %s',
-                    relativeTime(new Date(workspace.changed_on).getTime()),
-                  )}
-                </span>
-              )}
-            </div>
           </div>
-          {canEdit && (
-            <div className="actions">
-              {addButton}
-              {newDashboardButton}
+        </div>
+        <div className="toolbar">
+          <div className="meta">
+            <span>
+              <Icons.DashboardOutlined iconSize="m" />
+              <strong>{workspace.dashboard_count}</strong>
+              {workspace.dashboard_count === 1
+                ? t('dashboard')
+                : t('dashboards')}
+            </span>
+            <button
+              type="button"
+              className="members-link"
+              onClick={() => setManagingAccess(true)}
+              title={canEdit ? t('Manage access') : t('Members')}
+            >
+              <MemberAvatars
+                members={workspace.members}
+                total={workspace.member_count}
+                size={22}
+              />
+              {tn(
+                '%s member',
+                '%s members',
+                workspace.member_count,
+                workspace.member_count,
+              )}
+            </button>
+            {workspace.role && <RoleBadge role={workspace.role} />}
+            {workspace.changed_on && (
+              <span>
+                <Icons.ClockCircleOutlined iconSize="m" />
+                {t(
+                  'Updated %s',
+                  relativeTime(new Date(workspace.changed_on).getTime()),
+                )}
+              </span>
+            )}
+          </div>
+          <div className="actions">
+            {canContribute && addButton}
+            {canContribute && newDashboardButton}
+            {canEdit && (
               <Dropdown
                 trigger={['click']}
                 placement="bottomRight"
                 menu={{
                   items: [
+                    {
+                      key: 'access',
+                      icon: <Icons.TeamOutlined />,
+                      label: t('Manage access'),
+                      onClick: () => setManagingAccess(true),
+                    },
                     {
                       key: 'edit',
                       icon: <Icons.EditOutlined />,
@@ -448,8 +495,8 @@ export default function WorkspacePage() {
                   <Icons.EllipsisOutlined />
                 </Button>
               </Dropdown>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </Hero>
 
@@ -486,11 +533,11 @@ export default function WorkspacePage() {
             </span>
             <strong>{t('This workspace has no dashboards yet')}</strong>
             <span>
-              {canEdit
+              {canContribute
                 ? t('Create a dashboard here or bring existing ones.')
                 : t('Its dashboards will show up here.')}
             </span>
-            {canEdit && (
+            {canContribute && (
               <div className="buttons">
                 {addButton}
                 {newDashboardButton}
@@ -514,7 +561,7 @@ export default function WorkspacePage() {
                   saveFaveStar={saveFavoriteStatus}
                   isStarred={!!favoriteStatus[dashboard.id]}
                 />
-                {canEdit && dashboard.can_edit && (
+                {canContribute && (
                   <Dropdown
                     trigger={['click']}
                     menu={{
@@ -560,6 +607,18 @@ export default function WorkspacePage() {
           setAdding(false);
           setWorkspace(updated);
           loadDashboards();
+        }}
+      />
+      <WorkspaceAccessModal
+        show={managingAccess}
+        workspace={workspace}
+        onHide={() => setManagingAccess(false)}
+        onChanged={updated => {
+          if (updated) {
+            setWorkspace(updated);
+          } else {
+            history.push('/workspace/list/');
+          }
         }}
       />
       <DeleteModal

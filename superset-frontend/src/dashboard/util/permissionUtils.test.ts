@@ -106,6 +106,15 @@ const mockedIsFeatureEnabled = isFeatureEnabled as jest.Mock;
 
 // eslint-disable-next-line no-restricted-globals -- TODO: Migrate from describe blocks
 describe('canUserEditDashboard', () => {
+  test('allows users the API marks as editors, e.g. workspace contributors', () => {
+    expect(
+      canUserEditDashboard({ ...dashboard, can_edit: true }, outsiderUser),
+    ).toEqual(true);
+    expect(
+      canUserEditDashboard({ ...dashboard, can_edit: false }, outsiderUser),
+    ).toEqual(false);
+  });
+
   test('allows owners to edit', () => {
     expect(canUserEditDashboard(dashboard, ownerUser)).toEqual(true);
   });
