@@ -8551,9 +8551,8 @@ msgstr "Error de red al intentar recuperar el recurso"
 msgid "Network error."
 msgstr "Error de red."
 
-#, fuzzy
 msgid "New"
-msgstr "Ahora"
+msgstr "Nuevo"
 
 msgid "New chart"
 msgstr "Nuevo gráfico"
@@ -9326,9 +9325,8 @@ msgstr ""
 msgid "PDF download failed, please refresh and try again."
 msgstr "La descarga del PDF ha fallado; actualiza e inténtalo de nuevo."
 
-#, fuzzy
 msgid "Page"
-msgstr "Uso"
+msgstr "Página"
 
 #, fuzzy
 msgid "Page Size:"
@@ -17260,3 +17258,24 @@ msgid ""
 msgstr ""
 "Los gráficos que crees para este panel de control aparecen aquí, listos "
 "para arrastrarlos al diseño."
+
+msgid "Administration"
+msgstr "Administración"
+
+msgid "Main navigation"
+msgstr "Navegación principal"
+
+msgid "Expand sidebar"
+msgstr "Expandir menú lateral"
+
+msgid "Collapse sidebar"
+msgstr "Contraer menú lateral"
+
+msgid "Collapse"
+msgstr "Contraer"
+
+msgid "Search dashboards and pages…"
+msgstr "Buscar paneles y páginas…"
+
+msgid "Go to"
+msgstr "Ir a"

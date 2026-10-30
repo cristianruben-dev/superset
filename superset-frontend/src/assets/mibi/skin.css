@@ -575,3 +575,24 @@ table,
   border-radius: 8px;
   font-size: 12px;
 }
+
+/* ---------------------------------------------------------------- Command palette */
+
+[data-test='mibi-command-palette-modal'] .ant-modal-header {
+  display: none;
+}
+
+[data-test='mibi-command-palette-modal'] .ant-modal-content {
+  padding: 0;
+  overflow: hidden;
+  border-radius: 14px;
+  box-shadow: var(--mb-shadow-pop);
+}
+
+[data-test='mibi-command-palette-modal'] .ant-modal-body {
+  padding: 0 !important;
+}
+
+[data-test='mibi-command-palette-modal'] .ant-modal {
+  top: 12vh;
+}

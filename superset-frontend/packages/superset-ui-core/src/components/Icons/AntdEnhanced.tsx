@@ -163,6 +163,9 @@ import {
   HistoryOutlined,
   SlackOutlined,
   ApiOutlined,
+  HomeOutlined,
+  TeamOutlined,
+  SafetyOutlined,
 } from '@ant-design/icons';
 import { FC } from 'react';
 import { IconType } from './types';
@@ -315,6 +318,9 @@ const AntdIcons = {
   HistoryOutlined,
   SlackOutlined,
   ApiOutlined,
+  HomeOutlined,
+  TeamOutlined,
+  SafetyOutlined,
 } as const;
 
 type AntdIconNames = keyof typeof AntdIcons;

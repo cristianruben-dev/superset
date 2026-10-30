@@ -28,7 +28,7 @@ import { css } from '@apache-superset/core/theme';
 import { Layout, Loading } from '@superset-ui/core/components';
 import { setupAGGridModules } from '@superset-ui/core/components/ThemedAgGridReact';
 import { ErrorBoundary } from 'src/components';
-import Menu from 'src/features/home/Menu';
+import { AppShell } from 'src/mibi/shell';
 import getBootstrapData, { applicationRoot } from 'src/utils/getBootstrapData';
 import ToastContainer from 'src/components/MessageToasts/ToastContainer';
 import setupApp from 'src/setup/setupApp';
@@ -75,36 +75,39 @@ const App = () => (
     <ScrollToTop />
     <LocationPathnameLogger />
     <RootContextProviders>
-      <Menu
+      <AppShell
         data={bootstrapData.common.menu_data}
         isFrontendRoute={isFrontendRoute}
-      />
-      <ExtensionsStartup>
-        <Switch>
-          {routes.map(({ path, Component, props = {}, Fallback = Loading }) => (
-            <Route path={path} key={path}>
-              <Suspense fallback={<Fallback />}>
-                <Layout>
-                  <Layout.Content
-                    css={css`
-                      display: flex;
-                      flex-direction: column;
-                    `}
-                  >
-                    <ErrorBoundary
-                      css={css`
-                        margin: 16px;
-                      `}
-                    >
-                      <Component user={bootstrapData.user} {...props} />
-                    </ErrorBoundary>
-                  </Layout.Content>
-                </Layout>
-              </Suspense>
-            </Route>
-          ))}
-        </Switch>
-      </ExtensionsStartup>
+      >
+        <ExtensionsStartup>
+          <Switch>
+            {routes.map(
+              ({ path, Component, props = {}, Fallback = Loading }) => (
+                <Route path={path} key={path}>
+                  <Suspense fallback={<Fallback />}>
+                    <Layout>
+                      <Layout.Content
+                        css={css`
+                          display: flex;
+                          flex-direction: column;
+                        `}
+                      >
+                        <ErrorBoundary
+                          css={css`
+                            margin: 16px;
+                          `}
+                        >
+                          <Component user={bootstrapData.user} {...props} />
+                        </ErrorBoundary>
+                      </Layout.Content>
+                    </Layout>
+                  </Suspense>
+                </Route>
+              ),
+            )}
+          </Switch>
+        </ExtensionsStartup>
+      </AppShell>
       <ToastContainer />
     </RootContextProviders>
   </Router>

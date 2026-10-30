@@ -17,6 +17,7 @@
  * under the License.
  */
 
+import type { ReactNode } from 'react';
 import { Filter } from 'src/views/CRUD/types';
 import { NavBarProps, MenuObjectProps } from 'src/types/bootstrapTypes';
 
@@ -45,6 +46,10 @@ export interface RightMenuProps {
     text: string;
     color: string;
   };
+  /** Replaces the "+" trigger of the create menu */
+  newLabel?: ReactNode;
+  /** Replaces the "Settings" trigger of the settings and user menu */
+  settingsLabel?: ReactNode;
 }
 
 export enum GlobalMenuDataOptions {
