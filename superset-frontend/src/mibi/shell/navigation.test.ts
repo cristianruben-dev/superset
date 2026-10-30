@@ -66,8 +66,7 @@ test('groups the menu into primary, SQL, admin and extra sections', () => {
     'Home',
     'Workspaces',
     'Dashboards',
-    'Datasets',
-    'Databases',
+    'Data',
   ]);
   expect(sections[1].items.map(item => item.url)).toEqual([
     '/sqllab/',
@@ -84,12 +83,16 @@ test('groups the menu into primary, SQL, admin and extra sections', () => {
   });
 });
 
-test('uses the short sidebar label for databases', () => {
+test('folds datasets and databases into the data page', () => {
   const [main] = buildNavSections(menu);
+  const data = main.items.find(item => item.key === 'Data')!;
 
-  expect(main.items.find(item => item.key === 'Databases')?.label).toBe(
-    'Databases',
-  );
+  expect(data).toMatchObject({ url: '/data/', icon: 'DatabaseOutlined' });
+  expect(isNavItemActive(data, '/data/')).toBe(true);
+  expect(isNavItemActive(data, '/data/dataset/3/')).toBe(true);
+  expect(isNavItemActive(data, '/tablemodelview/list/')).toBe(true);
+  expect(isNavItemActive(data, '/databaseview/list/')).toBe(true);
+  expect(isNavItemActive(data, '/dashboard/list/')).toBe(false);
 });
 
 test('drops sections the user cannot access', () => {
@@ -118,5 +121,5 @@ test('shows workspaces only to users who can see dashboards', () => {
     { name: 'Datasets', label: 'Datasets', url: '/tablemodelview/list/' },
   ]);
 
-  expect(main.items.map(item => item.key)).toEqual(['Home', 'Datasets']);
+  expect(main.items.map(item => item.key)).toEqual(['Home', 'Data']);
 });

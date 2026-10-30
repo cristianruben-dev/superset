@@ -80,6 +80,15 @@ const WorkspacePage = lazy(
     ),
 );
 
+const DatasetPage = lazy(
+  () =>
+    import(/* webpackChunkName: "DatasetPage" */ 'src/mibi/data/DatasetPage'),
+);
+
+const DataPage = lazy(
+  () => import(/* webpackChunkName: "DataPage" */ 'src/mibi/data/DataPage'),
+);
+
 const DashboardList = lazy(
   () =>
     import(/* webpackChunkName: "DashboardList" */ 'src/pages/DashboardList'),
@@ -241,6 +250,14 @@ export const routes: Routes = [
   {
     path: '/workspace/:workspaceId/',
     Component: WorkspacePage,
+  },
+  {
+    path: '/data/dataset/:datasetId/',
+    Component: DatasetPage,
+  },
+  {
+    path: '/data/',
+    Component: DataPage,
   },
   {
     path: '/dashboard/list/',

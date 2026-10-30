@@ -17052,3 +17052,171 @@ msgid "%s member"
 msgid_plural "%s members"
 msgstr[0] "%s miembro"
 msgstr[1] "%s miembros"
+
+msgid "Another metric has this name"
+msgstr "Ya hay otra métrica con este nombre"
+
+msgid "Automatic"
+msgstr "Automático"
+
+msgid "Back to data"
+msgstr "Volver a Datos"
+
+msgid "Connect a database or upload a file, then create a dataset from one of its tables."
+msgstr "Conecta una base de datos o sube un archivo y después crea un conjunto de datos con una de sus tablas."
+
+msgid "Connections"
+msgstr "Conexiones"
+
+msgid "Create one to reuse a calculation in every chart."
+msgstr "Crea una para reutilizar un cálculo en todos los gráficos."
+
+msgid "Currency ($12,345.68)"
+msgstr "Moneda (12.345,68 $)"
+
+msgid "Dataset type"
+msgstr "Tipo de conjunto de datos"
+
+msgid "Decimal (12,345.68)"
+msgstr "Decimal (12.345,68)"
+
+msgid "Delete %s"
+msgstr "Eliminar %s"
+
+msgid "Delete metric"
+msgstr "Eliminar métrica"
+
+msgid "Display name"
+msgstr "Nombre visible"
+
+msgid "Edit %s"
+msgstr "Editar %s"
+
+msgid "Edit connection"
+msgstr "Editar conexión"
+
+msgid "Edit metric"
+msgstr "Editar métrica"
+
+msgid "Filterable"
+msgstr "Filtrable"
+
+msgid "Groupable"
+msgstr "Agrupable"
+
+msgid "Metric created"
+msgstr "Métrica creada"
+
+msgid "Metric deleted"
+msgstr "Métrica eliminada"
+
+msgid "Metric updated"
+msgstr "Métrica actualizada"
+
+msgid "Metrics are reusable calculations, like Power BI measures. Charts can use them as they are."
+msgstr "Las métricas son cálculos reutilizables, como las medidas de Power BI. Los gráficos las usan tal cual."
+
+msgid "New metric"
+msgstr "Nueva métrica"
+
+msgid "No chart uses it yet."
+msgstr "Aún no lo usa ningún gráfico."
+
+msgid "No dashboard uses it yet."
+msgstr "Aún no lo usa ningún panel de control."
+
+msgid "No datasets match"
+msgstr "Ningún conjunto de datos coincide"
+
+msgid "No metrics yet"
+msgstr "Aún no hay métricas"
+
+msgid "Open"
+msgstr "Abrir"
+
+msgid "Open as a list"
+msgstr "Ver como lista"
+
+msgid "Optional"
+msgstr "Opcional"
+
+msgid "Percentage (12.3%)"
+msgstr "Porcentaje (12,3 %)"
+
+msgid "SQL queries"
+msgstr "Consultas SQL"
+
+msgid "Search datasets"
+msgstr "Buscar conjuntos de datos"
+
+msgid "Short (12.3k)"
+msgstr "Abreviado (12,3 k)"
+
+msgid "Show all connections"
+msgstr "Mostrar todas las conexiones"
+
+msgid "The dataset could not be loaded"
+msgstr "No se ha podido cargar el conjunto de datos"
+
+msgid "The metric could not be deleted"
+msgstr "No se ha podido eliminar la métrica"
+
+msgid "The metric could not be saved"
+msgstr "No se ha podido guardar la métrica"
+
+msgid "The rows could not be loaded"
+msgstr "No se han podido cargar las filas"
+
+msgid "There are no datasets yet"
+msgstr "Aún no hay conjuntos de datos"
+
+msgid "This dataset does not exist"
+msgstr "Este conjunto de datos no existe"
+
+msgid "Total sales"
+msgstr "Ventas totales"
+
+msgid "Try another search or connection."
+msgstr "Prueba otra búsqueda u otra conexión."
+
+msgid "Upload columnar file"
+msgstr "Subir archivo columnar"
+
+msgid "Uploads"
+msgstr "Subidas"
+
+msgid "Whole number (12,345)"
+msgstr "Número entero (12.345)"
+
+msgid "Your connections and the datasets your charts are built on."
+msgstr "Tus conexiones y los conjuntos de datos sobre los que se crean tus gráficos."
+
+#, python-format
+msgid "%s chart"
+msgid_plural "%s charts"
+msgstr[0] "%s gráfico"
+msgstr[1] "%s gráficos"
+
+#, python-format
+msgid "%s column"
+msgid_plural "%s columns"
+msgstr[0] "%s columna"
+msgstr[1] "%s columnas"
+
+#, python-format
+msgid "%s dataset"
+msgid_plural "%s datasets"
+msgstr[0] "%s conjunto de datos"
+msgstr[1] "%s conjuntos de datos"
+
+#, python-format
+msgid "%s metric"
+msgid_plural "%s metrics"
+msgstr[0] "%s métrica"
+msgstr[1] "%s métricas"
+
+#, python-format
+msgid "First %s row"
+msgid_plural "First %s rows"
+msgstr[0] "Primera fila"
+msgstr[1] "Primeras %s filas"

@@ -78,7 +78,12 @@ const ICONS: Record<string, NavIconName> = {
 };
 
 /** Menus whose entries go to the primary navigation, in this order. */
-const PRIMARY = ['Dashboards', 'Datasets', 'Data'];
+const PRIMARY = ['Dashboards'];
+/** Menus folded into the single "Data" page. */
+const DATA_MENUS = ['Datasets', 'Data'];
+const DATA_URL = '/data/';
+/** Pages that belong to the "Data" entry of the sidebar. */
+const DATA_PATHS = ['/data/', '/tablemodelview/', '/databaseview/', '/dataset/'];
 /** Menus grouped under their own titled section, in this order. */
 const SECTIONS: { key: string; menus: string[]; collapsible?: boolean }[] = [
   { key: 'sql', menus: ['SQL Lab'] },
@@ -148,6 +153,17 @@ export function buildNavSections(menu: MenuObjectProps[]): NavSection[] {
             ]
           : []),
         ...pick(PRIMARY),
+        // Connections, datasets and file uploads live on one page
+        ...(pick(DATA_MENUS).length
+          ? [
+              {
+                key: 'Data',
+                label: t('Data'),
+                url: DATA_URL,
+                icon: 'DatabaseOutlined' as NavIconName,
+              },
+            ]
+          : []),
       ],
     },
     ...SECTIONS.map(({ key, menus, collapsible }) => ({
@@ -159,7 +175,11 @@ export function buildNavSections(menu: MenuObjectProps[]): NavSection[] {
   ];
 
   // Menus this layout does not know about still show up, at the end
-  const known = new Set([...PRIMARY, ...SECTIONS.flatMap(s => s.menus)]);
+  const known = new Set([
+    ...PRIMARY,
+    ...DATA_MENUS,
+    ...SECTIONS.flatMap(s => s.menus),
+  ]);
   const others = menu.filter(
     item => item && !known.has(item.name || item.label),
   );
@@ -179,6 +199,9 @@ export function buildNavSections(menu: MenuObjectProps[]): NavSection[] {
 export function isNavItemActive(item: NavItem, pathname: string): boolean {
   if (item.url === HOME_URL) {
     return pathname === HOME_URL;
+  }
+  if (item.url === DATA_URL) {
+    return DATA_PATHS.some(path => pathname.startsWith(path));
   }
   const base = item.url.replace(/(list\/?)?$/, '');
   return (

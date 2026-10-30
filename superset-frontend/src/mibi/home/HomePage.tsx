@@ -382,14 +382,14 @@ export function HomeBanner() {
     },
     {
       key: 'database',
-      to: '/databaseview/list/',
+      to: '/data/',
       icon: <Icons.DatabaseOutlined />,
       title: t('Connect data'),
       description: t('Add a database or upload a file'),
     },
     {
       key: 'dataset',
-      to: '/tablemodelview/list/',
+      to: '/data/',
       icon: <Icons.TableOutlined />,
       title: t('Datasets'),
       description: t('Prepare the tables your charts use'),
