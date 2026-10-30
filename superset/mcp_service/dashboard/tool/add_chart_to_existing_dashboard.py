@@ -365,7 +365,7 @@ def _find_and_authorize_dashboard(
         destructiveHint=False,
     ),
 )
-def add_chart_to_existing_dashboard(
+def add_chart_to_existing_dashboard(  # noqa: C901
     request: AddChartToDashboardRequest, ctx: Context
 ) -> AddChartToDashboardResponse:
     """
@@ -422,6 +422,25 @@ def add_chart_to_existing_dashboard(
                     error=(
                         f"Chart {request.chart_id} is already in dashboard "
                         f"{request.dashboard_id}"
+                    ),
+                )
+
+            # Charts can belong to a single dashboard (Mi BI)
+            from superset.mibi.single_dashboard import (
+                find_charts_in_other_dashboards,
+                is_enabled,
+            )
+
+            if is_enabled() and find_charts_in_other_dashboards(
+                [request.chart_id], dashboard.id
+            ):
+                return AddChartToDashboardResponse(
+                    dashboard=None,
+                    dashboard_url=None,
+                    position=None,
+                    error=(
+                        f"Chart {request.chart_id} already belongs to another "
+                        "dashboard. A chart can only belong to one dashboard."
                     ),
                 )
 

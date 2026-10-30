@@ -39,6 +39,7 @@ from superset.commands.utils import populate_roles, update_tags, validate_tags
 from superset.daos.dashboard import DashboardDAO
 from superset.daos.report import ReportScheduleDAO
 from superset.exceptions import SupersetSecurityException
+from superset.mibi.single_dashboard import validate_dashboard_layout
 from superset.models.dashboard import Dashboard
 from superset.reports.models import ReportSchedule
 from superset.tags.models import ObjectType
@@ -114,6 +115,11 @@ class UpdateDashboardCommand(UpdateMixin, BaseCommand):
             validate_tags(ObjectType.dashboard, self._model.tags, tag_ids)
         except ValidationError as ex:
             exceptions.append(ex)
+
+        # Validate the charts in the layout don't belong to another dashboard
+        validate_dashboard_layout(
+            self._model_id, self._properties.get("json_metadata"), exceptions
+        )
 
         # Validate/Populate role
         if roles_ids is None:

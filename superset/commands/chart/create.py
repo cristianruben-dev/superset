@@ -34,6 +34,7 @@ from superset.commands.chart.exceptions import (
 from superset.commands.utils import get_datasource_by_id
 from superset.daos.chart import ChartDAO
 from superset.daos.dashboard import DashboardDAO
+from superset.mibi.single_dashboard import validate_chart_dashboards
 from superset.utils.decorators import on_error, transaction
 
 logger = logging.getLogger(__name__)
@@ -72,6 +73,8 @@ class CreateChartCommand(CreateMixin, BaseCommand):
             if not security_manager.is_owner(dash):
                 raise DashboardsForbiddenError()
         self._properties["dashboards"] = dashboards
+        if error := validate_chart_dashboards(None, dashboard_ids):
+            exceptions.append(error)
 
         try:
             owners = self.populate_owners(owner_ids)

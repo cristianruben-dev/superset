@@ -28,6 +28,7 @@ from superset import db
 from superset.commands.importers.exceptions import IncorrectVersionError
 from superset.databases.ssh_tunnel.models import SSHTunnel
 from superset.extensions import feature_flag_manager
+from superset.mibi.single_dashboard import assert_single_dashboard
 from superset.models.core import Database
 from superset.models.dashboard import dashboard_slices
 from superset.tags.models import Tag, TaggedObject
@@ -380,6 +381,7 @@ def safe_insert_dashboard_chart_relationships(
                 for dashboard_id, chart_id in unique_new_relationships
             ],
         )
+        assert_single_dashboard({chart_id for _, chart_id in unique_new_relationships})
 
 
 def get_resource_mappings_batched(

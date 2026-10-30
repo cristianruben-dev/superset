@@ -227,6 +227,24 @@ def generate_dashboard(  # noqa: C901
                     error=f"Charts not found: {list(missing_chart_ids)}",
                 )
 
+            # Charts can belong to a single dashboard (Mi BI)
+            from superset.mibi.single_dashboard import (
+                find_charts_in_other_dashboards,
+                is_enabled,
+            )
+
+            if is_enabled() and (
+                conflicts := find_charts_in_other_dashboards(found_chart_ids, None)
+            ):
+                return GenerateDashboardResponse(
+                    dashboard=None,
+                    dashboard_url=None,
+                    error=(
+                        "A chart can only belong to one dashboard. These charts "
+                        f"already belong to another dashboard: {sorted(conflicts)}"
+                    ),
+                )
+
             # Validate dataset access for each chart.
             # check_chart_data_access is the centralized data-level
             # permission check that complements the class-level RBAC

@@ -36,6 +36,13 @@ APP_NAME = "Mi BI"
 APP_ICON = "/static/assets/images/mibi/logo.svg"
 FAVICONS = [{"href": "/static/assets/images/mibi/favicon.svg"}]
 
+# --- Charts -----------------------------------------------------------------
+# Every chart belongs to at most one dashboard, as in Power BI, instead of being a
+# standalone object that several dashboards reuse.
+# See superset/mibi/single_dashboard.py.
+
+MIBI_SINGLE_DASHBOARD_CHARTS = True
+
 # --- Languages --------------------------------------------------------------
 # The navbar shows a language selector when there is more than one language.
 # Languages other than English need BUILD_TRANSLATIONS=true in the Docker build.

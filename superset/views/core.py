@@ -73,6 +73,7 @@ from superset.exceptions import (
 )
 from superset.explore.permalink.exceptions import ExplorePermalinkGetFailedError
 from superset.extensions import async_query_manager, cache_manager
+from superset.mibi import single_dashboard
 from superset.models.core import Database
 from superset.models.dashboard import Dashboard
 from superset.models.slice import Slice
@@ -622,6 +623,17 @@ class Superset(BaseSupersetView):
         action = request.args.get("action")
         form_data = get_form_data()[0]
 
+        save_to_dashboard_id = request.args.get("save_to_dashboard_id")
+        new_dashboard_name = request.args.get("new_dashboard_name")
+        if save_to_dashboard_id or new_dashboard_name:
+            error = single_dashboard.validate_chart_dashboards(
+                slc if action == "overwrite" else None,
+                [int(save_to_dashboard_id) if save_to_dashboard_id else None],
+                field_name="_schema",
+            )
+            if error:
+                return json_error_response(str(error.messages[0]), status=422)
+
         if action == "saveas":
             if "slice_id" in form_data:
                 form_data.pop("slice_id")  # don't save old slice_id
@@ -650,8 +662,6 @@ class Superset(BaseSupersetView):
         # Adding slice to a dashboard if requested
         dash: Dashboard | None = None
 
-        save_to_dashboard_id = request.args.get("save_to_dashboard_id")
-        new_dashboard_name = request.args.get("new_dashboard_name")
         if save_to_dashboard_id:
             # Adding the chart to an existing dashboard
             dash = cast(

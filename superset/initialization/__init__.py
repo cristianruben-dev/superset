@@ -611,6 +611,7 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
         self.configure_ssh_manager()
         self.configure_stats_manager()
         self.configure_task_manager()
+        self.configure_single_dashboard_charts()
 
         # Hook that provides administrators a handle on the Flask APP
         # after initialization
@@ -780,6 +781,12 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
             )
             with self.superset_app.app_context():
                 db.engine.execution_options(isolation_level=set_isolation_level_to)
+
+    def configure_single_dashboard_charts(self) -> None:
+        # pylint: disable=import-outside-toplevel
+        from superset.mibi.single_dashboard import register_listeners
+
+        register_listeners()
 
     def configure_auth_provider(self) -> None:
         machine_auth_provider_factory.init_app(self.superset_app)

@@ -37,6 +37,7 @@ from superset.commands.utils import get_datasource_by_id, update_tags, validate_
 from superset.daos.chart import ChartDAO
 from superset.daos.dashboard import DashboardDAO
 from superset.exceptions import SupersetSecurityException
+from superset.mibi.single_dashboard import validate_chart_dashboards
 from superset.models.dashboard import Dashboard
 from superset.models.slice import Slice
 from superset.tags.models import ObjectType
@@ -153,6 +154,8 @@ class UpdateChartCommand(UpdateMixin, BaseCommand):
             else:
                 # Then, validate user has access to any NEW dashboard relationships
                 self._validate_new_dashboard_access(dashboards, exceptions)
+            if error := validate_chart_dashboards(self._model, dashboard_ids):
+                exceptions.append(error)
             self._properties["dashboards"] = dashboards
 
         if exceptions:

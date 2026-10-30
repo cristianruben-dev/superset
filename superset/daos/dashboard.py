@@ -37,6 +37,7 @@ from superset.daos.base import BaseDAO, ColumnOperator, ColumnOperatorEnum
 from superset.dashboards.filters import DashboardAccessFilter, is_uuid
 from superset.exceptions import SupersetSecurityException
 from superset.extensions import db
+from superset.mibi import single_dashboard
 from superset.models.core import FavStar, FavStarClassName
 from superset.models.dashboard import Dashboard, id_or_slug_filter
 from superset.models.embedded_dashboard import EmbeddedDashboard
@@ -364,7 +365,8 @@ class DashboardDAO(BaseDAO[Dashboard]):
 
         metadata = json.loads(data["json_metadata"])
         old_to_new_slice_ids: dict[int, int] = {}
-        if data.get("duplicate_slices"):
+        # Charts can't be shared between dashboards, so a copy always gets its own
+        if data.get("duplicate_slices") or single_dashboard.is_enabled():
             # Duplicating slices as well, mapping old ids to new ones
             for slc in original_dash.slices:
                 new_slice = slc.clone()

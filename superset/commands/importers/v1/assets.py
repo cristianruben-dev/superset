@@ -45,6 +45,7 @@ from superset.connectors.sqla.models import SqlaTable
 from superset.dashboards.schemas import ImportV1DashboardSchema
 from superset.databases.schemas import ImportV1DatabaseSchema
 from superset.datasets.schemas import ImportV1DatasetSchema
+from superset.mibi.single_dashboard import assert_single_dashboard
 from superset.migrations.shared.native_filters import migrate_dashboard
 from superset.models.core import Database
 from superset.models.dashboard import dashboard_slices
@@ -163,6 +164,9 @@ class ImportAssetsCommand(BaseCommand):
                     )
                 )
                 db.session.execute(insert(dashboard_slices).values(dashboard_chart_ids))
+                assert_single_dashboard(
+                    {relation["slice_id"] for relation in dashboard_chart_ids}
+                )
 
                 # Migrate any filter-box charts to native dashboard filters.
                 migrate_dashboard(dashboard)

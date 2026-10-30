@@ -45,6 +45,7 @@ from superset.dashboards.schemas import ImportV1DashboardSchema
 from superset.databases.schemas import ImportV1DatabaseSchema
 from superset.datasets.schemas import ImportV1DatasetSchema
 from superset.extensions import feature_flag_manager
+from superset.mibi.single_dashboard import assert_single_dashboard
 from superset.migrations.shared.native_filters import migrate_dashboard
 from superset.models.dashboard import Dashboard, dashboard_slices
 from superset.themes.schemas import ImportV1ThemeSchema
@@ -222,6 +223,7 @@ class ImportDashboardsCommand(ImportModelsCommand):
                 for (dashboard_id, chart_id) in dashboard_chart_ids
             ]
             db.session.execute(dashboard_slices.insert(), values)
+            assert_single_dashboard({chart_id for _, chart_id in dashboard_chart_ids})
 
         # Migrate any filter-box charts to native dashboard filters.
         for dashboard in dashboards:
