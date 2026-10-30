@@ -18,6 +18,7 @@
  */
 import { Global } from '@emotion/react';
 import { css, useTheme } from '@apache-superset/core/theme';
+import { ensureStaticPrefix } from 'src/utils/assetUrl';
 
 /**
  * Publishes the theme colors as CSS variables (--mb-*) so the global stylesheet
@@ -40,6 +41,9 @@ export function ThemeVariables() {
           --mb-text-tertiary: ${theme.colorTextTertiary};
           --mb-border: ${theme.colorBorder};
           --mb-border-secondary: ${theme.colorBorderSecondary};
+          --mb-logo: ${theme.brandLogoUrl
+            ? `url('${ensureStaticPrefix(theme.brandLogoUrl)}')`
+            : 'none'};
         }
       `}
     />

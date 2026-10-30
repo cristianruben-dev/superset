@@ -829,8 +829,9 @@ class Superset(BaseSupersetView):
         datasource.raise_for_access()
         return json_success(json.dumps(sanitize_datasource_data(datasource.data)))
 
+    # Public: the login page needs the translations before anyone signs in, and
+    # they only hold UI strings
     @event_logger.log_this
-    @has_access
     @expose("/language_pack/<lang>/")
     def language_pack(self, lang: str) -> FlaskResponse:
         # Only allow expected language formats like "en", "pt_BR", etc.

@@ -5754,7 +5754,7 @@ msgid "Enter theme name"
 msgstr "Introduce el nombre de la alerta"
 
 msgid "Enter your login and password below:"
-msgstr ""
+msgstr "Introduce tu usuario y contraseña:"
 
 msgid "Entity"
 msgstr "Entidad"
@@ -9392,7 +9392,6 @@ msgstr "Contraseña"
 msgid "Password is required"
 msgstr "La contraseña es obligatoria"
 
-#, fuzzy
 msgid "Password:"
 msgstr "Contraseña"
 
@@ -9656,13 +9655,11 @@ msgstr "Introduce el nombre del usuario"
 msgid "Please enter your last name"
 msgstr "Introduce los apellidos del usuario"
 
-#, fuzzy
 msgid "Please enter your password"
-msgstr "Confirma tu contraseña"
+msgstr "Introduce tu contraseña"
 
-#, fuzzy
 msgid "Please enter your username"
-msgstr "Introduce el nombre de usuario"
+msgstr "Introduce tu usuario"
 
 #, fuzzy, python-format
 msgid "Please fix the following errors"
@@ -10131,9 +10128,8 @@ msgstr "Actualizando gráficos"
 msgid "Refreshing columns"
 msgstr "Actualizando columnas"
 
-#, fuzzy
 msgid "Register"
-msgstr "Filtro previo"
+msgstr "Registrarse"
 
 #, fuzzy
 msgid "Registration date"
@@ -11828,11 +11824,9 @@ msgstr "Muestra una lista de todas las series disponibles en ese momento"
 msgid "Shows or hides markers for the time series"
 msgstr "Muestra u oculta marcadores para la serie temporal"
 
-#, fuzzy
 msgid "Sign in"
-msgstr "No está en"
+msgstr "Iniciar sesión"
 
-#, fuzzy
 msgid "Sign in with"
 msgstr "Iniciar sesión con"
 
@@ -15104,9 +15098,8 @@ msgstr "Nombre de usuario"
 msgid "Username is required"
 msgstr "El nombre de usuario es obligatorio"
 
-#, fuzzy
 msgid "Username:"
-msgstr "Nombre de usuario"
+msgstr "Usuario"
 
 msgid "Users"
 msgstr "Usuarios"

@@ -632,3 +632,82 @@ table,
 [data-test='mibi-command-palette-modal'] .ant-modal {
   top: 12vh;
 }
+
+/* ---------------------------------------------------------------- Login */
+
+[data-test='login-form'] {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  width: auto !important;
+  height: auto !important;
+  overflow: auto;
+  padding: 24px;
+  box-sizing: border-box;
+  background:
+    radial-gradient(
+      1100px 560px at 0% -10%,
+      var(--mb-primary-bg),
+      transparent 62%
+    ),
+    radial-gradient(
+      900px 520px at 100% 110%,
+      var(--mb-primary-bg),
+      transparent 60%
+    ),
+    var(--mb-bg-layout);
+}
+
+[data-test='login-form'] > .ant-card {
+  width: 400px;
+  max-width: 100%;
+  border-radius: 18px;
+  border: 1px solid var(--mb-border-secondary);
+  box-shadow: var(--mb-shadow-pop);
+  padding-top: 32px;
+}
+
+[data-test='login-form'] > .ant-card::before {
+  content: '';
+  display: block;
+  height: 30px;
+  background: var(--mb-logo) no-repeat center / contain;
+}
+
+[data-test='login-form'] .ant-card-head {
+  border-bottom: 0;
+  min-height: 0;
+  padding-top: 12px;
+  text-align: center;
+}
+
+[data-test='login-form'] .ant-card-head-title {
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+[data-test='login-form'] .ant-card-body {
+  padding-top: 4px;
+}
+
+[data-test='login-form'] .ant-card-body > div > .ant-typography {
+  display: block;
+  text-align: center;
+  margin-bottom: 4px;
+}
+
+[data-test='login-form'] .ant-form-item-label label {
+  font-weight: 500;
+}
+
+[data-test='login-form'] .ant-input-affix-wrapper {
+  height: 40px;
+  border-radius: 10px;
+}
+
+[data-test='login-form'] [data-test='login-button'] {
+  height: 40px;
+  border-radius: 10px;
+  font-weight: 600;
+}
