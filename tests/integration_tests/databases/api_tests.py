@@ -39,11 +39,11 @@ from superset.connectors.sqla.models import SqlaTable
 from superset.databases.ssh_tunnel.models import SSHTunnel
 from superset.databases.utils import make_url_safe  # noqa: F401
 from superset.db_engine_specs.mysql import MySQLEngineSpec
+from superset.db_engine_specs.oracle import OracleEngineSpec
 from superset.db_engine_specs.postgres import PostgresEngineSpec
 from superset.db_engine_specs.redshift import RedshiftEngineSpec
 from superset.db_engine_specs.bigquery import BigQueryEngineSpec
 from superset.db_engine_specs.gsheets import GSheetsEngineSpec
-from superset.db_engine_specs.hana import HanaEngineSpec
 from superset.errors import SupersetError
 from superset.models.core import Database, ConfigurationMethod
 from superset.reports.models import ReportSchedule, ReportScheduleType
@@ -3361,7 +3361,7 @@ class TestDatabaseApi(SupersetTestCase):
             MySQLEngineSpec: {"mysqlconnector", "mysqldb"},
             GSheetsEngineSpec: {"apsw"},
             RedshiftEngineSpec: {"psycopg2"},
-            HanaEngineSpec: {""},
+            OracleEngineSpec: {""},
         }
 
         self.login(ADMIN_USERNAME)
@@ -3621,8 +3621,8 @@ class TestDatabaseApi(SupersetTestCase):
                 },
                 {
                     "available_drivers": [""],
-                    "engine": "hana",
-                    "name": "SAP HANA",
+                    "engine": "oracle",
+                    "name": "Oracle",
                     "preferred": False,
                     "sqlalchemy_uri_placeholder": "engine+driver://user:password@host:port/dbname[?key=value&key=value...]",
                     "engine_information": {
@@ -3641,7 +3641,7 @@ class TestDatabaseApi(SupersetTestCase):
     def test_available_no_default(self, get_available_engine_specs):
         get_available_engine_specs.return_value = {
             MySQLEngineSpec: {"mysqlconnector"},
-            HanaEngineSpec: {""},
+            OracleEngineSpec: {""},
         }
 
         self.login(ADMIN_USERNAME)
@@ -3669,8 +3669,8 @@ class TestDatabaseApi(SupersetTestCase):
                 },
                 {
                     "available_drivers": [""],
-                    "engine": "hana",
-                    "name": "SAP HANA",
+                    "engine": "oracle",
+                    "name": "Oracle",
                     "preferred": False,
                     "sqlalchemy_uri_placeholder": "engine+driver://user:password@host:port/dbname[?key=value&key=value...]",
                     "engine_information": {

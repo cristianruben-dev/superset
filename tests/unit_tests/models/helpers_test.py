@@ -1944,17 +1944,15 @@ def test_adhoc_column_type_probe_uses_limit_1_for_row_dependent_engines(
     database: Database,
 ) -> None:
     """
-    Druid and Pinot build cursor.description by inspecting the first returned
-    row. WHERE FALSE yields no rows, so description stays None. These engines
-    must fall back to LIMIT 1.
+    Druid builds cursor.description by inspecting the first returned row.
+    WHERE FALSE yields no rows, so description stays None. Such engines must
+    fall back to LIMIT 1.
     """
     from superset.db_engine_specs.druid import DruidEngineSpec
-    from superset.db_engine_specs.pinot import PinotEngineSpec
 
-    for spec_cls in (DruidEngineSpec, PinotEngineSpec):
-        assert spec_cls.type_probe_needs_row is True, (
-            f"{spec_cls.__name__} must declare type_probe_needs_row = True"
-        )
+    assert DruidEngineSpec.type_probe_needs_row is True, (
+        "DruidEngineSpec must declare type_probe_needs_row = True"
+    )
 
     probe_sql = _run_probe(database, type_probe_needs_row=True).lower()
 

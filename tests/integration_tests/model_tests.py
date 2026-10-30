@@ -222,36 +222,6 @@ class TestDatabaseModel(SupersetTestCase):
         assert call_args[1]["connect_args"]["allow_local_infile"] == 0
 
     @mock.patch("superset.models.core.create_engine")
-    def test_impersonate_user_trino(self, mocked_create_engine):
-        principal_user = security_manager.find_user(username="gamma")
-
-        with override_user(principal_user):
-            model = Database(
-                database_name="test_database", sqlalchemy_uri="trino://localhost"
-            )
-            model.impersonate_user = True
-            model._get_sqla_engine()
-            call_args = mocked_create_engine.call_args
-
-            assert str(call_args[0][0]) == "trino://localhost/"
-            assert call_args[1]["connect_args"]["user"] == "gamma"
-
-            model = Database(
-                database_name="test_database",
-                sqlalchemy_uri="trino://original_user:original_user_password@localhost",
-            )
-
-            model.impersonate_user = True
-            model._get_sqla_engine()
-            call_args = mocked_create_engine.call_args
-
-            assert (
-                str(call_args[0][0])
-                == "trino://original_user:original_user_password@localhost/"
-            )
-            assert call_args[1]["connect_args"]["user"] == "gamma"
-
-    @mock.patch("superset.models.core.create_engine")
     @unittest.skipUnless(
         SupersetTestCase.is_module_installed("pyhive"), "pyhive not installed"
     )

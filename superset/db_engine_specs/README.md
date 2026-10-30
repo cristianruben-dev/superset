@@ -68,32 +68,23 @@ The tables below (generated via `python superset/db_engine_specs/lib.py`) summar
 | Database | Score | SQL Basics | Advanced SQL | Common Time Grains | Extended Time Grains | Integrations | Advanced Features |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | Presto | 159 | Supported | Partial | Supported | Partial | Partial | Supported |
-| Trino | 149 | Supported | Partial | Supported | Partial | Partial | Partial |
 | Apache Hive | 140 | Supported | Not supported | Supported | Partial | Partial | Partial |
 | Apache Spark SQL | 140 | Supported | Not supported | Supported | Partial | Partial | Partial |
 | Databricks Interactive Cluster | 140 | Supported | Not supported | Supported | Partial | Partial | Partial |
 | base | 109 | Supported | Partial | Supported | Partial | Partial | Partial |
 | Aurora PostgreSQL (Data API) | 104 | Supported | Partial | Supported | Partial | Partial | Partial |
-| CockroachDB | 94 | Supported | Partial | Supported | Partial | Partial | Partial |
-| RisingWave | 94 | Supported | Partial | Supported | Partial | Partial | Partial |
 | Google BigQuery | 83 | Supported | Partial | Supported | Partial | Partial | Partial |
-| Apache Doris | 79 | Supported | Partial | Supported | Partial | Partial | Not supported |
 | Snowflake | 72 | Supported | Partial | Supported | Partial | Partial | Not supported |
 | Databricks | 70 | Supported | Partial | Supported | Partial | Partial | Not supported |
 | Databricks (legacy) | 70 | Supported | Partial | Supported | Partial | Partial | Not supported |
-| StarRocks | 69 | Supported | Partial | Supported | Partial | Partial | Partial |
-| SingleStore | 68 | Supported | Partial | Supported | Not supported | Partial | Not supported |
 | ClickHouse Connect (Superset) | 61 | Supported | Partial | Partial | Partial | Partial | Not supported |
 | Google Sheets | 61 | Supported | Partial | Supported | Supported | Partial | Partial |
 | Aurora MySQL (Data API) | 59 | Supported | Partial | Supported | Partial | Partial | Not supported |
 | MariaDB | 59 | Supported | Partial | Supported | Partial | Partial | Not supported |
 | MySQL | 59 | Supported | Partial | Supported | Partial | Partial | Not supported |
-| OceanBase | 59 | Supported | Partial | Supported | Partial | Partial | Not supported |
 | MotherDuck | 58 | Supported | Partial | Supported | Not supported | Partial | Not supported |
 | KustoSQL | 54 | Supported | Partial | Supported | Partial | Partial | Not supported |
 | ClickHouse | 51 | Supported | Partial | Partial | Partial | Partial | Not supported |
-| Databend | 51 | Supported | Partial | Supported | Partial | Partial | Not supported |
-| Apache Drill | 50 | Supported | Partial | Supported | Partial | Partial | Partial |
 | Apache Druid | 47 | Partial | Partial | Supported | Partial | Partial | Not supported |
 | Amazon Redshift | 44 | Supported | Partial | Supported | Partial | Partial | Not supported |
 | Azure Synapse | 44 | Partial | Partial | Supported | Partial | Partial | Not supported |
@@ -101,106 +92,51 @@ The tables below (generated via `python superset/db_engine_specs/lib.py`) summar
 | SQLite | 41 | Supported | Partial | Supported | Supported | Not supported | Not supported |
 | Shillelagh | 41 | Supported | Partial | Supported | Supported | Not supported | Not supported |
 | KustoKQL | 40 | Supported | Partial | Partial | Partial | Partial | Not supported |
-| Ascend | 38 | Supported | Partial | Supported | Not supported | Partial | Not supported |
 | DuckDB | 38 | Supported | Partial | Supported | Not supported | Partial | Not supported |
-| IBM Db2 | 38 | Supported | Partial | Supported | Not supported | Partial | Not supported |
-| IBM Db2 for i | 38 | Supported | Partial | Supported | Not supported | Partial | Not supported |
-| Ocient | 38 | Partial | Partial | Partial | Partial | Partial | Not supported |
-| Apache Impala | 37 | Supported | Partial | Partial | Not supported | Partial | Not supported |
 | ElasticSearch (SQL API) | 37 | Partial | Partial | Partial | Not supported | Partial | Not supported |
 | PostgreSQL | 34 | Supported | Partial | Supported | Partial | Partial | Not supported |
-| Vertica | 34 | Supported | Partial | Supported | Partial | Partial | Not supported |
-| Amazon DynamoDB | 32 | Supported | Partial | Supported | Partial | Partial | Not supported |
-| Apache Pinot | 32 | Partial | Partial | Supported | Partial | Partial | Not supported |
 | Superset meta database | 31 | Supported | Partial | Supported | Supported | Not supported | Not supported |
 | Databricks SQL Endpoint | 30 | Supported | Partial | Supported | Partial | Partial | Not supported |
-| Apache Kylin | 28 | Supported | Partial | Supported | Not supported | Partial | Not supported |
-| CrateDB | 28 | Supported | Partial | Supported | Not supported | Partial | Not supported |
-| Dremio | 28 | Supported | Partial | Supported | Not supported | Partial | Not supported |
-| Exasol | 28 | Supported | Partial | Supported | Not supported | Partial | Not supported |
-| Firebolt | 28 | Supported | Partial | Supported | Not supported | Partial | Not supported |
-| IBM Netezza Performance Server | 28 | Supported | Partial | Supported | Not supported | Partial | Not supported |
 | Oracle | 28 | Supported | Partial | Supported | Not supported | Partial | Not supported |
-| Parseable | 28 | Supported | Partial | Supported | Not supported | Partial | Not supported |
-| Couchbase | 27 | Partial | Partial | Partial | Not supported | Partial | Not supported |
-| Denodo | 27 | Supported | Partial | Partial | Not supported | Partial | Not supported |
-| SAP HANA | 27 | Supported | Partial | Partial | Not supported | Partial | Not supported |
-| Teradata | 27 | Supported | Partial | Partial | Not supported | Partial | Not supported |
 | ElasticSearch (OpenDistro SQL) | 26 | Partial | Partial | Partial | Not supported | Partial | Not supported |
-| Firebird | 26 | Supported | Partial | Partial | Not supported | Partial | Not supported |
-| TDengine | 25 | Supported | Partial | Partial | Not supported | Partial | Not supported |
-| YDB | 23 | Supported | Partial | Supported | Partial | Partial | Not supported |
 | Amazon Athena | 20 | Supported | Partial | Supported | Partial | Not supported | Not supported |
-| Apache Solr | 20 | Partial | Partial | Not supported | Not supported | Partial | Not supported |
 
 ### Database Information
 
 | Database | Module | Limit Method | Limit Clause | Max Column Name |
 | --- | --- | --- | --- | --- |
 | Amazon Athena | superset.db_engine_specs.athena | FORCE_LIMIT | True | None |
-| Amazon DynamoDB | superset.db_engine_specs.dynamodb | FORCE_LIMIT | True | None |
 | Amazon Redshift | superset.db_engine_specs.redshift | FORCE_LIMIT | True | 127 |
-| Apache Doris | superset.db_engine_specs.doris | FORCE_LIMIT | True | 64 |
-| Apache Drill | superset.db_engine_specs.drill | FORCE_LIMIT | True | None |
 | Apache Druid | superset.db_engine_specs.druid | FORCE_LIMIT | True | None |
 | Apache Hive | superset.db_engine_specs.hive | FORCE_LIMIT | True | 767 |
-| Apache Impala | superset.db_engine_specs.impala | FORCE_LIMIT | True | None |
-| Apache Kylin | superset.db_engine_specs.kylin | FORCE_LIMIT | True | None |
-| Apache Pinot | superset.db_engine_specs.pinot | FORCE_LIMIT | True | None |
-| Apache Solr | superset.db_engine_specs.solr | FORCE_LIMIT | True | None |
 | Apache Spark SQL | superset.db_engine_specs.spark | FORCE_LIMIT | True | 767 |
-| Ascend | superset.db_engine_specs.ascend | FORCE_LIMIT | True | None |
 | Aurora MySQL (Data API) | superset.db_engine_specs.aurora | FORCE_LIMIT | True | 64 |
 | Aurora PostgreSQL (Data API) | superset.db_engine_specs.aurora | FORCE_LIMIT | True | 63 |
 | Azure Synapse | superset.db_engine_specs.mssql | FORCE_LIMIT | True | 128 |
 | ClickHouse | superset.db_engine_specs.clickhouse | FORCE_LIMIT | True | None |
 | ClickHouse Connect (Superset) | superset.db_engine_specs.clickhouse | FORCE_LIMIT | True | None |
-| CockroachDB | superset.db_engine_specs.cockroachdb | FORCE_LIMIT | True | 63 |
-| Couchbase | superset.db_engine_specs.couchbase | FORCE_LIMIT | True | None |
-| CrateDB | superset.db_engine_specs.crate | FORCE_LIMIT | True | None |
-| Databend | superset.db_engine_specs.databend | FORCE_LIMIT | True | None |
 | Databricks | superset.db_engine_specs.databricks | FORCE_LIMIT | True | None |
 | Databricks (legacy) | superset.db_engine_specs.databricks | FORCE_LIMIT | True | None |
 | Databricks Interactive Cluster | superset.db_engine_specs.databricks | FORCE_LIMIT | True | 767 |
 | Databricks SQL Endpoint | superset.db_engine_specs.databricks | FORCE_LIMIT | True | None |
-| Denodo | superset.db_engine_specs.denodo | FORCE_LIMIT | True | None |
-| Dremio | superset.db_engine_specs.dremio | FORCE_LIMIT | True | None |
 | DuckDB | superset.db_engine_specs.duckdb | FORCE_LIMIT | True | None |
 | ElasticSearch (OpenDistro SQL) | superset.db_engine_specs.elasticsearch | FORCE_LIMIT | True | None |
 | ElasticSearch (SQL API) | superset.db_engine_specs.elasticsearch | FORCE_LIMIT | True | None |
-| Exasol | superset.db_engine_specs.exasol | FORCE_LIMIT | True | 128 |
-| Firebird | superset.db_engine_specs.firebird | FETCH_MANY | True | None |
-| Firebolt | superset.db_engine_specs.firebolt | FORCE_LIMIT | True | None |
 | Google BigQuery | superset.db_engine_specs.bigquery | FORCE_LIMIT | True | 128 |
 | Google Sheets | superset.db_engine_specs.gsheets | FORCE_LIMIT | True | None |
-| IBM Db2 | superset.db_engine_specs.db2 | WRAP_SQL | True | 30 |
-| IBM Db2 for i | superset.db_engine_specs.ibmi | WRAP_SQL | True | 128 |
-| IBM Netezza Performance Server | superset.db_engine_specs.netezza | FORCE_LIMIT | True | None |
 | KustoKQL | superset.db_engine_specs.kusto | FORCE_LIMIT | True | None |
 | KustoSQL | superset.db_engine_specs.kusto | WRAP_SQL | True | None |
 | MariaDB | superset.db_engine_specs.mariadb | FORCE_LIMIT | True | 64 |
 | Microsoft SQL Server | superset.db_engine_specs.mssql | FORCE_LIMIT | True | 128 |
 | MotherDuck | superset.db_engine_specs.duckdb | FORCE_LIMIT | True | None |
 | MySQL | superset.db_engine_specs.mysql | FORCE_LIMIT | True | 64 |
-| OceanBase | superset.db_engine_specs.oceanbase | FORCE_LIMIT | True | 128 |
-| Ocient | superset.db_engine_specs.ocient | FORCE_LIMIT | True | 30 |
 | Oracle | superset.db_engine_specs.oracle | FORCE_LIMIT | True | 128 |
-| Parseable | superset.db_engine_specs.parseable | FORCE_LIMIT | True | None |
 | PostgreSQL | superset.db_engine_specs.postgres | FORCE_LIMIT | True | None |
 | Presto | superset.db_engine_specs.presto | FORCE_LIMIT | True | None |
-| RisingWave | superset.db_engine_specs.risingwave | FORCE_LIMIT | True | 63 |
-| SAP HANA | superset.db_engine_specs.hana | WRAP_SQL | True | 30 |
 | SQLite | superset.db_engine_specs.sqlite | FORCE_LIMIT | True | None |
 | Shillelagh | superset.db_engine_specs.shillelagh | FORCE_LIMIT | True | None |
-| SingleStore | superset.db_engine_specs.singlestore | FORCE_LIMIT | True | 256 |
 | Snowflake | superset.db_engine_specs.snowflake | FORCE_LIMIT | True | 256 |
-| StarRocks | superset.db_engine_specs.starrocks | FORCE_LIMIT | True | 64 |
 | Superset meta database | superset.db_engine_specs.superset | FORCE_LIMIT | True | None |
-| TDengine | superset.db_engine_specs.tdengine | FORCE_LIMIT | True | 64 |
-| Teradata | superset.db_engine_specs.teradata | FORCE_LIMIT | True | 30 |
-| Trino | superset.db_engine_specs.trino | FORCE_LIMIT | True | None |
-| Vertica | superset.db_engine_specs.vertica | FORCE_LIMIT | True | None |
-| YDB | superset.db_engine_specs.ydb | FORCE_LIMIT | True | None |
 | base | superset.db_engine_specs.presto | FORCE_LIMIT | True | None |
 
 ### SQL Capabilities
@@ -208,69 +144,37 @@ The tables below (generated via `python superset/db_engine_specs/lib.py`) summar
 | Database | JOINs | Subqueries | Aliases in SELECT | Aliases in ORDER BY | CTEs | Comments | Escaped Colons | Inline Time Groupby | Source Column When Aliased | Aggregations in ORDER BY | Expressions in ORDER BY |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Amazon Athena | True | True | True | True | True | True | False | False | False | True | False |
-| Amazon DynamoDB | True | True | True | True | True | True | True | False | False | True | False |
 | Amazon Redshift | True | True | True | True | True | True | True | False | False | True | False |
-| Apache Doris | True | True | True | True | True | True | True | False | False | True | False |
-| Apache Drill | True | True | True | True | True | True | True | False | False | True | False |
 | Apache Druid | False | True | True | True | True | True | True | False | False | True | False |
 | Apache Hive | True | True | True | True | True | True | True | False | False | False | False |
-| Apache Impala | True | True | True | True | True | True | True | False | False | True | False |
-| Apache Kylin | True | True | True | True | True | True | True | False | False | True | False |
-| Apache Pinot | False | False | False | False | True | True | True | False | False | True | False |
-| Apache Solr | False | False | True | True | True | True | True | False | False | True | False |
 | Apache Spark SQL | True | True | True | True | True | True | True | False | False | False | False |
-| Ascend | True | True | True | True | True | True | True | False | False | True | False |
 | Aurora MySQL (Data API) | True | True | True | True | True | True | True | False | False | True | False |
 | Aurora PostgreSQL (Data API) | True | True | True | True | True | True | True | False | False | True | False |
 | Azure Synapse | True | True | True | True | False | True | True | False | False | True | False |
 | ClickHouse | True | True | True | True | True | True | True | True | False | True | False |
 | ClickHouse Connect (Superset) | True | True | True | True | True | True | True | True | False | True | False |
-| CockroachDB | True | True | True | True | True | True | True | False | False | True | False |
-| Couchbase | False | False | True | True | True | True | True | False | False | True | False |
-| CrateDB | True | True | True | True | True | True | True | False | False | True | False |
-| Databend | True | True | True | True | True | True | True | True | False | True | False |
 | Databricks | True | True | True | True | True | True | True | False | False | True | False |
 | Databricks (legacy) | True | True | True | True | True | True | True | False | False | True | False |
 | Databricks Interactive Cluster | True | True | True | True | True | True | True | False | False | False | False |
 | Databricks SQL Endpoint | True | True | True | True | True | True | True | False | False | True | False |
-| Denodo | True | True | True | True | True | True | True | False | False | True | False |
-| Dremio | True | True | True | True | True | True | True | False | False | True | False |
 | DuckDB | True | True | True | True | True | True | True | False | False | True | False |
 | ElasticSearch (OpenDistro SQL) | False | True | True | True | True | False | True | True | False | True | False |
 | ElasticSearch (SQL API) | False | True | True | True | True | False | True | True | False | True | False |
-| Exasol | True | True | True | True | True | True | True | False | False | True | False |
-| Firebird | True | True | True | True | True | True | True | False | False | True | False |
-| Firebolt | True | True | True | True | True | True | True | False | False | True | False |
 | Google BigQuery | True | True | True | True | True | True | True | False | False | True | True |
 | Google Sheets | True | True | True | True | True | True | True | False | False | True | False |
-| IBM Db2 | True | True | True | True | True | True | True | False | False | True | False |
-| IBM Db2 for i | True | True | True | True | True | True | True | False | False | True | False |
-| IBM Netezza Performance Server | True | True | True | True | True | True | True | False | False | True | False |
 | KustoKQL | True | True | True | True | True | False | True | True | False | True | False |
 | KustoSQL | True | True | True | True | True | False | True | True | False | True | False |
 | MariaDB | True | True | True | True | True | True | True | False | False | True | False |
 | Microsoft SQL Server | True | True | True | True | False | True | True | False | False | True | False |
 | MotherDuck | True | True | True | True | True | True | True | False | False | True | False |
 | MySQL | True | True | True | True | True | True | True | False | False | True | False |
-| OceanBase | True | True | True | True | True | True | True | False | False | True | False |
-| Ocient | True | True | True | True | False | True | True | False | False | True | False |
 | Oracle | True | True | True | True | True | True | True | False | False | True | False |
-| Parseable | True | True | True | True | True | True | True | False | False | True | False |
 | PostgreSQL | True | True | True | True | True | True | True | False | False | True | False |
 | Presto | True | True | True | True | True | True | True | False | True | True | False |
-| RisingWave | True | True | True | True | True | True | True | False | False | True | False |
-| SAP HANA | True | True | True | True | True | True | True | False | False | True | False |
 | SQLite | True | True | True | True | True | True | True | False | False | True | False |
 | Shillelagh | True | True | True | True | True | True | True | False | False | True | False |
-| SingleStore | True | True | True | True | True | True | True | False | False | True | False |
 | Snowflake | True | True | True | True | True | True | True | False | False | True | False |
-| StarRocks | True | True | True | True | True | True | True | False | False | True | False |
 | Superset meta database | True | True | True | True | True | True | True | False | False | True | False |
-| TDengine | True | True | True | True | True | True | True | False | False | True | False |
-| Teradata | True | True | True | True | True | True | True | False | False | True | False |
-| Trino | True | True | True | True | True | True | True | False | True | True | False |
-| Vertica | True | True | True | True | True | True | True | False | False | True | False |
-| YDB | True | True | True | True | True | True | True | False | False | True | False |
 | base | True | True | True | True | True | True | True | False | False | True | False |
 
 ### Time Grains – Common
@@ -278,69 +182,37 @@ The tables below (generated via `python superset/db_engine_specs/lib.py`) summar
 | Database | SECOND | MINUTE | HOUR | DAY | WEEK | MONTH | QUARTER | YEAR |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Amazon Athena | True | True | True | True | True | True | True | True |
-| Amazon DynamoDB | True | True | True | True | True | True | True | True |
 | Amazon Redshift | True | True | True | True | True | True | True | True |
-| Apache Doris | True | True | True | True | True | True | True | True |
-| Apache Drill | True | True | True | True | True | True | True | True |
 | Apache Druid | True | True | True | True | True | True | True | True |
 | Apache Hive | True | True | True | True | True | True | True | True |
-| Apache Impala | False | True | True | True | True | True | True | True |
-| Apache Kylin | True | True | True | True | True | True | True | True |
-| Apache Pinot | True | True | True | True | True | True | True | True |
-| Apache Solr | False | False | False | False | False | False | False | False |
 | Apache Spark SQL | True | True | True | True | True | True | True | True |
-| Ascend | True | True | True | True | True | True | True | True |
 | Aurora MySQL (Data API) | True | True | True | True | True | True | True | True |
 | Aurora PostgreSQL (Data API) | True | True | True | True | True | True | True | True |
 | Azure Synapse | True | True | True | True | True | True | True | True |
 | ClickHouse | False | True | True | True | True | True | True | True |
 | ClickHouse Connect (Superset) | False | True | True | True | True | True | True | True |
-| CockroachDB | True | True | True | True | True | True | True | True |
-| Couchbase | True | True | True | True | False | True | True | True |
-| CrateDB | True | True | True | True | True | True | True | True |
-| Databend | True | True | True | True | True | True | True | True |
 | Databricks | True | True | True | True | True | True | True | True |
 | Databricks (legacy) | True | True | True | True | True | True | True | True |
 | Databricks Interactive Cluster | True | True | True | True | True | True | True | True |
 | Databricks SQL Endpoint | True | True | True | True | True | True | True | True |
-| Denodo | False | True | True | True | True | True | True | True |
-| Dremio | True | True | True | True | True | True | True | True |
 | DuckDB | True | True | True | True | True | True | True | True |
 | ElasticSearch (OpenDistro SQL) | True | True | True | True | False | True | False | True |
 | ElasticSearch (SQL API) | True | True | True | True | True | True | False | True |
-| Exasol | True | True | True | True | True | True | True | True |
-| Firebird | True | True | True | True | False | True | False | True |
-| Firebolt | True | True | True | True | True | True | True | True |
 | Google BigQuery | True | True | True | True | True | True | True | True |
 | Google Sheets | True | True | True | True | True | True | True | True |
-| IBM Db2 | True | True | True | True | True | True | True | True |
-| IBM Db2 for i | True | True | True | True | True | True | True | True |
-| IBM Netezza Performance Server | True | True | True | True | True | True | True | True |
 | KustoKQL | True | True | True | True | True | True | False | True |
 | KustoSQL | True | True | True | True | True | True | True | True |
 | MariaDB | True | True | True | True | True | True | True | True |
 | Microsoft SQL Server | True | True | True | True | True | True | True | True |
 | MotherDuck | True | True | True | True | True | True | True | True |
 | MySQL | True | True | True | True | True | True | True | True |
-| OceanBase | True | True | True | True | True | True | True | True |
-| Ocient | True | True | True | True | True | True | False | True |
 | Oracle | True | True | True | True | True | True | True | True |
-| Parseable | True | True | True | True | True | True | True | True |
 | PostgreSQL | True | True | True | True | True | True | True | True |
 | Presto | True | True | True | True | True | True | True | True |
-| RisingWave | True | True | True | True | True | True | True | True |
-| SAP HANA | True | True | True | True | False | True | True | True |
 | SQLite | True | True | True | True | True | True | True | True |
 | Shillelagh | True | True | True | True | True | True | True | True |
-| SingleStore | True | True | True | True | True | True | True | True |
 | Snowflake | True | True | True | True | True | True | True | True |
-| StarRocks | True | True | True | True | True | True | True | True |
 | Superset meta database | True | True | True | True | True | True | True | True |
-| TDengine | True | True | True | True | True | False | False | False |
-| Teradata | False | True | True | True | True | True | True | True |
-| Trino | True | True | True | True | True | True | True | True |
-| Vertica | True | True | True | True | True | True | True | True |
-| YDB | True | True | True | True | True | True | True | True |
 | base | True | True | True | True | True | True | True | True |
 
 ### Time Grains – Extended
@@ -348,69 +220,37 @@ The tables below (generated via `python superset/db_engine_specs/lib.py`) summar
 | Database | FIVE_SECONDS | THIRTY_SECONDS | FIVE_MINUTES | TEN_MINUTES | FIFTEEN_MINUTES | THIRTY_MINUTES | HALF_HOUR | SIX_HOURS | WEEK_STARTING_SUNDAY | WEEK_STARTING_MONDAY | WEEK_ENDING_SATURDAY | WEEK_ENDING_SUNDAY | QUARTER_YEAR |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Amazon Athena | False | False | False | False | False | False | False | False | True | False | True | False | False |
-| Amazon DynamoDB | False | False | False | False | False | False | False | False | True | True | True | True | False |
 | Amazon Redshift | True | True | True | True | True | True | False | False | False | False | False | False | False |
-| Apache Doris | False | False | False | False | False | False | False | False | False | True | False | False | False |
-| Apache Drill | False | False | False | False | True | True | False | False | False | False | False | False | False |
 | Apache Druid | True | True | True | True | True | True | False | True | True | False | True | False | False |
 | Apache Hive | False | False | False | False | False | False | False | False | True | False | True | False | False |
-| Apache Impala | False | False | False | False | False | False | False | False | False | False | False | False | False |
-| Apache Kylin | False | False | False | False | False | False | False | False | False | False | False | False | False |
-| Apache Pinot | False | False | True | True | True | True | False | False | False | False | False | False | False |
-| Apache Solr | False | False | False | False | False | False | False | False | False | False | False | False | False |
 | Apache Spark SQL | False | False | False | False | False | False | False | False | True | False | True | False | False |
-| Ascend | False | False | False | False | False | False | False | False | False | False | False | False | False |
 | Aurora MySQL (Data API) | False | False | False | False | False | False | False | False | False | True | False | False | False |
 | Aurora PostgreSQL (Data API) | True | True | True | True | True | True | False | False | False | False | False | False | False |
 | Azure Synapse | False | False | True | True | True | True | False | False | True | True | False | False | False |
 | ClickHouse | False | False | True | True | True | True | False | False | False | False | False | False | False |
 | ClickHouse Connect (Superset) | False | False | True | True | True | True | False | False | False | False | False | False | False |
-| CockroachDB | True | True | True | True | True | True | False | False | False | False | False | False | False |
-| Couchbase | False | False | False | False | False | False | False | False | False | False | False | False | False |
-| CrateDB | False | False | False | False | False | False | False | False | False | False | False | False | False |
-| Databend | False | False | True | True | True | False | False | False | False | False | False | False | False |
 | Databricks | False | False | False | False | False | False | False | False | True | False | True | False | False |
 | Databricks (legacy) | False | False | False | False | False | False | False | False | True | False | True | False | False |
 | Databricks Interactive Cluster | False | False | False | False | False | False | False | False | True | False | True | False | False |
 | Databricks SQL Endpoint | False | False | False | False | False | False | False | False | True | False | True | False | False |
-| Denodo | False | False | False | False | False | False | False | False | False | False | False | False | False |
-| Dremio | False | False | False | False | False | False | False | False | False | False | False | False | False |
 | DuckDB | False | False | False | False | False | False | False | False | False | False | False | False | False |
 | ElasticSearch (OpenDistro SQL) | False | False | False | False | False | False | False | False | False | False | False | False | False |
 | ElasticSearch (SQL API) | False | False | False | False | False | False | False | False | False | False | False | False | False |
-| Exasol | False | False | False | False | False | False | False | False | False | False | False | False | False |
-| Firebird | False | False | False | False | False | False | False | False | False | False | False | False | False |
-| Firebolt | False | False | False | False | False | False | False | False | False | False | False | False | False |
 | Google BigQuery | False | False | True | True | True | True | False | False | False | True | False | False | False |
 | Google Sheets | True | True | True | True | True | True | True | True | True | True | True | True | True |
-| IBM Db2 | False | False | False | False | False | False | False | False | False | False | False | False | False |
-| IBM Db2 for i | False | False | False | False | False | False | False | False | False | False | False | False | False |
-| IBM Netezza Performance Server | False | False | False | False | False | False | False | False | False | False | False | False | False |
 | KustoKQL | False | True | True | False | False | True | False | False | False | False | False | False | False |
 | KustoSQL | False | False | True | True | True | False | True | False | True | True | False | False | False |
 | MariaDB | False | False | False | False | False | False | False | False | False | True | False | False | False |
 | Microsoft SQL Server | False | False | True | True | True | True | False | False | True | True | False | False | False |
 | MotherDuck | False | False | False | False | False | False | False | False | False | False | False | False | False |
 | MySQL | False | False | False | False | False | False | False | False | False | True | False | False | False |
-| OceanBase | False | False | False | False | False | False | False | False | False | True | False | False | False |
-| Ocient | False | False | False | False | False | False | False | False | False | False | False | False | True |
 | Oracle | False | False | False | False | False | False | False | False | False | False | False | False | False |
-| Parseable | False | False | False | False | False | False | False | False | False | False | False | False | False |
 | PostgreSQL | True | True | True | True | True | True | False | False | False | False | False | False | False |
 | Presto | True | True | True | True | True | False | True | True | True | True | True | True | False |
-| RisingWave | True | True | True | True | True | True | False | False | False | False | False | False | False |
-| SAP HANA | False | False | False | False | False | False | False | False | False | False | False | False | False |
 | SQLite | True | True | True | True | True | True | True | True | True | True | True | True | True |
 | Shillelagh | True | True | True | True | True | True | True | True | True | True | True | True | True |
-| SingleStore | False | False | False | False | False | False | False | False | False | False | False | False | False |
 | Snowflake | False | False | True | True | True | True | False | False | False | False | False | False | False |
-| StarRocks | False | False | False | False | False | False | False | False | False | True | False | False | False |
 | Superset meta database | True | True | True | True | True | True | True | True | True | True | True | True | True |
-| TDengine | False | False | False | False | False | False | False | False | False | False | False | False | False |
-| Teradata | False | False | False | False | False | False | False | False | False | False | False | False | False |
-| Trino | True | True | True | True | True | False | True | True | True | True | True | True | False |
-| Vertica | True | True | True | True | True | True | False | False | False | False | False | False | False |
-| YDB | False | True | True | True | True | True | False | False | False | False | False | False | False |
 | base | True | True | True | True | True | False | True | True | True | True | True | True | False |
 
 ### Core Platform & Metadata Features
@@ -421,69 +261,37 @@ Integration with platform features and metadata handling.
 | Database | Masked Encrypted Extra | Column Type Mappings | Function Names | File Upload | Dynamic Schema | Catalog | Dynamic Catalog | SSH Tunneling | Latest Partition | Query Cancellation | Get Metrics | Extra Table Metadata | Exception Mapping | Custom Errors |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Amazon Athena | False | False | False | True | False | False | False | False | False | False | False | False | False | False |
-| Amazon DynamoDB | False | False | False | True | False | False | False | True | False | False | False | False | False | False |
 | Amazon Redshift | False | False | False | True | False | False | False | True | False | True | False | False | False | False |
-| Apache Doris | False | True | False | True | True | True | True | True | False | True | False | False | False | False |
-| Apache Drill | False | False | False | True | True | False | False | True | False | False | False | False | False | False |
 | Apache Druid | False | False | False | True | False | False | False | True | False | False | False | False | True | False |
 | Apache Hive | False | True | True | True | True | True | True | True | True | True | False | True | False | False |
-| Apache Impala | False | False | False | True | False | False | False | True | False | True | False | False | False | False |
-| Apache Kylin | False | False | False | True | False | False | False | True | False | False | False | False | False | False |
-| Apache Pinot | False | False | False | True | False | False | False | True | False | False | False | False | False | False |
-| Apache Solr | False | False | False | True | False | False | False | True | False | False | False | False | False | False |
 | Apache Spark SQL | False | True | True | True | True | True | True | True | True | True | False | True | False | False |
-| Ascend | False | False | False | True | False | False | False | True | False | True | False | False | False | False |
 | Aurora MySQL (Data API) | False | True | False | True | True | False | False | True | False | True | False | False | False | False |
 | Aurora PostgreSQL (Data API) | False | True | False | True | True | True | True | True | False | True | False | False | False | False |
 | Azure Synapse | False | True | False | True | False | False | False | True | False | False | False | False | False | False |
 | ClickHouse | False | True | True | False | False | False | False | True | False | False | False | False | True | False |
 | ClickHouse Connect (Superset) | False | True | True | False | True | False | False | True | False | False | False | False | True | False |
-| CockroachDB | False | True | False | True | True | True | True | True | False | True | False | False | False | False |
-| Couchbase | False | False | False | True | False | False | False | True | False | False | False | False | False | False |
-| CrateDB | False | False | False | True | False | False | False | True | False | False | False | False | False | False |
-| Databend | False | True | True | False | False | False | False | True | False | False | False | False | True | False |
 | Databricks | False | False | False | True | True | True | True | True | False | False | False | False | False | True |
 | Databricks (legacy) | False | False | False | True | True | True | True | True | False | False | False | False | False | True |
 | Databricks Interactive Cluster | False | True | True | True | True | True | True | True | True | True | False | True | False | False |
 | Databricks SQL Endpoint | False | False | False | True | False | False | False | True | False | False | False | False | False | False |
-| Denodo | False | False | False | True | False | False | False | True | False | False | False | False | False | False |
-| Dremio | False | False | False | True | False | False | False | True | False | False | False | False | False | False |
 | DuckDB | False | True | False | True | False | False | False | True | False | False | False | False | False | False |
 | ElasticSearch (OpenDistro SQL) | False | False | False | True | False | False | False | True | False | False | False | False | False | False |
 | ElasticSearch (SQL API) | False | False | False | True | False | False | False | True | False | False | False | False | True | False |
-| Exasol | False | False | False | True | False | False | False | True | False | False | False | False | False | False |
-| Firebird | False | False | False | True | False | False | False | True | False | False | False | False | False | False |
-| Firebolt | False | False | False | True | False | False | False | True | False | False | False | False | False | False |
 | Google BigQuery | False | False | False | True | False | True | True | False | True | False | False | True | True | False |
 | Google Sheets | False | False | True | True | False | False | False | False | False | False | False | True | False | False |
-| IBM Db2 | False | False | False | True | True | False | False | True | False | False | False | False | False | False |
-| IBM Db2 for i | False | False | False | True | True | False | False | True | False | False | False | False | False | False |
-| IBM Netezza Performance Server | False | False | False | True | False | False | False | True | False | False | False | False | False | False |
 | KustoKQL | False | False | False | True | False | False | False | True | False | False | False | False | True | False |
 | KustoSQL | False | True | False | True | False | False | False | True | False | False | False | False | True | False |
 | MariaDB | False | True | False | True | True | False | False | True | False | True | False | False | False | False |
 | Microsoft SQL Server | False | True | False | True | False | False | False | True | False | False | False | False | False | False |
 | MotherDuck | False | True | False | True | False | True | True | True | False | False | False | False | False | False |
 | MySQL | False | True | False | True | True | False | False | True | False | True | False | False | False | False |
-| OceanBase | False | True | False | True | True | False | False | True | False | True | False | False | False | False |
-| Ocient | False | False | False | True | False | False | False | True | False | True | False | False | False | False |
 | Oracle | False | False | False | True | False | False | False | True | False | False | False | False | False | False |
-| Parseable | False | False | False | True | False | False | False | True | False | False | False | False | False | False |
 | PostgreSQL | False | False | False | True | False | False | False | True | False | False | False | False | False | False |
 | Presto | False | True | True | True | True | True | True | True | True | True | False | True | False | False |
-| RisingWave | False | True | False | True | True | True | True | True | False | True | False | False | False | False |
-| SAP HANA | False | False | False | True | False | False | False | True | False | False | False | False | False | False |
 | SQLite | False | False | True | True | False | False | False | False | False | False | False | False | False | False |
 | Shillelagh | False | False | True | True | False | False | False | False | False | False | False | False | False | False |
-| SingleStore | False | True | True | True | True | False | False | True | False | True | False | False | False | False |
 | Snowflake | False | False | False | True | True | True | True | True | False | True | False | False | False | False |
-| StarRocks | False | True | False | True | True | False | False | True | False | True | False | False | False | False |
 | Superset meta database | False | False | True | False | False | False | False | False | False | False | False | False | False | False |
-| TDengine | False | False | False | True | False | False | False | True | False | False | False | False | False | False |
-| Teradata | False | False | False | True | False | False | False | True | False | False | False | False | False | False |
-| Trino | False | True | True | True | True | True | True | True | True | True | False | True | True | False |
-| Vertica | False | False | False | True | False | False | False | True | False | False | False | False | False | False |
-| YDB | False | False | False | False | False | False | False | True | False | False | False | False | False | False |
 | base | False | True | True | True | True | True | True | True | True | False | False | False | False | False |
 
 ### Operational & Advanced Features
@@ -491,69 +299,37 @@ Integration with platform features and metadata handling.
 | Database | User Impersonation | Expand Data | Cost Estimation | SQL Validation |
 | --- | --- | --- | --- | --- |
 | Amazon Athena | False | False | False | False |
-| Amazon DynamoDB | False | False | False | False |
 | Amazon Redshift | False | False | False | False |
-| Apache Doris | False | False | False | False |
-| Apache Drill | True | False | False | False |
 | Apache Druid | False | False | False | False |
 | Apache Hive | True | True | True | False |
-| Apache Impala | False | False | False | False |
-| Apache Kylin | False | False | False | False |
-| Apache Pinot | False | False | False | False |
-| Apache Solr | False | False | False | False |
 | Apache Spark SQL | True | True | True | False |
-| Ascend | False | False | False | False |
 | Aurora MySQL (Data API) | False | False | False | False |
 | Aurora PostgreSQL (Data API) | False | False | True | True |
 | Azure Synapse | False | False | False | False |
 | ClickHouse | False | False | False | False |
 | ClickHouse Connect (Superset) | False | False | False | False |
-| CockroachDB | False | False | True | False |
-| Couchbase | False | False | False | False |
-| CrateDB | False | False | False | False |
-| Databend | False | False | False | False |
 | Databricks | False | False | False | False |
 | Databricks (legacy) | False | False | False | False |
 | Databricks Interactive Cluster | True | True | True | False |
 | Databricks SQL Endpoint | False | False | False | False |
-| Denodo | False | False | False | False |
-| Dremio | False | False | False | False |
 | DuckDB | False | False | False | False |
 | ElasticSearch (OpenDistro SQL) | False | False | False | False |
 | ElasticSearch (SQL API) | False | False | False | False |
-| Exasol | False | False | False | False |
-| Firebird | False | False | False | False |
-| Firebolt | False | False | False | False |
 | Google BigQuery | False | False | True | False |
 | Google Sheets | True | False | False | False |
-| IBM Db2 | False | False | False | False |
-| IBM Db2 for i | False | False | False | False |
-| IBM Netezza Performance Server | False | False | False | False |
 | KustoKQL | False | False | False | False |
 | KustoSQL | False | False | False | False |
 | MariaDB | False | False | False | False |
 | Microsoft SQL Server | False | False | False | False |
 | MotherDuck | False | False | False | False |
 | MySQL | False | False | False | False |
-| OceanBase | False | False | False | False |
-| Ocient | False | False | False | False |
 | Oracle | False | False | False | False |
-| Parseable | False | False | False | False |
 | PostgreSQL | False | False | False | False |
 | Presto | True | True | True | True |
-| RisingWave | False | False | True | False |
-| SAP HANA | False | False | False | False |
 | SQLite | False | False | False | False |
 | Shillelagh | False | False | False | False |
-| SingleStore | False | False | False | False |
 | Snowflake | False | False | False | False |
-| StarRocks | True | False | False | False |
 | Superset meta database | False | False | False | False |
-| TDengine | False | False | False | False |
-| Teradata | False | False | False | False |
-| Trino | True | False | True | False |
-| Vertica | False | False | False | False |
-| YDB | False | False | False | False |
 | base | False | False | True | False |
 
 ## How to Add a New Database

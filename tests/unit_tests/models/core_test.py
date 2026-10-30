@@ -242,8 +242,8 @@ def test_get_db_engine_spec(mocker: MockerFixture) -> None:
         (
             datetime(2023, 1, 1, 1, 23, 45, 600000),
             TableColumn(type="TimeStamp"),
-            Database(sqlalchemy_uri="trino://"),
-            "TIMESTAMP '2023-01-01 01:23:45.600000'",
+            Database(sqlalchemy_uri="presto://"),
+            "TIMESTAMP '2023-01-01 01:23:45.600'",
         ),
     ],
 )
@@ -541,12 +541,12 @@ def test_get_sqla_engine(mocker: MockerFixture) -> None:
 
     create_engine = mocker.patch("superset.models.core.create_engine")
 
-    database = Database(database_name="my_db", sqlalchemy_uri="trino://")
+    database = Database(database_name="my_db", sqlalchemy_uri="presto://")
     database._get_sqla_engine(nullpool=False)
 
     create_engine.assert_called_with(
-        make_url("trino:///"),
-        connect_args={"source": "Apache Superset"},
+        make_url("presto:///"),
+        connect_args={},
     )
 
 
@@ -568,14 +568,14 @@ def test_get_sqla_engine_user_impersonation(mocker: MockerFixture) -> None:
 
     database = Database(
         database_name="my_db",
-        sqlalchemy_uri="trino://",
+        sqlalchemy_uri="presto://",
         impersonate_user=True,
     )
     database._get_sqla_engine(nullpool=False)
 
     create_engine.assert_called_with(
-        make_url("trino:///"),
-        connect_args={"user": "alice", "source": "Apache Superset"},
+        make_url("presto://alice@/"),
+        connect_args={"principal_username": "alice"},
     )
 
 
@@ -623,14 +623,14 @@ def test_get_sqla_engine_user_impersonation_email(mocker: MockerFixture) -> None
 
     database = Database(
         database_name="my_db",
-        sqlalchemy_uri="trino://",
+        sqlalchemy_uri="presto://",
         impersonate_user=True,
     )
     database._get_sqla_engine(nullpool=False)
 
     create_engine.assert_called_with(
-        make_url("trino:///"),
-        connect_args={"user": "alice.doe", "source": "Apache Superset"},
+        make_url("presto://alice.doe@/"),
+        connect_args={"principal_username": "alice.doe"},
     )
 
 

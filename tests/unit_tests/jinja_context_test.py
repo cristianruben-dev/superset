@@ -1422,7 +1422,7 @@ def test_metric_macro_embedded_user_skips_base_filter(mocker: MockerFixture) -> 
             "Filter is extracted with the overridden format (TIMESTAMP to DATE)",
             ["dttm"],
             {"target_type": "DATE", "remove_filter": True},
-            "trino://mydb",
+            "presto://mydb",
             [
                 {
                     "filters": [
@@ -1446,7 +1446,7 @@ def test_metric_macro_embedded_user_skips_base_filter(mocker: MockerFixture) -> 
             "Filter is formatted with the custom format, ignoring target_type",
             ["dttm"],
             {"target_type": "DATE", "strftime": "%Y%m%d", "remove_filter": True},
-            "trino://mydb",
+            "presto://mydb",
             [
                 {
                     "filters": [

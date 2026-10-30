@@ -43,6 +43,13 @@ FAVICONS = [{"href": "/static/assets/images/mibi/favicon.svg"}]
 
 MIBI_SINGLE_DASHBOARD_CHARTS = True
 
+# --- Databases --------------------------------------------------------------
+# Presto is not offered, but its engine spec stays: Hive, Spark and Databricks
+# build on it. The Hive driver (pyhive) also registers the Presto dialect, so it
+# is hidden from the "Connect a database" list here.
+
+DBS_AVAILABLE_DENYLIST: dict[str, set[str | None]] = {"presto": {None}}
+
 # --- Languages --------------------------------------------------------------
 # The navbar shows a language selector when there is more than one language.
 # Languages other than English need BUILD_TRANSLATIONS=true in the Docker build.
