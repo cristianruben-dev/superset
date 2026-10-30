@@ -288,3 +288,13 @@ USER root
 RUN uv pip install .[duckdb]
 USER superset
 CMD ["/app/docker/entrypoints/docker-ci.sh"]
+
+######################################################################
+# Mi BI production image - lean + PostgreSQL driver + MCP service
+######################################################################
+FROM lean AS prod
+USER root
+RUN uv pip install .[postgres,fastmcp]
+COPY --chmod=755 docker/mibi/docker-init-prod.sh /app/docker/mibi/
+COPY docker/pythonpath_prod/superset_config.py /app/pythonpath/
+USER superset
