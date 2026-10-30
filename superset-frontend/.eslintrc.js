@@ -36,7 +36,6 @@ if (process.env.NODE_ENV === 'production') {
     '*.test.{js,ts,jsx,tsx}',
     'plugins/**/test/**/*',
     'packages/**/test/**/*',
-    'packages/generator-superset/**/*',
   ];
 }
 
@@ -283,11 +282,10 @@ module.exports = {
         ],
       },
     },
-    // Ban JavaScript files in packages/ - with exceptions for config files and generators
+    // Ban JavaScript files in packages/ - with exceptions for config files
     {
       files: ['packages/**/src/**/*.js', 'packages/**/src/**/*.jsx'],
       excludedFiles: [
-        'packages/generator-superset/**/*', // Yeoman generator templates run via Node
         'packages/**/__mocks__/**/*', // Test mocks
       ],
       rules: {

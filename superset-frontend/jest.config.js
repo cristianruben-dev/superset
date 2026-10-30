@@ -37,7 +37,6 @@ module.exports = {
   },
   testEnvironment: '<rootDir>/spec/helpers/jsDomWithFetchAPI.ts',
   modulePathIgnorePatterns: [
-    '<rootDir>/packages/generator-superset',
     '<rootDir>/packages/.*/esm',
     '<rootDir>/packages/.*/lib',
     '<rootDir>/plugins/.*/esm',

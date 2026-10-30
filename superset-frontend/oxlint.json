@@ -306,7 +306,6 @@
     ]
   },
   "ignorePatterns": [
-    "packages/generator-superset/**/*",
     "node_modules/**",
     "build/**",
     "dist/**",

@@ -35,7 +35,7 @@ const glob = globs.length > 1 ? `{${globs.join(',')}}` : globs[0] || '*';
 const BABEL_CONFIG = '--config-file=../../babel.config.js';
 
 // packages that do not need tsc
-const META_PACKAGES = new Set(['demo', 'generator-superset']);
+const META_PACKAGES = new Set(['demo']);
 
 function run(cmd, options) {
   console.log(`\n>> ${cmd}\n`);
