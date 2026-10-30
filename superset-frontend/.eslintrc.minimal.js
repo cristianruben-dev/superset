@@ -90,7 +90,6 @@ module.exports = {
         '**/spec/**',
         '**/__tests__/**',
         '**/__mocks__/**',
-        'cypress-base/**',
         'packages/superset-ui-core/src/theme/index.tsx',
       ],
       rules: {

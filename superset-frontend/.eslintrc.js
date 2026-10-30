@@ -430,7 +430,6 @@ module.exports = {
         '**/__mocks__/**/*',
         '**/spec/**/*',
       ],
-      excludedFiles: 'cypress-base/cypress/**/*',
       plugins: ['jest-dom', 'no-only-tests', 'testing-library'],
       extends: ['plugin:jest-dom/recommended', 'plugin:testing-library/react'],
       rules: {
@@ -485,7 +484,6 @@ module.exports = {
         '**/fixtures/**/*',
         '**/__mocks__/**/*',
         '**/spec/**/*',
-        'cypress-base/cypress/**/*',
         'Stories.tsx',
         'packages/superset-ui-core/src/theme/index.tsx',
       ],

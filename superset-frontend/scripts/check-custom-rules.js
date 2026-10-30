@@ -594,8 +594,6 @@ function main() {
     /\/demo\//,
     /\/examples\//,
     /\/color\/colorSchemes\//,
-    /\/cypress\//,
-    /\/cypress-base\//,
     /\/esm\//,
     /\/lib\//,
     /\/dist\//,
@@ -622,8 +620,6 @@ function main() {
         '**/demo/**',
         '**/examples/**',
         '**/color/colorSchemes/**', // Color scheme definitions legitimately contain colors
-        '**/cypress/**',
-        '**/cypress-base/**',
         '**/esm/**', // Build artifacts
         '**/lib/**', // Build artifacts
         '**/dist/**', // Build artifacts
