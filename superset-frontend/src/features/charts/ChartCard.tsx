@@ -17,7 +17,11 @@
  * under the License.
  */
 import { t } from '@apache-superset/core/translation';
-import { isFeatureEnabled, FeatureFlag } from '@superset-ui/core';
+import {
+  isFeatureEnabled,
+  FeatureFlag,
+  getChartMetadataRegistry,
+} from '@superset-ui/core';
 import { css } from '@apache-superset/core/theme';
 import { Link, useHistory } from 'react-router-dom';
 import {
@@ -161,6 +165,8 @@ export default function ChartCard({
     });
   }
 
+  const vizName = getChartMetadataRegistry().get(chart.viz_type)?.name;
+
   return (
     <CardStyles
       onClick={() => {
@@ -184,7 +190,12 @@ export default function ChartCard({
         imgFallbackURL={assetUrl(
           '/static/assets/images/chart-card-fallback.svg',
         )}
-        description={t('Modified %s', chart.changed_on_delta_humanized)}
+        description={
+          <span className="mibi-chart-meta">
+            {vizName && <span className="viz-type">{vizName}</span>}
+            <span>{t('Modified %s', chart.changed_on_delta_humanized)}</span>
+          </span>
+        }
         coverLeft={<FacePile users={chart.owners || []} />}
         coverRight={<Label>{chart.datasource_name_text}</Label>}
         linkComponent={Link}

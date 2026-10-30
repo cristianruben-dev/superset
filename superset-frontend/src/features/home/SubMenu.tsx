@@ -258,7 +258,7 @@ const SubMenuComponent: FunctionComponent<SubMenuProps> = props => {
             {props.dropDownLinks?.map((link, i) => (
               <SubMenu
                 css={css`
-                  [data-icon='caret-down'] {
+                  [data-icon='down'] {
                     color: ${theme.colorIcon};
                     font-size: ${theme.fontSizeXS}px;
                     margin-left: ${theme.sizeUnit}px;
@@ -266,7 +266,7 @@ const SubMenuComponent: FunctionComponent<SubMenuProps> = props => {
                 `}
                 key={i}
                 title={link.label}
-                icon={<Icons.CaretDownOutlined />}
+                icon={<Icons.DownOutlined />}
                 popupOffset={[10, 20]}
                 className="dropdown-menu-links"
               >

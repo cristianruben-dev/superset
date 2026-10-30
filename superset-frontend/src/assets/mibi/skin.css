@@ -145,14 +145,46 @@ table,
   padding: 0 !important;
 }
 
-/* ---------------------------------------------------------------- Page header (lists) */
+/* One quiet caret for every top bar dropdown */
+#main-menu .ant-menu-submenu-title .anticon-down {
+  font-size: 10px !important;
+  margin-inline-start: 6px !important;
+  color: var(--mb-text-tertiary);
+}
 
-.ant-layout-content > div:has(> .menu) {
+/* The "New" button is its own pill, without the menu hover behind it */
+#main-menu .ant-menu-horizontal > .mibi-new-dropdown {
+  padding: 0 !important;
+  margin-right: 8px;
   background: transparent !important;
 }
 
+#main-menu .ant-menu-horizontal > .mibi-user-dropdown {
+  padding: 0 8px 0 4px !important;
+  margin-left: 6px;
+  border-radius: 999px;
+}
+
+#main-menu .ant-tag {
+  margin-right: 12px;
+}
+
+/* ---------------------------------------------------------------- Page header (lists) */
+
+/* Every page shares the 40px gutter of the home page */
+.ant-layout-content > div:has(> .menu) {
+  background: transparent !important;
+  padding: 0 !important;
+  margin-bottom: 0 !important;
+}
+
+.ant-layout-content > div:has(> .superset-list-view) {
+  padding-top: 0 !important;
+}
+
 .ant-layout-content > div > .menu {
-  padding: 32px 40px 12px;
+  min-height: 0;
+  padding: 32px 40px 20px;
   border-bottom: 0;
   background: transparent;
   align-items: center;
@@ -170,6 +202,46 @@ table,
   float: none;
   margin-left: auto;
   gap: 8px;
+}
+
+.ant-layout-content > div > .menu .nav-right .ant-btn {
+  height: 34px;
+  padding-inline: 14px;
+  font-size: 13px;
+}
+
+/* Dropdown actions in the header ("Upload file to database") look like buttons */
+.ant-layout-content > div > .menu .nav-right .ant-menu-horizontal {
+  line-height: 34px;
+  border: 0;
+  background: transparent;
+}
+
+.ant-layout-content > div > .menu .nav-right .ant-menu-submenu {
+  padding: 0 !important;
+  top: 0;
+}
+
+.ant-layout-content > div > .menu .nav-right .ant-menu-submenu::after {
+  display: none;
+}
+
+.ant-layout-content > div > .menu .nav-right .ant-menu-submenu-title {
+  display: flex;
+  align-items: center;
+  height: 34px;
+  padding: 0 14px !important;
+  border-radius: 8px;
+  background: var(--mb-primary-bg);
+  color: var(--mb-primary);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.ant-layout-content > div > .menu .nav-right .ant-menu-submenu-title .anticon {
+  color: inherit !important;
+  font-size: 10px !important;
+  margin-left: 6px !important;
 }
 
 /* ---------------------------------------------------------------- Buttons & inputs */
@@ -234,11 +306,55 @@ table,
 /* ---------------------------------------------------------------- List views */
 
 .superset-list-view {
+  margin: 0 !important;
   padding: 0 40px 40px !important;
 }
 
+/* Filters on an even grid aligned with the title; the view switch on the right */
 .superset-list-view > .header {
-  padding: 4px 0 20px;
+  align-items: flex-start;
+  gap: 24px;
+  padding: 0 0 24px;
+}
+
+.superset-list-view > .header > .controls {
+  flex: 1;
+  min-width: 0;
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(176px, 1fr));
+  gap: 14px 16px !important;
+}
+
+.superset-list-view > .header > .controls > * {
+  width: auto !important;
+  min-width: 0;
+}
+
+.superset-list-view > .header > .controls > * > :last-child {
+  width: 100% !important;
+  max-width: 100%;
+}
+
+.superset-list-view > .header > :not(.controls) {
+  order: 2;
+  flex-shrink: 0;
+  display: inline-flex;
+  gap: 2px;
+  margin-top: 20px;
+  padding: 3px;
+  border-radius: 9px;
+  background: var(--mb-fill);
+}
+
+.superset-list-view > .header > :not(.controls) .toggle-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  margin: 0 !important;
+  padding: 0 !important;
+  border-radius: 6px;
 }
 
 /* Card / table view toggle */
@@ -248,11 +364,12 @@ table,
 }
 
 .superset-list-view .toggle-button:hover {
-  background: var(--mb-fill);
+  color: var(--mb-text-secondary);
 }
 
 .superset-list-view .toggle-button.active {
-  background: var(--mb-primary-bg) !important;
+  background: var(--mb-bg-container) !important;
+  box-shadow: 0 1px 2px rgba(10, 10, 15, 0.1);
 }
 
 .superset-list-view .toggle-button.active svg {
@@ -339,6 +456,19 @@ table,
   font-size: 12px;
 }
 
+/* Empty lists: one calm card instead of an empty table over a white block */
+.superset-list-view .body.empty .ant-table-wrapper {
+  display: none;
+}
+
+.superset-list-view .body.empty [data-test='empty-state'] {
+  padding: 72px 24px;
+  border: 1px solid var(--mb-hairline);
+  border-radius: 14px;
+  background: var(--mb-bg-container);
+  box-shadow: var(--mb-shadow-card);
+}
+
 /* Card view of lists */
 .superset-list-view .ant-card {
   border-radius: 14px;
@@ -351,8 +481,75 @@ table,
 }
 
 .superset-list-view .ant-card:hover {
+  border-color: var(--mb-primary-border);
   box-shadow: var(--mb-shadow-pop);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+}
+
+/* Chart cards: same type scale as the dashboard cards */
+.superset-list-view .ant-card .ant-card-body {
+  padding: 14px 16px !important;
+}
+
+.superset-list-view .ant-card .ant-card-meta-title {
+  margin-bottom: 6px !important;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.superset-list-view .ant-card .ant-card-meta-description {
+  font-size: 12px;
+  color: var(--mb-text-secondary);
+}
+
+.superset-list-view .ant-card .card-actions {
+  align-self: center !important;
+  gap: 2px;
+}
+
+.superset-list-view .ant-card .card-actions .ant-btn,
+.superset-list-view .ant-card .card-actions .anticon {
+  color: var(--mb-text-tertiary) !important;
+}
+
+.superset-list-view .ant-card .card-actions .ant-btn:hover .anticon {
+  color: var(--mb-text) !important;
+}
+
+.mibi-chart-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  white-space: nowrap;
+}
+
+.mibi-chart-meta .viz-type {
+  flex-shrink: 0;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--mb-primary-bg);
+  color: var(--mb-primary);
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.mibi-chart-meta > :last-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* "Charts are created from a dashboard": on the page itself, centered */
+[data-test='chart-creation-requires-dashboard'] {
+  justify-content: center !important;
+  background: transparent !important;
+}
+
+/* Empty-state illustrations in the brand color */
+.ant-empty .ant-empty-image svg {
+  color: var(--mb-primary);
+  opacity: 0.6;
 }
 
 /* ---------------------------------------------------------------- Home */
@@ -478,8 +675,11 @@ table,
 }
 
 [data-test='row-count-label'],
-[data-test='last-queried-label'] {
+[data-test='last-queried-label'],
+[role='timer'] {
   border-radius: 999px;
+  font-family: inherit !important;
+  font-size: 12px;
   font-variant-numeric: tabular-nums;
 }
 
@@ -502,6 +702,18 @@ table,
   background: rgba(120, 120, 135, 0.035);
   border-right: 1px solid var(--mb-hairline);
   padding: 14px 12px !important;
+}
+
+/* The schema browser starts flush with the top bar and the sidebar */
+.SqlLab .ant-splitter-panel > div:has(> [data-test='sql-editor-left-bar']) {
+  height: 100%;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+[data-test='sql-editor-left-bar'] {
+  height: 100%;
+  padding: 14px 16px !important;
 }
 
 [data-test='sql-editor-left-bar'] .tree-node {
@@ -584,6 +796,12 @@ table,
   border-radius: 999px;
   padding: 2px 12px;
   color: var(--mb-text-secondary);
+}
+
+[data-test='dashboard-header-container']
+  [data-test='metadata-bar']
+  .metadata-icon {
+  font-size: 13px !important;
 }
 
 [data-test='dashboard-header-container'] [data-test='refresh-button'],
@@ -774,11 +992,44 @@ body:has(.dashboard--editing) [data-test='dashboard-header-container'] {
 }
 
 .ant-menu-submenu-popup .ant-menu-item-group-title {
+  padding: 8px 12px 4px !important;
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   opacity: 0.6;
+}
+
+/* Same row height and indent for every item of the top bar menus */
+.ant-menu-submenu-popup .ant-menu-vertical .ant-menu-item,
+.ant-menu-submenu-popup .ant-menu-vertical .ant-menu-submenu-title {
+  height: 36px !important;
+  line-height: 36px !important;
+  margin-inline: 0 !important;
+  width: 100% !important;
+  padding-inline: 12px !important;
+}
+
+.ant-menu-submenu-popup .ant-menu-vertical {
+  min-width: 200px;
+}
+
+.ant-menu-submenu-popup .ant-menu-item-group-list .ant-menu-item {
+  padding-inline: 12px !important;
+}
+
+/* Version and SHA: small multi-line block, flush with the other items */
+.ant-menu-submenu-popup .ant-menu-item[data-menu-id$='about-info'] {
+  height: auto !important;
+  line-height: 1.6 !important;
+  padding: 2px 12px 8px !important;
+  cursor: default;
+  background: transparent !important;
+}
+
+.ant-menu-submenu-popup .ant-menu-item[data-menu-id$='about-info'] div {
+  padding: 0 !important;
+  color: var(--mb-text-tertiary) !important;
 }
 
 .ant-modal .ant-modal-content {

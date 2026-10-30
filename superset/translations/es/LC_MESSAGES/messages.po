@@ -1134,7 +1134,7 @@ msgid_plural "Added %s new columns to the virtual dataset"
 msgstr[0] "Se ha añadido 1 nueva columna al conjunto de datos virtual"
 msgstr[1] "Se han añadido %s nuevas columnas al conjunto de datos virtual"
 
-#, fuzzy, python-format
+#, python-format
 msgid "Added to 1 dashboard"
 msgid_plural "Added to %s dashboards"
 msgstr[0] "Añadido a 1 panel de control"
@@ -2160,7 +2160,7 @@ msgid "Back to all"
 msgstr "Volver a todos"
 
 msgid "Backend"
-msgstr "«Backend»"
+msgstr "Motor"
 
 msgid "Background Color"
 msgstr "Color de fondo"
@@ -5694,9 +5694,8 @@ msgstr "Introduce un nombre para esta hoja"
 msgid "Enter a new title for the tab"
 msgstr "Introduce un nuevo título para la pestaña"
 
-#, fuzzy
 msgid "Enter a part of the object name"
-msgstr "Si se deben rellenar los objetos"
+msgstr "Busca una tabla o columna"
 
 msgid "Enter alert name"
 msgstr "Introduce el nombre de la alerta"
@@ -7604,9 +7603,8 @@ msgstr "Los apellidos son obligatorios"
 msgid "Last quarter"
 msgstr "Último trimestre"
 
-#, fuzzy
 msgid "Last queried at"
-msgstr "Último trimestre"
+msgstr "Última consulta"
 
 msgid "Last run"
 msgstr "Última ejecución"
@@ -11121,7 +11119,7 @@ msgid "Select all items"
 msgstr "Seleccionar todos los elementos"
 
 msgid "Select catalog or type to search catalogs"
-msgstr "Seleccione un catálogo o introduce el nombre para buscar catálogos"
+msgstr "Elige un catálogo"
 
 msgid "Select channels"
 msgstr "Seleccionar canales"
@@ -11177,9 +11175,7 @@ msgid "Select database"
 msgstr "Seleccionar base de datos"
 
 msgid "Select database or type to search databases"
-msgstr ""
-"Selecciona la base de datos o introduce el nombre para buscar bases de "
-"datos"
+msgstr "Elige una base de datos"
 
 msgid ""
 "Select databases require additional fields to be completed in the "
@@ -11479,9 +11475,8 @@ msgstr "Fecha y hora predeterminadas"
 msgid "Set as default light theme"
 msgstr "El filtro tiene un valor predeterminado"
 
-#, fuzzy
 msgid "Set auto-refresh"
-msgstr "Establecer intervalo de actualización automática"
+msgstr "Actualización automática"
 
 msgid "Set filter mapping"
 msgstr "Establecer el mapeado de filtros"
@@ -17343,3 +17338,12 @@ msgstr "Editar visual"
 
 msgid "New visual"
 msgstr "Nuevo visual"
+
+msgid "Grid view"
+msgstr "Vista de cuadrícula"
+
+msgid "List view"
+msgstr "Vista de lista"
+
+msgid "Select schema"
+msgstr "Elige un esquema"
