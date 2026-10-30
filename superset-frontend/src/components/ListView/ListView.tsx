@@ -481,10 +481,12 @@ export function ListView<T extends object = any>({
                     align="center"
                   />
                   <div className="row-count-container">
-                    {`${pageIndex * pageSize + 1}-${Math.min(
-                      (pageIndex + 1) * pageSize,
+                    {t(
+                      '%s-%s of %s',
+                      pageIndex * pageSize + 1,
+                      Math.min((pageIndex + 1) * pageSize, count),
                       count,
-                    )} of ${count}`}
+                    )}
                   </div>
                 </div>
               )}

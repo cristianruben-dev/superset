@@ -25,6 +25,7 @@ import { getUrlParam } from 'src/utils/urlUtils';
 import { CommandPalette } from './CommandPalette';
 import { buildNavSections } from './navigation';
 import { Sidebar, SIDEBAR_COLLAPSED_WIDTH, SIDEBAR_WIDTH } from './Sidebar';
+import { ThemeVariables } from './ThemeVariables';
 import { TopBar } from './TopBar';
 
 const COLLAPSED_KEY = 'mibi.sidebarCollapsed';
@@ -92,11 +93,17 @@ export function AppShell({ data, isFrontendRoute, children }: AppShellProps) {
   }, []);
 
   if (hidden) {
-    return <>{children}</>;
+    return (
+      <>
+        <ThemeVariables />
+        {children}
+      </>
+    );
   }
 
   return (
     <>
+      <ThemeVariables />
       <Sidebar
         sections={sections}
         collapsed={collapsed}

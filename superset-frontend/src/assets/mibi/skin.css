@@ -152,20 +152,23 @@ table,
 }
 
 .ant-layout-content > div > .menu {
-  padding: 20px 24px 8px;
+  padding: 32px 40px 12px;
   border-bottom: 0;
   background: transparent;
   align-items: center;
 }
 
 .ant-layout-content > div > .menu .header {
-  font-size: 22px;
+  font-size: 26px;
   font-weight: 600;
   letter-spacing: -0.024em;
   line-height: 1.2;
 }
 
 .ant-layout-content > div > .menu .nav-right {
+  position: static;
+  float: none;
+  margin-left: auto;
   gap: 8px;
 }
 
@@ -231,11 +234,29 @@ table,
 /* ---------------------------------------------------------------- List views */
 
 .superset-list-view {
-  padding: 0 24px 32px !important;
+  padding: 0 40px 40px !important;
 }
 
 .superset-list-view > .header {
-  padding: 4px 0 16px;
+  padding: 4px 0 20px;
+}
+
+/* Card / table view toggle */
+.superset-list-view .toggle-button {
+  color: var(--mb-text-tertiary);
+  transition: background-color 0.15s ease;
+}
+
+.superset-list-view .toggle-button:hover {
+  background: var(--mb-fill);
+}
+
+.superset-list-view .toggle-button.active {
+  background: var(--mb-primary-bg) !important;
+}
+
+.superset-list-view .toggle-button.active svg {
+  color: var(--mb-primary) !important;
 }
 
 .superset-list-view .controls label,
@@ -246,6 +267,7 @@ table,
 }
 
 .superset-list-view .ant-table {
+  background: var(--mb-bg-container);
   border: 1px solid var(--mb-hairline);
   border-radius: 12px;
   overflow: hidden;
@@ -280,6 +302,10 @@ table,
   border-bottom: 0 !important;
 }
 
+.superset-list-view .ant-table-tbody > tr:hover > td {
+  background: var(--mb-fill) !important;
+}
+
 .superset-list-view .ant-table-tbody > tr > td a {
   font-weight: 500;
 }
@@ -301,6 +327,16 @@ table,
 .ant-pagination-prev .ant-pagination-item-link,
 .ant-pagination-next .ant-pagination-item-link {
   border-radius: 8px;
+}
+
+.ant-pagination-item-active {
+  background: var(--mb-primary-bg) !important;
+  border-color: var(--mb-primary-border) !important;
+}
+
+.superset-list-view .row-count-container {
+  color: var(--mb-text-tertiary);
+  font-size: 12px;
 }
 
 /* Card view of lists */

@@ -16,6 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import { t } from '@apache-superset/core/translation';
 import { HTMLAttributes, memo, useMemo, useCallback } from 'react';
 import {
   ColumnInstance,
@@ -223,7 +224,7 @@ function TableCollection<T extends object>({
 
   const showTotalFunc = useCallback(
     (total: number, range: [number, number]) =>
-      `${range[0]}-${range[1]} of ${total}`,
+      t('%s-%s of %s', range[0], range[1], total),
     [],
   );
 

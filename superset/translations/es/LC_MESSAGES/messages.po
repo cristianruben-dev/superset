@@ -2889,9 +2889,8 @@ msgstr "Tamaño del gráfico"
 msgid "Chart title"
 msgstr "Título del gráfico"
 
-#, fuzzy
 msgid "Chart type"
-msgstr "Título del gráfico"
+msgstr "Tipo de gráfico"
 
 msgid "Chart type requires a dataset"
 msgstr "El tipo de gráfico requiere un conjunto de datos"
@@ -3043,9 +3042,8 @@ msgstr ""
 "Elige si un país debe estar sombreado por la métrica o si se le debe "
 "asignar un color basado en una paleta de colores categórica"
 
-#, fuzzy
 msgid "Choose..."
-msgstr "Elige una base de datos..."
+msgstr "Selecciona..."
 
 msgid "Chord Diagram"
 msgstr "Diagrama de cuerdas"
@@ -8383,7 +8381,7 @@ msgstr "Modificado"
 
 #, python-format
 msgid "Modified %s"
-msgstr "%s modificado"
+msgstr "Modificado %s"
 
 #, python-format
 msgid "Modified 1 column in the virtual dataset"
@@ -17330,3 +17328,6 @@ msgstr "Todavía no hay paneles de control."
 
 msgid "Create your first dashboard"
 msgstr "Crea tu primer panel de control"
+
+msgid "%s-%s of %s"
+msgstr "%s-%s de %s"
