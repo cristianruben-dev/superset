@@ -17,26 +17,18 @@
  * under the License.
  */
 import { useEffect, useState } from 'react';
-import { Link, useHistory } from 'react-router-dom';
 import { t } from '@apache-superset/core/translation';
 import {
   isFeatureEnabled,
   FeatureFlag,
   SupersetClient,
 } from '@superset-ui/core';
-import { CardStyles } from 'src/views/CRUD/utils';
-import {
-  Dropdown,
-  Button,
-  FaveStar,
-  PublishedLabel,
-  ListViewCard,
-} from '@superset-ui/core/components';
+import { Dropdown, Button, FaveStar } from '@superset-ui/core/components';
 import { MenuItem } from '@superset-ui/core/components/Menu';
 import { Icons } from '@superset-ui/core/components/Icons';
 import { Dashboard } from 'src/views/CRUD/types';
-import { assetUrl } from 'src/utils/assetUrl';
-import { FacePile } from 'src/components';
+import { DashboardCard as MibiDashboardCard } from 'src/mibi/dashboards';
+import type { PreviewRows } from 'src/mibi/dashboards';
 
 interface DashboardCardProps {
   isChart?: boolean;
@@ -51,6 +43,8 @@ interface DashboardCardProps {
   showThumbnails?: boolean;
   handleBulkDashboardExport: (dashboardsToExport: Dashboard[]) => void;
   onDelete: (dashboard: Dashboard) => void;
+  /** Mi BI layout preview of the dashboard */
+  preview?: PreviewRows;
 }
 
 function DashboardCard({
@@ -64,8 +58,8 @@ function DashboardCard({
   showThumbnails,
   handleBulkDashboardExport,
   onDelete,
+  preview,
 }: DashboardCardProps) {
-  const history = useHistory();
   const canEdit = hasPerm('can_write');
   const canDelete = hasPerm('can_write');
   const canExport = hasPerm('can_export');
@@ -151,55 +145,45 @@ function DashboardCard({
   }
 
   return (
-    <CardStyles
-      onClick={() => {
-        if (!bulkSelectEnabled) {
-          history.push(dashboard.url);
-        }
-      }}
-    >
-      <ListViewCard
-        loading={dashboard.loading || false}
-        title={dashboard.dashboard_title}
-        certifiedBy={dashboard.certified_by}
-        certificationDetails={dashboard.certification_details}
-        titleRight={<PublishedLabel isPublished={dashboard.published} />}
-        cover={
-          !isFeatureEnabled(FeatureFlag.Thumbnails) || !showThumbnails ? (
-            <></>
-          ) : null
-        }
-        url={bulkSelectEnabled ? undefined : dashboard.url}
-        linkComponent={Link}
-        imgURL={thumbnailUrl}
-        imgFallbackURL={assetUrl(
-          '/static/assets/images/dashboard-card-fallback.svg',
-        )}
-        description={t('Modified %s', dashboard.changed_on_delta_humanized)}
-        coverLeft={<FacePile users={dashboard.owners || []} />}
-        actions={
-          <ListViewCard.Actions
-            onClick={e => {
-              e.stopPropagation();
-              e.preventDefault();
-            }}
-          >
-            {userId && (
-              <FaveStar
-                itemId={dashboard.id}
-                saveFaveStar={saveFavoriteStatus}
-                isStarred={favoriteStatus}
-              />
-            )}
-            <Dropdown menu={{ items: menuItems }} trigger={['hover', 'click']}>
-              <Button buttonSize="xsmall" buttonStyle="link">
-                <Icons.MoreOutlined iconSize="xl" />
+    <MibiDashboardCard
+      id={dashboard.id}
+      title={dashboard.dashboard_title}
+      url={dashboard.url}
+      published={dashboard.published}
+      modified={t('Modified %s', dashboard.changed_on_delta_humanized)}
+      preview={preview}
+      certifiedBy={dashboard.certified_by}
+      certificationDetails={dashboard.certification_details}
+      thumbnailUrl={
+        isFeatureEnabled(FeatureFlag.Thumbnails) && showThumbnails
+          ? thumbnailUrl
+          : null
+      }
+      // In bulk select mode a click selects the card instead of opening it
+      onSelect={bulkSelectEnabled ? () => {} : undefined}
+      actions={
+        <>
+          {userId && (
+            <FaveStar
+              itemId={dashboard.id}
+              saveFaveStar={saveFavoriteStatus}
+              isStarred={favoriteStatus}
+            />
+          )}
+          {menuItems.length > 0 && (
+            <Dropdown menu={{ items: menuItems }} trigger={['click']}>
+              <Button
+                buttonSize="xsmall"
+                buttonStyle="link"
+                aria-label={t('More')}
+              >
+                <Icons.MoreOutlined iconSize="l" />
               </Button>
             </Dropdown>
-          </ListViewCard.Actions>
-        }
-      />
-    </CardStyles>
+          )}
+        </>
+      }
+    />
   );
 }
 

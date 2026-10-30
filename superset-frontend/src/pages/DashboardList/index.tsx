@@ -72,6 +72,7 @@ import {
 import { TagTypeEnum } from 'src/components/Tag/TagType';
 import { loadTags } from 'src/components/Tag/utils';
 import DashboardCard from 'src/features/dashboards/DashboardCard';
+import { useDashboardPreviews } from 'src/mibi/dashboards';
 import { DashboardStatus } from 'src/features/dashboards/types';
 import { UserWithPermissionsAndRoles } from 'src/types/bootstrapTypes';
 import { findPermission } from 'src/utils/findPermission';
@@ -174,6 +175,7 @@ function DashboardList(props: DashboardListProps) {
     DASHBOARD_COLUMNS_TO_FETCH,
   );
   const dashboardIds = useMemo(() => dashboards.map(d => d.id), [dashboards]);
+  const previews = useDashboardPreviews(dashboardIds);
   const [saveFavoriteStatus, favoriteStatus] = useFavoriteStatus(
     'dashboard',
     dashboardIds,
@@ -685,9 +687,11 @@ function DashboardList(props: DashboardListProps) {
         favoriteStatus={favoriteStatus[dashboard.id]}
         handleBulkDashboardExport={handleBulkDashboardExport}
         onDelete={dashboard => setDashboardToDelete(dashboard)}
+        preview={previews[dashboard.id]}
       />
     ),
     [
+      previews,
       bulkSelectEnabled,
       favoriteStatus,
       hasPerm,

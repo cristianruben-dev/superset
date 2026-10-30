@@ -754,7 +754,8 @@ DEFAULT_FEATURE_FLAGS: dict[str, bool] = {
     # Use card view as default in list views
     # @lifecycle: stable
     # @category: runtime_config
-    "LISTVIEWS_DEFAULT_CARD_VIEW": False,
+    # Mi BI: lists with a card view (dashboards) open in it
+    "LISTVIEWS_DEFAULT_CARD_VIEW": True,
     # Hide user info in the navigation menu
     # @lifecycle: stable
     # @category: runtime_config

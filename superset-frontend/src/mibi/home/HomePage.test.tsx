@@ -59,6 +59,18 @@ beforeEach(() => {
       },
     ],
   });
+  fetchMock.get('glob:*/api/v1/mibi/dashboard_previews/?q=*', {
+    result: [
+      { id: 1, rows: [[{ width: 12, height: 50, kind: 'pie' }]] },
+      { id: 2, rows: [] },
+    ],
+  });
+  fetchMock.get('glob:*/api/v1/dashboard/favorite_status/?q=*', {
+    result: [
+      { id: 1, value: true },
+      { id: 2, value: false },
+    ],
+  });
   fetchMock.get(
     'glob:*/api/v1/dashboard/?q=*dashboard_is_favorite*',
     { result: [] },
@@ -97,18 +109,25 @@ test('the banner greets the user and offers the quick actions', () => {
 });
 
 test('lists recent dashboards once and the dashboard cards', async () => {
-  render(<HomeContent />, { useRouter: true });
+  render(<HomeContent />, { useRouter: true, useRedux: true });
 
-  expect(await screen.findAllByTestId('home-dashboard-card')).toHaveLength(2);
+  expect(await screen.findAllByTestId('mibi-dashboard-card')).toHaveLength(2);
   expect(screen.getByText('Published')).toBeInTheDocument();
   expect(screen.getByText('Recently viewed')).toBeInTheDocument();
   expect(screen.queryByText('Un gráfico')).not.toBeInTheDocument();
   expect(screen.getAllByRole('link', { name: /Ventas/ })).toHaveLength(2);
+  // Layout previews arrive in one request for all the cards
+  expect(await screen.findByTestId('dashboard-preview')).toBeInTheDocument();
+  expect(screen.getByText('Empty dashboard')).toBeInTheDocument();
+  expect(
+    fetchMock.callHistory.calls('glob:*/api/v1/mibi/dashboard_previews/?q=*'),
+  ).toHaveLength(1);
+  expect(await screen.findAllByTestId('fave-unfave-icon')).toHaveLength(2);
 });
 
 test('the favorites tab shows an empty state', async () => {
-  render(<HomeContent />, { useRouter: true });
-  await screen.findAllByTestId('home-dashboard-card');
+  render(<HomeContent />, { useRouter: true, useRedux: true });
+  await screen.findAllByTestId('mibi-dashboard-card');
 
   userEvent.click(screen.getByRole('tab', { name: 'Favorites' }));
 

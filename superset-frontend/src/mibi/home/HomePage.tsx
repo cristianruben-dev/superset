@@ -16,15 +16,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import rison from 'rison';
 import { t } from '@apache-superset/core/translation';
 import { css, styled } from '@apache-superset/core/theme';
 import { SupersetClient } from '@superset-ui/core';
-import { Skeleton } from '@superset-ui/core/components';
+import { FaveStar, Skeleton } from '@superset-ui/core/components';
 import { Icons } from '@superset-ui/core/components/Icons';
+import { useToasts } from 'src/components/MessageToasts/withToasts';
 import getBootstrapData from 'src/utils/getBootstrapData';
+import { useFavoriteStatus } from 'src/views/CRUD/hooks';
+import { DashboardCard, useDashboardPreviews } from '../dashboards';
 
 export interface DashboardCardData {
   id: number;
@@ -225,89 +228,6 @@ const Grid = styled.div`
   `}
 `;
 
-const DashboardCard = styled(Link)`
-  ${({ theme }) => css`
-    display: flex;
-    flex-direction: column;
-    border-radius: ${theme.borderRadiusLG}px;
-    border: 1px solid ${theme.colorBorderSecondary};
-    background: ${theme.colorBgContainer};
-    color: ${theme.colorText};
-    overflow: hidden;
-    transition:
-      border-color ${theme.motionDurationMid},
-      box-shadow ${theme.motionDurationMid},
-      transform ${theme.motionDurationMid};
-
-    &:hover,
-    &:focus-visible {
-      color: ${theme.colorText};
-      text-decoration: none;
-      border-color: ${theme.colorPrimaryBorder};
-      box-shadow: ${theme.boxShadow};
-      transform: translateY(-2px);
-    }
-
-    .preview {
-      position: relative;
-      height: 96px;
-      background: linear-gradient(
-        135deg,
-        ${theme.colorPrimaryBg},
-        ${theme.colorFillSecondary}
-      );
-      border-bottom: 1px solid ${theme.colorBorderSecondary};
-      display: flex;
-      align-items: flex-end;
-      gap: 6px;
-      padding: 0 ${theme.sizeUnit * 5}px ${theme.sizeUnit * 4}px;
-
-      span {
-        width: 14px;
-        border-radius: 4px 4px 2px 2px;
-        background: ${theme.colorPrimary};
-      }
-    }
-
-    .body {
-      padding: ${theme.sizeUnit * 3.5}px ${theme.sizeUnit * 4}px
-        ${theme.sizeUnit * 4}px;
-    }
-
-    .title {
-      display: block;
-      font-weight: ${theme.fontWeightStrong};
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      margin-bottom: ${theme.sizeUnit * 1.5}px;
-    }
-
-    .meta {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: ${theme.sizeUnit * 2}px;
-      font-size: ${theme.fontSizeSM}px;
-      color: ${theme.colorTextSecondary};
-    }
-
-    .status {
-      padding: 1px ${theme.sizeUnit * 2}px;
-      border-radius: 999px;
-      font-size: 11px;
-      font-weight: 500;
-      background: ${theme.colorFillSecondary};
-      color: ${theme.colorTextSecondary};
-
-      &.published {
-        background: ${theme.colorSuccessBg};
-        color: ${theme.colorSuccessText};
-      }
-    }
-  `}
-`;
-
 const RecentList = styled.div`
   ${({ theme }) => css`
     display: flex;
@@ -372,10 +292,6 @@ const EmptyCard = styled.div`
     }
   `}
 `;
-
-/** Bar heights of the card preview, varied per dashboard so cards differ. */
-const previewBars = (id: number) =>
-  [0, 1, 2, 3, 4].map(index => 18 + ((id * 37 + index * 23) % 44));
 
 const locale = () => getBootstrapData().common?.locale || 'en';
 
@@ -525,6 +441,17 @@ export function HomeContent() {
     null,
   );
   const [recents, setRecents] = useState<RecentItem[]>([]);
+  const dashboardIds = useMemo(
+    () => (dashboards || []).map(dashboard => dashboard.id),
+    [dashboards],
+  );
+  const previews = useDashboardPreviews(dashboardIds);
+  const { addDangerToast } = useToasts();
+  const [saveFavoriteStatus, favoriteStatus] = useFavoriteStatus(
+    'dashboard',
+    dashboardIds,
+    addDangerToast,
+  );
 
   useEffect(() => {
     fetchRecents()
@@ -595,7 +522,7 @@ export function HomeContent() {
                 active
                 css={css`
                   width: 100% !important;
-                  height: 168px !important;
+                  height: 222px !important;
                   border-radius: 12px;
                 `}
               />
@@ -618,29 +545,20 @@ export function HomeContent() {
           {dashboards?.map(dashboard => (
             <DashboardCard
               key={dashboard.id}
-              to={dashboard.url}
-              data-test="home-dashboard-card"
-            >
-              <div className="preview" aria-hidden>
-                {previewBars(dashboard.id).map((height, index) => (
-                  <span
-                    key={index}
-                    style={{ height, opacity: 0.35 + index * 0.13 }}
-                  />
-                ))}
-              </div>
-              <div className="body">
-                <span className="title">{dashboard.dashboard_title}</span>
-                <div className="meta">
-                  <span>{dashboard.changed_on_delta_humanized}</span>
-                  <span
-                    className={`status ${dashboard.published ? 'published' : ''}`}
-                  >
-                    {dashboard.published ? t('Published') : t('Draft')}
-                  </span>
-                </div>
-              </div>
-            </DashboardCard>
+              id={dashboard.id}
+              title={dashboard.dashboard_title}
+              url={dashboard.url}
+              published={dashboard.published}
+              modified={t('Modified %s', dashboard.changed_on_delta_humanized)}
+              preview={previews[dashboard.id]}
+              actions={
+                <FaveStar
+                  itemId={dashboard.id}
+                  saveFaveStar={saveFavoriteStatus}
+                  isStarred={!!favoriteStatus[dashboard.id]}
+                />
+              }
+            />
           ))}
         </Grid>
       </Section>

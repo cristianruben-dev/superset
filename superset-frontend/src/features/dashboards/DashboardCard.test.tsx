@@ -129,6 +129,7 @@ test('should fetch thumbnail when dashboard has no thumbnail URL and feature fla
       handleBulkDashboardExport={() => {}}
       onDelete={() => {}}
     />,
+    { useRouter: true },
   );
   await waitFor(() => {
     expect(mockGet).toHaveBeenCalledWith({

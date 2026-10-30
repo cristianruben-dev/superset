@@ -17331,3 +17331,6 @@ msgstr "Crea tu primer panel de control"
 
 msgid "%s-%s of %s"
 msgstr "%s-%s de %s"
+
+msgid "Empty dashboard"
+msgstr "Panel vacío"
