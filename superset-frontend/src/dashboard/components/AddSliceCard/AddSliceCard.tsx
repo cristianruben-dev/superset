@@ -35,6 +35,7 @@ import { css } from '@apache-superset/core/theme';
 import { Tooltip, ImageLoader } from '@superset-ui/core/components';
 import { GenericLink, usePluginContext } from 'src/components';
 import { assetUrl } from 'src/utils/assetUrl';
+import { VizTypeTile } from 'src/mibi/vizIcons/VizTypeIcon';
 import { Theme } from '@emotion/react';
 
 const FALLBACK_THUMBNAIL_URL = assetUrl(
@@ -251,7 +252,19 @@ const AddSliceCard: FC<{
                 />
               ) : null}
             </div>
-          ) : null}
+          ) : (
+            <Tooltip title={vizName}>
+              <span
+                data-test="viz-type-tile"
+                css={(theme: Theme) => css`
+                  align-self: flex-start;
+                  margin-right: ${theme.sizeUnit * 3}px;
+                `}
+              >
+                <VizTypeTile vizType={visType} size="m" title={vizName} />
+              </span>
+            </Tooltip>
+          )}
           <div
             css={css`
               flex-grow: 1;
@@ -281,7 +294,9 @@ const AddSliceCard: FC<{
                 flex-direction: column;
               `}
             >
-              <MetadataItem label={t('Viz type')} value={vizName} />
+              {showThumbnails && (
+                <MetadataItem label={t('Viz type')} value={vizName} />
+              )}
               <MetadataItem
                 label={t('Dataset')}
                 value={

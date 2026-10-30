@@ -304,7 +304,10 @@ class TestCore(SupersetTestCase):
 
     def test_gamma(self):
         self.login(GAMMA_USERNAME)
-        assert "Charts" in self.get_resp("/chart/list/")
+        # Charts live inside their dashboard, so the chart list redirects
+        resp = self.client.get("/chart/list/")
+        assert resp.status_code == 302
+        assert resp.headers["Location"].endswith("/dashboard/list/")
         assert "Dashboards" in self.get_resp("/dashboard/list/")
 
     def test_templated_sql_json(self):

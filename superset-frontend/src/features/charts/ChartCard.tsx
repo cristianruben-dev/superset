@@ -38,6 +38,7 @@ import Chart from 'src/types/Chart';
 import { FacePile } from 'src/components';
 import { handleChartDelete, CardStyles } from 'src/views/CRUD/utils';
 import { assetUrl } from 'src/utils/assetUrl';
+import { VizTypeTile } from 'src/mibi/vizIcons/VizTypeIcon';
 
 interface ChartCardProps {
   chart: Chart;
@@ -192,7 +193,7 @@ export default function ChartCard({
         )}
         description={
           <span className="mibi-chart-meta">
-            {vizName && <span className="viz-type">{vizName}</span>}
+            <VizTypeTile vizType={chart.viz_type} size="s" title={vizName} />
             <span>{t('Modified %s', chart.changed_on_delta_humanized)}</span>
           </span>
         }

@@ -24,6 +24,7 @@ import {
   ComponentProps,
   LazyExoticComponent,
 } from 'react';
+import { Redirect } from 'react-router-dom';
 import { isUserAdmin } from 'src/dashboard/util/permissionUtils';
 import getBootstrapData from 'src/utils/getBootstrapData';
 
@@ -52,10 +53,6 @@ const AlertReportList = lazy(
 const AnnotationList = lazy(
   () =>
     import(/* webpackChunkName: "AnnotationList" */ 'src/pages/AnnotationList'),
-);
-
-const ChartList = lazy(
-  () => import(/* webpackChunkName: "ChartList" */ 'src/pages/ChartList'),
 );
 
 const CssTemplateList = lazy(
@@ -258,8 +255,9 @@ export const routes: Routes = [
     Component: ChartCreation,
   },
   {
+    // Charts live inside their dashboard, so the chart list goes to dashboards
     path: '/chart/list/',
-    Component: ChartList,
+    Component: () => <Redirect to="/dashboard/list/" />,
   },
   {
     path: '/tablemodelview/list/',

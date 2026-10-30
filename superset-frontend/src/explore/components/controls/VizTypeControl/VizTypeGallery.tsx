@@ -47,6 +47,7 @@ import { Icons } from '@superset-ui/core/components/Icons';
 import { nativeFilterGate } from 'src/dashboard/components/nativeFilters/utils';
 import { usePluginContext } from 'src/components';
 import scrollIntoView from 'scroll-into-view-if-needed';
+import { VizTypeIcon } from 'src/mibi/vizIcons/VizTypeIcon';
 
 interface VizTypeGalleryProps {
   onChange: (vizType: string | null) => void;
@@ -272,21 +273,34 @@ const thumbnailContainerCss = (theme: SupersetTheme) => css`
   position: relative;
   outline: none; /* Remove focus outline to show only selected state */
 
-  img {
-    min-width: ${theme.sizeUnit * THUMBNAIL_GRID_UNITS}px;
-    min-height: ${theme.sizeUnit * THUMBNAIL_GRID_UNITS}px;
-    border: 1px solid ${theme.colorBorder};
-    border-radius: ${theme.borderRadius}px;
-    transition: border-color ${theme.motionDurationMid};
-    background-color: ${theme.colorBgContainer};
+  .viztype-selector {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: ${theme.sizeUnit * THUMBNAIL_GRID_UNITS}px;
+    height: ${theme.sizeUnit * THUMBNAIL_GRID_UNITS}px;
+    border: 1px solid ${theme.colorBorderSecondary};
+    border-radius: ${theme.borderRadiusLG}px;
+    background: linear-gradient(
+      160deg,
+      ${theme.colorBgContainer},
+      ${theme.colorPrimaryBg}
+    );
+    color: ${theme.colorPrimary};
+    transition:
+      border-color ${theme.motionDurationMid},
+      box-shadow ${theme.motionDurationMid},
+      transform ${theme.motionDurationMid};
   }
 
-  &.selected img {
-    border: 2px solid ${theme.colorPrimaryBorder};
+  &:hover:not(.selected) .viztype-selector {
+    border-color: ${theme.colorPrimaryBorder};
+    transform: translateY(-1px);
   }
 
-  &:hover:not(.selected) img {
-    border: 1px solid ${theme.colorBorder};
+  &.selected .viztype-selector {
+    border-color: ${theme.colorPrimary};
+    box-shadow: 0 0 0 3px ${theme.colorPrimaryBg};
   }
 
   .viztype-label {
@@ -340,7 +354,6 @@ const Thumbnail: FC<ThumbnailProps> = ({
   onDoubleClick,
 }) => {
   const theme = useTheme();
-  const isDarkMode = isThemeDark(theme);
   const { key, value: type } = entry;
   const isSelected = selectedViz === entry.key;
 
@@ -370,14 +383,9 @@ const Thumbnail: FC<ThumbnailProps> = ({
       onFocus={handleFocus}
       data-test="viztype-selector-container"
     >
-      <img
-        alt={type.name}
-        width="100%"
-        className={`viztype-selector ${isSelected ? 'selected' : ''}`}
-        src={
-          isDarkMode && type.thumbnailDark ? type.thumbnailDark : type.thumbnail
-        }
-      />
+      <div className={`viztype-selector ${isSelected ? 'selected' : ''}`}>
+        <VizTypeIcon vizType={key} size={52} />
+      </div>
       <div
         className="viztype-label"
         data-test={`${VIZ_TYPE_CONTROL_TEST_ID}__viztype-label`}

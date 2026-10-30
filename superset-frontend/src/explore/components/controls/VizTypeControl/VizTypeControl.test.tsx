@@ -88,6 +88,13 @@ const getTestId = testWithId<string>(VIZ_TYPE_CONTROL_TEST_ID, true);
  * on and prevents those warnings.
  */
 
+const switcherIconKinds = () =>
+  Array.from(
+    screen
+      .getByTestId('fast-viz-switcher')
+      .querySelectorAll('[data-test="viz-type-icon"]'),
+  ).map(icon => icon.getAttribute('data-kind'));
+
 // eslint-disable-next-line no-restricted-globals -- TODO: Migrate from describe blocks
 describe('VizTypeControl', () => {
   new MainPreset().register();
@@ -126,13 +133,14 @@ describe('VizTypeControl', () => {
       isModalOpenInit: false,
     };
     await waitForRenderWrapper(props);
-    expect(screen.getByLabelText('table')).toBeVisible();
-    expect(screen.getByLabelText('big-number-chart-tile')).toBeVisible();
-    expect(screen.getByLabelText('pie-chart')).toBeVisible();
-    expect(screen.getByLabelText('bar-chart')).toBeVisible();
-    expect(screen.getByLabelText('area-chart')).toBeVisible();
-    expect(screen.queryByLabelText('Chart')).not.toBeInTheDocument();
-    expect(screen.queryByLabelText('check-square')).not.toBeInTheDocument();
+    expect(switcherIconKinds()).toEqual([
+      'line',
+      'bar',
+      'area',
+      'table',
+      'kpi',
+      'pie',
+    ]);
     // Multi Chart should NOT appear when other charts are selected
     expect(screen.queryByLabelText('multiple')).not.toBeInTheDocument();
 
@@ -177,8 +185,8 @@ describe('VizTypeControl', () => {
         'deck.gl Multiple Layers',
       ),
     ).toBeInTheDocument();
-    // Should not show the generic check-square icon
-    expect(screen.queryByLabelText('check-square')).not.toBeInTheDocument();
+    // Only the featured charts next to it, no extra icon for it
+    expect(switcherIconKinds()).toHaveLength(6);
   });
 
   test('Render viz tiles when non-featured chart is selected', async () => {
@@ -189,7 +197,9 @@ describe('VizTypeControl', () => {
     };
     await waitForRenderWrapper(props);
 
-    expect(screen.getByLabelText('Chart')).toBeVisible();
+    // The selected chart comes first, drawn with its own type icon
+    expect(switcherIconKinds()).toHaveLength(7);
+    expect(switcherIconKinds()[0]).toBe('line');
     expect(
       within(screen.getByTestId('fast-viz-switcher')).getByText('Line Chart'),
     ).toBeVisible();
@@ -216,7 +226,7 @@ describe('VizTypeControl', () => {
       },
     };
     await waitForRenderWrapper(props, state);
-    expect(screen.getByLabelText('check-square')).toBeVisible();
+    expect(switcherIconKinds()[0]).toBe('sankey');
     expect(
       within(screen.getByTestId('fast-viz-switcher')).getByText('Line Chart'),
     ).toBeVisible();

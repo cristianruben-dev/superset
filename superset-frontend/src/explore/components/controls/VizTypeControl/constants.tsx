@@ -18,8 +18,8 @@
  */
 import { ReactElement } from 'react';
 import { VizType } from '@superset-ui/core';
-import { css } from '@apache-superset/core/theme';
 import { Icons } from '@superset-ui/core/components/Icons';
+import { VizTypeIcon } from 'src/mibi/vizIcons/VizTypeIcon';
 import { VizMeta } from './types';
 
 // Custom icons for non-featured charts
@@ -28,29 +28,10 @@ export const CUSTOM_CHART_ICONS: Record<string, ReactElement> = {
 };
 
 export const FEATURED_CHARTS: VizMeta[] = [
-  {
-    name: VizType.Line,
-    icon: <Icons.LineChartOutlined iconSize="l" />,
-  },
-  {
-    name: VizType.Bar,
-    icon: <Icons.BarChartOutlined iconSize="l" />,
-  },
-  { name: VizType.Area, icon: <Icons.AreaChartOutlined iconSize="l" /> },
-  { name: VizType.Table, icon: <Icons.TableOutlined iconSize="l" /> },
-  {
-    name: VizType.BigNumberTotal,
-    icon: (
-      <Icons.BigNumberChartTile
-        iconSize="l"
-        viewBox="0 0 16 14"
-        css={css`
-          path {
-            fill: currentColor;
-          }
-        `}
-      />
-    ),
-  },
-  { name: VizType.Pie, icon: <Icons.PieChartOutlined iconSize="l" /> },
-];
+  VizType.Line,
+  VizType.Bar,
+  VizType.Area,
+  VizType.Table,
+  VizType.BigNumberTotal,
+  VizType.Pie,
+].map(name => ({ name, icon: <VizTypeIcon vizType={name} size={20} /> }));

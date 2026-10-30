@@ -18,11 +18,11 @@
  */
 import { memo, useMemo } from 'react';
 import { useSelector } from 'react-redux';
-import { t } from '@apache-superset/core/translation';
 import { css, SupersetTheme } from '@apache-superset/core/theme';
-import { Flex, Icons } from '@superset-ui/core/components';
+import { Flex } from '@superset-ui/core/components';
 import { getChartKey } from 'src/explore/exploreUtils';
 import { ExplorePageState } from 'src/explore/types';
+import { VizTypeIcon } from 'src/mibi/vizIcons/VizTypeIcon';
 import { FastVizSwitcherProps } from './types';
 import { VizTile } from './VizTile';
 import { FEATURED_CHARTS, CUSTOM_CHART_ICONS } from './constants';
@@ -56,7 +56,7 @@ export const FastVizSwitcher = memo(
         vizTiles.unshift({
           name: currentSelection,
           icon: CUSTOM_CHART_ICONS[currentSelection] || (
-            <Icons.MonitorOutlined {...antdIconProps} aria-label={t('Chart')} />
+            <VizTypeIcon vizType={currentSelection} size={20} />
           ),
         });
       }
@@ -69,10 +69,7 @@ export const FastVizSwitcher = memo(
         vizTiles.unshift({
           name: currentViz,
           icon: CUSTOM_CHART_ICONS[currentViz] || (
-            <Icons.CheckSquareOutlined
-              {...antdIconProps}
-              aria-label="check-square"
-            />
+            <VizTypeIcon vizType={currentViz} size={20} />
           ),
         });
       }
