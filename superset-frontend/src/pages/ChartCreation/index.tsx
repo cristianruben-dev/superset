@@ -16,6 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import { isPanelMode, withPanelParam } from 'src/mibi/chartEditor';
 import { PureComponent, ReactNode } from 'react';
 import rison from 'rison';
 import { t } from '@apache-superset/core/translation';
@@ -221,7 +222,7 @@ export class ChartCreation extends PureComponent<
     if (isDefined(dashboardId)) {
       url += `&dashboard_id=${dashboardId}`;
     }
-    return url;
+    return isPanelMode() ? withPanelParam(url) : url;
   }
 
   gotoSlice() {

@@ -17,6 +17,7 @@
  * under the License.
  */
 /* eslint-env browser */
+import { openChartEditor } from 'src/mibi/chartEditor';
 import { Component } from 'react';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import { FixedSizeList as List } from 'react-window';
@@ -38,7 +39,6 @@ import { debounce, pickBy } from 'lodash';
 import { Dispatch } from 'redux';
 import { Slice } from 'src/dashboard/types';
 import { withTheme, Theme } from '@emotion/react';
-import { navigateTo } from 'src/utils/navigationUtils';
 import type { ConnectDragSource } from 'react-dnd';
 import AddSliceCard from './AddSliceCard';
 import AddSliceDragPreview from './dnd/AddSliceDragPreview';
@@ -338,8 +338,8 @@ class SliceAdder extends Component<SliceAdderProps, SliceAdderState> {
               <Icons.PlusOutlined iconSize="m" iconColor={theme.colorPrimary} />
             }
             onClick={() =>
-              navigateTo(`/chart/add?dashboard_id=${this.props.dashboardId}`, {
-                newWindow: true,
+              openChartEditor({
+                url: `/chart/add?dashboard_id=${this.props.dashboardId}`,
               })
             }
           >

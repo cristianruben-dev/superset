@@ -22,6 +22,7 @@ import { useUiConfig } from 'src/components/UiConfigContext';
 import { URL_PARAMS } from 'src/constants';
 import type { MenuData } from 'src/types/bootstrapTypes';
 import { getUrlParam } from 'src/utils/urlUtils';
+import { isPanelMode } from '../chartEditor';
 import { CommandPalette } from './CommandPalette';
 import { buildNavSections } from './navigation';
 import { Sidebar, SIDEBAR_COLLAPSED_WIDTH, SIDEBAR_WIDTH } from './Sidebar';
@@ -66,6 +67,7 @@ export function AppShell({ data, isFrontendRoute, children }: AppShellProps) {
   const sections = useMemo(() => buildNavSections(data.menu), [data.menu]);
   // Signed-out pages (login, register) and standalone or embedded views go alone
   const hidden =
+    isPanelMode() ||
     !!getUrlParam(URL_PARAMS.standalone) ||
     uiConfig.hideNav ||
     data.navbar_right.user_is_anonymous;
@@ -79,6 +81,11 @@ export function AppShell({ data, isFrontendRoute, children }: AppShellProps) {
       }
       return !value;
     });
+  }, []);
+
+  useEffect(() => {
+    // Lets the skin compact pages shown inside the chart editor panel
+    document.body.classList.toggle('mibi-panel', isPanelMode());
   }, []);
 
   useEffect(() => {

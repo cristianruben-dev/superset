@@ -17337,3 +17337,9 @@ msgstr "Deshacer"
 
 msgid "Redo"
 msgstr "Rehacer"
+
+msgid "Edit visual"
+msgstr "Editar visual"
+
+msgid "New visual"
+msgstr "Nuevo visual"

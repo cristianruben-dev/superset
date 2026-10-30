@@ -17,6 +17,7 @@
  * under the License.
  */
 /* eslint-env browser */
+import { ChartEditorPanel } from 'src/mibi/dashboard/ChartEditorPanel';
 import cx from 'classnames';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { t } from '@apache-superset/core/translation';
@@ -714,6 +715,7 @@ const DashboardBuilder = () => {
               <Loading />
             )}
             {editMode && <BuilderComponentPane topOffset={barTopOffset} />}
+            <ChartEditorPanel />
           </StyledDashboardContent>
         </DashboardContentWrapper>
       </StyledContent>

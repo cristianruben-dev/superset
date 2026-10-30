@@ -16,6 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import { OPEN_CHART_EDITOR } from 'src/mibi/chartEditor';
 import {
   fireEvent,
   render,
@@ -159,17 +160,16 @@ describe('SliceAdder', () => {
     expect(screen.getByTestId('slice-adder-empty')).toBeInTheDocument();
   });
 
-  test('opens new chart in new tab when create new chart is clicked', () => {
-    const windowSpy = jest.spyOn(window, 'open').mockImplementation();
+  test('opens the chart editor panel when create new chart is clicked', () => {
+    const listener = jest.fn();
+    window.addEventListener(OPEN_CHART_EDITOR, listener);
     renderSliceAdder();
-    const createButton = screen.getByText('Create new chart');
-    fireEvent.click(createButton);
-    expect(windowSpy).toHaveBeenCalledWith(
-      '/chart/add?dashboard_id=5',
-      '_blank',
-      'noopener noreferrer',
-    );
-    windowSpy.mockRestore();
+    fireEvent.click(screen.getByText('Create new chart'));
+    expect(listener).toHaveBeenCalledTimes(1);
+    expect(listener.mock.calls[0][0].detail).toEqual({
+      url: '/chart/add?dashboard_id=5',
+    });
+    window.removeEventListener(OPEN_CHART_EDITOR, listener);
   });
 
   // eslint-disable-next-line no-restricted-globals -- TODO: Migrate from describe blocks

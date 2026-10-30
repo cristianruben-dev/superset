@@ -17,6 +17,7 @@
  * under the License.
  */
 /* eslint camelcase: 0 */
+import { isPanelMode, notifyChartSaved } from 'src/mibi/chartEditor';
 import { ChangeEvent, FormEvent, Component } from 'react';
 import { Dispatch } from 'redux';
 import { nanoid } from 'nanoid';
@@ -324,6 +325,13 @@ class SaveModal extends Component<SaveModalProps, SaveModalState> {
             );
           }
         }
+      }
+
+      // Mi BI chart editor panel: the dashboard around it takes over
+      if (isPanelMode()) {
+        notifyChartSaved(value.id, this.state.action !== 'overwrite');
+        this.onHide();
+        return;
       }
 
       // Go to new dashboard url
@@ -753,19 +761,21 @@ class SaveModal extends Component<SaveModalProps, SaveModalState> {
       >
         {t('Cancel')}
       </Button>
-      <Button
-        id="btn_modal_save_goto_dash"
-        buttonSize="small"
-        disabled={
-          !this.state.newSliceName ||
-          !this.state.dashboard ||
-          (this.props.datasource?.type !== DatasourceType.Table &&
-            !this.state.datasetName)
-        }
-        onClick={() => this.saveOrOverwrite(true)}
-      >
-        {t('Save & go to dashboard')}
-      </Button>
+      {!isPanelMode() && (
+        <Button
+          id="btn_modal_save_goto_dash"
+          buttonSize="small"
+          disabled={
+            !this.state.newSliceName ||
+            !this.state.dashboard ||
+            (this.props.datasource?.type !== DatasourceType.Table &&
+              !this.state.datasetName)
+          }
+          onClick={() => this.saveOrOverwrite(true)}
+        >
+          {t('Save & go to dashboard')}
+        </Button>
+      )}
       <Button
         id="btn_modal_save"
         buttonSize="small"
