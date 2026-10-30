@@ -17,6 +17,8 @@
  * under the License.
  */
 
+import setupMibi from 'src/mibi/setup';
+
 /**
  * Configuration options for setting up code overrides in different contexts.
  */
@@ -31,4 +33,8 @@ interface CodeOverrideOptions {
  * Hook for individual deployments to add custom overrides
  * @param options - Configuration options for the setup process
  */
-export default function setupCodeOverrides(options: CodeOverrideOptions = {}) {}
+export default function setupCodeOverrides(options: CodeOverrideOptions = {}) {
+  if (!options.embedded) {
+    setupMibi();
+  }
+}

@@ -17279,3 +17279,54 @@ msgstr "Buscar paneles y páginas…"
 
 msgid "Go to"
 msgstr "Ir a"
+
+msgid "Good morning"
+msgstr "Buenos días"
+
+msgid "Good afternoon"
+msgstr "Buenas tardes"
+
+msgid "Good evening"
+msgstr "Buenas noches"
+
+msgid "New dashboard"
+msgstr "Nuevo panel de control"
+
+msgid "Start a report and add charts to it"
+msgstr "Crea un informe y añádele gráficos"
+
+msgid "Connect data"
+msgstr "Conectar datos"
+
+msgid "Add a database or upload a file"
+msgstr "Añade una base de datos o sube un archivo"
+
+msgid "Prepare the tables your charts use"
+msgstr "Prepara las tablas que usan tus gráficos"
+
+msgid "Explore with SQL"
+msgstr "Explorar con SQL"
+
+msgid "Query your data directly in SQL Lab"
+msgstr "Consulta tus datos directamente en SQL Lab"
+
+msgid "Recently edited"
+msgstr "Editados recientemente"
+
+msgid "Favorites"
+msgstr "Favoritos"
+
+msgid "Recently viewed"
+msgstr "Vistos recientemente"
+
+msgid "See all"
+msgstr "Ver todos"
+
+msgid "Mark dashboards with a star to find them here."
+msgstr "Marca paneles con una estrella para encontrarlos aquí."
+
+msgid "There are no dashboards yet."
+msgstr "Todavía no hay paneles de control."
+
+msgid "Create your first dashboard"
+msgstr "Crea tu primer panel de control"
