@@ -97,8 +97,6 @@ find_and_claim_port() {
 BASE_NGINX=80
 BASE_SUPERSET=8088
 BASE_NODE=9000
-BASE_WEBSOCKET=8080
-BASE_CYPRESS=8081
 BASE_DATABASE=5432
 BASE_REDIS=6379
 
@@ -107,8 +105,6 @@ echo "🔍 Finding available ports..."
 find_and_claim_port $BASE_NGINX NGINX_PORT
 find_and_claim_port $BASE_SUPERSET SUPERSET_PORT
 find_and_claim_port $BASE_NODE NODE_PORT
-find_and_claim_port $BASE_WEBSOCKET WEBSOCKET_PORT
-find_and_claim_port $BASE_CYPRESS CYPRESS_PORT
 find_and_claim_port $BASE_DATABASE DATABASE_PORT
 find_and_claim_port $BASE_REDIS REDIS_PORT
 
@@ -135,7 +131,6 @@ if docker compose ps --status running 2>/dev/null | grep -q "$PROJECT_NAME"; the
     NGINX_PORT=$(get_running_port nginx 80 $NGINX_PORT)
     SUPERSET_PORT=$(get_running_port superset 8088 $SUPERSET_PORT)
     NODE_PORT=$(get_running_port superset-node 9000 $NODE_PORT)
-    WEBSOCKET_PORT=$(get_running_port superset-websocket 8080 $WEBSOCKET_PORT)
     DATABASE_PORT=$(get_running_port db 5432 $DATABASE_PORT)
     REDIS_PORT=$(get_running_port redis 6379 $REDIS_PORT)
 fi
@@ -143,8 +138,6 @@ fi
 export NGINX_PORT
 export SUPERSET_PORT
 export NODE_PORT
-export WEBSOCKET_PORT
-export CYPRESS_PORT
 export DATABASE_PORT
 export REDIS_PORT
 
@@ -155,7 +148,6 @@ print_connection_info() {
     echo "   Dev Server: http://localhost:$NODE_PORT  ← Use this for development"
     echo "   Superset:   http://localhost:$SUPERSET_PORT"
     echo "   Nginx:      http://localhost:$NGINX_PORT"
-    echo "   WebSocket:  localhost:$WEBSOCKET_PORT"
     echo "   Database:   localhost:$DATABASE_PORT"
     echo "   Redis:      localhost:$REDIS_PORT"
     echo ""
@@ -187,8 +179,6 @@ case "${1:-}" in
         echo "export NGINX_PORT=$NGINX_PORT"
         echo "export SUPERSET_PORT=$SUPERSET_PORT"
         echo "export NODE_PORT=$NODE_PORT"
-        echo "export WEBSOCKET_PORT=$WEBSOCKET_PORT"
-        echo "export CYPRESS_PORT=$CYPRESS_PORT"
         echo "export DATABASE_PORT=$DATABASE_PORT"
         echo "export REDIS_PORT=$REDIS_PORT"
         exit 0

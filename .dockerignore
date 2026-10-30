@@ -41,6 +41,5 @@ install/
 superset-frontend/coverage/
 superset-frontend/.temp_cache/
 superset/static/assets/
-superset-websocket/dist/
 venv
 .venv

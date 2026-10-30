@@ -60,10 +60,9 @@ superset/bin/supersetc
 tmp
 rat-results.txt
 superset/app/
-superset-websocket/config.json
 .direnv
 
-# Node.js, webpack artifacts, storybook
+# Node.js, webpack artifacts
 *.entry.js
 *.js.map
 node_modules
@@ -119,7 +118,6 @@ docker/requirements-local.txt
 
 cache/
 docker/*local*
-docker/superset-websocket/config.json
 docker-compose.override.yml
 
 .temp_cache
