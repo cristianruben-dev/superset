@@ -17220,3 +17220,117 @@ msgid "First %s row"
 msgid_plural "First %s rows"
 msgstr[0] "Primera fila"
 msgstr[1] "Primeras %s filas"
+
+msgid "%s min"
+msgstr "%s min"
+
+msgid "%s of %s"
+msgstr "%s de %s"
+
+msgid "%s s"
+msgstr "%s s"
+
+msgid "Add a header with the logo, workspace, date and filters"
+msgstr "Añadir un encabezado con el logo, el área de trabajo, la fecha y los filtros"
+
+msgid "All pages (%s)"
+msgstr "Todas las páginas (%s)"
+
+msgid "Creating the file…"
+msgstr "Creando el archivo…"
+
+msgid "Dashboard exported"
+msgstr "Panel exportado"
+
+msgid "Exit presentation (Esc)"
+msgstr "Salir de la presentación (Esc)"
+
+msgid "Exit presentation"
+msgstr "Salir de la presentación"
+
+msgid "Exit"
+msgstr "Salir"
+
+msgid "Export dashboard"
+msgstr "Exportar panel"
+
+msgid "Exported by %s on %s"
+msgstr "Exportado por %s el %s"
+
+msgid "Exported on %s"
+msgstr "Exportado el %s"
+
+msgid "Exporting…"
+msgstr "Exportando…"
+
+msgid "Format"
+msgstr "Formato"
+
+msgid "Landscape"
+msgstr "Horizontal"
+
+msgid "Next page (→)"
+msgstr "Página siguiente (→)"
+
+msgid "Next page"
+msgstr "Página siguiente"
+
+msgid "One picture for slides or chats"
+msgstr "Una sola imagen para presentaciones o chats"
+
+msgid "PDF document"
+msgstr "Documento PDF"
+
+msgid "PNG image"
+msgstr "Imagen PNG"
+
+msgid "Page %s of %s"
+msgstr "Página %s de %s"
+
+msgid "Pages ready to print or send"
+msgstr "Páginas listas para imprimir o enviar"
+
+msgid "Pages"
+msgstr "Páginas"
+
+msgid "Pause (space)"
+msgstr "Pausar (espacio)"
+
+msgid "Pause"
+msgstr "Pausar"
+
+msgid "Play (space)"
+msgstr "Reproducir (espacio)"
+
+msgid "Play"
+msgstr "Reproducir"
+
+msgid "Portrait"
+msgstr "Vertical"
+
+msgid "Preparing page %s of %s…"
+msgstr "Preparando la página %s de %s…"
+
+msgid "Preparing the dashboard…"
+msgstr "Preparando el panel…"
+
+msgid "Presentation controls"
+msgstr "Controles de la presentación"
+
+msgid "Previous page (←)"
+msgstr "Página anterior (←)"
+
+msgid "Previous page"
+msgstr "Página anterior"
+
+msgid "The dashboard could not be exported. Try again."
+msgstr "No se pudo exportar el panel. Inténtalo de nuevo."
+
+msgid "This page (%s)"
+msgstr "Esta página (%s)"
+
+msgid "Time per page"
+msgstr "Tiempo por página"
+
+msgid "Present"
+msgstr "Presentar"

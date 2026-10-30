@@ -72,6 +72,8 @@ import { getRootLevelTabsComponent, shouldFocusTabs } from './utils';
 import DashboardContainer from './DashboardContainer';
 import { useNativeFilters } from './state';
 import DashboardWrapper from './DashboardWrapper';
+import { PresentationControls } from 'src/mibi/present/PresentationControls';
+import { usePresenting } from 'src/mibi/present/presentation';
 
 // @z-index-above-dashboard-charts + 1 = 11
 const FiltersPanel = styled.div<{ width: number; hidden: boolean }>`
@@ -419,7 +421,9 @@ const DashboardBuilder = () => {
       : undefined;
   const standaloneMode = getUrlParam(URL_PARAMS.standalone);
   const isReport = standaloneMode === DashboardStandaloneMode.Report;
+  const presenting = usePresenting() && !editMode;
   const hideDashboardHeader =
+    presenting ||
     uiConfig.hideTitle ||
     standaloneMode === DashboardStandaloneMode.HideNavAndTitle ||
     isReport;
@@ -460,7 +464,7 @@ const DashboardBuilder = () => {
     ELEMENT_ON_SCREEN_OPTIONS,
   );
 
-  const showFilterBar = !editMode && nativeFiltersEnabled;
+  const showFilterBar = !editMode && !presenting && nativeFiltersEnabled;
 
   const offset =
     FILTER_BAR_HEADER_HEIGHT +
@@ -620,6 +624,7 @@ const DashboardBuilder = () => {
 
   return (
     <DashboardWrapper>
+      {presenting && <PresentationControls />}
       {isVerticalFilterBarVisible && (
         <ResizableSidebar
           id={`dashboard:${dashboardId}`}

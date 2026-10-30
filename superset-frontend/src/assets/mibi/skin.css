@@ -765,6 +765,30 @@ table,
 [data-test='dashboard-header-container'] .header-with-actions {
   min-height: 64px;
   padding: 0 24px 0 28px;
+  container-type: inline-size;
+}
+
+/* The actions always fit: the title side gives up its extras first */
+[data-test='dashboard-header-container'] .title-panel {
+  flex: 1 1 auto;
+  overflow: hidden;
+  margin-right: 16px;
+}
+
+[data-test='dashboard-header-container'] .right-button-panel {
+  flex: none;
+}
+
+@container (max-width: 1100px) {
+  [data-test='dashboard-header-container'] [data-test='metadata-bar'] {
+    display: none !important;
+  }
+}
+
+@container (max-width: 860px) {
+  [data-test='dashboard-header-container'] .title-panel a[href^='/workspace/'] {
+    display: none !important;
+  }
 }
 
 [data-test='dashboard-header-container'] .dynamic-title-input {
@@ -1167,4 +1191,25 @@ body:has(.dashboard--editing) [data-test='dashboard-header-container'] {
   height: 40px;
   border-radius: 10px;
   font-weight: 600;
+}
+
+/* ---- Presentation mode: the dashboard alone, full screen ---------------- */
+
+body.mibi-presenting [data-test='mibi-sidebar'],
+body.mibi-presenting [data-test='mibi-topbar'],
+body.mibi-presenting [data-test='dashboard-header-wrapper'] {
+  display: none !important;
+}
+
+body.mibi-presenting [data-test='mibi-main'] {
+  margin-left: 0 !important;
+}
+
+body.mibi-presenting .dashboard-content {
+  padding: 16px 16px 96px 8px;
+}
+
+body.mibi-presenting-idle,
+body.mibi-presenting-idle * {
+  cursor: none !important;
 }

@@ -61,6 +61,8 @@ import {
 } from 'src/features/reports/ReportModal/actions';
 import { PageHeaderWithActions } from '@superset-ui/core/components/PageHeaderWithActions';
 import { DashboardWorkspaceChip } from 'src/mibi/workspaces/DashboardWorkspaceChip';
+import { ExportDashboardModal } from 'src/mibi/export/ExportDashboardModal';
+import { setPresenting } from 'src/mibi/present/presentation';
 import { useUnsavedChangesPrompt } from 'src/hooks/useUnsavedChangesPrompt';
 import DashboardEmbedModal from '../EmbeddedModal';
 import OverwriteConfirm from '../OverwriteConfirm';
@@ -164,6 +166,18 @@ const editButtonStyle = (theme: SupersetTheme) => css`
   color: ${theme.colorPrimary};
 `;
 
+const iconButtonStyle = (theme: SupersetTheme) => css`
+  width: 32px;
+  min-width: 32px;
+  padding: 0;
+  margin-right: ${theme.sizeUnit * 2}px;
+  color: ${theme.colorTextSecondary};
+
+  &:hover {
+    color: ${theme.colorPrimary};
+  }
+`;
+
 const actionButtonsStyle = (theme: SupersetTheme) => css`
   display: flex;
   align-items: center;
@@ -231,6 +245,7 @@ const Header = (): JSX.Element => {
   const [showingRefreshModal, setShowingRefreshModal] = useState(false);
   const [showingEmbedModal, setShowingEmbedModal] = useState(false);
   const [showingReportModal, setShowingReportModal] = useState(false);
+  const [showingExportModal, setShowingExportModal] = useState(false);
   const [currentReportDeleting, setCurrentReportDeleting] =
     useState<AlertObject | null>(null);
   const dashboardInfo = useSelector(
@@ -756,6 +771,35 @@ const Header = (): JSX.Element => {
         ) : (
           <div css={actionButtonsStyle}>
             {NavExtension && <NavExtension />}
+            {!isEmbedded && (
+              <>
+                <Tooltip title={t('Present')} placement="bottom">
+                  <Button
+                    buttonStyle="secondary"
+                    onClick={() => setPresenting(true)}
+                    data-test="mibi-present-button"
+                    className="action-button"
+                    css={iconButtonStyle}
+                    aria-label={t('Present')}
+                  >
+                    <Icons.FundProjectionScreenOutlined iconSize="l" />
+                  </Button>
+                </Tooltip>
+                <Tooltip title={t('Export')} placement="bottom">
+                  <Button
+                    buttonStyle="secondary"
+                    onClick={() => setShowingExportModal(true)}
+                    data-test="mibi-export-button"
+                    className="action-button"
+                    css={iconButtonStyle}
+                    aria-label={t('Export')}
+                    disabled={isLoading}
+                  >
+                    <Icons.DownloadOutlined iconSize="l" />
+                  </Button>
+                </Tooltip>
+              </>
+            )}
             {userCanEdit && (
               <Button
                 buttonStyle="secondary"
@@ -774,6 +818,8 @@ const Header = (): JSX.Element => {
     ),
     [
       NavExtension,
+      isEmbedded,
+      isLoading,
       boundActionCreators.onRedo,
       boundActionCreators.onUndo,
       editMode,
@@ -900,6 +946,13 @@ const Header = (): JSX.Element => {
       )}
 
       <OverwriteConfirm />
+
+      {showingExportModal && (
+        <ExportDashboardModal
+          show={showingExportModal}
+          onHide={() => setShowingExportModal(false)}
+        />
+      )}
 
       {userCanCurate && (
         <DashboardEmbedModal

@@ -117,7 +117,10 @@ export function AppShell({ data, isFrontendRoute, children }: AppShellProps) {
         onToggleCollapsed={toggleCollapsed}
         isFrontendRoute={isFrontendRoute}
       />
-      <Main $offset={collapsed ? SIDEBAR_COLLAPSED_WIDTH : SIDEBAR_WIDTH}>
+      <Main
+        $offset={collapsed ? SIDEBAR_COLLAPSED_WIDTH : SIDEBAR_WIDTH}
+        data-test="mibi-main"
+      >
         <TopBar
           data={data}
           isFrontendRoute={isFrontendRoute}

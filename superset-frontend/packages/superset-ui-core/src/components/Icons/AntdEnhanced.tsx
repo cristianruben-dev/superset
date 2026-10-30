@@ -166,6 +166,8 @@ import {
   HomeOutlined,
   TeamOutlined,
   SafetyOutlined,
+  LeftOutlined,
+  FilePdfOutlined,
 } from '@ant-design/icons';
 import { FC } from 'react';
 import { IconType } from './types';
@@ -321,6 +323,8 @@ const AntdIcons = {
   HomeOutlined,
   TeamOutlined,
   SafetyOutlined,
+  LeftOutlined,
+  FilePdfOutlined,
 } as const;
 
 type AntdIconNames = keyof typeof AntdIcons;
