@@ -21,17 +21,15 @@ from typing import Any
 from marshmallow.exceptions import ValidationError
 
 from superset.commands.base import BaseCommand
-from superset.commands.dataset.importers import v0, v1
+from superset.commands.dataset.importers import v1
 from superset.commands.exceptions import CommandInvalidError
 from superset.commands.importers.exceptions import IncorrectVersionError
 
 logger = logging.getLogger(__name__)
 
-# list of different import formats supported; v0 should be last because
-# the files are not versioned
+# list of different import formats supported
 command_versions = [
     v1.ImportDatasetsCommand,
-    v0.ImportDatasetsCommand,
 ]
 
 

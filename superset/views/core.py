@@ -53,7 +53,6 @@ from superset import (
 )
 from superset.async_events.async_query_manager import AsyncQueryTokenException
 from superset.commands.chart.exceptions import ChartNotFoundError
-from superset.commands.chart.warm_up_cache import ChartWarmUpCacheCommand
 from superset.commands.dashboard.exceptions import DashboardAccessDeniedError
 from superset.commands.dashboard.permalink.get import GetDashboardPermalinkCommand
 from superset.commands.dataset.exceptions import DatasetNotFoundError
@@ -74,7 +73,6 @@ from superset.exceptions import (
 from superset.explore.permalink.exceptions import ExplorePermalinkGetFailedError
 from superset.extensions import async_query_manager, cache_manager
 from superset.mibi import single_dashboard
-from superset.models.core import Database
 from superset.models.dashboard import Dashboard
 from superset.models.slice import Slice
 from superset.models.user_attributes import UserAttribute
@@ -710,81 +708,6 @@ class Superset(BaseSupersetView):
 
         return json_success(json.dumps(response))
 
-    @event_logger.log_this
-    @api
-    @has_access_api
-    @expose("/warm_up_cache/", methods=("GET",))
-    @deprecated(new_target="api/v1/chart/warm_up_cache/")
-    def warm_up_cache(self) -> FlaskResponse:
-        """Warms up the cache for the slice or table.
-
-        Note for slices a force refresh occurs.
-
-        In terms of the `extra_filters` these can be obtained from records in the JSON
-        encoded `logs.json` column associated with the `explore_json` action.
-        """
-        slice_id = request.args.get("slice_id")
-        dashboard_id = request.args.get("dashboard_id")
-        table_name = request.args.get("table_name")
-        db_name = request.args.get("db_name")
-        extra_filters = request.args.get("extra_filters")
-        slices: list[Slice] = []
-
-        if not slice_id and not (table_name and db_name):
-            return json_error_response(
-                __(
-                    "Malformed request. slice_id or table_name and db_name "
-                    "arguments are expected"
-                ),
-                status=400,
-            )
-        if slice_id:
-            slices = db.session.query(Slice).filter_by(id=slice_id).all()
-            if not slices:
-                return json_error_response(
-                    __("Chart %(id)s not found", id=slice_id), status=404
-                )
-        elif table_name and db_name:
-            table = (
-                db.session.query(SqlaTable)
-                .join(Database)
-                .filter(
-                    Database.database_name == db_name
-                    or SqlaTable.table_name == table_name
-                )
-            ).one_or_none()
-            if not table:
-                return json_error_response(
-                    __(
-                        "Table %(table)s wasn't found in the database %(db)s",
-                        table=table_name,
-                        db=db_name,
-                    ),
-                    status=404,
-                )
-            slices = (
-                db.session.query(Slice)
-                .filter_by(datasource_id=table.id, datasource_type=table.type)
-                .all()
-            )
-
-        return json_success(
-            json.dumps(
-                [
-                    {
-                        "slice_id" if key == "chart_id" else key: value
-                        for key, value in ChartWarmUpCacheCommand(
-                            slc, dashboard_id, extra_filters
-                        )
-                        .run()
-                        .items()
-                    }
-                    for slc in slices
-                ],
-                default=json.base_json_conv,
-            ),
-        )
-
     @has_access
     @expose("/dashboard/<dashboard_id_or_slug>/")
     @event_logger.log_this_with_extra_payload
@@ -959,10 +882,3 @@ class Superset(BaseSupersetView):
         }
 
         return self.render_app_template(extra_bootstrap_data=payload)
-
-    @has_access
-    @event_logger.log_this
-    @expose("/sqllab/history/", methods=("GET",))
-    @deprecated(new_target="/sqllab/history")
-    def sqllab_history(self) -> FlaskResponse:
-        return redirect(url_for("SqllabView.history"))

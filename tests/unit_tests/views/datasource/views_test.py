@@ -27,7 +27,6 @@ import pytest
 
 from superset.errors import ErrorLevel, SupersetError, SupersetErrorType
 from superset.exceptions import SupersetSecurityException
-from superset.utils import json as superset_json
 
 
 def _security_exception() -> SupersetSecurityException:
@@ -57,51 +56,6 @@ def _view_self() -> MagicMock:
 # ---------------------------------------------------------------------------
 # Datasource.get
 # ---------------------------------------------------------------------------
-
-
-@patch("superset.views.datasource.views.security_manager", new_callable=MagicMock)
-@patch("superset.views.datasource.views.DatasourceDAO.get_datasource")
-def test_get_raises_when_access_denied(
-    mock_get_datasource: MagicMock,
-    mock_security_manager: MagicMock,
-) -> None:
-    """raise_for_access is called and propagates for unauthorised callers."""
-    mock_datasource = MagicMock()
-    mock_get_datasource.return_value = mock_datasource
-    mock_security_manager.raise_for_access.side_effect = _security_exception()
-
-    raw_get = _get_view_func("get")
-    with pytest.raises(SupersetSecurityException):
-        raw_get(_view_self(), "table", 1)
-
-    mock_security_manager.raise_for_access.assert_called_once_with(
-        datasource=mock_datasource
-    )
-
-
-@patch("superset.views.datasource.views.sanitize_datasource_data")
-@patch("superset.views.datasource.views.security_manager", new_callable=MagicMock)
-@patch("superset.views.datasource.views.DatasourceDAO.get_datasource")
-def test_get_succeeds_for_authorised_user(
-    mock_get_datasource: MagicMock,
-    mock_security_manager: MagicMock,
-    mock_sanitize: MagicMock,
-) -> None:
-    """raise_for_access is called without raising; sanitized data is returned."""
-    mock_datasource = MagicMock()
-    mock_datasource.data = {"id": 1}
-    mock_get_datasource.return_value = mock_datasource
-    mock_security_manager.raise_for_access.return_value = None
-    mock_sanitize.return_value = {"id": 1}
-
-    view = _view_self()
-    raw_get = _get_view_func("get")
-    raw_get(view, "table", 1)
-
-    mock_security_manager.raise_for_access.assert_called_once_with(
-        datasource=mock_datasource
-    )
-    view.json_response.assert_called_once_with({"id": 1})
 
 
 # ---------------------------------------------------------------------------
@@ -222,93 +176,3 @@ def test_external_metadata_by_name_no_datasource_raises_when_access_denied(
 # ---------------------------------------------------------------------------
 # Datasource.save — ownership bypass prevention
 # ---------------------------------------------------------------------------
-
-
-@patch("superset.views.datasource.views.security_manager", new_callable=MagicMock)
-@patch("superset.views.datasource.views.DatasourceDAO.get_datasource")
-def test_save_always_checks_ownership_even_without_owners_field(
-    mock_get_datasource: MagicMock,
-    mock_security_manager: MagicMock,
-) -> None:
-    """Ownership check runs even when 'owners' is absent from the payload."""
-    mock_orm = MagicMock()
-    mock_orm.owner_class = MagicMock()  # not None — model supports ownership
-    mock_get_datasource.return_value = mock_orm
-    mock_security_manager.raise_for_ownership.side_effect = SupersetSecurityException(
-        SupersetError(
-            message="Not an owner",
-            error_type=SupersetErrorType.DATASOURCE_SECURITY_ACCESS_ERROR,
-            level=ErrorLevel.WARNING,
-        )
-    )
-
-    from flask import Flask
-
-    from superset.commands.dataset.exceptions import DatasetForbiddenError
-
-    raw_save = _get_view_func("save")
-    app = Flask(__name__)
-    with app.test_request_context(
-        "/datasource/save/",
-        method="POST",
-        data={
-            "data": superset_json.dumps(
-                {
-                    "id": 1,
-                    "type": "table",
-                    "database": {"id": 1},
-                    "columns": [],
-                    # 'owners' intentionally omitted
-                }
-            )
-        },
-    ):
-        with pytest.raises(DatasetForbiddenError):
-            raw_save(_view_self())
-
-    mock_security_manager.raise_for_ownership.assert_called_once_with(mock_orm)
-
-
-@patch("superset.views.datasource.views.security_manager", new_callable=MagicMock)
-@patch("superset.views.datasource.views.DatasourceDAO.get_datasource")
-def test_save_non_owner_with_owners_field_is_rejected(
-    mock_get_datasource: MagicMock,
-    mock_security_manager: MagicMock,
-) -> None:
-    """A non-owner cannot use the save endpoint even when supplying an owners list."""
-    mock_orm = MagicMock()
-    mock_orm.owner_class = MagicMock()
-    mock_get_datasource.return_value = mock_orm
-    mock_security_manager.raise_for_ownership.side_effect = SupersetSecurityException(
-        SupersetError(
-            message="Not an owner",
-            error_type=SupersetErrorType.DATASOURCE_SECURITY_ACCESS_ERROR,
-            level=ErrorLevel.WARNING,
-        )
-    )
-
-    from flask import Flask
-
-    from superset.commands.dataset.exceptions import DatasetForbiddenError
-
-    raw_save = _get_view_func("save")
-    app = Flask(__name__)
-    with app.test_request_context(
-        "/datasource/save/",
-        method="POST",
-        data={
-            "data": superset_json.dumps(
-                {
-                    "id": 1,
-                    "type": "table",
-                    "database": {"id": 1},
-                    "columns": [],
-                    "owners": [99],  # attacker-supplied owners list
-                }
-            )
-        },
-    ):
-        with pytest.raises(DatasetForbiddenError):
-            raw_save(_view_self())
-
-    mock_security_manager.raise_for_ownership.assert_called_once_with(mock_orm)

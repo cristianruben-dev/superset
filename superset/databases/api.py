@@ -21,10 +21,9 @@ from __future__ import annotations
 import logging
 from datetime import datetime
 from io import BytesIO
-from typing import Any, cast
+from typing import Any
 from zipfile import is_zipfile, ZipFile
 
-from deprecation import deprecated
 from flask import (
     current_app as app,
     make_response,
@@ -129,7 +128,6 @@ from superset.utils import json
 from superset.utils.core import (
     error_msg_from_exception,
     get_username,
-    parse_js_uri_path_item,
 )
 from superset.utils.decorators import transaction
 from superset.utils.oauth2 import decode_oauth2_state
@@ -159,7 +157,6 @@ class DatabaseRestApi(BaseSupersetModelRestApi):
         "table_metadata",
         "table_metadata_deprecated",
         "table_extra_metadata",
-        "table_extra_metadata_deprecated",
         "select_star",
         "catalogs",
         "schemas",
@@ -945,72 +942,6 @@ class DatabaseRestApi(BaseSupersetModelRestApi):
 
         self.incr_stats("success", self.table_metadata_deprecated.__name__)
         return self.response(200, **table_info)
-
-    @expose("/<int:pk>/table_extra/<path:table_name>/<schema_name>/", methods=("GET",))
-    @protect()
-    @check_table_access
-    @safe
-    @statsd_metrics
-    @deprecated(deprecated_in="4.0")
-    @event_logger.log_this_with_context(
-        action=lambda self, *args, **kwargs: f"{self.__class__.__name__}"
-        f".table_extra_metadata_deprecated",
-        log_to_statsd=False,
-    )
-    def table_extra_metadata_deprecated(
-        self, database: Database, table_name: str, schema_name: str
-    ) -> FlaskResponse:
-        """Get table extra metadata.
-
-        A newer API was introduced between 4.0 and 5.0, with support for catalogs for
-        SIP-95. This method was kept to prevent breaking API integrations, but will be
-        removed in 5.0.
-        ---
-        get:
-          summary: Get table extra metadata
-          description: >-
-            Response depends on each DB engine spec normally focused on partitions.
-          parameters:
-          - in: path
-            schema:
-              type: integer
-            name: pk
-            description: The database id
-          - in: path
-            schema:
-              type: string
-            name: table_name
-            description: Table name
-          - in: path
-            schema:
-              type: string
-            name: schema_name
-            description: Table schema
-          responses:
-            200:
-              description: Table extra metadata information
-              content:
-                application/json:
-                  schema:
-                    $ref: "#/components/schemas/TableExtraMetadataResponseSchema"
-            400:
-              $ref: '#/components/responses/400'
-            401:
-              $ref: '#/components/responses/401'
-            404:
-              $ref: '#/components/responses/404'
-            422:
-              $ref: '#/components/responses/422'
-            500:
-              $ref: '#/components/responses/500'
-        """
-        self.incr_stats("init", self.table_extra_metadata_deprecated.__name__)
-
-        parsed_schema = parse_js_uri_path_item(schema_name, eval_undefined=True)
-        table_name = cast(str, parse_js_uri_path_item(table_name))
-        table = Table(table_name, parsed_schema)
-        payload = database.db_engine_spec.get_extra_table_metadata(database, table)
-        return self.response(200, **payload)
 
     @expose("/<int:pk>/table_metadata/", methods=["GET"])
     @protect()

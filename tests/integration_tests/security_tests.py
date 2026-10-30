@@ -1583,7 +1583,6 @@ class TestRolePermission(SupersetTestCase):
             ("can_get_results", "SQLLab"),
             ("can_migrate_query", "TabStateView"),
             ("can_sqllab", "Superset"),
-            ("can_sqllab_history", "Superset"),
             ("can_put", "TabStateView"),
             ("can_post", "TabStateView"),
             ("can_write", "SavedQuery"),

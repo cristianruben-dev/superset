@@ -62,7 +62,6 @@ from tests.integration_tests.fixtures.energy_dashboard import (
 from tests.integration_tests.fixtures.importexport import (
     database_config,
     dataset_config,
-    dataset_ui_export,
 )
 
 
@@ -2575,32 +2574,6 @@ class TestDatasetApi(SupersetTestCase):
         assert str(dataset.uuid) == dataset_config["uuid"]
 
         self.items_to_delete = [dataset, database]
-
-    def test_import_dataset_v0_export(self):
-        num_datasets = db.session.query(SqlaTable).count()
-
-        self.login(ADMIN_USERNAME)
-        uri = "api/v1/dataset/import/"
-
-        buf = BytesIO()
-        buf.write(json.dumps(dataset_ui_export).encode())
-        buf.seek(0)
-        form_data = {
-            "formData": (buf, "dataset_export.zip"),
-            "sync_columns": "true",
-            "sync_metrics": "true",
-        }
-        rv = self.client.post(uri, data=form_data, content_type="multipart/form-data")
-        response = json.loads(rv.data.decode("utf-8"))
-
-        assert rv.status_code == 200
-        assert response == {"message": "OK"}
-        assert db.session.query(SqlaTable).count() == num_datasets + 1
-
-        dataset = (
-            db.session.query(SqlaTable).filter_by(table_name="birth_names_2").one()
-        )
-        self.items_to_delete = [dataset]
 
     @patch("superset.commands.database.importers.v1.utils.add_permissions")
     def test_import_dataset_overwrite(self, mock_add_permissions):

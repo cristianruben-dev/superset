@@ -31,7 +31,7 @@ from superset.commands.dataset.exceptions import (
     WarmUpCacheTableNotFoundError,
 )
 from superset.commands.dataset.export import ExportDatasetsCommand
-from superset.commands.dataset.importers import v0, v1
+from superset.commands.dataset.importers import v1
 from superset.commands.dataset.warm_up_cache import DatasetWarmUpCacheCommand
 from superset.commands.exceptions import CommandInvalidError
 from superset.commands.importers.exceptions import IncorrectVersionError
@@ -52,10 +52,8 @@ from tests.integration_tests.fixtures.energy_dashboard import (
 from tests.integration_tests.fixtures.importexport import (
     database_config,
     database_metadata_config,
-    dataset_cli_export,
     dataset_config,
     dataset_metadata_config,
-    dataset_ui_export,
 )
 from tests.integration_tests.fixtures.world_bank_dashboard import (
     load_world_bank_dashboard_with_slices,  # noqa: F401
@@ -275,83 +273,6 @@ class TestExportDatasetsCommand(SupersetTestCase):
 
 
 class TestImportDatasetsCommand(SupersetTestCase):
-    @pytest.mark.usefixtures("load_world_bank_dashboard_with_slices")
-    def test_import_v0_dataset_cli_export(self):
-        num_datasets = db.session.query(SqlaTable).count()
-
-        contents = {
-            "20201119_181105.yaml": yaml.safe_dump(dataset_cli_export),
-        }
-        command = v0.ImportDatasetsCommand(contents)
-        command.run()
-
-        new_num_datasets = db.session.query(SqlaTable).count()
-        assert new_num_datasets == num_datasets + 1
-
-        dataset = (
-            db.session.query(SqlaTable).filter_by(table_name="birth_names_2").one()
-        )
-        assert (
-            dataset.params
-            == '{"remote_id": 3, "database_name": "examples", "import_time": 1604342885}'  # noqa: E501
-        )
-        assert len(dataset.metrics) == 2
-        assert dataset.main_dttm_col == "ds"
-        assert dataset.filter_select_enabled
-        dataset.columns.sort(key=lambda obj: obj.column_name)
-        expected_columns = [
-            "num_california",
-            "ds",
-            "state",
-            "gender",
-            "name",
-            "num_boys",
-            "num_girls",
-            "num",
-        ]
-        expected_columns.sort()
-        assert [col.column_name for col in dataset.columns] == expected_columns
-
-        db.session.delete(dataset)
-        db.session.commit()
-
-    @pytest.mark.usefixtures("load_world_bank_dashboard_with_slices")
-    def test_import_v0_dataset_ui_export(self):
-        num_datasets = db.session.query(SqlaTable).count()
-
-        contents = {
-            "20201119_181105.yaml": yaml.safe_dump(dataset_ui_export),
-        }
-        command = v0.ImportDatasetsCommand(contents)
-        command.run()
-
-        new_num_datasets = db.session.query(SqlaTable).count()
-        assert new_num_datasets == num_datasets + 1
-
-        dataset = (
-            db.session.query(SqlaTable).filter_by(table_name="birth_names_2").one()
-        )
-        assert (
-            dataset.params
-            == '{"remote_id": 3, "database_name": "examples", "import_time": 1604342885}'  # noqa: E501
-        )
-        assert len(dataset.metrics) == 2
-        assert dataset.main_dttm_col == "ds"
-        assert dataset.filter_select_enabled
-        assert {col.column_name for col in dataset.columns} == {
-            "num_california",
-            "ds",
-            "state",
-            "gender",
-            "name",
-            "num_boys",
-            "num_girls",
-            "num",
-        }
-
-        db.session.delete(dataset)
-        db.session.commit()
-
     @patch("superset.utils.core.g")
     @patch("superset.security.manager.g")
     @patch("superset.commands.database.importers.v1.utils.add_permissions")

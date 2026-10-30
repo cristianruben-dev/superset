@@ -14,7 +14,6 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-from collections import Counter
 from typing import Any
 
 from flask import redirect, request
@@ -25,27 +24,23 @@ from flask_babel import _
 from marshmallow import ValidationError
 from sqlalchemy.exc import NoResultFound, NoSuchTableError
 
-from superset import db, event_logger, security_manager
+from superset import db, security_manager
 from superset.commands.dataset.exceptions import (
-    DatasetForbiddenError,
     DatasetNotFoundError,
 )
-from superset.commands.utils import populate_owner_list
 from superset.connectors.sqla.models import SqlaTable
 from superset.connectors.sqla.utils import get_physical_table_metadata
 from superset.daos.dashboard import DashboardDAO
 from superset.daos.dataset import DatasetDAO
 from superset.daos.datasource import DatasourceDAO
-from superset.exceptions import SupersetException, SupersetSecurityException
+from superset.exceptions import SupersetException
 from superset.models.core import Database
 from superset.sql.parse import Table
 from superset.superset_typing import FlaskResponse
-from superset.utils import json
 from superset.utils.core import DatasourceType
 from superset.views.base import (
     api,
     BaseSupersetView,
-    deprecated,
     json_error_response,
 )
 from superset.views.datasource.schemas import (
@@ -57,81 +52,10 @@ from superset.views.datasource.schemas import (
 )
 from superset.views.datasource.utils import get_samples
 from superset.views.error_handling import handle_api_exception
-from superset.views.utils import sanitize_datasource_data
 
 
 class Datasource(BaseSupersetView):
     """Datasource-related views"""
-
-    @expose("/save/", methods=("POST",))
-    @event_logger.log_this_with_context(
-        action=lambda self, *args, **kwargs: f"{self.__class__.__name__}.save",
-        log_to_statsd=False,
-    )
-    @has_access_api
-    @api
-    @handle_api_exception
-    @deprecated(new_target="/api/v1/dataset/<int:pk>")
-    def save(self) -> FlaskResponse:
-        data = request.form.get("data")
-        if not isinstance(data, str):
-            return json_error_response(_("Request missing data field."), status=500)
-
-        datasource_dict = json.loads(data)
-        normalize_columns = datasource_dict.get("normalize_columns", False)
-        always_filter_main_dttm = datasource_dict.get("always_filter_main_dttm", False)
-        datasource_dict["normalize_columns"] = normalize_columns
-        datasource_dict["always_filter_main_dttm"] = always_filter_main_dttm
-        datasource_id = datasource_dict.get("id")
-        datasource_type = datasource_dict.get("type")
-        database_id = datasource_dict["database"].get("id")
-        orm_datasource = DatasourceDAO.get_datasource(
-            DatasourceType(datasource_type), datasource_id
-        )
-        orm_datasource.database_id = database_id
-
-        if orm_datasource.owner_class is not None:
-            try:
-                security_manager.raise_for_ownership(orm_datasource)
-            except SupersetSecurityException as ex:
-                raise DatasetForbiddenError() from ex
-
-        datasource_dict["owners"] = populate_owner_list(
-            datasource_dict["owners"], default_to_user=False
-        )
-
-        duplicates = [
-            name
-            for name, count in Counter(
-                [col["column_name"] for col in datasource_dict["columns"]]
-            ).items()
-            if count > 1
-        ]
-        if duplicates:
-            return json_error_response(
-                _(
-                    "Duplicate column name(s): %(columns)s",
-                    columns=",".join(duplicates),
-                ),
-                status=409,
-            )
-        orm_datasource.update_from_object(datasource_dict)
-        data = orm_datasource.data
-        db.session.commit()  # pylint: disable=consider-using-transaction
-
-        return self.json_response(sanitize_datasource_data(data))
-
-    @expose("/get/<datasource_type>/<datasource_id>/")
-    @has_access_api
-    @api
-    @handle_api_exception
-    @deprecated(new_target="/api/v1/dataset/<int:pk>")
-    def get(self, datasource_type: str, datasource_id: int) -> FlaskResponse:
-        datasource = DatasourceDAO.get_datasource(
-            DatasourceType(datasource_type), datasource_id
-        )
-        security_manager.raise_for_access(datasource=datasource)
-        return self.json_response(sanitize_datasource_data(datasource.data))
 
     @expose("/external_metadata/<datasource_type>/<datasource_id>/")
     @has_access_api

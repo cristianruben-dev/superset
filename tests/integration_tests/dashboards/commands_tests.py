@@ -36,13 +36,11 @@ from superset.commands.dashboard.export import (
     get_default_position,
 )
 from superset.commands.dashboard.fave import AddFavoriteDashboardCommand
-from superset.commands.dashboard.importers import v0, v1
+from superset.commands.dashboard.importers import v1
 from superset.commands.dashboard.unfave import DelFavoriteDashboardCommand
 from superset.commands.exceptions import CommandInvalidError
 from superset.commands.importers.exceptions import IncorrectVersionError
-from superset.connectors.sqla.models import SqlaTable
 from superset.daos.dashboard import DashboardDAO
-from superset.models.core import Database
 from superset.models.dashboard import Dashboard
 from superset.models.embedded_dashboard import EmbeddedDashboard
 from superset.models.slice import Slice
@@ -52,7 +50,6 @@ from tests.integration_tests.base_tests import SupersetTestCase
 from tests.integration_tests.fixtures.importexport import (
     chart_config,
     dashboard_config,
-    dashboard_export,
     dashboard_metadata_config,
     database_config,
     dataset_config,
@@ -509,45 +506,6 @@ class TestExportDashboardsCommand(SupersetTestCase):
 
 
 class TestImportDashboardsCommand(SupersetTestCase):
-    def test_import_v0_dashboard_cli_export(self):
-        num_dashboards = db.session.query(Dashboard).count()
-        num_charts = db.session.query(Slice).count()
-        num_datasets = db.session.query(SqlaTable).count()
-        num_databases = db.session.query(Database).count()
-
-        contents = {
-            "20201119_181105.json": json.dumps(dashboard_export),
-        }
-        command = v0.ImportDashboardsCommand(contents)
-        command.run()
-
-        new_num_dashboards = db.session.query(Dashboard).count()
-        new_num_charts = db.session.query(Slice).count()
-        new_num_datasets = db.session.query(SqlaTable).count()
-        new_num_databases = db.session.query(Database).count()
-        assert new_num_dashboards == num_dashboards + 1
-        assert new_num_charts == num_charts + 1
-        assert new_num_datasets == num_datasets + 1
-        assert new_num_databases == num_databases
-
-        dashboard = (
-            db.session.query(Dashboard).filter_by(dashboard_title="Births 2").one()
-        )
-        assert len(dashboard.slices) == 1
-        chart = dashboard.slices[0]
-        assert chart.slice_name == "Number of California Births"
-
-        dataset = chart.table
-        assert dataset.table_name == "birth_names_2"
-
-        database = dataset.database
-        assert database.database_name == "examples"
-
-        db.session.delete(dashboard)
-        db.session.delete(chart)
-        db.session.delete(dataset)
-        db.session.commit()
-
     @patch("superset.utils.core.g")
     @patch("superset.security.manager.g")
     @patch("superset.commands.database.importers.v1.utils.add_permissions")

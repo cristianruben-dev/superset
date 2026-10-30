@@ -29,14 +29,11 @@ import pandas as pd
 import pytest
 import pytz
 import sqlalchemy as sqla
-from flask_babel import lazy_gettext as _
 from sqlalchemy.exc import SQLAlchemyError
 
 import superset.utils.database
 import superset.views.utils
 from superset import dataframe, db, security_manager, sql_lab
-from superset.commands.chart.data.get_data_command import ChartDataCommand
-from superset.commands.chart.exceptions import ChartDataQueryFailedError
 from superset.common.db_query_status import QueryStatus
 from superset.connectors.sqla.models import SqlaTable
 from superset.db_engine_specs.base import BaseEngineSpec
@@ -304,29 +301,6 @@ class TestCore(SupersetTestCase):
             if conn_pre.password:
                 assert conn.password == "password_store_test"  # noqa: S105
                 assert conn.password != conn_pre.password
-
-    @pytest.mark.usefixtures("load_birth_names_dashboard_with_slices")
-    def test_warm_up_cache_error(self) -> None:
-        self.login(ADMIN_USERNAME)
-        slc = self.get_slice("Pivot Table v2")
-
-        with mock.patch.object(
-            ChartDataCommand,
-            "run",
-            side_effect=ChartDataQueryFailedError(
-                _(
-                    "Error: %(error)s",
-                    error=_("Empty query?"),
-                )
-            ),
-        ):
-            assert self.get_json_resp(f"/superset/warm_up_cache?slice_id={slc.id}") == [
-                {
-                    "slice_id": slc.id,
-                    "viz_error": "Error: Empty query?",
-                    "viz_status": None,
-                }
-            ]
 
     def test_gamma(self):
         self.login(GAMMA_USERNAME)

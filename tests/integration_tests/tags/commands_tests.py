@@ -28,7 +28,7 @@ from superset.commands.dashboard.export import (
     ExportDashboardsCommand,  # noqa: F401
     get_default_position,  # noqa: F401
 )
-from superset.commands.dashboard.importers import v0, v1  # noqa: F401
+from superset.commands.dashboard.importers import v1  # noqa: F401
 from superset.commands.exceptions import CommandInvalidError  # noqa: F401
 from superset.commands.importers.exceptions import IncorrectVersionError  # noqa: F401
 from superset.commands.tag.create import CreateCustomTagCommand
@@ -42,7 +42,6 @@ from tests.integration_tests.base_tests import SupersetTestCase
 from tests.integration_tests.fixtures.importexport import (
     chart_config,  # noqa: F401
     dashboard_config,  # noqa: F401
-    dashboard_export,  # noqa: F401
     dashboard_metadata_config,  # noqa: F401
     database_config,  # noqa: F401
     dataset_config,  # noqa: F401

@@ -1644,46 +1644,6 @@ class TestDatabaseApi(SupersetTestCase):
         assert rv.status_code == 404
 
     @pytest.mark.usefixtures("load_birth_names_dashboard_with_slices")
-    def test_get_table_extra_metadata_deprecated(self):
-        """
-        Database API: Test deprecated get table extra metadata info
-        """
-        example_db = get_example_database()
-        self.login(ADMIN_USERNAME)
-        uri = f"api/v1/database/{example_db.id}/table_extra/birth_names/null/"
-        rv = self.client.get(uri)
-        assert rv.status_code == 200
-        response = json.loads(rv.data.decode("utf-8"))
-        assert response == {}
-
-    def test_get_invalid_database_table_extra_metadata_deprecated(self):
-        """
-        Database API: Test get invalid database from deprecated table extra metadata
-        """
-        database_id = 1000
-        self.login(ADMIN_USERNAME)
-        uri = f"api/v1/database/{database_id}/table_extra/some_table/some_schema/"
-        rv = self.client.get(uri)
-        assert rv.status_code == 404
-
-        uri = "api/v1/database/some_database/table_extra/some_table/some_schema/"
-        rv = self.client.get(uri)
-        assert rv.status_code == 404
-
-    def test_get_invalid_table_table_extra_metadata_deprecated(self):
-        """
-        Database API: Test get invalid table from deprecated table extra metadata
-        """
-        example_db = get_example_database()
-        uri = f"api/v1/database/{example_db.id}/table_extra/wrong_table/null/"
-        self.login(ADMIN_USERNAME)
-        rv = self.client.get(uri)
-        data = json.loads(rv.data.decode("utf-8"))
-
-        assert rv.status_code == 200
-        assert data == {}
-
-    @pytest.mark.usefixtures("load_birth_names_dashboard_with_slices")
     def test_get_select_star(self):
         """
         Database API: Test get select star

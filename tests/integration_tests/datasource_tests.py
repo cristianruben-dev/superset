@@ -33,7 +33,6 @@ from superset.connectors.sqla.models import (  # noqa: F401
     TableColumn,
 )
 from superset.constants import CacheRegion
-from superset.daos.exceptions import DatasourceNotFound, DatasourceTypeNotSupportedError
 from superset.exceptions import SupersetGenericDBErrorException
 from superset.models.core import Database
 from superset.utils import json
@@ -49,7 +48,6 @@ from tests.integration_tests.fixtures.birth_names_dashboard import (
     load_birth_names_dashboard_with_slices,  # noqa: F401
     load_birth_names_data,  # noqa: F401
 )
-from tests.integration_tests.fixtures.datasource import get_datasource_post
 from tests.integration_tests.fixtures.world_bank_dashboard import (
     load_world_bank_dashboard_with_slices,  # noqa: F401
     load_world_bank_data,  # noqa: F401
@@ -370,121 +368,6 @@ class TestDatasource(SupersetTestCase):
                 if k not in "id" and obj1.get(k):
                     assert obj1.get(k) == obj2.get(k)
 
-    def test_save(self):
-        self.login(ADMIN_USERNAME)
-        tbl_id = self.get_table(name="birth_names").id
-
-        datasource_post = get_datasource_post()
-        datasource_post["id"] = tbl_id
-        datasource_post["owners"] = [1]
-        data = dict(data=json.dumps(datasource_post))  # noqa: C408
-        resp = self.get_json_resp("/datasource/save/", data)
-        for k in datasource_post:
-            if k == "columns":
-                self.compare_lists(datasource_post[k], resp[k], "column_name")
-            elif k == "metrics":
-                self.compare_lists(datasource_post[k], resp[k], "metric_name")
-            elif k == "database":
-                assert resp[k]["id"] == datasource_post[k]["id"]
-            elif k == "owners":
-                assert [o["id"] for o in resp[k]] == datasource_post["owners"]
-            else:
-                assert resp[k] == datasource_post[k]
-
-    def test_save_default_endpoint_validation_success(self):
-        self.login(ADMIN_USERNAME)
-        tbl_id = self.get_table(name="birth_names").id
-
-        datasource_post = get_datasource_post()
-        datasource_post["id"] = tbl_id
-        datasource_post["owners"] = [1]
-        datasource_post["default_endpoint"] = "http://localhost/superset/1"
-        data = dict(data=json.dumps(datasource_post))  # noqa: C408
-        resp = self.client.post("/datasource/save/", data=data)
-        assert resp.status_code == 200
-
-    def save_datasource_from_dict(self, datasource_post):
-        data = dict(data=json.dumps(datasource_post))  # noqa: C408
-        resp = self.get_json_resp("/datasource/save/", data)
-        return resp
-
-    @pytest.mark.usefixtures("load_birth_names_dashboard_with_slices")
-    def test_change_database(self):
-        admin_user = self.get_user("admin")
-        self.login(admin_user.username)
-        tbl = self.get_table(name="birth_names")
-        tbl_id = tbl.id
-        db_id = tbl.database_id
-        datasource_post = get_datasource_post()
-        datasource_post["id"] = tbl_id
-        datasource_post["owners"] = [admin_user.id]
-
-        new_db = self.create_fake_db()
-        datasource_post["database"]["id"] = new_db.id
-        resp = self.save_datasource_from_dict(datasource_post)
-        assert resp["database"]["id"] == new_db.id
-
-        datasource_post["database"]["id"] = db_id
-        resp = self.save_datasource_from_dict(datasource_post)
-        assert resp["database"]["id"] == db_id
-
-        self.delete_fake_db()
-
-    def test_save_duplicate_key(self):
-        admin_user = self.get_user("admin")
-        self.login(admin_user.username)
-        tbl_id = self.get_table(name="birth_names").id
-
-        datasource_post = get_datasource_post()
-        datasource_post["id"] = tbl_id
-        datasource_post["owners"] = [admin_user.id]
-        datasource_post["columns"].extend(
-            [
-                {
-                    "column_name": "<new column>",
-                    "filterable": True,
-                    "groupby": True,
-                    "expression": "<enter SQL expression here>",
-                    "id": "somerandomid",
-                },
-                {
-                    "column_name": "<new column>",
-                    "filterable": True,
-                    "groupby": True,
-                    "expression": "<enter SQL expression here>",
-                    "id": "somerandomid2",
-                },
-            ]
-        )
-        data = dict(data=json.dumps(datasource_post))  # noqa: C408
-        resp = self.get_json_resp("/datasource/save/", data, raise_on_error=False)
-        assert "Duplicate column name(s): <new column>" in resp["error"]
-
-    def test_get_datasource(self):
-        admin_user = self.get_user("admin")
-        self.login(admin_user.username)
-        tbl = self.get_table(name="birth_names")
-
-        datasource_post = get_datasource_post()
-        datasource_post["id"] = tbl.id
-        datasource_post["owners"] = [admin_user.id]
-        data = dict(data=json.dumps(datasource_post))  # noqa: C408
-        self.get_json_resp("/datasource/save/", data)
-        url = f"/datasource/get/{tbl.type}/{tbl.id}/"
-        resp = self.get_json_resp(url)
-        assert resp.get("type") == "table"
-        col_names = {o.get("column_name") for o in resp["columns"]}
-        assert col_names == {
-            "num_boys",
-            "num",
-            "gender",
-            "name",
-            "ds",
-            "state",
-            "num_girls",
-            "num_california",
-        }
-
     def test_get_datasource_with_health_check(self):
         def my_check(datasource):
             return "Warning message!"
@@ -495,30 +378,6 @@ class TestDatasource(SupersetTestCase):
         datasource = db.session.query(SqlaTable).filter_by(id=tbl.id).one_or_none()
         assert datasource.health_check_message == "Warning message!"
         current_app.config["DATASET_HEALTH_CHECK"] = None
-
-    def test_get_datasource_failed(self):
-        from superset.daos.datasource import DatasourceDAO
-
-        pytest.raises(
-            DatasourceNotFound,
-            lambda: DatasourceDAO.get_datasource("table", 9999999),
-        )
-
-        self.login(ADMIN_USERNAME)
-        resp = self.get_json_resp("/datasource/get/table/500000/", raise_on_error=False)
-        assert resp.get("error") == "Datasource does not exist"
-
-    def test_get_datasource_invalid_datasource_failed(self):
-        from superset.daos.datasource import DatasourceDAO
-
-        pytest.raises(
-            DatasourceTypeNotSupportedError,
-            lambda: DatasourceDAO.get_datasource("druid", 9999999),
-        )
-
-        self.login(ADMIN_USERNAME)
-        resp = self.get_json_resp("/datasource/get/druid/500000/", raise_on_error=False)
-        assert resp.get("error") == "'druid' is not a valid DatasourceType"
 
     @pytest.mark.usefixtures("load_birth_names_dashboard_with_slices")
     @mock.patch(
