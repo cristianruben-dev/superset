@@ -2341,3 +2341,10 @@ describe('plugin-chart-table', () => {
     });
   });
 });
+
+test('headers sort descending first when "Sort descending" is not saved', () => {
+  const { order_desc: _orderDesc, ...rawFormData } = testData.basic.rawFormData;
+  expect(transformProps({ ...testData.basic, rawFormData }).sortDesc).toBe(
+    true,
+  );
+});

@@ -281,3 +281,26 @@ describe('plugin-chart-table', () => {
     });
   });
 });
+
+test('a sort metric without "Sort descending" saved sorts descending, as the control shows', () => {
+  const { queries } = buildQuery({
+    ...basicFormData,
+    query_mode: QueryMode.Aggregate,
+    groupby: ['col1'],
+    metrics: ['aaa'],
+    timeseries_limit_metric: 'bbb',
+  });
+  expect(queries[0].orderby).toEqual([['bbb', false]]);
+});
+
+test('"Sort descending" off sorts the sort metric ascending', () => {
+  const { queries } = buildQuery({
+    ...basicFormData,
+    query_mode: QueryMode.Aggregate,
+    groupby: ['col1'],
+    metrics: ['aaa'],
+    timeseries_limit_metric: 'bbb',
+    order_desc: false,
+  });
+  expect(queries[0].orderby).toEqual([['bbb', true]]);
+});

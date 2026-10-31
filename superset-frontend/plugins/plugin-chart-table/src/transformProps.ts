@@ -522,7 +522,7 @@ const transformProps = (
     page_length: pageLength,
     server_pagination: serverPagination = false,
     server_page_length: serverPageLength = 10,
-    order_desc: sortDesc = false,
+    order_desc: sortDesc = true,
     query_mode: queryMode,
     show_totals: showTotals,
     conditional_formatting: conditionalFormatting,
