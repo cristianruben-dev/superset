@@ -36,6 +36,7 @@ import type {
   TableColumnConfig,
 } from '@superset-ui/chart-controls';
 import type { TableFormat } from './utils/tableFormat';
+import type { TableSortItem } from './utils/tableSort';
 
 // Re-export shared types used by internal plugin files that import from './types'
 // Types used locally in this file - re-export from local binding
@@ -66,6 +67,8 @@ export type TableChartFormData = QueryFormData & {
   groupby?: QueryFormMetric[] | null;
   all_columns?: QueryFormMetric[] | null;
   order_desc?: boolean;
+  /** Mi BI: the sort an editor saved from the dashboard */
+  mibi_table_sort?: TableSortItem[] | null;
   show_cell_bars?: boolean;
   table_timestamp_format?: string;
   time_grain_sqla?: TimeGranularity;

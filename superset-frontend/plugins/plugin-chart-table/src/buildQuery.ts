@@ -37,6 +37,7 @@ import {
 import { isEmpty } from 'lodash';
 import { TableChartFormData } from './types';
 import { updateTableOwnState } from './DataTable/utils/externalAPIs';
+import { tableSortOrderby } from './utils/tableSort';
 
 /**
  * Infer query mode from form data. If `all_columns` is set, then raw records mode,
@@ -213,6 +214,16 @@ const buildQuery: BuildQuery<TableChartFormData> = (
       if (temporalColumn) {
         columns = [temporalColumn, ...columns];
       }
+    }
+
+    // The sort an editor saved from the dashboard wins over the default one
+    const savedSort = tableSortOrderby(
+      formData.mibi_table_sort,
+      metrics,
+      columns,
+    );
+    if (savedSort.length > 0) {
+      orderby = savedSort;
     }
 
     const moreProps: Partial<QueryObject> = {};

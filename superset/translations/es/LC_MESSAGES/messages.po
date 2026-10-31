@@ -19063,3 +19063,6 @@ msgstr "Por qué se ordenan las categorías. Si está vacío, se aplica «Ordena
 
 msgid "Order the categories from the smallest to the largest"
 msgstr "Ordena las categorías de menor a mayor"
+
+msgid "Row labels"
+msgstr "Etiquetas de fila"

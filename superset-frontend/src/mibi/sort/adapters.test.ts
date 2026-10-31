@@ -250,3 +250,58 @@ test('a pie without a sort of its own shows "Sort by metric"', () => {
     pie.current({ ...formData, mibi_sort_by: 'country', mibi_sort_asc: true }),
   ).toEqual({ by: 'country', ascending: true });
 });
+
+test('a table sorts by its columns and metrics', () => {
+  const table = sortAdapterFor(VizType.Table)!;
+  const formData = barFormData({
+    viz_type: VizType.Table,
+    x_axis: undefined,
+    groupby: ['country'],
+    metrics: ['SUM(sales)'],
+  });
+  expect(table.options(formData, dataset)).toEqual([
+    { value: 'country', label: 'country' },
+    { value: 'SUM(sales)', label: 'SUM(sales)' },
+  ]);
+  expect(table.current(formData)).toEqual({
+    by: 'SUM(sales)',
+    ascending: false,
+  });
+  const sorted = {
+    ...formData,
+    ...table.toFormData({ by: 'country', ascending: true }, formData),
+  };
+  expect(sorted.mibi_table_sort).toEqual([{ key: 'country', desc: false }]);
+  expect(table.current(sorted)).toEqual({ by: 'country', ascending: true });
+});
+
+test('a raw records table sorts by its columns', () => {
+  const table = sortAdapterFor(VizType.Table)!;
+  const formData = barFormData({
+    viz_type: VizType.Table,
+    query_mode: 'raw',
+    all_columns: ['country', 'ds'],
+  });
+  expect(table.options(formData)?.map(option => option.value)).toEqual([
+    'country',
+    'ds',
+  ]);
+  expect(table.current(formData)).toBeUndefined();
+});
+
+test('a pivot table sorts its rows by label or by value', () => {
+  const pivot = sortAdapterFor(VizType.PivotTable)!;
+  const formData = barFormData({ viz_type: VizType.PivotTable });
+  expect(pivot.options(formData)?.map(option => option.value)).toEqual([
+    'key',
+    'value',
+  ]);
+  expect(pivot.current(formData)).toEqual({ by: 'key', ascending: true });
+  expect(pivot.toFormData({ by: 'value', ascending: false }, formData)).toEqual(
+    { rowOrder: 'value_z_to_a' },
+  );
+  expect(pivot.current({ ...formData, rowOrder: 'value_a_to_z' })).toEqual({
+    by: 'value',
+    ascending: true,
+  });
+});
