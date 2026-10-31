@@ -24,14 +24,13 @@ import type { SupersetTheme } from '@apache-superset/core/theme';
 import type { AppliedFilter, Capture } from './capture';
 
 export type ExportFormat = 'pdf' | 'png';
-export type PageOrientation = 'landscape' | 'portrait';
 
 /** One part of the export: the whole dashboard or one of its pages. */
 export interface ExportSection {
   title?: string;
   capture: Capture;
-  /** Fit the whole capture on one page, for canvases with a fixed size */
-  fit?: boolean;
+  /** The capture is a canvas with a fixed size (one slide) */
+  fixed?: boolean;
 }
 
 /** What the header and footer of the export tell about the dashboard. */
@@ -46,8 +45,6 @@ export interface ExportInfo {
   includeHeader: boolean;
 }
 
-const MM_MARGIN = 12;
-const MM_FOOTER = 8;
 const JPEG_QUALITY = 0.92;
 
 /** File name such as "ventas-2026-10-30.pdf". */
@@ -169,152 +166,217 @@ const slice = (source: HTMLCanvasElement, start: number, end: number) => {
   return canvas;
 };
 
-/** Builds a paginated A4 PDF with a header, one or more sections and page numbers. */
+// CSS pixels to PDF points, so a page measures what the screen shows at 96 dpi
+const PT_PER_PX = 0.75;
+// Viewers handle pages up to 200 inches (14400 pt); taller content is split
+const MAX_PAGE_PT = 14000;
+
+const pageSizeOf = (capture: Capture, height = capture.canvas.height) => ({
+  width: (capture.canvas.width / capture.scale) * PT_PER_PX,
+  height: (height / capture.scale) * PT_PER_PX,
+});
+
+/** Cover page: logo, title, workspace, date, filters and the contents. */
+function drawCover(
+  doc: JsPdf,
+  size: { width: number; height: number },
+  info: ExportInfo,
+  theme: SupersetTheme,
+  sections: ExportSection[],
+  sectionPages: Map<ExportSection, number>,
+) {
+  const { width, height } = size;
+  const unit = Math.min(height, width * 0.6) / 100;
+  const margin = Math.max(width * 0.07, unit * 6);
+  const text = rgb(theme.colorText);
+  const muted = rgb(theme.colorTextTertiary);
+  const border = rgb(theme.colorBorderSecondary);
+  const primary = rgb(theme.colorPrimary);
+
+  doc.setFillColor(...rgb(theme.colorBgContainer));
+  doc.rect(0, 0, width, height, 'F');
+  // A brand band along the left edge
+  doc.setFillColor(...primary);
+  doc.rect(0, 0, unit * 1.4, height, 'F');
+
+  if (info.logo) {
+    const logoHeight = unit * 6;
+    const logo = logoSize(info.logo, logoHeight);
+    doc.addImage(
+      logoDataUrl(info.logo, 160),
+      'PNG',
+      margin,
+      margin,
+      Math.min(logo.width, width / 3),
+      logoHeight,
+    );
+  }
+
+  const listed = sections.filter(section => section.title);
+  const columnWidth = listed.length > 1 ? width * 0.5 : width - margin * 2;
+  let y = height * (listed.length > 1 ? 0.36 : 0.42);
+
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(unit * 7);
+  doc.setTextColor(...text);
+  const titleLines = doc.splitTextToSize(info.title, columnWidth);
+  doc.text(titleLines, margin, y);
+  y += unit * 7 * 1.15 * (titleLines.length - 1) + unit * 5;
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(unit * 2.6);
+  doc.setTextColor(...muted);
+  doc.text(subtitleOf(info), margin, y, { maxWidth: columnWidth });
+  y += unit * 3.2;
+
+  doc.setDrawColor(...primary);
+  doc.setLineWidth(unit * 0.35);
+  doc.line(margin, y, margin + unit * 8, y);
+  y += unit * 4.5;
+
+  const filters = filtersOf(info);
+  if (filters) {
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(unit * 1.9);
+    doc.setTextColor(...text);
+    doc.text(t('Filters').toUpperCase(), margin, y);
+    y += unit * 3;
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(unit * 2.2);
+    doc.setTextColor(...muted);
+    const lines = doc.splitTextToSize(filters, columnWidth);
+    doc.text(lines.slice(0, 4), margin, y);
+  }
+
+  if (listed.length > 1) {
+    // Contents on the right half
+    const left = width * 0.6;
+    const right = width - margin;
+    let row = height * 0.36;
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(unit * 1.9);
+    doc.setTextColor(...text);
+    doc.text(t('Contents').toUpperCase(), left, row);
+    row += unit * 2;
+    const step = Math.min(unit * 6, (height * 0.5) / listed.length);
+    listed.forEach((section, index) => {
+      doc.setDrawColor(...border);
+      doc.setLineWidth(0.5);
+      doc.line(left, row, right, row);
+      const middle = row + step * 0.62;
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(Math.min(unit * 2.4, step * 0.4));
+      doc.setTextColor(...primary);
+      doc.text(String(index + 1).padStart(2, '0'), left, middle);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(...text);
+      doc.text(String(section.title), left + unit * 5, middle, {
+        maxWidth: right - left - unit * 12,
+      });
+      doc.setTextColor(...muted);
+      doc.text(String(sectionPages.get(section) ?? ''), right, middle, {
+        align: 'right',
+      });
+      row += step;
+    });
+    doc.line(left, row, right, row);
+  }
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(unit * 1.8);
+  doc.setTextColor(...muted);
+  doc.text(footerOf(info), margin, height - margin * 0.7);
+}
+
+/**
+ * Builds a PDF whose pages have the size of the dashboard itself: an optional
+ * cover, then each page of the dashboard edge to edge, split only when it is
+ * taller than PDF viewers allow.
+ */
 export function buildPdf(
   sections: ExportSection[],
   info: ExportInfo,
   theme: SupersetTheme,
-  orientation: PageOrientation,
 ): JsPdf {
-  const doc = new JsPdf({ orientation, unit: 'mm', format: 'a4' });
-  const pageWidth = doc.internal.pageSize.getWidth();
-  const pageHeight = doc.internal.pageSize.getHeight();
-  const contentWidth = pageWidth - MM_MARGIN * 2;
-  const bottom = pageHeight - MM_MARGIN - MM_FOOTER;
-  const text = rgb(theme.colorText);
-  const muted = rgb(theme.colorTextTertiary);
-  const border = rgb(theme.colorBorderSecondary);
-  const background = rgb(theme.colorBgLayout);
-  const primary = rgb(theme.colorPrimary);
-
-  const paintBackground = () => {
-    doc.setFillColor(...background);
-    doc.rect(0, 0, pageWidth, pageHeight, 'F');
-  };
-
-  const drawHeader = (): number => {
-    let y = MM_MARGIN;
-    if (info.logo) {
-      const height = 7;
-      const { width } = logoSize(info.logo, height);
-      doc.addImage(
-        logoDataUrl(info.logo, 96),
-        'PNG',
-        MM_MARGIN,
-        y,
-        Math.min(width, contentWidth / 3),
-        height,
-      );
-      y += height + 6;
-    }
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(20);
-    doc.setTextColor(...text);
-    const titleLines = doc.splitTextToSize(info.title, contentWidth);
-    doc.text(titleLines, MM_MARGIN, y + 6);
-    y += 6 + (titleLines.length - 1) * 8 + 4;
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(10);
-    doc.setTextColor(...muted);
-    doc.text(subtitleOf(info), MM_MARGIN, y + 2);
-    y += 4;
-    const filters = filtersOf(info);
-    if (filters) {
-      doc.setFontSize(9);
-      const lines = doc.splitTextToSize(
-        `${t('Filters')}:  ${filters}`,
-        contentWidth,
-      );
-      doc.text(lines, MM_MARGIN, y + 4);
-      y += 4 + lines.length * 4;
-    }
-    y += 4;
-    doc.setDrawColor(...primary);
-    doc.setLineWidth(0.6);
-    doc.line(MM_MARGIN, y, MM_MARGIN + 18, y);
-    doc.setDrawColor(...border);
-    doc.setLineWidth(0.2);
-    doc.line(MM_MARGIN + 18, y, pageWidth - MM_MARGIN, y);
-    return y + 6;
-  };
-
-  const drawSectionTitle = (title: string, y: number) => {
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(12);
-    doc.setTextColor(...text);
-    doc.text(title, MM_MARGIN, y + 4);
-    return y + 9;
-  };
-
-  let first = true;
-  sections.forEach(section => {
-    if (!first) doc.addPage();
-    paintBackground();
-    let y = MM_MARGIN;
-    if (first && info.includeHeader) y = drawHeader();
-    first = false;
-    if (section.title && sections.length > 1) {
-      y = drawSectionTitle(section.title, y);
-    }
-    const { canvas } = section.capture;
-    if (section.fit) {
-      // A fixed size canvas is one page, like a slide
-      const scale = Math.min(
-        contentWidth / canvas.width,
-        (bottom - y) / canvas.height,
-      );
-      const width = canvas.width * scale;
-      doc.addImage(
-        canvas.toDataURL('image/jpeg', JPEG_QUALITY),
-        'JPEG',
-        MM_MARGIN + (contentWidth - width) / 2,
-        y,
-        width,
-        canvas.height * scale,
-        undefined,
-        'FAST',
-      );
-      return;
-    }
-    const mmPerPixel = contentWidth / canvas.width;
-    const pages = paginate(
-      section.capture,
-      Math.floor((bottom - y) / mmPerPixel),
-      Math.floor((bottom - MM_MARGIN) / mmPerPixel),
+  // Each section becomes one or more pages of its own size
+  const pages = sections.flatMap(section => {
+    const maxPixels = Math.floor(
+      (MAX_PAGE_PT / PT_PER_PX) * section.capture.scale,
     );
-    pages.forEach(([start, end], index) => {
-      if (index > 0) {
-        doc.addPage();
-        paintBackground();
-        y = MM_MARGIN;
+    return paginate(section.capture, maxPixels, maxPixels).map(
+      ([start, end], index) => ({
+        section,
+        start,
+        end,
+        first: index === 0,
+        size: pageSizeOf(section.capture, end - start),
+      }),
+    );
+  });
+  const firstSize = pages[0]?.size ?? { width: 960, height: 540 };
+  // The cover is as wide as the dashboard, and as tall as a fixed canvas or 16:9
+  const cover = info.includeHeader
+    ? {
+        width: firstSize.width,
+        height: sections[0]?.fixed
+          ? firstSize.height
+          : Math.round((firstSize.width * 9) / 16),
       }
-      doc.addImage(
-        slice(canvas, start, end).toDataURL('image/jpeg', JPEG_QUALITY),
-        'JPEG',
-        MM_MARGIN,
-        y,
-        contentWidth,
-        (end - start) * mmPerPixel,
-        undefined,
-        'FAST',
-      );
-    });
+    : null;
+  const sizeAt = (index: number) =>
+    cover ? (index === 0 ? cover : pages[index - 1].size) : pages[index].size;
+  const orientationOf = (size: { width: number; height: number }) =>
+    size.width >= size.height ? 'landscape' : 'portrait';
+
+  const first = sizeAt(0);
+  const doc = new JsPdf({
+    orientation: orientationOf(first),
+    unit: 'pt',
+    format: [first.width, first.height],
+    compress: true,
   });
 
-  const count = doc.getNumberOfPages();
-  for (let page = 1; page <= count; page += 1) {
-    doc.setPage(page);
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(8);
-    doc.setTextColor(...muted);
-    const footerY = pageHeight - MM_MARGIN + 2;
-    doc.text(`${info.title}  ·  ${footerOf(info)}`, MM_MARGIN, footerY, {
-      maxWidth: contentWidth - 30,
+  // Page number of each section, for the contents and the bookmarks
+  const sectionPages = new Map<ExportSection, number>();
+  pages.forEach((page, index) => {
+    if (page.first) sectionPages.set(page.section, index + (cover ? 2 : 1));
+  });
+
+  if (cover) drawCover(doc, cover, info, theme, sections, sectionPages);
+
+  pages.forEach((page, index) => {
+    if (cover || index > 0) {
+      doc.addPage(
+        [page.size.width, page.size.height],
+        orientationOf(page.size),
+      );
+    }
+    doc.addImage(
+      slice(page.section.capture.canvas, page.start, page.end).toDataURL(
+        'image/jpeg',
+        JPEG_QUALITY,
+      ),
+      'JPEG',
+      0,
+      0,
+      page.size.width,
+      page.size.height,
+      undefined,
+      'FAST',
+    );
+  });
+
+  try {
+    sections.forEach(section => {
+      const pageNumber = sectionPages.get(section);
+      if (section.title && pageNumber) {
+        doc.outline.add(null, section.title, { pageNumber });
+      }
     });
-    doc.text(t('Page %s of %s', page, count), pageWidth - MM_MARGIN, footerY, {
-      align: 'right',
-    });
+  } catch {
+    // Bookmarks are a nicety
   }
+  doc.setProperties({ title: info.title, author: info.author ?? '' });
   return doc;
 }
 

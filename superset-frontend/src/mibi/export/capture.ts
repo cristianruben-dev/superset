@@ -213,6 +213,8 @@ export async function captureDashboard(
     scale,
     cacheBust: true,
     onclone: clone => {
+      // A fixed size canvas is zoomed to fit the screen: capture it at its size
+      if (clone instanceof HTMLElement) clone.style.setProperty('zoom', '1');
       const style = document.createElement('style');
       // Text measures differ slightly in the picture: keep chart titles on one line
       style.textContent = `${fonts}

@@ -47,7 +47,6 @@ import {
   saveFile,
   type ExportFormat,
   type ExportSection,
-  type PageOrientation,
 } from './document';
 
 type Scope = 'current' | 'all';
@@ -251,9 +250,6 @@ export function ExportDashboardModal({
   const current = activeTabIndex(tabs, activeTabs);
   const [format, setFormat] = useState<ExportFormat>('pdf');
   const [scope, setScope] = useState<Scope>('current');
-  const [orientation, setOrientation] = useState<PageOrientation>(
-    fixedSize && fixedSize.height > fixedSize.width ? 'portrait' : 'landscape',
-  );
   const [includeHeader, setIncludeHeader] = useState(true);
   const [progress, setProgress] = useState<string | null>(null);
   const [workspace, setWorkspace] = useState<string>();
@@ -306,7 +302,11 @@ export function ExportDashboardModal({
           2,
           fixedCanvas ? '[data-test="mibi-canvas"]' : '.dashboard',
         );
-        sections.push({ title: tabs[index]?.title, capture, fit: fixedCanvas });
+        sections.push({
+          title: tabs[index]?.title,
+          capture,
+          fixed: fixedCanvas,
+        });
       }
       setProgress(t('Creating the file…'));
       const logo = includeHeader
@@ -329,7 +329,7 @@ export function ExportDashboardModal({
       };
       const name = exportFileName(title, date, format);
       if (format === 'pdf') {
-        buildPdf(sections, exportInfo, theme, orientation).save(name);
+        buildPdf(sections, exportInfo, theme).save(name);
       } else {
         saveFile(
           buildPng(sections, exportInfo, theme).toDataURL('image/png'),
@@ -381,7 +381,7 @@ export function ExportDashboardModal({
               <span className="copy">
                 <strong>{t('PDF document')}</strong>
                 <span className="hint">
-                  {t('Pages ready to print or send')}
+                  {t('Pages the size of the dashboard, with a cover')}
                 </span>
               </span>
             </FormatCard>
@@ -429,28 +429,16 @@ export function ExportDashboardModal({
           </div>
         )}
 
-        {format === 'pdf' && (
-          <div className="group">
-            <span className="label">{t('Orientation')}</span>
-            <Segments<PageOrientation>
-              name={t('Orientation')}
-              value={orientation}
-              disabled={busy}
-              onChange={setOrientation}
-              options={[
-                { value: 'landscape', label: t('Landscape') },
-                { value: 'portrait', label: t('Portrait') },
-              ]}
-            />
-          </div>
-        )}
-
         <Checkbox
           checked={includeHeader}
           disabled={busy}
           onChange={event => setIncludeHeader(event.target.checked)}
         >
-          {t('Add a header with the logo, workspace, date and filters')}
+          {format === 'pdf'
+            ? t(
+                'Start with a cover: logo, workspace, date, filters and contents',
+              )
+            : t('Add a header with the logo, workspace, date and filters')}
         </Checkbox>
 
         {busy && (

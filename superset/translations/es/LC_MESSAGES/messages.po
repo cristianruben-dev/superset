@@ -17439,3 +17439,12 @@ msgstr "Hasta"
 
 msgid "Upload image"
 msgstr "Subir imagen"
+
+msgid "Contents"
+msgstr "Contenido"
+
+msgid "Start with a cover: logo, workspace, date, filters and contents"
+msgstr "Empezar con una portada: logo, área de trabajo, fecha, filtros y contenido"
+
+msgid "Pages the size of the dashboard, with a cover"
+msgstr "Páginas del tamaño del panel, con portada"
