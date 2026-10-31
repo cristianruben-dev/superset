@@ -104,6 +104,15 @@ import {
 } from '../utils/formatters';
 import { getMetricDisplayName } from '../utils/metricDisplayName';
 import { mergeCustomEChartOptions } from '../utils/mergeCustomEChartOptions';
+import {
+  applyAxisFormatting,
+  applyConditionalFormatting,
+  applyLegendFormatting,
+  applySeriesStyle,
+  applyValueLabelStyle,
+  getActiveConditionalRules,
+  keepBarRadiusOnStackTop,
+} from '../utils/formatting';
 
 const getFormatter = (
   customFormatters: Record<string, ValueFormatter>,
@@ -226,7 +235,69 @@ export default function transformProps(
     showQueryIdentifiers = false,
     metrics = [],
     metricsB = [],
+    valueLabelFont,
+    valueLabelBackground,
+    valueLabelFormat,
+    valueLabelRotate,
+    legendAlign,
+    legendFont,
+    legendIcon,
+    xAxisLabelFont,
+    xAxisTitleFont,
+    xAxisInverse,
+    yAxisLabelFont,
+    yAxisTitleFont,
+    yAxisInverse,
+    yAxisSecondaryLabelFont,
+    yAxisSecondaryTitleFont,
+    gridlineColor,
+    gridlineWidth,
+    gridlineStyle,
+    seriesColors,
+    seriesLineWidth,
+    seriesLineType,
+    seriesMarkerSymbol,
+    barCategoryGap,
+    barBorderColor,
+    barBorderWidth,
+    barBorderRadius,
+    chartConditionalFormatting,
   }: EchartsMixedTimeseriesFormData = { ...DEFAULT_FORM_DATA, ...formData };
+
+  // "Label number format" overrides the data label units/decimals of both
+  // queries; tooltips and axes keep their own formats.
+  const valueLabelFormatter = valueLabelFormat
+    ? getNumberFormatter(valueLabelFormat)
+    : undefined;
+  const valueLabelStyle = {
+    font: valueLabelFont,
+    background: valueLabelBackground,
+    rotate: valueLabelRotate,
+  };
+  const seriesStyleOptions = {
+    seriesColors,
+    lineWidth: seriesLineWidth,
+    lineType: seriesLineType,
+    markerSymbol: seriesMarkerSymbol,
+    barCategoryGap,
+    barBorderColor,
+    barBorderWidth,
+    barBorderRadius,
+  };
+  const conditionalRules = getActiveConditionalRules(
+    chartConditionalFormatting,
+  );
+  // Horizontal orientation is not supported by the mixed chart, so the
+  // metric value is always the second item of each point.
+  const styleSeries = (seriesOption: SeriesOption) =>
+    applyConditionalFormatting(
+      applySeriesStyle(
+        applyValueLabelStyle(seriesOption, valueLabelStyle),
+        seriesStyleOptions,
+      ),
+      conditionalRules,
+      1,
+    );
 
   const refs: Refs = {};
   const colorScale = CategoricalColorNamespace.getScale(colorScheme as string);
@@ -446,13 +517,15 @@ export default function transformProps(
       displayName = showQueryIdentifiers ? `${entryName} (Query A)` : entryName;
     }
 
-    const seriesFormatter = getFormatter(
-      customFormatters,
-      formatter,
-      metrics,
-      labelMap?.[seriesName]?.[0],
-      !!contributionMode,
-    );
+    const seriesFormatter =
+      valueLabelFormatter ??
+      getFormatter(
+        customFormatters,
+        formatter,
+        metrics,
+        labelMap?.[seriesName]?.[0],
+        !!contributionMode,
+      );
 
     const transformedSeries = transformSeries(
       {
@@ -493,7 +566,7 @@ export default function transformProps(
     );
 
     if (transformedSeries) {
-      series.push(transformedSeries);
+      series.push(styleSeries(transformedSeries));
       mapSeriesIdToAxis(transformedSeries, yAxisIndex);
     }
   });
@@ -519,13 +592,15 @@ export default function transformProps(
       displayName = showQueryIdentifiers ? `${entryName} (Query B)` : entryName;
     }
 
-    const seriesFormatter = getFormatter(
-      customFormattersSecondary,
-      formatterSecondary,
-      metricsB,
-      labelMapB?.[seriesName]?.[0],
-      !!contributionMode,
-    );
+    const seriesFormatter =
+      valueLabelFormatter ??
+      getFormatter(
+        customFormattersSecondary,
+        formatterSecondary,
+        metricsB,
+        labelMapB?.[seriesName]?.[0],
+        !!contributionMode,
+      );
 
     const transformedSeries = transformSeries(
       {
@@ -567,7 +642,7 @@ export default function transformProps(
     );
 
     if (transformedSeries) {
-      series.push(transformedSeries);
+      series.push(styleSeries(transformedSeries));
       mapSeriesIdToAxis(transformedSeries, yAxisIndexB);
     }
   });
@@ -834,18 +909,24 @@ export default function transformProps(
       },
     },
     legend: {
-      ...getLegendProps(
-        effectiveLegendType,
+      ...applyLegendFormatting(
+        getLegendProps(
+          effectiveLegendType,
+          legendOrientation,
+          showLegend,
+          theme,
+          zoomable,
+          legendState,
+          chartPadding,
+        ) as Record<string, unknown>,
         legendOrientation,
-        showLegend,
-        theme,
-        zoomable,
-        legendState,
-        chartPadding,
+        { align: legendAlign, font: legendFont, icon: legendIcon },
       ),
       data: legendData,
     },
-    series: dedupSeries(reorderForecastSeries(series) as SeriesOption[]),
+    series: keepBarRadiusOnStackTop(
+      dedupSeries(reorderForecastSeries(series) as SeriesOption[]),
+    ),
     toolbox: {
       show: zoomable,
       top: TIMESERIES_CONSTANTS.toolboxTop,
@@ -885,6 +966,36 @@ export default function transformProps(
   } catch (_) {
     customEchartOptions = undefined;
   }
+
+  // Apply the "Axes & gridlines format" controls. Both value axes share the
+  // primary direction and gridline style; each has its own fonts.
+  const gridlineFormat = { gridlineColor, gridlineWidth, gridlineStyle };
+  const [primaryYAxis, secondaryYAxis] = echartOptions.yAxis as Record<
+    string,
+    unknown
+  >[];
+  echartOptions.xAxis = applyAxisFormatting(
+    echartOptions.xAxis as Record<string, unknown>,
+    {
+      labelFont: xAxisLabelFont,
+      titleFont: xAxisTitleFont,
+      inverse: xAxisInverse,
+      ...gridlineFormat,
+    },
+  );
+  echartOptions.yAxis = [
+    applyAxisFormatting(primaryYAxis, {
+      labelFont: yAxisLabelFont,
+      titleFont: yAxisTitleFont,
+      inverse: yAxisInverse,
+      ...gridlineFormat,
+    }),
+    applyAxisFormatting(secondaryYAxis, {
+      labelFont: yAxisSecondaryLabelFont,
+      titleFont: yAxisSecondaryTitleFont,
+      inverse: yAxisInverse,
+    }),
+  ];
 
   const mergedEchartOptions = customEchartOptions
     ? mergeCustomEChartOptions(echartOptions, customEchartOptions)

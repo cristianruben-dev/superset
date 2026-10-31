@@ -508,6 +508,13 @@ const config: ControlPanelConfig = {
         ['echart_options'],
       ],
     },
+    sections.buildDataLabelsFormatSection({
+      showWhen: ['show_value', 'show_valueB'],
+    }),
+    sections.legendFormatSection,
+    sections.buildAxesFormatSection({ secondaryYAxis: true }),
+    sections.buildSeriesFormatSection(),
+    sections.chartConditionalFormattingSection,
   ],
   formDataOverrides: formData => {
     const groupby = getStandardizedControls().controls.columns.filter(

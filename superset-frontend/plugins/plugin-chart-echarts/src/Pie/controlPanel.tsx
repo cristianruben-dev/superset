@@ -28,6 +28,7 @@ import {
   D3_TIME_FORMAT_OPTIONS,
   getStandardizedControls,
   sharedControls,
+  sections,
 } from '@superset-ui/chart-controls';
 import { DEFAULT_FORM_DATA } from './types';
 import { legendSection } from '../controls';
@@ -295,6 +296,12 @@ const config: ControlPanelConfig = {
         ],
       ],
     },
+    sections.buildDataLabelsFormatSection({
+      showWhen: ['show_labels'],
+      numberFormat: false,
+      rotate: false,
+    }),
+    sections.legendFormatSection,
   ],
   controlOverrides: {
     series: {

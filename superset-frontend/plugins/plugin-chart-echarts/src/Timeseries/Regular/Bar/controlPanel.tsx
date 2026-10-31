@@ -407,6 +407,11 @@ const config: ControlPanelConfig = {
         ['echart_options'],
       ],
     },
+    sections.dataLabelsFormatSection,
+    sections.legendFormatSection,
+    sections.axesFormatSection,
+    sections.buildSeriesFormatSection({ lines: false, markers: false }),
+    sections.chartConditionalFormattingSection,
   ],
   formDataOverrides: formData => {
     // Reset stack to null if it's Stream when switching to Bar chart

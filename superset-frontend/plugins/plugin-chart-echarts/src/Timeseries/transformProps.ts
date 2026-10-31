@@ -116,6 +116,15 @@ import {
 } from '../constants';
 import { getDefaultTooltip } from '../utils/tooltip';
 import {
+  applyAxisFormatting,
+  applyConditionalFormatting,
+  applyLegendFormatting,
+  applySeriesStyle,
+  applyValueLabelStyle,
+  getActiveConditionalRules,
+  keepBarRadiusOnStackTop,
+} from '../utils/formatting';
+import {
   getPercentFormatter,
   getTooltipTimeFormatter,
   getXAxisFormatter,
@@ -273,6 +282,31 @@ export default function transformProps(
     yAxisTitlePosition,
     zoomable,
     stackDimension,
+    valueLabelFont,
+    valueLabelBackground,
+    valueLabelFormat,
+    valueLabelRotate,
+    legendAlign,
+    legendFont,
+    legendIcon,
+    xAxisLabelFont,
+    xAxisTitleFont,
+    xAxisInverse,
+    yAxisLabelFont,
+    yAxisTitleFont,
+    yAxisInverse,
+    gridlineColor,
+    gridlineWidth,
+    gridlineStyle,
+    seriesColors,
+    seriesLineWidth,
+    seriesLineType,
+    seriesMarkerSymbol,
+    barCategoryGap,
+    barBorderColor,
+    barBorderWidth,
+    barBorderRadius,
+    chartConditionalFormatting,
   }: EchartsTimeseriesFormData = { ...DEFAULT_FORM_DATA, ...formData };
 
   const refs: Refs = {};
@@ -368,6 +402,31 @@ export default function transformProps(
         currency: resolvedCurrency,
       })
     : getNumberFormatter(yAxisFormat);
+  // "Label number format" overrides the display units/decimals of the data
+  // labels only; tooltips and axes keep their own formats.
+  const valueLabelFormatter = valueLabelFormat
+    ? getNumberFormatter(valueLabelFormat)
+    : undefined;
+  const valueLabelStyle = {
+    font: valueLabelFont,
+    background: valueLabelBackground,
+    rotate: valueLabelRotate,
+  };
+  const seriesStyleOptions = {
+    seriesColors,
+    lineWidth: seriesLineWidth,
+    lineType: seriesLineType,
+    markerSymbol: seriesMarkerSymbol,
+    barCategoryGap,
+    barBorderColor,
+    barBorderWidth,
+    barBorderRadius,
+    isHorizontal,
+  };
+  const conditionalRules = getActiveConditionalRules(
+    chartConditionalFormatting,
+  );
+  const conditionalValueIndex = isHorizontal ? 0 : 1;
   const customFormatters = buildCustomFormatters(
     metrics,
     currencyFormats,
@@ -487,13 +546,15 @@ export default function transformProps(
         seriesType,
         legendState,
         stack,
-        formatter: forcePercentFormatter
-          ? percentFormatter
-          : (getCustomFormatter(
-              customFormatters,
-              metrics,
-              labelMap?.[seriesName]?.[0],
-            ) ?? defaultFormatter),
+        formatter:
+          valueLabelFormatter ??
+          (forcePercentFormatter
+            ? percentFormatter
+            : (getCustomFormatter(
+                customFormatters,
+                metrics,
+                labelMap?.[seriesName]?.[0],
+              ) ?? defaultFormatter)),
         showValue,
         onlyTotal,
         totalStackedValues: sortedTotalValues,
@@ -512,19 +573,39 @@ export default function transformProps(
       },
     );
     if (transformedSeries) {
+      const styledSeries = applySeriesStyle(
+        applyValueLabelStyle(transformedSeries, valueLabelStyle),
+        seriesStyleOptions,
+      );
       if (stack === StackControlsValue.Stream) {
         // bug in Echarts - `stackStrategy: 'all'` doesn't work with nulls, so we cast them to 0
-        series.push({
-          ...transformedSeries,
-          data: (transformedSeries.data as any).map(
-            (row: [string | number, number]) => [row[0], row[1] ?? 0],
+        series.push(
+          applyConditionalFormatting(
+            {
+              ...styledSeries,
+              data: (styledSeries.data as any).map(
+                (row: [string | number, number]) => [row[0], row[1] ?? 0],
+              ),
+            },
+            conditionalRules,
+            conditionalValueIndex,
           ),
-        });
+        );
       } else {
-        series.push(transformedSeries);
+        series.push(
+          applyConditionalFormatting(
+            styledSeries,
+            conditionalRules,
+            conditionalValueIndex,
+          ),
+        );
       }
     }
   });
+
+  if (stack) {
+    series.splice(0, series.length, ...keepBarRadiusOnStackTop(series));
+  }
 
   // Add x-axis color legend when colorByPrimaryAxis is enabled
   if (colorByPrimaryAxis && groupBy.length === 0 && series.length > 0) {
@@ -973,6 +1054,22 @@ export default function transformProps(
     nameLocation: yAxisTitlePosition === 'Left' ? 'middle' : 'end',
   };
 
+  // User "Format" controls are applied before the horizontal swap below, so
+  // "X axis" always means the dimension axis, matching the axis title controls.
+  const gridlineFormat = { gridlineColor, gridlineWidth, gridlineStyle };
+  xAxis = applyAxisFormatting(xAxis, {
+    labelFont: xAxisLabelFont,
+    titleFont: xAxisTitleFont,
+    inverse: xAxisInverse,
+    ...gridlineFormat,
+  });
+  yAxis = applyAxisFormatting(yAxis, {
+    labelFont: yAxisLabelFont,
+    titleFont: yAxisTitleFont,
+    inverse: yAxisInverse,
+    ...gridlineFormat,
+  });
+
   // Increase right padding for rotated time axis labels to prevent
   // the last label from being clipped at the chart boundary.
   if (
@@ -1117,15 +1214,19 @@ export default function transformProps(
       },
     },
     legend: {
-      ...getLegendProps(
-        effectiveLegendType,
+      ...applyLegendFormatting(
+        getLegendProps(
+          effectiveLegendType,
+          legendOrientation,
+          // Hide legend on compact charts — not enough vertical space
+          isSmallChart ? false : showLegend,
+          theme,
+          zoomable,
+          legendState,
+          padding,
+        ) as Record<string, unknown>,
         legendOrientation,
-        // Hide legend on compact charts — not enough vertical space
-        isSmallChart ? false : showLegend,
-        theme,
-        zoomable,
-        legendState,
-        padding,
+        { align: legendAlign, font: legendFont, icon: legendIcon },
       ),
       scrollDataIndex: legendIndex || 0,
       data:

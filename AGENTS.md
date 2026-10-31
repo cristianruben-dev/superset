@@ -67,6 +67,7 @@ This repository is **Mi BI**, a fork of Apache Superset 6.1 shaped like Power BI
 | Workspaces and access | `superset/mibi/workspaces.py`, `workspace_access.py`, `models.py` | `mibi/workspaces` |
 | Data page and datasets | `superset/mibi/data_views.py` | `mibi/data` |
 | Format pane, themes | `superset/mibi/format_themes.py` | `mibi/format` |
+| Chart format controls (labels, legend, axes, series, rules, table) | - | `explore/components/controls/{FontControl,SeriesColorsControl,ChartConditionalFormattingControl}`; sections in `packages/superset-ui-chart-controls/src/sections/visualFormat.tsx`; helpers in `plugins/plugin-chart-echarts/src/utils/formatting.ts` and `plugins/plugin-chart-table/src/utils/tableFormat.ts` |
 | Background and element pictures | `superset/mibi/backgrounds.py` | `mibi/format/actions.ts`, `mibi/elements` |
 | Design elements (image, shape, button, text, canvas filter) | - | `mibi/elements` |
 | Filter bar levels (all pages / this page / visuals), instant apply | `dashboards/schemas.py` (`filter_bar_auto_apply`) | `dashboard/components/nativeFilters/scopeLevel.ts`, `FilterBar/` |

@@ -20,6 +20,8 @@ import { RefObject, Ref } from 'react';
 
 import {
   ChartDataResponseResult,
+  type ColorInput,
+  type FontStyleValue,
   ChartProps,
   ContextMenuFilters,
   FilterState,
@@ -35,6 +37,7 @@ import {
 import type { EChartsCoreOption, EChartsType } from 'echarts/core';
 import type { TooltipMarker } from 'echarts/types/src/util/format';
 import { StackControlsValue } from './constants';
+import type { ChartConditionalRule } from './utils/formatting';
 
 export type EchartsStylesProps = {
   height: number;
@@ -101,6 +104,40 @@ export type LegendFormData = {
   legendType: LegendType;
   showLegend: boolean;
   legendSort: 'asc' | 'desc' | null;
+};
+
+/**
+ * Power BI style "Format" controls for data labels, legend and axes. All
+ * optional: an unset value keeps the chart's default look.
+ */
+export type VisualFormatFormData = {
+  valueLabelFont?: FontStyleValue | null;
+  valueLabelBackground?: ColorInput;
+  valueLabelFormat?: string | null;
+  valueLabelRotate?: number | string | null;
+  legendAlign?: 'start' | 'center' | 'end' | null;
+  legendFont?: FontStyleValue | null;
+  legendIcon?: string | null;
+  xAxisLabelFont?: FontStyleValue | null;
+  xAxisTitleFont?: FontStyleValue | null;
+  xAxisInverse?: boolean;
+  yAxisLabelFont?: FontStyleValue | null;
+  yAxisTitleFont?: FontStyleValue | null;
+  yAxisInverse?: boolean;
+  yAxisSecondaryLabelFont?: FontStyleValue | null;
+  yAxisSecondaryTitleFont?: FontStyleValue | null;
+  gridlineColor?: ColorInput;
+  gridlineWidth?: number | string | null;
+  gridlineStyle?: string | null;
+  seriesColors?: Record<string, ColorInput> | null;
+  seriesLineWidth?: number | string | null;
+  seriesLineType?: string | null;
+  seriesMarkerSymbol?: string | null;
+  barCategoryGap?: number | string | null;
+  barBorderColor?: ColorInput;
+  barBorderWidth?: number | string | null;
+  barBorderRadius?: number | string | null;
+  chartConditionalFormatting?: ChartConditionalRule[] | null;
 };
 
 export type EventHandlers = Record<string, { (props: any): void }>;

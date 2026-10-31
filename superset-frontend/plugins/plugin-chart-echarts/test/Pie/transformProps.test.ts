@@ -591,3 +591,45 @@ describe('legend sorting', () => {
     ]);
   });
 });
+
+test('applies label and legend format controls to the pie', () => {
+  const chartProps = new ChartProps({
+    formData: {
+      colorScheme: 'bnbColors',
+      datasource: '3__table',
+      metric: 'sum__num',
+      groupby: ['foo'],
+      viz_type: 'pie',
+      showLegend: true,
+      legendOrientation: LegendOrientation.Right,
+      legendType: LegendType.Scroll,
+      legendAlign: 'center',
+      legendIcon: 'rect',
+      valueLabelFont: { fontSize: 18, color: '#ff0000' },
+      valueLabelBackground: '#000000',
+    },
+    width: 800,
+    height: 600,
+    queriesData: [
+      {
+        data: [
+          { foo: 'Sylvester', sum__num: 10 },
+          { foo: 'Arnold', sum__num: 2.5 },
+        ],
+      },
+    ],
+    theme: supersetTheme,
+  });
+  const { echartOptions } = transformProps(chartProps as EchartsPieChartProps);
+  const [series] = echartOptions.series as PieSeriesOption[];
+  expect(series.label).toEqual(
+    expect.objectContaining({
+      fontSize: 18,
+      color: '#ff0000',
+      backgroundColor: '#000000',
+    }),
+  );
+  const legend = echartOptions.legend as Record<string, unknown>;
+  expect(legend.top).toBe('middle');
+  expect(legend.icon).toBe('rect');
+});

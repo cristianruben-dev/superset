@@ -55,6 +55,7 @@ import {
   TableChartTransformedProps,
   TableColumnConfig,
 } from './types';
+import { getTableFormat } from './utils/tableFormat';
 
 const { PERCENT_3_POINT } = NumberFormats;
 const { DATABASE_DATETIME } = TimeFormats;
@@ -807,6 +808,7 @@ const transformProps = (
     serverPageLength,
     slice_id,
     columnLabelToNameMap,
+    tableFormat: getTableFormat(formData),
   };
 };
 

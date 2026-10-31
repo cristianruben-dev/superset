@@ -33,6 +33,11 @@ export interface ColorPickerControlProps {
   renderTrigger?: boolean;
   hovered?: boolean;
   warning?: string;
+  /**
+   * Show a clear button that resets the value to empty, for controls where
+   * "no color" means "use the theme default".
+   */
+  allowClear?: boolean;
 }
 
 function rgbToHex(rgb: RGBColor): string {
@@ -54,6 +59,7 @@ function rgbToHex(rgb: RGBColor): string {
 export default function ColorPickerControl({
   onChange,
   value,
+  allowClear = false,
   ...headerProps
 }: ColorPickerControlProps) {
   const categoricalScheme = getCategoricalSchemeRegistry().get();
@@ -79,6 +85,13 @@ export default function ColorPickerControl({
       <ColorPicker
         value={hexValue}
         onChangeComplete={handleChange}
+        allowClear={allowClear}
+        onClear={() =>
+          // Only clearable controls reach this; their value may be empty.
+          (onChange as ((color: RGBColor | undefined) => void) | undefined)?.(
+            undefined,
+          )
+        }
         presets={[{ label: 'Theme colors', colors: presetColors }]}
         showText
       />

@@ -54,6 +54,10 @@ import { convertInteger } from '../utils/convertInteger';
 import { getDefaultTooltip } from '../utils/tooltip';
 import { Refs } from '../types';
 import { getContributionLabel } from './utils';
+import {
+  applyLegendFormatting,
+  applyValueLabelStyle,
+} from '../utils/formatting';
 
 const percentFormatter = getNumberFormatter(NumberFormats.PERCENT_2_POINT);
 
@@ -170,6 +174,11 @@ export default function transformProps(
     showTotal,
     roseType,
     thresholdForOther,
+    valueLabelFont,
+    valueLabelBackground,
+    legendAlign,
+    legendFont,
+    legendIcon,
   }: EchartsPieFormData = {
     ...DEFAULT_LEGEND_FORM_DATA,
     ...DEFAULT_PIE_FORM_DATA,
@@ -405,36 +414,40 @@ export default function transformProps(
   );
 
   const series: PieSeriesOption[] = [
-    {
-      type: 'pie',
-      ...chartPadding,
-      animation: false,
-      roseType: roseType || undefined,
-      radius: [`${donut ? innerRadius : 0}%`, `${outerRadius}%`],
-      center: ['50%', '50%'],
-      avoidLabelOverlap: true,
-      labelLine: labelsOutside && labelLine ? { show: true } : { show: false },
-      minShowLabelAngle,
-      label: labelsOutside
-        ? {
-            ...defaultLabel,
-            position: 'outer',
-            alignTo: 'none',
-            bleedMargin: 5,
-          }
-        : {
-            ...defaultLabel,
-            position: 'inner',
+    applyValueLabelStyle<PieSeriesOption>(
+      {
+        type: 'pie',
+        ...chartPadding,
+        animation: false,
+        roseType: roseType || undefined,
+        radius: [`${donut ? innerRadius : 0}%`, `${outerRadius}%`],
+        center: ['50%', '50%'],
+        avoidLabelOverlap: true,
+        labelLine:
+          labelsOutside && labelLine ? { show: true } : { show: false },
+        minShowLabelAngle,
+        label: labelsOutside
+          ? {
+              ...defaultLabel,
+              position: 'outer',
+              alignTo: 'none',
+              bleedMargin: 5,
+            }
+          : {
+              ...defaultLabel,
+              position: 'inner',
+            },
+        emphasis: {
+          label: {
+            show: true,
+            fontWeight: 'bold',
+            backgroundColor: theme.colorBgContainer,
           },
-      emphasis: {
-        label: {
-          show: true,
-          fontWeight: 'bold',
-          backgroundColor: theme.colorBgContainer,
         },
+        data: transformedData,
       },
-      data: transformedData,
-    },
+      { font: valueLabelFont, background: valueLabelBackground },
+    ),
   ];
 
   const echartOptions: EChartsCoreOption = {
@@ -461,11 +474,15 @@ export default function transformProps(
       },
     },
     legend: {
-      ...getLegendProps(
-        effectiveLegendType,
+      ...applyLegendFormatting(
+        getLegendProps(
+          effectiveLegendType,
+          legendOrientation,
+          showLegend,
+          theme,
+        ) as Record<string, unknown>,
         legendOrientation,
-        showLegend,
-        theme,
+        { align: legendAlign, font: legendFont, icon: legendIcon },
       ),
       data: legendData,
     },

@@ -23,13 +23,15 @@ import {
   ContextMenuTransformedProps,
   CrossFilterTransformedProps,
   LegendFormData,
+  VisualFormatFormData,
   LegendOrientation,
   LegendType,
 } from '../types';
 import { DEFAULT_LEGEND_FORM_DATA } from '../constants';
 
 export type EchartsPieFormData = QueryFormData &
-  LegendFormData & {
+  LegendFormData &
+  VisualFormatFormData & {
     colorScheme?: string;
     currentOwnValue?: string[] | null;
     donut: boolean;

@@ -262,6 +262,11 @@ const config: ControlPanelConfig = {
         ],
       ],
     },
+    sections.dataLabelsFormatSection,
+    sections.legendFormatSection,
+    sections.axesFormatSection,
+    sections.buildSeriesFormatSection({ bars: false }),
+    sections.chartConditionalFormattingSection,
   ],
   controlOverrides: {
     row_limit: {

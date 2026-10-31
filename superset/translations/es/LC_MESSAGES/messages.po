@@ -18395,3 +18395,333 @@ msgstr "Primero añade un filtro al panel de control"
 
 msgid "Also show in the filter bar"
 msgstr "Mostrar también en la barra de filtros"
+
+msgid "Label font"
+msgstr "Fuente de las etiquetas"
+
+msgid "Font family, size, weight and color of the data labels"
+msgstr "Familia, tamaño, grosor y color de la fuente de las etiquetas de datos"
+
+msgid "Label background"
+msgstr "Fondo de las etiquetas"
+
+msgid "Background color behind each data label"
+msgstr "Color de fondo detrás de cada etiqueta de datos"
+
+msgid "Label number format"
+msgstr "Formato numérico de las etiquetas"
+
+msgid "Display units and decimals for the data labels. Leave empty to use the axis number format"
+msgstr "Unidades y decimales de las etiquetas de datos. Déjalo vacío para usar el formato numérico del eje"
+
+msgid "Label orientation"
+msgstr "Orientación de las etiquetas"
+
+msgid "Orientation of the data label text"
+msgstr "Orientación del texto de las etiquetas de datos"
+
+msgid "Diagonal"
+msgstr "Diagonal"
+
+msgid "Data labels format"
+msgstr "Formato de etiquetas de datos"
+
+msgid "Style of the values shown on the chart"
+msgstr "Estilo de los valores que se muestran en el gráfico"
+
+msgid "Legend alignment"
+msgstr "Alineación de la leyenda"
+
+msgid "Alignment of the legend along its edge: left/center/right for top and bottom legends, top/middle/bottom for side legends"
+msgstr "Alineación de la leyenda a lo largo de su borde: izquierda/centro/derecha para leyendas arriba o abajo, arriba/centro/abajo para leyendas laterales"
+
+msgid "Start (left / top)"
+msgstr "Inicio (izquierda / arriba)"
+
+msgid "End (right / bottom)"
+msgstr "Final (derecha / abajo)"
+
+msgid "Legend font"
+msgstr "Fuente de la leyenda"
+
+msgid "Font family, size, weight and color of the legend text"
+msgstr "Familia, tamaño, grosor y color de la fuente del texto de la leyenda"
+
+msgid "Legend marker"
+msgstr "Marcador de la leyenda"
+
+msgid "Shape of the legend markers"
+msgstr "Forma de los marcadores de la leyenda"
+
+msgid "Square"
+msgstr "Cuadrado"
+
+msgid "Rounded square"
+msgstr "Cuadrado redondeado"
+
+msgid "Legend format"
+msgstr "Formato de la leyenda"
+
+msgid "Alignment, font and markers of the legend"
+msgstr "Alineación, fuente y marcadores de la leyenda"
+
+msgid "Axes & gridlines format"
+msgstr "Formato de ejes y cuadrícula"
+
+msgid "Fonts of the axis labels and titles, axis direction and gridline style"
+msgstr "Fuentes de las etiquetas y títulos de los ejes, dirección de los ejes y estilo de la cuadrícula"
+
+msgid "X axis labels font"
+msgstr "Fuente de las etiquetas del eje X"
+
+msgid "Font of the X axis tick labels"
+msgstr "Fuente de las etiquetas de las marcas del eje X"
+
+msgid "X axis title font"
+msgstr "Fuente del título del eje X"
+
+msgid "Font of the X axis title"
+msgstr "Fuente del título del eje X"
+
+msgid "Reverse X axis"
+msgstr "Invertir el eje X"
+
+msgid "Draw the X axis in the opposite direction"
+msgstr "Dibuja el eje X en la dirección contraria"
+
+msgid "Y axis labels font"
+msgstr "Fuente de las etiquetas del eje Y"
+
+msgid "Font of the Y axis tick labels"
+msgstr "Fuente de las etiquetas de las marcas del eje Y"
+
+msgid "Y axis title font"
+msgstr "Fuente del título del eje Y"
+
+msgid "Font of the Y axis title"
+msgstr "Fuente del título del eje Y"
+
+msgid "Reverse Y axis"
+msgstr "Invertir el eje Y"
+
+msgid "Draw the Y axis in the opposite direction"
+msgstr "Dibuja el eje Y en la dirección contraria"
+
+msgid "Secondary Y Axis"
+msgstr "Eje Y secundario"
+
+msgid "Secondary Y axis labels font"
+msgstr "Fuente de las etiquetas del eje Y secundario"
+
+msgid "Font of the secondary Y axis tick labels"
+msgstr "Fuente de las etiquetas de las marcas del eje Y secundario"
+
+msgid "Secondary Y axis title font"
+msgstr "Fuente del título del eje Y secundario"
+
+msgid "Font of the secondary Y axis title"
+msgstr "Fuente del título del eje Y secundario"
+
+msgid "Gridlines"
+msgstr "Líneas de cuadrícula"
+
+msgid "Gridline color"
+msgstr "Color de la cuadrícula"
+
+msgid "Defaults to the theme color when empty"
+msgstr "Si lo dejas vacío, usa el color del tema"
+
+msgid "Gridline width"
+msgstr "Grosor de la cuadrícula"
+
+msgid "Gridline thickness in pixels"
+msgstr "Grosor de las líneas de la cuadrícula en píxeles"
+
+msgid "Gridline style"
+msgstr "Estilo de la cuadrícula"
+
+msgid "Line style of the gridlines"
+msgstr "Estilo de línea de la cuadrícula"
+
+msgid "Series colors"
+msgstr "Colores de las series"
+
+msgid "Pick a color per series. Series without a color keep the color scheme"
+msgstr "Elige un color para cada serie. Las series sin color mantienen el esquema de colores"
+
+msgid "Series format"
+msgstr "Formato de las series"
+
+msgid "Colors, lines, markers and bars of each series"
+msgstr "Colores, líneas, marcadores y barras de cada serie"
+
+msgid "Line thickness in pixels; empty uses 2"
+msgstr "Grosor de la línea en píxeles; si lo dejas vacío se usa 2"
+
+msgid "Line style"
+msgstr "Estilo de línea"
+
+msgid "Line style of the series"
+msgstr "Estilo de línea de las series"
+
+msgid "Marker shape"
+msgstr "Forma del marcador"
+
+msgid "Shape of the data point markers"
+msgstr "Forma de los marcadores de los puntos de datos"
+
+msgid "Bars"
+msgstr "Barras"
+
+msgid "Space between bars (%)"
+msgstr "Espacio entre barras (%)"
+
+msgid "Gap between bar groups as a percentage of their width; empty uses the default"
+msgstr "Espacio entre grupos de barras como porcentaje de su ancho; si lo dejas vacío se usa el valor predeterminado"
+
+msgid "Corner radius of the bar ends in pixels"
+msgstr "Radio de las esquinas del extremo de las barras en píxeles"
+
+msgid "Bar border color"
+msgstr "Color del borde de las barras"
+
+msgid "Color of the bar borders"
+msgstr "Color de los bordes de las barras"
+
+msgid "Bar border width"
+msgstr "Grosor del borde de las barras"
+
+msgid "Border thickness in pixels; 0 hides it"
+msgstr "Grosor del borde en píxeles; con 0 se oculta"
+
+msgid "Color bars, points or data labels whose value matches a rule"
+msgstr "Colorea las barras, los puntos o las etiquetas de datos cuyo valor cumpla una regla"
+
+msgid "Rules"
+msgstr "Reglas"
+
+msgid "Rules are checked in order; the first matching rule colors the value"
+msgstr "Las reglas se revisan en orden; la primera que se cumple colorea el valor"
+
+msgid "Font"
+msgstr "Fuente"
+
+msgid "%s font family"
+msgstr "Familia de fuente de %s"
+
+msgid "Theme font"
+msgstr "Fuente del tema"
+
+msgid "%s font size"
+msgstr "Tamaño de fuente de %s"
+
+msgid "%s color"
+msgstr "Color de %s"
+
+msgid "Run the chart to list its series, or add one by name"
+msgstr "Ejecuta el gráfico para ver sus series, o añade una por su nombre"
+
+msgid "Color for %s"
+msgstr "Color de %s"
+
+msgid "Series name"
+msgstr "Nombre de la serie"
+
+msgid "between"
+msgstr "entre"
+
+msgid "Bar / point"
+msgstr "Barra / punto"
+
+msgid "Data label"
+msgstr "Etiqueta de datos"
+
+msgid "Both"
+msgstr "Ambos"
+
+msgid "All numeric columns"
+msgstr "Todas las columnas numéricas"
+
+msgid "All series"
+msgstr "Todas las series"
+
+msgid "Upper value"
+msgstr "Valor superior"
+
+msgid "and"
+msgstr "y"
+
+msgid "Rule color"
+msgstr "Color de la regla"
+
+msgid "Apply to"
+msgstr "Aplicar a"
+
+msgid "Remove rule"
+msgstr "Quitar regla"
+
+msgid "Add rule"
+msgstr "Añadir regla"
+
+msgid "Table format"
+msgstr "Formato de la tabla"
+
+msgid "Style preset, header and cell fonts, grid colors and conditional icons"
+msgstr "Estilo predefinido, fuentes de encabezados y celdas, colores de la cuadrícula e iconos condicionales"
+
+msgid "Overall look of the table"
+msgstr "Aspecto general de la tabla"
+
+msgid "Default (striped, compact)"
+msgstr "Predeterminado (rayado, compacto)"
+
+msgid "Comfortable (striped, roomy)"
+msgstr "Cómodo (rayado, espacioso)"
+
+msgid "Minimal (no stripes or lines)"
+msgstr "Minimalista (sin rayas ni líneas)"
+
+msgid "Bordered grid"
+msgstr "Cuadrícula con bordes"
+
+msgid "Header font"
+msgstr "Fuente del encabezado"
+
+msgid "Font of the column headers"
+msgstr "Fuente de los encabezados de columna"
+
+msgid "Header background"
+msgstr "Fondo del encabezado"
+
+msgid "Background color of the column headers"
+msgstr "Color de fondo de los encabezados de columna"
+
+msgid "Cells"
+msgstr "Celdas"
+
+msgid "Cell font"
+msgstr "Fuente de las celdas"
+
+msgid "Font of the table cells; conditional formatting colors still apply"
+msgstr "Fuente de las celdas de la tabla; los colores del formato condicional se siguen aplicando"
+
+msgid "Stripe color"
+msgstr "Color de las rayas"
+
+msgid "Background of alternate rows in striped styles"
+msgstr "Fondo de las filas alternas en los estilos rayados"
+
+msgid "Grid line color"
+msgstr "Color de las líneas de la cuadrícula"
+
+msgid "Color of the row and column lines"
+msgstr "Color de las líneas de filas y columnas"
+
+msgid "Conditional icons"
+msgstr "Iconos condicionales"
+
+msgid "Icon rules"
+msgstr "Reglas de iconos"
+
+msgid "Show an icon next to numeric values that match a rule; the first matching rule wins"
+msgstr "Muestra un icono junto a los valores numéricos que cumplan una regla; gana la primera regla que se cumpla"

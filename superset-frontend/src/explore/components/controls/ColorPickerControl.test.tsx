@@ -16,7 +16,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { render, screen, userEvent } from 'spec/helpers/testing-library';
+import {
+  render,
+  screen,
+  userEvent,
+  waitFor,
+} from 'spec/helpers/testing-library';
 import {
   CategoricalScheme,
   getCategoricalSchemeRegistry,
@@ -91,4 +96,23 @@ describe('ColorPickerControl', () => {
     );
     expect(colorPickerTrigger).toBeInTheDocument();
   });
+});
+
+test('clears the color when the control allows it', async () => {
+  const onChange = jest.fn();
+  render(
+    <ColorPickerControl
+      allowClear
+      value={{ r: 255, g: 0, b: 0, a: 1 }}
+      onChange={onChange}
+    />,
+  );
+  await userEvent.click(document.querySelector('.ant-color-picker-trigger')!);
+  const clear = await waitFor(() => {
+    const el = document.querySelector('.ant-color-picker-clear');
+    expect(el).toBeInTheDocument();
+    return el!;
+  });
+  await userEvent.click(clear);
+  expect(onChange).toHaveBeenLastCalledWith(undefined);
 });

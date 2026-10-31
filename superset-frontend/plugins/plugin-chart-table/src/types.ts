@@ -35,6 +35,7 @@ import type {
   ServerPaginationData,
   TableColumnConfig,
 } from '@superset-ui/chart-controls';
+import type { TableFormat } from './utils/tableFormat';
 
 // Re-export shared types used by internal plugin files that import from './types'
 // Types used locally in this file - re-export from local binding
@@ -128,6 +129,8 @@ export interface TableChartTransformedProps<D extends DataRecord = DataRecord> {
   // column names for cross-filtering, so that adhoc columns with custom labels
   // emit the correct column name in cross-filter data masks
   columnLabelToNameMap?: Record<string, string>;
+  /** Resolved "Table format" controls. */
+  tableFormat?: TableFormat;
 }
 
 export default {};

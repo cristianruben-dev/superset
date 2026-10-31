@@ -97,6 +97,11 @@ import { PAGE_SIZE_OPTIONS, SERVER_PAGE_SIZE_OPTIONS } from './consts';
 import { updateTableOwnState } from './DataTable/utils/externalAPIs';
 import getScrollBarSize from './DataTable/utils/getScrollBarSize';
 import DateWithFormatter from './utils/DateWithFormatter';
+import {
+  getCellIcon,
+  getTableClassName,
+  getTableFormatCss,
+} from './utils/tableFormat';
 
 type ValueRange = [number, number];
 
@@ -344,6 +349,7 @@ export default function TableChart<D extends DataRecord = DataRecord>(
     serverPageLength,
     slice_id,
     columnLabelToNameMap = {},
+    tableFormat,
   } = props;
 
   const comparisonColumns = useMemo(
@@ -939,6 +945,23 @@ export default function TableChart<D extends DataRecord = DataRecord>(
           const [isHtml, text] = formatColumnValue(column, value, row.original);
           const html = isHtml && allowRenderHtml ? { __html: text } : undefined;
 
+          // "Table format" conditional icons are user-chosen, so their color
+          // is applied inline.
+          const cellIcon = getCellIcon(
+            tableFormat?.iconRules ?? [],
+            column.key,
+            value,
+          );
+          const iconNode = cellIcon ? (
+            <span
+              className="dt-cell-icon"
+              aria-hidden
+              style={{ color: cellIcon.color, marginRight: theme.sizeUnit }}
+            >
+              {cellIcon.icon}
+            </span>
+          ) : null;
+
           let backgroundColor;
           let color;
           let backgroundColorCellBar;
@@ -1170,11 +1193,13 @@ export default function TableChart<D extends DataRecord = DataRecord>(
                   style={columnWidth ? { width: columnWidth } : undefined}
                 >
                   {arrow && <span css={arrowStyles}>{arrow}</span>}
+                  {iconNode}
                   {text}
                 </div>
               ) : (
                 <>
                   {arrow && <span css={arrowStyles}>{arrow}</span>}
+                  {iconNode}
                   {text}
                 </>
               )}
@@ -1290,6 +1315,7 @@ export default function TableChart<D extends DataRecord = DataRecord>(
       toggleFilter,
       handleContextMenu,
       allowRearrangeColumns,
+      tableFormat,
     ],
   );
 
@@ -1492,13 +1518,20 @@ export default function TableChart<D extends DataRecord = DataRecord>(
     serverPaginationData,
   ]);
 
+  const tableFormatCss = tableFormat ? getTableFormatCss(tableFormat) : '';
+  const tableFormatStyles = tableFormatCss
+    ? css`
+        ${tableFormatCss}
+      `
+    : undefined;
+
   return (
-    <Styles>
+    <Styles css={tableFormatStyles}>
       <DataTable<D>
         columns={columns}
         data={data}
         rowCount={rowCount}
-        tableClassName="table table-striped table-condensed"
+        tableClassName={getTableClassName(tableFormat?.preset)}
         pageSize={pageSize}
         serverPaginationData={serverPaginationData}
         pageSizeOptions={pageSizeOptions}

@@ -62,6 +62,9 @@ import MatrixifyDimensionControl from './MatrixifyDimensionControl';
 import JSEditorControl from './JSEditorControl';
 import SwitchControl from './SwitchControl';
 import VerticalRadioControl from './VerticalRadioControl';
+import FontControl from './FontControl';
+import SeriesColorsControl from './SeriesColorsControl';
+import ChartConditionalFormattingControl from './ChartConditionalFormattingControl';
 
 const extensionsRegistry = getExtensionsRegistry();
 const DateFilterControlExtension = extensionsRegistry.get(
@@ -77,6 +80,9 @@ const controlMap = {
   ColorPickerControl,
   ColorSchemeControl,
   ColumnConfigControl,
+  FontControl,
+  SeriesColorsControl,
+  ChartConditionalFormattingControl,
   CurrencyControl,
   DatasourceControl,
   DateFilterControl: DateFilterComponent,

@@ -210,6 +210,11 @@ const config: ControlPanelConfig = {
         ],
       ],
     },
+    sections.dataLabelsFormatSection,
+    sections.legendFormatSection,
+    sections.axesFormatSection,
+    sections.buildSeriesFormatSection({ lines: false, bars: false }),
+    sections.chartConditionalFormattingSection,
   ],
   controlOverrides: {
     row_limit: {

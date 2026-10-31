@@ -48,3 +48,4 @@ export * from './types/matrixify';
 export { default as __hack_reexport_chart_Base } from './types/Base';
 export { default as __hack_reexport_chart_TransformFunction } from './types/TransformFunction';
 export { default as __hack_reexport_chart_QueryResponse } from './types/QueryResponse';
+export * from './visualFormatting';

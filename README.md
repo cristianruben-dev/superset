@@ -48,6 +48,18 @@ algunas reglas de producto distintas:
     clic. Hay cuatro de fábrica (Corporativo, Fresco, Vibrante y Minimalista) y cada
     área de trabajo puede tener el suyo, que heredan sus paneles nuevos;
   - copiar formato, copiar y pegar objetos, ocultar y bloquear.
+- **Formato de cada gráfico en su editor** (pestaña «Personalizar»), también al estilo
+  Power BI:
+  - etiquetas de datos: fuente, fondo, orientación y formato numérico propio;
+  - leyenda: alineación, forma del marcador y fuente;
+  - ejes y cuadrícula: fuentes de etiquetas y títulos (también del eje secundario),
+    ejes invertidos, y color, grosor y estilo de la cuadrícula;
+  - series: color por serie, grosor y estilo de línea, forma del marcador, espacio
+    entre barras, esquinas redondeadas y borde de las barras;
+  - formato condicional: reglas (mayor, menor, entre…) que colorean barras, puntos o
+    etiquetas;
+  - tablas: estilos predefinidos, fuentes y fondo del encabezado, colores de rayas y
+    cuadrícula, e iconos condicionales junto a los números.
 - **Elementos de diseño:** imágenes, formas, botones (con enlaces y estados), texto
   enriquecido y **filtros en el lienzo** (como las segmentaciones de Power BI), que se
   aplican al instante y comparten su valor con la barra de filtros.
