@@ -50,29 +50,64 @@ const sleep = (ms: number) =>
 
 const TRANSPARENT_PIXEL =
   'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
-const SETTLE_POLL_MS = 200;
+const SETTLE_POLL_MS = 150;
 const SETTLE_MAX_MS = 20000;
 // ECharts animates for about a second after the data arrives
 const ANIMATION_MS = 1100;
 
-const anyChartLoading = (state: RootState, root: Element | null) =>
-  Object.values(state.charts ?? {}).some(
-    chart => chart?.chartStatus === 'loading',
-  ) || !!root?.querySelector('[data-test="loading-indicator"]');
+/**
+ * Whether a visual on screen is loading. Charts of other tabs, or never
+ * rendered, can stay "loading" in the store forever: only the ones shown in
+ * ``root`` count.
+ */
+export const anyChartLoading = (state: RootState, root: Element | null) => {
+  if (!root) return false;
+  if (root.querySelector('[data-test="loading-indicator"]')) {
+    const spinners = Array.from(
+      root.querySelectorAll<HTMLElement>('[data-test="loading-indicator"]'),
+    );
+    if (spinners.some(spinner => spinner.getClientRects().length > 0)) {
+      return true;
+    }
+  }
+  return Array.from(
+    root.querySelectorAll<HTMLElement>('[data-test-chart-id]'),
+  ).some(element => {
+    if (!element.getClientRects().length) return false;
+    const id = Number(element.getAttribute('data-test-chart-id'));
+    return state.charts?.[id]?.chartStatus === 'loading';
+  });
+};
 
-/** Resolves once no visual of the dashboard is loading and animations ended. */
+/**
+ * Resolves once no visual on screen is loading, and once the charts that
+ * just loaded ended their animation.
+ */
 export async function waitForCharts(
   getState: () => RootState,
   root: Element | null,
+  {
+    animate = false,
+  }: {
+    /** Wait for animations even if nothing loaded, as after showing a tab */
+    animate?: boolean;
+  } = {},
 ): Promise<void> {
   const deadline = Date.now() + SETTLE_MAX_MS;
   let quiet = 0;
-  while (quiet < 3 && Date.now() < deadline) {
+  let loaded = false;
+  // A visual may start loading right after a tab switch or a scroll
+  while (quiet < 2 && Date.now() < deadline) {
     // eslint-disable-next-line no-await-in-loop
     await sleep(SETTLE_POLL_MS);
-    quiet = anyChartLoading(getState(), root) ? 0 : quiet + 1;
+    if (anyChartLoading(getState(), root)) {
+      loaded = true;
+      quiet = 0;
+    } else {
+      quiet += 1;
+    }
   }
-  await sleep(ANIMATION_MS);
+  if (loaded || animate) await sleep(ANIMATION_MS);
 }
 
 /**
@@ -85,13 +120,15 @@ export async function loadWholePage(
 ): Promise<void> {
   const step = window.innerHeight;
   const height = document.documentElement.scrollHeight;
+  if (height <= step) return;
   for (let y = step; y < height; y += step) {
     window.scrollTo(0, y);
     // eslint-disable-next-line no-await-in-loop
     await waitForCharts(getState, root);
   }
   window.scrollTo(0, 0);
-  await sleep(SETTLE_POLL_MS);
+  // Charts drawn during the scroll animate once, all at the same time
+  await waitForCharts(getState, root, { animate: true });
 }
 
 /** Y offsets, relative to root, where no visual is cut. */

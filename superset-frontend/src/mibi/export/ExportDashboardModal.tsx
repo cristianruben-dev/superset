@@ -285,15 +285,13 @@ export function ExportDashboardModal({
             ? t('Preparing page %s of %s…', step + 1, indexes.length)
             : t('Preparing the dashboard…'),
         );
-        if (
-          tabs.length &&
+        const switching =
+          tabs.length > 0 &&
           index !==
-            activeTabIndex(tabs, store.getState().dashboardState.activeTabs)
-        ) {
-          dispatch(setDirectPathToChild(tabs[index].path));
-        }
+            activeTabIndex(tabs, store.getState().dashboardState.activeTabs);
+        if (switching) dispatch(setDirectPathToChild(tabs[index].path));
         // eslint-disable-next-line no-await-in-loop
-        await waitForCharts(store.getState, root());
+        await waitForCharts(store.getState, root(), { animate: switching });
         // eslint-disable-next-line no-await-in-loop
         await loadWholePage(store.getState, root());
         // eslint-disable-next-line no-await-in-loop

@@ -17,7 +17,12 @@
  * under the License.
  */
 import type { RootState } from 'src/dashboard/types';
-import { appliedFilters, type Capture } from './capture';
+import {
+  anyChartLoading,
+  appliedFilters,
+  waitForCharts,
+  type Capture,
+} from './capture';
 import { buildPdf, exportFileName, paginate } from './document';
 import { supersetTheme } from '@apache-superset/core/theme';
 
@@ -155,4 +160,63 @@ test('pages taller than PDF viewers allow are split between visuals', () => {
     [960, 11250],
     [960, 3750],
   ]);
+});
+
+const chartsState = (statuses: Record<number, string>) =>
+  ({
+    charts: Object.fromEntries(
+      Object.entries(statuses).map(([id, chartStatus]) => [
+        id,
+        { chartStatus },
+      ]),
+    ),
+  }) as unknown as RootState;
+
+/** A dashboard root showing the charts ``shown`` (jsdom lays nothing out). */
+const rootWith = (shown: number[], hidden: number[] = []) => {
+  const root = document.createElement('div');
+  [...shown, ...hidden].forEach(id => {
+    const chart = document.createElement('div');
+    chart.setAttribute('data-test-chart-id', String(id));
+    const rects = shown.includes(id) ? [{}] : [];
+    chart.getClientRects = () => rects as unknown as DOMRectList;
+    root.appendChild(chart);
+  });
+  return root;
+};
+
+test('only charts on screen count as loading', () => {
+  const state = chartsState({ 1: 'rendered', 2: 'loading', 3: 'loading' });
+  // Chart 3 sits in another tab and never loads
+  expect(anyChartLoading(state, rootWith([1], [3]))).toBe(false);
+  expect(anyChartLoading(state, rootWith([1, 2], [3]))).toBe(true);
+  expect(anyChartLoading(state, null)).toBe(false);
+});
+
+test('waits for loading charts and their animation, and no longer', async () => {
+  jest.useFakeTimers();
+  let status = 'loading';
+  const root = rootWith([1]);
+  const getState = () => chartsState({ 1: status });
+  let done = false;
+  waitForCharts(getState, root).then(() => {
+    done = true;
+  });
+  await jest.advanceTimersByTimeAsync(3000);
+  expect(done).toBe(false);
+  status = 'rendered';
+  await jest.advanceTimersByTimeAsync(400);
+  expect(done).toBe(false);
+  // The chart that just loaded animates for about a second
+  await jest.advanceTimersByTimeAsync(1200);
+  expect(done).toBe(true);
+
+  // Nothing loading: it resolves right away, without waiting for animations
+  done = false;
+  waitForCharts(getState, root).then(() => {
+    done = true;
+  });
+  await jest.advanceTimersByTimeAsync(400);
+  expect(done).toBe(true);
+  jest.useRealTimers();
 });
