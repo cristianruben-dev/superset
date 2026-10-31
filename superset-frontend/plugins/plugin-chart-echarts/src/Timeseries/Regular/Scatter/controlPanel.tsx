@@ -497,6 +497,9 @@ const config: ControlPanelConfig = {
         ...createAxisControl('y'),
       ],
     },
+    sections.dataLabelsFormatSection,
+    sections.legendFormatSection,
+    sections.axesFormatSection,
   ],
   controlOverrides: {
     row_limit: {

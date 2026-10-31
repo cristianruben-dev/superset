@@ -286,6 +286,9 @@ const config: ControlPanelConfig = {
         ['echart_options'],
       ],
     },
+    sections.dataLabelsFormatSection,
+    sections.legendFormatSection,
+    sections.axesFormatSection,
   ],
   controlOverrides: {
     row_limit: {

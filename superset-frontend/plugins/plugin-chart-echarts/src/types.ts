@@ -20,6 +20,8 @@ import { RefObject, Ref } from 'react';
 
 import {
   ChartDataResponseResult,
+  type ColorInput,
+  type FontStyleValue,
   ChartProps,
   ContextMenuFilters,
   FilterState,
@@ -102,6 +104,29 @@ export type LegendFormData = {
   showLegend: boolean;
   legendSort: 'asc' | 'desc' | null;
   showSelectorLegend: boolean;
+};
+
+/**
+ * Power BI style "Format" controls for data labels, legend and axes. All
+ * optional: an unset value keeps the chart's default look.
+ */
+export type VisualFormatFormData = {
+  valueLabelFont?: FontStyleValue | null;
+  valueLabelBackground?: ColorInput;
+  valueLabelFormat?: string | null;
+  valueLabelRotate?: number | string | null;
+  legendAlign?: 'start' | 'center' | 'end' | null;
+  legendFont?: FontStyleValue | null;
+  legendIcon?: string | null;
+  xAxisLabelFont?: FontStyleValue | null;
+  xAxisTitleFont?: FontStyleValue | null;
+  xAxisInverse?: boolean;
+  yAxisLabelFont?: FontStyleValue | null;
+  yAxisTitleFont?: FontStyleValue | null;
+  yAxisInverse?: boolean;
+  gridlineColor?: ColorInput;
+  gridlineWidth?: number | string | null;
+  gridlineStyle?: string | null;
 };
 
 export type EventHandlers = Record<string, { (props: any): void }>;

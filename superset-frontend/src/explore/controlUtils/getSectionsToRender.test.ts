@@ -177,3 +177,26 @@ test.each([
     expect(names).toEqual(expectedNames);
   },
 );
+
+test('appends the shared visual format sections to every chart', () => {
+  getChartControlPanelRegistry().registerValue(VIZ_TYPE, controlConfig);
+  const labels = getSectionsToRender(VIZ_TYPE, DatasourceType.Table).map(
+    section => section?.label,
+  );
+  expect(labels.slice(-2)).toEqual([
+    'Title & subtitle',
+    'Background, border & shadow',
+  ]);
+});
+
+test('omits the shared visual format sections when a chart opts out', () => {
+  getChartControlPanelRegistry().registerValue(VIZ_TYPE, {
+    ...controlConfig,
+    visualFormat: false,
+  });
+  const labels = getSectionsToRender(VIZ_TYPE, DatasourceType.Table).map(
+    section => section?.label,
+  );
+  expect(labels).not.toContain('Title & subtitle');
+  expect(labels).not.toContain('Background, border & shadow');
+});

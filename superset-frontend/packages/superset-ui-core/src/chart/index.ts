@@ -44,3 +44,5 @@ export * from './types/TransformFunction';
 export * from './types/QueryResponse';
 export * from './types/VizType';
 export * from './types/matrixify';
+export * from './visualFormatting';
+export { default as VisualContainer } from './components/VisualContainer';

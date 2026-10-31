@@ -299,10 +299,14 @@ describe('ControlPanelsContainer', () => {
     expect(screen.getByRole('tab', { name: /customize/i })).toBeInTheDocument();
     await userEvent.click(screen.getByRole('tab', { name: /customize/i }));
     await waitFor(() => {
+      // 5 chart sections + the shared "Title & subtitle" and
+      // "Background, border & shadow" format sections.
       expect(
         screen.getAllByTestId('collapsible-control-panel-header'),
-      ).toHaveLength(5);
+      ).toHaveLength(7);
     });
+    expect(screen.getByText('Title & subtitle')).toBeInTheDocument();
+    expect(screen.getByText('Background, border & shadow')).toBeInTheDocument();
   });
 
   test('renders ControlPanelSections no Customize Tab', async () => {
@@ -329,6 +333,7 @@ describe('ControlPanelsContainer', () => {
           controlSetRows: [],
         },
       ],
+      visualFormat: false,
     });
     render(<ControlPanelsContainer {...getDefaultProps()} />, {
       useRedux: true,

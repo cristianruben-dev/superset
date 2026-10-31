@@ -19,6 +19,14 @@
 /* eslint-disable camelcase */
 import { invert } from 'lodash-es';
 import { rebaseToPercentChange } from './percentChange';
+import {
+  applyAxisFormatting,
+  applyLegendFormatting,
+  applyValueLabelStyle,
+  getEchartsTextStyle,
+  resolveLegendAlign,
+  resolveLegendIcon,
+} from '../utils/formatting';
 import { t } from '@apache-superset/core/translation';
 import {
   AnnotationLayer,
@@ -169,7 +177,9 @@ function buildTimeseriesCustomLegend({
   orientation,
   series,
   showSelectors,
+  style,
 }: {
+  style?: TimeseriesCustomLegend['style'];
   fallbackColor: string;
   grid: TimeseriesCustomLegend['grid'];
   interactive: boolean;
@@ -215,6 +225,7 @@ function buildTimeseriesCustomLegend({
     items,
     orientation,
     showSelectors,
+    ...(style ? { style } : {}),
   };
 }
 
@@ -397,6 +408,22 @@ export default function transformProps(
     yAxisTitlePosition,
     zoomable,
     stackDimension,
+    valueLabelFont,
+    valueLabelBackground,
+    valueLabelFormat,
+    valueLabelRotate,
+    legendAlign,
+    legendFont,
+    legendIcon,
+    xAxisLabelFont,
+    xAxisTitleFont,
+    xAxisInverse,
+    yAxisLabelFont,
+    yAxisTitleFont,
+    yAxisInverse,
+    gridlineColor,
+    gridlineWidth,
+    gridlineStyle,
   }: EchartsTimeseriesFormData = { ...DEFAULT_FORM_DATA, ...formData };
   const resolvedValueLabelPosition =
     valueLabelPosition ?? BarValueLabelPosition.OutsideEnd;
@@ -768,6 +795,11 @@ export default function transformProps(
         currency: resolvedCurrency,
       })
     : getNumberFormatter(yAxisFormat);
+  // "Label number format" overrides the display units/decimals of the data
+  // labels only; tooltips and axes keep their own formats.
+  const valueLabelFormatter = valueLabelFormat
+    ? getNumberFormatter(valueLabelFormat)
+    : undefined;
   const customFormatters = buildCustomFormatters(
     metrics,
     currencyFormats,
@@ -963,13 +995,15 @@ export default function transformProps(
         seriesType,
         legendState,
         stack,
-        formatter: forcePercentFormatter
-          ? percentFormatter
-          : (getCustomFormatter(
-              customFormatters,
-              metrics,
-              labelMap?.[seriesName]?.[0],
-            ) ?? defaultFormatter),
+        formatter:
+          valueLabelFormatter ??
+          (forcePercentFormatter
+            ? percentFormatter
+            : (getCustomFormatter(
+                customFormatters,
+                metrics,
+                labelMap?.[seriesName]?.[0],
+              ) ?? defaultFormatter)),
         showValue,
         valueLabelPosition: resolvedValueLabelPosition,
         onlyTotal,
@@ -994,16 +1028,21 @@ export default function transformProps(
       },
     );
     if (transformedSeries) {
+      const styledSeries = applyValueLabelStyle(transformedSeries, {
+        font: valueLabelFont,
+        background: valueLabelBackground,
+        rotate: valueLabelRotate,
+      });
       if (stack === StackControlsValue.Stream) {
         // bug in Echarts - `stackStrategy: 'all'` doesn't work with nulls, so we cast them to 0
         series.push({
-          ...transformedSeries,
-          data: (transformedSeries.data as any).map(
+          ...styledSeries,
+          data: (styledSeries.data as any).map(
             (row: [string | number, number]) => [row[0], row[1] ?? 0],
           ),
         });
       } else {
-        series.push(transformedSeries);
+        series.push(styledSeries);
       }
     }
   });
@@ -1584,6 +1623,22 @@ export default function transformProps(
     nameLocation: yAxisTitlePosition === 'Left' ? 'middle' : 'end',
   };
 
+  // User "Format" controls are applied before the horizontal swap below, so
+  // "X axis" always means the dimension axis, matching the axis title controls.
+  const gridlineFormat = { gridlineColor, gridlineWidth, gridlineStyle };
+  xAxis = applyAxisFormatting(xAxis, {
+    labelFont: xAxisLabelFont,
+    titleFont: xAxisTitleFont,
+    inverse: xAxisInverse,
+    ...gridlineFormat,
+  });
+  yAxis = applyAxisFormatting(yAxis, {
+    labelFont: yAxisLabelFont,
+    titleFont: yAxisTitleFont,
+    inverse: yAxisInverse,
+    ...gridlineFormat,
+  });
+
   // Increase right padding for rotated time axis labels to prevent
   // the last label from being clipped at the chart boundary.
   if (
@@ -1808,15 +1863,19 @@ export default function transformProps(
       },
     },
     legend: {
-      ...getLegendProps(
-        effectiveLegendType,
+      ...applyLegendFormatting(
+        getLegendProps(
+          effectiveLegendType,
+          legendOrientation,
+          nativeLegendVisible,
+          theme,
+          showSelectorLegend,
+          zoomable,
+          legendState,
+          padding,
+        ) as Record<string, unknown>,
         legendOrientation,
-        nativeLegendVisible,
-        theme,
-        showSelectorLegend,
-        zoomable,
-        legendState,
-        padding,
+        { align: legendAlign, font: legendFont, icon: legendIcon },
       ),
       scrollDataIndex: getLegendScrollDataIndex(
         legendIndex,
@@ -1928,6 +1987,11 @@ export default function transformProps(
         legendState,
         orientation: legendOrientation,
         series: finalSeries,
+        style: {
+          align: resolveLegendAlign(legendAlign),
+          icon: resolveLegendIcon(legendIcon),
+          textStyle: getEchartsTextStyle(legendFont),
+        },
       })
     : undefined;
   const finalEchartOptions = usesCustomLegend

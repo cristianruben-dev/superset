@@ -26,6 +26,7 @@ import {
   ControlPanelSectionConfig,
   expandControlConfig,
   isControlPanelSectionConfig,
+  sections as sharedSections,
 } from '@superset-ui/chart-controls';
 
 import * as SECTIONS from 'src/explore/controlPanels/sections';
@@ -36,6 +37,7 @@ const getMemoizedSectionsToRender = memoizeOne(
       sectionOverrides = {},
       controlOverrides,
       controlPanelSections = [],
+      visualFormat = true,
     } = controlPanelConfig;
 
     // default control panel sections
@@ -76,6 +78,15 @@ const getMemoizedSectionsToRender = memoizeOne(
       ? ['granularity']
       : ['granularity_sqla', 'time_grain_sqla'];
 
+    // Title/subtitle and container effects are drawn by SuperChart around
+    // every viz type, so their controls are offered for every chart.
+    const visualFormatSections = visualFormat
+      ? [
+          sharedSections.visualTitleSection,
+          sharedSections.visualEffectsSection,
+        ].filter(section => !controlPanelSections.includes(section))
+      : [];
+
     return [
       datasourceAndVizType as ControlPanelSectionConfig,
       matrixifyEnableSection as ControlPanelSectionConfig,
@@ -85,6 +96,7 @@ const getMemoizedSectionsToRender = memoizeOne(
     ]
       .filter(Boolean) // Filter out null/undefined sections
       .concat(controlPanelSections.filter(isControlPanelSectionConfig))
+      .concat(visualFormatSections)
       .map(section => {
         if (!section) return null;
         const { controlSetRows } = section;

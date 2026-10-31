@@ -1,0 +1,91 @@
+---
+title: Chart Formatting
+sidebar_position: 12
+description: Customize chart titles, subtitles, frames, data labels, legends and axes from the Customize tab
+keywords: [format, title, subtitle, border, shadow, data labels, legend, axis, gridlines, font]
+---
+
+{/*
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements. See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership. The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied. See the License for the
+specific language governing permissions and limitations
+under the License.
+*/}
+
+# Chart Formatting
+
+The **Customize** tab in Explore includes formatting sections for a chart's look. Every option
+only changes how the chart is drawn, so the query does not run again. Charts you saved before
+these options existed look the same until you change them.
+
+## Title, subtitle and frame (all charts)
+
+Every chart type has two extra sections.
+
+**Title & subtitle**
+
+- **Show title**, **Title text** and **Title font**: the font sets the family, size, bold,
+  italic and color.
+- **Alignment** (left, center, right) and **Title background**.
+- **Show subtitle**, **Subtitle text** and **Subtitle font**.
+- **Show divider**, with its color, width and style (solid, dashed or dotted).
+- **Space below header**: the gap between the header and the chart.
+
+**Background, border & shadow**
+
+- **Background**: fills the frame. When no color is chosen it uses the theme background.
+- **Border**: color, width and rounded corners.
+- **Shadow**: color, and position (around, bottom right or bottom).
+- **Padding**: inner space between the frame and the chart.
+
+The title and frame are drawn inside the chart area. They show in Explore, on dashboards and in
+reports. The chart itself is resized to fit the space left inside the frame.
+
+## Data labels, legend and axes (ECharts time-series charts)
+
+The Line, Smooth Line, Bar, Area, Stepped Line and Scatter charts have three more sections.
+
+**Data labels format** (shown when **Show value** is on)
+
+- **Label font**: family, size, bold, italic and color.
+- **Label background**: draws a filled box behind each value.
+- **Label orientation**: horizontal, diagonal or vertical.
+- **Label number format**: display units and decimals for the labels only, for example `.3s`
+  shows `1.23k`. Leave it empty to use the Y axis format. Tooltips and axes keep their own
+  formats. See [Number Formatting](./number-formatting) for the available presets.
+
+**Legend format** (shown when **Show legend** is on)
+
+- **Legend alignment**: start, center or end along the edge where the legend sits.
+- **Legend marker**: circle, square, rounded square, triangle or diamond.
+- **Legend font**: family, size, bold, italic and color.
+
+**Axes & gridlines format**
+
+- Fonts for the labels and titles of the X and Y axes.
+- **Reverse X axis** and **Reverse Y axis**.
+- Gridline color, width and style. The **Gridlines** option under Chart Options still turns
+  gridlines on and off.
+
+"X axis" always means the dimension axis, the same axis the **X Axis Title** control refers to.
+On horizontal bar charts that axis is drawn vertically.
+
+## For plugin authors
+
+The title and frame sections are added to every chart's control panel. To hide them for a viz
+type, set `visualFormat: false` in its `ControlPanelConfig`. The data label, legend and axes
+sections are exported from `@superset-ui/chart-controls` (`sections.dataLabelsFormatSection`,
+`sections.legendFormatSection` and `sections.axesFormatSection`). The matching ECharts helpers
+are in `plugins/plugin-chart-echarts/src/utils/formatting.ts`.

@@ -47,6 +47,11 @@ import ChartProps, { ChartPropsConfig } from '../models/ChartProps';
 import NoResultsComponent from './NoResultsComponent';
 import { isMatrixifyEnabled } from '../types/matrixify';
 import MatrixifyGridRenderer from './Matrixify/MatrixifyGridRenderer';
+import VisualContainer from './VisualContainer';
+import {
+  getVisualContainerConfig,
+  getVisualContainerInnerSize,
+} from '../visualFormatting';
 import { supersetTheme, SupersetTheme } from '@apache-superset/core/theme';
 
 export type FallbackPropsWithDimension = FallbackProps & Partial<Dimension>;
@@ -200,7 +205,7 @@ function SuperChart({
     [chartType],
   );
 
-  const renderChart = useCallback(
+  const renderChartContent = useCallback(
     (chartWidth: number, chartHeight: number) => {
       const chartProps = createChartProps({
         ...rest,
@@ -339,6 +344,43 @@ function SuperChart({
       onRenderSuccess,
       onRenderFailure,
     ],
+  );
+
+  const { formData } = rest;
+  const visualContainerConfig = useMemo(
+    () =>
+      getVisualContainerConfig(
+        formData as Record<string, unknown> | undefined,
+        theme,
+      ),
+    [formData, theme],
+  );
+
+  // Draws the user-configured title/subtitle/divider and container effects
+  // (background, border, shadow, padding) around any chart type, handing the
+  // chart only the space left inside that frame.
+  const renderChart = useCallback(
+    (chartWidth: number, chartHeight: number) => {
+      if (!visualContainerConfig) {
+        return renderChartContent(chartWidth, chartHeight);
+      }
+      const inner = getVisualContainerInnerSize(
+        visualContainerConfig,
+        chartWidth,
+        chartHeight,
+      );
+      return (
+        <VisualContainer
+          config={visualContainerConfig}
+          width={chartWidth}
+          height={chartHeight}
+          headerHeight={inner.headerHeight}
+        >
+          {renderChartContent(inner.width, inner.height)}
+        </VisualContainer>
+      );
+    },
+    [renderChartContent, visualContainerConfig],
   );
 
   const { heightInfo, widthInfo, BoundingBox } = parseDimension({

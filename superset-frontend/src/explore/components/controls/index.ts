@@ -63,6 +63,7 @@ import JSEditorControl from './JSEditorControl';
 import SwitchControl from './SwitchControl';
 import VerticalRadioControl from './VerticalRadioControl';
 import HeaderGroupsControl from './HeaderGroupsControl';
+import FontControl from './FontControl';
 
 const extensionsRegistry = getExtensionsRegistry();
 const DateFilterControlExtension = extensionsRegistry.get(
@@ -78,6 +79,7 @@ const controlMap = {
   ColorPickerControl,
   ColorSchemeControl,
   ColumnConfigControl,
+  FontControl,
   CurrencyControl,
   DatasourceControl,
   DateFilterControl: DateFilterComponent,

@@ -506,6 +506,12 @@ export interface ControlPanelConfig {
   sectionOverrides?: SectionOverrides;
   onInit?: (state: ControlStateMapping) => void;
   formDataOverrides?: (formData: QueryFormData) => QueryFormData;
+  /**
+   * Set to `false` to hide the shared "Title & subtitle" and
+   * "Background, border & shadow" format sections that Explore adds to
+   * every chart.
+   */
+  visualFormat?: boolean;
 }
 
 export type ControlOverrides = {

@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { memo } from 'react';
+import { CSSProperties, memo } from 'react';
 import { styled } from '@apache-superset/core/theme';
 import { t } from '@apache-superset/core/translation';
 import type { TimeseriesCustomLegend } from './types';
@@ -64,12 +64,19 @@ const SelectorButton = styled.button`
   `}
 `;
 
-const ItemList = styled.ul`
-  ${({ theme }) => `
+const JUSTIFY_BY_ALIGN = {
+  start: 'flex-start',
+  center: 'center',
+  end: 'flex-end',
+} as const;
+
+const ItemList = styled.ul<{ align?: keyof typeof JUSTIFY_BY_ALIGN }>`
+  ${({ align, theme }) => `
     align-items: flex-start;
     display: flex;
     flex-wrap: wrap;
     gap: ${theme.sizeUnit * 2}px;
+    justify-content: ${align ? JUSTIFY_BY_ALIGN[align] : 'flex-start'};
     list-style: none;
     margin: 0;
     padding: 0;
@@ -101,8 +108,21 @@ const ItemButton = styled.button<{ selected: boolean }>`
   `}
 `;
 
-const Swatch = styled.span<{ color: string; selected: boolean }>`
-  ${({ color, selected }) => `
+// Marker shapes matching the ECharts legend icons offered in "Legend format".
+const SWATCH_SHAPES: Record<string, string> = {
+  circle: 'border-radius: 50%;',
+  roundRect: 'border-radius: 3px;',
+  triangle: 'clip-path: polygon(50% 0, 100% 100%, 0 100%); border: none;',
+  diamond:
+    'clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); border: none;',
+};
+
+const Swatch = styled.span<{
+  color: string;
+  selected: boolean;
+  shape?: string;
+}>`
+  ${({ color, selected, shape }) => `
     background: ${selected ? color : 'transparent'};
     border: 1px solid ${color};
     box-sizing: border-box;
@@ -110,6 +130,13 @@ const Swatch = styled.span<{ color: string; selected: boolean }>`
     height: 12px;
     margin-top: 2px;
     width: 12px;
+    ${shape && SWATCH_SHAPES[shape] ? SWATCH_SHAPES[shape] : ''}
+    ${
+      // Clipped shapes lose their border, so an unselected one stays faint.
+      !selected && shape && ['triangle', 'diamond'].includes(shape)
+        ? `background: ${color}; opacity: 0.35;`
+        : ''
+    }
   `}
 `;
 
@@ -139,13 +166,26 @@ function TimeseriesLegend({
   onInverse,
   onToggle,
   showSelectors,
+  style,
 }: TimeseriesLegendProps) {
   if (items.length === 0 || maxHeight <= 0) {
     return null;
   }
+  const textStyle = style?.textStyle ?? {};
+  // User-chosen text styles are dynamic values, so they are applied inline.
+  const viewportStyle: CSSProperties = {
+    fontFamily: textStyle.fontFamily,
+    fontSize: textStyle.fontSize,
+    fontWeight: textStyle.fontWeight,
+    fontStyle: textStyle.fontStyle,
+  };
 
   return (
-    <LegendViewport data-test="timeseries-custom-legend" maxHeight={maxHeight}>
+    <LegendViewport
+      data-test="timeseries-custom-legend"
+      maxHeight={maxHeight}
+      style={viewportStyle}
+    >
       {showSelectors && (
         <SelectorRow>
           <SelectorButton type="button" onClick={onAll}>
@@ -156,7 +196,7 @@ function TimeseriesLegend({
           </SelectorButton>
         </SelectorRow>
       )}
-      <ItemList>
+      <ItemList align={style?.align}>
         {items.map((item, index) =>
           item.name === '' || item.name === '\n' ? (
             <RowBreak
@@ -169,6 +209,11 @@ function TimeseriesLegend({
                 aria-pressed={item.selected}
                 disabled={!item.interactive}
                 selected={item.selected}
+                style={
+                  item.selected && textStyle.color
+                    ? { color: textStyle.color }
+                    : undefined
+                }
                 type="button"
                 onClick={() => {
                   if (item.interactive) {
@@ -182,6 +227,7 @@ function TimeseriesLegend({
                   aria-hidden
                   color={item.color}
                   selected={item.selected}
+                  shape={style?.icon}
                 />
                 <Label>{item.name}</Label>
               </ItemButton>

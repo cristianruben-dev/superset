@@ -34,10 +34,12 @@ import {
   CrossFilterTransformedProps,
   LabelPositionEnum,
   LegendFormData,
+  VisualFormatFormData,
   LegendOrientation,
   StackType,
   TitleFormData,
 } from '../types';
+import type { EchartsTextStyle } from '../utils/formatting';
 
 export enum OrientationType {
   Vertical = 'vertical',
@@ -131,7 +133,8 @@ export type EchartsTimeseriesFormData = QueryFormData & {
   colorByPrimaryAxis?: boolean;
   orientation?: OrientationType;
 } & LegendFormData &
-  TitleFormData;
+  TitleFormData &
+  VisualFormatFormData;
 
 export interface EchartsTimeseriesChartProps extends BaseChartProps<EchartsTimeseriesFormData> {
   formData: EchartsTimeseriesFormData;
@@ -152,6 +155,12 @@ export type TimeseriesCustomLegend = {
   items: TimeseriesLegendItem[];
   orientation: LegendOrientation.Top | LegendOrientation.Bottom;
   showSelectors: boolean;
+  /** User "Legend format" choices; unset values keep the default look. */
+  style?: {
+    align?: 'start' | 'center' | 'end';
+    icon?: string;
+    textStyle?: EchartsTextStyle;
+  };
 };
 
 export type TimeseriesChartTransformedProps =
