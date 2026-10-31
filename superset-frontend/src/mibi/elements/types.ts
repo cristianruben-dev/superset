@@ -52,6 +52,16 @@ export interface ElementAction {
 
 export type FillType = 'solid' | 'gradient' | 'none';
 
+/** What an element does under the mouse, in view mode. */
+export type HoverEffect = 'none' | 'lift' | 'grow' | 'brighten';
+
+/** Interactive states shared by images, shapes and buttons. */
+export interface Interactive {
+  hoverEffect?: HoverEffect;
+  /** Text shown when hovering */
+  tooltip?: string;
+}
+
 export interface Fill {
   type: FillType;
   color?: string;
@@ -73,7 +83,7 @@ export interface TextStyle {
   uppercase?: boolean;
 }
 
-export interface ImageElement {
+export interface ImageElement extends Interactive {
   kind: 'image';
   src?: string;
   /** Id of the uploaded picture, to delete it when replaced */
@@ -100,8 +110,10 @@ export type ShapeKind =
   | 'line'
   | 'star';
 
-export interface ShapeElement {
+export interface ShapeElement extends Interactive {
   kind: 'shape';
+  /** Fill color under the mouse */
+  hoverFill?: string;
   shape: ShapeKind;
   fill?: Fill;
   stroke?: {
@@ -124,7 +136,7 @@ export interface ButtonState {
   borderColor?: string;
 }
 
-export interface ButtonElement {
+export interface ButtonElement extends Interactive {
   kind: 'button';
   label?: string;
   icon?: string;
@@ -132,6 +144,8 @@ export interface ButtonElement {
   action?: ElementAction;
   normal?: ButtonState;
   hover?: ButtonState;
+  /** While pressed */
+  pressed?: ButtonState;
   borderWidth?: number;
   radius?: number;
   shadow?: 'none' | 'soft' | 'strong';

@@ -283,6 +283,10 @@ export type LayoutItemMeta = {
   mibiFormat?: VisualFormat;
   /** Format of the canvas, kept on the root component */
   mibiCanvas?: CanvasFormat;
+  /** Hidden from viewers; shown faded in edit mode */
+  mibiHidden?: boolean;
+  /** Cannot be moved, resized or removed in edit mode */
+  mibiLocked?: boolean;
   /** Allow additional meta properties used by different component types */
   [key: string]: unknown;
 };

@@ -37,6 +37,8 @@ import { useUiConfig } from 'src/components/UiConfigContext';
 import { isEmbedded } from 'src/dashboard/util/isEmbedded';
 import { Tooltip, EditableTitle, Icons } from '@superset-ui/core/components';
 import { useSelector } from 'react-redux';
+import cx from 'classnames';
+import type { VisualFormat } from 'src/mibi/format/types';
 import SliceHeaderControls from 'src/dashboard/components/SliceHeaderControls';
 import { SliceHeaderControlsProps } from 'src/dashboard/components/SliceHeaderControls/types';
 import FiltersBadge from 'src/dashboard/components/FiltersBadge';
@@ -194,6 +196,17 @@ const SliceHeader = forwardRef<HTMLDivElement, SliceHeaderProps>(
       ({ dashboardInfo }) => dashboardInfo.crossFiltersEnabled,
     );
 
+    // Mi BI Format pane: subtitle, divider and which icons viewers see
+    const headerFormat = useSelector<RootState, VisualFormat | undefined>(
+      state =>
+        componentId
+          ? state.dashboardLayout?.present?.[componentId]?.meta?.mibiFormat
+          : undefined,
+    );
+    const titleFormat = headerFormat?.title;
+    const showMenu = editMode || headerFormat?.header?.menu !== false;
+    const showBadges = headerFormat?.header?.badges !== false;
+
     const firstQueryResponse = useSelector<RootState, QueryData | undefined>(
       state => state.charts[slice.slice_id].queriesResponse?.[0],
     );
@@ -257,7 +270,19 @@ const SliceHeader = forwardRef<HTMLDivElement, SliceHeaderProps>(
     );
 
     return (
-      <ChartHeaderStyles data-test="slice-header" ref={ref}>
+      <ChartHeaderStyles
+        data-test="slice-header"
+        ref={ref}
+        className={cx(
+          titleFormat?.subtitle && 'mibi-has-subtitle',
+          titleFormat?.divider && 'mibi-header-divider',
+        )}
+        style={
+          titleFormat?.divider && titleFormat.dividerColor
+            ? { borderBottomColor: titleFormat.dividerColor }
+            : undefined
+        }
+      >
         <div className="header-title" ref={headerRef}>
           <Tooltip title={headerTooltip}>
             {/* this div ensures the hover event triggers correctly and prevents flickering */}
@@ -312,7 +337,7 @@ const SliceHeader = forwardRef<HTMLDivElement, SliceHeaderProps>(
                   dashboardId={dashboardId}
                 />
               )}
-              {crossFilterValue && (
+              {showBadges && crossFilterValue && (
                 <Tooltip
                   placement="top"
                   title={t(
@@ -322,11 +347,11 @@ const SliceHeader = forwardRef<HTMLDivElement, SliceHeaderProps>(
                   <CrossFilterIcon iconSize="m" />
                 </Tooltip>
               )}
-              {!uiConfig.hideChartControls && (
+              {showBadges && !uiConfig.hideChartControls && (
                 <CustomizationsBadge chartId={slice.slice_id} />
               )}
 
-              {!uiConfig.hideChartControls && (
+              {showBadges && !uiConfig.hideChartControls && (
                 <FiltersBadge chartId={slice.slice_id} />
               )}
 
@@ -345,7 +370,7 @@ const SliceHeader = forwardRef<HTMLDivElement, SliceHeaderProps>(
                   }
                 />
               )}
-              {!uiConfig.hideChartControls && (
+              {showMenu && !uiConfig.hideChartControls && (
                 <SliceHeaderControls
                   slice={slice}
                   isCached={isCached}
@@ -383,6 +408,18 @@ const SliceHeader = forwardRef<HTMLDivElement, SliceHeaderProps>(
             </>
           )}
         </div>
+        {titleFormat?.subtitle && (
+          <div
+            className="mibi-subtitle"
+            data-test="mibi-chart-subtitle"
+            style={{
+              fontSize: titleFormat.subtitleSize,
+              color: titleFormat.subtitleColor,
+            }}
+          >
+            {titleFormat.subtitle}
+          </div>
+        )}
       </ChartHeaderStyles>
     );
   },

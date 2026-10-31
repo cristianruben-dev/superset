@@ -1282,3 +1282,154 @@ body.mibi-presenting-idle * {
 .mibi-element .hover-menu {
   z-index: 3;
 }
+
+/* ---- Hidden and locked objects (edit mode) ------------------------------ */
+
+.mibi-hidden {
+  opacity: 0.45;
+  background-image: repeating-linear-gradient(
+    -45deg,
+    transparent 0 8px,
+    var(--mb-fill) 8px 16px
+  ) !important;
+}
+
+.mibi-locked .resizable-container-handle--right,
+.mibi-locked .resizable-container-handle--bottom,
+.mibi-locked .resizable-container-handle--bottom-right {
+  display: none;
+}
+
+/* ---- Chart header: subtitle and divider --------------------------------- */
+
+[data-test='slice-header'].mibi-has-subtitle {
+  flex-wrap: wrap;
+}
+
+/* With a basis of 0 the title would share its line with the subtitle */
+[data-test='slice-header'].mibi-has-subtitle > .header-title {
+  flex: 1 1 auto;
+}
+
+[data-test='slice-header'] .mibi-subtitle {
+  flex-basis: 100%;
+  order: 3;
+  margin-top: 2px;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.4;
+  color: var(--mb-text-tertiary);
+  text-align: var(--mb-v-title-align, left);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+[data-test='slice-header'].mibi-header-divider {
+  padding-bottom: 8px;
+  margin-bottom: 8px !important;
+  border-bottom: 1px solid var(--mb-border-secondary);
+}
+
+.dashboard-component-chart-holder.mibi-title-hidden
+  [data-test='slice-header']
+  .mibi-subtitle {
+  visibility: hidden;
+}
+
+/* ---- Element states: hover fill and hover effects (view mode) ----------- */
+
+.mibi-shape .mibi-shape-fill {
+  fill: var(--mb-shape-fill);
+  transition: fill 0.15s ease;
+}
+
+.mibi-shape:hover .mibi-shape-fill {
+  fill: var(--mb-shape-fill-hover, var(--mb-shape-fill));
+}
+
+.mibi-shape:hover {
+  --mb-shape-bg-hover-on: var(--mb-shape-bg-hover);
+}
+
+.mibi-hoverable {
+  transition:
+    transform 0.18s ease,
+    filter 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.mibi-hoverable[data-hover='lift']:hover {
+  transform: translateY(-3px);
+  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.14));
+}
+
+.mibi-hoverable[data-hover='grow']:hover {
+  transform: scale(1.04);
+}
+
+.mibi-hoverable[data-hover='brighten']:hover {
+  filter: brightness(1.12) saturate(1.1);
+}
+
+/* ---- Mobile layout: one object per line ---------------------------------- */
+
+.mibi-mobile .grid-row {
+  flex-wrap: wrap;
+  row-gap: 16px;
+}
+
+.mibi-mobile .grid-row > .empty-droptarget--vertical {
+  display: none;
+}
+
+.mibi-phone-preview {
+  outline: 8px solid var(--mb-text) !important;
+  outline-offset: 0;
+  border-radius: 28px !important;
+  margin: 8px auto;
+}
+
+.mibi-mobile .grid-row > .dragdroppable {
+  flex: 0 0 100%;
+  width: 100%;
+  max-width: 100%;
+}
+
+/* ---- Narrow screens: compact top bar ------------------------------------- */
+
+@media (max-width: 767px) {
+  [data-test='mibi-search-trigger'] {
+    width: 40px !important;
+    min-width: 40px !important;
+    padding: 0 !important;
+    justify-content: center;
+  }
+
+  [data-test='mibi-search-trigger'] .placeholder,
+  [data-test='mibi-search-trigger'] kbd,
+  [data-test='mibi-topbar'] .ant-tag {
+    display: none !important;
+  }
+
+  [data-test='mibi-topbar'] .name,
+  [data-test='mibi-topbar'] .label {
+    display: none;
+  }
+
+  /* Only the user menu stays: theme and language live in it on desktop */
+  [data-test='mibi-topbar']
+    .ant-menu-horizontal
+    > .ant-menu-submenu:not(:last-child) {
+    display: none !important;
+  }
+
+  [data-test='dashboard-header-container'] .header-with-actions {
+    padding: 0 12px !important;
+  }
+
+  [data-test='dashboard-header-container'] [data-test='mibi-present-button'],
+  [data-test='dashboard-header-container'] [data-test='edit-dashboard-button'] {
+    display: none !important;
+  }
+}

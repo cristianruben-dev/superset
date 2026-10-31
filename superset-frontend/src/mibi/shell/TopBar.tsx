@@ -183,7 +183,7 @@ export function TopBar({ data, isFrontendRoute, onSearch }: TopBarProps) {
           newLabel={
             <NewButton>
               <Icons.PlusOutlined iconSize="m" />
-              {t('New')}
+              <span className="label">{t('New')}</span>
             </NewButton>
           }
           settingsLabel={

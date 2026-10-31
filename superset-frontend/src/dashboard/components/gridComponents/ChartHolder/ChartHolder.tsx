@@ -34,11 +34,16 @@ import getChartAndLabelComponentIdFromPath from 'src/dashboard/util/getChartAndL
 import useFilterFocusHighlightStyles from 'src/dashboard/util/useFilterFocusHighlightStyles';
 import { AntdThemeProvider } from '@superset-ui/core/components';
 import { COLUMN_TYPE, ROW_TYPE } from 'src/dashboard/util/componentTypes';
-import { DASHBOARD_ROOT_ID } from 'src/dashboard/util/constants';
+import {
+  DASHBOARD_ROOT_ID,
+  GRID_COLUMN_COUNT,
+} from 'src/dashboard/util/constants';
 import { Icons } from '@superset-ui/core/components/Icons';
 import { Tooltip } from '@superset-ui/core/components';
 import { t } from '@apache-superset/core/translation';
 import { gapInset, visualStyle } from 'src/mibi/format/styles';
+import { ObjectBadges } from 'src/mibi/format/ObjectFlags';
+import { useCanvasMobile } from 'src/mibi/format/CanvasFrame';
 import {
   openFormat,
   selectVisual,
@@ -130,6 +135,10 @@ const ChartHolder = ({
   );
   const inset = gapInset(canvasFormat);
   const isSelected = useSelectedVisual() === component.id && editMode;
+  const mobile = useCanvasMobile();
+  const hiddenOnMobile = mobile && !!component.meta.mibiHideMobile;
+  const hidden = !!component.meta.mibiHidden || hiddenOnMobile;
+  const locked = !!component.meta.mibiLocked;
   const holderStyle = useMemo(
     () =>
       isFullSize
@@ -205,8 +214,10 @@ const ChartHolder = ({
       widthMultiple = columnParentWidth;
     }
 
-    return widthMultiple;
+    // The mobile layout gives every object the full width
+    return mobile ? GRID_COLUMN_COUNT : widthMultiple;
   }, [
+    mobile,
     component,
     getComponentById,
     parentComponent.meta.width,
@@ -294,7 +305,7 @@ const ChartHolder = ({
         onResizeStart={onResizeStart}
         onResize={onResize}
         onResizeStop={onResizeStop}
-        editMode={editMode}
+        editMode={editMode && !locked}
       >
         <div
           ref={el => {
@@ -322,6 +333,8 @@ const ChartHolder = ({
             !isFullSize && formatted.className,
             isFullSize && 'mibi-full-size',
             isSelected && 'mibi-selected',
+            editMode && hidden && 'mibi-hidden',
+            editMode && locked && 'mibi-locked',
             // The following class is added to support custom dashboard styling via the CSS editor
             `dashboard-chart-id-${chartId}`,
             outlinedComponentId ? 'fade-in' : 'fade-out',
@@ -372,11 +385,14 @@ const ChartHolder = ({
               isInView={isInView}
               chartHolderRef={chartHolderRef}
             />
+            {editMode && <ObjectBadges item={component} />}
             {editMode && (
               <HoverMenu position="top">
-                <div data-test="dashboard-delete-component-button">
-                  <DeleteComponentButton onDelete={handleDeleteComponent} />
-                </div>
+                {!locked && (
+                  <div data-test="dashboard-delete-component-button">
+                    <DeleteComponentButton onDelete={handleDeleteComponent} />
+                  </div>
+                )}
                 <Tooltip title={t('Format')} placement="top">
                   <div data-test="mibi-format-visual-button">
                     <IconButton
@@ -408,6 +424,9 @@ const ChartHolder = ({
       holderStyle,
       formatted.className,
       isSelected,
+      hidden,
+      locked,
+      component,
       isFullSize,
       fullSizeStyle,
       chartId,
@@ -426,6 +445,9 @@ const ChartHolder = ({
     ],
   );
 
+  // Hidden objects are only shown, faded, to editors
+  if (hidden && !editMode) return null;
+
   return (
     <Draggable
       component={component}
@@ -434,7 +456,7 @@ const ChartHolder = ({
       index={index}
       depth={depth}
       onDrop={handleComponentDrop}
-      disableDragDrop={false}
+      disableDragDrop={locked}
       editMode={editMode}
     >
       {renderChild}

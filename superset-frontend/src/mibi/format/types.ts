@@ -40,6 +40,17 @@ export interface VisualFormat {
     size?: number;
     color?: string;
     align?: TitleAlign;
+    subtitle?: string;
+    subtitleSize?: number;
+    subtitleColor?: string;
+    /** A line under the header */
+    divider?: boolean;
+    dividerColor?: string;
+  };
+  /** Which header icons viewers see (all by default) */
+  header?: {
+    menu?: boolean;
+    badges?: boolean;
   };
 }
 
@@ -68,6 +79,10 @@ export interface CanvasFormat {
   /** Space between visuals, in pixels */
   gap?: number;
 }
+
+/** Layout meta keys hiding an object from viewers and locking it in place. */
+export const HIDDEN_KEY = 'mibiHidden';
+export const LOCKED_KEY = 'mibiLocked';
 
 /** Layout meta keys holding the formats. */
 export const VISUAL_FORMAT_KEY = 'mibiFormat';

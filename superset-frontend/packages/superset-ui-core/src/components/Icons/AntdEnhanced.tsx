@@ -187,6 +187,7 @@ import {
   ArrowDownOutlined,
   BlockOutlined,
   RotateRightOutlined,
+  MobileOutlined,
 } from '@ant-design/icons';
 import { FC } from 'react';
 import { IconType } from './types';
@@ -363,6 +364,7 @@ const AntdIcons = {
   ArrowDownOutlined,
   BlockOutlined,
   RotateRightOutlined,
+  MobileOutlined,
 } as const;
 
 type AntdIconNames = keyof typeof AntdIcons;

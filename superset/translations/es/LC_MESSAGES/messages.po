@@ -14020,7 +14020,7 @@ msgid "Tool Panel"
 msgstr "Panel de herramientas"
 
 msgid "Tooltip"
-msgstr "Información sobre herramientas"
+msgstr "Texto de ayuda"
 
 msgid "Tooltip (columns)"
 msgstr "Descripción emergente (columnas)"
@@ -14740,7 +14740,7 @@ msgid "Vertical layout (rows)"
 msgstr ""
 
 msgid "View"
-msgstr "Ver"
+msgstr "Vista"
 
 msgid "View All »"
 msgstr "Ver todo »"
@@ -17652,3 +17652,114 @@ msgstr "…o pega el enlace de una imagen"
 
 msgid "Write on the canvas. Select words and use these buttons to format them."
 msgstr "Escribe directamente en el lienzo. Selecciona palabras y usa estos botones para darles formato."
+
+msgid "%s (copy)"
+msgstr "%s (copia)"
+
+msgid "Brighten"
+msgstr "Iluminar"
+
+msgid "Change the fill color"
+msgstr "Cambiar el color de relleno"
+
+msgid "Chart menu"
+msgstr "Menú del gráfico"
+
+msgid "Click another object to give it this format. Esc cancels."
+msgstr "Haz clic en otro objeto para darle este formato. Esc cancela."
+
+msgid "Colors while pressed"
+msgstr "Colores al pulsar"
+
+msgid "Copied. Paste it here or in another dashboard."
+msgstr "Copiado. Pégalo aquí o en otro panel."
+
+msgid "Copy (Ctrl+C)"
+msgstr "Copiar (Ctrl+C)"
+
+msgid "Copy format"
+msgstr "Copiar formato"
+
+msgid "Desktop"
+msgstr "Escritorio"
+
+msgid "Duplicate (Ctrl+D)"
+msgstr "Duplicar (Ctrl+D)"
+
+msgid "Effect"
+msgstr "Efecto"
+
+msgid "Fill color"
+msgstr "Color de relleno"
+
+msgid "Filter and cross-filter badges"
+msgstr "Indicadores de filtros y filtros cruzados"
+
+msgid "Grow"
+msgstr "Agrandar"
+
+msgid "Header icons"
+msgstr "Iconos del encabezado"
+
+msgid "Hidden on mobile"
+msgstr "Oculto en móvil"
+
+msgid "Hide from viewers"
+msgstr "Ocultar a los lectores"
+
+msgid "Hide on mobile"
+msgstr "Ocultar en móvil"
+
+msgid "Lift"
+msgstr "Elevar"
+
+msgid "Line color"
+msgstr "Color de la línea"
+
+msgid "Line under the header"
+msgstr "Línea bajo el encabezado"
+
+msgid "Lock in place"
+msgstr "Bloquear posición"
+
+msgid "Locked"
+msgstr "Bloqueado"
+
+msgid "Mobile"
+msgstr "Móvil"
+
+msgid "On hover"
+msgstr "Al pasar el ratón"
+
+msgid "On phones every object takes the full width, in the order of the canvas. Hide objects there with the phone button of the Format pane."
+msgstr "En el teléfono cada objeto ocupa todo el ancho, en el orden del lienzo. Oculta objetos ahí con el botón del teléfono del panel Formato."
+
+msgid "Paste (Ctrl+V)"
+msgstr "Pegar (Ctrl+V)"
+
+msgid "Paste format"
+msgstr "Pegar formato"
+
+msgid "Show on mobile"
+msgstr "Mostrar en móvil"
+
+msgid "Show to viewers"
+msgstr "Mostrar a los lectores"
+
+msgid "Subtitle (optional)"
+msgstr "Subtítulo (opcional)"
+
+msgid "Subtitle color"
+msgstr "Color del subtítulo"
+
+msgid "Subtitle size"
+msgstr "Tamaño del subtítulo"
+
+msgid "The object could not be pasted"
+msgstr "No se pudo pegar el objeto"
+
+msgid "Tooltip (optional)"
+msgstr "Texto de ayuda (opcional)"
+
+msgid "Unlock"
+msgstr "Desbloquear"

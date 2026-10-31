@@ -34,6 +34,8 @@ import NewDynamicComponent from '../gridComponents/new/NewDynamicComponent';
 import { FormatPane } from 'src/mibi/format/FormatPane';
 import { NewElements } from 'src/mibi/elements/NewElements';
 import { selectVisual, useOnOpenFormat } from 'src/mibi/format/selection';
+import { useObjectShortcuts } from 'src/mibi/format/useObjectCommands';
+import { setMobilePreview } from 'src/mibi/format/mobile';
 
 const BUILDER_PANE_WIDTH = 374;
 
@@ -47,7 +49,14 @@ const BuilderComponentPane = ({ topOffset = 0 }) => {
   const [activeKey, setActiveKey] = useState(TABS_KEYS.CHARTS);
   useOnOpenFormat(useCallback(() => setActiveKey(TABS_KEYS.FORMAT), []));
   // Leaving the builder forgets the chart being formatted
-  useEffect(() => () => selectVisual(null), []);
+  useEffect(
+    () => () => {
+      selectVisual(null);
+      setMobilePreview(false);
+    },
+    [],
+  );
+  useObjectShortcuts();
 
   return (
     <div

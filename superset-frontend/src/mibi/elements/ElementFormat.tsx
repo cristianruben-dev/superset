@@ -51,7 +51,9 @@ import {
   type ElementConfig,
   type ElementKind,
   type Fill,
+  type HoverEffect,
   type ImageElement,
+  type Interactive,
   type ShapeElement,
   type ShapeKind,
   type TextElement,
@@ -213,6 +215,45 @@ function ActionFields({
           </Field>
         </>
       )}
+    </Section>
+  );
+}
+
+/** Hover effect and tooltip of an image, shape or button. */
+function InteractiveFields({
+  config,
+  update,
+  children,
+}: {
+  config: Interactive;
+  update: (patch: Partial<Interactive>, setting: string) => void;
+  children?: ReactNode;
+}) {
+  return (
+    <Section>
+      <h4>{t('On hover')}</h4>
+      {children}
+      <Field label={t('Effect')} stacked>
+        <Segments<HoverEffect>
+          name={t('Effect')}
+          value={config.hoverEffect ?? 'none'}
+          testId="mibi-hover-effect"
+          onChange={hoverEffect => update({ hoverEffect }, 'hover-effect')}
+          options={[
+            { value: 'none', label: t('None') },
+            { value: 'lift', label: t('Lift') },
+            { value: 'grow', label: t('Grow') },
+            { value: 'brighten', label: t('Brighten') },
+          ]}
+        />
+      </Field>
+      <Input
+        value={config.tooltip ?? ''}
+        placeholder={t('Tooltip (optional)')}
+        aria-label={t('Tooltip')}
+        data-test="mibi-element-tooltip"
+        onChange={event => update({ tooltip: event.target.value }, 'tooltip')}
+      />
     </Section>
   );
 }
@@ -560,6 +601,32 @@ function ShapeSection({
           )}
         </>
       )}
+      <InteractiveFields config={config} update={update}>
+        {config.shape !== 'line' && config.fill?.type !== 'none' && (
+          <>
+            <Field label={t('Change the fill color')}>
+              <Switch
+                size="small"
+                checked={!!config.hoverFill}
+                aria-label={t('Change the fill color')}
+                onChange={on =>
+                  update(
+                    { hoverFill: on ? theme.colorPrimaryHover : undefined },
+                    'hover-fill',
+                  )
+                }
+              />
+            </Field>
+            {config.hoverFill && (
+              <ColorField
+                label={t('Fill color')}
+                value={config.hoverFill}
+                onChange={hoverFill => update({ hoverFill }, 'hover-fill')}
+              />
+            )}
+          </>
+        )}
+      </InteractiveFields>
       <ActionFields
         action={config.action}
         onChange={action => update({ action }, 'action')}
@@ -739,6 +806,7 @@ function ImageSection({
         </Field>
       </Section>
       <BoxSections id={id} />
+      <InteractiveFields config={config} update={update} />
       <ActionFields
         action={config.action}
         onChange={action => update({ action }, 'action')}
@@ -977,6 +1045,19 @@ function ButtonSection({
         }}
         onChange={(hover, setting) => update({ hover }, `hover-${setting}`)}
       />
+      <StateColors
+        title={t('Colors while pressed')}
+        state={config.pressed}
+        fallback={{
+          fill: config.hover?.fill || theme.colorPrimaryActive,
+          color: config.hover?.color || theme.colorTextLightSolid,
+          borderColor: config.hover?.borderColor || theme.colorPrimary,
+        }}
+        onChange={(pressed, setting) =>
+          update({ pressed }, `pressed-${setting}`)
+        }
+      />
+      <InteractiveFields config={config} update={update} />
       <TextStyleFields
         vertical={false}
         style={config.textStyle}

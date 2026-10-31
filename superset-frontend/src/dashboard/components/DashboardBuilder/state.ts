@@ -95,7 +95,10 @@ export const useNativeFilters = () => {
       expandFilters === false ||
       (filterValues.length === 0 &&
         chartCustomizations.length === 0 &&
-        nativeFiltersEnabled)
+        nativeFiltersEnabled) ||
+      // Phones have no room for an open filter pane next to the dashboard
+      ((expandFilters === null || expandFilters === undefined) &&
+        Math.min(window.innerWidth, window.screen?.width || Infinity) < 768)
     ) {
       dispatch(toggleNativeFiltersBar(false));
     } else {

@@ -32,6 +32,7 @@ import { Button } from '@superset-ui/core/components';
 import { Icons } from '@superset-ui/core/components/Icons';
 import { fitToCanvas } from './actions';
 import { useShowGrid } from './gridGuides';
+import { MOBILE_BREAKPOINT, PHONE_WIDTH, useMobilePreview } from './mobile';
 import { css, styled, useTheme } from '@apache-superset/core/theme';
 import type { RootState } from 'src/dashboard/types';
 import { DASHBOARD_ROOT_ID } from 'src/dashboard/util/constants';
@@ -111,9 +112,13 @@ const Page = styled.div<{ $decorated: boolean; $fixed: boolean }>`
 `;
 
 const CanvasZoomContext = createContext(1);
+const CanvasMobileContext = createContext(false);
 
 /** Zoom of a fixed size canvas, so drag and resize can follow the mouse. */
 export const useCanvasZoom = () => useContext(CanvasZoomContext);
+
+/** Whether the canvas uses its mobile layout: one object per line. */
+export const useCanvasMobile = () => useContext(CanvasMobileContext);
 
 // Room the presentation keeps around a canvas fitted to the screen
 const PRESENTING_MARGIN = 32;
@@ -135,7 +140,10 @@ export function CanvasFrame({ children }: { children: ReactNode }) {
   );
   const outerRef = useRef<HTMLDivElement>(null);
   const [available, setAvailable] = useState(0);
-  const size = canvasSize(canvas);
+  const previewing = useMobilePreview() && !!editMode;
+  const mobile = previewing || (available > 0 && available < MOBILE_BREAKPOINT);
+  // The mobile layout ignores the fixed page size
+  const size = mobile ? null : canvasSize(canvas);
   const dispatch = useDispatch();
   const pageRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -209,8 +217,9 @@ export function CanvasFrame({ children }: { children: ReactNode }) {
       ...(size
         ? { width: size.width, minHeight: size.height, zoom }
         : undefined),
+      ...(previewing ? { width: PHONE_WIDTH } : undefined),
     }),
-    [canvas, theme, size, zoom],
+    [canvas, theme, size, zoom, previewing],
   );
 
   return (
@@ -238,7 +247,12 @@ export function CanvasFrame({ children }: { children: ReactNode }) {
       <Page
         ref={pageRef}
         data-test="mibi-canvas"
-        className={cx('mibi-canvas', editMode && showGrid && 'mibi-show-grid')}
+        className={cx(
+          'mibi-canvas',
+          editMode && showGrid && !mobile && 'mibi-show-grid',
+          mobile && 'mibi-mobile',
+          previewing && 'mibi-phone-preview',
+        )}
         $decorated={hasCanvasFormat(canvas)}
         $fixed={!!size}
         style={style}
@@ -264,7 +278,9 @@ export function CanvasFrame({ children }: { children: ReactNode }) {
           </PageEnd>
         )}
         <CanvasZoomContext.Provider value={zoom}>
-          <div ref={contentRef}>{children}</div>
+          <CanvasMobileContext.Provider value={mobile}>
+            <div ref={contentRef}>{children}</div>
+          </CanvasMobileContext.Provider>
         </CanvasZoomContext.Provider>
       </Page>
     </Outer>

@@ -30,6 +30,22 @@ import { ThemeVariables } from './ThemeVariables';
 import { TopBar } from './TopBar';
 
 const COLLAPSED_KEY = 'mibi.sidebarCollapsed';
+// Narrower screens (phones, small tablets) always get the collapsed sidebar
+const NARROW_SCREEN = 768;
+
+// The screen width too: a page wider than a phone widens its window
+const isNarrow = () =>
+  Math.min(window.innerWidth, window.screen?.width || Infinity) < NARROW_SCREEN;
+
+const useNarrowScreen = () => {
+  const [narrow, setNarrow] = useState(isNarrow);
+  useEffect(() => {
+    const onResize = () => setNarrow(isNarrow());
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+  return narrow;
+};
 
 const Main = styled.div<{ $offset: number }>`
   ${({ theme, $offset }) => css`
@@ -62,7 +78,9 @@ interface AppShellProps {
  */
 export function AppShell({ data, isFrontendRoute, children }: AppShellProps) {
   const uiConfig = useUiConfig();
-  const [collapsed, setCollapsed] = useState(readCollapsed);
+  const [preferCollapsed, setCollapsed] = useState(readCollapsed);
+  const narrow = useNarrowScreen();
+  const collapsed = preferCollapsed || narrow;
   const [searching, setSearching] = useState(false);
   const sections = useMemo(() => buildNavSections(data.menu), [data.menu]);
   // Signed-out pages (login, register) and standalone or embedded views go alone

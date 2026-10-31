@@ -43,6 +43,8 @@ import {
   useSelectedVisual,
 } from 'src/mibi/format/selection';
 import { visualStyle } from 'src/mibi/format/styles';
+import { ObjectBadges } from 'src/mibi/format/ObjectFlags';
+import { useCanvasMobile } from 'src/mibi/format/CanvasFrame';
 import { setElementConfig } from './actions';
 import {
   ELEMENT_DEFAULTS,
@@ -97,6 +99,10 @@ function ElementHolder({
   const config = (component.meta[ELEMENT_KEY] ??
     ELEMENT_DEFAULTS[kind].element) as ElementConfig;
   const selected = useSelectedVisual() === component.id && editMode;
+  const mobile = useCanvasMobile();
+  const hidden =
+    !!component.meta.mibiHidden || (mobile && !!component.meta.mibiHideMobile);
+  const locked = !!component.meta.mibiLocked;
   const box = useMemo(
     () => visualStyle(component.meta.mibiFormat, theme),
     [component.meta.mibiFormat, theme],
@@ -143,8 +149,12 @@ function ElementHolder({
     }
   };
 
+  // Hidden objects are only shown, faded, to editors
+  if (hidden && !editMode) return null;
+
   return (
     <Draggable
+      disableDragDrop={locked}
       component={component}
       parentComponent={parentComponent}
       orientation={parentComponent.type === ROW_TYPE ? 'column' : 'row'}
@@ -156,7 +166,7 @@ function ElementHolder({
       {({ dragSourceRef }: { dragSourceRef: ConnectDragSource }) => (
         <ResizableContainer
           id={component.id}
-          editMode={editMode}
+          editMode={editMode && !locked}
           adjustableWidth={parentComponent.type === ROW_TYPE}
           adjustableHeight
           widthStep={columnWidth}
@@ -182,17 +192,22 @@ function ElementHolder({
               box.className,
               selected && 'mibi-selected',
               editMode && 'mibi-element--editing',
+              editMode && hidden && 'mibi-hidden',
+              editMode && locked && 'mibi-locked',
             )}
             style={box.style}
             onClickCapture={
               editMode ? () => selectVisual(component.id) : undefined
             }
           >
+            {editMode && <ObjectBadges item={component} />}
             {editMode && (
               <HoverMenu position="top">
-                <DeleteComponentButton
-                  onDelete={() => deleteComponent(id, parentId)}
-                />
+                {!locked && (
+                  <DeleteComponentButton
+                    onDelete={() => deleteComponent(id, parentId)}
+                  />
+                )}
                 <Tooltip title={t('Format')} placement="top">
                   <div data-test="mibi-format-element-button">
                     <IconButton

@@ -458,4 +458,52 @@ describe('ChartHolder', () => {
     expect(holder).toHaveClass('mibi-title-hidden');
     expect(screen.getByTestId('mibi-format-visual-button')).toBeInTheDocument();
   });
+
+  test('hides a hidden chart from viewers and fades it for editors', () => {
+    const component = {
+      ...defaultProps.component,
+      meta: { ...defaultProps.component.meta, mibiHidden: true },
+    };
+    const { rerender } = renderWrapper(createMockStore(), {
+      editMode: false,
+      fullSizeChartId: null,
+      component,
+    });
+    expect(
+      screen.queryByTestId('dashboard-component-chart-holder'),
+    ).not.toBeInTheDocument();
+
+    rerender(
+      <ChartHolder
+        {...defaultProps}
+        editMode
+        isInView
+        fullSizeChartId={null}
+        component={component}
+      />,
+    );
+    expect(screen.getByTestId('dashboard-component-chart-holder')).toHaveClass(
+      'mibi-hidden',
+    );
+    expect(screen.getByTestId('mibi-object-badges')).toHaveTextContent(
+      'Hidden',
+    );
+  });
+
+  test('a locked chart cannot be deleted', () => {
+    renderWrapper(createMockStore(), {
+      editMode: true,
+      fullSizeChartId: null,
+      component: {
+        ...defaultProps.component,
+        meta: { ...defaultProps.component.meta, mibiLocked: true },
+      },
+    });
+    expect(
+      screen.queryByTestId('dashboard-delete-component-button'),
+    ).not.toBeInTheDocument();
+    expect(screen.getByTestId('mibi-object-badges')).toHaveTextContent(
+      'Locked',
+    );
+  });
 });

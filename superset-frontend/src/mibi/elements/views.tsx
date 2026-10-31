@@ -17,12 +17,15 @@
  * under the License.
  */
 import {
+  cloneElement,
   CSSProperties,
   KeyboardEvent,
+  ReactElement,
   useEffect,
   useLayoutEffect,
   useRef,
 } from 'react';
+import { Tooltip } from '@superset-ui/core/components';
 import { t } from '@apache-superset/core/translation';
 import { css, styled, useTheme } from '@apache-superset/core/theme';
 import { Icons } from '@superset-ui/core/components/Icons';
@@ -39,6 +42,7 @@ import {
 } from './render';
 import type {
   ButtonElement,
+  HoverEffect,
   ImageElement,
   ShapeElement,
   TextElement,
@@ -52,6 +56,30 @@ const Fill = styled.div<{ $clickable?: boolean }>`
   border-radius: inherit;
   cursor: ${({ $clickable }) => ($clickable ? 'pointer' : 'default')};
 `;
+
+/** Tooltip and hover effect of an element, in view mode only. */
+function Interactive({
+  config,
+  editMode,
+  children,
+}: {
+  config: { hoverEffect?: HoverEffect; tooltip?: string };
+  editMode: boolean;
+  children: ReactElement;
+}) {
+  const effect = editMode ? undefined : config.hoverEffect;
+  const content =
+    effect && effect !== 'none'
+      ? cloneElement(children, { 'data-hover': effect })
+      : children;
+  return config.tooltip && !editMode ? (
+    <Tooltip title={config.tooltip} placement="top">
+      {content}
+    </Tooltip>
+  ) : (
+    content
+  );
+}
 
 const Placeholder = styled.div`
   ${({ theme }) => css`
@@ -115,24 +143,26 @@ export function ImageView({
     .filter(Boolean)
     .join(' ');
   return (
-    <Fill $clickable={!!run} {...activate(run)}>
-      <img
-        src={config.src}
-        alt={config.alt ?? ''}
-        data-test="mibi-image"
-        draggable={false}
-        style={{
-          width: '100%',
-          height: '100%',
-          display: 'block',
-          objectFit: config.fit ?? 'cover',
-          objectPosition: config.position ?? 'center',
-          opacity: (config.opacity ?? 100) / 100,
-          transform: transforms || undefined,
-          filter: filters || undefined,
-        }}
-      />
-    </Fill>
+    <Interactive config={config} editMode={editMode}>
+      <Fill $clickable={!!run} className="mibi-hoverable" {...activate(run)}>
+        <img
+          src={config.src}
+          alt={config.alt ?? ''}
+          data-test="mibi-image"
+          draggable={false}
+          style={{
+            width: '100%',
+            height: '100%',
+            display: 'block',
+            objectFit: config.fit ?? 'cover',
+            objectPosition: config.position ?? 'center',
+            opacity: (config.opacity ?? 100) / 100,
+            transform: transforms || undefined,
+            filter: filters || undefined,
+          }}
+        />
+      </Fill>
+    </Interactive>
   );
 }
 
@@ -175,6 +205,17 @@ export function ShapeView({
       : fill.type === 'gradient'
         ? `url(#${gradientId})`
         : fillColor;
+  // Fill under the mouse (view mode), through CSS variables
+  const fillVars = {
+    '--mb-shape-fill': svgFill,
+    '--mb-shape-bg': fillBackground(fill, theme),
+    ...(config.hoverFill && !editMode
+      ? {
+          '--mb-shape-fill-hover': config.hoverFill,
+          '--mb-shape-bg-hover': config.hoverFill,
+        }
+      : {}),
+  } as CSSProperties;
   const wrapper: CSSProperties = {
     width: '100%',
     height: '100%',
@@ -190,7 +231,7 @@ export function ShapeView({
           width: '100%',
           height: '100%',
           boxSizing: 'border-box',
-          background: fillBackground(fill, theme),
+          background: 'var(--mb-shape-bg-hover-on, var(--mb-shape-bg))',
           borderRadius: config.radius ?? 0,
           border:
             strokeWidth > 0
@@ -219,7 +260,9 @@ export function ShapeView({
     } else {
       const points =
         config.shape === 'star' ? starPoints() : POLYGONS[config.shape];
-      body = <polygon points={points} fill={svgFill} {...stroke} />;
+      body = (
+        <polygon className="mibi-shape-fill" points={points} {...stroke} />
+      );
     }
     drawing = (
       <svg
@@ -253,30 +296,37 @@ export function ShapeView({
   }
 
   return (
-    <Fill
-      $clickable={!!run}
-      style={{ overflow: 'visible' }}
-      data-test={`mibi-shape-${config.shape}`}
-      {...activate(run)}
-    >
-      <div style={wrapper}>{drawing}</div>
-      {config.text && (
-        <div
-          style={{
-            ...textCss(
-              { verticalAlign: 'middle', align: 'center', ...config.textStyle },
-              theme,
-            ),
-            position: 'absolute',
-            inset: 0,
-            padding: theme.sizeUnit * 3,
-            whiteSpace: 'pre-wrap',
-          }}
-        >
-          {config.text}
-        </div>
-      )}
-    </Fill>
+    <Interactive config={config} editMode={editMode}>
+      <Fill
+        $clickable={!!run}
+        className="mibi-hoverable mibi-shape"
+        style={{ overflow: 'visible', ...fillVars }}
+        data-test={`mibi-shape-${config.shape}`}
+        {...activate(run)}
+      >
+        <div style={wrapper}>{drawing}</div>
+        {config.text && (
+          <div
+            style={{
+              ...textCss(
+                {
+                  verticalAlign: 'middle',
+                  align: 'center',
+                  ...config.textStyle,
+                },
+                theme,
+              ),
+              position: 'absolute',
+              inset: 0,
+              padding: theme.sizeUnit * 3,
+              whiteSpace: 'pre-wrap',
+            }}
+          >
+            {config.text}
+          </div>
+        )}
+      </Fill>
+    </Interactive>
   );
 }
 
@@ -306,6 +356,9 @@ const StyledButton = styled.button`
   }
 
   &:active:not([aria-disabled]) {
+    background: var(--mb-btn-fill-pressed);
+    color: var(--mb-btn-color-pressed);
+    border-color: var(--mb-btn-border-pressed);
     transform: translateY(1px);
   }
 
@@ -336,6 +389,11 @@ export function ButtonView({
     color: config.hover?.color || normal.color,
     borderColor: config.hover?.borderColor || normal.borderColor,
   };
+  const pressed = {
+    fill: config.pressed?.fill || hover.fill,
+    color: config.pressed?.color || hover.color,
+    borderColor: config.pressed?.borderColor || hover.borderColor,
+  };
   const IconComponent = config.icon
     ? (Icons as Record<string, typeof Icons.ArrowRightOutlined>)[config.icon]
     : undefined;
@@ -350,40 +408,46 @@ export function ButtonView({
   const label = config.label ?? t('Button');
 
   return (
-    <StyledButton
-      type="button"
-      data-test="mibi-button"
-      // Edit mode selects the button instead of running it: let clicks reach
-      // the element (a disabled button would swallow them)
-      aria-disabled={editMode || undefined}
-      tabIndex={editMode ? -1 : undefined}
-      onClick={run}
-      aria-label={iconPosition === 'only' ? label : undefined}
-      style={
-        {
-          '--mb-btn-fill': normal.fill,
-          '--mb-btn-color': normal.color,
-          '--mb-btn-border': normal.borderColor,
-          '--mb-btn-fill-hover': hover.fill,
-          '--mb-btn-color-hover': hover.color,
-          '--mb-btn-border-hover': hover.borderColor,
-          pointerEvents: editMode ? 'none' : undefined,
-          borderWidth: config.borderWidth ?? 0,
-          borderRadius: config.radius ?? 10,
-          boxShadow: boxShadow(config.shadow, theme),
-          fontSize: text.fontSize,
-          fontWeight: text.fontWeight,
-          fontStyle: text.fontStyle,
-          letterSpacing: text.letterSpacing,
-          textTransform: text.textTransform,
-          justifyContent: horizontalJustify(config.textStyle?.align),
-        } as CSSProperties
-      }
-    >
-      {iconPosition !== 'right' && icon}
-      {iconPosition !== 'only' && <span className="label">{label}</span>}
-      {iconPosition === 'right' && icon}
-    </StyledButton>
+    <Interactive config={config} editMode={editMode}>
+      <StyledButton
+        type="button"
+        className="mibi-hoverable"
+        data-test="mibi-button"
+        // Edit mode selects the button instead of running it: let clicks reach
+        // the element (a disabled button would swallow them)
+        aria-disabled={editMode || undefined}
+        tabIndex={editMode ? -1 : undefined}
+        onClick={run}
+        aria-label={iconPosition === 'only' ? label : undefined}
+        style={
+          {
+            '--mb-btn-fill': normal.fill,
+            '--mb-btn-color': normal.color,
+            '--mb-btn-border': normal.borderColor,
+            '--mb-btn-fill-hover': hover.fill,
+            '--mb-btn-color-hover': hover.color,
+            '--mb-btn-border-hover': hover.borderColor,
+            '--mb-btn-fill-pressed': pressed.fill,
+            '--mb-btn-color-pressed': pressed.color,
+            '--mb-btn-border-pressed': pressed.borderColor,
+            pointerEvents: editMode ? 'none' : undefined,
+            borderWidth: config.borderWidth ?? 0,
+            borderRadius: config.radius ?? 10,
+            boxShadow: boxShadow(config.shadow, theme),
+            fontSize: text.fontSize,
+            fontWeight: text.fontWeight,
+            fontStyle: text.fontStyle,
+            letterSpacing: text.letterSpacing,
+            textTransform: text.textTransform,
+            justifyContent: horizontalJustify(config.textStyle?.align),
+          } as CSSProperties
+        }
+      >
+        {iconPosition !== 'right' && icon}
+        {iconPosition !== 'only' && <span className="label">{label}</span>}
+        {iconPosition === 'right' && icon}
+      </StyledButton>
+    </Interactive>
   );
 }
 

@@ -78,6 +78,20 @@ export const setVisualFormat =
     );
   };
 
+/** Hides an object from viewers, or locks it in place (HIDDEN_KEY, LOCKED_KEY). */
+export const setObjectFlag =
+  (id: string, key: string, value: boolean) =>
+  (dispatch: AppDispatch, getState: GetState) => {
+    const item = getState().dashboardLayout.present[id];
+    if (!item) return;
+    dispatch(
+      updateLayout(
+        { [id]: withMeta(item, key, value || undefined) },
+        `flag:${id}:${key}:${Date.now()}`,
+      ),
+    );
+  };
+
 /** Gives every chart of the dashboard the same format. */
 export const setAllVisualsFormat =
   (format: VisualFormat | undefined) =>

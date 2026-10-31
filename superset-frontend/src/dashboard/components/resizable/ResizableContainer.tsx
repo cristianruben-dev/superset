@@ -18,7 +18,7 @@
  */
 import { useState, useCallback, useMemo } from 'react';
 import { ResizeCallback, ResizeStartCallback, Resizable } from 're-resizable';
-import { useCanvasZoom } from 'src/mibi/format/CanvasFrame';
+import { useCanvasMobile, useCanvasZoom } from 'src/mibi/format/CanvasFrame';
 import cx from 'classnames';
 import { css, styled } from '@apache-superset/core/theme';
 
@@ -175,6 +175,9 @@ export default function ResizableContainer({
 }: ResizableContainerProps) {
   const [isResizing, setIsResizing] = useState<boolean>(false);
   const canvasZoom = useCanvasZoom();
+  // The mobile layout stacks every object at full width
+  const mobile = useCanvasMobile();
+  const widthAdjustable = adjustableWidth && !mobile;
 
   const handleResize = useCallback<ResizeCallback>(
     (event, direction, elementRef, delta) => {
@@ -204,7 +207,7 @@ export default function ResizableContainer({
           direction,
           elementRef,
           {
-            width: adjustableWidth ? nextWidthMultiple : 0,
+            width: widthAdjustable ? nextWidthMultiple : 0,
             height: adjustableHeight ? nextHeightMultiple : 0,
           },
           // @ts-expect-error
@@ -220,7 +223,7 @@ export default function ResizableContainer({
       widthStep,
       heightStep,
       gutterWidth,
-      adjustableWidth,
+      widthAdjustable,
       adjustableHeight,
       id,
     ],
@@ -228,11 +231,13 @@ export default function ResizableContainer({
 
   const size = useMemo(
     () => ({
-      width: adjustableWidth
-        ? (widthStep + gutterWidth) * widthMultiple - gutterWidth
-        : (staticWidthMultiple && staticWidthMultiple * widthStep) ||
-          staticWidth ||
-          undefined,
+      width: mobile
+        ? '100%'
+        : widthAdjustable
+          ? (widthStep + gutterWidth) * widthMultiple - gutterWidth
+          : (staticWidthMultiple && staticWidthMultiple * widthStep) ||
+            staticWidth ||
+            undefined,
       height: adjustableHeight
         ? heightStep * heightMultiple
         : (staticHeightMultiple && staticHeightMultiple * heightStep) ||
@@ -240,7 +245,8 @@ export default function ResizableContainer({
           undefined,
     }),
     [
-      adjustableWidth,
+      mobile,
+      widthAdjustable,
       widthStep,
       gutterWidth,
       widthMultiple,
@@ -264,17 +270,17 @@ export default function ResizableContainer({
   );
 
   const enableConfig = useMemo(() => {
-    if (editMode && adjustableWidth && adjustableHeight) {
+    if (editMode && widthAdjustable && adjustableHeight) {
       return resizableConfig.widthAndHeight;
     }
-    if (editMode && adjustableWidth) {
+    if (editMode && widthAdjustable) {
       return resizableConfig.widthOnly;
     }
     if (editMode && adjustableHeight) {
       return resizableConfig.heightOnly;
     }
     return resizableConfig.notAdjustable;
-  }, [editMode, adjustableWidth, adjustableHeight]);
+  }, [editMode, widthAdjustable, adjustableHeight]);
 
   return (
     <StyledResizable
@@ -283,13 +289,13 @@ export default function ResizableContainer({
       grid={SNAP_TO_GRID}
       gridGap={undefined}
       minWidth={
-        adjustableWidth
+        widthAdjustable
           ? minWidthMultiple * (widthStep + gutterWidth) - gutterWidth
           : undefined
       }
       minHeight={adjustableHeight ? minHeightMultiple * heightStep : undefined}
       maxWidth={
-        adjustableWidth && size.width
+        widthAdjustable && typeof size.width === 'number'
           ? Math.max(
               size.width,
               Math.min(

@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { t } from '@apache-superset/core/translation';
 import { logging } from '@apache-superset/core/utils';
@@ -24,13 +24,19 @@ import { css, styled, useTheme } from '@apache-superset/core/theme';
 import { getClientErrorObject } from '@superset-ui/core';
 import {
   Button,
+  Input,
   InputNumber,
   Select,
   Switch,
+  Tooltip,
 } from '@superset-ui/core/components';
 import { Icons } from '@superset-ui/core/components/Icons';
 import { useToasts } from 'src/components/MessageToasts/withToasts';
-import type { LayoutItemMeta, RootState } from 'src/dashboard/types';
+import type {
+  LayoutItem,
+  LayoutItemMeta,
+  RootState,
+} from 'src/dashboard/types';
 import { DASHBOARD_ROOT_ID } from 'src/dashboard/util/constants';
 import {
   deleteBackground,
@@ -42,7 +48,20 @@ import {
 import { ColorField, Field, RangeField, Section, Segments } from './controls';
 import { selectVisual, useSelectedVisual } from './selection';
 import { useShowGrid } from './gridGuides';
+import { setMobilePreview, useMobilePreview } from './mobile';
 import { BoxSections } from './BoxSections';
+import { ObjectFlagToggles } from './ObjectFlags';
+import { isCopyable, useClipboard } from './clipboard';
+import { useObjectCommands } from './useObjectCommands';
+import {
+  canPasteFormat,
+  cancelFormatPainter,
+  copiedFormat,
+  copyFormat,
+  isPainterArmed,
+  pasteFormat,
+  useFormatPainter,
+} from './formatPainter';
 import { ElementSection, elementName } from 'src/mibi/elements/ElementFormat';
 import { elementKind } from 'src/mibi/elements/types';
 import {
@@ -61,6 +80,14 @@ import {
 
 const MAX_IMAGE_BYTES = 2 * 1024 * 1024;
 
+const Hint = styled.p`
+  ${({ theme }) => css`
+    margin: 0;
+    font-size: ${theme.fontSizeSM}px;
+    color: ${theme.colorTextTertiary};
+  `}
+`;
+
 const Pane = styled.div`
   ${({ theme }) => css`
     display: flex;
@@ -75,6 +102,29 @@ const Pane = styled.div`
       min-height: 48px;
       padding: ${theme.sizeUnit * 2}px ${theme.sizeUnit * 4}px;
       border-bottom: 1px solid ${theme.colorBorderSecondary};
+    }
+
+    .painter-bar {
+      display: flex;
+      gap: ${theme.sizeUnit * 2}px;
+      padding: ${theme.sizeUnit * 3}px ${theme.sizeUnit * 4}px;
+      border-bottom: 1px solid ${theme.colorBorderSecondary};
+    }
+
+    .painter-tip {
+      display: flex;
+      align-items: center;
+      gap: ${theme.sizeUnit * 2}px;
+      padding: ${theme.sizeUnit * 2}px ${theme.sizeUnit * 4}px;
+      background: ${theme.colorPrimaryBg};
+      color: ${theme.colorPrimaryText};
+      font-size: ${theme.fontSizeSM}px;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: ${theme.sizeUnit}px;
+      margin-left: auto;
     }
 
     .crumbs {
@@ -246,8 +296,80 @@ function VisualSection({ id }: { id: string }) {
                 ]}
               />
             </Field>
+            <Input
+              value={format.title?.subtitle ?? ''}
+              placeholder={t('Subtitle (optional)')}
+              aria-label={t('Subtitle')}
+              data-test="mibi-format-subtitle"
+              onChange={event =>
+                updateTitle({ subtitle: event.target.value }, 'subtitle')
+              }
+            />
+            {format.title?.subtitle && (
+              <>
+                <RangeField
+                  label={t('Subtitle size')}
+                  value={format.title?.subtitleSize ?? 12}
+                  min={9}
+                  max={20}
+                  onChange={subtitleSize =>
+                    updateTitle({ subtitleSize }, 'subtitle-size')
+                  }
+                />
+                <ColorField
+                  label={t('Subtitle color')}
+                  value={format.title?.subtitleColor || theme.colorTextTertiary}
+                  onChange={subtitleColor =>
+                    updateTitle({ subtitleColor }, 'subtitle-color')
+                  }
+                />
+              </>
+            )}
+            <Field label={t('Line under the header')}>
+              <Switch
+                size="small"
+                checked={!!format.title?.divider}
+                aria-label={t('Line under the header')}
+                data-test="mibi-format-divider"
+                onChange={divider => updateTitle({ divider }, 'divider')}
+              />
+            </Field>
+            {format.title?.divider && (
+              <ColorField
+                label={t('Line color')}
+                value={format.title?.dividerColor || theme.colorBorderSecondary}
+                onChange={dividerColor =>
+                  updateTitle({ dividerColor }, 'divider-color')
+                }
+              />
+            )}
           </>
         )}
+      </Section>
+
+      <Section>
+        <h4>{t('Header icons')}</h4>
+        <Field label={t('Chart menu')}>
+          <Switch
+            size="small"
+            checked={format.header?.menu !== false}
+            aria-label={t('Chart menu')}
+            data-test="mibi-format-menu"
+            onChange={menu =>
+              update({ header: { ...format.header, menu } }, 'header-menu')
+            }
+          />
+        </Field>
+        <Field label={t('Filter and cross-filter badges')}>
+          <Switch
+            size="small"
+            checked={format.header?.badges !== false}
+            aria-label={t('Filter and cross-filter badges')}
+            onChange={badges =>
+              update({ header: { ...format.header, badges } }, 'header-badges')
+            }
+          />
+        </Field>
       </Section>
 
       <div className="actions">
@@ -295,6 +417,7 @@ function CanvasSection() {
     );
   const sizeMode = canvas.size?.mode ?? 'auto';
   const [showGrid, setShowGrid] = useShowGrid();
+  const mobilePreview = useMobilePreview();
 
   const onFile = async (file?: File) => {
     if (!file) return;
@@ -520,6 +643,41 @@ function CanvasSection() {
 
       <Section>
         <h4>{t('Editing')}</h4>
+        <Field label={t('View')} stacked>
+          <Segments<'desktop' | 'mobile'>
+            name={t('View')}
+            value={mobilePreview ? 'mobile' : 'desktop'}
+            testId="mibi-format-preview"
+            onChange={value => setMobilePreview(value === 'mobile')}
+            options={[
+              {
+                value: 'desktop',
+                label: (
+                  <>
+                    <Icons.DesktopOutlined iconSize="m" />
+                    {t('Desktop')}
+                  </>
+                ),
+              },
+              {
+                value: 'mobile',
+                label: (
+                  <>
+                    <Icons.MobileOutlined iconSize="m" />
+                    {t('Mobile')}
+                  </>
+                ),
+              },
+            ]}
+          />
+        </Field>
+        {mobilePreview && (
+          <Hint>
+            {t(
+              'On phones every object takes the full width, in the order of the canvas. Hide objects there with the phone button of the Format pane.',
+            )}
+          </Hint>
+        )}
         <Field label={t('Show column grid')}>
           <Switch
             size="small"
@@ -569,8 +727,103 @@ function CanvasSection() {
  * The Format tab of the dashboard builder: the canvas when nothing is
  * selected, the selected chart otherwise.
  */
+/** Copy, paste and duplicate the selected object, or paste on the canvas. */
+function ObjectBar({ item }: { item?: LayoutItem }) {
+  const clipboard = useClipboard();
+  const { copy, paste, duplicate } = useObjectCommands();
+  if (!item && !clipboard) return null;
+  return (
+    <div className="painter-bar" data-test="mibi-object-bar">
+      {item && isCopyable(item) && (
+        <>
+          <Tooltip title={t('Duplicate (Ctrl+D)')}>
+            <Button
+              buttonStyle="secondary"
+              buttonSize="small"
+              data-test="mibi-duplicate"
+              onClick={() => duplicate(item.id)}
+            >
+              <Icons.CopyOutlined iconSize="m" />
+              {t('Duplicate')}
+            </Button>
+          </Tooltip>
+          <Tooltip title={t('Copy (Ctrl+C)')}>
+            <Button
+              buttonStyle="secondary"
+              buttonSize="small"
+              data-test="mibi-copy"
+              onClick={() => copy(item.id)}
+            >
+              {t('Copy')}
+            </Button>
+          </Tooltip>
+        </>
+      )}
+      {clipboard && (
+        <Tooltip title={t('Paste (Ctrl+V)')}>
+          <Button
+            buttonStyle="secondary"
+            buttonSize="small"
+            data-test="mibi-paste"
+            onClick={() => paste(item?.id ?? null)}
+          >
+            {t('Paste')}
+          </Button>
+        </Tooltip>
+      )}
+    </div>
+  );
+}
+
+/** Copy format and paste format, for the selected object. */
+function PainterBar({ item }: { item: LayoutItem }) {
+  const dispatch = useDispatch();
+  const { armed } = useFormatPainter();
+  return (
+    <div className="painter-bar">
+      <Button
+        buttonStyle={armed ? 'primary' : 'secondary'}
+        buttonSize="small"
+        data-test="mibi-copy-format"
+        onClick={() => (armed ? cancelFormatPainter() : copyFormat(item))}
+      >
+        <Icons.FormatPainterOutlined iconSize="m" />
+        {armed ? t('Cancel') : t('Copy format')}
+      </Button>
+      <Button
+        buttonStyle="secondary"
+        buttonSize="small"
+        disabled={!canPasteFormat(item)}
+        data-test="mibi-paste-format"
+        onClick={() => dispatch(pasteFormat(item.id))}
+      >
+        {t('Paste format')}
+      </Button>
+    </div>
+  );
+}
+
 export function FormatPane() {
   const selected = useSelectedVisual();
+  const dispatch = useDispatch();
+  const { armed } = useFormatPainter();
+
+  // The format painter gives its format to the next object selected
+  useEffect(() => {
+    if (!selected || !isPainterArmed()) return;
+    if (copiedFormat()?.sourceId === selected) return;
+    dispatch(pasteFormat(selected));
+    cancelFormatPainter();
+  }, [dispatch, selected]);
+
+  useEffect(() => {
+    if (!armed) return undefined;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') cancelFormatPainter();
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [armed]);
   const item = useSelector((state: RootState) =>
     selected ? state.dashboardLayout.present[selected] : undefined,
   );
@@ -601,7 +854,20 @@ export function FormatPane() {
               : t('Canvas')}
           </span>
         </div>
+        {visual && item && (
+          <div className="header-actions">
+            <ObjectFlagToggles item={item} />
+          </div>
+        )}
       </div>
+      {armed && (
+        <div className="painter-tip" role="status" data-test="mibi-painter-tip">
+          <Icons.FormatPainterOutlined iconSize="m" />
+          {t('Click another object to give it this format. Esc cancels.')}
+        </div>
+      )}
+      <ObjectBar item={visual && item ? item : undefined} />
+      {visual && item && <PainterBar item={item} />}
       <div className="pane-body">
         {visual && kind ? (
           <ElementSection id={visual} />
