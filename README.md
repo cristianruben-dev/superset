@@ -48,8 +48,14 @@ algunas reglas de producto distintas:
     clic. Hay cuatro de fábrica (Corporativo, Fresco, Vibrante y Minimalista) y cada
     área de trabajo puede tener el suyo, que heredan sus paneles nuevos;
   - copiar formato, copiar y pegar objetos, ocultar y bloquear.
-- **Elementos de diseño:** imágenes, formas, botones (con enlaces y estados) y texto
-  enriquecido.
+- **Elementos de diseño:** imágenes, formas, botones (con enlaces y estados), texto
+  enriquecido y **filtros en el lienzo** (como las segmentaciones de Power BI), que se
+  aplican al instante y comparten su valor con la barra de filtros.
+- **Barra de filtros por niveles**, como en Power BI: *filtros en todas las páginas*
+  (siempre visibles), *filtros en esta página* (cambian con la pestaña) y *filtros en
+  gráficos*. La sección sale del alcance del filtro o se elige en la pestaña «Alcance»
+  del filtro. Desde el engranaje de la barra se puede activar **Aplicar filtros al
+  instante** para no tener que pulsar «Aplicar».
 - **Modo presentación** y **exportación a PDF o PNG** con portada, una página por
   pestaña del tamaño del panel y los filtros aplicados.
 - **Diseño propio:** logotipo, colores, tipografía Geist, modo claro y oscuro,

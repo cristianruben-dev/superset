@@ -25,7 +25,7 @@ import type { VisualFormat } from 'src/mibi/format/types';
  * them in the same mibiFormat charts use.
  */
 
-export type ElementKind = 'image' | 'shape' | 'button' | 'text';
+export type ElementKind = 'image' | 'shape' | 'button' | 'text' | 'filter';
 
 export const ELEMENT_PREFIX = 'mibi-';
 export const ELEMENT_KEY = 'mibiElement';
@@ -36,7 +36,7 @@ export const elementKind = (componentKey: unknown): ElementKind | null => {
   if (typeof componentKey !== 'string') return null;
   const kind = componentKey.slice(ELEMENT_PREFIX.length);
   return componentKey.startsWith(ELEMENT_PREFIX) &&
-    ['image', 'shape', 'button', 'text'].includes(kind)
+    ['image', 'shape', 'button', 'text', 'filter'].includes(kind)
     ? (kind as ElementKind)
     : null;
 };
@@ -159,11 +159,21 @@ export interface TextElement {
   textStyle?: TextStyle;
 }
 
+/** A dashboard native filter placed on the canvas, like a BI slicer */
+export interface FilterElement {
+  kind: 'filter';
+  /** Id of the native filter to show */
+  filterId?: string;
+  /** Also list the filter in the filter bar (default true) */
+  showInFilterBar?: boolean;
+}
+
 export type ElementConfig =
   | ImageElement
   | ShapeElement
   | ButtonElement
-  | TextElement;
+  | TextElement
+  | FilterElement;
 
 /** Icons a button can show, by their name in Icons. */
 export const BUTTON_ICONS = [
@@ -271,6 +281,15 @@ export const ELEMENT_DEFAULTS: Record<
       shadow: 'soft',
       textStyle: { size: 14, weight: 600, align: 'center' },
     },
+  },
+  filter: {
+    width: 3,
+    height: 11,
+    format: {
+      padding: 12,
+      radius: 12,
+    },
+    element: { kind: 'filter', showInFilterBar: true },
   },
   text: {
     width: 4,

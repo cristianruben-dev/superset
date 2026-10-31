@@ -98,6 +98,7 @@ import { ColumnSelect } from './ColumnSelect';
 import DatasetSelect from './DatasetSelect';
 import DefaultValue from './DefaultValue';
 import FilterScope from './FilterScope/FilterScope';
+import FilterScopeLevelField from './FilterScope/FilterScopeLevelField';
 import getControlItemsMap from './getControlItemsMap';
 import RemovedFilter from './RemovedFilter';
 import { useBackendFormUpdate, useDefaultValue } from './state';
@@ -1719,18 +1720,27 @@ const FiltersConfigForm = (
           label: FilterTabs.scoping.name,
           forceRender: true,
           children: (
-            <FilterScope
-              updateFormValues={updateFormValues}
-              pathToFormValue={['filters', filterId]}
-              forceUpdate={forceUpdate}
-              filterScope={
-                isChartCustomization
-                  ? customizationToEdit?.scope
-                  : filterToEdit?.scope
-              }
-              formFilterScope={formFilter?.scope}
-              initiallyExcludedCharts={initiallyExcludedCharts}
-            />
+            <>
+              {!isChartCustomization && (
+                <FilterScopeLevelField
+                  filterId={filterId}
+                  initialValue={filterToEdit?.scopeLevel}
+                  onChange={formChanged}
+                />
+              )}
+              <FilterScope
+                updateFormValues={updateFormValues}
+                pathToFormValue={['filters', filterId]}
+                forceUpdate={forceUpdate}
+                filterScope={
+                  isChartCustomization
+                    ? customizationToEdit?.scope
+                    : filterToEdit?.scope
+                }
+                formFilterScope={formFilter?.scope}
+                initiallyExcludedCharts={initiallyExcludedCharts}
+              />
+            </>
           ),
         },
       ]}

@@ -37,6 +37,7 @@ const CONTENT_KEYS: Record<ElementKind, string[]> = {
   shape: ['shape', 'text', 'action'],
   button: ['label', 'icon', 'action'],
   text: ['html'],
+  filter: ['filterId', 'showInFilterBar'],
 };
 
 export interface CopiedFormat {

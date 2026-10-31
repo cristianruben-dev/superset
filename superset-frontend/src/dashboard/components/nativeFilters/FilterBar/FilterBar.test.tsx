@@ -695,6 +695,7 @@ test('FilterBar Clear All only clears in-scope filters, not out-of-scope ones', 
     controlValues: { enableEmptyFilter: false },
     chartsInScope: [1],
     tabsInScope: ['TAB-active'],
+    scope: { rootPath: ['TAB-active'], excluded: [] },
   });
 
   const outOfScopeRequiredFilter = createFilter({
@@ -704,6 +705,7 @@ test('FilterBar Clear All only clears in-scope filters, not out-of-scope ones', 
     controlValues: { enableEmptyFilter: true },
     chartsInScope: [2],
     tabsInScope: ['TAB-inactive'],
+    scope: { rootPath: ['TAB-inactive'], excluded: [] },
   });
 
   const outOfScopeNonRequiredFilter = createFilter({
@@ -713,6 +715,7 @@ test('FilterBar Clear All only clears in-scope filters, not out-of-scope ones', 
     controlValues: { enableEmptyFilter: false },
     chartsInScope: [2],
     tabsInScope: ['TAB-inactive'],
+    scope: { rootPath: ['TAB-inactive'], excluded: [] },
   });
 
   const stateWithTabsAndFilters = {
@@ -789,4 +792,39 @@ test('FilterBar Clear All only clears in-scope filters, not out-of-scope ones', 
   });
 
   updateDataMaskSpy.mockRestore();
+});
+
+test('FilterBar hides the Apply button when filters apply instantly', async () => {
+  const filterId = 'NATIVE_FILTER-auto-apply-button';
+  const filter = createFilter({ id: filterId, name: 'Region' });
+  const state = {
+    ...stateWithoutNativeFilters,
+    dashboardInfo: {
+      id: 1,
+      dash_edit_perm: true,
+      metadata: {
+        native_filter_configuration: [filter],
+        filter_bar_auto_apply: true,
+      },
+    },
+    dataMask: {
+      [filterId]: createDataMask(filterId, ['East'], {
+        filters: [{ col: 'region', op: 'IN', val: ['East'] }],
+      }),
+    },
+    nativeFilters: {
+      filters: { [filterId]: filter },
+      filtersState: {},
+    },
+  };
+
+  renderFilterBar(createOpenedBarProps(), state);
+  await act(async () => {
+    jest.advanceTimersByTime(300);
+  });
+
+  expect(
+    screen.queryByTestId(getTestId('apply-button')),
+  ).not.toBeInTheDocument();
+  expect(screen.getByTestId(getTestId('clear-button'))).toBeInTheDocument();
 });

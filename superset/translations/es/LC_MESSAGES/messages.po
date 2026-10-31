@@ -10534,7 +10534,7 @@ msgid "Scope"
 msgstr "Alcance"
 
 msgid "Scoping"
-msgstr "Ejecutando alcance"
+msgstr "Alcance"
 
 msgid "Screenshot width"
 msgstr "Anchura de la captura de pantalla"
@@ -18342,3 +18342,56 @@ msgstr "Celdas cuadradas"
 
 msgid "Fit the objects to the page height"
 msgstr "Ajustar los objetos al alto de la página"
+msgid "Filters on all pages"
+msgstr "Filtros en todas las páginas"
+
+msgid "Filters on this page"
+msgstr "Filtros en esta página"
+
+msgid "Filters on visuals"
+msgstr "Filtros en gráficos"
+
+msgid "Apply filters instantly"
+msgstr "Aplicar filtros al instante"
+
+msgid "Failed to save the filter apply setting"
+msgstr "No se pudo guardar cómo se aplican los filtros"
+
+msgid "Show in filter bar section"
+msgstr "Sección de la barra de filtros"
+
+msgid "Filters on all pages are always listed. Filters on this page and filters on visuals are only listed while the tab they apply to is open. Automatic picks the section from the scoping below."
+msgstr "Los filtros en todas las páginas siempre se muestran. Los filtros en esta página y en gráficos solo se muestran mientras está abierta la pestaña a la que se aplican. «Automático» elige la sección según el alcance de abajo."
+
+msgid "All pages"
+msgstr "Todas las páginas"
+
+msgid "This page"
+msgstr "Esta página"
+
+msgid "Visuals"
+msgstr "Gráficos"
+
+msgid "No filter selected"
+msgstr "No has elegido ningún filtro"
+
+msgid "The selected filter no longer exists"
+msgstr "El filtro elegido ya no existe"
+
+msgid "Choose a dashboard filter in the Format pane"
+msgstr "Elige un filtro del panel de control en el panel Formato"
+
+msgid "Shows a filter of the dashboard on the canvas. Choices made here apply to the charts right away and also show in the filter bar."
+msgstr "Muestra un filtro del panel de control en el lienzo. Lo que elijas aquí se aplica a los gráficos al instante y también se ve en la barra de filtros."
+
+msgid "Filter to show"
+msgstr "Filtro que se muestra"
+
+msgid "Choose a filter"
+msgstr "Elige un filtro"
+
+msgid "Add a filter to the dashboard first"
+msgstr "Primero añade un filtro al panel de control"
+
+msgid "Also show in the filter bar"
+msgstr "Mostrar también en la barra de filtros"

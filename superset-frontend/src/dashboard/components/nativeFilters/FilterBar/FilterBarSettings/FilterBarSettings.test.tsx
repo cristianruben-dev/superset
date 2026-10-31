@@ -104,7 +104,9 @@ test('Popover shows cross-filtering option on by default', async () => {
   });
   userEvent.click(settingsButton);
   expect(screen.getByText('Enable cross-filtering')).toBeInTheDocument();
-  expect(screen.getByRole('checkbox')).toBeChecked();
+  expect(
+    screen.getByRole('checkbox', { name: 'Enable cross-filtering' }),
+  ).toBeChecked();
 });
 
 test('Can enable/disable cross-filtering', async () => {
@@ -121,13 +123,17 @@ test('Can enable/disable cross-filtering', async () => {
     name: 'setting',
   });
   userEvent.click(settingsButton);
-  const initialCheckbox = screen.getByRole('checkbox');
+  const initialCheckbox = screen.getByRole('checkbox', {
+    name: 'Enable cross-filtering',
+  });
   expect(initialCheckbox).toBeChecked();
 
   userEvent.click(initialCheckbox);
 
   userEvent.click(screen.getByLabelText('setting'));
-  expect(screen.getByRole('checkbox')).not.toBeChecked();
+  expect(
+    screen.getByRole('checkbox', { name: 'Enable cross-filtering' }),
+  ).not.toBeChecked();
 });
 
 test('Popover opens with "Vertical" selected', async () => {
@@ -272,4 +278,44 @@ test('On failed request, restore previous selection', async () => {
       within(horizontalItemAfter.closest('li')!).queryByLabelText('Selected'),
     ).not.toBeInTheDocument();
   });
+});
+
+test('Popover shows apply filters instantly off by default', async () => {
+  await setup();
+  await userEvent.click(screen.getByRole('button', { name: 'setting' }));
+  expect(
+    screen.getByRole('checkbox', { name: 'Apply filters instantly' }),
+  ).not.toBeChecked();
+});
+
+test('Can turn on apply filters instantly', async () => {
+  fetchMock.put('glob:*/api/v1/dashboard/1', {
+    result: {
+      json_metadata: JSON.stringify({
+        ...initialState.dashboardInfo.metadata,
+        filter_bar_auto_apply: true,
+      }),
+    },
+  });
+  await setup();
+  await userEvent.click(screen.getByRole('button', { name: 'setting' }));
+  await userEvent.click(
+    screen.getByRole('checkbox', { name: 'Apply filters instantly' }),
+  );
+
+  await waitFor(() =>
+    expect(
+      fetchMock.callHistory.calls('glob:*/api/v1/dashboard/1'),
+    ).toHaveLength(1),
+  );
+  const body = JSON.parse(
+    fetchMock.callHistory.calls('glob:*/api/v1/dashboard/1')[0].options
+      .body as string,
+  );
+  expect(JSON.parse(body.json_metadata).filter_bar_auto_apply).toBe(true);
+
+  await userEvent.click(screen.getByLabelText('setting'));
+  expect(
+    screen.getByRole('checkbox', { name: 'Apply filters instantly' }),
+  ).toBeChecked();
 });

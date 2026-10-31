@@ -68,7 +68,8 @@ This repository is **Mi BI**, a fork of Apache Superset 6.1 shaped like Power BI
 | Data page and datasets | `superset/mibi/data_views.py` | `mibi/data` |
 | Format pane, themes | `superset/mibi/format_themes.py` | `mibi/format` |
 | Background and element pictures | `superset/mibi/backgrounds.py` | `mibi/format/actions.ts`, `mibi/elements` |
-| Design elements (image, shape, button, text) | - | `mibi/elements` |
+| Design elements (image, shape, button, text, canvas filter) | - | `mibi/elements` |
+| Filter bar levels (all pages / this page / visuals), instant apply | `dashboards/schemas.py` (`filter_bar_auto_apply`) | `dashboard/components/nativeFilters/scopeLevel.ts`, `FilterBar/` |
 | Presentation mode, PDF/PNG export | - | `mibi/present`, `mibi/export` |
 | Chart type icons | - | `mibi/vizIcons` |
 
@@ -88,6 +89,8 @@ Formats are stored in `position_json`, so they save, undo and export with the da
   setting; read it with `useVisualFormat`/`mergeVisualFormat`, never `meta.mibiFormat` alone.
 - Design elements are `DYNAMIC` components whose `componentKey` starts with `mibi-`, with their
   settings in `meta.mibiElement` (`src/mibi/elements/types.ts`).
+  The canvas filter element (`mibi-filter`) stores `filterId` and `showInFilterBar`; filters
+  with `showInFilterBar: false` are left out of the filter bar (`useCanvasOnlyFilterIds`).
 - `ROOT_ID.meta.mibiColumns`: grid density, 12 (default, key absent), 24 or 48 columns.
   Every `meta.width` is in the dashboard's own columns. Use `src/mibi/format/columns.ts`
   (`columnCountOf(layout)`, `gridColumnCount()`, `scaledWidth()`, `minObjectColumns()`), never

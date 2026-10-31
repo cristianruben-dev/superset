@@ -57,6 +57,7 @@ import {
   type TextElement,
 } from './types';
 import { ButtonView, ImageView, ShapeView, TextView } from './views';
+import { FilterView } from './FilterView';
 
 /** Design elements (text, shapes, buttons) can be as low as 24 px. */
 const ELEMENT_MIN_ROW_UNITS = 3;
@@ -143,6 +144,8 @@ function ElementHolder({
         return <ImageView config={config} editMode={editMode} />;
       case 'button':
         return <ButtonView config={config} editMode={editMode} />;
+      case 'filter':
+        return <FilterView config={config} editMode={editMode} />;
       case 'text':
         return (
           <TextView

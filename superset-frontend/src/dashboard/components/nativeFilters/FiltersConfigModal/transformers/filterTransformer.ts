@@ -113,7 +113,7 @@ function transformFormInput(
     excluded: [],
   };
 
-  return {
+  const result: Filter = {
     id,
     type: NativeFilterType.NativeFilter,
     name: formInputs.name,
@@ -132,14 +132,26 @@ function transformFormInput(
       ? Object.values(formInputs.requiredFirst).find(rf => rf)
       : undefined,
   };
+
+  if (formInputs.scopeLevel && formInputs.scopeLevel !== 'auto') {
+    result.scopeLevel = formInputs.scopeLevel;
+  }
+
+  return result;
 }
 
 function transformSavedFilter(id: string, filter: Filter): Filter {
-  return {
+  const result: Filter = {
     ...filter,
     id,
     description: (filter.description || '').trim(),
   };
+  // A form without a dataset control reaches this path too; its "automatic"
+  // section choice means the level is derived, so it is not stored.
+  if ((result.scopeLevel as string | undefined) === 'auto') {
+    delete result.scopeLevel;
+  }
+  return result;
 }
 
 function transformFilter(

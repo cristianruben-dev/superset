@@ -195,6 +195,8 @@ export type DashboardInfo = {
     refresh_frequency?: number;
     positions?: JsonObject;
     filter_scopes?: JsonObject;
+    /** apply native filter selections as they change (no Apply button) */
+    filter_bar_auto_apply?: boolean;
   };
   crossFiltersEnabled: boolean;
   filterBarOrientation: FilterBarOrientation;

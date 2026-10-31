@@ -49,6 +49,7 @@ const ICONS: Record<ElementKind, unknown> = {
   image: Icons.FileImageOutlined,
   shape: Icons.BorderOutlined,
   button: Icons.BlockOutlined,
+  filter: Icons.FilterOutlined,
 };
 
 /** Draggers for the Mi BI design elements in the Layout elements tab. */
@@ -59,29 +60,31 @@ export function NewElements() {
   return (
     <div data-test="mibi-new-elements">
       <Heading>{t('Design elements')}</Heading>
-      {(['text', 'image', 'shape', 'button'] as ElementKind[]).map(kind => {
-        const defaults = ELEMENT_DEFAULTS[kind];
-        const element =
-          kind === 'button'
-            ? { ...defaults.element, label: t('Button') }
-            : defaults.element;
-        return (
-          <DraggableNewComponent
-            key={kind}
-            id={`NEW_MIBI_${kind.toUpperCase()}`}
-            type={DYNAMIC_TYPE}
-            label={elementName(kind)}
-            IconComponent={ICONS[kind]}
-            meta={{
-              componentKey: elementKey(kind),
-              width: scaledWidth(defaults.width, columns),
-              height: defaults.height,
-              [VISUAL_FORMAT_KEY]: defaults.format,
-              [ELEMENT_KEY]: element,
-            }}
-          />
-        );
-      })}
+      {(['text', 'image', 'shape', 'button', 'filter'] as ElementKind[]).map(
+        kind => {
+          const defaults = ELEMENT_DEFAULTS[kind];
+          const element =
+            kind === 'button'
+              ? { ...defaults.element, label: t('Button') }
+              : defaults.element;
+          return (
+            <DraggableNewComponent
+              key={kind}
+              id={`NEW_MIBI_${kind.toUpperCase()}`}
+              type={DYNAMIC_TYPE}
+              label={elementName(kind)}
+              IconComponent={ICONS[kind]}
+              meta={{
+                componentKey: elementKey(kind),
+                width: scaledWidth(defaults.width, columns),
+                height: defaults.height,
+                [VISUAL_FORMAT_KEY]: defaults.format,
+                [ELEMENT_KEY]: element,
+              }}
+            />
+          );
+        },
+      )}
       <Heading>{t('Layout')}</Heading>
     </div>
   );

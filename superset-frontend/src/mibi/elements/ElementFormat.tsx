@@ -21,11 +21,16 @@ import { useDispatch, useSelector } from 'react-redux';
 import { t } from '@apache-superset/core/translation';
 import { logging } from '@apache-superset/core/utils';
 import { css, styled, useTheme } from '@apache-superset/core/theme';
-import { getClientErrorObject } from '@superset-ui/core';
+import {
+  Filter,
+  getClientErrorObject,
+  NativeFilterType,
+} from '@superset-ui/core';
 import { Button, Input, Select, Switch } from '@superset-ui/core/components';
 import { Icons } from '@superset-ui/core/components/Icons';
 import { useToasts } from 'src/components/MessageToasts/withToasts';
 import type { RootState } from 'src/dashboard/types';
+import { useFilters } from 'src/dashboard/components/nativeFilters/FilterBar/state';
 import { BoxSections } from 'src/mibi/format/BoxSections';
 import {
   ColorField,
@@ -51,6 +56,7 @@ import {
   type ElementConfig,
   type ElementKind,
   type Fill,
+  type FilterElement,
   type HoverEffect,
   type ImageElement,
   type Interactive,
@@ -69,6 +75,7 @@ export const elementName = (kind: ElementKind) =>
     shape: t('Shape'),
     button: t('Button'),
     text: t('Text box'),
+    filter: t('Filter'),
   })[kind];
 
 const Grid = styled.div`
@@ -1211,6 +1218,62 @@ function TextSection({
   );
 }
 
+function FilterSection({
+  id,
+  config,
+  update,
+}: {
+  id: string;
+  config: FilterElement;
+  update: (patch: Partial<FilterElement>, setting: string) => void;
+}) {
+  const filters = useFilters();
+  const options = useMemo(
+    () =>
+      Object.values(filters)
+        .filter(
+          (item): item is Filter => item.type === NativeFilterType.NativeFilter,
+        )
+        .map(filter => ({ value: filter.id, label: filter.name })),
+    [filters],
+  );
+  return (
+    <>
+      <Section>
+        <h4>{t('Filter')}</h4>
+        <Hint>
+          {t(
+            'Shows a filter of the dashboard on the canvas. Choices made here apply to the charts right away and also show in the filter bar.',
+          )}
+        </Hint>
+        <Select
+          ariaLabel={t('Filter to show')}
+          data-test="mibi-filter-element-select"
+          value={config.filterId}
+          placeholder={
+            options.length
+              ? t('Choose a filter')
+              : t('Add a filter to the dashboard first')
+          }
+          onChange={value => update({ filterId: String(value) }, 'filter')}
+          options={options}
+        />
+        <Field label={t('Also show in the filter bar')}>
+          <Switch
+            size="small"
+            checked={config.showInFilterBar !== false}
+            aria-label={t('Also show in the filter bar')}
+            onChange={showInFilterBar =>
+              update({ showInFilterBar }, 'filter-bar')
+            }
+          />
+        </Field>
+      </Section>
+      <BoxSections id={id} />
+    </>
+  );
+}
+
 /** Format pane settings of the selected design element. */
 export function ElementSection({ id }: { id: string }) {
   const dispatch = useDispatch();
@@ -1237,6 +1300,8 @@ export function ElementSection({ id }: { id: string }) {
       return <ButtonSection config={config} update={update} />;
     case 'text':
       return <TextSection id={id} config={config} update={update} />;
+    case 'filter':
+      return <FilterSection id={id} config={config} update={update} />;
     default:
       return <ShapeSection config={config} update={update} />;
   }

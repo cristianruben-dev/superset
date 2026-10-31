@@ -153,6 +153,44 @@ export function saveFilterBarOrientation(orientation: FilterBarOrientation) {
   };
 }
 
+export function saveFilterBarAutoApply(autoApply: boolean) {
+  return async function saveFilterBarAutoApplyThunk(
+    dispatch: Dispatch,
+    getState: () => RootState,
+  ) {
+    const { id, metadata } = getState().dashboardInfo;
+    const previousMetadata = metadata;
+    // optimistic update so the filter bar switches mode right away
+    dispatch(
+      dashboardInfoChanged({
+        metadata: { ...metadata, filter_bar_auto_apply: autoApply },
+      }),
+    );
+    const updateDashboard = createUpdateDashboardApi(id);
+    try {
+      const response = await updateDashboard({
+        json_metadata: JSON.stringify({
+          ...metadata,
+          filter_bar_auto_apply: autoApply,
+        }),
+      });
+      if (response.last_modified_time) {
+        dispatch(onSave(response.last_modified_time));
+      }
+      dispatch(
+        dashboardInfoChanged({
+          metadata: JSON.parse(response.result.json_metadata || '{}'),
+        }),
+      );
+      return response;
+    } catch (err) {
+      dispatch(dashboardInfoChanged({ metadata: previousMetadata }));
+      dispatch(addDangerToast(t('Failed to save the filter apply setting')));
+      throw err;
+    }
+  };
+}
+
 export function saveCrossFiltersSetting(crossFiltersEnabled: boolean) {
   return async function saveCrossFiltersSettingThunk(
     dispatch: Dispatch,

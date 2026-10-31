@@ -422,3 +422,101 @@ test('FilterControls overflowedByIndex updates when filters change scope', () =>
 
   expect(container).toBeInTheDocument();
 });
+
+type MockFilter = ReturnType<typeof createMockFilter> & {
+  chartsInScope?: number[];
+  scopeLevel?: string;
+};
+
+const renderTabbedVertical = (
+  configure: (filters: Record<string, MockFilter>) => void,
+  hideHeader = false,
+) => {
+  const state = getDefaultState(FilterBarOrientation.Vertical);
+  const layout = state.dashboardLayout.present as Record<
+    string,
+    { parents?: string[] }
+  >;
+  layout['CHART-1'].parents = ['ROOT_ID', 'TABS-1', 'TAB-1'];
+  layout['CHART-2'].parents = ['ROOT_ID', 'TABS-1', 'TAB-2'];
+  configure(state.nativeFilters.filters as Record<string, MockFilter>);
+  (state as any).dashboardInfo = {
+    ...state.dashboardInfo,
+    metadata: {
+      native_filter_configuration: Object.values(state.nativeFilters.filters),
+    },
+  };
+
+  const { useSelector } = jest.requireMock('react-redux');
+  useSelector.mockImplementation((selector: (s: typeof state) => unknown) =>
+    selector(state),
+  );
+
+  const store = mockStore(state) as Store;
+  return render(
+    <Provider store={store}>
+      <FilterControls
+        dataMaskSelected={{}}
+        onFilterSelectionChange={jest.fn()}
+        onPendingCustomizationDataMaskChange={jest.fn()}
+        chartCustomizationValues={[]}
+        hideHeader={hideHeader}
+      />
+    </Provider>,
+  );
+};
+
+test('groups filters into report, page and visual sections and hides other tabs filters', () => {
+  renderTabbedVertical(filters => {
+    // whole dashboard -> listed on every page
+    filters['filter-1'].chartsInScope = [1, 2];
+    // rooted at the active tab -> this page
+    filters['filter-2'].scope = { rootPath: ['TAB-1'], excluded: [] };
+    filters['filter-2'].chartsInScope = [1];
+    // rooted at the inactive tab -> not listed
+    filters['filter-3'].scope = { rootPath: ['TAB-2'], excluded: [] };
+    filters['filter-3'].chartsInScope = [2];
+  });
+
+  const reportSection = screen.getByTestId('filter-bar-section-report');
+  const pageSection = screen.getByTestId('filter-bar-section-page');
+  expect(reportSection).toHaveTextContent('Filters on all pages');
+  expect(reportSection).toHaveTextContent('Country Filter');
+  expect(pageSection).toHaveTextContent('Filters on this page');
+  expect(pageSection).toHaveTextContent('Region Filter');
+  expect(
+    screen.queryByTestId('filter-bar-section-visual'),
+  ).not.toBeInTheDocument();
+  expect(screen.queryByText('City Filter')).not.toBeInTheDocument();
+  expect(screen.queryByText(/Filters out of scope/)).not.toBeInTheDocument();
+});
+
+test('lists report filters even when none of their charts are on the active tab', () => {
+  renderTabbedVertical(filters => {
+    filters['filter-1'].scope = { rootPath: ['TAB-2'], excluded: [] };
+    filters['filter-1'].scopeLevel = 'report';
+    filters['filter-1'].chartsInScope = [2];
+    filters['filter-2'].scope = { rootPath: ['TAB-2'], excluded: [] };
+    filters['filter-2'].chartsInScope = [2];
+    filters['filter-3'].scope = { rootPath: ['TAB-2'], excluded: [] };
+    filters['filter-3'].chartsInScope = [2];
+  });
+
+  expect(screen.getByTestId('filter-bar-section-report')).toHaveTextContent(
+    'Country Filter',
+  );
+  expect(screen.queryByText('Region Filter')).not.toBeInTheDocument();
+  expect(
+    screen.queryByTestId('filter-bar-section-page'),
+  ).not.toBeInTheDocument();
+});
+
+test('keeps section titles on tabbed dashboards when the bar hides its header', () => {
+  renderTabbedVertical(filters => {
+    filters['filter-1'].chartsInScope = [1, 2];
+    filters['filter-2'].chartsInScope = [1, 2];
+    filters['filter-3'].chartsInScope = [1, 2];
+  }, true);
+
+  expect(screen.getByText('Filters on all pages')).toBeInTheDocument();
+});

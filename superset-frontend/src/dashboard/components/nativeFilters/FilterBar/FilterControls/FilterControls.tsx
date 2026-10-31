@@ -52,9 +52,9 @@ import {
 import { useSelector, useDispatch } from 'react-redux';
 import {
   useDashboardHasTabs,
-  useSelectFiltersInScope,
   useSelectCustomizationsInScope,
 } from 'src/dashboard/components/nativeFilters/state';
+import { useFilterBarSections } from 'src/dashboard/components/nativeFilters/scopeLevel';
 import { FilterBarOrientation, RootState } from 'src/dashboard/types';
 import {
   DropdownContainer,
@@ -66,7 +66,6 @@ import { useChartIds } from 'src/dashboard/util/charts/useChartIds';
 import { useChartLayoutItems } from 'src/dashboard/util/useChartLayoutItems';
 import { setPendingChartCustomization } from 'src/dashboard/actions/chartCustomizationActions';
 import { getInitialDataMask } from 'src/dataMask/reducer';
-import { FiltersOutOfScopeCollapsible } from '../FiltersOutOfScopeCollapsible';
 import { CustomizationsOutOfScopeCollapsible } from '../CustomizationsOutOfScopeCollapsible';
 import { useFilterControlFactory } from '../useFilterControlFactory';
 import { FiltersDropdownContent } from '../FiltersDropdownContent';
@@ -196,8 +195,18 @@ const FilterControls: FC<FilterControlsProps> = ({
 
   const filterIds = new Set(filtersWithValues.map(item => item.id));
 
-  const [filtersInScope, filtersOutOfScope] =
-    useSelectFiltersInScope(filtersWithValues);
+  const filterSections = useFilterBarSections(filtersWithValues);
+  // Report filters first, then page and visual filters of the active tab.
+  // Filters of other tabs are not listed at all, as in BI-tool filter panes.
+  const filtersInScope = useMemo(
+    () => [
+      ...filterSections.report,
+      ...filterSections.page,
+      ...filterSections.visual,
+    ],
+    [filterSections],
+  );
+  const filtersOutOfScope = filterSections.hidden;
 
   const filteredChartCustomizationValues = useMemo(
     () => chartCustomizationValues.filter(item => !item.removed),
@@ -213,19 +222,26 @@ const FilterControls: FC<FilterControlsProps> = ({
   );
 
   const dashboardHasTabs = useDashboardHasTabs();
-  const showCollapsePanel = dashboardHasTabs && filtersWithValues.length > 0;
   const showCustomizationCollapsePanel =
     dashboardHasTabs && filteredChartCustomizationValues.length > 0;
 
   const [sectionsOpen, setSectionsOpen] = useState({
-    filters: true,
+    report: true,
+    page: true,
+    visual: true,
     chartCustomization: true,
   });
 
-  const showFiltersOutOfScope =
-    showCollapsePanel &&
-    (hideHeader || sectionsOpen.filters) &&
-    filtersOutOfScope.length > 0;
+  // Section titles tell report, page and visual filters apart, so they stay
+  // visible on tabbed dashboards or when more than one section is listed,
+  // even when the bar would otherwise hide its only section header.
+  const nonEmptyLevelCount = [
+    filterSections.report,
+    filterSections.page,
+    filterSections.visual,
+  ].filter(section => section.length > 0).length;
+  const hideLevelHeaders =
+    hideHeader && !dashboardHasTabs && nonEmptyLevelCount <= 1;
 
   const toggleSection = useCallback((section: keyof typeof sectionsOpen) => {
     setSectionsOpen(prev => ({
@@ -309,51 +325,81 @@ const FilterControls: FC<FilterControlsProps> = ({
     [dataMaskSelected, handleChartCustomizationChange],
   );
 
+  const sectionTitleStyle = useMemo(
+    () => ({
+      margin: 0,
+      fontSize: theme.fontSize,
+      fontWeight: theme.fontWeightNormal,
+      color: theme.colorText,
+      lineHeight: 1.3,
+    }),
+    [theme],
+  );
+
+  const renderFilterSection = useCallback(
+    (
+      section: 'report' | 'page' | 'visual',
+      title: string,
+      sectionFilters: (Filter | Divider)[],
+    ) => {
+      if (sectionFilters.length === 0) {
+        return null;
+      }
+      const isOpen = hideLevelHeaders || sectionsOpen[section];
+      return (
+        <SectionContainer data-test={`filter-bar-section-${section}`}>
+          {!hideLevelHeaders && (
+            <SectionHeader
+              onClick={() => toggleSection(section)}
+              onKeyDown={e => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  toggleSection(section);
+                }
+              }}
+              role="button"
+              tabIndex={0}
+              aria-expanded={sectionsOpen[section]}
+            >
+              <Title level={5} style={sectionTitleStyle}>
+                {title}
+              </Title>
+              <StyledIcon iconSize="m" isOpen={sectionsOpen[section]} />
+            </SectionHeader>
+          )}
+          {isOpen && (
+            <SectionContent>{sectionFilters.map(renderer)}</SectionContent>
+          )}
+          {isOpen && <StyledDivider />}
+        </SectionContainer>
+      );
+    },
+    [
+      hideLevelHeaders,
+      sectionsOpen,
+      toggleSection,
+      sectionTitleStyle,
+      renderer,
+    ],
+  );
+
   const renderVerticalContent = useCallback(
     () => (
       <>
-        {filtersInScope.length > 0 && (
-          <SectionContainer>
-            {!hideHeader && (
-              <SectionHeader
-                onClick={() => toggleSection('filters')}
-                onKeyDown={e => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    toggleSection('filters');
-                  }
-                }}
-                role="button"
-                tabIndex={0}
-              >
-                <Title
-                  level={5}
-                  style={{
-                    margin: 0,
-                    fontSize: theme.fontSize,
-                    fontWeight: theme.fontWeightNormal,
-                    color: theme.colorText,
-                    lineHeight: 1.3,
-                  }}
-                >
-                  {t('Filters')}
-                </Title>
-                <StyledIcon iconSize="m" isOpen={sectionsOpen.filters} />
-              </SectionHeader>
-            )}
-            {(hideHeader || sectionsOpen.filters) && (
-              <SectionContent>{filtersInScope.map(renderer)}</SectionContent>
-            )}
-            {(hideHeader || sectionsOpen.filters) && <StyledDivider />}
-          </SectionContainer>
+        {renderFilterSection(
+          'report',
+          t('Filters on all pages'),
+          filterSections.report,
         )}
-
-        {showFiltersOutOfScope && (
-          <FiltersOutOfScopeCollapsible
-            filtersOutOfScope={filtersOutOfScope}
-            renderer={renderer}
-            forceRender={hasRequiredFirst}
-          />
+        {renderFilterSection(
+          'page',
+          t('Filters on this page'),
+          filterSections.page,
+        )}
+        {renderFilterSection(
+          'visual',
+          t('Filters on visuals'),
+          filterSections.visual,
         )}
 
         {customizationsInScope.length > 0 && (
@@ -414,11 +460,8 @@ const FilterControls: FC<FilterControlsProps> = ({
       </>
     ),
     [
-      filtersInScope,
-      renderer,
-      showCollapsePanel,
-      filtersOutOfScope,
-      hasRequiredFirst,
+      filterSections,
+      renderFilterSection,
       customizationsInScope,
       customizationsOutOfScope,
       showCustomizationCollapsePanel,
@@ -610,18 +653,16 @@ const FilterControls: FC<FilterControlsProps> = ({
           dropdownContent={
             overflowedFiltersInScope.length ||
             overflowedCrossFilters.length ||
-            (filtersOutOfScope.length && showCollapsePanel) ||
             (customizationsOutOfScope.length && showCustomizationCollapsePanel)
               ? () => (
                   <>
                     <FiltersDropdownContent
                       overflowedCrossFilters={overflowedCrossFilters}
                       filtersInScope={overflowedFiltersInScope}
-                      filtersOutOfScope={filtersOutOfScope}
+                      filtersOutOfScope={[]}
                       renderer={renderer}
                       rendererCrossFilter={rendererCrossFilter}
-                      showCollapsePanel={showCollapsePanel}
-                      forceRenderOutOfScope={hasRequiredFirst}
+                      showCollapsePanel={false}
                     />
                     {showCustomizationCollapsePanel && (
                       <CustomizationsOutOfScopeCollapsible
@@ -655,8 +696,6 @@ const FilterControls: FC<FilterControlsProps> = ({
       activeOverflowedFiltersInScope,
       overflowedFiltersInScope,
       overflowedCrossFilters,
-      filtersOutOfScope,
-      showCollapsePanel,
       customizationsOutOfScope,
       showCustomizationCollapsePanel,
       customizationRenderer,
@@ -674,18 +713,13 @@ const FilterControls: FC<FilterControlsProps> = ({
     );
 
     return filtersWithValues.map(filter => {
-      // Out-of-scope filters in vertical mode are in a Collapse panel, not overflowed
+      // Filters of other tabs are not listed, so they never overflow
       if (filtersOutOfScopeIds.has(filter.id)) {
-        return filterBarOrientation === FilterBarOrientation.Horizontal;
+        return false;
       }
       return overflowedFiltersInScopeIds.has(filter.id);
     });
-  }, [
-    filtersOutOfScope,
-    filtersWithValues,
-    overflowedFiltersInScope,
-    filterBarOrientation,
-  ]);
+  }, [filtersOutOfScope, filtersWithValues, overflowedFiltersInScope]);
 
   useEffect(() => {
     if (outlinedFilterId && overflowedIds.includes(outlinedFilterId)) {
