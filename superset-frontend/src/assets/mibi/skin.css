@@ -1236,3 +1236,15 @@ body.mibi-presenting-idle,
 body.mibi-presenting-idle * {
   cursor: none !important;
 }
+
+/* ---- Format pane: column grid and page end while editing ---------------- */
+
+.grid-column-guide:not(.grid-column-guide--resizing) {
+  display: none;
+}
+
+.mibi-show-grid .grid-column-guide:not(.grid-column-guide--resizing) {
+  display: block;
+  opacity: 0.45;
+  z-index: 0;
+}

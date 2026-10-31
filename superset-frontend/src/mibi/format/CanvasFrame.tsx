@@ -25,7 +25,13 @@ import {
   useRef,
   useState,
 } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import cx from 'classnames';
+import { t } from '@apache-superset/core/translation';
+import { Button } from '@superset-ui/core/components';
+import { Icons } from '@superset-ui/core/components/Icons';
+import { fitToCanvas } from './actions';
+import { useShowGrid } from './gridGuides';
 import { css, styled, useTheme } from '@apache-superset/core/theme';
 import type { RootState } from 'src/dashboard/types';
 import { DASHBOARD_ROOT_ID } from 'src/dashboard/util/constants';
@@ -35,12 +41,59 @@ import { canvasSize, canvasStyle, canvasZoom, hasCanvasFormat } from './styles';
 
 const Outer = styled.div`
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
   width: 100%;
+`;
+
+const Overflow = styled.div`
+  ${({ theme }) => css`
+    display: flex;
+    align-items: center;
+    gap: ${theme.sizeUnit * 3}px;
+    width: 100%;
+    margin-bottom: ${theme.sizeUnit * 3}px;
+    padding: ${theme.sizeUnit * 2}px ${theme.sizeUnit * 3}px;
+    border-radius: ${theme.borderRadius}px;
+    border: 1px solid ${theme.colorWarningBorder};
+    background: ${theme.colorWarningBg};
+    color: ${theme.colorText};
+    font-size: ${theme.fontSizeSM}px;
+
+    .message {
+      flex: 1;
+      min-width: 0;
+    }
+  `}
+`;
+
+const PageEnd = styled.div`
+  ${({ theme }) => css`
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 0;
+    border-top: 2px dashed ${theme.colorWarning};
+    pointer-events: none;
+    z-index: 2;
+
+    span {
+      position: absolute;
+      right: ${theme.sizeUnit * 2}px;
+      top: ${theme.sizeUnit}px;
+      padding: 2px ${theme.sizeUnit * 2}px;
+      border-radius: 999px;
+      background: ${theme.colorWarning};
+      color: ${theme.colorTextLightSolid};
+      font-size: ${theme.fontSizeSM}px;
+      font-weight: 600;
+    }
+  `}
 `;
 
 const Page = styled.div<{ $decorated: boolean; $fixed: boolean }>`
   ${({ theme, $decorated, $fixed }) => css`
+    position: relative;
     flex: none;
     width: 100%;
     box-sizing: border-box;
@@ -83,6 +136,53 @@ export function CanvasFrame({ children }: { children: ReactNode }) {
   const outerRef = useRef<HTMLDivElement>(null);
   const [available, setAvailable] = useState(0);
   const size = canvasSize(canvas);
+  const dispatch = useDispatch();
+  const pageRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const [contentHeight, setContentHeight] = useState(0);
+  const [showGrid] = useShowGrid();
+
+  // Height of the visuals, in canvas pixels (not zoomed)
+  useEffect(() => {
+    const element = contentRef.current;
+    if (!element || typeof ResizeObserver === 'undefined') return undefined;
+    // Edit mode adds drop zones between rows that viewers never see
+    const measure = () => {
+      const dropZones = Array.from(
+        element.querySelectorAll<HTMLElement>(
+          '.grid-content > .empty-droptarget',
+        ),
+      ).reduce((sum, zone) => sum + zone.offsetHeight, 0);
+      setContentHeight(element.offsetHeight - dropZones);
+    };
+    const observer = new ResizeObserver(measure);
+    observer.observe(element);
+    measure();
+    return () => observer.disconnect();
+  }, []);
+
+  const padding = () => {
+    const page = pageRef.current;
+    if (!page) return 0;
+    const style = window.getComputedStyle(page);
+    return parseFloat(style.paddingTop) + parseFloat(style.paddingBottom) || 0;
+  };
+  const room = size ? size.height - padding() : 0;
+  const overflowing = !!size && editMode && contentHeight > room + 1;
+
+  // Fitting runs a few passes: row gutters do not scale with the visuals
+  const fitPasses = useRef(0);
+  const fit = () => {
+    fitPasses.current = 4;
+    dispatch(fitToCanvas(room, contentHeight));
+  };
+  useEffect(() => {
+    if (fitPasses.current <= 0) return;
+    fitPasses.current -= 1;
+    if (overflowing) dispatch(fitToCanvas(room, contentHeight));
+    else fitPasses.current = 0;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [contentHeight]);
 
   useEffect(() => {
     const element = outerRef.current;
@@ -115,9 +215,30 @@ export function CanvasFrame({ children }: { children: ReactNode }) {
 
   return (
     <Outer ref={outerRef} data-test="mibi-canvas-outer">
+      {overflowing && size && (
+        <Overflow role="status" data-test="mibi-canvas-overflow">
+          <Icons.WarningOutlined iconSize="m" />
+          <span className="message">
+            {t(
+              'The content is %s px tall and the page %s px. What goes past the dashed line makes the page taller when exported.',
+              Math.round(contentHeight + padding()),
+              size.height,
+            )}
+          </span>
+          <Button
+            buttonStyle="secondary"
+            buttonSize="small"
+            data-test="mibi-fit-canvas"
+            onClick={fit}
+          >
+            {t('Fit to the canvas')}
+          </Button>
+        </Overflow>
+      )}
       <Page
+        ref={pageRef}
         data-test="mibi-canvas"
-        className="mibi-canvas"
+        className={cx('mibi-canvas', editMode && showGrid && 'mibi-show-grid')}
         $decorated={hasCanvasFormat(canvas)}
         $fixed={!!size}
         style={style}
@@ -133,8 +254,13 @@ export function CanvasFrame({ children }: { children: ReactNode }) {
             : undefined
         }
       >
+        {size && editMode && (
+          <PageEnd style={{ top: size.height }} data-test="mibi-page-end">
+            <span>{t('End of page · %s px', size.height)}</span>
+          </PageEnd>
+        )}
         <CanvasZoomContext.Provider value={zoom}>
-          {children}
+          <div ref={contentRef}>{children}</div>
         </CanvasZoomContext.Provider>
       </Page>
     </Outer>

@@ -368,13 +368,17 @@ class DashboardGrid extends PureComponent<
                 )}
               </Fragment>
             ))}
-            {isResizing &&
+            {/* Shown while resizing, and in edit mode when the Format pane's
+                grid is on (see .mibi-show-grid) */}
+            {(isResizing || editMode) &&
               Array(GRID_COLUMN_COUNT)
                 .fill(null)
                 .map((_, i) => (
                   <GridColumnGuide
                     key={`grid-column-${i}`}
-                    className="grid-column-guide"
+                    className={`grid-column-guide${
+                      isResizing ? ' grid-column-guide--resizing' : ''
+                    }`}
                     style={{
                       left: i * GRID_GUTTER_SIZE + i * columnWidth,
                       width: columnWidth,

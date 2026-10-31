@@ -41,6 +41,7 @@ import {
 } from './actions';
 import { ColorField, Field, RangeField, Section, Segments } from './controls';
 import { selectVisual, useSelectedVisual } from './selection';
+import { useShowGrid } from './gridGuides';
 import {
   CANVAS_PRESETS,
   DEFAULT_GAP,
@@ -386,6 +387,7 @@ function CanvasSection() {
       `background-${setting}`,
     );
   const sizeMode = canvas.size?.mode ?? 'auto';
+  const [showGrid, setShowGrid] = useShowGrid();
 
   const onFile = async (file?: File) => {
     if (!file) return;
@@ -607,6 +609,19 @@ function CanvasSection() {
             />
           </div>
         )}
+      </Section>
+
+      <Section>
+        <h4>{t('Editing')}</h4>
+        <Field label={t('Show column grid')}>
+          <Switch
+            size="small"
+            checked={showGrid}
+            aria-label={t('Show column grid')}
+            data-test="mibi-format-show-grid"
+            onChange={setShowGrid}
+          />
+        </Field>
       </Section>
 
       <Section>

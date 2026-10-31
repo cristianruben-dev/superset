@@ -28,6 +28,7 @@ import reducerIndex from 'spec/helpers/reducerIndex';
 import { ActionCreators as UndoActionCreators } from 'redux-undo';
 import type { DashboardLayout, RootState } from 'src/dashboard/types';
 import {
+  fitToCanvas,
   setAllVisualsFormat,
   setCanvasFormat,
   setVisualFormat,
@@ -266,4 +267,13 @@ test('a click on the canvas goes back to the canvas settings', () => {
   );
   fireEvent.click(screen.getByText('grid'));
   expect(selectedVisual()).toBeNull();
+});
+
+test('fits the visuals of the page to the canvas height', () => {
+  const store = makeStore();
+  // One row: 16 px of gutter plus charts 50 units (400 px) tall
+  dispatcher(store)(fitToCanvas(216, 416));
+  const { present } = stateOf(store).dashboardLayout;
+  expect(present['CHART-a'].meta.height).toBe(25);
+  expect(present['CHART-b'].meta.height).toBe(25);
 });

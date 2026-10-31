@@ -22,8 +22,14 @@ import { setUnsavedChanges } from 'src/dashboard/actions/dashboardState';
 import type { AnyAction } from 'redux';
 import type { ThunkDispatch } from 'redux-thunk';
 import type { GetState, LayoutItem, RootState } from 'src/dashboard/types';
-import { DASHBOARD_ROOT_ID } from 'src/dashboard/util/constants';
-import { CHART_TYPE } from 'src/dashboard/util/componentTypes';
+import {
+  DASHBOARD_GRID_ID,
+  DASHBOARD_ROOT_ID,
+  GRID_BASE_UNIT,
+  GRID_MIN_ROW_UNITS,
+} from 'src/dashboard/util/constants';
+import { activeTabIndex, topLevelTabs } from 'src/mibi/present/dashboardTabs';
+import { CHART_TYPE, ROW_TYPE } from 'src/dashboard/util/componentTypes';
 import {
   CANVAS_FORMAT_KEY,
   VISUAL_FORMAT_KEY,
@@ -99,6 +105,53 @@ export const setCanvasFormat =
       ),
     );
   };
+
+/** Room each row takes besides its visuals: the gutter below it. */
+const ROW_OVERHEAD = 16;
+
+/**
+ * Shrinks or grows the visuals on screen (the active page) so their content,
+ * now ``content`` pixels tall, fits ``target`` pixels.
+ */
+export const fitToCanvas =
+  (target: number, content: number) =>
+  (dispatch: AppDispatch, getState: GetState) => {
+    const { dashboardLayout, dashboardState } = getState();
+    const layout = dashboardLayout.present;
+    const tabs = topLevelTabs(layout);
+    const rootId = tabs.length
+      ? tabs[activeTabIndex(tabs, dashboardState.activeTabs)].id
+      : DASHBOARD_GRID_ID;
+    const sized: LayoutItem[] = [];
+    let rows = 0;
+    const visit = (id: string) => {
+      const item = layout[id];
+      if (!item) return;
+      if (item.type === ROW_TYPE) rows += 1;
+      if (typeof item.meta?.height === 'number') sized.push(item);
+      item.children.forEach(visit);
+    };
+    visit(rootId);
+    const overhead = rows * ROW_OVERHEAD;
+    if (!sized.length || content <= overhead) return;
+    const factor = (target - overhead) / (content - overhead);
+    const next: Record<string, LayoutItem> = {};
+    sized.forEach(item => {
+      const height = Math.max(
+        GRID_MIN_ROW_UNITS,
+        Math.floor((item.meta.height as number) * factor),
+      );
+      if (height !== item.meta.height) {
+        next[item.id] = { ...item, meta: { ...item.meta, height } };
+      }
+    });
+    if (Object.keys(next).length) {
+      dispatch(updateLayout(next, `fit:${Date.now()}`));
+    }
+  };
+
+/** Height in pixels of a layout height in grid units. */
+export const gridUnitsToPixels = (units: number) => units * GRID_BASE_UNIT;
 
 /** Uploads the canvas background picture and returns its URL. */
 export async function uploadBackground(

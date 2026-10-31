@@ -17448,3 +17448,18 @@ msgstr "Empezar con una portada: logo, área de trabajo, fecha, filtros y conten
 
 msgid "Pages the size of the dashboard, with a cover"
 msgstr "Páginas del tamaño del panel, con portada"
+
+msgid "Editing"
+msgstr "Edición"
+
+msgid "Show column grid"
+msgstr "Mostrar cuadrícula de columnas"
+
+msgid "Fit to the canvas"
+msgstr "Ajustar al lienzo"
+
+msgid "End of page · %s px"
+msgstr "Fin de la página · %s px"
+
+msgid "The content is %s px tall and the page %s px. What goes past the dashed line makes the page taller when exported."
+msgstr "El contenido mide %s px de alto y la página %s px. Lo que pase de la línea discontinua hará la página más alta al exportar."
