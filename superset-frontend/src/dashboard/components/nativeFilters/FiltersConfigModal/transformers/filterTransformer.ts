@@ -130,6 +130,10 @@ function transformFormInput(
       : undefined,
   };
 
+  if (formInputs.scopeLevel && formInputs.scopeLevel !== 'auto') {
+    result.scopeLevel = formInputs.scopeLevel;
+  }
+
   if (formInputs.time_grains?.length) {
     result.time_grains = formInputs.time_grains;
   }

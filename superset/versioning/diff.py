@@ -852,6 +852,7 @@ _LAYOUT_TYPE_TO_KIND: dict[str, str] = {
     "HEADER": "header",
     "MARKDOWN": "markdown",
     "DIVIDER": "divider",
+    "FILTER": "filter",
 }
 
 # Layout components we never emit records for: ROOT_ID is the layout

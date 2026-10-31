@@ -16,7 +16,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { DatasourceType, Filter, NativeFilterType } from '@superset-ui/core';
+import {
+  DatasourceType,
+  Filter,
+  FilterScopeLevel,
+  NativeFilterType,
+} from '@superset-ui/core';
 import { NativeFiltersFormItem } from '../types';
 import { transformFilterForSave } from './filterTransformer';
 
@@ -153,4 +158,26 @@ test('rebuilds a saved filter whose targets were already stripped', () => {
   expect(result.requiredFirst).toBe(true);
   expect(result.cascadeParentIds).toEqual([]);
   expect(result).not.toHaveProperty('defaultValueQueriesData');
+});
+
+test('persists an explicit filter bar section', () => {
+  const result = transformFilterForSave('NATIVE_FILTER-level', {
+    ...baseFormItem,
+    name: 'Region',
+    filterType: 'filter_time',
+    scopeLevel: FilterScopeLevel.Report,
+  }) as Filter;
+
+  expect(result.scopeLevel).toBe(FilterScopeLevel.Report);
+});
+
+test('omits the filter bar section when it is derived automatically', () => {
+  const result = transformFilterForSave('NATIVE_FILTER-auto', {
+    ...baseFormItem,
+    name: 'Region',
+    filterType: 'filter_time',
+    scopeLevel: 'auto',
+  }) as Filter;
+
+  expect(result).not.toHaveProperty('scopeLevel');
 });

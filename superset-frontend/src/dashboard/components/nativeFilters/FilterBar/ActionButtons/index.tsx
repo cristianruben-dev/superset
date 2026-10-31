@@ -40,6 +40,8 @@ interface ActionButtonsProps {
   isApplyDisabled: boolean;
   filterBarOrientation?: FilterBarOrientation;
   hasOutOfScopeRequiredFilters?: boolean;
+  /** Selections are applied as they change, so no Apply button is shown */
+  autoApply?: boolean;
 }
 
 const ButtonsContainer = styled.div<{ isVertical: boolean }>`
@@ -111,6 +113,7 @@ const ActionButtons = ({
   filterBarOrientation = FilterBarOrientation.Vertical,
   chartCustomizationItems,
   hasOutOfScopeRequiredFilters = false,
+  autoApply = false,
 }: ActionButtonsProps) => {
   const isVertical = filterBarOrientation === FilterBarOrientation.Vertical;
 
@@ -147,16 +150,18 @@ const ActionButtons = ({
       isVertical={isVertical}
       data-test="filterbar-action-buttons"
     >
-      <Button
-        disabled={isApplyDisabled}
-        buttonStyle="primary"
-        htmlType="submit"
-        css={(theme: SupersetTheme) => applyButtonStyle(theme, isVertical)}
-        onClick={onApply}
-        {...getFilterBarTestId('apply-button')}
-      >
-        {isVertical ? t('Apply filters') : t('Apply')}
-      </Button>
+      {!autoApply && (
+        <Button
+          disabled={isApplyDisabled}
+          buttonStyle="primary"
+          htmlType="submit"
+          css={(theme: SupersetTheme) => applyButtonStyle(theme, isVertical)}
+          onClick={onApply}
+          {...getFilterBarTestId('apply-button')}
+        >
+          {isVertical ? t('Apply filters') : t('Apply')}
+        </Button>
+      )}
       <Flex>
         <Button
           disabled={!isClearAllEnabled}

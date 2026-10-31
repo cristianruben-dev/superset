@@ -81,10 +81,11 @@ import { createFilterKey, updateFilterKey } from './keyValue';
 import ActionButtons from './ActionButtons';
 import Horizontal from './Horizontal';
 import Vertical from './Vertical';
-import {
-  useSelectFiltersInScope,
-  useChartCustomizationConfiguration,
-} from '../state';
+import { useChartCustomizationConfiguration } from '../state';
+import { useFilterBarSections } from '../scopeLevel';
+
+// Coalesces quick successive selections into one auto-applied query
+const AUTO_APPLY_DELAY_MS = 300;
 
 // FilterBar is just being hidden as it must still
 // render fully due to encapsulated logics
@@ -215,7 +216,20 @@ const FilterBar: FC<FiltersBarProps> = ({
     UserWithPermissionsAndRoles
   >(state => state.user);
 
-  const [filtersInScope] = useSelectFiltersInScope(nativeFilterValues);
+  const autoApply = useSelector<RootState, boolean>(
+    ({ dashboardInfo }) => !!dashboardInfo.metadata?.filter_bar_auto_apply,
+  );
+  // Filters listed in the bar for the active tab are the ones Apply and
+  // Clear all act on; report filters are listed on every tab.
+  const filterSections = useFilterBarSections(nativeFilterValues);
+  const filtersInScope = useMemo(
+    () => [
+      ...filterSections.report,
+      ...filterSections.page,
+      ...filterSections.visual,
+    ],
+    [filterSections],
+  );
   const inScopeFilterIds = useMemo(
     () => new Set(filtersInScope.map(f => f.id)),
     [filtersInScope],
@@ -636,6 +650,14 @@ const FilterBar: FC<FiltersBarProps> = ({
 
   const isInitialized = useInitialization();
 
+  useEffect(() => {
+    if (!autoApply || !isInitialized || isApplyDisabled) {
+      return undefined;
+    }
+    const timer = setTimeout(handleApply, AUTO_APPLY_DELAY_MS);
+    return () => clearTimeout(timer);
+  }, [autoApply, isInitialized, isApplyDisabled, handleApply]);
+
   const actions = useMemo(
     () => (
       <ActionButtons
@@ -647,6 +669,7 @@ const FilterBar: FC<FiltersBarProps> = ({
         isApplyDisabled={isApplyDisabled}
         chartCustomizationItems={chartCustomizationValues}
         hasOutOfScopeRequiredFilters={hasOutOfScopeRequiredFilters}
+        autoApply={autoApply}
       />
     ),
     [
@@ -658,6 +681,7 @@ const FilterBar: FC<FiltersBarProps> = ({
       isApplyDisabled,
       chartCustomizationValues,
       hasOutOfScopeRequiredFilters,
+      autoApply,
     ],
   );
 

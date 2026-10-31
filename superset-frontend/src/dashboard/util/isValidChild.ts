@@ -40,6 +40,7 @@ import {
   DIVIDER_TYPE,
   HEADER_TYPE,
   MARKDOWN_TYPE,
+  NATIVE_FILTER_COMPONENT_TYPE,
   ROW_TYPE,
   TABS_TYPE,
   TAB_TYPE,
@@ -65,6 +66,7 @@ const parentMaxDepthLookup: Record<string, Record<string, number>> = {
     [CHART_TYPE]: depthOne,
     [DYNAMIC_TYPE]: depthOne,
     [MARKDOWN_TYPE]: depthOne,
+    [NATIVE_FILTER_COMPONENT_TYPE]: depthOne,
     [COLUMN_TYPE]: depthOne,
     [DIVIDER_TYPE]: depthOne,
     [HEADER_TYPE]: depthOne,
@@ -76,6 +78,7 @@ const parentMaxDepthLookup: Record<string, Record<string, number>> = {
     [CHART_TYPE]: depthFour,
     [DYNAMIC_TYPE]: depthFour,
     [MARKDOWN_TYPE]: depthFour,
+    [NATIVE_FILTER_COMPONENT_TYPE]: depthFour,
     [COLUMN_TYPE]: depthFour,
   },
 
@@ -87,6 +90,7 @@ const parentMaxDepthLookup: Record<string, Record<string, number>> = {
     [CHART_TYPE]: depthFive,
     [DYNAMIC_TYPE]: depthFive,
     [MARKDOWN_TYPE]: depthFive,
+    [NATIVE_FILTER_COMPONENT_TYPE]: depthFive,
     [COLUMN_TYPE]: depthThree,
     [DIVIDER_TYPE]: depthFive,
     [HEADER_TYPE]: depthFive,
@@ -98,6 +102,7 @@ const parentMaxDepthLookup: Record<string, Record<string, number>> = {
     [CHART_TYPE]: depthFive,
     [HEADER_TYPE]: depthFive,
     [MARKDOWN_TYPE]: depthFive,
+    [NATIVE_FILTER_COMPONENT_TYPE]: depthFive,
     [ROW_TYPE]: depthThree,
     [DIVIDER_TYPE]: depthThree,
     [TABS_TYPE]: depthThree,
@@ -109,6 +114,7 @@ const parentMaxDepthLookup: Record<string, Record<string, number>> = {
   [DIVIDER_TYPE]: {},
   [HEADER_TYPE]: {},
   [MARKDOWN_TYPE]: {},
+  [NATIVE_FILTER_COMPONENT_TYPE]: {},
 };
 
 interface IsValidChildProps {

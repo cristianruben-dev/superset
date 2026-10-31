@@ -344,6 +344,39 @@ Congrats! You’ve successfully linked, analyzed, and visualized data in Superse
 of other table configuration and visualization options, so please start exploring and creating
 slices and dashboards of your own.
 
+### Organizing dashboard filters
+
+The filter bar groups native filters into sections, so viewers can tell which filters affect
+the whole dashboard and which only affect what they are looking at:
+
+- **Filters on all pages** are listed on every tab of the dashboard.
+- **Filters on this page** are listed only while a tab they apply to is open. Switching tabs
+  shows the filters of the new tab and hides the others.
+- **Filters on visuals** apply to specific charts and are listed only while one of those charts
+  is on the open tab.
+
+By default, a filter's section follows its scoping: a filter scoped to the whole dashboard is
+listed on all pages, a filter scoped to one or more tabs is listed on those pages, and a filter
+that only targets a few charts is listed with the visuals. To pick the section yourself, open
+**+ Add/Edit Filters**, go to the filter's **Scoping** tab and choose an option under
+**Show in filter bar section**. The section only changes where the filter is listed; the
+scoping tree still decides which charts it filters.
+
+#### Placing filters on the dashboard
+
+Filters can also sit inside the dashboard layout, next to the charts they affect. In edit mode,
+drag the **Filter** element from **Layout elements** onto the dashboard, then pick which
+dashboard filter it shows. A filter placed on the dashboard shares its value with the filter
+bar, and every change made on the dashboard is applied to the charts right away. Clear
+**Also show in the filter bar** to show that filter only on the dashboard.
+
+#### Applying filters instantly
+
+By default, filter bar selections are applied when you click **Apply filters**. To apply each
+selection as soon as it changes, open the filter bar settings (the gear icon) and select
+**Apply filters instantly**. The setting is saved with the dashboard and hides the Apply button
+for everyone who views it.
+
 ### Manage access to Dashboards
 
 Access to dashboards is managed via editors and permissions. Non-editor access can be controlled

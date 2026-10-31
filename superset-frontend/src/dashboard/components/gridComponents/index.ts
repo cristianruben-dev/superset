@@ -19,6 +19,7 @@
 import {
   CHART_TYPE,
   MARKDOWN_TYPE,
+  NATIVE_FILTER_COMPONENT_TYPE,
   COLUMN_TYPE,
   DIVIDER_TYPE,
   HEADER_TYPE,
@@ -30,6 +31,7 @@ import {
 
 import ChartHolder from './ChartHolder';
 import Markdown from './Markdown';
+import NativeFilter from './NativeFilter';
 import Column from './Column';
 import Divider from './Divider';
 import Header from './Header';
@@ -41,6 +43,7 @@ import DynamicComponent from './DynamicComponent';
 export const componentLookup = {
   [CHART_TYPE]: ChartHolder,
   [MARKDOWN_TYPE]: Markdown,
+  [NATIVE_FILTER_COMPONENT_TYPE]: NativeFilter,
   [COLUMN_TYPE]: Column,
   [DIVIDER_TYPE]: Divider,
   [HEADER_TYPE]: Header,

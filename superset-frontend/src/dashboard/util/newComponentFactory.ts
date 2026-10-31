@@ -25,6 +25,7 @@ import {
   DIVIDER_TYPE,
   HEADER_TYPE,
   MARKDOWN_TYPE,
+  NATIVE_FILTER_COMPONENT_TYPE,
   ROW_TYPE,
   TABS_TYPE,
   TAB_TYPE,
@@ -57,6 +58,10 @@ const typeToDefaultMetaData: Record<string, LayoutItemMeta | null> = {
     background: BACKGROUND_TRANSPARENT,
   },
   [MARKDOWN_TYPE]: { width: GRID_DEFAULT_CHART_WIDTH, height: 50 },
+  [NATIVE_FILTER_COMPONENT_TYPE]: {
+    width: GRID_DEFAULT_CHART_WIDTH,
+    showInFilterBar: true,
+  },
   [ROW_TYPE]: { background: BACKGROUND_TRANSPARENT },
   [TABS_TYPE]: null,
   [TAB_TYPE]: {

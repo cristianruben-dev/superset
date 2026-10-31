@@ -24,6 +24,8 @@ export const DASHBOARD_ROOT_TYPE = 'ROOT';
 export const DIVIDER_TYPE = 'DIVIDER';
 export const HEADER_TYPE = 'HEADER';
 export const MARKDOWN_TYPE = 'MARKDOWN';
+// A native filter control placed on the dashboard canvas (slicer)
+export const NATIVE_FILTER_COMPONENT_TYPE = 'FILTER';
 export const NEW_COMPONENT_SOURCE_TYPE = 'NEW_COMPONENT_SOURCE';
 export const ROW_TYPE = 'ROW';
 export const TABS_TYPE = 'TABS';
@@ -40,6 +42,7 @@ export default {
   DIVIDER_TYPE,
   HEADER_TYPE,
   MARKDOWN_TYPE,
+  NATIVE_FILTER_COMPONENT_TYPE,
   NEW_COMPONENT_SOURCE_TYPE,
   ROW_TYPE,
   TABS_TYPE,

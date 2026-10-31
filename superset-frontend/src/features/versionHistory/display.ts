@@ -174,6 +174,8 @@ function layoutKindLabel(kind: string): string | null {
       return t('markdown');
     case 'divider':
       return t('divider');
+    case 'filter':
+      return t('filter');
     default:
       return null;
   }

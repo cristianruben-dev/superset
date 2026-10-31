@@ -199,6 +199,8 @@ export type DashboardInfo = {
     positions?: JsonObject;
     filter_scopes?: JsonObject;
     async_mode?: AsyncModeOverride;
+    /** apply native filter selections as they change (no Apply button) */
+    filter_bar_auto_apply?: boolean;
   };
   crossFiltersEnabled: boolean;
   filterBarOrientation: FilterBarOrientation;

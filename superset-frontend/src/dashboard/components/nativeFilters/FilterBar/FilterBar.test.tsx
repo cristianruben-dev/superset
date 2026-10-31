@@ -970,6 +970,7 @@ test('FilterBar Clear All only clears in-scope filters, not out-of-scope ones', 
     controlValues: { enableEmptyFilter: false },
     chartsInScope: [1],
     tabsInScope: ['TAB-active'],
+    scope: { rootPath: ['TAB-active'], excluded: [] },
   });
 
   const outOfScopeRequiredFilter = createFilter({
@@ -979,6 +980,7 @@ test('FilterBar Clear All only clears in-scope filters, not out-of-scope ones', 
     controlValues: { enableEmptyFilter: true },
     chartsInScope: [2],
     tabsInScope: ['TAB-inactive'],
+    scope: { rootPath: ['TAB-inactive'], excluded: [] },
   });
 
   const outOfScopeNonRequiredFilter = createFilter({
@@ -988,6 +990,7 @@ test('FilterBar Clear All only clears in-scope filters, not out-of-scope ones', 
     controlValues: { enableEmptyFilter: false },
     chartsInScope: [2],
     tabsInScope: ['TAB-inactive'],
+    scope: { rootPath: ['TAB-inactive'], excluded: [] },
   });
 
   const stateWithTabsAndFilters = {
@@ -1131,6 +1134,104 @@ test('Clear All on a required filter disables Apply via validateStatus', async (
   // No dispatch yet; Apply should be disabled because the required filter is empty
   expect(updateDataMaskSpy).not.toHaveBeenCalled();
   expect(screen.getByTestId(getTestId('apply-button'))).toBeDisabled();
+  updateDataMaskSpy.mockRestore();
+});
+
+const createAutoApplyState = (autoApply: boolean, filterId: string) => {
+  const filter = createFilter({
+    id: filterId,
+    name: 'Region',
+    filterType: 'filter_select',
+    targets: [{ datasetId: 7, column: { name: 'region' } }],
+    chartsInScope: [18],
+  });
+  return {
+    ...stateWithoutNativeFilters,
+    dashboardInfo: {
+      id: 1,
+      dash_edit_perm: true,
+      filterBarOrientation: FilterBarOrientation.Vertical,
+      metadata: {
+        native_filter_configuration: [filter],
+        chart_configuration: {},
+        filter_bar_auto_apply: autoApply,
+      },
+    },
+    dashboardState: {
+      ...stateWithoutNativeFilters.dashboardState,
+      activeTabs: ['ROOT_ID'],
+    },
+    dataMask: {
+      [filterId]: createDataMask(filterId, ['East'], {
+        filters: [{ col: 'region', op: 'IN', val: ['East'] }],
+      }),
+    },
+    nativeFilters: {
+      filters: { [filterId]: filter },
+      filtersState: {},
+    },
+  };
+};
+
+test('FilterBar hides the Apply button when filters apply instantly', async () => {
+  const filterId = 'NATIVE_FILTER-auto-apply-button';
+  renderFilterBar(createOpenedBarProps(), createAutoApplyState(true, filterId));
+  await act(async () => {
+    jest.advanceTimersByTime(300);
+  });
+
+  expect(
+    screen.queryByTestId(getTestId('apply-button')),
+  ).not.toBeInTheDocument();
+  expect(screen.getByTestId(getTestId('clear-button'))).toBeInTheDocument();
+});
+
+test('FilterBar applies Clear all right away when filters apply instantly', async () => {
+  const filterId = 'NATIVE_FILTER-auto-apply-clear';
+  const updateDataMaskSpy = jest.spyOn(dataMaskActions, 'updateDataMask');
+  renderFilterBar(createOpenedBarProps(), createAutoApplyState(true, filterId));
+  // the bar waits for the dashboard to initialize before auto-applying
+  await act(async () => {
+    jest.advanceTimersByTime(1000);
+  });
+
+  await act(async () => {
+    await userEvent.click(screen.getByTestId(getTestId('clear-button')));
+  });
+  await act(async () => {
+    jest.advanceTimersByTime(300);
+  });
+
+  expect(updateDataMaskSpy).toHaveBeenCalledWith(
+    filterId,
+    expect.objectContaining({
+      filterState: expect.objectContaining({ value: null }),
+      extraFormData: {},
+    }),
+  );
+  updateDataMaskSpy.mockRestore();
+});
+
+test('FilterBar keeps Clear all pending until Apply by default', async () => {
+  const filterId = 'NATIVE_FILTER-manual-apply-clear';
+  const updateDataMaskSpy = jest.spyOn(dataMaskActions, 'updateDataMask');
+  renderFilterBar(
+    createOpenedBarProps(),
+    createAutoApplyState(false, filterId),
+  );
+  await act(async () => {
+    jest.advanceTimersByTime(300);
+  });
+
+  await act(async () => {
+    await userEvent.click(screen.getByTestId(getTestId('clear-button')));
+  });
+  await act(async () => {
+    jest.advanceTimersByTime(300);
+  });
+
+  expect(updateDataMaskSpy).not.toHaveBeenCalled();
+  expect(screen.getByTestId(getTestId('apply-button'))).toBeEnabled();
   updateDataMaskSpy.mockRestore();
 });
 

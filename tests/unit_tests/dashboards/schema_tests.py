@@ -25,6 +25,7 @@ from superset.dashboards.permalink.schemas import DashboardPermalinkStateSchema
 from superset.dashboards.schemas import (
     DashboardCopySchema,
     DashboardDatasetSchema,
+    DashboardJSONMetadataSchema,
     DashboardPostSchema,
     DashboardPutSchema,
     ImportV1DashboardSchema,
@@ -230,3 +231,18 @@ def test_dashboard_copy_replace_metadata_opt_in(replace_metadata: bool | None) -
     assert DashboardCopySchema().load(payload)["replace_metadata"] is bool(
         replace_metadata
     )
+
+
+@pytest.mark.parametrize("auto_apply", [True, False])
+def test_json_metadata_accepts_filter_bar_auto_apply(auto_apply: bool) -> None:
+    """
+    The filter bar "apply filters instantly" setting round-trips through the
+    dashboard JSON metadata schema.
+    """
+    loaded = DashboardJSONMetadataSchema().load({"filter_bar_auto_apply": auto_apply})
+    assert loaded["filter_bar_auto_apply"] is auto_apply
+
+
+def test_json_metadata_rejects_non_boolean_filter_bar_auto_apply() -> None:
+    with pytest.raises(ValidationError):
+        DashboardJSONMetadataSchema().load({"filter_bar_auto_apply": "sometimes"})

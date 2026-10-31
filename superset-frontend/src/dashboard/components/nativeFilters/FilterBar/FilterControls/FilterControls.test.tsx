@@ -435,7 +435,9 @@ const FilterControlsWrapper = styled.div`
   gap: ${({ theme }) => theme.sizeUnit * 2}px;
 `;
 
-test('out-of-scope section does not add margin on top of the wrapper flex gap', () => {
+const renderTabbedVertical = (
+  configure: (state: ReturnType<typeof getDefaultState>) => void,
+) => {
   const state = getDefaultState(FilterBarOrientation.Vertical);
   state.dashboardLayout.present['CHART-1'].parents = [
     'ROOT_ID',
@@ -447,10 +449,7 @@ test('out-of-scope section does not add margin on top of the wrapper flex gap', 
     'TABS-1',
     'TAB-2',
   ];
-  state.nativeFilters.filters['filter-1'].chartsInScope = [1];
-  state.nativeFilters.filters['filter-2'].chartsInScope = [1];
-  // filter-3 lives under the inactive TAB-2, so it renders out of scope.
-  state.nativeFilters.filters['filter-3'].chartsInScope = [2];
+  configure(state);
   (state as any).dashboardInfo = {
     ...state.dashboardInfo,
     metadata: {
@@ -464,7 +463,7 @@ test('out-of-scope section does not add margin on top of the wrapper flex gap', 
   );
 
   const store = mockStore(state) as Store;
-  const { container } = render(
+  return render(
     <Provider store={store}>
       <FilterControlsWrapper>
         <FilterControls
@@ -476,14 +475,51 @@ test('out-of-scope section does not add margin on top of the wrapper flex gap', 
       </FilterControlsWrapper>
     </Provider>,
   );
+};
 
-  expect(screen.getByText('Filters out of scope (1)')).toBeInTheDocument();
+test('groups filters into report, page and visual sections and hides other tabs filters', () => {
+  renderTabbedVertical(state => {
+    const { filters } = state.nativeFilters;
+    // whole dashboard -> listed on every page
+    filters['filter-1'].chartsInScope = [1, 2];
+    // rooted at the active tab -> this page
+    filters['filter-2'].scope = { rootPath: ['TAB-1'], excluded: [] };
+    filters['filter-2'].chartsInScope = [1];
+    // rooted at the inactive tab -> not listed
+    filters['filter-3'].scope = { rootPath: ['TAB-2'], excluded: [] };
+    filters['filter-3'].chartsInScope = [2];
+  });
 
-  // The "Filters" section is the out-of-scope collapsible's previous sibling
-  // inside the flex column. The parent already adds spacing via `gap`, so this
-  // section must not add its own margin-bottom on top of it.
-  const outOfScopeCollapse = container.querySelector('.ant-collapse');
-  const filtersSection = outOfScopeCollapse?.previousElementSibling as Element;
-  const { marginBottom } = getComputedStyle(filtersSection);
-  expect(parseInt(marginBottom, 10) || 0).toBe(0);
+  const reportSection = screen.getByTestId('filter-bar-section-report');
+  const pageSection = screen.getByTestId('filter-bar-section-page');
+  expect(reportSection).toHaveTextContent('Filters on all pages');
+  expect(reportSection).toHaveTextContent('Country Filter');
+  expect(pageSection).toHaveTextContent('Filters on this page');
+  expect(pageSection).toHaveTextContent('Region Filter');
+  expect(
+    screen.queryByTestId('filter-bar-section-visual'),
+  ).not.toBeInTheDocument();
+  expect(screen.queryByText('City Filter')).not.toBeInTheDocument();
+  expect(screen.queryByText(/Filters out of scope/)).not.toBeInTheDocument();
+});
+
+test('lists report filters even when none of their charts are on the active tab', () => {
+  renderTabbedVertical(state => {
+    const { filters } = state.nativeFilters;
+    filters['filter-1'].scope = { rootPath: ['TAB-2'], excluded: [] };
+    (filters['filter-1'] as any).scopeLevel = 'report';
+    filters['filter-1'].chartsInScope = [2];
+    filters['filter-2'].scope = { rootPath: ['TAB-2'], excluded: [] };
+    filters['filter-2'].chartsInScope = [2];
+    filters['filter-3'].scope = { rootPath: ['TAB-2'], excluded: [] };
+    filters['filter-3'].chartsInScope = [2];
+  });
+
+  expect(screen.getByTestId('filter-bar-section-report')).toHaveTextContent(
+    'Country Filter',
+  );
+  expect(screen.queryByText('Region Filter')).not.toBeInTheDocument();
+  expect(
+    screen.queryByTestId('filter-bar-section-page'),
+  ).not.toBeInTheDocument();
 });

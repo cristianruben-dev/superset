@@ -52,6 +52,19 @@ export enum NativeFilterType {
   Divider = 'DIVIDER',
 }
 
+/**
+ * Where a native filter is listed in the filter bar, mirroring the
+ * report / page / visual filter levels of BI tools.
+ * - `report`: listed on every tab of the dashboard
+ * - `page`: listed only while one of the tabs it targets is active
+ * - `visual`: listed only while one of the charts it targets is visible
+ */
+export enum FilterScopeLevel {
+  Report = 'report',
+  Page = 'page',
+  Visual = 'visual',
+}
+
 export enum ChartCustomizationType {
   ChartCustomization = 'CHART_CUSTOMIZATION',
   Divider = 'CHART_CUSTOMIZATION_DIVIDER',
@@ -90,6 +103,8 @@ export type Filter = {
   chartsInScope?: number[];
   type: typeof NativeFilterType.NativeFilter;
   description: string;
+  /** Filter bar section; derived from `scope` when unset */
+  scopeLevel?: FilterScopeLevel;
 };
 
 export type ChartCustomization = {

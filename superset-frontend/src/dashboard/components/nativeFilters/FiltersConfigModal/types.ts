@@ -27,6 +27,7 @@ import {
   ChartCustomizationDivider,
   ColumnOption,
   ChartCustomization,
+  FilterScopeLevel,
 } from '@superset-ui/core';
 import { ReactNode } from 'react';
 
@@ -59,6 +60,8 @@ export interface NativeFiltersFormItem {
   description: string;
   datasourceType?: DatasourceType;
   semantic_selection_version?: string;
+  /** filter bar section; `auto` derives it from the scope */
+  scopeLevel?: FilterScopeLevel | 'auto';
 }
 export interface NativeFilterDivider {
   id: string;

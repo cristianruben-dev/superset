@@ -26,6 +26,7 @@ import { FilterBarOrientation, RootState } from 'src/dashboard/types';
 import {
   saveFilterBarOrientation,
   saveCrossFiltersSetting,
+  saveFilterBarAutoApply,
 } from 'src/dashboard/actions/dashboardInfo';
 import { Icons } from '@superset-ui/core/components/Icons';
 import { Button, Checkbox, Dropdown } from '@superset-ui/core/components';
@@ -49,6 +50,7 @@ const StyledMenuLabel = styled.span`
 `;
 
 const CROSS_FILTERS_MENU_KEY = 'cross-filters-menu-key';
+const AUTO_APPLY_MENU_KEY = 'auto-apply-menu-key';
 const CROSS_FILTERS_SCOPING_MENU_KEY = 'cross-filters-scoping-menu-key';
 const ADD_EDIT_FILTERS_MENU_KEY = 'add-edit-filters-menu-key';
 const CHART_CUSTOMIZATION_MENU_KEY = 'chart-customization-menu-key';
@@ -73,6 +75,9 @@ const FilterBarSettings = () => {
   );
   const canEdit = useSelector<RootState, boolean>(
     ({ dashboardInfo }) => dashboardInfo.dash_edit_perm,
+  );
+  const autoApply = useSelector<RootState, boolean>(
+    ({ dashboardInfo }) => !!dashboardInfo.metadata?.filter_bar_auto_apply,
   );
   const filters = useFilters();
   const filterValues = useMemo(() => Object.values(filters), [filters]);
@@ -130,6 +135,8 @@ const FilterBarSettings = () => {
       const selectedKey: SelectedKey = selection.key;
       if (selectedKey === CROSS_FILTERS_MENU_KEY) {
         toggleCrossFiltering();
+      } else if (selectedKey === AUTO_APPLY_MENU_KEY) {
+        dispatch(saveFilterBarAutoApply(!autoApply));
       } else if (isOrientation(selectedKey)) {
         toggleFilterBarOrientation(selectedKey);
       } else if (selectedKey === CROSS_FILTERS_SCOPING_MENU_KEY) {
@@ -141,6 +148,8 @@ const FilterBarSettings = () => {
       }
     },
     [
+      autoApply,
+      dispatch,
       openScopingModal,
       toggleCrossFiltering,
       toggleFilterBarOrientation,
@@ -187,6 +196,17 @@ const FilterBarSettings = () => {
       items.push({
         key: CROSS_FILTERS_SCOPING_MENU_KEY,
         label: t('Cross-filtering scoping'),
+      });
+      items.push({ type: 'divider' });
+      items.push({
+        key: AUTO_APPLY_MENU_KEY,
+        label: (
+          <StyledMenuLabel>
+            <Checkbox name="filter-bar-auto-apply" checked={autoApply}>
+              {t('Apply filters instantly')}
+            </Checkbox>
+          </StyledMenuLabel>
+        ),
       });
       items.push({ type: 'divider' });
     }
@@ -236,6 +256,7 @@ const FilterBarSettings = () => {
     return items;
   }, [
     selectedFilterBarOrientation,
+    autoApply,
     canEdit,
     crossFiltersMenuItem,
     dashboardId,
