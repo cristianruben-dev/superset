@@ -39,6 +39,7 @@ import { Tooltip, EditableTitle, Icons } from '@superset-ui/core/components';
 import { useSelector } from 'react-redux';
 import cx from 'classnames';
 import { useVisualFormat } from 'src/mibi/format/useVisualFormat';
+import { SortAxisButton } from 'src/mibi/sort/SortAxisButton';
 import SliceHeaderControls from 'src/dashboard/components/SliceHeaderControls';
 import { SliceHeaderControlsProps } from 'src/dashboard/components/SliceHeaderControls/types';
 import FiltersBadge from 'src/dashboard/components/FiltersBadge';
@@ -324,6 +325,8 @@ const SliceHeader = forwardRef<HTMLDivElement, SliceHeaderProps>(
           )}
         </div>
         <div className="header-controls">
+          {/* Mi BI: the editor picks the order every viewer sees */}
+          {editMode && <SortAxisButton chartId={slice.slice_id} />}
           {!editMode && (
             <>
               {SliceHeaderExtension && (

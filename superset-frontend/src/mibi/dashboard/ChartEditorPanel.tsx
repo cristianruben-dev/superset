@@ -17,13 +17,12 @@
  * under the License.
  */
 import { useCallback, useEffect, useState } from 'react';
-import { useDispatch, useSelector, useStore } from 'react-redux';
+import { useDispatch, useStore } from 'react-redux';
 import { t } from '@apache-superset/core/translation';
 import { css, styled } from '@apache-superset/core/theme';
 import { Drawer, Loading } from '@superset-ui/core/components';
 import { addSliceToDashboard } from 'src/dashboard/actions/dashboardState';
 import { handleComponentDrop } from 'src/dashboard/actions/dashboardLayout';
-import { fetchSlices } from 'src/dashboard/actions/sliceEntities';
 import type { DropResult } from 'src/dashboard/components/dnd/dragDroppableConfig';
 import type { RootState } from 'src/dashboard/types';
 import {
@@ -45,6 +44,7 @@ import {
   type OpenChartEditorDetail,
   withPanelParam,
 } from '../chartEditor';
+import { fetchDashboardSlices } from './reloadSavedChart';
 
 const Frame = styled.div`
   position: relative;
@@ -99,9 +99,6 @@ export function newChartDestination(
 export function ChartEditorPanel() {
   const dispatch = useDispatch();
   const store = useStore<RootState>();
-  const dashboardId = useSelector<RootState, number>(
-    ({ dashboardInfo }) => dashboardInfo.id,
-  );
   const [editor, setEditor] = useState<OpenChartEditorDetail | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -118,9 +115,7 @@ export function ChartEditorPanel() {
     async (chartId: number, isNew: boolean) => {
       setEditor(null);
       // Fresh chart definitions (form data, name) for this dashboard
-      await dispatch(
-        fetchSlices(undefined, undefined, 'changed_on', dashboardId) as never,
-      );
+      await dispatch(fetchDashboardSlices() as never);
       const state = store.getState();
       if (isNew && state.dashboardState.editMode) {
         const destination = newChartDestination(state);
@@ -148,7 +143,7 @@ export function ChartEditorPanel() {
       // Reload the chart in place with its saved definition
       dispatch(addSliceToDashboard(chartId) as never);
     },
-    [dispatch, store, dashboardId],
+    [dispatch, store],
   );
 
   useEffect(() => {
