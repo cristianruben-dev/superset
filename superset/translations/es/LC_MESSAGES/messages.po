@@ -10202,7 +10202,7 @@ msgstr ""
 "columna (0 es la primera línea de datos)."
 
 msgid "Row height"
-msgstr "Altura de fila"
+msgstr "Alto de las filas"
 
 msgid "Row limit"
 msgstr "Límite de filas"
@@ -18308,3 +18308,21 @@ msgid "Delayed (missed %s refresh)"
 msgid_plural "Delayed (missed %s refreshes)"
 msgstr[0] "Retrasado (%s actualización perdida)"
 msgstr[1] "Retrasado (%s actualizaciones perdidas)"
+
+msgid "Show grid"
+msgstr "Mostrar cuadrícula"
+
+msgid "Grid style"
+msgstr "Estilo de la cuadrícula"
+
+msgid "Lines"
+msgstr "Líneas"
+
+msgid "Dots"
+msgstr "Puntos"
+
+msgid "Only you see the grid, while editing. Objects snap to its 12 columns when resized, and their height moves in steps of 8 px."
+msgstr "Solo tú ves la cuadrícula, mientras editas. Al cambiar de tamaño, los objetos se ajustan a sus 12 columnas y su alto avanza de 8 en 8 px."
+
+msgid "Reset grid"
+msgstr "Restablecer la cuadrícula"

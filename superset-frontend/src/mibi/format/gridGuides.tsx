@@ -1,0 +1,180 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+import { useEffect, useState, type CSSProperties } from 'react';
+import { useTheme } from '@apache-superset/core/theme';
+import { withOpacity } from './styles';
+
+/**
+ * The grid edit mode draws behind the visuals. Its look is a preference of
+ * each editor, kept in the browser, so it never changes the dashboard.
+ *
+ * Columns are the dashboard's 12 layout columns, the ones visuals snap to
+ * when resized; rows only guide heights, which snap every GRID_BASE_UNIT.
+ */
+export type GridStyle = 'lines' | 'dots' | 'columns';
+
+export interface GridSettings {
+  show: boolean;
+  style: GridStyle;
+  /** Height of a grid row, in pixels */
+  spacing: number;
+  /** CSS color; the theme's primary color when missing */
+  color?: string;
+  /** 0 to 100 */
+  opacity: number;
+}
+
+export const DEFAULT_GRID: GridSettings = {
+  show: true,
+  style: 'lines',
+  spacing: 32,
+  opacity: 35,
+};
+
+const KEY = 'mibi.grid';
+const LEGACY_KEY = 'mibi.showGrid';
+const EVENT = 'mibi:grid';
+const STYLES: GridStyle[] = ['lines', 'dots', 'columns'];
+
+const clamp = (value: number, min: number, max: number) =>
+  Math.min(max, Math.max(min, value));
+
+/** The stored settings, repaired: a bad value falls back to the default. */
+export function readGrid(): GridSettings {
+  try {
+    const raw = JSON.parse(window.localStorage.getItem(KEY) || 'null');
+    if (raw && typeof raw === 'object') {
+      return {
+        show: typeof raw.show === 'boolean' ? raw.show : DEFAULT_GRID.show,
+        style: STYLES.includes(raw.style) ? raw.style : DEFAULT_GRID.style,
+        spacing: Number.isFinite(raw.spacing)
+          ? clamp(Math.round(raw.spacing / 8) * 8, 8, 96)
+          : DEFAULT_GRID.spacing,
+        color: typeof raw.color === 'string' ? raw.color : undefined,
+        opacity: Number.isFinite(raw.opacity)
+          ? clamp(raw.opacity, 5, 100)
+          : DEFAULT_GRID.opacity,
+      };
+    }
+    if (window.localStorage.getItem(LEGACY_KEY) === 'false') {
+      return { ...DEFAULT_GRID, show: false };
+    }
+  } catch {
+    // unreadable storage: the default grid
+  }
+  return DEFAULT_GRID;
+}
+
+/** The grid settings of this editor, and a setter that merges changes. */
+export function useGridSettings(): [
+  GridSettings,
+  (patch: Partial<GridSettings>) => void,
+] {
+  const [value, setValue] = useState(readGrid);
+  useEffect(() => {
+    const onChange = () => setValue(readGrid());
+    window.addEventListener(EVENT, onChange);
+    return () => window.removeEventListener(EVENT, onChange);
+  }, []);
+  const update = (patch: Partial<GridSettings>) => {
+    const next = { ...readGrid(), ...patch };
+    try {
+      window.localStorage.setItem(KEY, JSON.stringify(next));
+    } catch {
+      // the settings last until the page reloads
+    }
+    setValue(next);
+    window.dispatchEvent(new CustomEvent(EVENT));
+  };
+  return [value, update];
+}
+
+/** Whether edit mode shows the grid. */
+export function useShowGrid(): [boolean, (value: boolean) => void] {
+  const [settings, update] = useGridSettings();
+  return [settings.show, show => update({ show })];
+}
+
+/**
+ * The CSS backgrounds that draw the grid over a content ``columnWidth``
+ * pixels per column with ``gutter`` pixels between columns.
+ */
+export function gridBackground(
+  settings: GridSettings,
+  columnWidth: number,
+  gutter: number,
+  color: string,
+): CSSProperties {
+  const width = Math.max(1, columnWidth);
+  const period = width + gutter;
+  const line = withOpacity(color, settings.opacity);
+  const fill = withOpacity(color, settings.opacity * 0.25);
+  const edges = `linear-gradient(to right, ${line} 0 1px, transparent 1px ${
+    width - 1
+  }px, ${line} ${width - 1}px ${width}px, transparent ${width}px)`;
+  const band = `linear-gradient(to right, ${fill} 0 ${width}px, transparent ${width}px)`;
+  const rows = `linear-gradient(to bottom, ${line} 0 1px, transparent 1px)`;
+  const dot = (x: number) =>
+    `radial-gradient(circle at ${x}px 1px, ${line} 1.5px, transparent 2px)`;
+  const columnSize = `${period}px 100%`;
+  const cellSize = `${period}px ${settings.spacing}px`;
+
+  if (settings.style === 'columns') {
+    return {
+      backgroundImage: `${edges}, ${band}`,
+      backgroundSize: `${columnSize}, ${columnSize}`,
+    };
+  }
+  if (settings.style === 'dots') {
+    return {
+      backgroundImage: `${dot(0)}, ${dot(width - 1)}`,
+      backgroundSize: `${cellSize}, ${cellSize}`,
+    };
+  }
+  return {
+    backgroundImage: `${edges}, ${rows}`,
+    backgroundSize: `${columnSize}, 100% ${settings.spacing}px`,
+  };
+}
+
+/** The grid behind the visuals of the dashboard being edited. */
+export function GridGuide({
+  columnWidth,
+  gutter,
+}: {
+  columnWidth: number;
+  gutter: number;
+}) {
+  const theme = useTheme();
+  const [settings] = useGridSettings();
+  if (!settings.show) return null;
+  return (
+    <div
+      className="mibi-grid-guide"
+      aria-hidden
+      data-test="mibi-grid-guide"
+      style={gridBackground(
+        settings,
+        columnWidth,
+        gutter,
+        settings.color || theme.colorPrimary,
+      )}
+    />
+  );
+}

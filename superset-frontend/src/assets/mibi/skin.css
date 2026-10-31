@@ -1237,16 +1237,24 @@ body.mibi-presenting-idle * {
   cursor: none !important;
 }
 
-/* ---- Format pane: column grid and page end while editing ---------------- */
+/* ---- Format pane: grid and page end while editing ---------------------- */
 
-.grid-column-guide:not(.grid-column-guide--resizing) {
-  display: none;
+/* Behind the visuals, so the grid shows only in the space between them */
+.mibi-show-grid .grid-content {
+  position: relative;
+  isolation: isolate;
 }
 
-.mibi-show-grid .grid-column-guide:not(.grid-column-guide--resizing) {
+.mibi-grid-guide {
+  display: none;
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.mibi-show-grid .mibi-grid-guide {
   display: block;
-  opacity: 0.45;
-  z-index: 0;
 }
 
 /* ---- Design elements (image, shape, button, text) ----------------------- */

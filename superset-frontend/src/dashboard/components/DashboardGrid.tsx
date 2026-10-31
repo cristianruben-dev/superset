@@ -30,6 +30,7 @@ import type { DropResult } from 'src/dashboard/components/dnd/dragDroppableConfi
 import DashboardComponent from '../containers/DashboardComponent';
 import { Droppable } from './dnd/DragDroppable';
 import { GRID_GUTTER_SIZE, GRID_COLUMN_COUNT } from '../util/constants';
+import { GridGuide } from 'src/mibi/format/gridGuides';
 import { TAB_TYPE } from '../util/componentTypes';
 
 interface DashboardGridProps {
@@ -316,6 +317,9 @@ class DashboardGrid extends PureComponent<
             data-test="grid-content"
             editMode={editMode}
           >
+            {editMode && (
+              <GridGuide columnWidth={columnWidth} gutter={GRID_GUTTER_SIZE} />
+            )}
             {/* make the area above components droppable */}
             {editMode && (
               <Droppable
@@ -368,9 +372,8 @@ class DashboardGrid extends PureComponent<
                 )}
               </Fragment>
             ))}
-            {/* Shown while resizing, and in edit mode when the Format pane's
-                grid is on (see .mibi-show-grid) */}
-            {(isResizing || editMode) &&
+            {/* Shown while resizing */}
+            {isResizing &&
               Array(GRID_COLUMN_COUNT)
                 .fill(null)
                 .map((_, i) => (

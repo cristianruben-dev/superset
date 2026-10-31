@@ -181,19 +181,15 @@ const DashboardContentWrapper = styled.div`
       .resizable-container {
         & .dashboard-component-chart-holder {
           .dashboard-chart {
+            /* Mi BI: charts stay fully visible while editing, as in Power BI */
             .chart-container {
               cursor: move;
-              opacity: 0.2;
             }
 
             .slice_container {
               /* disable chart interactions in edit mode */
               pointer-events: none;
             }
-          }
-
-          &:hover .dashboard-chart .chart-container {
-            opacity: 0.7;
           }
         }
 

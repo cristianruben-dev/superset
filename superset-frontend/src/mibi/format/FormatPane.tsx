@@ -47,7 +47,7 @@ import {
 } from './actions';
 import { ColorField, Field, RangeField, Section, Segments } from './controls';
 import { selectVisual, useSelectedVisual } from './selection';
-import { useShowGrid } from './gridGuides';
+import { GridSection } from './GridSection';
 import { mergeVisualFormat } from './styles';
 import { useSharedVisualFormat } from './useVisualFormat';
 import { setMobilePreview, useMobilePreview } from './mobile';
@@ -422,7 +422,6 @@ function CanvasSection() {
       `background-${setting}`,
     );
   const sizeMode = canvas.size?.mode ?? 'auto';
-  const [showGrid, setShowGrid] = useShowGrid();
   const mobilePreview = useMobilePreview();
 
   const onFile = async (file?: File) => {
@@ -686,16 +685,9 @@ function CanvasSection() {
             )}
           </Hint>
         )}
-        <Field label={t('Show column grid')}>
-          <Switch
-            size="small"
-            checked={showGrid}
-            aria-label={t('Show column grid')}
-            data-test="mibi-format-show-grid"
-            onChange={setShowGrid}
-          />
-        </Field>
       </Section>
+
+      <GridSection />
 
       <Section>
         <h4>{t('Spacing')}</h4>
