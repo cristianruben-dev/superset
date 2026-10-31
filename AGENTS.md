@@ -81,6 +81,7 @@ This repository is **AuraData BI**, a fork of Apache Superset 6.1 shaped like Po
 | Design elements (image, shape, button, text, canvas filter) | - | `mibi/elements` |
 | Filter bar levels (all pages / this page / visuals), instant apply | `dashboards/schemas.py` (`filter_bar_auto_apply`) | `dashboard/components/nativeFilters/scopeLevel.ts`, `FilterBar/` |
 | Presentation mode, PDF/PNG export | - | `mibi/present`, `mibi/export` |
+| Report interactivity (edit interactions, drill through, sync slicers, bookmarks, Back/bookmark buttons) | - | `mibi/report` |
 | Chart type icons | - | `mibi/vizIcons` |
 
 AuraData BI APIs: `/api/v1/workspace/`, `/api/v1/format_theme/` (plus `<id>/apply/`),
@@ -106,6 +107,15 @@ Formats are stored in `position_json`, so they save, undo and export with the da
   (`columnCountOf(layout)`, `gridColumnCount()`, `scaledWidth()`, `minObjectColumns()`), never
   `GRID_COLUMN_COUNT`, and change the density only with `setColumnCount`, which rescales widths.
 - Flags: `meta.mibiHidden`, `meta.mibiLocked`, `meta.mibiHideMobile`.
+- Report interactivity (`src/mibi/report`), Power BI style:
+  - `ROOT_ID.meta.mibiBookmarks`: bookmarks (page, filter and cross-filter selections, visibility).
+    Applying one sets a browser-only visibility override (`visibility.ts`) on top of `mibiHidden`.
+  - `TAB-*.meta.mibiDrillthrough`: `{columns}` a page accepts for "Drill through". The filter is the
+    `mibi-drillthrough` data mask, scoped to that page's charts in `getAllActiveFilters`.
+  - "Edit interactions" changes `chart_configuration` cross-filter scopes (filter or none; Superset
+    charts cannot highlight); it saves with the dashboard.
+  - "Sync slicers" sets the native filter scope (saved right away, like any filter setting) and
+    places copies of the canvas filter on other pages (saved with the dashboard).
 - Write layout changes through `src/mibi/format/actions.ts` (`updateLayout`, `setVisualFormat`,
   `setCanvasFormat`, `setSharedVisualFormat`) so edits group into one undo step.
 - Format themes (`mibi_format_themes` table) hold `{canvas, visuals, colorScheme}`; the frontend
