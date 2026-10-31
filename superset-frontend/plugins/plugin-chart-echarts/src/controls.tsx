@@ -17,7 +17,11 @@
  * under the License.
  */
 import { t } from '@apache-superset/core/translation';
-import { VizType } from '@superset-ui/core';
+import {
+  VizType,
+  type QueryFormColumn,
+  type QueryFormMetric,
+} from '@superset-ui/core';
 import {
   ControlPanelsContainerProps,
   ControlSetItem,
@@ -35,6 +39,7 @@ import {
 } from './constants';
 import { DEFAULT_FORM_DATA } from './Timeseries/constants';
 import { defaultXAxis } from './defaults';
+import { categorySortChoices } from './utils/categorySort';
 
 const { legendMargin, legendOrientation, legendType, showLegend } =
   DEFAULT_LEGEND_FORM_DATA;
@@ -400,6 +405,48 @@ export const forceMaxInterval = {
       Boolean(controls?.time_grain_sqla?.value),
   },
 };
+
+/** Pie and funnel: what the categories are ordered by (Mi BI "Sort axis"). */
+export const categorySortControls: ControlSetRow[] = [
+  [
+    {
+      name: 'mibi_sort_by',
+      config: {
+        type: 'SelectControl',
+        label: t('Sort by'),
+        clearable: true,
+        default: null,
+        description: t(
+          'What the categories are ordered by. When empty, the "Sort by metric" setting applies.',
+        ),
+        mapStateToProps: ({ controls, datasource }) => ({
+          choices: categorySortChoices(
+            controls?.metric?.value as QueryFormMetric,
+            controls?.groupby?.value as QueryFormColumn[],
+          ).map(label => [
+            label,
+            (datasource && 'verbose_map' in datasource
+              ? datasource.verbose_map?.[label]
+              : undefined) || label,
+          ]),
+        }),
+      },
+    },
+  ],
+  [
+    {
+      name: 'mibi_sort_asc',
+      config: {
+        type: 'CheckboxControl',
+        label: t('Sort ascending'),
+        default: false,
+        description: t('Order the categories from the smallest to the largest'),
+        visibility: ({ controls }: ControlPanelsContainerProps) =>
+          Boolean(controls?.mibi_sort_by?.value),
+      },
+    },
+  ],
+];
 
 export const seriesOrderSection: ControlSetRow[] = [
   [<ControlSubSectionHeader>{t('Series Order')}</ControlSubSectionHeader>],

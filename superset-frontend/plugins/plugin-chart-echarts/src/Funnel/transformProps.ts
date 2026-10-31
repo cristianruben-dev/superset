@@ -51,6 +51,7 @@ import { defaultGrid } from '../defaults';
 import { DEFAULT_LEGEND_FORM_DATA, OpacityEnum } from '../constants';
 import { getDefaultTooltip } from '../utils/tooltip';
 import { Refs } from '../types';
+import { funnelSort } from '../utils/categorySort';
 
 const percentFormatter = getNumberFormatter(NumberFormats.PERCENT_2_POINT);
 
@@ -107,6 +108,8 @@ export default function transformProps(
     groupby,
     orient,
     sort,
+    mibiSortBy,
+    mibiSortAsc,
     gap,
     labelLine,
     labelType,
@@ -264,7 +267,7 @@ export default function transformProps(
       animation: true,
       minSize: '0%',
       maxSize: '100%',
-      sort,
+      sort: funnelSort({ metric, mibiSortBy, mibiSortAsc }, sort),
       orient,
       gap,
       funnelAlign: 'center',

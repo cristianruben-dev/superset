@@ -17,13 +17,14 @@
  * under the License.
  */
 import { buildQueryContext, QueryFormData } from '@superset-ui/core';
+import { categoryOrderby } from '../utils/categorySort';
 
 export default function buildQuery(formData: QueryFormData) {
-  const { metric, sort_by_metric } = formData;
+  const orderby = categoryOrderby(formData);
   return buildQueryContext(formData, baseQueryObject => [
     {
       ...baseQueryObject,
-      ...(sort_by_metric && { orderby: [[metric, false]] }),
+      ...(orderby && { orderby }),
     },
   ]);
 }

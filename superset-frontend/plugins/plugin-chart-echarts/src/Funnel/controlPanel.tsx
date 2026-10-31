@@ -31,7 +31,7 @@ import {
   EchartsFunnelLabelType,
   PercentCalcType,
 } from './types';
-import { legendSection } from '../controls';
+import { categorySortControls, legendSection } from '../controls';
 
 const { labelType, numberFormat, showLabels, defaultTooltipLabel } =
   DEFAULT_FORM_DATA;
@@ -66,6 +66,7 @@ const config: ControlPanelConfig = {
             },
           },
         ],
+        ...categorySortControls,
         [
           {
             name: 'percent_calculation_type',

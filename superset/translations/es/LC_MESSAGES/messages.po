@@ -19057,3 +19057,9 @@ msgstr "Orden deshecho"
 
 msgid "Couldn't save the sort"
 msgstr "No se pudo guardar el orden"
+
+msgid "What the categories are ordered by. When empty, the \"Sort by metric\" setting applies."
+msgstr "Por qué se ordenan las categorías. Si está vacío, se aplica «Ordenar por métrica»."
+
+msgid "Order the categories from the smallest to the largest"
+msgstr "Ordena las categorías de menor a mayor"

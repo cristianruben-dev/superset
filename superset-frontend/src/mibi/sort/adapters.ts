@@ -16,7 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { VizType, type QueryFormData } from '@superset-ui/core';
+import {
+  ensureIsArray,
+  getColumnLabel,
+  getMetricLabel,
+  VizType,
+  type QueryFormColumn,
+  type QueryFormData,
+} from '@superset-ui/core';
 import { DEFAULT_XAXIS_SORT_SERIES_DATA } from '@superset-ui/chart-controls';
 import { xAxisSortChoices } from './axisChoices';
 import type { SortAdapter } from './types';
@@ -53,7 +60,45 @@ const categoryAxisAdapter: SortAdapter = {
   }),
 };
 
+/**
+ * Pie and funnel charts: `mibi_sort_by` and `mibi_sort_asc`. Their categories
+ * read in data order (clockwise from the top, or top down), so ascending is
+ * stored as is. A chart without its own sort shows the "Sort by metric" one.
+ */
+const categoryAdapter: SortAdapter = {
+  options: (formData, datasource) => {
+    // As the chart's own "Sort by" control: the metric, then the dimensions
+    const labels = [
+      ...(formData.metric ? [getMetricLabel(formData.metric)] : []),
+      ...ensureIsArray(formData.groupby as QueryFormColumn[]).map(
+        getColumnLabel,
+      ),
+    ];
+    return labels.length
+      ? labels.map(value => ({
+          value,
+          label: datasource?.verbose_map?.[value] || value,
+        }))
+      : null;
+  },
+  current: formData => {
+    if (formData.mibi_sort_by) {
+      return { by: formData.mibi_sort_by, ascending: !!formData.mibi_sort_asc };
+    }
+    // The chart editor checks "Sort by metric" by default
+    return formData.metric && formData.sort_by_metric !== false
+      ? { by: getMetricLabel(formData.metric), ascending: false }
+      : undefined;
+  },
+  toFormData: ({ by, ascending }) => ({
+    mibi_sort_by: by,
+    mibi_sort_asc: ascending,
+  }),
+};
+
 const ADAPTERS: Partial<Record<string, SortAdapter>> = {
+  [VizType.Pie]: categoryAdapter,
+  [VizType.Funnel]: categoryAdapter,
   [VizType.Bar]: categoryAxisAdapter,
   [VizType.Line]: categoryAxisAdapter,
   [VizType.Area]: categoryAxisAdapter,

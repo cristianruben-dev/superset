@@ -167,3 +167,35 @@ describe('legend sorting', () => {
     expect(legendData).toEqual(['Sylvester', 'Mark', 'Arnold']);
   });
 });
+
+test('a funnel sorted ascending by its metric is drawn smallest first', () => {
+  const sortedProps = new ChartProps({
+    formData: { ...formData, mibi_sort_by: 'sum__num', mibi_sort_asc: true },
+    width: 800,
+    height: 600,
+    queriesData,
+    theme: supersetTheme,
+  });
+  const { echartOptions } = transformProps(
+    sortedProps as unknown as EchartsFunnelChartProps,
+  );
+  expect(echartOptions.series).toEqual([
+    expect.objectContaining({ sort: 'ascending' }),
+  ]);
+});
+
+test('a funnel sorted by a dimension keeps the query order', () => {
+  const sortedProps = new ChartProps({
+    formData: { ...formData, mibi_sort_by: 'foo' },
+    width: 800,
+    height: 600,
+    queriesData,
+    theme: supersetTheme,
+  });
+  const { echartOptions } = transformProps(
+    sortedProps as unknown as EchartsFunnelChartProps,
+  );
+  expect(echartOptions.series).toEqual([
+    expect.objectContaining({ sort: 'none' }),
+  ]);
+});

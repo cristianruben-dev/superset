@@ -22,15 +22,17 @@ import {
   QueryFormData,
 } from '@superset-ui/core';
 import { getContributionLabel } from './utils';
+import { categoryOrderby } from '../utils/categorySort';
 
 export default function buildQuery(formData: QueryFormData) {
-  const { metric, sort_by_metric } = formData;
+  const { metric } = formData;
   const metricLabel = getMetricLabel(metric);
+  const orderby = categoryOrderby(formData);
 
   return buildQueryContext(formData, baseQueryObject => [
     {
       ...baseQueryObject,
-      ...(sort_by_metric && { orderby: [[metric, false]] }),
+      ...(orderby && { orderby }),
       post_processing: [
         {
           operation: 'contribution',

@@ -218,3 +218,35 @@ test.each([
     'Chile',
   ]);
 });
+
+test('pie and funnel charts sort by the metric or a dimension', () => {
+  [VizType.Pie, VizType.Funnel].forEach(vizType => {
+    const categories = sortAdapterFor(vizType)!;
+    const formData = barFormData({
+      viz_type: vizType,
+      x_axis: undefined,
+      metric: 'SUM(sales)',
+      groupby: ['country'],
+    });
+    expect(categories.options(formData, dataset)).toEqual([
+      { value: 'SUM(sales)', label: 'SUM(sales)' },
+      { value: 'country', label: 'country' },
+    ]);
+    expect(
+      categories.toFormData({ by: 'country', ascending: true }, formData),
+    ).toEqual({ mibi_sort_by: 'country', mibi_sort_asc: true });
+  });
+});
+
+test('a pie without a sort of its own shows "Sort by metric"', () => {
+  const pie = sortAdapterFor(VizType.Pie)!;
+  const formData = barFormData({ viz_type: VizType.Pie, metric: 'SUM(sales)' });
+  expect(pie.current(formData)).toEqual({
+    by: 'SUM(sales)',
+    ascending: false,
+  });
+  expect(pie.current({ ...formData, sort_by_metric: false })).toBeUndefined();
+  expect(
+    pie.current({ ...formData, mibi_sort_by: 'country', mibi_sort_asc: true }),
+  ).toEqual({ by: 'country', ascending: true });
+});

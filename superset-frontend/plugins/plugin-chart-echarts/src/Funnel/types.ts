@@ -41,6 +41,9 @@ export type EchartsFunnelFormData = QueryFormData &
     numberFormat: string;
     gap: number;
     sort: 'descending' | 'ascending' | 'none' | undefined;
+    /** Mi BI "Sort axis": the metric or a dimension label */
+    mibiSortBy?: string | null;
+    mibiSortAsc?: boolean;
     orient: 'vertical' | 'horizontal' | undefined;
     percentCalculationType: PercentCalcType;
   };
