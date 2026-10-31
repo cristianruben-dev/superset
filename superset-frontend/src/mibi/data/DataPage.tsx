@@ -64,7 +64,7 @@ const Header = styled.header`
 
     .titles {
       flex: 1;
-      min-width: 260px;
+      min-width: min(260px, 100%);
     }
 
     h1 {
@@ -83,6 +83,7 @@ const Header = styled.header`
 
     .tools {
       display: flex;
+      flex-wrap: wrap;
       gap: ${theme.sizeUnit * 2}px;
     }
   `}

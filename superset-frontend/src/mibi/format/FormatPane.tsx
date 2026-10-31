@@ -299,6 +299,7 @@ function VisualSection({ id }: { id: string }) {
             <Input
               value={format.title?.subtitle ?? ''}
               placeholder={t('Subtitle (optional)')}
+              maxLength={300}
               aria-label={t('Subtitle')}
               data-test="mibi-format-subtitle"
               onChange={event =>

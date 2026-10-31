@@ -295,3 +295,49 @@ test('the Format pane edits the selected button', () => {
   );
   expect(screen.getByTestId('mibi-button-label')).toHaveValue('Otra');
 });
+
+test('a picture that does not load never shows its alt text', () => {
+  const config = {
+    kind: 'image' as const,
+    src: 'https://invalid.invalid/x.png',
+    alt: 'Un texto alternativo muy largo',
+  };
+  const { rerender } = render(<ImageView editMode config={config} />, {
+    useRedux: true,
+  });
+  fireEvent.error(screen.getByTestId('mibi-image'));
+  expect(screen.getByTestId('mibi-image-broken')).toBeInTheDocument();
+  rerender(<ImageView editMode={false} config={config} />);
+  expect(screen.queryByAltText(config.alt)).not.toBeInTheDocument();
+});
+
+test('an icon only button with an unknown icon shows its label', () => {
+  render(
+    <ButtonView
+      editMode={false}
+      config={{
+        kind: 'button',
+        label: 'Etiqueta',
+        icon: 'NotARealIcon',
+        iconPosition: 'only',
+      }}
+    />,
+    { useRedux: true },
+  );
+  expect(screen.getByText('Etiqueta')).toBeInTheDocument();
+});
+
+test('long words inside a shape wrap and stay inside it', () => {
+  render(
+    <ShapeView
+      id="long"
+      editMode={false}
+      config={{ kind: 'shape', shape: 'star', text: 'x'.repeat(500) }}
+    />,
+    { useRedux: true },
+  );
+  expect(screen.getByText('x'.repeat(500))).toHaveStyle({
+    overflowWrap: 'anywhere',
+    overflow: 'hidden',
+  });
+});

@@ -74,12 +74,34 @@ def test_create_and_list(client: Any, workspaces: list[Dashboard]) -> None:
 
 @pytest.mark.parametrize(
     "payload",
-    [{}, {"name": ""}, {"name": "x" * 251}, {"name": "x", "color": "red"}],
+    [
+        {},
+        {"name": ""},
+        {"name": "   \n\t "},
+        {"name": "x" * 251},
+        {"name": "x", "description": "d" * 1001},
+        {"name": "x", "color": "red"},
+        {"name": ["not", "text"]},
+    ],
 )
 def test_create_validates(
     client: Any, workspaces: list[Dashboard], payload: dict[str, Any]
 ) -> None:
     assert client.post("/api/v1/workspace/", json=payload).status_code == 400
+
+
+def test_names_are_trimmed_and_kept_as_plain_text(
+    client: Any, workspaces: list[Dashboard]
+) -> None:
+    name = '  <img src=x onerror="alert(1)"> 📊 עברית  '
+    response = client.post(
+        "/api/v1/workspace/", json={"name": name, "description": "  hola  "}
+    )
+    assert response.status_code == 201
+    created = response.json["result"]
+    # Stored as typed (minus the outer spaces): the UI renders it as text
+    assert created["name"] == name.strip()
+    assert created["description"] == "hola"
 
 
 def test_update_and_delete(

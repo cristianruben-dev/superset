@@ -1433,3 +1433,54 @@ body.mibi-presenting-idle * {
     display: none !important;
   }
 }
+
+/* ---- Hardening for long and unusual text --------------------------------- */
+
+/* Dashboard tabs: one line each, cut with an ellipsis */
+.dashboard-component-tabs .ant-tabs-tab {
+  max-width: 280px;
+}
+
+.dashboard-component-tabs .ant-tabs-tab-btn,
+.dashboard-component-tabs .ant-tabs-tab .editable-title,
+.dashboard-component-tabs .ant-tabs-tab .editable-title input,
+.dashboard-component-tabs .ant-tabs-tab .editable-title textarea {
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+[data-test='dashboard-header-wrapper'],
+.dashboard-component-tabs,
+.dashboard-component-tabs .ant-tabs-nav {
+  min-width: 0;
+  max-width: 100%;
+}
+
+/* Chart titles: at most two lines (the title is nested, so cap the height) */
+.dashboard-component-chart-holder [data-test='slice-header'] > .header-title {
+  max-height: 2.8em;
+  line-height: 1.4;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+}
+
+/* Long words wrap inside text blocks instead of widening the page */
+.dashboard-markdown,
+.dashboard-markdown *,
+.mibi-rich-text,
+.mibi-rich-text *,
+.dashboard-component-chart-holder .slice_description {
+  overflow-wrap: anywhere;
+}
+
+/* Modal titles (they often carry a user's name for something) */
+.ant-modal .ant-modal-title {
+  overflow-wrap: anywhere;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}

@@ -24,6 +24,7 @@ import {
   useEffect,
   useLayoutEffect,
   useRef,
+  useState,
 } from 'react';
 import { Tooltip } from '@superset-ui/core/components';
 import { t } from '@apache-superset/core/translation';
@@ -122,6 +123,17 @@ export function ImageView({
   editMode: boolean;
 }) {
   const run = useElementAction(config.action, !editMode);
+  // A picture that does not load shows the placeholder, never its alt text
+  const [broken, setBroken] = useState(false);
+  useEffect(() => setBroken(false), [config.src]);
+  if (broken && config.src) {
+    return editMode ? (
+      <Placeholder data-test="mibi-image-broken">
+        <Icons.WarningOutlined iconSize="xl" />
+        {t('The picture could not be loaded')}
+      </Placeholder>
+    ) : null;
+  }
   if (!config.src) {
     return editMode ? (
       <Placeholder data-test="mibi-image-placeholder">
@@ -150,6 +162,7 @@ export function ImageView({
           alt={config.alt ?? ''}
           data-test="mibi-image"
           draggable={false}
+          onError={() => setBroken(true)}
           style={{
             width: '100%',
             height: '100%',
@@ -320,6 +333,8 @@ export function ShapeView({
               inset: 0,
               padding: theme.sizeUnit * 3,
               whiteSpace: 'pre-wrap',
+              overflowWrap: 'anywhere',
+              overflow: 'hidden',
             }}
           >
             {config.text}
@@ -397,7 +412,11 @@ export function ButtonView({
   const IconComponent = config.icon
     ? (Icons as Record<string, typeof Icons.ArrowRightOutlined>)[config.icon]
     : undefined;
-  const iconPosition = config.iconPosition ?? 'left';
+  // An icon only button whose icon is unknown shows its label instead
+  const iconPosition =
+    config.iconPosition === 'only' && !IconComponent
+      ? 'left'
+      : (config.iconPosition ?? 'left');
   const text = textCss(config.textStyle, theme);
   const icon = IconComponent ? (
     <IconComponent

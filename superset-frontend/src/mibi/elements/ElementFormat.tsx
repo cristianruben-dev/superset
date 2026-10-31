@@ -194,6 +194,7 @@ function ActionFields({
           <Input
             value={current.url ?? ''}
             placeholder="https://"
+            maxLength={2048}
             aria-label={t('Link')}
             status={urlInvalid ? 'error' : undefined}
             onChange={event =>
@@ -250,6 +251,7 @@ function InteractiveFields({
       <Input
         value={config.tooltip ?? ''}
         placeholder={t('Tooltip (optional)')}
+        maxLength={500}
         aria-label={t('Tooltip')}
         data-test="mibi-element-tooltip"
         onChange={event => update({ tooltip: event.target.value }, 'tooltip')}
@@ -585,6 +587,7 @@ function ShapeSection({
             <Input.TextArea
               value={config.text ?? ''}
               placeholder={t('Optional text')}
+              maxLength={500}
               aria-label={t('Text inside')}
               autoSize={{ minRows: 2, maxRows: 6 }}
               onChange={event => update({ text: event.target.value }, 'text')}
@@ -714,6 +717,7 @@ function ImageSection({
         <Input
           value={uploaded ? '' : (config.src ?? '')}
           placeholder={t('…or paste the link of a picture')}
+          maxLength={2048}
           aria-label={t('Picture link')}
           onChange={event =>
             update(
@@ -725,6 +729,7 @@ function ImageSection({
         <Input
           value={config.alt ?? ''}
           placeholder={t('Description for screen readers')}
+          maxLength={500}
           aria-label={t('Description')}
           onChange={event => update({ alt: event.target.value }, 'alt')}
         />
@@ -935,6 +940,7 @@ function ButtonSection({
         <Input
           value={config.label ?? t('Button')}
           aria-label={t('Label')}
+          maxLength={200}
           data-test="mibi-button-label"
           onChange={event => update({ label: event.target.value }, 'label')}
         />

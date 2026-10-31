@@ -56,8 +56,10 @@ const Crumbs = styled.nav`
     margin-bottom: ${theme.sizeUnit * 4}px;
     font-size: ${theme.fontSizeSM}px;
     color: ${theme.colorTextTertiary};
+    min-width: 0;
 
     a {
+      flex: none;
       color: ${theme.colorTextSecondary};
       font-weight: 500;
 
@@ -65,6 +67,13 @@ const Crumbs = styled.nav`
         color: ${theme.colorPrimary};
         text-decoration: none;
       }
+    }
+
+    .current {
+      min-width: 0;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
     }
   `}
 `;
@@ -132,7 +141,7 @@ const Hero = styled.header`
 
     .titles {
       flex: 1;
-      min-width: 240px;
+      min-width: min(240px, 100%);
       padding-top: ${theme.sizeUnit * 4}px;
     }
 
@@ -143,6 +152,11 @@ const Hero = styled.header`
       letter-spacing: -0.028em;
       line-height: 1.15;
       color: ${theme.colorText};
+      overflow-wrap: anywhere;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
     }
 
     .description {
@@ -151,6 +165,11 @@ const Hero = styled.header`
       color: ${theme.colorTextSecondary};
       line-height: 1.55;
       white-space: pre-line;
+      overflow-wrap: anywhere;
+      display: -webkit-box;
+      -webkit-line-clamp: 4;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
     }
 
     .meta {
@@ -402,7 +421,9 @@ export default function WorkspacePage() {
       <Crumbs aria-label={t('Breadcrumb')}>
         <Link to="/workspace/list/">{t('Workspaces')}</Link>
         <Icons.RightOutlined iconSize="xs" />
-        <span>{workspace.name}</span>
+        <span className="current" title={workspace.name}>
+          {workspace.name}
+        </span>
       </Crumbs>
 
       <Hero>
@@ -413,9 +434,11 @@ export default function WorkspacePage() {
         <div className="content">
           <WorkspaceAvatar workspace={workspace} size="xl" className="avatar" />
           <div className="titles">
-            <h1>{workspace.name}</h1>
+            <h1 title={workspace.name}>{workspace.name}</h1>
             {workspace.description && (
-              <p className="description">{workspace.description}</p>
+              <p className="description" title={workspace.description}>
+                {workspace.description}
+              </p>
             )}
           </div>
         </div>

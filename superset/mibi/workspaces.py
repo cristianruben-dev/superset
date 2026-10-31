@@ -25,7 +25,7 @@ from flask import request, Response
 from flask_appbuilder import expose
 from flask_appbuilder.api import protect, safe
 from flask_appbuilder.security.decorators import has_access
-from marshmallow import fields, Schema, validate, ValidationError
+from marshmallow import fields, pre_load, Schema, validate, ValidationError
 from sqlalchemy import or_
 
 from superset import db, security_manager
@@ -78,6 +78,17 @@ class WorkspaceSchema(Schema):
     color = fields.String(
         allow_none=True, validate=validate.Regexp(r"^#[0-9a-fA-F]{6}$")
     )
+
+    @pre_load
+    def strip_text(self, data: Any, **kwargs: Any) -> Any:
+        """Trim names and descriptions, so a blank name is rejected."""
+        if not isinstance(data, dict):
+            return data
+        data = dict(data)
+        for key in ("name", "description"):
+            if isinstance(data.get(key), str):
+                data[key] = data[key].strip()
+        return data
 
 
 class WorkspaceMemberSchema(Schema):

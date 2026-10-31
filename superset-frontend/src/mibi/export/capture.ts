@@ -39,6 +39,7 @@ type DomToCanvas = (
     cacheBust?: boolean;
     filter?: (node: Node) => boolean;
     onclone?: (clone: Node) => void;
+    imagePlaceholder?: string;
   },
 ) => Promise<HTMLCanvasElement>;
 
@@ -47,6 +48,8 @@ const sleep = (ms: number) =>
     window.setTimeout(resolve, ms);
   });
 
+const TRANSPARENT_PIXEL =
+  'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
 const SETTLE_POLL_MS = 200;
 const SETTLE_MAX_MS = 20000;
 // ECharts animates for about a second after the data arrives
@@ -212,6 +215,8 @@ export async function captureDashboard(
     height,
     scale,
     cacheBust: true,
+    // A picture that fails to load must not fail the whole export
+    imagePlaceholder: TRANSPARENT_PIXEL,
     onclone: clone => {
       // A fixed size canvas is zoomed to fit the screen: capture it at its size
       if (clone instanceof HTMLElement) clone.style.setProperty('zoom', '1');

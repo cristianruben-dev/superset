@@ -18,7 +18,7 @@
  */
 import { render, screen, userEvent } from 'spec/helpers/testing-library';
 import { DashboardCard } from './DashboardCard';
-import { glyphFor } from './DashboardPreview';
+import { DashboardPreview, glyphFor } from './DashboardPreview';
 
 const props = {
   id: 3,
@@ -92,4 +92,20 @@ test('selects instead of navigating in bulk mode', () => {
 
   expect(onSelect).toHaveBeenCalled();
   expect(screen.getByText('Draft')).toBeInTheDocument();
+});
+
+test('never draws NaN coordinates, even before the dashboard id is known', () => {
+  const { container } = render(
+    <DashboardPreview
+      seed={Number.NaN}
+      rows={[
+        [
+          { kind: 'echarts_timeseries_line', width: 6, height: 50 },
+          { kind: 'dist_bar', width: 6, height: 50 },
+        ],
+      ]}
+    />,
+  );
+  expect(container.querySelectorAll('svg').length).toBeGreaterThan(0);
+  expect(container.innerHTML).not.toContain('NaN');
 });

@@ -142,6 +142,11 @@ const Hero = styled.header`
     .description {
       margin: ${theme.sizeUnit * 1.5}px 0 0;
       color: ${theme.colorTextSecondary};
+      overflow-wrap: anywhere;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
     }
 
     .chips {
@@ -178,6 +183,9 @@ const Tabs = styled.div`
     gap: ${theme.sizeUnit * 6}px;
     margin-bottom: ${theme.sizeUnit * 4}px;
     border-bottom: 1px solid ${theme.colorBorderSecondary};
+    /* Narrow screens scroll the tabs sideways instead of cutting them */
+    overflow-x: auto;
+    scrollbar-width: none;
 
     button {
       all: unset;
@@ -185,8 +193,10 @@ const Tabs = styled.div`
       display: inline-flex;
       align-items: center;
       gap: ${theme.sizeUnit * 2}px;
+      flex: none;
       padding: ${theme.sizeUnit * 3}px 0;
       font-weight: 500;
+      white-space: nowrap;
       color: ${theme.colorTextSecondary};
       cursor: pointer;
 
@@ -235,6 +245,7 @@ const Panel = styled.section`
 
     .bar {
       display: flex;
+      flex-wrap: wrap;
       align-items: center;
       justify-content: space-between;
       gap: ${theme.sizeUnit * 3}px;
@@ -658,7 +669,9 @@ export default function DatasetPage() {
         <div className="titles">
           <h1>{dataset.table_name}</h1>
           {dataset.description && (
-            <p className="description">{dataset.description}</p>
+            <p className="description" title={dataset.description}>
+              {dataset.description}
+            </p>
           )}
           <div className="chips">
             <span>

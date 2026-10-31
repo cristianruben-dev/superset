@@ -200,6 +200,7 @@ export function MetricModal({
               id="metric-label"
               value={label}
               placeholder={t('Total sales')}
+              maxLength={1024}
               onChange={event => setLabel(event.target.value)}
             />
           </label>

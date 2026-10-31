@@ -46,7 +46,7 @@ const Header = styled.header`
 
     .titles {
       flex: 1;
-      min-width: 260px;
+      min-width: min(260px, 100%);
     }
 
     h1 {

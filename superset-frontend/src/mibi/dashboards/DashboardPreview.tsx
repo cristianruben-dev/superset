@@ -106,8 +106,10 @@ function GlyphSvg({ glyph, seed }: { glyph: Glyph; seed: number }) {
     theme.colorPrimaryBorderHover,
     theme.colorPrimaryBorder,
   ];
+  // A card still loading has no id yet: never draw NaN coordinates
+  const base = Number.isFinite(seed) ? seed : 0;
   const vary = (index: number, min: number, range: number) =>
-    min + ((seed * 31 + index * 17) % range);
+    min + ((base * 31 + index * 17) % range);
 
   switch (glyph) {
     case 'bar':

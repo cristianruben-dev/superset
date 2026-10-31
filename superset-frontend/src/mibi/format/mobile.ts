@@ -18,8 +18,27 @@
  */
 import { useEffect, useState } from 'react';
 
-/** Below this canvas width the dashboard uses its mobile layout. */
+/** Below this screen width the dashboard uses its mobile layout. */
 export const MOBILE_BREAKPOINT = 640;
+
+/**
+ * Whether the screen is phone sized. The screen, not the canvas: side panels
+ * (filters, the builder) narrow the canvas on desktops too. The screen width
+ * counts as well, since a page wider than a phone widens its window.
+ */
+export const isPhoneScreen = () =>
+  Math.min(window.innerWidth, window.screen?.width || Infinity) <
+  MOBILE_BREAKPOINT;
+
+export function usePhoneScreen(): boolean {
+  const [value, setValue] = useState(isPhoneScreen);
+  useEffect(() => {
+    const onResize = () => setValue(isPhoneScreen());
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+  return value;
+}
 /** Width of the phone preview in edit mode. */
 export const PHONE_WIDTH = 390;
 /** Layout meta key hiding an object from the mobile layout. */

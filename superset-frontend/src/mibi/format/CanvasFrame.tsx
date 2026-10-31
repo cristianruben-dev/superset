@@ -32,7 +32,7 @@ import { Button } from '@superset-ui/core/components';
 import { Icons } from '@superset-ui/core/components/Icons';
 import { fitToCanvas } from './actions';
 import { useShowGrid } from './gridGuides';
-import { MOBILE_BREAKPOINT, PHONE_WIDTH, useMobilePreview } from './mobile';
+import { PHONE_WIDTH, useMobilePreview, usePhoneScreen } from './mobile';
 import { css, styled, useTheme } from '@apache-superset/core/theme';
 import type { RootState } from 'src/dashboard/types';
 import { DASHBOARD_ROOT_ID } from 'src/dashboard/util/constants';
@@ -141,7 +141,9 @@ export function CanvasFrame({ children }: { children: ReactNode }) {
   const outerRef = useRef<HTMLDivElement>(null);
   const [available, setAvailable] = useState(0);
   const previewing = useMobilePreview() && !!editMode;
-  const mobile = previewing || (available > 0 && available < MOBILE_BREAKPOINT);
+  const phone = usePhoneScreen();
+  // Editing uses the desktop layout unless previewing the phone
+  const mobile = previewing || (phone && !editMode);
   // The mobile layout ignores the fixed page size
   const size = mobile ? null : canvasSize(canvas);
   const dispatch = useDispatch();
