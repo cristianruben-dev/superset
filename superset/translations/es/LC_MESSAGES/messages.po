@@ -177,7 +177,7 @@ msgid " to add metrics"
 msgstr " para añadir métricas"
 
 msgid " to check for details."
-msgstr ""
+msgstr " para ver los detalles."
 
 msgid " to edit or add columns and metrics."
 msgstr " para editar o añadir columnas y métricas."
@@ -201,11 +201,11 @@ msgstr "!= (no es igual)"
 
 #, python-format
 msgid "\"%s\" is now the system dark theme"
-msgstr ""
+msgstr "«%s» es ahora el tema oscuro del sistema"
 
 #, python-format
 msgid "\"%s\" is now the system default theme"
-msgstr ""
+msgstr "«%s» es ahora el tema predeterminado del sistema"
 
 #, python-format
 msgid "% calculation"
@@ -431,7 +431,7 @@ msgid "+ %s more"
 msgstr "+ %s más"
 
 msgid ", then paste the JSON below. See our"
-msgstr ""
+msgstr " y pega el JSON abajo. Consulta nuestra"
 
 msgid ""
 "-- Note: Unless you save your query, these tabs will NOT persist if you "
@@ -690,10 +690,10 @@ msgid "A Big Number"
 msgstr "Un número grande"
 
 msgid "A JavaScript function that generates a label configuration object"
-msgstr ""
+msgstr "Una función de JavaScript que genera un objeto de configuración de etiquetas"
 
 msgid "A JavaScript function that generates an icon configuration object"
-msgstr ""
+msgstr "Una función de JavaScript que genera un objeto de configuración de iconos"
 
 msgid "A comma separated list of columns that should be parsed as dates"
 msgstr "Lista de columnas, separadas por comas, que se deben interpretar como fechas"
@@ -925,7 +925,7 @@ msgstr "Añadir registro"
 msgid ""
 "Add Query A and Query B identifiers to tooltips to help differentiate "
 "series"
-msgstr ""
+msgstr "Añadir los identificadores Consulta A y Consulta B a las descripciones emergentes para distinguir las series"
 
 msgid "Add Role"
 msgstr "Añadir rol"
@@ -1196,7 +1196,7 @@ msgstr "Después"
 msgid ""
 "After making the changes, copy the query and paste in the virtual dataset"
 " SQL snippet settings."
-msgstr ""
+msgstr "Después de hacer los cambios, copia la consulta y pégala en la configuración SQL del conjunto de datos virtual."
 
 msgid "Aggregate"
 msgstr "Agregado"
@@ -1792,7 +1792,7 @@ msgid "Annotations could not be deleted."
 msgstr "No se han podido eliminar las anotaciones."
 
 msgid "Ant Design Theme Editor"
-msgstr ""
+msgstr "Editor de temas de Ant Design"
 
 msgid "Any"
 msgstr "Cualquiera"
@@ -1812,10 +1812,10 @@ msgstr ""
 msgid ""
 "Any dashboards using these themes will be automatically dissociated from "
 "them."
-msgstr ""
+msgstr "Los paneles que usen estos temas dejarán de estar asociados a ellos."
 
 msgid "Any dashboards using this theme will be automatically dissociated from it."
-msgstr ""
+msgstr "Los paneles que usen este tema dejarán de estar asociados a él."
 
 msgid "Any databases that allow connections via SQL Alchemy URIs can be added. "
 msgstr ""
@@ -1875,7 +1875,7 @@ msgstr "Aplicar formato de color condicional a las columnas numéricas"
 msgid ""
 "Apply custom CSS to the dashboard. Use class names or element selectors "
 "to target specific components."
-msgstr ""
+msgstr "Aplica CSS personalizado al panel. Usa nombres de clase o selectores de elementos para elegir componentes concretos."
 
 msgid "Apply filters"
 msgstr "Aplicar filtros"
@@ -1951,12 +1951,12 @@ msgstr "¿Seguro que quieres continuar?"
 msgid ""
 "Are you sure you want to remove the system dark theme? The application "
 "will fall back to the configuration file dark theme."
-msgstr ""
+msgstr "¿Seguro que quieres quitar el tema oscuro del sistema? La aplicación volverá al tema oscuro del archivo de configuración."
 
 msgid ""
 "Are you sure you want to remove the system default theme? The application"
 " will fall back to the configuration file default."
-msgstr ""
+msgstr "¿Seguro que quieres quitar el tema predeterminado del sistema? La aplicación volverá al tema del archivo de configuración."
 
 msgid "Are you sure you want to save and apply changes?"
 msgstr "¿Seguro que quieres guardar y aplicar los cambios?"
@@ -1965,13 +1965,13 @@ msgstr "¿Seguro que quieres guardar y aplicar los cambios?"
 msgid ""
 "Are you sure you want to set \"%s\" as the system dark theme? This will "
 "apply to all users who haven't set a personal preference."
-msgstr ""
+msgstr "¿Seguro que quieres usar «%s» como tema oscuro del sistema? Se aplicará a todos los usuarios que no tengan una preferencia propia."
 
 #, python-format
 msgid ""
 "Are you sure you want to set \"%s\" as the system default theme? This "
 "will apply to all users who haven't set a personal preference."
-msgstr ""
+msgstr "¿Seguro que quieres usar «%s» como tema predeterminado del sistema? Se aplicará a todos los usuarios que no tengan una preferencia propia."
 
 msgid "Area"
 msgstr "Área"
@@ -2040,10 +2040,10 @@ msgid "Autocomplete query predicate"
 msgstr "Autocompletar predicado de consulta"
 
 msgid "Automatically adjust column width based on available space"
-msgstr ""
+msgstr "Ajustar el ancho de las columnas al espacio disponible"
 
 msgid "Automatically adjust column width based on content"
-msgstr ""
+msgstr "Ajustar el ancho de las columnas a su contenido"
 
 msgid "Automatically sync columns"
 msgstr "Sincronizar columnas automáticamente"
@@ -2206,7 +2206,7 @@ msgstr "Vacíos"
 
 #, python-format
 msgid "Block %(block_num)s out of %(block_count)s"
-msgstr ""
+msgstr "Bloque %(block_num)s de %(block_count)s"
 
 msgid "Border color"
 msgstr "Color del borde"
@@ -2252,7 +2252,7 @@ msgid ""
 "Bounds for the X-axis. Selected time merges with min/max date of the "
 "data. When left empty, bounds dynamically defined based on the min/max of"
 " the data."
-msgstr ""
+msgstr "Límites del eje X. El tiempo elegido se combina con la fecha mínima y máxima de los datos. Si se deja vacío, los límites se calculan a partir de los datos."
 
 msgid ""
 "Bounds for the Y-axis. When left empty, the bounds are dynamically "
@@ -2474,7 +2474,7 @@ msgstr "Tiempo de espera del caché (segundos)"
 msgid ""
 "Cache data separately for each user based on their data access roles and "
 "permissions. When disabled, a single cache will be used for all users."
-msgstr ""
+msgstr "Guardar en caché los datos por separado para cada usuario según sus roles y permisos. Si se desactiva, se usa una sola caché para todos."
 
 msgid "Cache timeout"
 msgstr "Tiempo de espera del caché"
@@ -2538,10 +2538,10 @@ msgid "Cannot delete system themes"
 msgstr "No se pueden eliminar los temas del sistema"
 
 msgid "Cannot delete theme that is set as system default or dark theme"
-msgstr ""
+msgstr "No se puede eliminar un tema usado como predeterminado u oscuro del sistema"
 
 msgid "Cannot delete theme that is set as system default or dark theme."
-msgstr ""
+msgstr "No se puede eliminar un tema usado como predeterminado u oscuro del sistema."
 
 #, python-format
 msgid "Cannot find the table (%s) metadata."
@@ -2554,10 +2554,10 @@ msgid "Cannot load filter"
 msgstr "No se puede cargar el filtro"
 
 msgid "Cannot modify system themes."
-msgstr ""
+msgstr "No se pueden modificar los temas del sistema."
 
 msgid "Cannot nest folders in default folders"
-msgstr ""
+msgstr "No se pueden anidar carpetas dentro de las carpetas predeterminadas"
 
 #, python-format
 msgid "Cannot parse time string [%(human_readable)s]"
@@ -2618,7 +2618,7 @@ msgid "Cell content"
 msgstr "Contenido de la celda"
 
 msgid "Cell layout & styling"
-msgstr ""
+msgstr "Diseño y estilo de las celdas"
 
 msgid "Cell limit"
 msgstr "Límite de celda"
@@ -2667,7 +2667,7 @@ msgid "Changes saved."
 msgstr "Cambios guardados."
 
 msgid "Changes the sort value of the items in the legend only"
-msgstr ""
+msgstr "Cambia solo el orden de los elementos de la leyenda"
 
 msgid "Changing one or more of these dashboards is forbidden"
 msgstr "No se permite cambiar uno o más de estos paneles de control"
@@ -2772,7 +2772,7 @@ msgid "Chart could not be updated."
 msgstr "No se ha podido actualizar el gráfico."
 
 msgid "Chart customization to control deck.gl layer visibility"
-msgstr ""
+msgstr "Personalización para mostrar u ocultar capas de deck.gl"
 
 msgid "Chart customization value is required"
 msgstr "El valor de personalización del gráfico es obligatorio"
@@ -2915,10 +2915,10 @@ msgstr "Elige las columnas que se leerán"
 msgid ""
 "Choose from existing dashboard filters and select a value to refine your "
 "report results."
-msgstr ""
+msgstr "Elige uno de los filtros del panel y un valor para acotar los resultados del informe."
 
 msgid "Choose how many X-Axis labels to show"
-msgstr ""
+msgstr "Elige cuántas etiquetas mostrar en el eje X"
 
 msgid "Choose index column"
 msgstr "Elige la columna de índice"
@@ -2926,7 +2926,7 @@ msgstr "Elige la columna de índice"
 msgid ""
 "Choose layers to hide from all deck.gl Multiple Layer charts in this "
 "dashboard."
-msgstr ""
+msgstr "Elige qué capas ocultar en todos los gráficos de varias capas de deck.gl de este panel."
 
 msgid "Choose notification method and recipients."
 msgstr "Elige el método de notificación y los destinatarios."
@@ -3023,7 +3023,7 @@ msgid "Clear default dark theme"
 msgstr "Quitar tema oscuro predeterminado"
 
 msgid "Clear default light theme"
-msgstr ""
+msgstr "Quitar el tema claro predeterminado"
 
 msgid "Clear form"
 msgstr "Borrar formulario"
@@ -3032,7 +3032,7 @@ msgid "Clear local theme"
 msgstr "Quitar tema local"
 
 msgid "Clear the selection to revert to the system default theme"
-msgstr ""
+msgstr "Quita la selección para volver al tema predeterminado del sistema"
 
 msgid ""
 "Click on \"Add or edit filters and controls\" option in Settings to "
@@ -3120,7 +3120,7 @@ msgid "Close all other tabs"
 msgstr "Cerrar el resto de las pestañas"
 
 msgid "Close color breakpoint editor"
-msgstr ""
+msgstr "Cerrar el editor de rangos de color"
 
 msgid "Close tab"
 msgstr "Cerrar pestaña"
@@ -3290,7 +3290,7 @@ msgid "Columns and metrics"
 msgstr "Columnas y métricas"
 
 msgid "Columns folder can only contain column items"
-msgstr ""
+msgstr "La carpeta de columnas solo puede contener columnas"
 
 #, python-format
 msgid "Columns missing in dataset: %(invalid_columns)s"
@@ -3377,7 +3377,7 @@ msgid ""
 "Compares metrics between different time periods. Displays time series "
 "data across multiple periods (like weeks or months) to show period-over-"
 "period trends and patterns."
-msgstr ""
+msgstr "Compara métricas entre periodos. Muestra series temporales de varios periodos (como semanas o meses) para ver tendencias de un periodo a otro."
 
 msgid "Comparison"
 msgstr "Comparación"
@@ -3428,16 +3428,16 @@ msgid "Configure Time Range: Previous..."
 msgstr "Configurar Rango de Tiempo: Anteriores..."
 
 msgid "Configure automatic dashboard refresh"
-msgstr ""
+msgstr "Configura la actualización automática del panel"
 
 msgid "Configure caching and performance settings"
-msgstr ""
+msgstr "Configura la caché y el rendimiento"
 
 msgid "Configure custom time range"
 msgstr "Configurar intervalo de tiempo personalizado"
 
 msgid "Configure dashboard appearance, colors, and custom CSS"
-msgstr ""
+msgstr "Configura el aspecto del panel, sus colores y el CSS personalizado"
 
 msgid "Configure filter scopes"
 msgstr "Configurar los alcances de los filtros"
@@ -3826,7 +3826,7 @@ msgid "Custom date"
 msgstr "Fecha personalizada"
 
 msgid "Custom fields not available in aggregated heatmap cells"
-msgstr ""
+msgstr "Los campos personalizados no están disponibles en las celdas agregadas del mapa de calor"
 
 msgid "Custom time filter plugin"
 msgstr "«Plugin» de filtro de tiempo personalizado"
@@ -3855,7 +3855,7 @@ msgstr "Personalizar métricas"
 msgid ""
 "Customize cell titles using Handlebars template syntax. Available "
 "variables: {{rowLabel}}, {{colLabel}}"
-msgstr ""
+msgstr "Personaliza los títulos de las celdas con plantillas Handlebars. Variables disponibles: {{rowLabel}}, {{colLabel}}"
 
 msgid "Customize columns"
 msgstr "Personalizar columnas"
@@ -3866,17 +3866,17 @@ msgstr "Personaliza la fuente de datos, los filtros y el diseño."
 msgid ""
 "Customize the label displayed for decreasing values in the chart tooltips"
 " and legend."
-msgstr ""
+msgstr "Personaliza la etiqueta de los valores que bajan en las descripciones emergentes y la leyenda."
 
 msgid ""
 "Customize the label displayed for increasing values in the chart tooltips"
 " and legend."
-msgstr ""
+msgstr "Personaliza la etiqueta de los valores que suben en las descripciones emergentes y la leyenda."
 
 msgid ""
 "Customize the label displayed for total values in the chart tooltips, "
 "legend, and chart axis."
-msgstr ""
+msgstr "Personaliza la etiqueta de los totales en las descripciones emergentes, la leyenda y el eje."
 
 msgid "Customize tooltips template"
 msgstr "Personalizar la plantilla de descripciones emergentes"
@@ -3986,7 +3986,7 @@ msgid "Dashboard imported"
 msgstr "Panel de control importado"
 
 msgid "Dashboard name and URL configuration"
-msgstr ""
+msgstr "Nombre y dirección URL del panel"
 
 msgid "Dashboard name is required"
 msgstr "El nombre del panel de control es obligatorio"
@@ -4444,7 +4444,7 @@ msgstr ""
 " datos, filtrar o enriquecer la matriz."
 
 msgid "Define color breakpoints for the data"
-msgstr ""
+msgstr "Define rangos de color para los datos"
 
 msgid ""
 "Define contour layers. Isolines represent a collection of line segments "
@@ -4883,10 +4883,10 @@ msgid "Display cumulative total at end"
 msgstr "Mostrar el total acumulado al final"
 
 msgid "Display headers for each column at the top of the matrix"
-msgstr ""
+msgstr "Mostrar el encabezado de cada columna en la parte superior de la matriz"
 
 msgid "Display labels for each row on the left side of the matrix"
-msgstr ""
+msgstr "Mostrar la etiqueta de cada fila a la izquierda de la matriz"
 
 msgid ""
 "Display metrics side by side within each column, as opposed to each "
@@ -4911,7 +4911,7 @@ msgid "Display row level total"
 msgstr "Mostrar total a nivel de fila"
 
 msgid "Display the last queried timestamp on charts in the dashboard view"
-msgstr ""
+msgstr "Mostrar en los gráficos la hora de la última consulta"
 
 msgid "Display type icon"
 msgstr "Mostrar icono de tipo"
@@ -4940,7 +4940,7 @@ msgstr "Separador"
 msgid ""
 "Divides each category into subcategories based on the values in the "
 "dimension. It can be used to exclude intersections."
-msgstr ""
+msgstr "Divide cada categoría en subcategorías según los valores de la dimensión. Sirve para excluir intersecciones."
 
 msgid "Do you want a donut or a pie?"
 msgstr "¿Quieres un gráfico de dónut o tipo pastel?"
@@ -4999,7 +4999,7 @@ msgid ""
 "Drag columns and metrics here to customize tooltip content. Order matters"
 " - items will appear in the same order in tooltips. Click the button to "
 "manually select columns and metrics."
-msgstr ""
+msgstr "Arrastra aquí columnas y métricas para personalizar la descripción emergente. El orden importa: aparecerán en ese mismo orden. Pulsa el botón para elegirlas a mano."
 
 msgid "Draw a marker on data points. Only applicable for line types."
 msgstr ""
@@ -5167,7 +5167,7 @@ msgid "Duration in ms (66000 => 1m 6s)"
 msgstr "Duración en ms (66 000 => 1 m 6 s)"
 
 msgid "Dynamic"
-msgstr ""
+msgstr "Dinámico"
 
 msgid "Dynamic Aggregation Function"
 msgstr "Función de agregación dinámica"
@@ -5179,7 +5179,7 @@ msgid "Dynamically search all filter values"
 msgstr "Buscar dinámicamente todos los valores de filtro"
 
 msgid "Dynamically select grouping columns from a dataset"
-msgstr ""
+msgstr "Elegir las columnas de agrupación de un conjunto de datos de forma dinámica"
 
 msgid "ECharts"
 msgstr "ECharts"
@@ -5394,7 +5394,7 @@ msgstr ""
 "configuración de cualquier base de datos"
 
 msgid "Enable Matrixify"
-msgstr ""
+msgstr "Activar matriz de gráficos"
 
 msgid "Enable cross-filtering"
 msgstr "Habilitar el filtro cruzado"
@@ -5418,13 +5418,13 @@ msgid "Enable horizontal layout (columns)"
 msgstr ""
 
 msgid "Enable icon JavaScript mode"
-msgstr ""
+msgstr "Activar el modo JavaScript para iconos"
 
 msgid "Enable icons"
 msgstr "Mostrar iconos"
 
 msgid "Enable label JavaScript mode"
-msgstr ""
+msgstr "Activar el modo JavaScript para etiquetas"
 
 msgid "Enable labels"
 msgstr "Mostrar etiquetas"
@@ -5447,16 +5447,16 @@ msgid "Enable vertical layout (rows)"
 msgstr ""
 
 msgid "Enables custom icon configuration via JavaScript"
-msgstr ""
+msgstr "Permite configurar los iconos con JavaScript"
 
 msgid "Enables custom label configuration via JavaScript"
-msgstr ""
+msgstr "Permite configurar las etiquetas con JavaScript"
 
 msgid "Enables rendering of icons for GeoJSON points"
-msgstr ""
+msgstr "Dibuja iconos en los puntos GeoJSON"
 
 msgid "Enables rendering of labels for GeoJSON points"
-msgstr ""
+msgstr "Dibuja etiquetas en los puntos GeoJSON"
 
 msgid ""
 "Encountered invalid NULL spatial entry,"
@@ -5533,7 +5533,7 @@ msgid "Enter fullscreen"
 msgstr "Ir a pantalla completa"
 
 msgid "Enter minimum and maximum values for the range filter"
-msgstr ""
+msgstr "Escribe los valores mínimo y máximo del filtro de rango"
 
 msgid "Enter report name"
 msgstr "Introduce el nombre del informe"
@@ -5735,7 +5735,7 @@ msgid "Excel upload"
 msgstr "Subida de Excel"
 
 msgid "Exclude layers (deck.gl)"
-msgstr ""
+msgstr "Excluir capas (deck.gl)"
 
 msgid "Exclude selected values"
 msgstr "Excluir valores seleccionados"
@@ -5831,7 +5831,7 @@ msgid "Export failed: %s"
 msgstr "La exportación ha fallado: %s"
 
 msgid "Export screenshot (jpeg)"
-msgstr ""
+msgstr "Exportar captura (jpeg)"
 
 msgid "Export successful: %s"
 msgstr "Exportación correcta: %s"
@@ -5947,7 +5947,7 @@ msgid "Failed at retrieving results"
 msgstr "No se han podido recuperar los resultados"
 
 msgid "Failed to apply theme: Invalid JSON"
-msgstr ""
+msgstr "No se pudo aplicar el tema: JSON no válido"
 
 msgid "Failed to create report"
 msgstr "No se ha podido generar el informe"
@@ -5975,11 +5975,11 @@ msgid "Failed to load top values"
 msgstr "No se han podido cargar los valores principales"
 
 msgid "Failed to open file. Please try again."
-msgstr ""
+msgstr "No se pudo abrir el archivo. Inténtalo de nuevo."
 
 #, python-format
 msgid "Failed to remove system dark theme: %s"
-msgstr ""
+msgstr "No se pudo quitar el tema oscuro del sistema: %s"
 
 msgid "Failed to remove system default theme: %s"
 msgstr "No se ha podido quitar el tema predeterminado del sistema: %s"
@@ -5997,11 +5997,11 @@ msgid "Failed to save cross-filters setting"
 msgstr "No se ha podido guardar la configuración de filtros cruzados"
 
 msgid "Failed to set local theme: Invalid JSON configuration"
-msgstr ""
+msgstr "No se pudo usar el tema local: configuración JSON no válida"
 
 #, python-format
 msgid "Failed to set system dark theme: %s"
-msgstr ""
+msgstr "No se pudo usar el tema oscuro del sistema: %s"
 
 msgid "Failed to set system default theme: %s"
 msgstr "No se ha podido establecer el tema predeterminado del sistema: %s"
@@ -6013,7 +6013,7 @@ msgid "Failed to stop query."
 msgstr "No se ha podido detener la consulta."
 
 msgid "Failed to store query results. Please try again."
-msgstr ""
+msgstr "No se pudieron guardar los resultados de la consulta. Inténtalo de nuevo."
 
 msgid "Failed to tag items"
 msgstr "No se han podido etiquetar los elementos"
@@ -6022,14 +6022,14 @@ msgid "Failed to update report"
 msgstr "No se ha podido actualizar el informe"
 
 msgid "Failed to validate expression. Please try again."
-msgstr ""
+msgstr "No se pudo validar la expresión. Inténtalo de nuevo."
 
 #, python-format
 msgid "Failed to verify select options: %s"
 msgstr "No se han podido verificar las opciones de selección: %s"
 
 msgid "Falling back to CSV; Excel export library not available."
-msgstr ""
+msgstr "Se exporta a CSV: la biblioteca de Excel no está disponible."
 
 msgid "False"
 msgstr "Falso"
@@ -6073,7 +6073,7 @@ msgstr "La extensión del archivo no está permitida."
 msgid ""
 "File handling is not supported in this browser. Please use a modern "
 "browser like Chrome or Edge."
-msgstr ""
+msgstr "Este navegador no permite abrir archivos. Usa un navegador moderno como Chrome o Edge."
 
 msgid "File settings"
 msgstr "Ajustes de archivo"
@@ -6093,7 +6093,7 @@ msgid "Fill method"
 msgstr "Método de relleno"
 
 msgid "Fill out the registration form"
-msgstr ""
+msgstr "Completa el formulario de registro"
 
 msgid "Filled"
 msgstr "Rellenado"
@@ -6295,13 +6295,13 @@ msgstr ""
 "todos los datos."
 
 msgid "Forbidden"
-msgstr ""
+msgstr "Prohibido"
 
 msgid "Force"
 msgstr "Forzar"
 
 msgid "Force Time Grain as Max Interval"
-msgstr ""
+msgstr "Usar la granularidad como intervalo máximo"
 
 msgid ""
 "Force all tables and views to be created in this schema when clicking "
@@ -6332,7 +6332,7 @@ msgid "Force refresh table list"
 msgstr "Forzar actualización de la lista de tablas"
 
 msgid "Forces selected Time Grain as the maximum interval for X Axis Labels"
-msgstr ""
+msgstr "Usa la granularidad elegida como intervalo máximo entre etiquetas del eje X"
 
 msgid "Forecast periods"
 msgstr "Periodos de previsión"
@@ -6373,7 +6373,7 @@ msgid ""
 "Choose a symbol manually or use 'Auto-detect' to apply the correct symbol"
 " based on the dataset's currency code column. When multiple currencies "
 "are present, formatting falls back to neutral numbers."
-msgstr ""
+msgstr "Da formato de moneda a métricas o columnas, con el símbolo delante o detrás. Elige el símbolo o usa «Detectar» para tomarlo de la columna de códigos de moneda del conjunto de datos. Si hay varias monedas, se muestran números sin símbolo."
 
 msgid "Formatted CSV attached in email"
 msgstr "CSV formateado adjunto en el correo electrónico"
@@ -6435,7 +6435,7 @@ msgstr "Diagrama de Gantt"
 msgid ""
 "Gantt chart visualizes important events over a time span. Every data "
 "point displayed as a separate event along a horizontal line."
-msgstr ""
+msgstr "El diagrama de Gantt muestra eventos importantes a lo largo del tiempo. Cada dato es un evento sobre una línea horizontal."
 
 msgid "Gauge Chart"
 msgstr "Gráfico radial"
@@ -6539,7 +6539,7 @@ msgid "Group by"
 msgstr "Agrupar por"
 
 msgid "Group remaining as \"Others\""
-msgstr ""
+msgstr "Agrupar el resto como «Otros»"
 
 msgid "Grouping"
 msgstr "Agrupación"
@@ -6550,13 +6550,13 @@ msgstr "Grupos"
 msgid ""
 "Groups remaining series into an \"Others\" category when series limit is "
 "reached. This prevents incomplete time series data from being displayed."
-msgstr ""
+msgstr "Agrupa las series restantes en «Otros» al llegar al límite de series, para no mostrar series incompletas."
 
 msgid "Guest user cannot modify chart payload"
 msgstr "Un usuario invitado no puede modificar la carga útil del gráfico"
 
 msgid "HTTP Path"
-msgstr ""
+msgstr "Ruta HTTP"
 
 msgid "Handlebars"
 msgstr "Handlebars"
@@ -6665,7 +6665,7 @@ msgid "How many periods into the future do we want to predict"
 msgstr "Cuántos periodos en el futuro queremos predecir"
 
 msgid "How many top values to select"
-msgstr ""
+msgstr "Cuántos de los valores principales elegir"
 
 msgid ""
 "How to display time shifts: as individual lines; as the difference "
@@ -6733,13 +6733,13 @@ msgstr ""
 msgid ""
 "If it stays empty, it won't be saved and will be removed from the list. "
 "To remove folders, move metrics and columns to other folders."
-msgstr ""
+msgstr "Si queda vacía, no se guardará y se quitará de la lista. Para quitar carpetas, mueve sus métricas y columnas a otras."
 
 msgid "If table already exists"
 msgstr "Si la tabla ya existe"
 
 msgid "If you don't save, changes will be lost."
-msgstr ""
+msgstr "Si no guardas, perderás los cambios."
 
 msgid "Ignore cache when generating report"
 msgstr "Ignorar el caché al generar un informe"
@@ -6820,7 +6820,7 @@ msgstr ""
 "cuenta de servicio o configurar un cliente OAuth2."
 
 msgid "In this view you can preview the first 25 rows. "
-msgstr ""
+msgstr "Aquí puedes ver las primeras 25 filas. "
 
 msgid "Include Series"
 msgstr "Incluir series"
@@ -6870,7 +6870,7 @@ msgid "Inherit range from time filter"
 msgstr "Heredar intervalo del filtro de tiempo"
 
 msgid "Initial tree depth"
-msgstr ""
+msgstr "Profundidad inicial del árbol"
 
 msgid "Inner Radius"
 msgstr "Radio interior"
@@ -6911,7 +6911,7 @@ msgid "Inside right"
 msgstr "Dentro a la derecha"
 
 msgid "Inside top"
-msgstr ""
+msgstr "Dentro, arriba"
 
 msgid "Inside top left"
 msgstr "Dentro arriba a la izquierda"
@@ -7141,7 +7141,7 @@ msgstr "Problema 1001: la base de datos está bajo una carga inusual."
 msgid ""
 "It won't be removed even if empty. It won't be shown in chart editing "
 "view if empty."
-msgstr ""
+msgstr "No se quitará aunque quede vacía. Si está vacía, no se mostrará al editar gráficos."
 
 msgid "It’s not recommended to truncate Y axis in Bar chart."
 msgstr "No se recomienda truncar el eje Y en un gráfico de barras."
@@ -7162,7 +7162,7 @@ msgid "JSON metadata"
 msgstr "Metadatos JSON"
 
 msgid "JSON metadata and advanced configuration"
-msgstr ""
+msgstr "Metadatos JSON y configuración avanzada"
 
 msgid "JSON metadata is invalid!"
 msgstr "Los metadatos JSON no son válidos"
@@ -7590,7 +7590,7 @@ msgid "Loaded from cache"
 msgstr "Cargado desde el caché"
 
 msgid "Loading deck.gl layers..."
-msgstr ""
+msgstr "Cargando capas de deck.gl..."
 
 msgid "Loading timezones..."
 msgstr "Cargando zonas horarias..."
@@ -7602,11 +7602,11 @@ msgid "Local"
 msgstr "Local"
 
 msgid "Local theme set for preview"
-msgstr ""
+msgstr "Tema local aplicado para previsualizar"
 
 #, python-format
 msgid "Local theme set to \"%s\""
-msgstr ""
+msgstr "Tema local: «%s»"
 
 msgid "Locate the chart"
 msgstr "Localizar el gráfico"
@@ -7710,7 +7710,7 @@ msgid "Manage"
 msgstr "Gestionar"
 
 msgid "Manage dashboard owners and access permissions"
-msgstr ""
+msgstr "Gestiona los propietarios del panel y quién puede verlo"
 
 msgid "Manage email report"
 msgstr "Gestionar informe de correo electrónico"
@@ -7774,13 +7774,13 @@ msgid "Markup type"
 msgstr "Tipo de marcado"
 
 msgid "Match system"
-msgstr ""
+msgstr "Igual que el sistema"
 
 msgid "Match time shift color with original series"
 msgstr "Hacer coincidir el color del cambio de tiempo con la serie original"
 
 msgid "Matrixify"
-msgstr ""
+msgstr "Matriz de gráficos"
 
 msgid "Max"
 msgstr "Máx."
@@ -7804,7 +7804,7 @@ msgid "Maximum Radius"
 msgstr "Radio máximo"
 
 msgid "Maximum folder nesting depth reached"
-msgstr ""
+msgstr "Se alcanzó el máximo de carpetas anidadas"
 
 msgid "Maximum number of features to fetch from service"
 msgstr "Número máximo de características a recuperar del servicio"
@@ -7896,7 +7896,7 @@ msgid ""
 "single metric across the entire filtered time period, ideal for non-"
 "additive metrics like ratios, averages, or distinct counts. Other methods"
 " operate over the time series data points."
-msgstr ""
+msgstr "Cómo se calcula el valor mostrado. «Valor total» calcula una sola métrica para todo el periodo filtrado, ideal para métricas no sumables como proporciones, promedios o recuentos distintos. Los demás métodos operan sobre los puntos de la serie temporal."
 
 msgid "Metric"
 msgstr "Métrica"
@@ -7992,7 +7992,7 @@ msgid "Metrics / Dimensions"
 msgstr "Métricas / dimensiones"
 
 msgid "Metrics folder can only contain metric items"
-msgstr ""
+msgstr "La carpeta de métricas solo puede contener métricas"
 
 msgid "Metrics to show in the tooltip."
 msgstr "Métricas que se muestran en la descripción emergente."
@@ -8233,7 +8233,7 @@ msgid "Name your database"
 msgstr "Ponle un nombre a tu base de datos"
 
 msgid "Name your folder and to edit it later, click on the folder name"
-msgstr ""
+msgstr "Ponle nombre a la carpeta; para cambiarlo después, haz clic en su nombre"
 
 msgid "Native filter column is required"
 msgstr "La columna del filtro nativo es obligatoria"
@@ -8369,7 +8369,7 @@ msgid "No databases match your search"
 msgstr "Ninguna base de datos coincide con tu búsqueda"
 
 msgid "No deck.gl multi layer charts found in this dashboard."
-msgstr ""
+msgstr "Este panel no tiene gráficos de varias capas de deck.gl."
 
 msgid "No description available."
 msgstr "No hay ninguna descripción disponible."
@@ -8621,10 +8621,10 @@ msgid "Number of buckets to group data"
 msgstr "Número de «buckets» para agrupar datos"
 
 msgid "Number of charts per row when not fitting dynamically"
-msgstr ""
+msgstr "Gráficos por fila cuando no se ajustan solos"
 
 msgid "Number of charts to display per row"
-msgstr ""
+msgstr "Gráficos por fila"
 
 msgid "Number of decimal digits to round numbers to"
 msgstr "Número de dígitos decimales para redondear números a"
@@ -9167,7 +9167,7 @@ msgid "Person or group that has certified this metric"
 msgstr "Persona o grupo que ha certificado esta métrica."
 
 msgid "Personal info"
-msgstr ""
+msgstr "Datos personales"
 
 msgid "Physical"
 msgstr "Físico"
@@ -9233,7 +9233,7 @@ msgid "Pin Right"
 msgstr "Anclar a la derecha"
 
 msgid "Pin to the result panel"
-msgstr ""
+msgstr "Fijar en el panel de resultados"
 
 msgid "Pivot Mode"
 msgstr "Modo dinámico"
@@ -9541,10 +9541,10 @@ msgstr "Continuar"
 
 #, python-format
 msgid "Processing export for %s"
-msgstr ""
+msgstr "Preparando la exportación de %s"
 
 msgid "Processing export..."
-msgstr ""
+msgstr "Preparando la exportación..."
 
 msgid "Progress"
 msgstr "Progreso"
@@ -9768,7 +9768,7 @@ msgstr "Frecuencia de actualización"
 
 #, python-format
 msgid "Refresh frequency must be at least %s seconds"
-msgstr ""
+msgstr "La frecuencia de actualización debe ser de al menos %s segundos"
 
 msgid "Refresh interval"
 msgstr "Intervalo de actualización"
@@ -9801,10 +9801,10 @@ msgid "Registration date"
 msgstr "Fecha de registro"
 
 msgid "Registration hash"
-msgstr ""
+msgstr "Código de registro"
 
 msgid "Registration successful"
-msgstr ""
+msgstr "Registro completado"
 
 msgid "Regular"
 msgstr "Regular"
@@ -9844,7 +9844,7 @@ msgid "Remove"
 msgstr "Eliminar"
 
 msgid "Remove System Dark Theme"
-msgstr ""
+msgstr "Quitar el tema oscuro del sistema"
 
 msgid "Remove System Default Theme"
 msgstr "Quitar tema predeterminado del sistema"
@@ -10026,7 +10026,7 @@ msgid "Reset Columns"
 msgstr "Restablecer columnas"
 
 msgid "Reset all folders to default"
-msgstr ""
+msgstr "Restablecer las carpetas predeterminadas"
 
 msgid "Reset columns"
 msgstr "Restablecer columnas"
@@ -10192,7 +10192,7 @@ msgid ""
 "Row Limit: percentages are calculated based on the subset of data "
 "retrieved, respecting the row limit. All Records: Percentages are "
 "calculated based on the total dataset, ignoring the row limit."
-msgstr ""
+msgstr "Límite de filas: los porcentajes se calculan sobre los datos obtenidos, respetando el límite de filas. Todos los registros: se calculan sobre todo el conjunto de datos, sin el límite."
 
 msgid ""
 "Row containing the headers to use as column names (0 is first line of "
@@ -10427,7 +10427,7 @@ msgid "Save chart"
 msgstr "Guardar gráfico"
 
 msgid "Save color breakpoint values"
-msgstr ""
+msgstr "Guardar los rangos de color"
 
 msgid "Save dashboard"
 msgstr "Guardar panel de control"
@@ -10720,7 +10720,7 @@ msgstr ""
 "en una columna o escribir SQL personalizado para crear una métrica."
 
 msgid "Select a predefined CSS template to apply to your dashboard"
-msgstr ""
+msgstr "Elige una plantilla CSS para aplicarla al panel"
 
 msgid "Select a schema"
 msgstr "Selecciona un esquema"
@@ -10869,7 +10869,7 @@ msgid ""
 "Each layer is a saved deck.gl chart (like scatter plots, polygons, or "
 "arcs) that displays different data or insights. Stack them to reveal "
 "patterns and relationships across your data."
-msgstr ""
+msgstr "Elige las capas en el orden en que quieres apilarlas; la primera queda abajo. Las capas combinan varias visualizaciones en un mapa. Cada capa es un gráfico de deck.gl guardado (dispersión, polígonos, arcos…) con otros datos. Apílalas para descubrir patrones y relaciones."
 
 msgid "Select layers to hide"
 msgstr "Elige las capas que ocultar"
@@ -10976,20 +10976,20 @@ msgstr ""
 "de datos o contengan el mismo nombre de columna en el panel de control."
 
 msgid "Select the color used for values that indicate an increase in the chart"
-msgstr ""
+msgstr "Color de los valores que suben"
 
 msgid "Select the color used for values that represent total bars in the chart"
-msgstr ""
+msgstr "Color de las barras de total"
 
 msgid "Select the color used for values ​​that indicate a decrease in the chart."
-msgstr ""
+msgstr "Color de los valores que bajan."
 
 msgid ""
 "Select the column containing currency codes such as USD, EUR, GBP, etc. "
 "Used when building charts when 'Auto-detect' currency formatting is "
 "enabled. If this column is not set or if a chart metric contains multiple"
 " currencies, charts will fall back to neutral numeric formatting."
-msgstr ""
+msgstr "Elige la columna con códigos de moneda como USD, EUR o MXN. Se usa en los gráficos con el formato de moneda «Detectar». Si no se indica o una métrica tiene varias monedas, se muestran números sin símbolo."
 
 msgid "Select the fixed color"
 msgstr "Elige el color fijo"
@@ -11054,10 +11054,10 @@ msgid "Series chart type (line, bar etc)"
 msgstr "Tipo de gráfico de la serie (líneas, barra, etc.)"
 
 msgid "Series decrease setting"
-msgstr ""
+msgstr "Configuración de las bajadas"
 
 msgid "Series increase setting"
-msgstr ""
+msgstr "Configuración de las subidas"
 
 msgid "Series limit"
 msgstr "Límite de la serie"
@@ -11079,7 +11079,7 @@ msgstr "Paginación del servidor"
 
 #, python-format
 msgid "Server pagination needs to be enabled for values over %s"
-msgstr ""
+msgstr "Para más de %s valores hay que activar la paginación en el servidor"
 
 msgid "Service Account"
 msgstr "Cuenta de servicio"
@@ -11088,7 +11088,7 @@ msgid "Service version"
 msgstr "Versión del servicio"
 
 msgid "Set System Dark Theme"
-msgstr ""
+msgstr "Usar como tema oscuro del sistema"
 
 msgid "Set System Default Theme"
 msgstr "Establecer tema predeterminado del sistema"
@@ -11109,18 +11109,18 @@ msgid "Set local theme for testing"
 msgstr "Usar tema local para pruebas"
 
 msgid "Set local theme for testing (preview only)"
-msgstr ""
+msgstr "Usar un tema local para probar (solo vista previa)"
 
 msgid "Set refresh frequency for current session only."
-msgstr ""
+msgstr "Frecuencia de actualización solo para esta sesión."
 
 msgid "Set the automatic refresh frequency for this dashboard."
-msgstr ""
+msgstr "Elige cada cuánto se actualiza este panel."
 
 msgid ""
 "Set the automatic refresh frequency for this dashboard. The dashboard "
 "will reload its data at the specified interval."
-msgstr ""
+msgstr "Elige cada cuánto se actualiza este panel. El panel volverá a cargar sus datos en ese intervalo."
 
 msgid "Set up an email report"
 msgstr "Configurar un informe de correo electrónico"
@@ -11132,7 +11132,7 @@ msgid ""
 "Sets the default temporal column for this dataset. Automatically selected"
 " as the time column when building charts that require a time dimension "
 "and used in dashboard level time filters."
-msgstr ""
+msgstr "Columna de tiempo predeterminada de este conjunto de datos. Se elige sola al crear gráficos que necesitan una dimensión de tiempo y se usa en los filtros de tiempo del panel."
 
 msgid ""
 "Sets the hierarchy levels of the chart. Each level is\n"
@@ -11489,7 +11489,7 @@ msgstr "Omitir espacios después del delimitador"
 
 #, python-format
 msgid "Skipped %d system themes that cannot be deleted"
-msgstr ""
+msgstr "Se omitieron %d temas del sistema que no se pueden eliminar"
 
 msgid "Slice Id"
 msgstr "ID del gráfico"
@@ -11498,7 +11498,7 @@ msgid "Slider"
 msgstr "Control deslizante"
 
 msgid "Slider and range input"
-msgstr ""
+msgstr "Control deslizante y rango"
 
 msgid "Slug"
 msgstr "«Slug»"
@@ -11702,7 +11702,7 @@ msgid "Split number"
 msgstr "Dividir número"
 
 msgid "Split stack by"
-msgstr ""
+msgstr "Dividir la pila por"
 
 msgid "Square kilometers"
 msgstr "Kilómetros cuadrados"
@@ -11717,7 +11717,7 @@ msgid "Stack"
 msgstr "Pila"
 
 msgid "Stack in groups, where each group corresponds to a dimension"
-msgstr ""
+msgstr "Apilar en grupos, uno por dimensión"
 
 msgid "Stack series"
 msgstr "Series apiladas"
@@ -11993,13 +11993,13 @@ msgid "System"
 msgstr "Sistema"
 
 msgid "System Theme - Read Only"
-msgstr ""
+msgstr "Tema del sistema (solo lectura)"
 
 msgid "System dark theme removed"
-msgstr ""
+msgstr "Tema oscuro del sistema quitado"
 
 msgid "System default theme removed"
-msgstr ""
+msgstr "Tema predeterminado del sistema quitado"
 
 msgid "TABLES"
 msgstr "TABLAS"
@@ -12146,7 +12146,7 @@ msgid ""
 "Template for cell titles. Use Handlebars templating syntax (a popular "
 "templating library that uses double curly brackets for variable "
 "substitution): {{row}}, {{column}}, {{rowLabel}}, {{columnLabel}}"
-msgstr ""
+msgstr "Plantilla de los títulos de celda. Usa la sintaxis de Handlebars (las variables van entre dobles llaves): {{row}}, {{column}}, {{rowLabel}}, {{columnLabel}}"
 
 msgid "Template parameters"
 msgstr "Parámetros de plantilla"
@@ -12156,7 +12156,7 @@ msgstr "Error al procesar la plantilla: %(error)s"
 
 #, python-format
 msgid "Template processing failed: %(ex)s"
-msgstr ""
+msgstr "No se pudo procesar la plantilla: %(ex)s"
 
 msgid ""
 "Templated link, it's possible to include {{ metric }} or other values "
@@ -12309,7 +12309,7 @@ msgstr ""
 "        Edita el esquema de color en las propiedades del panel de control."
 
 msgid "The color used when a value doesn't match any defined breakpoints."
-msgstr ""
+msgstr "Color de los valores que no caen en ningún rango."
 
 msgid ""
 "The colors of this chart might be overridden by custom label colors of "
@@ -12412,7 +12412,7 @@ msgid ""
 "don't\n"
 "              impact the column definitions, you might want to skip this "
 "step."
-msgstr ""
+msgstr "Las columnas del conjunto de datos se sincronizarán con los cambios de tu consulta SQL. Si tus cambios no afectan a las columnas, puedes omitir este paso."
 
 msgid ""
 "The dataset configuration exposed here\n"
@@ -12495,7 +12495,7 @@ msgstr ""
 "definir la extensión manualmente."
 
 msgid "The feature property to use for point labels"
-msgstr ""
+msgstr "Propiedad que se usa como etiqueta de los puntos"
 
 #, python-format
 msgid ""
@@ -12583,12 +12583,12 @@ msgid ""
 "The image URL of the icon to display for GeoJSON points. Note that the "
 "image URL must conform to the content security policy (CSP) in order to "
 "load correctly."
-msgstr ""
+msgstr "URL de la imagen del icono de los puntos GeoJSON. Debe cumplir la política de seguridad de contenido (CSP) para cargarse."
 
 msgid ""
 "The initial level (depth) of the tree. If set as -1 all nodes are "
 "expanded."
-msgstr ""
+msgstr "Nivel inicial del árbol. Con -1 se despliegan todos los nodos."
 
 msgid "The layer attribution"
 msgstr "La atribución de la capa"
@@ -13102,7 +13102,7 @@ msgid "The unit for icon size"
 msgstr "Unidad del tamaño del icono"
 
 msgid "The unit for label size"
-msgstr ""
+msgstr "Unidad del tamaño de las etiquetas"
 
 msgid "The unit of measure for the specified point radius"
 msgstr "La unidad de medida para el radio de punto especificado"
@@ -13134,7 +13134,7 @@ msgstr ""
 "es válido."
 
 msgid "The values overlap other breakpoint values"
-msgstr ""
+msgstr "Los valores se solapan con otros rangos"
 
 msgid "The version of the service"
 msgstr "La versión del servicio"
@@ -13585,7 +13585,7 @@ msgid ""
 msgstr "Este correo electrónico ya está asociado a una cuenta. Elige otro."
 
 msgid "This feature is experimental and may change or have limitations"
-msgstr ""
+msgstr "Esta función es experimental y puede cambiar o tener limitaciones"
 
 msgid ""
 "This field is used as a unique identifier to attach the calculated "
@@ -13609,7 +13609,7 @@ msgid "This filter might be incompatible with current dataset"
 msgstr "Puede que este filtro sea incompatible con el conjunto de datos actual"
 
 msgid "This folder is currently empty"
-msgstr ""
+msgstr "Esta carpeta está vacía"
 
 msgid "This folder only accepts columns"
 msgstr ""
@@ -13625,12 +13625,12 @@ msgstr ""
 msgid ""
 "This is a default columns folder. Its name cannot be changed or removed. "
 "It can stay empty but will only accept column items."
-msgstr ""
+msgstr "Es la carpeta predeterminada de columnas: no se puede renombrar ni quitar. Puede quedar vacía, pero solo admite columnas."
 
 msgid ""
 "This is a default metrics folder. Its name cannot be changed or removed. "
 "It can stay empty but will only accept metric items."
-msgstr ""
+msgstr "Es la carpeta predeterminada de métricas: no se puede renombrar ni quitar. Puede quedar vacía, pero solo admite métricas."
 
 msgid "This is custom error message for a"
 msgstr ""
@@ -13658,7 +13658,7 @@ msgid "This is the default folder"
 msgstr "Esta es la carpeta predeterminada"
 
 msgid "This is the default light theme"
-msgstr ""
+msgstr "Es el tema claro predeterminado"
 
 msgid ""
 "This json object describes the positioning of the widgets in the "
@@ -13679,7 +13679,7 @@ msgstr "Este componente de nota tiene un error. Revierte los últimos cambios."
 msgid ""
 "This may be due to the extension not being activated or the content not "
 "being available."
-msgstr ""
+msgstr "Puede que la extensión no esté activada o que el contenido no esté disponible."
 
 msgid "This may be triggered by:"
 msgstr "La causa de esto puede haber sido:"
@@ -13738,10 +13738,10 @@ msgstr ""
 " conjunto de datos a una tabla.\n"
 
 msgid "This theme is set locally"
-msgstr ""
+msgstr "Este tema está aplicado localmente"
 
 msgid "This theme is set locally for your session"
-msgstr ""
+msgstr "Este tema está aplicado solo en tu sesión"
 
 msgid "This username is already taken. Please choose another one."
 msgstr "Este nombre de usuario ya está en uso. Elige uno distinto."
@@ -13779,7 +13779,7 @@ msgstr "Esto eliminará tu configuración de incrustación actual."
 msgid ""
 "This will reorganize all metrics and columns into default folders. Any "
 "custom folders will be removed."
-msgstr ""
+msgstr "Se moverán todas las métricas y columnas a las carpetas predeterminadas y se quitarán las carpetas personalizadas."
 
 msgid "Threshold"
 msgstr "Umbral"
@@ -13992,7 +13992,7 @@ msgid ""
 "Databases are used as a way to identify your data so that it can be "
 "queried and visualized. This database will hold all of your individual "
 "Google Sheets you choose to connect here."
-msgstr ""
+msgstr "Para usar tus hojas de Google, primero crea una base de datos. Las bases de datos identifican tus datos para consultarlos y visualizarlos. Esta reunirá todas las hojas de Google que conectes aquí."
 
 msgid ""
 "To enable multiple column sorting, hold down the ⇧ Shift key while "
@@ -14014,7 +14014,7 @@ msgid "To text color"
 msgstr "Color del texto"
 
 msgid "Token Request URI"
-msgstr ""
+msgstr "URI de solicitud de token"
 
 msgid "Tool Panel"
 msgstr "Panel de herramientas"
@@ -14179,7 +14179,7 @@ msgid "Type is required"
 msgstr "El tipo es obligatorio"
 
 msgid "Type of chart to display in sparkline"
-msgstr ""
+msgstr "Tipo de minigráfico"
 
 msgid "Type of comparison, value difference or percentage"
 msgstr "Tipo de comparación, diferencia de valor o porcentaje"
@@ -14188,7 +14188,7 @@ msgid "UI Configuration"
 msgstr "Configuración de la IU"
 
 msgid "UI theme administration is not enabled."
-msgstr ""
+msgstr "La administración de temas de la interfaz no está activada."
 
 msgid "URL"
 msgstr "URL"
@@ -14231,7 +14231,7 @@ msgstr "No se puede crear un gráfico sin un ID de consulta."
 msgid ""
 "Unable to create report: User email address is required but not found. "
 "Please ensure your user profile has a valid email address."
-msgstr ""
+msgstr "No se pudo crear el informe: tu perfil no tiene un correo electrónico válido."
 
 msgid "Unable to decode value"
 msgstr "No se ha podido decodificar el valor"
@@ -14246,7 +14246,7 @@ msgstr "No se ha podido encontrar el festivo en cuestión: [%(holiday)s]"
 msgid ""
 "Unable to identify temporal column for date range time comparison.Please "
 "ensure your dataset has a properly configured time column."
-msgstr ""
+msgstr "No se encontró la columna de tiempo para comparar rangos de fechas. Revisa que el conjunto de datos tenga una columna de tiempo configurada."
 
 msgid ""
 "Unable to load columns for the selected table. Please select a different "
@@ -14389,7 +14389,7 @@ msgid "Unsupported clause type: %(clause)s"
 msgstr "Tipo de cláusula no admitido: %(clause)s"
 
 msgid "Unsupported file type. Please use CSV, Excel, or Columnar files."
-msgstr ""
+msgstr "Tipo de archivo no admitido. Usa archivos CSV, Excel o columnares."
 
 #, python-format
 msgid "Unsupported post processing operation: %(operation)s"
@@ -14490,7 +14490,7 @@ msgstr "Usar proporciones de área"
 msgid ""
 "Use Handlebars syntax to create custom tooltips. Available variables are "
 "based on your tooltip contents selection above."
-msgstr ""
+msgstr "Usa la sintaxis de Handlebars para personalizar la descripción emergente. Las variables disponibles dependen del contenido que elegiste arriba."
 
 msgid "Use a log scale"
 msgstr "Utilizar una escala logarítmica"
@@ -14715,7 +14715,7 @@ msgid "Values dependent on"
 msgstr "Valores dependientes de"
 
 msgid "Values less than this percentage will be grouped into the Other category."
-msgstr ""
+msgstr "Los valores por debajo de este porcentaje se agrupan en «Otros»."
 
 msgid ""
 "Values selected in other filters will affect the filter options to only "
@@ -14927,7 +14927,7 @@ msgid "Want to add a new database?"
 msgstr "¿Quieres añadir una nueva base de datos?"
 
 msgid "Warehouse"
-msgstr ""
+msgstr "Almacén de datos"
 
 msgid "Warning"
 msgstr "Advertencia"
@@ -15751,10 +15751,10 @@ msgstr ""
 "conjunto de datos."
 
 msgid "Your account is activated. You can log in with your credentials."
-msgstr ""
+msgstr "Tu cuenta está activada. Ya puedes iniciar sesión."
 
 msgid "Your changes will be lost if you leave without saving."
-msgstr ""
+msgstr "Perderás los cambios si sales sin guardar."
 
 msgid "Your chart is not up to date"
 msgstr "Tu gráfico no está actualizado"
@@ -15850,7 +15850,7 @@ msgstr ""
 "categórico y se basa en etiquetas."
 
 msgid "[untitled customization]"
-msgstr ""
+msgstr "[personalización sin título]"
 
 msgid "`compare_columns` must have the same length as `source_columns`."
 msgstr "«compare_columns» debe tener la misma longitud que «source_columns»."
@@ -16259,7 +16259,7 @@ msgstr "es"
 msgid ""
 "is expected to be a Mapbox/OSM URL (eg. mapbox://styles/...) or a tile "
 "server URL (eg. tile://http...)"
-msgstr ""
+msgstr "debe ser una URL de Mapbox/OSM (p. ej. mapbox://styles/...) o de un servidor de teselas (p. ej. tile://http...)"
 
 msgid "is expected to be a number"
 msgstr "se espera que sea un número"
@@ -16390,7 +16390,7 @@ msgid "nvd3"
 msgstr "nvd3"
 
 msgid "of"
-msgstr ""
+msgstr "de"
 
 msgid "offline"
 msgstr "sin conexión"
@@ -17823,3 +17823,488 @@ msgstr "Aplicarlo también a sus %s paneles"
 
 msgid "Theme applied to %s of %s dashboards"
 msgstr "Tema aplicado a %s de %s paneles"
+
+msgid "%s ENCRYPTED EXTRA"
+msgstr "%s EXTRA CIFRADO"
+
+msgid "%s out of %s selected"
+msgstr "%s de %s seleccionados"
+
+msgid "... and %d more"
+msgstr "... y %d más"
+
+msgid "A JavaScript object that adheres to the ECharts options specification, overriding other control options with higher precedence. (i.e. { title: { text: \"My Chart\" }, tooltip: { trigger: \"item\" } }). Details: https://echarts.apache.org/en/option.html. "
+msgstr "Un objeto de JavaScript que sigue la especificación de opciones de ECharts y tiene prioridad sobre los demás controles (p. ej. { title: { text: \"Mi gráfico\" }, tooltip: { trigger: \"item\" } }). Detalles: https://echarts.apache.org/en/option.html. "
+
+msgid "A-Z"
+msgstr "A-Z"
+
+msgid "Aborted"
+msgstr "Interrumpida"
+
+msgid "Aborting"
+msgstr "Interrumpiendo"
+
+msgid "All dimensions"
+msgstr "Todas las dimensiones"
+
+msgid "An error occurred while fetching created by values: %s"
+msgstr "Se produjo un error al obtener los valores de «creado por»: %s"
+
+msgid "An error occurred while fetching table metadata for %s"
+msgstr "Se produjo un error al obtener los metadatos de la tabla %s"
+
+msgid "Applies only when \"Cell bars\" formatting is selected: the background of the histogram columns is displayed if the \"Show cell bars\" flag is enabled."
+msgstr "Solo se aplica con el formato «Barras en celdas»: el fondo de las columnas del histograma se muestra si «Mostrar barras en celdas» está activado."
+
+msgid "Auto refresh paused (set to %s seconds)"
+msgstr "Actualización automática en pausa (cada %s segundos)"
+
+msgid "Auto refresh paused - tab inactive (set to %s seconds)"
+msgstr "Actualización automática en pausa: pestaña inactiva (cada %s segundos)"
+
+msgid "Auto refresh set to %s seconds"
+msgstr "Actualización automática cada %s segundos"
+
+msgid "Awaiting filter selection"
+msgstr "Esperando a que elijas un filtro"
+
+msgid "CSS styles may be removed by server-side HTML sanitization. If styles are not applying, ask your Superset administrator to adjust the HTML sanitization configuration."
+msgstr "El servidor puede quitar estilos CSS al limpiar el HTML. Si los estilos no se aplican, pide a tu administrador que ajuste esa configuración."
+
+msgid "Cancel Task"
+msgstr "Cancelar tarea"
+
+msgid "Cancellation not available due to missing abort handler"
+msgstr "No se puede cancelar: la tarea no tiene un manejador de interrupción"
+
+msgid "Changing this task is forbidden"
+msgstr "No tienes permiso para cambiar esta tarea"
+
+msgid "Color By X-Axis"
+msgstr "Colorear por eje X"
+
+msgid "Color By Y-Axis"
+msgstr "Colorear por eje Y"
+
+msgid "Color bars by x-axis"
+msgstr "Colorear las barras por el eje X"
+
+msgid "Color bars by y-axis"
+msgstr "Colorear las barras por el eje Y"
+
+msgid "Columns (horizontal layout)"
+msgstr "Columnas (disposición horizontal)"
+
+msgid "Columns and metrics should be inside folders"
+msgstr "Las columnas y las métricas deben estar dentro de carpetas"
+
+msgid "Columns should be inside folders"
+msgstr "Las columnas deben estar dentro de carpetas"
+
+msgid "Copied!"
+msgstr "¡Copiado!"
+
+msgid "Copy column name"
+msgstr "Copiar el nombre de la columna"
+
+msgid "Created by: %s"
+msgstr "Creado por: %s"
+
+msgid "Current Zoom"
+msgstr "Zoom actual"
+
+msgid "Customization and styling"
+msgstr "Personalización y estilo"
+
+msgid "Dashboard updated %s"
+msgstr "Panel actualizado %s"
+
+msgid "Database reference is not allowed on a report"
+msgstr "Un informe no puede hacer referencia a una base de datos"
+
+msgid "Drag to reorder"
+msgstr "Arrastra para reordenar"
+
+msgid "ECharts Options (JS object literals)"
+msgstr "Opciones de ECharts (objetos literales de JS)"
+
+msgid "Enable matrixify"
+msgstr "Activar matriz de gráficos"
+
+msgid "Encrypted extra fields"
+msgstr "Campos adicionales cifrados"
+
+msgid "Error disabling fullscreen: %s"
+msgstr "Error al salir de pantalla completa: %s"
+
+msgid "Error enabling fullscreen: %s"
+msgstr "Error al entrar en pantalla completa: %s"
+
+msgid "Expand row to edit"
+msgstr "Despliega la fila para editarla"
+
+msgid "Export to CSV"
+msgstr "Exportar a CSV"
+
+msgid "External link warning"
+msgstr "Aviso de enlace externo"
+
+msgid "Failed to copy stack trace to clipboard"
+msgstr "No se pudo copiar la traza al portapapeles"
+
+msgid "Failed to generate download: %s"
+msgstr "No se pudo generar la descarga: %s"
+
+msgid "Feature Not Enabled"
+msgstr "Función no activada"
+
+msgid "Fetching data..."
+msgstr "Obteniendo datos..."
+
+msgid "Field cannot be empty."
+msgstr "El campo no puede quedar vacío."
+
+msgid "Force abort (stops task for all subscribers)"
+msgstr "Forzar la interrupción (detiene la tarea para todos)"
+
+msgid "Formatting column"
+msgstr "Columna de formato"
+
+msgid "Formatting object"
+msgstr "Objeto de formato"
+
+msgid "Fullscreen is not supported in this browser."
+msgstr "Este navegador no admite la pantalla completa."
+
+msgid "In Progress"
+msgstr "En curso"
+
+msgid "Invalid JSON configuration"
+msgstr "Configuración JSON no válida"
+
+msgid "Invalid tab ids: %(tab_ids)s"
+msgstr "Identificadores de pestaña no válidos: %(tab_ids)s"
+
+msgid "Last updated %s ago"
+msgstr "Actualizado hace %s"
+
+msgid "Loading"
+msgstr "Cargando"
+
+msgid "Loading filter values"
+msgstr "Cargando los valores del filtro"
+
+msgid "Metrics can't be used for both rows and columns at the same time"
+msgstr "Las métricas no pueden usarse a la vez en filas y columnas"
+
+msgid "Metrics should be inside folders"
+msgstr "Las métricas deben estar dentro de carpetas"
+
+msgid "Missing URL parameter"
+msgstr "Falta un parámetro en la URL"
+
+msgid "Move icon"
+msgstr "Mover el icono"
+
+msgid "No tasks yet"
+msgstr "Todavía no hay tareas"
+
+msgid "Only proceed if you trust the destination or its source."
+msgstr "Continúa solo si confías en el destino o en quien lo compartió."
+
+msgid "Pause auto refresh if tab is inactive"
+msgstr "Pausar la actualización automática si la pestaña está inactiva"
+
+msgid "Pause auto-refresh"
+msgstr "Pausar la actualización automática"
+
+msgid "Pending"
+msgstr "Pendiente"
+
+msgid "Pin to top"
+msgstr "Fijar arriba"
+
+msgid "Private"
+msgstr "Privado"
+
+msgid "Refresh delayed"
+msgstr "Actualización retrasada"
+
+msgid "Remove customization"
+msgstr "Quitar la personalización"
+
+msgid "Remove filter"
+msgstr "Quitar el filtro"
+
+msgid "Resume auto-refresh"
+msgstr "Reanudar la actualización automática"
+
+msgid "Return to Superset"
+msgstr "Volver a Mi BI"
+
+msgid "Rows (vertical layout)"
+msgstr "Filas (disposición vertical)"
+
+msgid "Search by"
+msgstr "Buscar por"
+
+msgid "Search calculated columns by name"
+msgstr "Buscar columnas calculadas por nombre"
+
+msgid "Search charts by name, owner, or dashboard"
+msgstr "Buscar gráficos por nombre, propietario o panel"
+
+msgid "Search columns by name"
+msgstr "Buscar columnas por nombre"
+
+msgid "Search metrics by key or label"
+msgstr "Buscar métricas por clave o etiqueta"
+
+msgid "Select column name"
+msgstr "Elige el nombre de la columna"
+
+msgid "Select object name"
+msgstr "Elige el nombre del objeto"
+
+msgid "Select permissions"
+msgstr "Elige los permisos"
+
+msgid "Selected"
+msgstr "Seleccionado"
+
+msgid "Shared"
+msgstr "Compartido"
+
+msgid "Show SQL"
+msgstr "Ver SQL"
+
+msgid "Some groups could not be resolved and are shown as IDs."
+msgstr "Algunos grupos no se encontraron y se muestran por su identificador."
+
+msgid "Some permissions could not be resolved and are shown as IDs."
+msgstr "Algunos permisos no se encontraron y se muestran por su identificador."
+
+msgid "Some required filters on other tabs have values and will not be cleared"
+msgstr "Algunos filtros obligatorios de otras pestañas tienen valor y no se borrarán"
+
+msgid "Sort by original table order"
+msgstr "Ordenar como en la tabla original"
+
+msgid "Subscribers"
+msgstr "Suscriptores"
+
+msgid "Task"
+msgstr "Tarea"
+
+msgid "Task cancelled: %s"
+msgstr "Tarea cancelada: %s"
+
+msgid "Task could not be aborted."
+msgstr "No se pudo interrumpir la tarea."
+
+msgid "Task could not be created."
+msgstr "No se pudo crear la tarea."
+
+msgid "Task could not be updated."
+msgstr "No se pudo actualizar la tarea."
+
+msgid "Task is not abortable. The task is in progress but has not registered an abort handler."
+msgstr "La tarea no se puede interrumpir: está en curso pero no tiene un manejador de interrupción."
+
+msgid "Task parameters are invalid."
+msgstr "Los parámetros de la tarea no son válidos."
+
+msgid "Tasks"
+msgstr "Tareas"
+
+msgid "Tasks will appear here as background operations are executed."
+msgstr "Aquí aparecerán las tareas a medida que se ejecuten operaciones en segundo plano."
+
+msgid "The Global Task Framework is not enabled. Please contact your administrator to enable the GLOBAL_TASK_FRAMEWORK feature flag."
+msgstr "El sistema de tareas no está activado. Pide a tu administrador que active la opción GLOBAL_TASK_FRAMEWORK."
+
+msgid "The chart is still loading. Please wait a moment and try again."
+msgstr "El gráfico aún está cargando. Espera un momento e inténtalo de nuevo."
+
+msgid "The following fields contain sensitive information that was masked during export. Please provide the values to import this database."
+msgstr "Estos campos tienen información sensible que se ocultó al exportar. Escribe sus valores para importar esta base de datos."
+
+msgid "The passwords for the databases below are needed in order to import them."
+msgstr "Para importar estas bases de datos se necesitan sus contraseñas."
+
+msgid "The picture could not be loaded"
+msgstr "No se pudo cargar la imagen"
+
+msgid "There was a problem refreshing your dashboard. We'll try again in %s, as scheduled."
+msgstr "Hubo un problema al actualizar el panel. Se volverá a intentar en %s, como está programado."
+
+msgid "There was an error loading groups."
+msgstr "Se produjo un error al cargar los grupos."
+
+msgid "There was an error loading permissions."
+msgstr "Se produjo un error al cargar los permisos."
+
+msgid "There was an error while fetching groups"
+msgstr "Se produjo un error al obtener los grupos"
+
+msgid "There was an error while fetching permissions"
+msgstr "Se produjo un error al obtener los permisos"
+
+msgid "There was an issue cancelling the task: %s"
+msgstr "Hubo un problema al cancelar la tarea: %s"
+
+msgid "This database uses OAuth2 for authentication. Please click the link above to grant Apache Superset permission to access the data. Your personal access token will be stored encrypted and used only for queries run by you."
+msgstr "Esta base de datos usa OAuth2. Haz clic en el enlace de arriba para dar permiso a Mi BI de acceder a los datos. Tu token personal se guardará cifrado y solo se usará en tus consultas."
+
+msgid "This folder only supports columns"
+msgstr "Esta carpeta solo admite columnas"
+
+msgid "This folder only supports metrics"
+msgstr "Esta carpeta solo admite métricas"
+
+msgid "This link will take you to an external website. We cannot guarantee the safety of external destinations."
+msgstr "Este enlace te lleva a un sitio externo. No podemos garantizar su seguridad."
+
+msgid "This will abort (stop) the task for all %s subscriber(s)."
+msgstr "Se interrumpirá la tarea para sus %s suscriptores."
+
+msgid "This will cancel the task."
+msgstr "Se cancelará la tarea."
+
+msgid "Timed Out"
+msgstr "Tiempo agotado"
+
+msgid "Timeout configured (%s seconds) but no abort handler defined. Task will continue running past the timeout."
+msgstr "Hay un tiempo límite (%s segundos) pero no un manejador de interrupción: la tarea seguirá después del límite."
+
+msgid "Trust this URL and don't ask again"
+msgstr "Confiar en esta URL y no volver a preguntar"
+
+msgid "Unable to generate download payload"
+msgstr "No se pudo generar la descarga"
+
+msgid "Unknown tokens will be highlighted as warnings."
+msgstr "Los elementos desconocidos se marcarán como advertencias."
+
+msgid "Unpin from the result panel"
+msgstr "Quitar del panel de resultados"
+
+msgid "Unpin from top"
+msgstr "Dejar de fijar arriba"
+
+msgid "Update auto-refresh"
+msgstr "Cambiar la actualización automática"
+
+msgid "Uses the first 25 values if the dimension has more."
+msgstr "Usa los primeros 25 valores si la dimensión tiene más."
+
+msgid "Waiting for first refresh"
+msgstr "Esperando la primera actualización"
+
+msgid "Yes, Cancel"
+msgstr "Sí, cancelar"
+
+msgid "You do not have permission to perform this operation"
+msgstr "No tienes permiso para hacer esta operación"
+
+msgid "You don't have the rights to export data"
+msgstr "No tienes permiso para exportar datos"
+
+msgid "You have been removed from task: %s"
+msgstr "Ya no sigues la tarea: %s"
+
+msgid "You need to"
+msgstr "Necesitas"
+
+msgid "You'll be removed from this task. It will continue running for %s other subscriber(s)."
+msgstr "Dejarás de seguir esta tarea. Seguirá en curso para otros %s suscriptores."
+
+msgid "Z-A"
+msgstr "Z-A"
+
+msgid "a few seconds"
+msgstr "unos segundos"
+
+msgid "background color"
+msgstr "color de fondo"
+
+msgid "boolean"
+msgstr "booleano"
+
+msgid "cell bar"
+msgstr "barra en celda"
+
+msgid "entire row"
+msgstr "toda la fila"
+
+msgid "in order to run this operation."
+msgstr "para hacer esta operación."
+
+msgid "numeric"
+msgstr "numérico"
+
+msgid "provide authorization"
+msgstr "dar autorización"
+
+msgid "string"
+msgstr "texto"
+
+msgid "task"
+msgstr "tarea"
+
+msgid "text color"
+msgstr "color del texto"
+
+msgid "timestamp"
+msgstr "fecha y hora"
+
+msgid "%s day ago"
+msgid_plural "%s days ago"
+msgstr[0] "hace %s día"
+msgstr[1] "hace %s días"
+
+msgid "%s hr ago"
+msgid_plural "%s hr ago"
+msgstr[0] "hace %s h"
+msgstr[1] "hace %s h"
+
+msgid "%s item"
+msgid_plural "%s items"
+msgstr[0] "%s elemento"
+msgstr[1] "%s elementos"
+
+msgid "%s min ago"
+msgid_plural "%s min ago"
+msgstr[0] "hace %s min"
+msgstr[1] "hace %s min"
+
+msgid "%s out of %s column"
+msgid_plural "%s out of %s columns"
+msgstr[0] "%s de %s columna"
+msgstr[1] "%s de %s columnas"
+
+msgid "%s out of %s metric"
+msgid_plural "%s out of %s metrics"
+msgstr[0] "%s de %s métrica"
+msgstr[1] "%s de %s métricas"
+
+msgid "%s record..."
+msgid_plural "%s records..."
+msgstr[0] "%s registro..."
+msgstr[1] "%s registros..."
+
+msgid "%s s ago"
+msgid_plural "%s s ago"
+msgstr[0] "hace %s s"
+msgstr[1] "hace %s s"
+
+msgid "%s second"
+msgid_plural "%s seconds"
+msgstr[0] "%s segundo"
+msgstr[1] "%s segundos"
+
+msgid "Delayed (missed %s refresh)"
+msgid_plural "Delayed (missed %s refreshes)"
+msgstr[0] "Retrasado (%s actualización perdida)"
+msgstr[1] "Retrasado (%s actualizaciones perdidas)"

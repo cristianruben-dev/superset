@@ -18,6 +18,7 @@
  */
 
 import { getExtensionsRegistry } from '@superset-ui/core';
+import { AntdThemeProvider } from '@superset-ui/core/components';
 import { Provider as ReduxProvider } from 'react-redux';
 import { QueryParamProvider } from 'use-query-params';
 import { ReactRouter5Adapter } from 'use-query-params/adapters/react-router-5';
@@ -27,12 +28,26 @@ import { DynamicPluginProvider } from 'src/components';
 import { EmbeddedUiConfigProvider } from 'src/components/UiConfigContext';
 import { SupersetThemeProvider } from 'src/theme/ThemeProvider';
 import { ThemeController } from 'src/theme/ThemeController';
+import { useLocale } from 'src/hooks/useLocale';
 import { store } from './store';
 import '../preamble';
 import querystring from 'query-string';
 
 const themeController = new ThemeController();
 const extensionsRegistry = getExtensionsRegistry();
+
+/**
+ * Gives Ant Design components (close buttons, pagination, empty tables,
+ * confirmations, date pickers) the language of the user.
+ */
+const AntdLocaleProvider: React.FC = ({ children }) => {
+  const locale = useLocale();
+  return (
+    <AntdThemeProvider locale={locale ?? undefined}>
+      {children}
+    </AntdThemeProvider>
+  );
+};
 
 export const RootContextProviders: React.FC = ({ children }) => {
   const RootContextProviderExtension = extensionsRegistry.get(
@@ -42,28 +57,30 @@ export const RootContextProviders: React.FC = ({ children }) => {
   return (
     <SupersetThemeProvider themeController={themeController}>
       <ReduxProvider store={store}>
-        <DndProvider backend={HTML5Backend}>
-          <EmbeddedUiConfigProvider>
-            <DynamicPluginProvider>
-              <QueryParamProvider
-                adapter={ReactRouter5Adapter}
-                options={{
-                  searchStringToObject: querystring.parse,
-                  objectToSearchString: (object: Record<string, any>) =>
-                    querystring.stringify(object, { encode: false }),
-                }}
-              >
-                {RootContextProviderExtension ? (
-                  <RootContextProviderExtension>
-                    {children}
-                  </RootContextProviderExtension>
-                ) : (
-                  children
-                )}
-              </QueryParamProvider>
-            </DynamicPluginProvider>
-          </EmbeddedUiConfigProvider>
-        </DndProvider>
+        <AntdLocaleProvider>
+          <DndProvider backend={HTML5Backend}>
+            <EmbeddedUiConfigProvider>
+              <DynamicPluginProvider>
+                <QueryParamProvider
+                  adapter={ReactRouter5Adapter}
+                  options={{
+                    searchStringToObject: querystring.parse,
+                    objectToSearchString: (object: Record<string, any>) =>
+                      querystring.stringify(object, { encode: false }),
+                  }}
+                >
+                  {RootContextProviderExtension ? (
+                    <RootContextProviderExtension>
+                      {children}
+                    </RootContextProviderExtension>
+                  ) : (
+                    children
+                  )}
+                </QueryParamProvider>
+              </DynamicPluginProvider>
+            </EmbeddedUiConfigProvider>
+          </DndProvider>
+        </AntdLocaleProvider>
       </ReduxProvider>
     </SupersetThemeProvider>
   );
