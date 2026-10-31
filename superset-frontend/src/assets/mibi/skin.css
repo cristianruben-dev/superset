@@ -1306,6 +1306,18 @@ body.mibi-presenting-idle * {
   z-index: 3;
 }
 
+/* A canvas filter opens its option list inside its own row; lift that row
+   while the list is open so the charts placed below do not cover it. */
+.dragdroppable-row:has(.mibi-element-filter .ant-select-open),
+.dragdroppable-column:has(.mibi-element-filter .ant-select-open) {
+  position: relative;
+  z-index: 10;
+}
+
+.mibi-element-filter {
+  overflow: visible;
+}
+
 /* ---- Hidden and locked objects (edit mode) ------------------------------ */
 
 .mibi-hidden {
