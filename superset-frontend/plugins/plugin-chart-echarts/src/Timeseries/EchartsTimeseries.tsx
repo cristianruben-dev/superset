@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   DTTM_ALIAS,
   BinaryQueryObjectFilterClause,
@@ -27,14 +27,18 @@ import {
   LegendState,
   ensureIsArray,
 } from '@superset-ui/core';
-import type { ViewRootGroup } from 'echarts/types/src/util/types';
+import type {
+  ECElementEvent,
+  ViewRootGroup,
+} from 'echarts/types/src/util/types';
 import type GlobalModel from 'echarts/types/src/model/Global';
 import type ComponentModel from 'echarts/types/src/model/Component';
 import { EchartsHandler, EventHandlers } from '../types';
 import Echart from '../components/Echart';
-import { TimeseriesChartTransformedProps } from './types';
+import { OrientationType, TimeseriesChartTransformedProps } from './types';
 import { formatSeriesName } from '../utils/series';
 import { ExtraControls } from '../components/ExtraControls';
+import { X_AXIS_CROSS_FILTER_SOURCE } from '../constants';
 
 const TIMER_DURATION = 300;
 
@@ -183,6 +187,9 @@ export default function EchartsTimeseries({
             label: values.length ? values : undefined,
             value: values.length ? values : null,
             selectedValues: values.length ? values : null,
+            ...(values.length && {
+              crossFilterSource: X_AXIS_CROSS_FILTER_SOURCE,
+            }),
           },
         },
         isCurrentValueSelected: selected.includes(stringValue),
@@ -215,6 +222,29 @@ export default function EchartsTimeseries({
   // Determine if X-axis can be used for cross-filtering (categorical axis without dimensions)
   const canCrossFilterByXAxis =
     !hasDimensions && xAxis.type === AxisType.Category;
+  // Axis labels always map to an x-axis value, so they can cross-filter by it
+  // even when dimensions are set
+  const canCrossFilterByXAxisLabel = xAxis.type === AxisType.Category;
+  const categoryAxisValueIndex =
+    formData.orientation === OrientationType.Horizontal ? 1 : 0;
+  const getCategoryAxisValue = useCallback(
+    (data: unknown, name: unknown) => {
+      if (Array.isArray(data)) {
+        const categoryAxisValue = data[categoryAxisValueIndex];
+        if (
+          typeof categoryAxisValue === 'string' ||
+          typeof categoryAxisValue === 'number'
+        ) {
+          return categoryAxisValue;
+        }
+      }
+      if (typeof name === 'string' || typeof name === 'number') {
+        return name;
+      }
+      return undefined;
+    },
+    [categoryAxisValueIndex],
+  );
 
   const eventHandlers: EventHandlers = {
     click: props => {
@@ -228,12 +258,20 @@ export default function EchartsTimeseries({
       // Ensure that double-click events do not trigger single click event. So we put it in the timer.
       clickTimer.current = setTimeout(() => {
         if (hasDimensions) {
-          // Cross-filter by dimension (original behavior)
-          const { seriesName: name } = props;
-          handleChange(name);
-        } else if (canCrossFilterByXAxis && props.data?.[0] != null) {
+          // Cross-filter by dimension (original behavior). Axis label clicks
+          // are handled by handleXAxisLabelClick.
+          if (props.componentType === 'series') {
+            handleChange(props.seriesName);
+          }
+        } else if (canCrossFilterByXAxis && props.componentType === 'series') {
           // Cross-filter by X-axis value when no dimensions (issue #25334)
-          handleXAxisChange(props.data[0]);
+          const categoryAxisValue = getCategoryAxisValue(
+            props.data,
+            props.name,
+          );
+          if (categoryAxisValue !== undefined) {
+            handleXAxisChange(categoryAxisValue);
+          }
         }
       }, TIMER_DURATION);
     },
@@ -256,6 +294,11 @@ export default function EchartsTimeseries({
       onLegendStateChanged?.(payload.selected);
     },
     contextmenu: async eventParams => {
+      // Axis labels carry no series, so the dimension-based filters below
+      // cannot be built from them
+      if (hasDimensions && eventParams.componentType !== 'series') {
+        return;
+      }
       if (onContextMenu) {
         eventParams.event.stop();
         const { data, seriesName } = eventParams;
@@ -315,8 +358,17 @@ export default function EchartsTimeseries({
         let crossFilter;
         if (hasDimensions) {
           crossFilter = getCrossFilterDataMask(seriesName);
-        } else if (canCrossFilterByXAxis && data?.[0] != null) {
-          crossFilter = getXAxisCrossFilterDataMask(data[0]);
+        } else if (
+          canCrossFilterByXAxis &&
+          eventParams.componentType === 'series'
+        ) {
+          const categoryAxisValue = getCategoryAxisValue(
+            data,
+            eventParams.name,
+          );
+          if (categoryAxisValue !== undefined) {
+            crossFilter = getXAxisCrossFilterDataMask(categoryAxisValue);
+          }
         }
 
         onContextMenu(pointerEvent.clientX, pointerEvent.clientY, {
@@ -327,6 +379,33 @@ export default function EchartsTimeseries({
       }
     },
   };
+
+  const handleXAxisLabelClick = useCallback(
+    (event: ECElementEvent) => {
+      const { value } = event;
+      if (
+        canCrossFilterByXAxisLabel &&
+        (typeof value === 'string' || typeof value === 'number')
+      ) {
+        handleXAxisChange(value);
+      }
+    },
+    [canCrossFilterByXAxisLabel, handleXAxisChange],
+  );
+
+  const categoryAxis =
+    formData.orientation === OrientationType.Horizontal ? 'yAxis' : 'xAxis';
+
+  const queryEventHandlers = useMemo(
+    () => [
+      {
+        name: 'click',
+        query: `${categoryAxis}.category`,
+        handler: handleXAxisLabelClick,
+      },
+    ],
+    [categoryAxis, handleXAxisLabelClick],
+  );
 
   const zrEventHandlers: EventHandlers = {
     dblclick: params => {
@@ -369,6 +448,7 @@ export default function EchartsTimeseries({
         width={width}
         echartOptions={echartOptions}
         eventHandlers={eventHandlers}
+        queryEventHandlers={queryEventHandlers}
         zrEventHandlers={zrEventHandlers}
         selectedValues={selectedValues}
         vizType={formData.vizType}

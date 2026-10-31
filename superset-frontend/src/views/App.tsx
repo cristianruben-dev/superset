@@ -21,6 +21,7 @@ import {
   BrowserRouter as Router,
   Switch,
   Route,
+  Redirect,
   useLocation,
 } from 'react-router-dom';
 import { bindActionCreators } from 'redux';
@@ -105,6 +106,7 @@ const App = () => (
                 </Route>
               ),
             )}
+            <Redirect from="/" to="/superset/welcome/" exact />
           </Switch>
         </ExtensionsStartup>
       </AppShell>

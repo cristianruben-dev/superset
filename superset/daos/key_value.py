@@ -30,7 +30,7 @@ from superset.key_value.exceptions import (
     KeyValueUpdateFailedError,
 )
 from superset.key_value.models import KeyValueEntry
-from superset.key_value.types import Key, KeyValueCodec, KeyValueResource
+from superset.key_value.types import Key, KeyValueCodec, KeyValueResource, RowLock
 from superset.key_value.utils import get_filter
 from superset.utils.core import get_user_id
 
@@ -42,9 +42,16 @@ class KeyValueDAO(BaseDAO[KeyValueEntry]):
     def get_entry(
         resource: KeyValueResource,
         key: Key,
+        lock: RowLock | None = None,
     ) -> KeyValueEntry | None:
         filter_ = get_filter(resource, key)
-        return db.session.query(KeyValueEntry).filter_by(**filter_).first()
+        query = db.session.query(KeyValueEntry).filter_by(**filter_)
+        if lock is not None:
+            # A locking read also returns the latest committed row under
+            # REPEATABLE READ, where a plain SELECT would keep using the
+            # transaction's earlier snapshot.
+            query = lock.apply(query)
+        return query.first()
 
     @classmethod
     def get_value(

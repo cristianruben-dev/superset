@@ -71,6 +71,7 @@ from typing import Annotated, Any, Dict, List, Literal, TYPE_CHECKING
 
 import humanize
 from pydantic import (
+    AliasChoices,
     BaseModel,
     ConfigDict,
     Field,
@@ -94,8 +95,8 @@ from superset.mcp_service.system.schemas import (
     UserInfo,
 )
 from superset.mcp_service.utils.sanitization import (
-    _remove_dangerous_unicode,
-    _strip_html_tags,
+    sanitize_user_input,
+    sanitize_user_input_with_changes,
 )
 from superset.utils.json import loads as json_loads
 
@@ -359,7 +360,20 @@ class DashboardInfo(BaseModel):
     owners: List[UserInfo] = Field(default_factory=list)
     tags: List[TagInfo] = Field(default_factory=list)
     roles: List[RoleInfo] = Field(default_factory=list)
-    charts: List[DashboardChartSummary] = Field(default_factory=list)
+    charts: List[DashboardChartSummary] = Field(
+        default_factory=list,
+        description=(
+            "Charts on this dashboard. May be capped below chart_count "
+            "(cap: MCP_RESPONSE_SIZE_CONFIG['max_list_items']) when the full "
+            "response would exceed the token budget. "
+            "Compare len(charts) to chart_count to detect this. For "
+            "dashboards with more charts than the cap, call list_charts "
+            "with filters=[{'col': 'dashboards', 'opr': 'eq', "
+            "'value': <this dashboard's id>}] and page through with "
+            "page/page_size to retrieve the complete list regardless of "
+            "size."
+        ),
+    )
 
     # Structured filter information extracted from json_metadata
     native_filters: List[NativeFilterSummary] = Field(
@@ -367,7 +381,9 @@ class DashboardInfo(BaseModel):
         description=(
             "Native filters configured on this dashboard. Extracted from "
             "json_metadata for LLM consumption — includes filter name, type, "
-            "and target columns."
+            "and target columns. Subject to the same max_list_items cap as "
+            "charts, though dashboards rarely have enough native filters to "
+            "hit it."
         ),
     )
     cross_filters_enabled: bool | None = Field(
@@ -507,6 +523,8 @@ class AddChartToDashboardResponse(BaseModel):
 class GenerateDashboardRequest(BaseModel):
     """Request schema for generating a dashboard."""
 
+    model_config = ConfigDict(populate_by_name=True)
+
     chart_ids: List[int] = Field(
         ..., description="List of chart IDs to include in the dashboard", min_length=1
     )
@@ -516,21 +534,82 @@ class GenerateDashboardRequest(BaseModel):
             "Title for the new dashboard. When omitted a descriptive title "
             "is generated from the included chart names."
         ),
+        validation_alias=AliasChoices("dashboard_title", "title", "name"),
     )
     description: str | None = Field(None, description="Description for the dashboard")
     published: bool = Field(
         default=False, description="Whether to publish the dashboard"
     )
+    sanitization_warnings: List[str] = Field(
+        default_factory=list,
+        description=(
+            "Internal: warnings emitted when user input was altered by "
+            "sanitization. Populated by the ``mode='before'`` validator "
+            "before dashboard_title is rewritten, so the tool can surface "
+            "a notice to the caller instead of silently dropping content."
+        ),
+    )
+
+    @model_validator(mode="before")
+    @classmethod
+    def _detect_dashboard_title_sanitization(cls, data: Any) -> Any:
+        """Reject empty-after-sanitization titles and warn on partial strip.
+
+        Runs before the ``dashboard_title`` field validator rewrites the
+        value. If the caller supplied a non-empty title and sanitization
+        would strip it entirely (XSS-only content), we raise so the caller
+        gets a clear error instead of a blank-titled dashboard. When the
+        sanitizer only trims part of the title, we record a warning the
+        tool can return alongside the successful result.
+
+        ``sanitization_warnings`` is a server-only field — any value the
+        caller supplied is discarded here so the tool cannot be tricked
+        into echoing attacker-controlled text back through the response.
+        """
+        if not isinstance(data, dict):
+            return data
+        data["sanitization_warnings"] = []
+        for key in ("dashboard_title", "title", "name"):
+            if key in data:
+                raw = data[key]
+                break
+        else:
+            raw = None
+        if not isinstance(raw, str) or not raw.strip():
+            return data
+        sanitized, was_modified = sanitize_user_input_with_changes(
+            raw, "Dashboard title", max_length=500, allow_empty=True
+        )
+        if was_modified and not sanitized:
+            raise ValueError(
+                "dashboard_title contained only disallowed content "
+                "(HTML/script/URL schemes) and was removed entirely by "
+                "sanitization. Provide a dashboard_title with plain text, "
+                "or omit it to auto-generate one from chart names."
+            )
+        if was_modified:
+            data["sanitization_warnings"].append(
+                "dashboard_title was modified during sanitization to "
+                "remove potentially unsafe content; the stored title "
+                "differs from the input."
+            )
+        return data
 
     @field_validator("dashboard_title")
     @classmethod
     def sanitize_dashboard_title(cls, v: str | None) -> str | None:
-        """Strip HTML tags from dashboard title to prevent XSS."""
-        if v is None:
-            return None
-        v = _strip_html_tags(v.strip())
-        v = _remove_dangerous_unicode(v)
-        return v
+        """Sanitize dashboard title to prevent XSS.
+
+        Preserves an explicit empty string (caller-provided ``""``) rather
+        than collapsing it to ``None``, since the tool treats ``None`` as
+        "auto-generate a title from charts" but an explicit empty string
+        as an intentional blank title.
+        """
+        if v is None or v == "":
+            return v
+        return sanitize_user_input(
+            v, "Dashboard title", max_length=500, allow_empty=True
+        )
 
 
 class GenerateDashboardResponse(BaseModel):
@@ -541,6 +620,14 @@ class GenerateDashboardResponse(BaseModel):
     )
     dashboard_url: str | None = Field(None, description="URL to view the dashboard")
     error: str | None = Field(None, description="Error message, if creation failed")
+    warnings: List[str] = Field(
+        default_factory=list,
+        description=(
+            "Non-fatal advisory messages about the created dashboard — "
+            "for example, that the supplied title was altered by "
+            "sanitization."
+        ),
+    )
 
 
 def _parse_json_metadata(json_metadata_str: str | None) -> Dict[str, Any] | None:

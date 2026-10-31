@@ -27,8 +27,11 @@ Tests verify that:
 from typing import Any
 from unittest.mock import AsyncMock, MagicMock, patch
 
+import mcp.types as mt
 import pytest
+from fastmcp.tools.tool import ToolResult
 
+from superset.mcp_service.auth import _mcp_user_id_var
 from superset.mcp_service.middleware import LoggingMiddleware
 
 
@@ -43,7 +46,7 @@ def _make_context(
     ctx.method = method
     message = MagicMock()
     message.name = name
-    message.params = params or {}
+    message.arguments = params or {}
     ctx.message = message
     if metadata is not None:
         ctx.metadata = metadata
@@ -155,6 +158,141 @@ class TestLoggingMiddlewareOnCallTool:
         assert call_kwargs["slice_id"] == 20
         assert call_kwargs["curated_payload"]["dataset_id"] == 30
 
+    @patch("superset.mcp_service.middleware.event_logger")
+    @patch("superset.mcp_service.middleware.get_user_id", return_value=42)
+    @pytest.mark.asyncio
+    async def test_on_call_tool_extracts_chart_id_from_response(
+        self, mock_get_user_id, mock_event_logger
+    ) -> None:
+        """generate_chart takes no chart_id as input, so on a successful
+        create the new chart's ID must be pulled from the response body
+        instead -- otherwise every retry logs slice_id=None and a
+        successful attempt can't be told apart from the failed ones.
+        """
+        middleware = LoggingMiddleware()
+        ctx = _make_context(name="generate_chart", params={"dataset_id": 5})
+        response_text = (
+            '{"success": true, "chart": {"id": 123, "slice_name": "My Chart"}}'
+        )
+        original_result = ToolResult(
+            content=[mt.TextContent(type="text", text=response_text)]
+        )
+        call_next = AsyncMock(return_value=original_result)
+
+        await middleware.on_call_tool(ctx, call_next)
+
+        call_kwargs = mock_event_logger.log.call_args[1]
+        assert call_kwargs["slice_id"] == 123
+        assert call_kwargs["curated_payload"]["slice_id"] == 123
+        assert call_kwargs["curated_payload"]["success"] is True
+
+    @patch("superset.mcp_service.middleware.event_logger")
+    @patch("superset.mcp_service.middleware.get_user_id", return_value=42)
+    @pytest.mark.asyncio
+    async def test_on_call_tool_extracts_dashboard_id_from_response(
+        self, mock_get_user_id, mock_event_logger
+    ) -> None:
+        """generate_dashboard likewise creates an ID that only appears in
+        the response, not the input params."""
+        middleware = LoggingMiddleware()
+        ctx = _make_context(name="generate_dashboard", params={"chart_ids": [1, 2]})
+        response_text = '{"success": true, "dashboard": {"id": 456}}'
+        original_result = ToolResult(
+            content=[mt.TextContent(type="text", text=response_text)]
+        )
+        call_next = AsyncMock(return_value=original_result)
+
+        await middleware.on_call_tool(ctx, call_next)
+
+        call_kwargs = mock_event_logger.log.call_args[1]
+        assert call_kwargs["dashboard_id"] == 456
+        assert call_kwargs["curated_payload"]["dashboard_id"] == 456
+
+    @patch("superset.mcp_service.middleware.event_logger")
+    @patch("superset.mcp_service.middleware.get_user_id", return_value=42)
+    @pytest.mark.asyncio
+    async def test_on_call_tool_does_not_extract_id_on_failed_response(
+        self, mock_get_user_id, mock_event_logger
+    ) -> None:
+        """A failed create (error schema response, no exception raised)
+        must not report a chart_id -- nothing was actually persisted."""
+        middleware = LoggingMiddleware()
+        ctx = _make_context(name="generate_chart", params={"dataset_id": 5})
+        response_text = (
+            '{"success": false, "chart": null, '
+            '"error": {"error_type": "validation_error"}}'
+        )
+        original_result = ToolResult(
+            content=[mt.TextContent(type="text", text=response_text)]
+        )
+        call_next = AsyncMock(return_value=original_result)
+
+        await middleware.on_call_tool(ctx, call_next)
+
+        call_kwargs = mock_event_logger.log.call_args[1]
+        assert call_kwargs["curated_payload"]["success"] is False
+        assert call_kwargs["slice_id"] is None
+
+    @patch("superset.mcp_service.middleware.event_logger")
+    @patch("superset.mcp_service.middleware.get_user_id", return_value=42)
+    @pytest.mark.asyncio
+    async def test_on_call_tool_prefers_input_slice_id_over_response(
+        self, mock_get_user_id, mock_event_logger
+    ) -> None:
+        """When chart_id is already known from input params (e.g.
+        update_chart), the response body must not override it."""
+        middleware = LoggingMiddleware()
+        ctx = _make_context(name="update_chart", params={"chart_id": 111})
+        response_text = '{"success": true, "chart": {"id": 999}}'
+        original_result = ToolResult(
+            content=[mt.TextContent(type="text", text=response_text)]
+        )
+        call_next = AsyncMock(return_value=original_result)
+
+        await middleware.on_call_tool(ctx, call_next)
+
+        call_kwargs = mock_event_logger.log.call_args[1]
+        assert call_kwargs["slice_id"] == 111
+
+    @patch("superset.mcp_service.middleware.event_logger")
+    @patch("superset.mcp_service.middleware.get_user_id", return_value=42)
+    @pytest.mark.asyncio
+    async def test_on_call_tool_resolves_name_and_dataset_id_through_proxy(
+        self, mock_get_user_id, mock_event_logger
+    ) -> None:
+        """End-to-end regression test for the reported bug: a
+        create_virtual_dataset call made through the ``call_tool`` search
+        proxy must log the real tool name (not "call_tool") and the
+        created dataset_id (backfilled from the response), instead of
+        tool="call_tool" and dataset_id=None."""
+        middleware = LoggingMiddleware()
+        ctx = _make_context(
+            name="call_tool",
+            params={
+                "name": "create_virtual_dataset",
+                "arguments": {
+                    "request": {
+                        "database_id": 108,
+                        "schema": "jitney",
+                        "table_name": "Airchat Monthly Usage Summary",
+                        "sql": "SELECT 1",
+                    }
+                },
+            },
+        )
+        response_text = '{"id": 42, "dataset_name": "Airchat Monthly Usage Summary"}'
+        original_result = ToolResult(
+            content=[mt.TextContent(type="text", text=response_text)]
+        )
+        call_next = AsyncMock(return_value=original_result)
+
+        await middleware.on_call_tool(ctx, call_next)
+
+        call_kwargs = mock_event_logger.log.call_args[1]
+        assert call_kwargs["curated_payload"]["tool"] == "create_virtual_dataset"
+        assert call_kwargs["curated_payload"]["dataset_id"] == 42
+        assert call_kwargs["curated_payload"]["success"] is True
+
 
 class TestLoggingMiddlewareOnMessage:
     """Tests for LoggingMiddleware.on_message()."""
@@ -181,6 +319,108 @@ class TestLoggingMiddlewareOnMessage:
         assert call_kwargs["duration_ms"] is None
         # on_message should NOT have success field
         assert "success" not in call_kwargs["curated_payload"]
+
+
+class TestLoggingMiddlewareUserIdContextVar:
+    """Tests for _mcp_user_id_var overriding the pre-call user_id snapshot.
+
+    _extract_context_info() runs *before* call_next(), i.e. before the
+    tool's auth decorator (superset/mcp_service/auth.py) has resolved a
+    user, so get_user_id() there is always pre-auth (typically None).
+    _setup_user_context() sets _mcp_user_id_var while running inside
+    call_next(), right before the per-call app context (which g.user
+    depends on) is popped. These tests simulate that by setting the
+    ContextVar from within call_next(), mirroring the real auth decorator.
+    """
+
+    @patch("superset.mcp_service.middleware.event_logger")
+    @patch("superset.mcp_service.middleware.get_user_id", return_value=None)
+    @pytest.mark.asyncio
+    async def test_on_call_tool_uses_contextvar_set_during_call_next(
+        self, mock_get_user_id, mock_event_logger
+    ) -> None:
+        """Logged user_id reflects auth resolved during call_next(), not
+        the pre-call snapshot."""
+        middleware = LoggingMiddleware()
+        ctx = _make_context(name="list_charts")
+
+        async def fake_call_next(_ctx):
+            _mcp_user_id_var.set(42)
+            return "tool_result"
+
+        token = _mcp_user_id_var.set(None)
+        try:
+            result = await middleware.on_call_tool(ctx, fake_call_next)
+        finally:
+            _mcp_user_id_var.reset(token)
+
+        assert result == "tool_result"
+        call_kwargs = mock_event_logger.log.call_args[1]
+        assert call_kwargs["user_id"] == 42
+
+    @patch("superset.mcp_service.middleware.event_logger")
+    @patch("superset.mcp_service.middleware.get_user_id", return_value=7)
+    @pytest.mark.asyncio
+    async def test_on_call_tool_falls_back_when_contextvar_unset(
+        self, mock_get_user_id, mock_event_logger
+    ) -> None:
+        """When the call never runs _setup_user_context() (ContextVar
+        stays at its default), the pre-call get_user_id() value is used
+        as-is -- no regression for paths that don't set the ContextVar."""
+        middleware = LoggingMiddleware()
+        ctx = _make_context(name="health_check")
+        call_next = AsyncMock(return_value="ok")
+
+        token = _mcp_user_id_var.set(None)
+        try:
+            await middleware.on_call_tool(ctx, call_next)
+        finally:
+            _mcp_user_id_var.reset(token)
+
+        call_kwargs = mock_event_logger.log.call_args[1]
+        assert call_kwargs["user_id"] == 7
+
+    @patch("superset.mcp_service.middleware.event_logger")
+    @patch("superset.mcp_service.middleware.get_user_id", return_value=None)
+    @pytest.mark.asyncio
+    async def test_on_message_uses_contextvar_set_during_call_next(
+        self, mock_get_user_id, mock_event_logger
+    ) -> None:
+        middleware = LoggingMiddleware()
+        ctx = _make_context(method="resources/read", name="instance/metadata")
+
+        async def fake_call_next(_ctx):
+            _mcp_user_id_var.set(99)
+            return "resource_data"
+
+        token = _mcp_user_id_var.set(None)
+        try:
+            result = await middleware.on_message(ctx, fake_call_next)
+        finally:
+            _mcp_user_id_var.reset(token)
+
+        assert result == "resource_data"
+        call_kwargs = mock_event_logger.log.call_args[1]
+        assert call_kwargs["user_id"] == 99
+
+    @patch("superset.mcp_service.middleware.event_logger")
+    @patch("superset.mcp_service.middleware.get_user_id", return_value=13)
+    @pytest.mark.asyncio
+    async def test_on_message_falls_back_when_contextvar_unset(
+        self, mock_get_user_id, mock_event_logger
+    ) -> None:
+        middleware = LoggingMiddleware()
+        ctx = _make_context(method="resources/read", name="instance/metadata")
+        call_next = AsyncMock(return_value="resource_data")
+
+        token = _mcp_user_id_var.set(None)
+        try:
+            await middleware.on_message(ctx, call_next)
+        finally:
+            _mcp_user_id_var.reset(token)
+
+        call_kwargs = mock_event_logger.log.call_args[1]
+        assert call_kwargs["user_id"] == 13
 
 
 class TestExtractContextInfo:
@@ -233,6 +473,99 @@ class TestExtractContextInfo:
         _, _, _, slice_id, _, _ = middleware._extract_context_info(ctx)
 
         assert slice_id == 66
+
+    @patch("superset.mcp_service.middleware.get_user_id", return_value=1)
+    def test_extract_reads_arguments_on_real_call_tool_request_params(
+        self, mock_get_user_id
+    ) -> None:
+        """Regression test: the real MCP ``CallToolRequestParams`` object
+        exposes tool arguments as ``.arguments``, not ``.params`` -- a
+        ``MagicMock``-based context would auto-vivify a ``.params``
+        attribute and hide a mismatch. Using the real SDK type here
+        ensures params/dashboard_id/etc. are actually populated instead
+        of silently logging as empty."""
+        middleware = LoggingMiddleware()
+        message = mt.CallToolRequestParams(
+            name="get_dashboard_info",
+            arguments={"dashboard_id": 7},
+        )
+        ctx = MagicMock()
+        ctx.message = message
+        ctx.metadata = None
+        ctx.session = None
+
+        agent_id, user_id, dashboard_id, slice_id, dataset_id, params = (
+            middleware._extract_context_info(ctx)
+        )
+
+        assert params == {"dashboard_id": 7}
+        assert dashboard_id == 7
+
+    @patch("superset.mcp_service.middleware.get_user_id", return_value=1)
+    def test_extract_unwraps_request_wrapper(self, mock_get_user_id) -> None:
+        """Every MCP tool in this service takes a single ``request``
+        pydantic argument, so real arguments arrive as
+        ``{"request": {"dashboard_id": ..., "chart_id": ...}}`` (e.g.
+        add_chart_to_existing_dashboard). Without unwrapping this layer,
+        dashboard_id/chart_id extraction silently returns None."""
+        middleware = LoggingMiddleware()
+        ctx = _make_context(
+            name="add_chart_to_existing_dashboard",
+            params={"request": {"dashboard_id": 10, "chart_id": 20}},
+        )
+
+        _, _, dashboard_id, slice_id, _, params = middleware._extract_context_info(ctx)
+
+        assert dashboard_id == 10
+        assert slice_id == 20
+        # The raw params (used for the logged payload) stay unwrapped.
+        assert params == {"request": {"dashboard_id": 10, "chart_id": 20}}
+
+    @patch("superset.mcp_service.middleware.get_user_id", return_value=1)
+    def test_extract_unwraps_call_tool_proxy_and_request(
+        self, mock_get_user_id
+    ) -> None:
+        """Reproduces the reported bug: when the client calls tools through
+        the ``call_tool`` search proxy, arguments arrive as
+        ``{"name": ..., "arguments": {"request": {...}}}`` -- two layers of
+        wrapping. Both must be unwrapped to see dataset_id."""
+        middleware = LoggingMiddleware()
+        ctx = _make_context(
+            name="call_tool",
+            params={
+                "name": "create_virtual_dataset",
+                "arguments": {
+                    "request": {
+                        "database_id": 108,
+                        "dataset_id": 42,
+                    }
+                },
+            },
+        )
+
+        _, _, _, _, dataset_id, _ = middleware._extract_context_info(ctx)
+
+        assert dataset_id == 42
+
+
+class TestResolveToolName:
+    """Tests for LoggingMiddleware._resolve_tool_name()."""
+
+    def test_resolves_real_tool_name_from_call_tool_proxy(self) -> None:
+        resolved = LoggingMiddleware._resolve_tool_name(
+            "call_tool", {"name": "create_virtual_dataset", "arguments": {}}
+        )
+        assert resolved == "create_virtual_dataset"
+
+    def test_returns_none_when_not_call_tool_proxy(self) -> None:
+        resolved = LoggingMiddleware._resolve_tool_name(
+            "get_chart_info", {"identifier": 123}
+        )
+        assert resolved is None
+
+    def test_returns_none_when_name_missing(self) -> None:
+        resolved = LoggingMiddleware._resolve_tool_name("call_tool", {})
+        assert resolved is None
 
 
 class TestIsErrorResponse:
@@ -302,6 +635,80 @@ class TestIsErrorResponse:
         call_kwargs = mock_event_logger.log.call_args[1]
         assert call_kwargs["curated_payload"]["success"] is False
         assert call_kwargs["curated_payload"]["tool"] == "get_chart_info"
+
+
+class TestExtractOutputIds:
+    """Tests for LoggingMiddleware._extract_output_ids()."""
+
+    def test_returns_none_for_non_json_body(self) -> None:
+        """A malformed/non-JSON response body must not raise -- the
+        defensive try/except should fall back to (None, None, None)."""
+        middleware = LoggingMiddleware()
+        result = ToolResult(
+            content=[mt.TextContent(type="text", text="not valid json {{{")]
+        )
+        assert middleware._extract_output_ids("generate_chart", result) == (
+            None,
+            None,
+            None,
+        )
+
+    def test_returns_none_for_empty_content(self) -> None:
+        """A ToolResult with no content items must not raise."""
+        middleware = LoggingMiddleware()
+        assert middleware._extract_output_ids(
+            "generate_chart", ToolResult(content=[])
+        ) == (
+            None,
+            None,
+            None,
+        )
+
+    def test_returns_none_for_non_dict_json_body(self) -> None:
+        """A JSON body that parses but isn't an object (e.g. a bare
+        list) must not raise and must yield no IDs."""
+        middleware = LoggingMiddleware()
+        result = ToolResult(content=[mt.TextContent(type="text", text="[1, 2, 3]")])
+        assert middleware._extract_output_ids("generate_chart", result) == (
+            None,
+            None,
+            None,
+        )
+
+    def test_extracts_both_ids_from_flat_response(self) -> None:
+        middleware = LoggingMiddleware()
+        response_text = '{"chart_id": 123, "dashboard_id": 456}'
+        result = ToolResult(content=[mt.TextContent(type="text", text=response_text)])
+        assert middleware._extract_output_ids("generate_chart", result) == (
+            456,
+            123,
+            None,
+        )
+
+    def test_extracts_dataset_id_for_create_virtual_dataset(self) -> None:
+        """create_virtual_dataset's response is a flat {"id": ...} with no
+        wrapper key, unlike chart/dashboard -- extraction must be gated on
+        tool_name so unrelated tools' "id" fields aren't misattributed."""
+        middleware = LoggingMiddleware()
+        response_text = '{"id": 789, "dataset_name": "my_dataset"}'
+        result = ToolResult(content=[mt.TextContent(type="text", text=response_text)])
+        assert middleware._extract_output_ids("create_virtual_dataset", result) == (
+            None,
+            None,
+            789,
+        )
+
+    def test_does_not_extract_dataset_id_for_unrelated_tool(self) -> None:
+        """A generic "id" field on an unrelated tool's response must not be
+        misread as a dataset_id."""
+        middleware = LoggingMiddleware()
+        response_text = '{"id": 789}'
+        result = ToolResult(content=[mt.TextContent(type="text", text=response_text)])
+        assert middleware._extract_output_ids("get_chart_info", result) == (
+            None,
+            None,
+            None,
+        )
 
 
 class TestMiddlewareChainOrder:

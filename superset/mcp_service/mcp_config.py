@@ -23,6 +23,7 @@ from typing import Any, Dict, Optional
 from flask import Flask
 
 from superset.mcp_service.constants import (
+    DEFAULT_MAX_LIST_ITEMS,
     DEFAULT_TOKEN_LIMIT,
     DEFAULT_WARN_THRESHOLD_PCT,
 )
@@ -44,6 +45,24 @@ MCP_SERVICE_PORT = 5008
 
 # MCP Debug mode - shows suppressed initialization output in stdio mode
 MCP_DEBUG = False
+
+# Streamable-HTTP session mode used by run_server() (superset/mcp_service/server.py)
+# and the CLI entrypoint (superset/mcp_service/__main__.py).
+#
+# True (default): each HTTP request gets a fresh, ephemeral transport that is
+# torn down as soon as that single request/response completes, while the
+# tool call it started keeps running as a background task. If a client gives
+# up on a still-running call (its own timeout, a reconnect, etc.), the next
+# progress notification that tool sends hits the now-closed transport and
+# raises anyio.ClosedResourceError/BrokenResourceError -- crashing that
+# session and disconnecting other concurrent clients on the same worker.
+#
+# False: sessions are tracked by Mcp-Session-Id and the transport stays alive
+# for the session's lifetime, so a client disconnecting mid-call no longer
+# crashes the tool. This requires session-affinity routing on Mcp-Session-Id
+# at the mesh/ingress layer for multi-pod deployments -- a client's follow-up
+# requests must land on the pod that created its session.
+MCP_STATELESS_HTTP = True
 
 # MCP RBAC - when True, tools with class_permission_name are checked
 # against the FAB security_manager before execution.
@@ -225,6 +244,12 @@ MCP_CACHE_CONFIG: Dict[str, Any] = {
 # - token_limit: Maximum estimated tokens per response (default: 25,000)
 # - excluded_tools: Tools to skip checking (e.g., streaming tools)
 # - warn_threshold_pct: Log warnings above this % of limit (default: 80%)
+# - max_list_items: Cap applied to list fields (e.g. ``charts``,
+#   ``native_filters``) during Phase 2 of dynamic truncation for the "info"
+#   tools (get_chart_info, get_dataset_info, get_dashboard_info,
+#   get_instance_info) when a response exceeds token_limit (default: 100).
+#   Operators with tenants that have unusually large dashboards (hundreds of
+#   charts/filters) can raise this value to return more complete responses.
 #
 # Token Estimation:
 # -----------------
@@ -235,6 +260,7 @@ MCP_RESPONSE_SIZE_CONFIG: Dict[str, Any] = {
     "enabled": True,  # Enabled by default to protect LLM clients
     "token_limit": DEFAULT_TOKEN_LIMIT,
     "warn_threshold_pct": DEFAULT_WARN_THRESHOLD_PCT,
+    "max_list_items": DEFAULT_MAX_LIST_ITEMS,
     "excluded_tools": [  # Tools to skip size checking
         "health_check",  # Always small
         "get_chart_preview",  # Returns URLs, not data
@@ -395,6 +421,7 @@ def get_mcp_config(app_config: Dict[str, Any] | None = None) -> Dict[str, Any]:
         "MCP_SERVICE_HOST": MCP_SERVICE_HOST,
         "MCP_SERVICE_PORT": MCP_SERVICE_PORT,
         "MCP_DEBUG": MCP_DEBUG,
+        "MCP_STATELESS_HTTP": MCP_STATELESS_HTTP,
         "MCP_RBAC_ENABLED": MCP_RBAC_ENABLED,
         "MCP_DISABLED_TOOLS": set(MCP_DISABLED_TOOLS),
         **MCP_SESSION_CONFIG,

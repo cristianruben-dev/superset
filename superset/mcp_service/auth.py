@@ -29,11 +29,14 @@ ensuring MCP tools respect the same permission model as the REST API.
 """
 
 import logging
-from contextlib import AbstractContextManager
-from typing import Any, Callable, TYPE_CHECKING, TypeVar
+from contextlib import AbstractContextManager, contextmanager
+from contextvars import ContextVar
+from typing import Any, Callable, Generator, TYPE_CHECKING, TypeVar
 
-from flask import g
+from flask import current_app, g, has_app_context, has_request_context
 from flask_appbuilder.security.sqla.models import Group, User
+
+from superset.mcp_service.session_scope import _mcp_session_token
 
 if TYPE_CHECKING:
     from superset.connectors.sqla.models import SqlaTable
@@ -43,6 +46,15 @@ if TYPE_CHECKING:
 F = TypeVar("F", bound=Callable[..., Any])
 
 logger = logging.getLogger(__name__)
+
+# The resolved user's id for the current tool call, set by
+# _setup_user_context(). g.user is only valid for the lifetime of the
+# per-call app context pushed by _get_app_context_manager() (see its
+# docstring) and is gone by the time LoggingMiddleware's on_call_tool/
+# on_message finally-blocks run after call_next() returns. This ContextVar
+# survives that context pop (mirrors _mcp_call_id_var in middleware.py) so
+# audit logging can attribute the call to the right user.
+_mcp_user_id_var: ContextVar[int | None] = ContextVar("mcp_user_id", default=None)
 
 # Constants for RBAC permission attributes (mirrors FAB conventions)
 PERMISSION_PREFIX = "can_"
@@ -280,9 +292,9 @@ def check_chart_data_access(chart: Any) -> "DatasetValidationResult":
     return validate_chart_dataset(chart, check_access=True)
 
 
-def _setup_user_context() -> User | None:
+def _resolve_user_with_retry() -> User | None:
     """
-    Set up user context for MCP tool execution.
+    Resolve the current user, retrying once on a stale DB connection.
 
     Includes retry logic for stale database connections (e.g., SSL dropped
     by proxy/load balancer after idle periods). On OperationalError, the
@@ -291,15 +303,7 @@ def _setup_user_context() -> User | None:
     Returns:
         User object with roles and groups loaded, or None if no Flask context
     """
-    # Clear stale g.user to prevent user impersonation across
-    # tool calls when no per-request middleware refreshes it.
-    # Only clear in app-context-only mode; preserve g.user when
-    # a request context is active (external middleware set it).
     from flask import has_request_context
-
-    if not has_request_context():
-        g.pop("user", None)
-
     from sqlalchemy.exc import OperationalError
 
     user = None  # Ensure defined before loop in case of unexpected exit
@@ -316,7 +320,7 @@ def _setup_user_context() -> User | None:
             if hasattr(user, "groups"):
                 user_groups = user.groups  # noqa: F841
 
-            break
+            return user
         except RuntimeError as e:
             # No Flask application context (e.g., prompts before middleware runs)
             if "application context" in str(e):
@@ -350,7 +354,36 @@ def _setup_user_context() -> User | None:
                 g.pop("user", None)
             raise
 
+    return user
+
+
+def _setup_user_context() -> User | None:
+    """
+    Set up user context for MCP tool execution.
+
+    Returns:
+        User object with roles and groups loaded, or None if no Flask context
+    """
+    from flask import has_request_context
+
+    # Clear stale g.user to prevent user impersonation across
+    # tool calls when no per-request middleware refreshes it.
+    # Only clear in app-context-only mode; preserve g.user when
+    # a request context is active (external middleware set it).
+    if not has_request_context():
+        g.pop("user", None)
+    # Clear any user_id left over from a previous call in this context
+    # (e.g. sequential calls sharing one asyncio task) so a failed/
+    # unauthenticated lookup below doesn't inherit a stale value.
+    _mcp_user_id_var.set(None)
+
+    user = _resolve_user_with_retry()
+    if user is None:
+        return None
+
     g.user = user
+    if (user_id := getattr(user, "id", None)) is not None:
+        _mcp_user_id_var.set(user_id)
     return user
 
 
@@ -364,6 +397,122 @@ def _cleanup_session_on_error() -> None:
         db.session.remove()
     except Exception as e:
         logger.warning("Error cleaning up session after exception: %s", e)
+
+
+def _remove_session_safe() -> None:
+    """Remove the scoped SQLAlchemy session, tolerating SSL/connection errors.
+
+    Thread-pool workers reuse threads across requests.  Before each tool call
+    the session is removed to prevent a prior request's thread-local session
+    from leaking into the next one.  If the underlying DBAPI connection died
+    between requests (e.g. RDS SSL idle-timeout or max-connection-age), the
+    rollback implicit in ``session.close()`` raises a ``DBAPIError`` subclass
+    (``OperationalError`` for psycopg2, ``InterfaceError`` for some other
+    drivers).
+
+    When that happens:
+    1. Invalidate the dead connection so the pool discards it (rather than
+       returning a broken connection to the next caller).
+    2. Retry ``remove()`` to deregister the session from the scoped registry.
+
+    The tool call still proceeds because a fresh connection will be obtained
+    on the next DB access.
+    """
+    from sqlalchemy.exc import DBAPIError
+
+    from superset.extensions import db
+
+    try:
+        db.session.remove()
+    except DBAPIError as exc:
+        logger.warning(
+            "Connection error during pre-call session cleanup "
+            "(likely SSL/idle timeout); invalidating connection and retrying: %s",
+            exc,
+        )
+        try:
+            db.session.invalidate()
+        except Exception as invalidate_exc:
+            logger.debug(
+                "Could not invalidate session after connection error: %s",
+                invalidate_exc,
+            )
+        db.session.remove()  # retry: session deregisters cleanly after invalidation
+
+
+def _get_app_context_manager() -> AbstractContextManager[None]:
+    """Return the right context manager for the current Flask state.
+
+    When a request context is present, external middleware (e.g.
+    Preset's WorkspaceContextMiddleware) has already set ``g.user``
+    on a per-request app context — reuse it, but still tag the call
+    with a per-call session token (see ``_request_tool_call_context``).
+
+    When only a bare app context exists (no request context), push a
+    **new** app context so concurrent tool calls do not share one ``g``
+    namespace (which would cause ``g.user`` races under asyncio).
+
+    When no context exists at all, push a fresh app context from the
+    Flask singleton.
+
+    Every path tags the call with a per-call session token (see
+    session_scope.py) so each tool call gets its own SQLAlchemy
+    session — otherwise all in-flight async calls on one greenlet
+    share the greenlet-scoped session, and one call's teardown
+    detaches the others' ORM instances.
+
+    This is the single source of truth for context selection — called
+    from both ``mcp_auth_hook`` (tool execution) and
+    ``RBACToolVisibilityMiddleware`` (tools/list filtering).
+    """
+    if has_request_context():
+        return _request_tool_call_context()
+    return _mcp_tool_call_context()
+
+
+@contextmanager
+def _request_tool_call_context() -> Generator[None, None, None]:
+    """Tag a request-backed tool call with a per-call session token.
+
+    The request context is reused as-is (middleware already populated
+    ``g.user``), so no new app context is pushed — but without the
+    token, concurrent tool calls on the request's greenlet would share
+    the greenlet-scoped SQLAlchemy session, the same race that
+    ``_mcp_tool_call_context()`` prevents on the no-request path.
+    """
+    token = _mcp_session_token.set(object())
+    try:
+        yield
+    finally:
+        # Deregister this call's session while the token still resolves
+        # the registry to it; the request's own greenlet-scoped session
+        # is left for the request lifecycle to tear down.
+        _remove_session_safe()
+        _mcp_session_token.reset(token)
+
+
+@contextmanager
+def _mcp_tool_call_context() -> Generator[None, None, None]:
+    """Push a fresh app context tagged with a per-call session token."""
+    token = _mcp_session_token.set(object())
+    try:
+        if has_app_context():
+            # Push a new context for the CURRENT app (not get_flask_app()
+            # which may return a different instance in test environments).
+            with current_app._get_current_object().app_context():
+                yield
+        else:
+            # Deferred: importing at module level would trigger create_app()
+            # before Superset is fully initialised (e.g. during unit-test
+            # collection).
+            from superset.mcp_service.flask_singleton import get_flask_app
+
+            with get_flask_app().app_context():
+                yield
+    finally:
+        # Reset only after the app context popped, so teardown's
+        # db.session.remove() still resolves to this call's session.
+        _mcp_session_token.reset(token)
 
 
 def mcp_auth_hook(tool_func: F) -> F:  # noqa: C901
@@ -380,41 +529,9 @@ def mcp_auth_hook(tool_func: F) -> F:  # noqa: C901
 
     Supports both sync and async tool functions.
     """
-    import contextlib
     import functools
     import inspect
     import types
-
-    from flask import current_app, has_app_context, has_request_context
-
-    def _get_app_context_manager() -> AbstractContextManager[None]:
-        """Push a fresh app context unless a request context is active.
-
-        When a request context is present, external middleware (e.g.
-        Preset's WorkspaceContextMiddleware) has already set ``g.user``
-        on a per-request app context — reuse it via ``nullcontext()``.
-
-        When only a bare app context exists (no request context), we must
-        push a **new** app context. The MCP server typically runs inside
-        a long-lived app context (e.g. ``__main__.py`` wraps
-        ``mcp.run()`` in ``app.app_context()``). When FastMCP dispatches
-        concurrent tool calls via ``asyncio.create_task()``, each task
-        inherits the parent's ``ContextVar`` *value* — a reference to the
-        **same** ``AppContext`` object. Without a fresh push, all tasks
-        share one ``g`` namespace and concurrent ``g.user`` mutations
-        race: one user's identity can overwrite another's before
-        ``get_user_id()`` runs during the SQLAlchemy INSERT flush,
-        attributing the created asset to the wrong user.
-        """
-        if has_request_context():
-            return contextlib.nullcontext()
-        if has_app_context():
-            # Push a new context for the CURRENT app (not get_flask_app()
-            # which may return a different instance in test environments).
-            return current_app._get_current_object().app_context()
-        from superset.mcp_service.flask_singleton import get_flask_app
-
-        return get_flask_app().app_context()
 
     is_async = inspect.iscoroutinefunction(tool_func)
 
@@ -483,6 +600,13 @@ def mcp_auth_hook(tool_func: F) -> F:  # noqa: C901
         @functools.wraps(tool_func)
         def sync_wrapper(*args: Any, **kwargs: Any) -> Any:
             with _get_app_context_manager():
+                # Clear any stale thread-local SQLAlchemy session before user lookup.
+                # Thread pool workers reuse threads across requests; db.session is
+                # scoped by thread (not ContextVar), so a prior request's session may
+                # still be bound to a different tenant's DB engine. Removing it here
+                # ensures the next DB access creates a fresh session bound to the
+                # correct engine for the current request.
+                _remove_session_safe()
                 user = _setup_user_context()
 
                 # No Flask context - this is a FastMCP internal operation
