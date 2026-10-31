@@ -66,6 +66,10 @@ Formats are stored in `position_json`, so they save, undo and export with the da
   setting; read it with `useVisualFormat`/`mergeVisualFormat`, never `meta.mibiFormat` alone.
 - Design elements are `DYNAMIC` components whose `componentKey` starts with `mibi-`, with their
   settings in `meta.mibiElement` (`src/mibi/elements/types.ts`).
+- `ROOT_ID.meta.mibiColumns`: grid density, 12 (default, key absent), 24 or 48 columns.
+  Every `meta.width` is in the dashboard's own columns. Use `src/mibi/format/columns.ts`
+  (`columnCountOf(layout)`, `gridColumnCount()`, `scaledWidth()`, `minObjectColumns()`), never
+  `GRID_COLUMN_COUNT`, and change the density only with `setColumnCount`, which rescales widths.
 - Flags: `meta.mibiHidden`, `meta.mibiLocked`, `meta.mibiHideMobile`.
 - Write layout changes through `src/mibi/format/actions.ts` (`updateLayout`, `setVisualFormat`,
   `setCanvasFormat`, `setSharedVisualFormat`) so edits group into one undo step.

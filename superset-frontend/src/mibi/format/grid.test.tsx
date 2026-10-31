@@ -61,7 +61,7 @@ test('draws columns and rows, dots or column bands', () => {
     '#5b5bd6',
   );
   expect(String(dots.backgroundImage)).toContain('radial-gradient');
-  expect(dots.backgroundSize).toBe('116px 24px, 116px 24px');
+  expect(dots.backgroundSize).toBe('116px 24px');
 
   const columns = gridBackground(
     { ...DEFAULT_GRID, style: 'columns' },
@@ -78,12 +78,13 @@ test('styles the grid from the Format pane and remembers it', () => {
       <GridSection />
       <GridGuide columnWidth={100} gutter={16} />
     </>,
+    { useRedux: true },
   );
   const guide = screen.getByTestId('mibi-grid-guide');
   expect(guide.style.backgroundSize).toBe('116px 100%, 100% 32px');
 
   fireEvent.click(screen.getByRole('radio', { name: 'Dots' }));
-  expect(guide.style.backgroundSize).toBe('116px 32px, 116px 32px');
+  expect(guide.style.backgroundSize).toBe('116px 32px');
   expect(JSON.parse(window.localStorage.getItem('mibi.grid')!).style).toBe(
     'dots',
   );

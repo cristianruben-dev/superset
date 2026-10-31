@@ -48,7 +48,7 @@ import {
   type SupersetTheme,
 } from '@apache-superset/core/theme';
 import { Radio } from '@superset-ui/core/components/Radio';
-import { GRID_COLUMN_COUNT } from 'src/dashboard/util/constants';
+import { columnCountOf, scaledWidth } from 'src/mibi/format/columns';
 import { canUserEditDashboard } from 'src/dashboard/util/permissionUtils';
 import { setSaveChartModalVisibility } from 'src/explore/actions/saveModalActions';
 import { SaveActionType, ChartStatusType } from 'src/explore/types';
@@ -382,6 +382,9 @@ class SaveModal extends Component<SaveModalProps, SaveModalState> {
       positionJson = positionJson || {};
 
       const chartKey = `CHART-${chartId}`;
+      // Widths are in the dashboard's own grid density (Mi BI)
+      const columns = columnCountOf(positionJson);
+      const chartWidth = scaledWidth(CHART_WIDTH, columns);
 
       // Find a row in the tab with available space
       const tabChildren = positionJson[tabId]?.children || [];
@@ -396,7 +399,7 @@ class SaveModal extends Component<SaveModalProps, SaveModalState> {
             return sum + (component?.meta?.width || 0);
           }, 0);
 
-          if (totalWidth + CHART_WIDTH <= GRID_COLUMN_COUNT) {
+          if (totalWidth + chartWidth <= columns) {
             targetRowKey = childKey;
             break;
           }
@@ -434,7 +437,7 @@ class SaveModal extends Component<SaveModalProps, SaveModalState> {
         children: [],
         parents: ['ROOT_ID', 'GRID_ID', tabId, targetRowKey],
         meta: {
-          width: CHART_WIDTH,
+          width: chartWidth,
           height: CHART_HEIGHT,
           chartId,
           sliceName: sliceName ?? `Chart ${chartId}`,

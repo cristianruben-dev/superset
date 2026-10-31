@@ -17,7 +17,8 @@
  * under the License.
  */
 import findParentId from './findParentId';
-import { GRID_MIN_COLUMN_COUNT, GRID_COLUMN_COUNT } from './constants';
+import { gridColumnCount } from 'src/mibi/format/columns';
+import { GRID_MIN_COLUMN_COUNT } from './constants';
 import {
   ROW_TYPE,
   COLUMN_TYPE,
@@ -89,7 +90,7 @@ export default function getDetailedComponentWidth({
           layout: components,
         }),
         components,
-      }).width || GRID_COLUMN_COUNT;
+      }).width || gridColumnCount();
     result.occupiedWidth = getTotalChildWidth({ id: component.id, components });
     result.minimumWidth = result.occupiedWidth || GRID_MIN_COLUMN_COUNT;
   } else if (component.type === COLUMN_TYPE) {

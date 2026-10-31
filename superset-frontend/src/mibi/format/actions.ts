@@ -26,10 +26,21 @@ import {
   DASHBOARD_GRID_ID,
   DASHBOARD_ROOT_ID,
   GRID_BASE_UNIT,
+  GRID_COLUMN_COUNT,
   GRID_MIN_ROW_UNITS,
 } from 'src/dashboard/util/constants';
 import { activeTabIndex, topLevelTabs } from 'src/mibi/present/dashboardTabs';
-import { CHART_TYPE, ROW_TYPE } from 'src/dashboard/util/componentTypes';
+import {
+  CHART_TYPE,
+  COLUMN_TYPE,
+  ROW_TYPE,
+} from 'src/dashboard/util/componentTypes';
+import {
+  COLUMN_COUNT_KEY,
+  columnCountOf,
+  minObjectColumns,
+  type ColumnCount,
+} from './columns';
 import {
   CANVAS_FORMAT_KEY,
   VISUAL_FORMAT_KEY,
@@ -117,7 +128,10 @@ export const withoutOwnText = (
 export const setSharedVisualFormat =
   (
     format: VisualFormat | undefined,
-    { resetCharts = true, canvas }: { resetCharts?: boolean; canvas?: CanvasFormat } = {},
+    {
+      resetCharts = true,
+      canvas,
+    }: { resetCharts?: boolean; canvas?: CanvasFormat } = {},
   ) =>
   (dispatch: AppDispatch, getState: GetState) => {
     const layout = getState().dashboardLayout.present;
@@ -161,6 +175,78 @@ export const setCanvasFormat =
         group,
       ),
     );
+  };
+
+/**
+ * The layout components to change so a layout in its column count uses
+ * ``next`` columns: every width takes the same share of the grid, rows that
+ * rounding makes too wide give a column back from their widest object, and
+ * objects in a column stay within it.
+ */
+export function rescaleLayout(
+  layout: Record<string, LayoutItem>,
+  next: ColumnCount,
+): Record<string, LayoutItem> {
+  const current = columnCountOf(layout);
+  const root = layout[DASHBOARD_ROOT_ID];
+  if (!root || current === next) return {};
+  const widths: Record<string, number> = {};
+  Object.values(layout).forEach(item => {
+    if (typeof item?.meta?.width === 'number') {
+      widths[item.id] = Math.min(
+        next,
+        Math.max(
+          minObjectColumns(next),
+          Math.round((item.meta.width * next) / current),
+        ),
+      );
+    }
+  });
+  Object.values(layout).forEach(item => {
+    if (item?.type === ROW_TYPE) {
+      const sized = item.children.filter(id => widths[id] !== undefined);
+      let total = sized.reduce((sum, id) => sum + widths[id], 0);
+      while (total > next) {
+        const widest = sized.reduce((a, b) => (widths[b] > widths[a] ? b : a));
+        if (widths[widest] <= minObjectColumns(next)) break;
+        widths[widest] -= 1;
+        total -= 1;
+      }
+    }
+  });
+  Object.values(layout).forEach(item => {
+    if (item?.type === COLUMN_TYPE && widths[item.id] !== undefined) {
+      const visit = (id: string) => {
+        if (widths[id] !== undefined) {
+          widths[id] = Math.min(widths[id], widths[item.id]);
+        }
+        layout[id]?.children.forEach(visit);
+      };
+      item.children.forEach(visit);
+    }
+  });
+
+  const changed: Record<string, LayoutItem> = {};
+  Object.entries(widths).forEach(([id, width]) => {
+    if (width !== layout[id].meta.width) {
+      changed[id] = { ...layout[id], meta: { ...layout[id].meta, width } };
+    }
+  });
+  changed[DASHBOARD_ROOT_ID] = withMeta(
+    root,
+    COLUMN_COUNT_KEY,
+    next === GRID_COLUMN_COUNT ? undefined : next,
+  );
+  return changed;
+}
+
+/** Changes the grid density of the dashboard, in one undo step. */
+export const setColumnCount =
+  (next: ColumnCount) => (dispatch: AppDispatch, getState: GetState) => {
+    const changed = rescaleLayout(getState().dashboardLayout.present, next);
+    if (Object.keys(changed).length) {
+      dispatch(updateLayout(changed, `columns:${Date.now()}`));
+    }
   };
 
 /** Room each row takes besides its visuals: the gutter below it. */

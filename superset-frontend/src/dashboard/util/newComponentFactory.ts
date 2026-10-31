@@ -16,6 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import { gridColumnCount, scaledWidth } from 'src/mibi/format/columns';
 import { nanoid } from 'nanoid';
 import { t } from '@apache-superset/core/translation';
 
@@ -79,13 +80,21 @@ export default function entityFactory(
   meta?: LayoutItemMeta,
   parents: string[] = [],
 ): DashboardEntity {
+  const defaults = typeToDefaultMetaData[type];
   return {
     type,
     id: generateId(type),
     children: [],
     parents,
     meta: {
-      ...typeToDefaultMetaData[type],
+      ...defaults,
+      // Default widths take the same share of a 24 or 48 column grid
+      ...(defaults?.width !== undefined && {
+        width:
+          defaults.width === GRID_COLUMN_COUNT
+            ? gridColumnCount()
+            : scaledWidth(defaults.width),
+      }),
       ...meta,
     },
   };

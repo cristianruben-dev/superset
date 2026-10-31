@@ -40,7 +40,8 @@ algunas reglas de producto distintas:
   (lector, colaborador y administrador).
 - **Panel Formato**, como en Power BI:
   - lienzo con fondo de color, degradado o imagen, tamaño fijo (16:9, 4:3 o a medida),
-    márgenes, separación, cuadrícula y vista para móvil;
+    márgenes, separación, cuadrícula (líneas, puntos o columnas) con densidad de 12, 24
+    o 48 columnas para objetos más pequeños, y vista para móvil;
   - estilo de cada gráfico: fondo, borde, esquinas, sombra, título, subtítulo e iconos;
   - **temas**: guardar el diseño de un panel con nombre y aplicarlo a otros con un
     clic. Hay cuatro de fábrica (Corporativo, Fresco, Vibrante y Minimalista) y cada

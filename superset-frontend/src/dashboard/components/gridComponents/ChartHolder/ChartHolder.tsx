@@ -34,10 +34,7 @@ import getChartAndLabelComponentIdFromPath from 'src/dashboard/util/getChartAndL
 import useFilterFocusHighlightStyles from 'src/dashboard/util/useFilterFocusHighlightStyles';
 import { AntdThemeProvider } from '@superset-ui/core/components';
 import { COLUMN_TYPE, ROW_TYPE } from 'src/dashboard/util/componentTypes';
-import {
-  DASHBOARD_ROOT_ID,
-  GRID_COLUMN_COUNT,
-} from 'src/dashboard/util/constants';
+import { DASHBOARD_ROOT_ID } from 'src/dashboard/util/constants';
 import { Icons } from '@superset-ui/core/components/Icons';
 import { Tooltip } from '@superset-ui/core/components';
 import { t } from '@apache-superset/core/translation';
@@ -45,6 +42,7 @@ import { gapInset, visualStyle } from 'src/mibi/format/styles';
 import { ObjectBadges } from 'src/mibi/format/ObjectFlags';
 import { useMergedVisualFormat } from 'src/mibi/format/useVisualFormat';
 import { useCanvasMobile } from 'src/mibi/format/CanvasFrame';
+import { gridColumnCount, minObjectColumns } from 'src/mibi/format/columns';
 import {
   openFormat,
   selectVisual,
@@ -217,7 +215,7 @@ const ChartHolder = ({
     }
 
     // The mobile layout gives every object the full width
-    return mobile ? GRID_COLUMN_COUNT : widthMultiple;
+    return mobile ? gridColumnCount() : widthMultiple;
   }, [
     mobile,
     component,
@@ -301,7 +299,7 @@ const ChartHolder = ({
         widthMultiple={widthMultiple}
         heightStep={GRID_BASE_UNIT}
         heightMultiple={component.meta.height ?? GRID_MIN_ROW_UNITS}
-        minWidthMultiple={GRID_MIN_COLUMN_COUNT}
+        minWidthMultiple={minObjectColumns()}
         minHeightMultiple={GRID_MIN_ROW_UNITS}
         maxWidthMultiple={availableColumnCount + widthMultiple}
         onResizeStart={onResizeStart}

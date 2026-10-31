@@ -16,10 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import { useDispatch, useSelector } from 'react-redux';
 import { t } from '@apache-superset/core/translation';
 import { css, styled, useTheme } from '@apache-superset/core/theme';
 import { Button, Switch } from '@superset-ui/core/components';
 import { ColorField, Field, RangeField, Section, Segments } from './controls';
+import type { RootState } from 'src/dashboard/types';
+import { setColumnCount } from './actions';
+import { COLUMN_COUNTS, columnCountOf, type ColumnCount } from './columns';
 import { DEFAULT_GRID, useGridSettings, type GridStyle } from './gridGuides';
 
 const Hint = styled.p`
@@ -33,11 +37,34 @@ const Hint = styled.p`
 /** Show and style the grid edit mode draws behind the visuals. */
 export function GridSection() {
   const theme = useTheme();
+  const dispatch = useDispatch();
   const [grid, update] = useGridSettings();
+  const columns = useSelector((state: RootState) =>
+    columnCountOf(state.dashboardLayout?.present),
+  );
 
   return (
     <Section data-test="mibi-format-grid">
       <h4>{t('Grid')}</h4>
+      <Field label={t('Grid columns')} stacked>
+        <Segments<`${ColumnCount}`>
+          name={t('Grid columns')}
+          value={`${columns}`}
+          onChange={value =>
+            dispatch(setColumnCount(Number(value) as ColumnCount))
+          }
+          testId="mibi-format-columns"
+          options={COLUMN_COUNTS.map(count => ({
+            value: `${count}` as `${ColumnCount}`,
+            label: String(count),
+          }))}
+        />
+      </Field>
+      <Hint>
+        {t(
+          'More columns let objects be smaller. It is saved with the dashboard, and the objects keep their size when it changes.',
+        )}
+      </Hint>
       <Field label={t('Show grid')}>
         <Switch
           size="small"
@@ -88,7 +115,8 @@ export function GridSection() {
           />
           <Hint>
             {t(
-              'Only you see the grid, while editing. Objects snap to its 12 columns when resized, and their height moves in steps of 8 px.',
+              'Only you see the grid, while editing. Objects snap to its %s columns when resized, and their height moves in steps of 8 px.',
+              columns,
             )}
           </Hint>
           <Button

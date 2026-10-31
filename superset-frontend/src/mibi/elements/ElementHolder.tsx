@@ -16,6 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import { minObjectColumns } from 'src/mibi/format/columns';
 import { memo, useCallback, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import cx from 'classnames';
@@ -35,7 +36,6 @@ import { COLUMN_TYPE, ROW_TYPE } from 'src/dashboard/util/componentTypes';
 import {
   GRID_BASE_UNIT,
   GRID_MIN_COLUMN_COUNT,
-  GRID_MIN_ROW_UNITS,
 } from 'src/dashboard/util/constants';
 import {
   openFormat,
@@ -54,6 +54,9 @@ import {
   type TextElement,
 } from './types';
 import { ButtonView, ImageView, ShapeView, TextView } from './views';
+
+/** Design elements (text, shapes, buttons) can be as low as 24 px. */
+const ELEMENT_MIN_ROW_UNITS = 3;
 
 export interface ElementHolderProps {
   id: string;
@@ -175,8 +178,8 @@ function ElementHolder({
           heightMultiple={
             component.meta.height ?? ELEMENT_DEFAULTS[kind].height
           }
-          minWidthMultiple={GRID_MIN_COLUMN_COUNT}
-          minHeightMultiple={GRID_MIN_ROW_UNITS}
+          minWidthMultiple={minObjectColumns()}
+          minHeightMultiple={ELEMENT_MIN_ROW_UNITS}
           maxWidthMultiple={availableColumnCount + widthMultiple}
           onResizeStart={onResizeStart}
           onResize={onResize}

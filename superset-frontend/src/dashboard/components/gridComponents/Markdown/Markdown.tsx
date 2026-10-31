@@ -16,6 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import { minObjectColumns } from 'src/mibi/format/columns';
 import { PureComponent } from 'react';
 import { connect } from 'react-redux';
 import cx from 'classnames';
@@ -425,7 +426,7 @@ class Markdown extends PureComponent<MarkdownProps, MarkdownState> {
                 widthMultiple={widthMultiple}
                 heightStep={GRID_BASE_UNIT}
                 heightMultiple={component.meta.height ?? GRID_MIN_ROW_UNITS}
-                minWidthMultiple={GRID_MIN_COLUMN_COUNT}
+                minWidthMultiple={minObjectColumns()}
                 minHeightMultiple={GRID_MIN_ROW_UNITS}
                 maxWidthMultiple={availableColumnCount + widthMultiple}
                 onResizeStart={this.handleResizeStart}

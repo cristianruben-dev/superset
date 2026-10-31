@@ -24,7 +24,7 @@ import { withOpacity } from './styles';
  * The grid edit mode draws behind the visuals. Its look is a preference of
  * each editor, kept in the browser, so it never changes the dashboard.
  *
- * Columns are the dashboard's 12 layout columns, the ones visuals snap to
+ * Columns are the dashboard's layout columns (see columns.ts), the ones visuals snap to
  * when resized; rows only guide heights, which snap every GRID_BASE_UNIT.
  */
 export type GridStyle = 'lines' | 'dots' | 'columns';
@@ -125,30 +125,27 @@ export function gridBackground(
   const period = width + gutter;
   const line = withOpacity(color, settings.opacity);
   const fill = withOpacity(color, settings.opacity * 0.25);
-  const edges = `linear-gradient(to right, ${line} 0 1px, transparent 1px ${
-    width - 1
-  }px, ${line} ${width - 1}px ${width}px, transparent ${width}px)`;
+  // Objects meet in the middle of the gap between columns: one line there
+  const seam = width + gutter / 2;
+  const seams = `linear-gradient(to right, transparent 0 ${seam - 0.5}px, ${line} ${
+    seam - 0.5
+  }px ${seam + 0.5}px, transparent ${seam + 0.5}px)`;
   const band = `linear-gradient(to right, ${fill} 0 ${width}px, transparent ${width}px)`;
   const rows = `linear-gradient(to bottom, ${line} 0 1px, transparent 1px)`;
-  const dot = (x: number) =>
-    `radial-gradient(circle at ${x}px 1px, ${line} 1.5px, transparent 2px)`;
+  const dots = `radial-gradient(circle at ${seam}px 1px, ${line} 1.5px, transparent 2px)`;
   const columnSize = `${period}px 100%`;
-  const cellSize = `${period}px ${settings.spacing}px`;
 
   if (settings.style === 'columns') {
-    return {
-      backgroundImage: `${edges}, ${band}`,
-      backgroundSize: `${columnSize}, ${columnSize}`,
-    };
+    return { backgroundImage: band, backgroundSize: columnSize };
   }
   if (settings.style === 'dots') {
     return {
-      backgroundImage: `${dot(0)}, ${dot(width - 1)}`,
-      backgroundSize: `${cellSize}, ${cellSize}`,
+      backgroundImage: dots,
+      backgroundSize: `${period}px ${settings.spacing}px`,
     };
   }
   return {
-    backgroundImage: `${edges}, ${rows}`,
+    backgroundImage: `${seams}, ${rows}`,
     backgroundSize: `${columnSize}, 100% ${settings.spacing}px`,
   };
 }

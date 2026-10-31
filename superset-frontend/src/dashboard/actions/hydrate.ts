@@ -40,7 +40,6 @@ import {
 import {
   DASHBOARD_HEADER_ID,
   GRID_DEFAULT_CHART_WIDTH,
-  GRID_COLUMN_COUNT,
   DASHBOARD_ROOT_ID,
 } from 'src/dashboard/util/constants';
 import {
@@ -50,6 +49,11 @@ import {
 } from 'src/dashboard/util/componentTypes';
 import findFirstParentContainerId from 'src/dashboard/util/findFirstParentContainer';
 import getEmptyLayout from 'src/dashboard/util/getEmptyLayout';
+import {
+  gridColumnCount,
+  scaledWidth,
+  syncGridColumnCount,
+} from 'src/mibi/format/columns';
 import getLocationHash from 'src/dashboard/util/getLocationHash';
 import newComponentFactory, {
   DashboardEntity,
@@ -130,6 +134,11 @@ export const hydrateDashboard =
         : getEmptyLayout()
     ) as Record<string, LayoutItem | DashboardEntity>;
 
+    // Charts added from explore take the layout's grid density
+    syncGridColumnCount(layout);
+    const columnCount = gridColumnCount();
+    const newChartWidth = scaledWidth(GRID_DEFAULT_CHART_WIDTH, columnCount);
+
     // create a lookup to sync layout names with slice names
     const chartIdToLayoutId: Record<number, string> = {};
     Object.values(layout).forEach(layoutComponent => {
@@ -190,7 +199,7 @@ export const hydrateDashboard =
       if (!chartIdToLayoutId[key] && layout[parentId]) {
         if (
           newSlicesContainerWidth === 0 ||
-          newSlicesContainerWidth + GRID_DEFAULT_CHART_WIDTH > GRID_COLUMN_COUNT
+          newSlicesContainerWidth + newChartWidth > columnCount
         ) {
           newSlicesContainer = newComponentFactory(
             ROW_TYPE,
@@ -220,7 +229,7 @@ export const hydrateDashboard =
         if (holderChartId !== undefined) {
           chartIdToLayoutId[holderChartId] = chartHolder.id;
         }
-        newSlicesContainerWidth += GRID_DEFAULT_CHART_WIDTH;
+        newSlicesContainerWidth += newChartWidth;
       }
 
       // sync layout names with current slice names in case a slice was edited

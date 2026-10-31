@@ -33,8 +33,9 @@ from superset.commands.exceptions import CommandException
 from superset.extensions import event_logger
 from superset.mcp_service.dashboard.constants import (
     generate_id,
-    GRID_COLUMN_COUNT,
     GRID_DEFAULT_CHART_WIDTH,
+    layout_column_count,
+    scaled_width,
 )
 from superset.mcp_service.dashboard.schemas import (
     AddChartToDashboardRequest,
@@ -200,7 +201,9 @@ def _add_chart_to_layout(
     """
     chart_key = f"CHART-{chart_id}"
     column_key = generate_id("COLUMN")
-    chart_width = GRID_DEFAULT_CHART_WIDTH
+    # Widths are in the dashboard's own grid density (Mi BI)
+    column_count = layout_column_count(layout)
+    chart_width = scaled_width(GRID_DEFAULT_CHART_WIDTH, column_count)
     chart_height = 50  # Good height for most chart types
 
     # Build the parents chain up to the parent container
@@ -237,7 +240,7 @@ def _add_chart_to_layout(
         "id": column_key,
         "meta": {
             "background": "BACKGROUND_TRANSPARENT",
-            "width": GRID_COLUMN_COUNT,
+            "width": column_count,
         },
         "parents": column_parents,
         "type": "COLUMN",

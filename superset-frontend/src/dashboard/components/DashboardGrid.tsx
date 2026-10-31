@@ -29,7 +29,8 @@ import type { LayoutItem } from 'src/dashboard/types';
 import type { DropResult } from 'src/dashboard/components/dnd/dragDroppableConfig';
 import DashboardComponent from '../containers/DashboardComponent';
 import { Droppable } from './dnd/DragDroppable';
-import { GRID_GUTTER_SIZE, GRID_COLUMN_COUNT } from '../util/constants';
+import { GRID_GUTTER_SIZE } from '../util/constants';
+import { gridColumnCount } from 'src/mibi/format/columns';
 import { GridGuide } from 'src/mibi/format/gridGuides';
 import { TAB_TYPE } from '../util/componentTypes';
 
@@ -232,7 +233,7 @@ class DashboardGrid extends PureComponent<
       theme,
     } = this.props;
     const columnPlusGutterWidth =
-      (width + GRID_GUTTER_SIZE) / GRID_COLUMN_COUNT;
+      (width + GRID_GUTTER_SIZE) / gridColumnCount();
 
     const columnWidth = columnPlusGutterWidth - GRID_GUTTER_SIZE;
     const { isResizing } = this.state;
@@ -347,7 +348,7 @@ class DashboardGrid extends PureComponent<
                   parentId={gridComponent.id}
                   depth={depth + 1}
                   index={index}
-                  availableColumnCount={GRID_COLUMN_COUNT}
+                  availableColumnCount={gridColumnCount()}
                   columnWidth={columnWidth}
                   isComponentVisible={isComponentVisible}
                   onResizeStart={this.handleResizeStart}
@@ -374,7 +375,7 @@ class DashboardGrid extends PureComponent<
             ))}
             {/* Shown while resizing */}
             {isResizing &&
-              Array(GRID_COLUMN_COUNT)
+              Array(gridColumnCount())
                 .fill(null)
                 .map((_, i) => (
                   <GridColumnGuide

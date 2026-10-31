@@ -35,6 +35,7 @@ import { HYDRATE_DASHBOARD } from '../actions/hydrate';
 
 import dashboardLayout from './dashboardLayout';
 import { DashboardLayout } from '../types';
+import { syncGridColumnCount } from 'src/mibi/format/columns';
 
 // List of actions that should trigger undo history
 const TRACKED_ACTIONS: string[] = [
@@ -109,4 +110,14 @@ const undoableReducer: Reducer<
   groupBy: (action: AnyAction) => action.formatGroup ?? null,
 });
 
-export default undoableReducer;
+// Keeps the grid density (Mi BI) of the shown layout for code outside React
+const layoutReducer: Reducer<StateWithHistory<DashboardLayout>, AnyAction> = (
+  state,
+  action,
+) => {
+  const next = undoableReducer(state, action);
+  if (next !== state) syncGridColumnCount(next.present);
+  return next;
+};
+
+export default layoutReducer;

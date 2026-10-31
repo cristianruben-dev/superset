@@ -23,6 +23,7 @@ Values match frontend defaults from
 """
 
 import uuid
+from typing import Any
 
 GRID_DEFAULT_CHART_WIDTH = 4
 GRID_COLUMN_COUNT = 12
@@ -36,3 +37,19 @@ def generate_id(prefix: str) -> str:
     compatible with the frontend's ``nanoid()``-based ID generation.
     """
     return f"{prefix}-{uuid.uuid4().hex[:8]}"
+
+
+def layout_column_count(layout: dict[str, Any]) -> int:
+    """
+    The grid density of a dashboard layout. Mi BI dashboards can use 24 or 48
+    columns instead of 12, kept on the root component as ``mibiColumns``.
+    """
+    root = layout.get("ROOT_ID")
+    meta = root.get("meta") if isinstance(root, dict) else None
+    count = meta.get("mibiColumns") if isinstance(meta, dict) else None
+    return count if count in (12, 24, 48) else GRID_COLUMN_COUNT
+
+
+def scaled_width(width: int, column_count: int) -> int:
+    """A width in 12-column units, with the same share of ``column_count``."""
+    return max(1, round(width * column_count / GRID_COLUMN_COUNT))

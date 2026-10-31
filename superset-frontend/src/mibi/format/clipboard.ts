@@ -43,6 +43,7 @@ import {
 } from 'src/mibi/elements/types';
 import { activeTabIndex, topLevelTabs } from 'src/mibi/present/dashboardTabs';
 import { updateLayout } from './actions';
+import { columnCountOf } from './columns';
 import { selectVisual } from './selection';
 import { HIDDEN_KEY, LOCKED_KEY } from './types';
 
@@ -56,6 +57,8 @@ export interface CopiedObject {
   type: typeof CHART_TYPE | typeof DYNAMIC_TYPE;
   dashboardId: number;
   meta: LayoutItem['meta'];
+  /** Grid density of the dashboard it was copied from */
+  columns?: number;
 }
 
 let memory: CopiedObject | null = null;
@@ -108,6 +111,7 @@ export const copyObject =
       type: item.type as CopiedObject['type'],
       dashboardId: dashboardInfo.id,
       meta: item.meta,
+      columns: columnCountOf(dashboardLayout.present),
     });
   };
 
@@ -180,13 +184,14 @@ export function placeComponent(
   afterId: string | null,
   activeTabs: string[] | undefined,
 ): Record<string, LayoutItem> {
-  const width = Number(component.meta.width ?? GRID_COLUMN_COUNT);
+  const columns = columnCountOf(layout);
+  const width = Number(component.meta.width ?? columns);
   const after = afterId ? layout[afterId] : undefined;
   const parentId = after?.parents?.[after.parents.length - 1];
   const parent = parentId ? layout[parentId] : undefined;
 
   if (after && parent?.type === ROW_TYPE) {
-    if (usedColumns(parent, layout) + width <= GRID_COLUMN_COUNT) {
+    if (usedColumns(parent, layout) + width <= columns) {
       const children = [...parent.children];
       children.splice(children.indexOf(after.id) + 1, 0, component.id);
       return {
@@ -236,6 +241,19 @@ export const pasteObject =
     const meta = { ...copied.meta };
     delete meta[HIDDEN_KEY];
     delete meta[LOCKED_KEY];
+    // Same share of the width in a grid with another density
+    const target = columnCountOf(getState().dashboardLayout.present);
+    if (typeof meta.width === 'number' && copied.columns !== target) {
+      meta.width = Math.min(
+        target,
+        Math.max(
+          1,
+          Math.round(
+            (meta.width * target) / (copied.columns || GRID_COLUMN_COUNT),
+          ),
+        ),
+      );
+    }
 
     let component: LayoutItem;
     if (copied.type === CHART_TYPE) {
