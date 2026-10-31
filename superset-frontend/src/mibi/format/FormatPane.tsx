@@ -69,6 +69,7 @@ import { ElementSection, elementName } from 'src/mibi/elements/ElementFormat';
 import { elementKind } from 'src/mibi/elements/types';
 import {
   CANVAS_PRESETS,
+  DEFAULT_CANVAS_SIZE,
   DEFAULT_GAP,
   DEFAULT_PADDING,
   MAX_CANVAS,
@@ -421,7 +422,11 @@ function CanvasSection() {
       { background: { ...background, ...patch } },
       `background-${setting}`,
     );
-  const sizeMode = canvas.size?.mode ?? 'auto';
+  const sizeMode: CanvasSizeMode =
+    canvas.size &&
+    ['16:9', '4:3', 'letter', 'custom'].includes(canvas.size.mode)
+      ? canvas.size.mode
+      : DEFAULT_CANVAS_SIZE;
   const mobilePreview = useMobilePreview();
 
   const onFile = async (file?: File) => {
@@ -589,7 +594,6 @@ function CanvasSection() {
             );
           }}
           options={[
-            { value: 'auto', label: t('Automatic (fits the screen)') },
             {
               value: '16:9',
               label: t('16:9 (%s × %s)', ...CANVAS_PRESETS['16:9']),
@@ -597,6 +601,10 @@ function CanvasSection() {
             {
               value: '4:3',
               label: t('4:3 (%s × %s)', ...CANVAS_PRESETS['4:3']),
+            },
+            {
+              value: 'letter',
+              label: t('Letter (%s × %s)', ...CANVAS_PRESETS.letter),
             },
             { value: 'custom', label: t('Custom') },
           ]}

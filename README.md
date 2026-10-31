@@ -39,7 +39,8 @@ algunas reglas de producto distintas:
 - **Áreas de trabajo:** agrupan paneles, con imagen, color, miembros y roles
   (lector, colaborador y administrador).
 - **Panel Formato**, como en Power BI:
-  - lienzo con fondo de color, degradado o imagen, tamaño fijo (16:9, 4:3 o a medida),
+  - lienzo con fondo de color, degradado o imagen y siempre con medida fija, como las
+    páginas de Power BI (16:9, 4:3, Carta o a medida), escalado a cada pantalla;
     márgenes, separación, cuadrícula (líneas, puntos o columnas) con densidad de 12, 24
     o 48 columnas para objetos más pequeños, y vista para móvil;
   - estilo de cada gráfico: fondo, borde, esquinas, sombra, título, subtítulo e iconos;

@@ -88,6 +88,17 @@ export function GridSection() {
             ]}
           />
           {grid.style !== 'columns' && (
+            <Field label={t('Square cells')}>
+              <Switch
+                size="small"
+                checked={grid.square}
+                aria-label={t('Square cells')}
+                data-test="mibi-format-grid-square"
+                onChange={square => update({ square })}
+              />
+            </Field>
+          )}
+          {grid.style !== 'columns' && !grid.square && (
             <RangeField
               label={t('Row height')}
               value={grid.spacing}

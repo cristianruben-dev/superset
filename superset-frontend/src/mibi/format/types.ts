@@ -56,7 +56,12 @@ export interface VisualFormat {
 
 export type CanvasBackgroundType = 'none' | 'color' | 'gradient' | 'image';
 export type ImageFit = 'cover' | 'contain' | 'repeat';
-export type CanvasSizeMode = 'auto' | '16:9' | '4:3' | 'custom';
+/**
+ * Canvases always have a fixed size, as Power BI pages do. Layouts saved
+ * with the former 'auto' mode, or none, get DEFAULT_CANVAS_SIZE.
+ */
+export type CanvasSizeMode = '16:9' | '4:3' | 'letter' | 'custom';
+export type CanvasPreset = Exclude<CanvasSizeMode, 'custom'>;
 
 export interface CanvasFormat {
   background?: {
@@ -99,7 +104,10 @@ export const DEFAULT_RADIUS = 14;
 export const MIN_CANVAS = 320;
 export const MAX_CANVAS = 4096;
 
-export const CANVAS_PRESETS: Record<'16:9' | '4:3', [number, number]> = {
+/** Page sizes of Power BI, in pixels. */
+export const CANVAS_PRESETS: Record<CanvasPreset, [number, number]> = {
   '16:9': [1280, 720],
-  '4:3': [1024, 768],
+  '4:3': [960, 720],
+  letter: [816, 1056],
 };
+export const DEFAULT_CANVAS_SIZE: CanvasPreset = '16:9';

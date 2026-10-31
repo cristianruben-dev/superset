@@ -134,8 +134,19 @@ test('leaves an unformatted visual alone', () => {
 });
 
 test('sizes the canvas from presets and clamps custom sizes', () => {
-  expect(canvasSize(undefined)).toBeNull();
-  expect(canvasSize({ size: { mode: 'auto' } })).toBeNull();
+  // Every canvas has a page size: 16:9 unless it says otherwise
+  expect(canvasSize(undefined)).toEqual({ width: 1280, height: 720 });
+  expect(
+    canvasSize({ size: { mode: 'auto' as unknown as '16:9' } }),
+  ).toEqual({ width: 1280, height: 720 });
+  expect(canvasSize({ size: { mode: '4:3' } })).toEqual({
+    width: 960,
+    height: 720,
+  });
+  expect(canvasSize({ size: { mode: 'letter' } })).toEqual({
+    width: 816,
+    height: 1056,
+  });
   expect(canvasSize({ size: { mode: '16:9' } })).toEqual({
     width: 1280,
     height: 720,
@@ -283,8 +294,21 @@ test('frames the grid with the canvas format', () => {
   );
   const canvas = screen.getByTestId('mibi-canvas');
   expect(canvas).toHaveTextContent('grid');
-  expect(canvas).toHaveStyle({ width: '1024px', minHeight: '768px' });
+  expect(canvas).toHaveStyle({ width: '960px', minHeight: '720px' });
   expect(canvas.style.background).toContain('rgb(18, 52, 86)');
+});
+
+test('a canvas without a size is a 16:9 page', () => {
+  render(
+    <CanvasFrame>
+      <div>grid</div>
+    </CanvasFrame>,
+    { store: makeStore() },
+  );
+  expect(screen.getByTestId('mibi-canvas')).toHaveStyle({
+    width: '1280px',
+    minHeight: '720px',
+  });
 });
 
 test('a click on the canvas goes back to the canvas settings', () => {

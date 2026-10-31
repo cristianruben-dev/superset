@@ -21,11 +21,13 @@ import tinycolor from 'tinycolor2';
 import type { SupersetTheme } from '@apache-superset/core/theme';
 import {
   CANVAS_PRESETS,
+  DEFAULT_CANVAS_SIZE,
   DEFAULT_GAP,
   DEFAULT_PADDING,
   MAX_CANVAS,
   MIN_CANVAS,
   type CanvasFormat,
+  type CanvasPreset,
   type ShadowLevel,
   type VisualFormat,
 } from './types';
@@ -130,19 +132,23 @@ export function visualStyle(
 export const gapInset = (canvas: CanvasFormat | undefined) =>
   ((canvas?.gap ?? DEFAULT_GAP) - DEFAULT_GAP) / 2;
 
-/** Fixed size of the canvas, or null when it follows the screen. */
-export function canvasSize(
-  canvas: CanvasFormat | undefined,
-): { width: number; height: number } | null {
+/** The page size of the canvas, DEFAULT_CANVAS_SIZE unless it has another. */
+export function canvasSize(canvas: CanvasFormat | undefined): {
+  width: number;
+  height: number;
+} {
   const size = canvas?.size;
-  if (!size || size.mode === 'auto') return null;
-  if (size.mode === 'custom') {
+  if (size?.mode === 'custom') {
     return {
       width: clamp(Math.round(size.width || 1280), MIN_CANVAS, MAX_CANVAS),
       height: clamp(Math.round(size.height || 720), MIN_CANVAS, MAX_CANVAS),
     };
   }
-  const [width, height] = CANVAS_PRESETS[size.mode];
+  const preset =
+    size && size.mode in CANVAS_PRESETS
+      ? (size.mode as CanvasPreset)
+      : DEFAULT_CANVAS_SIZE;
+  const [width, height] = CANVAS_PRESETS[preset];
   return { width, height };
 }
 
@@ -193,6 +199,5 @@ export function canvasStyle(
 export const hasCanvasFormat = (canvas: CanvasFormat | undefined) =>
   !!canvas &&
   ((canvas.background && canvas.background.type !== 'none') ||
-    canvasSize(canvas) !== null ||
     (canvas.padding !== undefined && canvas.padding !== DEFAULT_PADDING) ||
     gapInset(canvas) !== 0);

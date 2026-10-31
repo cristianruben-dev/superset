@@ -36,6 +36,7 @@ test('reads the stored grid and repairs bad values', () => {
   expect(readGrid()).toEqual({
     show: false,
     style: 'lines',
+    square: true,
     spacing: 96,
     color: undefined,
     opacity: 5,
@@ -50,12 +51,20 @@ test('keeps the older on/off preference', () => {
 });
 
 test('draws columns and rows, dots or column bands', () => {
+  // Square cells by default: rows as tall as a column and its gap
   const lines = gridBackground(DEFAULT_GRID, 100, 16, '#5b5bd6');
-  expect(lines.backgroundSize).toBe('116px 100%, 100% 32px');
+  expect(lines.backgroundSize).toBe('116px 100%, 100% 116px');
+  const free = gridBackground(
+    { ...DEFAULT_GRID, square: false },
+    100,
+    16,
+    '#5b5bd6',
+  );
+  expect(free.backgroundSize).toBe('116px 100%, 100% 32px');
   expect(String(lines.backgroundImage)).toContain('to bottom');
 
   const dots = gridBackground(
-    { ...DEFAULT_GRID, style: 'dots', spacing: 24 },
+    { ...DEFAULT_GRID, style: 'dots', square: false, spacing: 24 },
     100,
     16,
     '#5b5bd6',
@@ -81,6 +90,9 @@ test('styles the grid from the Format pane and remembers it', () => {
     { useRedux: true },
   );
   const guide = screen.getByTestId('mibi-grid-guide');
+  expect(guide.style.backgroundSize).toBe('116px 100%, 100% 116px');
+
+  fireEvent.click(screen.getByRole('switch', { name: 'Square cells' }));
   expect(guide.style.backgroundSize).toBe('116px 100%, 100% 32px');
 
   fireEvent.click(screen.getByRole('radio', { name: 'Dots' }));

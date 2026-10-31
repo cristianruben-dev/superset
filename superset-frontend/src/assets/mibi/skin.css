@@ -1255,6 +1255,15 @@ body.mibi-presenting-idle * {
 
 .mibi-show-grid .mibi-grid-guide {
   display: block;
+  bottom: auto;
+  height: 100%;
+}
+
+/* While editing, the row under the pointer shows which objects it groups */
+.dashboard--editing .mibi-canvas:not(.mibi-mobile) .grid-row:hover {
+  outline: 1px dashed var(--mb-primary-border);
+  outline-offset: 2px;
+  border-radius: 4px;
 }
 
 /* ---- Design elements (image, shape, button, text) ----------------------- */

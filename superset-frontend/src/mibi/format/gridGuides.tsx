@@ -32,6 +32,8 @@ export type GridStyle = 'lines' | 'dots' | 'columns';
 export interface GridSettings {
   show: boolean;
   style: GridStyle;
+  /** Rows as tall as a column and its gap is wide, so cells are square */
+  square: boolean;
   /** Height of a grid row, in pixels */
   spacing: number;
   /** CSS color; the theme's primary color when missing */
@@ -43,8 +45,9 @@ export interface GridSettings {
 export const DEFAULT_GRID: GridSettings = {
   show: true,
   style: 'lines',
+  square: true,
   spacing: 32,
-  opacity: 35,
+  opacity: 50,
 };
 
 const KEY = 'mibi.grid';
@@ -63,6 +66,8 @@ export function readGrid(): GridSettings {
       return {
         show: typeof raw.show === 'boolean' ? raw.show : DEFAULT_GRID.show,
         style: STYLES.includes(raw.style) ? raw.style : DEFAULT_GRID.style,
+        square:
+          typeof raw.square === 'boolean' ? raw.square : DEFAULT_GRID.square,
         spacing: Number.isFinite(raw.spacing)
           ? clamp(Math.round(raw.spacing / 8) * 8, 8, 96)
           : DEFAULT_GRID.spacing,
@@ -123,6 +128,7 @@ export function gridBackground(
 ): CSSProperties {
   const width = Math.max(1, columnWidth);
   const period = width + gutter;
+  const rowHeight = settings.square ? period : settings.spacing;
   const line = withOpacity(color, settings.opacity);
   const fill = withOpacity(color, settings.opacity * 0.25);
   // Objects meet in the middle of the gap between columns: one line there
@@ -141,13 +147,42 @@ export function gridBackground(
   if (settings.style === 'dots') {
     return {
       backgroundImage: dots,
-      backgroundSize: `${period}px ${settings.spacing}px`,
+      backgroundSize: `${period}px ${rowHeight}px`,
     };
   }
   return {
     backgroundImage: `${seams}, ${rows}`,
-    backgroundSize: `${columnSize}, 100% ${settings.spacing}px`,
+    backgroundSize: `${columnSize}, 100% ${rowHeight}px`,
   };
+}
+
+/**
+ * How far below the top of ``element`` the page it sits on ends, in canvas
+ * pixels, so the grid covers the whole page and not only the visuals.
+ */
+function usePageBottom(element: HTMLElement | null): number {
+  const [bottom, setBottom] = useState(0);
+  useEffect(() => {
+    const page = element?.closest<HTMLElement>('.mibi-canvas');
+    if (!element || !page || typeof ResizeObserver === 'undefined') {
+      return undefined;
+    }
+    const measure = () => {
+      const pageBox = page.getBoundingClientRect();
+      const box = element.getBoundingClientRect();
+      // A fixed size page is zoomed to fit: measure in its own pixels
+      const unzoom = pageBox.height ? page.offsetHeight / pageBox.height : 1;
+      const padding = parseFloat(getComputedStyle(page).paddingBottom) || 0;
+      setBottom(
+        Math.max(0, Math.round((pageBox.bottom - box.top) * unzoom - padding)),
+      );
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(page);
+    return () => observer.disconnect();
+  }, [element]);
+  return bottom;
 }
 
 /** The grid behind the visuals of the dashboard being edited. */
@@ -160,18 +195,24 @@ export function GridGuide({
 }) {
   const theme = useTheme();
   const [settings] = useGridSettings();
+  const [element, setElement] = useState<HTMLDivElement | null>(null);
+  const pageBottom = usePageBottom(element);
   if (!settings.show) return null;
   return (
     <div
+      ref={setElement}
       className="mibi-grid-guide"
       aria-hidden
       data-test="mibi-grid-guide"
-      style={gridBackground(
-        settings,
-        columnWidth,
-        gutter,
-        settings.color || theme.colorPrimary,
-      )}
+      style={{
+        ...gridBackground(
+          settings,
+          columnWidth,
+          gutter,
+          settings.color || theme.colorPrimary,
+        ),
+        minHeight: pageBottom || undefined,
+      }}
     />
   );
 }
