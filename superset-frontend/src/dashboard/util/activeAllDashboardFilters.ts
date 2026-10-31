@@ -23,6 +23,7 @@ import {
   PartialFilters,
 } from '@superset-ui/core';
 import { omit } from 'lodash';
+import { drillthroughChartsInScope } from 'src/mibi/report/drillthroughScope';
 import { ActiveFilters, ChartConfiguration } from '../types';
 
 export const getRelevantDataMask = (
@@ -110,67 +111,71 @@ export const getAllActiveFilters = ({
     });
   }
 
-  Object.values(dataMask).forEach(({ id: filterId, extraFormData = {} }) => {
-    const nativeFilter = nativeFilters?.[filterId];
-    let scope =
-      (nativeFilter && 'chartsInScope' in nativeFilter
-        ? nativeFilter.chartsInScope
-        : undefined) ??
-      chartConfiguration?.[parseInt(filterId, 10)]?.crossFilters
-        ?.chartsInScope ??
-      allSliceIds ??
-      [];
-    const filterType = nativeFilters?.[filterId]?.filterType;
-    const targets = nativeFilters?.[filterId]?.targets;
+  Object.values(dataMask).forEach(
+    ({ id: filterId, extraFormData = {}, filterState }) => {
+      const nativeFilter = nativeFilters?.[filterId];
+      let scope =
+        // AuraData BI: a drill through reaches the charts of its own page
+        drillthroughChartsInScope(filterId, filterState) ??
+        (nativeFilter && 'chartsInScope' in nativeFilter
+          ? nativeFilter.chartsInScope
+          : undefined) ??
+        chartConfiguration?.[parseInt(filterId, 10)]?.crossFilters
+          ?.chartsInScope ??
+        allSliceIds ??
+        [];
+      const filterType = nativeFilters?.[filterId]?.filterType;
+      const targets = nativeFilters?.[filterId]?.targets;
 
-    let selectedLayers = (nativeFilters?.[filterId]?.scope as any)
-      ?.selectedLayers;
-    let excludedCharts =
-      (nativeFilters?.[filterId]?.scope as any)?.excluded || [];
+      let selectedLayers = (nativeFilters?.[filterId]?.scope as any)
+        ?.selectedLayers;
+      let excludedCharts =
+        (nativeFilters?.[filterId]?.scope as any)?.excluded || [];
 
-    if (
-      hasLayerSelectionsInAnyFilter &&
-      (!selectedLayers || selectedLayers.length === 0)
-    ) {
-      selectedLayers = masterSelectedLayers;
-      excludedCharts = masterExcluded;
-    }
+      if (
+        hasLayerSelectionsInAnyFilter &&
+        (!selectedLayers || selectedLayers.length === 0)
+      ) {
+        selectedLayers = masterSelectedLayers;
+        excludedCharts = masterExcluded;
+      }
 
-    let layerScope;
-    if (selectedLayers && selectedLayers.length > 0) {
-      const layerInfo = extractLayerIndicesFromKeys(selectedLayers);
-      layerScope = layerInfo.layerMap;
+      let layerScope;
+      if (selectedLayers && selectedLayers.length > 0) {
+        const layerInfo = extractLayerIndicesFromKeys(selectedLayers);
+        layerScope = layerInfo.layerMap;
 
-      const explicitlyTargetedCharts = new Set<number>(layerInfo.chartIds);
+        const explicitlyTargetedCharts = new Set<number>(layerInfo.chartIds);
 
-      const originalScope = scope;
-      originalScope.forEach((chartId: number) => {
-        if (!excludedCharts.includes(chartId)) {
-          const hasLayerSelections = selectedLayers.some((key: string) =>
-            key.startsWith(`chart-${chartId}-layer-`),
-          );
+        const originalScope = scope;
+        originalScope.forEach((chartId: number) => {
+          if (!excludedCharts.includes(chartId)) {
+            const hasLayerSelections = selectedLayers.some((key: string) =>
+              key.startsWith(`chart-${chartId}-layer-`),
+            );
 
-          if (!hasLayerSelections) {
-            explicitlyTargetedCharts.add(chartId);
+            if (!hasLayerSelections) {
+              explicitlyTargetedCharts.add(chartId);
+            }
           }
-        }
-      });
+        });
 
-      scope = Array.from(explicitlyTargetedCharts);
-    } else {
-      scope = scope.filter(
-        (chartId: number) => !excludedCharts.includes(chartId),
-      );
-    }
+        scope = Array.from(explicitlyTargetedCharts);
+      } else {
+        scope = scope.filter(
+          (chartId: number) => !excludedCharts.includes(chartId),
+        );
+      }
 
-    activeFilters[filterId] = {
-      scope,
-      targets: targets || [],
-      values: extraFormData,
-      filterType,
-      ...(layerScope && { layerScope }),
-    };
-  });
+      activeFilters[filterId] = {
+        scope,
+        targets: targets || [],
+        values: extraFormData,
+        filterType,
+        ...(layerScope && { layerScope }),
+      };
+    },
+  );
 
   return activeFilters;
 };

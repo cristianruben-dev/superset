@@ -58,6 +58,7 @@ import { fitObjectsToPage } from './CanvasFrame';
 import { useReportLook } from 'src/mibi/report/ReportTheme';
 import { EditInteractionsToggle } from 'src/mibi/report/InteractionControl';
 import { setEditingInteractions } from 'src/mibi/report/interactions';
+import { PageSection } from 'src/mibi/report/PageSection';
 import { ObjectFlagToggles } from './ObjectFlags';
 import { isCopyable, useClipboard } from './clipboard';
 import { useObjectCommands } from './useObjectCommands';
@@ -543,6 +544,7 @@ function CanvasSection() {
   return (
     <>
       <ThemeSection />
+      <PageSection />
 
       <Section data-test="mibi-format-appearance">
         <h4>{t('Appearance')}</h4>

@@ -84,6 +84,7 @@ import DashboardWrapper from './DashboardWrapper';
 import { ReportTheme, useReportLook } from 'src/mibi/report/ReportTheme';
 import { InTabsDock, TabsDockProvider } from 'src/mibi/report/TabsDock';
 import { PresentationControls } from 'src/mibi/present/PresentationControls';
+import { DrillthroughBar } from 'src/mibi/report/DrillthroughBar';
 import { usePresenting } from 'src/mibi/present/presentation';
 
 // @z-index-above-dashboard-charts + 1 = 11
@@ -683,6 +684,8 @@ const DashboardBuilder = () => {
                 {renderDraggableContent}
               </Droppable>
             </InTabsDock>
+            {/* AuraData BI: the drill through applied to the page */}
+            {!editMode && <DrillthroughBar />}
           </StyledHeader>
           <StyledContent fullSizeChartId={fullSizeChartId}>
             {!editMode &&

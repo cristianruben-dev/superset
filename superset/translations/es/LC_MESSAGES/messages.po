@@ -18941,6 +18941,21 @@ msgid "A product of"
 msgstr "Un producto de"
 
 # AuraData BI: report interactivity (interactions, drill through, sync slicers, bookmarks)
+msgid "Choose the columns"
+msgstr "Elige las columnas"
+
+msgid "Clear the drill through"
+msgstr "Quitar la obtención de detalles"
+
+msgid "Drill through"
+msgstr "Obtener detalles"
+
+msgid "Drill through columns"
+msgstr "Columnas para obtener detalles"
+
+msgid "Drill through to this page"
+msgstr "Obtener detalles en esta página"
+
 msgid "Edit interactions"
 msgstr "Editar interacciones"
 
@@ -18950,5 +18965,17 @@ msgstr "Editar interacciones: elige qué gráficos filtra este"
 msgid "Interaction"
 msgstr "Interacción"
 
+msgid "On another page, right-click a data point and choose \"Drill through\" to open this page filtered to it."
+msgstr "En otra página, haz clic derecho en un dato y elige «Obtener detalles» para abrir esta página filtrada por él."
+
+msgid "Page: %s"
+msgstr "Página: %s"
+
+msgid "Right-click a single data point to drill through"
+msgstr "Haz clic derecho en un solo dato para obtener detalles"
+
 msgid "Stop editing interactions"
 msgstr "Dejar de editar interacciones"
+
+msgid "Untitled"
+msgstr "Sin título"

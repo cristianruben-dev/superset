@@ -51,6 +51,7 @@ import DrillByModal from 'src/components/Chart/DrillBy/DrillByModal';
 import { useDatasetDrillInfo } from 'src/hooks/apiResources/datasets';
 import { ResourceStatus } from 'src/hooks/apiResources/apiResources';
 import { useDrillDetailMenuItems } from '../useDrillDetailMenuItems';
+import { useDrillthroughMenuItems } from 'src/mibi/report/useDrillthroughMenuItems';
 import { getMenuAdjustedY } from '../utils';
 import { DrillBySubmenu } from '../DrillBy/DrillBySubmenu';
 import DrillDetailModal from '../DrillDetail/DrillDetailModal';
@@ -261,6 +262,14 @@ const ChartContextMenu = (
   if (showDrillBy) {
     itemsCount += 1;
   }
+  // AuraData BI: "Drill through" to another page of the report
+  const drillthroughItems = useDrillthroughMenuItems(
+    filters?.drillToDetail,
+    closeContextMenu,
+  );
+  if (drillthroughItems.length) {
+    itemsCount += 1;
+  }
   if (itemsCount === 0) {
     itemsCount = 1; // "No actions" appears if no actions in menu
   }
@@ -379,6 +388,13 @@ const ChartContextMenu = (
         />
       ),
     });
+  }
+
+  if (drillthroughItems.length) {
+    if (menuItems.length > 0) {
+      menuItems.push({ key: 'divider-drillthrough', type: 'divider' as const });
+    }
+    menuItems.push(...drillthroughItems);
   }
 
   const open = useCallback(

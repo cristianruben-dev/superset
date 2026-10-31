@@ -78,6 +78,15 @@ const withMeta = (
   return { ...item, meta };
 };
 
+/** Sets (or clears, with undefined) one meta setting of a layout component. */
+export const setComponentMeta =
+  (id: string, key: string, value: unknown, group = `meta:${id}:${key}`) =>
+  (dispatch: AppDispatch, getState: GetState) => {
+    const item = getState().dashboardLayout.present[id];
+    if (!item) return;
+    dispatch(updateLayout({ [id]: withMeta(item, key, value) }, group));
+  };
+
 /** Sets (or clears, with undefined) the format of a visual. */
 export const setVisualFormat =
   (id: string, format: VisualFormat | undefined, group = `visual:${id}`) =>
