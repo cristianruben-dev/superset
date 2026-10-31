@@ -77,6 +77,20 @@ de Superset:
 La guía para asistentes de IA que trabajan en el código está en
 [AGENTS.md](AGENTS.md) (`CLAUDE.md` apunta al mismo archivo).
 
+## Ramas
+
+**La rama buena es `main`.** Todo el trabajo sale de `main` y vuelve a `main`, y los pull
+requests se abren contra `main`.
+
+`master` y las ramas con número (`6.1`, `7.0`...) son copias de Apache Superset que vinieron con
+el fork: no tienen nada de Mi BI. Una rama creada desde `master` parece un Superset normal, y su
+pull request intentaría deshacer todo Mi BI.
+
+```bash
+git fetch origin main
+git checkout -b mi-cambio origin/main
+```
+
 ## Desarrollo
 
 ```bash

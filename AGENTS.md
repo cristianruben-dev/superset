@@ -2,6 +2,24 @@
 
 Mi BI is a data visualization platform built on Apache Superset 6.1: a Flask/Python backend and a React/TypeScript frontend. See **Mi BI: What This Fork Changes** below for what differs from upstream.
 
+## ⚠️ CRITICAL: Work From `main`, Never From `master`
+
+**`main` is the Mi BI branch.** Start every branch from `main`, merge into `main`, and open pull
+requests against `main`.
+
+`master` and the numbered branches (`6.1`, `7.0`, ...) are copies of Apache Superset that came with
+the fork: they have none of Mi BI (branding, workspaces, Format pane, Spanish translations...).
+A branch made from `master` looks like a plain Superset and its pull request would try to undo the
+whole fork. If you find yourself on such a branch, stop and start again from `main`.
+
+```bash
+git fetch origin main
+git checkout -b my-change origin/main
+```
+
+Upstream Superset fixes come into `main` by merging an upstream release branch (see README.md),
+never by basing work on `master`.
+
 ## ⚠️ CRITICAL: Always Run Pre-commit Before Pushing
 
 **ALWAYS run `pre-commit run --all-files` before pushing commits.** CI will fail if pre-commit checks don't pass. This is non-negotiable.
