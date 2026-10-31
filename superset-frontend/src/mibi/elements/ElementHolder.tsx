@@ -58,6 +58,7 @@ import {
 } from './types';
 import { ButtonView, ImageView, ShapeView, TextView } from './views';
 import { FilterView } from './FilterView';
+import { useHiddenOverride } from 'src/mibi/report/visibility';
 
 /** Design elements (text, shapes, buttons) can be as low as 24 px. */
 const ELEMENT_MIN_ROW_UNITS = 3;
@@ -111,8 +112,11 @@ function ElementHolder({
     component.meta.height ?? ELEMENT_DEFAULTS[kind].height,
     parentComponent,
   );
+  // A bookmark may show or hide the element for this visit
+  const hiddenOverride = useHiddenOverride(component.id);
   const hidden =
-    !!component.meta.mibiHidden || (mobile && !!component.meta.mibiHideMobile);
+    (hiddenOverride ?? !!component.meta.mibiHidden) ||
+    (mobile && !!component.meta.mibiHideMobile);
   const locked = !!component.meta.mibiLocked;
   const box = useMemo(
     () => visualStyle(component.meta.mibiFormat, theme),

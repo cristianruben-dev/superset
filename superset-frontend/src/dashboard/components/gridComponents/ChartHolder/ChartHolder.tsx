@@ -50,6 +50,7 @@ import { gapInset, visualStyle } from 'src/mibi/format/styles';
 import { ObjectBadges } from 'src/mibi/format/ObjectFlags';
 import { InteractionControl } from 'src/mibi/report/InteractionControl';
 import { isInteractionControl } from 'src/mibi/report/interactions';
+import { useHiddenOverride } from 'src/mibi/report/visibility';
 import { useMergedVisualFormat } from 'src/mibi/format/useVisualFormat';
 import {
   useCanvasMobile,
@@ -155,7 +156,10 @@ const ChartHolder = ({
     parentComponent,
   );
   const hiddenOnMobile = mobile && !!component.meta.mibiHideMobile;
-  const hidden = !!component.meta.mibiHidden || hiddenOnMobile;
+  // A bookmark may show or hide the chart for this visit
+  const hiddenOverride = useHiddenOverride(component.id);
+  const hidden =
+    (hiddenOverride ?? !!component.meta.mibiHidden) || hiddenOnMobile;
   const locked = !!component.meta.mibiLocked;
   const holderStyle = useMemo(
     () =>

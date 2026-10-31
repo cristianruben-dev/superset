@@ -33,6 +33,7 @@ import NewMarkdown from '../gridComponents/new/NewMarkdown';
 import NewDynamicComponent from '../gridComponents/new/NewDynamicComponent';
 import { FormatPane } from 'src/mibi/format/FormatPane';
 import { NewElements } from 'src/mibi/elements/NewElements';
+import { BookmarksPane } from 'src/mibi/report/BookmarksPane';
 import { selectVisual, useOnOpenFormat } from 'src/mibi/format/selection';
 import { useObjectShortcuts } from 'src/mibi/format/useObjectCommands';
 import { setMobilePreview } from 'src/mibi/format/mobile';
@@ -43,6 +44,7 @@ const TABS_KEYS = {
   CHARTS: 'CHARTS',
   LAYOUT_ELEMENTS: 'LAYOUT_ELEMENTS',
   FORMAT: 'FORMAT',
+  BOOKMARKS: 'BOOKMARKS',
 };
 
 const BuilderComponentPane = ({ topOffset = 0 }) => {
@@ -84,6 +86,8 @@ const BuilderComponentPane = ({ topOffset = 0 }) => {
           id="tabs"
           activeKey={activeKey}
           onChange={setActiveKey}
+          // AuraData BI: four tabs (with Bookmarks) fit side by side
+          tabBarGutter={16}
           css={(theme: SupersetTheme) => css`
             line-height: inherit;
             margin-top: ${theme.sizeUnit * 2}px;
@@ -144,6 +148,20 @@ const BuilderComponentPane = ({ topOffset = 0 }) => {
                   `}
                 >
                   <FormatPane />
+                </div>
+              ),
+            },
+            {
+              key: TABS_KEYS.BOOKMARKS,
+              label: t('Bookmarks'),
+              children: (
+                <div
+                  css={css`
+                    height: calc(100vh - ${topOffset + 56}px);
+                    overflow-y: auto;
+                  `}
+                >
+                  <BookmarksPane />
                 </div>
               ),
             },

@@ -63,6 +63,7 @@ import { PageHeaderWithActions } from '@superset-ui/core/components/PageHeaderWi
 import { DashboardWorkspaceChip } from 'src/mibi/workspaces/DashboardWorkspaceChip';
 import { ExportDashboardModal } from 'src/mibi/export/ExportDashboardModal';
 import { setPresenting } from 'src/mibi/present/presentation';
+import { BookmarksMenu } from 'src/mibi/report/BookmarksMenu';
 import { useUnsavedChangesPrompt } from 'src/hooks/useUnsavedChangesPrompt';
 import DashboardEmbedModal from '../EmbeddedModal';
 import OverwriteConfirm from '../OverwriteConfirm';
@@ -773,6 +774,8 @@ const Header = (): JSX.Element => {
             {NavExtension && <NavExtension />}
             {!isEmbedded && (
               <>
+                {/* AuraData BI: bookmarks of the report */}
+                <BookmarksMenu buttonCss={iconButtonStyle} />
                 <Tooltip title={t('Present')} placement="bottom">
                   <Button
                     buttonStyle="secondary"

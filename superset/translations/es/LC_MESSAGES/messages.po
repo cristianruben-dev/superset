@@ -18941,11 +18941,32 @@ msgid "A product of"
 msgstr "Un producto de"
 
 # AuraData BI: report interactivity (interactions, drill through, sync slicers, bookmarks)
+msgid "A bookmark saves the current page, filter selections and which objects show. Viewers open it from the Bookmarks menu or from a button."
+msgstr "Un marcador guarda la página actual, las selecciones de filtros y qué objetos se muestran. Quienes ven el informe lo abren desde el menú Marcadores o desde un botón."
+
+msgid "Add bookmark"
+msgstr "Añadir marcador"
+
+msgid "Bookmark %s"
+msgstr "Marcador %s"
+
+msgid "Bookmark name"
+msgstr "Nombre del marcador"
+
+msgid "Bookmarks"
+msgstr "Marcadores"
+
 msgid "Choose the columns"
 msgstr "Elige las columnas"
 
 msgid "Clear the drill through"
 msgstr "Quitar la obtención de detalles"
+
+msgid "Current page"
+msgstr "Página actual"
+
+msgid "Display"
+msgstr "Mostrar"
 
 msgid "Drill through"
 msgstr "Obtener detalles"
@@ -18968,6 +18989,12 @@ msgstr "Filtra los gráficos de %s"
 msgid "Interaction"
 msgstr "Interacción"
 
+msgid "Move down"
+msgstr "Bajar"
+
+msgid "Move up"
+msgstr "Subir"
+
 msgid "On another page, right-click a data point and choose \"Drill through\" to open this page filtered to it."
 msgstr "En otra página, haz clic derecho en un dato y elige «Obtener detalles» para abrir esta página filtrada por él."
 
@@ -18976,6 +19003,12 @@ msgstr "Página: %s"
 
 msgid "Right-click a single data point to drill through"
 msgstr "Haz clic derecho en un solo dato para obtener detalles"
+
+msgid "Set up the view you want, then add a bookmark."
+msgstr "Deja la vista como la quieres y luego añade un marcador."
+
+msgid "Show this bookmark"
+msgstr "Mostrar este marcador"
 
 msgid "Shows the slicer on %s"
 msgstr "Muestra la segmentación en %s"
@@ -18991,6 +19024,9 @@ msgstr "Sincronizar segmentaciones"
 
 msgid "Untitled"
 msgstr "Sin título"
+
+msgid "Update with the current view"
+msgstr "Actualizar con la vista actual"
 
 msgid "Visible"
 msgstr "Visible"

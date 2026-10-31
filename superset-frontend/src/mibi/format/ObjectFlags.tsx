@@ -26,6 +26,7 @@ import { setObjectFlag } from './actions';
 import { HIDDEN_KEY, LOCKED_KEY } from './types';
 import { HIDE_MOBILE_KEY } from './mobile';
 import { useCanvasMobile } from './CanvasFrame';
+import { clearVisibilityOverride } from 'src/mibi/report/visibility';
 
 const Badges = styled.span`
   ${({ theme }) => css`
@@ -130,7 +131,11 @@ export function ObjectFlagToggles({ item }: { item: LayoutItem }) {
           aria-pressed={hidden}
           aria-label={t('Hide from viewers')}
           data-test="mibi-toggle-hidden"
-          onClick={() => dispatch(setObjectFlag(item.id, HIDDEN_KEY, !hidden))}
+          onClick={() => {
+            // The object's own flag wins over a bookmark applied before
+            clearVisibilityOverride(item.id);
+            dispatch(setObjectFlag(item.id, HIDDEN_KEY, !hidden));
+          }}
         >
           {hidden ? (
             <Icons.EyeInvisibleOutlined iconSize="m" />
