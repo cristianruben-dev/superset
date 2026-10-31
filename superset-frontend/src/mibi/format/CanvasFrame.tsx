@@ -38,7 +38,10 @@ import {
   GRID_BASE_UNIT,
 } from 'src/dashboard/util/constants';
 import { usePresenting } from 'src/mibi/present/presentation';
+import { ReportTheme, useReportLook } from 'src/mibi/report/ReportTheme';
+import { TabsDockTarget } from 'src/mibi/report/TabsDock';
 import { selectVisual } from './selection';
+import type { CanvasFormat } from './types';
 import { canvasSize, canvasStyle, canvasZoom, hasCanvasFormat } from './styles';
 
 const Outer = styled.div`
@@ -106,6 +109,10 @@ export function useMaxHeightMultiple(
   return Math.max(height, rowTallest + Math.floor(room / GRID_BASE_UNIT));
 }
 
+/** True when the canvas has a color, gradient or picture of its own. */
+const hasOwnBackground = (canvas: CanvasFormat | undefined) =>
+  ['color', 'gradient', 'image'].includes(canvas?.background?.type ?? '');
+
 // Room the presentation keeps around a canvas fitted to the screen
 const PRESENTING_MARGIN = 32;
 
@@ -115,7 +122,10 @@ const PRESENTING_MARGIN = 32;
  * (the width, or the whole screen while presenting).
  */
 export function CanvasFrame({ children }: { children: ReactNode }) {
-  const theme = useTheme();
+  const appTheme = useTheme();
+  // The page is the report: its colors follow the report's look, not the app's
+  const look = useReportLook();
+  const theme = look?.theme ?? appTheme;
   const canvas = useSelector(
     (state: RootState) =>
       state.dashboardLayout?.present?.[DASHBOARD_ROOT_ID]?.meta?.mibiCanvas,
@@ -227,6 +237,11 @@ export function CanvasFrame({ children }: { children: ReactNode }) {
 
   const style = useMemo(
     () => ({
+      // Like a sheet of paper: the report's own color unless the canvas has a
+      // background of its own
+      ...(look && !hasOwnBackground(canvas)
+        ? { backgroundColor: theme.colorBgLayout }
+        : undefined),
       ...canvasStyle(canvas, theme),
       ...(size
         ? {
@@ -240,49 +255,64 @@ export function CanvasFrame({ children }: { children: ReactNode }) {
         : undefined),
       ...(previewing ? { width: PHONE_WIDTH } : undefined),
     }),
-    [canvas, theme, size, zoom, previewing, editMode, overflowing],
+    [canvas, theme, look, size, zoom, previewing, editMode, overflowing],
+  );
+
+  // The tabs dock is as wide as the page and zoomed with it
+  const dockStyle = useMemo(
+    () =>
+      size
+        ? {
+            width: previewing ? PHONE_WIDTH : size.width,
+            zoom,
+          }
+        : { width: '100%' },
+    [size, zoom, previewing],
   );
 
   return (
     <Outer ref={outerRef} data-test="mibi-canvas-outer">
-      <Page
-        ref={pageRef}
-        data-test="mibi-canvas"
-        className={cx(
-          'mibi-canvas',
-          editMode && showGrid && !mobile && 'mibi-show-grid',
-          mobile && 'mibi-mobile',
-          previewing && 'mibi-phone-preview',
-        )}
-        $decorated={hasCanvasFormat(canvas)}
-        $fixed={!!size}
-        style={style}
-        onClick={
-          editMode
-            ? event => {
-                // A click on the canvas itself formats the canvas
-                const target = event.target as Element;
-                if (
-                  !target.closest?.(
-                    '.dashboard-component-chart-holder, .mibi-element',
-                  )
-                ) {
-                  selectVisual(null);
+      <ReportTheme>
+        <TabsDockTarget style={dockStyle} />
+        <Page
+          ref={pageRef}
+          data-test="mibi-canvas"
+          className={cx(
+            'mibi-canvas',
+            editMode && showGrid && !mobile && 'mibi-show-grid',
+            mobile && 'mibi-mobile',
+            previewing && 'mibi-phone-preview',
+          )}
+          $decorated={hasCanvasFormat(canvas)}
+          $fixed={!!size}
+          style={style}
+          onClick={
+            editMode
+              ? event => {
+                  // A click on the canvas itself formats the canvas
+                  const target = event.target as Element;
+                  if (
+                    !target.closest?.(
+                      '.dashboard-component-chart-holder, .mibi-element',
+                    )
+                  ) {
+                    selectVisual(null);
+                  }
                 }
-              }
-            : undefined
-        }
-      >
-        <CanvasZoomContext.Provider value={zoom}>
-          <CanvasMobileContext.Provider value={mobile}>
-            <CanvasRoomContext.Provider
-              value={size && editMode ? room - contentHeight : Infinity}
-            >
-              <div ref={contentRef}>{children}</div>
-            </CanvasRoomContext.Provider>
-          </CanvasMobileContext.Provider>
-        </CanvasZoomContext.Provider>
-      </Page>
+              : undefined
+          }
+        >
+          <CanvasZoomContext.Provider value={zoom}>
+            <CanvasMobileContext.Provider value={mobile}>
+              <CanvasRoomContext.Provider
+                value={size && editMode ? room - contentHeight : Infinity}
+              >
+                <div ref={contentRef}>{children}</div>
+              </CanvasRoomContext.Provider>
+            </CanvasMobileContext.Provider>
+          </CanvasZoomContext.Provider>
+        </Page>
+      </ReportTheme>
     </Outer>
   );
 }

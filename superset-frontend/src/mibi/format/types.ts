@@ -63,7 +63,25 @@ export type ImageFit = 'cover' | 'contain' | 'repeat';
 export type CanvasSizeMode = '16:9' | '4:3' | 'letter' | 'custom';
 export type CanvasPreset = Exclude<CanvasSizeMode, 'custom'>;
 
+/**
+ * How a report looks next to the app: reports are light by default, like a
+ * sheet of paper, whatever the app's own theme is. 'app' follows the app.
+ */
+export type ReportAppearance = 'light' | 'dark' | 'app';
+export const DEFAULT_APPEARANCE: ReportAppearance = 'light';
+
+/** Colors of one area of the report (the filter panel or the tabs). */
+export interface AreaStyle {
+  background?: string;
+  text?: string;
+  accent?: string;
+}
+
 export interface CanvasFormat {
+  /** Light unless set; never follows the app's theme by default */
+  appearance?: ReportAppearance;
+  filterBar?: AreaStyle;
+  tabs?: AreaStyle;
   background?: {
     type: CanvasBackgroundType;
     color?: string;

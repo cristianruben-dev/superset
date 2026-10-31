@@ -54,6 +54,7 @@ import { setMobilePreview, useMobilePreview } from './mobile';
 import { BoxSections } from './BoxSections';
 import { ThemeSection } from './ThemeSection';
 import { fitObjectsToPage } from './CanvasFrame';
+import { useReportLook } from 'src/mibi/report/ReportTheme';
 import { ObjectFlagToggles } from './ObjectFlags';
 import { isCopyable, useClipboard } from './clipboard';
 import { useObjectCommands } from './useObjectCommands';
@@ -70,15 +71,18 @@ import { ElementSection, elementName } from 'src/mibi/elements/ElementFormat';
 import { elementKind } from 'src/mibi/elements/types';
 import {
   CANVAS_PRESETS,
+  DEFAULT_APPEARANCE,
   DEFAULT_CANVAS_SIZE,
   DEFAULT_GAP,
   DEFAULT_PADDING,
   MAX_CANVAS,
   MIN_CANVAS,
+  type AreaStyle,
   type CanvasBackgroundType,
   type CanvasFormat,
   type CanvasSizeMode,
   type ImageFit,
+  type ReportAppearance,
   type TitleAlign,
   type VisualFormat,
 } from './types';
@@ -114,6 +118,12 @@ const Pane = styled.div`
       gap: ${theme.sizeUnit * 2}px;
       padding: ${theme.sizeUnit * 3}px ${theme.sizeUnit * 4}px;
       border-bottom: 1px solid ${theme.colorBorderSecondary};
+
+      > .ant-btn {
+        flex: 1 1 0;
+        min-width: 0;
+        justify-content: center;
+      }
     }
 
     .painter-tip {
@@ -256,7 +266,15 @@ function VisualSection({ id }: { id: string }) {
 
       <Section>
         <h4>{t('Title')}</h4>
-        <Field label={t('Show title')}>
+        <Field
+          label={t('Show title')}
+          help={{
+            kind: 'cardTitle',
+            text: t(
+              'Shows the name of the chart above it, with the size, color and alignment you choose.',
+            ),
+          }}
+        >
           <Switch
             size="small"
             checked={titleShown}
@@ -333,7 +351,13 @@ function VisualSection({ id }: { id: string }) {
                 />
               </>
             )}
-            <Field label={t('Line under the header')}>
+            <Field
+              label={t('Line under the header')}
+              help={{
+                kind: 'headerLine',
+                text: t('Draws a line between the title and the chart.'),
+              }}
+            >
               <Switch
                 size="small"
                 checked={!!format.title?.divider}
@@ -400,6 +424,60 @@ function VisualSection({ id }: { id: string }) {
   );
 }
 
+/** Colors of the filter panel or of the tabs, over the report's own look. */
+function AreaColorsSection({
+  area,
+  title,
+  canvas,
+  update,
+}: {
+  area: 'filterBar' | 'tabs';
+  title: string;
+  canvas: CanvasFormat;
+  update: (patch: Partial<CanvasFormat>, setting: string) => void;
+}) {
+  const appTheme = useTheme();
+  // Show the colors the report really has, not the app's
+  const theme = useReportLook(area)?.theme ?? appTheme;
+  const style: AreaStyle = canvas[area] ?? {};
+  const set = (patch: Partial<AreaStyle>, setting: string) => {
+    const next = { ...style, ...patch };
+    update(
+      { [area]: Object.keys(next).length ? next : undefined },
+      `${area}-${setting}`,
+    );
+  };
+  return (
+    <Section data-test={`mibi-format-${area}`}>
+      <h4>{title}</h4>
+      <ColorField
+        label={t('Background')}
+        value={style.background ?? theme.colorBgContainer}
+        onChange={background => set({ background }, 'background')}
+      />
+      <ColorField
+        label={t('Text')}
+        value={style.text ?? theme.colorText}
+        onChange={text => set({ text }, 'text')}
+      />
+      <ColorField
+        label={t('Accent')}
+        value={style.accent ?? theme.colorPrimary}
+        onChange={accent => set({ accent }, 'accent')}
+      />
+      {Object.keys(style).length > 0 && (
+        <Button
+          buttonStyle="link"
+          data-test={`mibi-format-${area}-reset`}
+          onClick={() => update({ [area]: undefined }, `${area}-reset`)}
+        >
+          {t('Restore colors')}
+        </Button>
+      )}
+    </Section>
+  );
+}
+
 function CanvasSection() {
   const theme = useTheme();
   const dispatch = useDispatch();
@@ -462,6 +540,39 @@ function CanvasSection() {
   return (
     <>
       <ThemeSection />
+
+      <Section data-test="mibi-format-appearance">
+        <h4>{t('Appearance')}</h4>
+        <Segments<ReportAppearance>
+          name={t('Appearance')}
+          value={canvas.appearance ?? DEFAULT_APPEARANCE}
+          testId="mibi-format-appearance-mode"
+          onChange={appearance => update({ appearance }, 'appearance')}
+          options={[
+            { value: 'light', label: t('Light') },
+            { value: 'dark', label: t('Dark') },
+            { value: 'app', label: t('Like the app') },
+          ]}
+        />
+        <Hint>
+          {t(
+            'The report keeps this look whatever theme the app uses. Light by default, like a sheet of paper.',
+          )}
+        </Hint>
+      </Section>
+
+      <AreaColorsSection
+        area="filterBar"
+        title={t('Filter panel')}
+        canvas={canvas}
+        update={update}
+      />
+      <AreaColorsSection
+        area="tabs"
+        title={t('Tabs')}
+        canvas={canvas}
+        update={update}
+      />
 
       <Section data-test="mibi-format-canvas-background">
         <h4>{t('Background')}</h4>
@@ -666,7 +777,16 @@ function CanvasSection() {
 
       <Section>
         <h4>{t('Editing')}</h4>
-        <Field label={t('View')} stacked>
+        <Field
+          label={t('View')}
+          stacked
+          help={{
+            kind: 'mobileView',
+            text: t(
+              'On phones every object takes the full width, in the order of the canvas.',
+            ),
+          }}
+        >
           <Segments<'desktop' | 'mobile'>
             name={t('View')}
             value={mobilePreview ? 'mobile' : 'desktop'}
@@ -709,6 +829,10 @@ function CanvasSection() {
         <h4>{t('Spacing')}</h4>
         <RangeField
           label={t('Margins')}
+          help={{
+            kind: 'canvasMargins',
+            text: t('Space between the edge of the page and the charts.'),
+          }}
           value={canvas.padding ?? DEFAULT_PADDING}
           min={0}
           max={64}
@@ -717,6 +841,10 @@ function CanvasSection() {
         />
         <RangeField
           label={t('Space between charts')}
+          help={{
+            kind: 'canvasGap',
+            text: t('Distance between neighboring charts and elements.'),
+          }}
           value={canvas.gap ?? DEFAULT_GAP}
           min={0}
           max={48}

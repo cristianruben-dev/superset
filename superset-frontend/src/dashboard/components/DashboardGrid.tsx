@@ -64,15 +64,31 @@ interface DropProps {
 const renderDraggableContent = (dropProps: DropProps) =>
   dropProps.dropIndicatorProps && <div {...dropProps.dropIndicatorProps} />;
 
+// An empty page or tab: a card hanging from the top of the page, so it never
+// spills over the tabs above however short the grid is. Drops pass through
+// the space around it to the grid below.
 const DashboardEmptyStateContainer = styled.div`
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  ${({ theme }) => css`
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1;
+    pointer-events: none;
+    display: flex;
+    justify-content: center;
+    padding: ${theme.sizeUnit * 10}px ${theme.sizeUnit * 6}px;
+
+    & > * {
+      width: 100%;
+      max-width: 520px;
+      padding: ${theme.sizeUnit * 8}px ${theme.sizeUnit * 6}px;
+      border: 1.5px dashed ${theme.colorBorder};
+      border-radius: ${theme.borderRadiusLG * 1.5}px;
+      background: ${theme.colorBgContainer};
+      pointer-events: auto;
+    }
+  `}
 `;
 
 const GridContent = styled.div<{ editMode?: boolean }>`
@@ -248,7 +264,7 @@ class DashboardGrid extends PureComponent<
         description={t(
           'You can create a new chart or use existing ones from the panel on the right',
         )}
-        size="large"
+        size="medium"
         buttonText={
           <>
             <Icons.PlusOutlined iconSize="m" color={theme.colorPrimary} />
@@ -267,7 +283,7 @@ class DashboardGrid extends PureComponent<
     const topLevelTabEmptyState = editMode ? (
       <EmptyState
         title={t('Drag and drop components to this tab')}
-        size="large"
+        size="medium"
         description={t(
           `You can create a new chart or use existing ones from the panel on the right`,
         )}

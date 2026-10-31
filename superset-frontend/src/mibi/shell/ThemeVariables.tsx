@@ -17,8 +17,25 @@
  * under the License.
  */
 import { Global } from '@emotion/react';
-import { css, useTheme } from '@apache-superset/core/theme';
+import { css, useTheme, type SupersetTheme } from '@apache-superset/core/theme';
 import { ensureStaticPrefix } from 'src/utils/assetUrl';
+
+/** The --mb-* CSS variables a theme publishes, for the skin stylesheet. */
+export const themeCssVariables = (theme: SupersetTheme) => ({
+  '--mb-primary': theme.colorPrimary,
+  '--mb-primary-bg': theme.colorPrimaryBg,
+  '--mb-primary-border': theme.colorPrimaryBorder,
+  '--mb-bg-container': theme.colorBgContainer,
+  '--mb-bg-layout': theme.colorBgLayout,
+  '--mb-fill': theme.colorFillSecondary,
+  '--mb-text': theme.colorText,
+  '--mb-text-secondary': theme.colorTextSecondary,
+  '--mb-text-tertiary': theme.colorTextTertiary,
+  '--mb-border': theme.colorBorder,
+  '--mb-border-secondary': theme.colorBorderSecondary,
+  '--mb-success': theme.colorSuccess,
+  '--mb-error': theme.colorError,
+});
 
 /**
  * Publishes the theme colors as CSS variables (--mb-*) so the global stylesheet
@@ -30,19 +47,9 @@ export function ThemeVariables() {
     <Global
       styles={css`
         :root {
-          --mb-primary: ${theme.colorPrimary};
-          --mb-primary-bg: ${theme.colorPrimaryBg};
-          --mb-primary-border: ${theme.colorPrimaryBorder};
-          --mb-bg-container: ${theme.colorBgContainer};
-          --mb-bg-layout: ${theme.colorBgLayout};
-          --mb-fill: ${theme.colorFillSecondary};
-          --mb-text: ${theme.colorText};
-          --mb-text-secondary: ${theme.colorTextSecondary};
-          --mb-text-tertiary: ${theme.colorTextTertiary};
-          --mb-border: ${theme.colorBorder};
-          --mb-border-secondary: ${theme.colorBorderSecondary};
-          --mb-success: ${theme.colorSuccess};
-          --mb-error: ${theme.colorError};
+          ${Object.entries(themeCssVariables(theme))
+            .map(([name, value]) => `${name}: ${value};`)
+            .join('\n')}
           --mb-logo: ${theme.brandLogoUrl
             ? `url('${ensureStaticPrefix(theme.brandLogoUrl)}')`
             : 'none'};

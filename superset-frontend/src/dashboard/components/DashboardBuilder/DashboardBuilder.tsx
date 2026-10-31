@@ -19,7 +19,16 @@
 /* eslint-env browser */
 import { ChartEditorPanel } from 'src/mibi/dashboard/ChartEditorPanel';
 import cx from 'classnames';
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import tinycolor from 'tinycolor2';
+import {
+  CSSProperties,
+  memo,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { t } from '@apache-superset/core/translation';
 import { addAlpha, JsonObject, useElementOnScreen } from '@superset-ui/core';
 import { css, styled, useTheme } from '@apache-superset/core/theme';
@@ -72,35 +81,39 @@ import { getRootLevelTabsComponent, shouldFocusTabs } from './utils';
 import DashboardContainer from './DashboardContainer';
 import { useNativeFilters } from './state';
 import DashboardWrapper from './DashboardWrapper';
+import { ReportTheme, useReportLook } from 'src/mibi/report/ReportTheme';
+import { InTabsDock, TabsDockProvider } from 'src/mibi/report/TabsDock';
 import { PresentationControls } from 'src/mibi/present/PresentationControls';
 import { usePresenting } from 'src/mibi/present/presentation';
 
 // @z-index-above-dashboard-charts + 1 = 11
+// The filter panel is part of the report, on its right as in Power BI
 const FiltersPanel = styled.div<{ width: number; hidden: boolean }>`
-  background-color: ${({ theme }) => theme.colorBgContainer};
-  grid-column: 1;
-  grid-row: 1 / span 2;
+  background-color: var(--mb-report-wallpaper, transparent);
+  grid-column: 2;
+  grid-row: 2;
   z-index: 11;
   width: ${({ width }) => width}px;
   ${({ hidden }) => hidden && `display: none;`}
 `;
 
-const StickyPanel = styled.div<{ width: number }>`
+const StickyPanel = styled.div<{ width: number; top: number }>`
   position: sticky;
-  top: -1px;
+  top: ${({ top }) => top - 1}px;
   width: ${({ width }) => width}px;
   flex: 0 0 ${({ width }) => width}px;
 `;
 
 // @z-index-above-dashboard-popovers (99) + 1 = 100
+// The header (title and actions) belongs to the app and spans the width;
+// the report sits below it
 const StyledHeader = styled.div<{ filterBarWidth: number }>`
-  ${({ theme, filterBarWidth }) => css`
-    grid-column: 2;
+  ${({ theme }) => css`
+    grid-column: 1 / -1;
     grid-row: 1;
     position: sticky;
     top: 0;
     z-index: 99;
-    max-width: calc(100vw - ${filterBarWidth}px);
 
     .empty-droptarget {
       min-height: ${theme.sizeUnit * 4}px;
@@ -124,8 +137,10 @@ const StyledHeader = styled.div<{ filterBarWidth: number }>`
 const StyledContent = styled.div<{
   fullSizeChartId: number | null;
 }>`
-  grid-column: 2;
+  grid-column: 1;
   grid-row: 2;
+  min-width: 0;
+  background: var(--mb-report-wallpaper, transparent);
   // @z-index-above-dashboard-header (100) + 1 = 101
   ${({ fullSizeChartId }) => fullSizeChartId && `z-index: 101;`}
 `;
@@ -273,7 +288,7 @@ const StyledDashboardContent = styled.div<{
   marginLeft: number;
 }>`
   ${({ theme, editMode, marginLeft }) => css`
-    background-color: ${theme.colorBgLayout};
+    background-color: var(--mb-report-wallpaper, ${theme.colorBgLayout});
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
@@ -314,7 +329,8 @@ const StyledDashboardContent = styled.div<{
     .dashboard-component-chart-holder {
       width: 100%;
       height: 100%;
-      background-color: ${theme.colorBgContainer};
+      /* The report's own color: reports keep their look whatever the app theme is */
+      background-color: var(--mb-bg-container, ${theme.colorBgContainer});
       position: relative;
       padding: ${theme.sizeUnit * 4}px;
       overflow-y: visible;
@@ -425,6 +441,14 @@ const DashboardBuilder = () => {
     isReport;
 
   const [barTopOffset, setBarTopOffset] = useState(0);
+  // Behind the page, as Power BI's report wallpaper: the report's own color
+  // (a shade darker than the page, so the page reads as a sheet)
+  const reportLook = useReportLook();
+  const reportWallpaper = reportLook
+    ? tinycolor(reportLook.theme.colorBgLayout)
+        .darken(reportLook.dark ? 3 : 5)
+        .toHexString()
+    : undefined;
   const [currentFilterBarWidth, setCurrentFilterBarWidth] = useState(
     CLOSED_FILTER_BAR_WIDTH,
   );
@@ -436,7 +460,8 @@ const DashboardBuilder = () => {
     if (global.hasOwnProperty('ResizeObserver') && headerRef.current) {
       observer = new ResizeObserver(entries => {
         setBarTopOffset(
-          current => entries?.[0]?.contentRect?.height || current,
+          // An empty header (embedded, or tabs moved onto the page) is 0 high
+          current => entries?.[0]?.contentRect?.height ?? current,
         );
       });
 
@@ -466,26 +491,10 @@ const DashboardBuilder = () => {
     FILTER_BAR_HEADER_HEIGHT +
     (isSticky || standaloneMode ? 0 : MAIN_HEADER_HEIGHT);
 
-  const filterBarHeight = `calc(100vh - ${offset}px)`;
+  const filterBarHeight = `calc(100vh - ${offset + barTopOffset}px)`;
   const filterBarOffset = dashboardFiltersOpen ? 0 : barTopOffset + 20;
 
-  const draggableStyle = useMemo(
-    () => ({
-      marginLeft:
-        dashboardFiltersOpen ||
-        editMode ||
-        !nativeFiltersEnabled ||
-        filterBarOrientation === FilterBarOrientation.Horizontal
-          ? 0
-          : -32,
-    }),
-    [
-      dashboardFiltersOpen,
-      editMode,
-      filterBarOrientation,
-      nativeFiltersEnabled,
-    ],
-  );
+  const draggableStyle = useMemo(() => ({ marginLeft: 0 }), []);
 
   // If a new tab was added, update the directPathToChild to reflect it
   const currentTopLevelTabs = useRef(topLevelTabs);
@@ -544,15 +553,17 @@ const DashboardBuilder = () => {
               ]}
               editMode={editMode}
             >
-              <DashboardComponent
-                id={topLevelTabs?.id}
-                parentId={DASHBOARD_ROOT_ID}
-                depth={DASHBOARD_ROOT_DEPTH + 1}
-                index={0}
-                renderTabContent={false}
-                renderHoverMenu={false}
-                onChangeTab={handleChangeTab}
-              />
+              <ReportTheme area="tabs">
+                <DashboardComponent
+                  id={topLevelTabs?.id}
+                  parentId={DASHBOARD_ROOT_ID}
+                  depth={DASHBOARD_ROOT_DEPTH + 1}
+                  index={0}
+                  renderTabContent={false}
+                  renderHoverMenu={false}
+                  onChangeTab={handleChangeTab}
+                />
+              </ReportTheme>
             </WithPopoverMenu>
           )}
       </div>
@@ -586,18 +597,24 @@ const DashboardBuilder = () => {
           hidden={isReport}
           data-test="dashboard-filters-panel"
         >
-          <StickyPanel ref={containerRef} width={filterBarWidth}>
+          <StickyPanel
+            ref={containerRef}
+            width={filterBarWidth}
+            top={barTopOffset}
+          >
             <ErrorBoundary>
-              <FilterBar
-                orientation={FilterBarOrientation.Vertical}
-                verticalConfig={{
-                  filtersOpen: dashboardFiltersOpen,
-                  toggleFiltersBar: toggleDashboardFiltersOpen,
-                  width: filterBarWidth,
-                  height: filterBarHeight,
-                  offset: filterBarOffset,
-                }}
-              />
+              <ReportTheme area="filterBar">
+                <FilterBar
+                  orientation={FilterBarOrientation.Vertical}
+                  verticalConfig={{
+                    filtersOpen: dashboardFiltersOpen,
+                    toggleFiltersBar: toggleDashboardFiltersOpen,
+                    width: filterBarWidth,
+                    height: filterBarHeight,
+                    offset: filterBarOffset,
+                  }}
+                />
+              </ReportTheme>
             </ErrorBoundary>
           </StickyPanel>
         </FiltersPanel>
@@ -609,6 +626,7 @@ const DashboardBuilder = () => {
       filterBarHeight,
       filterBarOffset,
       isReport,
+      barTopOffset,
     ],
   );
 
@@ -619,117 +637,130 @@ const DashboardBuilder = () => {
     : 0;
 
   return (
-    <DashboardWrapper>
-      {presenting && <PresentationControls />}
-      {isVerticalFilterBarVisible && (
-        <ResizableSidebar
-          id={`dashboard:${dashboardId}`}
-          enable={dashboardFiltersOpen}
-          minWidth={OPEN_FILTER_BAR_WIDTH}
-          maxWidth={OPEN_FILTER_BAR_MAX_WIDTH}
-          initialWidth={OPEN_FILTER_BAR_WIDTH}
-        >
-          {renderChild}
-        </ResizableSidebar>
-      )}
-      <StyledHeader
-        data-test="dashboard-header-wrapper"
-        ref={headerRef}
-        filterBarWidth={headerFilterBarWidth}
+    <TabsDockProvider>
+      <div
+        style={
+          {
+            display: 'contents',
+            '--mb-report-wallpaper': reportWallpaper,
+          } as CSSProperties
+        }
       >
-        {headerContent}
-        <Droppable
-          data-test="top-level-tabs"
-          className={cx(!topLevelTabs && editMode && 'empty-droptarget')}
-          component={dashboardRoot}
-          parentComponent={null}
-          depth={DASHBOARD_ROOT_DEPTH}
-          index={0}
-          orientation="column"
-          onDrop={handleDrop}
-          editMode={editMode}
-          // you cannot drop on/displace tabs if they already exist
-          disableDragDrop={!!topLevelTabs}
-          style={draggableStyle}
-        >
-          {renderDraggableContent}
-        </Droppable>
-      </StyledHeader>
-      <StyledContent fullSizeChartId={fullSizeChartId}>
-        {!editMode &&
-          !topLevelTabs &&
-          dashboardLayout[DASHBOARD_GRID_ID]?.children?.length === 0 && (
-            <EmptyState
-              title={t('There are no charts added to this dashboard')}
-              size="large"
-              description={
-                canEdit &&
-                t(
-                  'Go to the edit mode to configure the dashboard and add charts',
-                )
-              }
-              buttonText={canEdit && t('Edit the dashboard')}
-              buttonAction={() => {
-                dispatch(setEditMode(true));
-                dispatch(clearDashboardHistory());
-              }}
-              image="dashboard.svg"
-            />
+        <DashboardWrapper>
+          {presenting && <PresentationControls />}
+          {isVerticalFilterBarVisible && (
+            <ResizableSidebar
+              id={`dashboard:${dashboardId}`}
+              enable={dashboardFiltersOpen}
+              minWidth={OPEN_FILTER_BAR_WIDTH}
+              maxWidth={OPEN_FILTER_BAR_MAX_WIDTH}
+              initialWidth={OPEN_FILTER_BAR_WIDTH}
+            >
+              {renderChild}
+            </ResizableSidebar>
           )}
-        <DashboardContentWrapper
-          data-test="dashboard-content-wrapper"
-          className={cx('dashboard', editMode && 'dashboard--editing')}
-        >
-          <StyledDashboardContent
-            className="dashboard-content"
-            editMode={editMode}
-            marginLeft={dashboardContentMarginLeft}
+          <StyledHeader
+            data-test="dashboard-header-wrapper"
+            ref={headerRef}
+            filterBarWidth={headerFilterBarWidth}
           >
-            {showDashboard ? (
-              missingInitialFilters.length > 0 ? (
-                <div
-                  css={css`
-                    display: flex;
-                    flex-direction: row;
-                    align-items: center;
-                    justify-content: center;
-                    flex: 1;
-                    & div {
-                      width: 500px;
-                    }
-                  `}
-                >
-                  <BasicErrorAlert
-                    title={t('Unable to load dashboard')}
-                    body={t(
-                      `The following filters have the 'Select first filter value by default'
+            {headerContent}
+            <InTabsDock>
+              <Droppable
+                data-test="top-level-tabs"
+                className={cx(!topLevelTabs && editMode && 'empty-droptarget')}
+                component={dashboardRoot}
+                parentComponent={null}
+                depth={DASHBOARD_ROOT_DEPTH}
+                index={0}
+                orientation="column"
+                onDrop={handleDrop}
+                editMode={editMode}
+                // you cannot drop on/displace tabs if they already exist
+                disableDragDrop={!!topLevelTabs}
+                style={draggableStyle}
+              >
+                {renderDraggableContent}
+              </Droppable>
+            </InTabsDock>
+          </StyledHeader>
+          <StyledContent fullSizeChartId={fullSizeChartId}>
+            {!editMode &&
+              !topLevelTabs &&
+              dashboardLayout[DASHBOARD_GRID_ID]?.children?.length === 0 && (
+                <EmptyState
+                  title={t('There are no charts added to this dashboard')}
+                  size="large"
+                  description={
+                    canEdit &&
+                    t(
+                      'Go to the edit mode to configure the dashboard and add charts',
+                    )
+                  }
+                  buttonText={canEdit && t('Edit the dashboard')}
+                  buttonAction={() => {
+                    dispatch(setEditMode(true));
+                    dispatch(clearDashboardHistory());
+                  }}
+                  image="dashboard.svg"
+                />
+              )}
+            <DashboardContentWrapper
+              data-test="dashboard-content-wrapper"
+              className={cx('dashboard', editMode && 'dashboard--editing')}
+            >
+              <StyledDashboardContent
+                className="dashboard-content"
+                editMode={editMode}
+                marginLeft={dashboardContentMarginLeft}
+              >
+                {showDashboard ? (
+                  missingInitialFilters.length > 0 ? (
+                    <div
+                      css={css`
+                        display: flex;
+                        flex-direction: row;
+                        align-items: center;
+                        justify-content: center;
+                        flex: 1;
+                        & div {
+                          width: 500px;
+                        }
+                      `}
+                    >
+                      <BasicErrorAlert
+                        title={t('Unable to load dashboard')}
+                        body={t(
+                          `The following filters have the 'Select first filter value by default'
                     option checked and could not be loaded, which is preventing the dashboard
                     from rendering: %s`,
-                      missingInitialFilters.join(', '),
-                    )}
-                  />
-                </div>
-              ) : (
-                <DashboardContainer topLevelTabs={topLevelTabs} />
-              )
-            ) : (
-              <Loading />
-            )}
-            {editMode && <BuilderComponentPane topOffset={barTopOffset} />}
-            <ChartEditorPanel />
-          </StyledDashboardContent>
-        </DashboardContentWrapper>
-      </StyledContent>
-      {dashboardIsSaving && (
-        <Loading
-          css={css`
-            && {
-              position: fixed;
-            }
-          `}
-        />
-      )}
-    </DashboardWrapper>
+                          missingInitialFilters.join(', '),
+                        )}
+                      />
+                    </div>
+                  ) : (
+                    <DashboardContainer topLevelTabs={topLevelTabs} />
+                  )
+                ) : (
+                  <Loading />
+                )}
+                {editMode && <BuilderComponentPane topOffset={barTopOffset} />}
+                <ChartEditorPanel />
+              </StyledDashboardContent>
+            </DashboardContentWrapper>
+          </StyledContent>
+          {dashboardIsSaving && (
+            <Loading
+              css={css`
+                && {
+                  position: fixed;
+                }
+              `}
+            />
+          )}
+        </DashboardWrapper>
+      </div>
+    </TabsDockProvider>
   );
 };
 

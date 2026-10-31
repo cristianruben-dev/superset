@@ -77,8 +77,7 @@ const Bar = styled.div<{ width: number }>`
     flex-grow: 1;
     width: ${width}px;
     background: ${theme.colorBgContainer};
-    border-right: 1px solid ${theme.colorSplit};
-    border-bottom: 1px solid ${theme.colorSplit};
+    border-left: 1px solid ${theme.colorSplit};
     min-height: 100%;
     display: none;
     &.open {
@@ -101,7 +100,30 @@ const CollapsedBar = styled.div<{ offset: number }>`
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: ${theme.sizeUnit * 2}px;
+      padding: ${theme.sizeUnit * 3}px 0;
+      background: ${theme.colorBgContainer};
+      border-left: 1px solid ${theme.colorSplit};
+      gap: ${theme.sizeUnit * 2}px;
+    }
+    .mibi-filters-label {
+      writing-mode: vertical-rl;
+      font-size: ${theme.fontSizeSM}px;
+      font-weight: ${theme.fontWeightStrong};
+      letter-spacing: 0.04em;
+      color: ${theme.colorTextSecondary};
+      cursor: pointer;
+      user-select: none;
+    }
+    .anticon {
+      display: flex;
+      box-sizing: content-box;
+      padding: ${theme.sizeUnit}px;
+      border-radius: ${theme.borderRadius}px;
+      cursor: pointer;
+      transition: background 0.15s;
+      &:hover {
+        background: ${theme.colorFillSecondary};
+      }
     }
     svg {
       cursor: pointer;
@@ -272,8 +294,8 @@ const VerticalFilterBar: FC<VerticalBarProps> = ({
           <Icons.VerticalAlignTopOutlined
             iconSize="l"
             css={{
-              transform: 'rotate(90deg)',
-              marginBottom: `${theme.sizeUnit * 3}px`,
+              transform: 'rotate(-90deg)',
+              marginBottom: `${theme.sizeUnit}px`,
             }}
             className="collapse-icon"
             iconColor={theme.colorPrimary}
@@ -284,6 +306,7 @@ const VerticalFilterBar: FC<VerticalBarProps> = ({
             iconColor={theme.colorTextTertiary}
             iconSize="l"
           />
+          <span className="mibi-filters-label">{t('Filters')}</span>
         </CollapsedBar>
         <Bar className={cx({ open: filtersOpen })} width={width}>
           <Header toggleFiltersBar={toggleFiltersBar} />

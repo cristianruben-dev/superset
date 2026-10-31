@@ -18725,3 +18725,192 @@ msgstr "Reglas de iconos"
 
 msgid "Show an icon next to numeric values that match a rule; the first matching rule wins"
 msgstr "Muestra un icono junto a los valores numéricos que cumplan una regla; gana la primera regla que se cumpla"
+
+msgid "Help"
+msgstr "Ayuda"
+
+msgid "Removes the chart background so it sits directly on the page."
+msgstr "Quita el fondo del gráfico para que quede directamente sobre la página."
+
+msgid "Makes the chart background see-through so the page shows behind it."
+msgstr "Hace el fondo del gráfico semitransparente para que se vea la página detrás."
+
+msgid "Thickness of the outline drawn around the chart."
+msgstr "Grosor del contorno que rodea el gráfico."
+
+msgid "How round the corners of the chart are."
+msgstr "Qué tan redondeadas están las esquinas del gráfico."
+
+msgid "Space between the edge of the chart and its content."
+msgstr "Espacio entre el borde del gráfico y su contenido."
+
+msgid "Space between the edge of the page and the charts."
+msgstr "Espacio entre el borde de la página y los gráficos."
+
+msgid "Distance between neighboring charts and elements."
+msgstr "Distancia entre gráficos y elementos vecinos."
+
+msgid "Shows the name of the chart above it, with the size, color and alignment you choose."
+msgstr "Muestra el nombre del gráfico encima de él, con el tamaño, color y alineación que elijas."
+
+msgid "Draws a line between the title and the chart."
+msgstr "Dibuja una línea entre el título y el gráfico."
+
+msgid "On phones every object takes the full width, in the order of the canvas."
+msgstr "En el móvil cada objeto ocupa todo el ancho, en el orden del lienzo."
+
+msgid "More columns let you place and size objects with finer steps."
+msgstr "Más columnas permiten colocar y dimensionar los objetos con pasos más finos."
+
+msgid "Draws guides on the canvas while you edit. Viewers never see them."
+msgstr "Dibuja guías en el lienzo mientras editas. Quien ve el panel nunca las ve."
+
+msgid "Height of each row of the grid."
+msgstr "Alto de cada fila de la cuadrícula."
+
+msgid "Shows which color or marker belongs to each series."
+msgstr "Muestra qué color o marcador corresponde a cada serie."
+
+msgid "Where the legend sits along its edge."
+msgstr "Dónde se coloca la leyenda a lo largo de su borde."
+
+msgid "Shape of the marker next to each legend entry."
+msgstr "Forma del marcador junto a cada entrada de la leyenda."
+
+msgid "Order of the entries in the legend."
+msgstr "Orden de las entradas de la leyenda."
+
+msgid "Shows the value on each bar, point or slice."
+msgstr "Muestra el valor sobre cada barra, punto o porción."
+
+msgid "Tilts the text of the data labels."
+msgstr "Inclina el texto de las etiquetas de datos."
+
+msgid "How numbers are written: units, decimals and separators."
+msgstr "Cómo se escriben los números: unidades, decimales y separadores."
+
+msgid "Draws a colored pill behind each data label."
+msgstr "Dibuja una píldora de color detrás de cada etiqueta de datos."
+
+msgid "Font family, size, weight and color of this text."
+msgstr "Familia, tamaño, grosor y color de este texto."
+
+msgid "Style and format of the values along the axis."
+msgstr "Estilo y formato de los valores a lo largo del eje."
+
+msgid "Name of the axis, written next to it."
+msgstr "Nombre del eje, escrito junto a él."
+
+msgid "Distance between the axis title and the axis."
+msgstr "Distancia entre el título del eje y el eje."
+
+msgid "Flips the direction of the axis."
+msgstr "Invierte la dirección del eje."
+
+msgid "Lowest and highest values shown on the axis."
+msgstr "Valores mínimo y máximo que se muestran en el eje."
+
+msgid "Tilts the axis labels so long names fit."
+msgstr "Inclina las etiquetas del eje para que quepan los nombres largos."
+
+msgid "Uses a logarithmic scale, where each step multiplies the value."
+msgstr "Usa una escala logarítmica, donde cada paso multiplica el valor."
+
+msgid "Starts the axis near the data instead of at zero."
+msgstr "Hace que el eje empiece cerca de los datos en vez de en cero."
+
+msgid "Color of the guide lines behind the chart."
+msgstr "Color de las líneas guía detrás del gráfico."
+
+msgid "Thickness of the guide lines behind the chart."
+msgstr "Grosor de las líneas guía detrás del gráfico."
+
+msgid "Solid, dashed or dotted guide lines."
+msgstr "Líneas guía continuas, discontinuas o punteadas."
+
+msgid "Color of each series of the chart."
+msgstr "Color de cada serie del gráfico."
+
+msgid "Thickness of the lines."
+msgstr "Grosor de las líneas."
+
+msgid "Dots drawn on each data point of a line."
+msgstr "Puntos dibujados en cada dato de una línea."
+
+msgid "Space between neighboring bars."
+msgstr "Espacio entre barras vecinas."
+
+msgid "Rounds the ends of the bars."
+msgstr "Redondea los extremos de las barras."
+
+msgid "Outline drawn around each bar."
+msgstr "Contorno dibujado alrededor de cada barra."
+
+msgid "Stacks the series on top of each other instead of side by side."
+msgstr "Apila las series una sobre otra en vez de ponerlas lado a lado."
+
+msgid "Fills the space under the line."
+msgstr "Rellena el espacio bajo la línea."
+
+msgid "Colors the values that meet a rule, like greater than a number."
+msgstr "Colorea los valores que cumplen una regla, como ser mayores que un número."
+
+msgid "The card that appears when you point at the chart."
+msgstr "La tarjeta que aparece al señalar el gráfico."
+
+msgid "Opens a hole in the center of the pie."
+msgstr "Abre un hueco en el centro del gráfico circular."
+
+msgid "Slices share the angle and differ in radius."
+msgstr "Las porciones comparten el ángulo y cambian de radio."
+
+msgid "Where and how each slice is named."
+msgstr "Dónde y cómo se nombra cada porción."
+
+msgid "Order in which series or values are shown."
+msgstr "Orden en que se muestran las series o los valores."
+
+msgid "Lets viewers zoom into a range of the chart."
+msgstr "Permite acercar el gráfico a un rango."
+
+msgid "Gives each category its own color."
+msgstr "Da a cada categoría su propio color."
+
+msgid "Space between the legend and the edge of the chart."
+msgstr "Espacio entre la leyenda y el borde del gráfico."
+
+msgid "Places the legend at the top, bottom, left or right."
+msgstr "Coloca la leyenda arriba, abajo, a la izquierda o a la derecha."
+
+msgid "A scrolling legend keeps long lists on one line."
+msgstr "Una leyenda con desplazamiento mantiene las listas largas en una línea."
+
+msgid "Theme default"
+msgstr "Predeterminado del tema"
+
+msgid "Theme colors"
+msgstr "Colores del tema"
+
+msgid "Appearance"
+msgstr "Aspecto"
+
+msgid "Like the app"
+msgstr "Como la app"
+
+msgid "The report keeps this look whatever theme the app uses. Light by default, like a sheet of paper."
+msgstr "El informe conserva este aspecto sea cual sea el tema de la app. Claro por defecto, como una hoja de papel."
+
+msgid "Filter panel"
+msgstr "Panel de filtros"
+
+msgid "Accent"
+msgstr "Acento"
+
+msgid "Restore colors"
+msgstr "Restablecer colores"
+
+msgid "Previous tabs"
+msgstr "Pestañas anteriores"
+
+msgid "Next tabs"
+msgstr "Pestañas siguientes"

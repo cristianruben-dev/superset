@@ -21,9 +21,10 @@ import { Resizable } from 're-resizable';
 import { styled } from '@apache-superset/core/theme';
 import useStoredSidebarWidth from './useStoredSidebarWidth';
 
-const ResizableWrapper = styled.div`
+const ResizableWrapper = styled.div<{ $side: 'left' | 'right' }>`
   position: absolute;
   height: 100%;
+  ${({ $side }) => ($side === 'right' ? 'right: 0;' : '')}
 
   :hover .sidebar-resizer::after {
     background-color: ${({ theme }) => theme.colorPrimary};
@@ -50,6 +51,8 @@ type Props = {
   minWidth?: number;
   maxWidth?: number;
   children: (width: number) => ReactNode;
+  /** Edge of the screen the sidebar sits on; it resizes from the other one */
+  side?: 'left' | 'right';
 };
 
 const ResizableSidebar: FC<Props> = ({
@@ -59,16 +62,18 @@ const ResizableSidebar: FC<Props> = ({
   maxWidth,
   enable,
   children,
+  side = 'left',
 }) => {
+  const handle = side === 'right' ? 'left' : 'right';
   const [width, setWidth] = useStoredSidebarWidth(id, initialWidth);
 
   return (
     <>
-      <ResizableWrapper>
+      <ResizableWrapper $side={side}>
         <Resizable
-          enable={{ right: enable }}
+          enable={{ [handle]: enable }}
           handleClasses={{
-            right: 'sidebar-resizer',
+            [handle]: 'sidebar-resizer',
             bottom: 'hidden',
             bottomRight: 'hidden',
             bottomLeft: 'hidden',

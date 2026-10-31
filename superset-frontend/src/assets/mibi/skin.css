@@ -837,10 +837,10 @@ table,
   border-color: var(--mb-border-secondary);
 }
 
-/* Breathing room on both sides of the grid */
+/* The page floats on the report wallpaper with the same room on every side,
+   as Power BI centers its pages */
 .dashboard-content > [data-test='grid-container'] {
-  margin-left: 8px !important;
-  margin-right: 28px !important;
+  margin: 20px !important;
 }
 
 /* Visuals as cards */

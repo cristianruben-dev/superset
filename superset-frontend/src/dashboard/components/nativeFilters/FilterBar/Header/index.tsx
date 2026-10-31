@@ -81,7 +81,7 @@ const Header: FC<HeaderProps> = ({ toggleFiltersBar }) => (
         <Icons.VerticalAlignTopOutlined
           iconSize="xl"
           css={css`
-            transform: rotate(-90deg);
+            transform: rotate(90deg);
           `}
         />
       </HeaderButton>
