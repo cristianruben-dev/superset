@@ -61,10 +61,10 @@ export function isSortableAxis(
   const label = getColumnLabel(xAxis);
   const forcedCategorical =
     !!formData.xAxisForceCategorical &&
-    checkColumnType(label, datasource, [GenericDataType.Numeric]);
+    checkColumnType(label, datasource ?? null, [GenericDataType.Numeric]);
   return (
     forcedCategorical ||
-    checkColumnType(label, datasource, [
+    checkColumnType(label, datasource ?? null, [
       GenericDataType.String,
       GenericDataType.Boolean,
     ])
@@ -82,7 +82,7 @@ export function xAxisSortChoices(
 ): SortChoice[] {
   if (!isSortableAxis(formData, datasource)) return [];
   const xAxis = xAxisOf(formData) as QueryFormColumn;
-  if (isTemporalColumn(getColumnLabel(xAxis), datasource)) return [];
+  if (isTemporalColumn(getColumnLabel(xAxis), datasource ?? null)) return [];
 
   const groupby = ensureIsArray(formData.groupby);
   const metrics = ensureIsArray(formData.metrics as QueryFormMetric[]);
