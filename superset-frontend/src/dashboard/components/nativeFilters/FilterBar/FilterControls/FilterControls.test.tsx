@@ -437,6 +437,7 @@ const FilterControlsWrapper = styled.div`
 
 const renderTabbedVertical = (
   configure: (state: ReturnType<typeof getDefaultState>) => void,
+  hideHeader = false,
 ) => {
   const state = getDefaultState(FilterBarOrientation.Vertical);
   state.dashboardLayout.present['CHART-1'].parents = [
@@ -471,6 +472,7 @@ const renderTabbedVertical = (
           onFilterSelectionChange={jest.fn()}
           onPendingCustomizationDataMaskChange={jest.fn()}
           chartCustomizationValues={[]}
+          hideHeader={hideHeader}
         />
       </FilterControlsWrapper>
     </Provider>,
@@ -522,4 +524,15 @@ test('lists report filters even when none of their charts are on the active tab'
   expect(
     screen.queryByTestId('filter-bar-section-page'),
   ).not.toBeInTheDocument();
+});
+
+test('keeps section titles on tabbed dashboards when the bar hides its header', () => {
+  renderTabbedVertical(state => {
+    const { filters } = state.nativeFilters;
+    filters['filter-1'].chartsInScope = [1, 2];
+    filters['filter-2'].chartsInScope = [1, 2];
+    filters['filter-3'].chartsInScope = [1, 2];
+  }, true);
+
+  expect(screen.getByText('Filters on all pages')).toBeInTheDocument();
 });

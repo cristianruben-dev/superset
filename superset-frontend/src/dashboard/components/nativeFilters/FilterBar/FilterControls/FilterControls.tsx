@@ -324,6 +324,17 @@ const FilterControls: FC<FilterControlsProps> = ({
     [theme],
   );
 
+  // Section titles tell report, page and visual filters apart, so they stay
+  // visible on tabbed dashboards or when more than one section is listed,
+  // even when the bar would otherwise hide its only section header.
+  const nonEmptyLevelCount = [
+    filterSections.report,
+    filterSections.page,
+    filterSections.visual,
+  ].filter(section => section.length > 0).length;
+  const hideLevelHeaders =
+    hideHeader && !dashboardHasTabs && nonEmptyLevelCount <= 1;
+
   const renderFilterSection = useCallback(
     (
       section: 'report' | 'page' | 'visual',
@@ -333,10 +344,10 @@ const FilterControls: FC<FilterControlsProps> = ({
       if (sectionFilters.length === 0) {
         return null;
       }
-      const isOpen = hideHeader || sectionsOpen[section];
+      const isOpen = hideLevelHeaders || sectionsOpen[section];
       return (
         <div data-test={`filter-bar-section-${section}`}>
-          {!hideHeader && (
+          {!hideLevelHeaders && (
             <SectionHeader
               type="button"
               aria-expanded={sectionsOpen[section]}
@@ -355,7 +366,13 @@ const FilterControls: FC<FilterControlsProps> = ({
         </div>
       );
     },
-    [hideHeader, sectionsOpen, toggleSection, sectionTitleStyle, renderer],
+    [
+      hideLevelHeaders,
+      sectionsOpen,
+      toggleSection,
+      sectionTitleStyle,
+      renderer,
+    ],
   );
 
   const renderVerticalContent = useCallback(
