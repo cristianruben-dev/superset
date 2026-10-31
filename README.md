@@ -33,8 +33,23 @@ Mi BI es una plataforma de inteligencia de negocio basada en
 [Apache Superset](https://github.com/apache/superset) 6.1, con su propio diseño y
 algunas reglas de producto distintas:
 
-- **Cada gráfico pertenece a un solo panel de control.** Los gráficos se crean desde
-  el panel y no se comparten entre paneles (ver `superset/mibi/single_dashboard.py`).
+- **Cada gráfico pertenece a un solo panel de control.** Los gráficos se crean y se
+  editan en un panel lateral del propio panel y no se comparten entre paneles (ver
+  `superset/mibi/single_dashboard.py`).
+- **Áreas de trabajo:** agrupan paneles, con imagen, color, miembros y roles
+  (lector, colaborador y administrador).
+- **Panel Formato**, como en Power BI:
+  - lienzo con fondo de color, degradado o imagen, tamaño fijo (16:9, 4:3 o a medida),
+    márgenes, separación, cuadrícula y vista para móvil;
+  - estilo de cada gráfico: fondo, borde, esquinas, sombra, título, subtítulo e iconos;
+  - **temas**: guardar el diseño de un panel con nombre y aplicarlo a otros con un
+    clic. Hay cuatro de fábrica (Corporativo, Fresco, Vibrante y Minimalista) y cada
+    área de trabajo puede tener el suyo, que heredan sus paneles nuevos;
+  - copiar formato, copiar y pegar objetos, ocultar y bloquear.
+- **Elementos de diseño:** imágenes, formas, botones (con enlaces y estados) y texto
+  enriquecido.
+- **Modo presentación** y **exportación a PDF o PNG** con portada, una página por
+  pestaña del tamaño del panel y los filtros aplicados.
 - **Diseño propio:** logotipo, colores, tipografía Geist, modo claro y oscuro,
   paletas de gráficos (Mi BI, Corporativo, Neón, Fresco) y pantalla de carga.
 - **En español por defecto**, con inglés como segundo idioma.
@@ -51,8 +66,14 @@ de Superset:
 | Marca, tema, idiomas y paletas | `superset/mibi_config.py` |
 | Logotipos e iconos | `superset-frontend/src/assets/images/mibi/` |
 | Estilos globales | `superset-frontend/src/assets/mibi/skin.css` |
-| Regla de un panel por gráfico | `superset/mibi/` |
+| Pantallas y funciones de Mi BI | `superset-frontend/src/mibi/` |
+| API, modelos y reglas de Mi BI | `superset/mibi/` |
+| Migraciones de Mi BI | `superset/migrations/versions/*_mibi_*.py` |
+| Traducciones al español | `superset/translations/es/LC_MESSAGES/messages.po` |
 | Configuración de producción | `docker/pythonpath_prod/superset_config.py` |
+
+La guía para asistentes de IA que trabajan en el código está en
+[AGENTS.md](AGENTS.md) (`CLAUDE.md` apunta al mismo archivo).
 
 ## Desarrollo
 
@@ -63,6 +84,16 @@ docker compose up -d --build
 - Aplicación: http://localhost:8088 (usuario `admin`, contraseña `admin`)
 - Frontend con recarga en caliente: http://localhost:9000
 - Servicio MCP: http://localhost:5008/mcp (actúa como `admin`, solo en local)
+
+Al arrancar se aplican las migraciones pendientes (`superset db upgrade`), incluidas
+las de Mi BI: áreas de trabajo, miembros, imágenes de fondo y de elementos, y temas.
+
+Pruebas:
+
+```bash
+cd superset-frontend && npm run test -- src/mibi   # interfaz (Jest)
+pytest tests/unit_tests/mibi/                       # API y reglas
+```
 
 Si hay datos de antes de la regla de un panel por gráfico, sepáralos con:
 

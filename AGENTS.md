@@ -1,6 +1,6 @@
-# LLM Context Guide for Apache Superset
+# LLM Context Guide for Mi BI (Apache Superset fork)
 
-Apache Superset is a data visualization platform with Flask/Python backend and React/TypeScript frontend.
+Mi BI is a data visualization platform built on Apache Superset 6.1: a Flask/Python backend and a React/TypeScript frontend. See **Mi BI: What This Fork Changes** below for what differs from upstream.
 
 ## ⚠️ CRITICAL: Always Run Pre-commit Before Pushing
 
@@ -23,6 +23,67 @@ Common pre-commit failures:
 - **Type errors** - mypy failures need manual fixes
 - **Linting** - ruff, pylint issues need manual fixes
 
+## Mi BI: What This Fork Changes
+
+This repository is **Mi BI**, a fork of Apache Superset 6.1 shaped like Power BI. `README.md`
+(Spanish) is the human overview. Read this section before touching anything below.
+
+### Product rules
+- **Spanish first.** The UI defaults to Spanish, English is the second language. Every new
+  user-facing string goes through `t()`/`tn()` *and* gets a Spanish entry in
+  `superset/translations/es/LC_MESSAGES/messages.po` (informal "tú", «» quotes). Rebuild with
+  `npm run build-translation` in `superset-frontend/`; `messages.json`/`messages.mo` are
+  generated and git-ignored.
+- **One dashboard per chart** (`MIBI_SINGLE_DASHBOARD_CHARTS`, `superset/mibi/single_dashboard.py`).
+  Commands, importers and the MCP tools validate it; an ORM listener is the safety net.
+  Charts are created and edited from a side panel of their dashboard (`src/mibi/chartEditor.ts`,
+  `src/mibi/dashboard/ChartEditorPanel.tsx`); there is no chart list screen.
+- **Workspaces** group dashboards, with members and roles (viewer, contributor, admin)
+  (`MIBI_WORKSPACE_ACCESS`).
+- Branding, theme tokens, languages and chart palettes live in `superset/mibi_config.py`.
+
+### Where the code lives
+| Area | Backend | Frontend (`superset-frontend/src/`) |
+| --- | --- | --- |
+| App shell, home, lists | `superset/mibi/previews.py`, `superset/mibi/api.py` | `mibi/shell`, `mibi/home`, `mibi/dashboards`, `assets/mibi/skin.css` |
+| Workspaces and access | `superset/mibi/workspaces.py`, `workspace_access.py`, `models.py` | `mibi/workspaces` |
+| Data page and datasets | `superset/mibi/data_views.py` | `mibi/data` |
+| Format pane, themes | `superset/mibi/format_themes.py` | `mibi/format` |
+| Background and element pictures | `superset/mibi/backgrounds.py` | `mibi/format/actions.ts`, `mibi/elements` |
+| Design elements (image, shape, button, text) | - | `mibi/elements` |
+| Presentation mode, PDF/PNG export | - | `mibi/present`, `mibi/export` |
+| Chart type icons | - | `mibi/vizIcons` |
+
+Mi BI APIs: `/api/v1/workspace/`, `/api/v1/format_theme/` (plus `<id>/apply/`),
+`/api/v1/dashboard_background/<dashboard>/`, `/api/v1/dashboard_image/<dashboard>/<image>/`,
+`/api/v1/mibi/dashboard_previews/`. Each new API is registered in `superset/initialization/__init__.py`.
+
+### Dashboard formatting lives in the layout
+Formats are stored in `position_json`, so they save, undo and export with the dashboard:
+- `ROOT_ID.meta.mibiCanvas`: canvas format (`CanvasFormat` in `src/mibi/format/types.ts`),
+  including `visuals`, the style every chart shares (from "Apply to all charts" or a theme).
+- `CHART-*.meta.mibiFormat`: a chart's own format. It wins over the shared style setting by
+  setting; read it with `useVisualFormat`/`mergeVisualFormat`, never `meta.mibiFormat` alone.
+- Design elements are `DYNAMIC` components whose `componentKey` starts with `mibi-`, with their
+  settings in `meta.mibiElement` (`src/mibi/elements/types.ts`).
+- Flags: `meta.mibiHidden`, `meta.mibiLocked`, `meta.mibiHideMobile`.
+- Write layout changes through `src/mibi/format/actions.ts` (`updateLayout`, `setVisualFormat`,
+  `setCanvasFormat`, `setSharedVisualFormat`) so edits group into one undo step.
+- Format themes (`mibi_format_themes` table) hold `{canvas, visuals, colorScheme}`; the frontend
+  (`src/mibi/format/themes.ts`) and the backend (`apply_theme`) apply them the same way.
+
+### Migrations
+Fork migrations form one chain after the upstream head:
+`8bc9e5b95335` (workspaces) → `cce7fe34b50d` (members) → `3a90eb47d506` (backgrounds) →
+`06c8a16b9fe1` (element images) → `b7d41e0c9a23` (format themes). A new fork migration revises
+the last one. When merging a new Superset release, point `8bc9e5b95335` at the new upstream head.
+
+### Tests for Mi BI code
+- Jest tests sit next to the code (`src/mibi/**/*.test.ts(x)`).
+- Backend: `pytest tests/unit_tests/mibi/`.
+- Browser: `superset-frontend/playwright/tests/experimental/` (dashboard format, export,
+  theme, stress), run with `INCLUDE_EXPERIMENTAL=1`.
+
 ## ⚠️ CRITICAL: Ongoing Refactors (What NOT to Do)
 
 **These migrations are actively happening - avoid deprecated patterns:**
@@ -37,8 +98,7 @@ Common pre-commit failures:
 ### Testing Strategy Migration
 - **Prefer unit tests** over integration tests
 - **Prefer integration tests** over end-to-end tests
-- **Use Playwright for E2E tests** - Migrating from Cypress
-- **Cypress is deprecated** - Will be removed once migration is completed
+- **Use Playwright for E2E tests** - Cypress has been removed from this fork
 - **Use Jest + React Testing Library** for component testing
 - **Use `test()` instead of `describe()`** - Follow [avoid nesting when testing](https://kentcdodds.com/blog/avoid-nesting-when-youre-testing) principles
 
@@ -129,17 +189,15 @@ superset/
 npm run test                           # All tests
 npm run test -- filename.test.tsx     # Single file
 
-# E2E Tests (Playwright - NEW)
+# E2E Tests (Playwright, from superset-frontend/)
 npm run playwright:test                # All Playwright tests
 npm run playwright:ui                  # Interactive UI mode
 npm run playwright:headed              # See browser during tests
 npx playwright test tests/auth/login.spec.ts  # Single file
 npm run playwright:debug tests/auth/login.spec.ts  # Debug specific file
 
-# E2E Tests (Cypress - DEPRECATED)
-cd superset-frontend/cypress-base
-npm run cypress-run-chrome             # All Cypress tests (headless)
-npm run cypress-debug                  # Interactive Cypress UI
+# E2E tests of Mi BI screens (opt-in)
+INCLUDE_EXPERIMENTAL=1 npx playwright test tests/experimental/dashboard/format.spec.ts
 
 # Backend  
 pytest                                 # All tests
@@ -154,12 +212,12 @@ pytest tests/unit_tests/               # Directory
 **Quick Setup Check (run this first):**
 
 ```bash
-# Verify Superset is running
-curl -f http://localhost:8088/health || echo "❌ Setup required - see https://superset.apache.org/docs/contributing/development#working-with-llms"
+# Verify the app is running (docker compose up -d --build, see README.md)
+curl -f http://localhost:8088/health || echo "❌ Setup required - see README.md"
 ```
 
 **If health checks fail:**
-"It appears you aren't set up properly. Please refer to the [Working with LLMs](https://superset.apache.org/docs/contributing/development#working-with-llms) section in the development docs for setup instructions."
+"It appears you aren't set up properly. Start the stack with `docker compose up -d --build` (see README.md), or refer to the [Working with LLMs](https://superset.apache.org/docs/contributing/development#working-with-llms) section of the Superset development docs."
 
 **Key Project Files:**
 - `superset-frontend/package.json` - Frontend build scripts (`npm run dev` on port 9000, `npm run test`, `npm run lint`)
