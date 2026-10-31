@@ -29,27 +29,32 @@
     />
     <link rel="preconnect" href="https://fonts.gstatic.com" />
     <link
-      href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&family=Geist+Mono:wght@500&display=swap"
       rel="stylesheet"
     />
     <style>
       :root {
         color-scheme: light dark;
-        --bg: #f8f8fa;
+        --bg: #f5f5f5;
         --card: #ffffff;
-        --border: #e4e4e9;
+        --border: #e5e5e5;
+        --hairline: rgba(0, 0, 0, 0.035);
         --text: #0a0a0f;
-        --muted: #55555f;
-        --primary: #5b5bd6;
+        --muted: #666666;
+        --ink: #0a0a0f;
+        --on-ink: #ffffff;
+        --gradient: linear-gradient(100deg, #2563eb 0%, #7c3aed 55%, #10b981 100%);
       }
       @media (prefers-color-scheme: dark) {
         :root {
-          --bg: #09090b;
-          --card: #111114;
-          --border: #27272d;
-          --text: #f4f4f6;
-          --muted: #a1a1ab;
-          --primary: #8b8df7;
+          --bg: #0a0a0f;
+          --card: #111117;
+          --border: #26262f;
+          --hairline: rgba(255, 255, 255, 0.03);
+          --text: #f5f5f7;
+          --muted: #a3a3ad;
+          --ink: #f5f5f7;
+          --on-ink: #0a0a0f;
         }
       }
       html,
@@ -58,10 +63,9 @@
         margin: 0;
       }
       body {
-        background: var(--bg);
         color: var(--text);
         font-family:
-          Geist,
+          Outfit,
           -apple-system,
           'Segoe UI',
           sans-serif;
@@ -70,69 +74,110 @@
         justify-content: center;
         padding: 24px;
         box-sizing: border-box;
+        /* The aura of auradata.mx over a quiet grid */
+        background:
+          radial-gradient(560px 380px at 15% 10%, rgba(37, 99, 235, 0.16), transparent 70%),
+          radial-gradient(520px 380px at 50% 100%, rgba(124, 58, 237, 0.12), transparent 70%),
+          radial-gradient(480px 340px at 90% 5%, rgba(16, 185, 129, 0.12), transparent 70%),
+          linear-gradient(var(--hairline) 1px, transparent 1px) 0 0 / 56px 56px,
+          linear-gradient(90deg, var(--hairline) 1px, transparent 1px) 0 0 / 56px 56px,
+          var(--bg);
       }
       .card {
         background: var(--card);
         border: 1px solid var(--border);
-        border-radius: 12px;
+        border-radius: 20px;
         padding: 48px;
         max-width: 480px;
         text-align: center;
         box-shadow:
-          0 1px 2px rgba(10, 10, 15, 0.04),
-          0 8px 24px -12px rgba(10, 10, 15, 0.1);
+          0 1px 2px rgba(0, 0, 0, 0.04),
+          0 24px 48px -16px rgba(15, 23, 42, 0.18);
       }
-      .logo {
-        width: 48px;
-        height: 48px;
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .brand img {
+        height: 28px;
+      }
+      .brand .product {
+        padding-left: 12px;
+        border-left: 1px solid var(--border);
+        font-size: 17px;
+        font-weight: 700;
+        background: var(--gradient);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
       }
       .code {
-        font-size: 72px;
+        font-size: 88px;
         font-weight: 700;
+        letter-spacing: -0.04em;
         line-height: 1;
-        margin: 24px 0 8px;
-        color: var(--primary);
+        margin: 36px 0 12px;
+        background: var(--gradient);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
       }
       h1 {
-        font-size: 22px;
+        font-size: 24px;
         font-weight: 600;
+        letter-spacing: -0.02em;
         margin: 0 0 12px;
       }
       p {
         color: var(--muted);
-        font-size: 15px;
+        font-size: 16px;
         line-height: 1.6;
         margin: 0 0 32px;
       }
       .button {
-        background: var(--primary);
-        border-radius: 8px;
-        color: #fff;
+        background: var(--ink);
+        border-radius: 999px;
+        color: var(--on-ink);
         display: inline-block;
-        font-size: 14px;
-        font-weight: 500;
-        padding: 10px 24px;
+        font-size: 15px;
+        font-weight: 600;
+        padding: 11px 22px;
         text-decoration: none;
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.18),
+          0 1px 2px rgba(0, 0, 0, 0.2);
+        transition: box-shadow 0.7s cubic-bezier(0.32, 0.72, 0, 1);
+      }
+      .button:hover {
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.18),
+          0 8px 32px -8px rgba(37, 99, 235, 0.45);
       }
     </style>
 
-    <title>500: Error del servidor | Mi BI</title>
+    <title>500: Error del servidor | AuraData BI</title>
   </head>
 
   <body>
     <main class="card">
-      <img
-        class="logo"
-        alt="Mi BI"
-        src="<%= require('../images/favicon.png')%>"
-      />
+      <div class="brand">
+        <picture>
+          <source
+            srcset="/static/assets/images/auradata/logo-dark.svg"
+            media="(prefers-color-scheme: dark)"
+          />
+          <img alt="AuraData" src="/static/assets/images/auradata/logo.svg" />
+        </picture>
+        <span class="product">BI</span>
+      </div>
       <div class="code">500</div>
       <h1>Algo salió mal</h1>
       <p>
         Ocurrió un error inesperado en el servidor. Inténtalo de nuevo en unos
         minutos o vuelve al inicio.
       </p>
-      <a href="/" class="button">Volver al inicio</a>
+      <a href="/" class="button">Volver al inicio →</a>
     </main>
   </body>
 </html>

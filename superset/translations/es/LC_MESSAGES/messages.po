@@ -136,7 +136,7 @@ msgid " near '%(highlight)s'"
 msgstr " cerca de «%(highlight)s»"
 
 msgid " source code of Superset's sandboxed parser"
-msgstr " código fuente del analizador en «sandbox» de Mi BI"
+msgstr " código fuente del analizador en «sandbox» de AuraData BI"
 
 msgid ""
 " standard to ensure that the lexicographical ordering\n"
@@ -422,7 +422,7 @@ msgstr ""
 "\n"
 "%(description)s\n"
 "\n"
-"<%(url)s|Explorar en Mi BI>\n"
+"<%(url)s|Explorar en AuraData BI>\n"
 "\n"
 "%(table)s\n"
 
@@ -2061,7 +2061,7 @@ msgid "Autosize all columns"
 msgstr "Tamaño automático a todas columnas"
 
 msgid "Available Handlebars Helpers in Superset:"
-msgstr "Ayudantes de Handlebars disponibles en Mi BI:"
+msgstr "Ayudantes de Handlebars disponibles en AuraData BI:"
 
 msgid "Available sorting modes:"
 msgstr "Modos de ordenación disponibles:"
@@ -4126,7 +4126,7 @@ msgid ""
 "documentation page for installation instructions: "
 msgstr ""
 "Puede que el controlador de la base de datos para la importación no esté "
-"instalado. Visita la página de documentación de Mi BI para obtener "
+"instalado. Visita la página de documentación de AuraData BI para obtener "
 "instrucciones de instalación: "
 
 msgid "Database error"
@@ -9190,7 +9190,7 @@ msgstr "Elige un nombre que te ayude a identificar esta base de datos."
 msgid "Pick a nickname for how the database will display in Superset."
 msgstr ""
 "Elige un sobrenombre para la forma en que se mostrará la base de datos en"
-" Mi BI."
+" AuraData BI."
 
 msgid "Pick a title for you annotation."
 msgstr "Elige un título para tu anotación."
@@ -11916,22 +11916,22 @@ msgid "Sunday"
 msgstr "Domingo"
 
 msgid "Superset Chart"
-msgstr "Gráfico de Mi BI"
+msgstr "Gráfico de AuraData BI"
 
 msgid "Superset Embedded SDK documentation."
-msgstr "Documentación del SDK integrado de Mi BI."
+msgstr "Documentación del SDK integrado de AuraData BI."
 
 msgid "Superset chart"
-msgstr "Gráfico de Mi BI"
+msgstr "Gráfico de AuraData BI"
 
 msgid "Superset docs link"
 msgstr "Enlace a la documentación"
 
 msgid "Superset encountered an error while running a command."
-msgstr "Mi BI ha encontrado un error al ejecutar un comando."
+msgstr "AuraData BI ha encontrado un error al ejecutar un comando."
 
 msgid "Superset encountered an unexpected error."
-msgstr "Mi BI ha encontrado un error inesperado."
+msgstr "AuraData BI ha encontrado un error inesperado."
 
 msgid "Supported databases"
 msgstr "Bases de datos compatibles"
@@ -12344,7 +12344,7 @@ msgid ""
 "The country code standard that Superset should expect to find in the "
 "[country] column"
 msgstr ""
-"El estándar de código de país que Mi BI debería esperar encontrar en "
+"El estándar de código de país que AuraData BI debería esperar encontrar en "
 "la columna [country]"
 
 msgid "The dashboard has been saved"
@@ -12817,7 +12817,7 @@ msgid ""
 " the physical table referenced here."
 msgstr ""
 "El puntero a una tabla (o vista) física. Recuerda que el gráfico está "
-"asociado a esta tabla lógica de Mi BI y que esta tabla lógica apunta a"
+"asociado a esta tabla lógica de AuraData BI y que esta tabla lógica apunta a"
 " la tabla física a la que se hace referencia aquí."
 
 msgid "The port is closed."
@@ -13058,7 +13058,7 @@ msgstr ""
 "La granularidad temporal para la visualización. Esto aplica una "
 "transformación de fecha para alterar tu columna de hora/fecha y define "
 "una nueva granularidad temporal. Las opciones se definen aquí en función "
-"del motor de la base de datos en el código fuente de Mi BI."
+"del motor de la base de datos en el código fuente de AuraData BI."
 
 msgid ""
 "The time range for the visualization. All relative times, e.g. \"Last "
@@ -13446,7 +13446,7 @@ msgid "This chart has been moved to a different filter scope."
 msgstr "Este gráfico se ha movido a un alcance de filtro diferente."
 
 msgid "This chart is managed externally, and can't be edited in Superset"
-msgstr "Este gráfico se gestiona externamente y no se puede editar en Mi BI"
+msgstr "Este gráfico se gestiona externamente y no se puede editar en AuraData BI"
 
 msgid "This chart might be incompatible with the filter (datasets don't match)"
 msgstr ""
@@ -13514,7 +13514,7 @@ msgstr ""
 msgid "This dashboard is managed externally, and can't be edited in Superset"
 msgstr ""
 "Este panel de control se gestiona externamente y no se puede editar en "
-"Mi BI"
+"AuraData BI"
 
 msgid ""
 "This dashboard is not published which means it will not show up in the "
@@ -13562,7 +13562,7 @@ msgstr "Esta base de datos no permite DDL/DML, pero la consulta modifica datos. 
 msgid "This database is managed externally, and can't be edited in Superset"
 msgstr ""
 "Esta base de datos se gestiona externamente y no se puede editar en "
-"Mi BI"
+"AuraData BI"
 
 msgid ""
 "This database table does not contain any data. Please select a different "
@@ -13574,7 +13574,7 @@ msgstr ""
 msgid "This dataset is managed externally, and can't be edited in Superset"
 msgstr ""
 "Este conjunto de datos se gestiona externamente y no se puede editar en "
-"Mi BI"
+"AuraData BI"
 
 msgid "This defines the element to be plotted on the chart"
 msgstr "Esto define el elemento que se trazará en el gráfico"
@@ -14264,14 +14264,14 @@ msgid ""
 "later. Please contact your administrator if this problem persists."
 msgstr ""
 "No se puede migrar el estado del editor de consultas al «backend». "
-"Mi BI lo intentará de nuevo más tarde. Contacta con tu administrador "
+"AuraData BI lo intentará de nuevo más tarde. Contacta con tu administrador "
 "si el problema persiste."
 
 msgid ""
 "Unable to migrate query state to backend. Superset will retry later. "
 "Please contact your administrator if this problem persists."
 msgstr ""
-"No se puede migrar el estado de la consulta al «backend». Mi BI lo "
+"No se puede migrar el estado de la consulta al «backend». AuraData BI lo "
 "intentará de nuevo más tarde. Contacta con tu administrador si el "
 "problema persiste."
 
@@ -14280,7 +14280,7 @@ msgid ""
 "later. Please contact your administrator if this problem persists."
 msgstr ""
 "No se puede migrar el estado del esquema de la tabla al «backend». "
-"Mi BI lo intentará de nuevo más tarde. Contacta con tu administrador "
+"AuraData BI lo intentará de nuevo más tarde. Contacta con tu administrador "
 "si el problema persiste."
 
 msgid "Unable to parse SQL"
@@ -16664,7 +16664,7 @@ msgstr "área del «zoom»"
 msgid "© Layer attribution"
 msgstr "© Atribución de la capa"
 
-# Mi BI: charts belong to a single dashboard (superset/mibi/single_dashboard.py)
+# AuraData BI: charts belong to a single dashboard (superset/mibi/single_dashboard.py)
 msgid "A chart can only belong to one dashboard."
 msgstr "Un gráfico solo puede pertenecer a un panel de control."
 
@@ -18041,7 +18041,7 @@ msgid "Resume auto-refresh"
 msgstr "Reanudar la actualización automática"
 
 msgid "Return to Superset"
-msgstr "Volver a Mi BI"
+msgstr "Volver a AuraData BI"
 
 msgid "Rows (vertical layout)"
 msgstr "Filas (disposición vertical)"
@@ -18155,7 +18155,7 @@ msgid "There was an issue cancelling the task: %s"
 msgstr "Hubo un problema al cancelar la tarea: %s"
 
 msgid "This database uses OAuth2 for authentication. Please click the link above to grant Apache Superset permission to access the data. Your personal access token will be stored encrypted and used only for queries run by you."
-msgstr "Esta base de datos usa OAuth2. Haz clic en el enlace de arriba para dar permiso a Mi BI de acceder a los datos. Tu token personal se guardará cifrado y solo se usará en tus consultas."
+msgstr "Esta base de datos usa OAuth2. Haz clic en el enlace de arriba para dar permiso a AuraData BI de acceder a los datos. Tu token personal se guardará cifrado y solo se usará en tus consultas."
 
 msgid "This folder only supports columns"
 msgstr "Esta carpeta solo admite columnas"
@@ -18914,3 +18914,28 @@ msgstr "Pestañas anteriores"
 
 msgid "Next tabs"
 msgstr "Pestañas siguientes"
+
+# AuraData BI: sign in page
+msgid "Business analytics"
+msgstr "Analítica de negocio"
+
+msgid "Clear data."
+msgstr "Datos claros."
+
+msgid "Precise decisions."
+msgstr "Decisiones precisas."
+
+msgid "Dashboards and reports to understand your operation and decide with data."
+msgstr "Paneles e informes para entender tu operación y decidir con datos."
+
+msgid "Live dashboards"
+msgstr "Paneles en vivo"
+
+msgid "Shared workspaces"
+msgstr "Espacios de trabajo compartidos"
+
+msgid "PDF and PNG export"
+msgstr "Exporta a PDF y PNG"
+
+msgid "A product of"
+msgstr "Un producto de"

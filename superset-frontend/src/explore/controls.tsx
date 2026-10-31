@@ -89,8 +89,8 @@ interface ControlConfig {
 const categoricalSchemeRegistry = getCategoricalSchemeRegistry();
 const sequentialSchemeRegistry = getSequentialSchemeRegistry();
 
-// Mi BI brand color (#5B5BD6)
-export const PRIMARY_COLOR = { r: 91, g: 91, b: 214, a: 1 };
+// AuraData brand color (Azul Aura, #2563EB)
+export const PRIMARY_COLOR = { r: 37, g: 99, b: 235, a: 1 };
 
 // input choices & options
 export const D3_FORMAT_OPTIONS = [

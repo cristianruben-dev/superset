@@ -34,6 +34,7 @@ import { capitalize } from 'lodash/fp';
 import { addDangerToast } from 'src/components/MessageToasts/actions';
 import { useDispatch } from 'react-redux';
 import getBootstrapData from 'src/utils/getBootstrapData';
+import { LoginBrand } from 'src/mibi/shell/LoginBrand';
 
 type OAuthProvider = {
   name: string;
@@ -161,6 +162,8 @@ export default function Login() {
         height: calc(100vh - 200px);
       `}
     >
+      {/* AuraData BI: the brand panel next to the form */}
+      <LoginBrand />
       <StyledCard title={t('Sign in')} padded>
         {authType === AuthType.AuthOID && (
           <Flex justify="center" vertical gap="middle">

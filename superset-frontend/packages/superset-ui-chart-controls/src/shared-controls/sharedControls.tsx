@@ -90,8 +90,8 @@ import { matrixifyControls } from './matrixifyControls';
 const categoricalSchemeRegistry = getCategoricalSchemeRegistry();
 const sequentialSchemeRegistry = getSequentialSchemeRegistry();
 
-// Mi BI brand color (#5B5BD6)
-export const PRIMARY_COLOR = { r: 91, g: 91, b: 214, a: 1 };
+// AuraData brand color (Azul Aura, #2563EB)
+export const PRIMARY_COLOR = { r: 37, g: 99, b: 235, a: 1 };
 
 const ROW_LIMIT_OPTIONS = [10, 50, 100, 250, 500, 1000, 5000, 10000, 50000];
 const SERIES_LIMITS = [5, 10, 25, 50, 100, 500];

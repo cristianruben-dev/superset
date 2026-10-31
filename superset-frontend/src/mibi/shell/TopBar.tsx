@@ -22,6 +22,7 @@ import { css, styled } from '@apache-superset/core/theme';
 import { Icons } from '@superset-ui/core/components/Icons';
 import RightMenu from 'src/features/home/RightMenu';
 import type { MenuData, User } from 'src/types/bootstrapTypes';
+import { AURA_GRADIENT } from './brand';
 
 const Bar = styled.header`
   ${({ theme }) => css`
@@ -46,8 +47,8 @@ const SearchTrigger = styled.button`
     gap: ${theme.sizeUnit * 2}px;
     width: min(420px, 100%);
     height: ${theme.sizeUnit * 9}px;
-    padding: 0 ${theme.sizeUnit * 3}px;
-    border-radius: ${theme.borderRadius}px;
+    padding: 0 ${theme.sizeUnit * 2}px 0 ${theme.sizeUnit * 4}px;
+    border-radius: 999px;
     border: 1px solid ${theme.colorBorderSecondary};
     background: ${theme.colorBgLayout};
     color: ${theme.colorTextTertiary};
@@ -68,10 +69,10 @@ const SearchTrigger = styled.button`
     }
 
     kbd {
-      font-family: ${theme.fontFamily};
+      font-family: ${theme.fontFamilyCode};
       font-size: 11px;
-      padding: 1px 6px;
-      border-radius: ${theme.borderRadiusSM}px;
+      padding: 1px 8px;
+      border-radius: 999px;
       border: 1px solid ${theme.colorBorder};
       background: ${theme.colorBgContainer};
       color: ${theme.colorTextSecondary};
@@ -91,15 +92,31 @@ const NewButton = styled.span`
     display: inline-flex;
     align-items: center;
     gap: ${theme.sizeUnit * 1.5}px;
-    height: ${theme.sizeUnit * 8}px;
-    padding: 0 ${theme.sizeUnit * 3.5}px;
-    border-radius: ${theme.borderRadius}px;
-    background: ${theme.colorPrimary};
-    color: ${theme.colorTextLightSolid};
+    height: ${theme.sizeUnit * 8.5}px;
+    padding: 0 ${theme.sizeUnit * 4}px 0 ${theme.sizeUnit * 3.5}px;
+    /* The primary call to action of auradata.mx: an ink pill that glows */
+    border-radius: 999px;
+    background: ${theme.colorText};
+    color: ${theme.colorBgContainer};
     font-weight: ${theme.fontWeightStrong};
     font-size: ${theme.fontSize}px;
     line-height: 1;
-    box-shadow: ${theme.boxShadowTertiary};
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.18),
+      0 1px 2px rgba(0, 0, 0, 0.2);
+    transition:
+      box-shadow 0.5s cubic-bezier(0.32, 0.72, 0, 1),
+      transform 0.5s cubic-bezier(0.32, 0.72, 0, 1);
+
+    &:hover {
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.18),
+        0 8px 32px -8px rgba(37, 99, 235, 0.45);
+    }
+
+    &:active {
+      transform: scale(0.98);
+    }
   `}
 `;
 
@@ -118,11 +135,7 @@ const UserChip = styled.span`
       width: 30px;
       height: 30px;
       border-radius: 50%;
-      background: linear-gradient(
-        135deg,
-        ${theme.colorPrimaryHover},
-        ${theme.colorPrimaryActive}
-      );
+      background: ${AURA_GRADIENT};
       color: ${theme.colorTextLightSolid};
       font-size: 12px;
       font-weight: ${theme.fontWeightStrong};

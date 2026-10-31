@@ -18,20 +18,21 @@
 -->
 <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none">
   <defs>
-    <linearGradient id="mibiSpinnerGradient" x1="0" y1="0" x2="24" y2="24" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#7B7BF0" />
-      <stop offset="1" stop-color="#4B4BC4" />
+    <linearGradient id="auraSpinnerGradient" x1="0" y1="0" x2="24" y2="4.2" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#2563EB" />
+      <stop offset="0.55" stop-color="#7C3AED" />
+      <stop offset="1" stop-color="#10B981" />
     </linearGradient>
   </defs>
-  <rect x="3" y="4" width="4.5" height="16" rx="2.25" fill="url(#mibiSpinnerGradient)">
+  <rect x="3" y="4" width="4.5" height="16" rx="2.25" fill="url(#auraSpinnerGradient)">
     <animate attributeName="height" values="6;16;6" dur="1.1s" repeatCount="indefinite" begin="0s" calcMode="spline" keySplines="0.4 0 0.2 1;0.4 0 0.2 1" />
     <animate attributeName="y" values="14;4;14" dur="1.1s" repeatCount="indefinite" begin="0s" calcMode="spline" keySplines="0.4 0 0.2 1;0.4 0 0.2 1" />
   </rect>
-  <rect x="9.75" y="4" width="4.5" height="16" rx="2.25" fill="url(#mibiSpinnerGradient)">
+  <rect x="9.75" y="4" width="4.5" height="16" rx="2.25" fill="url(#auraSpinnerGradient)">
     <animate attributeName="height" values="6;16;6" dur="1.1s" repeatCount="indefinite" begin="0.18s" calcMode="spline" keySplines="0.4 0 0.2 1;0.4 0 0.2 1" />
     <animate attributeName="y" values="14;4;14" dur="1.1s" repeatCount="indefinite" begin="0.18s" calcMode="spline" keySplines="0.4 0 0.2 1;0.4 0 0.2 1" />
   </rect>
-  <rect x="16.5" y="4" width="4.5" height="16" rx="2.25" fill="url(#mibiSpinnerGradient)">
+  <rect x="16.5" y="4" width="4.5" height="16" rx="2.25" fill="url(#auraSpinnerGradient)">
     <animate attributeName="height" values="6;16;6" dur="1.1s" repeatCount="indefinite" begin="0.36s" calcMode="spline" keySplines="0.4 0 0.2 1;0.4 0 0.2 1" />
     <animate attributeName="y" values="14;4;14" dur="1.1s" repeatCount="indefinite" begin="0.36s" calcMode="spline" keySplines="0.4 0 0.2 1;0.4 0 0.2 1" />
   </rect>

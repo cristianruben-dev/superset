@@ -24,11 +24,13 @@ import { Tooltip } from '@superset-ui/core/components';
 import { Icons } from '@superset-ui/core/components/Icons';
 import { ensureStaticPrefix } from 'src/utils/assetUrl';
 import { ensureAppRoot } from 'src/utils/pathUtils';
+import { AURA_GRADIENT, PRODUCT_TAG } from './brand';
 import { isNavItemActive, type NavItem, type NavSection } from './navigation';
 
 export const SIDEBAR_WIDTH = 240;
 export const SIDEBAR_COLLAPSED_WIDTH = 68;
-const MARK_URL = '/static/assets/images/mibi/favicon.svg';
+// The Continua symbol alone, for the collapsed rail
+const MARK_URL = '/static/assets/images/auradata/mark.svg';
 
 const Aside = styled.aside<{ $collapsed: boolean }>`
   ${({ theme, $collapsed }) => css`
@@ -57,12 +59,32 @@ const Brand = styled.div<{ $collapsed: boolean }>`
     a {
       display: flex;
       align-items: center;
+      /* Half the symbol's height around it, as the brand guidelines ask */
+      gap: ${theme.sizeUnit * 3}px;
+      text-decoration: none;
     }
 
     img {
       display: block;
-      height: ${$collapsed ? 28 : 24}px;
+      height: ${$collapsed ? 24 : 26}px;
     }
+  `}
+`;
+
+/** The product next to the AuraData logo, in the brand gradient. */
+export const ProductTag = styled.span`
+  ${({ theme }) => css`
+    padding-left: ${theme.sizeUnit * 3}px;
+    border-left: 1px solid ${theme.colorBorder};
+    font-family: ${theme.fontFamily};
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 20px;
+    letter-spacing: 0.02em;
+    background: ${AURA_GRADIENT};
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
   `}
 `;
 
@@ -264,6 +286,7 @@ export function Sidebar({
             )}
             alt={theme.brandLogoAlt || theme.brandAppName || ''}
           />
+          {!collapsed && <ProductTag>{PRODUCT_TAG}</ProductTag>}
         </a>
       </Brand>
     ),

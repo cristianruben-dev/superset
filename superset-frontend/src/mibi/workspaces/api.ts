@@ -86,15 +86,15 @@ const BASE = '/api/v1/workspace/';
  */
 export const WORKSPACE_COLORS = [
   // eslint-disable-next-line theme-colors/no-literal-colors
-  '#5B5BD6',
+  '#2563EB',
   // eslint-disable-next-line theme-colors/no-literal-colors
-  '#3B82F6',
+  '#7C3AED',
   // eslint-disable-next-line theme-colors/no-literal-colors
   '#0EA5E9',
   // eslint-disable-next-line theme-colors/no-literal-colors
   '#14B8A6',
   // eslint-disable-next-line theme-colors/no-literal-colors
-  '#22C55E',
+  '#10B981',
   // eslint-disable-next-line theme-colors/no-literal-colors
   '#F59E0B',
   // eslint-disable-next-line theme-colors/no-literal-colors
@@ -104,7 +104,7 @@ export const WORKSPACE_COLORS = [
   // eslint-disable-next-line theme-colors/no-literal-colors
   '#EC4899',
   // eslint-disable-next-line theme-colors/no-literal-colors
-  '#8B5CF6',
+  '#A855F7',
   // eslint-disable-next-line theme-colors/no-literal-colors
   '#64748B',
 ];

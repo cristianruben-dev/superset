@@ -114,7 +114,7 @@ PACKAGE_JSON_FILE = str(files("superset") / "static/assets/package.json")
 #     "type": "image/png"
 #     "rel": "icon"
 # },
-FAVICONS = [{"href": "/static/assets/images/mibi/favicon.svg", "type": "image/svg+xml"}]
+FAVICONS = [{"href": "/static/assets/images/auradata/favicon-32.png"}]
 PDF_COMPRESSION_LEVEL: Literal["NONE", "FAST", "MEDIUM", "SLOW"] = "MEDIUM"
 
 
@@ -355,7 +355,7 @@ AUTH_RATE_LIMIT = "5 per second"
 APP_NAME = "Superset"
 
 # Specify the App icon
-APP_ICON = "/static/assets/images/mibi/logo.svg"
+APP_ICON = "/static/assets/images/auradata/logo.svg"
 
 # Specify where clicking the logo would take the user'
 # Default value of None will take you to '/superset/welcome'
@@ -754,7 +754,7 @@ DEFAULT_FEATURE_FLAGS: dict[str, bool] = {
     # Use card view as default in list views
     # @lifecycle: stable
     # @category: runtime_config
-    # Mi BI: lists with a card view (dashboards) open in it
+    # AuraData BI: lists with a card view (dashboards) open in it
     "LISTVIEWS_DEFAULT_CARD_VIEW": True,
     # Hide user info in the navigation menu
     # @lifecycle: stable
@@ -2547,7 +2547,7 @@ DISTRIBUTED_LOCK_DEFAULT_TTL = 30
 # Channel prefix for task abort pub/sub messages
 TASKS_ABORT_CHANNEL_PREFIX = "gtf:abort:"
 
-# Mi BI fork defaults (branding, theme, languages, palettes)
+# AuraData BI fork defaults (branding, theme, languages, palettes)
 from superset.mibi_config import *  # noqa: E402, F403
 
 # -------------------------------------------------------------------

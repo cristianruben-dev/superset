@@ -18,7 +18,7 @@
  */
 
 /*
- * Mi BI global skin (navbar, lists, explore, SQL Lab, menus, modals, chart gallery).
+ * AuraData BI global skin (navbar, lists, explore, SQL Lab, menus, modals, chart gallery).
  * Bundled through src/preamble.ts, so it ships with every entry (spa, menu, embedded).
  *
  * Rules:
@@ -34,11 +34,23 @@
   --mb-hairline-strong: rgba(120, 120, 135, 0.26);
   --mb-hover: rgba(120, 120, 135, 0.08);
   --mb-active: rgba(120, 120, 135, 0.13);
+  /* Shadows, easing and accents of auradata.mx (card, float and glow) */
   --mb-shadow-card:
-    0 1px 2px rgba(10, 10, 15, 0.04), 0 6px 20px -14px rgba(10, 10, 15, 0.16);
+    0 1px 2px rgba(0, 0, 0, 0.04), 0 8px 24px -12px rgba(0, 0, 0, 0.08);
   --mb-shadow-pop:
-    0 18px 44px -14px rgba(10, 10, 15, 0.28), 0 2px 8px rgba(10, 10, 15, 0.06);
-  --mb-focus: 0 0 0 3px rgba(91, 91, 214, 0.22);
+    0 1px 2px rgba(0, 0, 0, 0.04), 0 24px 48px -16px rgba(15, 23, 42, 0.18);
+  --mb-shadow-glow: 0 8px 32px -8px rgba(37, 99, 235, 0.45);
+  --mb-focus: 0 0 0 3px rgba(37, 99, 235, 0.24);
+  --mb-ease: cubic-bezier(0.32, 0.72, 0, 1);
+  --mb-aura-blue: #2563eb;
+  --mb-aura-violet: #7c3aed;
+  --mb-aura-green: #10b981;
+  --mb-aura-gradient: linear-gradient(
+    100deg,
+    var(--mb-aura-blue) 0%,
+    var(--mb-aura-violet) 55%,
+    var(--mb-aura-green) 100%
+  );
 }
 
 /* ---------------------------------------------------------------- Base */
@@ -47,8 +59,6 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
-  font-feature-settings: 'cv11', 'ss01';
-  letter-spacing: -0.006em;
 }
 
 table,
@@ -61,7 +71,7 @@ table,
 }
 
 ::selection {
-  background: rgba(91, 91, 214, 0.2);
+  background: rgba(37, 99, 235, 0.18);
 }
 
 * {
@@ -1152,26 +1162,39 @@ body:has(.dashboard--editing) [data-test='dashboard-header-container'] {
   width: auto !important;
   height: auto !important;
   overflow: auto;
-  padding: 24px;
+  gap: 96px;
+  padding: 88px 48px 32px;
   box-sizing: border-box;
+  /* The aura of auradata.mx: blue, violet and green light over a quiet grid */
   background:
     radial-gradient(
-      1100px 560px at 0% -10%,
-      var(--mb-primary-bg),
-      transparent 62%
+      620px 420px at 8% 12%,
+      rgba(37, 99, 235, 0.16),
+      transparent 70%
     ),
     radial-gradient(
-      900px 520px at 100% 110%,
-      var(--mb-primary-bg),
-      transparent 60%
+      560px 420px at 46% 92%,
+      rgba(124, 58, 237, 0.12),
+      transparent 70%
     ),
+    radial-gradient(
+      520px 380px at 96% 8%,
+      rgba(16, 185, 129, 0.12),
+      transparent 70%
+    ),
+    linear-gradient(rgba(120, 120, 135, 0.08) 1px, transparent 1px) 0 0 / 56px
+      56px,
+    linear-gradient(90deg, rgba(120, 120, 135, 0.08) 1px, transparent 1px) 0 0 /
+      56px 56px,
     var(--mb-bg-layout);
 }
 
 [data-test='login-form'] > .ant-card {
-  width: 400px;
+  flex-shrink: 0;
+  width: 420px;
   max-width: 100%;
-  border-radius: 18px;
+  margin-top: 0;
+  border-radius: 20px;
   border: 1px solid var(--mb-border-secondary);
   box-shadow: var(--mb-shadow-pop);
   padding-top: 32px;
@@ -1182,6 +1205,13 @@ body:has(.dashboard--editing) [data-test='dashboard-header-container'] {
   display: block;
   height: 30px;
   background: var(--mb-logo) no-repeat center / contain;
+}
+
+/* Next to the brand panel the logo is already on screen */
+@media (min-width: 960px) {
+  [data-test='login-form'] > .ant-card::before {
+    display: none;
+  }
 }
 
 [data-test='login-form'] .ant-card-head {
@@ -1212,14 +1242,28 @@ body:has(.dashboard--editing) [data-test='dashboard-header-container'] {
 }
 
 [data-test='login-form'] .ant-input-affix-wrapper {
-  height: 40px;
-  border-radius: 10px;
+  height: 44px;
+  border-radius: 12px;
 }
 
+/* The brand's primary call to action: an ink pill that glows on hover */
 [data-test='login-form'] [data-test='login-button'] {
-  height: 40px;
-  border-radius: 10px;
+  height: 44px;
+  border-radius: 999px;
   font-weight: 600;
+  background: var(--mb-text);
+  color: var(--mb-bg-container);
+  transition:
+    box-shadow 0.7s var(--mb-ease),
+    transform 0.7s var(--mb-ease);
+}
+
+[data-test='login-form'] [data-test='login-button']:not(:disabled):hover {
+  background: var(--mb-text);
+  color: var(--mb-bg-container);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    var(--mb-shadow-glow);
 }
 
 /* ---- Presentation mode: the dashboard alone, full screen ---------------- */

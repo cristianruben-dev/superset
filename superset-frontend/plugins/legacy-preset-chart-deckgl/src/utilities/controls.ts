@@ -38,8 +38,8 @@ export function columnChoices(datasource: Dataset | QueryResponse | null) {
   return [];
 }
 
-// Mi BI brand color (#5B5BD6)
-export const PRIMARY_COLOR = { r: 91, g: 91, b: 214, a: 1 };
+// AuraData brand color (Azul Aura, #2563EB)
+export const PRIMARY_COLOR = { r: 37, g: 99, b: 235, a: 1 };
 export const BLACK_COLOR = { r: 0, g: 0, b: 0, a: 1 };
 
 export default {
