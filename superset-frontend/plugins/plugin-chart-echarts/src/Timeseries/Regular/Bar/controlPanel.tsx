@@ -438,6 +438,8 @@ const config: ControlPanelConfig = {
     },
     sections.dataLabelsFormatSection,
     sections.legendFormatSection,
+    sections.buildSeriesFormatSection({ lines: false, markers: false }),
+    sections.chartConditionalFormattingSection,
     sections.axesFormatSection,
   ],
   controlOverrides: {

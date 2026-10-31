@@ -34,6 +34,7 @@ import {
   EchartsTimeseriesSeriesType,
   LabelPositionEnum,
   LegendFormData,
+  VisualFormatFormData,
   StackType,
   TitleFormData,
 } from '../types';
@@ -109,6 +110,7 @@ export type EchartsMixedTimeseriesFormData = QueryFormData & {
   groupby: QueryFormColumn[];
   groupbyB: QueryFormColumn[];
 } & LegendFormData &
+  VisualFormatFormData &
   TitleFormData;
 
 // @ts-expect-error

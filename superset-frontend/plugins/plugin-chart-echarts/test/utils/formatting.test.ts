@@ -19,10 +19,14 @@
 import type { SeriesOption } from 'echarts';
 import {
   applyAxisFormatting,
+  applyConditionalFormatting,
   applyLegendFormatting,
+  applySeriesStyle,
   applyValueLabelStyle,
+  getActiveConditionalRules,
   getEchartsTextStyle,
   getGridlineStyle,
+  matchesConditionalRule,
 } from '../../src/utils/formatting';
 import { LegendOrientation } from '../../src/types';
 
@@ -179,4 +183,164 @@ test('applyAxisFormatting merges fonts, inverse and gridlines', () => {
     inverse: true,
     splitLine: { show: true, lineStyle: { width: 2, type: 'dotted' } },
   });
+});
+
+test('applySeriesStyle is a no-op without customization', () => {
+  const series = { type: 'line', name: 'A', lineStyle: {} } as SeriesOption;
+  expect(applySeriesStyle(series, {})).toBe(series);
+});
+
+test('applySeriesStyle overrides the color of the named series only', () => {
+  const series = {
+    type: 'bar',
+    name: 'Sales',
+    itemStyle: { color: '#111111', borderColor: '#111111' },
+  } as SeriesOption;
+  expect(applySeriesStyle(series, { seriesColors: { Costs: '#ff0000' } })).toBe(
+    series,
+  );
+  expect(
+    (
+      applySeriesStyle(series, { seriesColors: { Sales: '#ff0000' } }) as {
+        itemStyle: Record<string, unknown>;
+      }
+    ).itemStyle,
+  ).toEqual({ color: '#ff0000', borderColor: '#ff0000' });
+});
+
+test('applySeriesStyle styles lines and markers', () => {
+  const series = {
+    type: 'line',
+    name: 'A',
+    lineStyle: { opacity: 1 },
+    symbol: 'emptyCircle',
+  } as SeriesOption;
+  expect(
+    applySeriesStyle(series, {
+      lineWidth: '4',
+      lineType: 'dashed',
+      markerSymbol: 'diamond',
+    }),
+  ).toEqual({
+    type: 'line',
+    name: 'A',
+    lineStyle: { opacity: 1, width: 4, type: 'dashed' },
+    symbol: 'diamond',
+  });
+  // Dash patterns of time comparison series are preserved.
+  const dashed = {
+    type: 'line',
+    name: 'B',
+    lineStyle: { type: [6, 15] },
+  } as SeriesOption;
+  expect(applySeriesStyle(dashed, { lineType: 'dotted' })).toBe(dashed);
+});
+
+test('applySeriesStyle styles bars', () => {
+  const series = {
+    type: 'bar',
+    name: 'A',
+    itemStyle: { color: '#111111' },
+  } as SeriesOption;
+  expect(
+    applySeriesStyle(series, {
+      barCategoryGap: 40,
+      barBorderColor: '#000000',
+      barBorderWidth: 2,
+      barBorderRadius: 6,
+    }),
+  ).toEqual({
+    type: 'bar',
+    name: 'A',
+    barCategoryGap: '40%',
+    itemStyle: {
+      color: '#111111',
+      borderWidth: 2,
+      borderType: 'solid',
+      borderColor: '#000000',
+      borderRadius: [6, 6, 0, 0],
+    },
+  });
+  expect(
+    (
+      applySeriesStyle(series, { barBorderRadius: 6, isHorizontal: true }) as {
+        itemStyle: Record<string, unknown>;
+      }
+    ).itemStyle.borderRadius,
+  ).toEqual([0, 6, 6, 0]);
+});
+
+test('matchesConditionalRule evaluates every operator', () => {
+  const rule = (operator: string, value: number, value2?: number) =>
+    ({ operator, value, value2 }) as Parameters<
+      typeof matchesConditionalRule
+    >[0];
+  expect(matchesConditionalRule(rule('>', 5), 6)).toBe(true);
+  expect(matchesConditionalRule(rule('>', 5), 5)).toBe(false);
+  expect(matchesConditionalRule(rule('>=', 5), 5)).toBe(true);
+  expect(matchesConditionalRule(rule('<', 5), 4)).toBe(true);
+  expect(matchesConditionalRule(rule('<=', 5), 6)).toBe(false);
+  expect(matchesConditionalRule(rule('=', 5), 5)).toBe(true);
+  expect(matchesConditionalRule(rule('!=', 5), 5)).toBe(false);
+  expect(matchesConditionalRule(rule('between', 10, 1), 5)).toBe(true);
+  expect(matchesConditionalRule(rule('between', 1, 10), 11)).toBe(false);
+  expect(matchesConditionalRule(rule('>', 5), null)).toBe(false);
+});
+
+test('getActiveConditionalRules drops incomplete rules', () => {
+  expect(
+    getActiveConditionalRules([
+      { operator: '>', value: 1, color: '#ff0000' },
+      { operator: '>', value: null, color: '#ff0000' },
+      { operator: '>', value: 1 },
+      'nope',
+    ]),
+  ).toEqual([{ operator: '>', value: 1, color: '#ff0000' }]);
+  expect(getActiveConditionalRules(undefined)).toEqual([]);
+});
+
+test('applyConditionalFormatting colors matching points and labels', () => {
+  const series = {
+    type: 'bar',
+    name: 'Sales',
+    data: [
+      [1, 10],
+      [2, 50],
+      { value: [3, 90], label: { position: 'top' } },
+      [4, null],
+    ],
+  } as SeriesOption;
+  const styled = applyConditionalFormatting(
+    series,
+    [
+      { operator: '>', value: 80, color: '#00ff00', target: 'both' },
+      { operator: '>', value: 40, color: '#ff0000', target: 'mark' },
+    ],
+    1,
+  ) as { data: unknown[] };
+  expect(styled.data).toEqual([
+    [1, 10],
+    { value: [2, 50], itemStyle: { color: '#ff0000' } },
+    {
+      value: [3, 90],
+      itemStyle: { color: '#00ff00' },
+      label: { position: 'top', color: '#00ff00' },
+    },
+    [4, null],
+  ]);
+});
+
+test('applyConditionalFormatting respects the rule series', () => {
+  const series = {
+    type: 'line',
+    name: 'Costs',
+    data: [[1, 100]],
+  } as SeriesOption;
+  expect(
+    applyConditionalFormatting(
+      series,
+      [{ operator: '>', value: 1, color: '#ff0000', series: 'Sales' }],
+      1,
+    ),
+  ).toBe(series);
 });

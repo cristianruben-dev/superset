@@ -21,8 +21,11 @@ import { invert } from 'lodash-es';
 import { rebaseToPercentChange } from './percentChange';
 import {
   applyAxisFormatting,
+  applyConditionalFormatting,
   applyLegendFormatting,
+  applySeriesStyle,
   applyValueLabelStyle,
+  getActiveConditionalRules,
   getEchartsTextStyle,
   resolveLegendAlign,
   resolveLegendIcon,
@@ -424,6 +427,15 @@ export default function transformProps(
     gridlineColor,
     gridlineWidth,
     gridlineStyle,
+    seriesColors,
+    seriesLineWidth,
+    seriesLineType,
+    seriesMarkerSymbol,
+    barCategoryGap,
+    barBorderColor,
+    barBorderWidth,
+    barBorderRadius,
+    chartConditionalFormatting,
   }: EchartsTimeseriesFormData = { ...DEFAULT_FORM_DATA, ...formData };
   const resolvedValueLabelPosition =
     valueLabelPosition ?? BarValueLabelPosition.OutsideEnd;
@@ -800,6 +812,23 @@ export default function transformProps(
   const valueLabelFormatter = valueLabelFormat
     ? getNumberFormatter(valueLabelFormat)
     : undefined;
+  const seriesStyleOptions = {
+    seriesColors,
+    lineWidth: seriesLineWidth,
+    lineType: seriesLineType,
+    markerSymbol: seriesMarkerSymbol,
+    barCategoryGap,
+    barBorderColor,
+    barBorderWidth,
+    barBorderRadius,
+    isHorizontal,
+  };
+  // Percent change rebasing rewrites point values on the client, so rules
+  // evaluated on the original values would no longer match what is drawn.
+  const conditionalRules = rebasePercentChange
+    ? []
+    : getActiveConditionalRules(chartConditionalFormatting);
+  const conditionalValueIndex = isHorizontal ? 0 : 1;
   const customFormatters = buildCustomFormatters(
     metrics,
     currencyFormats,
@@ -1028,21 +1057,36 @@ export default function transformProps(
       },
     );
     if (transformedSeries) {
-      const styledSeries = applyValueLabelStyle(transformedSeries, {
-        font: valueLabelFont,
-        background: valueLabelBackground,
-        rotate: valueLabelRotate,
-      });
+      const styledSeries = applySeriesStyle(
+        applyValueLabelStyle(transformedSeries, {
+          font: valueLabelFont,
+          background: valueLabelBackground,
+          rotate: valueLabelRotate,
+        }),
+        seriesStyleOptions,
+      );
       if (stack === StackControlsValue.Stream) {
         // bug in Echarts - `stackStrategy: 'all'` doesn't work with nulls, so we cast them to 0
-        series.push({
-          ...styledSeries,
-          data: (styledSeries.data as any).map(
-            (row: [string | number, number]) => [row[0], row[1] ?? 0],
+        series.push(
+          applyConditionalFormatting(
+            {
+              ...styledSeries,
+              data: (styledSeries.data as any).map(
+                (row: [string | number, number]) => [row[0], row[1] ?? 0],
+              ),
+            },
+            conditionalRules,
+            conditionalValueIndex,
           ),
-        });
+        );
       } else {
-        series.push(styledSeries);
+        series.push(
+          applyConditionalFormatting(
+            styledSeries,
+            conditionalRules,
+            conditionalValueIndex,
+          ),
+        );
       }
     }
   });

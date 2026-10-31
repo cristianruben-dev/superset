@@ -19,7 +19,11 @@
 import {
   type ColorInput,
   type FontStyleValue,
+  type ValueRule,
+  type ValueRuleOperator,
+  getCompleteValueRules,
   hasCustomFontStyle,
+  matchesValueRule,
   toBoundedNumber,
   toCssColor,
 } from '@superset-ui/core';
@@ -305,4 +309,218 @@ export function applyAxisFormatting<T extends Record<string, unknown>>(
     };
   }
   return next as T;
+}
+
+/* -------------------------------------------------------------------------
+ * Series (lines, markers, bars)
+ * ---------------------------------------------------------------------- */
+
+export type SeriesStyleOptions = {
+  /** Color overrides keyed by series name. */
+  seriesColors?: Record<string, ColorInput> | null;
+  lineWidth?: number | string | null;
+  lineType?: string | null;
+  markerSymbol?: string | null;
+  /** Gap between bar categories, as a percentage of the category width. */
+  barCategoryGap?: number | string | null;
+  barBorderColor?: ColorInput;
+  barBorderWidth?: number | string | null;
+  barBorderRadius?: number | string | null;
+  isHorizontal?: boolean;
+};
+
+export const MARKER_SYMBOLS = [
+  'circle',
+  'emptyCircle',
+  'rect',
+  'roundRect',
+  'triangle',
+  'diamond',
+  'pin',
+  'arrow',
+] as const;
+
+const isEmptyNumber = (value: unknown) =>
+  value === null || value === undefined || value === '';
+
+/**
+ * Applies the "Series format" controls to a single series: color override,
+ * line width/style, marker shape, and bar spacing/border/rounded corners.
+ */
+export function applySeriesStyle<T extends SeriesOption>(
+  series: T,
+  options: SeriesStyleOptions,
+): T {
+  const next = { ...series } as Record<string, unknown>;
+  const type = next.type as string | undefined;
+  const name = next.name === undefined ? undefined : String(next.name);
+  let changed = false;
+
+  const color =
+    name !== undefined && isRecord(options.seriesColors)
+      ? toCssColor(options.seriesColors[name])
+      : undefined;
+  if (color) {
+    const itemStyle = isRecord(next.itemStyle) ? next.itemStyle : {};
+    next.itemStyle = {
+      ...itemStyle,
+      color,
+      // Dotted "connect nulls" bar borders follow the series color.
+      ...(itemStyle.borderColor !== undefined &&
+      itemStyle.borderColor === itemStyle.color
+        ? { borderColor: color }
+        : {}),
+    };
+    if (isRecord(next.lineStyle) && next.lineStyle.color !== undefined) {
+      next.lineStyle = { ...next.lineStyle, color };
+    }
+    changed = true;
+  }
+
+  if (type === 'line') {
+    const lineStyle = isRecord(next.lineStyle) ? next.lineStyle : {};
+    const patch: Record<string, unknown> = {};
+    if (!isEmptyNumber(options.lineWidth)) {
+      patch.width = toBoundedNumber(options.lineWidth, 2, 1, 10);
+    }
+    // Time comparison series already use dash patterns to stay
+    // distinguishable, so only solid lines take the user's style.
+    if (
+      (options.lineType === 'dashed' || options.lineType === 'dotted') &&
+      (lineStyle.type === undefined || lineStyle.type === 'solid')
+    ) {
+      patch.type = options.lineType;
+    }
+    if (Object.keys(patch).length > 0) {
+      next.lineStyle = { ...lineStyle, ...patch };
+      changed = true;
+    }
+  }
+
+  if (
+    (type === 'line' || type === 'scatter') &&
+    (MARKER_SYMBOLS as readonly string[]).includes(options.markerSymbol ?? '')
+  ) {
+    next.symbol = options.markerSymbol;
+    changed = true;
+  }
+
+  if (type === 'bar') {
+    if (!isEmptyNumber(options.barCategoryGap)) {
+      next.barCategoryGap = `${toBoundedNumber(options.barCategoryGap, 20, 0, 95)}%`;
+      changed = true;
+    }
+    const borderWidth = toBoundedNumber(options.barBorderWidth, 0, 0, 10);
+    const borderColor = toCssColor(options.barBorderColor);
+    const radius = toBoundedNumber(options.barBorderRadius, 0, 0, 50);
+    if (borderWidth > 0 || radius > 0) {
+      const itemStyle = isRecord(next.itemStyle) ? next.itemStyle : {};
+      next.itemStyle = {
+        ...itemStyle,
+        ...(borderWidth > 0
+          ? {
+              borderWidth,
+              borderType: 'solid',
+              ...(borderColor ? { borderColor } : {}),
+            }
+          : {}),
+        // Round only the bar end, like a column's top edge.
+        ...(radius > 0
+          ? {
+              borderRadius: options.isHorizontal
+                ? [0, radius, radius, 0]
+                : [radius, radius, 0, 0],
+            }
+          : {}),
+      };
+      changed = true;
+    }
+  }
+
+  return changed ? (next as T) : series;
+}
+
+/* -------------------------------------------------------------------------
+ * Conditional formatting of chart marks and labels
+ * ---------------------------------------------------------------------- */
+
+export type ChartConditionalOperator = ValueRuleOperator;
+
+export type ChartConditionalTarget = 'mark' | 'label' | 'both';
+
+export interface ChartConditionalRule extends ValueRule {
+  target?: ChartConditionalTarget;
+  /** Series name the rule applies to; empty means every series. */
+  series?: string | null;
+}
+
+/** Whether a value satisfies a rule. Invalid rules never match. */
+export const matchesConditionalRule = (
+  rule: ChartConditionalRule,
+  value: unknown,
+): boolean => matchesValueRule(rule, value);
+
+/** Rules that are complete enough to evaluate. */
+export const getActiveConditionalRules = (
+  rules: unknown,
+): ChartConditionalRule[] => getCompleteValueRules<ChartConditionalRule>(rules);
+
+/**
+ * Colors individual data points (bars, markers) and/or their labels when
+ * their value matches a rule. The first matching rule wins. Points are
+ * turned into `{ value, itemStyle, label }` objects, which every series path
+ * in the chart already supports.
+ */
+export function applyConditionalFormatting<T extends SeriesOption>(
+  series: T,
+  rules: ChartConditionalRule[],
+  valueIndex: number,
+): T {
+  const name = series.name === undefined ? '' : String(series.name);
+  const seriesRules = rules.filter(
+    rule => !rule.series || rule.series === name,
+  );
+  const { data } = series as { data?: unknown };
+  if (seriesRules.length === 0 || !Array.isArray(data)) {
+    return series;
+  }
+  let changed = false;
+  const nextData = data.map(point => {
+    const tuple = Array.isArray(point)
+      ? point
+      : isRecord(point) && Array.isArray(point.value)
+        ? point.value
+        : undefined;
+    if (!tuple) return point;
+    const rule = seriesRules.find(r =>
+      matchesConditionalRule(r, tuple[valueIndex]),
+    );
+    if (!rule) return point;
+    const color = toCssColor(rule.color);
+    const target = rule.target ?? 'mark';
+    const base: Record<string, unknown> = isRecord(point)
+      ? point
+      : { value: point };
+    changed = true;
+    return {
+      ...base,
+      ...(target === 'mark' || target === 'both'
+        ? {
+            itemStyle: {
+              ...(isRecord(base.itemStyle) ? base.itemStyle : {}),
+              color,
+            },
+          }
+        : {}),
+      ...(target === 'label' || target === 'both'
+        ? {
+            label: {
+              ...(isRecord(base.label) ? base.label : {}),
+              color,
+            },
+          }
+        : {}),
+    };
+  });
+  return changed ? ({ ...series, data: nextData } as T) : series;
 }

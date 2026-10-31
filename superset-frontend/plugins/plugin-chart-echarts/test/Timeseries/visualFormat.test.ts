@@ -189,3 +189,56 @@ test('formats axes before swapping them on horizontal charts', () => {
   expect(horizontal.yAxis.inverse).toBe(true);
   expect(horizontal.xAxis.nameTextStyle).toEqual({ color: '#00ff00' });
 });
+
+type StyledSeries = LabelledSeries & {
+  type?: string;
+  itemStyle?: Record<string, unknown>;
+  barCategoryGap?: string;
+  data?: unknown[];
+};
+
+test('applies series colors and bar styles', () => {
+  const result = transformProps(
+    createProps({
+      seriesColors: { 'New York': '#123456' },
+      barCategoryGap: 50,
+      barBorderRadius: 4,
+    }),
+  );
+  const series = getDataSeries(result) as StyledSeries[];
+  const newYork = series.find(s => s.name === 'New York');
+  const sanFrancisco = series.find(s => s.name === 'San Francisco');
+  expect(newYork?.itemStyle?.color).toBe('#123456');
+  expect(sanFrancisco?.itemStyle?.color).not.toBe('#123456');
+  series.forEach(s => {
+    expect(s.barCategoryGap).toBe('50%');
+    expect(s.itemStyle?.borderRadius).toEqual([4, 4, 0, 0]);
+  });
+});
+
+test('colors bars whose value matches a conditional rule', () => {
+  const result = transformProps(
+    createProps({
+      chartConditionalFormatting: [
+        {
+          operator: '>',
+          value: 4000,
+          color: '#ff0000',
+          target: 'both',
+          series: 'New York',
+        },
+      ],
+    }),
+  );
+  const series = getDataSeries(result) as StyledSeries[];
+  const newYork = series.find(s => s.name === 'New York');
+  const sanFrancisco = series.find(s => s.name === 'San Francisco');
+  const [first, second] = (newYork?.data ?? []) as Record<string, any>[];
+  expect(Array.isArray(first) || !first.itemStyle).toBe(true);
+  expect(second.itemStyle).toEqual({ color: '#ff0000' });
+  expect(second.label).toEqual(expect.objectContaining({ color: '#ff0000' }));
+  expect(sanFrancisco?.data).toBeDefined();
+  (sanFrancisco?.data ?? []).forEach(point => {
+    expect(point).not.toHaveProperty('itemStyle');
+  });
+});

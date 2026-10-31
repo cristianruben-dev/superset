@@ -446,18 +446,35 @@ export const valueLabelRotateControl = selectControl(
   0,
 );
 
-export const dataLabelsFormatSection: ControlPanelSectionConfig = {
+/**
+ * Builds the "Data labels format" section. Charts choose which control
+ * reveals the section and which options apply to their labels.
+ */
+export const buildDataLabelsFormatSection = ({
+  showWhen = ['show_value'],
+  numberFormat = true,
+  rotate = true,
+}: {
+  /** The section shows when any of these checkbox controls is on. */
+  showWhen?: string[];
+  numberFormat?: boolean;
+  rotate?: boolean;
+} = {}): ControlPanelSectionConfig => ({
   label: t('Data labels format'),
   description: t('Style of the values shown on the chart'),
   tabOverride: 'customize',
   expanded: false,
-  visibility: isChecked('show_value'),
+  visibility: props => showWhen.some(name => isChecked(name)(props)),
   controlSetRows: [
     [valueLabelFontControl],
-    [valueLabelBackgroundControl, valueLabelRotateControl],
-    [valueLabelFormatControl],
+    rotate
+      ? [valueLabelBackgroundControl, valueLabelRotateControl]
+      : [valueLabelBackgroundControl],
+    ...(numberFormat ? [[valueLabelFormatControl]] : []),
   ],
-};
+});
+
+export const dataLabelsFormatSection = buildDataLabelsFormatSection();
 
 /* -------------------------------------------------------------------------
  * Phase 3 — legend
@@ -516,7 +533,13 @@ export const legendFormatSection: ControlPanelSectionConfig = {
  * Phase 4 — axes and gridlines
  * ---------------------------------------------------------------------- */
 
-export const axesFormatSection: ControlPanelSectionConfig = {
+/**
+ * Builds the "Axes & gridlines format" section; charts with a secondary
+ * value axis get font controls for it too.
+ */
+export const buildAxesFormatSection = ({
+  secondaryYAxis = false,
+}: { secondaryYAxis?: boolean } = {}): ControlPanelSectionConfig => ({
   label: t('Axes & gridlines format'),
   description: t(
     'Fonts of the axis labels and titles, axis direction and gridline style',
@@ -572,6 +595,31 @@ export const axesFormatSection: ControlPanelSectionConfig = {
         t('Draw the Y axis in the opposite direction'),
       ),
     ],
+    ...(secondaryYAxis
+      ? [
+          [
+            <ControlSubSectionHeader>
+              {t('Secondary Y Axis')}
+            </ControlSubSectionHeader>,
+          ],
+          [
+            fontControl(
+              'y_axis_secondary_label_font',
+              t('Secondary Y axis labels font'),
+              t('Font of the secondary Y axis tick labels'),
+              { defaultFontSize: 12 },
+            ),
+          ],
+          [
+            fontControl(
+              'y_axis_secondary_title_font',
+              t('Secondary Y axis title font'),
+              t('Font of the secondary Y axis title'),
+              { defaultFontSize: 12 },
+            ),
+          ],
+        ]
+      : []),
     [<ControlSubSectionHeader>{t('Gridlines')}</ControlSubSectionHeader>],
     [
       colorControl(
@@ -596,6 +644,200 @@ export const axesFormatSection: ControlPanelSectionConfig = {
         LINE_STYLE_CHOICES,
         'solid',
       ),
+    ],
+  ],
+});
+
+export const axesFormatSection = buildAxesFormatSection();
+
+/* -------------------------------------------------------------------------
+ * Phase 5 — series
+ * ---------------------------------------------------------------------- */
+
+type ChartQueryResponse = { label_map?: Record<string, unknown> };
+
+/**
+ * Series names from the chart's last query responses, used to offer the
+ * per-series pickers before the user types any name.
+ */
+export const getSeriesNamesFromChart = (chart?: {
+  queriesResponse?: ChartQueryResponse[] | null;
+}): string[] => {
+  const names = new Set<string>();
+  (chart?.queriesResponse ?? []).forEach(response => {
+    Object.keys(response?.label_map ?? {}).forEach(name => names.add(name));
+  });
+  return Array.from(names);
+};
+
+const seriesNamesProps = {
+  shouldMapStateToProps: () => true,
+  mapStateToProps: (
+    _state: unknown,
+    _control: unknown,
+    chart?: { queriesResponse?: ChartQueryResponse[] | null },
+  ) => ({ seriesNames: getSeriesNamesFromChart(chart) }),
+};
+
+export const seriesColorsControl: ControlSetItem = {
+  name: 'series_colors',
+  config: {
+    type: 'SeriesColorsControl',
+    label: t('Series colors'),
+    description: t(
+      'Pick a color per series. Series without a color keep the color scheme',
+    ),
+    default: {},
+    renderTrigger: true,
+    ...seriesNamesProps,
+  },
+};
+
+export const MARKER_SYMBOL_CHOICES: [string | null, string][] = [
+  [null, t('Auto')],
+  ['circle', t('Circle')],
+  ['emptyCircle', t('Empty circle')],
+  ['rect', t('Square')],
+  ['roundRect', t('Rounded square')],
+  ['triangle', t('Triangle')],
+  ['diamond', t('Diamond')],
+  ['pin', t('Pin')],
+  ['arrow', t('Arrow')],
+];
+
+/**
+ * Builds the "Series format" section with the options that apply to the
+ * chart's series types.
+ */
+export const buildSeriesFormatSection = ({
+  lines = true,
+  markers = true,
+  bars = true,
+}: {
+  lines?: boolean;
+  markers?: boolean;
+  bars?: boolean;
+} = {}): ControlPanelSectionConfig => ({
+  label: t('Series format'),
+  description: t('Colors, lines, markers and bars of each series'),
+  tabOverride: 'customize',
+  expanded: false,
+  controlSetRows: [
+    [seriesColorsControl],
+    ...(lines
+      ? [
+          [<ControlSubSectionHeader>{t('Lines')}</ControlSubSectionHeader>],
+          [
+            {
+              name: 'series_line_width',
+              config: {
+                type: 'NumberControl',
+                label: t('Line width'),
+                description: t('Line thickness in pixels; empty uses 2'),
+                default: null,
+                min: 1,
+                max: 10,
+                step: 1,
+                renderTrigger: true,
+              },
+            },
+            selectControl(
+              'series_line_type',
+              t('Line style'),
+              t('Line style of the series'),
+              LINE_STYLE_CHOICES,
+              'solid',
+            ),
+          ],
+        ]
+      : []),
+    ...(markers
+      ? [
+          [
+            selectControl(
+              'series_marker_symbol',
+              t('Marker shape'),
+              t('Shape of the data point markers'),
+              MARKER_SYMBOL_CHOICES,
+              null,
+            ),
+          ],
+        ]
+      : []),
+    ...(bars
+      ? [
+          [<ControlSubSectionHeader>{t('Bars')}</ControlSubSectionHeader>],
+          [
+            {
+              name: 'bar_category_gap',
+              config: {
+                type: 'NumberControl',
+                label: t('Space between bars (%)'),
+                description: t(
+                  'Gap between bar groups as a percentage of their width; empty uses the default',
+                ),
+                default: null,
+                min: 0,
+                max: 95,
+                step: 5,
+                renderTrigger: true,
+              },
+            },
+            numberControl(
+              'bar_border_radius',
+              t('Rounded corners'),
+              t('Corner radius of the bar ends in pixels'),
+              0,
+              0,
+              50,
+            ),
+          ],
+          [
+            colorControl(
+              'bar_border_color',
+              t('Bar border color'),
+              t('Color of the bar borders'),
+            ),
+            numberControl(
+              'bar_border_width',
+              t('Bar border width'),
+              t('Border thickness in pixels; 0 hides it'),
+              0,
+              0,
+              10,
+            ),
+          ],
+        ]
+      : []),
+  ],
+});
+
+/* -------------------------------------------------------------------------
+ * Phase 8 — conditional formatting of marks and labels
+ * ---------------------------------------------------------------------- */
+
+export const chartConditionalFormattingSection: ControlPanelSectionConfig = {
+  label: t('Conditional formatting'),
+  description: t(
+    'Color bars, points or data labels whose value matches a rule',
+  ),
+  tabOverride: 'customize',
+  expanded: false,
+  controlSetRows: [
+    [
+      {
+        name: 'chart_conditional_formatting',
+        config: {
+          type: 'ChartConditionalFormattingControl',
+          label: t('Rules'),
+          description: t(
+            'Rules are checked in order; the first matching rule colors the value',
+          ),
+          default: [],
+          renderTrigger: true,
+          ...seriesNamesProps,
+        },
+      },
     ],
   ],
 };

@@ -416,3 +416,102 @@ export function getVisualContainerInnerSize(
     headerHeight,
   };
 }
+
+/** CSS properties for the font style properties the user explicitly set. */
+export function getCustomFontCss(
+  font: FontStyleValue | null | undefined,
+): Partial<{
+  fontFamily: string;
+  fontSize: string;
+  fontWeight: number;
+  fontStyle: string;
+  color: string;
+}> {
+  if (!font || !hasCustomFontStyle(font)) {
+    return {};
+  }
+  const css: ReturnType<typeof getCustomFontCss> = {};
+  if (font.fontFamily) css.fontFamily = font.fontFamily;
+  const size = toBoundedNumber(font.fontSize, Number.NaN, 6, 96);
+  if (Number.isFinite(size)) css.fontSize = `${size}px`;
+  if (typeof font.bold === 'boolean') css.fontWeight = font.bold ? 700 : 400;
+  if (typeof font.italic === 'boolean') {
+    css.fontStyle = font.italic ? 'italic' : 'normal';
+  }
+  const color = toCssColor(font.color);
+  if (color) css.color = color;
+  return css;
+}
+
+/* -------------------------------------------------------------------------
+ * Value rules shared by chart and table conditional formatting
+ * ---------------------------------------------------------------------- */
+
+export type ValueRuleOperator =
+  | '>'
+  | '>='
+  | '<'
+  | '<='
+  | '='
+  | '!='
+  | 'between';
+
+export interface ValueRule {
+  operator: ValueRuleOperator;
+  value?: number | string | null;
+  /** Upper bound for the `between` operator (inclusive). */
+  value2?: number | string | null;
+  color?: ColorInput;
+}
+
+const toFiniteRuleNumber = (value: unknown): number | undefined => {
+  if (value === null || value === undefined || value === '') return undefined;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : undefined;
+};
+
+/** Whether a value satisfies a rule. Incomplete rules never match. */
+export function matchesValueRule(rule: ValueRule, value: unknown): boolean {
+  if (typeof value === 'boolean') return false;
+  const numeric = toFiniteRuleNumber(value);
+  const target = toFiniteRuleNumber(rule.value);
+  if (numeric === undefined || target === undefined) return false;
+  switch (rule.operator) {
+    case '>':
+      return numeric > target;
+    case '>=':
+      return numeric >= target;
+    case '<':
+      return numeric < target;
+    case '<=':
+      return numeric <= target;
+    case '=':
+      return numeric === target;
+    case '!=':
+      return numeric !== target;
+    case 'between': {
+      const upper = toFiniteRuleNumber(rule.value2);
+      if (upper === undefined) return false;
+      return (
+        numeric >= Math.min(target, upper) && numeric <= Math.max(target, upper)
+      );
+    }
+    default:
+      return false;
+  }
+}
+
+/** Keeps only rules complete enough to evaluate (operator, value, color). */
+export function getCompleteValueRules<T extends ValueRule>(
+  rules: unknown,
+): T[] {
+  if (!Array.isArray(rules)) return [];
+  return rules.filter(
+    (rule): rule is T =>
+      typeof rule === 'object' &&
+      rule !== null &&
+      typeof (rule as ValueRule).operator === 'string' &&
+      toFiniteRuleNumber((rule as ValueRule).value) !== undefined &&
+      Boolean(toCssColor((rule as ValueRule).color)),
+  );
+}

@@ -1966,3 +1966,61 @@ test('converts xAxisLabelInterval string "0" to number 0', () => {
   // "All" must also disable hideOverlap so ECharts never drops a label.
   expect(xAxis.axisLabel.hideOverlap).toBe(false);
 });
+
+test('applies data label, legend, axis and series format controls', () => {
+  const chartProps = createEchartsTimeseriesTestChartProps<
+    EchartsMixedTimeseriesFormData,
+    EchartsMixedTimeseriesProps
+  >({
+    ...MIXED_TIMESERIES_CHART_PROPS_DEFAULTS,
+    defaultQueriesData: queriesData,
+    formData: {
+      ...formData,
+      showValue: true,
+      showValueB: true,
+      showLegend: true,
+      valueLabelFont: { fontSize: 13 },
+      valueLabelFormat: '.1f',
+      legendAlign: 'center',
+      xAxisLabelFont: { color: '#111111' },
+      yAxisTitleFont: { bold: true },
+      yAxisSecondaryLabelFont: { fontSize: 9 },
+      seriesLineWidth: 5,
+      chartConditionalFormatting: [
+        { operator: '>=', value: 4, color: '#ff0000', target: 'mark' },
+      ],
+    },
+    queriesData,
+  });
+
+  const { echartOptions } = transformProps(chartProps);
+  const series = echartOptions.series as (SeriesOption & {
+    label?: Record<string, unknown>;
+    lineStyle?: Record<string, unknown>;
+    data?: unknown[];
+  })[];
+  series.forEach(s => expect(s.label?.fontSize).toBe(13));
+  const line = series.find(s => s.type === 'line');
+  expect(line?.lineStyle?.width).toBe(5);
+  const bar = series.find(s => s.type === 'bar') as SeriesWithLabelFormatter;
+  expect(formatSeriesLabel(bar, [0, 3])).toBe('3.0');
+  expect(
+    series.some(s =>
+      (s.data ?? []).some(
+        point =>
+          !Array.isArray(point) &&
+          (point as { itemStyle?: { color?: string } }).itemStyle?.color ===
+            '#ff0000',
+      ),
+    ),
+  ).toBe(true);
+
+  const legend = echartOptions.legend as Record<string, unknown>;
+  expect(legend.left).toBe('center');
+  const xAxis = echartOptions.xAxis as Record<string, any>;
+  expect(xAxis.axisLabel.color).toBe('#111111');
+  const [primary, secondary] = echartOptions.yAxis as Record<string, any>[];
+  expect(primary.nameTextStyle).toEqual({ fontWeight: 'bold' });
+  expect(secondary.axisLabel.fontSize).toBe(9);
+  expect(secondary.nameTextStyle).toBeUndefined();
+});

@@ -36,6 +36,7 @@ import type {
   ServerPaginationData,
   TableColumnConfig,
 } from '@superset-ui/chart-controls';
+import type { TableFormat } from './utils/tableFormat';
 
 export type { HeaderGroupConfig };
 
@@ -133,4 +134,6 @@ export interface TableChartTransformedProps<D extends DataRecord = DataRecord> {
   // column names for cross-filtering, so that adhoc columns with custom labels
   // emit the correct column name in cross-filter data masks
   columnLabelToNameMap?: Record<string, string>;
+  /** Resolved "Table format" controls. */
+  tableFormat?: TableFormat;
 }

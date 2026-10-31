@@ -37,6 +37,7 @@ import {
 import type { EChartsCoreOption, EChartsType } from 'echarts/core';
 import type { ECElementEvent } from 'echarts/types/src/util/types';
 import { StackControlsValue } from './constants';
+import type { ChartConditionalRule } from './utils/formatting';
 
 export type EchartsStylesProps = {
   height: number;
@@ -124,9 +125,20 @@ export type VisualFormatFormData = {
   yAxisLabelFont?: FontStyleValue | null;
   yAxisTitleFont?: FontStyleValue | null;
   yAxisInverse?: boolean;
+  yAxisSecondaryLabelFont?: FontStyleValue | null;
+  yAxisSecondaryTitleFont?: FontStyleValue | null;
   gridlineColor?: ColorInput;
   gridlineWidth?: number | string | null;
   gridlineStyle?: string | null;
+  seriesColors?: Record<string, ColorInput> | null;
+  seriesLineWidth?: number | string | null;
+  seriesLineType?: string | null;
+  seriesMarkerSymbol?: string | null;
+  barCategoryGap?: number | string | null;
+  barBorderColor?: ColorInput;
+  barBorderWidth?: number | string | null;
+  barBorderRadius?: number | string | null;
+  chartConditionalFormatting?: ChartConditionalRule[] | null;
 };
 
 export type EventHandlers = Record<string, { (props: any): void }>;

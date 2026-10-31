@@ -23,6 +23,7 @@ import {
   ControlConfig,
   ControlPanelConfig,
   ControlPanelsContainerProps,
+  ControlSubSectionHeader,
   ControlPanelState,
   ControlState,
   ControlStateMapping,
@@ -1026,6 +1027,129 @@ const config: ControlPanelConfig = {
     sections.matrixifyRowSection,
     sections.matrixifyColumnSection,
     sections.matrixifySection,
+    {
+      label: t('Table format'),
+      description: t(
+        'Style preset, header and cell fonts, grid colors and conditional icons',
+      ),
+      tabOverride: 'customize',
+      expanded: false,
+      controlSetRows: [
+        [
+          {
+            name: 'table_style_preset',
+            config: {
+              type: 'SelectControl',
+              label: t('Style'),
+              description: t('Overall look of the table'),
+              choices: [
+                ['default', t('Default (striped, compact)')],
+                ['comfortable', t('Comfortable (striped, roomy)')],
+                ['minimal', t('Minimal (no stripes or lines)')],
+                ['bordered', t('Bordered grid')],
+              ],
+              default: 'default',
+              clearable: false,
+              renderTrigger: true,
+            },
+          },
+        ],
+        [<ControlSubSectionHeader>{t('Header')}</ControlSubSectionHeader>],
+        [
+          {
+            name: 'table_header_font',
+            config: {
+              type: 'FontControl',
+              label: t('Header font'),
+              description: t('Font of the column headers'),
+              default: null,
+              renderTrigger: true,
+            },
+          },
+        ],
+        [
+          {
+            name: 'table_header_background',
+            config: {
+              type: 'ColorPickerControl',
+              label: t('Header background'),
+              description: t('Background color of the column headers'),
+              default: null,
+              renderTrigger: true,
+            },
+          },
+        ],
+        [<ControlSubSectionHeader>{t('Cells')}</ControlSubSectionHeader>],
+        [
+          {
+            name: 'table_cell_font',
+            config: {
+              type: 'FontControl',
+              label: t('Cell font'),
+              description: t(
+                'Font of the table cells; conditional formatting colors still apply',
+              ),
+              default: null,
+              renderTrigger: true,
+            },
+          },
+        ],
+        [
+          {
+            name: 'table_stripe_color',
+            config: {
+              type: 'ColorPickerControl',
+              label: t('Stripe color'),
+              description: t('Background of alternate rows in striped styles'),
+              default: null,
+              renderTrigger: true,
+              visibility: ({ controls }: ControlPanelsContainerProps) =>
+                ['default', 'comfortable', undefined, null].includes(
+                  controls?.table_style_preset?.value as string | undefined,
+                ),
+            },
+          },
+          {
+            name: 'table_grid_color',
+            config: {
+              type: 'ColorPickerControl',
+              label: t('Grid line color'),
+              description: t('Color of the row and column lines'),
+              default: null,
+              renderTrigger: true,
+            },
+          },
+        ],
+        [
+          <ControlSubSectionHeader>
+            {t('Conditional icons')}
+          </ControlSubSectionHeader>,
+        ],
+        [
+          {
+            name: 'table_conditional_icons',
+            config: {
+              type: 'ChartConditionalFormattingControl',
+              label: t('Icon rules'),
+              description: t(
+                'Show an icon next to numeric values that match a rule; the first matching rule wins',
+              ),
+              variant: 'icon',
+              default: [],
+              renderTrigger: true,
+              shouldMapStateToProps: () => true,
+              mapStateToProps: (
+                _state: unknown,
+                _control: unknown,
+                chart?: { queriesResponse?: { colnames?: string[] }[] | null },
+              ) => ({
+                seriesNames: chart?.queriesResponse?.[0]?.colnames ?? [],
+              }),
+            },
+          },
+        ],
+      ],
+    },
   ],
   formDataOverrides: formData => ({
     ...formData,

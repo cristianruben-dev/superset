@@ -53,9 +53,11 @@ Every chart type has two extra sections.
 The title and frame are drawn inside the chart area. They show in Explore, on dashboards and in
 reports. The chart itself is resized to fit the space left inside the frame.
 
-## Data labels, legend and axes (ECharts time-series charts)
+## Data labels, legend and axes
 
-The Line, Smooth Line, Bar, Area, Stepped Line and Scatter charts have three more sections.
+The Line, Smooth Line, Bar, Area, Stepped Line, Scatter and Mixed charts have the sections below.
+The Pie chart has **Data labels format** (font and background, shown when **Show Labels** is
+on) and **Legend format**.
 
 **Data labels format** (shown when **Show value** is on)
 
@@ -78,14 +80,61 @@ The Line, Smooth Line, Bar, Area, Stepped Line and Scatter charts have three mor
 - **Reverse X axis** and **Reverse Y axis**.
 - Gridline color, width and style. The **Gridlines** option under Chart Options still turns
   gridlines on and off.
+- On the Mixed chart, separate fonts for the labels and title of the secondary Y axis.
 
 "X axis" always means the dimension axis, the same axis the **X Axis Title** control refers to.
 On horizontal bar charts that axis is drawn vertically.
 
+## Series format
+
+Available on the Line, Smooth Line, Bar, Area, Stepped Line, Scatter and Mixed charts. Each
+chart shows only the options that apply to its series types.
+
+- **Series colors**: a color picker for each series. The list comes from the chart's last run,
+  and you can also add a series by name. Series without a color keep the color scheme.
+- **Line width** and **Line style** (solid, dashed or dotted). Time comparison series keep
+  their own dash patterns so they stay distinguishable.
+- **Marker shape**: circle, empty circle, square, rounded square, triangle, diamond, pin or
+  arrow.
+- **Space between bars (%)**, **Rounded corners** on the bar ends, and **Bar border** color and
+  width.
+
+## Conditional formatting
+
+Available on the same charts as **Series format**. Each rule has:
+
+- A condition: `>`, `≥`, `<`, `≤`, `=`, `≠`, or **between** two values (inclusive).
+- A color.
+- **Apply to**: the bar or point, the data label, or both.
+- Optionally a single series. When no series is chosen the rule applies to every series.
+
+Rules are checked in order and the first matching rule wins. Points on lines are colored
+through their markers, so turn on markers or **Show value** to see them. Rules are not applied
+while **Percent change** is on, because that mode rewrites the values on screen.
+
+## Table format
+
+The Table chart has a **Table format** section:
+
+- **Style**: Default (striped, compact), Comfortable (striped, roomy), Minimal (no stripes or
+  lines) or Bordered grid.
+- **Header font** and **Header background**.
+- **Cell font**. Colors from the table's own conditional formatting still take priority.
+- **Stripe color** (striped styles) and **Grid line color**.
+- **Icon rules**: show an icon (▲ ▼ ● ■ ◆ ★ ✔ ✖ ⚠) in a chosen color next to numeric
+  values that match a condition, for one column or for every numeric column.
+
 ## For plugin authors
 
 The title and frame sections are added to every chart's control panel. To hide them for a viz
-type, set `visualFormat: false` in its `ControlPanelConfig`. The data label, legend and axes
-sections are exported from `@superset-ui/chart-controls` (`sections.dataLabelsFormatSection`,
-`sections.legendFormatSection` and `sections.axesFormatSection`). The matching ECharts helpers
-are in `plugins/plugin-chart-echarts/src/utils/formatting.ts`.
+type, set `visualFormat: false` in its `ControlPanelConfig`. The other sections are exported
+from `@superset-ui/chart-controls`:
+
+- `sections.buildDataLabelsFormatSection`
+- `sections.legendFormatSection`
+- `sections.buildAxesFormatSection`
+- `sections.buildSeriesFormatSection`
+- `sections.chartConditionalFormattingSection`
+
+The matching ECharts helpers are in `plugins/plugin-chart-echarts/src/utils/formatting.ts`.
+Rule matching (`matchesValueRule`) and font helpers live in `@superset-ui/core`.
