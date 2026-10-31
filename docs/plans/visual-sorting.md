@@ -5,7 +5,9 @@ En Power BI, el autor ordena un visual desde «Más opciones (…) › Ordenar e
 
 **Decisión del producto: solo los editores ordenan.** El orden lo decide el editor y se guarda con el visual. Los lectores ven el visual tal como el editor lo dejó y no tienen opciones de orden. Esto se aparta a propósito de Power BI, donde el lector puede cambiar el orden en la vista de lectura.
 
-**Estado:** fases 1 a 3 implementadas. Quedan las fases 4 a 6 y los opcionales.
+**Estado:** fases 1 a 6 implementadas; quedan los opcionales. Diferencias con el plan:
+- La tabla guarda su orden en el query (`mibi_table_sort`) y no como `initialState.sortBy`: las filas llegan ya ordenadas, pero el encabezado no muestra la flecha de ese orden.
+- El spec de Playwright (`tests/experimental/dashboard/sort.spec.ts`) está escrito pero sin ejecutar: el entorno no tenía el navegador de la versión de Playwright del proyecto.
 
 ---
 
