@@ -18962,6 +18962,9 @@ msgstr "Editar interacciones"
 msgid "Edit interactions: choose which charts this one filters"
 msgstr "Editar interacciones: elige qué gráficos filtra este"
 
+msgid "Filters the charts of %s"
+msgstr "Filtra los gráficos de %s"
+
 msgid "Interaction"
 msgstr "Interacción"
 
@@ -18974,8 +18977,20 @@ msgstr "Página: %s"
 msgid "Right-click a single data point to drill through"
 msgstr "Haz clic derecho en un solo dato para obtener detalles"
 
+msgid "Shows the slicer on %s"
+msgstr "Muestra la segmentación en %s"
+
+msgid "Slicers of the same filter keep the same selection on every page. Which pages it filters is saved right away; copies on other pages are saved with the dashboard."
+msgstr "Las segmentaciones del mismo filtro mantienen la misma selección en todas las páginas. Las páginas que filtra se guardan al momento; las copias en otras páginas se guardan con el panel."
+
 msgid "Stop editing interactions"
 msgstr "Dejar de editar interacciones"
 
+msgid "Sync slicers"
+msgstr "Sincronizar segmentaciones"
+
 msgid "Untitled"
 msgstr "Sin título"
+
+msgid "Visible"
+msgstr "Visible"

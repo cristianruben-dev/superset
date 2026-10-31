@@ -40,6 +40,7 @@ import {
   Segments,
 } from 'src/mibi/format/controls';
 import { topLevelTabs } from 'src/mibi/present/dashboardTabs';
+import { SyncSlicers } from 'src/mibi/report/SyncSlicers';
 import {
   deleteElementImage,
   setElementConfig,
@@ -1269,6 +1270,7 @@ function FilterSection({
           />
         </Field>
       </Section>
+      <SyncSlicers elementId={id} filterId={config.filterId} />
       <BoxSections id={id} />
     </>
   );
