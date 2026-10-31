@@ -41,6 +41,8 @@ export interface ChartCreatePayload {
   datasource_type: string;
   viz_type?: string;
   params?: string;
+  /** Dashboards the chart belongs to */
+  dashboards?: number[];
 }
 
 /**
