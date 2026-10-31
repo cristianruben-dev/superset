@@ -25,7 +25,6 @@ import { SupersetClient } from '@superset-ui/core';
 import { FaveStar, Skeleton } from '@superset-ui/core/components';
 import { Icons } from '@superset-ui/core/components/Icons';
 import { useToasts } from 'src/components/MessageToasts/withToasts';
-import getBootstrapData from 'src/utils/getBootstrapData';
 import { useFavoriteStatus } from 'src/views/CRUD/hooks';
 import { AURA_TONES, type AuraTone } from '../shell/brand';
 import { relativeTime } from '../time';

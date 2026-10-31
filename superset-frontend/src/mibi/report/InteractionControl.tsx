@@ -165,6 +165,7 @@ export function EditInteractionsToggle({ chartId }: { chartId?: number }) {
     const vizType = chartId
       ? state.charts[chartId]?.form_data?.viz_type
       : undefined;
+    if (!vizType) return false;
     return !!getChartMetadataRegistry()
       .get(vizType)
       ?.behaviors?.includes(Behavior.InteractiveChart);
