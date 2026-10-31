@@ -1248,3 +1248,37 @@ body.mibi-presenting-idle * {
   opacity: 0.45;
   z-index: 0;
 }
+
+/* ---- Design elements (image, shape, button, text) ----------------------- */
+
+.mibi-element {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  border-radius: var(--mb-v-radius, 0);
+}
+
+.mibi-element--editing {
+  outline: 1px dashed transparent;
+  outline-offset: 2px;
+}
+
+.mibi-element--editing:hover {
+  outline-color: var(--mb-border);
+}
+
+.mibi-element.mibi-selected {
+  outline: 2px solid var(--mb-primary);
+  outline-offset: 2px;
+}
+
+.mibi-canvas .mibi-element {
+  margin: var(--mb-gap-inset, 0px);
+  width: calc(100% - 2 * var(--mb-gap-inset, 0px));
+  height: calc(100% - 2 * var(--mb-gap-inset, 0px));
+}
+
+.mibi-element .hover-menu {
+  z-index: 3;
+}

@@ -247,7 +247,11 @@ export function CanvasFrame({ children }: { children: ReactNode }) {
             ? event => {
                 // A click on the canvas itself formats the canvas
                 const target = event.target as Element;
-                if (!target.closest?.('.dashboard-component-chart-holder')) {
+                if (
+                  !target.closest?.(
+                    '.dashboard-component-chart-holder, .mibi-element',
+                  )
+                ) {
                   selectVisual(null);
                 }
               }

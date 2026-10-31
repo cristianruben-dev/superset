@@ -121,3 +121,37 @@ test('background pictures are stored per dashboard and only accept images', asyn
   expect(removed.status()).toBe(200);
   expect((await page.request.get(endpoint)).status()).toBe(404);
 });
+
+test('image elements store their pictures per dashboard', async ({
+  page,
+  testAssets,
+}) => {
+  const { id } = await createTestDashboard(page, testAssets, test.info(), {
+    prefix: 'test_image_element',
+  });
+  await page.goto('superset/welcome/');
+  const csrf = await page.evaluate(
+    async () =>
+      (await (await fetch('/api/v1/security/csrf_token/')).json()).result,
+  );
+  const headers = { 'X-CSRFToken': csrf, Referer: page.url() };
+
+  const created = await page.request.post(`api/v1/dashboard_image/${id}/`, {
+    headers,
+    multipart: {
+      image: { name: 'logo.png', mimeType: 'image/png', buffer: PNG },
+    },
+  });
+  expect(created.status()).toBe(201);
+  const { url } = (await created.json()).result;
+
+  const served = await page.request.get(url.replace(/^\//, ''));
+  expect(served.status()).toBe(200);
+  expect(served.headers()['content-type']).toBe('image/png');
+
+  const removed = await page.request.delete(url.replace(/^\//, ''), {
+    headers,
+  });
+  expect(removed.status()).toBe(200);
+  expect((await page.request.get(url.replace(/^\//, ''))).status()).toBe(404);
+});

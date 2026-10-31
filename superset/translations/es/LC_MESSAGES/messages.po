@@ -4035,7 +4035,7 @@ msgid "Dashboards do not exist"
 msgstr "Los paneles de control no existen"
 
 msgid "Dashed"
-msgstr "Con puntos"
+msgstr "Discontinuo"
 
 msgid "Data"
 msgstr "Datos"
@@ -4958,7 +4958,7 @@ msgid "Donut"
 msgstr "Dónut"
 
 msgid "Dotted"
-msgstr "Con puntos"
+msgstr "Punteado"
 
 msgid "Download"
 msgstr "Descargar"
@@ -7852,7 +7852,7 @@ msgid "Median values"
 msgstr "Valores medios"
 
 msgid "Medium"
-msgstr "Mediano"
+msgstr "Media"
 
 msgid "Memory in bytes - binary (1024B => 1KiB)"
 msgstr "Memoria en «bytes»: binario (1024 B => 1 KiB)"
@@ -17463,3 +17463,192 @@ msgstr "Fin de la página · %s px"
 
 msgid "The content is %s px tall and the page %s px. What goes past the dashed line makes the page taller when exported."
 msgstr "El contenido mide %s px de alto y la página %s px. Lo que pase de la línea discontinua hará la página más alta al exportar."
+
+msgid "Add a picture in the Format pane"
+msgstr "Añade una imagen en el panel Formato"
+
+msgid "Anchor"
+msgstr "Anclaje"
+
+msgid "Base style"
+msgstr "Estilo base"
+
+msgid "Black and white"
+msgstr "Blanco y negro"
+
+msgid "Blur"
+msgstr "Desenfoque"
+
+msgid "Bold"
+msgstr "Negrita"
+
+msgid "Bulleted list"
+msgstr "Lista con viñetas"
+
+msgid "Button"
+msgstr "Botón"
+
+msgid "Chevron"
+msgstr "Chevrón"
+
+msgid "Choose a page"
+msgstr "Elige una página"
+
+msgid "Clear formatting"
+msgstr "Quitar formato"
+
+msgid "Color of the selected text"
+msgstr "Color del texto seleccionado"
+
+msgid "Colors"
+msgstr "Colores"
+
+msgid "Colors on hover"
+msgstr "Colores al pasar el ratón"
+
+msgid "Content"
+msgstr "Contenido"
+
+msgid "Description for screen readers"
+msgstr "Descripción para lectores de pantalla"
+
+msgid "Design elements"
+msgstr "Elementos de diseño"
+
+msgid "Effects"
+msgstr "Efectos"
+
+msgid "Ellipse"
+msgstr "Elipse"
+
+msgid "Fit and position"
+msgstr "Ajuste y posición"
+
+msgid "Go to a page of the dashboard"
+msgstr "Ir a una página del panel"
+
+msgid "Heading"
+msgstr "Encabezado"
+
+msgid "Hexagon"
+msgstr "Hexágono"
+
+msgid "Icon"
+msgstr "Icono"
+
+msgid "Icon only"
+msgstr "Solo icono"
+
+msgid "Icon position"
+msgstr "Posición del icono"
+
+msgid "Italic"
+msgstr "Cursiva"
+
+msgid "Letter spacing"
+msgstr "Espaciado entre letras"
+
+msgid "Line height"
+msgstr "Interlineado"
+
+msgid "Link"
+msgstr "Enlace"
+
+msgid "Mirror"
+msgstr "Espejo"
+
+msgid "No icon"
+msgstr "Sin icono"
+
+msgid "Nothing"
+msgstr "Nada"
+
+msgid "Numbered list"
+msgstr "Lista numerada"
+
+msgid "On click"
+msgstr "Al hacer clic"
+
+msgid "Open a link"
+msgstr "Abrir un enlace"
+
+msgid "Open in a new tab"
+msgstr "Abrir en una pestaña nueva"
+
+msgid "Optional text"
+msgstr "Texto opcional"
+
+msgid "Outline"
+msgstr "Contorno"
+
+msgid "Paragraph"
+msgstr "Párrafo"
+
+msgid "Picture"
+msgstr "Imagen"
+
+msgid "Picture link"
+msgstr "Enlace de la imagen"
+
+msgid "Position and effects"
+msgstr "Posición y efectos"
+
+msgid "Quote"
+msgstr "Cita"
+
+msgid "Reset the filters"
+msgstr "Restablecer los filtros"
+
+msgid "Rotation"
+msgstr "Rotación"
+
+msgid "Scroll to the top"
+msgstr "Volver arriba"
+
+msgid "Semibold"
+msgstr "Seminegrita"
+
+msgid "Star"
+msgstr "Estrella"
+
+msgid "Stretch"
+msgstr "Estirar"
+
+msgid "Strikethrough"
+msgstr "Tachado"
+
+msgid "Text and icon"
+msgstr "Texto e icono"
+
+msgid "Text box"
+msgstr "Cuadro de texto"
+
+msgid "Text inside"
+msgstr "Texto dentro"
+
+msgid "Text only"
+msgstr "Solo texto"
+
+msgid "Text style"
+msgstr "Estilo del texto"
+
+msgid "Underline"
+msgstr "Subrayado"
+
+msgid "Uppercase"
+msgstr "Mayúsculas"
+
+msgid "Use a link that starts with https://, http:// or /"
+msgstr "Usa un enlace que empiece por https://, http:// o /"
+
+msgid "Vertical position"
+msgstr "Posición vertical"
+
+msgid "Write here…"
+msgstr "Escribe aquí…"
+
+msgid "…or paste the link of a picture"
+msgstr "…o pega el enlace de una imagen"
+
+msgid "Write on the canvas. Select words and use these buttons to format them."
+msgstr "Escribe directamente en el lienzo. Selecciona palabras y usa estos botones para darles formato."

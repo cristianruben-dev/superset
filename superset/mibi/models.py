@@ -130,3 +130,23 @@ class DashboardBackground(Model):
     image = deferred(sa.Column(sa.LargeBinary, nullable=False))
     image_type = sa.Column(sa.String(50), nullable=False)
     changed_on = sa.Column(sa.DateTime, nullable=False)
+
+
+DASHBOARD_IMAGES_TABLE = "mibi_dashboard_images"
+
+
+class DashboardImage(Model):
+    """A picture shown by an image element of a dashboard."""
+
+    __tablename__ = DASHBOARD_IMAGES_TABLE
+
+    id = sa.Column(sa.Integer, primary_key=True)
+    dashboard_id = sa.Column(
+        sa.Integer,
+        sa.ForeignKey("dashboards.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    image = deferred(sa.Column(sa.LargeBinary, nullable=False))
+    image_type = sa.Column(sa.String(50), nullable=False)
+    created_on = sa.Column(sa.DateTime, nullable=False)

@@ -42,18 +42,19 @@ import {
 import { ColorField, Field, RangeField, Section, Segments } from './controls';
 import { selectVisual, useSelectedVisual } from './selection';
 import { useShowGrid } from './gridGuides';
+import { BoxSections } from './BoxSections';
+import { ElementSection, elementName } from 'src/mibi/elements/ElementFormat';
+import { elementKind } from 'src/mibi/elements/types';
 import {
   CANVAS_PRESETS,
   DEFAULT_GAP,
   DEFAULT_PADDING,
-  DEFAULT_RADIUS,
   MAX_CANVAS,
   MIN_CANVAS,
   type CanvasBackgroundType,
   type CanvasFormat,
   type CanvasSizeMode,
   type ImageFit,
-  type ShadowLevel,
   type TitleAlign,
   type VisualFormat,
 } from './types';
@@ -190,105 +191,11 @@ function VisualSection({ id }: { id: string }) {
     );
   const updateTitle = (patch: VisualFormat['title'], setting: string) =>
     update({ title: { ...format.title, ...patch } }, `title-${setting}`);
-  const transparent = format.background === 'transparent';
   const titleShown = format.title?.show !== false;
 
   return (
     <>
-      <Section data-test="mibi-format-visual-background">
-        <h4>{t('Background')}</h4>
-        <Field label={t('Transparent')}>
-          <Switch
-            size="small"
-            checked={transparent}
-            aria-label={t('Transparent')}
-            onChange={checked =>
-              update(
-                {
-                  background: checked ? 'transparent' : theme.colorBgContainer,
-                },
-                'background',
-              )
-            }
-          />
-        </Field>
-        <ColorField
-          label={t('Color')}
-          value={
-            transparent
-              ? theme.colorBgContainer
-              : format.background || theme.colorBgContainer
-          }
-          disabled={transparent}
-          onChange={background => update({ background }, 'background')}
-          testId="mibi-format-visual-color"
-        />
-        {!transparent && (
-          <RangeField
-            label={t('Opacity')}
-            value={format.backgroundOpacity ?? 100}
-            min={0}
-            max={100}
-            unit="%"
-            onChange={backgroundOpacity =>
-              update(
-                {
-                  backgroundOpacity,
-                  background: format.background ?? theme.colorBgContainer,
-                },
-                'opacity',
-              )
-            }
-          />
-        )}
-      </Section>
-
-      <Section>
-        <h4>{t('Border')}</h4>
-        <ColorField
-          label={t('Color')}
-          value={format.borderColor || theme.colorBorderSecondary}
-          onChange={borderColor => update({ borderColor }, 'border-color')}
-        />
-        <RangeField
-          label={t('Width')}
-          value={format.borderWidth ?? 1}
-          min={0}
-          max={8}
-          onChange={borderWidth => update({ borderWidth }, 'border-width')}
-          testId="mibi-format-border-width"
-        />
-        <RangeField
-          label={t('Rounded corners')}
-          value={format.radius ?? DEFAULT_RADIUS}
-          min={0}
-          max={32}
-          onChange={radius => update({ radius }, 'radius')}
-          testId="mibi-format-radius"
-        />
-      </Section>
-
-      <Section>
-        <h4>{t('Shadow and spacing')}</h4>
-        <Segments<ShadowLevel>
-          name={t('Shadow')}
-          value={format.shadow ?? 'soft'}
-          onChange={shadow => update({ shadow }, 'shadow')}
-          testId="mibi-format-shadow"
-          options={[
-            { value: 'none', label: t('None') },
-            { value: 'soft', label: t('Soft') },
-            { value: 'strong', label: t('Strong') },
-          ]}
-        />
-        <RangeField
-          label={t('Inner padding')}
-          value={format.padding ?? 16}
-          min={0}
-          max={40}
-          onChange={padding => update({ padding }, 'padding')}
-        />
-      </Section>
+      <BoxSections id={id} />
 
       <Section>
         <h4>{t('Title')}</h4>
@@ -668,6 +575,7 @@ export function FormatPane() {
     selected ? state.dashboardLayout.present[selected] : undefined,
   );
   const visual = selected && item ? selected : null;
+  const kind = elementKind(item?.meta?.componentKey);
 
   return (
     <Pane data-test="mibi-format-pane">
@@ -686,12 +594,18 @@ export function FormatPane() {
         <div className="crumbs">
           {visual && <span className="crumb-parent">{t('Canvas')}</span>}
           <span className="crumb-current" data-test="mibi-format-title">
-            {visual ? visualName(item?.meta) : t('Canvas')}
+            {visual
+              ? kind
+                ? elementName(kind)
+                : visualName(item?.meta)
+              : t('Canvas')}
           </span>
         </div>
       </div>
       <div className="pane-body">
-        {visual ? (
+        {visual && kind ? (
+          <ElementSection id={visual} />
+        ) : visual ? (
           <VisualSection id={visual} />
         ) : (
           <>

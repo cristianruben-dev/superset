@@ -32,6 +32,7 @@ import NewTabs from '../gridComponents/new/NewTabs';
 import NewMarkdown from '../gridComponents/new/NewMarkdown';
 import NewDynamicComponent from '../gridComponents/new/NewDynamicComponent';
 import { FormatPane } from 'src/mibi/format/FormatPane';
+import { NewElements } from 'src/mibi/elements/NewElements';
 import { selectVisual, useOnOpenFormat } from 'src/mibi/format/selection';
 
 const BUILDER_PANE_WIDTH = 374;
@@ -105,6 +106,7 @@ const BuilderComponentPane = ({ topOffset = 0 }) => {
               label: t('Layout elements'),
               children: (
                 <>
+                  <NewElements />
                   <NewTabs />
                   <NewRow />
                   <NewColumn />

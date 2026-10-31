@@ -25,7 +25,7 @@ from sqlalchemy.orm.session import Session
 
 from superset import security_manager
 from superset.exceptions import SupersetSecurityException
-from superset.mibi.models import DashboardBackground
+from superset.mibi.models import DashboardBackground, DashboardImage
 from superset.models.dashboard import Dashboard
 
 PNG = b"\x89PNG\r\n\x1a\n" + b"\x00" * 16
@@ -141,3 +141,74 @@ def test_hidden_dashboards_do_not_exist(
     )
     assert upload(client, dashboard.id, PNG).status_code == 404
     assert client.get("/api/v1/dashboard_background/999/").status_code == 404
+
+
+def upload_image(client: Any, pk: int, data: bytes = PNG) -> Any:
+    return client.post(
+        f"/api/v1/dashboard_image/{pk}/",
+        data={"image": (BytesIO(data), "foto.png")},
+        content_type="multipart/form-data",
+    )
+
+
+def test_image_elements_upload_serve_and_remove(
+    client: Any, dashboard: Dashboard, session: Session
+) -> None:
+    first = upload_image(client, dashboard.id)
+    second = upload_image(client, dashboard.id, JPEG)
+    assert first.status_code == 201
+    assert second.status_code == 201
+    url = first.json["result"]["url"]
+    assert (
+        url == f"/api/v1/dashboard_image/{dashboard.id}/{first.json['result']['id']}/"
+    )
+
+    served = client.get(url)
+    assert served.status_code == 200
+    assert served.data == PNG
+    assert served.headers["X-Content-Type-Options"] == "nosniff"
+    assert client.get(second.json["result"]["url"]).mimetype == "image/jpeg"
+
+    assert client.delete(url).status_code == 200
+    assert client.get(url).status_code == 404
+    assert client.delete(url).status_code == 404
+    assert session.query(DashboardImage).count() == 1
+
+
+def test_image_elements_belong_to_their_dashboard(
+    client: Any, dashboard: Dashboard, session: Session
+) -> None:
+    other = Dashboard(dashboard_title="Otro")
+    session.add(other)
+    session.flush()
+    image_id = upload_image(client, dashboard.id).json["result"]["id"]
+
+    assert (
+        client.get(f"/api/v1/dashboard_image/{other.id}/{image_id}/").status_code == 404
+    )
+    assert (
+        client.delete(f"/api/v1/dashboard_image/{other.id}/{image_id}/").status_code
+        == 404
+    )
+
+
+def test_image_elements_check_access(
+    mocker: MockerFixture, client: Any, dashboard: Dashboard
+) -> None:
+    assert upload_image(client, dashboard.id, b"GIF? no").status_code == 400
+    url = upload_image(client, dashboard.id).json["result"]["url"]
+    mocker.patch.object(
+        security_manager,
+        "raise_for_ownership",
+        side_effect=SupersetSecurityException(mocker.MagicMock()),
+    )
+    assert upload_image(client, dashboard.id).status_code == 403
+    assert client.delete(url).status_code == 403
+    assert client.get(url).status_code == 200
+
+    mocker.patch.object(
+        security_manager,
+        "raise_for_access",
+        side_effect=SupersetSecurityException(mocker.MagicMock()),
+    )
+    assert client.get(url).status_code == 404

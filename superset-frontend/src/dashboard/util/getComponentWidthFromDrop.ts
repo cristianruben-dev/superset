@@ -37,7 +37,7 @@ export default function getComponentWidthFromDrop({
 
   const isNewComponent = source.id === NEW_COMPONENTS_SOURCE_ID;
   const component = isNewComponent
-    ? newComponentFactory(dragging.type)
+    ? newComponentFactory(dragging.type, dragging.meta)
     : components[dragging.id];
 
   // moving a component within the same container shouldn't change its width

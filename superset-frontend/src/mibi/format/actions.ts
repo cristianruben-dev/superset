@@ -43,7 +43,7 @@ type AppDispatch = ThunkDispatch<RootState, undefined, AnyAction>;
  * Writes layout components like updateComponents does, tagged with a group
  * so consecutive changes of the same setting undo as one step.
  */
-const updateLayout =
+export const updateLayout =
   (nextComponents: Record<string, LayoutItem>, group: string) =>
   (dispatch: AppDispatch, getState: GetState) => {
     dispatch({
