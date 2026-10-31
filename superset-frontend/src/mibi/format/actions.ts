@@ -92,18 +92,61 @@ export const setObjectFlag =
     );
   };
 
-/** Gives every chart of the dashboard the same format. */
-export const setAllVisualsFormat =
-  (format: VisualFormat | undefined) =>
+/** What a chart keeps of its own format when it takes a shared style. */
+export const keepOwnText = (
+  format: VisualFormat | undefined,
+): VisualFormat | undefined =>
+  format?.title?.subtitle
+    ? { title: { subtitle: format.title.subtitle } }
+    : undefined;
+
+/** The style to share, without the text that belongs to one chart. */
+export const withoutOwnText = (
+  format: VisualFormat | undefined,
+): VisualFormat | undefined => {
+  if (!format?.title || format.title.subtitle === undefined) return format;
+  const { subtitle, ...title } = format.title;
+  return { ...format, title };
+};
+
+/**
+ * Makes ``format`` the style every chart shares (kept on the canvas, so
+ * charts added later take it too), with ``canvas`` changes in the same undo
+ * step. With ``resetCharts``, charts drop their own style but their subtitle.
+ */
+export const setSharedVisualFormat =
+  (
+    format: VisualFormat | undefined,
+    { resetCharts = true, canvas }: { resetCharts?: boolean; canvas?: CanvasFormat } = {},
+  ) =>
   (dispatch: AppDispatch, getState: GetState) => {
     const layout = getState().dashboardLayout.present;
+    const root = layout[DASHBOARD_ROOT_ID];
+    if (!root) return;
     const next: Record<string, LayoutItem> = {};
-    Object.values(layout).forEach(item => {
-      if (item.type === CHART_TYPE) {
-        next[item.id] = withMeta(item, VISUAL_FORMAT_KEY, format);
-      }
-    });
-    dispatch(updateLayout(next, `all:${Date.now()}`));
+    const nextCanvas: CanvasFormat = {
+      ...(canvas ?? (root.meta?.[CANVAS_FORMAT_KEY] as CanvasFormat)),
+    };
+    const shared = withoutOwnText(format);
+    if (shared && Object.keys(shared).length) nextCanvas.visuals = shared;
+    else delete nextCanvas.visuals;
+    next[DASHBOARD_ROOT_ID] = withMeta(
+      root,
+      CANVAS_FORMAT_KEY,
+      Object.keys(nextCanvas).length ? nextCanvas : undefined,
+    );
+    if (resetCharts) {
+      Object.values(layout).forEach(item => {
+        if (item.type === CHART_TYPE && item.meta?.[VISUAL_FORMAT_KEY]) {
+          next[item.id] = withMeta(
+            item,
+            VISUAL_FORMAT_KEY,
+            keepOwnText(item.meta[VISUAL_FORMAT_KEY] as VisualFormat),
+          );
+        }
+      });
+    }
+    dispatch(updateLayout(next, `shared:${Date.now()}`));
   };
 
 /** Sets the canvas format, kept on the root component. */

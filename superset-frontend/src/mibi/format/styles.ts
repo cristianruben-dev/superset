@@ -66,6 +66,26 @@ export interface VisualStyle {
   shrink: number;
 }
 
+/**
+ * The format a chart shows: the style every chart shares, overridden by the
+ * chart's own format setting by setting (title and header icons included).
+ */
+export function mergeVisualFormat(
+  shared: VisualFormat | undefined,
+  own: VisualFormat | undefined,
+): VisualFormat | undefined {
+  if (!shared) return own;
+  if (!own) return shared;
+  const merged: VisualFormat = { ...shared, ...own };
+  if (shared.title || own.title) {
+    merged.title = { ...shared.title, ...own.title };
+  }
+  if (shared.header || own.header) {
+    merged.header = { ...shared.header, ...own.header };
+  }
+  return merged;
+}
+
 /** How a visual format turns into the card's style. */
 export function visualStyle(
   format: VisualFormat | undefined,

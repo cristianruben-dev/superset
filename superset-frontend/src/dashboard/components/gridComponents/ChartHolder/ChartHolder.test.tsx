@@ -459,6 +459,35 @@ describe('ChartHolder', () => {
     expect(screen.getByTestId('mibi-format-visual-button')).toBeInTheDocument();
   });
 
+  test('shows the style every chart shares under its own format', () => {
+    const store = createMockStore({
+      dashboardLayout: {
+        past: [],
+        future: [],
+        present: {
+          ROOT_ID: {
+            id: 'ROOT_ID',
+            type: 'ROOT',
+            children: [],
+            meta: { mibiCanvas: { visuals: { radius: 2, shadow: 'none' } } },
+          },
+        },
+      },
+    });
+    renderWrapper(store, {
+      editMode: false,
+      fullSizeChartId: null,
+      component: {
+        ...defaultProps.component,
+        meta: { ...defaultProps.component.meta, mibiFormat: { radius: 9 } },
+      },
+    });
+
+    const holder = screen.getByTestId('dashboard-component-chart-holder');
+    expect(holder.style.getPropertyValue('--mb-v-radius')).toBe('9px');
+    expect(holder.style.boxShadow).toBe('none');
+  });
+
   test('hides a hidden chart from viewers and fades it for editors', () => {
     const component = {
       ...defaultProps.component,

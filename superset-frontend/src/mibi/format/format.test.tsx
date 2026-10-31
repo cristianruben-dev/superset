@@ -29,7 +29,7 @@ import { ActionCreators as UndoActionCreators } from 'redux-undo';
 import type { DashboardLayout, RootState } from 'src/dashboard/types';
 import {
   fitToCanvas,
-  setAllVisualsFormat,
+  setSharedVisualFormat,
   setCanvasFormat,
   setVisualFormat,
 } from './actions';
@@ -41,6 +41,7 @@ import {
   canvasStyle,
   canvasZoom,
   gapInset,
+  mergeVisualFormat,
   visualStyle,
   withOpacity,
 } from './styles';
@@ -192,19 +193,46 @@ test('stores formats in the layout and undoes slider drags as one step', () => {
   ).toBeUndefined();
 });
 
-test('copies a format to every chart and keeps the canvas on the root', () => {
+test('shares a style with every chart, keeping their subtitles', () => {
   const store = makeStore();
-  dispatcher(store)(setAllVisualsFormat({ shadow: 'strong' }));
+  dispatcher(store)(
+    setVisualFormat('CHART-a', { radius: 2, title: { subtitle: 'Mes' } }),
+  );
   dispatcher(store)(setCanvasFormat({ gap: 24 }));
+  dispatcher(store)(
+    setSharedVisualFormat({ shadow: 'strong', title: { subtitle: 'Mes' } }),
+  );
   const { present } = stateOf(store).dashboardLayout;
-  expect(present['CHART-a'].meta.mibiFormat).toEqual({ shadow: 'strong' });
-  expect(present['CHART-b'].meta.mibiFormat).toEqual({ shadow: 'strong' });
-  expect(present.ROOT_ID.meta.mibiCanvas).toEqual({ gap: 24 });
+  expect(present.ROOT_ID.meta.mibiCanvas).toEqual({
+    gap: 24,
+    visuals: { shadow: 'strong', title: {} },
+  });
+  expect(present['CHART-a'].meta.mibiFormat).toEqual({
+    title: { subtitle: 'Mes' },
+  });
+  expect(present['CHART-b'].meta).not.toHaveProperty('mibiFormat');
 
-  dispatcher(store)(setVisualFormat('CHART-b', undefined));
+  // One undo step brings every chart back
+  dispatcher(store)(UndoActionCreators.undo());
   expect(
-    stateOf(store).dashboardLayout.present['CHART-b'].meta,
-  ).not.toHaveProperty('mibiFormat');
+    stateOf(store).dashboardLayout.present['CHART-a'].meta.mibiFormat,
+  ).toEqual({ radius: 2, title: { subtitle: 'Mes' } });
+});
+
+test('a chart shows its own format over the shared style', () => {
+  expect(mergeVisualFormat(undefined, { radius: 1 })).toEqual({ radius: 1 });
+  expect(mergeVisualFormat({ radius: 1 }, undefined)).toEqual({ radius: 1 });
+  expect(
+    mergeVisualFormat(
+      { radius: 1, shadow: 'none', title: { size: 20, color: 'red' } },
+      { radius: 9, title: { color: 'blue' }, header: { menu: false } },
+    ),
+  ).toEqual({
+    radius: 9,
+    shadow: 'none',
+    title: { size: 20, color: 'blue' },
+    header: { menu: false },
+  });
 });
 
 test('formats the canvas and then the selected chart', () => {
@@ -229,8 +257,11 @@ test('formats the canvas and then the selected chart', () => {
 
   fireEvent.click(screen.getByTestId('mibi-format-apply-all'));
   expect(
-    stateOf(store).dashboardLayout.present['CHART-b'].meta.mibiFormat?.shadow,
+    stateOf(store).dashboardLayout.present.ROOT_ID.meta.mibiCanvas?.visuals
+      ?.shadow,
   ).toBe('strong');
+  // The chart keeps showing the style, now shared
+  expect(screen.getByRole('radio', { name: 'Strong' })).toBeChecked();
 
   fireEvent.click(screen.getByTestId('mibi-format-back'));
   expect(screen.getByTestId('mibi-format-title')).toHaveTextContent('Canvas');

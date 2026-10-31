@@ -20,7 +20,19 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { t } from '@apache-superset/core/translation';
 import { css, styled } from '@apache-superset/core/theme';
 import { getClientErrorObject } from '@superset-ui/core';
-import { Button, Input, Modal } from '@superset-ui/core/components';
+import {
+  Button,
+  Checkbox,
+  Input,
+  Modal,
+  Select,
+} from '@superset-ui/core/components';
+import { logging } from '@apache-superset/core/utils';
+import {
+  applyThemeToDashboards,
+  listThemes,
+  type FormatTheme,
+} from 'src/mibi/format/themes';
 import { Icons } from '@superset-ui/core/components/Icons';
 import { useToasts } from 'src/components/MessageToasts/withToasts';
 import {
@@ -83,7 +95,8 @@ const Body = styled.div`
       margin-top: ${theme.sizeUnit * 2}px;
     }
 
-    label.field {
+    label.field,
+    div.field {
       display: flex;
       flex-direction: column;
       gap: ${theme.sizeUnit * 1.5}px;
@@ -102,6 +115,11 @@ const Body = styled.div`
       font-size: ${theme.fontSizeSM}px;
       font-weight: 500;
       color: ${theme.colorTextSecondary};
+    }
+
+    .theme-hint {
+      font-weight: 400;
+      color: ${theme.colorTextTertiary};
     }
 
     .swatches {
@@ -160,6 +178,9 @@ export function WorkspaceModal({
   const [removeImage, setRemoveImage] = useState(false);
   const [dragging, setDragging] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [themes, setThemes] = useState<FormatTheme[]>();
+  const [themeId, setThemeId] = useState<number | null>(null);
+  const [applyToAll, setApplyToAll] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -169,8 +190,20 @@ export function WorkspaceModal({
       setColor(workspace?.color || DEFAULT_WORKSPACE_COLOR);
       setFile(null);
       setRemoveImage(false);
+      setThemeId(workspace?.format_theme_id ?? null);
+      setApplyToAll(false);
     }
   }, [show, workspace]);
+
+  useEffect(() => {
+    if (!show) return;
+    listThemes()
+      .then(setThemes)
+      .catch(error => {
+        logging.error(error);
+        setThemes([]);
+      });
+  }, [show]);
 
   const fileUrl = useMemo(
     () => (file ? URL.createObjectURL(file) : null),
@@ -205,6 +238,7 @@ export function WorkspaceModal({
       name: name.trim(),
       description: description.trim() || null,
       color,
+      format_theme_id: themeId,
     };
     setSaving(true);
     try {
@@ -215,6 +249,19 @@ export function WorkspaceModal({
         saved = await uploadWorkspaceImage(saved.id, file);
       } else if (removeImage && workspace?.image_url) {
         saved = await deleteWorkspaceImage(saved.id);
+      }
+      if (themeId && applyToAll && saved.dashboard_ids.length) {
+        const applied = await applyThemeToDashboards(
+          themeId,
+          saved.dashboard_ids,
+        );
+        addSuccessToast(
+          t(
+            'Theme applied to %s of %s dashboards',
+            applied.length,
+            saved.dashboard_ids.length,
+          ),
+        );
       }
       addSuccessToast(
         workspace ? t('Workspace updated') : t('Workspace created'),
@@ -329,6 +376,40 @@ export function WorkspaceModal({
             onChange={event => setDescription(event.target.value)}
           />
         </label>
+        <div className="field">
+          {t('Format theme')}
+          <Select
+            ariaLabel={t('Format theme')}
+            allowClear
+            loading={themes === undefined}
+            value={themeId ?? undefined}
+            placeholder={t('No theme')}
+            onChange={value => setThemeId((value as number) ?? null)}
+            onClear={() => setThemeId(null)}
+            options={(themes ?? []).map(item => ({
+              value: item.id,
+              label: item.name,
+            }))}
+            data-test="workspace-theme"
+          />
+          <span className="theme-hint">
+            {t(
+              'New dashboards of this workspace start with it. Save themes from the Format pane of a dashboard.',
+            )}
+          </span>
+        </div>
+        {!!themeId && !!workspace?.dashboard_ids.length && (
+          <Checkbox
+            checked={applyToAll}
+            onChange={event => setApplyToAll(event.target.checked)}
+            data-test="workspace-theme-apply-all"
+          >
+            {t(
+              'Also apply it to the %s dashboards it has',
+              workspace.dashboard_ids.length,
+            )}
+          </Checkbox>
+        )}
         <div className="color-field">
           <span className="color-label">{t('Color')}</span>
           <div className="swatches" role="radiogroup" aria-label={t('Color')}>

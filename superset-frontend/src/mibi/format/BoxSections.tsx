@@ -21,7 +21,10 @@ import { t } from '@apache-superset/core/translation';
 import { useTheme } from '@apache-superset/core/theme';
 import { Switch } from '@superset-ui/core/components';
 import type { RootState } from 'src/dashboard/types';
+import { CHART_TYPE } from 'src/dashboard/util/componentTypes';
 import { setVisualFormat } from './actions';
+import { mergeVisualFormat } from './styles';
+import { useSharedVisualFormat } from './useVisualFormat';
 import { ColorField, Field, RangeField, Section, Segments } from './controls';
 import { DEFAULT_RADIUS, type ShadowLevel, type VisualFormat } from './types';
 
@@ -32,10 +35,14 @@ export function BoxSections({ id }: { id: string }) {
   const item = useSelector(
     (state: RootState) => state.dashboardLayout.present[id],
   );
-  const format: VisualFormat = item?.meta?.mibiFormat ?? {};
+  const own: VisualFormat = item?.meta?.mibiFormat ?? {};
+  // Charts show the style every chart shares under their own
+  const shared = useSharedVisualFormat();
+  const format: VisualFormat =
+    (item?.type === CHART_TYPE ? mergeVisualFormat(shared, own) : own) ?? {};
   const update = (patch: Partial<VisualFormat>, setting: string) =>
     dispatch(
-      setVisualFormat(id, { ...format, ...patch }, `visual:${id}:${setting}`),
+      setVisualFormat(id, { ...own, ...patch }, `visual:${id}:${setting}`),
     );
   const transparent = format.background === 'transparent';
 

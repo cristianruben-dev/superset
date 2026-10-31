@@ -78,6 +78,11 @@ export interface CanvasFormat {
   padding?: number;
   /** Space between visuals, in pixels */
   gap?: number;
+  /**
+   * The style every chart shares, from "Apply to all charts" or a theme.
+   * A chart's own format wins over it, setting by setting.
+   */
+  visuals?: VisualFormat;
 }
 
 /** Layout meta keys hiding an object from viewers and locking it in place. */

@@ -48,7 +48,14 @@ class Workspace(AuditMixinNullable, UUIDMixin, Model):
     # metadata database, so it works the same on every deployment
     image = deferred(sa.Column(sa.LargeBinary, nullable=True))
     image_type = sa.Column(sa.String(50), nullable=True)
+    # The format theme its new dashboards start with
+    format_theme_id = sa.Column(
+        sa.Integer,
+        sa.ForeignKey("mibi_format_themes.id", ondelete="SET NULL"),
+        nullable=True,
+    )
 
+    format_theme = relationship("FormatTheme")
     dashboards = relationship(
         "WorkspaceDashboard",
         back_populates="workspace",
@@ -150,3 +157,19 @@ class DashboardImage(Model):
     image = deferred(sa.Column(sa.LargeBinary, nullable=False))
     image_type = sa.Column(sa.String(50), nullable=False)
     created_on = sa.Column(sa.DateTime, nullable=False)
+
+
+FORMAT_THEMES_TABLE = "mibi_format_themes"
+
+
+class FormatTheme(AuditMixinNullable, UUIDMixin, Model):
+    """
+    A named dashboard style saved from the Format pane: canvas, the style every
+    chart shares and the color palette, as JSON (see superset/mibi/format_themes.py).
+    """
+
+    __tablename__ = FORMAT_THEMES_TABLE
+
+    id = sa.Column(sa.Integer, primary_key=True)
+    name = sa.Column(sa.String(250), nullable=False)
+    theme = sa.Column(sa.Text, nullable=False)

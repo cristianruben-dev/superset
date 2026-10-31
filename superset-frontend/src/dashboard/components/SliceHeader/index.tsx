@@ -38,7 +38,7 @@ import { isEmbedded } from 'src/dashboard/util/isEmbedded';
 import { Tooltip, EditableTitle, Icons } from '@superset-ui/core/components';
 import { useSelector } from 'react-redux';
 import cx from 'classnames';
-import type { VisualFormat } from 'src/mibi/format/types';
+import { useVisualFormat } from 'src/mibi/format/useVisualFormat';
 import SliceHeaderControls from 'src/dashboard/components/SliceHeaderControls';
 import { SliceHeaderControlsProps } from 'src/dashboard/components/SliceHeaderControls/types';
 import FiltersBadge from 'src/dashboard/components/FiltersBadge';
@@ -197,12 +197,7 @@ const SliceHeader = forwardRef<HTMLDivElement, SliceHeaderProps>(
     );
 
     // Mi BI Format pane: subtitle, divider and which icons viewers see
-    const headerFormat = useSelector<RootState, VisualFormat | undefined>(
-      state =>
-        componentId
-          ? state.dashboardLayout?.present?.[componentId]?.meta?.mibiFormat
-          : undefined,
-    );
+    const headerFormat = useVisualFormat(componentId);
     const titleFormat = headerFormat?.title;
     const showMenu = editMode || headerFormat?.header?.menu !== false;
     const showBadges = headerFormat?.header?.badges !== false;

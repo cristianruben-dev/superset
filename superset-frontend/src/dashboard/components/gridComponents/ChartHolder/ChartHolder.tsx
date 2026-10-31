@@ -43,6 +43,7 @@ import { Tooltip } from '@superset-ui/core/components';
 import { t } from '@apache-superset/core/translation';
 import { gapInset, visualStyle } from 'src/mibi/format/styles';
 import { ObjectBadges } from 'src/mibi/format/ObjectFlags';
+import { useMergedVisualFormat } from 'src/mibi/format/useVisualFormat';
 import { useCanvasMobile } from 'src/mibi/format/CanvasFrame';
 import {
   openFormat,
@@ -129,9 +130,10 @@ const ChartHolder = ({
     (state: RootState) =>
       state.dashboardLayout?.present?.[DASHBOARD_ROOT_ID]?.meta?.mibiCanvas,
   );
+  const visualFormat = useMergedVisualFormat(component.meta.mibiFormat);
   const formatted = useMemo(
-    () => visualStyle(component.meta.mibiFormat, theme),
-    [component.meta.mibiFormat, theme],
+    () => visualStyle(visualFormat, theme),
+    [visualFormat, theme],
   );
   const inset = gapInset(canvasFormat);
   const isSelected = useSelectedVisual() === component.id && editMode;

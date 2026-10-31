@@ -17763,3 +17763,63 @@ msgstr "Texto de ayuda (opcional)"
 
 msgid "Unlock"
 msgstr "Desbloquear"
+
+msgid "No saved themes"
+msgstr "No hay temas guardados"
+
+msgid "Choose a theme"
+msgstr "Elige un tema"
+
+msgid "Replace each chart's own style"
+msgstr "Reemplazar el estilo propio de cada gráfico"
+
+msgid "Update with this design"
+msgstr "Actualizar con este diseño"
+
+msgid "Delete the theme \"%s\"?"
+msgstr "¿Eliminar el tema «%s»?"
+
+msgid "Dashboards keep the style it gave them."
+msgstr "Los paneles conservan el estilo que ya les dio."
+
+msgid "Theme name"
+msgstr "Nombre del tema"
+
+msgid "Save this design as a theme"
+msgstr "Guardar este diseño como tema"
+
+msgid "Every chart shares one style."
+msgstr "Todos los gráficos comparten un estilo."
+
+msgid "Theme \"%s\" applied"
+msgstr "Tema «%s» aplicado"
+
+msgid "Theme \"%s\" saved"
+msgstr "Tema «%s» guardado"
+
+msgid "Theme \"%s\" updated"
+msgstr "Tema «%s» actualizado"
+
+msgid "The theme could not be saved"
+msgstr "No se pudo guardar el tema"
+
+msgid "The theme could not be updated"
+msgstr "No se pudo actualizar el tema"
+
+msgid "The theme could not be deleted"
+msgstr "No se pudo eliminar el tema"
+
+msgid "Format theme"
+msgstr "Tema de formato"
+
+msgid "No theme"
+msgstr "Sin tema"
+
+msgid "New dashboards of this workspace start with it. Save themes from the Format pane of a dashboard."
+msgstr "Los paneles nuevos de esta área empiezan con él. Los temas se guardan desde el panel Formato de un panel."
+
+msgid "Also apply it to the %s dashboards it has"
+msgstr "Aplicarlo también a sus %s paneles"
+
+msgid "Theme applied to %s of %s dashboards"
+msgstr "Tema aplicado a %s de %s paneles"

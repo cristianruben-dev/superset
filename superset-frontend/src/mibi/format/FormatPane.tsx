@@ -40,7 +40,7 @@ import type {
 import { DASHBOARD_ROOT_ID } from 'src/dashboard/util/constants';
 import {
   deleteBackground,
-  setAllVisualsFormat,
+  setSharedVisualFormat,
   setCanvasFormat,
   setVisualFormat,
   uploadBackground,
@@ -48,8 +48,11 @@ import {
 import { ColorField, Field, RangeField, Section, Segments } from './controls';
 import { selectVisual, useSelectedVisual } from './selection';
 import { useShowGrid } from './gridGuides';
+import { mergeVisualFormat } from './styles';
+import { useSharedVisualFormat } from './useVisualFormat';
 import { setMobilePreview, useMobilePreview } from './mobile';
 import { BoxSections } from './BoxSections';
+import { ThemeSection } from './ThemeSection';
 import { ObjectFlagToggles } from './ObjectFlags';
 import { isCopyable, useClipboard } from './clipboard';
 import { useObjectCommands } from './useObjectCommands';
@@ -234,13 +237,15 @@ function VisualSection({ id }: { id: string }) {
   const item = useSelector(
     (state: RootState) => state.dashboardLayout.present[id],
   );
-  const format: VisualFormat = item?.meta?.mibiFormat ?? {};
+  const own: VisualFormat = item?.meta?.mibiFormat ?? {};
+  const shared = useSharedVisualFormat();
+  const format: VisualFormat = mergeVisualFormat(shared, own) ?? {};
   const update = (patch: Partial<VisualFormat>, setting: string) =>
     dispatch(
-      setVisualFormat(id, { ...format, ...patch }, `visual:${id}:${setting}`),
+      setVisualFormat(id, { ...own, ...patch }, `visual:${id}:${setting}`),
     );
   const updateTitle = (patch: VisualFormat['title'], setting: string) =>
-    update({ title: { ...format.title, ...patch } }, `title-${setting}`);
+    update({ title: { ...own.title, ...patch } }, `title-${setting}`);
   const titleShown = format.title?.show !== false;
 
   return (
@@ -357,7 +362,7 @@ function VisualSection({ id }: { id: string }) {
             aria-label={t('Chart menu')}
             data-test="mibi-format-menu"
             onChange={menu =>
-              update({ header: { ...format.header, menu } }, 'header-menu')
+              update({ header: { ...own.header, menu } }, 'header-menu')
             }
           />
         </Field>
@@ -367,7 +372,7 @@ function VisualSection({ id }: { id: string }) {
             checked={format.header?.badges !== false}
             aria-label={t('Filter and cross-filter badges')}
             onChange={badges =>
-              update({ header: { ...format.header, badges } }, 'header-badges')
+              update({ header: { ...own.header, badges } }, 'header-badges')
             }
           />
         </Field>
@@ -377,7 +382,7 @@ function VisualSection({ id }: { id: string }) {
         <Button
           buttonStyle="secondary"
           data-test="mibi-format-apply-all"
-          onClick={() => dispatch(setAllVisualsFormat(item?.meta?.mibiFormat))}
+          onClick={() => dispatch(setSharedVisualFormat(format))}
         >
           {t('Apply to all charts')}
         </Button>
@@ -451,6 +456,8 @@ function CanvasSection() {
 
   return (
     <>
+      <ThemeSection />
+
       <Section data-test="mibi-format-canvas-background">
         <h4>{t('Background')}</h4>
         <Segments<CanvasBackgroundType>
