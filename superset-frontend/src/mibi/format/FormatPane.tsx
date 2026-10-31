@@ -38,6 +38,7 @@ import type {
   RootState,
 } from 'src/dashboard/types';
 import { DASHBOARD_ROOT_ID } from 'src/dashboard/util/constants';
+import { CHART_TYPE } from 'src/dashboard/util/componentTypes';
 import {
   deleteBackground,
   setSharedVisualFormat,
@@ -55,6 +56,8 @@ import { BoxSections } from './BoxSections';
 import { ThemeSection } from './ThemeSection';
 import { fitObjectsToPage } from './CanvasFrame';
 import { useReportLook } from 'src/mibi/report/ReportTheme';
+import { EditInteractionsToggle } from 'src/mibi/report/InteractionControl';
+import { setEditingInteractions } from 'src/mibi/report/interactions';
 import { ObjectFlagToggles } from './ObjectFlags';
 import { isCopyable, useClipboard } from './clipboard';
 import { useObjectCommands } from './useObjectCommands';
@@ -974,6 +977,9 @@ export function FormatPane() {
   const visual = selected && item ? selected : null;
   const kind = elementKind(item?.meta?.componentKey);
 
+  // "Edit interactions" ends with the editing session
+  useEffect(() => () => setEditingInteractions(false), []);
+
   return (
     <Pane data-test="mibi-format-pane">
       <div className="pane-header">
@@ -1000,6 +1006,9 @@ export function FormatPane() {
         </div>
         {visual && item && (
           <div className="header-actions">
+            {item.type === CHART_TYPE && (
+              <EditInteractionsToggle chartId={item.meta.chartId} />
+            )}
             <ObjectFlagToggles item={item} />
           </div>
         )}

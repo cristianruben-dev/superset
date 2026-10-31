@@ -18939,3 +18939,16 @@ msgstr "Exporta a PDF y PNG"
 
 msgid "A product of"
 msgstr "Un producto de"
+
+# AuraData BI: report interactivity (interactions, drill through, sync slicers, bookmarks)
+msgid "Edit interactions"
+msgstr "Editar interacciones"
+
+msgid "Edit interactions: choose which charts this one filters"
+msgstr "Editar interacciones: elige qué gráficos filtra este"
+
+msgid "Interaction"
+msgstr "Interacción"
+
+msgid "Stop editing interactions"
+msgstr "Dejar de editar interacciones"

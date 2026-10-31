@@ -16,7 +16,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { useState, useMemo, useCallback, useEffect, useRef, memo } from 'react';
+import {
+  useState,
+  useMemo,
+  useCallback,
+  useEffect,
+  useRef,
+  memo,
+  type MouseEvent,
+} from 'react';
 
 import { ResizeCallback, ResizeStartCallback } from 're-resizable';
 import cx from 'classnames';
@@ -40,6 +48,8 @@ import { Tooltip } from '@superset-ui/core/components';
 import { t } from '@apache-superset/core/translation';
 import { gapInset, visualStyle } from 'src/mibi/format/styles';
 import { ObjectBadges } from 'src/mibi/format/ObjectFlags';
+import { InteractionControl } from 'src/mibi/report/InteractionControl';
+import { isInteractionControl } from 'src/mibi/report/interactions';
 import { useMergedVisualFormat } from 'src/mibi/format/useVisualFormat';
 import {
   useCanvasMobile,
@@ -334,7 +344,14 @@ const ChartHolder = ({
           style={holderStyle}
           css={isFullSize ? fullSizeStyle : undefined}
           onClickCapture={
-            editMode ? () => selectVisual(component.id) : undefined
+            editMode
+              ? (event: MouseEvent<HTMLDivElement>) => {
+                  // AuraData BI: the interaction controls keep the selection
+                  if (!isInteractionControl(event.target)) {
+                    selectVisual(component.id);
+                  }
+                }
+              : undefined
           }
           className={cx(
             'dashboard-component',
@@ -395,6 +412,9 @@ const ChartHolder = ({
               chartHolderRef={chartHolderRef}
             />
             {editMode && <ObjectBadges item={component} />}
+            {editMode && chartId !== undefined && (
+              <InteractionControl chartId={chartId} layoutId={component.id} />
+            )}
             {editMode && (
               <HoverMenu position="top">
                 {!locked && (
