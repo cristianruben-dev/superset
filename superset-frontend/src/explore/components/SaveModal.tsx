@@ -131,7 +131,7 @@ class SaveModal extends Component<SaveModalProps, SaveModalState> {
   }
 
   /**
-   * Charts belong to a single dashboard (Mi BI): a saved chart stays in its
+   * Charts belong to a single dashboard (AuraData BI): a saved chart stays in its
    * dashboard and a new one goes to the dashboard it was created from, so the
    * dashboard is only chosen for charts that don't have one yet.
    */
@@ -327,7 +327,7 @@ class SaveModal extends Component<SaveModalProps, SaveModalState> {
         }
       }
 
-      // Mi BI chart editor panel: the dashboard around it takes over
+      // AuraData BI chart editor panel: the dashboard around it takes over
       if (isPanelMode()) {
         notifyChartSaved(value.id, this.state.action !== 'overwrite');
         this.onHide();
@@ -382,7 +382,7 @@ class SaveModal extends Component<SaveModalProps, SaveModalState> {
       positionJson = positionJson || {};
 
       const chartKey = `CHART-${chartId}`;
-      // Widths are in the dashboard's own grid density (Mi BI)
+      // Widths are in the dashboard's own grid density (AuraData BI)
       const columns = columnCountOf(positionJson);
       const chartWidth = scaledWidth(CHART_WIDTH, columns);
 

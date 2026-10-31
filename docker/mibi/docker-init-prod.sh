@@ -15,7 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# Prepares the Mi BI metadata database. Safe to run on every deploy: migrations
+# Prepares the AuraData BI metadata database. Safe to run on every deploy: migrations
 # are applied once, the admin user is created only if it does not exist yet, and
 # roles and permissions are refreshed.
 set -euo pipefail
@@ -28,7 +28,7 @@ if [ -n "${ADMIN_PASSWORD:-}" ]; then
     superset fab create-admin \
         --username "${ADMIN_USERNAME:-admin}" \
         --firstname "${ADMIN_FIRSTNAME:-Admin}" \
-        --lastname "${ADMIN_LASTNAME:-Mi BI}" \
+        --lastname "${ADMIN_LASTNAME:-AuraData BI}" \
         --email "${ADMIN_EMAIL:-admin@example.com}" \
         --password "${ADMIN_PASSWORD}"
 fi

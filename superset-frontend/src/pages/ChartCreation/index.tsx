@@ -329,7 +329,7 @@ export class ChartCreation extends PureComponent<
       return <Loading />;
     }
 
-    // Charts belong to a single dashboard (Mi BI), so they're created from one
+    // Charts belong to a single dashboard (AuraData BI), so they're created from one
     if (!isDefined(getUrlParam(URL_PARAMS.dashboardId))) {
       return (
         <StyledContainer data-test="chart-creation-requires-dashboard">

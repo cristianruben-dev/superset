@@ -172,7 +172,7 @@ class GetExploreCommand(BaseCommand, ABC):
 
         slice_data = slc.data if slc else None
         if slc and slice_data is not None:
-            # Owners, admins and (Mi BI) workspace contributors overwrite it
+            # Owners, admins and (AuraData BI) workspace contributors overwrite it
             slice_data["can_edit"] = security_manager.is_owner(slc)
 
         result: dict[str, Any] = {

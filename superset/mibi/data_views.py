@@ -14,7 +14,7 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-"""Pages of the Mi BI "Data" section, rendered by the single-page app."""
+"""Pages of the AuraData BI "Data" section, rendered by the single-page app."""
 
 from flask_appbuilder import expose
 from flask_appbuilder.security.decorators import has_access

@@ -14,7 +14,7 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-"""REST API and pages for Mi BI workspaces."""
+"""REST API and pages for AuraData BI workspaces."""
 
 from __future__ import annotations
 
@@ -191,7 +191,7 @@ class WorkspaceRestApi(BaseSupersetApi):
         "delete_image": "write",
         "put_dashboards": "write",
     }
-    openapi_spec_tag = "Mi BI"
+    openapi_spec_tag = "AuraData BI"
 
     def _find(
         self, pk: int, min_role: str = ROLE_VIEWER

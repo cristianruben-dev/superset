@@ -88,7 +88,7 @@ const routeProps = {
   match: {} as any,
 };
 
-// Charts are created from a dashboard (Mi BI)
+// Charts are created from a dashboard (AuraData BI)
 beforeEach(() => {
   window.history.replaceState({}, '', '/chart/add?dashboard_id=7');
 });

@@ -92,7 +92,7 @@ class DashboardBackgroundRestApi(BaseSupersetApi):
         "put": "write",
         "delete": "write",
     }
-    openapi_spec_tag = "Mi BI"
+    openapi_spec_tag = "AuraData BI"
 
     def _dashboard(
         self, pk: int, edit: bool = False
@@ -225,7 +225,7 @@ class DashboardImageRestApi(BaseSupersetApi):
         "post": "write",
         "delete": "write",
     }
-    openapi_spec_tag = "Mi BI"
+    openapi_spec_tag = "AuraData BI"
 
     @expose("/<int:pk>/<int:image_id>/", methods=("GET",))
     @protect()

@@ -190,7 +190,7 @@ class DashboardAccessFilter(BaseFilter):  # pylint: disable=too-few-public-metho
             )
         )
 
-        # Mi BI: dashboards of a workspace are for its members (and owners)
+        # AuraData BI: dashboards of a workspace are for its members (and owners)
         from superset.mibi.workspace_access import dashboard_visibility_filter
 
         if (workspace_filter := dashboard_visibility_filter(Dashboard.id)) is not None:

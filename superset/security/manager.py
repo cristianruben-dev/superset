@@ -2692,7 +2692,7 @@ class SupersetSecurityManager(  # pylint: disable=too-many-public-methods
             if self.is_admin() or self.is_owner(dashboard):
                 return
 
-            # Mi BI: a dashboard inside a workspace is for the workspace members
+            # AuraData BI: a dashboard inside a workspace is for the workspace members
             from superset.mibi.workspace_access import can_see_dashboard
 
             if not can_see_dashboard(dashboard.id):
@@ -3141,7 +3141,7 @@ class SupersetSecurityManager(  # pylint: disable=too-many-public-methods
         if self.is_admin():
             return
 
-        # Mi BI: workspace contributors and admins edit the workspace dashboards
+        # AuraData BI: workspace contributors and admins edit the workspace dashboards
         from superset.mibi.workspace_access import edits_as_workspace_member
 
         if edits_as_workspace_member(resource):

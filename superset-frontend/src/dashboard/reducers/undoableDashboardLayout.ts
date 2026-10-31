@@ -110,7 +110,7 @@ const undoableReducer: Reducer<
   groupBy: (action: AnyAction) => action.formatGroup ?? null,
 });
 
-// Keeps the grid density (Mi BI) of the shown layout for code outside React
+// Keeps the grid density (AuraData BI) of the shown layout for code outside React
 const layoutReducer: Reducer<StateWithHistory<DashboardLayout>, AnyAction> = (
   state,
   action,

@@ -220,7 +220,7 @@ const RightMenu = ({
       perm: 'can_sqllab',
       view: 'Superset',
     },
-    // Charts belong to a single dashboard (Mi BI): only offered inside one
+    // Charts belong to a single dashboard (AuraData BI): only offered inside one
     ...(Number.isInteger(dashboardId)
       ? [
           {

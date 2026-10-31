@@ -20,7 +20,7 @@ import { getExtensionsRegistry } from '@superset-ui/core';
 import { HomeBanner, HomeContent } from './home/HomePage';
 
 /**
- * Registers the Mi BI replacements for Superset's extension points. Called once
+ * Registers the AuraData BI replacements for Superset's extension points. Called once
  * by setupCodeOverrides when the single-page app starts.
  */
 export default function setupMibi() {

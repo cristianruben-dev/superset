@@ -196,7 +196,7 @@ const SliceHeader = forwardRef<HTMLDivElement, SliceHeaderProps>(
       ({ dashboardInfo }) => dashboardInfo.crossFiltersEnabled,
     );
 
-    // Mi BI Format pane: subtitle, divider and which icons viewers see
+    // AuraData BI Format pane: subtitle, divider and which icons viewers see
     const headerFormat = useVisualFormat(componentId);
     const titleFormat = headerFormat?.title;
     const showMenu = editMode || headerFormat?.header?.menu !== false;

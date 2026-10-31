@@ -133,7 +133,7 @@ interface CommandPaletteProps {
   isFrontendRoute: (path?: string) => boolean;
 }
 
-/** Quick search over the pages of Mi BI and its dashboards (Ctrl/⌘ + K). */
+/** Quick search over the pages of AuraData BI and its dashboards (Ctrl/⌘ + K). */
 export function CommandPalette({
   show,
   onHide,

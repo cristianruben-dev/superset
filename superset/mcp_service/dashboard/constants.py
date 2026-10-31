@@ -41,7 +41,7 @@ def generate_id(prefix: str) -> str:
 
 def layout_column_count(layout: dict[str, Any]) -> int:
     """
-    The grid density of a dashboard layout. Mi BI dashboards can use 24 or 48
+    The grid density of a dashboard layout. AuraData BI dashboards can use 24 or 48
     columns instead of 12, kept on the root component as ``mibiColumns``.
     """
     root = layout.get("ROOT_ID")

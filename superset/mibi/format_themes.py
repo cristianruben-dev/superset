@@ -15,7 +15,7 @@
 # specific language governing permissions and limitations
 # under the License.
 """
-REST API for Mi BI format themes: a named dashboard style saved from the Format
+REST API for AuraData BI format themes: a named dashboard style saved from the Format
 pane and applied to other dashboards in one click.
 
 A theme is JSON with three optional parts, all written by the frontend
@@ -257,7 +257,7 @@ class FormatThemeRestApi(BaseSupersetApi):
         "delete": "write",
         "apply": "write",
     }
-    openapi_spec_tag = "Mi BI"
+    openapi_spec_tag = "AuraData BI"
 
     def _find(
         self, pk: int, change: bool = False

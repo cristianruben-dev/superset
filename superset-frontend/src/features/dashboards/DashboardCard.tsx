@@ -43,7 +43,7 @@ interface DashboardCardProps {
   showThumbnails?: boolean;
   handleBulkDashboardExport: (dashboardsToExport: Dashboard[]) => void;
   onDelete: (dashboard: Dashboard) => void;
-  /** Mi BI layout preview of the dashboard */
+  /** AuraData BI layout preview of the dashboard */
   preview?: PreviewRows;
 }
 

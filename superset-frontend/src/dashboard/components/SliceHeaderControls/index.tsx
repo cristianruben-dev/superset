@@ -265,7 +265,7 @@ const SliceHeaderControls = (
           domEvent.preventDefault();
           window.open(props.exploreUrl, '_blank');
         } else {
-          // Mi BI: edit the chart in the side panel, without leaving the dashboard
+          // AuraData BI: edit the chart in the side panel, without leaving the dashboard
           openChartEditor({
             url: props.exploreUrl,
             chartId: props.slice.slice_id,

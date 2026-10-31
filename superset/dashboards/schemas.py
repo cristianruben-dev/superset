@@ -263,7 +263,7 @@ class DashboardGetResponseSchema(Schema):
             del serialized["changed_by_name"]
             del serialized["changed_by"]
         elif getattr(g, "user", None) is not None and getattr(original, "id", None):
-            # Owners, admins and (Mi BI) workspace contributors can change it
+            # Owners, admins and (AuraData BI) workspace contributors can change it
             serialized["can_edit"] = security_manager.is_owner(original)
         return serialized
 

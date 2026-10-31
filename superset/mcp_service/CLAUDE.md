@@ -37,7 +37,7 @@ Use this exact template at the top of EVERY Python file:
 
 **Note**: LLM instruction files like `CLAUDE.md`, `AGENTS.md`, etc. are excluded from this requirement to avoid token overhead, but ALL other Python files require it.
 
-## Mi BI: One Dashboard per Chart
+## AuraData BI: One Dashboard per Chart
 
 In this fork every chart belongs to at most one dashboard (`MIBI_SINGLE_DASHBOARD_CHARTS`,
 see `superset/mibi/single_dashboard.py`). A tool that creates dashboards or attaches charts

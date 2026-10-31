@@ -23,7 +23,7 @@ ARG PY_VER=3.11.14-slim-trixie
 # If BUILDPLATFORM is null, set it to 'amd64' (or leave as is otherwise).
 ARG BUILDPLATFORM=${BUILDPLATFORM:-amd64}
 
-# Include translations in the final build (Mi BI: on by default for the language selector)
+# Include translations in the final build (AuraData BI: on by default for the language selector)
 ARG BUILD_TRANSLATIONS="true"
 
 ######################################################################
@@ -290,7 +290,7 @@ USER superset
 CMD ["/app/docker/entrypoints/docker-ci.sh"]
 
 ######################################################################
-# Mi BI production image - lean + PostgreSQL driver + MCP service
+# AuraData BI production image - lean + PostgreSQL driver + MCP service
 ######################################################################
 FROM lean AS prod
 USER root

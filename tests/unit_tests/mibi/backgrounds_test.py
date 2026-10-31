@@ -36,7 +36,7 @@ JPEG = b"\xff\xd8\xff\xe0" + b"\x00" * 16
 def dashboard(
     mocker: MockerFixture, session: Session, full_api_access: None
 ) -> Dashboard:
-    """The Mi BI tables and a dashboard the user can see and edit."""
+    """The AuraData BI tables and a dashboard the user can see and edit."""
     Dashboard.metadata.create_all(session.get_bind())  # pylint: disable=no-member
     dashboard = Dashboard(dashboard_title="Ventas")
     session.add(dashboard)

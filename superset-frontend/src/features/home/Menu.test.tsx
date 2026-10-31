@@ -403,7 +403,7 @@ test('should render the dropdown items', async () => {
   expect(
     screen.getByTestId(`menu-item-${dropdownItems[3].label}`),
   ).toBeInTheDocument();
-  // Charts are created from a dashboard (Mi BI), so not offered outside one
+  // Charts are created from a dashboard (AuraData BI), so not offered outside one
   expect(
     screen.queryByTestId(`menu-item-${dropdownItems[2].label}`),
   ).not.toBeInTheDocument();

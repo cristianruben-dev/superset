@@ -1,14 +1,14 @@
-# LLM Context Guide for Mi BI (Apache Superset fork)
+# LLM Context Guide for AuraData BI (Apache Superset fork)
 
-Mi BI is a data visualization platform built on Apache Superset 6.1: a Flask/Python backend and a React/TypeScript frontend. See **Mi BI: What This Fork Changes** below for what differs from upstream.
+AuraData BI is a data visualization platform built on Apache Superset 6.1: a Flask/Python backend and a React/TypeScript frontend. See **AuraData BI: What This Fork Changes** below for what differs from upstream.
 
 ## ⚠️ CRITICAL: Work From `main`, Never From `master`
 
-**`main` is the Mi BI branch.** Start every branch from `main`, merge into `main`, and open pull
+**`main` is the AuraData BI branch.** Start every branch from `main`, merge into `main`, and open pull
 requests against `main`.
 
 `master` and the numbered branches (`6.1`, `7.0`, ...) are copies of Apache Superset that came with
-the fork: they have none of Mi BI (branding, workspaces, Format pane, Spanish translations...).
+the fork: they have none of AuraData BI (branding, workspaces, Format pane, Spanish translations...).
 A branch made from `master` looks like a plain Superset and its pull request would try to undo the
 whole fork. If you find yourself on such a branch, stop and start again from `main`.
 
@@ -41,9 +41,9 @@ Common pre-commit failures:
 - **Type errors** - mypy failures need manual fixes
 - **Linting** - ruff, pylint issues need manual fixes
 
-## Mi BI: What This Fork Changes
+## AuraData BI: What This Fork Changes
 
-This repository is **Mi BI**, a fork of Apache Superset 6.1 shaped like Power BI. `README.md`
+This repository is **AuraData BI**, a fork of Apache Superset 6.1 shaped like Power BI. `README.md`
 (Spanish) is the human overview. Read this section before touching anything below.
 
 ### Product rules
@@ -58,7 +58,16 @@ This repository is **Mi BI**, a fork of Apache Superset 6.1 shaped like Power BI
   `src/mibi/dashboard/ChartEditorPanel.tsx`); there is no chart list screen.
 - **Workspaces** group dashboards, with members and roles (viewer, contributor, admin)
   (`MIBI_WORKSPACE_ACCESS`).
+- **AuraData brand** (https://auradata.mx/brand-guidelines): the product is "AuraData BI", the
+  Continua logo plus a "BI" tag rendered as HTML (`src/mibi/shell/brand.ts`, `ProductTag`), never
+  drawn into the logo file. Write the company as "AuraData" (capital A and D). Outfit for text,
+  Geist Mono for data and eyebrow labels; Azul Aura `#2563EB`, violet `#7C3AED`, green `#10B981`;
+  the 100° blue→violet→green gradient only as a headline accent. Logos and icons live in
+  `superset-frontend/src/assets/images/auradata/`.
 - Branding, theme tokens, languages and chart palettes live in `superset/mibi_config.py`.
+- Internal names keep the `mibi` prefix (`src/mibi`, `superset/mibi`, `MIBI_*`, `mibi_*` tables,
+  `meta.mibi*` layout keys, the `mibi` palette id): saved dashboards and migrations depend on
+  them. Rename only what users see.
 
 ### Where the code lives
 | Area | Backend | Frontend (`superset-frontend/src/`) |
@@ -74,7 +83,7 @@ This repository is **Mi BI**, a fork of Apache Superset 6.1 shaped like Power BI
 | Presentation mode, PDF/PNG export | - | `mibi/present`, `mibi/export` |
 | Chart type icons | - | `mibi/vizIcons` |
 
-Mi BI APIs: `/api/v1/workspace/`, `/api/v1/format_theme/` (plus `<id>/apply/`),
+AuraData BI APIs: `/api/v1/workspace/`, `/api/v1/format_theme/` (plus `<id>/apply/`),
 `/api/v1/dashboard_background/<dashboard>/`, `/api/v1/dashboard_image/<dashboard>/<image>/`,
 `/api/v1/mibi/dashboard_previews/`. Each new API is registered in `superset/initialization/__init__.py`.
 
@@ -108,7 +117,7 @@ Fork migrations form one chain after the upstream head:
 `06c8a16b9fe1` (element images) → `b7d41e0c9a23` (format themes). A new fork migration revises
 the last one. When merging a new Superset release, point `8bc9e5b95335` at the new upstream head.
 
-### Tests for Mi BI code
+### Tests for AuraData BI code
 - Jest tests sit next to the code (`src/mibi/**/*.test.ts(x)`).
 - Backend: `pytest tests/unit_tests/mibi/`.
 - Browser: `superset-frontend/playwright/tests/experimental/` (dashboard format, export,
@@ -226,7 +235,7 @@ npm run playwright:headed              # See browser during tests
 npx playwright test tests/auth/login.spec.ts  # Single file
 npm run playwright:debug tests/auth/login.spec.ts  # Debug specific file
 
-# E2E tests of Mi BI screens (opt-in)
+# E2E tests of AuraData BI screens (opt-in)
 INCLUDE_EXPERIMENTAL=1 npx playwright test tests/experimental/dashboard/format.spec.ts
 
 # Backend  

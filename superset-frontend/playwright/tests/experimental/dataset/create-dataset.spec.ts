@@ -153,7 +153,7 @@ test('should create a dataset via wizard', async ({ page, testAssets }) => {
     testAssets.trackDataset(newDatasetId);
   }
 
-  // Charts are created from a dashboard (Mi BI): without one, Chart Creation
+  // Charts are created from a dashboard (AuraData BI): without one, Chart Creation
   // points to the dashboards instead of opening Explore
   await page.waitForURL(/.*\/chart\/add.*/);
   await expect(

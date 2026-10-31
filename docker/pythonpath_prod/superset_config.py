@@ -15,7 +15,7 @@
 # specific language governing permissions and limitations
 # under the License.
 """
-Mi BI production settings, baked into the `prod` Docker image.
+AuraData BI production settings, baked into the `prod` Docker image.
 
 Every value comes from the environment (see docker/.env-prod.example), so the same
 image runs in any deployment. Branding, theme and languages come from
@@ -132,11 +132,11 @@ SMTP_SSL = _flag("SMTP_SSL", False)
 SMTP_USER = os.getenv("SMTP_USER", "")
 SMTP_PASSWORD = os.getenv("SMTP_PASSWORD", "")
 SMTP_MAIL_FROM = os.getenv("SMTP_MAIL_FROM", "mibi@example.com")
-EMAIL_REPORTS_SUBJECT_PREFIX = "[Mi BI] "
+EMAIL_REPORTS_SUBJECT_PREFIX = "[AuraData BI] "
 
 # --- MCP service --------------------------------------------------------------
 # AI agents authenticate with a JWT signed with MCP_JWT_SECRET; its "sub" claim is
-# the Mi BI username the agent acts as. Without a secret the MCP service refuses
+# the AuraData BI username the agent acts as. Without a secret the MCP service refuses
 # every request.
 
 MCP_JWT_SECRET = os.getenv("MCP_JWT_SECRET") or None

@@ -114,7 +114,7 @@ afterEach(() => selectVisual(null));
 // Built in pieces: linters reject the literal
 const SCRIPT_SCHEME = ['java', 'script:'].join('');
 
-test('recognises Mi BI elements by their component key', () => {
+test('recognises AuraData BI elements by their component key', () => {
   expect(elementKind(elementKey('shape'))).toBe('shape');
   expect(elementKind('mibi-unknown')).toBeNull();
   expect(elementKind('some-plugin')).toBeNull();

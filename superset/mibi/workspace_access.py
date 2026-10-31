@@ -15,7 +15,7 @@
 # specific language governing permissions and limitations
 # under the License.
 """
-Who sees and who changes what in Mi BI workspaces.
+Who sees and who changes what in AuraData BI workspaces.
 
 Membership is the privacy boundary of a workspace, as in Power BI:
 

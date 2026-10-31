@@ -201,7 +201,7 @@ def _add_chart_to_layout(
     """
     chart_key = f"CHART-{chart_id}"
     column_key = generate_id("COLUMN")
-    # Widths are in the dashboard's own grid density (Mi BI)
+    # Widths are in the dashboard's own grid density (AuraData BI)
     column_count = layout_column_count(layout)
     chart_width = scaled_width(GRID_DEFAULT_CHART_WIDTH, column_count)
     chart_height = 50  # Good height for most chart types
@@ -428,7 +428,7 @@ def add_chart_to_existing_dashboard(  # noqa: C901
                     ),
                 )
 
-            # Charts can belong to a single dashboard (Mi BI)
+            # Charts can belong to a single dashboard (AuraData BI)
             from superset.mibi.single_dashboard import (
                 find_charts_in_other_dashboards,
                 is_enabled,

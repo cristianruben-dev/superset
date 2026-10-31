@@ -18,18 +18,19 @@ under the License.
 -->
 
 <p align="center">
-  <img src="superset-frontend/src/assets/images/mibi/favicon.svg" alt="Mi BI" width="72" />
+  <img src="superset-frontend/src/assets/images/auradata/logo.svg" alt="AuraData" width="280" />
 </p>
 
-<h1 align="center">Mi BI</h1>
+<h1 align="center">AuraData BI</h1>
 
 <p align="center">
-  Paneles de control e informes para explorar tus datos, al estilo Power BI.
+  Paneles de control e informes para explorar tus datos, al estilo Power BI.<br />
+  Un producto de <a href="https://auradata.mx">AuraData</a>.
 </p>
 
 ## Qué es
 
-Mi BI es una plataforma de inteligencia de negocio basada en
+AuraData BI es una plataforma de inteligencia de negocio basada en
 [Apache Superset](https://github.com/apache/superset) 6.1, con su propio diseño y
 algunas reglas de producto distintas:
 
@@ -70,8 +71,10 @@ algunas reglas de producto distintas:
   instante** para no tener que pulsar «Aplicar».
 - **Modo presentación** y **exportación a PDF o PNG** con portada, una página por
   pestaña del tamaño del panel y los filtros aplicados.
-- **Diseño propio:** logotipo, colores, tipografía Geist, modo claro y oscuro,
-  paletas de gráficos (Mi BI, Corporativo, Neón, Fresco) y pantalla de carga.
+- **Identidad AuraData** ([guía de marca](https://auradata.mx/brand-guidelines)):
+  logotipo Continua, tipografía Outfit con Geist Mono para datos, Azul Aura
+  (#2563EB) con acentos violeta y verde, modo claro y oscuro, paletas de gráficos
+  (AuraData, Aura suave, Corporativo, Neón, Fresco) y pantalla de carga.
 - **En español por defecto**, con inglés como segundo idioma.
 - **Servicio MCP** para que asistentes de IA consulten y creen paneles.
 - Conexión a PostgreSQL, MySQL/MariaDB, SQL Server, Oracle, Snowflake, BigQuery,
@@ -84,11 +87,11 @@ de Superset:
 | Qué | Dónde |
 | --- | --- |
 | Marca, tema, idiomas y paletas | `superset/mibi_config.py` |
-| Logotipos e iconos | `superset-frontend/src/assets/images/mibi/` |
+| Logotipos e iconos | `superset-frontend/src/assets/images/auradata/` |
 | Estilos globales | `superset-frontend/src/assets/mibi/skin.css` |
-| Pantallas y funciones de Mi BI | `superset-frontend/src/mibi/` |
-| API, modelos y reglas de Mi BI | `superset/mibi/` |
-| Migraciones de Mi BI | `superset/migrations/versions/*_mibi_*.py` |
+| Pantallas y funciones de AuraData BI | `superset-frontend/src/mibi/` |
+| API, modelos y reglas de AuraData BI | `superset/mibi/` |
+| Migraciones de AuraData BI | `superset/migrations/versions/*_mibi_*.py` |
 | Traducciones al español | `superset/translations/es/LC_MESSAGES/messages.po` |
 | Configuración de producción | `docker/pythonpath_prod/superset_config.py` |
 
@@ -101,8 +104,8 @@ La guía para asistentes de IA que trabajan en el código está en
 requests se abren contra `main`.
 
 `master` y las ramas con número (`6.1`, `7.0`...) son copias de Apache Superset que vinieron con
-el fork: no tienen nada de Mi BI. Una rama creada desde `master` parece un Superset normal, y su
-pull request intentaría deshacer todo Mi BI.
+el fork: no tienen nada de AuraData BI. Una rama creada desde `master` parece un Superset normal, y su
+pull request intentaría deshacer todo AuraData BI.
 
 ```bash
 git fetch origin main
@@ -120,7 +123,7 @@ docker compose up -d --build
 - Servicio MCP: http://localhost:5008/mcp (actúa como `admin`, solo en local)
 
 Al arrancar se aplican las migraciones pendientes (`superset db upgrade`), incluidas
-las de Mi BI: áreas de trabajo, miembros, imágenes de fondo y de elementos, y temas.
+las de AuraData BI: áreas de trabajo, miembros, imágenes de fondo y de elementos, y temas.
 
 Pruebas:
 
@@ -165,5 +168,5 @@ git merge upstream/6.1
 
 ## Licencia
 
-Mi BI se distribuye bajo la [Licencia Apache 2.0](LICENSE.txt), igual que Apache
+AuraData BI se distribuye bajo la [Licencia Apache 2.0](LICENSE.txt), igual que Apache
 Superset, en el que se basa. Consulta [NOTICE](NOTICE) para los avisos de terceros.

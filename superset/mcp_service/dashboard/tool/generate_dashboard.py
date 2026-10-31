@@ -232,7 +232,7 @@ def generate_dashboard(  # noqa: C901
                     error=f"Charts not found: {list(missing_chart_ids)}",
                 )
 
-            # Charts can belong to a single dashboard (Mi BI)
+            # Charts can belong to a single dashboard (AuraData BI)
             from superset.mibi.single_dashboard import (
                 find_charts_in_other_dashboards,
                 is_enabled,

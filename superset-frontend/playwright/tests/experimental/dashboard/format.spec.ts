@@ -22,7 +22,7 @@ import { TIMEOUT } from '../../../utils/constants';
 import { createTestDashboard } from './dashboard-test-helpers';
 
 /**
- * Dashboard Format pane E2E tests (Mi BI).
+ * Dashboard Format pane E2E tests (AuraData BI).
  *
  * They create their own empty dashboard, so they only need a running
  * Superset and the admin user authenticated by global-setup.

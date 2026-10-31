@@ -35,5 +35,5 @@ class SliceModelView(BaseSupersetView):
     @expose("/list/")
     @has_access
     def list(self) -> FlaskResponse:
-        # Charts live inside their dashboard (Mi BI), so there is no chart list
+        # Charts live inside their dashboard (AuraData BI), so there is no chart list
         return redirect("/dashboard/list/")

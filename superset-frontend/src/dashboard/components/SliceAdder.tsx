@@ -162,7 +162,7 @@ function getFilteredSortedSlices(
 }
 
 /**
- * Charts belong to a single dashboard (Mi BI), so the editor only lists the charts
+ * Charts belong to a single dashboard (AuraData BI), so the editor only lists the charts
  * of this dashboard, e.g. the ones created from it that are not placed in the
  * layout yet. Charts of other dashboards can't be added.
  */

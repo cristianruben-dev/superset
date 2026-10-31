@@ -23,7 +23,7 @@ import { elementKind } from './types';
 
 type Props = ComponentProps<typeof DynamicComponent>;
 
-/** DYNAMIC layout components: Mi BI design elements, or registered plugins. */
+/** DYNAMIC layout components: AuraData BI design elements, or registered plugins. */
 export default function DynamicOrElement(props: Props) {
   return elementKind(props.component?.meta?.componentKey) ? (
     <ElementHolder {...(props as unknown as ElementHolderProps)} />

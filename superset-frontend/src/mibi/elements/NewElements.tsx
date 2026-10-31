@@ -52,7 +52,7 @@ const ICONS: Record<ElementKind, unknown> = {
   filter: Icons.FilterOutlined,
 };
 
-/** Draggers for the Mi BI design elements in the Layout elements tab. */
+/** Draggers for the AuraData BI design elements in the Layout elements tab. */
 export function NewElements() {
   const columns = useSelector((state: RootState) =>
     columnCountOf(state.dashboardLayout?.present),

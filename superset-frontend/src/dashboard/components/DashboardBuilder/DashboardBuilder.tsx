@@ -196,7 +196,7 @@ const DashboardContentWrapper = styled.div`
       .resizable-container {
         & .dashboard-component-chart-holder {
           .dashboard-chart {
-            /* Mi BI: charts stay fully visible while editing, as in Power BI */
+            /* AuraData BI: charts stay fully visible while editing, as in Power BI */
             .chart-container {
               cursor: move;
             }

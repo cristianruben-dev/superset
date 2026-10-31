@@ -16,7 +16,7 @@
 #
 
 
-# Mi BI production stack.
+# AuraData BI production stack.
 #
 #   cp docker/.env-prod.example docker/.env-prod   # then fill in the secrets
 #   docker compose -f docker-compose-prod.yml up -d --build

@@ -31,13 +31,13 @@ dashboard_previews_schema = {
 
 
 class MibiRestApi(BaseSupersetApi):
-    """Mi BI endpoints that Superset's own APIs do not cover."""
+    """AuraData BI endpoints that Superset's own APIs do not cover."""
 
     resource_name = "mibi"
     allow_browser_login = True
     class_permission_name = "Dashboard"
     method_permission_name = {"dashboard_previews": "read"}
-    openapi_spec_tag = "Mi BI"
+    openapi_spec_tag = "AuraData BI"
 
     @expose("/dashboard_previews/", methods=("GET",))
     @protect()

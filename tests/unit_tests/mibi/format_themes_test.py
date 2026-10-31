@@ -62,7 +62,7 @@ LAYOUT = {
 def dashboards(
     mocker: MockerFixture, session: Session, full_api_access: None
 ) -> list[Dashboard]:
-    """The Mi BI tables, two dashboards and an admin."""
+    """The AuraData BI tables, two dashboards and an admin."""
     Dashboard.metadata.create_all(session.get_bind())  # pylint: disable=no-member
     items = [
         Dashboard(dashboard_title="Ventas", position_json=json.dumps(LAYOUT)),

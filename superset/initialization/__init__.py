@@ -327,7 +327,7 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
             category_icon="",
         )
         if self.config.get("MIBI_SINGLE_DASHBOARD_CHARTS"):
-            # Charts belong to a dashboard (Mi BI), so they have no top-level menu
+            # Charts belong to a dashboard (AuraData BI), so they have no top-level menu
             appbuilder.add_view_no_menu(SliceModelView)
         else:
             appbuilder.add_view(

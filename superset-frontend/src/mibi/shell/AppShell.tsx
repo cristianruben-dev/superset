@@ -72,7 +72,7 @@ interface AppShellProps {
 }
 
 /**
- * Mi BI application frame: a collapsible sidebar with the navigation, a top bar
+ * AuraData BI application frame: a collapsible sidebar with the navigation, a top bar
  * with search, create and user menus, and the page next to them. Standalone and
  * embedded views render the page alone.
  */

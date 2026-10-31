@@ -18,7 +18,7 @@
  */
 /**
  * Grid density: how many columns a dashboard's layout has. Upstream Superset
- * always uses GRID_COLUMN_COUNT (12); Mi BI lets a dashboard use 24 or 48 so
+ * always uses GRID_COLUMN_COUNT (12); AuraData BI lets a dashboard use 24 or 48 so
  * objects can be smaller. Widths in the layout are in the dashboard's own
  * columns, and the count is kept on the root component (COLUMN_COUNT_KEY).
  *

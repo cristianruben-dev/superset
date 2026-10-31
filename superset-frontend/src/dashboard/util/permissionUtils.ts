@@ -51,7 +51,7 @@ export const canUserEditDashboard = (
   isUserWithPermissionsAndRoles(user) &&
   (isUserAdmin(user) ||
     isUserDashboardOwner(dashboard, user) ||
-    // Set by the API, e.g. for Mi BI workspace contributors
+    // Set by the API, e.g. for AuraData BI workspace contributors
     dashboard.can_edit === true) &&
   findPermission('can_write', 'Dashboard', user?.roles);
 
