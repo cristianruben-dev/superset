@@ -18914,3 +18914,15 @@ msgstr "Pestañas anteriores"
 
 msgid "Next tabs"
 msgstr "Pestañas siguientes"
+
+msgid "Sort axis"
+msgstr "Ordenar eje"
+
+msgid "Sort saved"
+msgstr "Orden guardado"
+
+msgid "Sort undone"
+msgstr "Orden deshecho"
+
+msgid "Couldn't save the sort"
+msgstr "No se pudo guardar el orden"
