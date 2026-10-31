@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, type CSSProperties } from 'react';
 import { Link } from 'react-router-dom';
 import rison from 'rison';
 import { t, tn } from '@apache-superset/core/translation';
@@ -27,6 +27,7 @@ import { Icons } from '@superset-ui/core/components/Icons';
 import { useToasts } from 'src/components/MessageToasts/withToasts';
 import getBootstrapData from 'src/utils/getBootstrapData';
 import { useFavoriteStatus } from 'src/views/CRUD/hooks';
+import { AURA_TONES, type AuraTone } from '../shell/brand';
 import { relativeTime } from '../time';
 import { DashboardCard, useDashboardPreviews } from '../dashboards';
 import {
@@ -65,26 +66,6 @@ const Page = styled.div`
   `}
 `;
 
-const Hero = styled.header`
-  ${({ theme }) => css`
-    margin-bottom: ${theme.sizeUnit * 7}px;
-
-    h1 {
-      margin: 0;
-      font-size: 28px;
-      font-weight: ${theme.fontWeightStrong};
-      letter-spacing: -0.02em;
-      color: ${theme.colorText};
-    }
-
-    p {
-      margin: ${theme.sizeUnit}px 0 0;
-      color: ${theme.colorTextSecondary};
-      font-size: ${theme.fontSize}px;
-    }
-  `}
-`;
-
 const Actions = styled.div`
   ${({ theme }) => css`
     display: grid;
@@ -104,23 +85,25 @@ const ActionCard = styled(Link)`
     display: flex;
     align-items: flex-start;
     gap: ${theme.sizeUnit * 3}px;
-    padding: ${theme.sizeUnit * 4}px;
-    border-radius: ${theme.borderRadiusLG}px;
+    padding: ${theme.sizeUnit * 5}px;
+    border-radius: 20px;
     border: 1px solid ${theme.colorBorderSecondary};
     background: ${theme.colorBgContainer};
     color: ${theme.colorText};
+    box-shadow: ${theme.boxShadow};
+    /* The cards of auradata.mx: they lift slowly with a soft landing */
     transition:
-      border-color ${theme.motionDurationMid},
-      box-shadow ${theme.motionDurationMid},
-      transform ${theme.motionDurationMid};
+      border-color 0.7s cubic-bezier(0.32, 0.72, 0, 1),
+      box-shadow 0.7s cubic-bezier(0.32, 0.72, 0, 1),
+      transform 0.7s cubic-bezier(0.32, 0.72, 0, 1);
 
     &:hover,
     &:focus-visible {
       color: ${theme.colorText};
       text-decoration: none;
       border-color: ${theme.colorPrimaryBorder};
-      box-shadow: ${theme.boxShadow};
-      transform: translateY(-1px);
+      box-shadow: ${theme.boxShadowSecondary};
+      transform: translateY(-4px);
     }
 
     &:hover .arrow {
@@ -133,12 +116,12 @@ const ActionCard = styled(Link)`
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
-      width: 38px;
-      height: 38px;
-      border-radius: ${theme.borderRadius}px;
-      background: ${theme.colorPrimaryBg};
-      color: ${theme.colorPrimary};
-      font-size: 18px;
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      background: var(--tone-tint);
+      color: var(--tone-color);
+      font-size: 19px;
     }
 
     .text {
@@ -353,33 +336,14 @@ const EmptyCard = styled.div`
   `}
 `;
 
-const locale = () => getBootstrapData().common?.locale || 'en';
-
 export { relativeTime };
 
-export function greeting(hour = new Date().getHours()): string {
-  if (hour < 12) {
-    return t('Good morning');
-  }
-  if (hour < 20) {
-    return t('Good afternoon');
-  }
-  return t('Good evening');
-}
-
-/** Greeting and quick actions shown at the top of the home page. */
+/** Quick actions shown at the top of the home page. */
 export function HomeBanner() {
-  const { user } = getBootstrapData();
-  const name = user?.firstName || user?.username || '';
-  const today = new Intl.DateTimeFormat(locale(), {
-    weekday: 'long',
-    day: 'numeric',
-    month: 'long',
-  }).format(new Date());
-
   const actions = [
     {
       key: 'dashboard',
+      tone: 'blue' as AuraTone,
       to: '/dashboard/new/',
       icon: <Icons.DashboardOutlined />,
       title: t('New dashboard'),
@@ -387,6 +351,7 @@ export function HomeBanner() {
     },
     {
       key: 'database',
+      tone: 'violet' as AuraTone,
       to: '/data/',
       icon: <Icons.DatabaseOutlined />,
       title: t('Connect data'),
@@ -394,6 +359,7 @@ export function HomeBanner() {
     },
     {
       key: 'dataset',
+      tone: 'green' as AuraTone,
       to: '/data/',
       icon: <Icons.TableOutlined />,
       title: t('Datasets'),
@@ -401,6 +367,7 @@ export function HomeBanner() {
     },
     {
       key: 'sql',
+      tone: 'amber' as AuraTone,
       to: '/sqllab/?new=true',
       icon: <Icons.ConsoleSqlOutlined />,
       title: t('Explore with SQL'),
@@ -414,13 +381,19 @@ export function HomeBanner() {
         padding-bottom: 0 !important;
       `}
     >
-      <Hero>
-        <h1>{name ? `${greeting()}, ${name}` : greeting()}</h1>
-        <p>{today.charAt(0).toUpperCase() + today.slice(1)}</p>
-      </Hero>
       <Actions>
         {actions.map(action => (
-          <ActionCard key={action.key} to={action.to} data-test="home-action">
+          <ActionCard
+            key={action.key}
+            to={action.to}
+            data-test="home-action"
+            style={
+              {
+                '--tone-color': AURA_TONES[action.tone].color,
+                '--tone-tint': AURA_TONES[action.tone].tint,
+              } as CSSProperties
+            }
+          >
             <span className="icon">{action.icon}</span>
             <span className="text">
               <span className="title">{action.title}</span>

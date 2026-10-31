@@ -18,7 +18,7 @@
  */
 import fetchMock from 'fetch-mock';
 import { render, screen, userEvent } from 'spec/helpers/testing-library';
-import { greeting, HomeBanner, HomeContent, relativeTime } from './HomePage';
+import { HomeBanner, HomeContent, relativeTime } from './HomePage';
 
 jest.mock('src/utils/getBootstrapData', () => ({
   __esModule: true,
@@ -85,22 +85,16 @@ afterEach(() => {
   fetchMock.clearHistory().removeRoutes();
 });
 
-test('greets by the time of day', () => {
-  expect(greeting(8)).toBe('Good morning');
-  expect(greeting(15)).toBe('Good afternoon');
-  expect(greeting(22)).toBe('Good evening');
-});
-
 test('formats relative times in the user locale', () => {
   const now = Date.UTC(2026, 0, 10, 12);
   expect(relativeTime(now - 5 * 60_000, now)).toBe('hace 5 minutos');
   expect(relativeTime(now - 2 * 86_400_000, now)).toBe('anteayer');
 });
 
-test('the banner greets the user and offers the quick actions', () => {
+test('the banner offers the quick actions, without a greeting card', () => {
   render(<HomeBanner />, { useRouter: true });
 
-  expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Ana');
+  expect(screen.queryByRole('heading', { level: 1 })).not.toBeInTheDocument();
   expect(screen.getAllByTestId('home-action')).toHaveLength(4);
   expect(screen.getByRole('link', { name: /New dashboard/ })).toHaveAttribute(
     'href',
