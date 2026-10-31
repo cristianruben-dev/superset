@@ -21,6 +21,10 @@ import { t } from '@apache-superset/core/translation';
 import { css, useTheme, SupersetTheme } from '@apache-superset/core/theme';
 import { FormLabel, InfoTooltip, Tooltip } from '@superset-ui/core/components';
 import { Icons } from '@superset-ui/core/components/Icons';
+import {
+  HelpTooltipContent,
+  HELP_TOOLTIP_WIDTH,
+} from 'src/mibi/help/HelpTooltip';
 
 type ValidationError = string;
 
@@ -95,8 +99,16 @@ const ControlHeader: FC<ControlHeaderProps> = ({
           <span>
             <Tooltip
               id="description-tooltip"
-              title={description}
+              title={
+                <HelpTooltipContent
+                  name={name}
+                  label={label}
+                  description={description}
+                />
+              }
               placement="top"
+              color={theme.colorBgElevated}
+              overlayStyle={{ maxWidth: HELP_TOOLTIP_WIDTH }}
             >
               <Icons.InfoCircleOutlined
                 css={iconStyles}
