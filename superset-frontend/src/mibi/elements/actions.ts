@@ -23,9 +23,16 @@ import type { ThunkDispatch } from 'redux-thunk';
 import { SupersetClient } from '@superset-ui/core';
 import { setDirectPathToChild } from 'src/dashboard/actions/dashboardState';
 import type { GetState, LayoutItem, RootState } from 'src/dashboard/types';
-import { updateDataMask } from 'src/dataMask/actions';
+import { removeDataMask, updateDataMask } from 'src/dataMask/actions';
 import { updateLayout } from 'src/mibi/format/actions';
 import { topLevelTabs } from 'src/mibi/present/dashboardTabs';
+import { applyBookmark } from 'src/mibi/report/bookmarks';
+import {
+  activeDrillthrough,
+  leaveDrillthrough,
+} from 'src/mibi/report/drillthrough';
+import { DRILLTHROUGH_ID } from 'src/mibi/report/drillthroughScope';
+import { goBackTo } from 'src/mibi/report/pageHistory';
 import { isSafeUrl } from './render';
 import { ELEMENT_KEY, type ElementAction, type ElementConfig } from './types';
 
@@ -99,6 +106,33 @@ export function runElementAction(
         }),
       );
     });
+    // Cross-filters and a drill through are selections too
+    Object.keys(state.dataMask ?? {})
+      .filter(id => /^\d+$/.test(id))
+      .forEach(id =>
+        dispatch(
+          updateDataMask(id, {
+            extraFormData: { filters: [] },
+            filterState: { value: null, selectedValues: null },
+          }),
+        ),
+      );
+    dispatch(removeDataMask(DRILLTHROUGH_ID));
+  } else if (action.type === 'bookmark' && action.bookmarkId) {
+    dispatch(applyBookmark(action.bookmarkId));
+  } else if (action.type === 'back') {
+    if (activeDrillthrough(state.dataMask, state.dashboardInfo.id)) {
+      dispatch(leaveDrillthrough(true));
+      return;
+    }
+    const previous = goBackTo();
+    const tab = topLevelTabs(state.dashboardLayout.present).find(
+      ({ id }) => id === previous,
+    );
+    if (tab) {
+      dispatch(setDirectPathToChild(tab.path));
+      window.scrollTo(0, 0);
+    }
   } else if (action.type === 'top') {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }

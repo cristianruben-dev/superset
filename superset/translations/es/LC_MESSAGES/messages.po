@@ -18947,6 +18947,9 @@ msgstr "Un marcador guarda la página actual, las selecciones de filtros y qué 
 msgid "Add bookmark"
 msgstr "Añadir marcador"
 
+msgid "Bookmark"
+msgstr "Marcador"
+
 msgid "Bookmark %s"
 msgstr "Marcador %s"
 
@@ -18955,6 +18958,9 @@ msgstr "Nombre del marcador"
 
 msgid "Bookmarks"
 msgstr "Marcadores"
+
+msgid "Choose a bookmark"
+msgstr "Elige un marcador"
 
 msgid "Choose the columns"
 msgstr "Elige las columnas"
@@ -18986,6 +18992,9 @@ msgstr "Editar interacciones: elige qué gráficos filtra este"
 msgid "Filters the charts of %s"
 msgstr "Filtra los gráficos de %s"
 
+msgid "Go back"
+msgstr "Volver"
+
 msgid "Interaction"
 msgstr "Interacción"
 
@@ -19001,11 +19010,17 @@ msgstr "En otra página, haz clic derecho en un dato y elige «Obtener detalles�
 msgid "Page: %s"
 msgstr "Página: %s"
 
+msgid "Returns from a drill through, or to the page viewed before this one."
+msgstr "Regresa de la obtención de detalles o a la página que viste antes."
+
 msgid "Right-click a single data point to drill through"
 msgstr "Haz clic derecho en un solo dato para obtener detalles"
 
 msgid "Set up the view you want, then add a bookmark."
 msgstr "Deja la vista como la quieres y luego añade un marcador."
+
+msgid "Show a bookmark"
+msgstr "Mostrar un marcador"
 
 msgid "Show this bookmark"
 msgstr "Mostrar este marcador"

@@ -26,6 +26,7 @@ import type { RootState } from 'src/dashboard/types';
 import { removeDataMask } from 'src/dataMask/actions';
 import { activeDrillthrough, leaveDrillthrough } from './drillthrough';
 import { DRILLTHROUGH_ID } from './drillthroughScope';
+import { usePageHistory } from './pageHistory';
 
 const Bar = styled.div`
   ${({ theme }) => css`
@@ -103,6 +104,7 @@ export function DrillthroughBar() {
     (state: RootState) => state.dashboardState.activeTabs,
   );
 
+  usePageHistory();
   useEffect(
     () => () => {
       dispatch(removeDataMask(DRILLTHROUGH_ID));

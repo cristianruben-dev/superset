@@ -41,6 +41,7 @@ import {
 } from 'src/mibi/format/controls';
 import { topLevelTabs } from 'src/mibi/present/dashboardTabs';
 import { SyncSlicers } from 'src/mibi/report/SyncSlicers';
+import { bookmarksOf } from 'src/mibi/report/bookmarks';
 import {
   deleteElementImage,
   setElementConfig,
@@ -165,6 +166,7 @@ function ActionFields({
     (state: RootState) => state.dashboardLayout.present,
   );
   const tabs = useMemo(() => topLevelTabs(layout), [layout]);
+  const bookmarks = useMemo(() => bookmarksOf(layout), [layout]);
   const current = action ?? { type: 'none' as const };
   const urlInvalid =
     current.type === 'url' && !!current.url && !isSafeUrl(current.url);
@@ -183,11 +185,36 @@ function ActionFields({
           ...(tabs.length
             ? [{ value: 'page', label: t('Go to a page of the dashboard') }]
             : []),
+          ...(bookmarks.length
+            ? [{ value: 'bookmark', label: t('Show a bookmark') }]
+            : []),
+          { value: 'back', label: t('Go back') },
           { value: 'url', label: t('Open a link') },
           { value: 'reset-filters', label: t('Reset the filters') },
           { value: 'top', label: t('Scroll to the top') },
         ]}
       />
+      {current.type === 'bookmark' && (
+        <Select
+          ariaLabel={t('Bookmark')}
+          value={current.bookmarkId}
+          placeholder={t('Choose a bookmark')}
+          onChange={value =>
+            onChange({ ...current, bookmarkId: String(value) })
+          }
+          options={bookmarks.map(bookmark => ({
+            value: bookmark.id,
+            label: bookmark.name,
+          }))}
+        />
+      )}
+      {current.type === 'back' && (
+        <Hint>
+          {t(
+            'Returns from a drill through, or to the page viewed before this one.',
+          )}
+        </Hint>
+      )}
       {current.type === 'page' && (
         <Select
           ariaLabel={t('Page')}

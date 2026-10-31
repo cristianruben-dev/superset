@@ -43,9 +43,11 @@ export const elementKind = (componentKey: unknown): ElementKind | null => {
 
 /** What clicking an element does in view mode. */
 export interface ElementAction {
-  type: 'none' | 'page' | 'url' | 'reset-filters' | 'top';
+  type: 'none' | 'page' | 'url' | 'reset-filters' | 'top' | 'bookmark' | 'back';
   /** Top level tab to open, for 'page' */
   tabId?: string;
+  /** Bookmark to apply, for 'bookmark' */
+  bookmarkId?: string;
   url?: string;
   newTab?: boolean;
 }
