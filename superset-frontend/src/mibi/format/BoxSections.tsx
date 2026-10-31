@@ -50,7 +50,15 @@ export function BoxSections({ id }: { id: string }) {
     <>
       <Section data-test="mibi-format-visual-background">
         <h4>{t('Background')}</h4>
-        <Field label={t('Transparent')}>
+        <Field
+          label={t('Transparent')}
+          help={{
+            kind: 'cardBackground',
+            text: t(
+              'Removes the chart background so it sits directly on the page.',
+            ),
+          }}
+        >
           <Switch
             size="small"
             checked={transparent}
@@ -79,6 +87,12 @@ export function BoxSections({ id }: { id: string }) {
         {!transparent && (
           <RangeField
             label={t('Opacity')}
+            help={{
+              kind: 'opacity',
+              text: t(
+                'Makes the chart background see-through so the page shows behind it.',
+              ),
+            }}
             value={format.backgroundOpacity ?? 100}
             min={0}
             max={100}
@@ -105,6 +119,10 @@ export function BoxSections({ id }: { id: string }) {
         />
         <RangeField
           label={t('Width')}
+          help={{
+            kind: 'cardBorder',
+            text: t('Thickness of the outline drawn around the chart.'),
+          }}
           value={format.borderWidth ?? 1}
           min={0}
           max={8}
@@ -113,6 +131,10 @@ export function BoxSections({ id }: { id: string }) {
         />
         <RangeField
           label={t('Rounded corners')}
+          help={{
+            kind: 'cardRadius',
+            text: t('How round the corners of the chart are.'),
+          }}
           value={format.radius ?? DEFAULT_RADIUS}
           min={0}
           max={32}
@@ -136,6 +158,10 @@ export function BoxSections({ id }: { id: string }) {
         />
         <RangeField
           label={t('Inner padding')}
+          help={{
+            kind: 'cardPadding',
+            text: t('Space between the edge of the chart and its content.'),
+          }}
           value={format.padding ?? 16}
           min={0}
           max={40}

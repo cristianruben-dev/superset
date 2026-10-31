@@ -21,6 +21,8 @@ import { t } from '@apache-superset/core/translation';
 import { css, useTheme, SupersetTheme } from '@apache-superset/core/theme';
 import { FormLabel, InfoTooltip, Tooltip } from '@superset-ui/core/components';
 import { Icons } from '@superset-ui/core/components/Icons';
+import { HelpTooltip } from 'src/mibi/help/HelpTooltip';
+import { helpDescriptionFor } from 'src/mibi/help/registry';
 
 type ValidationError = string;
 
@@ -70,6 +72,7 @@ const ControlHeader: FC<ControlHeaderProps> = ({
   danger,
 }) => {
   const theme = useTheme();
+  const help = description || helpDescriptionFor(name);
 
   if (!label) {
     return null;
@@ -91,18 +94,20 @@ const ControlHeader: FC<ControlHeaderProps> = ({
           white-space: nowrap;
         `}
       >
-        {description && (
+        {help && (
           <span>
-            <Tooltip
+            <HelpTooltip
               id="description-tooltip"
-              title={description}
-              placement="top"
+              controlName={name}
+              title={label}
+              description={help}
+              placement="left"
             >
               <Icons.InfoCircleOutlined
                 css={iconStyles}
                 onClick={tooltipOnClick}
               />
-            </Tooltip>{' '}
+            </HelpTooltip>{' '}
           </span>
         )}
         {renderTrigger && (

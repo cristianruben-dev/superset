@@ -20,6 +20,7 @@ import type { ReactNode } from 'react';
 import { css, styled, useTheme } from '@apache-superset/core/theme';
 import { t } from '@apache-superset/core/translation';
 import { ColorPicker, Slider } from '@superset-ui/core/components';
+import { FieldHelp, type FieldHelpContent } from '../help/FieldHelp';
 
 export const Section = styled.section`
   ${({ theme }) => css`
@@ -70,14 +71,19 @@ export function Field({
   label,
   children,
   stacked,
+  help,
 }: {
   label: ReactNode;
   children: ReactNode;
   stacked?: boolean;
+  help?: FieldHelpContent;
 }) {
   return (
     <FieldRow $stacked={stacked} as={stacked ? 'div' : 'label'}>
-      <span className="label">{label}</span>
+      <span className="label">
+        {label}
+        {help && <FieldHelp label={label} help={help} />}
+      </span>
       <span className="control">{children}</span>
     </FieldRow>
   );
@@ -115,8 +121,10 @@ export function RangeField({
   unit = 'px',
   onChange,
   testId,
+  help,
 }: {
   label: ReactNode;
+  help?: FieldHelpContent;
   value: number;
   min: number;
   max: number;
@@ -126,7 +134,7 @@ export function RangeField({
   testId?: string;
 }) {
   return (
-    <Field label={label} stacked>
+    <Field label={label} stacked help={help}>
       <SliderBox data-test={testId}>
         <Slider
           min={min}
@@ -152,8 +160,10 @@ export function ColorField({
   onChange,
   disabled,
   testId,
+  help,
 }: {
   label: ReactNode;
+  help?: FieldHelpContent;
   value: string;
   onChange: (value: string) => void;
   disabled?: boolean;
@@ -161,7 +171,7 @@ export function ColorField({
 }) {
   const theme = useTheme();
   return (
-    <Field label={label}>
+    <Field label={label} help={help}>
       <span data-test={testId}>
         <ColorPicker
           size="small"

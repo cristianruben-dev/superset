@@ -46,7 +46,16 @@ export function GridSection() {
   return (
     <Section data-test="mibi-format-grid">
       <h4>{t('Grid')}</h4>
-      <Field label={t('Grid columns')} stacked>
+      <Field
+        label={t('Grid columns')}
+        stacked
+        help={{
+          kind: 'gridColumns',
+          text: t(
+            'More columns let you place and size objects with finer steps.',
+          ),
+        }}
+      >
         <Segments<`${ColumnCount}`>
           name={t('Grid columns')}
           value={`${columns}`}
@@ -65,7 +74,15 @@ export function GridSection() {
           'More columns let objects be smaller. It is saved with the dashboard, and the objects keep their size when it changes.',
         )}
       </Hint>
-      <Field label={t('Show grid')}>
+      <Field
+        label={t('Show grid')}
+        help={{
+          kind: 'gridLines',
+          text: t(
+            'Draws guides on the canvas while you edit. Viewers never see them.',
+          ),
+        }}
+      >
         <Switch
           size="small"
           checked={grid.show}
@@ -101,6 +118,10 @@ export function GridSection() {
           {grid.style !== 'columns' && !grid.square && (
             <RangeField
               label={t('Row height')}
+              help={{
+                kind: 'gridRows',
+                text: t('Height of each row of the grid.'),
+              }}
               value={grid.spacing}
               min={8}
               max={96}

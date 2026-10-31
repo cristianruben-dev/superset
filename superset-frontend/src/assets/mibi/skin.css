@@ -1519,3 +1519,23 @@ body.mibi-presenting-idle * {
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+
+/* ---------------------------------------------------------------- Help tooltips */
+
+.mibi-help-tooltip {
+  max-width: none;
+}
+
+.mibi-help-tooltip .ant-tooltip-inner {
+  padding: 0;
+  overflow: hidden;
+  border-radius: 14px;
+  border: 1px solid var(--mb-hairline-strong);
+  box-shadow: var(--mb-shadow-pop);
+  font-size: 12px;
+}
+
+.mibi-help-tooltip .ant-tooltip-arrow::before,
+.mibi-help-tooltip .ant-tooltip-arrow::after {
+  box-shadow: none;
+}

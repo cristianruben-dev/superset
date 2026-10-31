@@ -82,6 +82,8 @@ import { RunQueryButton } from './RunQueryButton';
 import { Operators } from '../constants';
 import { Clauses } from './controls/FilterControl/types';
 import StashFormDataContainer from './StashFormDataContainer';
+import { HelpTooltip } from 'src/mibi/help/HelpTooltip';
+import { helpIllustrationForSection } from 'src/mibi/help/registry';
 
 const TABS_KEYS = {
   DATA: 'DATA',
@@ -623,19 +625,33 @@ export const ControlPanelsContainer = (props: ControlPanelsContainerProps) => {
     }
 
     const PanelHeader = () => (
-      <span data-test="collapsible-control-panel-header">
+      <span
+        data-test="collapsible-control-panel-header"
+        css={(theme: SupersetTheme) => css`
+          display: inline-flex;
+          align-items: center;
+          gap: ${theme.sizeUnit * 1.5}px;
+          max-width: 100%;
+        `}
+      >
         <span
           css={(theme: SupersetTheme) => css`
+            min-width: 0;
             font-size: ${theme.fontSize}px;
             line-height: 1.3;
           `}
         >
           {label}
-        </span>{' '}
+        </span>
         {description && (
-          <Tooltip id={sectionId} title={description}>
+          <HelpTooltip
+            id={sectionId}
+            title={label}
+            description={description}
+            kind={helpIllustrationForSection(label)}
+          >
             <Icons.InfoCircleOutlined css={iconStyles} />
-          </Tooltip>
+          </HelpTooltip>
         )}
         {hasErrors && (
           <Tooltip
