@@ -51,7 +51,8 @@ const ButtonsContainer = styled.div<{ isVertical: boolean }>`
     ${isVertical
       ? css`
           flex-direction: column;
-          align-items: center;
+          align-items: stretch;
+          gap: ${theme.sizeUnit}px;
           position: sticky;
           z-index: 100;
           bottom: 0;
@@ -72,7 +73,9 @@ const ButtonsContainer = styled.div<{ isVertical: boolean }>`
 const applyButtonStyle = (theme: SupersetTheme, isVertical: boolean) => css`
   ${isVertical &&
   css`
-    margin-bottom: ${theme.sizeUnit * 3}px;
+    width: 100%;
+    height: ${theme.sizeUnit * 9}px;
+    font-weight: ${theme.fontWeightStrong};
   `}
 `;
 
@@ -156,7 +159,7 @@ const ActionButtons = ({
           {isVertical ? t('Apply filters') : t('Apply')}
         </Button>
       )}
-      <Flex>
+      <Flex justify={isVertical ? 'center' : undefined}>
         <Button
           disabled={!isClearAllEnabled}
           buttonStyle="link"

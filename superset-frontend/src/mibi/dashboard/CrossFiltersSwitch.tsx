@@ -34,7 +34,8 @@ const Row = styled.label`
     margin: ${theme.sizeUnit * 3}px ${theme.sizeUnit * 2}px 0;
     padding: ${theme.sizeUnit * 2}px ${theme.sizeUnit * 3}px;
     border-radius: ${theme.borderRadius}px;
-    background: ${theme.colorFillSecondary};
+    background: ${theme.colorFillQuaternary};
+    border: 1px solid ${theme.colorBorderSecondary};
     font-size: ${theme.fontSizeSM}px;
     font-weight: 500;
     color: ${theme.colorTextSecondary};

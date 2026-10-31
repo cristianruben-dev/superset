@@ -17,6 +17,7 @@
  * under the License.
  */
 import { getCategoricalSchemeRegistry } from '@superset-ui/core';
+import { t } from '@apache-superset/core/translation';
 import {
   ColorPicker,
   type RGBColor,
@@ -92,8 +93,8 @@ export default function ColorPickerControl({
             undefined,
           )
         }
-        presets={[{ label: 'Theme colors', colors: presetColors }]}
-        showText
+        presets={[{ label: t('Theme colors'), colors: presetColors }]}
+        showText={allowClear && !hexValue ? () => t('Theme default') : true}
       />
     </div>
   );

@@ -328,9 +328,11 @@ const FilterControls: FC<FilterControlsProps> = ({
   const sectionTitleStyle = useMemo(
     () => ({
       margin: 0,
-      fontSize: theme.fontSize,
-      fontWeight: theme.fontWeightNormal,
-      color: theme.colorText,
+      fontSize: theme.fontSizeSM,
+      fontWeight: theme.fontWeightStrong,
+      color: theme.colorTextTertiary,
+      letterSpacing: '0.04em',
+      textTransform: 'uppercase' as const,
       lineHeight: 1.3,
     }),
     [theme],
@@ -416,16 +418,7 @@ const FilterControls: FC<FilterControlsProps> = ({
                 role="button"
                 tabIndex={0}
               >
-                <Title
-                  level={5}
-                  style={{
-                    margin: 0,
-                    fontSize: theme.fontSize,
-                    fontWeight: theme.fontWeightNormal,
-                    color: theme.colorText,
-                    lineHeight: 1.3,
-                  }}
-                >
+                <Title level={5} style={sectionTitleStyle}>
                   {t('Display controls')}
                 </Title>
                 <StyledIcon
