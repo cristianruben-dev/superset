@@ -44,7 +44,10 @@ import {
 } from 'src/mibi/format/selection';
 import { visualStyle } from 'src/mibi/format/styles';
 import { ObjectBadges } from 'src/mibi/format/ObjectFlags';
-import { useCanvasMobile } from 'src/mibi/format/CanvasFrame';
+import {
+  useCanvasMobile,
+  useMaxHeightMultiple,
+} from 'src/mibi/format/CanvasFrame';
 import { setElementConfig } from './actions';
 import {
   ELEMENT_DEFAULTS,
@@ -103,6 +106,10 @@ function ElementHolder({
     ELEMENT_DEFAULTS[kind].element) as ElementConfig;
   const selected = useSelectedVisual() === component.id && editMode;
   const mobile = useCanvasMobile();
+  const maxHeightMultiple = useMaxHeightMultiple(
+    component.meta.height ?? ELEMENT_DEFAULTS[kind].height,
+    parentComponent,
+  );
   const hidden =
     !!component.meta.mibiHidden || (mobile && !!component.meta.mibiHideMobile);
   const locked = !!component.meta.mibiLocked;
@@ -180,6 +187,7 @@ function ElementHolder({
           }
           minWidthMultiple={minObjectColumns()}
           minHeightMultiple={ELEMENT_MIN_ROW_UNITS}
+          maxHeightMultiple={maxHeightMultiple}
           maxWidthMultiple={availableColumnCount + widthMultiple}
           onResizeStart={onResizeStart}
           onResize={onResize}

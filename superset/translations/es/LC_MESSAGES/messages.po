@@ -18339,3 +18339,6 @@ msgstr "Carta (%s × %s)"
 
 msgid "Square cells"
 msgstr "Celdas cuadradas"
+
+msgid "Fit the objects to the page height"
+msgstr "Ajustar los objetos al alto de la página"

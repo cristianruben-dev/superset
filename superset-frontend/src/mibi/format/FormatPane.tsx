@@ -53,6 +53,7 @@ import { useSharedVisualFormat } from './useVisualFormat';
 import { setMobilePreview, useMobilePreview } from './mobile';
 import { BoxSections } from './BoxSections';
 import { ThemeSection } from './ThemeSection';
+import { fitObjectsToPage } from './CanvasFrame';
 import { ObjectFlagToggles } from './ObjectFlags';
 import { isCopyable, useClipboard } from './clipboard';
 import { useObjectCommands } from './useObjectCommands';
@@ -654,6 +655,13 @@ function CanvasSection() {
             />
           </div>
         )}
+        <Button
+          buttonStyle="secondary"
+          data-test="mibi-fit-page"
+          onClick={fitObjectsToPage}
+        >
+          {t('Fit the objects to the page height')}
+        </Button>
       </Section>
 
       <Section>

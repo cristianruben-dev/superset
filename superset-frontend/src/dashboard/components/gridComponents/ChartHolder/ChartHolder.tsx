@@ -41,7 +41,10 @@ import { t } from '@apache-superset/core/translation';
 import { gapInset, visualStyle } from 'src/mibi/format/styles';
 import { ObjectBadges } from 'src/mibi/format/ObjectFlags';
 import { useMergedVisualFormat } from 'src/mibi/format/useVisualFormat';
-import { useCanvasMobile } from 'src/mibi/format/CanvasFrame';
+import {
+  useCanvasMobile,
+  useMaxHeightMultiple,
+} from 'src/mibi/format/CanvasFrame';
 import { gridColumnCount, minObjectColumns } from 'src/mibi/format/columns';
 import {
   openFormat,
@@ -136,6 +139,11 @@ const ChartHolder = ({
   const inset = gapInset(canvasFormat);
   const isSelected = useSelectedVisual() === component.id && editMode;
   const mobile = useCanvasMobile();
+  // The page is a limit: an object grows only into the room left on it
+  const maxHeightMultiple = useMaxHeightMultiple(
+    component.meta.height ?? GRID_MIN_ROW_UNITS,
+    parentComponent,
+  );
   const hiddenOnMobile = mobile && !!component.meta.mibiHideMobile;
   const hidden = !!component.meta.mibiHidden || hiddenOnMobile;
   const locked = !!component.meta.mibiLocked;
@@ -301,6 +309,7 @@ const ChartHolder = ({
         heightMultiple={component.meta.height ?? GRID_MIN_ROW_UNITS}
         minWidthMultiple={minObjectColumns()}
         minHeightMultiple={GRID_MIN_ROW_UNITS}
+        maxHeightMultiple={maxHeightMultiple}
         maxWidthMultiple={availableColumnCount + widthMultiple}
         onResizeStart={onResizeStart}
         onResize={onResize}

@@ -27,15 +27,16 @@ import {
 } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import cx from 'classnames';
-import { t } from '@apache-superset/core/translation';
-import { Button } from '@superset-ui/core/components';
-import { Icons } from '@superset-ui/core/components/Icons';
 import { fitToCanvas } from './actions';
 import { useShowGrid } from './gridGuides';
 import { PHONE_WIDTH, useMobilePreview, usePhoneScreen } from './mobile';
 import { css, styled, useTheme } from '@apache-superset/core/theme';
-import type { RootState } from 'src/dashboard/types';
-import { DASHBOARD_ROOT_ID } from 'src/dashboard/util/constants';
+import type { LayoutItem, RootState } from 'src/dashboard/types';
+import { ROW_TYPE } from 'src/dashboard/util/componentTypes';
+import {
+  DASHBOARD_ROOT_ID,
+  GRID_BASE_UNIT,
+} from 'src/dashboard/util/constants';
 import { usePresenting } from 'src/mibi/present/presentation';
 import { selectVisual } from './selection';
 import { canvasSize, canvasStyle, canvasZoom, hasCanvasFormat } from './styles';
@@ -45,51 +46,6 @@ const Outer = styled.div`
   flex-direction: column;
   align-items: center;
   width: 100%;
-`;
-
-const Overflow = styled.div`
-  ${({ theme }) => css`
-    display: flex;
-    align-items: center;
-    gap: ${theme.sizeUnit * 3}px;
-    width: 100%;
-    margin-bottom: ${theme.sizeUnit * 3}px;
-    padding: ${theme.sizeUnit * 2}px ${theme.sizeUnit * 3}px;
-    border-radius: ${theme.borderRadius}px;
-    border: 1px solid ${theme.colorWarningBorder};
-    background: ${theme.colorWarningBg};
-    color: ${theme.colorText};
-    font-size: ${theme.fontSizeSM}px;
-
-    .message {
-      flex: 1;
-      min-width: 0;
-    }
-  `}
-`;
-
-const PageEnd = styled.div`
-  ${({ theme }) => css`
-    position: absolute;
-    left: 0;
-    right: 0;
-    height: 0;
-    border-top: 2px dashed ${theme.colorWarning};
-    pointer-events: none;
-    z-index: 2;
-
-    span {
-      position: absolute;
-      right: ${theme.sizeUnit * 2}px;
-      top: ${theme.sizeUnit}px;
-      padding: 2px ${theme.sizeUnit * 2}px;
-      border-radius: 999px;
-      background: ${theme.colorWarning};
-      color: ${theme.colorTextLightSolid};
-      font-size: ${theme.fontSizeSM}px;
-      font-weight: 600;
-    }
-  `}
 `;
 
 const Page = styled.div<{ $decorated: boolean; $fixed: boolean }>`
@@ -113,12 +69,42 @@ const Page = styled.div<{ $decorated: boolean; $fixed: boolean }>`
 
 const CanvasZoomContext = createContext(1);
 const CanvasMobileContext = createContext(false);
+const FIT_PAGE_EVENT = 'mibi:fit-page';
+
+/** Shrinks or grows the visuals on screen so they fill the page height. */
+export const fitObjectsToPage = () =>
+  window.dispatchEvent(new CustomEvent(FIT_PAGE_EVENT));
+
+// Canvas pixels left below the visuals of a fixed size page
+const CanvasRoomContext = createContext(Infinity);
 
 /** Zoom of a fixed size canvas, so drag and resize can follow the mouse. */
 export const useCanvasZoom = () => useContext(CanvasZoomContext);
 
 /** Whether the canvas uses its mobile layout: one object per line. */
 export const useCanvasMobile = () => useContext(CanvasMobileContext);
+
+/**
+ * The tallest an object may be resized, in grid units, so the page keeps
+ * every visual inside it: what its row already takes plus the room left
+ * below the visuals. Undefined when the canvas has no page limit.
+ */
+export function useMaxHeightMultiple(
+  height: number,
+  parent: LayoutItem | undefined,
+): number | undefined {
+  const room = useContext(CanvasRoomContext);
+  const rowTallest = useSelector((state: RootState) => {
+    if (parent?.type !== ROW_TYPE) return height;
+    const layout = state.dashboardLayout?.present ?? {};
+    return Math.max(
+      height,
+      ...parent.children.map(id => Number(layout[id]?.meta?.height) || 0),
+    );
+  });
+  if (!Number.isFinite(room)) return undefined;
+  return Math.max(height, rowTallest + Math.floor(room / GRID_BASE_UNIT));
+}
 
 // Room the presentation keeps around a canvas fitted to the screen
 const PRESENTING_MARGIN = 32;
@@ -179,20 +165,46 @@ export function CanvasFrame({ children }: { children: ReactNode }) {
   };
   const room = size ? size.height - padding() : 0;
   const overflowing = !!size && editMode && contentHeight > room + 1;
+  const layout = useSelector(
+    (state: RootState) => state.dashboardLayout?.present,
+  );
 
-  // Fitting runs a few passes: row gutters do not scale with the visuals
+  // The page is a limit: a change that makes the visuals overflow it (a
+  // chart dropped on a full page) shrinks them back inside, in a few passes
+  // since row gutters do not scale. A page that already overflowed when it
+  // was opened is left as it was.
   const fitPasses = useRef(0);
-  const fit = () => {
-    fitPasses.current = 4;
-    dispatch(fitToCanvas(room, contentHeight));
-  };
+  const fitted = useRef(false);
+  const measuredLayout = useRef(layout);
   useEffect(() => {
-    if (fitPasses.current <= 0) return;
-    fitPasses.current -= 1;
-    if (overflowing) dispatch(fitToCanvas(room, contentHeight));
-    else fitPasses.current = 0;
+    if (!size || !editMode || !contentHeight) return;
+    const changed = measuredLayout.current !== layout;
+    measuredLayout.current = layout;
+    if (!overflowing) {
+      fitted.current = true;
+      fitPasses.current = 0;
+      return;
+    }
+    if (fitPasses.current > 0) {
+      fitPasses.current -= 1;
+      dispatch(fitToCanvas(room, contentHeight));
+    } else if (changed && fitted.current) {
+      fitPasses.current = 3;
+      dispatch(fitToCanvas(room, contentHeight));
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [contentHeight]);
+  }, [contentHeight, layout]);
+
+  // "Fit the objects to the page" in the Format pane
+  useEffect(() => {
+    if (!size || !editMode) return undefined;
+    const onFit = () => {
+      fitPasses.current = 3;
+      dispatch(fitToCanvas(room, contentHeight));
+    };
+    window.addEventListener(FIT_PAGE_EVENT, onFit);
+    return () => window.removeEventListener(FIT_PAGE_EVENT, onFit);
+  }, [size, editMode, room, contentHeight, dispatch]);
 
   useEffect(() => {
     const element = outerRef.current;
@@ -217,35 +229,22 @@ export function CanvasFrame({ children }: { children: ReactNode }) {
     () => ({
       ...canvasStyle(canvas, theme),
       ...(size
-        ? { width: size.width, minHeight: size.height, zoom }
+        ? {
+            width: size.width,
+            minHeight: size.height,
+            // While editing, the page is exactly its size: drop zones below
+            // the last row never make it look taller
+            height: editMode && !overflowing ? size.height : undefined,
+            zoom,
+          }
         : undefined),
       ...(previewing ? { width: PHONE_WIDTH } : undefined),
     }),
-    [canvas, theme, size, zoom, previewing],
+    [canvas, theme, size, zoom, previewing, editMode, overflowing],
   );
 
   return (
     <Outer ref={outerRef} data-test="mibi-canvas-outer">
-      {overflowing && size && (
-        <Overflow role="status" data-test="mibi-canvas-overflow">
-          <Icons.WarningOutlined iconSize="m" />
-          <span className="message">
-            {t(
-              'The content is %s px tall and the page %s px. What goes past the dashed line makes the page taller when exported.',
-              Math.round(contentHeight + padding()),
-              size.height,
-            )}
-          </span>
-          <Button
-            buttonStyle="secondary"
-            buttonSize="small"
-            data-test="mibi-fit-canvas"
-            onClick={fit}
-          >
-            {t('Fit to the canvas')}
-          </Button>
-        </Overflow>
-      )}
       <Page
         ref={pageRef}
         data-test="mibi-canvas"
@@ -274,14 +273,13 @@ export function CanvasFrame({ children }: { children: ReactNode }) {
             : undefined
         }
       >
-        {size && editMode && (
-          <PageEnd style={{ top: size.height }} data-test="mibi-page-end">
-            <span>{t('End of page · %s px', size.height)}</span>
-          </PageEnd>
-        )}
         <CanvasZoomContext.Provider value={zoom}>
           <CanvasMobileContext.Provider value={mobile}>
-            <div ref={contentRef}>{children}</div>
+            <CanvasRoomContext.Provider
+              value={size && editMode ? room - contentHeight : Infinity}
+            >
+              <div ref={contentRef}>{children}</div>
+            </CanvasRoomContext.Provider>
           </CanvasMobileContext.Provider>
         </CanvasZoomContext.Provider>
       </Page>

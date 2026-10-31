@@ -964,10 +964,16 @@ table,
   font-weight: 600;
 }
 
-/* Edit mode: a dotted canvas and a brand line under the header */
-.dashboard--editing .dashboard-content {
+/* Edit mode: the page is the dotted area, the space around it stays plain */
+.dashboard--editing .mibi-canvas:not(.mibi-mobile) {
+  background-color: var(--mb-bg-container);
   background-image: radial-gradient(var(--mb-border) 1px, transparent 1px);
   background-size: 18px 18px;
+}
+
+/* The grid replaces the dots when it is on */
+.dashboard--editing .mibi-canvas.mibi-show-grid {
+  background-image: none;
 }
 
 body:has(.dashboard--editing) [data-test='dashboard-header-container'] {

@@ -16,6 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import { useSelector } from 'react-redux';
 import { supersetTheme } from '@apache-superset/core/theme';
 import {
   act,
@@ -33,7 +34,7 @@ import {
   setCanvasFormat,
   setVisualFormat,
 } from './actions';
-import { CanvasFrame } from './CanvasFrame';
+import { CanvasFrame, useMaxHeightMultiple } from './CanvasFrame';
 import { FormatPane } from './FormatPane';
 import { selectedVisual, selectVisual } from './selection';
 import {
@@ -136,9 +137,10 @@ test('leaves an unformatted visual alone', () => {
 test('sizes the canvas from presets and clamps custom sizes', () => {
   // Every canvas has a page size: 16:9 unless it says otherwise
   expect(canvasSize(undefined)).toEqual({ width: 1280, height: 720 });
-  expect(
-    canvasSize({ size: { mode: 'auto' as unknown as '16:9' } }),
-  ).toEqual({ width: 1280, height: 720 });
+  expect(canvasSize({ size: { mode: 'auto' as unknown as '16:9' } })).toEqual({
+    width: 1280,
+    height: 720,
+  });
   expect(canvasSize({ size: { mode: '4:3' } })).toEqual({
     width: 960,
     height: 720,
@@ -331,4 +333,33 @@ test('fits the visuals of the page to the canvas height', () => {
   const { present } = stateOf(store).dashboardLayout;
   expect(present['CHART-a'].meta.height).toBe(25);
   expect(present['CHART-b'].meta.height).toBe(25);
+});
+
+function MaxHeight({ id }: { id: string }) {
+  const parent = useSelector(
+    (state: RootState) => state.dashboardLayout.present[id],
+  );
+  const max = useMaxHeightMultiple(50, parent);
+  return <span data-test="max-height">{String(max)}</span>;
+}
+
+test('objects grow only into the room left on the page', () => {
+  const store = makeStore();
+  const { rerender } = render(
+    <CanvasFrame>
+      <MaxHeight id="ROW-1" />
+    </CanvasFrame>,
+    { store },
+  );
+  // A 720 px page with nothing measured: the row's 50 units plus 90 more
+  expect(screen.getByTestId('max-height')).toHaveTextContent('140');
+
+  // Viewers never resize, and outside a page frame there is no limit
+  dispatcher(store)({ type: 'SET_EDIT_MODE', editMode: false });
+  rerender(
+    <CanvasFrame>
+      <MaxHeight id="ROW-1" />
+    </CanvasFrame>,
+  );
+  expect(screen.getByTestId('max-height')).toHaveTextContent('undefined');
 });
