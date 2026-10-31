@@ -434,4 +434,28 @@ describe('ChartHolder', () => {
     );
     expect(deleteComponent).toHaveBeenCalledTimes(1);
   });
+
+  test('applies the visual format and offers the Format action in edit mode', () => {
+    renderWrapper(createMockStore(), {
+      editMode: true,
+      fullSizeChartId: null,
+      component: {
+        ...defaultProps.component,
+        meta: {
+          ...defaultProps.component.meta,
+          mibiFormat: {
+            background: 'transparent',
+            radius: 4,
+            title: { show: false },
+          },
+        },
+      },
+    });
+
+    const holder = screen.getByTestId('dashboard-component-chart-holder');
+    expect(holder.style.backgroundColor).toBe('transparent');
+    expect(holder.style.getPropertyValue('--mb-v-radius')).toBe('4px');
+    expect(holder).toHaveClass('mibi-title-hidden');
+    expect(screen.getByTestId('mibi-format-visual-button')).toBeInTheDocument();
+  });
 });

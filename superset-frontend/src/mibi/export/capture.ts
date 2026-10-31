@@ -93,12 +93,17 @@ export async function loadWholePage(
 
 /** Y offsets, relative to root, where no visual is cut. */
 function safeBreaks(root: HTMLElement): number[] {
-  const { top } = root.getBoundingClientRect();
+  const box = root.getBoundingClientRect();
+  // A zoomed canvas measures smaller on screen than in its own pixels
+  const unzoom = box.height ? root.offsetHeight / box.height : 1;
   const spansOf = (selector: string) =>
     Array.from(root.querySelectorAll<HTMLElement>(selector))
       .map(el => {
         const rect = el.getBoundingClientRect();
-        return [rect.top - top, rect.bottom - top] as const;
+        return [
+          (rect.top - box.top) * unzoom,
+          (rect.bottom - box.top) * unzoom,
+        ] as const;
       })
       .filter(([start, end]) => end > start);
   const visuals = spansOf('.dashboard-component-chart-holder');
@@ -137,14 +142,17 @@ const foreignStylesheets = () => {
       ).map(match => match[2]),
   );
   return Array.from(new Set([...linked, ...imported])).filter(
-    href => new URL(href, window.location.href).origin !== window.location.origin,
+    href =>
+      new URL(href, window.location.href).origin !== window.location.origin,
   );
 };
 
 /** Keeps the Latin subsets of a Google Fonts stylesheet, which is all the UI shows. */
 const latinFaces = (css: string) => {
   const blocks = css.split(/(?=\/\*[^*]*\*\/\s*@font-face)/);
-  const latin = blocks.filter(block => /^\/\*\s*latin(-ext)?\s*\*\//.test(block));
+  const latin = blocks.filter(block =>
+    /^\/\*\s*latin(-ext)?\s*\*\//.test(block),
+  );
   return latin.length ? latin.join('\n') : css;
 };
 
@@ -183,8 +191,9 @@ function embeddedWebFonts(): Promise<string> {
 export async function captureDashboard(
   theme: SupersetTheme,
   scale = 2,
+  selector = '.dashboard',
 ): Promise<Capture> {
-  const root = document.querySelector<HTMLElement>('.dashboard');
+  const root = document.querySelector<HTMLElement>(selector);
   if (!root) throw new Error('Dashboard not found');
   const cssBreaks = safeBreaks(root);
   const fonts = await embeddedWebFonts();
@@ -196,7 +205,7 @@ export async function captureDashboard(
       ? Math.ceil(Math.max(...cssBreaks)) + 16
       : window.innerHeight,
   );
-  const {toCanvas} = (domToImage as unknown as { toCanvas: DomToCanvas });
+  const { toCanvas } = domToImage as unknown as { toCanvas: DomToCanvas };
   const canvas = await toCanvas(root, {
     bgcolor: theme.colorBgLayout,
     width,

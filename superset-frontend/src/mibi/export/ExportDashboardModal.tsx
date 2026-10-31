@@ -31,6 +31,8 @@ import { ensureStaticPrefix } from 'src/utils/assetUrl';
 import getBootstrapData from 'src/utils/getBootstrapData';
 import { fetchDashboardWorkspace } from 'src/mibi/workspaces/api';
 import { activeTabIndex, topLevelTabs } from 'src/mibi/present/dashboardTabs';
+import { canvasSize } from 'src/mibi/format/styles';
+import { DASHBOARD_ROOT_ID } from 'src/dashboard/util/constants';
 import {
   appliedFilters,
   captureDashboard,
@@ -244,10 +246,14 @@ export function ExportDashboardModal({
   const info = useSelector((state: RootState) => state.dashboardInfo);
   const dashboardTitle = String(layout[DASHBOARD_HEADER_ID]?.meta?.text ?? '');
   const tabs = useMemo(() => topLevelTabs(layout), [layout]);
+  const fixedSize = canvasSize(layout[DASHBOARD_ROOT_ID]?.meta?.mibiCanvas);
+  const fixedCanvas = !!fixedSize;
   const current = activeTabIndex(tabs, activeTabs);
   const [format, setFormat] = useState<ExportFormat>('pdf');
   const [scope, setScope] = useState<Scope>('current');
-  const [orientation, setOrientation] = useState<PageOrientation>('landscape');
+  const [orientation, setOrientation] = useState<PageOrientation>(
+    fixedSize && fixedSize.height > fixedSize.width ? 'portrait' : 'landscape',
+  );
   const [includeHeader, setIncludeHeader] = useState(true);
   const [progress, setProgress] = useState<string | null>(null);
   const [workspace, setWorkspace] = useState<string>();
@@ -295,8 +301,12 @@ export function ExportDashboardModal({
         // eslint-disable-next-line no-await-in-loop
         await loadWholePage(store.getState, root());
         // eslint-disable-next-line no-await-in-loop
-        const capture = await captureDashboard(theme);
-        sections.push({ title: tabs[index]?.title, capture });
+        const capture = await captureDashboard(
+          theme,
+          2,
+          fixedCanvas ? '[data-test="mibi-canvas"]' : '.dashboard',
+        );
+        sections.push({ title: tabs[index]?.title, capture, fit: fixedCanvas });
       }
       setProgress(t('Creating the file…'));
       const logo = includeHeader

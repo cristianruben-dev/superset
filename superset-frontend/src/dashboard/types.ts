@@ -16,6 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import type { CanvasFormat, VisualFormat } from 'src/mibi/format/types';
 import {
   ChartCustomization,
   ChartCustomizationDivider,
@@ -278,6 +279,10 @@ export type LayoutItemMeta = {
   code?: string;
   /** Background style value for columns and rows */
   background?: string;
+  /** Format of a visual, set in the Format pane */
+  mibiFormat?: VisualFormat;
+  /** Format of the canvas, kept on the root component */
+  mibiCanvas?: CanvasFormat;
   /** Allow additional meta properties used by different component types */
   [key: string]: unknown;
 };

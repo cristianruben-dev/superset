@@ -845,7 +845,7 @@ table,
 
 /* Visuals as cards */
 .dashboard-component-chart-holder {
-  border-radius: 14px !important;
+  border-radius: var(--mb-v-radius, 14px) !important;
   border: 1px solid var(--mb-border-secondary);
   box-shadow: var(--mb-shadow-card);
   transition:
@@ -864,10 +864,33 @@ table,
 
 .dashboard-component-chart-holder .header-title,
 .dashboard-component-chart-holder .editable-title {
-  font-size: 14px;
+  font-size: var(--mb-v-title-size, 14px);
   font-weight: 600;
   letter-spacing: -0.01em;
-  color: var(--mb-text);
+  color: var(--mb-v-title-color, var(--mb-text));
+}
+
+.dashboard-component-chart-holder .header-title {
+  flex: 1;
+  justify-content: var(--mb-v-title-align, flex-start);
+  text-align: var(--mb-v-title-align, left);
+}
+
+/* Format pane: hidden titles, spacing between visuals and the selection */
+.dashboard-component-chart-holder.mibi-title-hidden .header-title {
+  visibility: hidden;
+}
+
+.mibi-canvas .dashboard-component-chart-holder:not(.mibi-full-size),
+.mibi-canvas .dashboard-markdown {
+  margin: var(--mb-gap-inset, 0px);
+  width: calc(100% - 2 * var(--mb-gap-inset, 0px)) !important;
+  height: calc(100% - 2 * var(--mb-gap-inset, 0px)) !important;
+}
+
+.dashboard-component-chart-holder.mibi-selected {
+  outline: 2px solid var(--mb-primary);
+  outline-offset: 2px;
 }
 
 /* The chart menu shows up on hover (always on touch screens) */

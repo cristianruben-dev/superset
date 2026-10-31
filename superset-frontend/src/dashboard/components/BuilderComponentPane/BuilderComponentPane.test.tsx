@@ -17,7 +17,8 @@
  * under the License.
  */
 
-import { render, screen } from 'spec/helpers/testing-library';
+import { act, render, screen } from 'spec/helpers/testing-library';
+import { openFormat } from 'src/mibi/format/selection';
 import BuilderComponentPane from '.';
 
 jest.mock('src/dashboard/containers/SliceAdder', () => () => (
@@ -34,10 +35,27 @@ test('BuilderComponentPane has correct tabs in correct order', () => {
     },
   });
   const tabs = screen.getAllByRole('tab');
-  expect(tabs).toHaveLength(2);
+  expect(tabs).toHaveLength(3);
   expect(tabs[0]).toHaveTextContent('Charts');
   expect(tabs[1]).toHaveTextContent('Layout elements');
+  expect(tabs[2]).toHaveTextContent('Format');
   expect(screen.getByRole('tab', { selected: true })).toHaveTextContent(
     'Charts',
   );
+});
+
+test('BuilderComponentPane opens the Format tab when a chart asks for it', () => {
+  render(<BuilderComponentPane topOffset={115} />, {
+    useRedux: true,
+    initialState: {
+      dashboardState: { nativeFiltersBarOpen: false, editMode: true },
+      dashboardLayout: { present: {}, past: [], future: [] },
+      dashboardInfo: { id: 1 },
+    },
+  });
+  act(() => openFormat(null));
+  expect(screen.getByRole('tab', { selected: true })).toHaveTextContent(
+    'Format',
+  );
+  expect(screen.getByTestId('mibi-format-pane')).toBeInTheDocument();
 });

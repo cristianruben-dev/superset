@@ -105,6 +105,8 @@ const undoableReducer: Reducer<
   // +1 again so we can detect if we've exceeded the limit
   limit: UNDO_LIMIT + 2,
   ignoreInitialState: true,
+  // Dragging a Format pane slider sends many updates: undo them as one
+  groupBy: (action: AnyAction) => action.formatGroup ?? null,
 });
 
 export default undoableReducer;

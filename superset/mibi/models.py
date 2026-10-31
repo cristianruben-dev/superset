@@ -112,3 +112,21 @@ class WorkspaceMember(Model):
 
     workspace = relationship("Workspace", back_populates="members")
     user = relationship("User", foreign_keys=[user_id])
+
+
+DASHBOARD_BACKGROUNDS_TABLE = "mibi_dashboard_backgrounds"
+
+
+class DashboardBackground(Model):
+    """The background picture of a dashboard canvas, set in the Format pane."""
+
+    __tablename__ = DASHBOARD_BACKGROUNDS_TABLE
+
+    dashboard_id = sa.Column(
+        sa.Integer,
+        sa.ForeignKey("dashboards.id", ondelete="CASCADE"),
+        primary_key=True,
+    )
+    image = deferred(sa.Column(sa.LargeBinary, nullable=False))
+    image_type = sa.Column(sa.String(50), nullable=False)
+    changed_on = sa.Column(sa.DateTime, nullable=False)

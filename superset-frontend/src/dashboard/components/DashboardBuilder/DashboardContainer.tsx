@@ -38,6 +38,7 @@ import {
   getLabelsColorMap,
 } from '@superset-ui/core';
 import { ParentSize } from '@visx/responsive';
+import { CanvasFrame } from 'src/mibi/format/CanvasFrame';
 import Tabs from '@superset-ui/core/components/Tabs';
 import DashboardGrid from 'src/dashboard/containers/DashboardGrid';
 import {
@@ -373,7 +374,9 @@ const DashboardContainer: FC<DashboardContainerProps> = ({ topLevelTabs }) => {
 
   return (
     <div className="grid-container" data-test="grid-container">
-      <ParentSize>{renderParentSizeChildren}</ParentSize>
+      <CanvasFrame>
+        <ParentSize>{renderParentSizeChildren}</ParentSize>
+      </CanvasFrame>
     </div>
   );
 };

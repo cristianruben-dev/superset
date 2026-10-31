@@ -117,8 +117,9 @@ class UpdateDashboardCommand(UpdateMixin, BaseCommand):
             exceptions.append(ex)
 
         # Validate the charts in the layout don't belong to another dashboard
+        # (the route passes the id as text, the model has the real one)
         validate_dashboard_layout(
-            self._model_id, self._properties.get("json_metadata"), exceptions
+            self._model.id, self._properties.get("json_metadata"), exceptions
         )
 
         # Validate/Populate role

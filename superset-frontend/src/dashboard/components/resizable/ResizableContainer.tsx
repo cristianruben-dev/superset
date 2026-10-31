@@ -18,6 +18,7 @@
  */
 import { useState, useCallback, useMemo } from 'react';
 import { ResizeCallback, ResizeStartCallback, Resizable } from 're-resizable';
+import { useCanvasZoom } from 'src/mibi/format/CanvasFrame';
 import cx from 'classnames';
 import { css, styled } from '@apache-superset/core/theme';
 
@@ -173,6 +174,7 @@ export default function ResizableContainer({
   maxHeightMultiple = proxyToInfinity,
 }: ResizableContainerProps) {
   const [isResizing, setIsResizing] = useState<boolean>(false);
+  const canvasZoom = useCanvasZoom();
 
   const handleResize = useCallback<ResizeCallback>(
     (event, direction, elementRef, delta) => {
@@ -276,6 +278,7 @@ export default function ResizableContainer({
 
   return (
     <StyledResizable
+      scale={canvasZoom}
       enable={enableConfig}
       grid={SNAP_TO_GRID}
       gridGap={undefined}

@@ -1,0 +1,693 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+import { useRef, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { t } from '@apache-superset/core/translation';
+import { logging } from '@apache-superset/core/utils';
+import { css, styled, useTheme } from '@apache-superset/core/theme';
+import { getClientErrorObject } from '@superset-ui/core';
+import {
+  Button,
+  InputNumber,
+  Select,
+  Switch,
+} from '@superset-ui/core/components';
+import { Icons } from '@superset-ui/core/components/Icons';
+import { useToasts } from 'src/components/MessageToasts/withToasts';
+import type { LayoutItemMeta, RootState } from 'src/dashboard/types';
+import { DASHBOARD_ROOT_ID } from 'src/dashboard/util/constants';
+import {
+  deleteBackground,
+  setAllVisualsFormat,
+  setCanvasFormat,
+  setVisualFormat,
+  uploadBackground,
+} from './actions';
+import { ColorField, Field, RangeField, Section, Segments } from './controls';
+import { selectVisual, useSelectedVisual } from './selection';
+import {
+  CANVAS_PRESETS,
+  DEFAULT_GAP,
+  DEFAULT_PADDING,
+  DEFAULT_RADIUS,
+  MAX_CANVAS,
+  MIN_CANVAS,
+  type CanvasBackgroundType,
+  type CanvasFormat,
+  type CanvasSizeMode,
+  type ImageFit,
+  type ShadowLevel,
+  type TitleAlign,
+  type VisualFormat,
+} from './types';
+
+const MAX_IMAGE_BYTES = 2 * 1024 * 1024;
+
+const Pane = styled.div`
+  ${({ theme }) => css`
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+
+    .pane-header {
+      display: flex;
+      align-items: center;
+      gap: ${theme.sizeUnit * 2}px;
+      min-height: 48px;
+      padding: ${theme.sizeUnit * 2}px ${theme.sizeUnit * 4}px;
+      border-bottom: 1px solid ${theme.colorBorderSecondary};
+    }
+
+    .crumbs {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      line-height: 1.3;
+    }
+
+    .crumb-parent {
+      font-size: ${theme.fontSizeSM}px;
+      color: ${theme.colorTextTertiary};
+    }
+
+    .crumb-current {
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      font-weight: 600;
+      color: ${theme.colorText};
+    }
+
+    .back {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex: none;
+      width: 28px;
+      height: 28px;
+      padding: 0;
+      border: 0;
+      border-radius: ${theme.borderRadius}px;
+      background: ${theme.colorFillTertiary};
+      color: ${theme.colorTextSecondary};
+      cursor: pointer;
+
+      &:hover {
+        color: ${theme.colorPrimary};
+      }
+    }
+
+    .pane-body {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      padding-bottom: ${theme.sizeUnit * 16}px;
+    }
+
+    .tip {
+      display: flex;
+      gap: ${theme.sizeUnit * 2}px;
+      margin: ${theme.sizeUnit * 4}px ${theme.sizeUnit * 4}px 0;
+      padding: ${theme.sizeUnit * 3}px;
+      border-radius: ${theme.borderRadius}px;
+      background: ${theme.colorFillQuaternary};
+      font-size: ${theme.fontSizeSM}px;
+      color: ${theme.colorTextSecondary};
+    }
+
+    .image-box {
+      display: flex;
+      align-items: center;
+      gap: ${theme.sizeUnit * 3}px;
+    }
+
+    .thumb {
+      flex: none;
+      width: 64px;
+      height: 40px;
+      border-radius: ${theme.borderRadiusSM}px;
+      border: 1px solid ${theme.colorBorderSecondary};
+      background-size: cover;
+      background-position: center;
+      background-color: ${theme.colorFillTertiary};
+    }
+
+    .size-inputs {
+      display: flex;
+      align-items: center;
+      gap: ${theme.sizeUnit * 2}px;
+      color: ${theme.colorTextTertiary};
+
+      .ant-input-number {
+        width: 100%;
+      }
+    }
+
+    .actions {
+      display: flex;
+      flex-direction: column;
+      gap: ${theme.sizeUnit * 2}px;
+      padding: ${theme.sizeUnit * 4}px;
+    }
+
+    .full-select {
+      width: 100%;
+    }
+  `}
+`;
+
+const visualName = (meta: LayoutItemMeta | undefined) =>
+  String(meta?.sliceNameOverride || meta?.sliceName || t('Chart'));
+
+function VisualSection({ id }: { id: string }) {
+  const theme = useTheme();
+  const dispatch = useDispatch();
+  const item = useSelector(
+    (state: RootState) => state.dashboardLayout.present[id],
+  );
+  const format: VisualFormat = item?.meta?.mibiFormat ?? {};
+  const update = (patch: Partial<VisualFormat>, setting: string) =>
+    dispatch(
+      setVisualFormat(id, { ...format, ...patch }, `visual:${id}:${setting}`),
+    );
+  const updateTitle = (patch: VisualFormat['title'], setting: string) =>
+    update({ title: { ...format.title, ...patch } }, `title-${setting}`);
+  const transparent = format.background === 'transparent';
+  const titleShown = format.title?.show !== false;
+
+  return (
+    <>
+      <Section data-test="mibi-format-visual-background">
+        <h4>{t('Background')}</h4>
+        <Field label={t('Transparent')}>
+          <Switch
+            size="small"
+            checked={transparent}
+            aria-label={t('Transparent')}
+            onChange={checked =>
+              update(
+                {
+                  background: checked ? 'transparent' : theme.colorBgContainer,
+                },
+                'background',
+              )
+            }
+          />
+        </Field>
+        <ColorField
+          label={t('Color')}
+          value={
+            transparent
+              ? theme.colorBgContainer
+              : format.background || theme.colorBgContainer
+          }
+          disabled={transparent}
+          onChange={background => update({ background }, 'background')}
+          testId="mibi-format-visual-color"
+        />
+        {!transparent && (
+          <RangeField
+            label={t('Opacity')}
+            value={format.backgroundOpacity ?? 100}
+            min={0}
+            max={100}
+            unit="%"
+            onChange={backgroundOpacity =>
+              update(
+                {
+                  backgroundOpacity,
+                  background: format.background ?? theme.colorBgContainer,
+                },
+                'opacity',
+              )
+            }
+          />
+        )}
+      </Section>
+
+      <Section>
+        <h4>{t('Border')}</h4>
+        <ColorField
+          label={t('Color')}
+          value={format.borderColor || theme.colorBorderSecondary}
+          onChange={borderColor => update({ borderColor }, 'border-color')}
+        />
+        <RangeField
+          label={t('Width')}
+          value={format.borderWidth ?? 1}
+          min={0}
+          max={8}
+          onChange={borderWidth => update({ borderWidth }, 'border-width')}
+          testId="mibi-format-border-width"
+        />
+        <RangeField
+          label={t('Rounded corners')}
+          value={format.radius ?? DEFAULT_RADIUS}
+          min={0}
+          max={32}
+          onChange={radius => update({ radius }, 'radius')}
+          testId="mibi-format-radius"
+        />
+      </Section>
+
+      <Section>
+        <h4>{t('Shadow and spacing')}</h4>
+        <Segments<ShadowLevel>
+          name={t('Shadow')}
+          value={format.shadow ?? 'soft'}
+          onChange={shadow => update({ shadow }, 'shadow')}
+          testId="mibi-format-shadow"
+          options={[
+            { value: 'none', label: t('None') },
+            { value: 'soft', label: t('Soft') },
+            { value: 'strong', label: t('Strong') },
+          ]}
+        />
+        <RangeField
+          label={t('Inner padding')}
+          value={format.padding ?? 16}
+          min={0}
+          max={40}
+          onChange={padding => update({ padding }, 'padding')}
+        />
+      </Section>
+
+      <Section>
+        <h4>{t('Title')}</h4>
+        <Field label={t('Show title')}>
+          <Switch
+            size="small"
+            checked={titleShown}
+            aria-label={t('Show title')}
+            data-test="mibi-format-title-show"
+            onChange={show => updateTitle({ show }, 'show')}
+          />
+        </Field>
+        {titleShown && (
+          <>
+            <RangeField
+              label={t('Size')}
+              value={format.title?.size ?? 14}
+              min={10}
+              max={28}
+              onChange={size => updateTitle({ size }, 'size')}
+            />
+            <ColorField
+              label={t('Color')}
+              value={format.title?.color || theme.colorText}
+              onChange={color => updateTitle({ color }, 'color')}
+            />
+            <Field label={t('Alignment')}>
+              <Segments<TitleAlign>
+                name={t('Alignment')}
+                value={format.title?.align ?? 'left'}
+                onChange={align => updateTitle({ align }, 'align')}
+                options={[
+                  {
+                    value: 'left',
+                    title: t('Left'),
+                    label: <Icons.AlignLeftOutlined iconSize="m" />,
+                  },
+                  {
+                    value: 'center',
+                    title: t('Center'),
+                    label: <Icons.AlignCenterOutlined iconSize="m" />,
+                  },
+                  {
+                    value: 'right',
+                    title: t('Right'),
+                    label: <Icons.AlignRightOutlined iconSize="m" />,
+                  },
+                ]}
+              />
+            </Field>
+          </>
+        )}
+      </Section>
+
+      <div className="actions">
+        <Button
+          buttonStyle="secondary"
+          data-test="mibi-format-apply-all"
+          onClick={() => dispatch(setAllVisualsFormat(item?.meta?.mibiFormat))}
+        >
+          {t('Apply to all charts')}
+        </Button>
+        <Button
+          buttonStyle="link"
+          data-test="mibi-format-reset-visual"
+          onClick={() => dispatch(setVisualFormat(id, undefined))}
+        >
+          {t('Reset format')}
+        </Button>
+      </div>
+    </>
+  );
+}
+
+function CanvasSection() {
+  const theme = useTheme();
+  const dispatch = useDispatch();
+  const { addDangerToast } = useToasts();
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+  const dashboardId = useSelector((state: RootState) => state.dashboardInfo.id);
+  const canvas: CanvasFormat =
+    useSelector(
+      (state: RootState) =>
+        state.dashboardLayout.present[DASHBOARD_ROOT_ID]?.meta?.mibiCanvas,
+    ) ?? {};
+  const background = canvas.background ?? { type: 'none' as const };
+  const update = (patch: Partial<CanvasFormat>, setting: string) =>
+    dispatch(setCanvasFormat({ ...canvas, ...patch }, `canvas:${setting}`));
+  const updateBackground = (
+    patch: Partial<NonNullable<CanvasFormat['background']>>,
+    setting: string,
+  ) =>
+    update(
+      { background: { ...background, ...patch } },
+      `background-${setting}`,
+    );
+  const sizeMode = canvas.size?.mode ?? 'auto';
+
+  const onFile = async (file?: File) => {
+    if (!file) return;
+    if (file.size > MAX_IMAGE_BYTES) {
+      addDangerToast(t('The image is larger than 2 MB'));
+      return;
+    }
+    setUploading(true);
+    try {
+      const image = await uploadBackground(dashboardId, file);
+      updateBackground({ type: 'image', image }, 'image');
+    } catch (error) {
+      const { message, error: text } = await getClientErrorObject(error);
+      logging.error(error);
+      addDangerToast(message || text || t('The image could not be uploaded'));
+    } finally {
+      setUploading(false);
+      if (fileRef.current) fileRef.current.value = '';
+    }
+  };
+
+  const removeImage = async () => {
+    try {
+      await deleteBackground(dashboardId);
+    } catch (error) {
+      logging.error(error);
+    }
+    update({ background: { type: 'none' } }, 'background-image');
+  };
+
+  return (
+    <>
+      <Section data-test="mibi-format-canvas-background">
+        <h4>{t('Background')}</h4>
+        <Segments<CanvasBackgroundType>
+          name={t('Background')}
+          value={background.type}
+          testId="mibi-format-canvas-type"
+          onChange={type => updateBackground({ type }, 'type')}
+          options={[
+            { value: 'none', label: t('None') },
+            { value: 'color', label: t('Color') },
+            { value: 'gradient', label: t('Gradient') },
+            { value: 'image', label: t('Image') },
+          ]}
+        />
+        {background.type === 'color' && (
+          <ColorField
+            label={t('Color')}
+            value={background.color || theme.colorBgLayout}
+            onChange={color => updateBackground({ color }, 'color')}
+            testId="mibi-format-canvas-color"
+          />
+        )}
+        {background.type === 'gradient' && (
+          <>
+            <ColorField
+              label={t('From')}
+              value={background.color || theme.colorBgLayout}
+              onChange={color => updateBackground({ color }, 'color')}
+            />
+            <ColorField
+              label={t('To')}
+              value={background.color2 || theme.colorPrimaryBg}
+              onChange={color2 => updateBackground({ color2 }, 'color2')}
+            />
+            <RangeField
+              label={t('Angle')}
+              value={background.angle ?? 135}
+              min={0}
+              max={360}
+              step={5}
+              unit="°"
+              onChange={angle => updateBackground({ angle }, 'angle')}
+            />
+          </>
+        )}
+        {background.type === 'image' && (
+          <>
+            <div className="image-box">
+              <span
+                className="thumb"
+                style={
+                  background.image
+                    ? { backgroundImage: `url("${background.image}")` }
+                    : undefined
+                }
+              />
+              <Button
+                buttonStyle="secondary"
+                buttonSize="small"
+                loading={uploading}
+                onClick={() => fileRef.current?.click()}
+                data-test="mibi-format-upload"
+              >
+                <Icons.UploadOutlined iconSize="m" />
+                {background.image ? t('Change') : t('Upload image')}
+              </Button>
+              {background.image && (
+                <Button
+                  buttonStyle="link"
+                  buttonSize="small"
+                  onClick={removeImage}
+                >
+                  {t('Remove')}
+                </Button>
+              )}
+              <input
+                ref={fileRef}
+                type="file"
+                accept="image/png,image/jpeg,image/gif,image/webp"
+                hidden
+                data-test="mibi-format-file"
+                onChange={event => onFile(event.target.files?.[0])}
+              />
+            </div>
+            <Field label={t('Fit')}>
+              <Segments<ImageFit>
+                name={t('Fit')}
+                value={background.fit ?? 'cover'}
+                onChange={fit => updateBackground({ fit }, 'fit')}
+                options={[
+                  { value: 'cover', label: t('Fill') },
+                  { value: 'contain', label: t('Fit') },
+                  { value: 'repeat', label: t('Tile') },
+                ]}
+              />
+            </Field>
+            <RangeField
+              label={t('Opacity')}
+              value={background.opacity ?? 100}
+              min={0}
+              max={100}
+              unit="%"
+              onChange={opacity => updateBackground({ opacity }, 'opacity')}
+            />
+          </>
+        )}
+      </Section>
+
+      <Section>
+        <h4>{t('Canvas size')}</h4>
+        <Select
+          className="full-select"
+          ariaLabel={t('Canvas size')}
+          value={sizeMode}
+          data-test="mibi-format-size"
+          onChange={value => {
+            const mode = value as CanvasSizeMode;
+            update(
+              {
+                size:
+                  mode === 'custom'
+                    ? {
+                        mode,
+                        width: canvas.size?.width ?? 1280,
+                        height: canvas.size?.height ?? 720,
+                      }
+                    : { mode },
+              },
+              'size',
+            );
+          }}
+          options={[
+            { value: 'auto', label: t('Automatic (fits the screen)') },
+            {
+              value: '16:9',
+              label: t('16:9 (%s × %s)', ...CANVAS_PRESETS['16:9']),
+            },
+            {
+              value: '4:3',
+              label: t('4:3 (%s × %s)', ...CANVAS_PRESETS['4:3']),
+            },
+            { value: 'custom', label: t('Custom') },
+          ]}
+        />
+        {sizeMode === 'custom' && (
+          <div className="size-inputs">
+            <InputNumber
+              min={MIN_CANVAS}
+              max={MAX_CANVAS}
+              value={canvas.size?.width ?? 1280}
+              aria-label={t('Width')}
+              addonAfter="px"
+              onChange={width =>
+                width &&
+                update(
+                  {
+                    size: {
+                      ...canvas.size,
+                      mode: 'custom',
+                      width: Number(width),
+                    },
+                  },
+                  'size-width',
+                )
+              }
+            />
+            ×
+            <InputNumber
+              min={MIN_CANVAS}
+              max={MAX_CANVAS}
+              value={canvas.size?.height ?? 720}
+              aria-label={t('Height')}
+              addonAfter="px"
+              onChange={height =>
+                height &&
+                update(
+                  {
+                    size: {
+                      ...canvas.size,
+                      mode: 'custom',
+                      height: Number(height),
+                    },
+                  },
+                  'size-height',
+                )
+              }
+            />
+          </div>
+        )}
+      </Section>
+
+      <Section>
+        <h4>{t('Spacing')}</h4>
+        <RangeField
+          label={t('Margins')}
+          value={canvas.padding ?? DEFAULT_PADDING}
+          min={0}
+          max={64}
+          onChange={padding => update({ padding }, 'padding')}
+          testId="mibi-format-margins"
+        />
+        <RangeField
+          label={t('Space between charts')}
+          value={canvas.gap ?? DEFAULT_GAP}
+          min={0}
+          max={48}
+          step={2}
+          onChange={gap => update({ gap }, 'gap')}
+          testId="mibi-format-gap"
+        />
+      </Section>
+
+      <div className="actions">
+        <Button
+          buttonStyle="link"
+          data-test="mibi-format-reset-canvas"
+          onClick={() => dispatch(setCanvasFormat(undefined))}
+        >
+          {t('Reset canvas')}
+        </Button>
+      </div>
+    </>
+  );
+}
+
+/**
+ * The Format tab of the dashboard builder: the canvas when nothing is
+ * selected, the selected chart otherwise.
+ */
+export function FormatPane() {
+  const selected = useSelectedVisual();
+  const item = useSelector((state: RootState) =>
+    selected ? state.dashboardLayout.present[selected] : undefined,
+  );
+  const visual = selected && item ? selected : null;
+
+  return (
+    <Pane data-test="mibi-format-pane">
+      <div className="pane-header">
+        {visual && (
+          <button
+            type="button"
+            className="back"
+            aria-label={t('Back to the canvas')}
+            data-test="mibi-format-back"
+            onClick={() => selectVisual(null)}
+          >
+            <Icons.LeftOutlined iconSize="s" />
+          </button>
+        )}
+        <div className="crumbs">
+          {visual && <span className="crumb-parent">{t('Canvas')}</span>}
+          <span className="crumb-current" data-test="mibi-format-title">
+            {visual ? visualName(item?.meta) : t('Canvas')}
+          </span>
+        </div>
+      </div>
+      <div className="pane-body">
+        {visual ? (
+          <VisualSection id={visual} />
+        ) : (
+          <>
+            <div className="tip">
+              <Icons.InfoCircleOutlined iconSize="m" />
+              {t('Select a chart on the canvas to change its style.')}
+            </div>
+            <CanvasSection />
+          </>
+        )}
+      </div>
+    </Pane>
+  );
+}

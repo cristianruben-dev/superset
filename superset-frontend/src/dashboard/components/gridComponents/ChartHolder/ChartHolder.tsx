@@ -26,6 +26,7 @@ import { LayoutItem, RootState } from 'src/dashboard/types';
 import AnchorLink from 'src/dashboard/components/AnchorLink';
 import Chart from 'src/dashboard/components/gridComponents/Chart';
 import DeleteComponentButton from 'src/dashboard/components/DeleteComponentButton';
+import IconButton from 'src/dashboard/components/IconButton';
 import { Draggable } from 'src/dashboard/components/dnd/DragDroppable';
 import HoverMenu from 'src/dashboard/components/menu/HoverMenu';
 import ResizableContainer from 'src/dashboard/components/resizable/ResizableContainer';
@@ -33,6 +34,16 @@ import getChartAndLabelComponentIdFromPath from 'src/dashboard/util/getChartAndL
 import useFilterFocusHighlightStyles from 'src/dashboard/util/useFilterFocusHighlightStyles';
 import { AntdThemeProvider } from '@superset-ui/core/components';
 import { COLUMN_TYPE, ROW_TYPE } from 'src/dashboard/util/componentTypes';
+import { DASHBOARD_ROOT_ID } from 'src/dashboard/util/constants';
+import { Icons } from '@superset-ui/core/components/Icons';
+import { Tooltip } from '@superset-ui/core/components';
+import { t } from '@apache-superset/core/translation';
+import { gapInset, visualStyle } from 'src/mibi/format/styles';
+import {
+  openFormat,
+  selectVisual,
+  useSelectedVisual,
+} from 'src/mibi/format/selection';
 import {
   GRID_BASE_UNIT,
   GRID_GUTTER_SIZE,
@@ -109,6 +120,23 @@ const ChartHolder = ({
   const chartHolderRef = useRef<HTMLDivElement | null>(null);
 
   const focusHighlightStyles = useFilterFocusHighlightStyles(chartId ?? 0);
+  const canvasFormat = useSelector(
+    (state: RootState) =>
+      state.dashboardLayout?.present?.[DASHBOARD_ROOT_ID]?.meta?.mibiCanvas,
+  );
+  const formatted = useMemo(
+    () => visualStyle(component.meta.mibiFormat, theme),
+    [component.meta.mibiFormat, theme],
+  );
+  const inset = gapInset(canvasFormat);
+  const isSelected = useSelectedVisual() === component.id && editMode;
+  const holderStyle = useMemo(
+    () =>
+      isFullSize
+        ? focusHighlightStyles
+        : { ...formatted.style, ...focusHighlightStyles },
+    [focusHighlightStyles, formatted.style, isFullSize],
+  );
   const directPathToChild = useSelector(
     (state: RootState) => state.dashboardState.directPathToChild,
   );
@@ -194,13 +222,16 @@ const ChartHolder = ({
       width = window.innerWidth - CHART_MARGIN;
       height = window.innerHeight - CHART_MARGIN;
     } else {
+      // Formatting padding, border and spacing take room from the chart
+      const shrink = formatted.shrink + inset * 2;
       width = Math.floor(
         widthMultiple * columnWidth +
           (widthMultiple - 1) * GRID_GUTTER_SIZE -
-          CHART_MARGIN,
+          CHART_MARGIN -
+          shrink,
       );
       height = Math.floor(
-        (component.meta.height ?? 0) * GRID_BASE_UNIT - CHART_MARGIN,
+        (component.meta.height ?? 0) * GRID_BASE_UNIT - CHART_MARGIN - shrink,
       );
     }
 
@@ -208,7 +239,14 @@ const ChartHolder = ({
       chartWidth: width,
       chartHeight: height,
     };
-  }, [columnWidth, component, isFullSize, widthMultiple]);
+  }, [
+    columnWidth,
+    component,
+    isFullSize,
+    widthMultiple,
+    formatted.shrink,
+    inset,
+  ]);
 
   const handleDeleteComponent = useCallback(() => {
     deleteComponent(id, parentId);
@@ -273,11 +311,17 @@ const ChartHolder = ({
             chartHolderRef.current = el;
           }}
           data-test="dashboard-component-chart-holder"
-          style={focusHighlightStyles}
+          style={holderStyle}
           css={isFullSize ? fullSizeStyle : undefined}
+          onClickCapture={
+            editMode ? () => selectVisual(component.id) : undefined
+          }
           className={cx(
             'dashboard-component',
             'dashboard-component-chart-holder',
+            !isFullSize && formatted.className,
+            isFullSize && 'mibi-full-size',
+            isSelected && 'mibi-selected',
             // The following class is added to support custom dashboard styling via the CSS editor
             `dashboard-chart-id-${chartId}`,
             outlinedComponentId ? 'fade-in' : 'fade-out',
@@ -333,6 +377,14 @@ const ChartHolder = ({
                 <div data-test="dashboard-delete-component-button">
                   <DeleteComponentButton onDelete={handleDeleteComponent} />
                 </div>
+                <Tooltip title={t('Format')} placement="top">
+                  <div data-test="mibi-format-visual-button">
+                    <IconButton
+                      onClick={() => openFormat(component.id)}
+                      icon={<Icons.BgColorsOutlined iconSize="l" />}
+                    />
+                  </div>
+                </Tooltip>
               </HoverMenu>
             )}
           </AntdThemeProvider>
@@ -353,7 +405,9 @@ const ChartHolder = ({
       onResize,
       onResizeStop,
       editMode,
-      focusHighlightStyles,
+      holderStyle,
+      formatted.className,
+      isSelected,
       isFullSize,
       fullSizeStyle,
       chartId,

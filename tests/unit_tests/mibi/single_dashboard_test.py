@@ -219,6 +219,31 @@ def test_update_dashboard_rejects_chart_of_other_dashboard(
     assert "json_metadata" in excinfo.value.normalized_messages()
 
 
+def test_update_dashboard_accepts_its_own_charts_with_text_id(
+    mocker: MockerFixture, db_session: Session
+) -> None:
+    """The REST route passes the id as text: the dashboard's own charts are fine."""
+    from superset import security_manager
+    from superset.commands.dashboard.update import UpdateDashboardCommand
+    from superset.daos.dashboard import DashboardDAO
+
+    chart = make_chart(db_session)
+    dashboard = make_dashboard(db_session, "A", [chart])
+    mocker.patch.object(security_manager, "raise_for_ownership")
+    mocker.patch.object(UpdateDashboardCommand, "compute_owners", return_value=[])
+    mocker.patch.object(DashboardDAO, "find_by_id", return_value=dashboard)
+    mocker.patch.object(
+        DashboardDAO, "validate_update_slug_uniqueness", return_value=True
+    )
+
+    positions = {"CHART-1": {"type": "CHART", "meta": {"chartId": chart.id}}}
+    command = UpdateDashboardCommand(
+        str(dashboard.id),  # type: ignore[arg-type]
+        {"json_metadata": json.dumps({"positions": positions})},
+    )
+    command.validate()
+
+
 def test_copy_dashboard_always_duplicates_charts(
     mocker: MockerFixture, db_session: Session
 ) -> None:

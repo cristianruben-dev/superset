@@ -17334,3 +17334,108 @@ msgstr "Tiempo por página"
 
 msgid "Present"
 msgstr "Presentar"
+
+msgid "16:9 (%s × %s)"
+msgstr "16:9 (%s × %s)"
+
+msgid "4:3 (%s × %s)"
+msgstr "4:3 (%s × %s)"
+
+msgid "Alignment"
+msgstr "Alineación"
+
+msgid "Angle"
+msgstr "Ángulo"
+
+msgid "Apply to all charts"
+msgstr "Aplicar a todos los gráficos"
+
+msgid "Automatic (fits the screen)"
+msgstr "Automático (se adapta a la pantalla)"
+
+msgid "Back to the canvas"
+msgstr "Volver al lienzo"
+
+msgid "Background"
+msgstr "Fondo"
+
+msgid "Border"
+msgstr "Borde"
+
+msgid "Canvas size"
+msgstr "Tamaño del lienzo"
+
+msgid "Canvas"
+msgstr "Lienzo"
+
+msgid "Center"
+msgstr "Centro"
+
+msgid "Fill"
+msgstr "Rellenar"
+
+msgid "Fit"
+msgstr "Ajustar"
+
+msgid "From"
+msgstr "Desde"
+
+msgid "Gradient"
+msgstr "Degradado"
+
+msgid "Image"
+msgstr "Imagen"
+
+msgid "Inner padding"
+msgstr "Relleno interior"
+
+msgid "Margins"
+msgstr "Márgenes"
+
+msgid "Reset canvas"
+msgstr "Restablecer lienzo"
+
+msgid "Reset format"
+msgstr "Restablecer formato"
+
+msgid "Rounded corners"
+msgstr "Esquinas redondeadas"
+
+msgid "Select a chart on the canvas to change its style."
+msgstr "Selecciona un gráfico del lienzo para cambiar su estilo."
+
+msgid "Shadow and spacing"
+msgstr "Sombra y relleno"
+
+msgid "Shadow"
+msgstr "Sombra"
+
+msgid "Show title"
+msgstr "Mostrar título"
+
+msgid "Size"
+msgstr "Tamaño"
+
+msgid "Soft"
+msgstr "Suave"
+
+msgid "Space between charts"
+msgstr "Separación entre gráficos"
+
+msgid "Spacing"
+msgstr "Espaciado"
+
+msgid "Strong"
+msgstr "Marcada"
+
+msgid "The image could not be uploaded"
+msgstr "No se pudo subir la imagen"
+
+msgid "Tile"
+msgstr "Mosaico"
+
+msgid "To"
+msgstr "Hasta"
+
+msgid "Upload image"
+msgstr "Subir imagen"

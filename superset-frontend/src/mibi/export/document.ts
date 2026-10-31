@@ -30,6 +30,8 @@ export type PageOrientation = 'landscape' | 'portrait';
 export interface ExportSection {
   title?: string;
   capture: Capture;
+  /** Fit the whole capture on one page, for canvases with a fixed size */
+  fit?: boolean;
 }
 
 /** What the header and footer of the export tell about the dashboard. */
@@ -255,6 +257,25 @@ export function buildPdf(
       y = drawSectionTitle(section.title, y);
     }
     const { canvas } = section.capture;
+    if (section.fit) {
+      // A fixed size canvas is one page, like a slide
+      const scale = Math.min(
+        contentWidth / canvas.width,
+        (bottom - y) / canvas.height,
+      );
+      const width = canvas.width * scale;
+      doc.addImage(
+        canvas.toDataURL('image/jpeg', JPEG_QUALITY),
+        'JPEG',
+        MM_MARGIN + (contentWidth - width) / 2,
+        y,
+        width,
+        canvas.height * scale,
+        undefined,
+        'FAST',
+      );
+      return;
+    }
     const mmPerPixel = contentWidth / canvas.width;
     const pages = paginate(
       section.capture,
