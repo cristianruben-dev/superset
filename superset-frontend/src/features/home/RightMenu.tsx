@@ -164,14 +164,8 @@ const RightMenu = ({
     useState<boolean>(false);
   const isAdmin = isUserAdmin(user);
   const showUploads = allowUploads || isAdmin;
-  const {
-    setThemeMode,
-    themeMode,
-    clearLocalOverrides,
-    hasDevOverride,
-    canSetMode,
-    canDetectOSPreference,
-  } = useThemeContext();
+  const { setThemeMode, themeMode, canSetMode, canDetectOSPreference } =
+    useThemeContext();
   const dropdownItems: MenuObjectProps[] = [
     {
       label: t('Data'),
@@ -366,8 +360,6 @@ const RightMenu = ({
   const themeMenuItem = useThemeMenuItems({
     setThemeMode,
     themeMode,
-    hasLocalOverride: hasDevOverride(),
-    onClearLocalSettings: clearLocalOverrides,
     allowOSPreference: canDetectOSPreference(),
   });
 

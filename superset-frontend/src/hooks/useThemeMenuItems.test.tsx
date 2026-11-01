@@ -44,8 +44,6 @@ describe('useThemeMenuItems', () => {
     allowOSPreference: true,
     setThemeMode: jest.fn(),
     themeMode: ThemeMode.DEFAULT,
-    hasLocalOverride: false,
-    onClearLocalSettings: jest.fn(),
   };
 
   const renderThemeMenu = (props = defaultProps) =>
@@ -95,35 +93,6 @@ describe('useThemeMenuItems', () => {
     expect(within(menu).getByText('Match system')).toBeInTheDocument();
   });
 
-  test('renders clear option when both hasLocalOverride and onClearLocalSettings are provided', async () => {
-    const mockClear = jest.fn();
-    renderThemeMenu({
-      ...defaultProps,
-      hasLocalOverride: true,
-      onClearLocalSettings: mockClear,
-    });
-
-    await userEvent.hover(await screen.findByRole('menuitem'));
-    const menu = await findMenuWithText('Clear local theme');
-
-    expect(within(menu).getByText('Clear local theme')).toBeInTheDocument();
-  });
-
-  test('does not render clear option when hasLocalOverride is false', async () => {
-    const mockClear = jest.fn();
-    renderThemeMenu({
-      ...defaultProps,
-      hasLocalOverride: false,
-      onClearLocalSettings: mockClear,
-    });
-
-    await userEvent.hover(await screen.findByRole('menuitem'));
-
-    await waitFor(() => {
-      expect(screen.queryByText('Clear local theme')).not.toBeInTheDocument();
-    });
-  });
-
   test('calls setThemeMode with DEFAULT when Light is clicked', async () => {
     const mockSet = jest.fn();
     renderThemeMenu({ ...defaultProps, setThemeMode: mockSet });
@@ -157,21 +126,6 @@ describe('useThemeMenuItems', () => {
     expect(mockSet).toHaveBeenCalledWith(ThemeMode.SYSTEM);
   });
 
-  test('calls onClearLocalSettings when Clear local theme is clicked', async () => {
-    const mockClear = jest.fn();
-    renderThemeMenu({
-      ...defaultProps,
-      hasLocalOverride: true,
-      onClearLocalSettings: mockClear,
-    });
-
-    await userEvent.hover(await screen.findByRole('menuitem'));
-    const menu = await findMenuWithText('Clear local theme');
-    await userEvent.click(within(menu).getByText('Clear local theme'));
-
-    expect(mockClear).toHaveBeenCalledTimes(1);
-  });
-
   test('displays sun icon for DEFAULT theme', () => {
     renderThemeMenu({ ...defaultProps, themeMode: ThemeMode.DEFAULT });
     expect(screen.getByTestId('sun')).toBeInTheDocument();
@@ -185,11 +139,6 @@ describe('useThemeMenuItems', () => {
   test('displays format-painter icon for SYSTEM theme', () => {
     renderThemeMenu({ ...defaultProps, themeMode: ThemeMode.SYSTEM });
     expect(screen.getByTestId('format-painter')).toBeInTheDocument();
-  });
-
-  test('displays override icon when hasLocalOverride is true', () => {
-    renderThemeMenu({ ...defaultProps, hasLocalOverride: true });
-    expect(screen.getByTestId('thunderbolt')).toBeInTheDocument();
   });
 
   test('renders Theme group header', async () => {
@@ -231,37 +180,6 @@ describe('useThemeMenuItems', () => {
     expect(
       within(matchOption!).getByTestId('format-painter'),
     ).toBeInTheDocument();
-  });
-
-  test('renders clear icon for Clear local theme option', async () => {
-    renderThemeMenu({
-      ...defaultProps,
-      hasLocalOverride: true,
-      onClearLocalSettings: jest.fn(),
-    });
-
-    await userEvent.hover(await screen.findByRole('menuitem'));
-    const menu = await findMenuWithText('Clear local theme');
-    const clearOption = within(menu)
-      .getByText('Clear local theme')
-      .closest('li');
-
-    expect(within(clearOption!).getByTestId('clear')).toBeInTheDocument();
-  });
-
-  test('renders divider before clear option when clear option is present', async () => {
-    renderThemeMenu({
-      ...defaultProps,
-      hasLocalOverride: true,
-      onClearLocalSettings: jest.fn(),
-    });
-
-    await userEvent.hover(await screen.findByRole('menuitem'));
-
-    const menu = await findMenuWithText('Clear local theme');
-    const divider = within(menu).queryByRole('separator');
-
-    expect(divider).toBeInTheDocument();
   });
 
   test('does not render divider when clear option is not present', async () => {

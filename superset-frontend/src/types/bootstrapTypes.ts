@@ -152,7 +152,6 @@ export interface MenuData {
 export interface BootstrapThemeDataConfig {
   default: SerializableThemeConfig | {};
   dark: SerializableThemeConfig | {};
-  enableUiThemeAdministration?: boolean;
 }
 
 export interface CommonBootstrapData {

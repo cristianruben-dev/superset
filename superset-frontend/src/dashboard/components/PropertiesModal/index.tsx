@@ -130,15 +130,7 @@ const PropertiesModal = ({
   const [tags, setTags] = useState<TagType[]>([]);
   const [customCss, setCustomCss] = useState('');
   const [refreshFrequency, setRefreshFrequency] = useState(0);
-  const [selectedThemeId, setSelectedThemeId] = useState<number | null>(null);
   const [showChartTimestamps, setShowChartTimestamps] = useState(false);
-  const [themes, setThemes] = useState<
-    Array<{
-      id: number;
-      theme_name: string;
-      json_data?: string;
-    }>
-  >([]);
   const categoricalSchemeRegistry = getCategoricalSchemeRegistry();
   const originalDashboardMetadata = useRef<Record<string, any>>({});
   const originalCss = useRef<string | null>(null);
@@ -176,7 +168,6 @@ const PropertiesModal = ({
         roles,
         metadata,
         is_managed_externally,
-        theme,
         css,
       } = dashboardData;
       const dashboardInfo = {
@@ -199,7 +190,6 @@ const PropertiesModal = ({
         originalCss.current = css || '';
       }
       setCurrentColorScheme(metadata?.color_scheme);
-      setSelectedThemeId(theme?.id || null);
 
       const metaDataCopy = omit(metadata, [
         'positions',
@@ -396,9 +386,6 @@ const PropertiesModal = ({
       colorNamespace,
       certifiedBy,
       certificationDetails,
-      theme: selectedThemeId
-        ? themes.find(t => t.id === selectedThemeId)
-        : null,
       css: customCss,
       ...moreOnSubmitProps,
     };
@@ -423,7 +410,6 @@ const PropertiesModal = ({
         certification_details:
           certifiedBy && certificationDetails ? certificationDetails : null,
         css: customCss || null,
-        theme_id: selectedThemeId,
         ...morePutProps,
       };
 
@@ -459,28 +445,6 @@ const PropertiesModal = ({
         // Data is immediately available, so we can stop loading
         setIsLoading(false);
       }
-
-      // Fetch themes (excluding system themes)
-      const themeQuery = rison.encode({
-        columns: ['id', 'theme_name', 'is_system', 'json_data'],
-        filters: [
-          {
-            col: 'is_system',
-            opr: 'eq',
-            value: false,
-          },
-        ],
-      });
-      SupersetClient.get({ endpoint: `/api/v1/theme/?q=${themeQuery}` })
-        .then(({ json }) => {
-          const fetchedThemes = json.result;
-          setThemes(fetchedThemes);
-        })
-        .catch(() => {
-          addDangerToast(
-            t('An error occurred while fetching available themes'),
-          );
-        });
     }
   }, [
     currentDashboardInfo,
@@ -536,7 +500,6 @@ const PropertiesModal = ({
   };
 
   // Section handlers for extracted components
-  const handleThemeChange = (value: any) => setSelectedThemeId(value || null);
   const handleRefreshFrequencyChange = (value: number) =>
     setRefreshFrequency(value);
 
@@ -758,17 +721,13 @@ const PropertiesModal = ({
               ),
               children: (
                 <StylingSection
-                  themes={themes}
-                  selectedThemeId={selectedThemeId}
                   colorScheme={colorScheme}
                   customCss={customCss}
                   hasCustomLabelsColor={hasCustomLabelsColor}
                   showChartTimestamps={showChartTimestamps}
-                  onThemeChange={handleThemeChange}
                   onColorSchemeChange={onColorSchemeChange}
                   onCustomCssChange={handleCustomCssChange}
                   onShowChartTimestampsChange={setShowChartTimestamps}
-                  addDangerToast={addDangerToast}
                 />
               ),
             },

@@ -418,7 +418,6 @@ interface DashboardSaveData extends JsonObject {
   metadata?: JsonObject;
   positions?: JsonObject;
   duplicate_slices?: boolean;
-  theme_id?: number | null;
 }
 
 export function saveDashboardRequest(
@@ -636,7 +635,6 @@ export function saveDashboardRequest(
               owners: cleanedData.owners,
               roles: cleanedData.roles,
               tags: cleanedData.tags || [],
-              theme_id: cleanedData.theme_id,
               json_metadata: safeStringify({
                 ...(cleanedData?.metadata as JsonObject),
                 default_filters: safeStringify(serializedFilters),

@@ -54,11 +54,9 @@ from superset import (
     security_manager,
 )
 from superset.connectors.sqla import models
-from superset.daos.theme import ThemeDAO
 from superset.db_engine_specs import get_available_engine_specs
 from superset.db_engine_specs.gsheets import GSheetsEngineSpec
 from superset.extensions import cache_manager
-from superset.models.core import Theme as ThemeModel
 from superset.reports.models import ReportRecipientType
 from superset.superset_typing import FlaskResponse
 from superset.themes.types import Theme, ThemeMode
@@ -315,41 +313,6 @@ def menu_data(user: User) -> dict[str, Any]:
     }
 
 
-def _merge_theme_dicts(base: dict[str, Any], overlay: dict[str, Any]) -> dict[str, Any]:
-    """
-    Recursively merge overlay theme dict into base theme dict.
-    Arrays and non-dict values are replaced, not merged.
-    """
-    result = base.copy()
-    for key, value in overlay.items():
-        if isinstance(result.get(key), dict) and isinstance(value, dict):
-            result[key] = _merge_theme_dicts(result[key], value)
-        else:
-            result[key] = value
-    return result
-
-
-def _load_theme_from_model(
-    theme_model: ThemeModel | None,
-    fallback_theme: Theme | None,
-    theme_type: ThemeMode,
-) -> Theme | None:
-    """Load and parse theme from database model, merging with config theme as base."""
-    if theme_model:
-        try:
-            db_theme = json.loads(theme_model.json_data)
-            if fallback_theme:
-                merged = _merge_theme_dicts(dict(fallback_theme), db_theme)
-                return cast(Theme, merged)
-            return db_theme
-        except json.JSONDecodeError:
-            logger.error(
-                "Invalid JSON in system %s theme %s", theme_type.value, theme_model.id
-            )
-            return fallback_theme
-    return fallback_theme
-
-
 def _process_theme(theme: Theme | None, theme_type: ThemeMode) -> Theme:
     """Process and validate a theme, returning an empty dict if invalid."""
     if theme is None or theme == {}:
@@ -370,29 +333,8 @@ def get_theme_bootstrap_data() -> dict[str, Any]:
     """
     Returns the theme data to be sent to the client.
     """
-    # Check if UI theme administration is enabled
-    enable_ui_admin = app.config.get("ENABLE_UI_THEME_ADMINISTRATION", False)
-
-    # Get config themes to use as fallback
-    config_theme_default = get_config_value("THEME_DEFAULT")
-    config_theme_dark = get_config_value("THEME_DARK")
-
-    if enable_ui_admin:
-        # Try to load themes from database
-        default_theme_model = ThemeDAO.find_system_default()
-        dark_theme_model = ThemeDAO.find_system_dark()
-
-        # Parse theme JSON from database models
-        default_theme = _load_theme_from_model(
-            default_theme_model, config_theme_default, ThemeMode.DEFAULT
-        )
-        dark_theme = _load_theme_from_model(
-            dark_theme_model, config_theme_dark, ThemeMode.DARK
-        )
-    else:
-        # UI theme administration disabled - use config-based themes
-        default_theme = config_theme_default
-        dark_theme = config_theme_dark
+    default_theme = get_config_value("THEME_DEFAULT")
+    dark_theme = get_config_value("THEME_DARK")
 
     # Process and validate themes
     default_theme = _process_theme(default_theme, ThemeMode.DEFAULT)
@@ -402,7 +344,6 @@ def get_theme_bootstrap_data() -> dict[str, Any]:
         "theme": {
             "default": default_theme,
             "dark": dark_theme,
-            "enableUiThemeAdministration": enable_ui_admin,
         }
     }
 

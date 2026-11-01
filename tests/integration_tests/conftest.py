@@ -127,10 +127,6 @@ def setup_sample_data() -> Any:
         except Exception:  # noqa: S110
             pass
 
-        from superset.examples.css_templates import load_css_templates
-
-        load_css_templates()
-
     yield
 
     with app.app_context():

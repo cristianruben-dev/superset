@@ -44,7 +44,6 @@ export interface DashboardCreatePayload {
   css?: string;
   json_metadata?: string;
   published?: boolean;
-  theme_id?: number;
 }
 
 /**

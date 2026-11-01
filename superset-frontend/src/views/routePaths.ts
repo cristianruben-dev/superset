@@ -32,8 +32,6 @@ export const RoutePaths = {
   DATASET_LIST: '/tablemodelview/list/',
   DATABASE_LIST: '/databaseview/list/',
   SAVED_QUERIES: '/savedqueryview/list/',
-  CSS_TEMPLATES: '/csstemplatemodelview/list/',
-  THEMES: '/theme/list/',
   QUERY_HISTORY: '/sqllab/history/',
   ALERTS: '/alert/list/',
   REPORTS: '/report/list/',

@@ -74,7 +74,6 @@ NEW_SECURITY_CONVERGE_VIEWS = (
     "Database",
     "Dataset",
     "Dashboard",
-    "CssTemplate",
     "Chart",
     "Query",
     "SavedQuery",
@@ -1331,9 +1330,7 @@ class TestRolePermission(SupersetTestCase):
         assert ("menu_access", view_menu) not in permissions_set
 
     def assert_cannot_gamma(self, perm_set):
-        self.assert_cannot_write("CssTemplate", perm_set)
         self.assert_cannot_menu("SQL Lab", perm_set)
-        self.assert_cannot_menu("CSS Templates", perm_set)
         self.assert_cannot_menu("Manage", perm_set)
         self.assert_cannot_menu("Queries", perm_set)
         self.assert_cannot_menu("Import dashboards", perm_set)
@@ -1365,7 +1362,6 @@ class TestRolePermission(SupersetTestCase):
         self.assert_can_menu("Dashboards", perm_set)
 
     def assert_can_alpha(self, perm_set):
-        self.assert_can_all("CssTemplate", perm_set)
         self.assert_can_all("Dataset", perm_set)
         self.assert_can_read("Database", perm_set)
         assert ("can_upload", "Database") in perm_set

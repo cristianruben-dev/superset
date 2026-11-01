@@ -27,7 +27,6 @@ import DashboardContainer from './DashboardContainer';
 import * as nativeFiltersActions from '../../actions/nativeFilters';
 import * as chartCustomizationActions from '../../actions/chartCustomizationActions';
 
-fetchMock.get('glob:*/csstemplateasyncmodelview/api/read', {});
 fetchMock.put('glob:*/api/v1/dashboard/*/colors*', {});
 fetchMock.post('glob:*/superset/log/?*', {});
 

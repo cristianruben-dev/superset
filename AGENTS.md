@@ -65,6 +65,10 @@ This repository is **AuraData BI**, a fork of Apache Superset 6.1 shaped like Po
   the 100° blue→violet→green gradient only as a headline accent. Logos and icons live in
   `superset-frontend/src/assets/images/auradata/`.
 - Branding, theme tokens, languages and chart palettes live in `superset/mibi_config.py`.
+- **The look is fixed by the product.** There are no saved themes and no CSS templates: no
+  theme screen, API or per-dashboard theme, and `ThemeController` only switches between the
+  `THEME_DEFAULT` and `THEME_DARK` of the configuration (light, dark, match system). Set
+  `THEME_DARK = None` to force a single look. A dashboard keeps its own `css` field.
 - Internal names keep the `mibi` prefix (`src/mibi`, `superset/mibi`, `MIBI_*`, `mibi_*` tables,
   `meta.mibi*` layout keys, the `mibi` palette id): saved dashboards and migrations depend on
   them. Rename only what users see.
@@ -133,8 +137,8 @@ Formats are stored in `position_json`, so they save, undo and export with the da
 Fork migrations form one chain after the upstream head:
 `8bc9e5b95335` (workspaces) → `cce7fe34b50d` (members) → `3a90eb47d506` (backgrounds) →
 `06c8a16b9fe1` (element images) → `b7d41e0c9a23` (format themes) → `e4ec3b61cadb` (drops the
-format themes) → `a91c5d27f3e8` (drops the annotation layers). A new fork migration revises
-the last one. When merging a new Superset release, point `8bc9e5b95335` at the new upstream head.
+format themes) → `a91c5d27f3e8` (drops the annotation layers) → `c5f08a1d7e42` (drops the
+themes and CSS templates). A new fork migration revises the last one. When merging a new Superset release, point `8bc9e5b95335` at the new upstream head.
 
 ### Tests for AuraData BI code
 - Jest tests sit next to the code (`src/mibi/**/*.test.ts(x)`).

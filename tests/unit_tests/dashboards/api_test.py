@@ -32,7 +32,6 @@ def mock_dashboard() -> MagicMock:
     dash.thumbnail_url = "http://example.com/thumb.png"
     dash.published = True
     dash.css = ""
-    dash.theme = None
     dash.json_metadata = "{}"
     dash.position_json = "{}"
     dash.certified_by = None

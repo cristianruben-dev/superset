@@ -208,11 +208,6 @@ export type DashboardInfo = {
   chartCustomizationData?: { [itemId: string]: ColumnOption[] };
   chartCustomizationLoading?: { [itemId: string]: boolean };
   pendingChartCustomizations?: Record<string, ChartCustomization>;
-  theme?: {
-    id: number;
-    theme_name: string;
-    json_data: string;
-  } | null;
   css?: string;
   slug?: string;
   last_modified_time: number;

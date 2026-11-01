@@ -76,29 +76,6 @@ export function SupersetThemeProvider({
     [themeController],
   );
 
-  // setCrudTheme removed - dashboards should NOT modify the global controller
-
-  const setTemporaryTheme = useCallback(
-    (config: AnyThemeConfig, themeId?: number | null) =>
-      themeController.setTemporaryTheme(config, themeId),
-    [themeController],
-  );
-
-  const clearLocalOverrides = useCallback(
-    () => themeController.clearLocalOverrides(),
-    [themeController],
-  );
-
-  const getCurrentCrudThemeId = useCallback(
-    () => themeController.getCurrentCrudThemeId(),
-    [themeController],
-  );
-
-  const hasDevOverride = useCallback(
-    () => themeController.hasDevOverride(),
-    [themeController],
-  );
-
   const canSetMode = useCallback(
     () => themeController.canSetMode(),
     [themeController],
@@ -114,16 +91,6 @@ export function SupersetThemeProvider({
     [themeController],
   );
 
-  const createDashboardThemeProvider = useCallback(
-    (themeId: string) => themeController.createDashboardThemeProvider(themeId),
-    [themeController],
-  );
-
-  const getAppliedThemeId = useCallback(
-    () => themeController.getAppliedThemeId(),
-    [themeController],
-  );
-
   const contextValue = useMemo(
     () => ({
       theme: currentTheme,
@@ -131,15 +98,9 @@ export function SupersetThemeProvider({
       setTheme,
       setThemeMode,
       resetTheme,
-      setTemporaryTheme,
-      clearLocalOverrides,
-      getCurrentCrudThemeId,
-      hasDevOverride,
       canSetMode,
       canSetTheme,
       canDetectOSPreference,
-      createDashboardThemeProvider,
-      getAppliedThemeId,
     }),
     [
       currentTheme,
@@ -147,15 +108,9 @@ export function SupersetThemeProvider({
       setTheme,
       setThemeMode,
       resetTheme,
-      setTemporaryTheme,
-      clearLocalOverrides,
-      getCurrentCrudThemeId,
-      hasDevOverride,
       canSetMode,
       canSetTheme,
       canDetectOSPreference,
-      createDashboardThemeProvider,
-      getAppliedThemeId,
     ],
   );
 

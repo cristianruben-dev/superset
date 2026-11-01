@@ -236,7 +236,6 @@ class TestExportDashboardsCommand(SupersetTestCase):
             },
             "metadata": {"mock_key": "mock_value"},
             "version": "1.0.0",
-            "theme_uuid": None,
         }
 
     # @pytest.mark.usefixtures("load_covid_dashboard")
@@ -333,7 +332,6 @@ class TestExportDashboardsCommand(SupersetTestCase):
             "dashboard_title",
             "description",
             "css",
-            "theme_uuid",
             "slug",
             "certified_by",
             "certification_details",
