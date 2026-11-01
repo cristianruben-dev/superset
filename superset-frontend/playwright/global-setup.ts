@@ -69,6 +69,9 @@ async function globalSetup(config: FullConfig) {
     await authPage.loginWithCredentials(adminUsername, adminPassword);
     // Use longer timeout for global setup (cold CI starts may exceed PAGE_LOAD timeout)
     await authPage.waitForLoginSuccess({ timeout: TIMEOUT.GLOBAL_SETUP });
+    // AuraData BI defaults to Spanish; the page objects look for English
+    // labels, so the shared session switches the UI language.
+    await page.goto(`${baseURL.replace(/\/$/, '')}/lang/en`);
 
     // Save authentication state for all tests to reuse
     const authStatePath = 'playwright/.auth/user.json';

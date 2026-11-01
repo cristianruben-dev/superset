@@ -35,4 +35,5 @@ export const URL = {
   LOGIN: 'login/',
   SQLLAB: 'sqllab',
   WELCOME: 'superset/welcome/',
+  ME: 'api/v1/me/',
 } as const;

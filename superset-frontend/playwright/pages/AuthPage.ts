@@ -90,9 +90,8 @@ export class AuthPage {
    *
    * This does NOT assume a specific landing page (which is configurable).
    * Instead it:
-   * 1. Checks if session cookie already exists (guards against race condition)
-   * 2. Waits for POST /login/ response with redirect status
-   * 3. Polls for session cookie to appear
+   * 1. Returns at once when the session already belongs to a signed-in user
+   * 2. Polls the session cookie and the API until the user is signed in
    *
    * @param options - Optional wait options
    */
@@ -101,27 +100,17 @@ export class AuthPage {
     const startTime = Date.now();
 
     // 1. Guard: Check if session cookie already exists (race condition protection)
+    // The login page itself sets a session cookie (CSRF token), so the cookie
+    // alone does not mean the user is signed in: confirm it with the API.
     const existingCookie = await this.getSessionCookie();
-    if (existingCookie?.value) {
+    if (existingCookie?.value && (await this.isAuthenticated())) {
       // Already authenticated - login completed before we started waiting
       return;
     }
 
-    // 2. Wait for POST /login/ response (bounded by caller's timeout)
-    const loginResponse = await this.page.waitForResponse(
-      response =>
-        response.url().includes('/login/') &&
-        response.request().method() === 'POST',
-      { timeout },
-    );
-
-    // 3. Verify it's a redirect (3xx status code indicates successful login)
-    const status = loginResponse.status();
-    if (status < 300 || status >= 400) {
-      throw new Error(`Login failed: expected redirect (3xx), got ${status}`);
-    }
-
-    // 4. Poll for session cookie to appear (HttpOnly cookie, not accessible via document.cookie)
+    // 2. Poll until the session belongs to a signed-in user. The POST /login/
+    // response may already have arrived by the time this method runs, so it
+    // cannot be waited for.
     // Use page.context().cookies() since session cookie is HttpOnly
     const pollInterval = 500; // 500ms instead of 100ms for less chattiness
     while (true) {
@@ -131,8 +120,8 @@ export class AuthPage {
       }
 
       const sessionCookie = await this.getSessionCookie();
-      if (sessionCookie && sessionCookie.value) {
-        // Success - session cookie has landed
+      if (sessionCookie?.value && (await this.isAuthenticated())) {
+        // Success - the session cookie belongs to a signed-in user
         return;
       }
 
@@ -150,6 +139,16 @@ export class AuthPage {
    */
   async getCurrentUrl(): Promise<string> {
     return this.page.url();
+  }
+
+  /**
+   * Whether the current session cookie belongs to a signed-in user.
+   */
+  async isAuthenticated(): Promise<boolean> {
+    const response = await this.page.request.get(URL.ME, {
+      failOnStatusCode: false,
+    });
+    return response.ok();
   }
 
   /**
