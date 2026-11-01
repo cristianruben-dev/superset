@@ -41,8 +41,13 @@ class UndoRedoKeyListeners extends PureComponent<UndoRedoKeyListenersProps> {
   handleKeydown(event: KeyboardEvent) {
     const controlOrCommand = event.ctrlKey || event.metaKey;
     if (controlOrCommand) {
-      const isZChar = event.key === 'z' || event.keyCode === 90;
-      const isYChar = event.key === 'y' || event.keyCode === 89;
+      // Shift + Z is redo, as in most editors
+      const isZChar =
+        !event.shiftKey && (event.key === 'z' || event.keyCode === 90);
+      const isYChar =
+        event.key === 'y' ||
+        event.keyCode === 89 ||
+        (event.shiftKey && (event.key === 'Z' || event.keyCode === 90));
       const isEditingMarkdown = document?.querySelector(
         '.dashboard-markdown--editing',
       );
