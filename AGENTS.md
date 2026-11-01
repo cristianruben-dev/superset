@@ -75,7 +75,7 @@ This repository is **AuraData BI**, a fork of Apache Superset 6.1 shaped like Po
 | App shell, home, lists | `superset/mibi/previews.py`, `superset/mibi/api.py` | `mibi/shell`, `mibi/home`, `mibi/dashboards`, `assets/mibi/skin.css` |
 | Workspaces and access | `superset/mibi/workspaces.py`, `workspace_access.py`, `models.py` | `mibi/workspaces` |
 | Data page and datasets | `superset/mibi/data_views.py` | `mibi/data` |
-| Format pane, themes | `superset/mibi/format_themes.py` | `mibi/format` |
+| Format pane | - | `mibi/format` |
 | Chart format controls (labels, legend, axes, series, rules, table) | - | `explore/components/controls/{FontControl,SeriesColorsControl,ChartConditionalFormattingControl}`; sections in `packages/superset-ui-chart-controls/src/sections/visualFormat.tsx`; helpers in `plugins/plugin-chart-echarts/src/utils/formatting.ts` and `plugins/plugin-chart-table/src/utils/tableFormat.ts` |
 | Background and element pictures | `superset/mibi/backgrounds.py` | `mibi/format/actions.ts`, `mibi/elements` |
 | Design elements (image, shape, button, text, canvas filter) | - | `mibi/elements` |
@@ -84,7 +84,7 @@ This repository is **AuraData BI**, a fork of Apache Superset 6.1 shaped like Po
 | Report interactivity (edit interactions, drill through, sync slicers, bookmarks, Back/bookmark buttons) | - | `mibi/report` |
 | Chart type icons | - | `mibi/vizIcons` |
 
-AuraData BI APIs: `/api/v1/workspace/`, `/api/v1/format_theme/` (plus `<id>/apply/`),
+AuraData BI APIs: `/api/v1/workspace/`,
 `/api/v1/dashboard_background/<dashboard>/`, `/api/v1/dashboard_image/<dashboard>/<image>/`,
 `/api/v1/mibi/dashboard_previews/`. Each new API is registered in `superset/initialization/__init__.py`.
 
@@ -95,7 +95,7 @@ Formats are stored in `position_json`, so they save, undo and export with the da
   While editing, the page is a limit: resizing stops at its bottom (`useMaxHeightMultiple`) and a
   change that overflows it fits the visuals back inside (`CanvasFrame`).
 - `ROOT_ID.meta.mibiCanvas`: canvas format (`CanvasFormat` in `src/mibi/format/types.ts`),
-  including `visuals`, the style every chart shares (from "Apply to all charts" or a theme).
+  including `visuals`, the style every chart shares (from "Apply to all charts").
 - `CHART-*.meta.mibiFormat`: a chart's own format. It wins over the shared style setting by
   setting; read it with `useVisualFormat`/`mergeVisualFormat`, never `meta.mibiFormat` alone.
 - Design elements are `DYNAMIC` components whose `componentKey` starts with `mibi-`, with their
@@ -118,13 +118,13 @@ Formats are stored in `position_json`, so they save, undo and export with the da
     places copies of the canvas filter on other pages (saved with the dashboard).
 - Write layout changes through `src/mibi/format/actions.ts` (`updateLayout`, `setVisualFormat`,
   `setCanvasFormat`, `setSharedVisualFormat`) so edits group into one undo step.
-- Format themes (`mibi_format_themes` table) hold `{canvas, visuals, colorScheme}`; the frontend
-  (`src/mibi/format/themes.ts`) and the backend (`apply_theme`) apply them the same way.
+- There are no saved format themes: each dashboard is formatted on its own.
 
 ### Migrations
 Fork migrations form one chain after the upstream head:
 `8bc9e5b95335` (workspaces) → `cce7fe34b50d` (members) → `3a90eb47d506` (backgrounds) →
-`06c8a16b9fe1` (element images) → `b7d41e0c9a23` (format themes). A new fork migration revises
+`06c8a16b9fe1` (element images) → `b7d41e0c9a23` (format themes) → `e4ec3b61cadb` (drops the
+format themes). A new fork migration revises
 the last one. When merging a new Superset release, point `8bc9e5b95335` at the new upstream head.
 
 ### Tests for AuraData BI code

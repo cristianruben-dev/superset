@@ -20,7 +20,6 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useHistory, useParams } from 'react-router-dom';
 import { t, tn } from '@apache-superset/core/translation';
 import { css, styled } from '@apache-superset/core/theme';
-import { logging } from '@apache-superset/core/utils';
 import {
   FeatureFlag,
   getClientErrorObject,
@@ -37,7 +36,6 @@ import {
 import { Icons } from '@superset-ui/core/components/Icons';
 import { useToasts } from 'src/components/MessageToasts/withToasts';
 import { useFavoriteStatus } from 'src/views/CRUD/hooks';
-import { applyThemeToDashboards } from 'src/mibi/format/themes';
 import { DashboardCard, useDashboardPreviews } from '../dashboards';
 import { relativeTime } from '../time';
 import {
@@ -360,12 +358,6 @@ export default function WorkspacePage() {
       });
       const dashboardId = json.id as number;
       await moveDashboards(id, { add: [dashboardId] });
-      if (workspace?.format_theme_id) {
-        // New dashboards start with the theme of their workspace
-        await applyThemeToDashboards(workspace.format_theme_id, [
-          dashboardId,
-        ]).catch(logging.error);
-      }
       history.push(`/superset/dashboard/${dashboardId}/?edit=true`);
     } catch (error) {
       const { error: message } = await getClientErrorObject(error);

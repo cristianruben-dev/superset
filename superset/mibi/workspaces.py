@@ -32,7 +32,6 @@ from superset import db, security_manager
 from superset.daos.dashboard import DashboardDAO
 from superset.exceptions import SupersetSecurityException
 from superset.mibi.models import (
-    FormatTheme,
     ROLE_ADMIN,
     ROLE_CONTRIBUTOR,
     ROLE_VIEWER,
@@ -79,8 +78,6 @@ class WorkspaceSchema(Schema):
     color = fields.String(
         allow_none=True, validate=validate.Regexp(r"^#[0-9a-fA-F]{6}$")
     )
-    # The format theme new dashboards of the workspace start with
-    format_theme_id = fields.Integer(allow_none=True)
 
     @pre_load
     def strip_text(self, data: Any, **kwargs: Any) -> Any:
@@ -146,10 +143,6 @@ def serialize(workspace: Workspace, role: str | None = None) -> dict[str, Any]:
         "description": workspace.description,
         "color": workspace.color,
         "image_url": image_url(workspace),
-        "format_theme_id": workspace.format_theme_id,
-        "format_theme_name": workspace.format_theme.name
-        if workspace.format_theme
-        else None,
         "dashboard_ids": dashboard_ids,
         "dashboard_count": len(dashboard_ids),
         # Stored naive in the server's local time; the offset lets browsers in
@@ -281,10 +274,6 @@ class WorkspaceRestApi(BaseSupersetApi):
             data = WorkspaceSchema().load(request.json or {})
         except ValidationError as error:
             return self.response_400(message=error.messages)
-        if data.get("format_theme_id") is not None and not db.session.get(
-            FormatTheme, data["format_theme_id"]
-        ):
-            return self.response_400(message={"format_theme_id": ["Unknown theme"]})
         workspace = Workspace(**data)
         if user_id := get_user_id():
             # Whoever creates a workspace administers it
@@ -330,10 +319,6 @@ class WorkspaceRestApi(BaseSupersetApi):
             data = WorkspaceSchema(partial=True).load(request.json or {})
         except ValidationError as error:
             return self.response_400(message=error.messages)
-        if data.get("format_theme_id") is not None and not db.session.get(
-            FormatTheme, data["format_theme_id"]
-        ):
-            return self.response_400(message={"format_theme_id": ["Unknown theme"]})
         for key, value in data.items():
             setattr(workspace, key, value)
         db.session.commit()  # pylint: disable=consider-using-transaction

@@ -180,7 +180,6 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
             DashboardImageRestApi,
         )
         from superset.mibi.data_views import DataView
-        from superset.mibi.format_themes import FormatThemeRestApi
         from superset.mibi.workspaces import WorkspaceRestApi, WorkspaceView
         from superset.queries.api import QueryRestApi
         from superset.queries.saved_queries.api import SavedQueryRestApi
@@ -265,7 +264,6 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
         appbuilder.add_api(WorkspaceRestApi)
         appbuilder.add_api(DashboardBackgroundRestApi)
         appbuilder.add_api(DashboardImageRestApi)
-        appbuilder.add_api(FormatThemeRestApi)
         appbuilder.add_api(DatabaseRestApi)
         appbuilder.add_api(DatasetRestApi)
         appbuilder.add_api(DatasetColumnsRestApi)

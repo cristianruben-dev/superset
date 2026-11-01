@@ -44,9 +44,6 @@ export interface Workspace {
   description: string | null;
   color: string | null;
   image_url: string | null;
-  /** The format theme its new dashboards start with */
-  format_theme_id?: number | null;
-  format_theme_name?: string | null;
   dashboard_ids: number[];
   dashboard_count: number;
   changed_on: string | null;
@@ -74,7 +71,6 @@ export interface WorkspaceFields {
   name: string;
   description?: string | null;
   color?: string | null;
-  format_theme_id?: number | null;
 }
 
 const BASE = '/api/v1/workspace/';

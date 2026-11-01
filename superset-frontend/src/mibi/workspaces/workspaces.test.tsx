@@ -53,12 +53,6 @@ const workspace = (overrides: Partial<Workspace> = {}): Workspace => ({
   ...overrides,
 });
 
-beforeEach(() => {
-  fetchMock.get('glob:*/api/v1/format_theme/', {
-    result: [{ id: 4, name: 'Corporativo', can_edit: true, theme: {} }],
-  });
-});
-
 afterEach(() => {
   fetchMock.clearHistory().removeRoutes();
 });
@@ -141,47 +135,8 @@ test('creates a workspace with its name, description and color', async () => {
     name: 'Ops',
     description: 'Logistics',
     color: '#14B8A6',
-    format_theme_id: null,
   });
   expect(onSaved.mock.calls[0][0].id).toBe(7);
-});
-
-test('gives the workspace a theme and applies it to its dashboards', async () => {
-  fetchMock.put('glob:*/api/v1/workspace/1/', {
-    result: workspace({ format_theme_id: 4 }),
-  });
-  fetchMock.post('glob:*/api/v1/format_theme/4/apply/', { result: [1] });
-  const onSaved = jest.fn();
-  render(
-    <WorkspaceModal
-      show
-      workspace={workspace()}
-      onHide={jest.fn()}
-      onSaved={onSaved}
-    />,
-    { useRedux: true },
-  );
-
-  expect(
-    screen.queryByTestId('workspace-theme-apply-all'),
-  ).not.toBeInTheDocument();
-  await userEvent.click(screen.getByRole('combobox', { name: 'Format theme' }));
-  await userEvent.click(await screen.findByText('Corporativo'));
-  await userEvent.click(
-    screen.getByText('Also apply it to the 2 dashboards it has'),
-  );
-  await userEvent.click(screen.getByRole('button', { name: 'Save' }));
-
-  await waitFor(() => expect(onSaved).toHaveBeenCalled());
-  const put = fetchMock.callHistory.lastCall('glob:*/api/v1/workspace/1/');
-  expect(JSON.parse(put?.options.body as string).format_theme_id).toBe(4);
-  const apply = fetchMock.callHistory.lastCall(
-    'glob:*/api/v1/format_theme/4/apply/',
-  );
-  expect(JSON.parse(apply?.options.body as string)).toEqual({
-    dashboard_ids: [1, 2],
-    reset_visuals: true,
-  });
 });
 
 test('uploads the picture after saving the workspace', async () => {

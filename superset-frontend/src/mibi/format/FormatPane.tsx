@@ -53,7 +53,6 @@ import { mergeVisualFormat } from './styles';
 import { useSharedVisualFormat } from './useVisualFormat';
 import { setMobilePreview, useMobilePreview } from './mobile';
 import { BoxSections } from './BoxSections';
-import { ThemeSection } from './ThemeSection';
 import { fitObjectsToPage } from './CanvasFrame';
 import { useReportLook } from 'src/mibi/report/ReportTheme';
 import { EditInteractionsToggle } from 'src/mibi/report/InteractionControl';
@@ -543,7 +542,6 @@ function CanvasSection() {
 
   return (
     <>
-      <ThemeSection />
       <PageSection />
 
       <Section data-test="mibi-format-appearance">
