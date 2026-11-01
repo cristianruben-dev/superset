@@ -264,10 +264,6 @@ const Panel = styled.section`
       & + .item {
         border-top: 1px solid ${theme.colorBorderSecondary};
       }
-
-      &:hover .item-actions {
-        opacity: 1;
-      }
     }
 
     .main {
@@ -358,16 +354,6 @@ const Panel = styled.section`
     .item-actions {
       display: flex;
       gap: ${theme.sizeUnit}px;
-      opacity: 0;
-      transition: opacity ${theme.motionDurationFast};
-
-      &:focus-within {
-        opacity: 1;
-      }
-
-      @media (hover: none) {
-        opacity: 1;
-      }
     }
 
     .empty {

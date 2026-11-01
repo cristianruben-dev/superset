@@ -68,7 +68,6 @@ const StyledTable = styled(Table)<{
     }
 
     .actions {
-      opacity: 0;
       font-size: ${theme.fontSizeXL}px;
       display: flex;
       white-space: nowrap;
@@ -86,13 +85,6 @@ const StyledTable = styled(Table)<{
 
     .ant-table-column-title {
       line-height: initial;
-    }
-
-    .ant-table-row:hover {
-      .actions {
-        opacity: 1;
-        transition: opacity ease-in ${theme.motionDurationMid};
-      }
     }
 
     .ant-table-row.table-row-highlighted > td.ant-table-cell,

@@ -345,10 +345,6 @@ const Table = styled.div`
 
     .row:not(.head):hover {
       background: ${theme.colorFillQuaternary};
-
-      .row-actions {
-        opacity: 1;
-      }
     }
 
     .dataset {
@@ -419,16 +415,6 @@ const Table = styled.div`
       display: flex;
       justify-content: flex-end;
       gap: ${theme.sizeUnit}px;
-      opacity: 0;
-      transition: opacity ${theme.motionDurationFast};
-
-      @media (hover: none) {
-        opacity: 1;
-      }
-    }
-
-    .row-actions:focus-within {
-      opacity: 1;
     }
 
     .empty {

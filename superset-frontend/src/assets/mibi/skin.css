@@ -437,15 +437,6 @@ table,
   font-weight: 500;
 }
 
-.superset-list-view .actions {
-  opacity: 0;
-  transition: opacity 0.15s ease;
-}
-
-.superset-list-view .ant-table-row:hover .actions {
-  opacity: 1;
-}
-
 .superset-list-view .ant-pagination {
   margin-top: 20px !important;
 }
