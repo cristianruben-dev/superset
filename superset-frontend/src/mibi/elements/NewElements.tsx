@@ -21,10 +21,7 @@ import { css, styled } from '@apache-superset/core/theme';
 import { Icons } from '@superset-ui/core/components';
 import DraggableNewComponent from 'src/dashboard/components/gridComponents/new/DraggableNewComponent';
 import { DYNAMIC_TYPE } from 'src/dashboard/util/componentTypes';
-import { useSelector } from 'react-redux';
-import type { RootState } from 'src/dashboard/types';
 import { VISUAL_FORMAT_KEY } from 'src/mibi/format/types';
-import { columnCountOf, scaledWidth } from 'src/mibi/format/columns';
 import { elementName } from './ElementFormat';
 import {
   ELEMENT_DEFAULTS,
@@ -54,9 +51,6 @@ const ICONS: Record<ElementKind, unknown> = {
 
 /** Draggers for the AuraData BI design elements in the Layout elements tab. */
 export function NewElements() {
-  const columns = useSelector((state: RootState) =>
-    columnCountOf(state.dashboardLayout?.present),
-  );
   return (
     <div data-test="mibi-new-elements">
       <Heading>{t('Design elements')}</Heading>
@@ -76,7 +70,7 @@ export function NewElements() {
               IconComponent={ICONS[kind]}
               meta={{
                 componentKey: elementKey(kind),
-                width: scaledWidth(defaults.width, columns),
+                width: defaults.width,
                 height: defaults.height,
                 [VISUAL_FORMAT_KEY]: defaults.format,
                 [ELEMENT_KEY]: element,

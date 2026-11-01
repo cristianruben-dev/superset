@@ -33,7 +33,6 @@ import { themeCssVariables } from '../shell/ThemeVariables';
 import { DASHBOARD_ROOT_ID } from 'src/dashboard/util/constants';
 import type { RootState } from 'src/dashboard/types';
 import {
-  DEFAULT_APPEARANCE,
   type AreaStyle,
   type CanvasFormat,
   type ReportAppearance,
@@ -70,14 +69,30 @@ export function reportThemeConfig(
   return { ...antd, token: { ...antd.token, ...tokens } };
 }
 
+/**
+ * Light or dark, from the canvas background: a dark color or gradient makes a
+ * dark report, anything else (no background, a light color, a picture) a
+ * light one, like a sheet of paper.
+ */
 export const useReportAppearance = (): ReportAppearance =>
-  useSelector(
-    (state: RootState) =>
-      (
-        state.dashboardLayout?.present?.[DASHBOARD_ROOT_ID]?.meta
-          ?.mibiCanvas as CanvasFormat | undefined
-      )?.appearance ?? DEFAULT_APPEARANCE,
-  );
+  useSelector((state: RootState) => {
+    const background = (
+      state.dashboardLayout?.present?.[DASHBOARD_ROOT_ID]?.meta?.mibiCanvas as
+        | CanvasFormat
+        | undefined
+    )?.background;
+    const color =
+      background?.type === 'color' || background?.type === 'gradient'
+        ? background.color
+        : undefined;
+    if (!color) return 'light';
+    // A see-through color reads over the white page it is drawn on
+    const { r, g, b, a } = tinycolor(color).toRgb();
+    const over = (channel: number) => channel * a + 255 * (1 - a);
+    return tinycolor({ r: over(r), g: over(g), b: over(b) }).isDark()
+      ? 'dark'
+      : 'light';
+  });
 
 const useAreaStyle = (area: ReportArea): AreaStyle | undefined =>
   useSelector((state: RootState) =>

@@ -18,6 +18,7 @@
  */
 import findParentId from './findParentId';
 import { gridColumnCount } from 'src/mibi/format/columns';
+import { posOf } from 'src/mibi/format/positions';
 import { GRID_MIN_COLUMN_COUNT } from './constants';
 import {
   ROW_TYPE,
@@ -56,7 +57,8 @@ function getTotalChildWidth({
 
   (component.children || []).forEach(childId => {
     const child = components[childId];
-    width += child?.meta?.width || 0;
+    // An object placed on a cell takes no room in the row
+    if (!posOf(child?.meta)) width += child?.meta?.width || 0;
   });
 
   return width;

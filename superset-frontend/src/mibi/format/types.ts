@@ -97,10 +97,6 @@ export interface CanvasFormat {
     width?: number;
     height?: number;
   };
-  /** Space around the visuals, in pixels */
-  padding?: number;
-  /** Space between visuals, in pixels */
-  gap?: number;
   /**
    * The style every chart shares, from "Apply to all charts" or a theme.
    * A chart's own format wins over it, setting by setting.
@@ -108,24 +104,23 @@ export interface CanvasFormat {
   visuals?: VisualFormat;
 }
 
-/** Layout meta keys hiding an object from viewers and locking it in place. */
-export const HIDDEN_KEY = 'mibiHidden';
-export const LOCKED_KEY = 'mibiLocked';
-
 /** Layout meta keys holding the formats. */
 export const VISUAL_FORMAT_KEY = 'mibiFormat';
 export const CANVAS_FORMAT_KEY = 'mibiCanvas';
 
-export const DEFAULT_GAP = 16;
-export const DEFAULT_PADDING = 0;
+/**
+ * Side of a grid cell, in pixels. The canvas is a grid of square cells: its
+ * size is a whole number of cells and every object is placed and sized in them.
+ */
+export const CELL = 32;
 export const DEFAULT_RADIUS = 14;
-export const MIN_CANVAS = 320;
-export const MAX_CANVAS = 4096;
+export const MIN_CANVAS = 10 * CELL;
+export const MAX_CANVAS = 128 * CELL;
 
-/** Page sizes of Power BI, in pixels. */
+/** Page sizes, in pixels: whole cells close to the ones of Power BI. */
 export const CANVAS_PRESETS: Record<CanvasPreset, [number, number]> = {
-  '16:9': [1280, 720],
-  '4:3': [960, 720],
-  letter: [816, 1056],
+  '16:9': [48 * CELL, 27 * CELL],
+  '4:3': [40 * CELL, 30 * CELL],
+  letter: [26 * CELL, 34 * CELL],
 };
 export const DEFAULT_CANVAS_SIZE: CanvasPreset = '16:9';

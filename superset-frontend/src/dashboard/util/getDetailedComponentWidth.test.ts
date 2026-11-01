@@ -18,10 +18,8 @@
  */
 import getDetailedComponentWidthOriginal from 'src/dashboard/util/getDetailedComponentWidth';
 import * as types from 'src/dashboard/util/componentTypes';
-import {
-  GRID_COLUMN_COUNT,
-  GRID_MIN_COLUMN_COUNT,
-} from 'src/dashboard/util/constants';
+import { GRID_MIN_COLUMN_COUNT } from 'src/dashboard/util/constants';
+import { gridColumnCount } from 'src/mibi/format/columns';
 
 // Cast to accept partial mock data in tests
 const getDetailedComponentWidth = getDetailedComponentWidthOriginal as (
@@ -91,14 +89,14 @@ describe('getDetailedComponentWidth', () => {
       ).toEqual({ width: 3, occupiedWidth: 0, minimumWidth: 1 });
     });
 
-    test('should be GRID_COLUMN_COUNT for row components WITHOUT parents', () => {
+    test('should be the canvas columns for row components WITHOUT parents', () => {
       expect(
         getDetailedComponentWidth({
           id: 'row',
           components: { row: { id: 'row', type: types.ROW_TYPE } },
         }),
       ).toEqual({
-        width: GRID_COLUMN_COUNT,
+        width: gridColumnCount(),
         occupiedWidth: 0,
         minimumWidth: GRID_MIN_COLUMN_COUNT,
       });

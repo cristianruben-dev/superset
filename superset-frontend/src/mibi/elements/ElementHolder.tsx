@@ -16,6 +16,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import { maxWidthCells } from 'src/mibi/format/positions';
+import { CELL } from 'src/mibi/format/types';
 import { minObjectColumns } from 'src/mibi/format/columns';
 import { memo, useCallback, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -28,24 +30,19 @@ import { Tooltip } from '@superset-ui/core/components';
 import { Icons } from '@superset-ui/core/components/Icons';
 import DeleteComponentButton from 'src/dashboard/components/DeleteComponentButton';
 import IconButton from 'src/dashboard/components/IconButton';
-import { Draggable } from 'src/dashboard/components/dnd/DragDroppable';
+import { MovableDraggable } from 'src/mibi/format/MovableDraggable';
 import HoverMenu from 'src/dashboard/components/menu/HoverMenu';
 import ResizableContainer from 'src/dashboard/components/resizable/ResizableContainer';
 import type { LayoutItem, RootState } from 'src/dashboard/types';
 import { COLUMN_TYPE, ROW_TYPE } from 'src/dashboard/util/componentTypes';
-import {
-  GRID_BASE_UNIT,
-  GRID_MIN_COLUMN_COUNT,
-} from 'src/dashboard/util/constants';
+import { GRID_MIN_COLUMN_COUNT } from 'src/dashboard/util/constants';
 import {
   openFormat,
   selectVisual,
   useSelectedVisual,
 } from 'src/mibi/format/selection';
 import { visualStyle } from 'src/mibi/format/styles';
-import { ObjectBadges } from 'src/mibi/format/ObjectFlags';
 import {
-  useCanvasMobile,
   useMaxHeightMultiple,
 } from 'src/mibi/format/CanvasFrame';
 import { setElementConfig } from './actions';
@@ -107,17 +104,14 @@ function ElementHolder({
   const config = (component.meta[ELEMENT_KEY] ??
     ELEMENT_DEFAULTS[kind].element) as ElementConfig;
   const selected = useSelectedVisual() === component.id && editMode;
-  const mobile = useCanvasMobile();
   const maxHeightMultiple = useMaxHeightMultiple(
     component.meta.height ?? ELEMENT_DEFAULTS[kind].height,
     parentComponent,
+    component.meta,
   );
   // A bookmark may show or hide the element for this visit
   const hiddenOverride = useHiddenOverride(component.id);
-  const hidden =
-    (hiddenOverride ?? !!component.meta.mibiHidden) ||
-    (mobile && !!component.meta.mibiHideMobile);
-  const locked = !!component.meta.mibiLocked;
+  const hidden = !!hiddenOverride;
   const box = useMemo(
     () => visualStyle(component.meta.mibiFormat, theme),
     [component.meta.mibiFormat, theme],
@@ -170,8 +164,7 @@ function ElementHolder({
   if (hidden && !editMode) return null;
 
   return (
-    <Draggable
-      disableDragDrop={locked}
+    <MovableDraggable
       component={component}
       parentComponent={parentComponent}
       orientation={parentComponent.type === ROW_TYPE ? 'column' : 'row'}
@@ -183,19 +176,21 @@ function ElementHolder({
       {({ dragSourceRef }: { dragSourceRef: ConnectDragSource }) => (
         <ResizableContainer
           id={component.id}
-          editMode={editMode && !locked}
+          editMode={editMode}
           adjustableWidth={parentComponent.type === ROW_TYPE}
           adjustableHeight
           widthStep={columnWidth}
           widthMultiple={widthMultiple}
-          heightStep={GRID_BASE_UNIT}
+          heightStep={CELL}
           heightMultiple={
             component.meta.height ?? ELEMENT_DEFAULTS[kind].height
           }
           minWidthMultiple={minObjectColumns()}
           minHeightMultiple={ELEMENT_MIN_ROW_UNITS}
           maxHeightMultiple={maxHeightMultiple}
-          maxWidthMultiple={availableColumnCount + widthMultiple}
+          maxWidthMultiple={
+          maxWidthCells(component.meta) ?? availableColumnCount + widthMultiple
+        }
           onResizeStart={onResizeStart}
           onResize={onResize}
           onResizeStop={onResizeStop}
@@ -211,21 +206,17 @@ function ElementHolder({
               selected && 'mibi-selected',
               editMode && 'mibi-element--editing',
               editMode && hidden && 'mibi-hidden',
-              editMode && locked && 'mibi-locked',
             )}
             style={box.style}
             onClickCapture={
               editMode ? () => selectVisual(component.id) : undefined
             }
           >
-            {editMode && <ObjectBadges item={component} />}
             {editMode && (
               <HoverMenu position="top">
-                {!locked && (
-                  <DeleteComponentButton
-                    onDelete={() => deleteComponent(id, parentId)}
-                  />
-                )}
+                <DeleteComponentButton
+                  onDelete={() => deleteComponent(id, parentId)}
+                />
                 <Tooltip title={t('Format')} placement="top">
                   <div data-test="mibi-format-element-button">
                     <IconButton
@@ -240,7 +231,7 @@ function ElementHolder({
           </div>
         </ResizableContainer>
       )}
-    </Draggable>
+    </MovableDraggable>
   );
 }
 

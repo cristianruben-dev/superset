@@ -29,8 +29,6 @@ import type {
   LayoutItem,
   RootState,
 } from 'src/dashboard/types';
-import { setObjectFlag } from './actions';
-import { CanvasFrame, useCanvasMobile } from './CanvasFrame';
 import {
   copyObject,
   pasteObject,
@@ -44,7 +42,6 @@ import {
   pasteFormat,
 } from './formatPainter';
 import { FormatPane } from './FormatPane';
-import { setMobilePreview } from './mobile';
 import { selectVisual } from './selection';
 
 const layout = {
@@ -113,32 +110,7 @@ const dispatcher = (store: ReturnType<typeof makeStore>) =>
 afterEach(() => {
   selectVisual(null);
   cancelFormatPainter();
-  setMobilePreview(false);
   window.localStorage.clear();
-});
-
-test('hides and locks objects, and clears the flag when turned off', () => {
-  const store = makeStore();
-  dispatcher(store)(setObjectFlag('DYNAMIC-a', 'mibiHidden', true));
-  dispatcher(store)(setObjectFlag('DYNAMIC-a', 'mibiLocked', true));
-  let { meta } = stateOf(store).dashboardLayout.present['DYNAMIC-a'];
-  expect(meta.mibiHidden).toBe(true);
-  expect(meta.mibiLocked).toBe(true);
-  dispatcher(store)(setObjectFlag('DYNAMIC-a', 'mibiHidden', false));
-  ({ meta } = stateOf(store).dashboardLayout.present['DYNAMIC-a']);
-  expect(meta).not.toHaveProperty('mibiHidden');
-});
-
-test('the Format pane toggles hide, lock and hide on mobile', () => {
-  const store = makeStore();
-  render(<FormatPane />, { store });
-  act(() => selectVisual('DYNAMIC-b'));
-  fireEvent.click(screen.getByTestId('mibi-toggle-hidden'));
-  fireEvent.click(screen.getByTestId('mibi-toggle-locked'));
-  fireEvent.click(screen.getByTestId('mibi-toggle-mobile'));
-  expect(
-    stateOf(store).dashboardLayout.present['DYNAMIC-b'].meta,
-  ).toMatchObject({ mibiHidden: true, mibiLocked: true, mibiHideMobile: true });
 });
 
 test('copying a format leaves the content behind', () => {
@@ -212,9 +184,8 @@ test('places a pasted object in its row when it fits, else in a row below', () =
   expect(below.BIG.parents).toEqual(['ROOT_ID', 'GRID_ID', row.id]);
 });
 
-test('copies and pastes a design element as a new, unlocked object', async () => {
+test('copies and pastes a design element as a new object', async () => {
   const store = makeStore();
-  dispatcher(store)(setObjectFlag('DYNAMIC-a', 'mibiLocked', true));
   dispatcher(store)(copyObject('DYNAMIC-a'));
   expect(readClipboard()).toMatchObject({ type: 'DYNAMIC', dashboardId: 7 });
   await dispatcher(store)(pasteObject('DYNAMIC-a'));
@@ -226,25 +197,5 @@ test('copies and pastes a design element as a new, unlocked object', async () =>
   );
   expect(copies).toHaveLength(2);
   const copy = copies.find(item => item.id !== 'DYNAMIC-a')!;
-  expect(copy.meta.mibiLocked).toBeUndefined();
   expect(present['ROW-1'].children).toContain(copy.id);
-});
-
-function MobileProbe() {
-  return <span data-test="probe">{String(useCanvasMobile())}</span>;
-}
-
-test('the phone preview narrows the canvas and turns on the mobile layout', () => {
-  const store = makeStore();
-  render(
-    <CanvasFrame>
-      <MobileProbe />
-    </CanvasFrame>,
-    { store },
-  );
-  expect(screen.getByTestId('probe')).toHaveTextContent('false');
-  act(() => setMobilePreview(true));
-  expect(screen.getByTestId('probe')).toHaveTextContent('true');
-  expect(screen.getByTestId('mibi-canvas')).toHaveStyle({ width: '390px' });
-  expect(screen.getByTestId('mibi-canvas')).toHaveClass('mibi-mobile');
 });

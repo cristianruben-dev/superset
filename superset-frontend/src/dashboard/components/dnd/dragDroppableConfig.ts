@@ -69,6 +69,8 @@ export interface DropResult {
     index: number;
   };
   position?: string;
+  /** Cell the dragged object lands on (AuraData BI) */
+  cell?: { x: number; y: number };
 }
 
 export interface DragStateProps {

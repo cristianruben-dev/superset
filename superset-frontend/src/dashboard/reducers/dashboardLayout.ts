@@ -44,6 +44,7 @@ import {
 } from '../actions/dashboardLayout';
 
 import { HYDRATE_DASHBOARD } from '../actions/hydrate';
+import { placeAt } from 'src/mibi/format/positions';
 import { DashboardLayout } from '../types';
 import { DropResult } from '../components/dnd/dragDroppableConfig';
 
@@ -161,10 +162,17 @@ const actionHandlers: Record<
       layout: state,
     }) as DashboardLayout;
 
-    return {
-      ...state,
-      ...newEntities,
-    };
+    const created = Object.values(newEntities).find(
+      entity => !state[entity.id] && entity.type === dropResult?.dragging?.type,
+    );
+    return placeAt(
+      {
+        ...state,
+        ...newEntities,
+      },
+      created?.id,
+      dropResult?.cell,
+    );
   },
 
   [MOVE_COMPONENT](
@@ -222,10 +230,14 @@ const actionHandlers: Record<
       nextEntities[newRow.id] = newRow as unknown as DashboardLayout[string];
     }
 
-    return {
-      ...state,
-      ...nextEntities,
-    };
+    return placeAt(
+      {
+        ...state,
+        ...nextEntities,
+      },
+      dragging.id,
+      dropResult.cell,
+    );
   },
 
   [CREATE_TOP_LEVEL_TABS](

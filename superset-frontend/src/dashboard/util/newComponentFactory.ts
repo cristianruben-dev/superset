@@ -16,7 +16,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { gridColumnCount, scaledWidth } from 'src/mibi/format/columns';
+import {
+  DEFAULT_OBJECT_COLUMNS,
+  DEFAULT_OBJECT_ROWS,
+  gridColumnCount,
+} from 'src/mibi/format/columns';
 import { nanoid } from 'nanoid';
 import { t } from '@apache-superset/core/translation';
 
@@ -32,12 +36,7 @@ import {
   DYNAMIC_TYPE,
 } from './componentTypes';
 
-import {
-  MEDIUM_HEADER,
-  BACKGROUND_TRANSPARENT,
-  GRID_DEFAULT_CHART_WIDTH,
-  GRID_COLUMN_COUNT,
-} from './constants';
+import { MEDIUM_HEADER, BACKGROUND_TRANSPARENT } from './constants';
 
 import { DashboardComponent, LayoutItemMeta } from '../types';
 
@@ -46,9 +45,12 @@ export interface DashboardEntity extends DashboardComponent {
 }
 
 const typeToDefaultMetaData: Record<string, LayoutItemMeta | null> = {
-  [CHART_TYPE]: { width: GRID_DEFAULT_CHART_WIDTH, height: 50 },
+  [CHART_TYPE]: {
+    width: DEFAULT_OBJECT_COLUMNS,
+    height: DEFAULT_OBJECT_ROWS,
+  },
   [COLUMN_TYPE]: {
-    width: GRID_DEFAULT_CHART_WIDTH,
+    width: DEFAULT_OBJECT_COLUMNS,
     background: BACKGROUND_TRANSPARENT,
   },
   [DIVIDER_TYPE]: null,
@@ -57,7 +59,10 @@ const typeToDefaultMetaData: Record<string, LayoutItemMeta | null> = {
     headerSize: MEDIUM_HEADER,
     background: BACKGROUND_TRANSPARENT,
   },
-  [MARKDOWN_TYPE]: { width: GRID_DEFAULT_CHART_WIDTH, height: 50 },
+  [MARKDOWN_TYPE]: {
+    width: DEFAULT_OBJECT_COLUMNS,
+    height: DEFAULT_OBJECT_ROWS,
+  },
   [ROW_TYPE]: { background: BACKGROUND_TRANSPARENT },
   [TABS_TYPE]: null,
   [TAB_TYPE]: {
@@ -66,7 +71,6 @@ const typeToDefaultMetaData: Record<string, LayoutItemMeta | null> = {
     placeholder: t('Tab title'),
   },
   [DYNAMIC_TYPE]: {
-    width: GRID_COLUMN_COUNT,
     background: BACKGROUND_TRANSPARENT,
   },
 };
@@ -88,13 +92,8 @@ export default function entityFactory(
     parents,
     meta: {
       ...defaults,
-      // Default widths take the same share of a 24 or 48 column grid
-      ...(defaults?.width !== undefined && {
-        width:
-          defaults.width === GRID_COLUMN_COUNT
-            ? gridColumnCount()
-            : scaledWidth(defaults.width),
-      }),
+      // A dynamic component spans the whole canvas by default
+      ...(type === DYNAMIC_TYPE && { width: gridColumnCount() }),
       ...meta,
     },
   };

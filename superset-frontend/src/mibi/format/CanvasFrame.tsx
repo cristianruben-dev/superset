@@ -28,20 +28,17 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import cx from 'classnames';
 import { fitToCanvas } from './actions';
-import { useShowGrid } from './gridGuides';
-import { PHONE_WIDTH, useMobilePreview, usePhoneScreen } from './mobile';
+import { usePhoneScreen } from './mobile';
 import { css, styled, useTheme } from '@apache-superset/core/theme';
 import type { LayoutItem, RootState } from 'src/dashboard/types';
 import { ROW_TYPE } from 'src/dashboard/util/componentTypes';
-import {
-  DASHBOARD_ROOT_ID,
-  GRID_BASE_UNIT,
-} from 'src/dashboard/util/constants';
+import { DASHBOARD_ROOT_ID } from 'src/dashboard/util/constants';
 import { usePresenting } from 'src/mibi/present/presentation';
 import { ReportTheme, useReportLook } from 'src/mibi/report/ReportTheme';
 import { TabsDockTarget } from 'src/mibi/report/TabsDock';
+import { posOf } from './positions';
 import { selectVisual } from './selection';
-import type { CanvasFormat } from './types';
+import { CELL, type CanvasFormat } from './types';
 import { canvasSize, canvasStyle, canvasZoom, hasCanvasFormat } from './styles';
 
 const Outer = styled.div`
@@ -60,7 +57,6 @@ const Page = styled.div<{ $decorated: boolean; $fixed: boolean }>`
     ${$decorated &&
     css`
       border-radius: ${theme.borderRadiusLG * 1.5}px;
-      padding: ${theme.sizeUnit * 4}px;
     `}
     ${$fixed &&
     css`
@@ -95,8 +91,10 @@ export const useCanvasMobile = () => useContext(CanvasMobileContext);
 export function useMaxHeightMultiple(
   height: number,
   parent: LayoutItem | undefined,
+  meta?: Record<string, unknown>,
 ): number | undefined {
   const room = useContext(CanvasRoomContext);
+  const pos = posOf(meta);
   const rowTallest = useSelector((state: RootState) => {
     if (parent?.type !== ROW_TYPE) return height;
     const layout = state.dashboardLayout?.present ?? {};
@@ -106,7 +104,9 @@ export function useMaxHeightMultiple(
     );
   });
   if (!Number.isFinite(room)) return undefined;
-  return Math.max(height, rowTallest + Math.floor(room / GRID_BASE_UNIT));
+  // An object on a cell of the page may grow to the bottom of the page
+  if (pos) return Math.max(height, Math.floor(room / CELL) - pos.y);
+  return Math.max(height, rowTallest + Math.floor(room / CELL));
 }
 
 /** True when the canvas has a color, gradient or picture of its own. */
@@ -136,17 +136,15 @@ export function CanvasFrame({ children }: { children: ReactNode }) {
   );
   const outerRef = useRef<HTMLDivElement>(null);
   const [available, setAvailable] = useState(0);
-  const previewing = useMobilePreview() && !!editMode;
   const phone = usePhoneScreen();
-  // Editing uses the desktop layout unless previewing the phone
-  const mobile = previewing || (phone && !editMode);
+  // Editing always uses the desktop layout
+  const mobile = phone && !editMode;
   // The mobile layout ignores the fixed page size
   const size = mobile ? null : canvasSize(canvas);
   const dispatch = useDispatch();
   const pageRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const [contentHeight, setContentHeight] = useState(0);
-  const [showGrid] = useShowGrid();
 
   // Height of the visuals, in canvas pixels (not zoomed)
   useEffect(() => {
@@ -205,6 +203,23 @@ export function CanvasFrame({ children }: { children: ReactNode }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [contentHeight, layout]);
 
+  // The drop targets between objects take no room (see skin.css), so they only
+  // listen while something is being dragged
+  useEffect(() => {
+    if (!editMode) return undefined;
+    const start = () => document.body.classList.add('mibi-dragging');
+    const end = () => document.body.classList.remove('mibi-dragging');
+    document.addEventListener('dragstart', start);
+    document.addEventListener('dragend', end);
+    document.addEventListener('drop', end);
+    return () => {
+      document.removeEventListener('dragstart', start);
+      document.removeEventListener('dragend', end);
+      document.removeEventListener('drop', end);
+      end();
+    };
+  }, [editMode]);
+
   // "Fit the objects to the page" in the Format pane
   useEffect(() => {
     if (!size || !editMode) return undefined;
@@ -253,9 +268,8 @@ export function CanvasFrame({ children }: { children: ReactNode }) {
             zoom,
           }
         : undefined),
-      ...(previewing ? { width: PHONE_WIDTH } : undefined),
     }),
-    [canvas, theme, look, size, zoom, previewing, editMode, overflowing],
+    [canvas, theme, look, size, zoom, editMode, overflowing],
   );
 
   // The tabs dock is as wide as the page and zoomed with it
@@ -263,11 +277,11 @@ export function CanvasFrame({ children }: { children: ReactNode }) {
     () =>
       size
         ? {
-            width: previewing ? PHONE_WIDTH : size.width,
+            width: size.width,
             zoom,
           }
         : { width: '100%' },
-    [size, zoom, previewing],
+    [size, zoom],
   );
 
   return (
@@ -279,9 +293,8 @@ export function CanvasFrame({ children }: { children: ReactNode }) {
           data-test="mibi-canvas"
           className={cx(
             'mibi-canvas',
-            editMode && showGrid && !mobile && 'mibi-show-grid',
+            editMode && !mobile && 'mibi-show-grid',
             mobile && 'mibi-mobile',
-            previewing && 'mibi-phone-preview',
           )}
           $decorated={hasCanvasFormat(canvas)}
           $fixed={!!size}

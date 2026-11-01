@@ -16,15 +16,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { useDispatch, useSelector } from 'react-redux';
 import { t } from '@apache-superset/core/translation';
 import { css, styled, useTheme } from '@apache-superset/core/theme';
-import { Button, Switch } from '@superset-ui/core/components';
-import { ColorField, Field, RangeField, Section, Segments } from './controls';
-import type { RootState } from 'src/dashboard/types';
-import { setColumnCount } from './actions';
-import { COLUMN_COUNTS, columnCountOf, type ColumnCount } from './columns';
-import { DEFAULT_GRID, useGridSettings, type GridStyle } from './gridGuides';
+import { Button } from '@superset-ui/core/components';
+import { ColorField, RangeField, Section } from './controls';
+import { CELL } from './types';
+import { DEFAULT_GRID, useGridSettings } from './gridGuides';
 
 const Hint = styled.p`
   ${({ theme }) => css`
@@ -34,132 +31,42 @@ const Hint = styled.p`
   `}
 `;
 
-/** Show and style the grid edit mode draws behind the visuals. */
+/** Style the grid edit mode draws behind the visuals. */
 export function GridSection() {
   const theme = useTheme();
-  const dispatch = useDispatch();
   const [grid, update] = useGridSettings();
-  const columns = useSelector((state: RootState) =>
-    columnCountOf(state.dashboardLayout?.present),
-  );
 
   return (
     <Section data-test="mibi-format-grid">
       <h4>{t('Grid')}</h4>
-      <Field
-        label={t('Grid columns')}
-        stacked
-        help={{
-          kind: 'gridColumns',
-          text: t(
-            'More columns let you place and size objects with finer steps.',
-          ),
-        }}
-      >
-        <Segments<`${ColumnCount}`>
-          name={t('Grid columns')}
-          value={`${columns}`}
-          onChange={value =>
-            dispatch(setColumnCount(Number(value) as ColumnCount))
-          }
-          testId="mibi-format-columns"
-          options={COLUMN_COUNTS.map(count => ({
-            value: `${count}` as `${ColumnCount}`,
-            label: String(count),
-          }))}
-        />
-      </Field>
+      <ColorField
+        label={t('Color')}
+        value={grid.color || theme.colorPrimary}
+        onChange={color => update({ color })}
+        testId="mibi-format-grid-color"
+      />
+      <RangeField
+        label={t('Opacity')}
+        value={grid.opacity}
+        min={5}
+        max={100}
+        unit="%"
+        onChange={opacity => update({ opacity })}
+        testId="mibi-format-grid-opacity"
+      />
       <Hint>
         {t(
-          'More columns let objects be smaller. It is saved with the dashboard, and the objects keep their size when it changes.',
+          'Only you see the grid, while editing. Each square is %s px, and objects are placed and sized in whole squares.',
+          CELL,
         )}
       </Hint>
-      <Field
-        label={t('Show grid')}
-        help={{
-          kind: 'gridLines',
-          text: t(
-            'Draws guides on the canvas while you edit. Viewers never see them.',
-          ),
-        }}
+      <Button
+        buttonStyle="link"
+        onClick={() => update({ ...DEFAULT_GRID, color: undefined })}
+        data-test="mibi-format-grid-reset"
       >
-        <Switch
-          size="small"
-          checked={grid.show}
-          aria-label={t('Show grid')}
-          data-test="mibi-format-show-grid"
-          onChange={show => update({ show })}
-        />
-      </Field>
-      {grid.show && (
-        <>
-          <Segments<GridStyle>
-            name={t('Grid style')}
-            value={grid.style}
-            onChange={style => update({ style })}
-            testId="mibi-format-grid-style"
-            options={[
-              { value: 'lines', label: t('Lines') },
-              { value: 'dots', label: t('Dots') },
-              { value: 'columns', label: t('Columns') },
-            ]}
-          />
-          {grid.style !== 'columns' && (
-            <Field label={t('Square cells')}>
-              <Switch
-                size="small"
-                checked={grid.square}
-                aria-label={t('Square cells')}
-                data-test="mibi-format-grid-square"
-                onChange={square => update({ square })}
-              />
-            </Field>
-          )}
-          {grid.style !== 'columns' && !grid.square && (
-            <RangeField
-              label={t('Row height')}
-              help={{
-                kind: 'gridRows',
-                text: t('Height of each row of the grid.'),
-              }}
-              value={grid.spacing}
-              min={8}
-              max={96}
-              step={8}
-              onChange={spacing => update({ spacing })}
-              testId="mibi-format-grid-spacing"
-            />
-          )}
-          <ColorField
-            label={t('Color')}
-            value={grid.color || theme.colorPrimary}
-            onChange={color => update({ color })}
-            testId="mibi-format-grid-color"
-          />
-          <RangeField
-            label={t('Opacity')}
-            value={grid.opacity}
-            min={5}
-            max={100}
-            unit="%"
-            onChange={opacity => update({ opacity })}
-            testId="mibi-format-grid-opacity"
-          />
-          <Hint>
-            {t(
-              'Only you see the grid, while editing. Objects snap to its %s columns when resized, and their height moves in steps of 8 px.',
-              columns,
-            )}
-          </Hint>
-          <Button
-            buttonStyle="link"
-            onClick={() => update({ ...DEFAULT_GRID, color: undefined })}
-            data-test="mibi-format-grid-reset"
-          >
-            {t('Reset grid')}
-          </Button>
-        </>
-      )}
+        {t('Reset grid')}
+      </Button>
     </Section>
   );
 }

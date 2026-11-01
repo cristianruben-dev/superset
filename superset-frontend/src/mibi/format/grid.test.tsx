@@ -31,77 +31,35 @@ test('reads the stored grid and repairs bad values', () => {
   expect(readGrid()).toEqual(DEFAULT_GRID);
   window.localStorage.setItem(
     'mibi.grid',
-    JSON.stringify({ show: false, style: 'waves', spacing: 1000, opacity: -4 }),
+    JSON.stringify({ show: false, style: 'dots', opacity: -4 }),
   );
-  expect(readGrid()).toEqual({
-    show: false,
-    style: 'lines',
-    square: true,
-    spacing: 96,
-    color: undefined,
-    opacity: 5,
-  });
+  expect(readGrid()).toEqual({ color: undefined, opacity: 5 });
   window.localStorage.setItem('mibi.grid', '{not json');
   expect(readGrid()).toEqual(DEFAULT_GRID);
 });
 
-test('keeps the older on/off preference', () => {
-  window.localStorage.setItem('mibi.showGrid', 'false');
-  expect(readGrid().show).toBe(false);
-});
-
-test('draws columns and rows, dots or column bands', () => {
-  // Square cells by default: rows as tall as a column and its gap
-  const lines = gridBackground(DEFAULT_GRID, 100, 16, '#5b5bd6');
-  expect(lines.backgroundSize).toBe('116px 100%, 100% 116px');
-  const free = gridBackground(
-    { ...DEFAULT_GRID, square: false },
-    100,
-    16,
-    '#5b5bd6',
-  );
-  expect(free.backgroundSize).toBe('116px 100%, 100% 32px');
+test('draws lines around square cells of 32 px', () => {
+  const lines = gridBackground(DEFAULT_GRID, '#5b5bd6');
+  expect(lines.backgroundSize).toBe('32px 32px');
+  expect(String(lines.backgroundImage)).toContain('to right');
   expect(String(lines.backgroundImage)).toContain('to bottom');
-
-  const dots = gridBackground(
-    { ...DEFAULT_GRID, style: 'dots', square: false, spacing: 24 },
-    100,
-    16,
-    '#5b5bd6',
-  );
-  expect(String(dots.backgroundImage)).toContain('radial-gradient');
-  expect(dots.backgroundSize).toBe('116px 24px');
-
-  const columns = gridBackground(
-    { ...DEFAULT_GRID, style: 'columns' },
-    100,
-    16,
-    '#5b5bd6',
-  );
-  expect(String(columns.backgroundImage)).not.toContain('to bottom');
 });
 
 test('styles the grid from the Format pane and remembers it', () => {
   render(
     <>
       <GridSection />
-      <GridGuide columnWidth={100} gutter={16} />
+      <GridGuide />
     </>,
     { useRedux: true },
   );
   const guide = screen.getByTestId('mibi-grid-guide');
-  expect(guide.style.backgroundSize).toBe('116px 100%, 100% 116px');
+  expect(guide).toHaveStyle({ backgroundSize: '32px 32px' });
 
-  fireEvent.click(screen.getByRole('switch', { name: 'Square cells' }));
-  expect(guide.style.backgroundSize).toBe('116px 100%, 100% 32px');
-
-  fireEvent.click(screen.getByRole('radio', { name: 'Dots' }));
-  expect(guide.style.backgroundSize).toBe('116px 32px');
-  expect(JSON.parse(window.localStorage.getItem('mibi.grid')!).style).toBe(
-    'dots',
+  fireEvent.click(screen.getByRole('button', { name: 'Reset grid' }));
+  expect(JSON.parse(window.localStorage.getItem('mibi.grid')!).opacity).toBe(
+    DEFAULT_GRID.opacity,
   );
-
-  fireEvent.click(screen.getByRole('switch', { name: 'Show grid' }));
-  expect(screen.queryByTestId('mibi-grid-guide')).not.toBeInTheDocument();
-  expect(screen.queryByRole('radio', { name: 'Dots' })).not.toBeInTheDocument();
+  // The grid is always there: it has no switch
+  expect(screen.queryByRole('switch')).not.toBeInTheDocument();
 });

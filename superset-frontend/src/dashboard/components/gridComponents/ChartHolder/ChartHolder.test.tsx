@@ -40,7 +40,7 @@ import {
   ROW_TYPE,
 } from '../../../util/componentTypes';
 import ChartHolder, { CHART_MARGIN } from './ChartHolder';
-import { GRID_BASE_UNIT, GRID_GUTTER_SIZE } from '../../../util/constants';
+import { CELL } from 'src/mibi/format/types';
 
 const DEFAULT_HEADER_HEIGHT = 22;
 
@@ -224,9 +224,7 @@ describe('ChartHolder', () => {
       .getElementsByClassName('resizable-container')[0];
 
     const { width: computedWidth } = getComputedStyle(resizeContainer);
-    const expectedWidth =
-      (defaultProps.columnWidth + GRID_GUTTER_SIZE) * widthMultiple -
-      GRID_GUTTER_SIZE;
+    const expectedWidth = defaultProps.columnWidth * widthMultiple;
 
     expect(computedWidth).toEqual(`${expectedWidth}px`);
   });
@@ -281,9 +279,7 @@ describe('ChartHolder', () => {
       .getElementsByClassName('resizable-container')[0];
 
     const { width: computedWidth } = getComputedStyle(resizeContainer);
-    const expectedWidth =
-      (defaultProps.columnWidth + GRID_GUTTER_SIZE) * parentColumnWidth -
-      GRID_GUTTER_SIZE;
+    const expectedWidth = defaultProps.columnWidth * parentColumnWidth;
 
     expect(computedWidth).toEqual(`${expectedWidth}px`);
   });
@@ -311,9 +307,7 @@ describe('ChartHolder', () => {
 
     const computedWidth = parseInt(container.getAttribute('width') || '0', 10);
     const expectedWidth = Math.floor(
-      widthMultiple * columnWidth +
-        (widthMultiple - 1) * GRID_GUTTER_SIZE -
-        CHART_MARGIN,
+      widthMultiple * columnWidth - CHART_MARGIN,
     );
 
     expect(computedWidth).toEqual(expectedWidth);
@@ -366,7 +360,7 @@ describe('ChartHolder', () => {
 
     const computedWidth = parseInt(container.getAttribute('height') || '0', 10);
     const expectedWidth = Math.floor(
-      heightMultiple * GRID_BASE_UNIT - CHART_MARGIN - DEFAULT_HEADER_HEIGHT,
+      heightMultiple * CELL - CHART_MARGIN - DEFAULT_HEADER_HEIGHT,
     );
 
     expect(computedWidth).toEqual(expectedWidth);
@@ -453,7 +447,7 @@ describe('ChartHolder', () => {
     });
 
     const holder = screen.getByTestId('dashboard-component-chart-holder');
-    expect(holder.style.backgroundColor).toBe('transparent');
+    expect(holder).toHaveStyle({ backgroundColor: 'transparent' });
     expect(holder.style.getPropertyValue('--mb-v-radius')).toBe('4px');
     expect(holder).toHaveClass('mibi-title-hidden');
     expect(screen.getByTestId('mibi-format-visual-button')).toBeInTheDocument();
@@ -485,7 +479,7 @@ describe('ChartHolder', () => {
 
     const holder = screen.getByTestId('dashboard-component-chart-holder');
     expect(holder.style.getPropertyValue('--mb-v-radius')).toBe('9px');
-    expect(holder.style.boxShadow).toBe('none');
+    expect(holder).toHaveStyle({ boxShadow: 'none' });
   });
 
   test('hides a hidden chart from viewers and fades it for editors', () => {

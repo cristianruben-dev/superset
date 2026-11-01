@@ -16,6 +16,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import { maxWidthCells } from 'src/mibi/format/positions';
+import { CELL } from 'src/mibi/format/types';
 import { FC, Suspense } from 'react';
 import { t } from '@apache-superset/core/translation';
 import { DashboardComponentMetadata, JsonObject } from '@superset-ui/core';
@@ -24,13 +26,12 @@ import cx from 'classnames';
 import { shallowEqual, useSelector } from 'react-redux';
 import { ResizeCallback, ResizeStartCallback } from 're-resizable';
 import type { ConnectDragSource } from 'react-dnd';
-import { Draggable } from '../../dnd/DragDroppable';
+import { MovableDraggable } from 'src/mibi/format/MovableDraggable';
 import { COLUMN_TYPE, ROW_TYPE } from '../../../util/componentTypes';
 import WithPopoverMenu from '../../menu/WithPopoverMenu';
 import ResizableContainer from '../../resizable/ResizableContainer';
 import {
   BACKGROUND_TRANSPARENT,
-  GRID_BASE_UNIT,
   GRID_MIN_COLUMN_COUNT,
 } from '../../../util/constants';
 import HoverMenu from '../../menu/HoverMenu';
@@ -110,7 +111,7 @@ const DynamicComponent: FC<DynamicComponentProps> = ({
   );
 
   return (
-    <Draggable
+    <MovableDraggable
       component={component}
       parentComponent={parentComponent}
       orientation={parentComponent.type === ROW_TYPE ? 'column' : 'row'}
@@ -145,12 +146,14 @@ const DynamicComponent: FC<DynamicComponentProps> = ({
               adjustableWidth={parentComponent.type === ROW_TYPE}
               widthStep={columnWidth}
               widthMultiple={widthMultiple}
-              heightStep={GRID_BASE_UNIT}
+              heightStep={CELL}
               adjustableHeight={false}
               heightMultiple={component.meta.height}
               minWidthMultiple={GRID_MIN_COLUMN_COUNT}
               minHeightMultiple={GRID_MIN_COLUMN_COUNT}
-              maxWidthMultiple={availableColumnCount + widthMultiple}
+              maxWidthMultiple={
+          maxWidthCells(component.meta) ?? availableColumnCount + widthMultiple
+        }
               onResizeStart={onResizeStart}
               onResize={onResize}
               onResizeStop={onResizeStop}
@@ -173,7 +176,7 @@ const DynamicComponent: FC<DynamicComponentProps> = ({
           </div>
         </WithPopoverMenu>
       )}
-    </Draggable>
+    </MovableDraggable>
   );
 };
 export default DynamicComponent;

@@ -24,10 +24,8 @@ import { t } from '@apache-superset/core/translation';
 import { css, SupersetTheme } from '@apache-superset/core/theme';
 import SliceAdder from 'src/dashboard/containers/SliceAdder';
 import dashboardComponents from 'src/visualizations/presets/dashboardComponents';
-import NewColumn from '../gridComponents/new/NewColumn';
 import NewDivider from '../gridComponents/new/NewDivider';
 import NewHeader from '../gridComponents/new/NewHeader';
-import NewRow from '../gridComponents/new/NewRow';
 import NewTabs from '../gridComponents/new/NewTabs';
 import NewMarkdown from '../gridComponents/new/NewMarkdown';
 import NewDynamicComponent from '../gridComponents/new/NewDynamicComponent';
@@ -36,7 +34,6 @@ import { NewElements } from 'src/mibi/elements/NewElements';
 import { BookmarksPane } from 'src/mibi/report/BookmarksPane';
 import { selectVisual, useOnOpenFormat } from 'src/mibi/format/selection';
 import { useObjectShortcuts } from 'src/mibi/format/useObjectCommands';
-import { setMobilePreview } from 'src/mibi/format/mobile';
 
 const BUILDER_PANE_WIDTH = 374;
 
@@ -54,7 +51,6 @@ const BuilderComponentPane = ({ topOffset = 0 }) => {
   useEffect(
     () => () => {
       selectVisual(null);
-      setMobilePreview(false);
     },
     [],
   );
@@ -121,8 +117,6 @@ const BuilderComponentPane = ({ topOffset = 0 }) => {
                 <>
                   <NewElements />
                   <NewTabs />
-                  <NewRow />
-                  <NewColumn />
                   <NewHeader />
                   <NewMarkdown />
                   <NewDivider />

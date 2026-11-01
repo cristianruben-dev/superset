@@ -17,61 +17,61 @@
  * under the License.
  */
 /**
- * Grid density: how many columns a dashboard's layout has. Upstream Superset
- * always uses GRID_COLUMN_COUNT (12); AuraData BI lets a dashboard use 24 or 48 so
- * objects can be smaller. Widths in the layout are in the dashboard's own
- * columns, and the count is kept on the root component (COLUMN_COUNT_KEY).
+ * The grid of the canvas: square cells of CELL pixels. The canvas size is a
+ * whole number of cells, so the number of columns of a layout is its width in
+ * cells, and every width and height in the layout is in cells too.
  *
- * Code that runs outside React (reducers, factories) reads the count of the
+ * Code that runs outside React (reducers, factories) reads the columns of the
  * dashboard being edited with gridColumnCount(); the layout reducer keeps it
  * in sync on every change, undo and redo included.
  */
+import { DASHBOARD_ROOT_ID } from 'src/dashboard/util/constants';
+import { canvasSize } from './styles';
 import {
-  DASHBOARD_ROOT_ID,
-  GRID_COLUMN_COUNT,
-} from 'src/dashboard/util/constants';
+  CANVAS_FORMAT_KEY,
+  CELL,
+  DEFAULT_CANVAS_SIZE,
+  CANVAS_PRESETS,
+} from './types';
 
-export const COLUMN_COUNT_KEY = 'mibiColumns';
-export const COLUMN_COUNTS = [12, 24, 48] as const;
-export type ColumnCount = (typeof COLUMN_COUNTS)[number];
+export { CELL };
+
+/** Layout root meta key marking a layout whose sizes are in cells. */
+export const CELLS_KEY = 'mibiCells';
+/** Layout root meta key that held the column count before the cell grid. */
+export const LEGACY_COLUMN_COUNT_KEY = 'mibiColumns';
 
 type LayoutLike = Record<
   string,
   { meta?: Record<string, unknown> } | undefined
 >;
 
-const isColumnCount = (value: unknown): value is ColumnCount =>
-  COLUMN_COUNTS.includes(value as ColumnCount);
+const DEFAULT_COLUMNS = CANVAS_PRESETS[DEFAULT_CANVAS_SIZE][0] / CELL;
 
-/** The column count of a layout: 12 unless its root says otherwise. */
-export function columnCountOf(
-  layout: LayoutLike | null | undefined,
-): ColumnCount {
-  const value = layout?.[DASHBOARD_ROOT_ID]?.meta?.[COLUMN_COUNT_KEY];
-  return isColumnCount(value) ? value : GRID_COLUMN_COUNT;
+/** The columns of a layout: the width of its canvas, in cells. */
+export function columnCountOf(layout: LayoutLike | null | undefined): number {
+  const canvas = layout?.[DASHBOARD_ROOT_ID]?.meta?.[CANVAS_FORMAT_KEY];
+  return Math.round(
+    canvasSize(canvas as Parameters<typeof canvasSize>[0]).width / CELL,
+  );
 }
 
-let current: ColumnCount = GRID_COLUMN_COUNT;
+let current = DEFAULT_COLUMNS;
 
-/** The column count of the dashboard being shown or edited. */
-export const gridColumnCount = (): ColumnCount => current;
+/** The columns of the dashboard being shown or edited. */
+export const gridColumnCount = (): number => current;
 
 /** Follows the layout of the dashboard being shown or edited. */
 export function syncGridColumnCount(layout: LayoutLike | null | undefined) {
   current = columnCountOf(layout);
 }
 
-/**
- * A width given in 12-column units (Superset's defaults) in ``count``
- * columns, so a default chart takes the same share of every grid.
- */
-export const scaledWidth = (width: number, count: number = current) =>
-  Math.max(1, Math.round((width * count) / GRID_COLUMN_COUNT));
+/** The narrowest an object can be, in cells. */
+export const minObjectColumns = () => 2;
 
-/**
- * The narrowest an object can be, in columns: about 48 px on a 1280 px
- * canvas. Denser grids have thinner columns than the fixed gap between
- * objects, so one column alone would be almost nothing.
- */
-export const minObjectColumns = (count: number = current) =>
-  Math.max(1, Math.round(count / 16));
+/** The shortest an object can be, in cells. */
+export const MIN_OBJECT_ROWS = 2;
+
+/** Default size of a new chart or element, in cells. */
+export const DEFAULT_OBJECT_COLUMNS = 12;
+export const DEFAULT_OBJECT_ROWS = 12;

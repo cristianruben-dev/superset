@@ -41,26 +41,3 @@ export function usePhoneScreen(): boolean {
 }
 /** Width of the phone preview in edit mode. */
 export const PHONE_WIDTH = 390;
-/** Layout meta key hiding an object from the mobile layout. */
-export const HIDE_MOBILE_KEY = 'mibiHideMobile';
-
-const EVENT = 'mibi:mobile-preview';
-let preview = false;
-
-/** Shows the phone preview of the canvas while editing (not saved). */
-export function setMobilePreview(value: boolean) {
-  if (preview === value) return;
-  preview = value;
-  window.dispatchEvent(new CustomEvent(EVENT));
-}
-
-export function useMobilePreview(): boolean {
-  const [value, setValue] = useState(preview);
-  useEffect(() => {
-    const onChange = () => setValue(preview);
-    window.addEventListener(EVENT, onChange);
-    onChange();
-    return () => window.removeEventListener(EVENT, onChange);
-  }, []);
-  return value;
-}

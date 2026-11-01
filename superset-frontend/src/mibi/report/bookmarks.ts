@@ -27,7 +27,6 @@ import { DASHBOARD_ROOT_ID } from 'src/dashboard/util/constants';
 import { updateDataMask } from 'src/dataMask/actions';
 import { elementKind } from 'src/mibi/elements/types';
 import { setComponentMeta } from 'src/mibi/format/actions';
-import { HIDDEN_KEY } from 'src/mibi/format/types';
 import { topLevelTabs } from 'src/mibi/present/dashboardTabs';
 import { BOOKMARKS_KEY, type Bookmark, type BookmarkOptions } from './types';
 import { setVisibilityOverrides, visibilityOverride } from './visibility';
@@ -98,7 +97,7 @@ function captureView(
   const visibility: Record<string, boolean> = {};
   objectIds(layout).forEach(id => {
     visibility[id] =
-      visibilityOverride(dashboardId, id) ?? !!layout[id].meta[HIDDEN_KEY];
+      visibilityOverride(dashboardId, id) ?? false;
   });
   return { page, filters, visibility };
 }

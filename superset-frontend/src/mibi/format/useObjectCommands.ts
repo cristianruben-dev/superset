@@ -31,6 +31,7 @@ import {
   pasteObject,
   readClipboard,
 } from './clipboard';
+import { nudgeObject } from './actions';
 import { selectedVisual } from './selection';
 
 type AppDispatch = ThunkDispatch<RootState, undefined, AnyAction>;
@@ -81,11 +82,37 @@ export function useObjectCommands() {
   return { copy, paste, duplicate };
 }
 
-/** Ctrl/Cmd + C, V and D on the selected object while editing. */
+/** Cells an arrow key moves the selected object by. */
+const ARROWS: Record<string, [number, number]> = {
+  ArrowLeft: [-1, 0],
+  ArrowRight: [1, 0],
+  ArrowUp: [0, -1],
+  ArrowDown: [0, 1],
+};
+
+/**
+ * Ctrl/Cmd + C, V and D on the selected object while editing, and the arrow
+ * keys to move it a cell (five with Shift).
+ */
 export function useObjectShortcuts() {
   const { copy, paste, duplicate } = useObjectCommands();
+  const dispatch = useDispatch<AppDispatch>();
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
+      const arrow = ARROWS[event.key];
+      if (arrow && !event.ctrlKey && !event.metaKey && !event.altKey) {
+        const picked = selectedVisual();
+        const typing = (event.target as HTMLElement | null)?.closest?.(
+          'input, textarea, select, [contenteditable="true"], .ant-select, .ant-slider',
+        );
+        if (picked && !typing) {
+          // Shift moves five cells at a time
+          const steps = event.shiftKey ? 5 : 1;
+          event.preventDefault();
+          dispatch(nudgeObject(picked, arrow[0] * steps, arrow[1] * steps));
+        }
+        return;
+      }
       if (!(event.ctrlKey || event.metaKey) || event.altKey) return;
       const target = event.target as HTMLElement | null;
       if (
@@ -110,5 +137,5 @@ export function useObjectShortcuts() {
     };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [copy, duplicate, paste]);
+  }, [copy, dispatch, duplicate, paste]);
 }

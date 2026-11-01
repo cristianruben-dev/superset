@@ -19,7 +19,6 @@
 import { PureComponent, Fragment } from 'react';
 import { withTheme } from '@emotion/react';
 import classNames from 'classnames';
-import { addAlpha } from '@superset-ui/core';
 import { css, styled, type SupersetTheme } from '@apache-superset/core/theme';
 import { t } from '@apache-superset/core/translation';
 import { EmptyState } from '@superset-ui/core/components';
@@ -29,7 +28,7 @@ import type { LayoutItem } from 'src/dashboard/types';
 import type { DropResult } from 'src/dashboard/components/dnd/dragDroppableConfig';
 import DashboardComponent from '../containers/DashboardComponent';
 import { Droppable } from './dnd/DragDroppable';
-import { GRID_GUTTER_SIZE } from '../util/constants';
+import { CELL } from 'src/mibi/format/types';
 import { gridColumnCount } from 'src/mibi/format/columns';
 import { GridGuide } from 'src/mibi/format/gridGuides';
 import { TAB_TYPE } from '../util/componentTypes';
@@ -135,20 +134,6 @@ const GridContent = styled.div<{ editMode?: boolean }>`
   `}
 `;
 
-const GridColumnGuide = styled.div`
-  ${({ theme }) => css`
-    // /* Editing guides */
-    &.grid-column-guide {
-      position: absolute;
-      top: 0;
-      min-height: 100%;
-      background-color: ${addAlpha(theme.colorPrimary, 0.1)};
-      pointer-events: none;
-      box-shadow: inset 0 0 0 1px ${addAlpha(theme.colorPrimary, 0.6)};
-    }
-  `};
-`;
-
 class DashboardGrid extends PureComponent<
   DashboardGridProps,
   DashboardGridState
@@ -248,11 +233,7 @@ class DashboardGrid extends PureComponent<
       dashboardId,
       theme,
     } = this.props;
-    const columnPlusGutterWidth =
-      (width + GRID_GUTTER_SIZE) / gridColumnCount();
-
-    const columnWidth = columnPlusGutterWidth - GRID_GUTTER_SIZE;
-    const { isResizing } = this.state;
+    const columnWidth = CELL;
 
     const shouldDisplayEmptyState = gridComponent?.children?.length === 0;
     const shouldDisplayTopLevelTabEmptyState =
@@ -334,9 +315,7 @@ class DashboardGrid extends PureComponent<
             data-test="grid-content"
             editMode={editMode}
           >
-            {editMode && (
-              <GridGuide columnWidth={columnWidth} gutter={GRID_GUTTER_SIZE} />
-            )}
+            {editMode && <GridGuide />}
             {/* make the area above components droppable */}
             {editMode && (
               <Droppable
@@ -389,22 +368,6 @@ class DashboardGrid extends PureComponent<
                 )}
               </Fragment>
             ))}
-            {/* Shown while resizing */}
-            {isResizing &&
-              Array(gridColumnCount())
-                .fill(null)
-                .map((_, i) => (
-                  <GridColumnGuide
-                    key={`grid-column-${i}`}
-                    className={`grid-column-guide${
-                      isResizing ? ' grid-column-guide--resizing' : ''
-                    }`}
-                    style={{
-                      left: i * GRID_GUTTER_SIZE + i * columnWidth,
-                      width: columnWidth,
-                    }}
-                  />
-                ))}
           </GridContent>
         </div>
       </>

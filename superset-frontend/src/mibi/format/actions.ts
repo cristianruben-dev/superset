@@ -25,24 +25,14 @@ import type { GetState, LayoutItem, RootState } from 'src/dashboard/types';
 import {
   DASHBOARD_GRID_ID,
   DASHBOARD_ROOT_ID,
-  GRID_BASE_UNIT,
-  GRID_COLUMN_COUNT,
   GRID_MIN_ROW_UNITS,
 } from 'src/dashboard/util/constants';
 import { activeTabIndex, topLevelTabs } from 'src/mibi/present/dashboardTabs';
-import {
-  CHART_TYPE,
-  COLUMN_TYPE,
-  ROW_TYPE,
-} from 'src/dashboard/util/componentTypes';
-import {
-  COLUMN_COUNT_KEY,
-  columnCountOf,
-  minObjectColumns,
-  type ColumnCount,
-} from './columns';
+import { CHART_TYPE, ROW_TYPE } from 'src/dashboard/util/componentTypes';
+import { placeAt, posOf, type Pos } from './positions';
 import {
   CANVAS_FORMAT_KEY,
+  CELL,
   VISUAL_FORMAT_KEY,
   type CanvasFormat,
   type VisualFormat,
@@ -87,6 +77,43 @@ export const setComponentMeta =
     dispatch(updateLayout({ [id]: withMeta(item, key, value) }, group));
   };
 
+/** Puts an object on a cell of the page, in one undo step. */
+export const moveObject =
+  (id: string, cell: Pos, group = `move:${id}:${Date.now()}`) =>
+  (dispatch: AppDispatch, getState: GetState) => {
+    const layout = getState().dashboardLayout.present;
+    const next = placeAt(layout, id, cell);
+    if (next !== layout) dispatch(updateLayout({ [id]: next[id] }, group));
+  };
+
+/** Sets the size and the cell of an object at once, in one undo step. */
+export const resizeObject =
+  (id: string, size: { width: number; height: number }, cell: Pos) =>
+  (dispatch: AppDispatch, getState: GetState) => {
+    const item = getState().dashboardLayout.present[id];
+    if (!item) return;
+    dispatch(
+      updateLayout(
+        {
+          [id]: {
+            ...item,
+            meta: { ...item.meta, ...size, mibiPos: { x: cell.x, y: cell.y } },
+          },
+        },
+        `resize:${id}:${Date.now()}`,
+      ),
+    );
+  };
+
+/** Moves an object by whole cells; keys held down group into one undo step. */
+export const nudgeObject =
+  (id: string, dx: number, dy: number) =>
+  (dispatch: AppDispatch, getState: GetState) => {
+    const pos = posOf(getState().dashboardLayout.present[id]?.meta);
+    if (!pos) return;
+    dispatch(moveObject(id, { x: pos.x + dx, y: pos.y + dy }, `nudge:${id}`));
+  };
+
 /** Sets (or clears, with undefined) the format of a visual. */
 export const setVisualFormat =
   (id: string, format: VisualFormat | undefined, group = `visual:${id}`) =>
@@ -95,20 +122,6 @@ export const setVisualFormat =
     if (!item) return;
     dispatch(
       updateLayout({ [id]: withMeta(item, VISUAL_FORMAT_KEY, format) }, group),
-    );
-  };
-
-/** Hides an object from viewers, or locks it in place (HIDDEN_KEY, LOCKED_KEY). */
-export const setObjectFlag =
-  (id: string, key: string, value: boolean) =>
-  (dispatch: AppDispatch, getState: GetState) => {
-    const item = getState().dashboardLayout.present[id];
-    if (!item) return;
-    dispatch(
-      updateLayout(
-        { [id]: withMeta(item, key, value || undefined) },
-        `flag:${id}:${key}:${Date.now()}`,
-      ),
     );
   };
 
@@ -186,80 +199,8 @@ export const setCanvasFormat =
     );
   };
 
-/**
- * The layout components to change so a layout in its column count uses
- * ``next`` columns: every width takes the same share of the grid, rows that
- * rounding makes too wide give a column back from their widest object, and
- * objects in a column stay within it.
- */
-export function rescaleLayout(
-  layout: Record<string, LayoutItem>,
-  next: ColumnCount,
-): Record<string, LayoutItem> {
-  const current = columnCountOf(layout);
-  const root = layout[DASHBOARD_ROOT_ID];
-  if (!root || current === next) return {};
-  const widths: Record<string, number> = {};
-  Object.values(layout).forEach(item => {
-    if (typeof item?.meta?.width === 'number') {
-      widths[item.id] = Math.min(
-        next,
-        Math.max(
-          minObjectColumns(next),
-          Math.round((item.meta.width * next) / current),
-        ),
-      );
-    }
-  });
-  Object.values(layout).forEach(item => {
-    if (item?.type === ROW_TYPE) {
-      const sized = item.children.filter(id => widths[id] !== undefined);
-      let total = sized.reduce((sum, id) => sum + widths[id], 0);
-      while (total > next) {
-        const widest = sized.reduce((a, b) => (widths[b] > widths[a] ? b : a));
-        if (widths[widest] <= minObjectColumns(next)) break;
-        widths[widest] -= 1;
-        total -= 1;
-      }
-    }
-  });
-  Object.values(layout).forEach(item => {
-    if (item?.type === COLUMN_TYPE && widths[item.id] !== undefined) {
-      const visit = (id: string) => {
-        if (widths[id] !== undefined) {
-          widths[id] = Math.min(widths[id], widths[item.id]);
-        }
-        layout[id]?.children.forEach(visit);
-      };
-      item.children.forEach(visit);
-    }
-  });
-
-  const changed: Record<string, LayoutItem> = {};
-  Object.entries(widths).forEach(([id, width]) => {
-    if (width !== layout[id].meta.width) {
-      changed[id] = { ...layout[id], meta: { ...layout[id].meta, width } };
-    }
-  });
-  changed[DASHBOARD_ROOT_ID] = withMeta(
-    root,
-    COLUMN_COUNT_KEY,
-    next === GRID_COLUMN_COUNT ? undefined : next,
-  );
-  return changed;
-}
-
-/** Changes the grid density of the dashboard, in one undo step. */
-export const setColumnCount =
-  (next: ColumnCount) => (dispatch: AppDispatch, getState: GetState) => {
-    const changed = rescaleLayout(getState().dashboardLayout.present, next);
-    if (Object.keys(changed).length) {
-      dispatch(updateLayout(changed, `columns:${Date.now()}`));
-    }
-  };
-
-/** Room each row takes besides its visuals: the gutter below it. */
-const ROW_OVERHEAD = 16;
+/** Room each row takes besides its visuals: rows touch, so none. */
+const ROW_OVERHEAD = 0;
 
 /**
  * Shrinks or grows the visuals on screen (the active page) so their content,
@@ -302,8 +243,8 @@ export const fitToCanvas =
     }
   };
 
-/** Height in pixels of a layout height in grid units. */
-export const gridUnitsToPixels = (units: number) => units * GRID_BASE_UNIT;
+/** Height in pixels of a layout height in cells. */
+export const gridUnitsToPixels = (units: number) => units * CELL;
 
 /** Uploads the canvas background picture and returns its URL. */
 export async function uploadBackground(

@@ -22,8 +22,7 @@ import type { SupersetTheme } from '@apache-superset/core/theme';
 import {
   CANVAS_PRESETS,
   DEFAULT_CANVAS_SIZE,
-  DEFAULT_GAP,
-  DEFAULT_PADDING,
+  CELL,
   MAX_CANVAS,
   MIN_CANVAS,
   type CanvasFormat,
@@ -128,10 +127,6 @@ export function visualStyle(
   };
 }
 
-/** Half of the change in space between visuals, applied as a card margin. */
-export const gapInset = (canvas: CanvasFormat | undefined) =>
-  ((canvas?.gap ?? DEFAULT_GAP) - DEFAULT_GAP) / 2;
-
 /** The page size of the canvas, DEFAULT_CANVAS_SIZE unless it has another. */
 export function canvasSize(canvas: CanvasFormat | undefined): {
   width: number;
@@ -139,9 +134,11 @@ export function canvasSize(canvas: CanvasFormat | undefined): {
 } {
   const size = canvas?.size;
   if (size?.mode === 'custom') {
+    const cells = (pixels: number) =>
+      clamp(Math.round(pixels / CELL) * CELL, MIN_CANVAS, MAX_CANVAS);
     return {
-      width: clamp(Math.round(size.width || 1280), MIN_CANVAS, MAX_CANVAS),
-      height: clamp(Math.round(size.height || 720), MIN_CANVAS, MAX_CANVAS),
+      width: cells(size.width || CANVAS_PRESETS['16:9'][0]),
+      height: cells(size.height || CANVAS_PRESETS['16:9'][1]),
     };
   }
   const preset =
@@ -164,7 +161,7 @@ export function canvasZoom(
   return clamp(Number.isFinite(zoom) && zoom > 0 ? zoom : 1, 0.25, 4);
 }
 
-/** Background, padding and gap of the canvas. */
+/** Background of the canvas. */
 export function canvasStyle(
   canvas: CanvasFormat | undefined,
   theme: SupersetTheme,
@@ -188,16 +185,10 @@ export function canvasStyle(
     style.backgroundRepeat = fit === 'repeat' ? 'repeat' : 'no-repeat';
     style.backgroundPosition = 'center';
   }
-  if (canvas?.padding !== undefined) {
-    style.padding = `${canvas.padding}px`;
-  }
-  const inset = gapInset(canvas);
-  if (inset) style['--mb-gap-inset'] = `${inset}px`;
   return style as CSSProperties;
 }
 
 export const hasCanvasFormat = (canvas: CanvasFormat | undefined) =>
   !!canvas &&
-  ((canvas.background && canvas.background.type !== 'none') ||
-    (canvas.padding !== undefined && canvas.padding !== DEFAULT_PADDING) ||
-    gapInset(canvas) !== 0);
+  canvas.background !== undefined &&
+  canvas.background.type !== 'none';

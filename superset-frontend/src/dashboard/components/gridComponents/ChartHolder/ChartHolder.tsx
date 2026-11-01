@@ -16,6 +16,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import { maxWidthCells } from 'src/mibi/format/positions';
+import { CELL } from 'src/mibi/format/types';
 import {
   useState,
   useMemo,
@@ -35,19 +37,16 @@ import AnchorLink from 'src/dashboard/components/AnchorLink';
 import Chart from 'src/dashboard/components/gridComponents/Chart';
 import DeleteComponentButton from 'src/dashboard/components/DeleteComponentButton';
 import IconButton from 'src/dashboard/components/IconButton';
-import { Draggable } from 'src/dashboard/components/dnd/DragDroppable';
+import { MovableDraggable } from 'src/mibi/format/MovableDraggable';
 import HoverMenu from 'src/dashboard/components/menu/HoverMenu';
 import ResizableContainer from 'src/dashboard/components/resizable/ResizableContainer';
 import getChartAndLabelComponentIdFromPath from 'src/dashboard/util/getChartAndLabelComponentIdFromPath';
 import useFilterFocusHighlightStyles from 'src/dashboard/util/useFilterFocusHighlightStyles';
-import { AntdThemeProvider } from '@superset-ui/core/components';
+import { AntdThemeProvider, Tooltip } from '@superset-ui/core/components';
 import { COLUMN_TYPE, ROW_TYPE } from 'src/dashboard/util/componentTypes';
-import { DASHBOARD_ROOT_ID } from 'src/dashboard/util/constants';
 import { Icons } from '@superset-ui/core/components/Icons';
-import { Tooltip } from '@superset-ui/core/components';
 import { t } from '@apache-superset/core/translation';
-import { gapInset, visualStyle } from 'src/mibi/format/styles';
-import { ObjectBadges } from 'src/mibi/format/ObjectFlags';
+import { visualStyle } from 'src/mibi/format/styles';
 import { InteractionControl } from 'src/mibi/report/InteractionControl';
 import { isInteractionControl } from 'src/mibi/report/interactions';
 import { useHiddenOverride } from 'src/mibi/report/visibility';
@@ -63,8 +62,6 @@ import {
   useSelectedVisual,
 } from 'src/mibi/format/selection';
 import {
-  GRID_BASE_UNIT,
-  GRID_GUTTER_SIZE,
   GRID_MIN_COLUMN_COUNT,
   GRID_MIN_ROW_UNITS,
 } from 'src/dashboard/util/constants';
@@ -138,29 +135,22 @@ const ChartHolder = ({
   const chartHolderRef = useRef<HTMLDivElement | null>(null);
 
   const focusHighlightStyles = useFilterFocusHighlightStyles(chartId ?? 0);
-  const canvasFormat = useSelector(
-    (state: RootState) =>
-      state.dashboardLayout?.present?.[DASHBOARD_ROOT_ID]?.meta?.mibiCanvas,
-  );
   const visualFormat = useMergedVisualFormat(component.meta.mibiFormat);
   const formatted = useMemo(
     () => visualStyle(visualFormat, theme),
     [visualFormat, theme],
   );
-  const inset = gapInset(canvasFormat);
   const isSelected = useSelectedVisual() === component.id && editMode;
   const mobile = useCanvasMobile();
   // The page is a limit: an object grows only into the room left on it
   const maxHeightMultiple = useMaxHeightMultiple(
     component.meta.height ?? GRID_MIN_ROW_UNITS,
     parentComponent,
+    component.meta,
   );
-  const hiddenOnMobile = mobile && !!component.meta.mibiHideMobile;
   // A bookmark may show or hide the chart for this visit
   const hiddenOverride = useHiddenOverride(component.id);
-  const hidden =
-    (hiddenOverride ?? !!component.meta.mibiHidden) || hiddenOnMobile;
-  const locked = !!component.meta.mibiLocked;
+  const hidden = !!hiddenOverride;
   const holderStyle = useMemo(
     () =>
       isFullSize
@@ -256,15 +246,10 @@ const ChartHolder = ({
       height = window.innerHeight - CHART_MARGIN;
     } else {
       // Formatting padding, border and spacing take room from the chart
-      const shrink = formatted.shrink + inset * 2;
-      width = Math.floor(
-        widthMultiple * columnWidth +
-          (widthMultiple - 1) * GRID_GUTTER_SIZE -
-          CHART_MARGIN -
-          shrink,
-      );
+      const { shrink } = formatted;
+      width = Math.floor(widthMultiple * columnWidth - CHART_MARGIN - shrink);
       height = Math.floor(
-        (component.meta.height ?? 0) * GRID_BASE_UNIT - CHART_MARGIN - shrink,
+        (component.meta.height ?? 0) * CELL - CHART_MARGIN - shrink,
       );
     }
 
@@ -272,14 +257,7 @@ const ChartHolder = ({
       chartWidth: width,
       chartHeight: height,
     };
-  }, [
-    columnWidth,
-    component,
-    isFullSize,
-    widthMultiple,
-    formatted.shrink,
-    inset,
-  ]);
+  }, [columnWidth, component, isFullSize, widthMultiple, formatted.shrink]);
 
   const handleDeleteComponent = useCallback(() => {
     deleteComponent(id, parentId);
@@ -319,16 +297,18 @@ const ChartHolder = ({
         adjustableHeight
         widthStep={columnWidth}
         widthMultiple={widthMultiple}
-        heightStep={GRID_BASE_UNIT}
+        heightStep={CELL}
         heightMultiple={component.meta.height ?? GRID_MIN_ROW_UNITS}
         minWidthMultiple={minObjectColumns()}
         minHeightMultiple={GRID_MIN_ROW_UNITS}
         maxHeightMultiple={maxHeightMultiple}
-        maxWidthMultiple={availableColumnCount + widthMultiple}
+        maxWidthMultiple={
+          maxWidthCells(component.meta) ?? availableColumnCount + widthMultiple
+        }
         onResizeStart={onResizeStart}
         onResize={onResize}
         onResizeStop={onResizeStop}
-        editMode={editMode && !locked}
+        editMode={editMode}
       >
         <div
           ref={el => {
@@ -364,7 +344,6 @@ const ChartHolder = ({
             isFullSize && 'mibi-full-size',
             isSelected && 'mibi-selected',
             editMode && hidden && 'mibi-hidden',
-            editMode && locked && 'mibi-locked',
             // The following class is added to support custom dashboard styling via the CSS editor
             `dashboard-chart-id-${chartId}`,
             outlinedComponentId ? 'fade-in' : 'fade-out',
@@ -415,17 +394,14 @@ const ChartHolder = ({
               isInView={isInView}
               chartHolderRef={chartHolderRef}
             />
-            {editMode && <ObjectBadges item={component} />}
             {editMode && chartId !== undefined && (
               <InteractionControl chartId={chartId} layoutId={component.id} />
             )}
             {editMode && (
               <HoverMenu position="top">
-                {!locked && (
-                  <div data-test="dashboard-delete-component-button">
-                    <DeleteComponentButton onDelete={handleDeleteComponent} />
-                  </div>
-                )}
+                <div data-test="dashboard-delete-component-button">
+                  <DeleteComponentButton onDelete={handleDeleteComponent} />
+                </div>
                 <Tooltip title={t('Format')} placement="top">
                   <div data-test="mibi-format-visual-button">
                     <IconButton
@@ -458,7 +434,6 @@ const ChartHolder = ({
       formatted.className,
       isSelected,
       hidden,
-      locked,
       component,
       isFullSize,
       fullSizeStyle,
@@ -482,18 +457,17 @@ const ChartHolder = ({
   if (hidden && !editMode) return null;
 
   return (
-    <Draggable
+    <MovableDraggable
       component={component}
       parentComponent={parentComponent}
       orientation={parentComponent.type === ROW_TYPE ? 'column' : 'row'}
       index={index}
       depth={depth}
       onDrop={handleComponentDrop}
-      disableDragDrop={locked}
       editMode={editMode}
     >
       {renderChild}
-    </Draggable>
+    </MovableDraggable>
   );
 };
 

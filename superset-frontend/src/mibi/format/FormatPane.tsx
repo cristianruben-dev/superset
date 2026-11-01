@@ -49,16 +49,13 @@ import {
 import { ColorField, Field, RangeField, Section, Segments } from './controls';
 import { selectVisual, useSelectedVisual } from './selection';
 import { GridSection } from './GridSection';
-import { mergeVisualFormat } from './styles';
+import { canvasSize, mergeVisualFormat } from './styles';
 import { useSharedVisualFormat } from './useVisualFormat';
-import { setMobilePreview, useMobilePreview } from './mobile';
 import { BoxSections } from './BoxSections';
-import { fitObjectsToPage } from './CanvasFrame';
 import { useReportLook } from 'src/mibi/report/ReportTheme';
 import { EditInteractionsToggle } from 'src/mibi/report/InteractionControl';
 import { setEditingInteractions } from 'src/mibi/report/interactions';
 import { PageSection } from 'src/mibi/report/PageSection';
-import { ObjectFlagToggles } from './ObjectFlags';
 import { isCopyable, useClipboard } from './clipboard';
 import { useObjectCommands } from './useObjectCommands';
 import {
@@ -74,10 +71,8 @@ import { ElementSection, elementName } from 'src/mibi/elements/ElementFormat';
 import { elementKind } from 'src/mibi/elements/types';
 import {
   CANVAS_PRESETS,
-  DEFAULT_APPEARANCE,
   DEFAULT_CANVAS_SIZE,
-  DEFAULT_GAP,
-  DEFAULT_PADDING,
+  CELL,
   MAX_CANVAS,
   MIN_CANVAS,
   type AreaStyle,
@@ -85,20 +80,11 @@ import {
   type CanvasFormat,
   type CanvasSizeMode,
   type ImageFit,
-  type ReportAppearance,
   type TitleAlign,
   type VisualFormat,
 } from './types';
 
 const MAX_IMAGE_BYTES = 2 * 1024 * 1024;
-
-const Hint = styled.p`
-  ${({ theme }) => css`
-    margin: 0;
-    font-size: ${theme.fontSizeSM}px;
-    color: ${theme.colorTextTertiary};
-  `}
-`;
 
 const Pane = styled.div`
   ${({ theme }) => css`
@@ -119,7 +105,7 @@ const Pane = styled.div`
     .painter-bar {
       display: flex;
       gap: ${theme.sizeUnit * 2}px;
-      padding: ${theme.sizeUnit * 3}px ${theme.sizeUnit * 4}px;
+      padding: ${theme.sizeUnit * 2}px ${theme.sizeUnit * 4}px;
       border-bottom: 1px solid ${theme.colorBorderSecondary};
 
       > .ant-btn {
@@ -509,7 +495,6 @@ function CanvasSection() {
     ['16:9', '4:3', 'letter', 'custom'].includes(canvas.size.mode)
       ? canvas.size.mode
       : DEFAULT_CANVAS_SIZE;
-  const mobilePreview = useMobilePreview();
 
   const onFile = async (file?: File) => {
     if (!file) return;
@@ -543,26 +528,6 @@ function CanvasSection() {
   return (
     <>
       <PageSection />
-
-      <Section data-test="mibi-format-appearance">
-        <h4>{t('Appearance')}</h4>
-        <Segments<ReportAppearance>
-          name={t('Appearance')}
-          value={canvas.appearance ?? DEFAULT_APPEARANCE}
-          testId="mibi-format-appearance-mode"
-          onChange={appearance => update({ appearance }, 'appearance')}
-          options={[
-            { value: 'light', label: t('Light') },
-            { value: 'dark', label: t('Dark') },
-            { value: 'app', label: t('Like the app') },
-          ]}
-        />
-        <Hint>
-          {t(
-            'The report keeps this look whatever theme the app uses. Light by default, like a sheet of paper.',
-          )}
-        </Hint>
-      </Section>
 
       <AreaColorsSection
         area="filterBar"
@@ -700,8 +665,8 @@ function CanvasSection() {
                   mode === 'custom'
                     ? {
                         mode,
-                        width: canvas.size?.width ?? 1280,
-                        height: canvas.size?.height ?? 720,
+                        width: canvasSize(canvas).width,
+                        height: canvasSize(canvas).height,
                       }
                     : { mode },
               },
@@ -727,19 +692,20 @@ function CanvasSection() {
         {sizeMode === 'custom' && (
           <div className="size-inputs">
             <InputNumber
-              min={MIN_CANVAS}
-              max={MAX_CANVAS}
-              value={canvas.size?.width ?? 1280}
+              min={MIN_CANVAS / CELL}
+              max={MAX_CANVAS / CELL}
+              precision={0}
+              value={canvasSize(canvas).width / CELL}
               aria-label={t('Width')}
-              addonAfter="px"
+              addonAfter={t('squares')}
               onChange={width =>
                 width &&
                 update(
                   {
                     size: {
-                      ...canvas.size,
+                      ...canvasSize(canvas),
                       mode: 'custom',
-                      width: Number(width),
+                      width: Math.round(Number(width)) * CELL,
                     },
                   },
                   'size-width',
@@ -748,19 +714,20 @@ function CanvasSection() {
             />
             ×
             <InputNumber
-              min={MIN_CANVAS}
-              max={MAX_CANVAS}
-              value={canvas.size?.height ?? 720}
+              min={MIN_CANVAS / CELL}
+              max={MAX_CANVAS / CELL}
+              precision={0}
+              value={canvasSize(canvas).height / CELL}
               aria-label={t('Height')}
-              addonAfter="px"
+              addonAfter={t('squares')}
               onChange={height =>
                 height &&
                 update(
                   {
                     size: {
-                      ...canvas.size,
+                      ...canvasSize(canvas),
                       mode: 'custom',
-                      height: Number(height),
+                      height: Math.round(Number(height)) * CELL,
                     },
                   },
                   'size-height',
@@ -769,93 +736,9 @@ function CanvasSection() {
             />
           </div>
         )}
-        <Button
-          buttonStyle="secondary"
-          data-test="mibi-fit-page"
-          onClick={fitObjectsToPage}
-        >
-          {t('Fit the objects to the page height')}
-        </Button>
-      </Section>
-
-      <Section>
-        <h4>{t('Editing')}</h4>
-        <Field
-          label={t('View')}
-          stacked
-          help={{
-            kind: 'mobileView',
-            text: t(
-              'On phones every object takes the full width, in the order of the canvas.',
-            ),
-          }}
-        >
-          <Segments<'desktop' | 'mobile'>
-            name={t('View')}
-            value={mobilePreview ? 'mobile' : 'desktop'}
-            testId="mibi-format-preview"
-            onChange={value => setMobilePreview(value === 'mobile')}
-            options={[
-              {
-                value: 'desktop',
-                label: (
-                  <>
-                    <Icons.DesktopOutlined iconSize="m" />
-                    {t('Desktop')}
-                  </>
-                ),
-              },
-              {
-                value: 'mobile',
-                label: (
-                  <>
-                    <Icons.MobileOutlined iconSize="m" />
-                    {t('Mobile')}
-                  </>
-                ),
-              },
-            ]}
-          />
-        </Field>
-        {mobilePreview && (
-          <Hint>
-            {t(
-              'On phones every object takes the full width, in the order of the canvas. Hide objects there with the phone button of the Format pane.',
-            )}
-          </Hint>
-        )}
       </Section>
 
       <GridSection />
-
-      <Section>
-        <h4>{t('Spacing')}</h4>
-        <RangeField
-          label={t('Margins')}
-          help={{
-            kind: 'canvasMargins',
-            text: t('Space between the edge of the page and the charts.'),
-          }}
-          value={canvas.padding ?? DEFAULT_PADDING}
-          min={0}
-          max={64}
-          onChange={padding => update({ padding }, 'padding')}
-          testId="mibi-format-margins"
-        />
-        <RangeField
-          label={t('Space between charts')}
-          help={{
-            kind: 'canvasGap',
-            text: t('Distance between neighboring charts and elements.'),
-          }}
-          value={canvas.gap ?? DEFAULT_GAP}
-          min={0}
-          max={48}
-          step={2}
-          onChange={gap => update({ gap }, 'gap')}
-          testId="mibi-format-gap"
-        />
-      </Section>
 
       <div className="actions">
         <Button
@@ -1009,7 +892,6 @@ export function FormatPane() {
             {item.type === CHART_TYPE && (
               <EditInteractionsToggle chartId={item.meta.chartId} />
             )}
-            <ObjectFlagToggles item={item} />
           </div>
         )}
       </div>

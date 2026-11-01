@@ -32,6 +32,7 @@ import findParentId from 'src/dashboard/util/findParentId';
 import isInDifferentFilterScopes from 'src/dashboard/util/isInDifferentFilterScopes';
 import { DropResult } from 'src/dashboard/components/dnd/dragDroppableConfig';
 import { GetState, LayoutItem, RootState } from '../types';
+import { isPositioned, placeAt, posOf } from 'src/mibi/format/positions';
 import { updateLayoutComponents } from './dashboardFilters';
 import { setUnsavedChanges } from './dashboardState';
 type AppDispatch = ThunkDispatch<RootState, undefined, AnyAction>;
@@ -263,6 +264,24 @@ export function handleComponentDrop(dropResult: DropResult) {
     dispatch: AppDispatch,
     getState: GetState,
   ): null | AnyAction | void => {
+    // An object that has a cell on the page is moved by changing its cell,
+    // wherever it is dropped: it keeps its row and nothing else moves
+    const placed = getState().dashboardLayout.present;
+    const dragged = placed[dropResult.dragging.id];
+    if (
+      dropResult.cell &&
+      dropResult.source.id !== NEW_COMPONENTS_SOURCE_ID &&
+      dragged &&
+      isPositioned(dragged.type) &&
+      posOf(dragged.meta)
+    ) {
+      const moved = placeAt(placed, dragged.id, dropResult.cell);
+      if (moved !== placed) {
+        dispatch(updateComponents({ [dragged.id]: moved[dragged.id] }));
+      }
+      return undefined;
+    }
+
     const overflowsParent = dropOverflowsParent(
       dropResult,
       getState().dashboardLayout.present,
@@ -372,6 +391,10 @@ export function undoLayoutAction(): (
   getState: GetState,
 ) => void {
   return (dispatch: AppDispatch, getState: GetState) => {
+    // The history can start with the empty layout the store had before the
+    // dashboard loaded: going back to it would blank the page
+    const previous = getState().dashboardLayout.past.slice(-1)[0];
+    if (!previous?.[DASHBOARD_ROOT_ID]) return;
     dispatch(UndoActionCreators.undo());
 
     const { dashboardLayout, dashboardState } = getState();

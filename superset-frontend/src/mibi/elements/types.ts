@@ -228,8 +228,8 @@ export const ELEMENT_DEFAULTS: Record<
   }
 > = {
   image: {
-    width: 4,
-    height: 30,
+    width: 12,
+    height: 8,
     format: {
       background: 'transparent',
       borderWidth: 0,
@@ -240,8 +240,8 @@ export const ELEMENT_DEFAULTS: Record<
     element: { kind: 'image', fit: 'cover', position: 'center', opacity: 100 },
   },
   shape: {
-    width: 3,
-    height: 20,
+    width: 10,
+    height: 5,
     format: {
       background: 'transparent',
       borderWidth: 0,
@@ -265,8 +265,8 @@ export const ELEMENT_DEFAULTS: Record<
     },
   },
   button: {
-    width: 3,
-    height: 7,
+    width: 8,
+    height: 2,
     format: {
       background: 'transparent',
       borderWidth: 0,
@@ -285,8 +285,8 @@ export const ELEMENT_DEFAULTS: Record<
     },
   },
   filter: {
-    width: 3,
-    height: 11,
+    width: 10,
+    height: 3,
     format: {
       padding: 12,
       radius: 12,
@@ -294,8 +294,8 @@ export const ELEMENT_DEFAULTS: Record<
     element: { kind: 'filter', showInFilterBar: true },
   },
   text: {
-    width: 4,
-    height: 12,
+    width: 12,
+    height: 3,
     format: {
       background: 'transparent',
       borderWidth: 0,

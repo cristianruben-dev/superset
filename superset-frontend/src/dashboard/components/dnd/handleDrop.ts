@@ -21,6 +21,13 @@ import getDropPosition, {
   clearDropCache,
   DROP_FORBIDDEN,
 } from '../../util/getDropPosition';
+import { NEW_COMPONENTS_SOURCE_ID } from 'src/dashboard/util/constants';
+import {
+  clearDragTrack,
+  dropCell,
+  isPositioned,
+  posOf,
+} from 'src/mibi/format/positions';
 import type {
   DragDroppableComponent,
   DragItem,
@@ -36,6 +43,37 @@ export default function handleDrop(
   if (!Component.mounted) return undefined;
 
   Component.setState(() => ({ dropIndicator: null }));
+
+  // An object that has a cell on the page lands wherever it is dropped, over
+  // another object or not: there is no slot to find
+  const moving = monitor.getItem() as DragItem;
+  if (
+    moving &&
+    isPositioned(moving.type) &&
+    posOf(moving.meta) &&
+    moving.parentId !== NEW_COMPONENTS_SOURCE_ID &&
+    moving.parentId
+  ) {
+    const cell = dropCell(monitor, Component.ref);
+    if (cell) {
+      const slot = {
+        id: moving.parentId,
+        type: moving.parentType as DropResult['source']['type'],
+        index: moving.index,
+      };
+      const placed: DropResult = {
+        source: slot,
+        dragging: { id: moving.id, type: moving.type, meta: moving.meta },
+        destination: slot,
+        cell,
+      };
+      Component.props.onDrop?.(placed);
+      clearDropCache();
+      clearDragTrack();
+      return placed;
+    }
+  }
+
   const dropPosition = getDropPosition(monitor, Component);
 
   if (!dropPosition || dropPosition === DROP_FORBIDDEN) {
@@ -64,6 +102,7 @@ export default function handleDrop(
       meta: draggingItem.meta,
     },
     position: dropPosition,
+    cell: dropCell(monitor, Component.ref),
   };
 
   const shouldAppendToChildren =
@@ -105,6 +144,7 @@ export default function handleDrop(
 
   onDrop?.(dropResult);
   clearDropCache();
+  clearDragTrack();
 
   return dropResult;
 }

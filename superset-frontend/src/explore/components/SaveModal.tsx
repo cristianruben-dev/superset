@@ -48,17 +48,23 @@ import {
   type SupersetTheme,
 } from '@apache-superset/core/theme';
 import { Radio } from '@superset-ui/core/components/Radio';
-import { columnCountOf, scaledWidth } from 'src/mibi/format/columns';
+import { columnCountOf } from 'src/mibi/format/columns';
+import { layoutToCells } from 'src/mibi/format/cells';
+import { layoutToPositions } from 'src/mibi/format/positions';
 import { canUserEditDashboard } from 'src/dashboard/util/permissionUtils';
 import { setSaveChartModalVisibility } from 'src/explore/actions/saveModalActions';
-import { SaveActionType, ChartStatusType } from 'src/explore/types';
+import {
+  SaveActionType,
+  ChartStatusType,
+  TabNode,
+  TabTreeNode,
+} from 'src/explore/types';
 import { UserWithPermissionsAndRoles } from 'src/types/bootstrapTypes';
 import {
   removeChartState,
   updateChartState,
 } from 'src/dashboard/actions/dashboardState';
 import { Dashboard } from 'src/types/Dashboard';
-import { TabNode, TabTreeNode } from '../types';
 import { CHART_WIDTH, CHART_HEIGHT } from 'src/dashboard/constants';
 
 interface SaveModalProps extends RouteComponentProps {
@@ -379,12 +385,13 @@ class SaveModal extends Component<SaveModalProps, SaveModalState> {
       if (typeof positionJson === 'string') {
         positionJson = JSON.parse(positionJson);
       }
-      positionJson = positionJson || {};
+      // Layouts saved before the cell grid are converted to cells first
+      positionJson = layoutToPositions(layoutToCells(positionJson || {}));
 
       const chartKey = `CHART-${chartId}`;
-      // Widths are in the dashboard's own grid density (AuraData BI)
+      // Sizes are in cells (AuraData BI)
       const columns = columnCountOf(positionJson);
-      const chartWidth = scaledWidth(CHART_WIDTH, columns);
+      const chartWidth = Math.min(CHART_WIDTH, columns);
 
       // Find a row in the tab with available space
       const tabChildren = positionJson[tabId]?.children || [];
@@ -457,7 +464,8 @@ class SaveModal extends Component<SaveModalProps, SaveModalState> {
         endpoint: `/api/v1/dashboard/${dashboardId}`,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          position_json: JSON.stringify(updatedPositionJson),
+          // The new chart gets the cell it has in its row
+          position_json: JSON.stringify(layoutToPositions(updatedPositionJson)),
         }),
       });
 

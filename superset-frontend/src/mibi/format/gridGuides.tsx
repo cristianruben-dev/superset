@@ -18,24 +18,16 @@
  */
 import { useEffect, useState, type CSSProperties } from 'react';
 import { useTheme } from '@apache-superset/core/theme';
+import { CELL } from './types';
 import { withOpacity } from './styles';
 
 /**
- * The grid edit mode draws behind the visuals. Its look is a preference of
- * each editor, kept in the browser, so it never changes the dashboard.
- *
- * Columns are the dashboard's layout columns (see columns.ts), the ones visuals snap to
- * when resized; rows only guide heights, which snap every GRID_BASE_UNIT.
+ * The grid edit mode draws behind the visuals: lines around square cells of
+ * CELL pixels, the same cells objects are placed and sized in. Its color and
+ * strength are a preference of each editor, kept in the browser, so they
+ * never change the dashboard.
  */
-export type GridStyle = 'lines' | 'dots' | 'columns';
-
 export interface GridSettings {
-  show: boolean;
-  style: GridStyle;
-  /** Rows as tall as a column and its gap is wide, so cells are square */
-  square: boolean;
-  /** Height of a grid row, in pixels */
-  spacing: number;
   /** CSS color; the theme's primary color when missing */
   color?: string;
   /** 0 to 100 */
@@ -43,17 +35,11 @@ export interface GridSettings {
 }
 
 export const DEFAULT_GRID: GridSettings = {
-  show: true,
-  style: 'lines',
-  square: true,
-  spacing: 32,
-  opacity: 50,
+  opacity: 30,
 };
 
 const KEY = 'mibi.grid';
-const LEGACY_KEY = 'mibi.showGrid';
 const EVENT = 'mibi:grid';
-const STYLES: GridStyle[] = ['lines', 'dots', 'columns'];
 
 const clamp = (value: number, min: number, max: number) =>
   Math.min(max, Math.max(min, value));
@@ -64,21 +50,11 @@ export function readGrid(): GridSettings {
     const raw = JSON.parse(window.localStorage.getItem(KEY) || 'null');
     if (raw && typeof raw === 'object') {
       return {
-        show: typeof raw.show === 'boolean' ? raw.show : DEFAULT_GRID.show,
-        style: STYLES.includes(raw.style) ? raw.style : DEFAULT_GRID.style,
-        square:
-          typeof raw.square === 'boolean' ? raw.square : DEFAULT_GRID.square,
-        spacing: Number.isFinite(raw.spacing)
-          ? clamp(Math.round(raw.spacing / 8) * 8, 8, 96)
-          : DEFAULT_GRID.spacing,
         color: typeof raw.color === 'string' ? raw.color : undefined,
         opacity: Number.isFinite(raw.opacity)
           ? clamp(raw.opacity, 5, 100)
           : DEFAULT_GRID.opacity,
       };
-    }
-    if (window.localStorage.getItem(LEGACY_KEY) === 'false') {
-      return { ...DEFAULT_GRID, show: false };
     }
   } catch {
     // unreadable storage: the default grid
@@ -110,49 +86,17 @@ export function useGridSettings(): [
   return [value, update];
 }
 
-/** Whether edit mode shows the grid. */
-export function useShowGrid(): [boolean, (value: boolean) => void] {
-  const [settings, update] = useGridSettings();
-  return [settings.show, show => update({ show })];
-}
-
-/**
- * The CSS backgrounds that draw the grid over a content ``columnWidth``
- * pixels per column with ``gutter`` pixels between columns.
- */
+/** The CSS backgrounds that draw the lines of the cells. */
 export function gridBackground(
   settings: GridSettings,
-  columnWidth: number,
-  gutter: number,
   color: string,
 ): CSSProperties {
-  const width = Math.max(1, columnWidth);
-  const period = width + gutter;
-  const rowHeight = settings.square ? period : settings.spacing;
   const line = withOpacity(color, settings.opacity);
-  const fill = withOpacity(color, settings.opacity * 0.25);
-  // Objects meet in the middle of the gap between columns: one line there
-  const seam = width + gutter / 2;
-  const seams = `linear-gradient(to right, transparent 0 ${seam - 0.5}px, ${line} ${
-    seam - 0.5
-  }px ${seam + 0.5}px, transparent ${seam + 0.5}px)`;
-  const band = `linear-gradient(to right, ${fill} 0 ${width}px, transparent ${width}px)`;
-  const rows = `linear-gradient(to bottom, ${line} 0 1px, transparent 1px)`;
-  const dots = `radial-gradient(circle at ${seam}px 1px, ${line} 1.5px, transparent 2px)`;
-  const columnSize = `${period}px 100%`;
-
-  if (settings.style === 'columns') {
-    return { backgroundImage: band, backgroundSize: columnSize };
-  }
-  if (settings.style === 'dots') {
-    return {
-      backgroundImage: dots,
-      backgroundSize: `${period}px ${rowHeight}px`,
-    };
-  }
   return {
-    backgroundImage: `${seams}, ${rows}`,
-    backgroundSize: `${columnSize}, 100% ${rowHeight}px`,
+    backgroundImage: `linear-gradient(to right, ${line} 0 1px, transparent 1px), linear-gradient(to bottom, ${line} 0 1px, transparent 1px)`,
+    backgroundSize: `${CELL}px ${CELL}px`,
+    // The lines that close the last column and row
+    boxShadow: `inset -1px -1px 0 ${line}`,
   };
 }
 
@@ -186,18 +130,11 @@ function usePageBottom(element: HTMLElement | null): number {
 }
 
 /** The grid behind the visuals of the dashboard being edited. */
-export function GridGuide({
-  columnWidth,
-  gutter,
-}: {
-  columnWidth: number;
-  gutter: number;
-}) {
+export function GridGuide() {
   const theme = useTheme();
   const [settings] = useGridSettings();
   const [element, setElement] = useState<HTMLDivElement | null>(null);
   const pageBottom = usePageBottom(element);
-  if (!settings.show) return null;
   return (
     <div
       ref={setElement}
@@ -205,12 +142,7 @@ export function GridGuide({
       aria-hidden
       data-test="mibi-grid-guide"
       style={{
-        ...gridBackground(
-          settings,
-          columnWidth,
-          gutter,
-          settings.color || theme.colorPrimary,
-        ),
+        ...gridBackground(settings, settings.color || theme.colorPrimary),
         minHeight: pageBottom || undefined,
       }}
     />

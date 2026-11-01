@@ -16,6 +16,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import { maxWidthCells } from 'src/mibi/format/positions';
+import { CELL } from 'src/mibi/format/types';
 import { minObjectColumns } from 'src/mibi/format/columns';
 import { PureComponent } from 'react';
 import { connect } from 'react-redux';
@@ -30,7 +32,7 @@ import { EditorHost } from 'src/core/editors';
 import { Logger, LOG_ACTIONS_RENDER_CHART } from 'src/logger/LogUtils';
 
 import DeleteComponentButton from 'src/dashboard/components/DeleteComponentButton';
-import { Draggable } from 'src/dashboard/components/dnd/DragDroppable';
+import { MovableDraggable } from 'src/mibi/format/MovableDraggable';
 import HoverMenu from 'src/dashboard/components/menu/HoverMenu';
 import ResizableContainer from 'src/dashboard/components/resizable/ResizableContainer';
 import MarkdownModeDropdown from 'src/dashboard/components/menu/MarkdownModeDropdown';
@@ -41,7 +43,6 @@ import { ROW_TYPE, COLUMN_TYPE } from 'src/dashboard/util/componentTypes';
 import {
   GRID_MIN_COLUMN_COUNT,
   GRID_MIN_ROW_UNITS,
-  GRID_BASE_UNIT,
 } from 'src/dashboard/util/constants';
 
 interface EditorInstance {
@@ -386,7 +387,8 @@ class Markdown extends PureComponent<MarkdownProps, MarkdownState> {
     const isEditing = editorMode === 'edit';
 
     return (
-      <Draggable
+      <MovableDraggable
+        moveable={!isFocused}
         component={component}
         parentComponent={parentComponent}
         orientation={parentComponent.type === ROW_TYPE ? 'column' : 'row'}
@@ -424,11 +426,13 @@ class Markdown extends PureComponent<MarkdownProps, MarkdownState> {
                 adjustableHeight
                 widthStep={columnWidth}
                 widthMultiple={widthMultiple}
-                heightStep={GRID_BASE_UNIT}
+                heightStep={CELL}
                 heightMultiple={component.meta.height ?? GRID_MIN_ROW_UNITS}
                 minWidthMultiple={minObjectColumns()}
                 minHeightMultiple={GRID_MIN_ROW_UNITS}
-                maxWidthMultiple={availableColumnCount + widthMultiple}
+                maxWidthMultiple={
+          maxWidthCells(component.meta) ?? availableColumnCount + widthMultiple
+        }
                 onResizeStart={this.handleResizeStart}
                 onResize={onResize}
                 onResizeStop={onResizeStop}
@@ -454,7 +458,7 @@ class Markdown extends PureComponent<MarkdownProps, MarkdownState> {
             </MarkdownStyles>
           </WithPopoverMenu>
         )}
-      </Draggable>
+      </MovableDraggable>
     );
   }
 }

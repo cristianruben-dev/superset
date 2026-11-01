@@ -32,8 +32,6 @@ import { SupersetClient } from '@superset-ui/core';
 import * as saveModalActions from 'src/explore/actions/saveModalActions';
 import SaveModal, { PureSaveModal } from 'src/explore/components/SaveModal';
 import * as dashboardStateActions from 'src/dashboard/actions/dashboardState';
-import { CHART_WIDTH } from 'src/dashboard/constants';
-import { GRID_COLUMN_COUNT } from 'src/dashboard/util/constants';
 
 // Cast PureSaveModal to `any` to allow instantiation with partial props in tests
 const TestSaveModal = PureSaveModal as any;
@@ -622,7 +620,7 @@ test('chart placement logic finds row with available space', () => {
           return sum + (component?.meta?.width || 0);
         }, 0);
 
-        if (totalWidth + CHART_WIDTH <= GRID_COLUMN_COUNT) {
+        if (totalWidth + 4 <= 12) {
           return childKey;
         }
       }
@@ -744,7 +742,8 @@ test('addChartToDashboardTab creates new row when no existing row has space', as
       children: [],
       parents: ['ROOT_ID', 'GRID_ID', tabId, 'row1'],
       meta: {
-        width: GRID_COLUMN_COUNT,
+        // A full row: the canvas is 48 cells wide
+        width: 48,
         height: 50,
         chartId: 100,
         sliceName: 'Existing Chart',

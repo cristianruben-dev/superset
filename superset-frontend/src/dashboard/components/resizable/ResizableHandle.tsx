@@ -28,6 +28,26 @@ export function BottomResizeHandle(): JSX.Element {
   return <div className="resize-handle resize-handle--bottom" />;
 }
 
+export function LeftResizeHandle(): JSX.Element {
+  return <div className="resize-handle resize-handle--left" />;
+}
+
+export function TopResizeHandle(): JSX.Element {
+  return <div className="resize-handle resize-handle--top" />;
+}
+
+export function TopLeftResizeHandle(): JSX.Element {
+  return <div className="resize-handle resize-handle--top-left" />;
+}
+
+export function TopRightResizeHandle(): JSX.Element {
+  return <div className="resize-handle resize-handle--top-right" />;
+}
+
+export function BottomLeftResizeHandle(): JSX.Element {
+  return <div className="resize-handle resize-handle--bottom-left" />;
+}
+
 export default {
   right: RightResizeHandle,
   bottom: BottomResizeHandle,

@@ -43,7 +43,6 @@ import {
 import { updateLayout } from 'src/mibi/format/actions';
 import { placeComponent } from 'src/mibi/format/clipboard';
 import { Section } from 'src/mibi/format/controls';
-import { HIDDEN_KEY, LOCKED_KEY } from 'src/mibi/format/types';
 import { topLevelTabs } from 'src/mibi/present/dashboardTabs';
 
 /**
@@ -166,8 +165,6 @@ const setSlicerOnPage =
     }
     if (existing.length) return;
     const meta = { ...layout[sourceId].meta };
-    delete meta[HIDDEN_KEY];
-    delete meta[LOCKED_KEY];
     const component = newComponentFactory(
       DYNAMIC_TYPE,
       meta,

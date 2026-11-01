@@ -30,10 +30,7 @@ import {
   DYNAMIC_TYPE,
   ROW_TYPE,
 } from 'src/dashboard/util/componentTypes';
-import {
-  DASHBOARD_GRID_ID,
-  GRID_COLUMN_COUNT,
-} from 'src/dashboard/util/constants';
+import { DASHBOARD_GRID_ID } from 'src/dashboard/util/constants';
 import newComponentFactory from 'src/dashboard/util/newComponentFactory';
 import { uploadElementImage } from 'src/mibi/elements/actions';
 import {
@@ -44,8 +41,8 @@ import {
 import { activeTabIndex, topLevelTabs } from 'src/mibi/present/dashboardTabs';
 import { updateLayout } from './actions';
 import { columnCountOf } from './columns';
+import { posOf } from './positions';
 import { selectVisual } from './selection';
-import { HIDDEN_KEY, LOCKED_KEY } from './types';
 
 type AppDispatch = ThunkDispatch<RootState, undefined, AnyAction>;
 
@@ -57,8 +54,6 @@ export interface CopiedObject {
   type: typeof CHART_TYPE | typeof DYNAMIC_TYPE;
   dashboardId: number;
   meta: LayoutItem['meta'];
-  /** Grid density of the dashboard it was copied from */
-  columns?: number;
 }
 
 let memory: CopiedObject | null = null;
@@ -111,7 +106,6 @@ export const copyObject =
       type: item.type as CopiedObject['type'],
       dashboardId: dashboardInfo.id,
       meta: item.meta,
-      columns: columnCountOf(dashboardLayout.present),
     });
   };
 
@@ -170,7 +164,11 @@ async function copyPicture(
 
 const usedColumns = (row: LayoutItem, layout: Record<string, LayoutItem>) =>
   row.children.reduce(
-    (sum, childId) => sum + Number(layout[childId]?.meta?.width ?? 0),
+    (sum, childId) =>
+      sum +
+      (posOf(layout[childId]?.meta)
+        ? 0
+        : Number(layout[childId]?.meta?.width ?? 0)),
     0,
   );
 
@@ -239,20 +237,10 @@ export const pasteObject =
     const dashboardId = dashboardInfo.id;
     // A pasted object is visible and free to move
     const meta = { ...copied.meta };
-    delete meta[HIDDEN_KEY];
-    delete meta[LOCKED_KEY];
-    // Same share of the width in a grid with another density
+    // Cells keep their size; an object wider than the canvas is trimmed
     const target = columnCountOf(getState().dashboardLayout.present);
-    if (typeof meta.width === 'number' && copied.columns !== target) {
-      meta.width = Math.min(
-        target,
-        Math.max(
-          1,
-          Math.round(
-            (meta.width * target) / (copied.columns || GRID_COLUMN_COUNT),
-          ),
-        ),
-      );
+    if (typeof meta.width === 'number') {
+      meta.width = Math.min(target, meta.width);
     }
 
     let component: LayoutItem;

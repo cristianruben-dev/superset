@@ -18331,8 +18331,11 @@ msgstr "Columnas de la cuadrícula"
 msgid "More columns let objects be smaller. It is saved with the dashboard, and the objects keep their size when it changes."
 msgstr "Más columnas permiten objetos más pequeños. Se guarda con el panel, y los objetos conservan su tamaño al cambiarla."
 
-msgid "Only you see the grid, while editing. Objects snap to its %s columns when resized, and their height moves in steps of 8 px."
-msgstr "Solo tú ves la cuadrícula, mientras editas. Al cambiar de tamaño, los objetos se ajustan a sus %s columnas y su alto avanza de 8 en 8 px."
+msgid "Only you see the grid, while editing. Each square is %s px, and objects are placed and sized in whole squares."
+msgstr "Solo tú ves la cuadrícula, mientras editas. Cada cuadro mide %s px y los objetos se colocan y se dimensionan en cuadros completos."
+
+msgid "squares"
+msgstr "cuadros"
 
 msgid "Letter (%s × %s)"
 msgstr "Carta (%s × %s)"

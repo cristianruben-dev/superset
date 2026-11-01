@@ -20,6 +20,7 @@ import { throttle } from 'lodash';
 import { DropTargetMonitor } from 'react-dnd';
 import { DASHBOARD_ROOT_TYPE } from 'src/dashboard/util/componentTypes';
 import getDropPosition from 'src/dashboard/util/getDropPosition';
+import { trackDrag } from 'src/mibi/format/positions';
 import type {
   DragDroppableProps,
   DragDroppableComponent,
@@ -36,6 +37,7 @@ function handleHover(
   // this may happen due to throttling
   if (!Component.mounted) return;
 
+  trackDrag(monitor);
   const dropPosition = getDropPosition(monitor, Component);
 
   const isDashboardRoot =

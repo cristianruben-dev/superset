@@ -47,7 +47,26 @@ const notAdjustable = {
   right: false,
 };
 
+// Objects placed on a cell of the page can be resized from every edge
+const allEdges = {
+  top: true,
+  right: true,
+  bottom: true,
+  left: true,
+  topRight: true,
+  bottomRight: true,
+  bottomLeft: true,
+  topLeft: true,
+};
+
+const leftAndRight = { ...notAdjustable, right: true, left: true };
+
+const topAndBottom = { ...notAdjustable, bottom: true, top: true };
+
 export default {
+  allEdges,
+  leftAndRight,
+  topAndBottom,
   widthAndHeight: adjustableWidthAndHeight,
   widthOnly: adjustableWidth,
   heightOnly: adjustableHeight,

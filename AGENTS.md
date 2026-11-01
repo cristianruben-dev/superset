@@ -75,7 +75,7 @@ This repository is **AuraData BI**, a fork of Apache Superset 6.1 shaped like Po
 | App shell, home, lists | `superset/mibi/previews.py`, `superset/mibi/api.py` | `mibi/shell`, `mibi/home`, `mibi/dashboards`, `assets/mibi/skin.css` |
 | Workspaces and access | `superset/mibi/workspaces.py`, `workspace_access.py`, `models.py` | `mibi/workspaces` |
 | Data page and datasets | `superset/mibi/data_views.py` | `mibi/data` |
-| Format pane | - | `mibi/format` |
+| Format pane, cell grid | - | `mibi/format` |
 | Chart format controls (labels, legend, axes, series, rules, table) | - | `explore/components/controls/{FontControl,SeriesColorsControl,ChartConditionalFormattingControl}`; sections in `packages/superset-ui-chart-controls/src/sections/visualFormat.tsx`; helpers in `plugins/plugin-chart-echarts/src/utils/formatting.ts` and `plugins/plugin-chart-table/src/utils/tableFormat.ts` |
 | Background and element pictures | `superset/mibi/backgrounds.py` | `mibi/format/actions.ts`, `mibi/elements` |
 | Design elements (image, shape, button, text, canvas filter) | - | `mibi/elements` |
@@ -102,11 +102,20 @@ Formats are stored in `position_json`, so they save, undo and export with the da
   settings in `meta.mibiElement` (`src/mibi/elements/types.ts`).
   The canvas filter element (`mibi-filter`) stores `filterId` and `showInFilterBar`; filters
   with `showInFilterBar: false` are left out of the filter bar (`useCanvasOnlyFilterIds`).
-- `ROOT_ID.meta.mibiColumns`: grid density, 12 (default, key absent), 24 or 48 columns.
-  Every `meta.width` is in the dashboard's own columns. Use `src/mibi/format/columns.ts`
-  (`columnCountOf(layout)`, `gridColumnCount()`, `scaledWidth()`, `minObjectColumns()`), never
-  `GRID_COLUMN_COUNT`, and change the density only with `setColumnCount`, which rescales widths.
-- Flags: `meta.mibiHidden`, `meta.mibiLocked`, `meta.mibiHideMobile`.
+- The canvas is a grid of square cells of `CELL` = 32 px (`src/mibi/format/types.ts`). Its size
+  is a whole number of cells, so its width in cells is the number of columns of the layout. Every
+  `meta.width` and `meta.height` is in cells, there are no margins or gaps between objects, and the
+  edit-mode grid always draws lines at every cell. Use `src/mibi/format/columns.ts`
+  (`columnCountOf(layout)`, `gridColumnCount()`, `minObjectColumns()`), never `GRID_COLUMN_COUNT`.
+  `layoutToCells` (`cells.ts`) converts layouts saved before the cell grid (12/24/48 columns, heights
+  in 8 px steps, canvas padding and gap) on load; `ROOT_ID.meta.mibiCells` marks a converted layout.
+- Charts, elements and text boxes sit at an absolute cell of the page: `meta.mibiPos` is `{x, y}` in
+  cells from its top-left corner, so moving or resizing one never moves another. Rows stay as
+  containers (they keep the order of the mobile layout, where positions are ignored). A drop sets
+  the cell from where the object lands (`src/mibi/format/positions.ts`, `DropResult.cell`, handled
+  in `handleComponentDrop`); `layoutToPositions` gives a cell to every object without one on load.
+- The report is light or dark from the canvas background color (`useReportAppearance`); there are no
+  appearance, hide, lock or mobile-preview settings.
 - Report interactivity (`src/mibi/report`), Power BI style:
   - `ROOT_ID.meta.mibiBookmarks`: bookmarks (page, filter and cross-filter selections, visibility).
     Applying one sets a browser-only visibility override (`visibility.ts`) on top of `mibiHidden`.

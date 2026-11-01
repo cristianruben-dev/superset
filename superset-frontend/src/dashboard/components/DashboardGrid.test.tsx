@@ -22,7 +22,6 @@ import DashboardGrid from 'src/dashboard/components/DashboardGrid';
 import newComponentFactory from 'src/dashboard/util/newComponentFactory';
 
 import { DASHBOARD_GRID_TYPE } from 'src/dashboard/util/componentTypes';
-import { GRID_COLUMN_COUNT } from 'src/dashboard/util/constants';
 
 jest.mock('src/dashboard/containers/DashboardComponent', () => {
   const MockDashboardComponent = ({
@@ -85,21 +84,6 @@ test('should render two empty DragDroppables in editMode to increase the drop ta
   expect(queryAllByTestId('dragdroppable-object').length).toEqual(0);
   const { getAllByTestId } = setup({ editMode: true });
   expect(getAllByTestId('dragdroppable-object').length).toEqual(2);
-});
-
-test('should render grid column guides when resizing', () => {
-  const { container, getAllByTestId } = setup({ editMode: true });
-  // Edit mode renders the guides for the Format pane grid, hidden by CSS
-  expect(
-    container.querySelector('.grid-column-guide--resizing'),
-  ).not.toBeInTheDocument();
-
-  // map handleResizeStart to the onClick prop of the mock DashboardComponent
-  fireEvent.click(getAllByTestId('mock-dashboard-component')[0]);
-
-  expect(
-    container.querySelectorAll('.grid-column-guide--resizing'),
-  ).toHaveLength(GRID_COLUMN_COUNT);
 });
 
 test('should call resizeComponent when a child DashboardComponent calls resizeStop', () => {

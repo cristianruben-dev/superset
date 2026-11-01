@@ -41,7 +41,6 @@ import {
   canvasSize,
   canvasStyle,
   canvasZoom,
-  gapInset,
   mergeVisualFormat,
   visualStyle,
   withOpacity,
@@ -135,27 +134,31 @@ test('leaves an unformatted visual alone', () => {
 });
 
 test('sizes the canvas from presets and clamps custom sizes', () => {
-  // Every canvas has a page size: 16:9 unless it says otherwise
-  expect(canvasSize(undefined)).toEqual({ width: 1280, height: 720 });
+  // Every canvas has a page size, in whole cells: 16:9 unless it says otherwise
+  expect(canvasSize(undefined)).toEqual({ width: 1536, height: 864 });
   expect(canvasSize({ size: { mode: 'auto' as unknown as '16:9' } })).toEqual({
-    width: 1280,
-    height: 720,
+    width: 1536,
+    height: 864,
   });
   expect(canvasSize({ size: { mode: '4:3' } })).toEqual({
-    width: 960,
-    height: 720,
+    width: 1280,
+    height: 960,
   });
   expect(canvasSize({ size: { mode: 'letter' } })).toEqual({
-    width: 816,
-    height: 1056,
+    width: 832,
+    height: 1088,
   });
   expect(canvasSize({ size: { mode: '16:9' } })).toEqual({
-    width: 1280,
-    height: 720,
+    width: 1536,
+    height: 864,
   });
   expect(
     canvasSize({ size: { mode: 'custom', width: 50, height: 99999 } }),
   ).toEqual({ width: 320, height: 4096 });
+  // A custom size snaps to whole cells
+  expect(
+    canvasSize({ size: { mode: 'custom', width: 1000, height: 700 } }),
+  ).toEqual({ width: 992, height: 704 });
 });
 
 test('zooms a fixed canvas to the width, or to the screen', () => {
@@ -165,21 +168,16 @@ test('zooms a fixed canvas to the width, or to the screen', () => {
   expect(canvasZoom(size, { width: 0 })).toBe(1);
 });
 
-test('builds the canvas background and spacing', () => {
-  expect(gapInset({ gap: 28 })).toBe(6);
+test('builds the canvas background', () => {
   expect(
     canvasStyle(
       {
         background: { type: 'gradient', color: '#111111', color2: '#222222' },
-        padding: 24,
-        gap: 8,
       },
       supersetTheme,
     ),
   ).toEqual({
     background: 'linear-gradient(135deg, #111111, #222222)',
-    padding: '24px',
-    '--mb-gap-inset': '-4px',
   });
   const image = canvasStyle(
     { background: { type: 'image', image: '/bg.png', fit: 'repeat' } },
@@ -211,13 +209,13 @@ test('shares a style with every chart, keeping their subtitles', () => {
   dispatcher(store)(
     setVisualFormat('CHART-a', { radius: 2, title: { subtitle: 'Mes' } }),
   );
-  dispatcher(store)(setCanvasFormat({ gap: 24 }));
+  dispatcher(store)(setCanvasFormat({ appearance: 'dark' }));
   dispatcher(store)(
     setSharedVisualFormat({ shadow: 'strong', title: { subtitle: 'Mes' } }),
   );
   const { present } = stateOf(store).dashboardLayout;
   expect(present.ROOT_ID.meta.mibiCanvas).toEqual({
-    gap: 24,
+    appearance: 'dark',
     visuals: { shadow: 'strong', title: {} },
   });
   expect(present['CHART-a'].meta.mibiFormat).toEqual({
@@ -296,7 +294,7 @@ test('frames the grid with the canvas format', () => {
   );
   const canvas = screen.getByTestId('mibi-canvas');
   expect(canvas).toHaveTextContent('grid');
-  expect(canvas).toHaveStyle({ width: '960px', minHeight: '720px' });
+  expect(canvas).toHaveStyle({ width: '1280px', minHeight: '960px' });
   expect(canvas.style.background).toContain('rgb(18, 52, 86)');
 });
 
@@ -308,8 +306,8 @@ test('a canvas without a size is a 16:9 page', () => {
     { store: makeStore() },
   );
   expect(screen.getByTestId('mibi-canvas')).toHaveStyle({
-    width: '1280px',
-    minHeight: '720px',
+    width: '1536px',
+    minHeight: '864px',
   });
 });
 
@@ -328,7 +326,7 @@ test('a click on the canvas goes back to the canvas settings', () => {
 
 test('fits the visuals of the page to the canvas height', () => {
   const store = makeStore();
-  // One row: 16 px of gutter plus charts 50 units (400 px) tall
+  // One row of charts 416 px tall; rows have no gutter
   dispatcher(store)(fitToCanvas(216, 416));
   const { present } = stateOf(store).dashboardLayout;
   expect(present['CHART-a'].meta.height).toBe(25);
@@ -351,8 +349,8 @@ test('objects grow only into the room left on the page', () => {
     </CanvasFrame>,
     { store },
   );
-  // A 720 px page with nothing measured: the row's 50 units plus 90 more
-  expect(screen.getByTestId('max-height')).toHaveTextContent('140');
+  // An 864 px page with nothing measured: the row's 50 cells plus 27 more
+  expect(screen.getByTestId('max-height')).toHaveTextContent('77');
 
   // Viewers never resize, and outside a page frame there is no limit
   dispatcher(store)({ type: 'SET_EDIT_MODE', editMode: false });

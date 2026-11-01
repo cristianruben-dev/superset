@@ -20,6 +20,8 @@ import { getEmptyImage } from 'react-dnd-html5-backend';
 import {
   ComponentType as ReactComponentType,
   CSSProperties,
+  DragEvent,
+  PointerEvent,
   PureComponent,
   ReactNode,
 } from 'react';
@@ -62,6 +64,8 @@ interface DragDroppableOwnProps extends BaseDragDroppableProps {
   onDragTab?: (dragComponentId: string | undefined) => void;
   editMode?: boolean;
   useEmptyDragPreview?: boolean;
+  onPointerDown?: (event: PointerEvent<HTMLElement>) => void;
+  onDragStart?: (event: DragEvent<HTMLElement>) => void;
 }
 
 interface DragDroppableDndProps {
@@ -233,6 +237,8 @@ export class UnwrappedDragDroppable extends PureComponent<
       editMode,
       component,
       dragComponentType,
+      onPointerDown,
+      onDragStart,
     } = this.props;
 
     const { dropIndicator } = this.state;
@@ -266,6 +272,8 @@ export class UnwrappedDragDroppable extends PureComponent<
         style={style ?? undefined}
         ref={this.setRef}
         data-test="dragdroppable-object"
+        onPointerDown={onPointerDown}
+        onDragStart={onDragStart}
         className={cx(
           'dragdroppable',
           editMode && 'dragdroppable--edit-mode',

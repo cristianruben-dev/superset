@@ -39,7 +39,6 @@ import {
 } from 'src/dashboard/util/crossFilters';
 import {
   DASHBOARD_HEADER_ID,
-  GRID_DEFAULT_CHART_WIDTH,
   DASHBOARD_ROOT_ID,
 } from 'src/dashboard/util/constants';
 import {
@@ -50,10 +49,12 @@ import {
 import findFirstParentContainerId from 'src/dashboard/util/findFirstParentContainer';
 import getEmptyLayout from 'src/dashboard/util/getEmptyLayout';
 import {
+  DEFAULT_OBJECT_COLUMNS,
   gridColumnCount,
-  scaledWidth,
   syncGridColumnCount,
 } from 'src/mibi/format/columns';
+import { layoutToCells } from 'src/mibi/format/cells';
+import { layoutToPositions } from 'src/mibi/format/positions';
 import getLocationHash from 'src/dashboard/util/getLocationHash';
 import newComponentFactory, {
   DashboardEntity,
@@ -128,16 +129,20 @@ export const hydrateDashboard =
     // new dash: position_json could be {} or null
     // getEmptyLayout() includes a version string entry plus BasicLayoutItem entries
     // which lack the `meta` field; layout is mutated below to add full LayoutItem entries
-    const layout = (
-      positionData && Object.keys(positionData).length > 0
-        ? positionData
-        : getEmptyLayout()
-    ) as Record<string, LayoutItem | DashboardEntity>;
+    // Layouts saved before the cell grid are converted to cells once, and
+    // every object gets the cell it has on the page
+    const layout = layoutToPositions(
+      layoutToCells(
+        (positionData && Object.keys(positionData).length > 0
+          ? positionData
+          : getEmptyLayout()) as never,
+      ) as never,
+    ) as unknown as Record<string, LayoutItem | DashboardEntity>;
 
-    // Charts added from explore take the layout's grid density
+    // Charts added from explore span the canvas in cells
     syncGridColumnCount(layout);
     const columnCount = gridColumnCount();
-    const newChartWidth = scaledWidth(GRID_DEFAULT_CHART_WIDTH, columnCount);
+    const newChartWidth = DEFAULT_OBJECT_COLUMNS;
 
     // create a lookup to sync layout names with slice names
     const chartIdToLayoutId: Record<number, string> = {};

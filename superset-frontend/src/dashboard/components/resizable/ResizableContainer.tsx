@@ -16,7 +16,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useContext, useMemo } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { ResizeCallback, ResizeStartCallback, Resizable } from 're-resizable';
 import { useCanvasMobile, useCanvasZoom } from 'src/mibi/format/CanvasFrame';
 import cx from 'classnames';
@@ -26,9 +27,18 @@ import {
   RightResizeHandle,
   BottomResizeHandle,
   BottomRightResizeHandle,
+  LeftResizeHandle,
+  TopResizeHandle,
+  TopLeftResizeHandle,
+  TopRightResizeHandle,
+  BottomLeftResizeHandle,
 } from './ResizableHandle';
+import type { RootState } from '../../types';
+import { resizeObject } from 'src/mibi/format/actions';
+import { ObjectShiftContext } from 'src/mibi/format/ObjectShift';
+import { posOf } from 'src/mibi/format/positions';
 import resizableConfig from '../../util/resizableConfig';
-import { GRID_BASE_UNIT, GRID_GUTTER_SIZE } from '../../util/constants';
+import { CELL } from 'src/mibi/format/types';
 
 const proxyToInfinity = Number.MAX_VALUE;
 
@@ -56,12 +66,16 @@ export interface ResizableContainerProps {
   editMode: boolean;
 }
 
-// because columns are not multiples of a single variable (width = n*cols + (n-1) * gutters)
-// we snap to the base unit and then snap to _actual_ column multiples on stop
-const SNAP_TO_GRID: [number, number] = [GRID_BASE_UNIT, GRID_BASE_UNIT];
+// Objects are a whole number of cells wide and tall: they snap to the cell
+const SNAP_TO_GRID: [number, number] = [CELL, CELL];
 const HANDLE_CLASSES = {
   right: 'resizable-container-handle--right',
   bottom: 'resizable-container-handle--bottom',
+  left: 'resizable-container-handle--left',
+  top: 'resizable-container-handle--top',
+  topLeft: 'resizable-container-handle--top-left',
+  topRight: 'resizable-container-handle--top-right',
+  bottomLeft: 'resizable-container-handle--bottom-left',
 };
 // @ts-expect-error
 const StyledResizable = styled(Resizable)`
@@ -165,9 +179,9 @@ export default function ResizableContainer({
   editMode,
   adjustableWidth = true,
   adjustableHeight = true,
-  gutterWidth = GRID_GUTTER_SIZE,
-  widthStep = GRID_BASE_UNIT,
-  heightStep = GRID_BASE_UNIT,
+  gutterWidth = 0,
+  widthStep = CELL,
+  heightStep = CELL,
   minWidthMultiple = 1,
   maxWidthMultiple = proxyToInfinity,
   minHeightMultiple = 1,
@@ -179,11 +193,37 @@ export default function ResizableContainer({
   const mobile = useCanvasMobile();
   const widthAdjustable = adjustableWidth && !mobile;
 
+  // Size in cells while resizing, shown next to the object
+  const [liveSize, setLiveSize] = useState<[number, number] | null>(null);
+
+  // An object on a cell of the page can also be resized from its left and top
+  // edges: it follows the edge so the opposite one stays put
+  const pos = useSelector((state: RootState) =>
+    posOf(state.dashboardLayout?.present?.[id]?.meta),
+  );
+  const dispatch = useDispatch();
+  const followEdge = useContext(ObjectShiftContext);
+  const cellsOf = useCallback(
+    (delta: { width: number; height: number }) => ({
+      width: Math.round(delta.width / (widthStep + gutterWidth)),
+      height: Math.round(delta.height / heightStep),
+    }),
+    [widthStep, gutterWidth, heightStep],
+  );
+
   const handleResize = useCallback<ResizeCallback>(
     (event, direction, elementRef, delta) => {
+      const grown = cellsOf(delta);
+      setLiveSize([widthMultiple + grown.width, heightMultiple + grown.height]);
+      if (pos) {
+        followEdge?.({
+          x: /left/i.test(direction) ? -grown.width : 0,
+          y: /^top/i.test(direction) ? -grown.height : 0,
+        });
+      }
       if (onResize) onResize(event, direction, elementRef, delta);
     },
-    [onResize],
+    [onResize, widthMultiple, heightMultiple, cellsOf, pos, followEdge],
   );
 
   const handleResizeStart = useCallback<ResizeStartCallback>(
@@ -196,6 +236,29 @@ export default function ResizableContainer({
 
   const handleResizeStop = useCallback<ResizeCallback>(
     (event, direction, elementRef, delta) => {
+      followEdge?.(null);
+      const leftward = /left/i.test(direction);
+      const upward = /^top/i.test(direction);
+      if (pos && (leftward || upward)) {
+        const grown = cellsOf(delta);
+        const x0 = pos.x - (leftward ? grown.width : 0);
+        const y0 = pos.y - (upward ? grown.height : 0);
+        const x = Math.max(0, x0);
+        const y = Math.max(0, y0);
+        dispatch(
+          resizeObject(
+            id,
+            {
+              width: Math.max(1, widthMultiple + grown.width - (x - x0)),
+              height: Math.max(1, heightMultiple + grown.height - (y - y0)),
+            },
+            { x, y },
+          ),
+        );
+        setIsResizing(false);
+        setLiveSize(null);
+        return;
+      }
       if (onResizeStop) {
         const nextWidthMultiple =
           widthMultiple + Math.round(delta.width / (widthStep + gutterWidth));
@@ -215,8 +278,13 @@ export default function ResizableContainer({
         );
       }
       setIsResizing(false);
+      setLiveSize(null);
     },
     [
+      followEdge,
+      pos,
+      cellsOf,
+      dispatch,
       onResizeStop,
       widthMultiple,
       heightMultiple,
@@ -265,22 +333,29 @@ export default function ResizableContainer({
       right: <RightResizeHandle />,
       bottom: <BottomResizeHandle />,
       bottomRight: <BottomRightResizeHandle />,
+      left: <LeftResizeHandle />,
+      top: <TopResizeHandle />,
+      topLeft: <TopLeftResizeHandle />,
+      topRight: <TopRightResizeHandle />,
+      bottomLeft: <BottomLeftResizeHandle />,
     }),
     [],
   );
 
   const enableConfig = useMemo(() => {
     if (editMode && widthAdjustable && adjustableHeight) {
-      return resizableConfig.widthAndHeight;
+      return pos
+        ? resizableConfig.allEdges
+        : resizableConfig.widthAndHeight;
     }
     if (editMode && widthAdjustable) {
-      return resizableConfig.widthOnly;
+      return pos ? resizableConfig.leftAndRight : resizableConfig.widthOnly;
     }
     if (editMode && adjustableHeight) {
-      return resizableConfig.heightOnly;
+      return pos ? resizableConfig.topAndBottom : resizableConfig.heightOnly;
     }
     return resizableConfig.notAdjustable;
-  }, [editMode, widthAdjustable, adjustableHeight]);
+  }, [editMode, widthAdjustable, adjustableHeight, pos]);
 
   return (
     <StyledResizable
@@ -325,6 +400,11 @@ export default function ResizableContainer({
       handleClasses={HANDLE_CLASSES}
     >
       {children}
+      {isResizing && liveSize && (
+        <div className="mibi-size-badge" data-test="mibi-size-badge">
+          {liveSize[0]} × {liveSize[1]}
+        </div>
+      )}
     </StyledResizable>
   );
 }

@@ -26,8 +26,8 @@ export const Section = styled.section`
   ${({ theme }) => css`
     display: flex;
     flex-direction: column;
-    gap: ${theme.sizeUnit * 3}px;
-    padding: ${theme.sizeUnit * 4}px ${theme.sizeUnit * 4}px;
+    gap: ${theme.sizeUnit * 2}px;
+    padding: ${theme.sizeUnit * 3}px ${theme.sizeUnit * 4}px;
     border-bottom: 1px solid ${theme.colorBorderSecondary};
 
     h4 {
@@ -47,8 +47,9 @@ const FieldRow = styled.label<{ $stacked?: boolean }>`
     flex-direction: ${$stacked ? 'column' : 'row'};
     align-items: ${$stacked ? 'stretch' : 'center'};
     justify-content: space-between;
-    gap: ${theme.sizeUnit * ($stacked ? 1 : 3)}px;
+    gap: ${theme.sizeUnit * ($stacked ? 1 : 2)}px;
     margin: 0;
+    min-height: ${theme.sizeUnit * 6}px;
     font-size: ${theme.fontSizeSM}px;
     color: ${theme.colorTextSecondary};
 
@@ -99,7 +100,7 @@ const SliderBox = styled.div`
 
     .ant-slider {
       flex: 1;
-      margin: ${theme.sizeUnit * 1.5}px ${theme.sizeUnit}px;
+      margin: 0 ${theme.sizeUnit}px;
     }
 
     .value {

@@ -882,13 +882,6 @@ table,
   visibility: hidden;
 }
 
-.mibi-canvas .dashboard-component-chart-holder:not(.mibi-full-size),
-.mibi-canvas .dashboard-markdown {
-  margin: var(--mb-gap-inset, 0px);
-  width: calc(100% - 2 * var(--mb-gap-inset, 0px)) !important;
-  height: calc(100% - 2 * var(--mb-gap-inset, 0px)) !important;
-}
-
 .dashboard-component-chart-holder.mibi-selected {
   outline: 2px solid var(--mb-primary);
   outline-offset: 2px;
@@ -1300,6 +1293,60 @@ body.mibi-presenting-idle * {
   height: 100%;
 }
 
+/* Cell grid: every object has a cell of its own on the page (meta.mibiPos),
+   so rows, columns and the page grid are only containers: they take no room
+   and are not positioned, and objects are placed against the page. */
+.mibi-canvas:not(.mibi-mobile) .dashboard-grid,
+.mibi-canvas:not(.mibi-mobile) .ant-tabs-content,
+.mibi-canvas:not(.mibi-mobile) .grid-content,
+.mibi-canvas:not(.mibi-mobile) .grid-row,
+.mibi-canvas:not(.mibi-mobile) .grid-column,
+.mibi-canvas:not(.mibi-mobile)
+  .dragdroppable:not([style*='position: absolute']) {
+  position: static !important;
+}
+
+.mibi-canvas:not(.mibi-mobile) .grid-content > div:not(:last-child),
+.mibi-canvas:not(.mibi-mobile) .grid-row > :not(:last-child),
+.mibi-canvas:not(.mibi-mobile) .grid-column > :not(:last-child) {
+  margin: 0 !important;
+}
+
+.mibi-canvas .dragdroppable[style*='position: absolute'] {
+  z-index: 1;
+}
+
+/* There are no places to drop between objects: anywhere on the page is one.
+   The last drop target of the page covers all of it, under the objects, and
+   only listens while something is dragged. */
+.mibi-canvas:not(.mibi-mobile) .grid-row .empty-droptarget,
+.mibi-canvas:not(.mibi-mobile) .grid-column .empty-droptarget,
+.mibi-canvas:not(.mibi-mobile) .grid-content > .empty-droptarget:not(:last-child) {
+  display: none !important;
+}
+
+.mibi-canvas:not(.mibi-mobile) .grid-content > .empty-droptarget:last-child {
+  position: absolute !important;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100% !important;
+  margin: 0 !important;
+  pointer-events: none;
+}
+
+.mibi-dragging
+  .mibi-canvas:not(.mibi-mobile)
+  .grid-content
+  > .empty-droptarget:last-child {
+  pointer-events: auto;
+}
+
+.mibi-canvas .drop-indicator,
+.mibi-canvas .empty-droptarget::before {
+  display: none !important;
+}
+
 /* While editing, the row under the pointer shows which objects it groups */
 .dashboard--editing .mibi-canvas:not(.mibi-mobile) .grid-row:hover {
   outline: 1px dashed var(--mb-primary-border);
@@ -1329,12 +1376,6 @@ body.mibi-presenting-idle * {
 .mibi-element.mibi-selected {
   outline: 2px solid var(--mb-primary);
   outline-offset: 2px;
-}
-
-.mibi-canvas .mibi-element {
-  margin: var(--mb-gap-inset, 0px);
-  width: calc(100% - 2 * var(--mb-gap-inset, 0px));
-  height: calc(100% - 2 * var(--mb-gap-inset, 0px));
 }
 
 .mibi-element .hover-menu {
@@ -1573,4 +1614,144 @@ body.mibi-presenting-idle * {
 .mibi-help-tooltip .ant-tooltip-arrow::before,
 .mibi-help-tooltip .ant-tooltip-arrow::after {
   box-shadow: none;
+}
+
+/* The empty cells left around objects do not exist in the mobile layout */
+.mibi-mobile .dragdroppable[style*='position: absolute'] {
+  position: relative !important;
+  left: auto !important;
+  top: auto !important;
+}
+
+/* ---- Moving and resizing objects on the cell grid ------------------------ */
+
+body.mibi-moving,
+body.mibi-moving * {
+  cursor: grabbing !important;
+  user-select: none !important;
+}
+
+.mibi-canvas .dragdroppable.mibi-moving {
+  opacity: 0.9;
+  filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.25));
+}
+
+/* Objects can be picked up from anywhere while editing */
+.dashboard--editing .mibi-canvas .dragdroppable[style*='position: absolute'] {
+  cursor: grab;
+}
+
+/* Resize handles: easy to hit, and visible on the selected object */
+.mibi-canvas .resizable-container .resize-handle {
+  opacity: 0;
+  transition: opacity 120ms ease;
+}
+
+.mibi-canvas .resizable-container:hover .resize-handle,
+.mibi-canvas .mibi-selected .resize-handle,
+.mibi-canvas .resizable-container--resizing .resize-handle {
+  opacity: 1;
+}
+
+.mibi-canvas .resize-handle--right {
+  width: 6px !important;
+  height: 28px !important;
+  right: -3px !important;
+  border: 0 !important;
+  border-radius: 3px;
+  background: var(--mb-primary);
+}
+
+.mibi-canvas .resize-handle--bottom {
+  width: 28px !important;
+  height: 6px !important;
+  bottom: -3px !important;
+  border: 0 !important;
+  border-radius: 3px;
+  background: var(--mb-primary);
+}
+
+.mibi-canvas .resize-handle--bottom-right {
+  width: 12px !important;
+  height: 12px !important;
+  right: -6px !important;
+  bottom: -6px !important;
+  border: 2px solid var(--mb-primary) !important;
+  border-radius: 3px;
+  background: var(--mb-surface, #fff);
+}
+
+.mibi-canvas .resizable-container [class*='resizable-container-handle--right'] {
+  cursor: ew-resize;
+}
+
+.mibi-canvas .resizable-container [class*='resizable-container-handle--bottom'] {
+  cursor: ns-resize;
+}
+
+.mibi-size-badge {
+  position: absolute;
+  left: 50%;
+  top: -26px;
+  z-index: 40;
+  transform: translateX(-50%);
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--mb-primary);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.mibi-canvas .resize-handle--left {
+  width: 6px !important;
+  height: 28px !important;
+  left: -3px !important;
+  top: 50%;
+  transform: translate(0, -50%);
+  position: absolute;
+  border: 0 !important;
+  border-radius: 3px;
+  background: var(--mb-primary);
+}
+
+.mibi-canvas .resize-handle--top {
+  width: 28px !important;
+  height: 6px !important;
+  top: -3px !important;
+  left: 50%;
+  transform: translate(-50%, 0);
+  position: absolute;
+  border: 0 !important;
+  border-radius: 3px;
+  background: var(--mb-primary);
+}
+
+.mibi-canvas .resize-handle--top-left,
+.mibi-canvas .resize-handle--top-right,
+.mibi-canvas .resize-handle--bottom-left {
+  position: absolute;
+  width: 12px !important;
+  height: 12px !important;
+  border: 2px solid var(--mb-primary) !important;
+  border-radius: 3px;
+  background: var(--mb-surface, #fff);
+}
+
+.mibi-canvas .resize-handle--top-left {
+  left: -6px !important;
+  top: -6px !important;
+}
+
+.mibi-canvas .resize-handle--top-right {
+  right: -6px !important;
+  top: -6px !important;
+}
+
+.mibi-canvas .resize-handle--bottom-left {
+  left: -6px !important;
+  bottom: -6px !important;
 }
