@@ -35,9 +35,13 @@ import {
   useSingleViewResource,
 } from 'src/views/CRUD/hooks';
 import { AlertObject, LogObject } from 'src/features/alerts/types';
-import { AnnotationObject } from 'src/features/annotations/types';
 
 const PAGE_SIZE = 25;
+
+type ExecutionLogRow = {
+  start_dttm: string;
+  end_dttm: string;
+};
 
 const StyledHeader = styled.div`
   ${({ theme }) => css`
@@ -136,7 +140,7 @@ function ExecutionLog({
             original: { start_dttm: startDttm },
           },
         }: {
-          row: { original: AnnotationObject };
+          row: { original: ExecutionLogRow };
         }) => dayjs(new Date(startDttm)).format('YYYY-MM-DD hh:mm:ss a'),
         Header: t('Start at (UTC)'),
         accessor: 'start_dttm',
@@ -148,7 +152,7 @@ function ExecutionLog({
             original: { start_dttm: startDttm, end_dttm: endDttm },
           },
         }: {
-          row: { original: AnnotationObject };
+          row: { original: ExecutionLogRow };
         }) => (
           <Label monospace>
             {fDuration(
