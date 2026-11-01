@@ -23,3 +23,4 @@ export {
   type PreviewCell,
   type PreviewRows,
 } from './useDashboardPreviews';
+export { useThumbnail } from './useThumbnail';

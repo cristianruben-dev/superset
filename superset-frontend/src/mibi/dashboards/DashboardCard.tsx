@@ -24,6 +24,7 @@ import { CertifiedBadge } from '@superset-ui/core/components';
 import { Icons } from '@superset-ui/core/components/Icons';
 import { DashboardPreview } from './DashboardPreview';
 import type { PreviewRows } from './useDashboardPreviews';
+import { useThumbnail } from './useThumbnail';
 
 const Card = styled.div`
   ${({ theme }) => css`
@@ -181,7 +182,7 @@ export interface DashboardCardProps {
   modified: string;
   /** Layout preview; undefined while it loads */
   preview?: PreviewRows;
-  /** Screenshot of the dashboard, when thumbnails are enabled */
+  /** Thumbnail endpoint of the dashboard, when thumbnails are enabled */
   thumbnailUrl?: string | null;
   /** Favorite star, menus... shown next to the title */
   actions?: ReactNode;
@@ -207,16 +208,13 @@ export function DashboardCard({
   certificationDetails,
   onSelect,
 }: DashboardCardProps) {
+  // The screenshot replaces the layout preview once the worker has rendered it
+  const thumbnail = useThumbnail(thumbnailUrl);
   const [thumbnailFailed, setThumbnailFailed] = useState(false);
-  const showThumbnail = !!thumbnailUrl && !thumbnailFailed;
+  const showThumbnail = !!thumbnail && !thumbnailFailed;
 
   const previewContent = showThumbnail ? (
-    <img
-      src={thumbnailUrl!}
-      alt=""
-      loading="lazy"
-      onError={() => setThumbnailFailed(true)}
-    />
+    <img src={thumbnail!} alt="" onError={() => setThumbnailFailed(true)} />
   ) : preview && preview.length === 0 ? (
     <span className="empty-preview">
       <Icons.PlusOutlined />

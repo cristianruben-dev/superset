@@ -16,7 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { render, screen, userEvent } from 'spec/helpers/testing-library';
+import fetchMock from 'fetch-mock';
+import {
+  render,
+  screen,
+  userEvent,
+  waitFor,
+} from 'spec/helpers/testing-library';
 import { DashboardCard } from './DashboardCard';
 import { DashboardPreview, glyphFor } from './DashboardPreview';
 
@@ -72,14 +78,26 @@ test('shows the layout preview, title, date and status', () => {
   expect(screen.getByText('Published')).toBeInTheDocument();
 });
 
-test('uses the screenshot when there is one', () => {
+test('shows the layout preview until the screenshot is ready', async () => {
+  jest.spyOn(window.URL, 'createObjectURL').mockReturnValue('blob:thumb');
+  fetchMock.get(
+    'glob:*/thumb.png',
+    new Response(new Blob(['png'], { type: 'image/png' }), {
+      status: 200,
+      headers: { 'Content-Type': 'image/png' },
+    }),
+  );
   const { container } = render(
     <DashboardCard {...props} thumbnailUrl="/thumb.png" preview={[]} />,
     { useRouter: true },
   );
 
-  expect(container.querySelector('img')).toHaveAttribute('src', '/thumb.png');
+  expect(screen.getByText('Empty dashboard')).toBeInTheDocument();
+  await waitFor(() =>
+    expect(container.querySelector('img')).toHaveAttribute('src', 'blob:thumb'),
+  );
   expect(screen.queryByText('Empty dashboard')).not.toBeInTheDocument();
+  fetchMock.removeRoutes().clearHistory();
 });
 
 test('selects instead of navigating in bulk mode', () => {

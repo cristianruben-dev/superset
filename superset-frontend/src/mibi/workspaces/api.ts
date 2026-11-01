@@ -196,6 +196,7 @@ export interface WorkspaceDashboard {
   published: boolean;
   changed_on_delta_humanized: string;
   can_edit: boolean;
+  thumbnail_url: string | null;
 }
 
 export async function fetchWorkspaceDashboards(

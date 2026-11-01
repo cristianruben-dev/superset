@@ -21,7 +21,12 @@ import { Link, useHistory, useParams } from 'react-router-dom';
 import { t, tn } from '@apache-superset/core/translation';
 import { css, styled } from '@apache-superset/core/theme';
 import { logging } from '@apache-superset/core/utils';
-import { getClientErrorObject, SupersetClient } from '@superset-ui/core';
+import {
+  FeatureFlag,
+  getClientErrorObject,
+  isFeatureEnabled,
+  SupersetClient,
+} from '@superset-ui/core';
 import {
   Button,
   DeleteModal,
@@ -587,6 +592,11 @@ export default function WorkspacePage() {
             published={dashboard.published}
             modified={t('Modified %s', dashboard.changed_on_delta_humanized)}
             preview={previews[dashboard.id]}
+            thumbnailUrl={
+              isFeatureEnabled(FeatureFlag.Thumbnails)
+                ? dashboard.thumbnail_url
+                : null
+            }
             actions={
               <>
                 <FaveStar

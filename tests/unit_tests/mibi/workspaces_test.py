@@ -247,6 +247,7 @@ def test_workspace_dashboards(
     assert [d["id"] for d in response.json["result"]] == [a.id]
     assert response.json["result"][0]["dashboard_title"] == "A"
     assert response.json["result"][0]["url"] == a.url
+    assert "thumbnail_url" in response.json["result"][0]
     assert client.get("/api/v1/workspace/404/dashboards/").status_code == 404
 
 

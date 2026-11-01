@@ -518,6 +518,7 @@ class WorkspaceRestApi(BaseSupersetApi):
                     "published": dashboard.published,
                     "changed_on_delta_humanized": dashboard.changed_on_humanized,
                     "can_edit": security_manager.is_owner(dashboard),
+                    "thumbnail_url": dashboard.thumbnail_url,
                 }
                 for dashboard in dashboards
             ],

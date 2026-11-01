@@ -21,7 +21,11 @@ import { Link } from 'react-router-dom';
 import rison from 'rison';
 import { t, tn } from '@apache-superset/core/translation';
 import { css, styled } from '@apache-superset/core/theme';
-import { SupersetClient } from '@superset-ui/core';
+import {
+  FeatureFlag,
+  isFeatureEnabled,
+  SupersetClient,
+} from '@superset-ui/core';
 import { FaveStar, Skeleton } from '@superset-ui/core/components';
 import { Icons } from '@superset-ui/core/components/Icons';
 import { useToasts } from 'src/components/MessageToasts/withToasts';
@@ -42,6 +46,7 @@ export interface DashboardCardData {
   url: string;
   published: boolean;
   changed_on_delta_humanized: string;
+  thumbnail_url?: string | null;
 }
 
 type DashboardTab = 'recent' | 'favorite';
@@ -372,6 +377,7 @@ const fetchDashboards = async (tab: DashboardTab) => {
         'url',
         'published',
         'changed_on_delta_humanized',
+        'thumbnail_url',
       ],
     })}`,
   });
@@ -508,6 +514,11 @@ export function HomeContent() {
               published={dashboard.published}
               modified={t('Modified %s', dashboard.changed_on_delta_humanized)}
               preview={previews[dashboard.id]}
+              thumbnailUrl={
+                isFeatureEnabled(FeatureFlag.Thumbnails)
+                  ? dashboard.thumbnail_url
+                  : null
+              }
               actions={
                 <FaveStar
                   itemId={dashboard.id}
