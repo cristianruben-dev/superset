@@ -20,7 +20,7 @@ import { t } from '@apache-superset/core/translation';
 import { css, styled, useTheme } from '@apache-superset/core/theme';
 import { Icons } from '@superset-ui/core/components/Icons';
 import { ensureStaticPrefix } from 'src/utils/assetUrl';
-import { AURA_GRADIENT, PRODUCT_TAG } from './brand';
+import { AURA_GRADIENT, COMPANY_NAME, PRODUCT_TAG } from './brand';
 import { ProductTag } from './Sidebar';
 
 const Panel = styled.section`
@@ -169,7 +169,7 @@ export function LoginBrand() {
       <footer>
         {t('A product of')}{' '}
         <a href="https://auradata.mx" target="_blank" rel="noreferrer">
-          AuraData
+          {COMPANY_NAME}
         </a>
       </footer>
     </Panel>
