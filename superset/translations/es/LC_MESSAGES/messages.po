@@ -4020,7 +4020,7 @@ msgstr ""
 "esos gráficos."
 
 msgid "Dashboard title"
-msgstr "Titulo del panel de control"
+msgstr "Título del panel de control"
 
 msgid "Dashboard usage"
 msgstr "Uso del panel de control"
