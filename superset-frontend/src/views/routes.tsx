@@ -25,6 +25,7 @@ import {
   LazyExoticComponent,
 } from 'react';
 import { Redirect } from 'react-router-dom';
+import ExploreGate from 'src/mibi/ExploreGate';
 import { isUserAdmin } from 'src/dashboard/util/permissionUtils';
 import getBootstrapData from 'src/utils/getBootstrapData';
 
@@ -108,8 +109,15 @@ const ExecutionLogList = lazy(
     ),
 );
 
-const Chart = lazy(
+const ChartPage = lazy(
   () => import(/* webpackChunkName: "Chart" */ 'src/pages/Chart'),
+);
+
+// Explore only runs inside the chart editor panel of a dashboard
+const Chart = () => (
+  <ExploreGate>
+    <ChartPage />
+  </ExploreGate>
 );
 
 const QueryHistoryList = lazy(
