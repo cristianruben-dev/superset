@@ -139,7 +139,9 @@ THEME_DEFAULT: Theme = {
         "colorTextTertiary": "#737373",
         "colorFillSecondary": "#F5F5F5",
         "colorEditorSelection": "#DBEAFE",
-        "boxShadow": "0 1px 2px rgba(0, 0, 0, 0.04), 0 8px 24px -12px rgba(0, 0, 0, 0.08)",
+        "boxShadow": (
+            "0 1px 2px rgba(0, 0, 0, 0.04), 0 8px 24px -12px rgba(0, 0, 0, 0.08)"
+        ),
         "boxShadowSecondary": (
             "0 1px 2px rgba(0, 0, 0, 0.04), 0 24px 48px -16px rgba(15, 23, 42, 0.18)"
         ),

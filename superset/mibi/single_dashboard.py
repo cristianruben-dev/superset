@@ -18,8 +18,8 @@
 Single-dashboard charts: every chart belongs to at most one dashboard.
 
 Upstream Superset treats charts as standalone objects that any number of dashboards
-can reuse. AuraData BI follows the Power BI model instead, where a visual lives inside one
-report. The rule is controlled by ``MIBI_SINGLE_DASHBOARD_CHARTS``.
+can reuse. AuraData BI follows the Power BI model instead, where a visual lives
+inside one report. The rule is controlled by ``MIBI_SINGLE_DASHBOARD_CHARTS``.
 
 It is enforced in two layers:
 
