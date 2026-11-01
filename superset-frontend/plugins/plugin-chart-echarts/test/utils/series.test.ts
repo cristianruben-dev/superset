@@ -117,14 +117,7 @@ const {
 } = require('../../src/utils/legendLayout');
 
 const expectedThemeProps = {
-  selector: ['all', 'inverse'],
   selected: {},
-  selectorLabel: {
-    fontFamily: theme.fontFamily,
-    fontSize: theme.fontSizeSM,
-    color: theme.colorText,
-    borderColor: theme.colorBorder,
-  },
 };
 
 const sortData: DataRecord[] = [

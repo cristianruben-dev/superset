@@ -805,13 +805,6 @@ export function getLegendProps(
     show,
     type,
     selected: legendState ?? {},
-    selector: ['all', 'inverse'],
-    selectorLabel: {
-      fontFamily: theme.fontFamily,
-      fontSize: theme.fontSizeSM,
-      color: theme.colorText,
-      borderColor: theme.colorBorder,
-    },
   };
   const MIN_LEGEND_WIDTH = 0;
   const MARGIN_GUTTER = 45;
