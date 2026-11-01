@@ -36,8 +36,6 @@ export type NavIconName =
   | 'GroupOutlined'
   | 'ProfileOutlined'
   | 'SafetyOutlined'
-  | 'FormatPainterOutlined'
-  | 'BgColorsOutlined'
   | 'AppstoreOutlined';
 
 export interface NavItem {
@@ -71,8 +69,6 @@ const ICONS: Record<string, NavIconName> = {
   'List Groups': 'GroupOutlined',
   'Action Log': 'ProfileOutlined',
   'Row Level Security': 'SafetyOutlined',
-  'CSS Templates': 'FormatPainterOutlined',
-  Themes: 'BgColorsOutlined',
 };
 
 /** Menus whose entries go to the primary navigation, in this order. */
@@ -81,7 +77,12 @@ const PRIMARY = ['Dashboards'];
 const DATA_MENUS = ['Datasets', 'Data'];
 const DATA_URL = '/data/';
 /** Pages that belong to the "Data" entry of the sidebar. */
-const DATA_PATHS = ['/data/', '/tablemodelview/', '/databaseview/', '/dataset/'];
+const DATA_PATHS = [
+  '/data/',
+  '/tablemodelview/',
+  '/databaseview/',
+  '/dataset/',
+];
 /** Menus grouped under their own titled section, in this order. */
 const SECTIONS: { key: string; menus: string[]; collapsible?: boolean }[] = [
   { key: 'sql', menus: ['SQL Lab'] },

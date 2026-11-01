@@ -270,12 +270,8 @@ test('can edit dashboard title via properties modal', async () => {
       css: '',
       is_managed_externally: false,
       metadata: {},
-      theme: null,
     },
   });
-
-  // Mock themes endpoint (PropertiesModal fetches available themes)
-  fetchMock.get('glob:*/api/v1/theme/*', { result: [] });
 
   // Catch-all must be last — fail hard on unmatched URLs
   fetchMock.get(API_ENDPOINTS.CATCH_ALL, (callLog: any) => {

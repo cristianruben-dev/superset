@@ -484,15 +484,9 @@ export interface ThemeContextType {
   setTheme: (config: AnyThemeConfig) => void;
   setThemeMode: (newMode: ThemeMode) => void;
   resetTheme: () => void;
-  setTemporaryTheme: (config: AnyThemeConfig, themeId?: number | null) => void;
-  clearLocalOverrides: () => void;
-  getCurrentCrudThemeId: () => string | null;
-  hasDevOverride: () => boolean;
   canSetMode: () => boolean;
   canSetTheme: () => boolean;
   canDetectOSPreference: () => boolean;
-  createDashboardThemeProvider: (themeId: string) => Promise<Theme | null>;
-  getAppliedThemeId: () => number | null;
 }
 
 /**

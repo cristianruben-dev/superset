@@ -47,7 +47,6 @@ import {
   getPermalinkValue,
 } from 'src/dashboard/components/nativeFilters/FilterBar/keyValue';
 import DashboardContainer from 'src/dashboard/containers/Dashboard';
-import CrudThemeProvider from 'src/components/CrudThemeProvider';
 import type { DashboardChartStates } from 'src/dashboard/types/chartState';
 
 import { nanoid } from 'nanoid';
@@ -119,9 +118,6 @@ export const DashboardPage: FC<PageProps> = ({ idOrSlug }: PageProps) => {
   const hasDashboardInfoInitiated = useSelector<RootState, boolean>(
     ({ dashboardInfo }) =>
       dashboardInfo && Object.keys(dashboardInfo).length > 0,
-  );
-  const reduxTheme = useSelector(
-    (state: RootState) => state.dashboardInfo.theme,
   );
   const { addDangerToast } = useToasts();
   const { result: dashboard, error: dashboardApiError } =
@@ -294,18 +290,14 @@ export const DashboardPage: FC<PageProps> = ({ idOrSlug }: PageProps) => {
         <>
           <SyncDashboardState dashboardPageId={dashboardPageId} />
           <DashboardPageIdContext.Provider value={dashboardPageId}>
-            <CrudThemeProvider
-              theme={reduxTheme !== undefined ? reduxTheme : dashboard?.theme}
-            >
-              <AutoRefreshProvider>
-                <DashboardContainer
-                  activeFilters={activeFilters as ActiveFilters}
-                  ownDataCharts={relevantDataMask}
-                >
-                  {DashboardBuilderComponent}
-                </DashboardContainer>
-              </AutoRefreshProvider>
-            </CrudThemeProvider>
+            <AutoRefreshProvider>
+              <DashboardContainer
+                activeFilters={activeFilters as ActiveFilters}
+                ownDataCharts={relevantDataMask}
+              >
+                {DashboardBuilderComponent}
+              </DashboardContainer>
+            </AutoRefreshProvider>
           </DashboardPageIdContext.Provider>
         </>
       ) : (

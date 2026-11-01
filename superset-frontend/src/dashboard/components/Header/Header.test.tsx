@@ -119,8 +119,6 @@ const undoState = {
   },
 };
 
-fetchMock.get('glob:*/csstemplateasyncmodelview/api/read', {});
-
 function setup(overrideState: JsonObject = {}) {
   return render(
     <div className="dashboard">
@@ -881,90 +879,4 @@ test('should clear history and unsaved changes when entering edit mode', () => {
 
   expect(clearDashboardHistory).toHaveBeenCalledTimes(1);
   expect(setUnsavedChanges).toHaveBeenCalledWith(false);
-});
-
-test('should mark theme change as unsaved when in edit mode', async () => {
-  const testStore = createStore(
-    {
-      ...initialState,
-      ...editableState,
-      dashboardInfo: {
-        ...editableState.dashboardInfo,
-        theme: 'LIGHT',
-      },
-    },
-    reducerIndex,
-  );
-
-  render(
-    <div className="dashboard">
-      <Header />
-    </div>,
-    {
-      useRedux: true,
-      useTheme: true,
-      store: testStore,
-    },
-  );
-
-  expect(setUnsavedChanges).not.toHaveBeenCalledWith(true);
-
-  testStore.dispatch({
-    type: 'DASHBOARD_INFO_UPDATED',
-    newInfo: {
-      theme: 'DARK',
-    },
-  });
-
-  await waitFor(() => {
-    expect(setUnsavedChanges).toHaveBeenCalledWith(true);
-  });
-});
-
-test('should not mark initial theme as unsaved change', () => {
-  setup({
-    ...editableState,
-    dashboardInfo: {
-      ...editableState.dashboardInfo,
-      theme: 'LIGHT',
-    },
-  });
-
-  expect(setUnsavedChanges).not.toHaveBeenCalledWith(true);
-});
-
-test('should sync theme ref when navigating between dashboards', async () => {
-  const testStore = createStore(
-    {
-      ...initialState,
-      dashboardInfo: {
-        ...initialState.dashboardInfo,
-        theme: 'LIGHT',
-      },
-    },
-    reducerIndex,
-  );
-
-  render(
-    <div className="dashboard">
-      <Header />
-    </div>,
-    {
-      useRedux: true,
-      useTheme: true,
-      store: testStore,
-    },
-  );
-
-  testStore.dispatch({
-    type: 'DASHBOARD_INFO_UPDATED',
-    newInfo: {
-      id: 2,
-      theme: 'DARK',
-    },
-  });
-
-  await waitFor(() => {
-    expect(setUnsavedChanges).toHaveBeenCalledTimes(0);
-  });
 });

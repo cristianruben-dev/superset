@@ -43,17 +43,6 @@ const AlertReportList = lazy(
     ),
 );
 
-const CssTemplateList = lazy(
-  () =>
-    import(
-      /* webpackChunkName: "CssTemplateList" */ 'src/pages/CssTemplateList'
-    ),
-);
-
-const ThemeList = lazy(
-  () => import(/* webpackChunkName: "ThemeList" */ 'src/pages/ThemeList'),
-);
-
 const WorkspaceList = lazy(
   () =>
     import(
@@ -275,14 +264,6 @@ export const routes: Routes = [
   {
     path: '/savedqueryview/list/',
     Component: SavedQueryList,
-  },
-  {
-    path: '/csstemplatemodelview/list/',
-    Component: CssTemplateList,
-  },
-  {
-    path: '/theme/list/',
-    Component: ThemeList,
   },
   {
     path: '/sqllab/history/',

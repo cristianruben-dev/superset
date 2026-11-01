@@ -111,7 +111,6 @@ type DashboardPropertiesUpdate = {
   owners?: Owner[];
   roles?: Role[];
   tags?: TagType[];
-  theme?: { id: number; theme_name: string; json_data: string } | null;
   css?: string;
   title?: string;
 };
@@ -304,7 +303,6 @@ const Header = (): JSX.Element => {
   );
   const ctrlYTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const ctrlZTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const previousThemeRef = useRef(dashboardInfo.theme);
 
   const dashboardTitle = layout[DASHBOARD_HEADER_ID]?.meta?.text ?? '';
   const slug = dashboardInfo.slug ?? '';
@@ -312,7 +310,6 @@ const Header = (): JSX.Element => {
     lastModifiedTime,
     dashboardInfo.last_modified_time ?? 0,
   );
-  const themeId = dashboardInfo.theme ? dashboardInfo.theme.id : null;
   const boundActionCreators = useMemo(
     () =>
       bindActionCreators(
@@ -369,14 +366,6 @@ const Header = (): JSX.Element => {
     setRefreshFrequency: boundActionCreators.setRefreshFrequency,
     logEvent: boundActionCreators.logEvent,
   });
-
-  // Track theme changes as unsaved changes, and sync ref when navigating between dashboards
-  useEffect(() => {
-    if (editMode && dashboardInfo.theme !== previousThemeRef.current) {
-      boundActionCreators.setUnsavedChanges(true);
-    }
-    previousThemeRef.current = dashboardInfo.theme;
-  }, [dashboardInfo.theme, editMode, boundActionCreators]);
 
   useEffect(() => {
     if (UNDO_LIMIT - undoLength <= 0 && !didNotifyMaxUndoHistoryToast) {
@@ -462,7 +451,6 @@ const Header = (): JSX.Element => {
       tags: (dashboardInfo.tags || []).filter(
         item => item.type === TagTypeEnum.Custom || !item.type,
       ),
-      theme_id: themeId,
       metadata: {
         ...dashboardInfo?.metadata,
         color_namespace: currentColorNamespace,
@@ -513,7 +501,6 @@ const Header = (): JSX.Element => {
     refreshFrequency,
     shouldPersistRefreshFrequency,
     slug,
-    themeId,
   ]);
 
   const {
@@ -578,10 +565,6 @@ const Header = (): JSX.Element => {
         owners: updates.owners,
         roles: updates.roles,
         tags: updates.tags,
-        // Conditional spread: omit `theme` key entirely when undefined
-        // to prevent the reducer from overwriting the existing theme.
-        // `undefined` means "not changed" (e.g., theme not in fetched list).
-        ...(updates.theme !== undefined && { theme: updates.theme }),
         css: updates.css,
       });
       boundActionCreators.setUnsavedChanges(true);

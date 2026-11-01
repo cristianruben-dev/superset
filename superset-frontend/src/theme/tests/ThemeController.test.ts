@@ -833,23 +833,8 @@ test('ThemeController handles theme application errors', () => {
   fallbackSpy.mockRestore();
 });
 
-test('ThemeController constructor recovers from corrupted stored theme', () => {
-  // Simulate corrupted dev theme override in storage
-  const corruptedTheme = { token: { colorPrimary: '#ff0000' } };
-  mockLocalStorage.getItem.mockImplementation((key: string) => {
-    if (key === 'superset-dev-theme-override') {
-      return JSON.stringify(corruptedTheme);
-    }
-    return null;
-  });
-
-  // Mock Theme.fromConfig to return object with toSerializedConfig
-  mockThemeFromConfig.mockReturnValue({
-    ...mockThemeObject,
-    toSerializedConfig: () => corruptedTheme,
-  });
-
-  // First call throws (corrupted theme), second call succeeds (fallback)
+test('ThemeController constructor recovers when the configured theme fails to apply', () => {
+  // First call throws, second call succeeds (fallback to the default theme)
   let callCount = 0;
   mockSetConfig.mockImplementation(() => {
     callCount += 1;
@@ -861,172 +846,35 @@ test('ThemeController constructor recovers from corrupted stored theme', () => {
   // Should not throw - constructor should recover
   const controller = createController();
 
-  // Verify recovery happened - use shared consoleSpy to avoid interfering with other tests
   expect(consoleSpy).toHaveBeenCalledWith(
-    'Failed to apply stored theme, clearing invalid overrides:',
+    'Failed to apply the configured theme:',
     expect.any(Error),
   );
-
-  // Verify invalid overrides were cleared from storage
-  expect(mockLocalStorage.removeItem).toHaveBeenCalledWith(
-    'superset-dev-theme-override',
-  );
-  expect(mockLocalStorage.removeItem).toHaveBeenCalledWith(
-    'superset-crud-theme-id',
-  );
-  expect(mockLocalStorage.removeItem).toHaveBeenCalledWith(
-    'superset-applied-theme-id',
-  );
-
-  // Verify controller is in a valid state
   expect(controller.getCurrentMode()).toBe(ThemeMode.DEFAULT);
 });
 
-test('recovery flow: fetchSystemDefaultTheme returns theme → applies fetched theme', async () => {
-  // Test: fallbackToDefaultMode fetches theme from API and applies it
-  // Flow: fallbackToDefaultMode → fetchSystemDefaultTheme → applyThemeWithRecovery
-
-  const originalFetch = global.fetch;
+test('fallbackToDefaultMode applies the default theme and notifies listeners', () => {
+  const onChange = jest.fn();
   const controller = createController();
+  controller.onChange(onChange);
 
-  try {
-    // Mock fetch to return a system default theme from API
-    const systemTheme = { token: { colorPrimary: '#recovery-theme' } };
-    const mockFetch = jest.fn().mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({
-        result: [{ json_data: JSON.stringify(systemTheme) }],
+  const setConfigCalls: unknown[] = [];
+  mockSetConfig.mockImplementation((config: unknown) => {
+    setConfigCalls.push(config);
+  });
+
+  (controller as any).fallbackToDefaultMode();
+
+  expect(setConfigCalls.length).toBe(1);
+  expect(setConfigCalls[0]).toEqual(
+    expect.objectContaining({
+      token: expect.objectContaining({
+        colorBgBase: '#ededed', // From DEFAULT_THEME in test setup
       }),
-    });
-    global.fetch = mockFetch;
-
-    // Track setConfig calls to verify the fetched theme is applied
-    const setConfigCalls: unknown[] = [];
-    mockSetConfig.mockImplementation((config: unknown) => {
-      setConfigCalls.push(config);
-    });
-
-    // Trigger fallbackToDefaultMode (simulates what happens after applyTheme fails)
-    await (controller as any).fallbackToDefaultMode();
-
-    // Verify API was called to fetch system default theme
-    expect(mockFetch).toHaveBeenCalledWith(
-      expect.stringContaining('/api/v1/theme/'),
-    );
-
-    // Verify the fetched theme was applied via applyThemeWithRecovery
-    expect(setConfigCalls.length).toBe(1);
-    expect(setConfigCalls[0]).toEqual(
-      expect.objectContaining({
-        token: expect.objectContaining({ colorPrimary: '#recovery-theme' }),
-      }),
-    );
-
-    // Verify controller is in default mode
-    expect(controller.getCurrentMode()).toBe(ThemeMode.DEFAULT);
-  } finally {
-    global.fetch = originalFetch;
-  }
-});
-
-test('recovery flow: both API fetches fail → falls back to cached default theme', async () => {
-  // Test: When fetchSystemDefaultTheme fails, fallbackToDefaultMode uses cached theme
-  // Flow: fallbackToDefaultMode → fetchSystemDefaultTheme (fails) → applyTheme(cached)
-
-  const originalFetch = global.fetch;
-  const controller = createController();
-
-  try {
-    // Mock fetch to fail for both API endpoints
-    const mockFetch = jest.fn().mockRejectedValue(new Error('Network error'));
-    global.fetch = mockFetch;
-
-    // Track setConfig calls
-    const setConfigCalls: unknown[] = [];
-    mockSetConfig.mockImplementation((config: unknown) => {
-      setConfigCalls.push(config);
-    });
-
-    // Trigger fallbackToDefaultMode
-    await (controller as any).fallbackToDefaultMode();
-
-    // Verify fetch was attempted
-    expect(mockFetch).toHaveBeenCalled();
-
-    // Verify fallback to cached default theme was applied via applyTheme
-    expect(setConfigCalls.length).toBe(1);
-    expect(setConfigCalls[0]).toEqual(
-      expect.objectContaining({
-        token: expect.objectContaining({
-          colorBgBase: '#ededed', // From DEFAULT_THEME in test setup
-        }),
-      }),
-    );
-
-    // Verify controller is in default mode
-    expect(controller.getCurrentMode()).toBe(ThemeMode.DEFAULT);
-  } finally {
-    global.fetch = originalFetch;
-  }
-});
-
-test('recovery flow: fetched theme fails to apply → falls back to cached default', async () => {
-  // Test: When applyThemeWithRecovery fails, fallbackToDefaultMode uses cached theme
-  // Flow: fallbackToDefaultMode → fetchSystemDefaultTheme → applyThemeWithRecovery (fails) → applyTheme(cached)
-
-  const originalFetch = global.fetch;
-  const controller = createController();
-
-  try {
-    // Mock fetch to return a theme
-    const systemTheme = { token: { colorPrimary: '#bad-theme' } };
-    const mockFetch = jest.fn().mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({
-        result: [{ json_data: JSON.stringify(systemTheme) }],
-      }),
-    });
-    global.fetch = mockFetch;
-
-    // First setConfig call (applyThemeWithRecovery) fails, second (applyTheme) succeeds
-    const setConfigCalls: unknown[] = [];
-    mockSetConfig.mockImplementation((config: unknown) => {
-      setConfigCalls.push(config);
-      if (setConfigCalls.length === 1) {
-        throw new Error('Fetched theme failed to apply');
-      }
-    });
-
-    // Trigger fallbackToDefaultMode
-    await (controller as any).fallbackToDefaultMode();
-
-    // Verify fetch was called
-    expect(mockFetch).toHaveBeenCalled();
-
-    // Verify both attempts were made: fetched theme (failed) then cached default
-    expect(setConfigCalls.length).toBe(2);
-
-    // First call was the fetched theme (which failed)
-    expect(setConfigCalls[0]).toEqual(
-      expect.objectContaining({
-        token: expect.objectContaining({ colorPrimary: '#bad-theme' }),
-      }),
-    );
-
-    // Second call was the cached default theme
-    expect(setConfigCalls[1]).toEqual(
-      expect.objectContaining({
-        token: expect.objectContaining({
-          colorBgBase: '#ededed', // From DEFAULT_THEME
-        }),
-      }),
-    );
-
-    // Verify controller is in default mode
-    expect(controller.getCurrentMode()).toBe(ThemeMode.DEFAULT);
-  } finally {
-    global.fetch = originalFetch;
-  }
+    }),
+  );
+  expect(onChange).toHaveBeenCalled();
+  expect(controller.getCurrentMode()).toBe(ThemeMode.DEFAULT);
 });
 
 // Cleanup tests
@@ -1309,72 +1157,6 @@ test('setThemeConfig updates stored theme mode', () => {
   );
 });
 
-// Override and applied theme ID tests
-test('setThemeMode clears dev override and crud theme from storage', () => {
-  mockGetBootstrapData.mockReturnValue(
-    createMockBootstrapData({
-      default: DEFAULT_THEME,
-      dark: DARK_THEME,
-    }),
-  );
-
-  mockLocalStorage.getItem.mockReturnValue(null);
-
-  const controller = new ThemeController({
-    storage: mockLocalStorage,
-    themeObject: mockThemeObject,
-  });
-
-  Reflect.set(controller, 'devThemeOverride', {
-    token: { colorPrimary: '#ff0000' },
-  });
-  Reflect.set(controller, 'crudThemeId', '123');
-
-  jest.clearAllMocks();
-
-  controller.setThemeMode(ThemeMode.DARK);
-
-  expect(mockLocalStorage.removeItem).toHaveBeenCalledWith(
-    'superset-dev-theme-override',
-  );
-  expect(mockLocalStorage.removeItem).toHaveBeenCalledWith(
-    'superset-crud-theme-id',
-  );
-});
-
-test('setThemeMode can be called with same mode when overrides exist', () => {
-  mockGetBootstrapData.mockReturnValue(
-    createMockBootstrapData({
-      default: DEFAULT_THEME,
-      dark: DARK_THEME,
-    }),
-  );
-
-  mockLocalStorage.getItem.mockReturnValue(null);
-
-  const controller = new ThemeController({
-    storage: mockLocalStorage,
-    themeObject: mockThemeObject,
-  });
-
-  jest.clearAllMocks();
-
-  Reflect.set(controller, 'devThemeOverride', {
-    token: { colorPrimary: '#ff0000' },
-  });
-
-  controller.setThemeMode(ThemeMode.DEFAULT);
-
-  expect(mockLocalStorage.removeItem).toHaveBeenCalledWith(
-    'superset-dev-theme-override',
-  );
-  expect(mockLocalStorage.removeItem).toHaveBeenCalledWith(
-    'superset-crud-theme-id',
-  );
-
-  expect(mockSetConfig).toHaveBeenCalled();
-});
-
 test('setThemeMode with no override and same mode does not trigger update', () => {
   mockGetBootstrapData.mockReturnValue(
     createMockBootstrapData({
@@ -1398,137 +1180,6 @@ test('setThemeMode with no override and same mode does not trigger update', () =
   expect(mockLocalStorage.removeItem).not.toHaveBeenCalled();
 });
 
-test('hasDevOverride returns true when dev override is set', () => {
-  mockGetBootstrapData.mockReturnValue(
-    createMockBootstrapData({
-      default: DEFAULT_THEME,
-      dark: DARK_THEME,
-    }),
-  );
-
-  mockLocalStorage.getItem.mockReturnValue(null);
-
-  const controller = new ThemeController({
-    storage: mockLocalStorage,
-    themeObject: mockThemeObject,
-  });
-
-  Reflect.set(controller, 'devThemeOverride', {
-    token: { colorPrimary: '#ff0000' },
-  });
-
-  expect(controller.hasDevOverride()).toBe(true);
-});
-
-test('hasDevOverride returns false when no dev override in storage', () => {
-  mockGetBootstrapData.mockReturnValue(
-    createMockBootstrapData({
-      default: DEFAULT_THEME,
-      dark: DARK_THEME,
-    }),
-  );
-
-  mockLocalStorage.getItem.mockReturnValue(null);
-
-  const controller = new ThemeController({
-    storage: mockLocalStorage,
-    themeObject: mockThemeObject,
-  });
-
-  expect(controller.hasDevOverride()).toBe(false);
-});
-
-test('clearLocalOverrides removes dev override, crud theme, and applied theme ID', () => {
-  mockGetBootstrapData.mockReturnValue(
-    createMockBootstrapData({
-      default: DEFAULT_THEME,
-      dark: DARK_THEME,
-    }),
-  );
-
-  mockLocalStorage.getItem.mockReturnValue(null);
-
-  const controller = new ThemeController({
-    storage: mockLocalStorage,
-    themeObject: mockThemeObject,
-  });
-
-  jest.clearAllMocks();
-
-  controller.clearLocalOverrides();
-
-  expect(mockLocalStorage.removeItem).toHaveBeenCalledWith(
-    'superset-dev-theme-override',
-  );
-  expect(mockLocalStorage.removeItem).toHaveBeenCalledWith(
-    'superset-crud-theme-id',
-  );
-  expect(mockLocalStorage.removeItem).toHaveBeenCalledWith(
-    'superset-applied-theme-id',
-  );
-
-  expect(mockSetConfig).toHaveBeenCalled();
-});
-
-test('getAppliedThemeId returns stored theme ID', () => {
-  mockLocalStorage.getItem.mockImplementation((key: string) => {
-    if (key === 'superset-applied-theme-id') {
-      return '42';
-    }
-    return null;
-  });
-
-  const controller = new ThemeController({
-    storage: mockLocalStorage,
-    themeObject: mockThemeObject,
-  });
-
-  expect(controller.getAppliedThemeId()).toBe(42);
-});
-
-test('getAppliedThemeId returns null when no theme ID is stored', () => {
-  mockLocalStorage.getItem.mockReturnValue(null);
-
-  const controller = new ThemeController({
-    storage: mockLocalStorage,
-    themeObject: mockThemeObject,
-  });
-
-  expect(controller.getAppliedThemeId()).toBeNull();
-});
-
-test('setAppliedThemeId stores theme ID in storage', () => {
-  const controller = new ThemeController({
-    storage: mockLocalStorage,
-    themeObject: mockThemeObject,
-  });
-
-  jest.clearAllMocks();
-
-  controller.setAppliedThemeId(123);
-
-  expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
-    'superset-applied-theme-id',
-    '123',
-  );
-});
-
-test('setAppliedThemeId removes theme ID when null is passed', () => {
-  const controller = new ThemeController({
-    storage: mockLocalStorage,
-    themeObject: mockThemeObject,
-  });
-
-  jest.clearAllMocks();
-
-  controller.setAppliedThemeId(null);
-
-  expect(mockLocalStorage.removeItem).toHaveBeenCalledWith(
-    'superset-applied-theme-id',
-  );
-});
-
-// Font loading tests
 test('font loading: injects font URLs as CSS @import when theme has fontUrls', () => {
   document
     .querySelectorAll('style[data-superset-fonts]')

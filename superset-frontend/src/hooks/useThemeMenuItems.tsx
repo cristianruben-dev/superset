@@ -17,7 +17,7 @@
  * under the License.
  */
 import { useMemo } from 'react';
-import { Icons, Tooltip } from '@superset-ui/core/components';
+import { Icons } from '@superset-ui/core/components';
 import type { MenuItem } from '@superset-ui/core/components/Menu';
 import { t } from '@apache-superset/core/translation';
 import { ThemeMode, ThemeAlgorithm } from '@apache-superset/core/theme';
@@ -33,16 +33,12 @@ export interface ThemeSubMenuOption {
 export interface ThemeSubMenuProps {
   setThemeMode: (newMode: ThemeMode) => void;
   themeMode: ThemeMode;
-  hasLocalOverride?: boolean;
-  onClearLocalSettings?: () => void;
   allowOSPreference?: boolean;
 }
 
 export const useThemeMenuItems = ({
   setThemeMode,
   themeMode,
-  hasLocalOverride = false,
-  onClearLocalSettings,
   allowOSPreference = true,
 }: ThemeSubMenuProps): MenuItem => {
   const handleSelect = (mode: ThemeMode) => {
@@ -59,18 +55,6 @@ export const useThemeMenuItems = ({
       }),
       [],
     );
-
-  const selectedThemeModeIcon = useMemo(
-    () =>
-      hasLocalOverride ? (
-        <Tooltip title={t('This theme is set locally')} placement="bottom">
-          <Icons.ThunderboltOutlined />
-        </Tooltip>
-      ) : (
-        themeIconMap[themeMode]
-      ),
-    [hasLocalOverride, themeIconMap, themeMode],
-  );
 
   const themeOptions: MenuItem[] = [
     {
@@ -106,36 +90,18 @@ export const useThemeMenuItems = ({
       : []),
   ];
 
-  // Add clear settings option to theme options if there's a local theme active
-  const themeGroupOptions = [...themeOptions];
-  if (onClearLocalSettings && hasLocalOverride) {
-    themeGroupOptions.push({
-      type: 'divider' as const,
-      key: 'theme-divider',
-    });
-    themeGroupOptions.push({
-      key: 'clear-local',
-      label: (
-        <>
-          <Icons.ClearOutlined /> {t('Clear local theme')}
-        </>
-      ),
-      onClick: onClearLocalSettings,
-    });
-  }
-
   const children: MenuItem[] = [
     {
       type: 'group' as const,
       label: t('Theme'),
       key: 'theme-group',
-      children: themeGroupOptions,
+      children: themeOptions,
     },
   ];
 
   return {
     key: 'theme-sub-menu',
-    label: selectedThemeModeIcon,
+    label: themeIconMap[themeMode],
     icon: <Icons.DownOutlined iconSize="xs" />,
     className: 'submenu-with-caret',
     children,
