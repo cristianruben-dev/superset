@@ -43,7 +43,7 @@ import {
   type WorkspaceMember,
   type WorkspaceRole,
 } from './api';
-import { RoleBadge, roleDescription, roleLabel } from './roles';
+import { RoleBadge, roleLabel } from './roles';
 
 const Body = styled.div`
   ${({ theme }) => css`
@@ -143,36 +143,6 @@ const Body = styled.div`
 
     .member-role {
       width: 140px;
-    }
-
-    .roles {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: ${theme.sizeUnit * 2}px;
-    }
-
-    .role-card {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      gap: ${theme.sizeUnit * 1.5}px;
-      padding: ${theme.sizeUnit * 3}px;
-      border-radius: ${theme.borderRadius}px;
-      background: ${theme.colorFillQuaternary};
-      font-size: ${theme.fontSizeSM}px;
-      line-height: 1.45;
-      color: ${theme.colorTextSecondary};
-    }
-
-    .note {
-      display: flex;
-      gap: ${theme.sizeUnit * 2}px;
-      font-size: ${theme.fontSizeSM}px;
-      color: ${theme.colorTextTertiary};
-
-      .anticon {
-        margin-top: 2px;
-      }
     }
   `}
 `;
@@ -405,20 +375,6 @@ export function WorkspaceAccessModal({
           </div>
         </div>
 
-        <div className="roles">
-          {WORKSPACE_ROLES.map(role => (
-            <div className="role-card" key={role}>
-              <RoleBadge role={role} />
-              {roleDescription(role)}
-            </div>
-          ))}
-        </div>
-        <div className="note">
-          <Icons.InfoCircleOutlined iconSize="m" />
-          {t(
-            'Dashboards in a workspace are only visible to its members. To see the data, people also need access to the datasets.',
-          )}
-        </div>
       </Body>
     </Modal>
   );
