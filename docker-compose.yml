@@ -41,7 +41,7 @@ x-common-build: &common-build
     - apache/superset-cache:3.10-slim-trixie
   args:
     DEV_MODE: "true"
-    INCLUDE_CHROMIUM: ${INCLUDE_CHROMIUM:-false}
+    INCLUDE_CHROMIUM: ${INCLUDE_CHROMIUM:-true}
     INCLUDE_FIREFOX: ${INCLUDE_FIREFOX:-false}
     BUILD_TRANSLATIONS: ${BUILD_TRANSLATIONS:-false}
 

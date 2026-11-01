@@ -23,6 +23,7 @@
 import logging
 import os
 import sys
+from datetime import timedelta
 
 from celery.schedules import crontab
 from flask_caching.backends.filesystemcache import FileSystemCache
@@ -77,7 +78,11 @@ CACHE_CONFIG = {
     "CACHE_REDIS_DB": REDIS_RESULTS_DB,
 }
 DATA_CACHE_CONFIG = CACHE_CONFIG
-THUMBNAIL_CACHE_CONFIG = CACHE_CONFIG
+# Screenshots change with the dashboard digest; the timeout refreshes their data
+THUMBNAIL_CACHE_CONFIG = {
+    **CACHE_CONFIG,
+    "CACHE_DEFAULT_TIMEOUT": int(timedelta(days=1).total_seconds()),
+}
 
 
 class CeleryConfig:
@@ -105,9 +110,17 @@ class CeleryConfig:
 
 CELERY_CONFIG = CeleryConfig
 
-FEATURE_FLAGS = {"ALERT_REPORTS": True, "DATASET_FOLDERS": True}
+FEATURE_FLAGS = {
+    "ALERT_REPORTS": True,
+    "DATASET_FOLDERS": True,
+    # Dashboard cards show a screenshot taken by the worker's headless Chromium
+    # (INCLUDE_CHROMIUM in docker-compose.yml), as the user who views them
+    "THUMBNAILS": True,
+    "PLAYWRIGHT_REPORTS_AND_THUMBNAILS": True,
+}
 ALERT_REPORTS_NOTIFICATION_DRY_RUN = True
-WEBDRIVER_BASEURL = f"http://superset_app{os.environ.get('SUPERSET_APP_ROOT', '/')}/"  # When using docker compose baseurl should be http://superset_nginx{ENV{BASEPATH}}/  # noqa: E501
+# The worker's headless browser reaches the app through its compose service name
+WEBDRIVER_BASEURL = f"http://superset:8088{os.environ.get('SUPERSET_APP_ROOT', '/')}"
 # The base URL for the email report hyperlinks.
 WEBDRIVER_BASEURL_USER_FRIENDLY = (
     f"http://localhost:8888/{os.environ.get('SUPERSET_APP_ROOT', '/')}/"
