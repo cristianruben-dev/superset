@@ -37,28 +37,6 @@ const dashboard = (id: number, title: string, published = false) => ({
 });
 
 beforeEach(() => {
-  fetchMock.get('glob:*/api/v1/log/recent_activity/?q=*', {
-    result: [
-      {
-        item_type: 'dashboard',
-        item_url: '/superset/dashboard/1/',
-        item_title: 'Ventas',
-        time: Date.now() - 60_000,
-      },
-      {
-        item_type: 'dashboard',
-        item_url: '/superset/dashboard/1/',
-        item_title: 'Ventas',
-        time: Date.now() - 120_000,
-      },
-      {
-        item_type: 'slice',
-        item_url: '/explore/?slice_id=3',
-        item_title: 'Un gráfico',
-        time: Date.now(),
-      },
-    ],
-  });
   fetchMock.get('glob:*/api/v1/mibi/dashboard_previews/?q=*', {
     result: [
       { id: 1, rows: [[{ width: 12, height: 50, kind: 'pie' }]] },
@@ -102,14 +80,15 @@ test('the banner offers the quick actions, without a greeting card', () => {
   );
 });
 
-test('lists recent dashboards once and the dashboard cards', async () => {
+test('lists the dashboard cards without recently viewed items', async () => {
   render(<HomeContent />, { useRouter: true, useRedux: true });
 
   expect(await screen.findAllByTestId('mibi-dashboard-card')).toHaveLength(2);
   expect(screen.getByText('Published')).toBeInTheDocument();
-  expect(screen.getByText('Recently viewed')).toBeInTheDocument();
-  expect(screen.queryByText('Un gráfico')).not.toBeInTheDocument();
-  expect(screen.getAllByRole('link', { name: /Ventas/ })).toHaveLength(2);
+  expect(screen.queryByText('Recently viewed')).not.toBeInTheDocument();
+  expect(
+    fetchMock.callHistory.calls('glob:*/api/v1/log/recent_activity/?q=*'),
+  ).toHaveLength(0);
   // Layout previews arrive in one request for all the cards
   expect(await screen.findByTestId('dashboard-preview')).toBeInTheDocument();
   expect(screen.getByText('Empty dashboard')).toBeInTheDocument();

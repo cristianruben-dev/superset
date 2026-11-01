@@ -44,13 +44,6 @@ export interface DashboardCardData {
   changed_on_delta_humanized: string;
 }
 
-export interface RecentItem {
-  item_type: string | null;
-  item_url: string | null;
-  item_title: string | null;
-  time: number;
-}
-
 type DashboardTab = 'recent' | 'favorite';
 
 const PAGE_SIZE = 8;
@@ -222,50 +215,6 @@ const Grid = styled.div`
   `}
 `;
 
-const RecentList = styled.div`
-  ${({ theme }) => css`
-    display: flex;
-    flex-wrap: wrap;
-    gap: ${theme.sizeUnit * 2}px;
-
-    a {
-      display: inline-flex;
-      align-items: center;
-      gap: ${theme.sizeUnit * 2}px;
-      max-width: 320px;
-      padding: ${theme.sizeUnit * 2}px ${theme.sizeUnit * 3}px;
-      border-radius: 999px;
-      border: 1px solid ${theme.colorBorderSecondary};
-      background: ${theme.colorBgContainer};
-      color: ${theme.colorText};
-      font-size: ${theme.fontSizeSM}px;
-      font-weight: 500;
-
-      &:hover {
-        text-decoration: none;
-        border-color: ${theme.colorPrimaryBorder};
-        color: ${theme.colorPrimary};
-      }
-
-      .anticon {
-        color: ${theme.colorPrimary};
-      }
-
-      .label {
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-      }
-
-      .when {
-        color: ${theme.colorTextTertiary};
-        font-weight: 400;
-        white-space: nowrap;
-      }
-    }
-  `}
-`;
-
 const WorkspaceStrip = styled.div`
   ${({ theme }) => css`
     display: grid;
@@ -429,33 +378,12 @@ const fetchDashboards = async (tab: DashboardTab) => {
   return json.result as DashboardCardData[];
 };
 
-const fetchRecents = async () => {
-  const { json } = await SupersetClient.get({
-    endpoint: `/api/v1/log/recent_activity/?q=${rison.encode({
-      page_size: 12,
-      distinct: true,
-    })}`,
-  });
-  const seen = new Set<string>();
-  return (json.result as RecentItem[]).filter(item => {
-    if (item.item_type !== 'dashboard' || !item.item_url) {
-      return false;
-    }
-    if (seen.has(item.item_url)) {
-      return false;
-    }
-    seen.add(item.item_url);
-    return true;
-  });
-};
-
-/** Recently viewed dashboards and the dashboard grid of the home page. */
+/** Workspaces and the dashboard grid of the home page. */
 export function HomeContent() {
   const [tab, setTab] = useState<DashboardTab>('recent');
   const [dashboards, setDashboards] = useState<DashboardCardData[] | null>(
     null,
   );
-  const [recents, setRecents] = useState<RecentItem[]>([]);
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
   const dashboardIds = useMemo(
     () => (dashboards || []).map(dashboard => dashboard.id),
@@ -476,12 +404,6 @@ export function HomeContent() {
   }, []);
 
   useEffect(() => {
-    fetchRecents()
-      .then(items => setRecents(items.slice(0, 6)))
-      .catch(() => setRecents([]));
-  }, []);
-
-  useEffect(() => {
     setDashboards(null);
     fetchDashboards(tab)
       .then(setDashboards)
@@ -499,22 +421,6 @@ export function HomeContent() {
         padding-top: 0 !important;
       `}
     >
-      {recents.length > 0 && (
-        <Section>
-          <SectionHeader>
-            <h2>{t('Recently viewed')}</h2>
-          </SectionHeader>
-          <RecentList>
-            {recents.map(item => (
-              <Link key={item.item_url!} to={item.item_url!}>
-                <Icons.DashboardOutlined />
-                <span className="label">{item.item_title}</span>
-                <span className="when">{relativeTime(item.time)}</span>
-              </Link>
-            ))}
-          </RecentList>
-        </Section>
-      )}
       {workspaces.length > 0 && (
         <Section>
           <SectionHeader>
