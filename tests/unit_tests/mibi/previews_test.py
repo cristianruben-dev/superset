@@ -98,6 +98,26 @@ def test_uses_the_first_tab():
     ]
 
 
+def test_uses_the_first_top_level_tab():
+    # Top-level tabs (pages) hang from the root; the grid is left empty
+    layout = {
+        "ROOT_ID": {"type": "ROOT", "children": ["TABS-1"]},
+        "GRID_ID": {"type": "GRID", "children": []},
+        "TABS-1": {"type": "TABS", "children": ["TAB-1", "TAB-2"]},
+        "TAB-1": {"type": "TAB", "children": ["ROW-1"]},
+        "TAB-2": {"type": "TAB", "children": ["ROW-2"]},
+        "ROW-1": {"type": "ROW", "children": ["CHART-a"]},
+        "ROW-2": {"type": "ROW", "children": ["CHART-b"]},
+        **chart("CHART-a", 1),
+        **chart("CHART-b", 2),
+    }
+    dashboard = make_dashboard(layout, {1: "table", 2: "pie"})
+
+    assert dashboard_preview(dashboard) == [
+        [{"width": 4, "height": 50, "kind": "table"}]
+    ]
+
+
 def test_limits_rows_and_handles_unknown_charts():
     rows = {f"ROW-{i}": {"type": "ROW", "children": ["CHART-x"]} for i in range(9)}
     layout = {

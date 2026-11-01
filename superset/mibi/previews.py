@@ -42,17 +42,28 @@ class PreviewCell(TypedDict, total=False):
 
 
 def _content_root(layout: dict[str, Any]) -> dict[str, Any] | None:
-    """The component whose children are the visible rows: the grid, or its first tab."""
-    node = layout.get("GRID_ID")
+    """
+    The component whose children are the visible rows: the grid, or the first tab.
+
+    Top-level tabs (the pages of a report) hang from the root and leave the grid
+    empty, so the search starts at the root and follows a grid or a tab set
+    until it reaches rows.
+    """
+    node = layout.get("ROOT_ID") or layout.get("GRID_ID")
     while node:
         children = [layout.get(child) or {} for child in node.get("children", [])]
         tabs = next((child for child in children if child.get("type") == "TABS"), None)
-        if not tabs:
-            return node
-        first_tab = layout.get((tabs.get("children") or [None])[0]) or {}
-        if not first_tab:
-            return node
-        node = first_tab
+        if tabs:
+            first_tab = layout.get((tabs.get("children") or [None])[0]) or {}
+            if not first_tab:
+                return node
+            node = first_tab
+            continue
+        grid = next((child for child in children if child.get("type") == "GRID"), None)
+        if grid:
+            node = grid
+            continue
+        return node
     return None
 
 
