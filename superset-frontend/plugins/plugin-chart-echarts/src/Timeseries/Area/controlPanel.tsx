@@ -63,7 +63,6 @@ const config: ControlPanelConfig = {
   controlPanelSections: [
     sections.echartsTimeSeriesQueryWithXAxisSort,
     sections.advancedAnalyticsControls,
-    sections.annotationsAndLayersControls,
     sections.forecastIntervalControls,
     sections.titleControls,
     {

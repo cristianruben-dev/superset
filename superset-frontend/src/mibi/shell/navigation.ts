@@ -38,7 +38,6 @@ export type NavIconName =
   | 'SafetyOutlined'
   | 'FormatPainterOutlined'
   | 'BgColorsOutlined'
-  | 'HighlightOutlined'
   | 'AppstoreOutlined';
 
 export interface NavItem {
@@ -74,7 +73,6 @@ const ICONS: Record<string, NavIconName> = {
   'Row Level Security': 'SafetyOutlined',
   'CSS Templates': 'FormatPainterOutlined',
   Themes: 'BgColorsOutlined',
-  'Annotation Layers': 'HighlightOutlined',
 };
 
 /** Menus whose entries go to the primary navigation, in this order. */

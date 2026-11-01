@@ -343,7 +343,6 @@ const config: ControlPanelConfig = {
     createAdvancedAnalyticsSection(t('Advanced analytics Query A'), ''),
     createQuerySection(t('Query B'), '_b'),
     createAdvancedAnalyticsSection(t('Advanced analytics Query B'), '_b'),
-    sections.annotationsAndLayersControls,
     sections.titleControls,
     {
       label: t('Chart Options'),

@@ -50,7 +50,7 @@ export const DEFAULT_FORM_DATA: EchartsTimeseriesFormData = {
   yAxisTitlePosition: 'Top',
   // Now that the weird bug workaround is over, here's the rest...
   ...DEFAULT_SORT_SERIES_DATA,
-  annotationLayers: sections.annotationLayers,
+  annotationLayers: [],
   area: false,
   forecastEnabled: sections.FORECAST_DEFAULT_DATA.forecastEnabled,
   forecastInterval: sections.FORECAST_DEFAULT_DATA.forecastInterval,

@@ -34,8 +34,6 @@ export const RoutePaths = {
   SAVED_QUERIES: '/savedqueryview/list/',
   CSS_TEMPLATES: '/csstemplatemodelview/list/',
   THEMES: '/theme/list/',
-  ANNOTATION_LAYERS: '/annotationlayer/list/',
-  ANNOTATION_LIST: '/annotationlayer/:annotationLayerId/annotation/',
   QUERY_HISTORY: '/sqllab/history/',
   ALERTS: '/alert/list/',
   REPORTS: '/report/list/',

@@ -18,7 +18,6 @@
  */
 import { sharedControlComponents } from '@superset-ui/chart-controls';
 import { getExtensionsRegistry } from '@superset-ui/core';
-import AnnotationLayerControl from './AnnotationLayerControl';
 import BoundsControl from './BoundsControl';
 import CheckboxControl from './CheckboxControl';
 import CollectionControl from './CollectionControl';
@@ -73,7 +72,6 @@ const DateFilterControlExtension = extensionsRegistry.get(
 const DateFilterComponent = DateFilterControlExtension ?? DateFilterControl;
 
 const controlMap = {
-  AnnotationLayerControl,
   BoundsControl,
   CheckboxControl,
   CollectionControl,
