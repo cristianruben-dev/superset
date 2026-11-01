@@ -70,27 +70,6 @@ export const sqlaTimeSeries: ControlPanelSectionConfig = {
   controlSetRows: [['granularity_sqla'], ['time_range']],
 };
 
-export const annotations: ControlPanelSectionConfig = {
-  label: t('Annotations and layers'),
-  tabOverride: 'data',
-  expanded: true,
-  controlSetRows: [
-    [
-      {
-        name: 'annotation_layers',
-        config: {
-          type: 'AnnotationLayerControl',
-          label: '',
-          default: [],
-          description: t('Annotation layers'),
-          renderTrigger: true,
-          tabOverride: 'data',
-        },
-      },
-    ],
-  ],
-};
-
 export const NVD3TimeSeries: ControlPanelSectionConfig[] = [
   {
     label: t('Query'),

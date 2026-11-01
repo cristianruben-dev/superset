@@ -159,7 +159,6 @@ export interface ControlPanelsContainerProps extends AnyDict {
 
 // Ref: superset-frontend/src/explore/components/controls/index.js
 export type InternalControlType =
-  | 'AnnotationLayerControl'
   | 'BoundsControl'
   | 'CheckboxControl'
   | 'CollectionControl'
@@ -359,7 +358,6 @@ export type ControlConfig<
  * Chart plugin control panel config
  * ========================================================= */
 export type SharedSectionAlias =
-  | 'annotations'
   | 'colorScheme'
   | 'datasourceAndVizType'
   | 'sqlaTimeSeries'

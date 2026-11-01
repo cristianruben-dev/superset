@@ -22,7 +22,6 @@ import logging
 from collections import defaultdict
 from collections.abc import Hashable
 from dataclasses import dataclass, field
-from datetime import timedelta
 from typing import Any, Callable, cast, Optional, Union
 
 import pandas as pd
@@ -70,7 +69,6 @@ from superset_core.common.models import Dataset as CoreDataset
 
 from superset import db, is_feature_enabled, security_manager
 from superset.commands.dataset.exceptions import DatasetNotFoundError
-from superset.common.db_query_status import QueryStatus
 from superset.connectors.sqla.utils import (
     get_columns_description,
     get_physical_table_metadata,
@@ -92,7 +90,6 @@ from superset.jinja_context import (
     ExtraCache,
     get_template_processor,
 )
-from superset.models.annotations import Annotation
 from superset.models.core import Database
 from superset.models.helpers import (
     AuditMixinNullable,
@@ -788,60 +785,6 @@ class BaseDatasource(
                     msg=msg,
                 )
             ) from ex
-
-
-class AnnotationDatasource(BaseDatasource):
-    """Dummy object so we can query annotations using 'Viz' objects just like
-    regular datasources.
-    """
-
-    cache_timeout = 0
-    changed_on = None
-    type = "annotation"
-    column_names = [
-        "created_on",
-        "changed_on",
-        "id",
-        "start_dttm",
-        "end_dttm",
-        "layer_id",
-        "short_descr",
-        "long_descr",
-        "json_metadata",
-        "created_by_fk",
-        "changed_by_fk",
-    ]
-
-    def query(self, query_obj: QueryObjectDict) -> QueryResult:
-        error_message = None
-        qry = db.session.query(Annotation)
-        qry = qry.filter(Annotation.layer_id == query_obj["filter"][0]["val"])
-        if query_obj["from_dttm"]:
-            qry = qry.filter(Annotation.start_dttm >= query_obj["from_dttm"])
-        if query_obj["to_dttm"]:
-            qry = qry.filter(Annotation.end_dttm <= query_obj["to_dttm"])
-        status = QueryStatus.SUCCESS
-        try:
-            with db.engine.connect() as con:
-                df = pd.read_sql_query(qry.statement, con)
-        except Exception as ex:  # pylint: disable=broad-except
-            df = pd.DataFrame()
-            status = QueryStatus.FAILED
-            logger.exception(ex)
-            error_message = utils.error_msg_from_exception(ex)
-        return QueryResult(
-            status=status,
-            df=df,
-            duration=timedelta(0),
-            query="",
-            error_message=error_message,
-        )
-
-    def get_query_str(self, query_obj: QueryObjectDict) -> str:
-        raise NotImplementedError()
-
-    def values_for_column(self, column_name: str, limit: int = 10000) -> list[Any]:
-        raise NotImplementedError()
 
 
 class TableColumn(AuditMixinNullable, ImportExportMixin, CertificationMixin, Model):

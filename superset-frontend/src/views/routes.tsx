@@ -36,23 +36,11 @@ const ChartCreation = lazy(
     import(/* webpackChunkName: "ChartCreation" */ 'src/pages/ChartCreation'),
 );
 
-const AnnotationLayerList = lazy(
-  () =>
-    import(
-      /* webpackChunkName: "AnnotationLayerList" */ 'src/pages/AnnotationLayerList'
-    ),
-);
-
 const AlertReportList = lazy(
   () =>
     import(
       /* webpackChunkName: "AlertReportList" */ 'src/pages/AlertReportList'
     ),
-);
-
-const AnnotationList = lazy(
-  () =>
-    import(/* webpackChunkName: "AnnotationList" */ 'src/pages/AnnotationList'),
 );
 
 const CssTemplateList = lazy(
@@ -295,14 +283,6 @@ export const routes: Routes = [
   {
     path: '/theme/list/',
     Component: ThemeList,
-  },
-  {
-    path: '/annotationlayer/list/',
-    Component: AnnotationLayerList,
-  },
-  {
-    path: '/annotationlayer/:annotationLayerId/annotation/',
-    Component: AnnotationList,
   },
   {
     path: '/sqllab/history/',

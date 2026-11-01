@@ -36,24 +36,18 @@ from superset.connectors.sqla.models import SqlaTable, TableColumn
 from superset.constants import CACHE_DISABLED_TIMEOUT
 from superset.errors import SupersetErrorType
 from superset.extensions import async_query_manager_factory, db
-from superset.models.annotations import AnnotationLayer
 from superset.models.slice import Slice
 from superset.models.sql_lab import Query
 from superset.superset_typing import AdhocColumn
 from superset.utils import json
 from superset.utils.core import (
     AdhocMetricExpressionType,
-    AnnotationType,
     backend,
     ExtraFiltersReasonType,
     get_example_default_schema,
 )
 from superset.utils.database import get_example_database, get_main_database
-from tests.common.query_context_generator import ANNOTATION_LAYERS
 from tests.conftest import with_config
-from tests.integration_tests.annotation_layers.fixtures import (
-    create_annotation_layers,  # noqa: F401
-)
 from tests.integration_tests.base_tests import SupersetTestCase, test_client
 from tests.integration_tests.conftest import with_feature_flags
 from tests.integration_tests.constants import (
@@ -953,48 +947,6 @@ class TestPostChartDataApi(BaseTestChartDataApi):
         self.maxDiff = None
         assert len(unique_names) == SERIES_LIMIT
         assert set(data[0]) == {"state", "name", "sum__num"}
-
-    @pytest.mark.usefixtures(
-        "create_annotation_layers", "load_birth_names_dashboard_with_slices"
-    )
-    def test_with_annotations_layers__annotations_data_returned(self):
-        """
-        Chart data API: Test chart data query
-        """
-
-        annotation_layers = []
-        self.query_context_payload["queries"][0]["annotation_layers"] = (
-            annotation_layers
-        )
-
-        # formula
-        annotation_layers.append(ANNOTATION_LAYERS[AnnotationType.FORMULA])
-
-        # interval
-        interval_layer = (
-            db.session.query(AnnotationLayer)
-            .filter(AnnotationLayer.name == "name1")
-            .one()
-        )
-        interval = ANNOTATION_LAYERS[AnnotationType.INTERVAL]
-        interval["value"] = interval_layer.id
-        annotation_layers.append(interval)
-
-        # event
-        event_layer = (
-            db.session.query(AnnotationLayer)
-            .filter(AnnotationLayer.name == "name2")
-            .one()
-        )
-        event = ANNOTATION_LAYERS[AnnotationType.EVENT]
-        event["value"] = event_layer.id
-        annotation_layers.append(event)
-
-        rv = self.post_assert_metric(CHART_DATA_URI, self.query_context_payload, "data")
-        assert rv.status_code == 200
-        data = json.loads(rv.data.decode("utf-8"))
-        # response should only contain interval and event data, not formula
-        assert len(data["result"][0]["annotation_data"]) == 2
 
     @pytest.mark.usefixtures("load_birth_names_dashboard_with_slices")
     def test_with_virtual_table_with_colons_as_datasource(self):

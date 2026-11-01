@@ -30,7 +30,6 @@ from superset.common.query_actions import get_query_results
 from superset.common.utils.query_cache_manager import QueryCacheManager
 from superset.common.utils.time_range_utils import get_since_until_from_time_range
 from superset.constants import CACHE_DISABLED_TIMEOUT, CacheRegion
-from superset.daos.annotation_layer import AnnotationLayerDAO
 from superset.daos.chart import ChartDAO
 from superset.exceptions import (
     QueryObjectValidationError,
@@ -406,7 +405,7 @@ class QueryContextProcessor:
         return generate_cache_key(cache_dict, key_prefix)
 
     def get_annotation_data(self, query_obj: QueryObject) -> dict[str, Any]:
-        annotation_data: dict[str, Any] = self.get_native_annotation_data(query_obj)
+        annotation_data: dict[str, Any] = {}
         for annotation_layer in [
             layer
             for layer in query_obj.annotation_layers
@@ -416,40 +415,6 @@ class QueryContextProcessor:
             annotation_data[name] = self.get_viz_annotation_data(
                 annotation_layer, self._query_context.force
             )
-        return annotation_data
-
-    @staticmethod
-    def get_native_annotation_data(query_obj: QueryObject) -> dict[str, Any]:
-        annotation_data = {}
-        annotation_layers = [
-            layer
-            for layer in query_obj.annotation_layers
-            if layer["sourceType"] == "NATIVE"
-        ]
-        layer_ids = [layer["value"] for layer in annotation_layers]
-        layer_objects = {
-            layer_object.id: layer_object
-            for layer_object in AnnotationLayerDAO.find_by_ids(layer_ids)
-        }
-
-        # annotations
-        for layer in annotation_layers:
-            layer_id = layer["value"]
-            layer_name = layer["name"]
-            columns = [
-                "start_dttm",
-                "end_dttm",
-                "short_descr",
-                "long_descr",
-                "json_metadata",
-            ]
-            layer_object = layer_objects[layer_id]
-            records = [
-                {column: getattr(annotation, column) for column in columns}
-                for annotation in layer_object.annotation
-            ]
-            result = {"columns": columns, "records": records}
-            annotation_data[layer_name] = result
         return annotation_data
 
     @staticmethod

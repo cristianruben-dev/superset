@@ -313,8 +313,6 @@ class SupersetSecurityManager(  # pylint: disable=too-many-public-methods
 
     ALPHA_ONLY_VIEW_MENUS = {
         "Alerts & Report",
-        "Annotation Layers",
-        "Annotation",
         "CSS Templates",
         "ColumnarToDatabaseView",
         "ExcelToDatabaseView",
@@ -430,9 +428,6 @@ class SupersetSecurityManager(  # pylint: disable=too-many-public-methods
         # Datasource metadata for chart rendering
         ("can_get", "Datasource"),
         ("can_external_metadata", "Datasource"),
-        # Annotations on charts
-        ("can_read", "Annotation"),
-        ("can_read", "AnnotationLayerRestApi"),
         # Chart permalinks (for shared chart links)
         ("can_read", "ExplorePermalinkRestApi"),
     }
@@ -453,7 +448,6 @@ class SupersetSecurityManager(  # pylint: disable=too-many-public-methods
         "Action Log",
         "Manage",
         "Import dashboards",
-        "Annotation Layers",
         "CSS Templates",
         "Alerts & Report",
     }

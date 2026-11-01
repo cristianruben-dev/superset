@@ -94,22 +94,3 @@ export const colorScheme: ControlPanelSectionConfig = {
   controlSetRows: [['color_scheme']],
 };
 
-export const annotations: ControlPanelSectionConfig = {
-  label: t('Annotations and Layers'),
-  tabOverride: 'data',
-  expanded: true,
-  controlSetRows: [
-    [
-      {
-        name: 'annotation_layers',
-        config: {
-          type: 'AnnotationLayerControl',
-          label: '',
-          default: [],
-          description: t('Annotation Layers'),
-          renderTrigger: true,
-        },
-      },
-    ],
-  ],
-};

@@ -64,7 +64,6 @@ const config: ControlPanelConfig = {
       ],
     },
     timeSeriesSection[1],
-    sections.annotations,
   ],
   formDataOverrides: formData => ({
     ...formData,
