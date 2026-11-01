@@ -96,8 +96,7 @@ function captureView(
   });
   const visibility: Record<string, boolean> = {};
   objectIds(layout).forEach(id => {
-    visibility[id] =
-      visibilityOverride(dashboardId, id) ?? false;
+    visibility[id] = visibilityOverride(dashboardId, id) ?? false;
   });
   return { page, filters, visibility };
 }

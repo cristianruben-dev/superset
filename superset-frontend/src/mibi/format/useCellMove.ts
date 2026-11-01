@@ -121,7 +121,11 @@ export function useCellMove(component: LayoutItem, enabled: boolean): CellMove {
         document.body.classList.remove('mibi-moving');
         stop.current = null;
         setShift(null);
-        if (moved && commit && (landing.x !== start.x || landing.y !== start.y)) {
+        if (
+          moved &&
+          commit &&
+          (landing.x !== start.x || landing.y !== start.y)
+        ) {
           dispatch(moveObject(component.id, landing));
         }
       };

@@ -431,8 +431,9 @@ class Markdown extends PureComponent<MarkdownProps, MarkdownState> {
                 minWidthMultiple={minObjectColumns()}
                 minHeightMultiple={GRID_MIN_ROW_UNITS}
                 maxWidthMultiple={
-          maxWidthCells(component.meta) ?? availableColumnCount + widthMultiple
-        }
+                  maxWidthCells(component.meta) ??
+                  availableColumnCount + widthMultiple
+                }
                 onResizeStart={this.handleResizeStart}
                 onResize={onResize}
                 onResizeStop={onResizeStop}

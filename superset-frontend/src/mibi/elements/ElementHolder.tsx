@@ -42,9 +42,7 @@ import {
   useSelectedVisual,
 } from 'src/mibi/format/selection';
 import { visualStyle } from 'src/mibi/format/styles';
-import {
-  useMaxHeightMultiple,
-} from 'src/mibi/format/CanvasFrame';
+import { useMaxHeightMultiple } from 'src/mibi/format/CanvasFrame';
 import { setElementConfig } from './actions';
 import {
   ELEMENT_DEFAULTS,
@@ -189,8 +187,9 @@ function ElementHolder({
           minHeightMultiple={ELEMENT_MIN_ROW_UNITS}
           maxHeightMultiple={maxHeightMultiple}
           maxWidthMultiple={
-          maxWidthCells(component.meta) ?? availableColumnCount + widthMultiple
-        }
+            maxWidthCells(component.meta) ??
+            availableColumnCount + widthMultiple
+          }
           onResizeStart={onResizeStart}
           onResize={onResize}
           onResizeStop={onResizeStop}

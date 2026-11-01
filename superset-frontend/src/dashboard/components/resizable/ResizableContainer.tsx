@@ -344,9 +344,7 @@ export default function ResizableContainer({
 
   const enableConfig = useMemo(() => {
     if (editMode && widthAdjustable && adjustableHeight) {
-      return pos
-        ? resizableConfig.allEdges
-        : resizableConfig.widthAndHeight;
+      return pos ? resizableConfig.allEdges : resizableConfig.widthAndHeight;
     }
     if (editMode && widthAdjustable) {
       return pos ? resizableConfig.leftAndRight : resizableConfig.widthOnly;

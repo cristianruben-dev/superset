@@ -152,8 +152,9 @@ const DynamicComponent: FC<DynamicComponentProps> = ({
               minWidthMultiple={GRID_MIN_COLUMN_COUNT}
               minHeightMultiple={GRID_MIN_COLUMN_COUNT}
               maxWidthMultiple={
-          maxWidthCells(component.meta) ?? availableColumnCount + widthMultiple
-        }
+                maxWidthCells(component.meta) ??
+                availableColumnCount + widthMultiple
+              }
               onResizeStart={onResizeStart}
               onResize={onResize}
               onResizeStop={onResizeStop}
