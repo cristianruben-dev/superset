@@ -38,6 +38,7 @@ import { isEmbedded } from 'src/dashboard/util/isEmbedded';
 import { Tooltip, EditableTitle, Icons } from '@superset-ui/core/components';
 import { useSelector } from 'react-redux';
 import cx from 'classnames';
+import { openChartEditor } from 'src/mibi/chartEditor';
 import { useVisualFormat } from 'src/mibi/format/useVisualFormat';
 import { SortAxisButton } from 'src/mibi/sort/SortAxisButton';
 import SliceHeaderControls from 'src/dashboard/components/SliceHeaderControls';
@@ -48,7 +49,6 @@ import { RootState } from 'src/dashboard/types';
 import { getSliceHeaderTooltip } from 'src/dashboard/util/getSliceHeaderTooltip';
 import { DashboardPageIdContext } from 'src/dashboard/containers/DashboardPage';
 import RowCountLabel from 'src/components/RowCountLabel';
-import { Link } from 'react-router-dom';
 
 const extensionsRegistry = getExtensionsRegistry();
 
@@ -250,8 +250,13 @@ const SliceHeader = forwardRef<HTMLDivElement, SliceHeaderProps>(
     const exploreUrl = `/explore/?dashboard_page_id=${dashboardPageId}&slice_id=${slice.slice_id}`;
 
     const renderExploreLink = (title: string) => (
-      <Link
-        to={exploreUrl}
+      <a
+        href={exploreUrl}
+        onClick={event => {
+          // AuraData BI: edit the chart in the side panel, never on its own page
+          event.preventDefault();
+          openChartEditor({ url: exploreUrl, chartId: slice.slice_id });
+        }}
         css={(theme: SupersetTheme) => css`
           color: ${theme.colorText};
           text-decoration: none;
@@ -262,7 +267,7 @@ const SliceHeader = forwardRef<HTMLDivElement, SliceHeaderProps>(
         `}
       >
         {title}
-      </Link>
+      </a>
     );
 
     return (

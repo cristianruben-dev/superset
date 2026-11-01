@@ -261,16 +261,11 @@ const SliceHeaderControls = (
       case MenuKeys.ExploreChart:
         // eslint-disable-next-line no-unused-expressions
         props.logExploreChart?.(props.slice.slice_id);
-        if (domEvent.metaKey || domEvent.ctrlKey) {
-          domEvent.preventDefault();
-          window.open(props.exploreUrl, '_blank');
-        } else {
-          // AuraData BI: edit the chart in the side panel, without leaving the dashboard
-          openChartEditor({
-            url: props.exploreUrl,
-            chartId: props.slice.slice_id,
-          });
-        }
+        // AuraData BI: edit the chart in the side panel, without leaving the dashboard
+        openChartEditor({
+          url: props.exploreUrl,
+          chartId: props.slice.slice_id,
+        });
         break;
       case MenuKeys.ExportCsv:
         // eslint-disable-next-line no-unused-expressions

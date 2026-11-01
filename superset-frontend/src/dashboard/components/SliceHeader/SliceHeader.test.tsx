@@ -292,29 +292,14 @@ test('Should render click to edit prompt and run onExploreChart on click', async
   expect(
     await screen.findByText('Click to edit Vaccine Candidates per Phase.'),
   ).toBeInTheDocument();
-  expect(
-    await screen.findByText('Use ctrl + click to open in a new tab.'),
-  ).toBeInTheDocument();
+  const onOpen = jest.fn();
+  window.addEventListener('mibi:open-chart-editor', onOpen);
 
   userEvent.click(screen.getByText('Vaccine Candidates per Phase'));
-  expect(history.location.pathname).toMatch('/explore');
-});
-
-test('Display cmd button in tooltip if running on MacOS', async () => {
-  jest.spyOn(window.navigator, 'appVersion', 'get').mockReturnValue('Mac');
-  const props = createProps();
-  render(<SliceHeader {...props} />, {
-    useRedux: true,
-    useRouter: true,
-    initialState,
-  });
-  userEvent.hover(screen.getByText('Vaccine Candidates per Phase'));
-  expect(
-    await screen.findByText('Click to edit Vaccine Candidates per Phase.'),
-  ).toBeInTheDocument();
-  expect(
-    await screen.findByText('Use ⌘ + click to open in a new tab.'),
-  ).toBeInTheDocument();
+  window.removeEventListener('mibi:open-chart-editor', onOpen);
+  // The chart opens in the side panel, never on its own page
+  expect(onOpen).toHaveBeenCalledTimes(1);
+  expect(history.location.pathname).toBe('/superset/dashboard/1/');
 });
 
 test('Should not render click to edit prompt and run onExploreChart on click if supersetCanExplore=false', () => {
