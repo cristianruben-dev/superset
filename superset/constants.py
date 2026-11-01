@@ -105,7 +105,6 @@ MODEL_VIEW_RW_METHOD_PERMISSION_MAP = {
     "api_read": "read",
     "api_readvalues": "read",
     "api_update": "write",
-    "annotation": "read",
     "delete": "write",
     "download": "read",
     "download_dashboards": "read",

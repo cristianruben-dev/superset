@@ -71,7 +71,6 @@ from tests.integration_tests.fixtures.users import (
 )
 
 NEW_SECURITY_CONVERGE_VIEWS = (
-    "Annotation",
     "Database",
     "Dataset",
     "Dashboard",
@@ -1332,11 +1331,9 @@ class TestRolePermission(SupersetTestCase):
         assert ("menu_access", view_menu) not in permissions_set
 
     def assert_cannot_gamma(self, perm_set):
-        self.assert_cannot_write("Annotation", perm_set)
         self.assert_cannot_write("CssTemplate", perm_set)
         self.assert_cannot_menu("SQL Lab", perm_set)
         self.assert_cannot_menu("CSS Templates", perm_set)
-        self.assert_cannot_menu("Annotation Layers", perm_set)
         self.assert_cannot_menu("Manage", perm_set)
         self.assert_cannot_menu("Queries", perm_set)
         self.assert_cannot_menu("Import dashboards", perm_set)
@@ -1368,13 +1365,11 @@ class TestRolePermission(SupersetTestCase):
         self.assert_can_menu("Dashboards", perm_set)
 
     def assert_can_alpha(self, perm_set):
-        self.assert_can_all("Annotation", perm_set)
         self.assert_can_all("CssTemplate", perm_set)
         self.assert_can_all("Dataset", perm_set)
         self.assert_can_read("Database", perm_set)
         assert ("can_upload", "Database") in perm_set
         self.assert_can_menu("Manage", perm_set)
-        self.assert_can_menu("Annotation Layers", perm_set)
         self.assert_can_menu("CSS Templates", perm_set)
         assert ("all_datasource_access", "all_datasource_access") in perm_set
 
@@ -1521,14 +1516,7 @@ class TestRolePermission(SupersetTestCase):
         # Note: Public has filter state write which Gamma also has
         public_only = public_perm_set - gamma_perm_set
 
-        # These permissions are intentionally granted to Public even though
-        # Gamma doesn't have them. Annotation permissions are needed for
-        # charts with annotations to render properly for public users.
-        # Gamma doesn't have these because Annotation is in ALPHA_ONLY_VIEW_MENUS.
-        allowed_public_only_perms = {
-            ("can_read", "Annotation"),
-            ("can_read", "AnnotationLayerRestApi"),
-        }
+        allowed_public_only_perms: set[tuple[str, str]] = set()
 
         unexpected_perms = public_only - allowed_public_only_perms
         assert len(unexpected_perms) == 0, (

@@ -19,7 +19,7 @@ import dataclasses
 from typing import Any, Optional
 
 from superset.common.chart_data import ChartDataResultType
-from superset.utils.core import AnnotationType, DTTM_ALIAS
+from superset.utils.core import DTTM_ALIAS
 
 query_birth_names = {
     "extras": {"where": "", "time_grain_sqla": "P1D"},
@@ -96,77 +96,6 @@ QUERY_OBJECTS: dict[str, dict[str, object]] = {
     },
     "birth_names:only_orderby_has_metric": {
         "metrics": [],
-    },
-}
-
-ANNOTATION_LAYERS = {
-    AnnotationType.FORMULA: {
-        "annotationType": "FORMULA",
-        "color": "#ff7f44",
-        "hideLine": False,
-        "name": "my formula",
-        "opacity": "",
-        "overrides": {"time_range": None},
-        "show": True,
-        "showMarkers": False,
-        "sourceType": "",
-        "style": "solid",
-        "value": "3+x",
-        "width": 5,
-    },
-    AnnotationType.EVENT: {
-        "name": "my event",
-        "annotationType": "EVENT",
-        "sourceType": "NATIVE",
-        "color": "#e04355",
-        "opacity": "",
-        "style": "solid",
-        "width": 5,
-        "showMarkers": False,
-        "hideLine": False,
-        "value": 1,
-        "overrides": {"time_range": None},
-        "show": True,
-        "titleColumn": "",
-        "descriptionColumns": [],
-        "timeColumn": "",
-        "intervalEndColumn": "",
-    },
-    AnnotationType.INTERVAL: {
-        "name": "my interval",
-        "annotationType": "INTERVAL",
-        "sourceType": "NATIVE",
-        "color": "#e04355",
-        "opacity": "",
-        "style": "solid",
-        "width": 1,
-        "showMarkers": False,
-        "hideLine": False,
-        "value": 1,
-        "overrides": {"time_range": None},
-        "show": True,
-        "titleColumn": "",
-        "descriptionColumns": [],
-        "timeColumn": "",
-        "intervalEndColumn": "",
-    },
-    AnnotationType.TIME_SERIES: {
-        "annotationType": "TIME_SERIES",
-        "color": None,
-        "descriptionColumns": [],
-        "hideLine": False,
-        "intervalEndColumn": "",
-        "name": "my line",
-        "opacity": "",
-        "overrides": {"time_range": None},
-        "show": True,
-        "showMarkers": False,
-        "sourceType": "line",
-        "style": "dashed",
-        "timeColumn": "",
-        "titleColumn": "",
-        "value": 837,
-        "width": 5,
     },
 }
 

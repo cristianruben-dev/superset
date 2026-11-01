@@ -124,7 +124,7 @@ Formats are stored in `position_json`, so they save, undo and export with the da
 Fork migrations form one chain after the upstream head:
 `8bc9e5b95335` (workspaces) → `cce7fe34b50d` (members) → `3a90eb47d506` (backgrounds) →
 `06c8a16b9fe1` (element images) → `b7d41e0c9a23` (format themes) → `e4ec3b61cadb` (drops the
-format themes). A new fork migration revises
+format themes) → `a91c5d27f3e8` (drops the annotation layers). A new fork migration revises
 the last one. When merging a new Superset release, point `8bc9e5b95335` at the new upstream head.
 
 ### Tests for AuraData BI code
