@@ -152,7 +152,9 @@ def serialize(workspace: Workspace, role: str | None = None) -> dict[str, Any]:
         else None,
         "dashboard_ids": dashboard_ids,
         "dashboard_count": len(dashboard_ids),
-        "changed_on": workspace.changed_on.isoformat()
+        # Stored naive in the server's local time; the offset lets browsers in
+        # other time zones compute "updated x minutes ago" correctly
+        "changed_on": workspace.changed_on.astimezone().isoformat()
         if workspace.changed_on
         else None,
         "created_by": user_dict(workspace.created_by) if workspace.created_by else None,
