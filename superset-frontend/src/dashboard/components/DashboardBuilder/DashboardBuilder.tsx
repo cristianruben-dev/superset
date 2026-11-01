@@ -67,13 +67,11 @@ import {
 } from 'src/dashboard/util/constants';
 import FilterBar from 'src/dashboard/components/nativeFilters/FilterBar';
 import { useUiConfig } from 'src/components/UiConfigContext';
-import ResizableSidebar from 'src/components/ResizableSidebar';
 import {
   BUILDER_SIDEPANEL_WIDTH,
   CLOSED_FILTER_BAR_WIDTH,
   FILTER_BAR_HEADER_HEIGHT,
   MAIN_HEADER_HEIGHT,
-  OPEN_FILTER_BAR_MAX_WIDTH,
   OPEN_FILTER_BAR_WIDTH,
   EMPTY_CONTAINER_Z_INDEX,
 } from 'src/dashboard/constants';
@@ -380,9 +378,6 @@ const DashboardBuilder = () => {
   const uiConfig = useUiConfig();
   const theme = useTheme();
 
-  const dashboardId = useSelector<RootState, string>(
-    ({ dashboardInfo }) => `${dashboardInfo.id}`,
-  );
   const dashboardLayout = useSelector<RootState, DashboardLayout>(
     state => state.dashboardLayout.present,
   );
@@ -450,9 +445,6 @@ const DashboardBuilder = () => {
         .darken(reportLook.dark ? 3 : 5)
         .toHexString()
     : undefined;
-  const [currentFilterBarWidth, setCurrentFilterBarWidth] = useState(
-    CLOSED_FILTER_BAR_WIDTH,
-  );
 
   useEffect(() => {
     setBarTopOffset(headerRef.current?.getBoundingClientRect()?.height || 0);
@@ -589,9 +581,6 @@ const DashboardBuilder = () => {
       const filterBarWidth = dashboardFiltersOpen
         ? adjustedWidth
         : CLOSED_FILTER_BAR_WIDTH;
-      if (filterBarWidth !== currentFilterBarWidth) {
-        setCurrentFilterBarWidth(filterBarWidth);
-      }
       return (
         <FiltersPanel
           width={filterBarWidth}
@@ -633,8 +622,11 @@ const DashboardBuilder = () => {
 
   const isVerticalFilterBarVisible =
     showFilterBar && filterBarOrientation === FilterBarOrientation.Vertical;
+  // The filter panel has a fixed width: open, or the narrow closed strip
   const headerFilterBarWidth = isVerticalFilterBarVisible
-    ? currentFilterBarWidth
+    ? dashboardFiltersOpen
+      ? OPEN_FILTER_BAR_WIDTH
+      : CLOSED_FILTER_BAR_WIDTH
     : 0;
 
   return (
@@ -649,17 +641,8 @@ const DashboardBuilder = () => {
       >
         <DashboardWrapper>
           {presenting && <PresentationControls />}
-          {isVerticalFilterBarVisible && (
-            <ResizableSidebar
-              id={`dashboard:${dashboardId}`}
-              enable={dashboardFiltersOpen}
-              minWidth={OPEN_FILTER_BAR_WIDTH}
-              maxWidth={OPEN_FILTER_BAR_MAX_WIDTH}
-              initialWidth={OPEN_FILTER_BAR_WIDTH}
-            >
-              {renderChild}
-            </ResizableSidebar>
-          )}
+          {/* The filter panel has a fixed width: it is shown or hidden */}
+          {isVerticalFilterBarVisible && renderChild(OPEN_FILTER_BAR_WIDTH)}
           <StyledHeader
             data-test="dashboard-header-wrapper"
             ref={headerRef}
