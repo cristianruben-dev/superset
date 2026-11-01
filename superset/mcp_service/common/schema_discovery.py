@@ -172,7 +172,6 @@ _COLUMN_DESCRIPTIONS: dict[str, str] = {
     "css": "Custom CSS for the dashboard",
     "native_filters": "Native filter configuration (name, type, targets)",
     "cross_filters_enabled": "Whether cross-filtering between charts is enabled",
-    "theme_id": "Theme ID for dashboard styling",
 }
 
 

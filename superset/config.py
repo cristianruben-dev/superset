@@ -697,10 +697,6 @@ DEFAULT_FEATURE_FLAGS: dict[str, bool] = {
     # @lifecycle: stable
     # @category: runtime_config
     "CACHE_QUERY_BY_USER": False,
-    # Enables CSS Templates in Settings menu and dashboard forms
-    # @lifecycle: stable
-    # @category: runtime_config
-    "CSS_TEMPLATES": True,
     # Role-based access control for dashboards
     # @lifecycle: stable
     # @category: runtime_config
@@ -903,14 +899,8 @@ EXTRA_CATEGORICAL_COLOR_SCHEMES: list[dict[str, Any]] = []
 #
 # Theme Hierarchy:
 # 1. THEME_DEFAULT/THEME_DARK - Base themes defined in config (foundation)
-# 2. System themes - Set by admins via UI (when ENABLE_UI_THEME_ADMINISTRATION=True)
-# 3. Dashboard themes - Applied per dashboard using the theme bolt button
 #
-# How it works:
-# - Custom themes override base themes for any properties they define
-# - Properties not defined in custom themes use the base theme values
-# - Admins can set system-wide themes that apply to all users
-# - Users can apply specific themes to individual dashboards
+# Themes live only in this configuration: there is no UI to create or edit them.
 #
 # Theme Creation:
 # - Use the Ant Design theme editor: https://ant.design/theme-editor
@@ -976,9 +966,6 @@ THEME_DARK: Optional[Theme] = {
 # When both THEME_DEFAULT and THEME_DARK are defined:
 # - Users can manually switch between themes
 # - OS preference detection is automatically enabled
-#
-# Enable UI-based theme administration for admins
-ENABLE_UI_THEME_ADMINISTRATION = True  # Allows admins to set system themes via UI
 
 # Maximum number of font URLs allowed per theme.
 THEME_FONTS_MAX_URLS: int = 15

@@ -108,34 +108,6 @@ class KeyValue(Model):  # pylint: disable=too-few-public-methods
     value = Column(utils.MediumText(), nullable=False)
 
 
-class CssTemplate(AuditMixinNullable, UUIDMixin, Model):
-    """CSS templates for dashboards"""
-
-    __tablename__ = "css_templates"
-    id = Column(Integer, primary_key=True)
-    template_name = Column(String(250))
-    css = Column(utils.MediumText(), default="")
-
-
-class Theme(AuditMixinNullable, ImportExportMixin, Model):
-    """Themes for dashboards"""
-
-    __tablename__ = "themes"
-    __table_args__ = (
-        sqla.Index("idx_theme_is_system_default", "is_system_default"),
-        sqla.Index("idx_theme_is_system_dark", "is_system_dark"),
-    )
-
-    id = Column(Integer, primary_key=True)
-    theme_name = Column(String(250))
-    json_data = Column(utils.MediumText(), default="")
-    is_system = Column(Boolean, default=False, nullable=False)
-    is_system_default = Column(Boolean, default=False, nullable=False)
-    is_system_dark = Column(Boolean, default=False, nullable=False)
-
-    export_fields = ["theme_name", "json_data"]
-
-
 class ConfigurationMethod(StrEnum):
     SQLALCHEMY_FORM = "sqlalchemy_form"
     DYNAMIC_FORM = "dynamic_form"

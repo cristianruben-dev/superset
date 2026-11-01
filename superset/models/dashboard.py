@@ -137,7 +137,6 @@ class Dashboard(CoreDashboard, AuditMixinNullable, ImportExportMixin):
     position_json = Column(utils.MediumText())
     description = Column(Text)
     css = Column(utils.MediumText())
-    theme_id = Column(Integer, ForeignKey("themes.id"), nullable=True)
     certified_by = Column(Text)
     certification_details = Column(Text)
     json_metadata = Column(utils.MediumText())
@@ -169,7 +168,6 @@ class Dashboard(CoreDashboard, AuditMixinNullable, ImportExportMixin):
         "cast(Tag.type, String) == 'custom')",  # Filtering at JOIN level
         viewonly=True,
     )
-    theme = relationship("Theme", foreign_keys=[theme_id])
     published = Column(Boolean, default=False)
     is_managed_externally = Column(Boolean, nullable=False, default=False)
     external_url = Column(Text, nullable=True)
@@ -190,7 +188,7 @@ class Dashboard(CoreDashboard, AuditMixinNullable, ImportExportMixin):
         "certification_details",
         "published",
     ]
-    extra_import_fields = ["is_managed_externally", "external_url", "theme_id"]
+    extra_import_fields = ["is_managed_externally", "external_url"]
 
     def __repr__(self) -> str:
         return f"Dashboard<{self.id or self.slug}>"

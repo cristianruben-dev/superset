@@ -278,7 +278,6 @@ class SupersetSecurityManager(  # pylint: disable=too-many-public-methods
     }
 
     GAMMA_READ_ONLY_MODEL_VIEWS = {
-        "CssTemplate",
         "Dataset",
         "Datasource",
     } | READ_ONLY_MODEL_VIEWS
@@ -419,9 +418,6 @@ class SupersetSecurityManager(  # pylint: disable=too-many-public-methods
         ("can_time_range", "Api"),
         ("can_query_form_data", "Api"),
         ("can_query", "Api"),
-        # CSS and themes for dashboard styling
-        ("can_read", "CssTemplate"),
-        ("can_read", "Theme"),
         # Embedded dashboard support
         ("can_read", "EmbeddedDashboard"),
         ("can_read", "CurrentUserRestApi"),

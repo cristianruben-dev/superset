@@ -156,7 +156,6 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
         from superset.cachekeys.api import CacheRestApi
         from superset.charts.api import ChartRestApi
         from superset.charts.data.api import ChartDataRestApi
-        from superset.css_templates.api import CssTemplateRestApi
         from superset.dashboards.api import DashboardRestApi
         from superset.dashboards.filter_state.api import DashboardFilterStateRestApi
         from superset.dashboards.permalink.api import DashboardPermalinkRestApi
@@ -192,13 +191,11 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
         from superset.sqllab.api import SqlLabRestApi
         from superset.sqllab.permalink.api import SqlLabPermalinkRestApi
         from superset.tags.api import TagRestApi
-        from superset.themes.api import ThemeRestApi
         from superset.views.alerts import AlertView, ReportView
         from superset.views.all_entities import TaggedObjectsModelView
         from superset.views.api import Api
         from superset.views.chart.views import SliceModelView
         from superset.views.core import Superset
-        from superset.views.css_templates import CssTemplateModelView
         from superset.views.dashboard.views import (
             Dashboard,
             DashboardModelView,
@@ -225,7 +222,6 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
         from superset.views.sqllab import SqllabView
         from superset.views.tags import TagModelView, TagView
         from superset.views.tasks import TaskModelView
-        from superset.views.themes import ThemeModelView
         from superset.views.user_info import UserInfoView
         from superset.views.user_registrations import UserRegistrationsView
         from superset.views.users.api import CurrentUserRestApi, UserRestApi
@@ -248,8 +244,6 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
         appbuilder.add_api(CacheRestApi)
         appbuilder.add_api(ChartRestApi)
         appbuilder.add_api(ChartDataRestApi)
-        appbuilder.add_api(CssTemplateRestApi)
-        appbuilder.add_api(ThemeRestApi)
         appbuilder.add_api(CurrentUserRestApi)
         appbuilder.add_api(UserRestApi)
         appbuilder.add_api(DashboardFilterStateRestApi)
@@ -393,26 +387,6 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
             menu_cond=lambda: feature_flag_manager.is_feature_enabled(
                 "DYNAMIC_PLUGINS"
             ),
-        )
-        appbuilder.add_view(
-            CssTemplateModelView,
-            "CSS Templates",
-            label=_("CSS Templates"),
-            icon="fa-css3",
-            category="Manage",
-            category_label=_("Manage"),
-            category_icon="",
-            menu_cond=lambda: feature_flag_manager.is_feature_enabled("CSS_TEMPLATES"),
-        )
-        appbuilder.add_view(
-            ThemeModelView,
-            "Themes",
-            href="/theme/list/",
-            label=_("Themes"),
-            icon="fa-palette",
-            category="Manage",
-            category_label=_("Manage"),
-            category_icon="",
         )
 
         appbuilder.add_view(

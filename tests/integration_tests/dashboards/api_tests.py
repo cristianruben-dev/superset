@@ -550,7 +550,6 @@ class TestDashboardApi(ApiOwnersTestCaseMixin, InsertChartMixin, SupersetTestCas
                 "tags": [],
                 "thumbnail_url": dashboard.thumbnail_url,
                 "is_managed_externally": False,
-                "theme": None,
             }
         data = json.loads(rv.data.decode("utf-8"))
         assert "changed_on" in data["result"]

@@ -192,11 +192,6 @@ class SupersetApp(Flask):
 
                 register_sqla_event_listeners()
 
-            # Seed system themes from configuration
-            from superset.commands.theme.seed import SeedSystemThemesCommand
-
-            SeedSystemThemesCommand().run()
-
             logger.info("Configuration sync to database completed successfully")
 
         except Exception as e:
