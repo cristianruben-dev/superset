@@ -19815,3 +19815,510 @@ msgstr "Ajustar el subtítulo"
 
 msgid "Position"
 msgstr "Posición"
+
+msgid "Above"
+msgstr "Arriba"
+
+msgid "Address of an image for the plot area; it wins over the color"
+msgstr "Dirección de una imagen para el área de trazado; tiene prioridad sobre el color"
+
+msgid "Apply to one series"
+msgstr "Aplicar a una serie"
+
+msgid "Area color"
+msgstr "Color del área"
+
+msgid "As the chart"
+msgstr "Como el gráfico"
+
+msgid "Background color behind each series label"
+msgstr "Color de fondo de cada etiqueta de serie"
+
+msgid "Background color behind each total"
+msgstr "Color de fondo de cada total"
+
+msgid "Background color of the plot area"
+msgstr "Color de fondo del área de trazado"
+
+msgid "Bar transparency (%)"
+msgstr "Transparencia de las barras (%)"
+
+msgid "Below"
+msgstr "Abajo"
+
+msgid "Bevel"
+msgstr "Bisel"
+
+msgid "Billions (B)"
+msgstr "Miles de millones (B)"
+
+msgid "By series"
+msgstr "Por serie"
+
+msgid "Categories"
+msgstr "Categorías"
+
+msgid "Choose a series"
+msgstr "Elige una serie"
+
+msgid "Choose a series to give it its own options over those of the chart"
+msgstr "Elige una serie para darle sus propias opciones sobre las del gráfico"
+
+msgid "Color by category"
+msgstr "Color por categoría"
+
+msgid "Color of the border of the markers"
+msgstr "Color del borde de los marcadores"
+
+msgid "Color of the highest value"
+msgstr "Color del valor más alto"
+
+msgid "Color of the lowest value"
+msgstr "Color del valor más bajo"
+
+msgid "Color of the series that have none of their own"
+msgstr "Color de las series que no tienen uno propio"
+
+msgid "Color of the shaded area; empty uses that of the series"
+msgstr "Color del área sombreada; vacío usa el de la serie"
+
+msgid "Cut with an ellipsis"
+msgstr "Cortar con puntos suspensivos"
+
+msgid "Dash pattern"
+msgstr "Patrón de guiones"
+
+msgid "Decimal places"
+msgstr "Decimales"
+
+msgid "Degrees each marker turns"
+msgstr "Grados que gira cada marcador"
+
+msgid "Detail font"
+msgstr "Fuente del detalle"
+
+msgid "Display units"
+msgstr "Unidades de visualización"
+
+msgid "Distance from the mark"
+msgstr "Distancia a la marca"
+
+msgid "Do not draw gridlines across the Y axis"
+msgstr "No dibujar líneas de cuadrícula en el eje Y"
+
+msgid "Draw gridlines across the X axis"
+msgstr "Dibujar líneas de cuadrícula en el eje X"
+
+msgid "Draw the X axis on the opposite side of the chart"
+msgstr "Dibujar el eje X en el lado opuesto del gráfico"
+
+msgid "Draw the Y axis on the opposite side of the chart"
+msgstr "Dibujar el eje Y en el lado opuesto del gráfico"
+
+msgid "Draw the border of each bar, without its fill"
+msgstr "Dibujar el borde de cada barra, sin su relleno"
+
+msgid "Empty follows the Gridlines section"
+msgstr "Vacío sigue la sección Líneas de cuadrícula"
+
+msgid "Empty shows the decimals each number needs"
+msgstr "Vacío muestra los decimales que necesita cada número"
+
+msgid "Empty uses the color of the series"
+msgstr "Vacío usa el color de la serie"
+
+msgid "Flat"
+msgstr "Plano"
+
+msgid "Font of the detail of each label"
+msgstr "Fuente del detalle de cada etiqueta"
+
+msgid "Font of the series labels"
+msgstr "Fuente de las etiquetas de serie"
+
+msgid "Font of the title of each label"
+msgstr "Fuente del título de cada etiqueta"
+
+msgid "Font of the title of the legend"
+msgstr "Fuente del título de la leyenda"
+
+msgid "Font of the total labels"
+msgstr "Fuente de las etiquetas de total"
+
+msgid "Give each border the color of its bar"
+msgstr "Dar a cada borde el color de su barra"
+
+msgid "Give the border the color of the marker"
+msgstr "Dar al borde el color del marcador"
+
+msgid "Hide Y gridlines"
+msgstr "Ocultar cuadrícula del eje Y"
+
+msgid "Hide overlapping labels"
+msgstr "Ocultar etiquetas superpuestas"
+
+msgid "Hide secondary Y axis"
+msgstr "Ocultar eje Y secundario"
+
+msgid "Hide the line, ticks and labels of the secondary Y axis"
+msgstr "Ocultar la línea, las marcas y las etiquetas del eje Y secundario"
+
+msgid "Hide the lines"
+msgstr "Ocultar las líneas"
+
+msgid "Hide the value"
+msgstr "Ocultar el valor"
+
+msgid "Horizontal alignment of the text of each label"
+msgstr "Alineación horizontal del texto de cada etiqueta"
+
+msgid "How far the bars of a group go over one another"
+msgstr "Cuánto se montan unas sobre otras las barras de un grupo"
+
+msgid "How much the line curves"
+msgstr "Cuánto se curva la línea"
+
+msgid "How see-through the bars are"
+msgstr "Cuánto dejan ver las barras lo que tienen detrás"
+
+msgid "How see-through the labels are"
+msgstr "Cuánto dejan ver las etiquetas lo que tienen detrás"
+
+msgid "How see-through the lines are"
+msgstr "Cuánto dejan ver las líneas lo que tienen detrás"
+
+msgid "How see-through the markers are"
+msgstr "Cuánto dejan ver los marcadores lo que tienen detrás"
+
+msgid "How the image fills the plot area"
+msgstr "Cómo llena la imagen el área de trazado"
+
+msgid "How the line goes from one point to the next"
+msgstr "Cómo va la línea de un punto al siguiente"
+
+msgid "How the title, value and detail of a label are placed"
+msgstr "Cómo se colocan el título, el valor y el detalle de una etiqueta"
+
+msgid "Image layout"
+msgstr "Disposición de la imagen"
+
+msgid "In one line"
+msgstr "En una línea"
+
+msgid "Inside base"
+msgstr "Base interior"
+
+msgid "Inside center"
+msgstr "Centro interior"
+
+msgid "Inside end"
+msgstr "Extremo interior"
+
+msgid "Label alignment"
+msgstr "Alineación de la etiqueta"
+
+msgid "Label detail"
+msgstr "Detalle de la etiqueta"
+
+msgid "Label layout"
+msgstr "Diseño de la etiqueta"
+
+msgid "Label title"
+msgstr "Título de la etiqueta"
+
+msgid "Leave out the labels that would cover another one"
+msgstr "Quitar las etiquetas que taparían a otra"
+
+msgid "Legend title"
+msgstr "Título de la leyenda"
+
+msgid "Legend title font"
+msgstr "Fuente del título de la leyenda"
+
+msgid "Lengths of each dash and gap in pixels, like 4 2"
+msgstr "Largo de cada guion y espacio en píxeles, como 4 2"
+
+msgid "Line ends"
+msgstr "Extremos de línea"
+
+msgid "Line joins"
+msgstr "Uniones de línea"
+
+msgid "Line transparency (%)"
+msgstr "Transparencia de las líneas (%)"
+
+msgid "Line type"
+msgstr "Tipo de línea"
+
+msgid "Logarithmic X axis"
+msgstr "Eje X logarítmico"
+
+msgid "Longer labels are cut, in pixels"
+msgstr "Las etiquetas más largas se cortan, en píxeles"
+
+msgid "Longest a label can be, in pixels"
+msgstr "Lo más larga que puede ser una etiqueta, en píxeles"
+
+msgid "Marker border color"
+msgstr "Color del borde del marcador"
+
+msgid "Marker border width"
+msgstr "Ancho del borde del marcador"
+
+msgid "Marker color"
+msgstr "Color del marcador"
+
+msgid "Marker rotation"
+msgstr "Rotación del marcador"
+
+msgid "Marker transparency (%)"
+msgstr "Transparencia de los marcadores (%)"
+
+msgid "Match the bar color"
+msgstr "Igual que la barra"
+
+msgid "Match the color of the series"
+msgstr "Igual que el color de la serie"
+
+msgid "Match the marker color"
+msgstr "Igual que el marcador"
+
+msgid "Maximum label width"
+msgstr "Ancho máximo de etiqueta"
+
+msgid "Maximum width"
+msgstr "Ancho máximo"
+
+msgid "Millions (M)"
+msgstr "Millones (M)"
+
+msgid "Minimum category width"
+msgstr "Ancho mínimo de categoría"
+
+msgid "Miter"
+msgstr "Inglete"
+
+msgid "Once, at its size"
+msgstr "Una vez, a su tamaño"
+
+msgid "Only the border"
+msgstr "Solo el borde"
+
+msgid "Outside end"
+msgstr "Extremo exterior"
+
+msgid "Overlap (%)"
+msgstr "Superposición (%)"
+
+msgid "Percent of the category"
+msgstr "Porcentaje de la categoría"
+
+msgid "Pick a color per category. Categories without one keep the color of their series"
+msgstr "Elige un color por categoría. Las categorías sin color conservan el de su serie"
+
+msgid "Pixels between each label and its mark"
+msgstr "Píxeles entre cada etiqueta y su marca"
+
+msgid "Plot area"
+msgstr "Área de trazado"
+
+msgid "Plot area color"
+msgstr "Color del área de trazado"
+
+msgid "Plot area image"
+msgstr "Imagen del área de trazado"
+
+msgid "Put the first series in front of the others"
+msgstr "Poner la primera serie delante de las demás"
+
+msgid "Reverse the overlap"
+msgstr "Invertir la superposición"
+
+msgid "Round"
+msgstr "Redondeado"
+
+msgid "Run the chart to list its series"
+msgstr "Ejecuta el gráfico para ver sus series"
+
+msgid "Series label background"
+msgstr "Fondo de la etiqueta de serie"
+
+msgid "Series label font"
+msgstr "Fuente de la etiqueta de serie"
+
+msgid "Series labels"
+msgstr "Etiquetas de serie"
+
+msgid "Shape of the corners of the lines"
+msgstr "Forma de las esquinas de las líneas"
+
+msgid "Shape of the ends of each dash"
+msgstr "Forma de los extremos de cada guion"
+
+msgid "Shape of the ends of the lines and dashes"
+msgstr "Forma de los extremos de las líneas y los guiones"
+
+msgid "Show X gridlines"
+msgstr "Mostrar cuadrícula del eje X"
+
+msgid "Show one total for the positive values and another for the negative ones"
+msgstr "Mostrar un total para los valores positivos y otro para los negativos"
+
+msgid "Show only the markers and labels of the series"
+msgstr "Mostrar solo los marcadores y las etiquetas de la serie"
+
+msgid "Show only the title and the detail of each label"
+msgstr "Mostrar solo el título y el detalle de cada etiqueta"
+
+msgid "Show series labels"
+msgstr "Mostrar etiquetas de serie"
+
+msgid "Show total labels"
+msgstr "Mostrar etiquetas de total"
+
+msgid "Smooth"
+msgstr "Suave"
+
+msgid "Smooth, without overshooting"
+msgstr "Suave, sin pasarse de los puntos"
+
+msgid "Smoothness (%)"
+msgstr "Suavizado (%)"
+
+msgid "Space for the labels at the right of the chart, in pixels"
+msgstr "Espacio para las etiquetas a la derecha del gráfico, en píxeles"
+
+msgid "Split positive and negative"
+msgstr "Separar positivos y negativos"
+
+msgid "Start the scroll at"
+msgstr "Empezar el desplazamiento en"
+
+msgid "Steps, after the point"
+msgstr "Escalones, después del punto"
+
+msgid "Steps, before the point"
+msgstr "Escalones, antes del punto"
+
+msgid "Steps, between the points"
+msgstr "Escalones, entre los puntos"
+
+msgid "Straight"
+msgstr "Recta"
+
+msgid "Switch X axis position"
+msgstr "Cambiar de lado el eje X"
+
+msgid "Switch Y axis position"
+msgstr "Cambiar de lado el eje Y"
+
+msgid "Text above the value of each label"
+msgstr "Texto sobre el valor de cada etiqueta"
+
+msgid "Text before the items of the legend"
+msgstr "Texto antes de los elementos de la leyenda"
+
+msgid "Text below the value of each label"
+msgstr "Texto bajo el valor de cada etiqueta"
+
+msgid "Text overflow"
+msgstr "Desbordamiento del texto"
+
+msgid "The axis scrolls when the categories do not fit at this width"
+msgstr "El eje se desplaza cuando las categorías no caben con este ancho"
+
+msgid "The background behind the marks of the chart"
+msgstr "El fondo detrás de las marcas del gráfico"
+
+msgid "The categories that show first when the axis scrolls"
+msgstr "Las categorías que se ven primero cuando el eje se desplaza"
+
+msgid "The first categories"
+msgstr "Las primeras categorías"
+
+msgid "The last categories"
+msgstr "Las últimas categorías"
+
+msgid "The name of each series, at the end of its line"
+msgstr "El nombre de cada serie, al final de su línea"
+
+msgid "The scale of a numeric X axis"
+msgstr "La escala de un eje X numérico"
+
+msgid "The scale of the Y axis"
+msgstr "La escala del eje Y"
+
+msgid "The scale of the secondary Y axis"
+msgstr "La escala del eje Y secundario"
+
+msgid "The scale of the totals"
+msgstr "La escala de los totales"
+
+msgid "The scale of the values in the labels"
+msgstr "La escala de los valores en las etiquetas"
+
+msgid "The total of each stack, above it"
+msgstr "El total de cada pila, encima de ella"
+
+msgid "Thousands (K)"
+msgstr "Miles (K)"
+
+msgid "Title font"
+msgstr "Fuente del título"
+
+msgid "Total background"
+msgstr "Fondo del total"
+
+msgid "Total font"
+msgstr "Fuente del total"
+
+msgid "Total labels"
+msgstr "Etiquetas de total"
+
+msgid "Transparency (%)"
+msgstr "Transparencia (%)"
+
+msgid "Trillions (T)"
+msgstr "Billones (T)"
+
+msgid "Use a logarithmic scale"
+msgstr "Usar una escala logarítmica"
+
+msgid "What happens to a label longer than its maximum width"
+msgstr "Qué pasa con una etiqueta más larga que su ancho máximo"
+
+msgid "Where each label sits on its mark"
+msgstr "Dónde va cada etiqueta sobre su marca"
+
+msgid "With the color of the highest, colors each bar by its value"
+msgstr "Junto con el color del más alto, colorea cada barra según su valor"
+
+msgid "With the color of the lowest, colors each bar by its value"
+msgstr "Junto con el color del más bajo, colorea cada barra según su valor"
+
+msgid "Wrap the text"
+msgstr "Ajustar el texto"
+
+msgid "Write each label in the color of its series"
+msgstr "Escribir cada etiqueta en el color de su serie"
+
+msgid "Write each name of the legend in the color of its series"
+msgstr "Escribir cada nombre de la leyenda en el color de su serie"
+
+msgid "Write the name of each series at the end of its line"
+msgstr "Escribir el nombre de cada serie al final de su línea"
+
+msgid "Write the total of each stack above it"
+msgstr "Escribir el total de cada pila encima de ella"
+
+msgid "Big Number Font Size"
+msgstr "Tamaño de fuente del número"
+
+msgid "Subtitle Font Size"
+msgstr "Tamaño de fuente del subtítulo"
+
+msgid "Subheader Font Size"
+msgstr "Tamaño de fuente del encabezado secundario"
+
+msgid "Second query"
+msgstr "Segunda consulta"
