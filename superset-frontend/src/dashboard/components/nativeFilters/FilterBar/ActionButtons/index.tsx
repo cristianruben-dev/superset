@@ -142,6 +142,9 @@ const ActionButtons = ({
     return hasSelectedChanges || hasAppliedChanges || hasChartCustomizations;
   }, [dataMaskSelected, dataMaskApplied, chartCustomizationItems]);
 
+  // The side bar applies as selections change and clears one filter at a time
+  if (isVertical && autoApply) return null;
+
   return (
     <ButtonsContainer
       isVertical={isVertical}

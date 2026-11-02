@@ -16,14 +16,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { memo, useContext, useMemo, useState } from 'react';
+import { memo, useCallback, useContext, useMemo, useState } from 'react';
+import { t } from '@apache-superset/core/translation';
+import { css } from '@apache-superset/core/theme';
+import { Button, Icons } from '@superset-ui/core/components';
 import {
   createHtmlPortalNode,
   InPortal,
   OutPortal,
 } from 'react-reverse-portal';
 import { FilterBarOrientation } from 'src/dashboard/types';
-import { isChartCustomization } from '@superset-ui/core';
+import { isChartCustomization, isDefined } from '@superset-ui/core';
 import { checkIsMissingRequiredValue } from '../utils';
 import FilterValue from './FilterValue';
 import { FilterCard } from '../../FilterCard';
@@ -54,6 +57,7 @@ const FilterControl = ({
 }: FilterControlProps) => {
   const portalNode = useMemo(() => createHtmlPortalNode(), []);
   const [isFilterActive, setIsFilterActive] = useState(false);
+  const [clearing, setClearing] = useState(false);
 
   const { name = '<undefined>' } = filter;
 
@@ -72,6 +76,20 @@ const FilterControl = ({
     FilterControlTitle,
   } = useFilterControlDisplay(orientation, overflow, inverseSelection);
 
+  const value = filter.dataMask?.filterState?.value;
+  const hasValue =
+    isDefined(value) &&
+    !(Array.isArray(value) && value.every(item => item === null));
+  const clearFilter = useCallback(() => {
+    const cleared =
+      filter.filterType === 'filter_range' ? [null, null] : undefined;
+    onFilterSelectionChange(filter, {
+      filterState: { value: cleared },
+      extraFormData: {},
+    });
+    setClearing(true);
+  }, [filter, onFilterSelectionChange]);
+
   const label = useMemo(
     () => (
       <FilterControlTitleBox>
@@ -86,9 +104,26 @@ const FilterControl = ({
           <DescriptionToolTip description={filter.description} />
         )}
         <FilterStyledIcon data-test="filter-icon">{icon}</FilterStyledIcon>
+        {hasValue && orientation === FilterBarOrientation.Vertical && (
+          <Button
+            buttonStyle="link"
+            buttonSize="xsmall"
+            aria-label={t('Clear %s', name)}
+            data-test="filter-control-clear"
+            onClick={clearFilter}
+            css={css`
+              margin-left: auto;
+            `}
+          >
+            <Icons.CloseOutlined iconSize="s" />
+          </Button>
+        )}
       </FilterControlTitleBox>
     ),
     [
+      hasValue,
+      orientation,
+      clearFilter,
       FilterControlTitleBox,
       FilterControlTitle,
       name,
@@ -141,8 +176,11 @@ const FilterControl = ({
           orientation={orientation}
           overflow={overflow}
           validateStatus={validateStatus}
-          clearAllTrigger={clearAllTrigger}
-          onClearAllComplete={onClearAllComplete}
+          clearAllTrigger={clearAllTrigger || clearing}
+          onClearAllComplete={() => {
+            setClearing(false);
+            onClearAllComplete?.();
+          }}
         />
       </InPortal>
       <FilterControlContainer

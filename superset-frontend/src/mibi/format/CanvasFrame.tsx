@@ -39,6 +39,10 @@ import { topLevelTabs } from 'src/mibi/present/dashboardTabs';
 import { PAGE_BACKGROUND_KEY } from 'src/mibi/report/types';
 import { ReportTheme, useReportLook } from 'src/mibi/report/ReportTheme';
 import { TabsDockTarget } from 'src/mibi/report/TabsDock';
+import {
+  FilterDockTarget,
+  useFilterDockWidth,
+} from 'src/mibi/report/FilterDock';
 import { posOf } from './positions';
 import { selectVisual, setGroupResolver } from './selection';
 import { groupMembers } from './arrange';
@@ -89,6 +93,21 @@ const Page = styled.div<{ $decorated: boolean; $fixed: boolean }>`
       outline: 1px solid ${theme.colorBorderSecondary};
     `}
   `}
+`;
+
+/** The page and the filter pane beside it: one sheet, with its edge */
+const Sheet = styled.div`
+  display: flex;
+  align-items: stretch;
+  margin: 0 auto;
+  flex: none;
+  &:has([data-test='mibi-filter-dock']:not(:empty)) {
+    .mibi-canvas,
+    [data-test='mibi-tabs-dock'] {
+      border-top-right-radius: 0;
+      border-bottom-right-radius: 0;
+    }
+  }
 `;
 
 const CanvasZoomContext = createContext(1);
@@ -344,23 +363,33 @@ export function CanvasFrame({ children }: { children: ReactNode }) {
     };
   }, [!!size]);
 
+  // The filter pane keeps its own size beside the scaled page
+  const paneWidth = useFilterDockWidth();
   const zoom = useMemo(() => {
     if (!size || !available) return 1;
     if (presenting) {
       return canvasZoom(size, {
-        width: available,
+        width: available - paneWidth,
         height: windowHeight - PRESENTING_MARGIN,
       });
     }
     if (view.mode === 'custom') return clampZoom(view.zoom);
     if (view.mode === 'fit-page') {
       return canvasZoom(size, {
-        width: available,
+        width: available - paneWidth,
         height: availableHeight || undefined,
       });
     }
-    return canvasZoom(size, { width: available });
-  }, [size, available, availableHeight, presenting, windowHeight, view]);
+    return canvasZoom(size, { width: available - paneWidth });
+  }, [
+    size,
+    available,
+    paneWidth,
+    availableHeight,
+    presenting,
+    windowHeight,
+    view,
+  ]);
 
   const scroll = !!size;
   const zoomRef = useRef(zoom);
@@ -490,7 +519,6 @@ export function CanvasFrame({ children }: { children: ReactNode }) {
             width: size.width * zoom,
             height: scaledHeight ? scaledHeight * zoom : undefined,
             flex: 'none' as const,
-            margin: '0 auto',
           }
         : { width: '100%' },
     [size, zoom, scaledHeight],
@@ -515,48 +543,53 @@ export function CanvasFrame({ children }: { children: ReactNode }) {
     >
       <Outer ref={outerRef} $scroll={scroll} data-test="mibi-canvas-outer">
         <ReportTheme>
-          <div ref={frameRef} style={frameStyle}>
-            <div ref={scaledRef} style={scaledStyle}>
-              <TabsDockTarget style={{ width: '100%' }} />
-              <Page
-                ref={pageRef}
-                data-test="mibi-canvas"
-                className={cx(
-                  'mibi-canvas',
-                  editMode && !mobile && 'mibi-show-grid',
-                  mobile && 'mibi-mobile',
-                )}
-                $decorated={hasCanvasFormat(canvas)}
-                $fixed={!!size}
-                style={style}
-                onClick={
-                  editMode
-                    ? event => {
-                        // A click on the canvas itself formats the canvas
-                        const target = event.target as Element;
-                        if (
-                          !target.closest?.(
-                            '.dashboard-component-chart-holder, .mibi-element',
-                          )
-                        ) {
-                          selectVisual(null);
+          <Sheet style={size ? undefined : { width: '100%' }}>
+            <div ref={frameRef} style={frameStyle}>
+              <div ref={scaledRef} style={scaledStyle}>
+                <TabsDockTarget style={{ width: '100%' }} />
+                <Page
+                  ref={pageRef}
+                  data-test="mibi-canvas"
+                  className={cx(
+                    'mibi-canvas',
+                    editMode && !mobile && 'mibi-show-grid',
+                    mobile && 'mibi-mobile',
+                  )}
+                  $decorated={hasCanvasFormat(canvas)}
+                  $fixed={!!size}
+                  style={style}
+                  onClick={
+                    editMode
+                      ? event => {
+                          // A click on the canvas itself formats the canvas
+                          const target = event.target as Element;
+                          if (
+                            !target.closest?.(
+                              '.dashboard-component-chart-holder, .mibi-element',
+                            )
+                          ) {
+                            selectVisual(null);
+                          }
                         }
-                      }
-                    : undefined
-                }
-              >
-                <CanvasZoomContext.Provider value={zoom}>
-                  <CanvasMobileContext.Provider value={mobile}>
-                    <CanvasRoomContext.Provider
-                      value={size && editMode ? room - contentHeight : Infinity}
-                    >
-                      <div ref={contentRef}>{children}</div>
-                    </CanvasRoomContext.Provider>
-                  </CanvasMobileContext.Provider>
-                </CanvasZoomContext.Provider>
-              </Page>
+                      : undefined
+                  }
+                >
+                  <CanvasZoomContext.Provider value={zoom}>
+                    <CanvasMobileContext.Provider value={mobile}>
+                      <CanvasRoomContext.Provider
+                        value={
+                          size && editMode ? room - contentHeight : Infinity
+                        }
+                      >
+                        <div ref={contentRef}>{children}</div>
+                      </CanvasRoomContext.Provider>
+                    </CanvasMobileContext.Provider>
+                  </CanvasZoomContext.Provider>
+                </Page>
+              </div>
             </div>
-          </div>
+            {size && !mobile && <FilterDockTarget />}
+          </Sheet>
         </ReportTheme>
       </Outer>
       {scroll && !presenting && <ZoomToolbar zoom={zoom} />}

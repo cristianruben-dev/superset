@@ -63,22 +63,25 @@ const BarWrapper = styled.div<{ width: number }>`
   }
 `;
 
-const Bar = styled.div<{ width: number }>`
-  ${({ theme, width }) => `
+const Bar = styled.div<{ width: number; height: string }>`
+  ${({ theme, width, height }) => `
     & .ant-typography-edit-content {
       left: 0;
       margin-top: 0;
       width: 100%;
     }
+    /* A strip of the report itself, on its wallpaper: flush with the page
+       and as tall as it, divided from it by a hairline */
     position: absolute;
     top: 0;
     left: 0;
     flex-direction: column;
     flex-grow: 1;
     width: ${width}px;
-    background: ${theme.colorBgContainer};
-    border-left: 1px solid ${theme.colorSplit};
-    min-height: 100%;
+    overflow: hidden;
+    background: transparent;
+    border-left: 1px solid ${theme.colorBorderSecondary};
+    height: ${height};
     display: none;
     &.open {
       display: flex;
@@ -87,12 +90,13 @@ const Bar = styled.div<{ width: number }>`
 `;
 
 const CollapsedBar = styled.div<{ offset: number }>`
-  ${({ theme, offset }) => `
+  ${({ theme }) => `
     position: absolute;
-    top: ${offset}px;
+    top: 0;
     left: 0;
     height: 100%;
     width: ${theme.sizeUnit * 8}px;
+    box-sizing: border-box;
     padding-top: ${theme.sizeUnit * 2}px;
     display: none;
     text-align: center;
@@ -101,8 +105,8 @@ const CollapsedBar = styled.div<{ offset: number }>`
       flex-direction: column;
       align-items: center;
       padding: ${theme.sizeUnit * 3}px 0;
-      background: ${theme.colorBgContainer};
-      border-left: 1px solid ${theme.colorSplit};
+      background: transparent;
+      border-left: 1px solid ${theme.colorBorderSecondary};
       gap: ${theme.sizeUnit * 2}px;
     }
     .mibi-filters-label {
@@ -142,8 +146,7 @@ const FilterControlsWrapper = styled.div`
     gap: ${theme.sizeUnit * 2}px;
     padding: ${theme.sizeUnit * 4}px;
     padding-top: 0; /* Works with other changes in PR https://github.com/apache/superset/pull/38646 to reduces space between filter header and 1st filter */
-    // 108px padding to make room for buttons with position: absolute
-    padding-bottom: ${theme.sizeUnit * 27}px;
+    padding-bottom: ${theme.sizeUnit * 4}px;
   `}
 `;
 
@@ -194,8 +197,13 @@ const VerticalFilterBar: FC<VerticalBarProps> = ({
   }, [onScroll]);
 
   const tabPaneStyle = useMemo(
-    () => ({ overflow: 'auto', height, overscrollBehavior: 'contain' }),
-    [height],
+    () => ({
+      overflow: 'auto',
+      flex: '1 1 auto',
+      minHeight: 0,
+      overscrollBehavior: 'contain',
+    }),
+    [],
   );
 
   const dataMask = useSelector<RootState, DataMaskStateWithId>(
@@ -308,7 +316,11 @@ const VerticalFilterBar: FC<VerticalBarProps> = ({
           />
           <span className="mibi-filters-label">{t('Filters')}</span>
         </CollapsedBar>
-        <Bar className={cx({ open: filtersOpen })} width={width}>
+        <Bar
+          className={cx({ open: filtersOpen })}
+          width={width}
+          height={String(height)}
+        >
           <Header toggleFiltersBar={toggleFiltersBar} />
           {!isInitialized ? (
             <div

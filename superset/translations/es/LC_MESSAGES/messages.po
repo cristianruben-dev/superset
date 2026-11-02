@@ -19296,3 +19296,6 @@ msgstr "¿Descartar los cambios?"
 
 msgid "The chart changed and is not saved. Use Save in the editor to keep the changes."
 msgstr "El gráfico cambió y no está guardado. Usa Guardar en el editor para conservar los cambios."
+
+msgid "Clear %s"
+msgstr "Quitar %s"

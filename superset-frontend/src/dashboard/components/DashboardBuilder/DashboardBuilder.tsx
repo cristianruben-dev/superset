@@ -83,6 +83,11 @@ import { useNativeFilters } from './state';
 import DashboardWrapper from './DashboardWrapper';
 import { ReportTheme, useReportLook } from 'src/mibi/report/ReportTheme';
 import { InTabsDock, TabsDockProvider } from 'src/mibi/report/TabsDock';
+import {
+  FilterDockProvider,
+  InFilterDock,
+  useFilterDockState,
+} from 'src/mibi/report/FilterDock';
 import { PresentationControls } from 'src/mibi/present/PresentationControls';
 import { DrillthroughBar } from 'src/mibi/report/DrillthroughBar';
 import { usePresenting } from 'src/mibi/present/presentation';
@@ -579,11 +584,35 @@ const DashboardBuilder = () => {
     ? theme.sizeUnit * 4
     : theme.sizeUnit * 8;
 
+  // The page offers a dock for the filter pane: it sits against the page
+  const filterDock = useFilterDockState();
+  const filterDocked = !!filterDock.slot;
+
   const renderChild = useCallback(
     adjustedWidth => {
       const filterBarWidth = dashboardFiltersOpen
         ? adjustedWidth
         : CLOSED_FILTER_BAR_WIDTH;
+      if (filterDocked) {
+        return (
+          <InFilterDock width={filterBarWidth}>
+            <ErrorBoundary>
+              <ReportTheme area="filterBar">
+                <FilterBar
+                  orientation={FilterBarOrientation.Vertical}
+                  verticalConfig={{
+                    filtersOpen: dashboardFiltersOpen,
+                    toggleFiltersBar: toggleDashboardFiltersOpen,
+                    width: filterBarWidth,
+                    height: '100%',
+                    offset: 0,
+                  }}
+                />
+              </ReportTheme>
+            </ErrorBoundary>
+          </InFilterDock>
+        );
+      }
       return (
         <FiltersPanel
           width={filterBarWidth}
@@ -614,6 +643,7 @@ const DashboardBuilder = () => {
       );
     },
     [
+      filterDocked,
       dashboardFiltersOpen,
       toggleDashboardFiltersOpen,
       filterBarHeight,
@@ -626,135 +656,142 @@ const DashboardBuilder = () => {
   const isVerticalFilterBarVisible =
     showFilterBar && filterBarOrientation === FilterBarOrientation.Vertical;
   // The filter panel has a fixed width: open, or the narrow closed strip
-  const headerFilterBarWidth = isVerticalFilterBarVisible
-    ? dashboardFiltersOpen
-      ? OPEN_FILTER_BAR_WIDTH
-      : CLOSED_FILTER_BAR_WIDTH
-    : 0;
+  const headerFilterBarWidth =
+    isVerticalFilterBarVisible && !filterDocked
+      ? dashboardFiltersOpen
+        ? OPEN_FILTER_BAR_WIDTH
+        : CLOSED_FILTER_BAR_WIDTH
+      : 0;
 
   return (
-    <TabsDockProvider>
-      <div
-        style={
-          {
-            display: 'contents',
-            '--mb-report-wallpaper': reportWallpaper,
-          } as CSSProperties
-        }
-      >
-        <DashboardWrapper>
-          {presenting && <PresentationControls />}
-          {/* The filter panel has a fixed width: it is shown or hidden */}
-          {isVerticalFilterBarVisible && renderChild(OPEN_FILTER_BAR_WIDTH)}
-          <StyledHeader
-            data-test="dashboard-header-wrapper"
-            ref={headerRef}
-            filterBarWidth={headerFilterBarWidth}
-          >
-            {headerContent}
-            <InTabsDock>
-              <Droppable
-                data-test="top-level-tabs"
-                className={cx(!topLevelTabs && editMode && 'empty-droptarget')}
-                component={dashboardRoot}
-                parentComponent={null}
-                depth={DASHBOARD_ROOT_DEPTH}
-                index={0}
-                orientation="column"
-                onDrop={handleDrop}
-                editMode={editMode}
-                // you cannot drop on/displace tabs if they already exist
-                disableDragDrop={!!topLevelTabs}
-                style={draggableStyle}
-              >
-                {renderDraggableContent}
-              </Droppable>
-            </InTabsDock>
-            {/* AuraData BI: the drill through applied to the page */}
-            {!editMode && <DrillthroughBar />}
-          </StyledHeader>
-          <StyledContent fullSizeChartId={fullSizeChartId}>
-            {!editMode &&
-              !topLevelTabs &&
-              dashboardLayout[DASHBOARD_GRID_ID]?.children?.length === 0 && (
-                <EmptyState
-                  title={t('There are no charts added to this dashboard')}
-                  size="large"
-                  description={
-                    canEdit &&
-                    t(
-                      'Go to the edit mode to configure the dashboard and add charts',
-                    )
-                  }
-                  buttonText={canEdit && t('Edit the dashboard')}
-                  buttonAction={() => {
-                    dispatch(setEditMode(true));
-                    dispatch(clearDashboardHistory());
-                  }}
-                  image="dashboard.svg"
-                />
-              )}
-            <DashboardContentWrapper
-              data-test="dashboard-content-wrapper"
-              className={cx('dashboard', editMode && 'dashboard--editing')}
+    <FilterDockProvider value={filterDock}>
+      <TabsDockProvider>
+        <div
+          style={
+            {
+              display: 'contents',
+              '--mb-report-wallpaper': reportWallpaper,
+            } as CSSProperties
+          }
+        >
+          <DashboardWrapper>
+            {presenting && <PresentationControls />}
+            {/* The filter panel has a fixed width: it is shown or hidden */}
+            {isVerticalFilterBarVisible && renderChild(OPEN_FILTER_BAR_WIDTH)}
+            <StyledHeader
+              data-test="dashboard-header-wrapper"
+              ref={headerRef}
+              filterBarWidth={headerFilterBarWidth}
             >
-              <StyledDashboardContent
-                className="dashboard-content"
-                editMode={editMode}
-                marginLeft={dashboardContentMarginLeft}
-                sidepaneWidth={
-                  (paneCollapsed
-                    ? BUILDER_SIDEPANEL_RAIL_WIDTH
-                    : BUILDER_SIDEPANEL_WIDTH) + dockWidth
-                }
+              {headerContent}
+              <InTabsDock>
+                <Droppable
+                  data-test="top-level-tabs"
+                  className={cx(
+                    !topLevelTabs && editMode && 'empty-droptarget',
+                  )}
+                  component={dashboardRoot}
+                  parentComponent={null}
+                  depth={DASHBOARD_ROOT_DEPTH}
+                  index={0}
+                  orientation="column"
+                  onDrop={handleDrop}
+                  editMode={editMode}
+                  // you cannot drop on/displace tabs if they already exist
+                  disableDragDrop={!!topLevelTabs}
+                  style={draggableStyle}
+                >
+                  {renderDraggableContent}
+                </Droppable>
+              </InTabsDock>
+              {/* AuraData BI: the drill through applied to the page */}
+              {!editMode && <DrillthroughBar />}
+            </StyledHeader>
+            <StyledContent fullSizeChartId={fullSizeChartId}>
+              {!editMode &&
+                !topLevelTabs &&
+                dashboardLayout[DASHBOARD_GRID_ID]?.children?.length === 0 && (
+                  <EmptyState
+                    title={t('There are no charts added to this dashboard')}
+                    size="large"
+                    description={
+                      canEdit &&
+                      t(
+                        'Go to the edit mode to configure the dashboard and add charts',
+                      )
+                    }
+                    buttonText={canEdit && t('Edit the dashboard')}
+                    buttonAction={() => {
+                      dispatch(setEditMode(true));
+                      dispatch(clearDashboardHistory());
+                    }}
+                    image="dashboard.svg"
+                  />
+                )}
+              <DashboardContentWrapper
+                data-test="dashboard-content-wrapper"
+                className={cx('dashboard', editMode && 'dashboard--editing')}
               >
-                {showDashboard ? (
-                  missingInitialFilters.length > 0 ? (
-                    <div
-                      css={css`
-                        display: flex;
-                        flex-direction: row;
-                        align-items: center;
-                        justify-content: center;
-                        flex: 1;
-                        & div {
-                          width: 500px;
-                        }
-                      `}
-                    >
-                      <BasicErrorAlert
-                        title={t('Unable to load dashboard')}
-                        body={t(
-                          `The following filters have the 'Select first filter value by default'
+                <StyledDashboardContent
+                  className="dashboard-content"
+                  editMode={editMode}
+                  marginLeft={dashboardContentMarginLeft}
+                  sidepaneWidth={
+                    (paneCollapsed
+                      ? BUILDER_SIDEPANEL_RAIL_WIDTH
+                      : BUILDER_SIDEPANEL_WIDTH) + dockWidth
+                  }
+                >
+                  {showDashboard ? (
+                    missingInitialFilters.length > 0 ? (
+                      <div
+                        css={css`
+                          display: flex;
+                          flex-direction: row;
+                          align-items: center;
+                          justify-content: center;
+                          flex: 1;
+                          & div {
+                            width: 500px;
+                          }
+                        `}
+                      >
+                        <BasicErrorAlert
+                          title={t('Unable to load dashboard')}
+                          body={t(
+                            `The following filters have the 'Select first filter value by default'
                     option checked and could not be loaded, which is preventing the dashboard
                     from rendering: %s`,
-                          missingInitialFilters.join(', '),
-                        )}
-                      />
-                    </div>
+                            missingInitialFilters.join(', '),
+                          )}
+                        />
+                      </div>
+                    ) : (
+                      <DashboardContainer topLevelTabs={topLevelTabs} />
+                    )
                   ) : (
-                    <DashboardContainer topLevelTabs={topLevelTabs} />
-                  )
-                ) : (
-                  <Loading />
-                )}
-                <ChartEditorPanel topOffset={barTopOffset} />
-                {editMode && <BuilderComponentPane topOffset={barTopOffset} />}
-              </StyledDashboardContent>
-            </DashboardContentWrapper>
-          </StyledContent>
-          {dashboardIsSaving && (
-            <Loading
-              css={css`
-                && {
-                  position: fixed;
-                }
-              `}
-            />
-          )}
-        </DashboardWrapper>
-      </div>
-    </TabsDockProvider>
+                    <Loading />
+                  )}
+                  <ChartEditorPanel topOffset={barTopOffset} />
+                  {editMode && (
+                    <BuilderComponentPane topOffset={barTopOffset} />
+                  )}
+                </StyledDashboardContent>
+              </DashboardContentWrapper>
+            </StyledContent>
+            {dashboardIsSaving && (
+              <Loading
+                css={css`
+                  && {
+                    position: fixed;
+                  }
+                `}
+              />
+            )}
+          </DashboardWrapper>
+        </div>
+      </TabsDockProvider>
+    </FilterDockProvider>
   );
 };
 

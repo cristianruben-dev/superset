@@ -195,7 +195,9 @@ const FilterBar: FC<FiltersBarProps> = ({
   >(state => state.user);
 
   const autoApply = useSelector<RootState, boolean>(
-    ({ dashboardInfo }) => !!dashboardInfo.metadata?.filter_bar_auto_apply,
+    // Instant unless a dashboard explicitly opts out
+    ({ dashboardInfo }) =>
+      dashboardInfo.metadata?.filter_bar_auto_apply !== false,
   );
   // Filters listed in the bar for the active tab are the ones Apply and
   // Clear all act on; report filters are listed on every tab.
