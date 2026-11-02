@@ -776,8 +776,10 @@ body.mibi-dock .main-explore-content {
 }
 
 body.mibi-dock .controls-column {
-  flex: 1 1 auto;
-  width: 100% !important;
+  /* Beside the 32 px datasource tab, never past the panel's edge */
+  flex: 1 1 0;
+  min-width: 0;
+  width: auto !important;
   max-width: none !important;
 }
 
