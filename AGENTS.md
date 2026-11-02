@@ -124,6 +124,19 @@ Formats are stored in `position_json`, so they save, undo and export with the da
   including `visuals`, the style every chart shares (from "Apply to all charts").
 - `CHART-*.meta.mibiFormat`: a chart's own format. It wins over the shared style setting by
   setting; read it with `useVisualFormat`/`mergeVisualFormat`, never `meta.mibiFormat` alone.
+- `CHART-*.meta.mibiFormat.chart`: settings of the chart itself, by form data key, over its saved
+  `form_data` (`withChartFormat` in `src/mibi/format/chartFormat.ts`). A change repaints without a
+  query, and a key here wins over the same key saved by Explore. A layout can take 512 KB
+  (`SUPERSET_DASHBOARD_POSITION_DATA_LIMIT`).
+- The Visual level of the Format pane draws the look controls of each chart's control panel with
+  Explore's `Control` (`mibi/format/ChartFormatSections.tsx`), sorted into the sections of
+  `mibi/format/formatCards.ts`. A new control of a chart shows by itself; give it a section there.
+  The editor docked beside a report only has the data tab. Settings tied to one chart
+  (`OWN_CHART_SETTINGS`) stay out of "Copy format" and "Apply to all charts".
+- The General level also covers header icons (`mibi/format/HeaderExtras.tsx`), action button and
+  chart link (`format.link`, `format.actionButton`), spacing, and the tooltip and sampling of
+  ECharts (`chart.mibi_tooltip`, `chart.mibi_sampling`), which reach the chart through
+  `data-mibi-echarts` on the holder (`echartsHostFormat`, `applyHostFormat`).
 - Design elements are `DYNAMIC` components whose `componentKey` starts with `mibi-`, with their
   settings in `meta.mibiElement` (`src/mibi/elements/types.ts`).
   The canvas filter element (`mibi-filter`) stores `filterId` and `showInFilterBar`; filters
