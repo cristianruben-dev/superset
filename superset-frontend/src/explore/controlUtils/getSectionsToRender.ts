@@ -103,6 +103,25 @@ const getMemoizedSectionsToRender = memoizeOne(
 );
 
 /**
+ * Whether a section goes with the data of a chart rather than with its look. A
+ * section that asks for the look tab keeps to it, whatever it holds.
+ */
+export const isQuerySection = (section: ControlPanelSectionConfig): boolean =>
+  section.tabOverride !== 'customize' &&
+  (section.tabOverride === 'data' ||
+    section.controlSetRows.some(rows =>
+      rows.some(
+        control =>
+          control &&
+          typeof control === 'object' &&
+          'config' in control &&
+          control.config &&
+          (!control.config.renderTrigger ||
+            control.config.tabOverride === 'data'),
+      ),
+    ));
+
+/**
  * Get the clean and processed control panel sections
  */
 export function getSectionsToRender(

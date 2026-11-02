@@ -57,6 +57,17 @@ const SectionBox = styled.section`
       cursor: pointer;
       user-select: none;
 
+      h4 {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .section-extra {
+        display: inline-flex;
+        align-items: center;
+        gap: ${theme.sizeUnit * 2}px;
+      }
+
       .anticon {
         color: ${theme.colorTextTertiary};
       }
@@ -79,6 +90,8 @@ function textOf(node: ReactNode): string {
 
 /** Sections the editor folded: they stay so while going through objects. */
 const folded = new Set<string>();
+/** Sections closed at first that the editor opened. */
+const unfolded = new Set<string>();
 
 /**
  * A group of settings. Its first heading names it and folds it, so a long list
@@ -86,8 +99,16 @@ const folded = new Set<string>();
  */
 export function Section({
   children,
+  collapsedByDefault,
+  headExtra,
   ...props
-}: HTMLAttributes<HTMLElement> & { 'data-test'?: string }) {
+}: HTMLAttributes<HTMLElement> & {
+  'data-test'?: string;
+  /** Starts closed, for the long lists of options of a chart */
+  collapsedByDefault?: boolean;
+  /** Next to the heading, like the switch of an option */
+  headExtra?: ReactNode;
+}) {
   const query = useContext(FormatSearchContext).trim().toLowerCase();
   const items = Children.toArray(children);
   const head = items.find(
@@ -95,12 +116,19 @@ export function Section({
       isValidElement(child) && child.type === 'h4',
   );
   const title = head ? textOf(head) : '';
-  const [open, setOpen] = useState(() => !folded.has(title));
+  const [open, setOpen] = useState(() =>
+    collapsedByDefault ? unfolded.has(title) : !folded.has(title),
+  );
   if (query && !textOf(children).toLowerCase().includes(query)) return null;
   const shown = open || !!query;
   const toggle = () => {
-    if (open) folded.add(title);
-    else folded.delete(title);
+    if (open) {
+      folded.add(title);
+      unfolded.delete(title);
+    } else {
+      folded.delete(title);
+      unfolded.add(title);
+    }
     setOpen(!open);
   };
   return (
@@ -121,6 +149,16 @@ export function Section({
           }}
         >
           {head}
+          {headExtra && (
+            <span
+              className="section-extra"
+              role="presentation"
+              onClick={event => event.stopPropagation()}
+              onKeyDown={event => event.stopPropagation()}
+            >
+              {headExtra}
+            </span>
+          )}
           {shown ? (
             <Icons.UpOutlined iconSize="xs" />
           ) : (

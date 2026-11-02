@@ -1,0 +1,65 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+import { withChartFormat } from './chartFormat';
+import { ownChartFormat, sharableFormat } from './chartFormatSettings';
+import { mergeVisualFormat } from './styles';
+
+test('keeps the same settings when the report changes nothing', () => {
+  const formData = { viz_type: 'pie', legend_font: { fontSize: 10 } };
+  expect(withChartFormat(formData, undefined)).toBe(formData);
+});
+
+test('the format of the report wins over what the chart saved', () => {
+  expect(
+    withChartFormat(
+      { viz_type: 'pie', legend_font: { fontSize: 10 }, show_legend: true },
+      { legend_font: { fontSize: 24 } },
+    ),
+  ).toEqual({
+    viz_type: 'pie',
+    legend_font: { fontSize: 24 },
+    show_legend: true,
+  });
+});
+
+test('has nothing to apply on a chart without settings', () => {
+  expect(withChartFormat(undefined, { show_legend: true })).toBeUndefined();
+});
+
+test('a chart keeps the shared chart settings it does not change', () => {
+  expect(
+    mergeVisualFormat(
+      { chart: { show_legend: true, gridline_width: 2 } },
+      { chart: { gridline_width: 1 } },
+    )?.chart,
+  ).toEqual({ show_legend: true, gridline_width: 1 });
+});
+
+test('what belongs to the data of a chart is not copied to another', () => {
+  expect(
+    sharableFormat({
+      radius: 4,
+      chart: { legend_font: { fontSize: 20 }, series_colors: { a: '#000' } },
+    }),
+  ).toEqual({ radius: 4, chart: { legend_font: { fontSize: 20 } } });
+  expect(sharableFormat({ chart: { series_colors: {} } })).toEqual({});
+  expect(ownChartFormat({ legend_font: {}, x_axis_title: 'Ventas' })).toEqual({
+    x_axis_title: 'Ventas',
+  });
+});

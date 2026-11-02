@@ -72,6 +72,12 @@ import {
 } from '../../../actions/dashboardState';
 import { changeFilter } from '../../../actions/dashboardFilters';
 import { refreshChart } from '../../../../components/Chart/chartAction';
+import {
+  useChartFormat,
+  useRepaintOnChartFormat,
+  withChartFormat,
+} from 'src/mibi/format/chartFormat';
+import type { VisualFormat } from 'src/mibi/format/types';
 import { logEvent } from '../../../../logger/actions';
 import {
   getActiveFilters,
@@ -434,10 +440,34 @@ const Chart = (props: ChartProps) => {
     ),
   );
 
+  // AuraData BI: what the report changes of the chart, saved with its layout
+  const chartFormat = useChartFormat(props.componentId);
+  useRepaintOnChartFormat(props.id, chartFormat);
+  // The chart takes the room the header leaves, which depends on its format
+  const headerFormat = useSelector((state: RootState) =>
+    JSON.stringify(
+      (
+        state.dashboardLayout?.present?.[props.componentId]?.meta
+          ?.mibiFormat as VisualFormat | undefined
+      )?.title,
+    ),
+  );
+  const [, measureHeader] = useState(0);
+  const measuredHeaderFormat = useRef(headerFormat);
+  useEffect(() => {
+    if (measuredHeaderFormat.current === headerFormat) return;
+    measuredHeaderFormat.current = headerFormat;
+    measureHeader(count => count + 1);
+  }, [headerFormat]);
+  const chartFormData = useMemo(
+    () => withChartFormat(chart?.form_data, chartFormat),
+    [chart?.form_data, chartFormat],
+  );
+
   const formData = useMemo(
     () =>
       getFormDataWithExtraFilters({
-        chart: { id: chart?.id ?? props.id, form_data: chart?.form_data }, // avoid passing the whole chart object
+        chart: { id: chart?.id ?? props.id, form_data: chartFormData }, // avoid passing the whole chart object
         chartConfiguration,
         chartCustomizationItems:
           chartCustomizationItems as ChartCustomization[],
@@ -459,7 +489,7 @@ const Chart = (props: ChartProps) => {
       }),
     [
       chart?.id,
-      chart?.form_data,
+      chartFormData,
       chartConfiguration,
       chartCustomizationItems,
       props.id,

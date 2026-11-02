@@ -571,3 +571,99 @@ export function keepBarRadiusOnStackTop<T extends object>(series: T[]): T[] {
   }
   return result;
 }
+
+/** What the page around a chart asks of it, as a JSON string. */
+export type HostFormat = {
+  sampling?: boolean;
+  tooltip?: {
+    show?: boolean;
+    fontFamily?: string;
+    fontSize?: number;
+    bold?: boolean;
+    italic?: boolean;
+    underline?: boolean;
+    labelColor?: string;
+    valueColor?: string;
+    boldValues?: boolean;
+    background?: string;
+    sentence?: string;
+  };
+};
+
+const escapeHtml = (text: unknown) =>
+  String(text ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+
+const tooltipValue = (value: unknown) => {
+  if (Array.isArray(value)) return value[value.length - 1];
+  return value;
+};
+
+/** A sentence for each mark under the mouse, instead of the usual table. */
+export const sentenceFormatter =
+  (template: string) => (params: unknown) =>
+    (Array.isArray(params) ? params : [params])
+      .map((mark: { seriesName?: string; name?: string; value?: unknown }) =>
+        escapeHtml(template)
+          .replace(/\{series\}/g, escapeHtml(mark.seriesName))
+          .replace(/\{name\}/g, escapeHtml(mark.name))
+          .replace(/\{value\}/g, escapeHtml(tooltipValue(mark.value))),
+      )
+      .join('<br/>');
+
+/**
+ * Adds what the page around a chart asks of it to its options: the look of the
+ * tooltips and sampling of dense series. Without a request, the options stay as
+ * they are.
+ */
+export function applyHostFormat<T extends Record<string, any>>(
+  options: T,
+  hostFormat: string | undefined,
+): T {
+  if (!hostFormat) return options;
+  let format: HostFormat;
+  try {
+    format = JSON.parse(hostFormat);
+  } catch {
+    return options;
+  }
+  const next: Record<string, any> = { ...options };
+  const { tooltip, sampling } = format;
+  if (tooltip) {
+    const cssVars = [
+      tooltip.labelColor && `--mb-tt-label:${tooltip.labelColor}`,
+      tooltip.valueColor && `--mb-tt-value:${tooltip.valueColor}`,
+      tooltip.boldValues && '--mb-tt-value-weight:700',
+      tooltip.underline && '--mb-tt-decoration:underline',
+    ].filter(Boolean);
+    next.tooltip = {
+      ...options.tooltip,
+      ...(tooltip.show === false && { show: false }),
+      ...(tooltip.background && { backgroundColor: tooltip.background }),
+      className: `${options.tooltip?.className ?? ''} mibi-tooltip`.trim(),
+      textStyle: {
+        ...options.tooltip?.textStyle,
+        ...(tooltip.fontFamily && { fontFamily: tooltip.fontFamily }),
+        ...(tooltip.fontSize && { fontSize: tooltip.fontSize }),
+        ...(tooltip.bold && { fontWeight: 'bold' }),
+        ...(tooltip.italic && { fontStyle: 'italic' }),
+      },
+      extraCssText: [options.tooltip?.extraCssText, ...cssVars]
+        .filter(Boolean)
+        .join(';'),
+      ...(tooltip.sentence && {
+        formatter: sentenceFormatter(tooltip.sentence),
+      }),
+    };
+  }
+  if (sampling && Array.isArray(options.series)) {
+    next.series = options.series.map((series: Record<string, unknown>) =>
+      series.type === 'scatter'
+        ? { ...series, large: true }
+        : { ...series, sampling: 'lttb' },
+    );
+  }
+  return next as T;
+}

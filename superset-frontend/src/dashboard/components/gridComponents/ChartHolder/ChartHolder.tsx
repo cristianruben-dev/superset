@@ -46,7 +46,7 @@ import { AntdThemeProvider, Tooltip } from '@superset-ui/core/components';
 import { COLUMN_TYPE, ROW_TYPE } from 'src/dashboard/util/componentTypes';
 import { Icons } from '@superset-ui/core/components/Icons';
 import { t } from '@apache-superset/core/translation';
-import { visualStyle } from 'src/mibi/format/styles';
+import { echartsHostFormat, visualStyle } from 'src/mibi/format/styles';
 import { InteractionControl } from 'src/mibi/report/InteractionControl';
 import { isInteractionControl } from 'src/mibi/report/interactions';
 import { useHiddenOverride } from 'src/mibi/report/visibility';
@@ -135,6 +135,8 @@ const ChartHolder = ({
       z-index: 3000;
       left: 0;
       top: 0;
+      width: 100vw;
+      height: 100vh;
       padding: ${theme.sizeUnit * 2}px;
     }
   `;
@@ -263,10 +265,10 @@ const ChartHolder = ({
       height = window.innerHeight - CHART_MARGIN;
     } else {
       // Formatting padding, border and spacing take room from the chart
-      const { shrink } = formatted;
-      width = Math.floor(widthMultiple * columnWidth - CHART_MARGIN - shrink);
+      const { shrinkX, shrinkY } = formatted;
+      width = Math.floor(widthMultiple * columnWidth - CHART_MARGIN - shrinkX);
       height = Math.floor(
-        (component.meta.height ?? 0) * CELL - CHART_MARGIN - shrink,
+        (component.meta.height ?? 0) * CELL - CHART_MARGIN - shrinkY,
       );
     }
 
@@ -274,7 +276,14 @@ const ChartHolder = ({
       chartWidth: width,
       chartHeight: height,
     };
-  }, [columnWidth, component, isFullSize, widthMultiple, formatted.shrink]);
+  }, [
+    columnWidth,
+    component,
+    isFullSize,
+    widthMultiple,
+    formatted.shrinkX,
+    formatted.shrinkY,
+  ]);
 
   const handleDeleteComponent = useCallback(() => {
     deleteComponent(id, parentId);
@@ -326,6 +335,7 @@ const ChartHolder = ({
         onResize={onResize}
         onResizeStop={onResizeStop}
         editMode={editMode}
+        lockAspectRatio={!!visualFormat?.lockAspect}
       >
         <div
           ref={el => {
@@ -345,6 +355,7 @@ const ChartHolder = ({
           role={altText ? 'group' : undefined}
           aria-label={altText || undefined}
           style={holderStyle}
+          data-mibi-echarts={echartsHostFormat(visualFormat)}
           css={isFullSize ? fullSizeStyle : undefined}
           onClickCapture={
             editMode

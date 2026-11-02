@@ -66,6 +66,11 @@ MIBI_SHOW_POWERED_BY = False
 
 MIBI_SINGLE_DASHBOARD_CHARTS = True
 
+# A report keeps the format of its charts in its layout, and a formatted chart can
+# take a few KB. The column holds far more than the 64 KB Superset allows.
+
+SUPERSET_DASHBOARD_POSITION_DATA_LIMIT = 512 * 1024
+
 # --- Workspaces ---------------------------------------------------------------
 # Dashboards inside a workspace are only for its members (viewers, contributors and
 # admins) and their owners; contributors and admins edit them. With False,

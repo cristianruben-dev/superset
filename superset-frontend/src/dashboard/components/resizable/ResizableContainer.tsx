@@ -60,6 +60,8 @@ export interface ResizableContainerProps {
   staticHeightMultiple?: number;
   staticWidth?: number;
   staticWidthMultiple?: number;
+  /** Resizing keeps the proportions */
+  lockAspectRatio?: boolean;
   onResizeStart?: ResizeStartCallback;
   onResize?: ResizeCallback;
   onResizeStop?: ResizeCallback;
@@ -177,6 +179,7 @@ export default function ResizableContainer({
   onResizeStop,
   onResize,
   onResizeStart,
+  lockAspectRatio,
   editMode,
   adjustableWidth = true,
   adjustableHeight = true,
@@ -388,6 +391,7 @@ export default function ResizableContainer({
           : undefined
       }
       size={size}
+      lockAspectRatio={lockAspectRatio}
       onResizeStart={handleResizeStart}
       onResize={handleResize}
       onResizeStop={handleResizeStop}

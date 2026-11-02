@@ -964,8 +964,107 @@ body.mibi-dock .controls-column {
   font-size: var(--mb-v-title-size, 14px);
   font-weight: var(--mb-v-title-weight, 600);
   font-style: var(--mb-v-title-style, normal);
+  font-family: var(--mb-v-title-family, inherit);
+  text-decoration: var(--mb-v-title-decoration, none);
   letter-spacing: -0.01em;
   color: var(--mb-v-title-color, var(--mb-text));
+}
+
+.dashboard-component-chart-holder.mibi-title-wrap .header-title,
+.dashboard-component-chart-holder.mibi-title-wrap .header-title * {
+  white-space: normal;
+  text-overflow: clip;
+}
+
+.dashboard-component-chart-holder.mibi-header-gap [data-test='slice-header'] {
+  margin-bottom: var(--mb-v-header-gap) !important;
+}
+
+.dashboard-component-chart-holder.mibi-header-icons .header-controls {
+  border-radius: 4px;
+  border: var(--mb-v-icon-border, 0);
+  background: var(--mb-v-icon-bg, transparent);
+  color: var(--mb-v-icon-color, inherit);
+}
+
+.mibi-header-icon {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px;
+  cursor: default;
+}
+
+.mibi-header-icon[role='button'] {
+  cursor: pointer;
+}
+
+.mibi-action-button {
+  display: inline-flex;
+  flex: none;
+  gap: 4px;
+  max-width: 100%;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.mibi-action-button:disabled {
+  cursor: default;
+}
+
+.mibi-action-button.mibi-action-above {
+  order: -1;
+  flex-basis: 100%;
+}
+
+.mibi-action-button.mibi-action-below {
+  order: 4;
+  flex-basis: 100%;
+}
+
+.dashboard-component-chart-holder.mibi-divider-bleed
+  [data-test='slice-header'].mibi-header-divider {
+  margin-left: calc(var(--mb-v-pad-left, 16px) * -1);
+  margin-right: calc(var(--mb-v-pad-right, 16px) * -1);
+  padding-left: var(--mb-v-pad-left, 16px);
+  padding-right: var(--mb-v-pad-right, 16px);
+}
+
+.dashboard-component-chart-holder.mibi-spacing .header-title {
+  margin-bottom: var(--mb-s-title, 0);
+}
+
+.dashboard-component-chart-holder.mibi-spacing .mibi-subtitle {
+  margin-top: var(--mb-s-above-subtitle, 2px);
+  margin-bottom: var(--mb-s-below-subtitle, 0);
+}
+
+.dashboard-component-chart-holder.mibi-spacing
+  [data-test='slice-header'].mibi-header-divider {
+  padding-bottom: var(--mb-s-above-divider, 8px);
+}
+
+.dashboard-component-chart-holder.mibi-spacing [data-test='slice-header'] {
+  margin-bottom: calc(var(--mb-v-header-gap, 8px) + var(--mb-s-plot, 0px)) !important;
+}
+
+.dashboard-component-chart-holder.mibi-spacing .header-line {
+  margin-bottom: var(--mb-s-card, 0);
+}
+
+/* The format a report gives to the tooltips of a chart (see applyHostFormat) */
+.echarts-tooltip.mibi-tooltip td:first-child {
+  color: var(--mb-tt-label, inherit) !important;
+  text-decoration: var(--mb-tt-decoration, none);
+}
+
+.echarts-tooltip.mibi-tooltip td:not(:first-child) {
+  color: var(--mb-tt-value, inherit) !important;
+  font-weight: var(--mb-tt-value-weight, inherit) !important;
+  text-decoration: var(--mb-tt-decoration, none);
+}
+
+.dashboard-component-chart-holder.mibi-header-icons .header-controls * {
+  color: inherit;
 }
 
 .dashboard-component-chart-holder .header-title {
@@ -1818,7 +1917,7 @@ body.mibi-moving * {
 
 /* Objects sit side by side, so neighbors share an edge: the selected one gets it,
    instead of whichever object comes later in the page */
-.mibi-canvas .dragdroppable:has(.mibi-selected) {
+.mibi-canvas .dragdroppable:has(.mibi-selected):not(:has(.mibi-keep-layer)) {
   z-index: 3;
 }
 

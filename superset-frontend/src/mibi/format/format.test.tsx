@@ -98,7 +98,7 @@ const dispatcher = (store: ReturnType<typeof makeStore>) =>
 afterEach(() => selectVisual(null));
 
 test('turns a visual format into the card style', () => {
-  const { style, className, shrink } = visualStyle(
+  const { style, className, shrinkX, shrinkY } = visualStyle(
     {
       background: '#ff0000',
       backgroundOpacity: 50,
@@ -122,13 +122,44 @@ test('turns a visual format into the card style', () => {
   });
   expect(className).toBe('mibi-title-hidden mibi-title-center');
   // 8px more padding and 2px more border on each side
-  expect(shrink).toBe(20);
+  expect(shrinkX).toBe(20);
+  expect(shrinkY).toBe(20);
+});
+
+test('padding by side takes room from each axis on its own', () => {
+  const { style, shrinkX, shrinkY } = visualStyle(
+    { paddingSides: { top: 0, right: 20, bottom: 4, left: 30 } },
+    supersetTheme,
+  );
+  expect(style.padding).toBe('0px 20px 4px 30px');
+  expect(shrinkX).toBe(18);
+  expect(shrinkY).toBe(-28);
+});
+
+test('a custom shadow takes its angle, distance and color', () => {
+  const { style } = visualStyle(
+    {
+      shadow: 'custom',
+      shadowDetail: { color: '#ff0000', opacity: 50, angle: 0, distance: 5 },
+    },
+    supersetTheme,
+  );
+  expect(style.boxShadow).toBe('5px 0px 12px 0px rgba(255, 0, 0, 0.5)');
+});
+
+test('the border takes its opacity', () => {
+  const { style } = visualStyle(
+    { borderColor: '#000000', borderWidth: 2, borderOpacity: 50 },
+    supersetTheme,
+  );
+  expect(style.border).toBe('2px solid rgba(0, 0, 0, 0.5)');
 });
 
 test('leaves an unformatted visual alone', () => {
   expect(visualStyle(undefined, supersetTheme)).toEqual({
     style: {},
-    shrink: 0,
+    shrinkX: 0,
+    shrinkY: 0,
   });
   expect(withOpacity('transparent', 10)).toBe('transparent');
 });
@@ -260,6 +291,7 @@ test('formats the canvas and then the selected chart', () => {
   act(() => selectVisual('CHART-a'));
   expect(screen.getByTestId('mibi-format-title')).toHaveTextContent('Sales');
 
+  fireEvent.click(screen.getByRole('radio', { name: 'General' }));
   fireEvent.click(screen.getByRole('switch', { name: 'Show title' }));
   fireEvent.click(screen.getByRole('radio', { name: 'Strong' }));
   expect(

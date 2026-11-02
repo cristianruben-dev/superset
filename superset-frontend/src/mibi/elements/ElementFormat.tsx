@@ -157,7 +157,7 @@ const Row = styled.div`
   `}
 `;
 
-function ActionFields({
+export function ActionFields({
   action,
   onChange,
 }: {

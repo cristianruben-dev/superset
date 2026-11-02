@@ -22,7 +22,135 @@
  * visual on its chart component, so they save, undo and export with it.
  */
 
-export type ShadowLevel = 'none' | 'soft' | 'strong';
+import type { ElementAction } from '../elements/types';
+
+export type ShadowLevel = 'none' | 'soft' | 'strong' | 'custom';
+
+/** A shadow set by hand, with 'custom' as its level. */
+export interface ShadowDetail {
+  color?: string;
+  /** 0 to 100 */
+  opacity?: number;
+  /** Degrees: 90 falls straight down */
+  angle?: number;
+  distance?: number;
+  blur?: number;
+  spread?: number;
+  inset?: boolean;
+}
+
+export interface BoxSides {
+  top?: number;
+  right?: number;
+  bottom?: number;
+  left?: number;
+}
+
+export type LineStyle = 'solid' | 'dashed' | 'dotted';
+
+/** Space around the header of a chart, with `customize` on. */
+export interface TitleSpacing {
+  customize?: boolean;
+  belowTitle?: number;
+  aboveSubtitle?: number;
+  belowSubtitle?: number;
+  aboveDivider?: number;
+  abovePlot?: number;
+  /** Between the value and the label of a card */
+  cardValue?: number;
+}
+
+/** The text of the tooltip icon in the header of a chart. */
+export interface HeaderTooltipFormat {
+  text?: string;
+  fontFamily?: string;
+  fontSize?: number;
+  bold?: boolean;
+  italic?: boolean;
+  underline?: boolean;
+  color?: string;
+  background?: string;
+  /** 0 to 100 */
+  opacity?: number;
+}
+
+/** What the tooltips of the marks of a chart look like. */
+export interface ChartTooltipFormat {
+  show?: boolean;
+  fontFamily?: string;
+  fontSize?: number;
+  bold?: boolean;
+  italic?: boolean;
+  underline?: boolean;
+  labelColor?: string;
+  valueColor?: string;
+  boldValues?: boolean;
+  background?: string;
+  /** 0 to 100 */
+  opacity?: number;
+  /** A sentence instead of the table, with {series}, {name} and {value} */
+  sentence?: string;
+}
+
+/** Settings a report passes to the ECharts of its charts. */
+export const TOOLTIP_FORMAT_KEY = 'mibi_tooltip';
+export const SAMPLING_FORMAT_KEY = 'mibi_sampling';
+
+export type EffectPosition =
+  | 'top-left'
+  | 'top'
+  | 'top-right'
+  | 'left'
+  | 'center'
+  | 'right'
+  | 'bottom-left'
+  | 'bottom'
+  | 'bottom-right';
+
+/** The glow or the shadow of the action button. */
+export interface ButtonEffect {
+  show?: boolean;
+  color?: string;
+  /** 0 to 100 */
+  opacity?: number;
+  blur?: number;
+  inset?: boolean;
+  position?: EffectPosition;
+}
+
+/** A button in the title area of a chart. */
+export interface ActionButtonFormat {
+  show?: boolean;
+  position?: 'above' | 'within' | 'below';
+  iconOnly?: boolean;
+  text?: string;
+  textShow?: boolean;
+  fontFamily?: string;
+  fontSize?: number;
+  bold?: boolean;
+  italic?: boolean;
+  underline?: boolean;
+  textColor?: string;
+  textOpacity?: number;
+  alignHorizontal?: 'left' | 'center' | 'right';
+  alignVertical?: 'top' | 'middle' | 'bottom';
+  textPadding?: number;
+  textPaddingSides?: BoxSides;
+  iconShow?: boolean;
+  iconColor?: string;
+  iconSize?: number;
+  iconOpacity?: number;
+  iconPadding?: number;
+  iconPaddingSides?: BoxSides;
+  fill?: { show?: boolean; color?: string; opacity?: number };
+  background?: { show?: boolean; color?: string; opacity?: number };
+  matchBackground?: boolean;
+  border?: { show?: boolean; color?: string; width?: number; opacity?: number };
+  glow?: ButtonEffect;
+  shadow?: ButtonEffect;
+  padding?: number;
+  paddingSides?: BoxSides;
+}
 export type TitleAlign = 'left' | 'center' | 'right';
 
 export interface VisualFormat {
@@ -32,11 +160,27 @@ export interface VisualFormat {
   backgroundOpacity?: number;
   borderColor?: string;
   borderWidth?: number;
+  /** 0 to 100 */
+  borderOpacity?: number;
   radius?: number;
   shadow?: ShadowLevel;
+  shadowDetail?: ShadowDetail;
   padding?: number;
+  /** Padding by side, over `padding` */
+  paddingSides?: BoxSides;
   title?: {
     show?: boolean;
+    fontFamily?: string;
+    underline?: boolean;
+    /** Long titles take more lines instead of being cut */
+    wrap?: boolean;
+    /** For screen readers: heading level 2 to 6, a plain text without it */
+    heading?: number;
+    subtitleHeading?: number;
+    subtitleWrap?: boolean;
+    /** The divider reaches the edges of the card */
+    dividerBleed?: boolean;
+    spacing?: TitleSpacing;
     size?: number;
     color?: string;
     align?: TitleAlign;
@@ -49,9 +193,18 @@ export interface VisualFormat {
     subtitle?: string;
     subtitleSize?: number;
     subtitleColor?: string;
+    subtitleFamily?: string;
+    subtitleBold?: boolean;
+    subtitleItalic?: boolean;
+    subtitleUnderline?: boolean;
+    subtitleAlign?: TitleAlign;
     /** A line under the header */
     divider?: boolean;
     dividerColor?: string;
+    dividerWidth?: number;
+    dividerStyle?: LineStyle;
+    /** Space between the header and the chart */
+    gap?: number;
   };
   /** The number of a KPI card */
   value?: {
@@ -74,7 +227,36 @@ export interface VisualFormat {
   header?: {
     menu?: boolean;
     badges?: boolean;
+    iconColor?: string;
+    iconBackground?: string;
+    iconBorder?: string;
+    /** 0 to 100 */
+    iconOpacity?: number;
+    /** All the icons of the header (shown by default) */
+    show?: boolean;
+    focus?: boolean;
+    seeData?: boolean;
+    copy?: boolean;
+    info?: boolean;
+    warning?: boolean;
+    error?: boolean;
+    tooltipIcon?: boolean;
+    tooltip?: HeaderTooltipFormat;
   };
+  /** What the link icon and the action button of a chart do */
+  link?: {
+    show?: boolean;
+    action?: ElementAction;
+    tooltip?: string;
+    disabledTooltip?: string;
+  };
+  actionButton?: ActionButtonFormat;
+  /** Resizing keeps the proportions */
+  lockAspect?: boolean;
+  /** Selecting it does not bring it over its neighbors */
+  keepLayerOrder?: boolean;
+  /** Settings of the chart itself, by form data key, over what the chart saved */
+  chart?: Record<string, unknown>;
 }
 
 export type CanvasBackgroundType = 'none' | 'color' | 'gradient' | 'image';

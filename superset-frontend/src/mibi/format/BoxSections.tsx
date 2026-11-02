@@ -20,13 +20,19 @@ import { useDispatch, useSelector } from 'react-redux';
 import { t } from '@apache-superset/core/translation';
 import { useTheme } from '@apache-superset/core/theme';
 import { Switch } from '@superset-ui/core/components';
+import { BASE_VISUAL_PADDING } from './styles';
 import type { RootState } from 'src/dashboard/types';
 import { CHART_TYPE } from 'src/dashboard/util/componentTypes';
 import { setVisualFormat } from './actions';
 import { mergeVisualFormat } from './styles';
 import { useSharedVisualFormat } from './useVisualFormat';
 import { ColorField, Field, RangeField, Section, Segments } from './controls';
-import { DEFAULT_RADIUS, type ShadowLevel, type VisualFormat } from './types';
+import {
+  DEFAULT_RADIUS,
+  type ShadowDetail,
+  type ShadowLevel,
+  type VisualFormat,
+} from './types';
 
 /** Background, border, corners, shadow and padding of a chart or element box. */
 export function BoxSections({ id }: { id: string }) {
@@ -45,6 +51,10 @@ export function BoxSections({ id }: { id: string }) {
       setVisualFormat(id, { ...own, ...patch }, `visual:${id}:${setting}`),
     );
   const transparent = format.background === 'transparent';
+  const shadow = format.shadowDetail ?? {};
+  const updateShadow = (patch: ShadowDetail, setting: string) =>
+    update({ shadowDetail: { ...shadow, ...patch } }, `shadow-${setting}`);
+  const allPadding = format.padding ?? BASE_VISUAL_PADDING;
 
   return (
     <>
@@ -130,6 +140,17 @@ export function BoxSections({ id }: { id: string }) {
           testId="mibi-format-border-width"
         />
         <RangeField
+          label={t('Opacity')}
+          value={format.borderOpacity ?? 100}
+          min={0}
+          max={100}
+          unit="%"
+          onChange={borderOpacity =>
+            update({ borderOpacity }, 'border-opacity')
+          }
+          testId="mibi-format-border-opacity"
+        />
+        <RangeField
           label={t('Rounded corners')}
           help={{
             kind: 'cardRadius',
@@ -154,19 +175,123 @@ export function BoxSections({ id }: { id: string }) {
             { value: 'none', label: t('None') },
             { value: 'soft', label: t('Soft') },
             { value: 'strong', label: t('Strong') },
+            { value: 'custom', label: t('Custom') },
           ]}
         />
-        <RangeField
-          label={t('Inner padding')}
-          help={{
-            kind: 'cardPadding',
-            text: t('Space between the edge of the chart and its content.'),
-          }}
-          value={format.padding ?? 16}
-          min={0}
-          max={40}
-          onChange={padding => update({ padding }, 'padding')}
-        />
+        {format.shadow === 'custom' && (
+          <>
+            <ColorField
+              label={t('Color')}
+              value={shadow.color ?? '#000000'}
+              onChange={color => updateShadow({ color }, 'color')}
+              testId="mibi-format-shadow-color"
+            />
+            <RangeField
+              label={t('Opacity')}
+              value={shadow.opacity ?? 25}
+              min={0}
+              max={100}
+              unit="%"
+              onChange={opacity => updateShadow({ opacity }, 'opacity')}
+            />
+            <RangeField
+              label={t('Angle')}
+              value={shadow.angle ?? 90}
+              min={0}
+              max={360}
+              unit="°"
+              onChange={angle => updateShadow({ angle }, 'angle')}
+            />
+            <RangeField
+              label={t('Distance')}
+              value={shadow.distance ?? 4}
+              min={0}
+              max={40}
+              onChange={distance => updateShadow({ distance }, 'distance')}
+            />
+            <RangeField
+              label={t('Blur')}
+              value={shadow.blur ?? 12}
+              min={0}
+              max={60}
+              onChange={blur => updateShadow({ blur }, 'blur')}
+            />
+            <RangeField
+              label={t('Spread')}
+              value={shadow.spread ?? 0}
+              min={0}
+              max={30}
+              onChange={spread => updateShadow({ spread }, 'spread')}
+            />
+            <Field label={t('Inside the box')}>
+              <Switch
+                size="small"
+                checked={!!shadow.inset}
+                aria-label={t('Inside the box')}
+                onChange={inset => updateShadow({ inset }, 'inset')}
+              />
+            </Field>
+          </>
+        )}
+        <Field label={t('Padding by side')}>
+          <Switch
+            size="small"
+            checked={!!format.paddingSides}
+            aria-label={t('Padding by side')}
+            data-test="mibi-format-padding-sides"
+            onChange={bySide =>
+              update(
+                {
+                  paddingSides: bySide
+                    ? {
+                        top: allPadding,
+                        right: allPadding,
+                        bottom: allPadding,
+                        left: allPadding,
+                      }
+                    : undefined,
+                },
+                'padding-sides',
+              )
+            }
+          />
+        </Field>
+        {format.paddingSides ? (
+          (
+            [
+              ['top', t('Top')],
+              ['right', t('Right')],
+              ['bottom', t('Bottom')],
+              ['left', t('Left')],
+            ] as const
+          ).map(([side, label]) => (
+            <RangeField
+              key={side}
+              label={label}
+              value={format.paddingSides?.[side] ?? allPadding}
+              min={0}
+              max={40}
+              onChange={value =>
+                update(
+                  { paddingSides: { ...format.paddingSides, [side]: value } },
+                  `padding-${side}`,
+                )
+              }
+            />
+          ))
+        ) : (
+          <RangeField
+            label={t('Inner padding')}
+            help={{
+              kind: 'cardPadding',
+              text: t('Space between the edge of the chart and its content.'),
+            }}
+            value={allPadding}
+            min={0}
+            max={40}
+            onChange={padding => update({ padding }, 'padding')}
+          />
+        )}
       </Section>
     </>
   );

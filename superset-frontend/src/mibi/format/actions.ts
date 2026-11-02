@@ -29,6 +29,7 @@ import {
 } from 'src/dashboard/util/constants';
 import { activeTabIndex, topLevelTabs } from 'src/mibi/present/dashboardTabs';
 import { CHART_TYPE, ROW_TYPE } from 'src/dashboard/util/componentTypes';
+import { ownChartFormat, sharableFormat } from './chartFormatSettings';
 import { isObjectLocked } from './lock';
 import { placeAt, posOf, type Pos } from './positions';
 import {
@@ -130,18 +131,27 @@ export const setVisualFormat =
 /** What a chart keeps of its own format when it takes a shared style. */
 export const keepOwnText = (
   format: VisualFormat | undefined,
-): VisualFormat | undefined =>
-  format?.title?.subtitle
-    ? { title: { subtitle: format.title.subtitle } }
-    : undefined;
+): VisualFormat | undefined => {
+  const chart = ownChartFormat(format?.chart);
+  const kept: VisualFormat = {
+    ...(format?.title?.subtitle && {
+      title: { subtitle: format.title.subtitle },
+    }),
+    ...(chart && { chart }),
+  };
+  return Object.keys(kept).length ? kept : undefined;
+};
 
 /** The style to share, without the text that belongs to one chart. */
 export const withoutOwnText = (
   format: VisualFormat | undefined,
 ): VisualFormat | undefined => {
-  if (!format?.title || format.title.subtitle === undefined) return format;
-  const { subtitle, ...title } = format.title;
-  return { ...format, title };
+  const sharable = sharableFormat(format);
+  if (!sharable?.title || sharable.title.subtitle === undefined) {
+    return sharable;
+  }
+  const { subtitle, ...title } = sharable.title;
+  return { ...sharable, title };
 };
 
 /**

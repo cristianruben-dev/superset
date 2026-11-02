@@ -72,6 +72,7 @@ import {
 } from '../types';
 import { DEFAULT_LOCALE } from '../constants';
 import { mergeEchartsThemeOverrides } from '../utils/themeOverrides';
+import { applyHostFormat } from '../utils/formatting';
 
 // Define this interface here to avoid creating a dependency back to superset-frontend,
 // TODO: to move the type to @superset-ui/core
@@ -299,12 +300,19 @@ function Echart(
             }
           )?.dataZoom
         : undefined;
-      chartRef.current?.setOption(themedEchartOptions, {
+      // AuraData BI: what the report around the chart asks of it
+      const hostFormat = divRef.current?.closest<HTMLElement>(
+        '[data-mibi-echarts]',
+      )?.dataset.mibiEcharts;
+      chartRef.current?.setOption(
+        applyHostFormat(themedEchartOptions, hostFormat),
+        {
         notMerge,
         replaceMerge: notMerge ? undefined : ['series'],
         // lazyUpdate defers render, causing tooltip crashes on stale shapes (#39247)
         lazyUpdate: false,
-      });
+        },
+      );
       if (previousZoom?.length) {
         // Skip restore when the new option reshapes dataZoom (different count
         // means index-based restore could land on the wrong component).

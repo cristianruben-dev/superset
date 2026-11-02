@@ -71,7 +71,7 @@ import Tabs from '@superset-ui/core/components/Tabs';
 import { PluginContext } from 'src/components';
 import { useConfirmModal } from 'src/hooks/useConfirmModal';
 
-import { getSectionsToRender } from 'src/explore/controlUtils';
+import { getSectionsToRender, isQuerySection } from 'src/explore/controlUtils';
 import { ExploreActions } from 'src/explore/actions/exploreActions';
 import { ChartState, ExplorePageState } from 'src/explore/types';
 import { Icons } from '@superset-ui/core/components/Icons';
@@ -244,22 +244,7 @@ function getState(
       } else {
         matrixifySections.push(section);
       }
-    } else if (
-      // A section that asks for the look tab keeps to it, whatever it holds
-      section.tabOverride !== 'customize' &&
-      (section.tabOverride === 'data' ||
-        section.controlSetRows.some(rows =>
-          rows.some(
-            control =>
-              control &&
-              typeof control === 'object' &&
-              'config' in control &&
-              control.config &&
-              (!control.config.renderTrigger ||
-                control.config.tabOverride === 'data'),
-          ),
-        ))
-    ) {
+    } else if (isQuerySection(section)) {
       querySections.push(section);
     } else if (section.controlSetRows && section.controlSetRows.length > 0) {
       customizeSections.push(section);
@@ -830,7 +815,8 @@ export const ControlPanelsContainer = (props: ControlPanelsContainerProps) => {
     props.errorMessage,
   ]);
 
-  const showCustomizeTab = customizeSections.length > 0;
+  // AuraData BI: beside a report, the look of a chart is set in the Format pane
+  const showCustomizeTab = customizeSections.length > 0 && !isDockMode();
   const showMatrixifyTab =
     isFeatureEnabled(FeatureFlag.Matrixify) &&
     !MATRIXIFY_INCOMPATIBLE_CHARTS.has(form_data.viz_type as VizType);
@@ -960,7 +946,7 @@ export const ControlPanelsContainer = (props: ControlPanelsContainerProps) => {
               ? [
                   {
                     key: TABS_KEYS.CUSTOMIZE,
-                    label: isDockMode() ? t('Format') : t('Customize'),
+                    label: t('Customize'),
                     children: (
                       <Collapse
                         defaultActiveKey={expandedCustomizeSections}

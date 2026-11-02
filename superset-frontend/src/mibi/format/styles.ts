@@ -27,6 +27,15 @@ import {
   MIN_CANVAS,
   type CanvasFormat,
   type CanvasPreset,
+  SAMPLING_FORMAT_KEY,
+  TOOLTIP_FORMAT_KEY,
+  type ActionButtonFormat,
+  type BoxSides,
+  type ButtonEffect,
+  type ChartTooltipFormat,
+  type EffectPosition,
+  type HeaderTooltipFormat,
+  type ShadowDetail,
   type ShadowLevel,
   type VisualFormat,
 } from './types';
@@ -37,15 +46,6 @@ const BASE_BORDER = 1;
 
 const clamp = (value: number, min: number, max: number) =>
   Math.min(max, Math.max(min, value));
-
-export const shadowOf = (
-  level: ShadowLevel | undefined,
-  theme: SupersetTheme,
-) => {
-  if (level === 'none') return 'none';
-  if (level === 'strong') return theme.boxShadowSecondary;
-  return undefined;
-};
 
 /** A color with its opacity (0-100) applied. */
 export const withOpacity = (color: string, opacity = 100) => {
@@ -58,13 +58,40 @@ export const withOpacity = (color: string, opacity = 100) => {
     : color;
 };
 
+export const shadowOf = (
+  level: ShadowLevel | undefined,
+  theme: SupersetTheme,
+  detail?: ShadowDetail,
+) => {
+  if (level === 'none') return 'none';
+  if (level === 'strong') return theme.boxShadowSecondary;
+  if (level === 'custom') {
+    const {
+      color = '#000000',
+      opacity = 25,
+      angle = 90,
+      distance = 4,
+      blur = 12,
+      spread = 0,
+      inset,
+    } = detail ?? {};
+    const radians = (angle * Math.PI) / 180;
+    const x = Math.round(Math.cos(radians) * distance);
+    const y = Math.round(Math.sin(radians) * distance);
+    return `${inset ? 'inset ' : ''}${x}px ${y}px ${blur}px ${spread}px ${withOpacity(color, opacity)}`;
+  }
+  return undefined;
+};
+
 export interface VisualStyle {
   /** Inline style for the visual card */
   style: CSSProperties;
   /** CSS variables the title rules read */
   className?: string;
-  /** Pixels the chart loses on each axis because of padding and border */
-  shrink: number;
+  /** Pixels the chart loses in width because of padding and border */
+  shrinkX: number;
+  /** Pixels the chart loses in height because of padding and border */
+  shrinkY: number;
 }
 
 /**
@@ -84,6 +111,9 @@ export function mergeVisualFormat(
   if (shared.header || own.header) {
     merged.header = { ...shared.header, ...own.header };
   }
+  if (shared.chart || own.chart) {
+    merged.chart = { ...shared.chart, ...own.chart };
+  }
   return merged;
 }
 
@@ -98,7 +128,7 @@ export function visualStyle(
   format: VisualFormat | undefined,
   theme: SupersetTheme,
 ): VisualStyle {
-  if (!format) return { style: {}, shrink: 0 };
+  if (!format) return { style: {}, shrinkX: 0, shrinkY: 0 };
   const style: Record<string, string | number> = {};
   if (format.background !== undefined) {
     style.backgroundColor = withOpacity(
@@ -106,19 +136,81 @@ export function visualStyle(
       format.backgroundOpacity,
     );
   }
-  if (format.borderWidth !== undefined || format.borderColor) {
+  if (
+    format.borderWidth !== undefined ||
+    format.borderColor ||
+    format.borderOpacity !== undefined
+  ) {
     const width = format.borderWidth ?? BASE_BORDER;
-    style.border =
-      width > 0
-        ? `${width}px solid ${format.borderColor || theme.colorBorderSecondary}`
-        : '0';
+    const base = format.borderColor || theme.colorBorderSecondary;
+    const color =
+      format.borderOpacity === undefined
+        ? base
+        : withOpacity(base, format.borderOpacity);
+    style.border = width > 0 ? `${width}px solid ${color}` : '0';
   }
   if (format.radius !== undefined)
     style['--mb-v-radius'] = `${format.radius}px`;
-  const shadow = shadowOf(format.shadow, theme);
+  const shadow = shadowOf(format.shadow, theme, format.shadowDetail);
   if (shadow) style.boxShadow = shadow;
-  if (format.padding !== undefined) style.padding = `${format.padding}px`;
-  const { title } = format;
+  const allSides = format.padding ?? BASE_VISUAL_PADDING;
+  const sides = {
+    top: format.paddingSides?.top ?? allSides,
+    right: format.paddingSides?.right ?? allSides,
+    bottom: format.paddingSides?.bottom ?? allSides,
+    left: format.paddingSides?.left ?? allSides,
+  };
+  if (format.paddingSides) {
+    style.padding = `${sides.top}px ${sides.right}px ${sides.bottom}px ${sides.left}px`;
+  } else if (format.padding !== undefined) {
+    style.padding = `${format.padding}px`;
+  }
+  const { title, header } = format;
+  if (title?.fontFamily) style['--mb-v-title-family'] = title.fontFamily;
+  if (title?.underline !== undefined)
+    style['--mb-v-title-decoration'] = title.underline ? 'underline' : 'none';
+  if (title?.gap !== undefined) style['--mb-v-header-gap'] = `${title.gap}px`;
+  if (header?.iconColor) {
+    style['--mb-v-icon-color'] = withOpacity(
+      header.iconColor,
+      header.iconOpacity,
+    );
+  } else if (header?.iconOpacity !== undefined) {
+    style['--mb-v-icon-color'] = withOpacity(
+      theme.colorTextSecondary,
+      header.iconOpacity,
+    );
+  }
+  if (header?.iconBackground) {
+    style['--mb-v-icon-bg'] = withOpacity(
+      header.iconBackground,
+      header.iconOpacity,
+    );
+  }
+  if (header?.iconBorder) {
+    style['--mb-v-icon-border'] = `1px solid ${withOpacity(
+      header.iconBorder,
+      header.iconOpacity,
+    )}`;
+  }
+  if (title?.dividerBleed) {
+    style['--mb-v-pad-left'] = `${sides.left}px`;
+    style['--mb-v-pad-right'] = `${sides.right}px`;
+  }
+  const spacing = title?.spacing?.customize ? title.spacing : undefined;
+  if (spacing) {
+    const vars: [string, number | undefined][] = [
+      ['--mb-s-title', spacing.belowTitle],
+      ['--mb-s-above-subtitle', spacing.aboveSubtitle],
+      ['--mb-s-below-subtitle', spacing.belowSubtitle],
+      ['--mb-s-above-divider', spacing.aboveDivider],
+      ['--mb-s-plot', spacing.abovePlot],
+      ['--mb-s-card', spacing.cardValue],
+    ];
+    vars.forEach(([name, value]) => {
+      if (value !== undefined) style[name] = `${value}px`;
+    });
+  }
   if (title?.size) style['--mb-v-title-size'] = `${title.size}px`;
   if (title?.color) style['--mb-v-title-color'] = title.color;
   if (title?.align) style['--mb-v-title-align'] = title.align;
@@ -145,7 +237,6 @@ export function visualStyle(
   if (label?.italic !== undefined)
     style['--mb-v-label-style'] = label.italic ? 'italic' : 'normal';
 
-  const padding = format.padding ?? BASE_VISUAL_PADDING;
   const border =
     format.borderWidth !== undefined ? format.borderWidth : BASE_BORDER;
   return {
@@ -154,6 +245,16 @@ export function visualStyle(
       [
         title?.show === false && 'mibi-title-hidden',
         title?.background && 'mibi-title-band',
+        title?.wrap && 'mibi-title-wrap',
+        title?.gap !== undefined && 'mibi-header-gap',
+        (header?.iconColor ||
+          header?.iconBackground ||
+          header?.iconBorder ||
+          header?.iconOpacity !== undefined) &&
+          'mibi-header-icons',
+        title?.dividerBleed && 'mibi-divider-bleed',
+        title?.spacing?.customize && 'mibi-spacing',
+        format.keepLayerOrder && 'mibi-keep-layer',
         value?.size && 'mibi-v-size',
         value?.color && 'mibi-v-color',
         value?.bold !== undefined && 'mibi-v-weight',
@@ -168,7 +269,146 @@ export function visualStyle(
       ]
         .filter(Boolean)
         .join(' ') || undefined,
-    shrink: (padding - BASE_VISUAL_PADDING) * 2 + (border - BASE_BORDER) * 2,
+    shrinkX:
+      sides.left +
+      sides.right -
+      BASE_VISUAL_PADDING * 2 +
+      (border - BASE_BORDER) * 2,
+    shrinkY:
+      sides.top +
+      sides.bottom -
+      BASE_VISUAL_PADDING * 2 +
+      (border - BASE_BORDER) * 2,
+  };
+}
+
+/** The style of the text of the tooltip icon in a chart header. */
+export function headerTooltipStyle(
+  tooltip: HeaderTooltipFormat,
+): CSSProperties {
+  return {
+    fontFamily: tooltip.fontFamily,
+    fontSize: tooltip.fontSize,
+    fontWeight: tooltip.bold ? 700 : undefined,
+    fontStyle: tooltip.italic ? 'italic' : undefined,
+    textDecoration: tooltip.underline ? 'underline' : undefined,
+    color: tooltip.color,
+    background: tooltip.background
+      ? withOpacity(tooltip.background, tooltip.opacity)
+      : undefined,
+  };
+}
+
+/** What a chart hands to its ECharts, as read by `applyHostFormat`. */
+export function echartsHostFormat(
+  format: VisualFormat | undefined,
+): string | undefined {
+  const tooltip = format?.chart?.[TOOLTIP_FORMAT_KEY] as
+    | ChartTooltipFormat
+    | undefined;
+  const sampling = !!format?.chart?.[SAMPLING_FORMAT_KEY];
+  if (!tooltip && !sampling) return undefined;
+  const { background, opacity, ...rest } = tooltip ?? {};
+  return JSON.stringify({
+    sampling,
+    tooltip: tooltip && {
+      ...rest,
+      background: background ? withOpacity(background, opacity) : undefined,
+    },
+  });
+}
+
+const OFFSET_OF: Record<EffectPosition, [number, number]> = {
+  'top-left': [-1, -1],
+  top: [0, -1],
+  'top-right': [1, -1],
+  left: [-1, 0],
+  center: [0, 0],
+  right: [1, 0],
+  'bottom-left': [-1, 1],
+  bottom: [0, 1],
+  'bottom-right': [1, 1],
+};
+
+const effectShadow = (effect: ButtonEffect | undefined, fallback: string) => {
+  if (!effect?.show) return undefined;
+  const [x, y] = OFFSET_OF[effect.position ?? 'center'];
+  const blur = effect.blur ?? 8;
+  const distance = Math.ceil(blur / 3);
+  return `${effect.inset ? 'inset ' : ''}${x * distance}px ${y * distance}px ${blur}px ${withOpacity(
+    effect.color || fallback,
+    effect.opacity ?? 40,
+  )}`;
+};
+
+const paddingOf = (all: number | undefined, sides: BoxSides | undefined) =>
+  sides
+    ? `${sides.top ?? all ?? 0}px ${sides.right ?? all ?? 0}px ${sides.bottom ?? all ?? 0}px ${sides.left ?? all ?? 0}px`
+    : all !== undefined
+      ? `${all}px`
+      : undefined;
+
+const JUSTIFY = { left: 'flex-start', center: 'center', right: 'flex-end' };
+const ALIGN = { top: 'flex-start', middle: 'center', bottom: 'flex-end' };
+
+/** The inline styles of the action button of a chart. */
+export function actionButtonStyles(
+  button: ActionButtonFormat,
+  format: VisualFormat | undefined,
+  theme: SupersetTheme,
+): { box: CSSProperties; text: CSSProperties; icon: CSSProperties } {
+  const fillShown = button.fill?.show !== false;
+  const background = button.matchBackground
+    ? (format?.background ?? theme.colorBgContainer)
+    : button.background?.show
+      ? withOpacity(
+          button.background.color || theme.colorBgContainer,
+          button.background.opacity,
+        )
+      : undefined;
+  const fill = fillShown
+    ? withOpacity(
+        button.fill?.color || theme.colorFillTertiary,
+        button.fill?.opacity,
+      )
+    : undefined;
+  const shadows = [
+    effectShadow(button.glow, theme.colorPrimary),
+    effectShadow(button.shadow, theme.colorText),
+  ].filter(Boolean);
+  return {
+    box: {
+      backgroundColor: fill ?? background ?? 'transparent',
+      backgroundImage:
+        fill && background
+          ? `linear-gradient(${fill}, ${fill})`
+          : undefined,
+      border: button.border?.show
+        ? `${button.border.width ?? 1}px solid ${withOpacity(
+            button.border.color || theme.colorBorder,
+            button.border.opacity,
+          )}`
+        : '0',
+      boxShadow: shadows.length ? shadows.join(', ') : undefined,
+      padding:
+        paddingOf(button.padding, button.paddingSides) ?? '4px 8px',
+      justifyContent: JUSTIFY[button.alignHorizontal ?? 'center'],
+      alignItems: ALIGN[button.alignVertical ?? 'middle'],
+    },
+    text: {
+      fontFamily: button.fontFamily,
+      fontSize: button.fontSize,
+      fontWeight: button.bold ? 700 : undefined,
+      fontStyle: button.italic ? 'italic' : undefined,
+      textDecoration: button.underline ? 'underline' : undefined,
+      color: withOpacity(button.textColor || theme.colorText, button.textOpacity),
+      padding: paddingOf(button.textPadding, button.textPaddingSides),
+    },
+    icon: {
+      display: 'inline-flex',
+      color: withOpacity(button.iconColor || theme.colorPrimary, button.iconOpacity),
+      padding: paddingOf(button.iconPadding, button.iconPaddingSides),
+    },
   };
 }
 

@@ -838,7 +838,7 @@ export function Ribbon({
         <RibbonGroup label={t('Visual')}>
           <RibbonButton
             label={t('Edit visual')}
-            hint={t('Fields, type and format of the chart, in the side panel')}
+            hint={t('Fields and type of the chart, in the side panel')}
             icon={<Icons.EditOutlined iconSize="m" />}
             onClick={editVisual}
             data-test="mibi-ribbon-edit-visual"

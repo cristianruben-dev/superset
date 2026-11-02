@@ -27,6 +27,7 @@ import {
   type ElementKind,
 } from 'src/mibi/elements/types';
 import { updateLayout } from './actions';
+import { ownChartFormat, sharableFormat } from './chartFormatSettings';
 import { VISUAL_FORMAT_KEY, type VisualFormat } from './types';
 
 type AppDispatch = ThunkDispatch<RootState, undefined, AnyAction>;
@@ -38,6 +39,7 @@ const CONTENT_KEYS: Record<ElementKind, string[]> = {
   button: ['label', 'icon', 'action'],
   text: ['html'],
   filter: ['filterId', 'showInFilterBar'],
+  navigator: [],
 };
 
 export interface CopiedFormat {
@@ -70,7 +72,7 @@ export function formatOf(item: LayoutItem): CopiedFormat {
   return {
     sourceId: item.id,
     source,
-    box: item.meta[VISUAL_FORMAT_KEY] as VisualFormat | undefined,
+    box: sharableFormat(item.meta[VISUAL_FORMAT_KEY] as VisualFormat),
     style,
   };
 }
@@ -100,7 +102,14 @@ export const pasteFormat =
     const item = getState().dashboardLayout.present[id];
     if (!copied || !item) return;
     const meta = { ...item.meta };
-    if (copied.box) meta[VISUAL_FORMAT_KEY] = copied.box;
+    // What belongs to the data of this chart stays with it
+    const own = ownChartFormat(
+      (item.meta[VISUAL_FORMAT_KEY] as VisualFormat | undefined)?.chart,
+    );
+    const box = own
+      ? { ...copied.box, chart: { ...copied.box?.chart, ...own } }
+      : copied.box;
+    if (box) meta[VISUAL_FORMAT_KEY] = box;
     else delete meta[VISUAL_FORMAT_KEY];
     if (copied.style && copied.source === sourceOf(item)) {
       meta[ELEMENT_KEY] = {

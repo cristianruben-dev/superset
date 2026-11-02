@@ -41,6 +41,7 @@ import cx from 'classnames';
 import { openChartEditor } from 'src/mibi/chartEditor';
 import { useVisualFormat } from 'src/mibi/format/useVisualFormat';
 import { SortAxisButton } from 'src/mibi/sort/SortAxisButton';
+import { ChartActionButton, HeaderExtras } from 'src/mibi/format/HeaderExtras';
 import SliceHeaderControls from 'src/dashboard/components/SliceHeaderControls';
 import { SliceHeaderControlsProps } from 'src/dashboard/components/SliceHeaderControls/types';
 import FiltersBadge from 'src/dashboard/components/FiltersBadge';
@@ -200,8 +201,11 @@ const SliceHeader = forwardRef<HTMLDivElement, SliceHeaderProps>(
     // AuraData BI Format pane: subtitle, divider and which icons viewers see
     const headerFormat = useVisualFormat(componentId);
     const titleFormat = headerFormat?.title;
-    const showMenu = editMode || headerFormat?.header?.menu !== false;
-    const showBadges = headerFormat?.header?.badges !== false;
+    const iconsShown = editMode || headerFormat?.header?.show !== false;
+    const showMenu =
+      iconsShown && (editMode || headerFormat?.header?.menu !== false);
+    const showBadges = iconsShown && headerFormat?.header?.badges !== false;
+    const actionButton = headerFormat?.actionButton;
 
     const firstQueryResponse = useSelector<RootState, QueryData | undefined>(
       state => state.charts[slice.slice_id].queriesResponse?.[0],
@@ -275,16 +279,27 @@ const SliceHeader = forwardRef<HTMLDivElement, SliceHeaderProps>(
         data-test="slice-header"
         ref={ref}
         className={cx(
-          titleFormat?.subtitle && 'mibi-has-subtitle',
+          (titleFormat?.subtitle ||
+            (actionButton?.show && actionButton.position !== 'within')) &&
+            'mibi-has-subtitle',
           titleFormat?.divider && 'mibi-header-divider',
         )}
         style={
-          titleFormat?.divider && titleFormat.dividerColor
-            ? { borderBottomColor: titleFormat.dividerColor }
+          titleFormat?.divider
+            ? {
+                borderBottomColor: titleFormat.dividerColor,
+                borderBottomWidth: titleFormat.dividerWidth,
+                borderBottomStyle: titleFormat.dividerStyle,
+              }
             : undefined
         }
       >
-        <div className="header-title" ref={headerRef}>
+        <div
+          className="header-title"
+          ref={headerRef}
+          role={titleFormat?.heading ? 'heading' : undefined}
+          aria-level={titleFormat?.heading}
+        >
           <Tooltip title={headerTooltip}>
             {/* this div ensures the hover event triggers correctly and prevents flickering */}
             <div>
@@ -329,6 +344,13 @@ const SliceHeader = forwardRef<HTMLDivElement, SliceHeaderProps>(
             </Tooltip>
           )}
         </div>
+        {actionButton?.show && (
+          <ChartActionButton
+            button={actionButton}
+            format={headerFormat}
+            enabled={!editMode}
+          />
+        )}
         <div className="header-controls">
           {/* Mi BI: the editor picks the order every viewer sees */}
           {editMode && <SortAxisButton chartId={slice.slice_id} />}
@@ -358,21 +380,40 @@ const SliceHeader = forwardRef<HTMLDivElement, SliceHeaderProps>(
                 <FiltersBadge chartId={slice.slice_id} />
               )}
 
-              {showRowLimitWarning && (
-                <RowCountLabel
-                  rowcount={sqlRowCount}
-                  limit={rowLimit}
-                  label={
-                    <Icons.WarningOutlined
-                      iconSize="l"
-                      iconColor={theme.colorWarning}
-                      css={theme => css`
-                        padding: ${theme.sizeUnit}px;
-                      `}
-                    />
-                  }
+              {iconsShown && (
+                <HeaderExtras
+                  format={headerFormat}
+                  chartId={slice.slice_id}
+                  sliceName={slice.slice_name}
+                  description={slice.description}
+                  failed={chartStatus === 'failed'}
+                  formData={formData as never}
+                  exploreUrl={exploreUrl}
+                  canExplore={supersetCanExplore}
+                  canDownload={supersetCanCSV}
+                  isFullSize={isFullSize}
+                  onToggleFullSize={handleToggleFullSize}
+                  chartHolderRef={chartHolderRef}
+                  syncFullscreen={!showMenu || !!uiConfig.hideChartControls}
                 />
               )}
+              {iconsShown &&
+                headerFormat?.header?.warning !== false &&
+                showRowLimitWarning && (
+                  <RowCountLabel
+                    rowcount={sqlRowCount}
+                    limit={rowLimit}
+                    label={
+                      <Icons.WarningOutlined
+                        iconSize="l"
+                        iconColor={theme.colorWarning}
+                        css={theme => css`
+                          padding: ${theme.sizeUnit}px;
+                        `}
+                      />
+                    }
+                  />
+                )}
               {showMenu && !uiConfig.hideChartControls && (
                 <SliceHeaderControls
                   slice={slice}
@@ -415,9 +456,22 @@ const SliceHeader = forwardRef<HTMLDivElement, SliceHeaderProps>(
           <div
             className="mibi-subtitle"
             data-test="mibi-chart-subtitle"
+            role={titleFormat.subtitleHeading ? 'heading' : undefined}
+            aria-level={titleFormat.subtitleHeading}
             style={{
+              ...(titleFormat.subtitleWrap && {
+                whiteSpace: 'normal',
+                overflow: 'visible',
+              }),
               fontSize: titleFormat.subtitleSize,
               color: titleFormat.subtitleColor,
+              fontFamily: titleFormat.subtitleFamily,
+              fontWeight: titleFormat.subtitleBold ? 700 : undefined,
+              fontStyle: titleFormat.subtitleItalic ? 'italic' : undefined,
+              textDecoration: titleFormat.subtitleUnderline
+                ? 'underline'
+                : undefined,
+              textAlign: titleFormat.subtitleAlign,
             }}
           >
             {titleFormat.subtitle}
