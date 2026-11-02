@@ -251,6 +251,9 @@ export default function transformProps(
     yAxisSecondaryLabelFont,
     yAxisSecondaryTitleFont,
     gridlineColor,
+    xAxisHidden,
+    yAxisHidden,
+    gridlinesHidden,
     gridlineWidth,
     gridlineStyle,
     seriesColors,
@@ -969,7 +972,12 @@ export default function transformProps(
 
   // Apply the "Axes & gridlines format" controls. Both value axes share the
   // primary direction and gridline style; each has its own fonts.
-  const gridlineFormat = { gridlineColor, gridlineWidth, gridlineStyle };
+  const gridlineFormat = {
+    gridlineColor,
+    gridlineWidth,
+    gridlineStyle,
+    hideGridlines: gridlinesHidden,
+  };
   const [primaryYAxis, secondaryYAxis] = echartOptions.yAxis as Record<
     string,
     unknown
@@ -980,6 +988,7 @@ export default function transformProps(
       labelFont: xAxisLabelFont,
       titleFont: xAxisTitleFont,
       inverse: xAxisInverse,
+      hidden: xAxisHidden,
       ...gridlineFormat,
     },
   );
@@ -988,6 +997,7 @@ export default function transformProps(
       labelFont: yAxisLabelFont,
       titleFont: yAxisTitleFont,
       inverse: yAxisInverse,
+      hidden: yAxisHidden,
       ...gridlineFormat,
     }),
     applyAxisFormatting(secondaryYAxis, {

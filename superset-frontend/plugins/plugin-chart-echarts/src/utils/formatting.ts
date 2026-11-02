@@ -241,6 +241,10 @@ export type AxisFormatOptions = {
   labelFont?: FontStyleValue | null;
   titleFont?: FontStyleValue | null;
   inverse?: boolean | null;
+  /** Hides the line, ticks and labels of the axis */
+  hidden?: boolean | null;
+  /** Hides the gridlines of the axis */
+  hideGridlines?: boolean | null;
   gridlineColor?: ColorInput;
   gridlineWidth?: number | string | null;
   gridlineStyle?: string | null;
@@ -297,7 +301,21 @@ export function applyAxisFormatting<T extends Record<string, unknown>>(
   if (options.inverse) {
     next.inverse = true;
   }
-  if (gridline) {
+  if (options.hidden) {
+    // `show: false` would take the gridlines with it
+    for (const part of ['axisLine', 'axisTick', 'axisLabel']) {
+      next[part] = {
+        ...(isRecord(next[part]) ? (next[part] as object) : {}),
+        show: false,
+      };
+    }
+  }
+  if (options.hideGridlines) {
+    next.splitLine = {
+      ...(isRecord(next.splitLine) ? (next.splitLine as object) : {}),
+      show: false,
+    };
+  } else if (gridline) {
     const splitLine = isRecord(axis.splitLine) ? axis.splitLine : {};
     next.splitLine = {
       ...splitLine,

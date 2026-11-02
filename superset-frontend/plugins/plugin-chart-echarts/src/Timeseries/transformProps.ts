@@ -296,6 +296,9 @@ export default function transformProps(
     yAxisTitleFont,
     yAxisInverse,
     gridlineColor,
+    xAxisHidden,
+    yAxisHidden,
+    gridlinesHidden,
     gridlineWidth,
     gridlineStyle,
     seriesColors,
@@ -1059,17 +1062,24 @@ export default function transformProps(
 
   // User "Format" controls are applied before the horizontal swap below, so
   // "X axis" always means the dimension axis, matching the axis title controls.
-  const gridlineFormat = { gridlineColor, gridlineWidth, gridlineStyle };
+  const gridlineFormat = {
+    gridlineColor,
+    gridlineWidth,
+    gridlineStyle,
+    hideGridlines: gridlinesHidden,
+  };
   xAxis = applyAxisFormatting(xAxis, {
     labelFont: xAxisLabelFont,
     titleFont: xAxisTitleFont,
     inverse: xAxisInverse,
+    hidden: xAxisHidden,
     ...gridlineFormat,
   });
   yAxis = applyAxisFormatting(yAxis, {
     labelFont: yAxisLabelFont,
     titleFont: yAxisTitleFont,
     inverse: yAxisInverse,
+    hidden: yAxisHidden,
     ...gridlineFormat,
   });
 

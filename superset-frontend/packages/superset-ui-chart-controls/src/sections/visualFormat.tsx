@@ -339,6 +339,18 @@ export const buildAxesFormatSection = ({
         t('Draw the Y axis in the opposite direction'),
       ),
     ],
+    [
+      checkboxControl(
+        'x_axis_hidden',
+        t('Hide X axis'),
+        t('Hide the line, ticks and labels of the X axis'),
+      ),
+      checkboxControl(
+        'y_axis_hidden',
+        t('Hide Y axis'),
+        t('Hide the line, ticks and labels of the Y axis'),
+      ),
+    ],
     ...(secondaryYAxis
       ? [
           [
@@ -365,6 +377,13 @@ export const buildAxesFormatSection = ({
         ]
       : []),
     [<ControlSubSectionHeader>{t('Gridlines')}</ControlSubSectionHeader>],
+    [
+      checkboxControl(
+        'gridlines_hidden',
+        t('Hide gridlines'),
+        t('Do not draw the gridlines behind the chart'),
+      ),
+    ],
     [
       colorControl(
         'gridline_color',

@@ -128,6 +128,9 @@ export type VisualFormatFormData = {
   yAxisInverse?: boolean;
   yAxisSecondaryLabelFont?: FontStyleValue | null;
   yAxisSecondaryTitleFont?: FontStyleValue | null;
+  xAxisHidden?: boolean;
+  yAxisHidden?: boolean;
+  gridlinesHidden?: boolean;
   gridlineColor?: ColorInput;
   gridlineWidth?: number | string | null;
   gridlineStyle?: string | null;
