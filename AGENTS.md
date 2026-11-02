@@ -56,8 +56,22 @@ This repository is **AuraData BI**, a fork of Apache Superset 6.1 shaped like Po
   Commands, importers and the MCP tools validate it; an ORM listener is the safety net.
   Charts are created and edited from a side panel of their dashboard (`src/mibi/chartEditor.ts`,
   `src/mibi/dashboard/ChartEditorPanel.tsx`); there is no chart list screen.
+- **Reports are built from their dashboard.** The sidebar and the "New" menu only hold home,
+  workspaces, dashboards and administration (database connections are "Connections" there).
+  Datasets, new datasets and SQL Lab open from the "Data" menu of a dashboard in edit mode, in
+  its side panel (`src/mibi/dashboard/DataMenu.tsx`, `ChartEditorPanel.tsx`); their pages are
+  wrapped in `panelOnly` (`src/mibi/PanelGate.tsx`) and redirect when opened on their own. A
+  dashboard shows without the sidebar, with the logo in the top bar (`isReportRoute`).
 - **Workspaces** group dashboards, with members and roles (viewer, contributor, admin)
   (`MIBI_WORKSPACE_ACCESS`).
+- **Datasets belong to a workspace** (`MIBI_WORKSPACE_DATASETS`, `superset/mibi/workspace_datasets.py`),
+  like Power BI semantic models: a dataset is in one workspace at most, and one without a
+  workspace is shared. Only members (and owners, admins) list a workspace's datasets
+  (`WorkspaceDatasetFilter` on the dataset API), and a chart only uses datasets of its
+  dashboard's workspace or shared ones (`validate_chart_dataset` in the chart commands). A
+  dataset created from a dashboard's side panel joins its workspace (`linkNewDataset`); the
+  workspace page lists them, and the `dataset_usable_in_dashboard` filter narrows the dataset
+  pickers of the panel.
 - **AuraData brand** (https://auradata.mx/brand-guidelines): the product is "AuraData BI", the
   Continua logo plus a "BI" tag rendered as HTML (`src/mibi/shell/brand.ts`, `ProductTag`), never
   drawn into the logo file. Write the company as "AuraData" (capital A and D). Outfit for text,
@@ -88,7 +102,7 @@ This repository is **AuraData BI**, a fork of Apache Superset 6.1 shaped like Po
 | Report interactivity (edit interactions, drill through, sync slicers, bookmarks, Back/bookmark buttons) | - | `mibi/report` |
 | Chart type icons | - | `mibi/vizIcons` |
 
-AuraData BI APIs: `/api/v1/workspace/`,
+AuraData BI APIs: `/api/v1/workspace/` (with `<id>/dashboards/` and `<id>/datasets/`),
 `/api/v1/dashboard_background/<dashboard>/`, `/api/v1/dashboard_image/<dashboard>/<image>/`,
 `/api/v1/mibi/dashboard_previews/`. Each new API is registered in `superset/initialization/__init__.py`.
 
@@ -118,6 +132,8 @@ Formats are stored in `position_json`, so they save, undo and export with the da
   containers (they keep the order of the mobile layout, where positions are ignored). A drop sets
   the cell from where the object lands (`src/mibi/format/positions.ts`, `DropResult.cell`, handled
   in `handleComponentDrop`); `layoutToPositions` gives a cell to every object without one on load.
+  A chart added without a drop (saved from the side panel or Explore, or attached outside edit
+  mode) takes the first free cell of its page (`freeCell`), never one over another object.
 - The report is light or dark from the canvas background color (`useReportAppearance`); there are no
   appearance, hide, lock or mobile-preview settings.
 - Report interactivity (`src/mibi/report`), Power BI style:
@@ -138,7 +154,7 @@ Fork migrations form one chain after the upstream head:
 `8bc9e5b95335` (workspaces) → `cce7fe34b50d` (members) → `3a90eb47d506` (backgrounds) →
 `06c8a16b9fe1` (element images) → `b7d41e0c9a23` (format themes) → `e4ec3b61cadb` (drops the
 format themes) → `a91c5d27f3e8` (drops the annotation layers) → `c5f08a1d7e42` (drops the
-themes and CSS templates). A new fork migration revises the last one. When merging a new Superset release, point `8bc9e5b95335` at the new upstream head.
+themes and CSS templates) → `d3f9a2b17c64` (workspace datasets). A new fork migration revises the last one. When merging a new Superset release, point `8bc9e5b95335` at the new upstream head.
 
 ### Tests for AuraData BI code
 - Jest tests sit next to the code (`src/mibi/**/*.test.ts(x)`).
