@@ -24,6 +24,7 @@ import {
   Theme,
   ThemeProvider,
   normalizeThemeConfig,
+  useTheme,
   useThemeMode,
   type AnyThemeConfig,
   type SupersetTheme,
@@ -139,6 +140,15 @@ export function useReportLook(area: ReportArea = 'page'): Built | null {
       dark,
     };
   }, [follows, dark, style]);
+}
+
+/**
+ * The tokens a report is drawn with, for the panes around it to show the colors
+ * an object really has instead of those of the app.
+ */
+export function useReportTokens() {
+  const appTheme = useTheme();
+  return useReportLook()?.theme ?? appTheme;
 }
 
 /**

@@ -74,7 +74,7 @@ import {
   PropertiesSection,
   SpacingSection,
 } from './GeneralSections';
-import { useReportLook } from 'src/mibi/report/ReportTheme';
+import { useReportLook, useReportTokens } from 'src/mibi/report/ReportTheme';
 import { EditInteractionsToggle } from 'src/mibi/report/InteractionControl';
 import { setEditingInteractions } from 'src/mibi/report/interactions';
 import { PageSection } from 'src/mibi/report/PageSection';
@@ -314,7 +314,7 @@ type FormatLevel = 'visual' | 'general';
 let shownLevel: FormatLevel = 'visual';
 
 function VisualSection({ id }: { id: string }) {
-  const theme = useTheme();
+  const look = useReportTokens();
   const dispatch = useDispatch();
   const item = useSelector(
     (state: RootState) => state.dashboardLayout.present[id],
@@ -407,12 +407,12 @@ function VisualSection({ id }: { id: string }) {
               />
               <ColorField
                 label={t('Color')}
-                value={format.title?.color || theme.colorText}
+                value={format.title?.color || look.colorText}
                 onChange={color => updateTitle({ color }, 'color')}
               />
               <ColorField
                 label={t('Header fill')}
-                value={format.title?.background || theme.colorBgContainer}
+                value={format.title?.background || look.colorBgContainer}
                 onChange={background => updateTitle({ background }, 'fill')}
               />
               <Input
@@ -540,7 +540,7 @@ function VisualSection({ id }: { id: string }) {
               />
               <ColorField
                 label={t('Subtitle color')}
-                value={format.title?.subtitleColor || theme.colorTextTertiary}
+                value={format.title?.subtitleColor || look.colorTextTertiary}
                 onChange={subtitleColor =>
                   updateTitle({ subtitleColor }, 'subtitle-color')
                 }
@@ -659,7 +659,7 @@ function VisualSection({ id }: { id: string }) {
             <>
               <ColorField
                 label={t('Line color')}
-                value={format.title?.dividerColor || theme.colorBorderSecondary}
+                value={format.title?.dividerColor || look.colorBorderSecondary}
                 onChange={dividerColor =>
                   updateTitle({ dividerColor }, 'divider-color')
                 }
@@ -720,7 +720,7 @@ function VisualSection({ id }: { id: string }) {
           />
           <ColorField
             label={t('Value color')}
-            value={format.value?.color || theme.colorText}
+            value={format.value?.color || look.colorText}
             onChange={color => updateValue({ color }, 'color')}
           />
           <Field label={t('Bold')}>
@@ -772,7 +772,7 @@ function VisualSection({ id }: { id: string }) {
           />
           <ColorField
             label={t('Label color')}
-            value={format.label?.color || theme.colorTextSecondary}
+            value={format.label?.color || look.colorTextSecondary}
             onChange={color => updateLabel({ color }, 'color')}
           />
         </Section>
@@ -804,7 +804,7 @@ function VisualSection({ id }: { id: string }) {
           </Field>
           <ColorField
             label={t('Icon color')}
-            value={format.header?.iconColor || theme.colorTextSecondary}
+            value={format.header?.iconColor || look.colorTextSecondary}
             onChange={iconColor =>
               update({ header: { ...own.header, iconColor } }, 'header-color')
             }
@@ -812,7 +812,7 @@ function VisualSection({ id }: { id: string }) {
           <HeaderIconsFields id={id} />
           <ColorField
             label={t('Icon background')}
-            value={format.header?.iconBackground || theme.colorBgContainer}
+            value={format.header?.iconBackground || look.colorBgContainer}
             onChange={iconBackground =>
               update(
                 { header: { ...own.header, iconBackground } },

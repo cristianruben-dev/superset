@@ -314,6 +314,13 @@ export function echartsHostFormat(
     tooltip: tooltip && {
       ...rest,
       background: background ? withOpacity(background, opacity) : undefined,
+      // What the labels leave unset stays readable over its background
+      textColor:
+        rest.labelColor ||
+        (background &&
+          tinycolor
+            .mostReadable(background, ['#ffffff', '#0a0a0f'])
+            .toHexString()),
     },
   });
 }
@@ -380,9 +387,7 @@ export function actionButtonStyles(
     box: {
       backgroundColor: fill ?? background ?? 'transparent',
       backgroundImage:
-        fill && background
-          ? `linear-gradient(${fill}, ${fill})`
-          : undefined,
+        fill && background ? `linear-gradient(${fill}, ${fill})` : undefined,
       border: button.border?.show
         ? `${button.border.width ?? 1}px solid ${withOpacity(
             button.border.color || theme.colorBorder,
@@ -390,8 +395,7 @@ export function actionButtonStyles(
           )}`
         : '0',
       boxShadow: shadows.length ? shadows.join(', ') : undefined,
-      padding:
-        paddingOf(button.padding, button.paddingSides) ?? '4px 8px',
+      padding: paddingOf(button.padding, button.paddingSides) ?? '4px 8px',
       justifyContent: JUSTIFY[button.alignHorizontal ?? 'center'],
       alignItems: ALIGN[button.alignVertical ?? 'middle'],
     },
@@ -401,12 +405,18 @@ export function actionButtonStyles(
       fontWeight: button.bold ? 700 : undefined,
       fontStyle: button.italic ? 'italic' : undefined,
       textDecoration: button.underline ? 'underline' : undefined,
-      color: withOpacity(button.textColor || theme.colorText, button.textOpacity),
+      color: withOpacity(
+        button.textColor || theme.colorText,
+        button.textOpacity,
+      ),
       padding: paddingOf(button.textPadding, button.textPaddingSides),
     },
     icon: {
       display: 'inline-flex',
-      color: withOpacity(button.iconColor || theme.colorPrimary, button.iconOpacity),
+      color: withOpacity(
+        button.iconColor || theme.colorPrimary,
+        button.iconOpacity,
+      ),
       padding: paddingOf(button.iconPadding, button.iconPaddingSides),
     },
   };

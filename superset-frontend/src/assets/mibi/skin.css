@@ -2087,3 +2087,10 @@ body.mibi-moving * {
 .dashboard-component-chart-holder.mibi-l-style .subtitle-line {
   font-style: var(--mb-v-label-style) !important;
 }
+
+/* ---- Focus mode: a chart over the whole page, whatever the canvas zoom ---- */
+
+[data-test='mibi-canvas-outer'] :has(.mibi-full-size) {
+  transform: none !important;
+  z-index: 3000 !important;
+}

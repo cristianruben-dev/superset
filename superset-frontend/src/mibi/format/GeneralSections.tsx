@@ -19,7 +19,7 @@
 import type { ReactNode } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { t } from '@apache-superset/core/translation';
-import { useTheme } from '@apache-superset/core/theme';
+import { useReportTokens } from 'src/mibi/report/ReportTheme';
 import { FONT_FAMILY_OPTIONS } from '@superset-ui/core';
 import { Input, Select, Switch } from '@superset-ui/core/components';
 import type { RootState } from 'src/dashboard/types';
@@ -190,7 +190,7 @@ export function SpacingSection({ id }: { id: string }) {
 /** Which icons a chart shows in its header, and how they look. */
 export function HeaderIconsFields({ id }: { id: string }) {
   const { own, format, update } = useFormat(id);
-  const theme = useTheme();
+  const theme = useReportTokens();
   const header = format.header ?? {};
   const set = (patch: NonNullable<VisualFormat['header']>, setting: string) =>
     update({ header: { ...own.header, ...patch } }, `header-${setting}`);
@@ -253,7 +253,7 @@ export function HeaderIconsFields({ id }: { id: string }) {
 /** The icon with a text of its own in the header of a chart. */
 export function HeaderTooltipSection({ id }: { id: string }) {
   const { own, format, update } = useFormat(id);
-  const theme = useTheme();
+  const theme = useReportTokens();
   const tooltip: HeaderTooltipFormat = format.header?.tooltip ?? {};
   const set = (patch: Partial<HeaderTooltipFormat>, setting: string) =>
     update(
@@ -318,7 +318,7 @@ export function HeaderTooltipSection({ id }: { id: string }) {
 /** What the tooltips of the marks of a chart look like. */
 export function ChartTooltipSection({ id }: { id: string }) {
   const { own, format, update } = useFormat(id);
-  const theme = useTheme();
+  const theme = useReportTokens();
   const tooltip = (format.chart?.[TOOLTIP_FORMAT_KEY] ??
     {}) as ChartTooltipFormat;
   const set = (patch: Partial<ChartTooltipFormat>, setting: string) =>
@@ -470,7 +470,7 @@ function EffectFields({
   effect: ButtonEffect;
   onChange: (patch: Partial<ButtonEffect>) => void;
 }) {
-  const theme = useTheme();
+  const theme = useReportTokens();
   return (
     <>
       <ColorField
@@ -582,7 +582,7 @@ function PaddingFields({
 /** A button in the title area that runs the action of the chart. */
 export function ActionButtonSection({ id }: { id: string }) {
   const { own, format, update } = useFormat(id);
-  const theme = useTheme();
+  const theme = useReportTokens();
   const button: ActionButtonFormat = format.actionButton ?? {};
   const set = (patch: Partial<ActionButtonFormat>, setting: string) =>
     update(

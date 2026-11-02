@@ -16,13 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import {
-  useEffect,
-  useRef,
-  type CSSProperties,
-  type ReactNode,
-  type RefObject,
-} from 'react';
+import { useEffect, useRef, type CSSProperties, type ReactNode } from 'react';
 import { t } from '@apache-superset/core/translation';
 import { useTheme } from '@apache-superset/core/theme';
 import { logging } from '@apache-superset/core/utils';
@@ -84,8 +78,7 @@ export function HeaderExtras({
   canDownload,
   isFullSize,
   onToggleFullSize,
-  chartHolderRef,
-  syncFullscreen,
+  hasExitButton,
 }: {
   format: VisualFormat | undefined;
   chartId: number;
@@ -98,9 +91,8 @@ export function HeaderExtras({
   canDownload: boolean;
   isFullSize?: boolean;
   onToggleFullSize: () => void;
-  chartHolderRef?: RefObject<HTMLDivElement>;
-  /** The chart menu keeps the size in step with the browser unless it is hidden */
-  syncFullscreen: boolean;
+  /** The menu of the chart brings its own button to leave a full size chart */
+  hasExitButton: boolean;
 }) {
   const theme = useTheme();
   const { addSuccessToast, addDangerToast } = useToasts();
@@ -112,30 +104,21 @@ export function HeaderExtras({
   const runLink = useElementAction(link?.action, !!link?.show);
 
   const toggleFocus = () => {
-    if (isFullSize) {
-      if (document.fullscreenElement) document.exitFullscreen();
-      else onToggleFullSize();
-      return;
-    }
-    const holder = chartHolderRef?.current;
-    if (holder?.requestFullscreen) {
-      holder.requestFullscreen().catch(onToggleFullSize);
-    } else {
-      onToggleFullSize();
-    }
+    // The menu of the chart may have asked the browser for its full screen
+    if (isFullSize && document.fullscreenElement) document.exitFullscreen();
+    else onToggleFullSize();
   };
 
   useEffect(() => {
-    if (!syncFullscreen) return undefined;
-    const onChange = () => {
-      const inside = document.fullscreenElement === chartHolderRef?.current;
-      if (inside !== !!isFullSize && (inside || !document.fullscreenElement)) {
+    if (!isFullSize || !header?.focus) return undefined;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && !document.fullscreenElement) {
         onToggleFullSize();
       }
     };
-    document.addEventListener('fullscreenchange', onChange);
-    return () => document.removeEventListener('fullscreenchange', onChange);
-  }, [chartHolderRef, isFullSize, onToggleFullSize, syncFullscreen]);
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [header?.focus, isFullSize, onToggleFullSize]);
 
   const copyImage = async () => {
     try {
@@ -235,7 +218,7 @@ export function HeaderExtras({
           <Icons.CopyOutlined {...iconProps} />
         </HeaderIcon>
       )}
-      {header?.focus && (
+      {header?.focus && !(isFullSize && hasExitButton) && (
         <HeaderIcon
           title={isFullSize ? t('Exit focus mode') : t('Focus mode')}
           onClick={toggleFocus}

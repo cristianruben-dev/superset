@@ -393,8 +393,7 @@ const SliceHeader = forwardRef<HTMLDivElement, SliceHeaderProps>(
                   canDownload={supersetCanCSV}
                   isFullSize={isFullSize}
                   onToggleFullSize={handleToggleFullSize}
-                  chartHolderRef={chartHolderRef}
-                  syncFullscreen={!showMenu || !!uiConfig.hideChartControls}
+                  hasExitButton={showMenu && !uiConfig.hideChartControls}
                 />
               )}
               {iconsShown &&

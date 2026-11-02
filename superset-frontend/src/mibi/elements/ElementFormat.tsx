@@ -68,7 +68,7 @@ import {
   type TextElement,
   type TextStyle,
 } from './types';
-import { NavigatorView, ShapeView } from './views';
+import { ShapeView } from './views';
 
 const MAX_IMAGE_BYTES = 2 * 1024 * 1024;
 

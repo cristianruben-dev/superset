@@ -163,7 +163,9 @@ export function useObjectShortcuts() {
       if (
         event.key === 'Escape' &&
         !typingIn(event.target) &&
-        !document.querySelector('.ant-dropdown:not(.ant-dropdown-hidden)')
+        !document.querySelector(
+          '.ant-dropdown:not(.ant-dropdown-hidden), .ant-popover:not(.ant-popover-hidden)',
+        )
       ) {
         selectVisual(null);
         return;

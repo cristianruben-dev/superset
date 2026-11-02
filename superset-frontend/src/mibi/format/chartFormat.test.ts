@@ -17,7 +17,12 @@
  * under the License.
  */
 import { withChartFormat } from './chartFormat';
-import { ownChartFormat, sharableFormat } from './chartFormatSettings';
+import {
+  ownChartFormat,
+  ownFormat,
+  sharableFormat,
+  withOwnFormat,
+} from './chartFormatSettings';
 import { mergeVisualFormat } from './styles';
 
 test('keeps the same settings when the report changes nothing', () => {
@@ -61,5 +66,32 @@ test('what belongs to the data of a chart is not copied to another', () => {
   expect(sharableFormat({ chart: { series_colors: {} } })).toEqual({});
   expect(ownChartFormat({ legend_font: {}, x_axis_title: 'Ventas' })).toEqual({
     x_axis_title: 'Ventas',
+  });
+});
+
+test('what says something about one chart stays with it', () => {
+  const format = {
+    title: { subtitle: 'Sales', bold: true },
+    header: { focus: true, tooltip: { text: 'Help', bold: true } },
+    link: { show: true },
+    actionButton: { show: true },
+    chart: { series_colors: {}, legend_font: { bold: true } },
+  } as never;
+  expect(sharableFormat(format)).toEqual({
+    title: { bold: true },
+    header: { focus: true, tooltip: { bold: true } },
+    chart: { legend_font: { bold: true } },
+  });
+  expect(
+    withOwnFormat(
+      { title: { bold: true }, header: { focus: true } },
+      ownFormat(format),
+    ),
+  ).toEqual({
+    title: { bold: true, subtitle: 'Sales' },
+    header: { focus: true, tooltip: { text: 'Help' } },
+    link: { show: true },
+    actionButton: { show: true },
+    chart: { series_colors: {} },
   });
 });

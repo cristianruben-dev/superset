@@ -29,7 +29,7 @@ test('a chart without tooltip format or sampling asks nothing of ECharts', () =>
   expect(echartsHostFormat({ chart: { legend_font: {} } })).toBeUndefined();
 });
 
-test('the opacity of the tooltip goes into its background', () => {
+test('the opacity of the tooltip goes into its background, with readable text', () => {
   expect(
     JSON.parse(
       echartsHostFormat({
@@ -38,7 +38,7 @@ test('the opacity of the tooltip goes into its background', () => {
     ),
   ).toEqual({
     sampling: false,
-    tooltip: { background: 'rgba(0, 0, 0, 0.5)' },
+    tooltip: { background: 'rgba(0, 0, 0, 0.5)', textColor: '#ffffff' },
   });
 });
 
@@ -83,9 +83,9 @@ test('icons take their border and opacity', () => {
 });
 
 test('keeping the layer order is a class of the holder', () => {
-  expect(
-    visualStyle({ keepLayerOrder: true }, supersetTheme).className,
-  ).toBe('mibi-keep-layer');
+  expect(visualStyle({ keepLayerOrder: true }, supersetTheme).className).toBe(
+    'mibi-keep-layer',
+  );
 });
 
 test('the header tooltip takes its text style', () => {

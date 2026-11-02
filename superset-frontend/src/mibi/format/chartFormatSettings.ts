@@ -27,6 +27,9 @@ type ChartFormat = NonNullable<VisualFormat['chart']>;
  */
 export const OWN_CHART_SETTINGS = [
   'series_colors',
+  'series_format',
+  'category_colors',
+  'legend_title',
   'x_axis_title',
   'x_axis_label',
   'y_axis_title',
@@ -77,12 +80,66 @@ export const sharableChartFormat = (format: ChartFormat | undefined) =>
 export const ownChartFormat = (format: ChartFormat | undefined) =>
   pickChart(format, name => OWN_CHART_SETTINGS.includes(name));
 
-/** A format as another object can take it. */
+/**
+ * A format as another object can take it: without what says something about one
+ * chart, like its subtitle, its alt text or where its action leads.
+ */
 export function sharableFormat(
   format: VisualFormat | undefined,
 ): VisualFormat | undefined {
-  if (!format?.chart) return format;
-  const { chart, ...rest } = format;
+  if (!format) return format;
+  const { chart, link, actionButton, ...rest } = format;
   const sharable = sharableChartFormat(chart);
-  return sharable ? { ...rest, chart: sharable } : rest;
+  const shared: VisualFormat = {
+    ...rest,
+    ...(sharable && { chart: sharable }),
+  };
+  if (shared.title?.subtitle !== undefined) {
+    const { subtitle, ...title } = shared.title;
+    shared.title = title;
+  }
+  if (shared.header?.tooltip?.text !== undefined) {
+    const { text, ...tooltip } = shared.header.tooltip;
+    shared.header = { ...shared.header, tooltip };
+  }
+  return shared;
+}
+
+/** What a chart keeps of its own format when it takes that of another. */
+export function ownFormat(
+  format: VisualFormat | undefined,
+): VisualFormat | undefined {
+  const chart = ownChartFormat(format?.chart);
+  const text = format?.header?.tooltip?.text;
+  const kept: VisualFormat = {
+    ...(format?.title?.subtitle && {
+      title: { subtitle: format.title.subtitle },
+    }),
+    ...(text && { header: { tooltip: { text } } }),
+    ...(format?.link && { link: format.link }),
+    ...(format?.actionButton && { actionButton: format.actionButton }),
+    ...(chart && { chart }),
+  };
+  return Object.keys(kept).length ? kept : undefined;
+}
+
+/** A shared format with what a chart keeps of its own on top. */
+export function withOwnFormat(
+  shared: VisualFormat | undefined,
+  own: VisualFormat | undefined,
+): VisualFormat | undefined {
+  if (!own) return shared;
+  return {
+    ...shared,
+    ...own,
+    ...(own.title && { title: { ...shared?.title, ...own.title } }),
+    ...(own.header && {
+      header: {
+        ...shared?.header,
+        ...own.header,
+        tooltip: { ...shared?.header?.tooltip, ...own.header.tooltip },
+      },
+    }),
+    ...(own.chart && { chart: { ...shared?.chart, ...own.chart } }),
+  };
 }

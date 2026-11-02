@@ -29,7 +29,7 @@ import {
 } from 'src/dashboard/util/constants';
 import { activeTabIndex, topLevelTabs } from 'src/mibi/present/dashboardTabs';
 import { CHART_TYPE, ROW_TYPE } from 'src/dashboard/util/componentTypes';
-import { ownChartFormat, sharableFormat } from './chartFormatSettings';
+import { ownFormat, sharableFormat } from './chartFormatSettings';
 import { isObjectLocked } from './lock';
 import { placeAt, posOf, type Pos } from './positions';
 import {
@@ -128,32 +128,6 @@ export const setVisualFormat =
     );
   };
 
-/** What a chart keeps of its own format when it takes a shared style. */
-export const keepOwnText = (
-  format: VisualFormat | undefined,
-): VisualFormat | undefined => {
-  const chart = ownChartFormat(format?.chart);
-  const kept: VisualFormat = {
-    ...(format?.title?.subtitle && {
-      title: { subtitle: format.title.subtitle },
-    }),
-    ...(chart && { chart }),
-  };
-  return Object.keys(kept).length ? kept : undefined;
-};
-
-/** The style to share, without the text that belongs to one chart. */
-export const withoutOwnText = (
-  format: VisualFormat | undefined,
-): VisualFormat | undefined => {
-  const sharable = sharableFormat(format);
-  if (!sharable?.title || sharable.title.subtitle === undefined) {
-    return sharable;
-  }
-  const { subtitle, ...title } = sharable.title;
-  return { ...sharable, title };
-};
-
 /**
  * Makes ``format`` the style every chart shares (kept on the canvas, so
  * charts added later take it too), with ``canvas`` changes in the same undo
@@ -175,7 +149,7 @@ export const setSharedVisualFormat =
     const nextCanvas: CanvasFormat = {
       ...(canvas ?? (root.meta?.[CANVAS_FORMAT_KEY] as CanvasFormat)),
     };
-    const shared = withoutOwnText(format);
+    const shared = sharableFormat(format);
     if (shared && Object.keys(shared).length) nextCanvas.visuals = shared;
     else delete nextCanvas.visuals;
     next[DASHBOARD_ROOT_ID] = withMeta(
@@ -189,7 +163,7 @@ export const setSharedVisualFormat =
           next[item.id] = withMeta(
             item,
             VISUAL_FORMAT_KEY,
-            keepOwnText(item.meta[VISUAL_FORMAT_KEY] as VisualFormat),
+            ownFormat(item.meta[VISUAL_FORMAT_KEY] as VisualFormat),
           );
         }
       });

@@ -27,7 +27,11 @@ import {
   type ElementKind,
 } from 'src/mibi/elements/types';
 import { updateLayout } from './actions';
-import { ownChartFormat, sharableFormat } from './chartFormatSettings';
+import {
+  ownFormat,
+  sharableFormat,
+  withOwnFormat,
+} from './chartFormatSettings';
 import { VISUAL_FORMAT_KEY, type VisualFormat } from './types';
 
 type AppDispatch = ThunkDispatch<RootState, undefined, AnyAction>;
@@ -102,13 +106,11 @@ export const pasteFormat =
     const item = getState().dashboardLayout.present[id];
     if (!copied || !item) return;
     const meta = { ...item.meta };
-    // What belongs to the data of this chart stays with it
-    const own = ownChartFormat(
-      (item.meta[VISUAL_FORMAT_KEY] as VisualFormat | undefined)?.chart,
+    // What belongs to this chart stays with it
+    const box = withOwnFormat(
+      copied.box,
+      ownFormat(item.meta[VISUAL_FORMAT_KEY] as VisualFormat | undefined),
     );
-    const box = own
-      ? { ...copied.box, chart: { ...copied.box?.chart, ...own } }
-      : copied.box;
     if (box) meta[VISUAL_FORMAT_KEY] = box;
     else delete meta[VISUAL_FORMAT_KEY];
     if (copied.style && copied.source === sourceOf(item)) {

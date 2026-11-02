@@ -18,7 +18,7 @@
  */
 import { useDispatch, useSelector } from 'react-redux';
 import { t } from '@apache-superset/core/translation';
-import { useTheme } from '@apache-superset/core/theme';
+import { useReportTokens } from 'src/mibi/report/ReportTheme';
 import { Switch } from '@superset-ui/core/components';
 import { BASE_VISUAL_PADDING } from './styles';
 import type { RootState } from 'src/dashboard/types';
@@ -36,7 +36,7 @@ import {
 
 /** Background, border, corners, shadow and padding of a chart or element box. */
 export function BoxSections({ id }: { id: string }) {
-  const theme = useTheme();
+  const theme = useReportTokens();
   const dispatch = useDispatch();
   const item = useSelector(
     (state: RootState) => state.dashboardLayout.present[id],
