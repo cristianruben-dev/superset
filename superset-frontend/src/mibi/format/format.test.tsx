@@ -120,7 +120,7 @@ test('turns a visual format into the card style', () => {
     '--mb-v-title-size': '18px',
     '--mb-v-title-align': 'center',
   });
-  expect(className).toBe('mibi-title-hidden');
+  expect(className).toBe('mibi-title-hidden mibi-title-center');
   // 8px more padding and 2px more border on each side
   expect(shrink).toBe(20);
 });

@@ -687,6 +687,75 @@ table,
   display: none;
 }
 
+/* Explore inside the side panel of a dashboard: tighter, so the chart keeps room */
+
+/* The chart area asks for 512 px by default, which pushes the chart out of the panel */
+body.mibi-panel .main-explore-content {
+  min-width: 280px;
+  padding: 0 12px;
+}
+
+body.mibi-panel .header-with-actions {
+  height: 52px;
+  padding: 0 16px;
+}
+
+/* A chart lives in one dashboard: who changed it and where it is added are noise here */
+body.mibi-panel .header-with-actions [data-test='metadata-bar'],
+body.mibi-panel .header-with-actions [data-test='fave-unfave-icon'] {
+  display: none;
+}
+
+body.mibi-panel .explore-column {
+  padding: 4px 0;
+}
+
+body.mibi-panel .explore-column .ant-tabs-nav {
+  margin-bottom: 0;
+}
+
+body.mibi-panel
+  .controls-column
+  .ant-collapse
+  > .ant-collapse-item
+  > .ant-collapse-header {
+  padding: 10px 14px !important;
+}
+
+body.mibi-panel .controls-column .ant-collapse-content-box {
+  padding: 4px 14px 8px !important;
+}
+
+/* Controls pad 16 px below themselves on top of this margin: 18 px between them */
+body.mibi-panel .explore-column [data-test='control-item'] {
+  margin-bottom: 12px;
+}
+
+body.mibi-panel .controls-column .Control {
+  padding-bottom: 6px;
+}
+
+/* The chart type picker closes its section: no control spacing below it */
+body.mibi-panel
+  .controls-column
+  [data-test='control-item']:has(> [data-test='viz_type']) {
+  margin-bottom: 0;
+}
+
+/* The dataset and the field search, closer to each other and to the lists */
+body.mibi-panel .data-source-selection .DatasourceControl .data-container {
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+body.mibi-panel .data-source-selection div:has(> .ant-input-affix-wrapper) {
+  padding: 4px 16px 8px;
+}
+
+body.mibi-panel .explore-column .ControlHeader {
+  margin-bottom: 4px;
+}
+
 /* ---------------------------------------------------------------- SQL Lab */
 
 [data-test='sql-editor-left-bar'] {
@@ -877,6 +946,12 @@ table,
   text-align: var(--mb-v-title-align, left);
 }
 
+/* While editing, the title is a full-width text box: its text follows the alignment */
+.dashboard-component-chart-holder .header-title textarea,
+.dashboard-component-chart-holder .header-title input {
+  text-align: var(--mb-v-title-align, left);
+}
+
 /* Format pane: hidden titles, spacing between visuals and the selection */
 .dashboard-component-chart-holder.mibi-title-hidden .header-title {
   visibility: hidden;
@@ -898,6 +973,27 @@ table,
   .dashboard-component-chart-holder:focus-within .header-controls,
   .dashboard-component-chart-holder .header-controls:has(.ant-dropdown-open) {
     opacity: 1;
+  }
+
+  /* Hidden icons still take room, which pulls a centered title off the middle of
+     the card: they float over the corner instead */
+  .dashboard-component-chart-holder.mibi-title-center
+    [data-test='slice-header'] {
+    position: relative;
+  }
+
+  .dashboard-component-chart-holder.mibi-title-center
+    [data-test='slice-header']
+    > .header-controls {
+    position: absolute;
+    top: 0;
+    right: 0;
+  }
+
+  .dashboard-component-chart-holder.mibi-title-center
+    [data-test='slice-header']
+    > .header-title {
+    max-width: 100%;
   }
 }
 
@@ -1321,7 +1417,9 @@ body.mibi-presenting-idle * {
    only listens while something is dragged. */
 .mibi-canvas:not(.mibi-mobile) .grid-row .empty-droptarget,
 .mibi-canvas:not(.mibi-mobile) .grid-column .empty-droptarget,
-.mibi-canvas:not(.mibi-mobile) .grid-content > .empty-droptarget:not(:last-child) {
+.mibi-canvas:not(.mibi-mobile)
+  .grid-content
+  > .empty-droptarget:not(:last-child) {
   display: none !important;
 }
 
@@ -1641,6 +1739,12 @@ body.mibi-moving * {
   cursor: grab;
 }
 
+/* Objects sit side by side, so neighbors share an edge: the selected one gets it,
+   instead of whichever object comes later in the page */
+.mibi-canvas .dragdroppable:has(.mibi-selected) {
+  z-index: 3;
+}
+
 /* Resize handles: easy to hit, and visible on the selected object */
 .mibi-canvas .resizable-container .resize-handle {
   opacity: 0;
@@ -1685,8 +1789,21 @@ body.mibi-moving * {
   cursor: ew-resize;
 }
 
-.mibi-canvas .resizable-container [class*='resizable-container-handle--bottom'] {
+.mibi-canvas
+  .resizable-container
+  [class*='resizable-container-handle--bottom'] {
   cursor: ns-resize;
+}
+
+/* Corners resize both ways */
+.mibi-canvas .resizable-container .resizable-container-handle--top-left,
+.mibi-canvas .resizable-container .resizable-container-handle--bottom-right {
+  cursor: nwse-resize;
+}
+
+.mibi-canvas .resizable-container .resizable-container-handle--top-right,
+.mibi-canvas .resizable-container .resizable-container-handle--bottom-left {
+  cursor: nesw-resize;
 }
 
 .mibi-size-badge {

@@ -72,6 +72,13 @@ export const minObjectColumns = () => 2;
 /** The shortest an object can be, in cells. */
 export const MIN_OBJECT_ROWS = 2;
 
+/**
+ * The smallest a chart can be, in cells: below 128 x 96 px its title, header
+ * controls and axes no longer fit. Design elements keep the object minimum.
+ */
+export const MIN_CHART_COLUMNS = 4;
+export const MIN_CHART_ROWS = 3;
+
 /** Default size of a new chart or element, in cells. */
 export const DEFAULT_OBJECT_COLUMNS = 12;
 export const DEFAULT_OBJECT_ROWS = 12;

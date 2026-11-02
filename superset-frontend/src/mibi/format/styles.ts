@@ -122,7 +122,14 @@ export function visualStyle(
     format.borderWidth !== undefined ? format.borderWidth : BASE_BORDER;
   return {
     style: style as CSSProperties,
-    className: title?.show === false ? 'mibi-title-hidden' : undefined,
+    className:
+      [
+        title?.show === false && 'mibi-title-hidden',
+        // A centered title spans the whole card: see the header icons in skin.css
+        title?.align === 'center' && 'mibi-title-center',
+      ]
+        .filter(Boolean)
+        .join(' ') || undefined,
     shrink: (padding - BASE_VISUAL_PADDING) * 2 + (border - BASE_BORDER) * 2,
   };
 }

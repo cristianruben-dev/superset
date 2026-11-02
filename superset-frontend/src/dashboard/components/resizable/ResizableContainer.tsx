@@ -76,6 +76,7 @@ const HANDLE_CLASSES = {
   topLeft: 'resizable-container-handle--top-left',
   topRight: 'resizable-container-handle--top-right',
   bottomLeft: 'resizable-container-handle--bottom-left',
+  bottomRight: 'resizable-container-handle--bottom-right',
 };
 // @ts-expect-error
 const StyledResizable = styled(Resizable)`

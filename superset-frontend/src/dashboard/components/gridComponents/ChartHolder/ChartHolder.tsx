@@ -55,7 +55,12 @@ import {
   useCanvasMobile,
   useMaxHeightMultiple,
 } from 'src/mibi/format/CanvasFrame';
-import { gridColumnCount, minObjectColumns } from 'src/mibi/format/columns';
+import {
+  gridColumnCount,
+  MIN_CHART_COLUMNS,
+  MIN_CHART_ROWS,
+  minObjectColumns,
+} from 'src/mibi/format/columns';
 import {
   openFormat,
   selectVisual,
@@ -299,8 +304,8 @@ const ChartHolder = ({
         widthMultiple={widthMultiple}
         heightStep={CELL}
         heightMultiple={component.meta.height ?? GRID_MIN_ROW_UNITS}
-        minWidthMultiple={minObjectColumns()}
-        minHeightMultiple={GRID_MIN_ROW_UNITS}
+        minWidthMultiple={Math.max(minObjectColumns(), MIN_CHART_COLUMNS)}
+        minHeightMultiple={Math.max(GRID_MIN_ROW_UNITS, MIN_CHART_ROWS)}
         maxHeightMultiple={maxHeightMultiple}
         maxWidthMultiple={
           maxWidthCells(component.meta) ?? availableColumnCount + widthMultiple
