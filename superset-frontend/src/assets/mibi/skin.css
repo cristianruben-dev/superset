@@ -997,6 +997,26 @@ body.mibi-panel .explore-column .ControlHeader {
   }
 }
 
+/* While editing, the delete and format buttons of a visual sit on its top edge,
+   as Power BI's visual header, instead of covering the header's own controls
+   (the sort button) in the corner of the card */
+.dashboard-content
+  .mibi-canvas
+  .dragdroppable
+  .dashboard-component-chart-holder
+  .hover-menu--top {
+  top: -24px;
+  right: 0;
+  left: unset;
+  transform: unset;
+  gap: 2px;
+  padding: 0 4px;
+  background: var(--mb-bg-container);
+  border: 1px solid var(--mb-hairline);
+  border-bottom: none;
+  border-radius: 6px 6px 0 0;
+}
+
 .dashboard-component-chart-holder .header-controls .dot {
   color: var(--mb-text-tertiary);
 }
