@@ -307,6 +307,20 @@ table,
   box-shadow: var(--mb-focus);
 }
 
+/* The field's own ring already shows focus: the inner input must not draw a
+   second one, which would grow with the text, and the highlighted option of a
+   dropdown only needs its background */
+.ant-select-selection-search-input:focus-visible,
+.ant-picker-input > input:focus-visible,
+.ant-input-number-input:focus-visible,
+.ant-input-affix-wrapper > input:focus-visible {
+  box-shadow: none !important;
+}
+
+.ant-select-item-option-active {
+  outline: none !important;
+}
+
 .ant-tag {
   border-radius: 999px;
   padding-inline: 8px;
