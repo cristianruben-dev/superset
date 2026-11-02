@@ -26,6 +26,7 @@ import {
   Dropdown,
   Input,
   Skeleton,
+  Tag,
   Tooltip,
 } from '@superset-ui/core/components';
 import { Icons } from '@superset-ui/core/components/Icons';
@@ -40,7 +41,12 @@ import type { UserWithPermissionsAndRoles } from 'src/types/bootstrapTypes';
 import { findPermission } from 'src/utils/findPermission';
 import { uploadUserPerms } from 'src/views/CRUD/utils';
 import tinycolor from 'tinycolor2';
-import { WORKSPACE_COLORS } from '../workspaces/api';
+import { getPanelDashboardId } from '../chartEditor';
+import {
+  fetchDashboardWorkspace,
+  fetchWorkspaceDatasets,
+  WORKSPACE_COLORS,
+} from '../workspaces/api';
 import { Page } from '../workspaces/WorkspaceListPage';
 import {
   datasetUrl,
@@ -52,6 +58,9 @@ import {
 } from './api';
 
 type Kind = 'all' | 'physical' | 'virtual';
+
+// Inside the side panel of a dashboard, the datasets its charts can use
+const panelDashboardId = getPanelDashboardId();
 type Upload = 'csv' | 'excel' | 'columnar';
 
 const Header = styled.header`
@@ -361,6 +370,11 @@ const Table = styled.div`
           color: ${theme.colorPrimary};
         }
       }
+
+      .shared {
+        margin-left: ${theme.sizeUnit * 2}px;
+        font-weight: normal;
+      }
     }
 
     .kind {
@@ -465,6 +479,10 @@ export default function DataPage() {
   >(state => state.common.conf);
   const [connections, setConnections] = useState<DataConnection[] | null>(null);
   const [datasets, setDatasets] = useState<DataSet[] | null>(null);
+  // In a dashboard of a workspace: the datasets of that workspace, the others
+  // being shared
+  const [workspaceDatasetIds, setWorkspaceDatasetIds] =
+    useState<Set<number> | null>(null);
   const [selected, setSelected] = useState<number | null>(null);
   const [kind, setKind] = useState<Kind>('all');
   const [search, setSearch] = useState('');
@@ -493,12 +511,27 @@ export default function DataPage() {
     fetchConnections()
       .then(setConnections)
       .catch(() => setConnections([]));
-    fetchDataSets()
+    fetchDataSets(panelDashboardId)
       .then(setDatasets)
       .catch(() => setDatasets([]));
+    if (panelDashboardId !== undefined) {
+      fetchDashboardWorkspace(panelDashboardId)
+        .then(workspace =>
+          workspace ? fetchWorkspaceDatasets(workspace.id) : null,
+        )
+        .then(owned =>
+          setWorkspaceDatasetIds(
+            owned ? new Set(owned.map(dataset => dataset.id)) : null,
+          ),
+        )
+        .catch(() => setWorkspaceDatasetIds(null));
+    }
   }, []);
 
   useEffect(load, [load]);
+
+  // Only worth telling apart when the workspace has datasets of its own
+  const showShared = !!workspaceDatasetIds?.size;
 
   const counts = useMemo(() => {
     const map = new Map<number, number>();
@@ -563,10 +596,15 @@ export default function DataPage() {
   return (
     <Page data-test="data-page">
       <Header>
+        {/* In the side panel of a dashboard, the panel already says "Data" */}
         <div className="titles">
-          <h1>{t('Data')}</h1>
+          {panelDashboardId === undefined && <h1>{t('Data')}</h1>}
           <p>
-            {t('Your connections and the datasets your charts are built on.')}
+            {panelDashboardId === undefined
+              ? t('Your connections and the datasets your charts are built on.')
+              : t(
+                  "The datasets of this dashboard's workspace and the shared ones.",
+                )}
           </p>
         </div>
         <div className="tools">
@@ -595,9 +633,12 @@ export default function DataPage() {
           <span className="count">{connections.length}</span>
         )}
         <span className="spacer" />
-        <Link className="list-link" to="/databaseview/list/">
-          {t('Open as a list')}
-        </Link>
+        {/* The list page has no way back to the side panel */}
+        {panelDashboardId === undefined && (
+          <Link className="list-link" to="/databaseview/list/">
+            {t('Open as a list')}
+          </Link>
+        )}
       </SectionHeader>
       <Connections>
         {connections === null &&
@@ -775,7 +816,14 @@ export default function DataPage() {
                 )}
               </span>
               <span className="text">
-                <strong>{dataset.table_name}</strong>
+                <strong>
+                  {dataset.table_name}
+                  {showShared && !workspaceDatasetIds?.has(dataset.id) && (
+                    <Tag className="shared" data-test="data-dataset-shared">
+                      {t('Shared')}
+                    </Tag>
+                  )}
+                </strong>
                 <span>
                   {dataset.description ||
                     (dataset.kind === 'virtual' ? t('SQL query') : t('Table'))}

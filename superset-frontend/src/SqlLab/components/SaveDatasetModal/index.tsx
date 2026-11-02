@@ -60,6 +60,8 @@ import { postFormData } from 'src/explore/exploreUtils/formData';
 import { URL_PARAMS } from 'src/constants';
 import { isEmpty } from 'lodash';
 import { clearDatasetCache } from 'src/utils/cachedSupersetGet';
+import { editChartFromPanel } from 'src/mibi/chartEditor';
+import { linkNewDataset } from 'src/mibi/workspaces/api';
 
 interface QueryDatabase {
   id?: number;
@@ -220,6 +222,13 @@ export const SaveDatasetModal = ({
       window.location.href = url;
     }
   };
+  const openExplore = (formDataKey: string) => {
+    const search = { [URL_PARAMS.formDataKey.name]: formDataKey };
+    // AuraData BI: inside a dashboard, the dashboard opens its chart editor
+    if (!editChartFromPanel(mountExploreUrl('base', search, false, false))) {
+      createWindow(mountExploreUrl('base', search));
+    }
+  };
   const formDataWithDefaults = {
     ...EXPLORE_CHART_DEFAULT,
     ...formData,
@@ -258,10 +267,7 @@ export const SaveDatasetModal = ({
       ]);
       setLoading(false);
 
-      const url = mountExploreUrl('base', {
-        [URL_PARAMS.formDataKey.name]: key,
-      });
-      createWindow(url);
+      openExplore(key);
 
       setShouldOverwriteDataset(false);
       setDatasetName(getDefaultDatasetName());
@@ -351,8 +357,10 @@ export const SaveDatasetModal = ({
         datasourceName: datasetName,
       }),
     )
-      .then((data: { id: number }) => {
+      .then(async (data: { id: number }) => {
         clearDatasetCache(data.id);
+        // AuraData BI: a dataset made in a dashboard joins its workspace
+        await linkNewDataset(data.id);
 
         return postFormData(data.id, 'table', {
           ...formDataWithDefaults,
@@ -364,10 +372,7 @@ export const SaveDatasetModal = ({
       })
       .then((key: string) => {
         setLoading(false);
-        const url = mountExploreUrl('base', {
-          [URL_PARAMS.formDataKey.name]: key,
-        });
-        createWindow(url);
+        openExplore(key);
         setDatasetName(getDefaultDatasetName());
         onHide();
       })

@@ -151,7 +151,7 @@ describe('Footer', () => {
     });
   });
 
-  test('navigates to dataset list when "Create dataset" menu option is clicked', async () => {
+  test('navigates to the data page when "Create dataset" menu option is clicked', async () => {
     mockCreateResource.mockResolvedValue(123);
 
     render(<Footer {...mockPropsWithDataset} />, { useRedux: true });
@@ -173,7 +173,7 @@ describe('Footer', () => {
         schema: 'public',
         table_name: 'real_info',
       });
-      expect(mockHistoryPush).toHaveBeenCalledWith('/tablemodelview/list/');
+      expect(mockHistoryPush).toHaveBeenCalledWith('/data/');
     });
   });
 

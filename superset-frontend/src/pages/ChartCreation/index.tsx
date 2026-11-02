@@ -253,6 +253,7 @@ export class ChartCreation extends PureComponent<
     pageSize: number,
     exactMatch = false,
   ) {
+    const dashboardId = getUrlParam(URL_PARAMS.dashboardId);
     const query = rison.encode({
       columns: [
         'id',
@@ -263,6 +264,16 @@ export class ChartCreation extends PureComponent<
       ],
       filters: [
         { col: 'table_name', opr: exactMatch ? 'eq' : 'ct', value: search },
+        // AuraData BI: a chart uses its dashboard's workspace datasets or shared ones
+        ...(isDefined(dashboardId)
+          ? [
+              {
+                col: 'id',
+                opr: 'dataset_usable_in_dashboard',
+                value: Number(dashboardId),
+              },
+            ]
+          : []),
       ],
       page,
       page_size: pageSize,

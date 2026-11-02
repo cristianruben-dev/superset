@@ -17,22 +17,42 @@
  * under the License.
  */
 /**
- * The chart editor panel: a dashboard opens Explore inside a side panel (an
- * iframe in "panel mode") and Explore tells the dashboard when the chart is saved.
+ * The side panel of a dashboard: the dashboard opens Explore, the data pages or
+ * SQL Lab inside it (an iframe in "panel mode"). Explore tells the dashboard when
+ * the chart is saved, and the data pages ask it to build a chart from a dataset.
  */
 
 export const PANEL_PARAM = 'mibi_panel';
 export const OPEN_CHART_EDITOR = 'mibi:open-chart-editor';
 export const CHART_SAVED = 'mibi:chart-saved';
+export const EDIT_CHART_FROM_PANEL = 'mibi:edit-chart-from-panel';
+
+/** What the side panel shows. */
+export type PanelKind = 'chart' | 'data' | 'sql';
+
+export const DATA_PANEL_URL = '/data/';
+// Without "new", SQL Lab reopens the last query instead of adding a tab each time
+export const SQL_PANEL_URL = '/sqllab/';
 
 // Read once on load: Explore rewrites its URL and does not keep unknown params
 const panelMode =
   typeof window !== 'undefined' &&
   new URLSearchParams(window.location.search).has(PANEL_PARAM);
 
+// The dashboard of the panel, read once too: the panel navigates between pages
+const panelDashboardId = panelMode
+  ? Number(new URLSearchParams(window.location.search).get('dashboard_id')) ||
+    undefined
+  : undefined;
+
 /** Whether this page runs inside the chart editor panel. */
 export function isPanelMode(): boolean {
   return panelMode;
+}
+
+/** The dashboard whose side panel shows this page. */
+export function getPanelDashboardId(): number | undefined {
+  return panelDashboardId;
 }
 
 /** The URL with the panel mode parameter. */
@@ -43,17 +63,60 @@ export function withPanelParam(url: string): string {
 }
 
 export interface OpenChartEditorDetail {
-  /** Explore or chart creation URL to open in the panel */
+  /** Explore, chart creation, data or SQL Lab URL to open in the panel */
   url: string;
   /** The chart being edited; undefined to create one */
   chartId?: number;
+  /** What the panel shows, a chart when undefined */
+  kind?: PanelKind;
 }
 
-/** Ask the dashboard on this page to open the chart editor panel. */
+/** Ask the dashboard on this page to open its side panel. */
 export function openChartEditor(detail: OpenChartEditorDetail) {
   window.dispatchEvent(
     new CustomEvent<OpenChartEditorDetail>(OPEN_CHART_EDITOR, { detail }),
   );
+}
+
+export interface EditChartFromPanelMessage {
+  type: typeof EDIT_CHART_FROM_PANEL;
+  /** Explore or chart creation URL, without the dashboard */
+  url: string;
+}
+
+/**
+ * From the data or SQL panel: ask the dashboard to build a chart at this URL
+ * (a dataset just saved, a query to explore). False outside the panel, where the
+ * caller navigates as usual.
+ */
+export function editChartFromPanel(url: string): boolean {
+  if (!panelMode) {
+    return false;
+  }
+  const message: EditChartFromPanelMessage = {
+    type: EDIT_CHART_FROM_PANEL,
+    url,
+  };
+  window.parent.postMessage(message, window.location.origin);
+  return true;
+}
+
+export function isEditChartFromPanelMessage(
+  data: unknown,
+): data is EditChartFromPanelMessage {
+  return (
+    typeof data === 'object' &&
+    data !== null &&
+    (data as EditChartFromPanelMessage).type === EDIT_CHART_FROM_PANEL &&
+    typeof (data as EditChartFromPanelMessage).url === 'string'
+  );
+}
+
+/** The URL with the dashboard its chart is saved to. */
+export function withDashboardParam(url: string, dashboardId: number): string {
+  const [path, hash = ''] = url.split('#');
+  const separator = path.includes('?') ? '&' : '?';
+  return `${path}${separator}dashboard_id=${dashboardId}${hash ? `#${hash}` : ''}`;
 }
 
 export interface ChartSavedMessage {

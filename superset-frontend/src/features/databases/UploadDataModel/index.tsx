@@ -56,6 +56,7 @@ import {
   StyledFormItem,
   StyledSwitchContainer,
 } from './styles';
+import { linkUploadedDataset } from 'src/mibi/workspaces/api';
 import ColumnsPreview from './ColumnsPreview';
 import StyledFormItemWithTip from './StyledFormItemWithTip';
 
@@ -475,7 +476,15 @@ const UploadDataModal: FunctionComponent<UploadDataModalProps> = ({
       body: formData,
       headers: { Accept: 'application/json' },
     })
-      .then(() => {
+      .then(async () => {
+        // AuraData BI: a dataset made in a dashboard joins its workspace
+        if (currentDatabaseId) {
+          await linkUploadedDataset(
+            currentDatabaseId,
+            currentSchema,
+            mergedValues.table_name,
+          );
+        }
         addSuccessToast(t('Data imported'));
         setIsLoading(false);
         onClose();

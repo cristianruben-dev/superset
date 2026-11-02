@@ -26,11 +26,16 @@ import {
 } from 'react';
 import { Redirect } from 'react-router-dom';
 import ExploreGate from 'src/mibi/ExploreGate';
+import { panelOnly } from 'src/mibi/PanelGate';
 import { isUserAdmin } from 'src/dashboard/util/permissionUtils';
 import getBootstrapData from 'src/utils/getBootstrapData';
 
 // not lazy loaded since this is the home page.
 import Home from 'src/pages/Home';
+
+// The pages that build a report open from the side panel of a dashboard
+const DATA_FALLBACK = '/workspace/list/';
+const SQL_FALLBACK = '/dashboard/list/';
 
 const ChartCreation = lazy(
   () =>
@@ -171,9 +176,6 @@ const Register = lazy(
   () => import(/* webpackChunkName: "Register" */ 'src/pages/Register'),
 );
 
-const GroupsList: LazyExoticComponent<any> = lazy(
-  () => import(/* webpackChunkName: "GroupsList" */ 'src/pages/GroupsList'),
-);
 const UserRegistrations = lazy(
   () =>
     import(
@@ -242,7 +244,7 @@ export const routes: Routes = [
   },
   {
     path: '/data/',
-    Component: DataPage,
+    Component: panelOnly(DataPage, DATA_FALLBACK),
   },
   {
     path: '/dashboard/list/',
@@ -263,7 +265,7 @@ export const routes: Routes = [
   },
   {
     path: '/tablemodelview/list/',
-    Component: DatasetList,
+    Component: panelOnly(DatasetList, DATA_FALLBACK),
   },
   {
     path: '/databaseview/list/',
@@ -271,11 +273,11 @@ export const routes: Routes = [
   },
   {
     path: '/savedqueryview/list/',
-    Component: SavedQueryList,
+    Component: panelOnly(SavedQueryList, SQL_FALLBACK),
   },
   {
     path: '/sqllab/history/',
-    Component: QueryHistoryList,
+    Component: panelOnly(QueryHistoryList, SQL_FALLBACK),
   },
   {
     path: '/alert/list/',
@@ -309,11 +311,11 @@ export const routes: Routes = [
   },
   {
     path: '/dataset/add/',
-    Component: DatasetCreation,
+    Component: panelOnly(DatasetCreation, DATA_FALLBACK),
   },
   {
     path: '/dataset/:datasetId',
-    Component: DatasetCreation,
+    Component: panelOnly(DatasetCreation, DATA_FALLBACK),
   },
   {
     path: '/rowlevelsecurity/list',
@@ -325,7 +327,7 @@ export const routes: Routes = [
   },
   {
     path: '/sqllab/',
-    Component: SqlLab,
+    Component: panelOnly(SqlLab, SQL_FALLBACK),
   },
   { path: '/user_info/', Component: UserInfo },
   {
@@ -363,10 +365,6 @@ if (isAdmin) {
     {
       path: '/users/',
       Component: UsersList,
-    },
-    {
-      path: '/list_groups/',
-      Component: GroupsList,
     },
   );
 

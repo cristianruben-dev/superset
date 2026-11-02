@@ -63,8 +63,21 @@ export async function fetchConnections(): Promise<DataConnection[]> {
   return json.result as DataConnection[];
 }
 
-/** Every dataset the user can access, most recently changed first. */
-export async function fetchDataSets(): Promise<DataSet[]> {
+/**
+ * Every dataset the user can access, most recently changed first. With a
+ * dashboard, only the ones its charts can use: its workspace's and shared ones.
+ */
+export async function fetchDataSets(dashboardId?: number): Promise<DataSet[]> {
+  const filters =
+    dashboardId === undefined
+      ? []
+      : [
+          {
+            col: 'id',
+            opr: 'dataset_usable_in_dashboard',
+            value: dashboardId,
+          },
+        ];
   const datasets: DataSet[] = [];
   for (let page = 0; datasets.length < MAX_DATASETS; page += 1) {
     // Pages depend on each other: stop at the first short one
@@ -83,6 +96,7 @@ export async function fetchDataSets(): Promise<DataSet[]> {
           'changed_by.first_name',
           'changed_by.last_name',
         ],
+        filters,
         order_column: 'changed_on_delta_humanized',
         order_direction: 'desc',
         page,

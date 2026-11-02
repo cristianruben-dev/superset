@@ -18,8 +18,12 @@
  */
 import {
   CHART_SAVED,
+  EDIT_CHART_FROM_PANEL,
+  editChartFromPanel,
   isChartSavedMessage,
+  isEditChartFromPanelMessage,
   isPanelMode,
+  withDashboardParam,
   withPanelParam,
 } from './chartEditor';
 
@@ -45,4 +49,31 @@ test('recognizes chart saved messages only', () => {
 
 test('pages outside the panel are not in panel mode', () => {
   expect(isPanelMode()).toBe(false);
+});
+
+test('adds the dashboard of the chart to URLs', () => {
+  expect(withDashboardParam('/chart/add/?dataset=ventas', 7)).toBe(
+    '/chart/add/?dataset=ventas&dashboard_id=7',
+  );
+  expect(withDashboardParam('/explore/', 7)).toBe('/explore/?dashboard_id=7');
+});
+
+test('recognizes requests to build a chart from the panel only', () => {
+  expect(
+    isEditChartFromPanelMessage({ type: EDIT_CHART_FROM_PANEL, url: '/x/' }),
+  ).toBe(true);
+  expect(isEditChartFromPanelMessage({ type: EDIT_CHART_FROM_PANEL })).toBe(
+    false,
+  );
+  expect(isEditChartFromPanelMessage({ type: CHART_SAVED, url: '/x/' })).toBe(
+    false,
+  );
+});
+
+test('outside the panel, building a chart is left to the caller', () => {
+  const postMessage = jest.spyOn(window.parent, 'postMessage');
+
+  expect(editChartFromPanel('/chart/add/')).toBe(false);
+  expect(postMessage).not.toHaveBeenCalled();
+  postMessage.mockRestore();
 });

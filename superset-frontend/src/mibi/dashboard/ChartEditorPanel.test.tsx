@@ -20,7 +20,13 @@ import { act, render, screen, waitFor } from 'spec/helpers/testing-library';
 import * as dashboardState from 'src/dashboard/actions/dashboardState';
 import * as sliceEntities from 'src/dashboard/actions/sliceEntities';
 import type { RootState } from 'src/dashboard/types';
-import { CHART_SAVED, openChartEditor } from '../chartEditor';
+import {
+  CHART_SAVED,
+  DATA_PANEL_URL,
+  EDIT_CHART_FROM_PANEL,
+  openChartEditor,
+  SQL_PANEL_URL,
+} from '../chartEditor';
 import { ChartEditorPanel, newChartDestination } from './ChartEditorPanel';
 
 type LayoutState = Pick<RootState, 'dashboardLayout' | 'dashboardState'>;
@@ -130,4 +136,75 @@ test('ignores messages from other origins', async () => {
 
   expect(addSliceToDashboard).not.toHaveBeenCalled();
   addSliceToDashboard.mockRestore();
+});
+
+test('opens SQL Lab wide and turns a saved dataset into a new chart', async () => {
+  render(<ChartEditorPanel />, {
+    useRedux: true,
+    initialState: { dashboardInfo: { id: 7 }, charts: {} },
+  });
+
+  act(() => openChartEditor({ url: SQL_PANEL_URL, kind: 'sql' }));
+
+  const frame = await screen.findByTestId('mibi-chart-editor-frame');
+  expect(frame).toHaveAttribute('src', '/sqllab/?dashboard_id=7&mibi_panel=1');
+  expect(screen.getByText('SQL editor')).toBeInTheDocument();
+
+  act(() => {
+    window.dispatchEvent(
+      new MessageEvent('message', {
+        origin: window.location.origin,
+        data: {
+          type: EDIT_CHART_FROM_PANEL,
+          url: '/chart/add/?dataset=ventas',
+        },
+      }),
+    );
+  });
+
+  await waitFor(() =>
+    expect(screen.getByTestId('mibi-chart-editor-frame')).toHaveAttribute(
+      'src',
+      '/chart/add/?dataset=ventas&dashboard_id=7&mibi_panel=1',
+    ),
+  );
+  expect(screen.getByText('New visual')).toBeInTheDocument();
+});
+
+test('refreshes the charts when the data panel closes', async () => {
+  const refresh = jest
+    .spyOn(dashboardState, 'onRefresh')
+    .mockReturnValue({ type: 'noop' } as never);
+  render(<ChartEditorPanel />, {
+    useRedux: true,
+    initialState: { dashboardInfo: { id: 7 }, charts: { 3: {}, 5: {} } },
+  });
+
+  act(() => openChartEditor({ url: DATA_PANEL_URL, kind: 'data' }));
+  expect(await screen.findByText('Data')).toBeInTheDocument();
+
+  act(() => {
+    screen.getByRole('button', { name: 'Close' }).click();
+  });
+
+  expect(refresh).toHaveBeenCalledWith([3, 5], true, 0, 7);
+  refresh.mockRestore();
+});
+
+test('opening the page it already shows does not leave it loading', async () => {
+  render(<ChartEditorPanel />, {
+    useRedux: true,
+    initialState: { dashboardInfo: { id: 7 } },
+  });
+
+  act(() => openChartEditor({ url: '/explore/?slice_id=3', chartId: 3 }));
+  const frame = await screen.findByTestId('mibi-chart-editor-frame');
+  act(() => {
+    frame.dispatchEvent(new Event('load'));
+  });
+  act(() => openChartEditor({ url: '/explore/?slice_id=3', chartId: 3 }));
+
+  expect(
+    screen.getByTestId('mibi-chart-editor').querySelector('.loading'),
+  ).toBeNull();
 });

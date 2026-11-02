@@ -64,6 +64,7 @@ import { DashboardWorkspaceChip } from 'src/mibi/workspaces/DashboardWorkspaceCh
 import { ExportDashboardModal } from 'src/mibi/export/ExportDashboardModal';
 import { setPresenting } from 'src/mibi/present/presentation';
 import { BookmarksMenu } from 'src/mibi/report/BookmarksMenu';
+import { DataMenu } from 'src/mibi/dashboard/DataMenu';
 import { useUnsavedChangesPrompt } from 'src/hooks/useUnsavedChangesPrompt';
 import DashboardEmbedModal from '../EmbeddedModal';
 import OverwriteConfirm from '../OverwriteConfirm';
@@ -226,6 +227,12 @@ const saveBtnStyle = (theme: SupersetTheme) => css`
 const discardBtnStyle = (theme: SupersetTheme) => css`
   min-width: ${theme.sizeUnit * 22}px;
   height: ${theme.sizeUnit * 8}px;
+`;
+
+const dataMenuStyle = (theme: SupersetTheme) => css`
+  height: ${theme.sizeUnit * 8}px;
+  margin-right: ${theme.sizeUnit * 2}px;
+  gap: ${theme.sizeUnit * 1.5}px;
 `;
 
 const discardChanges = () => {
@@ -724,6 +731,8 @@ const Header = (): JSX.Element => {
                     </StyledUndoRedoButton>
                   </Tooltip>
                 </div>
+                {/* AuraData BI: datasets and SQL Lab open in the side panel */}
+                <DataMenu buttonCss={dataMenuStyle} />
                 <Button
                   css={discardBtnStyle}
                   buttonSize="small"

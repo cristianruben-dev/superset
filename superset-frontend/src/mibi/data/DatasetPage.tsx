@@ -42,6 +42,7 @@ import type { ColumnObject, DatasetObject } from 'src/features/datasets/types';
 import type { UserWithPermissionsAndRoles } from 'src/types/bootstrapTypes';
 import { findPermission } from 'src/utils/findPermission';
 import getBootstrapData from 'src/utils/getBootstrapData';
+import { editChartFromPanel, isPanelMode } from '../chartEditor';
 import { VizTypeIcon } from '../vizIcons/VizTypeIcon';
 import { Page } from '../workspaces/WorkspaceListPage';
 import { fetchEditableDataset } from './api';
@@ -685,6 +686,17 @@ export default function DatasetPage() {
           </div>
         </div>
         <div className="actions">
+          {isPanelMode() && (
+            <Button
+              buttonStyle="secondary"
+              icon={<Icons.BarChartOutlined />}
+              onClick={() =>
+                editChartFromPanel(`/explore/?datasource=${dataset.id}__table`)
+              }
+            >
+              {t('New visual')}
+            </Button>
+          )}
           {canWrite && (
             <Button
               buttonStyle="secondary"

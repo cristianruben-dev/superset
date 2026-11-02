@@ -62,6 +62,7 @@ import {
 } from 'src/SqlLab/components/SaveDatasetModal';
 import { EXPLORE_CHART_DEFAULT, SqlLabRootState } from 'src/SqlLab/types';
 import { mountExploreUrl } from 'src/explore/exploreUtils';
+import { editChartFromPanel } from 'src/mibi/chartEditor';
 import { postFormData } from 'src/explore/exploreUtils/formData';
 import { addDangerToast } from 'src/components/MessageToasts/actions';
 import { prepareCopyToClipboardTabularData } from 'src/utils/common';
@@ -293,6 +294,16 @@ const ResultSet = ({
         all_columns: results.columns.map(column => column.column_name),
       });
       const force = false;
+      // AuraData BI: inside a dashboard, the dashboard opens its chart editor
+      const panelUrl = mountExploreUrl(
+        'base',
+        { [URL_PARAMS.formDataKey.name]: key },
+        force,
+        false,
+      );
+      if (editChartFromPanel(panelUrl)) {
+        return;
+      }
       const includeAppRoot = openInNewWindow;
       const url = mountExploreUrl(
         'base',

@@ -16,12 +16,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useDispatch, useStore } from 'react-redux';
 import { t } from '@apache-superset/core/translation';
 import { css, styled } from '@apache-superset/core/theme';
 import { Drawer, Loading } from '@superset-ui/core/components';
-import { addSliceToDashboard } from 'src/dashboard/actions/dashboardState';
+import {
+  addSliceToDashboard,
+  onRefresh,
+} from 'src/dashboard/actions/dashboardState';
 import { handleComponentDrop } from 'src/dashboard/actions/dashboardLayout';
 import type { DropResult } from 'src/dashboard/components/dnd/dragDroppableConfig';
 import type { RootState } from 'src/dashboard/types';
@@ -40,10 +43,14 @@ import {
 import { ensureAppRoot } from 'src/utils/pathUtils';
 import {
   isChartSavedMessage,
+  isEditChartFromPanelMessage,
   OPEN_CHART_EDITOR,
   type OpenChartEditorDetail,
+  withDashboardParam,
   withPanelParam,
 } from '../chartEditor';
+import { DEFAULT_OBJECT_COLUMNS, DEFAULT_OBJECT_ROWS } from '../format/columns';
+import { freeCell } from '../format/positions';
 import { fetchDashboardSlices } from './reloadSavedChart';
 
 const Frame = styled.div`
@@ -92,24 +99,67 @@ export function newChartDestination(
     : undefined;
 }
 
+const panelTitle = (editor: OpenChartEditorDetail | null) => {
+  if (editor?.kind === 'data') {
+    return t('Data');
+  }
+  if (editor?.kind === 'sql') {
+    return t('SQL editor');
+  }
+  return editor?.chartId ? t('Edit visual') : t('New visual');
+};
+
 /**
- * The side panel where a dashboard's charts are created and edited without
- * leaving it: Explore runs inside in panel mode and reports when it saves.
+ * The side panel of a dashboard, where its charts, its data and SQL Lab open
+ * without leaving it: the page runs inside in panel mode. Explore reports when it
+ * saves; the data pages and SQL Lab ask for a chart built from what they made.
  */
 export function ChartEditorPanel() {
   const dispatch = useDispatch();
   const store = useStore<RootState>();
   const [editor, setEditor] = useState<OpenChartEditorDetail | null>(null);
   const [loading, setLoading] = useState(true);
+  const editorRef = useRef(editor);
+  editorRef.current = editor;
+
+  const open = useCallback(
+    (detail: OpenChartEditorDetail) => {
+      // The data pages and SQL Lab save new datasets to this dashboard's workspace
+      const next =
+        detail.kind === 'data' || detail.kind === 'sql'
+          ? {
+              ...detail,
+              url: withDashboardParam(
+                detail.url,
+                store.getState().dashboardInfo.id,
+              ),
+            }
+          : detail;
+      // The same page again does not reload the frame, so it never says it loaded
+      if (editorRef.current?.url !== next.url) {
+        setLoading(true);
+      }
+      setEditor(next);
+    },
+    [store],
+  );
 
   useEffect(() => {
-    const onOpen = (event: Event) => {
-      setLoading(true);
-      setEditor((event as CustomEvent<OpenChartEditorDetail>).detail);
-    };
+    const onOpen = (event: Event) =>
+      open((event as CustomEvent<OpenChartEditorDetail>).detail);
     window.addEventListener(OPEN_CHART_EDITOR, onOpen);
     return () => window.removeEventListener(OPEN_CHART_EDITOR, onOpen);
-  }, []);
+  }, [open]);
+
+  const close = useCallback(() => {
+    if (editor?.kind === 'data' || editor?.kind === 'sql') {
+      // Datasets may have changed: columns, metrics or their SQL
+      const state = store.getState();
+      const chartIds = Object.keys(state.charts).map(Number);
+      dispatch(onRefresh(chartIds, true, 0, state.dashboardInfo.id) as never);
+    }
+    setEditor(null);
+  }, [dispatch, editor, store]);
 
   const onSaved = useCallback(
     async (chartId: number, isNew: boolean) => {
@@ -135,6 +185,13 @@ export function ChartEditorPanel() {
                 meta: { chartId, sliceName },
               },
               destination,
+              // Where it covers no other object of the page
+              cell: freeCell(
+                state.dashboardLayout.present,
+                destination.id,
+                DEFAULT_OBJECT_COLUMNS,
+                DEFAULT_OBJECT_ROWS,
+              ),
             } as DropResult) as never,
           );
           return;
@@ -148,28 +205,35 @@ export function ChartEditorPanel() {
 
   useEffect(() => {
     const onMessage = (event: MessageEvent) => {
-      if (
-        event.origin === window.location.origin &&
-        isChartSavedMessage(event.data)
-      ) {
+      if (event.origin !== window.location.origin) {
+        return;
+      }
+      if (isChartSavedMessage(event.data)) {
         onSaved(event.data.chartId, event.data.isNew);
+      } else if (isEditChartFromPanelMessage(event.data)) {
+        const dashboardId = store.getState().dashboardInfo.id;
+        open({ url: withDashboardParam(event.data.url, dashboardId) });
       }
     };
     window.addEventListener('message', onMessage);
     return () => window.removeEventListener('message', onMessage);
-  }, [onSaved]);
+  }, [onSaved, open, store]);
 
-  const title = editor?.chartId ? t('Edit visual') : t('New visual');
+  const title = panelTitle(editor);
+  // SQL Lab and the data pages need the room of a page
+  const wide = editor?.kind === 'data' || editor?.kind === 'sql';
 
   return (
     <Drawer
       open={!!editor}
-      onClose={() => setEditor(null)}
+      onClose={close}
       title={title}
       placement="right"
-      width="min(1180px, 82vw)"
+      // Explore shows three columns: the data, the settings and the chart
+      width={wide ? '92vw' : 'min(1440px, 92vw)'}
       destroyOnHidden
-      styles={{ body: { padding: 0 } }}
+      // A thin header: the page inside has its own title bar
+      styles={{ header: { padding: '10px 16px' }, body: { padding: 0 } }}
       data-test="mibi-chart-editor"
     >
       {editor && (

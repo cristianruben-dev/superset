@@ -36,6 +36,12 @@ import {
   LOG_ACTIONS_DATASET_CREATION_TABLE_CANCELLATION,
   LOG_ACTIONS_DATASET_CREATION_SUCCESS,
 } from 'src/logger/LogUtils';
+import {
+  DATA_PANEL_URL,
+  editChartFromPanel,
+  isPanelMode,
+} from 'src/mibi/chartEditor';
+import { linkNewDataset } from 'src/mibi/workspaces/api';
 import { DatasetObject } from '../types';
 
 interface FooterProps {
@@ -87,7 +93,13 @@ function Footer({
       const logAction = createLogAction(datasetObject);
       logEvent(logAction, datasetObject);
     }
-    history.goBack();
+    // AuraData BI: in a dashboard's side panel, going back could leave the
+    // dashboard itself, since the panel shares the browser history
+    if (isPanelMode()) {
+      history.push(DATA_PANEL_URL);
+    } else {
+      history.goBack();
+    }
   };
 
   const tooltipText = t('Select a database table.');
@@ -106,11 +118,15 @@ function Footer({
         }
         if (typeof response === 'number') {
           logEvent(LOG_ACTIONS_DATASET_CREATION_SUCCESS, datasetObject);
+          // AuraData BI: a dataset made in a dashboard joins its workspace
+          linkNewDataset(response);
           // When a dataset is created the response we get is its ID number
-          if (createChart) {
-            history.push(`/chart/add/?dataset=${datasetObject.table_name}`);
-          } else {
-            history.push('/tablemodelview/list/');
+          const chartUrl = `/chart/add/?dataset=${datasetObject.table_name}`;
+          // AuraData BI: inside a dashboard, the dashboard opens its chart editor
+          if (!createChart) {
+            history.push(DATA_PANEL_URL);
+          } else if (!editChartFromPanel(chartUrl)) {
+            history.push(chartUrl);
           }
         }
       });
