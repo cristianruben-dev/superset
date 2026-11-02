@@ -19107,3 +19107,168 @@ msgstr "Hay paneles de control fuera de esta área de trabajo que usan estos con
 
 msgid "The datasets of this dashboard's workspace and the shared ones."
 msgstr "Los conjuntos de datos del área de trabajo de este panel de control y los compartidos."
+
+msgid "Header fill"
+msgstr "Relleno del encabezado"
+
+msgid "Card text format"
+msgstr "Formato del texto de la tarjeta"
+
+msgid "Value font"
+msgstr "Fuente del valor"
+
+msgid "Metric name font"
+msgstr "Fuente del nombre de la métrica"
+
+msgid "Subtitle font"
+msgstr "Fuente del subtítulo"
+
+msgid "Text alignment"
+msgstr "Alineación del texto"
+
+msgid "Where the text sits in the card"
+msgstr "Dónde se coloca el texto en la tarjeta"
+
+msgid "Leave a property empty to use the default"
+msgstr "Deja una propiedad vacía para usar la predeterminada"
+
+msgid "Font, size and color of the value, the subtitle and the metric name"
+msgstr "Fuente, tamaño y color del valor, el subtítulo y el nombre de la métrica"
+
+msgid "Bold title"
+msgstr "Título en negrita"
+
+msgid "Italic title"
+msgstr "Título en cursiva"
+
+msgid "Card value"
+msgstr "Valor de la tarjeta"
+
+msgid "Value size"
+msgstr "Tamaño del valor"
+
+msgid "Value color"
+msgstr "Color del valor"
+
+msgid "Bold value"
+msgstr "Valor en negrita"
+
+msgid "Italic value"
+msgstr "Valor en cursiva"
+
+msgid "Value alignment"
+msgstr "Alineación del valor"
+
+msgid "Hide X axis"
+msgstr "Ocultar eje X"
+
+msgid "Hide the line, ticks and labels of the X axis"
+msgstr "Oculta la línea, las marcas y las etiquetas del eje X"
+
+msgid "Hide Y axis"
+msgstr "Ocultar eje Y"
+
+msgid "Hide the line, ticks and labels of the Y axis"
+msgstr "Oculta la línea, las marcas y las etiquetas del eje Y"
+
+msgid "Hide gridlines"
+msgstr "Ocultar líneas de cuadrícula"
+
+msgid "Do not draw the gridlines behind the chart"
+msgstr "No dibuja las líneas de cuadrícula detrás del gráfico"
+
+msgid "Slicer style"
+msgstr "Estilo de la segmentación"
+
+msgid "Bold label"
+msgstr "Etiqueta en negrita"
+
+msgid "Control fill"
+msgstr "Relleno del control"
+
+msgid "Control border"
+msgstr "Borde del control"
+
+msgid "Control text"
+msgstr "Texto del control"
+
+msgid "Corner radius"
+msgstr "Esquinas redondeadas"
+
+msgid "Page background"
+msgstr "Fondo de la página"
+
+msgid "Page navigator"
+msgstr "Navegador de páginas"
+
+msgid "This report has no pages"
+msgstr "Este informe no tiene páginas"
+
+msgid "One button per page of the report. The page that is open is highlighted."
+msgstr "Un botón por cada página del informe. La página abierta aparece resaltada."
+
+msgid "Space between buttons"
+msgstr "Espacio entre botones"
+
+msgid "Other pages"
+msgstr "Otras páginas"
+
+msgid "Open page"
+msgstr "Página abierta"
+
+msgid "Direction"
+msgstr "Dirección"
+
+msgid "Text size"
+msgstr "Tamaño del texto"
+
+msgid "Align left"
+msgstr "Alinear a la izquierda"
+
+msgid "Align center"
+msgstr "Centrar horizontalmente"
+
+msgid "Align right"
+msgstr "Alinear a la derecha"
+
+msgid "Align top"
+msgstr "Alinear arriba"
+
+msgid "Align middle"
+msgstr "Centrar verticalmente"
+
+msgid "Align bottom"
+msgstr "Alinear abajo"
+
+msgid "%s objects selected"
+msgstr "%s objetos seleccionados"
+
+msgid "Distribute horizontally"
+msgstr "Distribuir horizontalmente"
+
+msgid "Distribute vertically"
+msgstr "Distribuir verticalmente"
+
+msgid "Same width"
+msgstr "Mismo ancho"
+
+msgid "Same height"
+msgstr "Misma altura"
+
+msgid "Ungroup"
+msgstr "Desagrupar"
+
+msgid "Bring forward"
+msgstr "Traer adelante"
+
+msgid "Send backward"
+msgstr "Enviar atrás"
+
+msgid "Dynamic title"
+msgstr "Título dinámico"
+
+msgid "Dynamic title, e.g. Employees: {value}"
+msgstr "Título dinámico, p. ej. Empleados: {value}"
+
+msgid "Tokens: {value} the first number of the chart, {filters} the selections of the page, {filter:Name} one filter and {chart} the chart name."
+msgstr "Marcas: {value} el primer número del gráfico, {filters} las selecciones de la página, {filter:Nombre} un filtro y {chart} el nombre del gráfico."
