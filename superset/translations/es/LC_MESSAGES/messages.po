@@ -19299,3 +19299,225 @@ msgstr "El gráfico cambió y no está guardado. Usa Guardar en el editor para c
 
 msgid "Clear %s"
 msgstr "Quitar %s"
+
+msgid "A hidden object stays on the page, only for editors"
+msgstr "Un objeto oculto sigue en la página, solo para quienes editan"
+
+msgid "Actual size"
+msgstr "Tamaño real"
+
+msgid "Alt text"
+msgstr "Texto alternativo"
+
+msgid "Arrange"
+msgstr "Organizar"
+
+msgid "Axes, legend, data labels and series are set in the format of the chart."
+msgstr "Los ejes, la leyenda, las etiquetas de datos y las series se configuran en el formato del gráfico."
+
+msgid "Bring to front"
+msgstr "Traer al frente"
+
+msgid "Charts of this report that are not on a page"
+msgstr "Gráficos de este informe que no están en una página"
+
+msgid "Choose how the selected chart filters the others of the page"
+msgstr "Elige cómo filtra el gráfico seleccionado a los demás de la página"
+
+msgid "Clears the format of the canvas"
+msgstr "Borra el formato del lienzo"
+
+msgid "Clipboard"
+msgstr "Portapapeles"
+
+msgid "Color, gradient or picture of the canvas and its pages"
+msgstr "Color, degradado o imagen del lienzo y sus páginas"
+
+msgid "Colors of the filter panel"
+msgstr "Colores del panel de filtros"
+
+msgid "Colors of the page tabs"
+msgstr "Colores de las pestañas de página"
+
+msgid "Copies the format of the selected object to the next one"
+msgstr "Copia el formato del objeto seleccionado al siguiente"
+
+msgid "Cut"
+msgstr "Cortar"
+
+msgid "Cut (Ctrl+X)"
+msgstr "Cortar (Ctrl+X)"
+
+msgid "Data and drill"
+msgstr "Datos y detalles"
+
+msgid "Delete page"
+msgstr "Eliminar página"
+
+msgid "Describes the chart for screen readers"
+msgstr "Describe el gráfico para lectores de pantalla"
+
+msgid "Design"
+msgstr "Diseño"
+
+msgid "Dividers, nested tabs and more, to drag onto the page"
+msgstr "Divisores, pestañas anidadas y más, para arrastrar a la página"
+
+msgid "Duplicate page"
+msgstr "Duplicar página"
+
+msgid "Elements"
+msgstr "Elementos"
+
+msgid "Existing visual"
+msgstr "Visual existente"
+
+msgid "Fields, type and format of the chart, in the side panel"
+msgstr "Campos, tipo y formato del gráfico, en el panel lateral"
+
+msgid "Format level"
+msgstr "Nivel de formato"
+
+msgid "Format painter"
+msgstr "Copiar formato"
+
+msgid "Hidden page"
+msgstr "Página oculta"
+
+msgid "Hide"
+msgstr "Ocultar"
+
+msgid "Hide all"
+msgstr "Ocultar todo"
+
+msgid "Hide page"
+msgstr "Ocultar página"
+
+msgid "Hide the ribbon"
+msgstr "Ocultar la cinta"
+
+msgid "Insert"
+msgstr "Insertar"
+
+msgid "Interactions"
+msgstr "Interacciones"
+
+msgid "Leaves the editor without saving"
+msgstr "Sale del editor sin guardar"
+
+msgid "Lineage"
+msgstr "Linaje"
+
+msgid "Lock"
+msgstr "Bloquear"
+
+msgid "Lock objects"
+msgstr "Bloquear objetos"
+
+msgid "Manage permissions"
+msgstr "Administrar permisos"
+
+msgid "Move left"
+msgstr "Mover a la izquierda"
+
+msgid "Move right"
+msgstr "Mover a la derecha"
+
+msgid "New page"
+msgstr "Nueva página"
+
+msgid "No object of the report can be moved, resized or removed"
+msgstr "Ningún objeto del informe se puede mover, redimensionar ni quitar"
+
+msgid "No objects on this page"
+msgstr "No hay objetos en esta página"
+
+msgid "Object"
+msgstr "Objeto"
+
+msgid "Open the format of the chart"
+msgstr "Abrir el formato del gráfico"
+
+msgid "Opens the workspace of the report, with its members"
+msgstr "Abre el espacio de trabajo del informe, con sus miembros"
+
+msgid "Page duplicated"
+msgstr "Página duplicada"
+
+msgid "Page options"
+msgstr "Opciones de página"
+
+msgid "Page size"
+msgstr "Tamaño de página"
+
+msgid "Properties"
+msgstr "Propiedades"
+
+msgid "Reading"
+msgstr "Lectura"
+
+msgid "Redo (Ctrl+Y)"
+msgstr "Rehacer (Ctrl+Y)"
+
+msgid "Refresh"
+msgstr "Actualizar"
+
+msgid "Refresh visual"
+msgstr "Actualizar visual"
+
+msgid "Report mode"
+msgstr "Modo del informe"
+
+msgid "Ribbon"
+msgstr "Cinta"
+
+msgid "Runs the queries of all the charts again"
+msgstr "Vuelve a ejecutar las consultas de todos los gráficos"
+
+msgid "Save (Ctrl+S)"
+msgstr "Guardar (Ctrl+S)"
+
+msgid "Scale to fit"
+msgstr "Ajustar a la pantalla"
+
+msgid "Search objects"
+msgstr "Buscar objetos"
+
+msgid "Search settings"
+msgstr "Buscar opciones"
+
+msgid "Selection"
+msgstr "Selección"
+
+msgid "Send to back"
+msgstr "Enviar al fondo"
+
+msgid "Set on the destination page, in the Format pane of the canvas"
+msgstr "Se configura en la página de destino, en el panel Formato del lienzo"
+
+msgid "Show all"
+msgstr "Mostrar todo"
+
+msgid "Show page"
+msgstr "Mostrar página"
+
+msgid "Show panes"
+msgstr "Mostrar paneles"
+
+msgid "Show the ribbon"
+msgstr "Mostrar la cinta"
+
+msgid "The page could not be duplicated"
+msgstr "No se pudo duplicar la página"
+
+msgid "This report has no charts yet"
+msgstr "Este informe aún no tiene gráficos"
+
+msgid "Undo (Ctrl+Z)"
+msgstr "Deshacer (Ctrl+Z)"
+
+msgid "Visual"
+msgstr "Visual"
+
+msgid "Where the data of the report comes from"
+msgstr "De dónde vienen los datos del informe"
