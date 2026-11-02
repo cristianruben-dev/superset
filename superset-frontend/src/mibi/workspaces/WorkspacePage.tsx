@@ -42,14 +42,18 @@ import {
   deleteWorkspace,
   fetchWorkspace,
   fetchWorkspaceDashboards,
+  fetchWorkspaceDatasets,
   moveDashboards,
+  moveDatasets,
   type Workspace,
   type WorkspaceDashboard,
+  type WorkspaceDataset,
 } from './api';
 import { AddDashboardsModal } from './AddDashboardsModal';
 import { MemberAvatars, RoleBadge } from './roles';
 import { WorkspaceAccessModal } from './WorkspaceAccessModal';
 import { WorkspaceAvatar, workspaceGradient } from './WorkspaceAvatar';
+import { WorkspaceDatasets } from './WorkspaceDatasets';
 import { Grid, Page } from './WorkspaceListPage';
 import { WorkspaceModal } from './WorkspaceModal';
 
@@ -123,6 +127,23 @@ const Hero = styled.header`
       align-items: flex-end;
       gap: ${theme.sizeUnit * 5}px;
       padding: 0 ${theme.sizeUnit * 7}px ${theme.sizeUnit * 5}px;
+    }
+
+    /* On phones the name goes under the picture instead of being cut off */
+    @media (max-width: 767px) {
+      .content {
+        flex-wrap: wrap;
+        align-items: flex-start;
+        padding: 0 ${theme.sizeUnit * 5}px ${theme.sizeUnit * 5}px;
+      }
+
+      .titles {
+        padding-top: 0;
+      }
+
+      .toolbar {
+        padding: ${theme.sizeUnit * 3}px ${theme.sizeUnit * 5}px;
+      }
     }
 
     .toolbar {
@@ -291,7 +312,7 @@ const EmptyDashboards = styled.div`
   `}
 `;
 
-/** A workspace: its header and the dashboards that live in it. */
+/** A workspace: its header, the dashboards that live in it and their datasets. */
 export default function WorkspacePage() {
   const { workspaceId } = useParams<{ workspaceId: string }>();
   const id = Number(workspaceId);
@@ -302,6 +323,7 @@ export default function WorkspacePage() {
   const [dashboards, setDashboards] = useState<WorkspaceDashboard[] | null>(
     null,
   );
+  const [datasets, setDatasets] = useState<WorkspaceDataset[] | null>(null);
   const [editing, setEditing] = useState(false);
   const [adding, setAdding] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -328,11 +350,30 @@ export default function WorkspacePage() {
   useEffect(() => {
     setWorkspace(null);
     setDashboards(null);
+    setDatasets(null);
     fetchWorkspace(id)
       .then(setWorkspace)
       .catch(() => setMissing(true));
     loadDashboards();
+    fetchWorkspaceDatasets(id)
+      .then(setDatasets)
+      .catch(() => setDatasets([]));
   }, [id, loadDashboards]);
+
+  const shareDataset = async (dataset: WorkspaceDataset) => {
+    try {
+      setWorkspace(await moveDatasets(id, { remove: [dataset.id] }));
+      setDatasets(current =>
+        (current || []).filter(item => item.id !== dataset.id),
+      );
+      addSuccessToast(
+        t('%s is shared with every workspace', dataset.table_name),
+      );
+    } catch (error) {
+      const { error: message } = await getClientErrorObject(error);
+      addDangerToast(message || t('The dataset could not be shared'));
+    }
+  };
 
   const removeDashboard = async (dashboard: WorkspaceDashboard) => {
     try {
@@ -456,6 +497,11 @@ export default function WorkspacePage() {
                 ? t('dashboard')
                 : t('dashboards')}
             </span>
+            <span>
+              <Icons.TableOutlined iconSize="m" />
+              <strong>{workspace.dataset_count}</strong>
+              {workspace.dataset_count === 1 ? t('dataset') : t('datasets')}
+            </span>
             <button
               type="button"
               className="members-link"
@@ -540,7 +586,7 @@ export default function WorkspacePage() {
         css={css`
           grid-template-columns: repeat(
             auto-fill,
-            minmax(250px, 1fr)
+            minmax(min(250px, 100%), 1fr)
           ) !important;
         `}
       >
@@ -624,6 +670,20 @@ export default function WorkspacePage() {
           />
         ))}
       </Grid>
+
+      <SectionTitle
+        css={css`
+          margin-top: 40px !important;
+        `}
+      >
+        {t('Datasets')}
+        {!!datasets?.length && <span className="count">{datasets.length}</span>}
+      </SectionTitle>
+      <WorkspaceDatasets
+        datasets={datasets}
+        canContribute={canContribute}
+        onShare={shareDataset}
+      />
 
       <WorkspaceModal
         show={editing}

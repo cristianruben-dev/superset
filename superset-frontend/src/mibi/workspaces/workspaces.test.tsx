@@ -43,6 +43,7 @@ const workspace = (overrides: Partial<Workspace> = {}): Workspace => ({
   image_url: null,
   dashboard_ids: [1, 2],
   dashboard_count: 2,
+  dataset_count: 0,
   changed_on: new Date().toISOString(),
   created_by: { id: 1, first_name: 'Ana', last_name: 'Ruiz' },
   role: 'admin',

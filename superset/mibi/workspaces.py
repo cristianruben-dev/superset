@@ -18,6 +18,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable, Sequence
 from datetime import datetime
 from typing import Any
 
@@ -25,11 +26,13 @@ from flask import request, Response
 from flask_appbuilder import expose
 from flask_appbuilder.api import protect, safe
 from flask_appbuilder.security.decorators import has_access
+from flask_babel import gettext as __
 from marshmallow import fields, pre_load, Schema, validate, ValidationError
 from sqlalchemy import or_
 
 from superset import db, security_manager
 from superset.daos.dashboard import DashboardDAO
+from superset.daos.dataset import DatasetDAO
 from superset.exceptions import SupersetSecurityException
 from superset.mibi.models import (
     ROLE_ADMIN,
@@ -38,12 +41,17 @@ from superset.mibi.models import (
     ROLES,
     Workspace,
     WorkspaceDashboard,
+    WorkspaceDataset,
     WorkspaceMember,
 )
 from superset.mibi.workspace_access import (
     member_workspace_ids,
     role_rank,
     workspace_role,
+)
+from superset.mibi.workspace_datasets import (
+    datasets_of_other_workspaces,
+    datasets_used_outside,
 )
 from superset.superset_typing import FlaskResponse
 from superset.utils.core import get_user_id
@@ -105,6 +113,39 @@ class WorkspaceDashboardsSchema(Schema):
     remove = fields.List(fields.Integer(), load_default=list)
 
 
+class WorkspaceDatasetsSchema(Schema):
+    """Datasets to move into a workspace, or out of it to share them."""
+
+    add = fields.List(fields.Integer(), load_default=list)
+    remove = fields.List(fields.Integer(), load_default=list)
+
+
+def relink(
+    links: Sequence[WorkspaceDashboard | WorkspaceDataset],
+    key: str,
+    add: list[int],
+    workspace_id: int,
+    new_link: Callable[[int], WorkspaceDashboard | WorkspaceDataset],
+) -> None:
+    """
+    Move the requested objects into the workspace and the others out of it.
+
+    :param links: The existing links of every requested object
+    :param key: The link column holding the object id
+    :param add: The objects to move in; the other requested ones move out
+    :param workspace_id: The workspace
+    :param new_link: Builds the link of an object that has none
+    """
+    for link in links:
+        if getattr(link, key) in add:
+            link.workspace_id = workspace_id
+        elif link.workspace_id == workspace_id:
+            db.session.delete(link)
+    linked = {getattr(link, key) for link in links}
+    for object_id in set(add) - linked:
+        db.session.add(new_link(object_id))
+
+
 def accessible_dashboard_ids(workspace: Workspace) -> list[int]:
     """Ids of the workspace dashboards the current user can see."""
     ids = [link.dashboard_id for link in workspace.dashboards]
@@ -145,6 +186,7 @@ def serialize(workspace: Workspace, role: str | None = None) -> dict[str, Any]:
         "image_url": image_url(workspace),
         "dashboard_ids": dashboard_ids,
         "dashboard_count": len(dashboard_ids),
+        "dataset_count": len(workspace.datasets),
         # Stored naive in the server's local time; the offset lets browsers in
         # other time zones compute "updated x minutes ago" correctly
         "changed_on": workspace.changed_on.astimezone().isoformat()
@@ -185,6 +227,8 @@ class WorkspaceRestApi(BaseSupersetApi):
         "put_image": "write",
         "delete_image": "write",
         "put_dashboards": "write",
+        "get_datasets": "read",
+        "put_datasets": "write",
     }
     openapi_spec_tag = "AuraData BI"
 
@@ -577,16 +621,175 @@ class WorkspaceRestApi(BaseSupersetApi):
             .filter(WorkspaceDashboard.dashboard_id.in_(requested))
             .all()
         )
-        for link in links:
-            if link.dashboard_id in data["add"]:
-                link.workspace_id = workspace.id
-            elif link.workspace_id == workspace.id:
-                db.session.delete(link)
-        linked = {link.dashboard_id for link in links}
-        for dashboard_id in set(data["add"]) - linked:
-            db.session.add(
-                WorkspaceDashboard(workspace_id=workspace.id, dashboard_id=dashboard_id)
+        # The charts of a dashboard only use its workspace's datasets or shared ones
+        leaving = [
+            link.dashboard_id
+            for link in links
+            if link.dashboard_id in data["remove"]
+            and link.dashboard_id not in data["add"]
+            and link.workspace_id == workspace.id
+        ]
+        if conflicts := sorted(
+            set(datasets_of_other_workspaces(data["add"], workspace.id))
+            | set(datasets_of_other_workspaces(leaving, None))
+        ):
+            return self.response_422(
+                message=__(
+                    "These dashboards use datasets of another workspace: "
+                    "%(datasets)s. Share those datasets first.",
+                    datasets=", ".join(conflicts),
+                )
             )
+        relink(
+            links,
+            "dashboard_id",
+            data["add"],
+            workspace.id,
+            lambda dashboard_id: WorkspaceDashboard(
+                workspace_id=workspace.id, dashboard_id=dashboard_id
+            ),
+        )
+        db.session.commit()  # pylint: disable=consider-using-transaction
+        db.session.refresh(workspace)
+        return self.response(200, result=serialize(workspace))
+
+    @expose("/<int:pk>/datasets/", methods=("GET",))
+    @protect()
+    @safe
+    @statsd_metrics
+    def get_datasets(self, pk: int) -> Response:
+        """The datasets of a workspace that the user can access.
+        ---
+        get:
+          summary: List the datasets of a workspace
+          parameters:
+          - in: path
+            schema:
+              type: integer
+            name: pk
+          responses:
+            200:
+              description: Datasets, most recently changed first
+            404:
+              $ref: '#/components/responses/404'
+        """
+        workspace, _, error_response = self._find(pk)
+        if workspace is None:
+            return error_response
+        ids = [link.dataset_id for link in workspace.datasets]
+        datasets = (
+            sorted(
+                DatasetDAO.find_by_ids(ids),
+                key=lambda dataset: dataset.changed_on or datetime.min,
+                reverse=True,
+            )
+            if ids
+            else []
+        )
+        return self.response(
+            200,
+            result=[
+                {
+                    "id": dataset.id,
+                    "table_name": dataset.table_name,
+                    "schema": dataset.schema,
+                    "database_name": dataset.database.database_name
+                    if dataset.database
+                    else None,
+                    "kind": dataset.kind,
+                    "changed_on_delta_humanized": dataset.changed_on_humanized,
+                    "can_edit": security_manager.is_owner(dataset),
+                }
+                for dataset in datasets
+            ],
+        )
+
+    @expose("/<int:pk>/datasets/", methods=("PUT",))
+    @protect()
+    @safe
+    @statsd_metrics
+    def put_datasets(self, pk: int) -> Response:
+        """Move datasets into a workspace, or out of it to share them.
+
+        A dataset belongs to one workspace: adding it here takes it out of the
+        previous one, and only works when no dashboard outside this workspace uses
+        it. Contributors and admins of the workspace move datasets, and adding one
+        also needs the right to change it.
+        ---
+        put:
+          summary: Move datasets into or out of a workspace
+          parameters:
+          - in: path
+            schema:
+              type: integer
+            name: pk
+          requestBody:
+            required: true
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    add:
+                      type: array
+                      items:
+                        type: integer
+                    remove:
+                      type: array
+                      items:
+                        type: integer
+          responses:
+            200:
+              description: The workspace
+            400:
+              $ref: '#/components/responses/400'
+            403:
+              $ref: '#/components/responses/403'
+            404:
+              $ref: '#/components/responses/404'
+            422:
+              $ref: '#/components/responses/422'
+        """
+        workspace, _, error_response = self._find(pk, ROLE_CONTRIBUTOR)
+        if workspace is None:
+            return error_response
+        try:
+            data = WorkspaceDatasetsSchema().load(request.json or {})
+        except ValidationError as error:
+            return self.response_400(message=error.messages)
+
+        requested = set(data["add"]) | set(data["remove"])
+        datasets = {d.id: d for d in DatasetDAO.find_by_ids(list(requested))}
+        if set(datasets) != requested:
+            return self.response_404()
+        try:
+            for dataset_id in data["add"]:
+                security_manager.raise_for_ownership(datasets[dataset_id])
+        except SupersetSecurityException:
+            return self.response_403()
+        if conflicts := datasets_used_outside(data["add"], workspace.id):
+            return self.response_422(
+                message=__(
+                    "Dashboards outside this workspace use these datasets: "
+                    "%(datasets)s.",
+                    datasets=", ".join(conflicts),
+                )
+            )
+
+        links = (
+            db.session.query(WorkspaceDataset)
+            .filter(WorkspaceDataset.dataset_id.in_(requested))
+            .all()
+        )
+        relink(
+            links,
+            "dataset_id",
+            data["add"],
+            workspace.id,
+            lambda dataset_id: WorkspaceDataset(
+                workspace_id=workspace.id, dataset_id=dataset_id
+            ),
+        )
         db.session.commit()  # pylint: disable=consider-using-transaction
         db.session.refresh(workspace)
         return self.response(200, result=serialize(workspace))

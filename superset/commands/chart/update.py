@@ -38,6 +38,7 @@ from superset.daos.chart import ChartDAO
 from superset.daos.dashboard import DashboardDAO
 from superset.exceptions import SupersetSecurityException
 from superset.mibi.single_dashboard import validate_chart_dashboards
+from superset.mibi.workspace_datasets import validate_chart_dataset
 from superset.models.dashboard import Dashboard
 from superset.models.slice import Slice
 from superset.tags.models import ObjectType
@@ -157,6 +158,21 @@ class UpdateChartCommand(UpdateMixin, BaseCommand):
             if error := validate_chart_dashboards(self._model, dashboard_ids):
                 exceptions.append(error)
             self._properties["dashboards"] = dashboards
+
+        # AuraData BI: a chart uses the datasets of its dashboard's workspace
+        if datasource_id is not None or dashboard_ids is not None:
+            if error := validate_chart_dataset(
+                datasource_id
+                if datasource_id is not None
+                else self._model.datasource_id,
+                datasource_type
+                if datasource_id is not None
+                else self._model.datasource_type,
+                dashboard_ids
+                if dashboard_ids is not None
+                else [dashboard.id for dashboard in self._model.dashboards],
+            ):
+                exceptions.append(error)
 
         if exceptions:
             raise ChartInvalidError(exceptions=exceptions)

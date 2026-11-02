@@ -27,6 +27,7 @@ from superset.models.helpers import AuditMixinNullable, UUIDMixin
 WORKSPACES_TABLE = "mibi_workspaces"
 WORKSPACE_DASHBOARDS_TABLE = "mibi_workspace_dashboards"
 WORKSPACE_MEMBERS_TABLE = "mibi_workspace_members"
+WORKSPACE_DATASETS_TABLE = "mibi_workspace_datasets"
 
 # Workspace roles, from the least to the most rights
 ROLE_VIEWER = "viewer"
@@ -61,6 +62,12 @@ class Workspace(AuditMixinNullable, UUIDMixin, Model):
         cascade="all, delete-orphan",
         passive_deletes=True,
     )
+    datasets = relationship(
+        "WorkspaceDataset",
+        back_populates="workspace",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+    )
 
 
 class WorkspaceDashboard(Model):
@@ -82,6 +89,30 @@ class WorkspaceDashboard(Model):
     )
 
     workspace = relationship("Workspace", back_populates="dashboards")
+
+
+class WorkspaceDataset(Model):
+    """
+    Links a dataset to the workspace it belongs to, like a Power BI semantic model.
+    A dataset is in one workspace at most; one without a workspace is shared.
+    """
+
+    __tablename__ = WORKSPACE_DATASETS_TABLE
+
+    id = sa.Column(sa.Integer, primary_key=True)
+    workspace_id = sa.Column(
+        sa.Integer,
+        sa.ForeignKey(f"{WORKSPACES_TABLE}.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    dataset_id = sa.Column(
+        sa.Integer,
+        sa.ForeignKey("tables.id", ondelete="CASCADE"),
+        nullable=False,
+        unique=True,
+    )
+
+    workspace = relationship("Workspace", back_populates="datasets")
 
 
 class WorkspaceMember(Model):

@@ -16,7 +16,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import rison from 'rison';
 import { SupersetClient } from '@superset-ui/core';
+import { getPanelDashboardId } from '../chartEditor';
 
 export interface WorkspaceUser {
   id: number;
@@ -46,6 +48,8 @@ export interface Workspace {
   image_url: string | null;
   dashboard_ids: number[];
   dashboard_count: number;
+  /** Datasets that belong to the workspace */
+  dataset_count: number;
   changed_on: string | null;
   created_by: WorkspaceUser | null;
   /** The current user's role; Superset admins administer every workspace */
@@ -266,4 +270,93 @@ export function workspaceInitials(name: string): string {
       ? words[0][0] + words[1][0]
       : (words[0] || '?').slice(0, 2);
   return letters.toUpperCase();
+}
+
+export interface WorkspaceDataset {
+  id: number;
+  table_name: string;
+  schema: string | null;
+  database_name: string | null;
+  kind: 'physical' | 'virtual';
+  changed_on_delta_humanized: string;
+  can_edit: boolean;
+}
+
+/** The datasets of a workspace, most recently changed first. */
+export async function fetchWorkspaceDatasets(
+  id: number,
+): Promise<WorkspaceDataset[]> {
+  const { json } = await SupersetClient.get({
+    endpoint: `${BASE}${id}/datasets/`,
+  });
+  return json.result as WorkspaceDataset[];
+}
+
+/** Move datasets into (add) a workspace, or out of it (remove) to share them. */
+export async function moveDatasets(
+  id: number,
+  changes: { add?: number[]; remove?: number[] },
+): Promise<Workspace> {
+  const { json } = await SupersetClient.put({
+    endpoint: `${BASE}${id}/datasets/`,
+    jsonPayload: changes,
+  });
+  return json.result as Workspace;
+}
+
+/**
+ * Put a dataset just created from a dashboard into that dashboard's workspace.
+ * Datasets of dashboards outside workspaces stay shared.
+ */
+export async function linkDatasetToDashboard(
+  datasetId: number,
+  dashboardId: number | undefined,
+): Promise<void> {
+  if (dashboardId === undefined) {
+    return;
+  }
+  const workspace = await fetchDashboardWorkspace(dashboardId);
+  if (workspace) {
+    await moveDatasets(workspace.id, { add: [datasetId] });
+  }
+}
+
+/**
+ * From the side panel of a dashboard: put a dataset just created into the
+ * dashboard's workspace. Outside the panel, or when that fails, it stays shared.
+ */
+export async function linkNewDataset(datasetId: number): Promise<void> {
+  try {
+    await linkDatasetToDashboard(datasetId, getPanelDashboardId());
+  } catch (error) {
+    // A shared dataset still works in every dashboard
+    console.warn('Could not add the dataset to the workspace', error);
+  }
+}
+
+/** `linkNewDataset` for a file upload, which answers without the dataset id. */
+export async function linkUploadedDataset(
+  databaseId: number,
+  schema: string | null | undefined,
+  tableName: string,
+): Promise<void> {
+  if (getPanelDashboardId() === undefined) {
+    return;
+  }
+  const filters = [
+    { col: 'database', opr: 'rel_o_m', value: databaseId },
+    { col: 'table_name', opr: 'eq', value: tableName },
+    ...(schema ? [{ col: 'schema', opr: 'eq', value: schema }] : []),
+  ];
+  try {
+    const { json } = await SupersetClient.get({
+      endpoint: `/api/v1/dataset/?q=${rison.encode({ filters, columns: ['id'] })}`,
+    });
+    const datasetId = json.result?.[0]?.id;
+    if (typeof datasetId === 'number') {
+      await linkNewDataset(datasetId);
+    }
+  } catch (error) {
+    console.warn('Could not find the uploaded dataset', error);
+  }
 }

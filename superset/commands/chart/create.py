@@ -35,6 +35,7 @@ from superset.commands.utils import get_datasource_by_id
 from superset.daos.chart import ChartDAO
 from superset.daos.dashboard import DashboardDAO
 from superset.mibi.single_dashboard import validate_chart_dashboards
+from superset.mibi.workspace_datasets import validate_chart_dataset
 from superset.utils.decorators import on_error, transaction
 
 logger = logging.getLogger(__name__)
@@ -74,6 +75,10 @@ class CreateChartCommand(CreateMixin, BaseCommand):
                 raise DashboardsForbiddenError()
         self._properties["dashboards"] = dashboards
         if error := validate_chart_dashboards(None, dashboard_ids):
+            exceptions.append(error)
+        if error := validate_chart_dataset(
+            datasource_id, datasource_type, dashboard_ids
+        ):
             exceptions.append(error)
 
         try:

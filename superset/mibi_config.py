@@ -73,6 +73,12 @@ MIBI_SINGLE_DASHBOARD_CHARTS = True
 
 MIBI_WORKSPACE_ACCESS = True
 
+# Datasets belong to one workspace at most, like Power BI semantic models: only its
+# members see them and only its dashboards' charts use them. Datasets without a
+# workspace are shared. See superset/mibi/workspace_datasets.py.
+
+MIBI_WORKSPACE_DATASETS = True
+
 # --- Databases --------------------------------------------------------------
 # Presto is not offered, but its engine spec stays: Hive, Spark and Databricks
 # build on it. The Hive driver (pyhive) also registers the Presto dialect, so it

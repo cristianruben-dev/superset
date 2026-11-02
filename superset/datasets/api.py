@@ -81,6 +81,10 @@ from superset.exceptions import (
     SupersetTemplateException,
 )
 from superset.jinja_context import BaseTemplateProcessor, get_template_processor
+from superset.mibi.workspace_datasets import (
+    DatasetUsableInDashboardFilter,
+    WorkspaceDatasetFilter,
+)
 from superset.utils import json
 from superset.utils.core import parse_boolean_string
 from superset.views.base import DatasourceFilter
@@ -99,7 +103,11 @@ logger = logging.getLogger(__name__)
 
 class DatasetRestApi(BaseSupersetModelRestApi):
     datamodel = SQLAInterface(SqlaTable)
-    base_filters = [["id", DatasourceFilter, lambda: []]]
+    base_filters = [
+        ["id", DatasourceFilter, lambda: []],
+        # AuraData BI: the datasets of a workspace are for its members
+        ["id", WorkspaceDatasetFilter, lambda: []],
+    ]
 
     resource_name = "dataset"
     allow_browser_login = True
@@ -278,7 +286,7 @@ class DatasetRestApi(BaseSupersetModelRestApi):
     }
     search_filters = {
         "sql": [DatasetIsNullOrEmptyFilter],
-        "id": [DatasetCertifiedFilter],
+        "id": [DatasetCertifiedFilter, DatasetUsableInDashboardFilter],
     }
     search_columns = [
         "id",
@@ -712,8 +720,9 @@ class DatasetRestApi(BaseSupersetModelRestApi):
     @safe
     @statsd_metrics
     @event_logger.log_this_with_context(
-        action=lambda self, *args, **kwargs: f"{self.__class__.__name__}"
-        ".detect_datetime_formats",
+        action=lambda self, *args, **kwargs: (
+            f"{self.__class__.__name__}.detect_datetime_formats"
+        ),
         log_to_statsd=False,
     )
     def detect_datetime_formats(self, pk: int) -> Response:
@@ -794,8 +803,9 @@ class DatasetRestApi(BaseSupersetModelRestApi):
     @safe
     @statsd_metrics
     @event_logger.log_this_with_context(
-        action=lambda self, *args, **kwargs: f"{self.__class__.__name__}"
-        f".related_objects",
+        action=lambda self, *args, **kwargs: (
+            f"{self.__class__.__name__}.related_objects"
+        ),
         log_to_statsd=False,
     )
     def related_objects(self, id_or_uuid: str) -> Response:
@@ -1051,8 +1061,9 @@ class DatasetRestApi(BaseSupersetModelRestApi):
     @safe
     @statsd_metrics
     @event_logger.log_this_with_context(
-        action=lambda self, *args, **kwargs: f"{self.__class__.__name__}"
-        f".get_or_create_dataset",
+        action=lambda self, *args, **kwargs: (
+            f"{self.__class__.__name__}.get_or_create_dataset"
+        ),
         log_to_statsd=False,
     )
     def get_or_create_dataset(self) -> Response:
@@ -1272,9 +1283,9 @@ class DatasetRestApi(BaseSupersetModelRestApi):
     @safe
     @statsd_metrics
     @event_logger.log_this_with_context(
-        action=lambda self,
-        *args,
-        **kwargs: f"{self.__class__.__name__}.get_drill_info",
+        action=lambda self, *args, **kwargs: (
+            f"{self.__class__.__name__}.get_drill_info"
+        ),
         log_to_statsd=False,
     )
     def get_drill_info(self, pk: int, **kwargs: Any) -> Response:

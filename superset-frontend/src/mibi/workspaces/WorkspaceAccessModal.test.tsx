@@ -27,8 +27,20 @@ jest.mock('src/utils/getBootstrapData', () => ({
 }));
 
 const members: WorkspaceMember[] = [
-  { id: 1, first_name: 'Ana', last_name: 'Ruiz', username: 'ana', role: 'admin' },
-  { id: 2, first_name: 'Bea', last_name: 'Lopez', username: 'bea', role: 'viewer' },
+  {
+    id: 1,
+    first_name: 'Ana',
+    last_name: 'Ruiz',
+    username: 'ana',
+    role: 'admin',
+  },
+  {
+    id: 2,
+    first_name: 'Bea',
+    last_name: 'Lopez',
+    username: 'bea',
+    role: 'viewer',
+  },
 ];
 
 const workspace = (overrides: Partial<Workspace> = {}): Workspace => ({
@@ -40,6 +52,7 @@ const workspace = (overrides: Partial<Workspace> = {}): Workspace => ({
   image_url: null,
   dashboard_ids: [],
   dashboard_count: 0,
+  dataset_count: 0,
   changed_on: null,
   created_by: null,
   role: 'admin',
@@ -70,9 +83,13 @@ test('admins change roles and see who can be added', async () => {
   );
 
   const list = await screen.findByTestId('workspace-members');
-  await waitFor(() => expect(within(list).getByText('Ana Ruiz')).toBeInTheDocument());
+  await waitFor(() =>
+    expect(within(list).getByText('Ana Ruiz')).toBeInTheDocument(),
+  );
   expect(screen.getByText('Add people')).toBeInTheDocument();
-  expect(screen.getAllByLabelText('Role of Bea Lopez').length).toBeGreaterThan(0);
+  expect(screen.getAllByLabelText('Role of Bea Lopez').length).toBeGreaterThan(
+    0,
+  );
   // The only admin cannot be demoted nor removed
   expect(screen.getByLabelText('Remove Ana Ruiz')).toBeDisabled();
 });
@@ -83,7 +100,11 @@ test('other members only see the roles and can leave', async () => {
   render(
     <WorkspaceAccessModal
       show
-      workspace={workspace({ role: 'viewer', can_edit: false, can_contribute: false })}
+      workspace={workspace({
+        role: 'viewer',
+        can_edit: false,
+        can_contribute: false,
+      })}
       onHide={jest.fn()}
       onChanged={onChanged}
     />,
