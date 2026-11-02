@@ -35,10 +35,12 @@ test('BuilderComponentPane has correct tabs in correct order', () => {
     },
   });
   const tabs = screen.getAllByRole('tab');
-  expect(tabs).toHaveLength(3);
+  expect(tabs).toHaveLength(5);
   expect(tabs[0]).toHaveTextContent('Charts');
-  expect(tabs[1]).toHaveTextContent('Layout elements');
+  expect(tabs[1]).toHaveTextContent('Elements');
   expect(tabs[2]).toHaveTextContent('Format');
+  expect(tabs[3]).toHaveTextContent('Selection');
+  expect(tabs[4]).toHaveTextContent('Bookmarks');
   expect(screen.getByRole('tab', { selected: true })).toHaveTextContent(
     'Charts',
   );

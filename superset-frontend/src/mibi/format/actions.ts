@@ -29,6 +29,7 @@ import {
 } from 'src/dashboard/util/constants';
 import { activeTabIndex, topLevelTabs } from 'src/mibi/present/dashboardTabs';
 import { CHART_TYPE, ROW_TYPE } from 'src/dashboard/util/componentTypes';
+import { isObjectLocked } from './lock';
 import { placeAt, posOf, type Pos } from './positions';
 import {
   CANVAS_FORMAT_KEY,
@@ -109,8 +110,9 @@ export const resizeObject =
 export const nudgeObject =
   (id: string, dx: number, dy: number) =>
   (dispatch: AppDispatch, getState: GetState) => {
-    const pos = posOf(getState().dashboardLayout.present[id]?.meta);
-    if (!pos) return;
+    const { meta } = getState().dashboardLayout.present[id] ?? {};
+    const pos = posOf(meta);
+    if (!pos || isObjectLocked(meta)) return;
     dispatch(moveObject(id, { x: pos.x + dx, y: pos.y + dy }, `nudge:${id}`));
   };
 

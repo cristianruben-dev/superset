@@ -31,8 +31,12 @@ import {
   pasteObject,
   readClipboard,
 } from './clipboard';
+import { deleteComponent } from 'src/dashboard/actions/dashboardLayout';
 import { nudgeObject } from './actions';
-import { selectedVisual, selectedVisuals } from './selection';
+import { isObjectLocked } from './lock';
+import { pageObjects } from './arrange';
+import { selectVisual, selectedVisual, selectedVisuals } from './selection';
+import { topLevelTabs } from 'src/mibi/present/dashboardTabs';
 
 type AppDispatch = ThunkDispatch<RootState, undefined, AnyAction>;
 
@@ -79,7 +83,33 @@ export function useObjectCommands() {
     [dispatch, run, store],
   );
 
-  return { copy, paste, duplicate };
+  /** Removes objects from the page, except locked ones; undo brings them back. */
+  const remove = useCallback(
+    (ids: string[]) => {
+      const layout = store.getState().dashboardLayout.present;
+      const removed = ids.filter(id => {
+        const item = layout[id];
+        const parentId = item?.parents?.[item.parents.length - 1];
+        if (!item || !parentId || isObjectLocked(item.meta)) return false;
+        dispatch(deleteComponent(id, parentId) as never);
+        return true;
+      });
+      if (removed.length) selectVisual(null);
+    },
+    [dispatch, store],
+  );
+
+  const cut = useCallback(
+    (id: string) => {
+      const { meta } = store.getState().dashboardLayout.present[id] ?? {};
+      if (isObjectLocked(meta)) return;
+      copy(id);
+      remove([id]);
+    },
+    [copy, remove, store],
+  );
+
+  return { copy, cut, paste, duplicate, remove };
 }
 
 /** Cells an arrow key moves the selected object by. */
@@ -91,14 +121,33 @@ const ARROWS: Record<string, [number, number]> = {
 };
 
 /**
- * Ctrl/Cmd + C, V and D on the selected object while editing, and the arrow
- * keys to move it a cell (five with Shift).
+ * Ctrl/Cmd + C, X, V and D on the selected object while editing, Ctrl/Cmd + A
+ * for the whole page, Delete to remove and Esc to deselect, and the arrow keys
+ * to move it a cell (five with Shift).
  */
 export function useObjectShortcuts() {
-  const { copy, paste, duplicate } = useObjectCommands();
+  const { copy, cut, paste, duplicate, remove } = useObjectCommands();
   const dispatch = useDispatch<AppDispatch>();
+  const store = useStore<RootState>();
   useEffect(() => {
+    const typingIn = (target: EventTarget | null) =>
+      (target as HTMLElement | null)?.closest?.(
+        'input, textarea, select, [contenteditable="true"], .ant-select, .ant-slider, .ant-modal',
+      );
     const onKeyDown = (event: KeyboardEvent) => {
+      if (
+        (event.key === 'Delete' || event.key === 'Backspace') &&
+        !typingIn(event.target) &&
+        selectedVisual()
+      ) {
+        event.preventDefault();
+        remove(selectedVisuals());
+        return;
+      }
+      if (event.key === 'Escape' && !typingIn(event.target)) {
+        selectVisual(null);
+        return;
+      }
       const arrow = ARROWS[event.key];
       if (arrow && !event.ctrlKey && !event.metaKey && !event.altKey) {
         const picked = selectedVisual();
@@ -127,8 +176,20 @@ export function useObjectShortcuts() {
       if (window.getSelection()?.toString()) return;
       const selected = selectedVisual();
       const key = event.key.toLowerCase();
-      if (key === 'c' && selected) {
+      if (key === 'a') {
+        const { dashboardLayout, dashboardState } = store.getState();
+        const layout = dashboardLayout.present;
+        const page = topLevelTabs(layout).find(tab =>
+          dashboardState.activeTabs?.includes(tab.id),
+        );
+        event.preventDefault();
+        selectVisual(null);
+        pageObjects(layout, page?.id).forEach(id => selectVisual(id, true));
+      } else if (key === 'c' && selected) {
         copy(selected);
+      } else if (key === 'x' && selected) {
+        event.preventDefault();
+        cut(selected);
       } else if (key === 'v' && readClipboard()) {
         event.preventDefault();
         paste(selected);
@@ -139,5 +200,5 @@ export function useObjectShortcuts() {
     };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [copy, dispatch, duplicate, paste]);
+  }, [copy, cut, dispatch, duplicate, paste, remove, store]);
 }

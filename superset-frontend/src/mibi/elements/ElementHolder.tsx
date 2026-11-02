@@ -60,6 +60,8 @@ import {
 } from './views';
 import { FilterView } from './FilterView';
 import { useHiddenOverride } from 'src/mibi/report/visibility';
+import { useObjectLocked } from 'src/mibi/format/lock';
+import { ObjectBadges } from 'src/mibi/format/ObjectBadges';
 
 /** Design elements (text, shapes, buttons) can be as low as one cell. */
 const ELEMENT_MIN_ROW_UNITS = 1;
@@ -115,7 +117,8 @@ function ElementHolder({
   );
   // A bookmark may show or hide the element for this visit
   const hiddenOverride = useHiddenOverride(component.id);
-  const hidden = !!hiddenOverride;
+  const hidden = hiddenOverride ?? !!component.meta.mibiHidden;
+  const locked = useObjectLocked(component.meta);
   const box = useMemo(
     () => visualStyle(component.meta.mibiFormat, theme),
     [component.meta.mibiFormat, theme],
@@ -225,11 +228,14 @@ function ElementHolder({
                 : undefined
             }
           >
+            {editMode && <ObjectBadges meta={component.meta} hidden={hidden} />}
             {editMode && (
               <HoverMenu position="top">
-                <DeleteComponentButton
-                  onDelete={() => deleteComponent(id, parentId)}
-                />
+                {!locked && (
+                  <DeleteComponentButton
+                    onDelete={() => deleteComponent(id, parentId)}
+                  />
+                )}
                 <Tooltip title={t('Format')} placement="top">
                   <div data-test="mibi-format-element-button">
                     <IconButton

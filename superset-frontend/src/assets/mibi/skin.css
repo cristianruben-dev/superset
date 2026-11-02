@@ -1576,6 +1576,17 @@ body.mibi-presenting-idle * {
   display: none;
 }
 
+/* A locked object: no way to grab it */
+.mibi-locked .dashboard-component-chart-holder,
+.mibi-locked .mibi-element {
+  cursor: default;
+}
+
+/* Viewers get no tab for a hidden page; links and drill through still open it */
+.ant-tabs-tab:has(.mibi-page-hidden) {
+  display: none;
+}
+
 /* ---- Chart header: subtitle and divider --------------------------------- */
 
 [data-test='slice-header'].mibi-has-subtitle {

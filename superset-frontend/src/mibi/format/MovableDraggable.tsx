@@ -21,6 +21,7 @@ import cx from 'classnames';
 import { Draggable } from 'src/dashboard/components/dnd/DragDroppable';
 import type { JsonObject } from '@superset-ui/core';
 import type { LayoutItem } from 'src/dashboard/types';
+import { useObjectLocked } from './lock';
 import { ObjectShiftContext } from './ObjectShift';
 import { posOf, posStyle, type Pos } from './positions';
 import { CELL } from './types';
@@ -47,9 +48,10 @@ export function MovableDraggable({
   children: DraggableProps['children'] | ((child: never) => ReactNode);
 }) {
   const positioned = !!posOf((component as LayoutItem).meta);
+  const locked = useObjectLocked((component as LayoutItem).meta);
   const move = useCellMove(
     component as LayoutItem,
-    moveable && !!props.editMode,
+    moveable && !locked && !!props.editMode,
   );
   // While the object is resized from its left or top edge it follows the edge
   const [edge, setEdge] = useState<Pos | null>(null);
@@ -58,7 +60,11 @@ export function MovableDraggable({
       <Draggable
         {...props}
         component={component}
-        className={cx(className, move.moving && 'mibi-moving')}
+        className={cx(
+          className,
+          move.moving && 'mibi-moving',
+          locked && !!props.editMode && 'mibi-locked',
+        )}
         style={{
           ...posStyle((component as LayoutItem).meta),
           ...(edge && {

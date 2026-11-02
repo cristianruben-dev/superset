@@ -20,6 +20,7 @@
 import type { GetState, LayoutItem } from 'src/dashboard/types';
 import { updateLayout } from './actions';
 import { gridColumnCount } from './columns';
+import { isObjectLocked } from './lock';
 import { isPositioned, POS_KEY, posOf } from './positions';
 
 export type AlignMode =
@@ -65,6 +66,12 @@ const withPos = (item: LayoutItem, x: number, y: number): LayoutItem => ({
 const boxes = (layout: Layout, ids: string[]) =>
   ids.map(id => boxOf(layout, id)).filter((box): box is Box => !!box);
 
+/** Changes that move or resize objects: locked ones keep where they are. */
+const withoutLocked = (changes: Layout): Layout =>
+  Object.fromEntries(
+    Object.entries(changes).filter(([, item]) => !isObjectLocked(item.meta)),
+  );
+
 const commit = (dispatch: Dispatch, changes: Layout, setting: string) => {
   if (Object.keys(changes).length) {
     dispatch(updateLayout(changes, `arrange:${setting}:${Date.now()}`));
@@ -93,7 +100,7 @@ export const alignObjects =
       if (mode === 'middle') y = Math.round((top + bottom - b.h) / 2);
       if (x !== b.x || y !== b.y) changes[b.id] = withPos(layout[b.id], x, y);
     });
-    commit(dispatch, changes, mode);
+    commit(dispatch, withoutLocked(changes), mode);
   };
 
 /** Spaces three or more objects evenly between the outer two. */
@@ -121,7 +128,7 @@ export const distributeObjects =
       if (x !== b.x || y !== b.y) changes[b.id] = withPos(layout[b.id], x, y);
       cursor += size(b) + gap;
     });
-    commit(dispatch, changes, axis);
+    commit(dispatch, withoutLocked(changes), axis);
   };
 
 /** Gives the objects the size of the one the pane is editing. */
@@ -144,7 +151,7 @@ export const matchSize =
       if (dimension !== 'width') meta.height = from.h;
       changes[id] = { ...item, meta };
     });
-    commit(dispatch, changes, `size-${dimension}`);
+    commit(dispatch, withoutLocked(changes), `size-${dimension}`);
   };
 
 /** The objects of a page, in the order they are stacked (back to front). */

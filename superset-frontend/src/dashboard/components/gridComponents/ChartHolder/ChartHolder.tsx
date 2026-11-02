@@ -50,6 +50,8 @@ import { visualStyle } from 'src/mibi/format/styles';
 import { InteractionControl } from 'src/mibi/report/InteractionControl';
 import { isInteractionControl } from 'src/mibi/report/interactions';
 import { useHiddenOverride } from 'src/mibi/report/visibility';
+import { useObjectLocked } from 'src/mibi/format/lock';
+import { ObjectBadges } from 'src/mibi/format/ObjectBadges';
 import { useMergedVisualFormat } from 'src/mibi/format/useVisualFormat';
 import { useDynamicTitle } from 'src/mibi/format/dynamicTitle';
 import {
@@ -163,7 +165,9 @@ const ChartHolder = ({
   );
   // A bookmark may show or hide the chart for this visit
   const hiddenOverride = useHiddenOverride(component.id);
-  const hidden = !!hiddenOverride;
+  const hidden = hiddenOverride ?? !!component.meta.mibiHidden;
+  const locked = useObjectLocked(component.meta);
+  const altText = component.meta.mibiAltText as string | undefined;
   const holderStyle = useMemo(
     () =>
       isFullSize
@@ -338,6 +342,7 @@ const ChartHolder = ({
             chartHolderRef.current = el;
           }}
           data-test="dashboard-component-chart-holder"
+          aria-label={altText || undefined}
           style={holderStyle}
           css={isFullSize ? fullSizeStyle : undefined}
           onClickCapture={
@@ -415,11 +420,14 @@ const ChartHolder = ({
             {editMode && chartId !== undefined && (
               <InteractionControl chartId={chartId} layoutId={component.id} />
             )}
+            {editMode && <ObjectBadges meta={component.meta} hidden={hidden} />}
             {editMode && (
               <HoverMenu position="top">
-                <div data-test="dashboard-delete-component-button">
-                  <DeleteComponentButton onDelete={handleDeleteComponent} />
-                </div>
+                {!locked && (
+                  <div data-test="dashboard-delete-component-button">
+                    <DeleteComponentButton onDelete={handleDeleteComponent} />
+                  </div>
+                )}
                 <Tooltip title={t('Format')} placement="top">
                   <div data-test="mibi-format-visual-button">
                     <IconButton
@@ -452,6 +460,8 @@ const ChartHolder = ({
       formatted.className,
       isSelected,
       hidden,
+      locked,
+      altText,
       component,
       isFullSize,
       fullSizeStyle,

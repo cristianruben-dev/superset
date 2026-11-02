@@ -284,6 +284,8 @@ export type LayoutItemMeta = {
   mibiHidden?: boolean;
   /** Cannot be moved, resized or removed in edit mode */
   mibiLocked?: boolean;
+  /** Description of a chart for screen readers */
+  mibiAltText?: string;
   /** Allow additional meta properties used by different component types */
   [key: string]: unknown;
 };

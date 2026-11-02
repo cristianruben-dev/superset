@@ -61,6 +61,40 @@ export function usePaneCollapsed(pane: PaneName): boolean {
   return value;
 }
 
+/** The tabs of the editor pane. */
+export type BuilderTab =
+  | 'CHARTS'
+  | 'LAYOUT_ELEMENTS'
+  | 'FORMAT'
+  | 'SELECTION'
+  | 'BOOKMARKS';
+
+const TAB_EVENT = 'mibi:builder-tab';
+let builderTab: BuilderTab = 'CHARTS';
+
+export function setBuilderTab(tab: BuilderTab) {
+  if (builderTab === tab) return;
+  builderTab = tab;
+  window.dispatchEvent(new CustomEvent(TAB_EVENT));
+}
+
+/** Shows a tab of the editor pane, unfolding it. */
+export function openBuilderTab(tab: BuilderTab) {
+  setBuilderTab(tab);
+  setPaneCollapsed('builder', false);
+}
+
+export function useBuilderTab(): BuilderTab {
+  const [value, setValue] = useState(builderTab);
+  useEffect(() => {
+    const onChange = () => setValue(builderTab);
+    window.addEventListener(TAB_EVENT, onChange);
+    onChange();
+    return () => window.removeEventListener(TAB_EVENT, onChange);
+  }, []);
+  return value;
+}
+
 /** Width of the editor docked beside the report; 0 while it is closed. */
 let dockWidth = 0;
 

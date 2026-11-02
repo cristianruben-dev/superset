@@ -17,7 +17,7 @@
  * under the License.
  */
 /* eslint-env browser */
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, type ReactNode } from 'react';
 import tinycolor from 'tinycolor2';
 import Tabs from '@superset-ui/core/components/Tabs';
 import { t } from '@apache-superset/core/translation';
@@ -27,7 +27,14 @@ import {
   BUILDER_SIDEPANEL_RAIL_WIDTH,
   BUILDER_SIDEPANEL_WIDTH,
 } from 'src/dashboard/constants';
-import { setPaneCollapsed, usePaneCollapsed } from 'src/mibi/format/panes';
+import {
+  setBuilderTab,
+  setPaneCollapsed,
+  useBuilderTab,
+  usePaneCollapsed,
+  type BuilderTab,
+} from 'src/mibi/format/panes';
+import { SelectionPane } from 'src/mibi/format/SelectionPane';
 import SliceAdder from 'src/dashboard/containers/SliceAdder';
 import dashboardComponents from 'src/visualizations/presets/dashboardComponents';
 import NewDivider from '../gridComponents/new/NewDivider';
@@ -45,11 +52,32 @@ const TABS_KEYS = {
   CHARTS: 'CHARTS',
   LAYOUT_ELEMENTS: 'LAYOUT_ELEMENTS',
   FORMAT: 'FORMAT',
+  SELECTION: 'SELECTION',
   BOOKMARKS: 'BOOKMARKS',
-};
+} as const;
+
+/** The label of a pane tab: an icon over a short name, so five fit side by side. */
+const paneLabel = (icon: ReactNode, label: string) => (
+  <span
+    css={css`
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      font-size: 11px;
+      line-height: 1.2;
+      .anticon {
+        margin: 0;
+      }
+    `}
+  >
+    {icon}
+    {label}
+  </span>
+);
 
 const BuilderComponentPane = ({ topOffset = 0 }) => {
-  const [activeKey, setActiveKey] = useState(TABS_KEYS.CHARTS);
+  const activeKey = useBuilderTab();
   const collapsed = usePaneCollapsed('builder');
   const width = collapsed
     ? BUILDER_SIDEPANEL_RAIL_WIDTH
@@ -57,7 +85,7 @@ const BuilderComponentPane = ({ topOffset = 0 }) => {
   // Choosing an object to format opens the pane
   useOnOpenFormat(
     useCallback(() => {
-      setActiveKey(TABS_KEYS.FORMAT);
+      setBuilderTab(TABS_KEYS.FORMAT);
       setPaneCollapsed('builder', false);
     }, []),
   );
@@ -135,9 +163,9 @@ const BuilderComponentPane = ({ topOffset = 0 }) => {
             data-test="dashboard-builder-component-pane-tabs-navigation"
             id="tabs"
             activeKey={activeKey}
-            onChange={setActiveKey}
-            // AuraData BI: four tabs (with Bookmarks) fit side by side
-            tabBarGutter={16}
+            onChange={key => setBuilderTab(key as BuilderTab)}
+            // AuraData BI: five tabs fit side by side
+            tabBarGutter={4}
             css={(theme: SupersetTheme) => css`
               line-height: inherit;
               margin-top: ${theme.sizeUnit * 2}px;
@@ -153,7 +181,10 @@ const BuilderComponentPane = ({ topOffset = 0 }) => {
             items={[
               {
                 key: TABS_KEYS.CHARTS,
-                label: t('Charts'),
+                label: paneLabel(
+                  <Icons.BarChartOutlined iconSize="m" />,
+                  t('Charts'),
+                ),
                 children: (
                   <div
                     css={css`
@@ -166,7 +197,10 @@ const BuilderComponentPane = ({ topOffset = 0 }) => {
               },
               {
                 key: TABS_KEYS.LAYOUT_ELEMENTS,
-                label: t('Layout elements'),
+                label: paneLabel(
+                  <Icons.AppstoreOutlined iconSize="m" />,
+                  t('Elements'),
+                ),
                 children: (
                   <>
                     <NewElements />
@@ -188,11 +222,14 @@ const BuilderComponentPane = ({ topOffset = 0 }) => {
               },
               {
                 key: TABS_KEYS.FORMAT,
-                label: t('Format'),
+                label: paneLabel(
+                  <Icons.BgColorsOutlined iconSize="m" />,
+                  t('Format'),
+                ),
                 children: (
                   <div
                     css={css`
-                      height: calc(100vh - ${topOffset + 56}px);
+                      height: calc(100vh - ${topOffset + 72}px);
                     `}
                   >
                     <FormatPane />
@@ -200,12 +237,31 @@ const BuilderComponentPane = ({ topOffset = 0 }) => {
                 ),
               },
               {
-                key: TABS_KEYS.BOOKMARKS,
-                label: t('Bookmarks'),
+                key: TABS_KEYS.SELECTION,
+                label: paneLabel(
+                  <Icons.OrderedListOutlined iconSize="m" />,
+                  t('Selection'),
+                ),
                 children: (
                   <div
                     css={css`
-                      height: calc(100vh - ${topOffset + 56}px);
+                      height: calc(100vh - ${topOffset + 72}px);
+                    `}
+                  >
+                    <SelectionPane />
+                  </div>
+                ),
+              },
+              {
+                key: TABS_KEYS.BOOKMARKS,
+                label: paneLabel(
+                  <Icons.BookOutlined iconSize="m" />,
+                  t('Bookmarks'),
+                ),
+                children: (
+                  <div
+                    css={css`
+                      height: calc(100vh - ${topOffset + 72}px);
                       overflow-y: auto;
                     `}
                   >
