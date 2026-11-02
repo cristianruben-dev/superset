@@ -39,7 +39,7 @@ import { GRID_MIN_COLUMN_COUNT } from 'src/dashboard/util/constants';
 import {
   openFormat,
   selectVisual,
-  useSelectedVisual,
+  useIsVisualSelected,
 } from 'src/mibi/format/selection';
 import { visualStyle } from 'src/mibi/format/styles';
 import { useMaxHeightMultiple } from 'src/mibi/format/CanvasFrame';
@@ -109,7 +109,7 @@ function ElementHolder({
   const kind = elementKind(component.meta.componentKey) ?? 'shape';
   const config = (component.meta[ELEMENT_KEY] ??
     ELEMENT_DEFAULTS[kind].element) as ElementConfig;
-  const selected = useSelectedVisual() === component.id && editMode;
+  const selected = useIsVisualSelected(component.id) && editMode;
   const maxHeightMultiple = useMaxHeightMultiple(
     component.meta.height ?? ELEMENT_DEFAULTS[kind].height,
     parentComponent,

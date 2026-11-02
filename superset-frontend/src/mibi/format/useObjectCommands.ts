@@ -31,12 +31,18 @@ import {
   pasteObject,
   readClipboard,
 } from './clipboard';
-import { deleteComponent } from 'src/dashboard/actions/dashboardLayout';
+import { DELETE_COMPONENT } from 'src/dashboard/actions/dashboardLayout';
+import { setUnsavedChanges } from 'src/dashboard/actions/dashboardState';
 import { nudgeObject } from './actions';
 import { isObjectLocked } from './lock';
 import { pageObjects } from './arrange';
-import { selectVisual, selectedVisual, selectedVisuals } from './selection';
-import { topLevelTabs } from 'src/mibi/present/dashboardTabs';
+import {
+  selectAllVisuals,
+  selectVisual,
+  selectedVisual,
+  selectedVisuals,
+} from './selection';
+import { activePageId } from 'src/mibi/present/dashboardTabs';
 
 type AppDispatch = ThunkDispatch<RootState, undefined, AnyAction>;
 
@@ -87,14 +93,23 @@ export function useObjectCommands() {
   const remove = useCallback(
     (ids: string[]) => {
       const layout = store.getState().dashboardLayout.present;
+      // One undo step brings them all back
+      const group = `remove:${Date.now()}`;
       const removed = ids.filter(id => {
         const item = layout[id];
         const parentId = item?.parents?.[item.parents.length - 1];
         if (!item || !parentId || isObjectLocked(item.meta)) return false;
-        dispatch(deleteComponent(id, parentId) as never);
+        dispatch({
+          type: DELETE_COMPONENT,
+          payload: { id, parentId },
+          formatGroup: group,
+        });
         return true;
       });
-      if (removed.length) selectVisual(null);
+      if (removed.length) {
+        dispatch(setUnsavedChanges(true));
+        selectVisual(null);
+      }
     },
     [dispatch, store],
   );
@@ -144,7 +159,12 @@ export function useObjectShortcuts() {
         remove(selectedVisuals());
         return;
       }
-      if (event.key === 'Escape' && !typingIn(event.target)) {
+      // Esc first closes a menu that is open
+      if (
+        event.key === 'Escape' &&
+        !typingIn(event.target) &&
+        !document.querySelector('.ant-dropdown:not(.ant-dropdown-hidden)')
+      ) {
         selectVisual(null);
         return;
       }
@@ -179,12 +199,10 @@ export function useObjectShortcuts() {
       if (key === 'a') {
         const { dashboardLayout, dashboardState } = store.getState();
         const layout = dashboardLayout.present;
-        const page = topLevelTabs(layout).find(tab =>
-          dashboardState.activeTabs?.includes(tab.id),
-        );
         event.preventDefault();
-        selectVisual(null);
-        pageObjects(layout, page?.id).forEach(id => selectVisual(id, true));
+        selectAllVisuals(
+          pageObjects(layout, activePageId(layout, dashboardState.activeTabs)),
+        );
       } else if (key === 'c' && selected) {
         copy(selected);
       } else if (key === 'x' && selected) {

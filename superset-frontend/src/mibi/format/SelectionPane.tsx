@@ -23,8 +23,7 @@ import { css, styled } from '@apache-superset/core/theme';
 import { Button, Input, Tooltip } from '@superset-ui/core/components';
 import { Icons } from '@superset-ui/core/components/Icons';
 import type { RootState } from 'src/dashboard/types';
-import { DASHBOARD_GRID_ID } from 'src/dashboard/util/constants';
-import { topLevelTabs } from 'src/mibi/present/dashboardTabs';
+import { activePageId } from 'src/mibi/present/dashboardTabs';
 import { clearVisibilityOverride } from 'src/mibi/report/visibility';
 import { GROUP_KEY, arrangeLayer, pageObjects } from './arrange';
 import { objectName } from './objectName';
@@ -144,10 +143,7 @@ export function SelectionPane() {
   const picked = useSelectedVisuals();
   const [query, setQuery] = useState('');
 
-  const tabs = topLevelTabs(layout);
-  const pageId = tabs.length
-    ? (tabs.find(tab => activeTabs?.includes(tab.id))?.id ?? tabs[0].id)
-    : DASHBOARD_GRID_ID;
+  const pageId = activePageId(layout, activeTabs);
   const order = useMemo(
     () => pageObjects(layout, pageId).reverse(),
     [layout, pageId],
@@ -158,16 +154,18 @@ export function SelectionPane() {
       .includes(query.trim().toLowerCase()),
   );
 
-  const setHidden = (id: string, hidden: boolean) => {
+  const setHidden = (
+    id: string,
+    hidden: boolean,
+    group = `hide:${id}:${Date.now()}`,
+  ) => {
     clearVisibilityOverride(id);
-    dispatch(
-      setComponentMeta(
-        id,
-        'mibiHidden',
-        hidden || undefined,
-        `hide:${id}:${Date.now()}`,
-      ),
-    );
+    dispatch(setComponentMeta(id, 'mibiHidden', hidden || undefined, group));
+  };
+  // One undo step for the whole page
+  const setAllHidden = (hidden: boolean) => {
+    const group = `hide-all:${Date.now()}`;
+    order.forEach(id => setHidden(id, hidden, group));
   };
 
   return (
@@ -186,7 +184,7 @@ export function SelectionPane() {
           buttonStyle="link"
           buttonSize="xsmall"
           data-test="mibi-selection-show-all"
-          onClick={() => order.forEach(id => setHidden(id, false))}
+          onClick={() => setAllHidden(false)}
         >
           {t('Show all')}
         </Button>
@@ -194,7 +192,7 @@ export function SelectionPane() {
           buttonStyle="link"
           buttonSize="xsmall"
           data-test="mibi-selection-hide-all"
-          onClick={() => order.forEach(id => setHidden(id, true))}
+          onClick={() => setAllHidden(true)}
         >
           {t('Hide all')}
         </Button>

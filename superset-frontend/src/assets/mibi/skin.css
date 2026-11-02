@@ -1570,9 +1570,8 @@ body.mibi-presenting-idle * {
   ) !important;
 }
 
-.mibi-locked .resizable-container-handle--right,
-.mibi-locked .resizable-container-handle--bottom,
-.mibi-locked .resizable-container-handle--bottom-right {
+.mibi-locked .resize-handle,
+.mibi-locked [class*='resizable-container-handle'] {
   display: none;
 }
 

@@ -83,6 +83,14 @@ export function selectVisual(id: string | null, additive = false) {
   emit();
 }
 
+/** Picks exactly these objects, as Ctrl+A does. */
+export function selectAllVisuals(ids: string[]) {
+  const rest = [...ids];
+  selected = rest.pop() ?? null;
+  others = rest;
+  emit();
+}
+
 export function openFormat(id: string | null) {
   selectVisual(id);
   window.dispatchEvent(new CustomEvent(OPEN_EVENT));
@@ -96,6 +104,17 @@ export function useSelectedVisual(): string | null {
     onChange();
     return () => window.removeEventListener(EVENT, onChange);
   }, []);
+  return value;
+}
+
+/** Whether this object is picked: objects only redraw when their answer changes. */
+export function useIsVisualSelected(id: string): boolean {
+  const [value, setValue] = useState(() => selectedVisuals().includes(id));
+  useEffect(() => {
+    const onChange = () => setValue(selectedVisuals().includes(id));
+    window.addEventListener(EVENT, onChange);
+    return () => window.removeEventListener(EVENT, onChange);
+  }, [id]);
   return value;
 }
 

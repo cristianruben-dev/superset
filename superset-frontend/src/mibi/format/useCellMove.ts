@@ -33,7 +33,7 @@ import {
 import { useDispatch } from 'react-redux';
 import type { LayoutItem } from 'src/dashboard/types';
 import { moveObject, nudgeObject } from './actions';
-import { selectedVisuals } from './selection';
+import { selectVisual, selectedVisuals } from './selection';
 import { useCanvasZoom } from './CanvasFrame';
 import { gridColumnCount } from './columns';
 import { posOf, type Pos } from './positions';
@@ -107,6 +107,10 @@ export function useCellMove(component: LayoutItem, enabled: boolean): CellMove {
         if (!moved) {
           moved = true;
           document.body.classList.add('mibi-moving');
+          // Dragging an object picks it, with its group
+          if (!selectedVisuals().includes(component.id)) {
+            selectVisual(component.id, move.shiftKey || move.ctrlKey);
+          }
         }
         landing = {
           x: clamp(start.x + Math.round(dx / unit), 0, columns - width),

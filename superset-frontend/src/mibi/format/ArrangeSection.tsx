@@ -116,7 +116,7 @@ export function MultiSection() {
           buttonSize="small"
           onClick={() => dispatch(groupObjects(ids, true))}
         >
-          {t('Group')}
+          {t('Group objects')}
         </Button>
         {grouped && (
           <Button

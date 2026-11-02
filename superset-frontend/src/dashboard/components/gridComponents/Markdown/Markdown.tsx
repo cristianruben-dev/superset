@@ -33,6 +33,7 @@ import { Logger, LOG_ACTIONS_RENDER_CHART } from 'src/logger/LogUtils';
 
 import DeleteComponentButton from 'src/dashboard/components/DeleteComponentButton';
 import { MovableDraggable } from 'src/mibi/format/MovableDraggable';
+import { isObjectLocked } from 'src/mibi/format/lock';
 import HoverMenu from 'src/dashboard/components/menu/HoverMenu';
 import ResizableContainer from 'src/dashboard/components/resizable/ResizableContainer';
 import MarkdownModeDropdown from 'src/dashboard/components/menu/MarkdownModeDropdown';
@@ -385,6 +386,9 @@ class Markdown extends PureComponent<MarkdownProps, MarkdownState> {
         : component.meta.width || GRID_MIN_COLUMN_COUNT;
 
     const isEditing = editorMode === 'edit';
+    // AuraData BI: hidden from viewers, shown faded to editors
+    const hidden = !!component.meta.mibiHidden;
+    if (hidden && !editMode) return null;
 
     return (
       <MovableDraggable
@@ -417,6 +421,7 @@ class Markdown extends PureComponent<MarkdownProps, MarkdownState> {
               className={cx(
                 'dashboard-markdown',
                 isEditing && 'dashboard-markdown--editing',
+                editMode && hidden && 'mibi-hidden',
               )}
               id={component.id}
             >
@@ -444,7 +449,7 @@ class Markdown extends PureComponent<MarkdownProps, MarkdownState> {
                   className="dashboard-component dashboard-component-chart-holder"
                   data-test="dashboard-component-chart-holder"
                 >
-                  {editMode && (
+                  {editMode && !isObjectLocked(component.meta) && (
                     <HoverMenu position="top">
                       <DeleteComponentButton
                         onDelete={this.handleDeleteComponent}

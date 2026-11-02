@@ -67,7 +67,7 @@ import {
 import {
   openFormat,
   selectVisual,
-  useSelectedVisual,
+  useIsVisualSelected,
 } from 'src/mibi/format/selection';
 import {
   GRID_MIN_COLUMN_COUNT,
@@ -155,7 +155,7 @@ const ChartHolder = ({
     () => visualStyle(visualFormat, theme),
     [visualFormat, theme],
   );
-  const isSelected = useSelectedVisual() === component.id && editMode;
+  const isSelected = useIsVisualSelected(component.id) && editMode;
   const mobile = useCanvasMobile();
   // The page is a limit: an object grows only into the room left on it
   const maxHeightMultiple = useMaxHeightMultiple(
@@ -342,6 +342,7 @@ const ChartHolder = ({
             chartHolderRef.current = el;
           }}
           data-test="dashboard-component-chart-holder"
+          role={altText ? 'group' : undefined}
           aria-label={altText || undefined}
           style={holderStyle}
           css={isFullSize ? fullSizeStyle : undefined}
