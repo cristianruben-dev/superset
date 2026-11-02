@@ -2091,10 +2091,10 @@ msgid "Axis descending"
 msgstr "Eje descendente"
 
 msgid "Axis title margin"
-msgstr "MARGEN DEL TÍTULO DEL EJE"
+msgstr "Margen del título del eje"
 
 msgid "Axis title position"
-msgstr "POSICIÓN DEL TÍTULO DEL EJE"
+msgstr "Posición del título del eje"
 
 msgid "BCC recipients"
 msgstr "Destinatarios CCO"
@@ -10092,7 +10092,7 @@ msgid "Rich tooltip"
 msgstr "Información sobre herramientas mejorada"
 
 msgid "Right"
-msgstr "Derecho"
+msgstr "Derecha"
 
 msgid "Right Axis Format"
 msgstr "Formato del eje derecho"
@@ -14918,10 +14918,10 @@ msgstr "WMS"
 
 #, python-format
 msgid "Waiting on %s"
-msgstr "Esperando por %s"
+msgstr "Consultando %s…"
 
 msgid "Waiting on database..."
-msgstr "Esperando a la base de datos..."
+msgstr "Consultando la base de datos…"
 
 msgid "Want to add a new database?"
 msgstr "¿Quieres añadir una nueva base de datos?"
@@ -15418,7 +15418,7 @@ msgid "X Tick Layout"
 msgstr "Diseño de marca de X"
 
 msgid "X axis title margin"
-msgstr "MARGEN DEL TÍTULO DEL EJE X"
+msgstr "Margen del título del eje X"
 
 msgid "X bounds"
 msgstr "Límites de X"
@@ -15469,7 +15469,7 @@ msgid "Y Log Scale"
 msgstr "Escala logarítmica Y"
 
 msgid "Y axis title margin"
-msgstr "MARGEN DEL TÍTULO DEL EJE Y"
+msgstr "Margen del título del eje Y"
 
 msgid "Y bounds"
 msgstr "Límites de Y"
@@ -19069,3 +19069,41 @@ msgstr "Ordena las categorías de menor a mayor"
 
 msgid "Row labels"
 msgstr "Etiquetas de fila"
+
+msgid "Group dashboards and share them with your team"
+msgstr "Agrupa paneles de control y compártelos con tu equipo"
+
+msgid "SQL editor"
+msgstr "Editor SQL"
+
+msgid "datasets"
+msgstr "conjuntos de datos"
+
+msgid "Share with every workspace"
+msgstr "Compartir con todas las áreas de trabajo"
+
+msgid "%s is shared with every workspace"
+msgstr "%s se comparte con todas las áreas de trabajo"
+
+msgid "The dataset could not be shared"
+msgstr "No se pudo compartir el conjunto de datos"
+
+msgid "Datasets created from the \"Data\" menu of its dashboards show up here."
+msgstr "Aquí aparecen los conjuntos de datos que crees desde el menú «Datos» de sus paneles de control."
+
+msgid "Usable in dashboard"
+msgstr "Utilizable en el panel de control"
+
+msgid "This dataset belongs to another workspace. A chart can only use the datasets of its dashboard's workspace or shared ones."
+msgstr "Este conjunto de datos pertenece a otra área de trabajo. Un gráfico solo puede usar los conjuntos de datos del área de trabajo de su panel de control o los compartidos."
+
+#, python-format
+msgid "These dashboards use datasets of another workspace: %(datasets)s. Share those datasets first."
+msgstr "Estos paneles de control usan conjuntos de datos de otra área de trabajo: %(datasets)s. Compártelos primero."
+
+#, python-format
+msgid "Dashboards outside this workspace use these datasets: %(datasets)s."
+msgstr "Hay paneles de control fuera de esta área de trabajo que usan estos conjuntos de datos: %(datasets)s."
+
+msgid "The datasets of this dashboard's workspace and the shared ones."
+msgstr "Los conjuntos de datos del área de trabajo de este panel de control y los compartidos."
