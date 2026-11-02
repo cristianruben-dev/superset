@@ -135,22 +135,22 @@ test('leaves an unformatted visual alone', () => {
 
 test('sizes the canvas from presets and clamps custom sizes', () => {
   // Every canvas has a page size, in whole cells: 16:9 unless it says otherwise
-  expect(canvasSize(undefined)).toEqual({ width: 1536, height: 864 });
+  expect(canvasSize(undefined)).toEqual({ width: 1920, height: 1088 });
   expect(canvasSize({ size: { mode: 'auto' as unknown as '16:9' } })).toEqual({
-    width: 1536,
-    height: 864,
+    width: 1920,
+    height: 1088,
   });
   expect(canvasSize({ size: { mode: '4:3' } })).toEqual({
-    width: 1280,
-    height: 960,
+    width: 1440,
+    height: 1088,
   });
   expect(canvasSize({ size: { mode: 'letter' } })).toEqual({
     width: 832,
     height: 1088,
   });
   expect(canvasSize({ size: { mode: '16:9' } })).toEqual({
-    width: 1536,
-    height: 864,
+    width: 1920,
+    height: 1088,
   });
   expect(
     canvasSize({ size: { mode: 'custom', width: 50, height: 99999 } }),
@@ -294,7 +294,7 @@ test('frames the grid with the canvas format', () => {
   );
   const canvas = screen.getByTestId('mibi-canvas');
   expect(canvas).toHaveTextContent('grid');
-  expect(canvas).toHaveStyle({ width: '1280px', minHeight: '960px' });
+  expect(canvas).toHaveStyle({ width: '1440px', minHeight: '1088px' });
   expect(canvas.style.background).toContain('rgb(18, 52, 86)');
 });
 
@@ -306,8 +306,8 @@ test('a canvas without a size is a 16:9 page', () => {
     { store: makeStore() },
   );
   expect(screen.getByTestId('mibi-canvas')).toHaveStyle({
-    width: '1536px',
-    minHeight: '864px',
+    width: '1920px',
+    minHeight: '1088px',
   });
 });
 
@@ -349,8 +349,8 @@ test('objects grow only into the room left on the page', () => {
     </CanvasFrame>,
     { store },
   );
-  // An 864 px page with nothing measured: the row's 50 cells plus 27 more
-  expect(screen.getByTestId('max-height')).toHaveTextContent('77');
+  // A 1088 px page with nothing measured: the row's 50 cells plus 34 more
+  expect(screen.getByTestId('max-height')).toHaveTextContent('84');
 
   // Viewers never resize, and outside a page frame there is no limit
   dispatcher(store)({ type: 'SET_EDIT_MODE', editMode: false });

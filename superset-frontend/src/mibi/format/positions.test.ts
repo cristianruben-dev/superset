@@ -75,7 +75,7 @@ test('the page grows to hold what is below its bottom', () => {
   } as never;
   const next = layoutToPositions(layout);
   expect(next.ROOT_ID.meta.mibiCanvas).toEqual({
-    size: { mode: 'custom', width: 1536, height: 48 * 32 },
+    size: { mode: 'custom', width: 1920, height: 48 * 32 },
   });
 });
 
@@ -83,9 +83,9 @@ test('an object is placed on a cell and kept inside the page', () => {
   const layout = layoutToPositions(flow());
   const moved = placeAt(layout, 'CHART-a', { x: 5, y: 3 });
   expect(posOf(moved['CHART-a'].meta)).toEqual({ x: 5, y: 3 });
-  // 48 columns: a 10 wide object cannot start after cell 38
-  const edge = placeAt(layout, 'CHART-a', { x: 60, y: 0 });
-  expect(posOf(edge['CHART-a'].meta)).toEqual({ x: 38, y: 0 });
+  // 60 columns: a 10 wide object cannot start after cell 50
+  const edge = placeAt(layout, 'CHART-a', { x: 70, y: 0 });
+  expect(posOf(edge['CHART-a'].meta)).toEqual({ x: 50, y: 0 });
   expect(placeAt(layout, 'CHART-a', { x: 0, y: 0 })).toBe(layout);
 });
 
@@ -93,14 +93,14 @@ test('a new object takes the first free cell of the page', () => {
   const layout = layoutToPositions(flow());
   // Right of CHART-b, the first place where 12 × 12 cells cover nothing
   expect(freeCell(layout, 'GRID_ID', 12, 12)).toEqual({ x: 22, y: 0 });
-  // Under CHART-c once the width of the page is used
-  expect(freeCell(layout, 'GRID_ID', 40, 4)).toEqual({ x: 0, y: 13 });
+  // Right of CHART-c once CHART-b no longer covers the place
+  expect(freeCell(layout, 'GRID_ID', 40, 4)).toEqual({ x: 20, y: 6 });
 });
 
 test('a new object without room goes under the others, inside the page', () => {
   const layout = layoutToPositions(flow());
-  // 27 rows on the default 16:9 page: 20 rows fit nowhere next to the others
-  expect(freeCell(layout, 'GRID_ID', 48, 20)).toEqual({ x: 0, y: 7 });
+  // 34 rows on the default 16:9 page: 30 rows fit nowhere next to the others
+  expect(freeCell(layout, 'GRID_ID', 60, 30)).toEqual({ x: 0, y: 4 });
 });
 
 test('an object may grow to the right edge of the page', () => {

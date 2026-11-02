@@ -49,7 +49,7 @@ test('canvas format is saved with the dashboard and applied when viewing it', as
   const pane = page.getByTestId('mibi-format-pane');
   await expect(pane).toBeVisible({ timeout: TIMEOUT.PAGE_LOAD });
 
-  // Gradient background and a 4:3 page (40 cells of 32 px; 16:9 is the default)
+  // Gradient background and a 4:3 page (45 cells of 32 px; 16:9 is the default)
   await page
     .getByTestId('mibi-format-canvas-type')
     .getByRole('radio')
@@ -62,7 +62,7 @@ test('canvas format is saved with the dashboard and applied when viewing it', as
     .click();
 
   const canvas = page.getByTestId('mibi-canvas');
-  await expect(canvas).toHaveCSS('width', '1280px');
+  await expect(canvas).toHaveCSS('width', '1440px');
 
   await page.getByTestId('header-save-button').click();
   await expect(page.getByTestId('edit-dashboard-button')).toBeVisible({
@@ -70,7 +70,7 @@ test('canvas format is saved with the dashboard and applied when viewing it', as
   });
 
   await page.reload();
-  await expect(canvas).toHaveCSS('width', '1280px', {
+  await expect(canvas).toHaveCSS('width', '1440px', {
     timeout: TIMEOUT.PAGE_LOAD,
   });
   await expect(canvas).toHaveCSS('background-image', /linear-gradient/);

@@ -109,7 +109,8 @@ AuraData BI APIs: `/api/v1/workspace/` (with `<id>/dashboards/` and `<id>/datase
 ### Dashboard formatting lives in the layout
 Formats are stored in `position_json`, so they save, undo and export with the dashboard:
 - Canvases always have a fixed page size, as in Power BI (16:9 by default, 4:3, letter or custom;
-  see `canvasSize`); there is no screen-width mode. Phones switch to the mobile layout instead.
+  see `canvasSize`); 16:9 is Full HD, 60 × 34 cells (1920 × 1088 px), and the other presets
+  share its height. There is no screen-width mode. Phones switch to the mobile layout instead.
   While editing, the page is a limit: resizing stops at its bottom (`useMaxHeightMultiple`) and a
   change that overflows it fits the visuals back inside (`CanvasFrame`).
 - `ROOT_ID.meta.mibiCanvas`: canvas format (`CanvasFormat` in `src/mibi/format/types.ts`),

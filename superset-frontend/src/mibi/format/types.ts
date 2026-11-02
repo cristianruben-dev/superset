@@ -117,10 +117,13 @@ export const DEFAULT_RADIUS = 14;
 export const MIN_CANVAS = 10 * CELL;
 export const MAX_CANVAS = 128 * CELL;
 
-/** Page sizes, in pixels: whole cells close to the ones of Power BI. */
+/**
+ * Page sizes, in pixels, in whole cells: Full HD (1920 × 1080, rounded up to
+ * 34 rows) and the same height for the other shapes.
+ */
 export const CANVAS_PRESETS: Record<CanvasPreset, [number, number]> = {
-  '16:9': [48 * CELL, 27 * CELL],
-  '4:3': [40 * CELL, 30 * CELL],
+  '16:9': [60 * CELL, 34 * CELL],
+  '4:3': [45 * CELL, 34 * CELL],
   letter: [26 * CELL, 34 * CELL],
 };
 export const DEFAULT_CANVAS_SIZE: CanvasPreset = '16:9';

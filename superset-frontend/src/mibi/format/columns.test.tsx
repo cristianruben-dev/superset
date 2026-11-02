@@ -48,7 +48,7 @@ const legacy = (rootMeta: Record<string, unknown> = {}) =>
   }) as unknown as DashboardLayout;
 
 test('the columns of a layout are the width of its canvas in cells', () => {
-  expect(columnCountOf({})).toBe(48);
+  expect(columnCountOf({})).toBe(60);
   expect(
     columnCountOf({
       ROOT_ID: {
@@ -60,7 +60,7 @@ test('the columns of a layout are the width of its canvas in cells', () => {
     columnCountOf({
       ROOT_ID: { meta: { mibiCanvas: { size: { mode: '4:3' } } } },
     }),
-  ).toBe(40);
+  ).toBe(45);
 });
 
 test('the columns follow the layout being edited', () => {

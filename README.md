@@ -41,7 +41,7 @@ algunas reglas de producto distintas:
   (lector, colaborador y administrador).
 - **Panel Formato**, como en Power BI:
   - lienzo con fondo de color, degradado o imagen y siempre con medida fija, como las
-    páginas de Power BI (16:9, 4:3, Carta o a medida), escalado a cada pantalla;
+    páginas de Power BI (16:9 en Full HD, 4:3, Carta o a medida), escalado a cada pantalla;
     márgenes, separación, cuadrícula (líneas, puntos o columnas) con densidad de 12, 24
     o 48 columnas para objetos más pequeños, y vista para móvil;
   - estilo de cada gráfico: fondo, borde, esquinas, sombra, título, subtítulo e iconos;
