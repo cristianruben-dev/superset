@@ -270,7 +270,7 @@ export function ExportDashboardModal({
     const title = dashboardTitle || t('Dashboard');
     const indexes =
       scope === 'all' && tabs.length > 1
-        ? tabs.map((_, index) => index)
+        ? tabs.flatMap((tab, index) => (tab.hidden ? [] : [index]))
         : [current];
     const sections: ExportSection[] = [];
     try {
@@ -417,7 +417,10 @@ export function ExportDashboardModal({
                 },
                 {
                   value: 'all',
-                  label: t('All pages (%s)', tabs.length),
+                  label: t(
+                    'All pages (%s)',
+                    tabs.filter(tab => !tab.hidden).length,
+                  ),
                 },
               ]}
             />

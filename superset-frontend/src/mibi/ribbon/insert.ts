@@ -20,7 +20,6 @@ import type { AnyAction } from 'redux';
 import type { ThunkDispatch } from 'redux-thunk';
 import type { GetState, LayoutItem, RootState } from 'src/dashboard/types';
 import { DYNAMIC_TYPE } from 'src/dashboard/util/componentTypes';
-import { DASHBOARD_GRID_ID } from 'src/dashboard/util/constants';
 import newComponentFactory from 'src/dashboard/util/newComponentFactory';
 import { newElementMeta } from 'src/mibi/elements/NewElements';
 import type { ElementKind } from 'src/mibi/elements/types';
@@ -28,7 +27,7 @@ import { updateLayout } from 'src/mibi/format/actions';
 import { placeComponent } from 'src/mibi/format/clipboard';
 import { freeCell, POS_KEY } from 'src/mibi/format/positions';
 import { openFormat } from 'src/mibi/format/selection';
-import { activeTabIndex, topLevelTabs } from 'src/mibi/present/dashboardTabs';
+import { activePageId } from 'src/mibi/present/dashboardTabs';
 
 type AppDispatch = ThunkDispatch<RootState, undefined, AnyAction>;
 
@@ -40,10 +39,7 @@ export const insertElement =
   (kind: ElementKind) => (dispatch: AppDispatch, getState: GetState) => {
     const { dashboardLayout, dashboardState } = getState();
     const layout = dashboardLayout.present;
-    const tabs = topLevelTabs(layout);
-    const pageId = tabs.length
-      ? tabs[activeTabIndex(tabs, dashboardState.activeTabs)].id
-      : DASHBOARD_GRID_ID;
+    const pageId = activePageId(layout, dashboardState.activeTabs);
     const meta = newElementMeta(kind);
     const component = newComponentFactory(DYNAMIC_TYPE, {
       ...meta,

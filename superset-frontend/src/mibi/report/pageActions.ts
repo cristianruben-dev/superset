@@ -22,16 +22,17 @@ import type { ThunkDispatch } from 'redux-thunk';
 import {
   addSliceToDashboard,
   setDirectPathToChild,
+  setUnsavedChanges,
 } from 'src/dashboard/actions/dashboardState';
 import {
-  createComponent,
-  createTopLevelTabs,
+  CREATE_COMPONENT,
+  CREATE_TOP_LEVEL_TABS,
 } from 'src/dashboard/actions/dashboardLayout';
 import { fetchSlices } from 'src/dashboard/actions/sliceEntities';
-import type { DropResult } from 'src/dashboard/components/dnd/dragDroppableConfig';
 import type { GetState, LayoutItem, RootState } from 'src/dashboard/types';
 import {
   CHART_TYPE,
+  DASHBOARD_ROOT_TYPE,
   TABS_TYPE,
   TAB_TYPE,
 } from 'src/dashboard/util/componentTypes';
@@ -50,27 +51,68 @@ type AppDispatch = ThunkDispatch<RootState, undefined, AnyAction>;
 
 /** Adds a page at the end of the report, making its first tabs if it has none. */
 export const insertPage = () => (dispatch: AppDispatch, getState: GetState) => {
-  const layout = getState().dashboardLayout.present;
-  const top = layout[layout[DASHBOARD_ROOT_ID]?.children?.[0]];
-  if (top?.type === TABS_TYPE) {
-    dispatch(
-      createComponent({
-        destination: {
-          id: top.id,
-          type: top.type,
-          index: top.children.length,
+  const topTabs = () => {
+    const layout = getState().dashboardLayout.present;
+    const top = layout[layout[DASHBOARD_ROOT_ID]?.children?.[0]];
+    return top?.type === TABS_TYPE ? top : undefined;
+  };
+  // One undo step, however many pieces it takes
+  const formatGroup = `new-page:${Date.now()}`;
+  // What the report holds becomes its first page; the new one follows it
+  if (!topTabs()) {
+    dispatch({
+      type: CREATE_TOP_LEVEL_TABS,
+      payload: {
+        dropResult: {
+          source: { id: NEW_COMPONENTS_SOURCE_ID },
+          destination: {
+            id: DASHBOARD_ROOT_ID,
+            type: DASHBOARD_ROOT_TYPE,
+            index: 0,
+          },
+          dragging: { id: NEW_TABS_ID, type: TABS_TYPE },
         },
-        dragging: { id: NEW_TAB_ID, type: TAB_TYPE },
-      } as DropResult),
-    );
-    return;
+      },
+      formatGroup,
+    });
+    const created = topTabs();
+    const first =
+      created && getState().dashboardLayout.present[created.children[0]];
+    if (first) {
+      dispatch(
+        updateLayout(
+          {
+            [first.id]: {
+              ...first,
+              meta: { ...first.meta, text: t('Page %s', 1) },
+            },
+          },
+          formatGroup,
+        ),
+      );
+    }
   }
-  dispatch(
-    createTopLevelTabs({
-      source: { id: NEW_COMPONENTS_SOURCE_ID },
-      dragging: { id: NEW_TABS_ID, type: TABS_TYPE },
-    } as DropResult),
-  );
+  const tabs = topTabs();
+  if (!tabs) return;
+  dispatch({
+    type: CREATE_COMPONENT,
+    payload: {
+      dropResult: {
+        destination: {
+          id: tabs.id,
+          type: tabs.type,
+          index: tabs.children.length,
+        },
+        dragging: {
+          id: NEW_TAB_ID,
+          type: TAB_TYPE,
+          meta: { text: t('Page %s', tabs.children.length + 1) },
+        },
+      },
+    },
+    formatGroup,
+  });
+  dispatch(setUnsavedChanges(true));
 };
 
 /**

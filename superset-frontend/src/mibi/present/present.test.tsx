@@ -49,8 +49,18 @@ const layout = {
 
 test('lists the top level tabs with the path that opens each', () => {
   expect(topLevelTabs(layout)).toEqual([
-    { id: 'TAB-a', title: 'Sales', path: ['ROOT_ID', 'TABS-1', 'TAB-a'] },
-    { id: 'TAB-b', title: 'Costs', path: ['ROOT_ID', 'TABS-1', 'TAB-b'] },
+    {
+      id: 'TAB-a',
+      title: 'Sales',
+      path: ['ROOT_ID', 'TABS-1', 'TAB-a'],
+      hidden: false,
+    },
+    {
+      id: 'TAB-b',
+      title: 'Costs',
+      path: ['ROOT_ID', 'TABS-1', 'TAB-b'],
+      hidden: false,
+    },
   ]);
 });
 

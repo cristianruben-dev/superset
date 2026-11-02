@@ -16,7 +16,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { DASHBOARD_ROOT_ID } from 'src/dashboard/util/constants';
+import {
+  DASHBOARD_GRID_ID,
+  DASHBOARD_ROOT_ID,
+} from 'src/dashboard/util/constants';
 import { TABS_TYPE } from 'src/dashboard/util/componentTypes';
 import type { DashboardLayout } from 'src/dashboard/types';
 
@@ -58,4 +61,15 @@ export function activeTabIndex(
 ): number {
   const index = tabs.findIndex(tab => activeTabs?.includes(tab.id));
   return Math.max(0, index);
+}
+
+/** The container of the page on screen: its tab, or the grid without tabs. */
+export function activePageId(
+  layout: DashboardLayout,
+  activeTabs: string[] | undefined,
+): string {
+  const tabs = topLevelTabs(layout);
+  return tabs.length
+    ? tabs[activeTabIndex(tabs, activeTabs)].id
+    : DASHBOARD_GRID_ID;
 }
