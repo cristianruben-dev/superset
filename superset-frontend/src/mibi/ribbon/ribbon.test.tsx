@@ -24,10 +24,19 @@ import {
 } from 'spec/helpers/testing-library';
 import { DASHBOARD_ROOT_ID } from 'src/dashboard/util/constants';
 import { setAllLocked, isObjectLocked } from 'src/mibi/format/lock';
-import { selectVisual } from 'src/mibi/format/selection';
+import {
+  selectAllVisuals,
+  selectVisual,
+  selectedVisuals,
+  setGroupResolver,
+} from 'src/mibi/format/selection';
 import { SelectionPane } from 'src/mibi/format/SelectionPane';
 import { Section, FormatSearchContext } from 'src/mibi/format/controls';
-import { visibleTabs, HIDDEN_PAGE_KEY } from 'src/mibi/present/dashboardTabs';
+import {
+  activePageId,
+  visibleTabs,
+  HIDDEN_PAGE_KEY,
+} from 'src/mibi/present/dashboardTabs';
 import { Ribbon, type RibbonProps } from './Ribbon';
 
 const layout = {
@@ -201,4 +210,35 @@ test('a section folds from its heading and shows what the search asks', () => {
     </FormatSearchContext.Provider>,
   );
   expect(screen.queryByText('Shadow')).not.toBeInTheDocument();
+});
+
+test('the page on screen is the grid when the report has no tabs', () => {
+  expect(activePageId(layout as never, ['TAB-2'])).toBe('TAB-2');
+  expect(
+    activePageId(
+      {
+        [DASHBOARD_ROOT_ID]: {
+          id: DASHBOARD_ROOT_ID,
+          type: 'ROOT',
+          children: ['GRID_ID'],
+          meta: {},
+        },
+        GRID_ID: { id: 'GRID_ID', type: 'GRID', children: [], meta: {} },
+      } as never,
+      [],
+    ),
+  ).toBe('GRID_ID');
+});
+
+test('selecting everything keeps grouped objects selected', () => {
+  setGroupResolver(() => ['A', 'B']);
+  selectAllVisuals(['A', 'B', 'C']);
+  expect(selectedVisuals()).toEqual(['A', 'B', 'C']);
+  setGroupResolver(id => [id]);
+});
+
+test('clicking the open tab does not fold the ribbon', () => {
+  renderRibbon();
+  userEvent.click(screen.getByTestId('mibi-ribbon-tab-home'));
+  expect(screen.getByTestId('header-save-button')).toBeInTheDocument();
 });

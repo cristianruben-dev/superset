@@ -62,7 +62,7 @@ import {
   useSelectedVisuals,
 } from 'src/mibi/format/selection';
 import { useObjectCommands } from 'src/mibi/format/useObjectCommands';
-import { topLevelTabs } from 'src/mibi/present/dashboardTabs';
+import { activePageId } from 'src/mibi/present/dashboardTabs';
 import {
   setEditingInteractions,
   useEditingInteractions,
@@ -174,9 +174,7 @@ export function Ribbon({
   const ids = useSelectedVisuals();
   const item = primary ? layout[primary] : undefined;
   const isChart = item?.type === CHART_TYPE;
-  const pageId = topLevelTabs(layout).find(page =>
-    activeTabs?.includes(page.id),
-  )?.id;
+  const pageId = activePageId(layout, activeTabs);
   const canvas = layout[DASHBOARD_ROOT_ID]?.meta?.mibiCanvas as
     | CanvasFormat
     | undefined;
@@ -232,10 +230,6 @@ export function Ribbon({
   };
 
   const openTab = (key: RibbonTabKey) => {
-    if (key === tab && !folded) {
-      fold(true);
-      return;
-    }
     setTab(key);
     if (folded) fold(false);
   };
@@ -323,7 +317,7 @@ export function Ribbon({
       { type: 'divider' as const },
       {
         key: 'group',
-        label: t('Group'),
+        label: t('Group objects'),
         disabled: ids.length < 2,
         icon: <Icons.GroupOutlined iconSize="m" />,
       },
@@ -906,6 +900,17 @@ export function Ribbon({
           </RibbonTab>
         ))}
         <span className="spacer" />
+        {allLocked && (
+          <Button
+            buttonStyle="link"
+            buttonSize="xsmall"
+            data-test="mibi-ribbon-unlock-all"
+            onClick={() => setAllLocked(false)}
+          >
+            <Icons.LockOutlined iconSize="s" />
+            {t('Objects locked: unlock')}
+          </Button>
+        )}
         <Button
           buttonStyle="link"
           buttonSize="xsmall"
