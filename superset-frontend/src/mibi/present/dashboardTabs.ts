@@ -20,11 +20,15 @@ import { DASHBOARD_ROOT_ID } from 'src/dashboard/util/constants';
 import { TABS_TYPE } from 'src/dashboard/util/componentTypes';
 import type { DashboardLayout } from 'src/dashboard/types';
 
+/** A page viewers do not see in the tabs; links and drill through still open it. */
+export const HIDDEN_PAGE_KEY = 'mibiHiddenPage';
+
 export interface DashboardTab {
   id: string;
   title: string;
   /** Value for setDirectPathToChild that opens this tab. */
   path: string[];
+  hidden: boolean;
 }
 
 /** The top level tabs of a dashboard, in order; empty when it has none. */
@@ -39,8 +43,13 @@ export function topLevelTabs(layout: DashboardLayout): DashboardTab[] {
       id,
       title: String(layout[id].meta?.text ?? ''),
       path: [...parents, tabs.id, id],
+      hidden: !!layout[id].meta?.[HIDDEN_PAGE_KEY],
     }));
 }
+
+/** The pages a viewer can go through: all but the hidden ones. */
+export const visibleTabs = (layout: DashboardLayout): DashboardTab[] =>
+  topLevelTabs(layout).filter(tab => !tab.hidden);
 
 /** Index of the active tab among the top level tabs, 0 when unknown. */
 export function activeTabIndex(

@@ -81,6 +81,7 @@ interface DashboardComponentProps {
   isFocused?: boolean;
   isHighlighted?: boolean;
   onTabTitleEditingChange?: (isEditing: boolean) => void;
+  onDeletePage?: () => void;
 }
 
 interface ColumnWidthResult {

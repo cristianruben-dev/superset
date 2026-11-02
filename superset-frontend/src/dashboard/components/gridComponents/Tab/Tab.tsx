@@ -31,6 +31,9 @@ import { styled } from '@apache-superset/core/theme';
 import { t } from '@apache-superset/core/translation';
 
 import { EditableTitle, EmptyState } from '@superset-ui/core/components';
+import { Icons } from '@superset-ui/core/components/Icons';
+import { HIDDEN_PAGE_KEY } from 'src/mibi/present/dashboardTabs';
+import { PageMenu } from 'src/mibi/report/PageMenu';
 import { setEditMode, onRefresh } from 'src/dashboard/actions/dashboardState';
 import getChartIdsFromComponent from 'src/dashboard/util/getChartIdsFromComponent';
 import DashboardComponent from 'src/dashboard/containers/DashboardComponent';
@@ -77,6 +80,7 @@ interface TabProps {
   editMode: boolean;
   embeddedMode?: boolean;
   onTabTitleEditingChange: (isEditing: boolean) => void;
+  onDeletePage?: () => void;
   isFocused?: boolean;
   isHighlighted?: boolean;
 
@@ -435,13 +439,26 @@ const Tab = (props: TabProps): ReactElement => {
         dashboardId,
         embeddedMode,
         onTabTitleEditingChange,
+        onDeletePage,
       } = props;
-      return (
+      const hiddenPage = !!component.meta?.[HIDDEN_PAGE_KEY];
+      const title = (
         <TabTitleContainer
           isHighlighted={isHighlighted}
-          className="dragdroppable-tab"
+          className={classNames(
+            'dragdroppable-tab',
+            // Viewers get no tab for a hidden page (see skin.css)
+            hiddenPage && !editMode && 'mibi-page-hidden',
+          )}
           ref={dragSourceRef}
         >
+          {hiddenPage && editMode && (
+            <Icons.EyeInvisibleOutlined
+              iconSize="s"
+              aria-label={t('Hidden page')}
+              data-test="mibi-page-hidden-icon"
+            />
+          )}
           <EditableTitle
             title={component.meta.text}
             defaultTitle={component.meta.defaultText}
@@ -468,6 +485,13 @@ const Tab = (props: TabProps): ReactElement => {
           )}
         </TabTitleContainer>
       );
+      return editMode ? (
+        <PageMenu pageId={component.id} onDelete={onDeletePage}>
+          {title}
+        </PageMenu>
+      ) : (
+        title
+      );
     },
     [
       props.component,
@@ -477,6 +501,7 @@ const Tab = (props: TabProps): ReactElement => {
       props.isHighlighted,
       props.dashboardId,
       props.onTabTitleEditingChange,
+      props.onDeletePage,
       handleChangeText,
     ],
   );

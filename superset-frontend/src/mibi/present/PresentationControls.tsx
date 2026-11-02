@@ -27,7 +27,7 @@ import {
 } from 'src/dashboard/actions/dashboardState';
 import type { RootState } from 'src/dashboard/types';
 import { DASHBOARD_HEADER_ID } from 'src/dashboard/util/constants';
-import { activeTabIndex, topLevelTabs } from './dashboardTabs';
+import { activeTabIndex, visibleTabs } from './dashboardTabs';
 import { setPresenting } from './presentation';
 
 const INTERVAL_KEY = 'mibi.presentInterval';
@@ -215,7 +215,7 @@ export function PresentationControls() {
     (state: RootState) =>
       state.dashboardLayout.present[DASHBOARD_HEADER_ID]?.meta?.text ?? '',
   );
-  const tabs = useMemo(() => topLevelTabs(layout), [layout]);
+  const tabs = useMemo(() => visibleTabs(layout), [layout]);
   const current = activeTabIndex(tabs, activeTabs);
   const [playing, setPlaying] = useState(tabs.length > 1);
   const [interval, setIntervalSeconds] = useState(readInterval);

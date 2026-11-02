@@ -38,6 +38,7 @@ import findTabIndexByComponentId from '../../../util/findTabIndexByComponentId';
 import getDirectPathToTabIndex from '../../../util/getDirectPathToTabIndex';
 import getLeafComponentIdFromPath from '../../../util/getLeafComponentIdFromPath';
 import { NEW_TAB_ID } from '../../../util/constants';
+import { HIDDEN_PAGE_KEY } from 'src/mibi/present/dashboardTabs';
 import { RENDER_TAB, RENDER_TAB_CONTENT } from '../Tab';
 import { TABS_TYPE, TAB_TYPE } from '../../../util/componentTypes';
 import TabsRenderer from '../TabsRenderer';
@@ -131,22 +132,43 @@ const Tabs = (props: TabsProps): ReactElement => {
     (state: RootState) => state.dashboardState.nativeFiltersBarOpen ?? false,
   );
 
+  // AuraData BI: pages hidden from viewers
+  const layout = useSelector(
+    (state: RootState) => state.dashboardLayout?.present,
+  );
+  const isHiddenPage = useCallback(
+    (tabId: string) => !!layout?.[tabId]?.meta?.[HIDDEN_PAGE_KEY],
+    [layout],
+  );
+
   const { tabIndex: initTabIndex, activeKey: initActiveKey } = useMemo(() => {
-    let tabIndex = Math.max(
-      0,
-      findTabIndexByComponentId({
-        currentComponent: props.component,
-        directPathToChild,
-      }),
-    );
+    const linked = findTabIndexByComponentId({
+      currentComponent: props.component,
+      directPathToChild,
+    });
+    let tabIndex = Math.max(0, linked);
+    let wasActive = false;
     if (tabIndex === 0 && activeTabs?.length) {
       props.component.children.forEach((tabId, index) => {
         if (tabIndex === 0 && activeTabs?.includes(tabId)) {
           tabIndex = index;
+          wasActive = true;
         }
       });
     }
     const { children: tabIds } = props.component;
+    // A viewer starts on the first page they can see, unless a link opens another
+    if (
+      !props.editMode &&
+      linked < 0 &&
+      !wasActive &&
+      isHiddenPage(tabIds[tabIndex])
+    ) {
+      tabIndex = Math.max(
+        0,
+        tabIds.findIndex(tabId => !isHiddenPage(tabId)),
+      );
+    }
     const activeKey = tabIds[tabIndex];
 
     return {
@@ -256,6 +278,18 @@ const Tabs = (props: TabsProps): ReactElement => {
       setActiveKey,
     ],
   );
+
+  // Leaving the editor on a hidden page: viewers have no tab for it
+  const wasEditing = usePrevious(props.editMode);
+  useEffect(() => {
+    if (wasEditing && !props.editMode && isHiddenPage(activeKey)) {
+      const first = props.component.children.findIndex(
+        tabId => !isHiddenPage(tabId),
+      );
+      if (first > -1) handleClickTab(first);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [props.editMode]);
 
   const handleDropOnTab = useCallback(
     (dropResult: DropResult) => {
@@ -477,6 +511,7 @@ const Tabs = (props: TabsProps): ReactElement => {
                 activeKey !== tabId && tabsToHighlight?.includes(tabId)
               }
               onTabTitleEditingChange={handleTabTitleEditingChange}
+              onDeletePage={() => showDeleteConfirmModal(tabId)}
             />
           </>
         ),
@@ -525,6 +560,7 @@ const Tabs = (props: TabsProps): ReactElement => {
       selectedTabIndex,
       isCurrentTabVisible,
       handleTabTitleEditingChange,
+      showDeleteConfirmModal,
     ],
   );
 

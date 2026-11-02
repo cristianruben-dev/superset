@@ -110,9 +110,10 @@ export const copyObject =
   };
 
 /** Creates a copy of a chart in a dashboard; returns its id and name. */
-async function cloneChart(
+export async function cloneChart(
   chartId: number,
   dashboardId: number,
+  { keepName = false }: { keepName?: boolean } = {},
 ): Promise<{ id: number; name: string }> {
   const { json } = await SupersetClient.get({
     endpoint: `/api/v1/chart/?q=${rison.encode({
@@ -130,7 +131,7 @@ async function cloneChart(
   });
   const source = json.result?.[0];
   if (!source) throw new Error('Chart not found');
-  const name = t('%s (copy)', source.slice_name);
+  const name = keepName ? source.slice_name : t('%s (copy)', source.slice_name);
   const created = await SupersetClient.post({
     endpoint: '/api/v1/chart/',
     jsonPayload: {

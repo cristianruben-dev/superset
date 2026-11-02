@@ -30,7 +30,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Tooltip } from '@superset-ui/core/components';
 import type { RootState } from 'src/dashboard/types';
 import { setDirectPathToChild } from 'src/dashboard/actions/dashboardState';
-import { topLevelTabs } from 'src/mibi/present/dashboardTabs';
+import { visibleTabs } from 'src/mibi/present/dashboardTabs';
 import { t } from '@apache-superset/core/translation';
 import { css, styled, useTheme } from '@apache-superset/core/theme';
 import { Icons } from '@superset-ui/core/components/Icons';
@@ -405,7 +405,7 @@ export function NavigatorView({
   const activeTabs = useSelector(
     (state: RootState) => state.dashboardState.activeTabs,
   );
-  const pages = topLevelTabs(layout);
+  const pages = visibleTabs(layout);
   const normal = {
     fill: config.normal?.fill || theme.colorBgContainer,
     color: config.normal?.color || theme.colorText,
