@@ -26,7 +26,11 @@ import {
   useRef,
   useState,
 } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { Tooltip } from '@superset-ui/core/components';
+import type { RootState } from 'src/dashboard/types';
+import { setDirectPathToChild } from 'src/dashboard/actions/dashboardState';
+import { topLevelTabs } from 'src/mibi/present/dashboardTabs';
 import { t } from '@apache-superset/core/translation';
 import { css, styled, useTheme } from '@apache-superset/core/theme';
 import { Icons } from '@superset-ui/core/components/Icons';
@@ -45,6 +49,7 @@ import type {
   ButtonElement,
   HoverEffect,
   ImageElement,
+  NavigatorElement,
   ShapeElement,
   TextElement,
 } from './types';
@@ -384,6 +389,82 @@ const StyledButton = styled.button`
     text-overflow: ellipsis;
   }
 `;
+
+export function NavigatorView({
+  config,
+  editMode,
+}: {
+  config: NavigatorElement;
+  editMode: boolean;
+}) {
+  const theme = useTheme();
+  const dispatch = useDispatch();
+  const layout = useSelector(
+    (state: RootState) => state.dashboardLayout.present,
+  );
+  const activeTabs = useSelector(
+    (state: RootState) => state.dashboardState.activeTabs,
+  );
+  const pages = topLevelTabs(layout);
+  const normal = {
+    fill: config.normal?.fill || theme.colorBgContainer,
+    color: config.normal?.color || theme.colorText,
+    borderColor: config.normal?.borderColor || theme.colorBorder,
+  };
+  const active = {
+    fill: config.active?.fill || theme.colorPrimary,
+    color: config.active?.color || theme.colorTextLightSolid,
+    borderColor: config.active?.borderColor || theme.colorPrimary,
+  };
+  const text = textCss(config.textStyle, theme);
+  if (!pages.length) {
+    return (
+      <div style={{ ...text, padding: 8 }}>{t('This report has no pages')}</div>
+    );
+  }
+  return (
+    <div
+      data-test="mibi-navigator"
+      style={{
+        display: 'flex',
+        flexDirection: config.direction === 'column' ? 'column' : 'row',
+        gap: config.gap ?? 8,
+        width: '100%',
+        height: '100%',
+      }}
+    >
+      {pages.map(page => {
+        const on = activeTabs?.includes(page.id);
+        const colors = on ? active : normal;
+        return (
+          <button
+            key={page.id}
+            type="button"
+            aria-current={on ? 'page' : undefined}
+            onClick={() => {
+              if (!editMode) dispatch(setDirectPathToChild(page.path));
+            }}
+            style={{
+              ...text,
+              flex: 1,
+              minWidth: 0,
+              cursor: editMode ? 'inherit' : 'pointer',
+              background: colors.fill,
+              color: colors.color,
+              border: `1px solid ${colors.borderColor}`,
+              borderRadius: config.radius ?? 6,
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {page.title || t('Untitled')}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
 
 export function ButtonView({
   config,

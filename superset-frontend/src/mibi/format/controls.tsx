@@ -270,3 +270,12 @@ export function Segments<T extends string>({
     </SegmentsBox>
   );
 }
+
+/** A short note under a control. */
+export const Hint = styled.p`
+  ${({ theme }) => css`
+    margin: 0;
+    font-size: ${theme.fontSizeSM}px;
+    color: ${theme.colorTextTertiary};
+  `}
+`;

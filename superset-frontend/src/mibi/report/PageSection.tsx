@@ -16,16 +16,39 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { useMemo } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { t } from '@apache-superset/core/translation';
 import { css, styled } from '@apache-superset/core/theme';
-import { Select, Switch } from '@superset-ui/core/components';
+import { Button, Select, Switch } from '@superset-ui/core/components';
+import { getClientErrorObject } from '@superset-ui/core';
+import { logging } from '@apache-superset/core/utils';
+import { useToasts } from 'src/components/MessageToasts/withToasts';
+import {
+  deleteElementImage,
+  uploadElementImage,
+} from 'src/mibi/elements/actions';
+import type { CanvasFormat } from 'src/mibi/format/types';
 import type { RootState } from 'src/dashboard/types';
 import { setComponentMeta } from 'src/mibi/format/actions';
-import { Field, Section } from 'src/mibi/format/controls';
+import {
+  ColorField,
+  Field,
+  RangeField,
+  Section,
+  Segments,
+} from 'src/mibi/format/controls';
 import { topLevelTabs } from 'src/mibi/present/dashboardTabs';
-import { DRILLTHROUGH_PAGE_KEY, type DrillthroughPage } from './types';
+import {
+  DRILLTHROUGH_PAGE_KEY,
+  PAGE_BACKGROUND_KEY,
+  type DrillthroughPage,
+} from './types';
+
+const MAX_IMAGE_BYTES = 2 * 1024 * 1024;
+type PageBackground = NonNullable<CanvasFormat['background']> & {
+  imageId?: number;
+};
 
 const Hint = styled.p`
   ${({ theme }) => css`
@@ -62,6 +85,10 @@ export function PageSection() {
     (state: RootState) => state.dashboardState.activeTabs,
   );
   const columns = useDashboardColumns();
+  const dashboardId = useSelector((state: RootState) => state.dashboardInfo.id);
+  const { addDangerToast } = useToasts();
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
   const page = topLevelTabs(layout).find(tab => activeTabs?.includes(tab.id));
   if (!page) return null;
 
@@ -71,9 +98,108 @@ export function PageSection() {
   const save = (next: DrillthroughPage | undefined) =>
     dispatch(setComponentMeta(page.id, DRILLTHROUGH_PAGE_KEY, next) as never);
 
+  const background = (layout[page.id]?.meta?.[PAGE_BACKGROUND_KEY] ?? {
+    type: 'none',
+  }) as PageBackground;
+  const setBackground = (next: PageBackground | undefined) =>
+    dispatch(setComponentMeta(page.id, PAGE_BACKGROUND_KEY, next) as never);
+  const onFile = async (file?: File) => {
+    if (!file) return;
+    if (file.size > MAX_IMAGE_BYTES) {
+      addDangerToast(t('The image is larger than 2 MB'));
+      return;
+    }
+    setUploading(true);
+    try {
+      if (background.imageId) {
+        await deleteElementImage(dashboardId, background.imageId).catch(
+          logging.error,
+        );
+      }
+      const image = await uploadElementImage(dashboardId, file);
+      setBackground({
+        ...background,
+        type: 'image',
+        image: image.url,
+        imageId: image.id,
+        fit: background.fit ?? 'cover',
+      });
+    } catch (error) {
+      const { message, error: text } = await getClientErrorObject(error);
+      logging.error(error);
+      addDangerToast(message || text || t('The image could not be uploaded'));
+    } finally {
+      setUploading(false);
+      if (fileRef.current) fileRef.current.value = '';
+    }
+  };
+
   return (
     <Section data-test="mibi-format-page">
       <h4>{t('Page: %s', page.title || t('Untitled'))}</h4>
+      <Field label={t('Page background')}>
+        <Segments<'none' | 'color' | 'image'>
+          name={t('Page background')}
+          value={
+            background.type === 'image' || background.type === 'color'
+              ? background.type
+              : 'none'
+          }
+          onChange={type =>
+            setBackground(type === 'none' ? undefined : { ...background, type })
+          }
+          options={[
+            { value: 'none', label: t('Canvas') },
+            { value: 'color', label: t('Color') },
+            { value: 'image', label: t('Image') },
+          ]}
+        />
+      </Field>
+      {background.type === 'color' && (
+        <ColorField
+          label={t('Color')}
+          value={background.color ?? '#FFFFFF'}
+          onChange={color => setBackground({ ...background, color })}
+        />
+      )}
+      {background.type === 'image' && (
+        <>
+          <input
+            ref={fileRef}
+            type="file"
+            accept="image/png,image/jpeg,image/gif,image/webp"
+            hidden
+            data-test="mibi-page-background-file"
+            onChange={event => onFile(event.target.files?.[0])}
+          />
+          <Button
+            buttonStyle="secondary"
+            loading={uploading}
+            onClick={() => fileRef.current?.click()}
+          >
+            {background.image ? t('Change') : t('Upload image')}
+          </Button>
+          <Field label={t('Fit')}>
+            <Segments<'cover' | 'contain' | 'repeat'>
+              name={t('Fit')}
+              value={background.fit ?? 'cover'}
+              onChange={fit => setBackground({ ...background, fit })}
+              options={[
+                { value: 'cover', label: t('Fill') },
+                { value: 'contain', label: t('Fit') },
+                { value: 'repeat', label: t('Tile') },
+              ]}
+            />
+          </Field>
+          <RangeField
+            label={t('Opacity')}
+            value={background.opacity ?? 100}
+            min={0}
+            max={100}
+            onChange={opacity => setBackground({ ...background, opacity })}
+          />
+        </>
+      )}
       <Field label={t('Drill through to this page')}>
         <Switch
           size="small"

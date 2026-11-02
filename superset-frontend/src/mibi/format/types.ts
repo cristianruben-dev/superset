@@ -40,12 +40,35 @@ export interface VisualFormat {
     size?: number;
     color?: string;
     align?: TitleAlign;
+    /** Fill of the header band, edge to edge */
+    background?: string;
+    bold?: boolean;
+    italic?: boolean;
+    /** Title with tokens: {value}, {filters}, {filter:Name}, {chart} */
+    template?: string;
     subtitle?: string;
     subtitleSize?: number;
     subtitleColor?: string;
     /** A line under the header */
     divider?: boolean;
     dividerColor?: string;
+  };
+  /** The number of a KPI card */
+  value?: {
+    size?: number;
+    color?: string;
+    bold?: boolean;
+    italic?: boolean;
+    /** Title with tokens: {value}, {filters}, {filter:Name}, {chart} */
+    template?: string;
+    align?: TitleAlign;
+  };
+  /** The metric name and subtitle of a KPI card */
+  label?: {
+    size?: number;
+    color?: string;
+    bold?: boolean;
+    italic?: boolean;
   };
   /** Which header icons viewers see (all by default) */
   header?: {

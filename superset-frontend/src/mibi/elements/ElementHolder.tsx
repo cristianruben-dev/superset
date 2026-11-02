@@ -51,12 +51,18 @@ import {
   type ElementConfig,
   type TextElement,
 } from './types';
-import { ButtonView, ImageView, ShapeView, TextView } from './views';
+import {
+  ButtonView,
+  ImageView,
+  NavigatorView,
+  ShapeView,
+  TextView,
+} from './views';
 import { FilterView } from './FilterView';
 import { useHiddenOverride } from 'src/mibi/report/visibility';
 
-/** Design elements (text, shapes, buttons) can be as low as 24 px. */
-const ELEMENT_MIN_ROW_UNITS = 3;
+/** Design elements (text, shapes, buttons) can be as low as one cell. */
+const ELEMENT_MIN_ROW_UNITS = 1;
 
 export interface ElementHolderProps {
   id: string;
@@ -142,6 +148,8 @@ function ElementHolder({
         return <ButtonView config={config} editMode={editMode} />;
       case 'filter':
         return <FilterView config={config} editMode={editMode} />;
+      case 'navigator':
+        return <NavigatorView config={config} editMode={editMode} />;
       case 'text':
         return (
           <TextView
@@ -208,7 +216,13 @@ function ElementHolder({
             )}
             style={box.style}
             onClickCapture={
-              editMode ? () => selectVisual(component.id) : undefined
+              editMode
+                ? event =>
+                    selectVisual(
+                      component.id,
+                      event.shiftKey || event.metaKey || event.ctrlKey,
+                    )
+                : undefined
             }
           >
             {editMode && (

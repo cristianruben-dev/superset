@@ -32,7 +32,7 @@ import {
   readClipboard,
 } from './clipboard';
 import { nudgeObject } from './actions';
-import { selectedVisual } from './selection';
+import { selectedVisual, selectedVisuals } from './selection';
 
 type AppDispatch = ThunkDispatch<RootState, undefined, AnyAction>;
 
@@ -109,7 +109,9 @@ export function useObjectShortcuts() {
           // Shift moves five cells at a time
           const steps = event.shiftKey ? 5 : 1;
           event.preventDefault();
-          dispatch(nudgeObject(picked, arrow[0] * steps, arrow[1] * steps));
+          selectedVisuals().forEach(id =>
+            dispatch(nudgeObject(id, arrow[0] * steps, arrow[1] * steps)),
+          );
         }
         return;
       }

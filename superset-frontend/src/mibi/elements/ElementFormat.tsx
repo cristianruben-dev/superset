@@ -62,12 +62,13 @@ import {
   type HoverEffect,
   type ImageElement,
   type Interactive,
+  type NavigatorElement,
   type ShapeElement,
   type ShapeKind,
   type TextElement,
   type TextStyle,
 } from './types';
-import { ShapeView } from './views';
+import { NavigatorView, ShapeView } from './views';
 
 const MAX_IMAGE_BYTES = 2 * 1024 * 1024;
 
@@ -78,6 +79,7 @@ export const elementName = (kind: ElementKind) =>
     button: t('Button'),
     text: t('Text box'),
     filter: t('Filter'),
+    navigator: t('Page navigator'),
   })[kind];
 
 const Grid = styled.div`
@@ -1246,6 +1248,110 @@ function TextSection({
   );
 }
 
+function NavigatorSection({
+  id,
+  config,
+  update,
+}: {
+  id: string;
+  config: NavigatorElement;
+  update: (patch: Partial<NavigatorElement>, setting: string) => void;
+}) {
+  const theme = useTheme();
+  const set =
+    (key: 'normal' | 'active') =>
+    (
+      patch: Partial<NonNullable<NavigatorElement['normal']>>,
+      setting: string,
+    ) =>
+      update({ [key]: { ...config[key], ...patch } }, `${key}-${setting}`);
+  const setNormal = set('normal');
+  const setActive = set('active');
+  return (
+    <>
+      <Section>
+        <h4>{t('Page navigator')}</h4>
+        <Hint>
+          {t(
+            'One button per page of the report. The page that is open is highlighted.',
+          )}
+        </Hint>
+        <Field label={t('Direction')}>
+          <Segments<'row' | 'column'>
+            name={t('Direction')}
+            value={config.direction ?? 'row'}
+            onChange={direction => update({ direction }, 'direction')}
+            options={[
+              { value: 'row', label: t('Horizontal') },
+              { value: 'column', label: t('Vertical') },
+            ]}
+          />
+        </Field>
+        <RangeField
+          label={t('Space between buttons')}
+          value={config.gap ?? 8}
+          min={0}
+          max={40}
+          onChange={gap => update({ gap }, 'gap')}
+        />
+        <RangeField
+          label={t('Corner radius')}
+          value={config.radius ?? 6}
+          min={0}
+          max={30}
+          onChange={radius => update({ radius }, 'radius')}
+        />
+        <RangeField
+          label={t('Text size')}
+          value={config.textStyle?.size ?? 14}
+          min={8}
+          max={32}
+          onChange={size =>
+            update({ textStyle: { ...config.textStyle, size } }, 'text-size')
+          }
+        />
+      </Section>
+      <Section>
+        <h4>{t('Other pages')}</h4>
+        <ColorField
+          label={t('Fill')}
+          value={config.normal?.fill || theme.colorBgContainer}
+          onChange={fill => setNormal({ fill }, 'fill')}
+        />
+        <ColorField
+          label={t('Text')}
+          value={config.normal?.color || theme.colorText}
+          onChange={color => setNormal({ color }, 'color')}
+        />
+        <ColorField
+          label={t('Border')}
+          value={config.normal?.borderColor || theme.colorBorder}
+          onChange={borderColor => setNormal({ borderColor }, 'border')}
+        />
+      </Section>
+      <Section>
+        <h4>{t('Open page')}</h4>
+        <ColorField
+          label={t('Fill')}
+          value={config.active?.fill || theme.colorPrimary}
+          onChange={fill => setActive({ fill }, 'fill')}
+        />
+        <ColorField
+          label={t('Text')}
+          value={config.active?.color || theme.colorTextLightSolid}
+          onChange={color => setActive({ color }, 'color')}
+        />
+        <ColorField
+          label={t('Border')}
+          value={config.active?.borderColor || theme.colorPrimary}
+          onChange={borderColor => setActive({ borderColor }, 'border')}
+        />
+      </Section>
+      <BoxSections id={id} />
+    </>
+  );
+}
+
 function FilterSection({
   id,
   config,
@@ -1255,6 +1361,7 @@ function FilterSection({
   config: FilterElement;
   update: (patch: Partial<FilterElement>, setting: string) => void;
 }) {
+  const theme = useTheme();
   const filters = useFilters();
   const options = useMemo(
     () =>
@@ -1297,6 +1404,59 @@ function FilterSection({
           />
         </Field>
       </Section>
+      <Section>
+        <h4>{t('Slicer style')}</h4>
+        <Field label={t('Show label')}>
+          <Switch
+            size="small"
+            checked={!config.hideLabel}
+            aria-label={t('Show label')}
+            onChange={show => update({ hideLabel: !show }, 'filter-label')}
+          />
+        </Field>
+        <RangeField
+          label={t('Label size')}
+          value={config.labelSize ?? 13}
+          min={8}
+          max={28}
+          onChange={labelSize => update({ labelSize }, 'filter-label-size')}
+        />
+        <ColorField
+          label={t('Label color')}
+          value={config.labelColor || theme.colorText}
+          onChange={labelColor => update({ labelColor }, 'filter-label-color')}
+        />
+        <Field label={t('Bold')}>
+          <Switch
+            size="small"
+            checked={config.labelBold ?? false}
+            aria-label={t('Bold label')}
+            onChange={labelBold => update({ labelBold }, 'filter-label-bold')}
+          />
+        </Field>
+        <ColorField
+          label={t('Control fill')}
+          value={config.boxFill || theme.colorBgContainer}
+          onChange={boxFill => update({ boxFill }, 'filter-fill')}
+        />
+        <ColorField
+          label={t('Control border')}
+          value={config.boxBorder || theme.colorBorder}
+          onChange={boxBorder => update({ boxBorder }, 'filter-border')}
+        />
+        <ColorField
+          label={t('Control text')}
+          value={config.textColor || theme.colorText}
+          onChange={textColor => update({ textColor }, 'filter-text')}
+        />
+        <RangeField
+          label={t('Corner radius')}
+          value={config.boxRadius ?? 6}
+          min={0}
+          max={20}
+          onChange={boxRadius => update({ boxRadius }, 'filter-radius')}
+        />
+      </Section>
       <SyncSlicers elementId={id} filterId={config.filterId} />
       <BoxSections id={id} />
     </>
@@ -1331,6 +1491,8 @@ export function ElementSection({ id }: { id: string }) {
       return <TextSection id={id} config={config} update={update} />;
     case 'filter':
       return <FilterSection id={id} config={config} update={update} />;
+    case 'navigator':
+      return <NavigatorSection id={id} config={config} update={update} />;
     default:
       return <ShapeSection config={config} update={update} />;
   }

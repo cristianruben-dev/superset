@@ -25,7 +25,7 @@ import {
   useRef,
   useState,
 } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch, useSelector, useStore } from 'react-redux';
 import cx from 'classnames';
 import { fitToCanvas } from './actions';
 import { usePhoneScreen } from './mobile';
@@ -34,10 +34,13 @@ import type { LayoutItem, RootState } from 'src/dashboard/types';
 import { ROW_TYPE } from 'src/dashboard/util/componentTypes';
 import { DASHBOARD_ROOT_ID } from 'src/dashboard/util/constants';
 import { usePresenting } from 'src/mibi/present/presentation';
+import { topLevelTabs } from 'src/mibi/present/dashboardTabs';
+import { PAGE_BACKGROUND_KEY } from 'src/mibi/report/types';
 import { ReportTheme, useReportLook } from 'src/mibi/report/ReportTheme';
 import { TabsDockTarget } from 'src/mibi/report/TabsDock';
 import { posOf } from './positions';
-import { selectVisual } from './selection';
+import { selectVisual, setGroupResolver } from './selection';
+import { groupMembers } from './arrange';
 import { CELL, type CanvasFormat } from './types';
 import { canvasSize, canvasStyle, canvasZoom, hasCanvasFormat } from './styles';
 
@@ -126,10 +129,36 @@ export function CanvasFrame({ children }: { children: ReactNode }) {
   // The page is the report: its colors follow the report's look, not the app's
   const look = useReportLook();
   const theme = look?.theme ?? appTheme;
-  const canvas = useSelector(
+  const baseCanvas = useSelector(
     (state: RootState) =>
       state.dashboardLayout?.present?.[DASHBOARD_ROOT_ID]?.meta?.mibiCanvas,
   );
+  // A page can have a background of its own
+  const pageBackground = useSelector((state: RootState) => {
+    const layout = state.dashboardLayout?.present;
+    if (!layout) return undefined;
+    const page = topLevelTabs(layout).find(tab =>
+      state.dashboardState?.activeTabs?.includes(tab.id),
+    );
+    return page
+      ? (layout[page.id]?.meta?.[PAGE_BACKGROUND_KEY] as
+          | CanvasFormat['background']
+          | undefined)
+      : undefined;
+  });
+  const canvas = useMemo(
+    () =>
+      pageBackground && pageBackground.type !== 'none'
+        ? { ...baseCanvas, background: pageBackground }
+        : baseCanvas,
+    [baseCanvas, pageBackground],
+  );
+  const store = useStore<RootState>();
+  useEffect(() => {
+    setGroupResolver(id =>
+      groupMembers(store.getState().dashboardLayout.present, id),
+    );
+  }, [store]);
   const presenting = usePresenting();
   const editMode = useSelector(
     (state: RootState) => state.dashboardState?.editMode,
@@ -145,6 +174,21 @@ export function CanvasFrame({ children }: { children: ReactNode }) {
   const pageRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const [contentHeight, setContentHeight] = useState(0);
+  const scaledRef = useRef<HTMLDivElement>(null);
+  const [scaledHeight, setScaledHeight] = useState(0);
+
+  // Height of the page and its tabs, before scaling: the box that holds them
+  // takes the scaled height
+  useEffect(() => {
+    const element = scaledRef.current;
+    if (!element || typeof ResizeObserver === 'undefined') return undefined;
+    const observer = new ResizeObserver(() =>
+      setScaledHeight(element.offsetHeight),
+    );
+    observer.observe(element);
+    setScaledHeight(element.offsetHeight);
+    return () => observer.disconnect();
+  }, []);
 
   // Height of the visuals, in canvas pixels (not zoomed)
   useEffect(() => {
@@ -265,66 +309,82 @@ export function CanvasFrame({ children }: { children: ReactNode }) {
             // While editing, the page is exactly its size: drop zones below
             // the last row never make it look taller
             height: editMode && !overflowing ? size.height : undefined,
-            zoom,
           }
         : undefined),
     }),
     [canvas, theme, look, size, zoom, editMode, overflowing],
   );
 
-  // The tabs dock is as wide as the page and zoomed with it
-  const dockStyle = useMemo(
+  // The page is scaled with a transform, not with CSS zoom: charts read the
+  // pointer position through the transform, and with zoom they miss the mark
+  const frameStyle = useMemo(
+    () =>
+      size
+        ? {
+            width: size.width * zoom,
+            height: scaledHeight ? scaledHeight * zoom : undefined,
+            flex: 'none' as const,
+          }
+        : { width: '100%' },
+    [size, zoom, scaledHeight],
+  );
+  const scaledStyle = useMemo(
     () =>
       size
         ? {
             width: size.width,
-            zoom,
+            transform: `scale(${zoom})`,
+            transformOrigin: 'top left',
           }
-        : { width: '100%' },
+        : undefined,
     [size, zoom],
   );
 
   return (
     <Outer ref={outerRef} data-test="mibi-canvas-outer">
       <ReportTheme>
-        <TabsDockTarget style={dockStyle} />
-        <Page
-          ref={pageRef}
-          data-test="mibi-canvas"
-          className={cx(
-            'mibi-canvas',
-            editMode && !mobile && 'mibi-show-grid',
-            mobile && 'mibi-mobile',
-          )}
-          $decorated={hasCanvasFormat(canvas)}
-          $fixed={!!size}
-          style={style}
-          onClick={
-            editMode
-              ? event => {
-                  // A click on the canvas itself formats the canvas
-                  const target = event.target as Element;
-                  if (
-                    !target.closest?.(
-                      '.dashboard-component-chart-holder, .mibi-element',
-                    )
-                  ) {
-                    selectVisual(null);
-                  }
-                }
-              : undefined
-          }
-        >
-          <CanvasZoomContext.Provider value={zoom}>
-            <CanvasMobileContext.Provider value={mobile}>
-              <CanvasRoomContext.Provider
-                value={size && editMode ? room - contentHeight : Infinity}
-              >
-                <div ref={contentRef}>{children}</div>
-              </CanvasRoomContext.Provider>
-            </CanvasMobileContext.Provider>
-          </CanvasZoomContext.Provider>
-        </Page>
+        <div style={frameStyle}>
+          <div ref={scaledRef} style={scaledStyle}>
+            <TabsDockTarget style={{ width: '100%' }} />
+            <Page
+              ref={pageRef}
+              data-test="mibi-canvas"
+              className={cx(
+                'mibi-canvas',
+                editMode && !mobile && 'mibi-show-grid',
+                mobile && 'mibi-mobile',
+              )}
+              $decorated={hasCanvasFormat(canvas)}
+              $fixed={!!size}
+              style={style}
+              onClick={
+                editMode
+                  ? event => {
+                      // A click on the canvas itself formats the canvas
+                      const target = event.target as Element;
+                      if (
+                        !target.closest?.(
+                          '.dashboard-component-chart-holder, .mibi-element',
+                        )
+                      ) {
+                        selectVisual(null);
+                      }
+                    }
+                  : undefined
+              }
+            >
+              <CanvasZoomContext.Provider value={zoom}>
+                <CanvasMobileContext.Provider value={mobile}>
+                  <CanvasRoomContext.Provider
+                    value={size && editMode ? room - contentHeight : Infinity}
+                  >
+                    <div ref={contentRef}>{children}</div>
+                  </CanvasRoomContext.Provider>
+                </CanvasMobileContext.Provider>
+              </CanvasZoomContext.Provider>
+            </Page>
+          </div>
+        </div>
       </ReportTheme>
     </Outer>
   );

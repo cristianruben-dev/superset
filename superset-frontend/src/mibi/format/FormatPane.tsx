@@ -46,8 +46,20 @@ import {
   setVisualFormat,
   uploadBackground,
 } from './actions';
-import { ColorField, Field, RangeField, Section, Segments } from './controls';
-import { selectVisual, useSelectedVisual } from './selection';
+import {
+  Hint,
+  ColorField,
+  Field,
+  RangeField,
+  Section,
+  Segments,
+} from './controls';
+import {
+  selectVisual,
+  useSelectedVisual,
+  useSelectedVisuals,
+} from './selection';
+import { LayersSection, MultiSection } from './ArrangeSection';
 import { GridSection } from './GridSection';
 import { canvasSize, mergeVisualFormat } from './styles';
 import { useSharedVisualFormat } from './useVisualFormat';
@@ -248,6 +260,22 @@ function VisualSection({ id }: { id: string }) {
   const updateTitle = (patch: VisualFormat['title'], setting: string) =>
     update({ title: { ...own.title, ...patch } }, `title-${setting}`);
   const titleShown = format.title?.show !== false;
+  const updateValue = (patch: VisualFormat['value'], setting: string) =>
+    update({ value: { ...own.value, ...patch } }, `value-${setting}`);
+  const updateLabel = (patch: VisualFormat['label'], setting: string) =>
+    update({ label: { ...own.label, ...patch } }, `label-${setting}`);
+  const chartId = item?.meta?.chartId;
+  const vizType = useSelector(
+    (state: RootState) =>
+      (chartId !== undefined &&
+        (
+          state as {
+            sliceEntities?: { slices?: Record<number, { viz_type?: string }> };
+          }
+        ).sliceEntities?.slices?.[chartId]?.viz_type) ||
+      '',
+  );
+  const isCard = vizType.startsWith('big_number');
 
   return (
     <>
@@ -286,6 +314,44 @@ function VisualSection({ id }: { id: string }) {
               value={format.title?.color || theme.colorText}
               onChange={color => updateTitle({ color }, 'color')}
             />
+            <ColorField
+              label={t('Header fill')}
+              value={format.title?.background || theme.colorBgContainer}
+              onChange={background => updateTitle({ background }, 'fill')}
+            />
+            <Input
+              value={format.title?.template ?? ''}
+              placeholder={t('Dynamic title, e.g. Employees: {value}')}
+              maxLength={300}
+              aria-label={t('Dynamic title')}
+              onChange={event =>
+                updateTitle(
+                  { template: event.target.value || undefined },
+                  'template',
+                )
+              }
+            />
+            <Hint>
+              {t(
+                'Tokens: {value} the first number of the chart, {filters} the selections of the page, {filter:Name} one filter and {chart} the chart name.',
+              )}
+            </Hint>
+            <Field label={t('Bold')}>
+              <Switch
+                size="small"
+                checked={format.title?.bold ?? true}
+                aria-label={t('Bold title')}
+                onChange={bold => updateTitle({ bold }, 'bold')}
+              />
+            </Field>
+            <Field label={t('Italic')}>
+              <Switch
+                size="small"
+                checked={format.title?.italic ?? false}
+                aria-label={t('Italic title')}
+                onChange={italic => updateTitle({ italic }, 'italic')}
+              />
+            </Field>
             <Field label={t('Alignment')}>
               <Segments<TitleAlign>
                 name={t('Alignment')}
@@ -367,6 +433,76 @@ function VisualSection({ id }: { id: string }) {
           </>
         )}
       </Section>
+
+      {isCard && (
+        <Section>
+          <h4>{t('Card value')}</h4>
+          <RangeField
+            label={t('Value size')}
+            value={format.value?.size ?? 40}
+            min={10}
+            max={96}
+            onChange={size => updateValue({ size }, 'size')}
+          />
+          <ColorField
+            label={t('Value color')}
+            value={format.value?.color || theme.colorText}
+            onChange={color => updateValue({ color }, 'color')}
+          />
+          <Field label={t('Bold')}>
+            <Switch
+              size="small"
+              checked={format.value?.bold ?? true}
+              aria-label={t('Bold value')}
+              onChange={bold => updateValue({ bold }, 'bold')}
+            />
+          </Field>
+          <Field label={t('Italic')}>
+            <Switch
+              size="small"
+              checked={format.value?.italic ?? false}
+              aria-label={t('Italic value')}
+              onChange={italic => updateValue({ italic }, 'italic')}
+            />
+          </Field>
+          <Field label={t('Alignment')}>
+            <Segments<TitleAlign>
+              name={t('Value alignment')}
+              value={format.value?.align ?? 'left'}
+              onChange={align => updateValue({ align }, 'align')}
+              options={[
+                {
+                  value: 'left',
+                  title: t('Left'),
+                  label: <Icons.AlignLeftOutlined iconSize="m" />,
+                },
+                {
+                  value: 'center',
+                  title: t('Center'),
+                  label: <Icons.AlignCenterOutlined iconSize="m" />,
+                },
+                {
+                  value: 'right',
+                  title: t('Right'),
+                  label: <Icons.AlignRightOutlined iconSize="m" />,
+                },
+              ]}
+            />
+          </Field>
+          <RangeField
+            label={t('Label size')}
+            value={format.label?.size ?? 14}
+            min={8}
+            max={40}
+            onChange={size => updateLabel({ size }, 'size')}
+          />
+          <ColorField
+            label={t('Label color')}
+            value={format.label?.color || theme.colorTextSecondary}
+            onChange={color => updateLabel({ color }, 'color')}
+          />
+        </Section>
+      )}
 
       <Section>
         <h4>{t('Header icons')}</h4>
@@ -835,6 +971,7 @@ function PainterBar({ item }: { item: LayoutItem }) {
 
 export function FormatPane() {
   const selected = useSelectedVisual();
+  const many = useSelectedVisuals().length > 1;
   const dispatch = useDispatch();
   const { armed } = useFormatPainter();
 
@@ -904,6 +1041,7 @@ export function FormatPane() {
       <ObjectBar item={visual && item ? item : undefined} />
       {visual && item && <PainterBar item={item} />}
       <div className="pane-body">
+        {many && <MultiSection />}
         {visual && kind ? (
           <ElementSection id={visual} />
         ) : visual ? (
@@ -915,6 +1053,7 @@ export function FormatPane() {
               {t('Select a chart on the canvas to change its style.')}
             </div>
             <CanvasSection />
+            <LayersSection />
           </>
         )}
       </div>

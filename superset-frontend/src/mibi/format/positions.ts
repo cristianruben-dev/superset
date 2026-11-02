@@ -69,7 +69,13 @@ export function posOf(meta: Meta): Pos | undefined {
 export function posStyle(meta: Meta): CSSProperties | undefined {
   const pos = posOf(meta);
   if (!pos) return undefined;
-  return { position: 'absolute', left: pos.x * CELL, top: pos.y * CELL };
+  const z = Number(meta?.mibiZ);
+  return {
+    position: 'absolute',
+    left: pos.x * CELL,
+    top: pos.y * CELL,
+    ...(Number.isFinite(z) && z > 0 ? { zIndex: z } : undefined),
+  };
 }
 
 interface Point {

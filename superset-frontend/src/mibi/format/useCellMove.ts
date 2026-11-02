@@ -32,7 +32,8 @@ import {
 } from 'react';
 import { useDispatch } from 'react-redux';
 import type { LayoutItem } from 'src/dashboard/types';
-import { moveObject } from './actions';
+import { moveObject, nudgeObject } from './actions';
+import { selectedVisuals } from './selection';
 import { useCanvasZoom } from './CanvasFrame';
 import { gridColumnCount } from './columns';
 import { posOf, type Pos } from './positions';
@@ -127,6 +128,17 @@ export function useCellMove(component: LayoutItem, enabled: boolean): CellMove {
           (landing.x !== start.x || landing.y !== start.y)
         ) {
           dispatch(moveObject(component.id, landing));
+          // The rest of a selection or group moves by the same distance
+          const picked = selectedVisuals();
+          if (picked.includes(component.id)) {
+            picked
+              .filter(id => id !== component.id)
+              .forEach(id =>
+                dispatch(
+                  nudgeObject(id, landing.x - start.x, landing.y - start.y),
+                ),
+              );
+          }
         }
       };
       const onUp = () => end(true);

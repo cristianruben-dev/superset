@@ -51,6 +51,7 @@ import { InteractionControl } from 'src/mibi/report/InteractionControl';
 import { isInteractionControl } from 'src/mibi/report/interactions';
 import { useHiddenOverride } from 'src/mibi/report/visibility';
 import { useMergedVisualFormat } from 'src/mibi/format/useVisualFormat';
+import { useDynamicTitle } from 'src/mibi/format/dynamicTitle';
 import {
   useCanvasMobile,
   useMaxHeightMultiple,
@@ -141,6 +142,13 @@ const ChartHolder = ({
 
   const focusHighlightStyles = useFilterFocusHighlightStyles(chartId ?? 0);
   const visualFormat = useMergedVisualFormat(component.meta.mibiFormat);
+  // A title with tokens shows the value or the selections it names
+  const dynamicName = useDynamicTitle(
+    visualFormat?.title?.template,
+    component.meta.sliceNameOverride || component.meta.sliceName || '',
+    component.meta.chartId ?? 0,
+    t('All'),
+  );
   const formatted = useMemo(
     () => visualStyle(visualFormat, theme),
     [visualFormat, theme],
@@ -337,7 +345,10 @@ const ChartHolder = ({
               ? (event: MouseEvent<HTMLDivElement>) => {
                   // AuraData BI: the interaction controls keep the selection
                   if (!isInteractionControl(event.target)) {
-                    selectVisual(component.id);
+                    selectVisual(
+                      component.id,
+                      event.shiftKey || event.metaKey || event.ctrlKey,
+                    );
                   }
                 }
               : undefined
@@ -384,9 +395,11 @@ const ChartHolder = ({
               width={chartWidth}
               height={chartHeight}
               sliceName={
-                component.meta.sliceNameOverride ||
-                component.meta.sliceName ||
-                ''
+                editMode
+                  ? component.meta.sliceNameOverride ||
+                    component.meta.sliceName ||
+                    ''
+                  : dynamicName
               }
               updateSliceName={(_sliceId: number, name: string) =>
                 handleUpdateSliceName(name)

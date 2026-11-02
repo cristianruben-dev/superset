@@ -25,7 +25,13 @@ import type { VisualFormat } from 'src/mibi/format/types';
  * them in the same mibiFormat charts use.
  */
 
-export type ElementKind = 'image' | 'shape' | 'button' | 'text' | 'filter';
+export type ElementKind =
+  | 'image'
+  | 'shape'
+  | 'button'
+  | 'text'
+  | 'filter'
+  | 'navigator';
 
 export const ELEMENT_PREFIX = 'mibi-';
 export const ELEMENT_KEY = 'mibiElement';
@@ -36,7 +42,7 @@ export const elementKind = (componentKey: unknown): ElementKind | null => {
   if (typeof componentKey !== 'string') return null;
   const kind = componentKey.slice(ELEMENT_PREFIX.length);
   return componentKey.startsWith(ELEMENT_PREFIX) &&
-    ['image', 'shape', 'button', 'text', 'filter'].includes(kind)
+    ['image', 'shape', 'button', 'text', 'filter', 'navigator'].includes(kind)
     ? (kind as ElementKind)
     : null;
 };
@@ -168,6 +174,26 @@ export interface FilterElement {
   filterId?: string;
   /** Also list the filter in the filter bar (default true) */
   showInFilterBar?: boolean;
+  /** Look of the slicer: its label above and the box of the control */
+  hideLabel?: boolean;
+  labelSize?: number;
+  labelColor?: string;
+  labelBold?: boolean;
+  boxFill?: string;
+  boxBorder?: string;
+  boxRadius?: number;
+  textColor?: string;
+}
+
+/** One button per page of the report; the page that is open is highlighted. */
+export interface NavigatorElement {
+  kind: 'navigator';
+  direction?: 'row' | 'column';
+  gap?: number;
+  radius?: number;
+  normal?: ButtonState;
+  active?: ButtonState;
+  textStyle?: TextStyle;
 }
 
 export type ElementConfig =
@@ -175,7 +201,8 @@ export type ElementConfig =
   | ShapeElement
   | ButtonElement
   | TextElement
-  | FilterElement;
+  | FilterElement
+  | NavigatorElement;
 
 /** Icons a button can show, by their name in Icons. */
 export const BUTTON_ICONS = [
@@ -292,6 +319,17 @@ export const ELEMENT_DEFAULTS: Record<
       radius: 12,
     },
     element: { kind: 'filter', showInFilterBar: true },
+  },
+  navigator: {
+    width: 24,
+    height: 2,
+    format: {
+      background: 'transparent',
+      borderWidth: 0,
+      shadow: 'none',
+      padding: 0,
+    },
+    element: { kind: 'navigator', direction: 'row', gap: 8, radius: 6 },
   },
   text: {
     width: 12,

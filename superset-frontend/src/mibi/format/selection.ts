@@ -16,22 +16,73 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 import { useEffect, useState } from 'react';
 
 const EVENT = 'mibi:format-selection';
 const OPEN_EVENT = 'mibi:format-open';
-let selected: string | null = null;
 
-/** Layout id of the visual being formatted, or null for the canvas. */
+/** The object the Format pane edits: the last one picked. */
+let selected: string | null = null;
+/** The rest of a multiple selection. */
+let others: string[] = [];
+/** Members of the group an object belongs to (itself included), if any. */
+let groupOf: (id: string) => string[] = id => [id];
+
 export const selectedVisual = () => selected;
 
-export function selectVisual(id: string | null) {
-  if (selected === id) return;
-  selected = id;
-  window.dispatchEvent(new CustomEvent(EVENT, { detail: id }));
+/** Every object picked, the one the pane edits last. */
+export const selectedVisuals = (): string[] =>
+  selected ? [...others, selected] : [];
+
+/** Lets the canvas tell which objects are grouped with another. */
+export function setGroupResolver(resolver: (id: string) => string[]) {
+  groupOf = resolver;
 }
 
-/** Selects a visual and asks the builder pane to show the Format tab. */
+const emit = () =>
+  window.dispatchEvent(new CustomEvent(EVENT, { detail: selected }));
+
+/**
+ * Picks an object. With `additive` (shift or ctrl/cmd click) it joins or
+ * leaves the current selection; a grouped object brings its group along.
+ */
+export function selectVisual(id: string | null, additive = false) {
+  if (id === null) {
+    if (!selected && !others.length) return;
+    selected = null;
+    others = [];
+    emit();
+    return;
+  }
+  const members = groupOf(id);
+  if (additive) {
+    const all = selectedVisuals();
+    if (all.includes(id)) {
+      const rest = all.filter(item => !members.includes(item));
+      selected = rest.pop() ?? null;
+      others = rest;
+    } else {
+      const merged = [...all, ...members.filter(item => item !== id), id];
+      selected = merged.pop() ?? null;
+      others = merged;
+    }
+    emit();
+    return;
+  }
+  // Pressing an object of the current selection keeps it, to move it together
+  if (selected === id && others.length === members.length - 1) return;
+  if (selectedVisuals().length > 1 && selectedVisuals().includes(id)) {
+    others = selectedVisuals().filter(item => item !== id);
+    selected = id;
+    emit();
+    return;
+  }
+  selected = id;
+  others = members.filter(item => item !== id);
+  emit();
+}
+
 export function openFormat(id: string | null) {
   selectVisual(id);
   window.dispatchEvent(new CustomEvent(OPEN_EVENT));
@@ -48,7 +99,18 @@ export function useSelectedVisual(): string | null {
   return value;
 }
 
-/** Calls back when something asks to open the Format tab. */
+/** Every object picked on the canvas. */
+export function useSelectedVisuals(): string[] {
+  const [value, setValue] = useState<string[]>(selectedVisuals());
+  useEffect(() => {
+    const onChange = () => setValue(selectedVisuals());
+    window.addEventListener(EVENT, onChange);
+    onChange();
+    return () => window.removeEventListener(EVENT, onChange);
+  }, []);
+  return value;
+}
+
 export function useOnOpenFormat(callback: () => void) {
   useEffect(() => {
     window.addEventListener(OPEN_EVENT, callback);

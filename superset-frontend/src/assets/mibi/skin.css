@@ -935,7 +935,8 @@ body.mibi-panel .explore-column .ControlHeader {
 .dashboard-component-chart-holder .header-title,
 .dashboard-component-chart-holder .editable-title {
   font-size: var(--mb-v-title-size, 14px);
-  font-weight: 600;
+  font-weight: var(--mb-v-title-weight, 600);
+  font-style: var(--mb-v-title-style, normal);
   letter-spacing: -0.01em;
   color: var(--mb-v-title-color, var(--mb-text));
 }
@@ -944,6 +945,14 @@ body.mibi-panel .explore-column .ControlHeader {
   flex: 1;
   justify-content: var(--mb-v-title-align, flex-start);
   text-align: var(--mb-v-title-align, left);
+}
+
+/* A header band: the title sits on a fill that reaches the edges of the card */
+.dashboard-component-chart-holder.mibi-title-band [data-test='slice-header'] {
+  min-height: 32px;
+  padding: 6px 10px;
+  background: var(--mb-v-title-bg);
+  border-radius: var(--mb-v-radius, 5px) var(--mb-v-radius, 5px) 0 0;
 }
 
 /* While editing, the title is a full-width text box: its text follows the alignment */
@@ -1413,6 +1422,8 @@ body.mibi-presenting-idle * {
    so rows, columns and the page grid are only containers: they take no room
    and are not positioned, and objects are placed against the page. */
 .mibi-canvas:not(.mibi-mobile) .dashboard-grid,
+.mibi-canvas:not(.mibi-mobile) .dashboard-component-tabs,
+.mibi-canvas:not(.mibi-mobile) .dragdroppable-row > .with-popover-menu,
 .mibi-canvas:not(.mibi-mobile) .ant-tabs-content,
 .mibi-canvas:not(.mibi-mobile) .grid-content,
 .mibi-canvas:not(.mibi-mobile) .grid-row,
@@ -1420,6 +1431,11 @@ body.mibi-presenting-idle * {
 .mibi-canvas:not(.mibi-mobile)
   .dragdroppable:not([style*='position: absolute']) {
   position: static !important;
+}
+
+/* The page tabs sit over the top of the page: its picture shows through */
+.mibi-canvas:not(.mibi-mobile) .dashboard-component-tabs {
+  background: transparent;
 }
 
 .mibi-canvas:not(.mibi-mobile) .grid-content > div:not(:last-child),
@@ -1891,4 +1907,43 @@ body.mibi-moving * {
 .mibi-canvas .resize-handle--bottom-left {
   left: -6px !important;
   bottom: -6px !important;
+}
+
+/* KPI cards: the number and its labels take the format of the card. The chart
+   sizes its text to fit, so the chosen values win over it. */
+.dashboard-component-chart-holder.mibi-v-size .header-line {
+  font-size: var(--mb-v-value-size) !important;
+}
+.dashboard-component-chart-holder.mibi-v-color .header-line {
+  color: var(--mb-v-value-color) !important;
+}
+.dashboard-component-chart-holder.mibi-v-weight .header-line {
+  font-weight: var(--mb-v-value-weight) !important;
+}
+.dashboard-component-chart-holder.mibi-v-style .header-line {
+  font-style: var(--mb-v-value-style) !important;
+}
+.dashboard-component-chart-holder.mibi-v-align .text-container {
+  align-items: var(--mb-v-value-items) !important;
+  width: 100%;
+  text-align: var(--mb-v-value-align);
+}
+.dashboard-component-chart-holder.mibi-v-align .header-line {
+  justify-content: var(--mb-v-value-items) !important;
+}
+.dashboard-component-chart-holder.mibi-l-size .metric-name,
+.dashboard-component-chart-holder.mibi-l-size .subtitle-line {
+  font-size: var(--mb-v-label-size) !important;
+}
+.dashboard-component-chart-holder.mibi-l-color .metric-name,
+.dashboard-component-chart-holder.mibi-l-color .subtitle-line {
+  color: var(--mb-v-label-color) !important;
+}
+.dashboard-component-chart-holder.mibi-l-weight .metric-name,
+.dashboard-component-chart-holder.mibi-l-weight .subtitle-line {
+  font-weight: var(--mb-v-label-weight) !important;
+}
+.dashboard-component-chart-holder.mibi-l-style .metric-name,
+.dashboard-component-chart-holder.mibi-l-style .subtitle-line {
+  font-style: var(--mb-v-label-style) !important;
 }

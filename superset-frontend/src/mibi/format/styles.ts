@@ -87,6 +87,12 @@ export function mergeVisualFormat(
   return merged;
 }
 
+const ITEMS_OF = {
+  left: 'flex-start',
+  center: 'center',
+  right: 'flex-end',
+} as const;
+
 /** How a visual format turns into the card's style. */
 export function visualStyle(
   format: VisualFormat | undefined,
@@ -116,6 +122,28 @@ export function visualStyle(
   if (title?.size) style['--mb-v-title-size'] = `${title.size}px`;
   if (title?.color) style['--mb-v-title-color'] = title.color;
   if (title?.align) style['--mb-v-title-align'] = title.align;
+  if (title?.background) style['--mb-v-title-bg'] = title.background;
+  if (title?.bold !== undefined)
+    style['--mb-v-title-weight'] = title.bold ? 700 : 400;
+  if (title?.italic !== undefined)
+    style['--mb-v-title-style'] = title.italic ? 'italic' : 'normal';
+  const { value, label } = format;
+  if (value?.size) style['--mb-v-value-size'] = `${value.size}px`;
+  if (value?.color) style['--mb-v-value-color'] = value.color;
+  if (value?.bold !== undefined)
+    style['--mb-v-value-weight'] = value.bold ? 700 : 400;
+  if (value?.italic !== undefined)
+    style['--mb-v-value-style'] = value.italic ? 'italic' : 'normal';
+  if (value?.align) {
+    style['--mb-v-value-items'] = ITEMS_OF[value.align];
+    style['--mb-v-value-align'] = value.align;
+  }
+  if (label?.size) style['--mb-v-label-size'] = `${label.size}px`;
+  if (label?.color) style['--mb-v-label-color'] = label.color;
+  if (label?.bold !== undefined)
+    style['--mb-v-label-weight'] = label.bold ? 700 : 400;
+  if (label?.italic !== undefined)
+    style['--mb-v-label-style'] = label.italic ? 'italic' : 'normal';
 
   const padding = format.padding ?? BASE_VISUAL_PADDING;
   const border =
@@ -125,6 +153,16 @@ export function visualStyle(
     className:
       [
         title?.show === false && 'mibi-title-hidden',
+        title?.background && 'mibi-title-band',
+        value?.size && 'mibi-v-size',
+        value?.color && 'mibi-v-color',
+        value?.bold !== undefined && 'mibi-v-weight',
+        value?.italic !== undefined && 'mibi-v-style',
+        value?.align && 'mibi-v-align',
+        label?.size && 'mibi-l-size',
+        label?.color && 'mibi-l-color',
+        label?.bold !== undefined && 'mibi-l-weight',
+        label?.italic !== undefined && 'mibi-l-style',
         // A centered title spans the whole card: see the header icons in skin.css
         title?.align === 'center' && 'mibi-title-center',
       ]
