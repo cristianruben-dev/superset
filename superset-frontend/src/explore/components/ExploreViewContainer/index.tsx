@@ -23,6 +23,7 @@ import {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from 'react';
 import { bindActionCreators, Dispatch } from 'redux';
@@ -45,6 +46,7 @@ import { styled, css, useTheme } from '@apache-superset/core/theme';
 import { t } from '@apache-superset/core/translation';
 import { logging } from '@apache-superset/core/utils';
 import { debounce, isEqual, isObjectLike, omit, pick } from 'lodash';
+import { isDockMode, notifyChartFormData } from 'src/mibi/chartEditor';
 import { Resizable } from 're-resizable';
 import { useHistory } from 'react-router-dom';
 import { Tooltip } from '@superset-ui/core/components';
@@ -381,11 +383,39 @@ function ExploreViewContainer(props: ExploreViewContainerProps) {
     props.controls,
   );
 
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  // Docked beside the report the dataset columns start folded: the room is
+  // for the settings, and the report is the chart
+  const [isCollapsed, setIsCollapsed] = useState(isDockMode());
   const [width, setWidth] = useState(
     getSidebarWidths(LocalStorageKeys.DatasourceWidth),
   );
   const tabId = useTabId();
+
+  // Docked beside the report, every change of the settings goes to the report,
+  // which shows it without saving. Only controls the user can touch count.
+  const dockedFormData = useRef<JsonObject | null>(null);
+  const dockedSeq = useRef(0);
+  useEffect(() => {
+    const chartId = props.slice?.slice_id;
+    if (!isDockMode() || !chartId) return;
+    const before = dockedFormData.current;
+    dockedFormData.current = props.form_data;
+    if (!before) return;
+    const changed = Object.keys(props.controls ?? {}).filter(
+      key => !isEqual(before[key], props.form_data[key]),
+    );
+    if (!changed.length) return;
+    dockedSeq.current += 1;
+    notifyChartFormData({
+      chartId,
+      formData: props.form_data,
+      kind: changed.every(key => props.controls[key]?.renderTrigger)
+        ? 'render'
+        : 'query',
+      seq: dockedSeq.current,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [props.form_data]);
   const history = useHistory();
 
   const theme = useTheme();

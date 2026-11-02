@@ -22,6 +22,12 @@ import tinycolor from 'tinycolor2';
 import Tabs from '@superset-ui/core/components/Tabs';
 import { t } from '@apache-superset/core/translation';
 import { css, SupersetTheme } from '@apache-superset/core/theme';
+import { Icons } from '@superset-ui/core/components/Icons';
+import {
+  BUILDER_SIDEPANEL_RAIL_WIDTH,
+  BUILDER_SIDEPANEL_WIDTH,
+} from 'src/dashboard/constants';
+import { setPaneCollapsed, usePaneCollapsed } from 'src/mibi/format/panes';
 import SliceAdder from 'src/dashboard/containers/SliceAdder';
 import dashboardComponents from 'src/visualizations/presets/dashboardComponents';
 import NewDivider from '../gridComponents/new/NewDivider';
@@ -35,8 +41,6 @@ import { BookmarksPane } from 'src/mibi/report/BookmarksPane';
 import { selectVisual, useOnOpenFormat } from 'src/mibi/format/selection';
 import { useObjectShortcuts } from 'src/mibi/format/useObjectCommands';
 
-const BUILDER_PANE_WIDTH = 374;
-
 const TABS_KEYS = {
   CHARTS: 'CHARTS',
   LAYOUT_ELEMENTS: 'LAYOUT_ELEMENTS',
@@ -46,7 +50,17 @@ const TABS_KEYS = {
 
 const BuilderComponentPane = ({ topOffset = 0 }) => {
   const [activeKey, setActiveKey] = useState(TABS_KEYS.CHARTS);
-  useOnOpenFormat(useCallback(() => setActiveKey(TABS_KEYS.FORMAT), []));
+  const collapsed = usePaneCollapsed('builder');
+  const width = collapsed
+    ? BUILDER_SIDEPANEL_RAIL_WIDTH
+    : BUILDER_SIDEPANEL_WIDTH;
+  // Choosing an object to format opens the pane
+  useOnOpenFormat(
+    useCallback(() => {
+      setActiveKey(TABS_KEYS.FORMAT);
+      setPaneCollapsed('builder', false);
+    }, []),
+  );
   // Leaving the builder forgets the chart being formatted
   useEffect(
     () => () => {
@@ -64,103 +78,144 @@ const BuilderComponentPane = ({ topOffset = 0 }) => {
         right: 0;
         top: ${topOffset}px;
         height: calc(100vh - ${topOffset}px);
-        width: ${BUILDER_PANE_WIDTH}px;
+        width: ${width}px;
       `}
     >
       <div
         css={(theme: SupersetTheme) => css`
           position: absolute;
           height: 100%;
-          width: ${BUILDER_PANE_WIDTH}px;
+          width: ${width}px;
           box-shadow: -${theme.sizeUnit}px 0 ${theme.sizeUnit}px 0
             ${tinycolor(theme.colorBorder).setAlpha(0.1).toRgbString()};
           background-color: ${theme.colorBgBase};
         `}
       >
-        <Tabs
-          data-test="dashboard-builder-component-pane-tabs-navigation"
-          id="tabs"
-          activeKey={activeKey}
-          onChange={setActiveKey}
-          // AuraData BI: four tabs (with Bookmarks) fit side by side
-          tabBarGutter={16}
+        <button
+          type="button"
+          data-test="dashboard-builder-pane-toggle"
+          aria-label={collapsed ? t('Open the panel') : t('Fold the panel')}
+          title={collapsed ? t('Open the panel') : t('Fold the panel')}
+          onClick={() => setPaneCollapsed('builder', !collapsed)}
           css={(theme: SupersetTheme) => css`
-            line-height: inherit;
-            margin-top: ${theme.sizeUnit * 2}px;
-            height: 100%;
-
-            & .ant-tabs-content-holder {
-              height: 100%;
-              & .ant-tabs-content {
-                height: 100%;
-              }
+            position: absolute;
+            top: ${theme.sizeUnit * 2}px;
+            left: ${theme.sizeUnit * 1.5}px;
+            z-index: 2;
+            width: ${theme.sizeUnit * 6}px;
+            height: ${theme.sizeUnit * 6}px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 0;
+            border-radius: ${theme.borderRadius}px;
+            background: transparent;
+            color: ${theme.colorTextSecondary};
+            cursor: pointer;
+            &:hover {
+              background: ${theme.colorFillTertiary};
             }
           `}
-          items={[
-            {
-              key: TABS_KEYS.CHARTS,
-              label: t('Charts'),
-              children: (
-                <div
-                  css={css`
-                    height: calc(100vh - ${topOffset * 2}px);
-                  `}
-                >
-                  <SliceAdder />
-                </div>
-              ),
-            },
-            {
-              key: TABS_KEYS.LAYOUT_ELEMENTS,
-              label: t('Layout elements'),
-              children: (
-                <>
-                  <NewElements />
-                  <NewTabs />
-                  <NewHeader />
-                  <NewMarkdown />
-                  <NewDivider />
-                  {dashboardComponents
-                    .getAll()
-                    .map(({ key: componentKey, metadata }) => (
-                      <NewDynamicComponent
-                        key={componentKey}
-                        metadata={metadata}
-                        componentKey={componentKey}
-                      />
-                    ))}
-                </>
-              ),
-            },
-            {
-              key: TABS_KEYS.FORMAT,
-              label: t('Format'),
-              children: (
-                <div
-                  css={css`
-                    height: calc(100vh - ${topOffset + 56}px);
-                  `}
-                >
-                  <FormatPane />
-                </div>
-              ),
-            },
-            {
-              key: TABS_KEYS.BOOKMARKS,
-              label: t('Bookmarks'),
-              children: (
-                <div
-                  css={css`
-                    height: calc(100vh - ${topOffset + 56}px);
-                    overflow-y: auto;
-                  `}
-                >
-                  <BookmarksPane />
-                </div>
-              ),
-            },
-          ]}
-        />
+        >
+          {collapsed ? (
+            <Icons.MenuUnfoldOutlined iconSize="m" />
+          ) : (
+            <Icons.MenuFoldOutlined iconSize="m" />
+          )}
+        </button>
+        <div
+          css={css`
+            display: ${collapsed ? 'none' : 'block'};
+            height: 100%;
+            padding-left: 28px;
+            box-sizing: border-box;
+          `}
+        >
+          <Tabs
+            data-test="dashboard-builder-component-pane-tabs-navigation"
+            id="tabs"
+            activeKey={activeKey}
+            onChange={setActiveKey}
+            // AuraData BI: four tabs (with Bookmarks) fit side by side
+            tabBarGutter={16}
+            css={(theme: SupersetTheme) => css`
+              line-height: inherit;
+              margin-top: ${theme.sizeUnit * 2}px;
+              height: 100%;
+
+              & .ant-tabs-content-holder {
+                height: 100%;
+                & .ant-tabs-content {
+                  height: 100%;
+                }
+              }
+            `}
+            items={[
+              {
+                key: TABS_KEYS.CHARTS,
+                label: t('Charts'),
+                children: (
+                  <div
+                    css={css`
+                      height: calc(100vh - ${topOffset * 2}px);
+                    `}
+                  >
+                    <SliceAdder />
+                  </div>
+                ),
+              },
+              {
+                key: TABS_KEYS.LAYOUT_ELEMENTS,
+                label: t('Layout elements'),
+                children: (
+                  <>
+                    <NewElements />
+                    <NewTabs />
+                    <NewHeader />
+                    <NewMarkdown />
+                    <NewDivider />
+                    {dashboardComponents
+                      .getAll()
+                      .map(({ key: componentKey, metadata }) => (
+                        <NewDynamicComponent
+                          key={componentKey}
+                          metadata={metadata}
+                          componentKey={componentKey}
+                        />
+                      ))}
+                  </>
+                ),
+              },
+              {
+                key: TABS_KEYS.FORMAT,
+                label: t('Format'),
+                children: (
+                  <div
+                    css={css`
+                      height: calc(100vh - ${topOffset + 56}px);
+                    `}
+                  >
+                    <FormatPane />
+                  </div>
+                ),
+              },
+              {
+                key: TABS_KEYS.BOOKMARKS,
+                label: t('Bookmarks'),
+                children: (
+                  <div
+                    css={css`
+                      height: calc(100vh - ${topOffset + 56}px);
+                      overflow-y: auto;
+                    `}
+                  >
+                    <BookmarksPane />
+                  </div>
+                ),
+              },
+            ]}
+          />
+        </div>
       </div>
     </div>
   );

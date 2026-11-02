@@ -24,7 +24,9 @@
 
 export const PANEL_PARAM = 'mibi_panel';
 export const OPEN_CHART_EDITOR = 'mibi:open-chart-editor';
+export const DOCK_PARAM = 'mibi_dock';
 export const CHART_SAVED = 'mibi:chart-saved';
+export const CHART_FORM_DATA = 'mibi:chart-form-data';
 export const EDIT_CHART_FROM_PANEL = 'mibi:edit-chart-from-panel';
 
 /** What the side panel shows. */
@@ -39,6 +41,10 @@ const panelMode =
   typeof window !== 'undefined' &&
   new URLSearchParams(window.location.search).has(PANEL_PARAM);
 
+// The editor docked beside the report: the chart is the dashboard's, not the page's
+const dockMode =
+  panelMode && new URLSearchParams(window.location.search).has(DOCK_PARAM);
+
 // The dashboard of the panel, read once too: the panel navigates between pages
 const panelDashboardId = panelMode
   ? Number(new URLSearchParams(window.location.search).get('dashboard_id')) ||
@@ -51,6 +57,10 @@ export function isPanelMode(): boolean {
 }
 
 /** The dashboard whose side panel shows this page. */
+export function isDockMode(): boolean {
+  return dockMode;
+}
+
 export function getPanelDashboardId(): number | undefined {
   return panelDashboardId;
 }
@@ -113,6 +123,12 @@ export function isEditChartFromPanelMessage(
 }
 
 /** The URL with the dashboard its chart is saved to. */
+export function withDockParam(url: string): string {
+  const [path, hash = ''] = url.split('#');
+  const separator = path.includes('?') ? '&' : '?';
+  return `${path}${separator}${DOCK_PARAM}=1${hash ? `#${hash}` : ''}`;
+}
+
 export function withDashboardParam(url: string, dashboardId: number): string {
   const [path, hash = ''] = url.split('#');
   const separator = path.includes('?') ? '&' : '?';
@@ -137,5 +153,37 @@ export function isChartSavedMessage(data: unknown): data is ChartSavedMessage {
     data !== null &&
     (data as ChartSavedMessage).type === CHART_SAVED &&
     typeof (data as ChartSavedMessage).chartId === 'number'
+  );
+}
+
+/** The settings of the chart being edited, as they stand and not yet saved. */
+export interface ChartFormDataMessage {
+  type: typeof CHART_FORM_DATA;
+  chartId: number;
+  formData: Record<string, unknown>;
+  /** `render` when only how it looks changed, `query` when its data did */
+  kind: 'render' | 'query';
+  /** Orders the messages: a late one is ignored */
+  seq: number;
+}
+
+export function notifyChartFormData(
+  message: Omit<ChartFormDataMessage, 'type'>,
+) {
+  window.parent.postMessage(
+    { type: CHART_FORM_DATA, ...message },
+    window.location.origin,
+  );
+}
+
+export function isChartFormDataMessage(
+  data: unknown,
+): data is ChartFormDataMessage {
+  return (
+    typeof data === 'object' &&
+    data !== null &&
+    (data as ChartFormDataMessage).type === CHART_FORM_DATA &&
+    typeof (data as ChartFormDataMessage).chartId === 'number' &&
+    typeof (data as ChartFormDataMessage).seq === 'number'
   );
 }

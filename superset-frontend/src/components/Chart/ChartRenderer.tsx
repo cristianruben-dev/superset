@@ -307,6 +307,9 @@ class ChartRenderer extends Component<ChartRendererProps, ChartRendererState> {
         nextProps.labelsColor !== this.props.labelsColor ||
         nextProps.labelsColorMap !== this.props.labelsColorMap ||
         nextFormData.color_scheme !== currentFormData.color_scheme ||
+        // The settings can change in place while a chart is being edited
+        (nextFormData !== currentFormData &&
+          !isEqual(nextFormData, currentFormData)) ||
         nextFormData.stack !== currentFormData.stack ||
         nextFormData.subcategories !== currentFormData.subcategories ||
         nextProps.cacheBusterProp !== this.props.cacheBusterProp ||

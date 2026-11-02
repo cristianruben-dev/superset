@@ -756,6 +756,17 @@ body.mibi-panel .explore-column .ControlHeader {
   margin-bottom: 4px;
 }
 
+/* Docked beside the report: the settings take the room, the report is the chart */
+body.mibi-dock .main-explore-content {
+  display: none;
+}
+
+body.mibi-dock .controls-column {
+  flex: 1 1 auto;
+  width: 100% !important;
+  max-width: none !important;
+}
+
 /* ---------------------------------------------------------------- SQL Lab */
 
 [data-test='sql-editor-left-bar'] {

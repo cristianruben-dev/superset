@@ -19272,3 +19272,27 @@ msgstr "Título dinámico, p. ej. Empleados: {value}"
 
 msgid "Tokens: {value} the first number of the chart, {filters} the selections of the page, {filter:Name} one filter and {chart} the chart name."
 msgstr "Marcas: {value} el primer número del gráfico, {filters} las selecciones de la página, {filter:Nombre} un filtro y {chart} el nombre del gráfico."
+
+msgid "Fit page"
+msgstr "Ajustar a la página"
+
+msgid "Fit width"
+msgstr "Ajustar al ancho"
+
+msgid "Zoom in"
+msgstr "Acercar"
+
+msgid "Zoom out"
+msgstr "Alejar"
+
+msgid "Open the panel"
+msgstr "Abrir el panel"
+
+msgid "Fold the panel"
+msgstr "Plegar el panel"
+
+msgid "Discard the changes?"
+msgstr "¿Descartar los cambios?"
+
+msgid "The chart changed and is not saved. Use Save in the editor to keep the changes."
+msgstr "El gráfico cambió y no está guardado. Usa Guardar en el editor para conservar los cambios."

@@ -23,7 +23,7 @@ import { useUiConfig } from 'src/components/UiConfigContext';
 import { URL_PARAMS } from 'src/constants';
 import type { MenuData } from 'src/types/bootstrapTypes';
 import { getUrlParam } from 'src/utils/urlUtils';
-import { isPanelMode } from '../chartEditor';
+import { isDockMode, isPanelMode } from '../chartEditor';
 import { CommandPalette } from './CommandPalette';
 import { buildNavSections, isReportRoute } from './navigation';
 import { Sidebar, SIDEBAR_COLLAPSED_WIDTH, SIDEBAR_WIDTH } from './Sidebar';
@@ -115,6 +115,7 @@ export function AppShell({ data, isFrontendRoute, children }: AppShellProps) {
   useEffect(() => {
     // Lets the skin compact pages shown inside the chart editor panel
     document.body.classList.toggle('mibi-panel', isPanelMode());
+    document.body.classList.toggle('mibi-dock', isDockMode());
   }, []);
 
   useEffect(() => {

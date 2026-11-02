@@ -36,6 +36,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { EmptyState, Loading } from '@superset-ui/core/components';
 import { ErrorBoundary, BasicErrorAlert } from 'src/components';
 import BuilderComponentPane from 'src/dashboard/components/BuilderComponentPane';
+import { useDockWidth, usePaneCollapsed } from 'src/mibi/format/panes';
 import DashboardHeader from 'src/dashboard/components/Header';
 import { Icons } from '@superset-ui/core/components/Icons';
 import IconButton from 'src/dashboard/components/IconButton';
@@ -68,6 +69,7 @@ import {
 import FilterBar from 'src/dashboard/components/nativeFilters/FilterBar';
 import { useUiConfig } from 'src/components/UiConfigContext';
 import {
+  BUILDER_SIDEPANEL_RAIL_WIDTH,
   BUILDER_SIDEPANEL_WIDTH,
   CLOSED_FILTER_BAR_WIDTH,
   FILTER_BAR_HEADER_HEIGHT,
@@ -285,8 +287,9 @@ const DashboardContentWrapper = styled.div`
 const StyledDashboardContent = styled.div<{
   editMode: boolean;
   marginLeft: number;
+  sidepaneWidth: number;
 }>`
-  ${({ theme, editMode, marginLeft }) => css`
+  ${({ theme, editMode, marginLeft, sidepaneWidth }) => css`
     background-color: var(--mb-report-wallpaper, ${theme.colorBgLayout});
     display: flex;
     flex-direction: row;
@@ -309,19 +312,17 @@ const StyledDashboardContent = styled.div<{
 
       ${editMode &&
       `
-      max-width: calc(100% - ${
-        BUILDER_SIDEPANEL_WIDTH + theme.sizeUnit * 16
-      }px);
+      max-width: calc(100% - ${sidepaneWidth + theme.sizeUnit * 16}px);
     `}
 
       /* this is the ParentSize wrapper */
-    & > div:first-child {
+    & > div:first-child:not(.mibi-viewport) {
         height: 100% !important;
       }
     }
 
     .dashboard-builder-sidepane {
-      width: ${BUILDER_SIDEPANEL_WIDTH}px;
+      width: ${sidepaneWidth}px;
       z-index: 1;
     }
 
@@ -572,6 +573,8 @@ const DashboardBuilder = () => {
     ],
   );
 
+  const paneCollapsed = usePaneCollapsed('builder');
+  const dockWidth = useDockWidth();
   const dashboardContentMarginLeft = !editMode
     ? theme.sizeUnit * 4
     : theme.sizeUnit * 8;
@@ -699,6 +702,11 @@ const DashboardBuilder = () => {
                 className="dashboard-content"
                 editMode={editMode}
                 marginLeft={dashboardContentMarginLeft}
+                sidepaneWidth={
+                  (paneCollapsed
+                    ? BUILDER_SIDEPANEL_RAIL_WIDTH
+                    : BUILDER_SIDEPANEL_WIDTH) + dockWidth
+                }
               >
                 {showDashboard ? (
                   missingInitialFilters.length > 0 ? (
@@ -730,8 +738,8 @@ const DashboardBuilder = () => {
                 ) : (
                   <Loading />
                 )}
+                <ChartEditorPanel topOffset={barTopOffset} />
                 {editMode && <BuilderComponentPane topOffset={barTopOffset} />}
-                <ChartEditorPanel />
               </StyledDashboardContent>
             </DashboardContentWrapper>
           </StyledContent>

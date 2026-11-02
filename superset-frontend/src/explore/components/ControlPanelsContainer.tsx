@@ -82,6 +82,7 @@ import { RunQueryButton } from './RunQueryButton';
 import { Operators } from '../constants';
 import { Clauses } from './controls/FilterControl/types';
 import StashFormDataContainer from './StashFormDataContainer';
+import { isDockMode } from 'src/mibi/chartEditor';
 import { HelpTooltip } from 'src/mibi/help/HelpTooltip';
 import { helpIllustrationForSection } from 'src/mibi/help/registry';
 
@@ -244,18 +245,20 @@ function getState(
         matrixifySections.push(section);
       }
     } else if (
-      section.tabOverride === 'data' ||
-      section.controlSetRows.some(rows =>
-        rows.some(
-          control =>
-            control &&
-            typeof control === 'object' &&
-            'config' in control &&
-            control.config &&
-            (!control.config.renderTrigger ||
-              control.config.tabOverride === 'data'),
-        ),
-      )
+      // A section that asks for the look tab keeps to it, whatever it holds
+      section.tabOverride !== 'customize' &&
+      (section.tabOverride === 'data' ||
+        section.controlSetRows.some(rows =>
+          rows.some(
+            control =>
+              control &&
+              typeof control === 'object' &&
+              'config' in control &&
+              control.config &&
+              (!control.config.renderTrigger ||
+                control.config.tabOverride === 'data'),
+          ),
+        ))
     ) {
       querySections.push(section);
     } else if (section.controlSetRows && section.controlSetRows.length > 0) {
@@ -957,7 +960,7 @@ export const ControlPanelsContainer = (props: ControlPanelsContainerProps) => {
               ? [
                   {
                     key: TABS_KEYS.CUSTOMIZE,
-                    label: t('Customize'),
+                    label: isDockMode() ? t('Format') : t('Customize'),
                     children: (
                       <Collapse
                         defaultActiveKey={expandedCustomizeSections}

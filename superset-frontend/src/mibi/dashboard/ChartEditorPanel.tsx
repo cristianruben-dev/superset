@@ -20,7 +20,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useDispatch, useStore } from 'react-redux';
 import { t } from '@apache-superset/core/translation';
 import { css, styled } from '@apache-superset/core/theme';
-import { Drawer, Loading } from '@superset-ui/core/components';
+import { Button, Drawer, Loading, Modal } from '@superset-ui/core/components';
+import { Icons } from '@superset-ui/core/components/Icons';
 import {
   addSliceToDashboard,
   onRefresh,
@@ -42,13 +43,21 @@ import {
 } from 'src/dashboard/util/constants';
 import { ensureAppRoot } from 'src/utils/pathUtils';
 import {
+  isChartFormDataMessage,
   isChartSavedMessage,
   isEditChartFromPanelMessage,
   OPEN_CHART_EDITOR,
   type OpenChartEditorDetail,
   withDashboardParam,
+  withDockParam,
   withPanelParam,
 } from '../chartEditor';
+import {
+  isPaneCollapsed,
+  setDockWidth,
+  setPaneCollapsed,
+} from '../format/panes';
+import { previewChartFormData } from './previewChart';
 import { DEFAULT_OBJECT_COLUMNS, DEFAULT_OBJECT_ROWS } from '../format/columns';
 import { freeCell } from '../format/positions';
 import { fetchDashboardSlices } from './reloadSavedChart';
@@ -71,6 +80,40 @@ const Frame = styled.div`
     align-items: center;
     justify-content: center;
   }
+`;
+
+/** Width of the editor docked beside the report */
+export const DOCK_WIDTH = 460;
+
+const Dock = styled.aside<{ $top: number }>`
+  ${({ theme, $top }) => css`
+    position: sticky;
+    top: ${$top}px;
+    flex: none;
+    width: ${DOCK_WIDTH}px;
+    height: calc(100vh - ${$top}px);
+    display: flex;
+    flex-direction: column;
+    background: ${theme.colorBgBase};
+    border-left: 1px solid ${theme.colorBorderSecondary};
+    box-shadow: -${theme.sizeUnit}px 0 ${theme.sizeUnit * 2}px
+      ${theme.colorBorderSecondary};
+    z-index: 2;
+
+    .dock-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: ${theme.sizeUnit * 2}px ${theme.sizeUnit * 4}px;
+      border-bottom: 1px solid ${theme.colorBorderSecondary};
+      font-weight: ${theme.fontWeightStrong};
+    }
+    .dock-body {
+      position: relative;
+      flex: 1;
+      min-height: 0;
+    }
+  `}
 `;
 
 /** Where a new chart goes: the end of the grid, or of the visible top tab. */
@@ -114,13 +157,43 @@ const panelTitle = (editor: OpenChartEditorDetail | null) => {
  * without leaving it: the page runs inside in panel mode. Explore reports when it
  * saves; the data pages and SQL Lab ask for a chart built from what they made.
  */
-export function ChartEditorPanel() {
+export function ChartEditorPanel({ topOffset = 0 }: { topOffset?: number }) {
   const dispatch = useDispatch();
   const store = useStore<RootState>();
   const [editor, setEditor] = useState<OpenChartEditorDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const editorRef = useRef(editor);
   editorRef.current = editor;
+  // An existing chart is edited beside the report; new ones, data and SQL Lab
+  // need the room of a page
+  const docked =
+    !!editor && (!editor.kind || editor.kind === 'chart') && !!editor.chartId;
+  const dockedChartId = docked ? editor?.chartId : undefined;
+  const savedFormData = useRef<Record<string, unknown> | null>(null);
+  const edited = useRef(false);
+  const needsQuery = useRef(false);
+  const lastSeq = useRef(0);
+  const queryTimer = useRef<ReturnType<typeof setTimeout>>();
+  const foldedByDock = useRef(false);
+  const [confirming, setConfirming] = useState(false);
+
+  // The report keeps the room: the edit pane folds while the editor is docked
+  useEffect(() => {
+    if (!docked) return undefined;
+    setDockWidth(DOCK_WIDTH);
+    foldedByDock.current = !isPaneCollapsed('builder');
+    if (foldedByDock.current) setPaneCollapsed('builder', true);
+    const chart = store.getState().charts[dockedChartId ?? 0];
+    savedFormData.current = chart?.form_data ?? null;
+    edited.current = false;
+    needsQuery.current = false;
+    lastSeq.current = 0;
+    return () => {
+      setDockWidth(0);
+      if (foldedByDock.current) setPaneCollapsed('builder', false);
+      clearTimeout(queryTimer.current);
+    };
+  }, [docked, dockedChartId, store]);
 
   const open = useCallback(
     (detail: OpenChartEditorDetail) => {
@@ -151,7 +224,28 @@ export function ChartEditorPanel() {
     return () => window.removeEventListener(OPEN_CHART_EDITOR, onOpen);
   }, [open]);
 
+  // Puts the chart back as it was saved
+  const discard = useCallback(() => {
+    clearTimeout(queryTimer.current);
+    if (dockedChartId !== undefined && savedFormData.current) {
+      dispatch(
+        previewChartFormData(
+          dockedChartId,
+          savedFormData.current,
+          needsQuery.current ? 'query' : 'render',
+        ) as never,
+      );
+    }
+    edited.current = false;
+    setConfirming(false);
+    setEditor(null);
+  }, [dispatch, dockedChartId]);
+
   const close = useCallback(() => {
+    if (docked && edited.current) {
+      setConfirming(true);
+      return;
+    }
     if (editor?.kind === 'data' || editor?.kind === 'sql') {
       // Datasets may have changed: columns, metrics or their SQL
       const state = store.getState();
@@ -163,6 +257,8 @@ export function ChartEditorPanel() {
 
   const onSaved = useCallback(
     async (chartId: number, isNew: boolean) => {
+      clearTimeout(queryTimer.current);
+      edited.current = false;
       setEditor(null);
       // Fresh chart definitions (form data, name) for this dashboard
       await dispatch(fetchDashboardSlices() as never);
@@ -210,6 +306,24 @@ export function ChartEditorPanel() {
       }
       if (isChartSavedMessage(event.data)) {
         onSaved(event.data.chartId, event.data.isNew);
+      } else if (isChartFormDataMessage(event.data)) {
+        const { chartId, formData, kind, seq } = event.data;
+        // Only the chart being edited, and never an older message than the last
+        if (chartId !== dockedChartId || seq <= lastSeq.current) return;
+        lastSeq.current = seq;
+        edited.current = true;
+        if (kind === 'render') {
+          dispatch(previewChartFormData(chartId, formData, kind) as never);
+        } else {
+          // New data: ask for it once the settings stop changing
+          needsQuery.current = true;
+          clearTimeout(queryTimer.current);
+          queryTimer.current = setTimeout(
+            () =>
+              dispatch(previewChartFormData(chartId, formData, kind) as never),
+            600,
+          );
+        }
       } else if (isEditChartFromPanelMessage(event.data)) {
         const dashboardId = store.getState().dashboardInfo.id;
         open({ url: withDashboardParam(event.data.url, dashboardId) });
@@ -217,11 +331,82 @@ export function ChartEditorPanel() {
     };
     window.addEventListener('message', onMessage);
     return () => window.removeEventListener('message', onMessage);
-  }, [onSaved, open, store]);
+  }, [dispatch, dockedChartId, onSaved, open, store]);
 
   const title = panelTitle(editor);
   // SQL Lab and the data pages need the room of a page
   const wide = editor?.kind === 'data' || editor?.kind === 'sql';
+
+  const frame = editor && (
+    <Frame
+      css={css`
+        .loading {
+          visibility: ${loading ? 'visible' : 'hidden'};
+        }
+      `}
+    >
+      {loading && (
+        <div className="loading">
+          <Loading position="inline-centered" />
+        </div>
+      )}
+      <iframe
+        title={title}
+        src={ensureAppRoot(
+          docked
+            ? withDockParam(withPanelParam(editor.url))
+            : withPanelParam(editor.url),
+        )}
+        onLoad={() => setLoading(false)}
+        data-test="mibi-chart-editor-frame"
+      />
+    </Frame>
+  );
+
+  if (docked) {
+    return (
+      <>
+        <Dock $top={topOffset} data-test="mibi-chart-editor-dock">
+          <div className="dock-header">
+            <span>{title}</span>
+            <Button
+              buttonStyle="link"
+              buttonSize="small"
+              aria-label={t('Close')}
+              onClick={close}
+              data-test="mibi-chart-editor-close"
+            >
+              <Icons.CloseOutlined iconSize="m" />
+            </Button>
+          </div>
+          <div className="dock-body">{frame}</div>
+        </Dock>
+        <Modal
+          show={confirming}
+          onHide={() => setConfirming(false)}
+          title={t('Discard the changes?')}
+          width="420px"
+          footer={
+            <>
+              <Button
+                buttonStyle="secondary"
+                onClick={() => setConfirming(false)}
+              >
+                {t('Keep editing')}
+              </Button>
+              <Button buttonStyle="danger" onClick={discard}>
+                {t('Discard')}
+              </Button>
+            </>
+          }
+        >
+          {t(
+            'The chart changed and is not saved. Use Save in the editor to keep the changes.',
+          )}
+        </Modal>
+      </>
+    );
+  }
 
   return (
     <Drawer
@@ -236,27 +421,7 @@ export function ChartEditorPanel() {
       styles={{ header: { padding: '10px 16px' }, body: { padding: 0 } }}
       data-test="mibi-chart-editor"
     >
-      {editor && (
-        <Frame
-          css={css`
-            .loading {
-              visibility: ${loading ? 'visible' : 'hidden'};
-            }
-          `}
-        >
-          {loading && (
-            <div className="loading">
-              <Loading position="inline-centered" />
-            </div>
-          )}
-          <iframe
-            title={title}
-            src={ensureAppRoot(withPanelParam(editor.url))}
-            onLoad={() => setLoading(false)}
-            data-test="mibi-chart-editor-frame"
-          />
-        </Frame>
-      )}
+      {frame}
     </Drawer>
   );
 }

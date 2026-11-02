@@ -77,6 +77,7 @@ const cachedFormdataByChart: Record<
     dataMask: DataMask;
     extraControls: Record<string, string | boolean | null>;
     nativeFilters: PartialFilters;
+    sourceFormData?: unknown;
   }
 > = {};
 
@@ -440,6 +441,8 @@ export default function getFormDataWithExtraFilters({
     }) &&
     isEqual(cachedFormData?.shared_label_colors, sharedLabelsColors) &&
     !!cachedFormData &&
+    // The settings of the chart itself, which an editor can change in place
+    cachedFormData.sourceFormData === chart.form_data &&
     dataMaskEqual &&
     nativeFiltersEqual &&
     areObjectsEqual(cachedFormData?.extraControls, extraControls, {
@@ -582,6 +585,7 @@ export default function getFormDataWithExtraFilters({
     dataMask,
     extraControls,
     nativeFilters,
+    sourceFormData: chart.form_data,
     ...(chartCustomization && { chart_customization: chartCustomization }),
   };
 
