@@ -9,7 +9,7 @@ Fecha: 2026-11-02 · Fuente: `reportThemeSchema-2.159.json`, publicado por Micro
 ## Resultado
 
 - **Hay 1,883 opciones distintas** en 130 secciones, sin contar mapas. En un gráfico de barras son 504.
-- **Cubrimos cerca de la mitad:** de las 497 que aplican en barras, tenemos 224 y otras 30 a medias.
+- **Cubrimos más de la mitad:** de las 491 que aplican en barras agrupadas, tenemos 291 y otras 20 a medias.
 - **No hay que hacer 1,883 controles.** Casi todo se repite entre gráficos (fuente, color, transparencia,
   borde), así que se resuelve con un registro declarativo y unos 10 tipos de control.
 - **Un solo panel:** desde la fase 1 todo el formato está en la pestaña Formato del tablero.
@@ -39,14 +39,14 @@ minigráficos; **P3** el resto.
 
 | Gráfico | Opciones | Tiene | Parcial | Falta P1 | Falta P2 | Falta P3 |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| Barras agrupadas | 497 | 224 | 30 | 84 | 124 | 35 |
-| Columnas agrupadas | 497 | 224 | 30 | 84 | 124 | 35 |
-| Líneas | 635 | 227 | 30 | 131 | 181 | 66 |
-| Área | 553 | 225 | 29 | 133 | 155 | 11 |
-| Línea y columnas agrupadas | 586 | 231 | 26 | 133 | 155 | 41 |
+| Barras agrupadas | 491 | 291 | 20 | 28 | 117 | 35 |
+| Columnas agrupadas | 491 | 291 | 20 | 28 | 117 | 35 |
+| Líneas | 629 | 321 | 22 | 61 | 159 | 66 |
+| Área | 547 | 321 | 21 | 61 | 133 | 11 |
+| Línea y columnas agrupadas | 580 | 348 | 19 | 39 | 133 | 41 |
 | Cascada | 299 | 181 | 6 | 71 | 41 | 0 |
 | Embudo | 219 | 174 | 10 | 20 | 15 | 0 |
-| Dispersión | 410 | 211 | 22 | 54 | 123 | 0 |
+| Dispersión | 410 | 244 | 17 | 33 | 116 | 0 |
 | Circular | 222 | 189 | 10 | 13 | 9 | 1 |
 | Anillo | 266 | 190 | 10 | 46 | 9 | 11 |
 | Treemap | 217 | 174 | 8 | 26 | 9 | 0 |
@@ -57,7 +57,7 @@ minigráficos; **P3** el resto.
 | Matriz | 335 | 176 | 6 | 126 | 25 | 2 |
 | Segmentador | 302 | 28 | 14 | 66 | 55 | 139 |
 | Segmentador de lista | 575 | 22 | 14 | 125 | 130 | 284 |
-| Ribbon (no tenemos el gráfico) | 497 | 22 | 13 | 200 | 147 | 115 |
+| Ribbon (no tenemos el gráfico) | 491 | 22 | 13 | 194 | 147 | 115 |
 | Tarjeta de varias filas (no la tenemos) | 213 | 22 | 13 | 33 | 74 | 71 |
 
 Lo que más se queda atrás: **matriz**, sin controles de estilo propios; **cascada, embudo, treemap y

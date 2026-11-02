@@ -27,22 +27,22 @@ Nuestro gráfico: ninguno. Generado desde `reportThemeSchema-2.159.json`.
 | Space between ribbons and columns | `ribbonGapSize` | number | Falta | No tenemos este gráfico |
 | Reverse order | `seriesOrderReversed` | boolean | Falta | No tenemos este gráfico |
 | Sort by value | `seriesOrderSorted` | boolean | Falta | No tenemos este gráfico |
-| Series explosion | `stackedGapExplodes` | boolean | Falta | No tenemos este gráfico |
-| Space between series | `stackedGapSize` | number | Falta | No tenemos este gráfico |
+| Series explosion | `stackedGapExplodes` | boolean | Falta | El motor de gráficos no separa los segmentos de una pila |
+| Space between series | `stackedGapSize` | number | Falta | El motor de gráficos no separa los segmentos de una pila |
 
 ### Eje X / categorías (`categoryAxis`) · P1 · 0/40
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
-| Auto expand | `autoExpand` | boolean | Falta | No tenemos este gráfico |
-| Style | `axisStyle` | enum: Show title only, Show unit only, Show both | Falta | No tenemos este gráfico |
+| Auto expand | `autoExpand` | boolean | Excluido | No hay jerarquías de exploración |
+| Style | `axisStyle` | enum: Show title only, Show unit only, Show both | Falta | El eje muestra sus valores y su título, sin elegir entre ellos |
 | Type | `axisType` | enum: Continuous, Categorical | Falta | No tenemos este gráfico |
 | Bold | `bold` | boolean | Falta | No tenemos este gráfico |
-| Concatenate labels | `concatenateLabels` | boolean | Falta | No tenemos este gráfico |
+| Concatenate labels | `concatenateLabels` | boolean | Excluido | No hay jerarquías de exploración |
 | Maximum | `end` | number/string | Falta | No tenemos este gráfico |
 | Font family | `fontFamily` | string | Falta | No tenemos este gráfico |
 | Text size | `fontSize` | fontSize | Falta | No tenemos este gráfico |
-| Scale by width | `gridlineAutoScale` | boolean | Falta | No tenemos este gráfico |
+| Scale by width | `gridlineAutoScale` | boolean | Falta | El motor de gráficos no escala el trazo con el zoom |
 | Color | `gridlineColor` | fill | Falta | No tenemos este gráfico |
 | Dash array | `gridlineDashArray` | string | Falta | No tenemos este gráfico |
 | Dash cap | `gridlineDashCap` | enum: Flat, Round, Square | Falta | No tenemos este gráfico |
@@ -59,9 +59,9 @@ Nuestro gráfico: ninguno. Generado desde `reportThemeSchema-2.159.json`.
 | Value decimal places | `labelPrecision` | integer | Falta | No tenemos este gráfico |
 | Logarithmic scale | `logAxisScale` | boolean | Falta | No tenemos este gráfico |
 | Maximum size | `maxMarginFactor` | integer | Falta | No tenemos este gráfico |
-| Outer padding | `outerPadding` | integer | Falta | No tenemos este gráfico |
+| Outer padding | `outerPadding` | integer | Falta | El motor de gráficos no tiene relleno exterior de categorías |
 | Minimum category width | `preferredCategoryWidth` | number | Falta | No tenemos este gráfico |
-| Round range | `roundRange` | boolean | Falta | No tenemos este gráfico |
+| Round range | `roundRange` | boolean | Falta | El motor de gráficos redondea el eje salvo con límites fijos |
 | Show | `show` | boolean | Falta | No tenemos este gráfico |
 | Title | `showAxisTitle` | boolean | Falta | No tenemos este gráfico |
 | Minimum | `start` | number/string | Falta | No tenemos este gráfico |
@@ -72,19 +72,19 @@ Nuestro gráfico: ninguno. Generado desde `reportThemeSchema-2.159.json`.
 | Title text size | `titleFontSize` | fontSize | Falta | No tenemos este gráfico |
 | Italic | `titleItalic` | boolean | Falta | No tenemos este gráfico |
 | Axis title | `titleText` | string | Falta | No tenemos este gráfico |
-| Underline | `titleUnderline` | boolean | Falta | No tenemos este gráfico |
-| Underline | `underline` | boolean | Falta | No tenemos este gráfico |
+| Underline | `titleUnderline` | boolean | Falta | El motor de gráficos no dibuja texto subrayado |
+| Underline | `underline` | boolean | Falta | El motor de gráficos no dibuja texto subrayado |
 
 ### Eje Y / valores (`valueAxis`) · P1 · 0/34
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
-| Style | `axisStyle` | enum: Show title only, Show unit only, Show both | Falta | No tenemos este gráfico |
+| Style | `axisStyle` | enum: Show title only, Show unit only, Show both | Falta | El eje muestra sus valores y su título, sin elegir entre ellos |
 | Bold | `bold` | boolean | Falta | No tenemos este gráfico |
 | Maximum | `end` | number/string | Falta | No tenemos este gráfico |
 | Font family | `fontFamily` | string | Falta | No tenemos este gráfico |
 | Text size | `fontSize` | fontSize | Falta | No tenemos este gráfico |
-| Scale by width | `gridlineAutoScale` | boolean | Falta | No tenemos este gráfico |
+| Scale by width | `gridlineAutoScale` | boolean | Falta | El motor de gráficos no escala el trazo con el zoom |
 | Color | `gridlineColor` | fill | Falta | No tenemos este gráfico |
 | Dash array | `gridlineDashArray` | string | Falta | No tenemos este gráfico |
 | Dash cap | `gridlineDashCap` | enum: Flat, Round, Square | Falta | No tenemos este gráfico |
@@ -98,9 +98,9 @@ Nuestro gráfico: ninguno. Generado desde `reportThemeSchema-2.159.json`.
 | Display units | `labelDisplayUnits` | labelDisplayUnits | Falta | No tenemos este gráfico |
 | Value decimal places | `labelPrecision` | integer | Falta | No tenemos este gráfico |
 | Logarithmic scale | `logAxisScale` | boolean | Falta | No tenemos este gráfico |
-| Round range | `roundRange` | boolean | Falta | No tenemos este gráfico |
+| Round range | `roundRange` | boolean | Falta | El motor de gráficos redondea el eje salvo con límites fijos |
 | Scale to fit | `scaleToFit` | boolean | Falta | No tenemos este gráfico |
-| Shared y-axis | `sharedAxis` | boolean | Falta | No tenemos este gráfico |
+| Shared y-axis | `sharedAxis` | boolean | Falta | Cada consulta elige eje en sus datos |
 | Show | `show` | boolean | Falta | No tenemos este gráfico |
 | Title | `showAxisTitle` | boolean | Falta | No tenemos este gráfico |
 | Minimum | `start` | number/string | Falta | No tenemos este gráfico |
@@ -111,8 +111,8 @@ Nuestro gráfico: ninguno. Generado desde `reportThemeSchema-2.159.json`.
 | Title text size | `titleFontSize` | fontSize | Falta | No tenemos este gráfico |
 | Italic | `titleItalic` | boolean | Falta | No tenemos este gráfico |
 | Axis title | `titleText` | string | Falta | No tenemos este gráfico |
-| Underline | `titleUnderline` | boolean | Falta | No tenemos este gráfico |
-| Underline | `underline` | boolean | Falta | No tenemos este gráfico |
+| Underline | `titleUnderline` | boolean | Falta | El motor de gráficos no dibuja texto subrayado |
+| Underline | `underline` | boolean | Falta | El motor de gráficos no dibuja texto subrayado |
 
 ### Etiquetas de datos (`labels`) · P1 · 0/61
 
@@ -125,19 +125,19 @@ Nuestro gráfico: ninguno. Generado desde `reportThemeSchema-2.159.json`.
 | Bold | `detailBold` | boolean | Falta | No tenemos este gráfico |
 | Color | `detailColor` | fill | Falta | No tenemos este gráfico |
 | Content | `detailContentType` | enum: Percent of total, Custom | Falta | No tenemos este gráfico |
-| Format code | `detailCustomFormatString` | string | Falta | No tenemos este gráfico |
+| Format code | `detailCustomFormatString` | string | Falta | El título y el detalle son texto, no otra medida |
 | Font family | `detailFontFamily` | string | Falta | No tenemos este gráfico |
 | Text size | `detailFontSize` | fontSize | Falta | No tenemos este gráfico |
-| detailFormatString | `detailFormatString` | string | Falta | No tenemos este gráfico |
+| detailFormatString | `detailFormatString` | string | Falta | El título y el detalle son texto, no otra medida |
 | Italic | `detailItalic` | boolean | Falta | No tenemos este gráfico |
-| Display units | `detailLabelDisplayUnits` | enum: Auto, None, Thousands, Millions, Billions, Trillions, Custom | Falta | No tenemos este gráfico |
-| Value decimal places | `detailLabelPrecision` | integer | Falta | No tenemos este gráfico |
-| Show blank as | `detailShowBlankAs` | string | Falta | No tenemos este gráfico |
+| Display units | `detailLabelDisplayUnits` | enum: Auto, None, Thousands, Millions, Billions, Trillions, Custom | Falta | El título y el detalle son texto, no otra medida |
+| Value decimal places | `detailLabelPrecision` | integer | Falta | El título y el detalle son texto, no otra medida |
+| Show blank as | `detailShowBlankAs` | string | Falta | Una marca sin valor no tiene etiqueta |
 | Transparency | `detailTransparency` | number | Falta | No tenemos este gráfico |
-| Underline | `detailUnderline` | boolean | Falta | No tenemos este gráfico |
-| Field | `dynamicLabelDetail` | string/number/integer/boolean | Falta | No tenemos este gráfico |
-| Field | `dynamicLabelTitle` | string/number/integer/boolean | Falta | No tenemos este gráfico |
-| Field | `dynamicLabelValue` | string/number/integer/boolean | Falta | No tenemos este gráfico |
+| Underline | `detailUnderline` | boolean | Falta | El motor de gráficos no dibuja texto subrayado |
+| Field | `dynamicLabelDetail` | string/number/integer/boolean | Excluido | Requiere expresiones DAX |
+| Field | `dynamicLabelTitle` | string/number/integer/boolean | Excluido | Requiere expresiones DAX |
+| Field | `dynamicLabelValue` | string/number/integer/boolean | Excluido | Requiere expresiones DAX |
 | Show background | `enableBackground` | boolean | Falta | No tenemos este gráfico |
 | enableDetailDataLabel | `enableDetailDataLabel` | boolean | Falta | No tenemos este gráfico |
 | enableTitleDataLabel | `enableTitleDataLabel` | boolean | Falta | No tenemos este gráfico |
@@ -157,25 +157,25 @@ Nuestro gráfico: ninguno. Generado desde `reportThemeSchema-2.159.json`.
 | Optimize label display | `optimizeLabelDisplay` | boolean | Falta | No tenemos este gráfico |
 | Show | `show` | boolean | Falta | No tenemos este gráfico |
 | Customize series | `showAll` | boolean | Falta | No tenemos este gráfico |
-| Show blank as | `showBlankAs` | string | Falta | No tenemos este gráfico |
+| Show blank as | `showBlankAs` | string | Falta | Una marca sin valor no tiene etiqueta |
 | showByDefault | `showByDefault` | boolean | Falta | No tenemos este gráfico |
-| Custom label | `showDynamicLabels` | boolean | Falta | No tenemos este gráfico |
+| Custom label | `showDynamicLabels` | boolean | Excluido | Requiere expresiones DAX |
 | Show | `showSeries` | boolean | Falta | No tenemos este gráfico |
 | Bold | `titleBold` | boolean | Falta | No tenemos este gráfico |
 | Color | `titleColor` | fill | Falta | No tenemos este gráfico |
 | Content | `titleContentType` | enum: Series name, Custom | Falta | No tenemos este gráfico |
-| Format code | `titleCustomFormatString` | string | Falta | No tenemos este gráfico |
+| Format code | `titleCustomFormatString` | string | Falta | El título y el detalle son texto, no otra medida |
 | Font family | `titleFontFamily` | string | Falta | No tenemos este gráfico |
 | Text size | `titleFontSize` | fontSize | Falta | No tenemos este gráfico |
-| titleFormatString | `titleFormatString` | string | Falta | No tenemos este gráfico |
+| titleFormatString | `titleFormatString` | string | Falta | El título y el detalle son texto, no otra medida |
 | Italic | `titleItalic` | boolean | Falta | No tenemos este gráfico |
-| Display units | `titleLabelDisplayUnits` | enum: Auto, None, Thousands, Millions, Billions, Trillions, Custom | Falta | No tenemos este gráfico |
-| Value decimal places | `titleLabelPrecision` | integer | Falta | No tenemos este gráfico |
-| Show blank as | `titleShowBlankAs` | string | Falta | No tenemos este gráfico |
+| Display units | `titleLabelDisplayUnits` | enum: Auto, None, Thousands, Millions, Billions, Trillions, Custom | Falta | El título y el detalle son texto, no otra medida |
+| Value decimal places | `titleLabelPrecision` | integer | Falta | El título y el detalle son texto, no otra medida |
+| Show blank as | `titleShowBlankAs` | string | Falta | Una marca sin valor no tiene etiqueta |
 | Transparency | `titleTransparency` | number | Falta | No tenemos este gráfico |
-| Underline | `titleUnderline` | boolean | Falta | No tenemos este gráfico |
+| Underline | `titleUnderline` | boolean | Falta | El motor de gráficos no dibuja texto subrayado |
 | Transparency | `transparency` | number | Falta | No tenemos este gráfico |
-| Underline | `underline` | boolean | Falta | No tenemos este gráfico |
+| Underline | `underline` | boolean | Falta | El motor de gráficos no dibuja texto subrayado |
 | Format code | `valueCustomFormatString` | string | Falta | No tenemos este gráfico |
 | valueFormatString | `valueFormatString` | string | Falta | No tenemos este gráfico |
 | Word wrap | `wordWrap` | boolean | Falta | No tenemos este gráfico |
@@ -196,7 +196,7 @@ Nuestro gráfico: ninguno. Generado desde `reportThemeSchema-2.159.json`.
 | Value decimal places | `labelPrecision` | integer | Falta | No tenemos este gráfico |
 | Show | `show` | boolean | Falta | No tenemos este gráfico |
 | Split positive and negative | `showPositiveAndNegative` | boolean | Falta | No tenemos este gráfico |
-| Underline | `underline` | boolean | Falta | No tenemos este gráfico |
+| Underline | `underline` | boolean | Falta | El motor de gráficos no dibuja texto subrayado |
 
 ### Leyenda (`legend`) · P1 · 0/11
 
@@ -209,10 +209,10 @@ Nuestro gráfico: ninguno. Generado desde `reportThemeSchema-2.159.json`.
 | Color | `labelColor` | fill | Falta | No tenemos este gráfico |
 | Position | `position` | enum: Top left, Top center, Top right, Top left stacked, Top right stacked, Center left, Center right, Bottom left, Bottom center, Bottom ri | Falta | No tenemos este gráfico |
 | Show | `show` | boolean | Falta | No tenemos este gráfico |
-| Show | `showGradientLegend` | boolean | Falta | No tenemos este gráfico |
+| Show | `showGradientLegend` | boolean | Falta | Sin leyenda para la escala de color |
 | Title | `showTitle` | boolean | Falta | No tenemos este gráfico |
 | Legend Name | `titleText` | string | Falta | No tenemos este gráfico |
-| Underline | `underline` | boolean | Falta | No tenemos este gráfico |
+| Underline | `underline` | boolean | Falta | El motor de gráficos no dibuja texto subrayado |
 
 ### Control deslizante de zoom (`zoom`) · P2 · 0/11
 
@@ -240,7 +240,7 @@ Nuestro gráfico: ninguno. Generado desde `reportThemeSchema-2.159.json`.
 | image | `image` | image | Falta | No tenemos este gráfico |
 | Data | `imageData` | string | Falta | No tenemos este gráfico |
 | Image source | `sourceType` | enum: Upload Image, Enter URL, Select from data | Falta | No tenemos este gráfico |
-| Transparency | `transparency` | number | Falta | No tenemos este gráfico |
+| Transparency | `transparency` | number | Falta | El motor de gráficos no atenúa una imagen de fondo |
 | Image URL | `url` | string | Falta | No tenemos este gráfico |
 
 ### Línea de referencia X (`xAxisReferenceLine`) · P2 · 0/23

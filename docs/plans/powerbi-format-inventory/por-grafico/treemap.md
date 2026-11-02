@@ -44,7 +44,7 @@ Nuestro gráfico: treemap. Generado desde `reportThemeSchema-2.159.json`.
 | Display units | `labelDisplayUnits` | labelDisplayUnits | Parcial | Con código d3 (number_format) |
 | Value decimal places | `labelPrecision` | integer | Parcial | Con código d3 (number_format) |
 | Show | `show` | boolean | Tiene | Mostrar etiquetas (show_labels) |
-| Underline | `underline` | boolean | Falta |  |
+| Underline | `underline` | boolean | Falta | El motor de gráficos no dibuja texto subrayado |
 
 ### Leyenda (`legend`) · P1 · 0/10
 
@@ -59,7 +59,7 @@ Nuestro gráfico: treemap. Generado desde `reportThemeSchema-2.159.json`.
 | Show | `show` | boolean | Falta |  |
 | Title | `showTitle` | boolean | Falta |  |
 | Legend Name | `titleText` | string | Falta |  |
-| Underline | `underline` | boolean | Falta |  |
+| Underline | `underline` | boolean | Falta | El motor de gráficos no dibuja texto subrayado |
 
 ## General
 

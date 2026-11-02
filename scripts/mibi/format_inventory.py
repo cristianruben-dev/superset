@@ -153,8 +153,31 @@ def controls(key):
             S.add("value_label_format")
         if "rotate: false" not in a:
             S.add("value_label_rotate")
-    if "legendFormatSection" in t:
+    if "legendFormatSection" in t or "seriesLegendFormatSection" in t:
         S |= {"legend_align", "legend_font", "legend_icon"}
+    if "seriesLegendFormatSection" in t:
+        S.add("fmt_legend")
+    if "xesFormatSection" in t:
+        S.add("fmt_axes")
+    if "secondaryYAxis: true" in t:
+        S.add("fmt_secondary")
+    if "marks:" in t:
+        S.add("fmt_labels")
+    if "totalLabelsFormatSection" in t:
+        S.add("fmt_totals")
+    if "seriesLabelsFormatSection" in t:
+        S.add("fmt_series_labels")
+    if "plotAreaFormatSection" in t:
+        S.add("fmt_plot")
+    m = re.search(r"buildSeriesFormatSection\(\{?(.*?)\}?\)", t, re.S)
+    if m:
+        for part, token in (
+            ("lines", "fmt_lines"),
+            ("markers", "fmt_markers"),
+            ("bars", "fmt_bars"),
+        ):
+            if f"{part}: false" not in m.group(1):
+                S.add(token)
     if "legendSection" in t or "funnelLegendSection" in t:
         S |= {
             "show_legend",
@@ -196,6 +219,7 @@ OURS["mixed"] |= {
     "yAxisTitleSecondary",
 }
 OURS["scatter"] |= OURS["bubble"]
+OURS["area"] |= {"show_value", "area"}
 for name in OURS:
     OURS[name].add("fmt_chart")
 for k in ("bar", "line", "area", "scatter", "mixed"):
@@ -276,6 +300,366 @@ FONT = r"fontFamily|fontSize|bold|italic|labelColor|color|fontColor|textSize"
 F = "fmt"
 # (card regex, prop regex, controls, status, note); first match wins; a control absent from the chart means Falta
 RULES = [
+    (
+        r"categoryAxis|valueAxis|legend|labels|totals|seriesLabels|y2Axis",
+        r".*[uU]nderline",
+        None,
+        "Falta",
+        "El motor de gráficos no dibuja texto subrayado",
+    ),
+    (
+        r"categoryAxis|valueAxis",
+        r"gridlineAutoScale",
+        None,
+        "Falta",
+        "El motor de gráficos no escala el trazo con el zoom",
+    ),
+    (
+        r"categoryAxis|valueAxis",
+        r"gridline(Show|Color|Thickness|Style|DashArray|DashCap|Transparency)",
+        ["fmt_axes"],
+        "Tiene",
+        "Eje > Líneas de cuadrícula",
+    ),
+    (
+        r"categoryAxis|valueAxis",
+        r"labelDisplayUnits|labelPrecision|switchAxisPosition",
+        ["fmt_axes"],
+        "Tiene",
+        "Sección del eje",
+    ),
+    (
+        r"categoryAxis",
+        r"logAxisScale",
+        ["fmt_axes"],
+        "Tiene",
+        "Eje X logarítmico, solo en un eje numérico",
+    ),
+    (
+        r"categoryAxis",
+        r"preferredCategoryWidth|initialScrollPosition",
+        ["fmt_axes"],
+        "Tiene",
+        "Eje X > Categorías",
+    ),
+    (
+        r"categoryAxis",
+        r"maxMarginFactor",
+        ["fmt_axes"],
+        "Parcial",
+        "Ancho máximo de etiqueta en píxeles, no en % del gráfico",
+    ),
+    (
+        r"categoryAxis",
+        r"innerPadding",
+        ["bar_category_gap"],
+        "Tiene",
+        "Espacio entre barras",
+    ),
+    (
+        r"categoryAxis",
+        r"concatenateLabels|autoExpand",
+        None,
+        "Excluido",
+        "No hay jerarquías de exploración",
+    ),
+    (
+        r"categoryAxis",
+        r"outerPadding",
+        None,
+        "Falta",
+        "El motor de gráficos no tiene relleno exterior de categorías",
+    ),
+    (
+        r"categoryAxis|valueAxis",
+        r"roundRange|secRoundRange",
+        None,
+        "Falta",
+        "El motor de gráficos redondea el eje salvo con límites fijos",
+    ),
+    (
+        r"valueAxis",
+        r"secFontFamily|secFontSize|secBold|secItalic|secLabelColor",
+        ["y_axis_secondary_label_font"],
+        "Tiene",
+        "Fuente eje secundario",
+    ),
+    (
+        r"valueAxis",
+        r"secTitleFontFamily|secTitleFontSize|secTitleBold|secTitleItalic|secTitleColor",
+        ["y_axis_secondary_title_font"],
+        "Tiene",
+        "Fuente título secundario",
+    ),
+    (
+        r"valueAxis",
+        r"secTitleText|secShowAxisTitle",
+        ["yAxisTitleSecondary"],
+        "Tiene",
+        "Título secundario",
+    ),
+    (
+        r"valueAxis",
+        r"secStart|secEnd",
+        ["y_axis_bounds_secondary"],
+        "Tiene",
+        "Límites secundarios",
+    ),
+    (r"valueAxis", r"secLogAxisScale", ["logAxisSecondary"], "Tiene", "Log secundario"),
+    (
+        r"valueAxis|y2Axis",
+        r"secShow|show|secLabelDisplayUnits|secLabelPrecision",
+        ["fmt_secondary"],
+        "Tiene",
+        "Eje Y secundario",
+    ),
+    (
+        r"labels",
+        r"dynamicLabel.*|showDynamicLabels",
+        None,
+        "Excluido",
+        "Requiere expresiones DAX",
+    ),
+    (
+        r"labels",
+        r"leaderLine.*",
+        None,
+        "Falta",
+        "El motor de gráficos no las dibuja en barras ni líneas",
+    ),
+    (
+        r"labels",
+        r".*[sS]howBlankAs",
+        None,
+        "Falta",
+        "Una marca sin valor no tiene etiqueta",
+    ),
+    (
+        r"labels",
+        r"(title|detail)(LabelDisplayUnits|LabelPrecision|FormatString|CustomFormatString)",
+        None,
+        "Falta",
+        "El título y el detalle son texto, no otra medida",
+    ),
+    (
+        r"labels",
+        r"labelPosition|transparency|labelContainerMaxWidth|labelOverflow|wordWrap|optimizeLabelDisplay"
+        r"|horizontalAlignment|labelDisplayUnits|labelPrecision|enableValueDataLabel|enableTitleDataLabel"
+        r"|titleContentType|titleFontFamily|titleFontSize|titleBold|titleItalic|titleColor|titleTransparency"
+        r"|enableDetailDataLabel|detailFontFamily|detailFontSize|detailBold|detailItalic|detailColor"
+        r"|detailTransparency|labelContentLayout|showSeries|showAll|showByDefault",
+        ["fmt_labels"],
+        "Tiene",
+        "Etiquetas de datos",
+    ),
+    (
+        r"labels",
+        r"detailContentType",
+        ["fmt_labels"],
+        "Parcial",
+        "Serie, categoría o porcentaje; no otro campo",
+    ),
+    (
+        r"labels",
+        r"labelDensity",
+        ["fmt_labels"],
+        "Parcial",
+        "Ocultar etiquetas superpuestas, sin porcentaje de densidad",
+    ),
+    (
+        r"labels",
+        r"minimumOffset|maximumOffset",
+        ["fmt_labels"],
+        "Parcial",
+        "Una sola distancia a la marca",
+    ),
+    (
+        r"labels",
+        r"enableBackground|backgroundColor|backgroundTransparency",
+        ["value_label_background"],
+        "Tiene",
+        "Fondo de etiquetas",
+    ),
+    (
+        r"labels",
+        r"valueFormatString|valueCustomFormatString",
+        ["value_label_format"],
+        "Tiene",
+        "Formato de número de la etiqueta",
+    ),
+    (
+        r"legend",
+        r"showTitle|titleText|matchLineColor",
+        ["fmt_legend"],
+        "Tiene",
+        "Leyenda",
+    ),
+    (
+        r"categoryAxis",
+        r"axisType",
+        ["fmt_axes"],
+        "Parcial",
+        "Sale del tipo de la columna; se fuerza con «Forzar categórico»",
+    ),
+    (
+        r"categoryAxis|valueAxis",
+        r"axisStyle|secAxisStyle",
+        None,
+        "Falta",
+        "El eje muestra sus valores y su título, sin elegir entre ellos",
+    ),
+    (
+        r"categoryAxis",
+        r"reverseStackOrder",
+        None,
+        "Falta",
+        "Se ordena con el orden de series",
+    ),
+    (
+        r"valueAxis",
+        r"alignZeros",
+        None,
+        "Falta",
+        "Los ejes alinean sus marcas, no su cero",
+    ),
+    (
+        r"valueAxis",
+        r"sharedAxis",
+        None,
+        "Falta",
+        "Cada consulta elige eje en sus datos",
+    ),
+    (
+        r"dataPoint",
+        r"defaultColor|fill",
+        ["fmt_lines"],
+        "Tiene",
+        "Colores y series",
+    ),
+    (
+        r"dataPoint",
+        r"transparency",
+        ["fmt_lines"],
+        "Tiene",
+        "Colores y series > Líneas",
+    ),
+    (
+        r"legend",
+        r"showGradientLegend",
+        None,
+        "Falta",
+        "Sin leyenda para la escala de color",
+    ),
+    (
+        r"dataPoint",
+        r"defaultColor|fill|showAllDataPoints|transparency|fillTransparency|borderColorMatchFill"
+        r"|borderOutlineOnly|borderTransparency",
+        ["fmt_bars"],
+        "Tiene",
+        "Colores y series",
+    ),
+    (
+        r"dataPoint",
+        r"fillRule",
+        ["fmt_bars"],
+        "Parcial",
+        "Reglas y escala de dos colores por el valor de la barra; sin otro campo",
+    ),
+    (
+        r"layout",
+        r"clusteredGapOverlaps|clusteredGapOverlapReverse",
+        ["fmt_bars"],
+        "Tiene",
+        "Colores y series > Barras",
+    ),
+    (
+        r"layout",
+        r"stackedGapSize|stackedGapExplodes",
+        None,
+        "Falta",
+        "El motor de gráficos no separa los segmentos de una pila",
+    ),
+    (
+        r"lineStyles",
+        r"strokeAutoScale",
+        None,
+        "Falta",
+        "El motor de gráficos no escala el trazo con el zoom",
+    ),
+    (
+        r"lineStyles",
+        r"segmentAlignment|segmentGradient",
+        None,
+        "Falta",
+        "El motor de gráficos no colorea por tramo de línea",
+    ),
+    (
+        r"lineStyles",
+        r"interpolationSmooth|interpolationSmoothParam|interpolationStep|lineChartType|strokeDashArray"
+        r"|strokeDashCap|strokeLineJoin|strokeTransparency|strokeShow|showSeries|areaColor|areaMatchStrokeColor",
+        ["fmt_lines"],
+        "Tiene",
+        "Colores y series > Líneas",
+    ),
+    (
+        r"lineStyles",
+        r"markerColor",
+        ["fmt_markers"],
+        "Tiene",
+        "Colores y series > Marcadores",
+    ),
+    (
+        r"markers",
+        r"borderColor|borderColorMatchFill|borderShow|borderTransparency|borderWidth|rotation|transparency",
+        ["fmt_markers"],
+        "Tiene",
+        "Colores y series > Marcadores",
+    ),
+    (r"totals", r".*", ["fmt_totals"], "Tiene", "Etiquetas de total"),
+    (
+        r"seriesLabels",
+        r"leaderLine.*|maximumOffset",
+        None,
+        "Falta",
+        "El motor de gráficos solo las pone al final de la línea",
+    ),
+    (
+        r"seriesLabels",
+        r"seriesPosition",
+        ["fmt_series_labels"],
+        "Parcial",
+        "Solo al final de la línea",
+    ),
+    (
+        r"seriesLabels",
+        r"showAll|showByDefault",
+        None,
+        "Falta",
+        "Se activan para todo el gráfico",
+    ),
+    (r"seriesLabels", r".*", ["fmt_series_labels"], "Tiene", "Etiquetas de serie"),
+    (r"plotArea", r"color|colorTransparency", ["fmt_plot"], "Tiene", "Área de trazado"),
+    (
+        r"plotArea",
+        r"transparency",
+        None,
+        "Falta",
+        "El motor de gráficos no atenúa una imagen de fondo",
+    ),
+    (
+        r"plotArea",
+        r"image|imageData|url|sourceType",
+        ["fmt_plot"],
+        "Parcial",
+        "Por dirección de la imagen, sin subirla",
+    ),
+    (
+        r"plotArea",
+        r"fit",
+        ["fmt_plot"],
+        "Parcial",
+        "En mosaico o una vez, sin ajustar al área",
+    ),
     (
         r"title",
         r"heading",
@@ -1054,7 +1438,7 @@ def status(v, c, p):
                 # the box format of the dashboard is available to every chart
                 return st, note + (
                     ""
-                    if ctrl in ([F], ["ok"], ["fmt_chart"])
+                    if ctrl in ([F], ["ok"]) or ctrl[0].startswith("fmt_")
                     else " (" + "/".join(sorted(S & set(ctrl))) + ")"
                 )
     if o is None:

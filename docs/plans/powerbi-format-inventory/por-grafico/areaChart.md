@@ -5,46 +5,46 @@ Nuestro gráfico: area. Generado desde `reportThemeSchema-2.159.json`.
 ## Visual
 
 
-### Colores / barras (`dataPoint`) · P1 · 2/4
+### Colores / barras (`dataPoint`) · P1 · 3/4
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
-| Default color | `defaultColor` | fill | Parcial | Color por serie o esquema; revisar color por categoría (color_scheme/series_colors) |
-| Color | `fill` | fill | Parcial | Color por serie o esquema; revisar color por categoría (color_scheme/series_colors) |
+| Default color | `defaultColor` | fill | Tiene | Colores y series |
+| Color | `fill` | fill | Tiene | Colores y series |
 | Show all | `showAllDataPoints` | boolean | Falta |  |
-| Area transparency | `transparency` | number | Falta |  |
+| Area transparency | `transparency` | number | Tiene | Colores y series > Líneas |
 
-### Eje X / categorías (`categoryAxis`) · P1 · 22/38
+### Eje X / categorías (`categoryAxis`) · P1 · 30/38
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
-| Auto expand | `autoExpand` | boolean | Falta |  |
-| Style | `axisStyle` | enum: Show title only, Show unit only, Show both | Falta |  |
-| Type | `axisType` | enum: Continuous, Categorical | Falta |  |
+| Auto expand | `autoExpand` | boolean | Excluido | No hay jerarquías de exploración |
+| Style | `axisStyle` | enum: Show title only, Show unit only, Show both | Falta | El eje muestra sus valores y su título, sin elegir entre ellos |
+| Type | `axisType` | enum: Continuous, Categorical | Parcial | Sale del tipo de la columna; se fuerza con «Forzar categórico» |
 | Bold | `bold` | boolean | Tiene | Fuente de etiquetas X (x_axis_label_font) |
-| Concatenate labels | `concatenateLabels` | boolean | Falta |  |
+| Concatenate labels | `concatenateLabels` | boolean | Excluido | No hay jerarquías de exploración |
 | Maximum | `end` | number/string | Parcial | Solo ejes numéricos (truncateXAxis/xAxisBounds) |
 | Font family | `fontFamily` | string | Tiene | Fuente de etiquetas X (x_axis_label_font) |
 | Text size | `fontSize` | fontSize | Tiene | Fuente de etiquetas X (x_axis_label_font) |
-| Scale by width | `gridlineAutoScale` | boolean | Falta |  |
-| Color | `gridlineColor` | fill | Parcial | Una opción para ambos ejes (gridline_color) |
-| Dash array | `gridlineDashArray` | string | Falta |  |
-| Dash cap | `gridlineDashCap` | enum: Flat, Round, Square | Falta |  |
-| Show | `gridlineShow` | boolean | Parcial | Una opción para ambos ejes (gridlines_hidden) |
-| Line style | `gridlineStyle` | enum: Solid, Dashed, Dotted, Custom | Parcial | Una opción para ambos ejes (gridline_style) |
-| Width | `gridlineThickness` | number | Parcial | Una opción para ambos ejes (gridline_width) |
-| Transparency | `gridlineTransparency` | number | Falta |  |
-| Initial scroll position | `initialScrollPosition` | enum: Start, End | Falta |  |
+| Scale by width | `gridlineAutoScale` | boolean | Falta | El motor de gráficos no escala el trazo con el zoom |
+| Color | `gridlineColor` | fill | Tiene | Eje > Líneas de cuadrícula |
+| Dash array | `gridlineDashArray` | string | Tiene | Eje > Líneas de cuadrícula |
+| Dash cap | `gridlineDashCap` | enum: Flat, Round, Square | Tiene | Eje > Líneas de cuadrícula |
+| Show | `gridlineShow` | boolean | Tiene | Eje > Líneas de cuadrícula |
+| Line style | `gridlineStyle` | enum: Solid, Dashed, Dotted, Custom | Tiene | Eje > Líneas de cuadrícula |
+| Width | `gridlineThickness` | number | Tiene | Eje > Líneas de cuadrícula |
+| Transparency | `gridlineTransparency` | number | Tiene | Eje > Líneas de cuadrícula |
+| Initial scroll position | `initialScrollPosition` | enum: Start, End | Tiene | Eje X > Categorías |
 | Invert range | `invertAxis` | boolean | Tiene | Invertir eje X (x_axis_inverse) |
 | Italic | `italic` | boolean | Tiene | Fuente de etiquetas X (x_axis_label_font) |
 | Color | `labelColor` | fill | Tiene | Fuente de etiquetas X (x_axis_label_font) |
-| Display units | `labelDisplayUnits` | labelDisplayUnits | Parcial | Con código d3, no con unidades y decimales (x_axis_number_format) |
-| Value decimal places | `labelPrecision` | integer | Parcial | Con código d3, no con unidades y decimales (x_axis_number_format) |
-| Logarithmic scale | `logAxisScale` | boolean | Falta |  |
-| Maximum size | `maxMarginFactor` | integer | Falta |  |
-| Outer padding | `outerPadding` | integer | Falta |  |
-| Minimum category width | `preferredCategoryWidth` | number | Falta |  |
-| Round range | `roundRange` | boolean | Falta |  |
+| Display units | `labelDisplayUnits` | labelDisplayUnits | Tiene | Sección del eje |
+| Value decimal places | `labelPrecision` | integer | Tiene | Sección del eje |
+| Logarithmic scale | `logAxisScale` | boolean | Tiene | Eje X logarítmico, solo en un eje numérico |
+| Maximum size | `maxMarginFactor` | integer | Parcial | Ancho máximo de etiqueta en píxeles, no en % del gráfico |
+| Outer padding | `outerPadding` | integer | Falta | El motor de gráficos no tiene relleno exterior de categorías |
+| Minimum category width | `preferredCategoryWidth` | number | Tiene | Eje X > Categorías |
+| Round range | `roundRange` | boolean | Falta | El motor de gráficos redondea el eje salvo con límites fijos |
 | Show | `show` | boolean | Tiene | Ocultar eje X (x_axis_hidden) |
 | Title | `showAxisTitle` | boolean | Tiene | Título del eje X (x_axis_title) |
 | Minimum | `start` | number/string | Parcial | Solo ejes numéricos (truncateXAxis/xAxisBounds) |
@@ -54,47 +54,47 @@ Nuestro gráfico: area. Generado desde `reportThemeSchema-2.159.json`.
 | Title text size | `titleFontSize` | fontSize | Tiene | Fuente de título X (x_axis_title_font) |
 | Italic | `titleItalic` | boolean | Tiene | Fuente de título X (x_axis_title_font) |
 | Axis title | `titleText` | string | Tiene | Título del eje X (x_axis_title) |
-| Underline | `titleUnderline` | boolean | Falta |  |
-| Underline | `underline` | boolean | Falta |  |
+| Underline | `titleUnderline` | boolean | Falta | El motor de gráficos no dibuja texto subrayado |
+| Underline | `underline` | boolean | Falta | El motor de gráficos no dibuja texto subrayado |
 
-### Eje Y / valores (`valueAxis`) · P1 · 24/34
+### Eje Y / valores (`valueAxis`) · P1 · 28/34
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
-| Style | `axisStyle` | enum: Show title only, Show unit only, Show both | Falta |  |
+| Style | `axisStyle` | enum: Show title only, Show unit only, Show both | Falta | El eje muestra sus valores y su título, sin elegir entre ellos |
 | Bold | `bold` | boolean | Tiene | Fuente de etiquetas Y (y_axis_label_font) |
 | Maximum | `end` | number/string | Tiene | Límites del eje Y (y_axis_bounds) |
 | Font family | `fontFamily` | string | Tiene | Fuente de etiquetas Y (y_axis_label_font) |
 | Text size | `fontSize` | fontSize | Tiene | Fuente de etiquetas Y (y_axis_label_font) |
-| Scale by width | `gridlineAutoScale` | boolean | Falta |  |
-| Color | `gridlineColor` | fill | Parcial | Una opción para ambos ejes (gridline_color) |
-| Dash array | `gridlineDashArray` | string | Falta |  |
-| Dash cap | `gridlineDashCap` | enum: Flat, Round, Square | Falta |  |
-| Show | `gridlineShow` | boolean | Parcial | Una opción para ambos ejes (gridlines_hidden) |
-| Line style | `gridlineStyle` | enum: Solid, Dashed, Dotted, Custom | Parcial | Una opción para ambos ejes (gridline_style) |
-| Width | `gridlineThickness` | number | Parcial | Una opción para ambos ejes (gridline_width) |
-| Transparency | `gridlineTransparency` | number | Falta |  |
+| Scale by width | `gridlineAutoScale` | boolean | Falta | El motor de gráficos no escala el trazo con el zoom |
+| Color | `gridlineColor` | fill | Tiene | Eje > Líneas de cuadrícula |
+| Dash array | `gridlineDashArray` | string | Tiene | Eje > Líneas de cuadrícula |
+| Dash cap | `gridlineDashCap` | enum: Flat, Round, Square | Tiene | Eje > Líneas de cuadrícula |
+| Show | `gridlineShow` | boolean | Tiene | Eje > Líneas de cuadrícula |
+| Line style | `gridlineStyle` | enum: Solid, Dashed, Dotted, Custom | Tiene | Eje > Líneas de cuadrícula |
+| Width | `gridlineThickness` | number | Tiene | Eje > Líneas de cuadrícula |
+| Transparency | `gridlineTransparency` | number | Tiene | Eje > Líneas de cuadrícula |
 | Invert range | `invertAxis` | boolean | Tiene | Invertir eje Y (y_axis_inverse) |
 | Italic | `italic` | boolean | Tiene | Fuente de etiquetas Y (y_axis_label_font) |
 | Color | `labelColor` | fill | Tiene | Fuente de etiquetas Y (y_axis_label_font) |
-| Display units | `labelDisplayUnits` | labelDisplayUnits | Parcial | Con código d3, no con unidades y decimales (y_axis_format) |
-| Value decimal places | `labelPrecision` | integer | Parcial | Con código d3, no con unidades y decimales (y_axis_format) |
+| Display units | `labelDisplayUnits` | labelDisplayUnits | Tiene | Sección del eje |
+| Value decimal places | `labelPrecision` | integer | Tiene | Sección del eje |
 | Logarithmic scale | `logAxisScale` | boolean | Tiene | Escala logarítmica (logAxis) |
-| Round range | `roundRange` | boolean | Falta |  |
+| Round range | `roundRange` | boolean | Falta | El motor de gráficos redondea el eje salvo con límites fijos |
 | Scale to fit | `scaleToFit` | boolean | Parcial | Truncar eje (truncateYAxis) |
-| Shared y-axis | `sharedAxis` | boolean | Falta |  |
+| Shared y-axis | `sharedAxis` | boolean | Falta | Cada consulta elige eje en sus datos |
 | Show | `show` | boolean | Tiene | Ocultar eje Y (y_axis_hidden) |
 | Title | `showAxisTitle` | boolean | Tiene | Título del eje Y (y_axis_title) |
 | Minimum | `start` | number/string | Tiene | Límites del eje Y (y_axis_bounds) |
-| Switch axis position | `switchAxisPosition` | boolean | Falta |  |
+| Switch axis position | `switchAxisPosition` | boolean | Tiene | Sección del eje |
 | Bold | `titleBold` | boolean | Tiene | Fuente de título Y (y_axis_title_font) |
 | Title color | `titleColor` | fill | Tiene | Fuente de título Y (y_axis_title_font) |
 | Font family | `titleFontFamily` | string | Tiene | Fuente de título Y (y_axis_title_font) |
 | Title text size | `titleFontSize` | fontSize | Tiene | Fuente de título Y (y_axis_title_font) |
 | Italic | `titleItalic` | boolean | Tiene | Fuente de título Y (y_axis_title_font) |
 | Axis title | `titleText` | string | Tiene | Título del eje Y (y_axis_title) |
-| Underline | `titleUnderline` | boolean | Falta |  |
-| Underline | `underline` | boolean | Falta |  |
+| Underline | `titleUnderline` | boolean | Falta | El motor de gráficos no dibuja texto subrayado |
+| Underline | `underline` | boolean | Falta | El motor de gráficos no dibuja texto subrayado |
 
 ### Eje Y secundario (`y2Axis`) · P1 · 0/22
 
@@ -119,84 +119,84 @@ Nuestro gráfico: area. Generado desde `reportThemeSchema-2.159.json`.
 | Title text size | `secTitleFontSize` | fontSize | Falta |  |
 | Italic | `secTitleItalic` | boolean | Falta |  |
 | Axis title | `secTitleText` | string | Falta |  |
-| Underline | `secTitleUnderline` | boolean | Falta |  |
-| Underline | `secUnderline` | boolean | Falta |  |
+| Underline | `secTitleUnderline` | boolean | Falta | El motor de gráficos no dibuja texto subrayado |
+| Underline | `secUnderline` | boolean | Falta | El motor de gráficos no dibuja texto subrayado |
 | Show | `show` | boolean | Falta |  |
 
-### Etiquetas de datos (`labels`) · P1 · 11/68
+### Etiquetas de datos (`labels`) · P1 · 42/68
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
 | Color | `backgroundColor` | fill | Tiene | Fondo de etiquetas (value_label_background) |
-| Transparency | `backgroundTransparency` | number | Falta |  |
+| Transparency | `backgroundTransparency` | number | Tiene | Fondo de etiquetas (value_label_background) |
 | Bold | `bold` | boolean | Tiene | Fuente de etiquetas (value_label_font) |
 | Color | `color` | fill | Tiene | Fuente de etiquetas (value_label_font) |
-| Bold | `detailBold` | boolean | Falta |  |
-| Color | `detailColor` | fill | Falta |  |
-| Content | `detailContentType` | enum: Percent of total, Custom | Falta |  |
-| Format code | `detailCustomFormatString` | string | Falta |  |
-| Font family | `detailFontFamily` | string | Falta |  |
-| Text size | `detailFontSize` | fontSize | Falta |  |
-| detailFormatString | `detailFormatString` | string | Falta |  |
-| Italic | `detailItalic` | boolean | Falta |  |
-| Display units | `detailLabelDisplayUnits` | enum: Auto, None, Thousands, Millions, Billions, Trillions, Custom | Falta |  |
-| Value decimal places | `detailLabelPrecision` | integer | Falta |  |
-| Show blank as | `detailShowBlankAs` | string | Falta |  |
-| Transparency | `detailTransparency` | number | Falta |  |
-| Underline | `detailUnderline` | boolean | Falta |  |
-| Field | `dynamicLabelDetail` | string/number/integer/boolean | Falta |  |
-| Field | `dynamicLabelTitle` | string/number/integer/boolean | Falta |  |
-| Field | `dynamicLabelValue` | string/number/integer/boolean | Falta |  |
+| Bold | `detailBold` | boolean | Tiene | Etiquetas de datos |
+| Color | `detailColor` | fill | Tiene | Etiquetas de datos |
+| Content | `detailContentType` | enum: Percent of total, Custom | Parcial | Serie, categoría o porcentaje; no otro campo |
+| Format code | `detailCustomFormatString` | string | Falta | El título y el detalle son texto, no otra medida |
+| Font family | `detailFontFamily` | string | Tiene | Etiquetas de datos |
+| Text size | `detailFontSize` | fontSize | Tiene | Etiquetas de datos |
+| detailFormatString | `detailFormatString` | string | Falta | El título y el detalle son texto, no otra medida |
+| Italic | `detailItalic` | boolean | Tiene | Etiquetas de datos |
+| Display units | `detailLabelDisplayUnits` | enum: Auto, None, Thousands, Millions, Billions, Trillions, Custom | Falta | El título y el detalle son texto, no otra medida |
+| Value decimal places | `detailLabelPrecision` | integer | Falta | El título y el detalle son texto, no otra medida |
+| Show blank as | `detailShowBlankAs` | string | Falta | Una marca sin valor no tiene etiqueta |
+| Transparency | `detailTransparency` | number | Tiene | Etiquetas de datos |
+| Underline | `detailUnderline` | boolean | Falta | El motor de gráficos no dibuja texto subrayado |
+| Field | `dynamicLabelDetail` | string/number/integer/boolean | Excluido | Requiere expresiones DAX |
+| Field | `dynamicLabelTitle` | string/number/integer/boolean | Excluido | Requiere expresiones DAX |
+| Field | `dynamicLabelValue` | string/number/integer/boolean | Excluido | Requiere expresiones DAX |
 | Show background | `enableBackground` | boolean | Tiene | Fondo de etiquetas (value_label_background) |
-| enableDetailDataLabel | `enableDetailDataLabel` | boolean | Falta |  |
-| enableTitleDataLabel | `enableTitleDataLabel` | boolean | Falta |  |
-| enableValueDataLabel | `enableValueDataLabel` | boolean | Falta |  |
+| enableDetailDataLabel | `enableDetailDataLabel` | boolean | Tiene | Etiquetas de datos |
+| enableTitleDataLabel | `enableTitleDataLabel` | boolean | Tiene | Etiquetas de datos |
+| enableValueDataLabel | `enableValueDataLabel` | boolean | Tiene | Etiquetas de datos |
 | Font family | `fontFamily` | string | Tiene | Fuente de etiquetas (value_label_font) |
 | Text size | `fontSize` | fontSize | Tiene | Fuente de etiquetas (value_label_font) |
-| Horizontal alignment | `horizontalAlignment` | alignment | Falta |  |
+| Horizontal alignment | `horizontalAlignment` | alignment | Tiene | Etiquetas de datos |
 | Italic | `italic` | boolean | Tiene | Fuente de etiquetas (value_label_font) |
-| Maximum width | `labelContainerMaxWidth` | number | Falta |  |
-| Layout | `labelContentLayout` | enum: Multi-line, Single line | Falta |  |
-| Label density | `labelDensity` | integer | Falta |  |
-| Display units | `labelDisplayUnits` | enum: Auto, None, Thousands, Millions, Billions, Trillions, Custom | Parcial | Con código d3 (value_label_format) |
-| Position | `labelPosition` | enum: Auto, Inside end, Outside end, Inside center, Inside base, Above, Under | Falta |  |
-| Value decimal places | `labelPrecision` | integer | Parcial | Con código d3 (value_label_format) |
-| Scale by width | `leaderLineAutoScale` | boolean | Falta |  |
-| Color | `leaderLineColor` | fill | Falta |  |
-| Dash array | `leaderLineDashArray` | string | Falta |  |
-| Dash cap | `leaderLineDashCap` | enum: Flat, Round, Square | Falta |  |
-| Line style | `leaderLinePattern` | enum: Solid, Dashed, Dotted, Custom | Falta |  |
-| Transparency | `leaderLineTransparency` | number | Falta |  |
-| Width | `leaderLineWidth` | number | Falta |  |
-| Show | `leaderLines` | boolean | Falta |  |
-| Maximum offset | `maximumOffset` | number | Falta |  |
-| Minimum offset | `minimumOffset` | number | Falta |  |
-| Optimize label display | `optimizeLabelDisplay` | boolean | Falta |  |
-| Show | `show` | boolean | Falta |  |
-| Customize series | `showAll` | boolean | Falta |  |
-| Show blank as | `showBlankAs` | string | Falta |  |
-| showByDefault | `showByDefault` | boolean | Falta |  |
-| Custom label | `showDynamicLabels` | boolean | Falta |  |
-| Show | `showSeries` | boolean | Falta |  |
-| Bold | `titleBold` | boolean | Falta |  |
-| Color | `titleColor` | fill | Falta |  |
-| Content | `titleContentType` | enum: Series name, Custom | Falta |  |
-| Format code | `titleCustomFormatString` | string | Falta |  |
-| Font family | `titleFontFamily` | string | Falta |  |
-| Text size | `titleFontSize` | fontSize | Falta |  |
-| titleFormatString | `titleFormatString` | string | Falta |  |
-| Italic | `titleItalic` | boolean | Falta |  |
-| Display units | `titleLabelDisplayUnits` | enum: Auto, None, Thousands, Millions, Billions, Trillions, Custom | Falta |  |
-| Value decimal places | `titleLabelPrecision` | integer | Falta |  |
-| Show blank as | `titleShowBlankAs` | string | Falta |  |
-| Transparency | `titleTransparency` | number | Falta |  |
-| Underline | `titleUnderline` | boolean | Falta |  |
-| Transparency | `transparency` | number | Falta |  |
-| Underline | `underline` | boolean | Falta |  |
-| Format code | `valueCustomFormatString` | string | Parcial | Con código d3 (value_label_format) |
-| valueFormatString | `valueFormatString` | string | Parcial | Con código d3 (value_label_format) |
+| Maximum width | `labelContainerMaxWidth` | number | Tiene | Etiquetas de datos |
+| Layout | `labelContentLayout` | enum: Multi-line, Single line | Tiene | Etiquetas de datos |
+| Label density | `labelDensity` | integer | Parcial | Ocultar etiquetas superpuestas, sin porcentaje de densidad |
+| Display units | `labelDisplayUnits` | enum: Auto, None, Thousands, Millions, Billions, Trillions, Custom | Tiene | Etiquetas de datos |
+| Position | `labelPosition` | enum: Auto, Inside end, Outside end, Inside center, Inside base, Above, Under | Tiene | Etiquetas de datos |
+| Value decimal places | `labelPrecision` | integer | Tiene | Etiquetas de datos |
+| Scale by width | `leaderLineAutoScale` | boolean | Falta | El motor de gráficos no las dibuja en barras ni líneas |
+| Color | `leaderLineColor` | fill | Falta | El motor de gráficos no las dibuja en barras ni líneas |
+| Dash array | `leaderLineDashArray` | string | Falta | El motor de gráficos no las dibuja en barras ni líneas |
+| Dash cap | `leaderLineDashCap` | enum: Flat, Round, Square | Falta | El motor de gráficos no las dibuja en barras ni líneas |
+| Line style | `leaderLinePattern` | enum: Solid, Dashed, Dotted, Custom | Falta | El motor de gráficos no las dibuja en barras ni líneas |
+| Transparency | `leaderLineTransparency` | number | Falta | El motor de gráficos no las dibuja en barras ni líneas |
+| Width | `leaderLineWidth` | number | Falta | El motor de gráficos no las dibuja en barras ni líneas |
+| Show | `leaderLines` | boolean | Falta | El motor de gráficos no las dibuja en barras ni líneas |
+| Maximum offset | `maximumOffset` | number | Parcial | Una sola distancia a la marca |
+| Minimum offset | `minimumOffset` | number | Parcial | Una sola distancia a la marca |
+| Optimize label display | `optimizeLabelDisplay` | boolean | Tiene | Etiquetas de datos |
+| Show | `show` | boolean | Tiene | Mostrar etiquetas (show_value) |
+| Customize series | `showAll` | boolean | Tiene | Etiquetas de datos |
+| Show blank as | `showBlankAs` | string | Falta | Una marca sin valor no tiene etiqueta |
+| showByDefault | `showByDefault` | boolean | Tiene | Etiquetas de datos |
+| Custom label | `showDynamicLabels` | boolean | Excluido | Requiere expresiones DAX |
+| Show | `showSeries` | boolean | Tiene | Etiquetas de datos |
+| Bold | `titleBold` | boolean | Tiene | Etiquetas de datos |
+| Color | `titleColor` | fill | Tiene | Etiquetas de datos |
+| Content | `titleContentType` | enum: Series name, Custom | Tiene | Etiquetas de datos |
+| Format code | `titleCustomFormatString` | string | Falta | El título y el detalle son texto, no otra medida |
+| Font family | `titleFontFamily` | string | Tiene | Etiquetas de datos |
+| Text size | `titleFontSize` | fontSize | Tiene | Etiquetas de datos |
+| titleFormatString | `titleFormatString` | string | Falta | El título y el detalle son texto, no otra medida |
+| Italic | `titleItalic` | boolean | Tiene | Etiquetas de datos |
+| Display units | `titleLabelDisplayUnits` | enum: Auto, None, Thousands, Millions, Billions, Trillions, Custom | Falta | El título y el detalle son texto, no otra medida |
+| Value decimal places | `titleLabelPrecision` | integer | Falta | El título y el detalle son texto, no otra medida |
+| Show blank as | `titleShowBlankAs` | string | Falta | Una marca sin valor no tiene etiqueta |
+| Transparency | `titleTransparency` | number | Tiene | Etiquetas de datos |
+| Underline | `titleUnderline` | boolean | Falta | El motor de gráficos no dibuja texto subrayado |
+| Transparency | `transparency` | number | Tiene | Etiquetas de datos |
+| Underline | `underline` | boolean | Falta | El motor de gráficos no dibuja texto subrayado |
+| Format code | `valueCustomFormatString` | string | Tiene | Formato de número de la etiqueta (value_label_format) |
+| valueFormatString | `valueFormatString` | string | Tiene | Formato de número de la etiqueta (value_label_format) |
 
-### Leyenda (`legend`) · P1 · 8/12
+### Leyenda (`legend`) · P1 · 11/12
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
@@ -206,53 +206,53 @@ Nuestro gráfico: area. Generado desde `reportThemeSchema-2.159.json`.
 | Italic | `italic` | boolean | Tiene | Fuente de leyenda (legend_font) |
 | Color | `labelColor` | fill | Tiene | Fuente de leyenda (legend_font) |
 | Style | `legendMarkerRendering` | enum: Marker (circle default), Marker, Line, Line and markers | Parcial | Forma del marcador (legend_icon) |
-| Match line color | `matchLineColor` | boolean | Falta |  |
+| Match line color | `matchLineColor` | boolean | Tiene | Leyenda |
 | Position | `position` | enum: Top left, Top center, Top right, Top left stacked, Top right stacked, Center left, Center right, Bottom left, Bottom center, Bottom ri | Tiene | Posición (legendOrientation) |
 | Show | `show` | boolean | Tiene | Mostrar leyenda (show_legend) |
-| Title | `showTitle` | boolean | Falta |  |
-| Legend Name | `titleText` | string | Falta |  |
-| Underline | `underline` | boolean | Falta |  |
+| Title | `showTitle` | boolean | Tiene | Leyenda |
+| Legend Name | `titleText` | string | Tiene | Leyenda |
+| Underline | `underline` | boolean | Falta | El motor de gráficos no dibuja texto subrayado |
 
-### Líneas (`lineStyles`) · P1 · 9/24
+### Líneas (`lineStyles`) · P1 · 21/24
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
-| Color | `areaColor` | fill | Parcial | Solo opacidad del área (opacity) |
-| Match line color | `areaMatchStrokeColor` | boolean | Falta |  |
-| Shade area | `areaShow` | boolean | Falta |  |
-| Smooth type | `interpolationSmooth` | enum: Monotone, Cardinal | Falta |  |
-| Tension | `interpolationSmoothParam` | number | Falta |  |
-| Step position | `interpolationStep` | enum: Before, Center, After | Falta |  |
-| Interpolation type | `lineChartType` | enum: Linear, Smooth, Step | Falta |  |
+| Color | `areaColor` | fill | Tiene | Colores y series > Líneas |
+| Match line color | `areaMatchStrokeColor` | boolean | Tiene | Colores y series > Líneas |
+| Shade area | `areaShow` | boolean | Tiene | Sombrear área (area) |
+| Smooth type | `interpolationSmooth` | enum: Monotone, Cardinal | Tiene | Colores y series > Líneas |
+| Tension | `interpolationSmoothParam` | number | Tiene | Colores y series > Líneas |
+| Step position | `interpolationStep` | enum: Before, Center, After | Tiene | Colores y series > Líneas |
+| Interpolation type | `lineChartType` | enum: Linear, Smooth, Step | Tiene | Colores y series > Líneas |
 | Line style | `lineStyle` | enum: Solid, Dashed, Dotted, Custom | Tiene | Estilo de línea (series_line_type) |
-| Color | `markerColor` | fill | Falta |  |
+| Color | `markerColor` | fill | Tiene | Colores y series > Marcadores |
 | Type | `markerShape` | enum: ●, ■, ◆, ▲, ☓, -, —, + | Tiene | Forma del marcador (series_marker_symbol) |
 | Size | `markerSize` | number | Tiene | Tamaño del marcador (markerSize) |
-| Segment type | `segmentAlignment` | enum: Left, Center, Right | Falta |  |
-| Gradient | `segmentGradient` | boolean | Falta |  |
+| Segment type | `segmentAlignment` | enum: Left, Center, Right | Falta | El motor de gráficos no colorea por tramo de línea |
+| Gradient | `segmentGradient` | boolean | Falta | El motor de gráficos no colorea por tramo de línea |
 | Show | `showMarker` | boolean | Tiene | Marcadores (markerEnabled) |
 | showMarkerByDefault | `showMarkerByDefault` | boolean | Tiene | Marcadores (markerEnabled) |
-| Customize series | `showSeries` | boolean | Falta |  |
-| Scale by width | `strokeAutoScale` | boolean | Falta |  |
+| Customize series | `showSeries` | boolean | Tiene | Colores y series > Líneas |
+| Scale by width | `strokeAutoScale` | boolean | Falta | El motor de gráficos no escala el trazo con el zoom |
 | Color | `strokeColor` | fill | Tiene | Color por serie (series_colors) |
-| Dash array | `strokeDashArray` | string | Falta |  |
-| Dash cap | `strokeDashCap` | enum: Flat, Round, Square | Falta |  |
-| Join type | `strokeLineJoin` | enum: Miter, Round, Bevel | Falta |  |
-| Show | `strokeShow` | boolean | Falta |  |
-| Transparency | `strokeTransparency` | number | Parcial | Solo opacidad del área (opacity) |
+| Dash array | `strokeDashArray` | string | Tiene | Colores y series > Líneas |
+| Dash cap | `strokeDashCap` | enum: Flat, Round, Square | Tiene | Colores y series > Líneas |
+| Join type | `strokeLineJoin` | enum: Miter, Round, Bevel | Tiene | Colores y series > Líneas |
+| Show | `strokeShow` | boolean | Tiene | Colores y series > Líneas |
+| Transparency | `strokeTransparency` | number | Tiene | Colores y series > Líneas |
 | Width | `strokeWidth` | number | Tiene | Grosor de línea (series_line_width) |
 
-### Marcadores (`markers`) · P1 · 0/7
+### Marcadores (`markers`) · P1 · 7/7
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
-| Color | `borderColor` | fill | Falta |  |
-| Match fill color | `borderColorMatchFill` | boolean | Falta |  |
-| Border | `borderShow` | boolean | Falta |  |
-| Transparency | `borderTransparency` | number | Falta |  |
-| Width | `borderWidth` | number | Falta |  |
-| Rotation | `rotation` | number | Falta |  |
-| Transparency | `transparency` | number | Falta |  |
+| Color | `borderColor` | fill | Tiene | Colores y series > Marcadores |
+| Match fill color | `borderColorMatchFill` | boolean | Tiene | Colores y series > Marcadores |
+| Border | `borderShow` | boolean | Tiene | Colores y series > Marcadores |
+| Transparency | `borderTransparency` | number | Tiene | Colores y series > Marcadores |
+| Width | `borderWidth` | number | Tiene | Colores y series > Marcadores |
+| Rotation | `rotation` | number | Tiene | Colores y series > Marcadores |
+| Transparency | `transparency` | number | Tiene | Colores y series > Marcadores |
 
 ### Control deslizante de zoom (`zoom`) · P2 · 1/15
 
@@ -274,50 +274,50 @@ Nuestro gráfico: area. Generado desde `reportThemeSchema-2.159.json`.
 | valueSecSize | `valueSecSize` | number | Falta |  |
 | valueSize | `valueSize` | number | Falta |  |
 
-### Etiquetas de serie (`seriesLabels`) · P2 · 0/27
+### Etiquetas de serie (`seriesLabels`) · P2 · 15/27
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
-| Color | `backgroundColor` | fill | Falta |  |
-| Match series color | `backgroundMatchColor` | boolean | Falta |  |
-| Transparency | `backgroundTransparency` | number | Falta |  |
-| Bold | `bold` | boolean | Falta |  |
-| Show background | `enableBackground` | boolean | Falta |  |
-| Italic | `italic` | boolean | Falta |  |
-| Scale by width | `leaderLineAutoScale` | boolean | Falta |  |
-| Color | `leaderLineColor` | fill | Falta |  |
-| Dash array | `leaderLineDashArray` | string | Falta |  |
-| Dash cap | `leaderLineDashCap` | enum: Flat, Round, Square | Falta |  |
-| Line style | `leaderLinePattern` | enum: Solid, Dashed, Dotted, Custom | Falta |  |
-| Transparency | `leaderLineTransparency` | number | Falta |  |
-| Width | `leaderLineWidth` | number | Falta |  |
-| Show | `leaderLines` | boolean | Falta |  |
-| Maximum offset | `maximumOffset` | number | Falta |  |
-| Color | `seriesColor` | fill | Falta |  |
-| Series font family | `seriesFontFamily` | string | Falta |  |
-| Match series color | `seriesMatchColor` | boolean | Falta |  |
-| Width | `seriesMaximumWidth` | integer | Falta |  |
-| Position | `seriesPosition` | enum: Left, Right | Falta |  |
-| Transparency | `seriesTransparency` | number | Falta |  |
-| Word wrap | `seriesWordWrap` | boolean | Falta |  |
-| Show for this series | `show` | boolean | Falta |  |
-| Customize series | `showAll` | boolean | Falta |  |
-| showByDefault | `showByDefault` | boolean | Falta |  |
-| Series font size | `textSize` | fontSize | Falta |  |
-| Underline | `underline` | boolean | Falta |  |
+| Color | `backgroundColor` | fill | Tiene | Etiquetas de serie |
+| Match series color | `backgroundMatchColor` | boolean | Tiene | Etiquetas de serie |
+| Transparency | `backgroundTransparency` | number | Tiene | Etiquetas de serie |
+| Bold | `bold` | boolean | Tiene | Etiquetas de serie |
+| Show background | `enableBackground` | boolean | Tiene | Etiquetas de serie |
+| Italic | `italic` | boolean | Tiene | Etiquetas de serie |
+| Scale by width | `leaderLineAutoScale` | boolean | Falta | El motor de gráficos solo las pone al final de la línea |
+| Color | `leaderLineColor` | fill | Falta | El motor de gráficos solo las pone al final de la línea |
+| Dash array | `leaderLineDashArray` | string | Falta | El motor de gráficos solo las pone al final de la línea |
+| Dash cap | `leaderLineDashCap` | enum: Flat, Round, Square | Falta | El motor de gráficos solo las pone al final de la línea |
+| Line style | `leaderLinePattern` | enum: Solid, Dashed, Dotted, Custom | Falta | El motor de gráficos solo las pone al final de la línea |
+| Transparency | `leaderLineTransparency` | number | Falta | El motor de gráficos solo las pone al final de la línea |
+| Width | `leaderLineWidth` | number | Falta | El motor de gráficos solo las pone al final de la línea |
+| Show | `leaderLines` | boolean | Falta | El motor de gráficos solo las pone al final de la línea |
+| Maximum offset | `maximumOffset` | number | Falta | El motor de gráficos solo las pone al final de la línea |
+| Color | `seriesColor` | fill | Tiene | Etiquetas de serie |
+| Series font family | `seriesFontFamily` | string | Tiene | Etiquetas de serie |
+| Match series color | `seriesMatchColor` | boolean | Tiene | Etiquetas de serie |
+| Width | `seriesMaximumWidth` | integer | Tiene | Etiquetas de serie |
+| Position | `seriesPosition` | enum: Left, Right | Parcial | Solo al final de la línea |
+| Transparency | `seriesTransparency` | number | Tiene | Etiquetas de serie |
+| Word wrap | `seriesWordWrap` | boolean | Tiene | Etiquetas de serie |
+| Show for this series | `show` | boolean | Tiene | Etiquetas de serie |
+| Customize series | `showAll` | boolean | Falta | Se activan para todo el gráfico |
+| showByDefault | `showByDefault` | boolean | Falta | Se activan para todo el gráfico |
+| Series font size | `textSize` | fontSize | Tiene | Etiquetas de serie |
+| Underline | `underline` | boolean | Falta | El motor de gráficos no dibuja texto subrayado |
 
-### Fondo del área de trazado (`plotArea`) · P2 · 0/8
+### Fondo del área de trazado (`plotArea`) · P2 · 7/8
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
-| Background color | `color` | fill | Falta |  |
-| Transparency | `colorTransparency` | number | Falta |  |
-| Image fit | `fit` | enum: Fit, Stretch, Fill, Center | Falta |  |
-| image | `image` | image | Falta |  |
-| Data | `imageData` | string | Falta |  |
-| Image source | `sourceType` | enum: Upload Image, Enter URL, Select from data | Falta |  |
-| Transparency | `transparency` | number | Falta |  |
-| Image URL | `url` | string | Falta |  |
+| Background color | `color` | fill | Tiene | Área de trazado |
+| Transparency | `colorTransparency` | number | Tiene | Área de trazado |
+| Image fit | `fit` | enum: Fit, Stretch, Fill, Center | Parcial | En mosaico o una vez, sin ajustar al área |
+| image | `image` | image | Parcial | Por dirección de la imagen, sin subirla |
+| Data | `imageData` | string | Parcial | Por dirección de la imagen, sin subirla |
+| Image source | `sourceType` | enum: Upload Image, Enter URL, Select from data | Parcial | Por dirección de la imagen, sin subirla |
+| Transparency | `transparency` | number | Falta | El motor de gráficos no atenúa una imagen de fondo |
+| Image URL | `url` | string | Parcial | Por dirección de la imagen, sin subirla |
 
 ### Línea de referencia (`referenceLine`) · P2 · 0/23
 

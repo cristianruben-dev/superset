@@ -131,8 +131,18 @@ Formats are stored in `position_json`, so they save, undo and export with the da
 - The Visual level of the Format pane draws the look controls of each chart's control panel with
   Explore's `Control` (`mibi/format/ChartFormatSections.tsx`), sorted into the sections of
   `mibi/format/formatCards.ts`. A new control of a chart shows by itself; give it a section there.
+  A control declared twice, as bars do for each orientation, shows the version whose `visibility` applies. A control
+  that reports its value on mount changes nothing: `setValue` ignores a value equal to the current one.
   The editor docked beside a report only has the data tab. Settings tied to one chart
-  (`OWN_CHART_SETTINGS`) stay out of "Copy format" and "Apply to all charts".
+  (`OWN_CHART_SETTINGS`) and what names one chart (subtitle, header help text, action, action button) stay out of "Copy
+  format" and "Apply to all charts" (`sharableFormat`, `ownFormat`).
+- Bars, lines, areas and combos have more options in `plugins/plugin-chart-echarts/src/utils/chartFormatOptions.ts`:
+  `applySeriesFormat` for one series, `applyChartFormat` for what takes the whole chart (color scale, label blocks,
+  total labels, series labels, legend title, plot area, category scroll) and the `*AxisFormatOptions` for the axes.
+  A value of the shared `gridline_*` keys is the fallback of `x_gridline_*` and `y_gridline_*`. `series_format` holds what
+  a series changes by name (`SeriesFormatControl`). Total labels are marks of no height at the end of each stack, and a
+  legend title is a series without marks: both have ids starting with `__mibi`. `CardDefinition.headings` starts a group
+  inside a section of the pane.
 - The General level also covers header icons (`mibi/format/HeaderExtras.tsx`), action button and
   chart link (`format.link`, `format.actionButton`), spacing, and the tooltip and sampling of
   ECharts (`chart.mibi_tooltip`, `chart.mibi_sampling`), which reach the chart through

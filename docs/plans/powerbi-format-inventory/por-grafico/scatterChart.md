@@ -14,36 +14,36 @@ Nuestro gráfico: scatter. Generado desde `reportThemeSchema-2.159.json`.
 | Color saturation | `fillRule` | fillRule | Parcial | Formato condicional por reglas (chart_conditional_formatting) |
 | Show all | `showAllDataPoints` | boolean | Falta |  |
 
-### Eje X / categorías (`categoryAxis`) · P1 · 22/38
+### Eje X / categorías (`categoryAxis`) · P1 · 30/38
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
-| Style | `axisStyle` | enum: Show title only, Show unit only, Show both | Falta |  |
-| Type | `axisType` | enum: Continuous, Categorical | Falta |  |
+| Style | `axisStyle` | enum: Show title only, Show unit only, Show both | Falta | El eje muestra sus valores y su título, sin elegir entre ellos |
+| Type | `axisType` | enum: Continuous, Categorical | Parcial | Sale del tipo de la columna; se fuerza con «Forzar categórico» |
 | Bold | `bold` | boolean | Tiene | Fuente de etiquetas X (x_axis_label_font) |
 | Maximum | `end` | number/string | Parcial | Solo ejes numéricos (truncateXAxis/xAxisBounds) |
 | Font family | `fontFamily` | string | Tiene | Fuente de etiquetas X (x_axis_label_font) |
 | Text size | `fontSize` | fontSize | Tiene | Fuente de etiquetas X (x_axis_label_font) |
-| Scale by width | `gridlineAutoScale` | boolean | Falta |  |
-| Color | `gridlineColor` | fill | Parcial | Una opción para ambos ejes (gridline_color) |
-| Dash array | `gridlineDashArray` | string | Falta |  |
-| Dash cap | `gridlineDashCap` | enum: Flat, Round, Square | Falta |  |
-| Show | `gridlineShow` | boolean | Parcial | Una opción para ambos ejes (gridlines_hidden) |
-| Line style | `gridlineStyle` | enum: Solid, Dashed, Dotted, Custom | Parcial | Una opción para ambos ejes (gridline_style) |
-| Width | `gridlineThickness` | number | Parcial | Una opción para ambos ejes (gridline_width) |
-| Transparency | `gridlineTransparency` | number | Falta |  |
-| Initial scroll position | `initialScrollPosition` | enum: Start, End | Falta |  |
+| Scale by width | `gridlineAutoScale` | boolean | Falta | El motor de gráficos no escala el trazo con el zoom |
+| Color | `gridlineColor` | fill | Tiene | Eje > Líneas de cuadrícula |
+| Dash array | `gridlineDashArray` | string | Tiene | Eje > Líneas de cuadrícula |
+| Dash cap | `gridlineDashCap` | enum: Flat, Round, Square | Tiene | Eje > Líneas de cuadrícula |
+| Show | `gridlineShow` | boolean | Tiene | Eje > Líneas de cuadrícula |
+| Line style | `gridlineStyle` | enum: Solid, Dashed, Dotted, Custom | Tiene | Eje > Líneas de cuadrícula |
+| Width | `gridlineThickness` | number | Tiene | Eje > Líneas de cuadrícula |
+| Transparency | `gridlineTransparency` | number | Tiene | Eje > Líneas de cuadrícula |
+| Initial scroll position | `initialScrollPosition` | enum: Start, End | Tiene | Eje X > Categorías |
 | Space between categories | `innerPadding` | integer | Falta |  |
 | Invert range | `invertAxis` | boolean | Tiene | Invertir eje X (x_axis_inverse) |
 | Italic | `italic` | boolean | Tiene | Fuente de etiquetas X (x_axis_label_font) |
 | Color | `labelColor` | fill | Tiene | Fuente de etiquetas X (x_axis_label_font) |
-| Display units | `labelDisplayUnits` | labelDisplayUnits | Parcial | Con código d3, no con unidades y decimales (xAxisFormat/x_axis_number_format) |
-| Value decimal places | `labelPrecision` | integer | Parcial | Con código d3, no con unidades y decimales (xAxisFormat/x_axis_number_format) |
-| Logarithmic scale | `logAxisScale` | boolean | Falta |  |
-| Maximum size | `maxMarginFactor` | integer | Falta |  |
-| Outer padding | `outerPadding` | integer | Falta |  |
-| Minimum category width | `preferredCategoryWidth` | number | Falta |  |
-| Round range | `roundRange` | boolean | Falta |  |
+| Display units | `labelDisplayUnits` | labelDisplayUnits | Tiene | Sección del eje |
+| Value decimal places | `labelPrecision` | integer | Tiene | Sección del eje |
+| Logarithmic scale | `logAxisScale` | boolean | Tiene | Eje X logarítmico, solo en un eje numérico |
+| Maximum size | `maxMarginFactor` | integer | Parcial | Ancho máximo de etiqueta en píxeles, no en % del gráfico |
+| Outer padding | `outerPadding` | integer | Falta | El motor de gráficos no tiene relleno exterior de categorías |
+| Minimum category width | `preferredCategoryWidth` | number | Tiene | Eje X > Categorías |
+| Round range | `roundRange` | boolean | Falta | El motor de gráficos redondea el eje salvo con límites fijos |
 | Show | `show` | boolean | Tiene | Ocultar eje X (x_axis_hidden) |
 | Title | `showAxisTitle` | boolean | Tiene | Título del eje X (x_axis_label/x_axis_title) |
 | Minimum | `start` | number/string | Parcial | Solo ejes numéricos (truncateXAxis/xAxisBounds) |
@@ -53,47 +53,47 @@ Nuestro gráfico: scatter. Generado desde `reportThemeSchema-2.159.json`.
 | Title text size | `titleFontSize` | fontSize | Tiene | Fuente de título X (x_axis_title_font) |
 | Italic | `titleItalic` | boolean | Tiene | Fuente de título X (x_axis_title_font) |
 | Axis title | `titleText` | string | Tiene | Título del eje X (x_axis_label/x_axis_title) |
-| Underline | `titleUnderline` | boolean | Falta |  |
+| Underline | `titleUnderline` | boolean | Falta | El motor de gráficos no dibuja texto subrayado |
 | Show blank values | `treatNullsAsZero` | boolean | Falta |  |
-| Underline | `underline` | boolean | Falta |  |
+| Underline | `underline` | boolean | Falta | El motor de gráficos no dibuja texto subrayado |
 
-### Eje Y / valores (`valueAxis`) · P1 · 23/33
+### Eje Y / valores (`valueAxis`) · P1 · 27/33
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
-| Style | `axisStyle` | enum: Show title only, Show unit only, Show both | Falta |  |
+| Style | `axisStyle` | enum: Show title only, Show unit only, Show both | Falta | El eje muestra sus valores y su título, sin elegir entre ellos |
 | Bold | `bold` | boolean | Tiene | Fuente de etiquetas Y (y_axis_label_font) |
 | Maximum | `end` | number/string | Tiene | Límites del eje Y (y_axis_bounds) |
 | Font family | `fontFamily` | string | Tiene | Fuente de etiquetas Y (y_axis_label_font) |
 | Text size | `fontSize` | fontSize | Tiene | Fuente de etiquetas Y (y_axis_label_font) |
-| Scale by width | `gridlineAutoScale` | boolean | Falta |  |
-| Color | `gridlineColor` | fill | Parcial | Una opción para ambos ejes (gridline_color) |
-| Dash array | `gridlineDashArray` | string | Falta |  |
-| Dash cap | `gridlineDashCap` | enum: Flat, Round, Square | Falta |  |
-| Show | `gridlineShow` | boolean | Parcial | Una opción para ambos ejes (gridlines_hidden) |
-| Line style | `gridlineStyle` | enum: Solid, Dashed, Dotted, Custom | Parcial | Una opción para ambos ejes (gridline_style) |
-| Width | `gridlineThickness` | number | Parcial | Una opción para ambos ejes (gridline_width) |
-| Transparency | `gridlineTransparency` | number | Falta |  |
+| Scale by width | `gridlineAutoScale` | boolean | Falta | El motor de gráficos no escala el trazo con el zoom |
+| Color | `gridlineColor` | fill | Tiene | Eje > Líneas de cuadrícula |
+| Dash array | `gridlineDashArray` | string | Tiene | Eje > Líneas de cuadrícula |
+| Dash cap | `gridlineDashCap` | enum: Flat, Round, Square | Tiene | Eje > Líneas de cuadrícula |
+| Show | `gridlineShow` | boolean | Tiene | Eje > Líneas de cuadrícula |
+| Line style | `gridlineStyle` | enum: Solid, Dashed, Dotted, Custom | Tiene | Eje > Líneas de cuadrícula |
+| Width | `gridlineThickness` | number | Tiene | Eje > Líneas de cuadrícula |
+| Transparency | `gridlineTransparency` | number | Tiene | Eje > Líneas de cuadrícula |
 | Invert range | `invertAxis` | boolean | Tiene | Invertir eje Y (y_axis_inverse) |
 | Italic | `italic` | boolean | Tiene | Fuente de etiquetas Y (y_axis_label_font) |
 | Color | `labelColor` | fill | Tiene | Fuente de etiquetas Y (y_axis_label_font) |
-| Display units | `labelDisplayUnits` | labelDisplayUnits | Parcial | Con código d3, no con unidades y decimales (y_axis_format) |
-| Value decimal places | `labelPrecision` | integer | Parcial | Con código d3, no con unidades y decimales (y_axis_format) |
+| Display units | `labelDisplayUnits` | labelDisplayUnits | Tiene | Sección del eje |
+| Value decimal places | `labelPrecision` | integer | Tiene | Sección del eje |
 | Logarithmic scale | `logAxisScale` | boolean | Tiene | Escala logarítmica (logAxis) |
-| Round range | `roundRange` | boolean | Falta |  |
+| Round range | `roundRange` | boolean | Falta | El motor de gráficos redondea el eje salvo con límites fijos |
 | Show | `show` | boolean | Tiene | Ocultar eje Y (y_axis_hidden) |
 | Title | `showAxisTitle` | boolean | Tiene | Título del eje Y (y_axis_label/y_axis_title) |
 | Minimum | `start` | number/string | Tiene | Límites del eje Y (y_axis_bounds) |
-| Switch axis position | `switchAxisPosition` | boolean | Falta |  |
+| Switch axis position | `switchAxisPosition` | boolean | Tiene | Sección del eje |
 | Bold | `titleBold` | boolean | Tiene | Fuente de título Y (y_axis_title_font) |
 | Title color | `titleColor` | fill | Tiene | Fuente de título Y (y_axis_title_font) |
 | Font family | `titleFontFamily` | string | Tiene | Fuente de título Y (y_axis_title_font) |
 | Title text size | `titleFontSize` | fontSize | Tiene | Fuente de título Y (y_axis_title_font) |
 | Italic | `titleItalic` | boolean | Tiene | Fuente de título Y (y_axis_title_font) |
 | Axis title | `titleText` | string | Tiene | Título del eje Y (y_axis_label/y_axis_title) |
-| Underline | `titleUnderline` | boolean | Falta |  |
+| Underline | `titleUnderline` | boolean | Falta | El motor de gráficos no dibuja texto subrayado |
 | Show blank values | `treatNullsAsZero` | boolean | Falta |  |
-| Underline | `underline` | boolean | Falta |  |
+| Underline | `underline` | boolean | Falta | El motor de gráficos no dibuja texto subrayado |
 
 ### Etiqueta de categoría (`categoryLabels`) · P1 · 0/10
 
@@ -110,7 +110,7 @@ Nuestro gráfico: scatter. Generado desde `reportThemeSchema-2.159.json`.
 | Show | `show` | boolean | Falta |  |
 | Underline | `underline` | boolean | Falta |  |
 
-### Leyenda (`legend`) · P1 · 7/11
+### Leyenda (`legend`) · P1 · 9/11
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
@@ -121,22 +121,22 @@ Nuestro gráfico: scatter. Generado desde `reportThemeSchema-2.159.json`.
 | Color | `labelColor` | fill | Tiene | Fuente de leyenda (legend_font) |
 | Position | `position` | enum: Top left, Top center, Top right, Top left stacked, Top right stacked, Center left, Center right, Bottom left, Bottom center, Bottom ri | Tiene | Posición (legendOrientation) |
 | Show | `show` | boolean | Tiene | Mostrar leyenda (show_legend) |
-| Show | `showGradientLegend` | boolean | Falta |  |
-| Title | `showTitle` | boolean | Falta |  |
-| Legend Name | `titleText` | string | Falta |  |
-| Underline | `underline` | boolean | Falta |  |
+| Show | `showGradientLegend` | boolean | Falta | Sin leyenda para la escala de color |
+| Title | `showTitle` | boolean | Tiene | Leyenda |
+| Legend Name | `titleText` | string | Tiene | Leyenda |
+| Underline | `underline` | boolean | Falta | El motor de gráficos no dibuja texto subrayado |
 
-### Marcadores (`markers`) · P1 · 0/7
+### Marcadores (`markers`) · P1 · 7/7
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
-| Color | `borderColor` | fill | Falta |  |
-| Match fill color | `borderColorMatchFill` | boolean | Falta |  |
-| Border | `borderShow` | boolean | Falta |  |
-| Transparency | `borderTransparency` | number | Falta |  |
-| Width | `borderWidth` | number | Falta |  |
-| Rotation | `rotation` | number | Falta |  |
-| Transparency | `transparency` | number | Falta |  |
+| Color | `borderColor` | fill | Tiene | Colores y series > Marcadores |
+| Match fill color | `borderColorMatchFill` | boolean | Tiene | Colores y series > Marcadores |
+| Border | `borderShow` | boolean | Tiene | Colores y series > Marcadores |
+| Transparency | `borderTransparency` | number | Tiene | Colores y series > Marcadores |
+| Width | `borderWidth` | number | Tiene | Colores y series > Marcadores |
+| Rotation | `rotation` | number | Tiene | Colores y series > Marcadores |
+| Transparency | `transparency` | number | Tiene | Colores y series > Marcadores |
 
 ### bubbles (`bubbles`) · P1 · 0/5
 
@@ -164,18 +164,18 @@ Nuestro gráfico: scatter. Generado desde `reportThemeSchema-2.159.json`.
 | valueMin | `valueMin` | number | Falta |  |
 | valueSize | `valueSize` | number | Falta |  |
 
-### Fondo del área de trazado (`plotArea`) · P2 · 0/8
+### Fondo del área de trazado (`plotArea`) · P2 · 7/8
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
-| Background color | `color` | fill | Falta |  |
-| Transparency | `colorTransparency` | number | Falta |  |
-| Image fit | `fit` | enum: Fit, Stretch, Fill, Center | Falta |  |
-| image | `image` | image | Falta |  |
-| Data | `imageData` | string | Falta |  |
-| Image source | `sourceType` | enum: Upload Image, Enter URL, Select from data | Falta |  |
-| Transparency | `transparency` | number | Falta |  |
-| Image URL | `url` | string | Falta |  |
+| Background color | `color` | fill | Tiene | Área de trazado |
+| Transparency | `colorTransparency` | number | Tiene | Área de trazado |
+| Image fit | `fit` | enum: Fit, Stretch, Fill, Center | Parcial | En mosaico o una vez, sin ajustar al área |
+| image | `image` | image | Parcial | Por dirección de la imagen, sin subirla |
+| Data | `imageData` | string | Parcial | Por dirección de la imagen, sin subirla |
+| Image source | `sourceType` | enum: Upload Image, Enter URL, Select from data | Parcial | Por dirección de la imagen, sin subirla |
+| Transparency | `transparency` | number | Falta | El motor de gráficos no atenúa una imagen de fondo |
+| Image URL | `url` | string | Parcial | Por dirección de la imagen, sin subirla |
 
 ### Línea de referencia (`referenceLine`) · P2 · 0/23
 

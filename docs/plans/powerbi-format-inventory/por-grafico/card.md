@@ -30,7 +30,7 @@ Nuestro gráfico: bigtotal. Generado desde `reportThemeSchema-2.159.json`.
 | Display units | `labelDisplayUnits` | labelDisplayUnits | Parcial | Con código d3 (y_axis_format) |
 | Value decimal places | `labelPrecision` | integer | Parcial | Con código d3 (y_axis_format) |
 | Source spacing | `preserveWhitespace` | boolean | Falta |  |
-| Underline | `underline` | boolean | Falta |  |
+| Underline | `underline` | boolean | Falta | El motor de gráficos no dibuja texto subrayado |
 
 ### wordWrap (`wordWrap`) · P3 · 0/1
 

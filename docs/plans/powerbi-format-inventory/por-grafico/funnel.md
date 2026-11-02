@@ -24,7 +24,7 @@ Nuestro gráfico: funnel. Generado desde `reportThemeSchema-2.159.json`.
 | Text size | `fontSize` | fontSize | Falta |  |
 | Italic | `italic` | boolean | Falta |  |
 | Show | `show` | boolean | Falta |  |
-| Underline | `underline` | boolean | Falta |  |
+| Underline | `underline` | boolean | Falta | El motor de gráficos no dibuja texto subrayado |
 
 ### Etiquetas de datos (`labels`) · P1 · 4/15
 
@@ -44,7 +44,7 @@ Nuestro gráfico: funnel. Generado desde `reportThemeSchema-2.159.json`.
 | Value decimal places | `labelPrecision` | integer | Parcial | Con código d3 (number_format) |
 | % decimal places | `percentageLabelPrecision` | integer | Parcial | Con código d3 (number_format) |
 | Show | `show` | boolean | Tiene | Mostrar etiquetas (show_labels) |
-| Underline | `underline` | boolean | Falta |  |
+| Underline | `underline` | boolean | Falta | El motor de gráficos no dibuja texto subrayado |
 
 ### percentBarLabel (`percentBarLabel`) · P2 · 1/7
 

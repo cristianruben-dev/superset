@@ -9,7 +9,7 @@ Nuestro gráfico: waterfall. Generado desde `reportThemeSchema-2.159.json`.
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
-| Style | `axisStyle` | enum: Show title only, Show unit only, Show both | Falta |  |
+| Style | `axisStyle` | enum: Show title only, Show unit only, Show both | Falta | El eje muestra sus valores y su título, sin elegir entre ellos |
 | Bold | `bold` | boolean | Falta |  |
 | Font family | `fontFamily` | string | Falta |  |
 | Text size | `fontSize` | fontSize | Falta |  |
@@ -18,7 +18,7 @@ Nuestro gráfico: waterfall. Generado desde `reportThemeSchema-2.159.json`.
 | Italic | `italic` | boolean | Falta |  |
 | Color | `labelColor` | fill | Falta |  |
 | Maximum size | `maxMarginFactor` | integer | Falta |  |
-| Outer padding | `outerPadding` | integer | Falta |  |
+| Outer padding | `outerPadding` | integer | Falta | El motor de gráficos no tiene relleno exterior de categorías |
 | Minimum category width | `preferredCategoryWidth` | number | Falta |  |
 | Show | `show` | boolean | Falta |  |
 | Title | `showAxisTitle` | boolean | Tiene | Título del eje X (x_axis_label) |
@@ -28,19 +28,19 @@ Nuestro gráfico: waterfall. Generado desde `reportThemeSchema-2.159.json`.
 | Title text size | `titleFontSize` | fontSize | Falta |  |
 | Italic | `titleItalic` | boolean | Falta |  |
 | Axis title | `titleText` | string | Tiene | Título del eje X (x_axis_label) |
-| Underline | `titleUnderline` | boolean | Falta |  |
-| Underline | `underline` | boolean | Falta |  |
+| Underline | `titleUnderline` | boolean | Falta | El motor de gráficos no dibuja texto subrayado |
+| Underline | `underline` | boolean | Falta | El motor de gráficos no dibuja texto subrayado |
 
 ### Eje Y / valores (`valueAxis`) · P1 · 4/32
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
-| Style | `axisStyle` | enum: Show title only, Show unit only, Show both | Falta |  |
+| Style | `axisStyle` | enum: Show title only, Show unit only, Show both | Falta | El eje muestra sus valores y su título, sin elegir entre ellos |
 | Bold | `bold` | boolean | Falta |  |
 | Maximum | `end` | number/string | Falta |  |
 | Font family | `fontFamily` | string | Falta |  |
 | Text size | `fontSize` | fontSize | Falta |  |
-| Scale by width | `gridlineAutoScale` | boolean | Falta |  |
+| Scale by width | `gridlineAutoScale` | boolean | Falta | El motor de gráficos no escala el trazo con el zoom |
 | Color | `gridlineColor` | fill | Falta |  |
 | Dash array | `gridlineDashArray` | string | Falta |  |
 | Dash cap | `gridlineDashCap` | enum: Flat, Round, Square | Falta |  |
@@ -53,7 +53,7 @@ Nuestro gráfico: waterfall. Generado desde `reportThemeSchema-2.159.json`.
 | Color | `labelColor` | fill | Falta |  |
 | Display units | `labelDisplayUnits` | labelDisplayUnits | Parcial | Con código d3, no con unidades y decimales (y_axis_format) |
 | Value decimal places | `labelPrecision` | integer | Parcial | Con código d3, no con unidades y decimales (y_axis_format) |
-| Round range | `roundRange` | boolean | Falta |  |
+| Round range | `roundRange` | boolean | Falta | El motor de gráficos redondea el eje salvo con límites fijos |
 | Show | `show` | boolean | Falta |  |
 | Title | `showAxisTitle` | boolean | Tiene | Título del eje Y (y_axis_label) |
 | Minimum | `start` | number/string | Falta |  |
@@ -64,9 +64,9 @@ Nuestro gráfico: waterfall. Generado desde `reportThemeSchema-2.159.json`.
 | Title text size | `titleFontSize` | fontSize | Falta |  |
 | Italic | `titleItalic` | boolean | Falta |  |
 | Axis title | `titleText` | string | Tiene | Título del eje Y (y_axis_label) |
-| Underline | `titleUnderline` | boolean | Falta |  |
+| Underline | `titleUnderline` | boolean | Falta | El motor de gráficos no dibuja texto subrayado |
 | Show total | `totalsEnabled` | boolean | Falta |  |
-| Underline | `underline` | boolean | Falta |  |
+| Underline | `underline` | boolean | Falta | El motor de gráficos no dibuja texto subrayado |
 
 ### Etiquetas de datos (`labels`) · P1 · 0/14
 
@@ -85,7 +85,7 @@ Nuestro gráfico: waterfall. Generado desde `reportThemeSchema-2.159.json`.
 | Position | `labelPosition` | enum: Auto, Inside end, Outside end, Inside center, Inside base, Above, Under | Falta |  |
 | Value decimal places | `labelPrecision` | integer | Falta |  |
 | Show | `show` | boolean | Falta |  |
-| Underline | `underline` | boolean | Falta |  |
+| Underline | `underline` | boolean | Falta | El motor de gráficos no dibuja texto subrayado |
 
 ### Leyenda (`legend`) · P1 · 1/10
 
@@ -100,7 +100,7 @@ Nuestro gráfico: waterfall. Generado desde `reportThemeSchema-2.159.json`.
 | Show | `show` | boolean | Tiene | Mostrar leyenda (show_legend) |
 | Title | `showTitle` | boolean | Falta |  |
 | Legend Name | `titleText` | string | Falta |  |
-| Underline | `underline` | boolean | Falta |  |
+| Underline | `underline` | boolean | Falta | El motor de gráficos no dibuja texto subrayado |
 
 ### sentimentColors (`sentimentColors`) · P1 · 3/4
 
@@ -121,7 +121,7 @@ Nuestro gráfico: waterfall. Generado desde `reportThemeSchema-2.159.json`.
 | image | `image` | image | Falta |  |
 | Data | `imageData` | string | Falta |  |
 | Image source | `sourceType` | enum: Upload Image, Enter URL, Select from data | Falta |  |
-| Transparency | `transparency` | number | Falta |  |
+| Transparency | `transparency` | number | Falta | El motor de gráficos no atenúa una imagen de fondo |
 | Image URL | `url` | string | Falta |  |
 
 ### Línea de referencia Y (`y1AxisReferenceLine`) · P2 · 0/23

@@ -36,7 +36,7 @@ Nuestro gráfico: pie. Generado desde `reportThemeSchema-2.159.json`.
 | % decimal places | `percentageLabelPrecision` | integer | Parcial | Con código d3 (number_format) |
 | Label position | `position` | enum: Outside, Inside, Prefer outside, Prefer inside | Parcial | Solo dentro o fuera (labels_outside) |
 | Show | `show` | boolean | Tiene | Mostrar etiquetas (show_labels) |
-| Underline | `underline` | boolean | Falta |  |
+| Underline | `underline` | boolean | Falta | El motor de gráficos no dibuja texto subrayado |
 
 ### Leyenda (`legend`) · P1 · 7/10
 
@@ -51,7 +51,7 @@ Nuestro gráfico: pie. Generado desde `reportThemeSchema-2.159.json`.
 | Show | `show` | boolean | Tiene | Mostrar leyenda (show_legend) |
 | Title | `showTitle` | boolean | Falta |  |
 | Legend Name | `titleText` | string | Falta |  |
-| Underline | `underline` | boolean | Falta |  |
+| Underline | `underline` | boolean | Falta | El motor de gráficos no dibuja texto subrayado |
 
 ### Porciones (`slices`) · P1 · 1/2
 

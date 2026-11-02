@@ -4,7 +4,7 @@ Fecha: 2026-11-02 · Rama base: `main` (`75c11378e9`)
 Inventario: [`powerbi-format-inventory/`](powerbi-format-inventory/README.md) · Revisión:
 [`2026-11-02-investigacion-ux-powerbi.md`](2026-11-02-investigacion-ux-powerbi.md)
 
-**Estado:** fases 0, 1 y 2 terminadas, sin commit. La fase 3 es la siguiente. Resultados en cada fase.
+**Estado:** fases 0, 1 y 2 terminadas, con commit. Fase 3 terminada, sin commit. La fase 4 es la siguiente. Resultados en cada fase.
 
 ## Objetivo
 
@@ -20,7 +20,7 @@ búsqueda en Formato, texto alternativo, linaje y panel de filtros acoplado.
 **Lo que frena el objetivo:** cascada, embudo, treemap y medidor no usan las secciones compartidas de
 `visualFormat.tsx`, así que tienen pocas opciones aunque ya salgan en el panel.
 
-**Cobertura:** en barras tenemos 224 de las 497 opciones que aplican y 30 a medias. Detalle en el inventario.
+**Cobertura:** en barras agrupadas tenemos 291 de las 491 opciones que aplican y 20 a medias. Detalle en el inventario.
 
 ## Decisión clave: dónde guardar el formato del gráfico
 
@@ -53,7 +53,7 @@ contadas por sección y opción.
 | 0 | Comprobaciones y seguimiento | - | S | - |
 | 1 | Panel único de formato | Sin opciones nuevas | L | 0 |
 | 2 | General, común a todos | 86 / 56 / 83 | M | 1 |
-| 3 | Barras, columnas, líneas, áreas, combinados | 211 / 174 / 75 | XL | 1 |
+| 3 | Barras, columnas, líneas, áreas, combinados | Terminada: ver sus resultados | XL | 1 |
 | 4 | Tabla y matriz | 131 / 16 / 3 | L | 1 |
 | 5 | Tarjeta, KPI, circular, anillo | 94 / 0 / 12 | M | 1 |
 | 6 | Cascada, embudo, treemap, medidor, dispersión | 145 / 123 / 0 | L | 3 |
@@ -248,6 +248,73 @@ personalizar.
 
 **Riesgo:** ECharts puede no ofrecer equivalente directo en detalles como la densidad de etiquetas. Lo que no
 se pueda se marca en el inventario y no se simula.
+
+#### Resultados (2026-11-02)
+
+**Cobertura en barras agrupadas:** de 224 de 497 opciones a 291 de 491, con 20 a medias (antes 30). El total baja en 6 porque
+pasan a excluidas las jerarquías de exploración y las etiquetas con expresiones DAX, funciones que no tenemos. En las secciones
+de esta fase son 118 de 162, con 15 a medias y 29 sin hacer. Lo demás que falta es de otras fases: análisis (líneas de
+referencia, barras de error, zoom), múltiplos pequeños y tooltips.
+
+| Sección | Qué se añadió |
+| --- | --- |
+| Ejes | Cuadrícula por eje (color, ancho, estilo, patrón, extremos), cambiar de lado, unidades y decimales, X logarítmico, ancho máximo de etiqueta, ancho mínimo de categoría con desplazamiento, ocultar eje secundario |
+| Etiquetas | Posición, alineación, distancia, transparencia, ancho máximo, desbordamiento, ocultar superpuestas, unidades y decimales, bloques Título, Valor y Detalle con fuente propia |
+| Leyenda | Título con fuente y color igual a la serie |
+| Colores y barras | Color predeterminado, color por categoría, escala de dos colores, transparencia, borde igual al relleno, solo borde, superposición e invertirla |
+| Líneas y marcadores | Interpolación y suavizado, transparencia, ocultar línea, patrón, extremos y uniones, color del área, color, transparencia, borde y rotación del marcador |
+| Por serie | «Aplicar a una serie»: etiquetas, color de etiqueta, ancho, estilo y tipo de línea, transparencia, marcadores y transparencia de barras |
+| Totales y series | Etiquetas de total, con separación por signo, y etiquetas de serie al final de la línea |
+| Área de trazado | Color e imagen por dirección, en mosaico o una vez |
+
+**Sin hacer porque el motor no lo permite** (en Falta en el inventario, con la razón, sin simular): subrayado de texto, líneas guía de
+etiquetas, relleno exterior de categorías, separar segmentos de una pila, degradado por tramo de línea, transparencia de
+la imagen de fondo y escalar trazos con el zoom.
+
+**A medias:** densidad de etiquetas (solo ocultar superpuestas), imagen del área de trazado (por dirección, sin subirla ni
+ajustarla), detalle de etiqueta (serie, categoría o porcentaje, no otro campo), etiquetas de serie (solo al final de la línea),
+escala de color (dos colores por el valor de la barra) y tamaño máximo del eje (en píxeles).
+
+**Eje secundario:** en líneas y áreas sigue en Falta porque esos gráficos no tienen segundo eje; está en el combinado.
+
+**Otras en Falta:** mostrar el eje sin título o sin valores (`axisStyle`), alinear ceros de dos ejes, valores en blanco en
+etiquetas y número o texto de otro campo en título y detalle de la etiqueta.
+
+**Probado:** 22 tests de `chartFormatOptions`, 3 del control por serie, los de `transformProps` y `formatting`, y la captura de
+referencia, que confirma que los gráficos sin personalizar no cambian. En el navegador, sobre barras (apiladas, agrupadas y
+horizontales), líneas, área apilada y combinado: 0 consultas nuevas al cambiar opciones.
+
+**Detalles conocidos:**
+
+- Con «Solo el borde» el punto de color del tooltip queda transparente. La leyenda sí conserva el color.
+- El título de la leyenda es una serie vacía: al pulsarlo se atenúa, sin más efecto.
+- El porcentaje del detalle es el de cada segmento: junto a «Solo total», la etiqueta muestra el total y el porcentaje de la serie superior.
+
+**Sin probar:** exportar a PDF o PNG con un archivo real y escribir la imagen en el portapapeles: la captura se genera, pero el
+panel de pruebas no deja escribirla. «Aplicar a una serie» en líneas se probó guardado en el layout; en el panel, solo en barras.
+
+#### Pasada completa en el navegador (fases 0 a 3)
+
+**Corregido:**
+
+- En barras verticales faltaban el título y el formato del eje Y: los controles declarados dos veces, uno por orientación, solo
+  usaban el primero.
+- Seleccionar una tarjeta, tabla o matriz marcaba el informe como modificado: sus reglas avisaban de su valor al montarse.
+- El panel mostraba los colores del tema de la aplicación, no los del informe: título claro sobre un gráfico blanco.
+- Copiar formato y «Aplicar a todos» llevaban el subtítulo, la acción, el botón de acción y el texto de ayuda a otros gráficos.
+- El formato de hora o de número del eje según el tipo de columna no se veía: el panel no conocía las columnas del conjunto de datos.
+- Modo enfoque: quedaba detrás de los demás gráficos con zoom en el lienzo, y en algunos navegadores no hacía nada al depender de
+  la pantalla completa. Es dentro de la página, sale con Esc y sin icono repetido.
+- El título del tooltip era ilegible con un fondo oscuro.
+- La búsqueda no encontraba palabras sin acento y mostraba secciones enteras: va por opción.
+- «Etiquetas de total» salía sin pilas, había secciones vacías, y las opciones de X logarítmico, unidades, ancho de categoría y
+  color por categoría salían donde no aplican.
+- La segunda consulta del combinado tiene su sección. Títulos de grupo más discretos, listas en su orden, Esc cierra el selector de
+  color sin deseleccionar y tres textos pendientes de traducir.
+
+**Probado y correcto:** deshacer, rehacer, restablecer sección, guardar y recargar; subtítulo, divisor, iconos, ver datos, texto de
+ayuda, acción con enlace, botón de acción y formato de tooltip; color por categoría, desplazamiento desde el final, informe oscuro y
+editor acoplado.
 
 ### Fase 4: tabla y matriz
 
