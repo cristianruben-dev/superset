@@ -79,6 +79,11 @@ This repository is **AuraData BI**, a fork of Apache Superset 6.1 shaped like Po
   the 100° blue→violet→green gradient only as a headline accent. Logos and icons live in
   `superset-frontend/src/assets/images/auradata/`.
 - Branding, theme tokens, languages and chart palettes live in `superset/mibi_config.py`.
+- **The editor has a ribbon, as in Power BI** (`src/mibi/ribbon`): Home, Insert, Design and View,
+  plus Format and Data and drill for the selected object. It lives under the title in `Header`, and
+  commands of the ribbon call the same actions as the panes. A new command goes there, in a named
+  group; settings stay in the panes (`BuilderComponentPane`: charts, elements, format, selection,
+  bookmarks), which `openBuilderTab` opens.
 - **The look is fixed by the product.** There are no saved themes and no CSS templates: no
   theme screen, API or per-dashboard theme, and `ThemeController` only switches between the
   `THEME_DEFAULT` and `THEME_DARK` of the configuration (light, dark, match system). Set
@@ -99,6 +104,8 @@ This repository is **AuraData BI**, a fork of Apache Superset 6.1 shaped like Po
 | Design elements (image, shape, button, text, canvas filter) | - | `mibi/elements` |
 | Filter bar levels (all pages / this page / visuals), instant apply | `dashboards/schemas.py` (`filter_bar_auto_apply`) | `dashboard/components/nativeFilters/scopeLevel.ts`, `FilterBar/` |
 | Presentation mode, PDF/PNG export | - | `mibi/present`, `mibi/export` |
+| Ribbon and lineage | - | `mibi/ribbon` |
+| Selection pane, locked and hidden objects, page menu | - | `mibi/format/SelectionPane.tsx`, `mibi/format/lock.ts`, `mibi/report/PageMenu.tsx`, `mibi/report/pageActions.ts` |
 | Report interactivity (edit interactions, drill through, sync slicers, bookmarks, Back/bookmark buttons) | - | `mibi/report` |
 | Chart type icons | - | `mibi/vizIcons` |
 
@@ -136,7 +143,13 @@ Formats are stored in `position_json`, so they save, undo and export with the da
   A chart added without a drop (saved from the side panel or Explore, or attached outside edit
   mode) takes the first free cell of its page (`freeCell`), never one over another object.
 - The report is light or dark from the canvas background color (`useReportAppearance`); there are no
-  appearance, hide, lock or mobile-preview settings.
+  appearance or mobile-preview settings.
+- `meta.mibiHidden` hides an object from viewers (faded for editors), `meta.mibiLocked` keeps it from
+  being moved, resized or removed; both are set in the Selection pane (`mibi/format/SelectionPane.tsx`)
+  and the object tabs of the ribbon. "Lock objects" locks the whole report for one editor, in the
+  browser (`mibi/format/lock.ts`). `TAB-*.meta.mibiHiddenPage` hides a page from the tabs and the
+  navigators of viewers; links and drill through still open it.
+- `meta.mibiAltText` is the description of a chart for screen readers.
 - Report interactivity (`src/mibi/report`), Power BI style:
   - `ROOT_ID.meta.mibiBookmarks`: bookmarks (page, filter and cross-filter selections, visibility).
     Applying one sets a browser-only visibility override (`visibility.ts`) on top of `mibiHidden`.
