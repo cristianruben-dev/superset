@@ -1444,8 +1444,12 @@ body.mibi-presenting-idle * {
   position: static !important;
 }
 
-/* The page tabs sit over the top of the page: its picture shows through */
-.mibi-canvas:not(.mibi-mobile) .dashboard-component-tabs {
+/* The page tabs sit over the top of the page: its picture shows through. The
+   holder of the page also has the height of the drop zone while editing. */
+.mibi-canvas:not(.mibi-mobile) .dashboard-component-tabs,
+.mibi-canvas:not(.mibi-mobile)
+  .dashboard-component-tabs
+  .ant-tabs-content-holder {
   background: transparent;
 }
 
