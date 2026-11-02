@@ -948,6 +948,35 @@ def test_data_for_slices_handles_missing_datasource(mocker: MockerFixture) -> No
     assert "verbose_map" in result
 
 
+def test_data_for_slices_keeps_the_x_axis_of_charts_without_query_context(
+    mocker: MockerFixture,
+) -> None:
+    """
+    A chart saved without a query context (made through the API or imported)
+    still needs the column of its X axis, or the dashboard cannot tell its type.
+    """
+    table = SqlaTable(table_name="test_table", database=mocker.MagicMock())
+    column = {"column_name": "country", "verbose_name": None, "type_generic": 1}
+    other = {"column_name": "unused", "verbose_name": None, "type_generic": 1}
+    mocker.patch.object(
+        SqlaTable,
+        "data",
+        new_callable=mocker.PropertyMock,
+        return_value={"columns": [column, other], "metrics": [], "description": ""},
+    )
+    mocker.patch.object(
+        SqlaTable, "column_names", new_callable=mocker.PropertyMock, return_value=[]
+    )
+
+    mock_slice = mocker.MagicMock()
+    mock_slice.form_data = {"x_axis": "country"}
+    mock_slice.get_query_context.return_value = None
+
+    result = table.data_for_slices([mock_slice])
+
+    assert result["columns"] == [column]
+
+
 def test_owners_data_includes_email(mocker: MockerFixture) -> None:
     """Test that the owners_data property includes the email field."""
     database = mocker.MagicMock()

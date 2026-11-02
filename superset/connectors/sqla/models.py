@@ -155,6 +155,7 @@ COLUMN_FORM_DATA_PARAMS = [
     "groupby",
     "order_by_cols",
     "series",
+    "x_axis",
 ]
 
 
