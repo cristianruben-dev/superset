@@ -24,6 +24,7 @@ import { apiGetChart, apiPostChart } from '../../../helpers/api/chart';
 import { apiPutDashboard } from '../../../helpers/api/dashboard';
 import { getDatabaseByName } from '../../../helpers/api/database';
 import { apiPostVirtualDataset } from '../../../helpers/api/dataset';
+import { apiPut } from '../../../helpers/api/requests';
 import { TIMEOUT } from '../../../utils/constants';
 import { createTestDashboard } from './dashboard-test-helpers';
 
@@ -67,6 +68,9 @@ async function createSortFixture(
   const datasetBody = await datasetResponse.json();
   const datasetId = datasetBody.result?.id ?? datasetBody.id;
   testAssets.trackDataset(datasetId);
+  // A dataset made through the API has no columns until they are synced, and
+  // the axis is only sortable once its column is known to hold text
+  await apiPut(page, `api/v1/dataset/${datasetId}/refresh`);
 
   const { id: dashboardId } = await createTestDashboard(
     page,
