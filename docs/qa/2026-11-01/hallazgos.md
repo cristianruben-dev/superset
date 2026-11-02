@@ -136,8 +136,8 @@ Playwright (experimentales de paneles de control y estrés): 29 de 29 tras los a
 de ordenar ya fallaban antes de esta sesión (comprobado compilando el código anterior); su dataset
 de prueba sincroniza ahora sus columnas.
 
-Quedan dos gráficos de prueba, «QA Regiones» y «QA Regiones 2», en «QA Sales», y el panel de
-depuración «dbg_sort_…» (id 117) con su gráfico y dataset.
+Los gráficos de prueba («QA Regiones», «QA Regiones 2») y el panel de depuración «dbg_sort_…» con
+su gráfico y dataset se borraron al terminar.
 
 Pruebas que ya fallaban antes de estos cambios (comprobado quitándolos): `columns.test`,
 `editing.test`, dos de `ChartHolder.test` (ocultar y bloquear, funciones retiradas) y
