@@ -107,28 +107,28 @@ Nuestro gráfico: area. Generado desde `reportThemeSchema-2.159.json`.
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
-| Style | `secAxisStyle` | enum: Show title only, Show unit only, Show both | Falta |  |
-| Bold | `secBold` | boolean | Falta |  |
-| Maximum | `secEnd` | number | Falta |  |
-| Font family | `secFontFamily` | string | Falta |  |
-| Text size | `secFontSize` | fontSize | Falta |  |
-| Italic | `secItalic` | boolean | Falta |  |
-| Color | `secLabelColor` | fill | Falta |  |
-| Display units | `secLabelDisplayUnits` | labelDisplayUnits | Falta |  |
-| Value decimal places | `secLabelPrecision` | integer | Falta |  |
-| Logarithmic scale | `secLogAxisScale` | boolean | Falta |  |
-| Round range | `secRoundRange` | boolean | Falta |  |
-| Title | `secShowAxisTitle` | boolean | Falta |  |
-| Minimum | `secStart` | number | Falta |  |
-| Bold | `secTitleBold` | boolean | Falta |  |
-| Title color | `secTitleColor` | fill | Falta |  |
-| Font family | `secTitleFontFamily` | string | Falta |  |
-| Title text size | `secTitleFontSize` | fontSize | Falta |  |
-| Italic | `secTitleItalic` | boolean | Falta |  |
-| Axis title | `secTitleText` | string | Falta |  |
+| Style | `secAxisStyle` | enum: Show title only, Show unit only, Show both | Falta | Este gráfico no tiene segundo eje; está en el combinado |
+| Bold | `secBold` | boolean | Falta | Este gráfico no tiene segundo eje; está en el combinado |
+| Maximum | `secEnd` | number | Falta | Este gráfico no tiene segundo eje; está en el combinado |
+| Font family | `secFontFamily` | string | Falta | Este gráfico no tiene segundo eje; está en el combinado |
+| Text size | `secFontSize` | fontSize | Falta | Este gráfico no tiene segundo eje; está en el combinado |
+| Italic | `secItalic` | boolean | Falta | Este gráfico no tiene segundo eje; está en el combinado |
+| Color | `secLabelColor` | fill | Falta | Este gráfico no tiene segundo eje; está en el combinado |
+| Display units | `secLabelDisplayUnits` | labelDisplayUnits | Falta | Este gráfico no tiene segundo eje; está en el combinado |
+| Value decimal places | `secLabelPrecision` | integer | Falta | Este gráfico no tiene segundo eje; está en el combinado |
+| Logarithmic scale | `secLogAxisScale` | boolean | Falta | Este gráfico no tiene segundo eje; está en el combinado |
+| Round range | `secRoundRange` | boolean | Falta | Este gráfico no tiene segundo eje; está en el combinado |
+| Title | `secShowAxisTitle` | boolean | Falta | Este gráfico no tiene segundo eje; está en el combinado |
+| Minimum | `secStart` | number | Falta | Este gráfico no tiene segundo eje; está en el combinado |
+| Bold | `secTitleBold` | boolean | Falta | Este gráfico no tiene segundo eje; está en el combinado |
+| Title color | `secTitleColor` | fill | Falta | Este gráfico no tiene segundo eje; está en el combinado |
+| Font family | `secTitleFontFamily` | string | Falta | Este gráfico no tiene segundo eje; está en el combinado |
+| Title text size | `secTitleFontSize` | fontSize | Falta | Este gráfico no tiene segundo eje; está en el combinado |
+| Italic | `secTitleItalic` | boolean | Falta | Este gráfico no tiene segundo eje; está en el combinado |
+| Axis title | `secTitleText` | string | Falta | Este gráfico no tiene segundo eje; está en el combinado |
 | Underline | `secTitleUnderline` | boolean | Falta | El motor de gráficos no dibuja texto subrayado |
 | Underline | `secUnderline` | boolean | Falta | El motor de gráficos no dibuja texto subrayado |
-| Show | `show` | boolean | Falta |  |
+| Show | `show` | boolean | Falta | Este gráfico no tiene segundo eje; está en el combinado |
 
 ### Etiquetas de datos (`labels`) · P1 · 42/61
 

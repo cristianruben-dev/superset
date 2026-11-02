@@ -3165,28 +3165,28 @@ lineChart,Líneas,Visual,Eje Y / valores,valueAxis,titleItalic,Italic,boolean,,1
 lineChart,Líneas,Visual,Eje Y / valores,valueAxis,titleText,Axis title,string,,1,Tiene,Título del eje Y (y_axis_title)
 lineChart,Líneas,Visual,Eje Y / valores,valueAxis,titleUnderline,Underline,boolean,,1,Falta,El motor de gráficos no dibuja texto subrayado
 lineChart,Líneas,Visual,Eje Y / valores,valueAxis,underline,Underline,boolean,,1,Falta,El motor de gráficos no dibuja texto subrayado
-lineChart,Líneas,Visual,Eje Y secundario,y2Axis,secAxisStyle,Style,"enum: Show title only, Show unit only, Show both",,1,Falta,
-lineChart,Líneas,Visual,Eje Y secundario,y2Axis,secBold,Bold,boolean,,1,Falta,
-lineChart,Líneas,Visual,Eje Y secundario,y2Axis,secEnd,Maximum,number,Enter an ending value (optional),1,Falta,
-lineChart,Líneas,Visual,Eje Y secundario,y2Axis,secFontFamily,Font family,string,,1,Falta,
-lineChart,Líneas,Visual,Eje Y secundario,y2Axis,secFontSize,Text size,fontSize,,1,Falta,
-lineChart,Líneas,Visual,Eje Y secundario,y2Axis,secItalic,Italic,boolean,,1,Falta,
-lineChart,Líneas,Visual,Eje Y secundario,y2Axis,secLabelColor,Color,fill,,1,Falta,
-lineChart,Líneas,Visual,Eje Y secundario,y2Axis,secLabelDisplayUnits,Display units,labelDisplayUnits,"Select the units (millions, billions, etc.)",1,Falta,
-lineChart,Líneas,Visual,Eje Y secundario,y2Axis,secLabelPrecision,Value decimal places,integer,Select the number of decimal places to display for the values,1,Falta,
-lineChart,Líneas,Visual,Eje Y secundario,y2Axis,secLogAxisScale,Logarithmic scale,boolean,,1,Falta,
-lineChart,Líneas,Visual,Eje Y secundario,y2Axis,secRoundRange,Round range,boolean,Round range limits to the nearest multiple.,1,Falta,
-lineChart,Líneas,Visual,Eje Y secundario,y2Axis,secShowAxisTitle,Title,boolean,Title for the Y-axis,1,Falta,
-lineChart,Líneas,Visual,Eje Y secundario,y2Axis,secStart,Minimum,number,Enter a starting value (optional),1,Falta,
-lineChart,Líneas,Visual,Eje Y secundario,y2Axis,secTitleBold,Bold,boolean,,1,Falta,
-lineChart,Líneas,Visual,Eje Y secundario,y2Axis,secTitleColor,Title color,fill,,1,Falta,
-lineChart,Líneas,Visual,Eje Y secundario,y2Axis,secTitleFontFamily,Font family,string,,1,Falta,
-lineChart,Líneas,Visual,Eje Y secundario,y2Axis,secTitleFontSize,Title text size,fontSize,,1,Falta,
-lineChart,Líneas,Visual,Eje Y secundario,y2Axis,secTitleItalic,Italic,boolean,,1,Falta,
-lineChart,Líneas,Visual,Eje Y secundario,y2Axis,secTitleText,Axis title,string,,1,Falta,
+lineChart,Líneas,Visual,Eje Y secundario,y2Axis,secAxisStyle,Style,"enum: Show title only, Show unit only, Show both",,1,Falta,Este gráfico no tiene segundo eje; está en el combinado
+lineChart,Líneas,Visual,Eje Y secundario,y2Axis,secBold,Bold,boolean,,1,Falta,Este gráfico no tiene segundo eje; está en el combinado
+lineChart,Líneas,Visual,Eje Y secundario,y2Axis,secEnd,Maximum,number,Enter an ending value (optional),1,Falta,Este gráfico no tiene segundo eje; está en el combinado
+lineChart,Líneas,Visual,Eje Y secundario,y2Axis,secFontFamily,Font family,string,,1,Falta,Este gráfico no tiene segundo eje; está en el combinado
+lineChart,Líneas,Visual,Eje Y secundario,y2Axis,secFontSize,Text size,fontSize,,1,Falta,Este gráfico no tiene segundo eje; está en el combinado
+lineChart,Líneas,Visual,Eje Y secundario,y2Axis,secItalic,Italic,boolean,,1,Falta,Este gráfico no tiene segundo eje; está en el combinado
+lineChart,Líneas,Visual,Eje Y secundario,y2Axis,secLabelColor,Color,fill,,1,Falta,Este gráfico no tiene segundo eje; está en el combinado
+lineChart,Líneas,Visual,Eje Y secundario,y2Axis,secLabelDisplayUnits,Display units,labelDisplayUnits,"Select the units (millions, billions, etc.)",1,Falta,Este gráfico no tiene segundo eje; está en el combinado
+lineChart,Líneas,Visual,Eje Y secundario,y2Axis,secLabelPrecision,Value decimal places,integer,Select the number of decimal places to display for the values,1,Falta,Este gráfico no tiene segundo eje; está en el combinado
+lineChart,Líneas,Visual,Eje Y secundario,y2Axis,secLogAxisScale,Logarithmic scale,boolean,,1,Falta,Este gráfico no tiene segundo eje; está en el combinado
+lineChart,Líneas,Visual,Eje Y secundario,y2Axis,secRoundRange,Round range,boolean,Round range limits to the nearest multiple.,1,Falta,Este gráfico no tiene segundo eje; está en el combinado
+lineChart,Líneas,Visual,Eje Y secundario,y2Axis,secShowAxisTitle,Title,boolean,Title for the Y-axis,1,Falta,Este gráfico no tiene segundo eje; está en el combinado
+lineChart,Líneas,Visual,Eje Y secundario,y2Axis,secStart,Minimum,number,Enter a starting value (optional),1,Falta,Este gráfico no tiene segundo eje; está en el combinado
+lineChart,Líneas,Visual,Eje Y secundario,y2Axis,secTitleBold,Bold,boolean,,1,Falta,Este gráfico no tiene segundo eje; está en el combinado
+lineChart,Líneas,Visual,Eje Y secundario,y2Axis,secTitleColor,Title color,fill,,1,Falta,Este gráfico no tiene segundo eje; está en el combinado
+lineChart,Líneas,Visual,Eje Y secundario,y2Axis,secTitleFontFamily,Font family,string,,1,Falta,Este gráfico no tiene segundo eje; está en el combinado
+lineChart,Líneas,Visual,Eje Y secundario,y2Axis,secTitleFontSize,Title text size,fontSize,,1,Falta,Este gráfico no tiene segundo eje; está en el combinado
+lineChart,Líneas,Visual,Eje Y secundario,y2Axis,secTitleItalic,Italic,boolean,,1,Falta,Este gráfico no tiene segundo eje; está en el combinado
+lineChart,Líneas,Visual,Eje Y secundario,y2Axis,secTitleText,Axis title,string,,1,Falta,Este gráfico no tiene segundo eje; está en el combinado
 lineChart,Líneas,Visual,Eje Y secundario,y2Axis,secTitleUnderline,Underline,boolean,,1,Falta,El motor de gráficos no dibuja texto subrayado
 lineChart,Líneas,Visual,Eje Y secundario,y2Axis,secUnderline,Underline,boolean,,1,Falta,El motor de gráficos no dibuja texto subrayado
-lineChart,Líneas,Visual,Eje Y secundario,y2Axis,show,Show,boolean,,1,Falta,
+lineChart,Líneas,Visual,Eje Y secundario,y2Axis,show,Show,boolean,,1,Falta,Este gráfico no tiene segundo eje; está en el combinado
 lineChart,Líneas,Visual,Etiquetas de datos,labels,backgroundColor,Color,fill,Background color,1,Tiene,Fondo de etiquetas (value_label_background)
 lineChart,Líneas,Visual,Etiquetas de datos,labels,backgroundTransparency,Transparency,number,Background color transparency,1,Tiene,Fondo de etiquetas (value_label_background)
 lineChart,Líneas,Visual,Etiquetas de datos,labels,bold,Bold,boolean,,1,Tiene,Fuente de etiquetas (value_label_font)
@@ -3819,28 +3819,28 @@ areaChart,Área,Visual,Eje Y / valores,valueAxis,titleItalic,Italic,boolean,,1,T
 areaChart,Área,Visual,Eje Y / valores,valueAxis,titleText,Axis title,string,,1,Tiene,Título del eje Y (y_axis_title)
 areaChart,Área,Visual,Eje Y / valores,valueAxis,titleUnderline,Underline,boolean,,1,Falta,El motor de gráficos no dibuja texto subrayado
 areaChart,Área,Visual,Eje Y / valores,valueAxis,underline,Underline,boolean,,1,Falta,El motor de gráficos no dibuja texto subrayado
-areaChart,Área,Visual,Eje Y secundario,y2Axis,secAxisStyle,Style,"enum: Show title only, Show unit only, Show both",,1,Falta,
-areaChart,Área,Visual,Eje Y secundario,y2Axis,secBold,Bold,boolean,,1,Falta,
-areaChart,Área,Visual,Eje Y secundario,y2Axis,secEnd,Maximum,number,Enter an ending value (optional),1,Falta,
-areaChart,Área,Visual,Eje Y secundario,y2Axis,secFontFamily,Font family,string,,1,Falta,
-areaChart,Área,Visual,Eje Y secundario,y2Axis,secFontSize,Text size,fontSize,,1,Falta,
-areaChart,Área,Visual,Eje Y secundario,y2Axis,secItalic,Italic,boolean,,1,Falta,
-areaChart,Área,Visual,Eje Y secundario,y2Axis,secLabelColor,Color,fill,,1,Falta,
-areaChart,Área,Visual,Eje Y secundario,y2Axis,secLabelDisplayUnits,Display units,labelDisplayUnits,"Select the units (millions, billions, etc.)",1,Falta,
-areaChart,Área,Visual,Eje Y secundario,y2Axis,secLabelPrecision,Value decimal places,integer,Select the number of decimal places to display for the values,1,Falta,
-areaChart,Área,Visual,Eje Y secundario,y2Axis,secLogAxisScale,Logarithmic scale,boolean,,1,Falta,
-areaChart,Área,Visual,Eje Y secundario,y2Axis,secRoundRange,Round range,boolean,Round range limits to the nearest multiple.,1,Falta,
-areaChart,Área,Visual,Eje Y secundario,y2Axis,secShowAxisTitle,Title,boolean,Title for the Y-axis,1,Falta,
-areaChart,Área,Visual,Eje Y secundario,y2Axis,secStart,Minimum,number,Enter a starting value (optional),1,Falta,
-areaChart,Área,Visual,Eje Y secundario,y2Axis,secTitleBold,Bold,boolean,,1,Falta,
-areaChart,Área,Visual,Eje Y secundario,y2Axis,secTitleColor,Title color,fill,,1,Falta,
-areaChart,Área,Visual,Eje Y secundario,y2Axis,secTitleFontFamily,Font family,string,,1,Falta,
-areaChart,Área,Visual,Eje Y secundario,y2Axis,secTitleFontSize,Title text size,fontSize,,1,Falta,
-areaChart,Área,Visual,Eje Y secundario,y2Axis,secTitleItalic,Italic,boolean,,1,Falta,
-areaChart,Área,Visual,Eje Y secundario,y2Axis,secTitleText,Axis title,string,,1,Falta,
+areaChart,Área,Visual,Eje Y secundario,y2Axis,secAxisStyle,Style,"enum: Show title only, Show unit only, Show both",,1,Falta,Este gráfico no tiene segundo eje; está en el combinado
+areaChart,Área,Visual,Eje Y secundario,y2Axis,secBold,Bold,boolean,,1,Falta,Este gráfico no tiene segundo eje; está en el combinado
+areaChart,Área,Visual,Eje Y secundario,y2Axis,secEnd,Maximum,number,Enter an ending value (optional),1,Falta,Este gráfico no tiene segundo eje; está en el combinado
+areaChart,Área,Visual,Eje Y secundario,y2Axis,secFontFamily,Font family,string,,1,Falta,Este gráfico no tiene segundo eje; está en el combinado
+areaChart,Área,Visual,Eje Y secundario,y2Axis,secFontSize,Text size,fontSize,,1,Falta,Este gráfico no tiene segundo eje; está en el combinado
+areaChart,Área,Visual,Eje Y secundario,y2Axis,secItalic,Italic,boolean,,1,Falta,Este gráfico no tiene segundo eje; está en el combinado
+areaChart,Área,Visual,Eje Y secundario,y2Axis,secLabelColor,Color,fill,,1,Falta,Este gráfico no tiene segundo eje; está en el combinado
+areaChart,Área,Visual,Eje Y secundario,y2Axis,secLabelDisplayUnits,Display units,labelDisplayUnits,"Select the units (millions, billions, etc.)",1,Falta,Este gráfico no tiene segundo eje; está en el combinado
+areaChart,Área,Visual,Eje Y secundario,y2Axis,secLabelPrecision,Value decimal places,integer,Select the number of decimal places to display for the values,1,Falta,Este gráfico no tiene segundo eje; está en el combinado
+areaChart,Área,Visual,Eje Y secundario,y2Axis,secLogAxisScale,Logarithmic scale,boolean,,1,Falta,Este gráfico no tiene segundo eje; está en el combinado
+areaChart,Área,Visual,Eje Y secundario,y2Axis,secRoundRange,Round range,boolean,Round range limits to the nearest multiple.,1,Falta,Este gráfico no tiene segundo eje; está en el combinado
+areaChart,Área,Visual,Eje Y secundario,y2Axis,secShowAxisTitle,Title,boolean,Title for the Y-axis,1,Falta,Este gráfico no tiene segundo eje; está en el combinado
+areaChart,Área,Visual,Eje Y secundario,y2Axis,secStart,Minimum,number,Enter a starting value (optional),1,Falta,Este gráfico no tiene segundo eje; está en el combinado
+areaChart,Área,Visual,Eje Y secundario,y2Axis,secTitleBold,Bold,boolean,,1,Falta,Este gráfico no tiene segundo eje; está en el combinado
+areaChart,Área,Visual,Eje Y secundario,y2Axis,secTitleColor,Title color,fill,,1,Falta,Este gráfico no tiene segundo eje; está en el combinado
+areaChart,Área,Visual,Eje Y secundario,y2Axis,secTitleFontFamily,Font family,string,,1,Falta,Este gráfico no tiene segundo eje; está en el combinado
+areaChart,Área,Visual,Eje Y secundario,y2Axis,secTitleFontSize,Title text size,fontSize,,1,Falta,Este gráfico no tiene segundo eje; está en el combinado
+areaChart,Área,Visual,Eje Y secundario,y2Axis,secTitleItalic,Italic,boolean,,1,Falta,Este gráfico no tiene segundo eje; está en el combinado
+areaChart,Área,Visual,Eje Y secundario,y2Axis,secTitleText,Axis title,string,,1,Falta,Este gráfico no tiene segundo eje; está en el combinado
 areaChart,Área,Visual,Eje Y secundario,y2Axis,secTitleUnderline,Underline,boolean,,1,Falta,El motor de gráficos no dibuja texto subrayado
 areaChart,Área,Visual,Eje Y secundario,y2Axis,secUnderline,Underline,boolean,,1,Falta,El motor de gráficos no dibuja texto subrayado
-areaChart,Área,Visual,Eje Y secundario,y2Axis,show,Show,boolean,,1,Falta,
+areaChart,Área,Visual,Eje Y secundario,y2Axis,show,Show,boolean,,1,Falta,Este gráfico no tiene segundo eje; está en el combinado
 areaChart,Área,Visual,Etiquetas de datos,labels,backgroundColor,Color,fill,Background color,1,Tiene,Fondo de etiquetas (value_label_background)
 areaChart,Área,Visual,Etiquetas de datos,labels,backgroundTransparency,Transparency,number,Background color transparency,1,Tiene,Fondo de etiquetas (value_label_background)
 areaChart,Área,Visual,Etiquetas de datos,labels,bold,Bold,boolean,,1,Tiene,Fuente de etiquetas (value_label_font)
@@ -4393,28 +4393,28 @@ stackedAreaChart,Área apilada,Visual,Eje Y / valores,valueAxis,titleItalic,Ital
 stackedAreaChart,Área apilada,Visual,Eje Y / valores,valueAxis,titleText,Axis title,string,,1,Tiene,Título del eje Y (y_axis_title)
 stackedAreaChart,Área apilada,Visual,Eje Y / valores,valueAxis,titleUnderline,Underline,boolean,,1,Falta,El motor de gráficos no dibuja texto subrayado
 stackedAreaChart,Área apilada,Visual,Eje Y / valores,valueAxis,underline,Underline,boolean,,1,Falta,El motor de gráficos no dibuja texto subrayado
-stackedAreaChart,Área apilada,Visual,Eje Y secundario,y2Axis,secAxisStyle,Style,"enum: Show title only, Show unit only, Show both",,1,Falta,
-stackedAreaChart,Área apilada,Visual,Eje Y secundario,y2Axis,secBold,Bold,boolean,,1,Falta,
-stackedAreaChart,Área apilada,Visual,Eje Y secundario,y2Axis,secEnd,Maximum,number,Enter an ending value (optional),1,Falta,
-stackedAreaChart,Área apilada,Visual,Eje Y secundario,y2Axis,secFontFamily,Font family,string,,1,Falta,
-stackedAreaChart,Área apilada,Visual,Eje Y secundario,y2Axis,secFontSize,Text size,fontSize,,1,Falta,
-stackedAreaChart,Área apilada,Visual,Eje Y secundario,y2Axis,secItalic,Italic,boolean,,1,Falta,
-stackedAreaChart,Área apilada,Visual,Eje Y secundario,y2Axis,secLabelColor,Color,fill,,1,Falta,
-stackedAreaChart,Área apilada,Visual,Eje Y secundario,y2Axis,secLabelDisplayUnits,Display units,labelDisplayUnits,"Select the units (millions, billions, etc.)",1,Falta,
-stackedAreaChart,Área apilada,Visual,Eje Y secundario,y2Axis,secLabelPrecision,Value decimal places,integer,Select the number of decimal places to display for the values,1,Falta,
-stackedAreaChart,Área apilada,Visual,Eje Y secundario,y2Axis,secLogAxisScale,Logarithmic scale,boolean,,1,Falta,
-stackedAreaChart,Área apilada,Visual,Eje Y secundario,y2Axis,secRoundRange,Round range,boolean,Round range limits to the nearest multiple.,1,Falta,
-stackedAreaChart,Área apilada,Visual,Eje Y secundario,y2Axis,secShowAxisTitle,Title,boolean,Title for the Y-axis,1,Falta,
-stackedAreaChart,Área apilada,Visual,Eje Y secundario,y2Axis,secStart,Minimum,number,Enter a starting value (optional),1,Falta,
-stackedAreaChart,Área apilada,Visual,Eje Y secundario,y2Axis,secTitleBold,Bold,boolean,,1,Falta,
-stackedAreaChart,Área apilada,Visual,Eje Y secundario,y2Axis,secTitleColor,Title color,fill,,1,Falta,
-stackedAreaChart,Área apilada,Visual,Eje Y secundario,y2Axis,secTitleFontFamily,Font family,string,,1,Falta,
-stackedAreaChart,Área apilada,Visual,Eje Y secundario,y2Axis,secTitleFontSize,Title text size,fontSize,,1,Falta,
-stackedAreaChart,Área apilada,Visual,Eje Y secundario,y2Axis,secTitleItalic,Italic,boolean,,1,Falta,
-stackedAreaChart,Área apilada,Visual,Eje Y secundario,y2Axis,secTitleText,Axis title,string,,1,Falta,
+stackedAreaChart,Área apilada,Visual,Eje Y secundario,y2Axis,secAxisStyle,Style,"enum: Show title only, Show unit only, Show both",,1,Falta,Este gráfico no tiene segundo eje; está en el combinado
+stackedAreaChart,Área apilada,Visual,Eje Y secundario,y2Axis,secBold,Bold,boolean,,1,Falta,Este gráfico no tiene segundo eje; está en el combinado
+stackedAreaChart,Área apilada,Visual,Eje Y secundario,y2Axis,secEnd,Maximum,number,Enter an ending value (optional),1,Falta,Este gráfico no tiene segundo eje; está en el combinado
+stackedAreaChart,Área apilada,Visual,Eje Y secundario,y2Axis,secFontFamily,Font family,string,,1,Falta,Este gráfico no tiene segundo eje; está en el combinado
+stackedAreaChart,Área apilada,Visual,Eje Y secundario,y2Axis,secFontSize,Text size,fontSize,,1,Falta,Este gráfico no tiene segundo eje; está en el combinado
+stackedAreaChart,Área apilada,Visual,Eje Y secundario,y2Axis,secItalic,Italic,boolean,,1,Falta,Este gráfico no tiene segundo eje; está en el combinado
+stackedAreaChart,Área apilada,Visual,Eje Y secundario,y2Axis,secLabelColor,Color,fill,,1,Falta,Este gráfico no tiene segundo eje; está en el combinado
+stackedAreaChart,Área apilada,Visual,Eje Y secundario,y2Axis,secLabelDisplayUnits,Display units,labelDisplayUnits,"Select the units (millions, billions, etc.)",1,Falta,Este gráfico no tiene segundo eje; está en el combinado
+stackedAreaChart,Área apilada,Visual,Eje Y secundario,y2Axis,secLabelPrecision,Value decimal places,integer,Select the number of decimal places to display for the values,1,Falta,Este gráfico no tiene segundo eje; está en el combinado
+stackedAreaChart,Área apilada,Visual,Eje Y secundario,y2Axis,secLogAxisScale,Logarithmic scale,boolean,,1,Falta,Este gráfico no tiene segundo eje; está en el combinado
+stackedAreaChart,Área apilada,Visual,Eje Y secundario,y2Axis,secRoundRange,Round range,boolean,Round range limits to the nearest multiple.,1,Falta,Este gráfico no tiene segundo eje; está en el combinado
+stackedAreaChart,Área apilada,Visual,Eje Y secundario,y2Axis,secShowAxisTitle,Title,boolean,Title for the Y-axis,1,Falta,Este gráfico no tiene segundo eje; está en el combinado
+stackedAreaChart,Área apilada,Visual,Eje Y secundario,y2Axis,secStart,Minimum,number,Enter a starting value (optional),1,Falta,Este gráfico no tiene segundo eje; está en el combinado
+stackedAreaChart,Área apilada,Visual,Eje Y secundario,y2Axis,secTitleBold,Bold,boolean,,1,Falta,Este gráfico no tiene segundo eje; está en el combinado
+stackedAreaChart,Área apilada,Visual,Eje Y secundario,y2Axis,secTitleColor,Title color,fill,,1,Falta,Este gráfico no tiene segundo eje; está en el combinado
+stackedAreaChart,Área apilada,Visual,Eje Y secundario,y2Axis,secTitleFontFamily,Font family,string,,1,Falta,Este gráfico no tiene segundo eje; está en el combinado
+stackedAreaChart,Área apilada,Visual,Eje Y secundario,y2Axis,secTitleFontSize,Title text size,fontSize,,1,Falta,Este gráfico no tiene segundo eje; está en el combinado
+stackedAreaChart,Área apilada,Visual,Eje Y secundario,y2Axis,secTitleItalic,Italic,boolean,,1,Falta,Este gráfico no tiene segundo eje; está en el combinado
+stackedAreaChart,Área apilada,Visual,Eje Y secundario,y2Axis,secTitleText,Axis title,string,,1,Falta,Este gráfico no tiene segundo eje; está en el combinado
 stackedAreaChart,Área apilada,Visual,Eje Y secundario,y2Axis,secTitleUnderline,Underline,boolean,,1,Falta,El motor de gráficos no dibuja texto subrayado
 stackedAreaChart,Área apilada,Visual,Eje Y secundario,y2Axis,secUnderline,Underline,boolean,,1,Falta,El motor de gráficos no dibuja texto subrayado
-stackedAreaChart,Área apilada,Visual,Eje Y secundario,y2Axis,show,Show,boolean,,1,Falta,
+stackedAreaChart,Área apilada,Visual,Eje Y secundario,y2Axis,show,Show,boolean,,1,Falta,Este gráfico no tiene segundo eje; está en el combinado
 stackedAreaChart,Área apilada,Visual,Etiquetas de datos,labels,backgroundColor,Color,fill,Background color,1,Tiene,Fondo de etiquetas (value_label_background)
 stackedAreaChart,Área apilada,Visual,Etiquetas de datos,labels,backgroundTransparency,Transparency,number,Background color transparency,1,Tiene,Fondo de etiquetas (value_label_background)
 stackedAreaChart,Área apilada,Visual,Etiquetas de datos,labels,bold,Bold,boolean,,1,Tiene,Fuente de etiquetas (value_label_font)
@@ -4949,28 +4949,28 @@ hundredPercentStackedAreaChart,Área 100 %,Visual,Eje Y / valores,valueAxis,titl
 hundredPercentStackedAreaChart,Área 100 %,Visual,Eje Y / valores,valueAxis,titleText,Axis title,string,,1,Tiene,Título del eje Y (y_axis_title)
 hundredPercentStackedAreaChart,Área 100 %,Visual,Eje Y / valores,valueAxis,titleUnderline,Underline,boolean,,1,Falta,El motor de gráficos no dibuja texto subrayado
 hundredPercentStackedAreaChart,Área 100 %,Visual,Eje Y / valores,valueAxis,underline,Underline,boolean,,1,Falta,El motor de gráficos no dibuja texto subrayado
-hundredPercentStackedAreaChart,Área 100 %,Visual,Eje Y secundario,y2Axis,secAxisStyle,Style,"enum: Show title only, Show unit only, Show both",,1,Falta,
-hundredPercentStackedAreaChart,Área 100 %,Visual,Eje Y secundario,y2Axis,secBold,Bold,boolean,,1,Falta,
-hundredPercentStackedAreaChart,Área 100 %,Visual,Eje Y secundario,y2Axis,secEnd,Maximum,number,Enter an ending value (optional),1,Falta,
-hundredPercentStackedAreaChart,Área 100 %,Visual,Eje Y secundario,y2Axis,secFontFamily,Font family,string,,1,Falta,
-hundredPercentStackedAreaChart,Área 100 %,Visual,Eje Y secundario,y2Axis,secFontSize,Text size,fontSize,,1,Falta,
-hundredPercentStackedAreaChart,Área 100 %,Visual,Eje Y secundario,y2Axis,secItalic,Italic,boolean,,1,Falta,
-hundredPercentStackedAreaChart,Área 100 %,Visual,Eje Y secundario,y2Axis,secLabelColor,Color,fill,,1,Falta,
-hundredPercentStackedAreaChart,Área 100 %,Visual,Eje Y secundario,y2Axis,secLabelDisplayUnits,Display units,labelDisplayUnits,"Select the units (millions, billions, etc.)",1,Falta,
-hundredPercentStackedAreaChart,Área 100 %,Visual,Eje Y secundario,y2Axis,secLabelPrecision,Value decimal places,integer,Select the number of decimal places to display for the values,1,Falta,
-hundredPercentStackedAreaChart,Área 100 %,Visual,Eje Y secundario,y2Axis,secLogAxisScale,Logarithmic scale,boolean,,1,Falta,
-hundredPercentStackedAreaChart,Área 100 %,Visual,Eje Y secundario,y2Axis,secRoundRange,Round range,boolean,Round range limits to the nearest multiple.,1,Falta,
-hundredPercentStackedAreaChart,Área 100 %,Visual,Eje Y secundario,y2Axis,secShowAxisTitle,Title,boolean,Title for the Y-axis,1,Falta,
-hundredPercentStackedAreaChart,Área 100 %,Visual,Eje Y secundario,y2Axis,secStart,Minimum,number,Enter a starting value (optional),1,Falta,
-hundredPercentStackedAreaChart,Área 100 %,Visual,Eje Y secundario,y2Axis,secTitleBold,Bold,boolean,,1,Falta,
-hundredPercentStackedAreaChart,Área 100 %,Visual,Eje Y secundario,y2Axis,secTitleColor,Title color,fill,,1,Falta,
-hundredPercentStackedAreaChart,Área 100 %,Visual,Eje Y secundario,y2Axis,secTitleFontFamily,Font family,string,,1,Falta,
-hundredPercentStackedAreaChart,Área 100 %,Visual,Eje Y secundario,y2Axis,secTitleFontSize,Title text size,fontSize,,1,Falta,
-hundredPercentStackedAreaChart,Área 100 %,Visual,Eje Y secundario,y2Axis,secTitleItalic,Italic,boolean,,1,Falta,
-hundredPercentStackedAreaChart,Área 100 %,Visual,Eje Y secundario,y2Axis,secTitleText,Axis title,string,,1,Falta,
+hundredPercentStackedAreaChart,Área 100 %,Visual,Eje Y secundario,y2Axis,secAxisStyle,Style,"enum: Show title only, Show unit only, Show both",,1,Falta,Este gráfico no tiene segundo eje; está en el combinado
+hundredPercentStackedAreaChart,Área 100 %,Visual,Eje Y secundario,y2Axis,secBold,Bold,boolean,,1,Falta,Este gráfico no tiene segundo eje; está en el combinado
+hundredPercentStackedAreaChart,Área 100 %,Visual,Eje Y secundario,y2Axis,secEnd,Maximum,number,Enter an ending value (optional),1,Falta,Este gráfico no tiene segundo eje; está en el combinado
+hundredPercentStackedAreaChart,Área 100 %,Visual,Eje Y secundario,y2Axis,secFontFamily,Font family,string,,1,Falta,Este gráfico no tiene segundo eje; está en el combinado
+hundredPercentStackedAreaChart,Área 100 %,Visual,Eje Y secundario,y2Axis,secFontSize,Text size,fontSize,,1,Falta,Este gráfico no tiene segundo eje; está en el combinado
+hundredPercentStackedAreaChart,Área 100 %,Visual,Eje Y secundario,y2Axis,secItalic,Italic,boolean,,1,Falta,Este gráfico no tiene segundo eje; está en el combinado
+hundredPercentStackedAreaChart,Área 100 %,Visual,Eje Y secundario,y2Axis,secLabelColor,Color,fill,,1,Falta,Este gráfico no tiene segundo eje; está en el combinado
+hundredPercentStackedAreaChart,Área 100 %,Visual,Eje Y secundario,y2Axis,secLabelDisplayUnits,Display units,labelDisplayUnits,"Select the units (millions, billions, etc.)",1,Falta,Este gráfico no tiene segundo eje; está en el combinado
+hundredPercentStackedAreaChart,Área 100 %,Visual,Eje Y secundario,y2Axis,secLabelPrecision,Value decimal places,integer,Select the number of decimal places to display for the values,1,Falta,Este gráfico no tiene segundo eje; está en el combinado
+hundredPercentStackedAreaChart,Área 100 %,Visual,Eje Y secundario,y2Axis,secLogAxisScale,Logarithmic scale,boolean,,1,Falta,Este gráfico no tiene segundo eje; está en el combinado
+hundredPercentStackedAreaChart,Área 100 %,Visual,Eje Y secundario,y2Axis,secRoundRange,Round range,boolean,Round range limits to the nearest multiple.,1,Falta,Este gráfico no tiene segundo eje; está en el combinado
+hundredPercentStackedAreaChart,Área 100 %,Visual,Eje Y secundario,y2Axis,secShowAxisTitle,Title,boolean,Title for the Y-axis,1,Falta,Este gráfico no tiene segundo eje; está en el combinado
+hundredPercentStackedAreaChart,Área 100 %,Visual,Eje Y secundario,y2Axis,secStart,Minimum,number,Enter a starting value (optional),1,Falta,Este gráfico no tiene segundo eje; está en el combinado
+hundredPercentStackedAreaChart,Área 100 %,Visual,Eje Y secundario,y2Axis,secTitleBold,Bold,boolean,,1,Falta,Este gráfico no tiene segundo eje; está en el combinado
+hundredPercentStackedAreaChart,Área 100 %,Visual,Eje Y secundario,y2Axis,secTitleColor,Title color,fill,,1,Falta,Este gráfico no tiene segundo eje; está en el combinado
+hundredPercentStackedAreaChart,Área 100 %,Visual,Eje Y secundario,y2Axis,secTitleFontFamily,Font family,string,,1,Falta,Este gráfico no tiene segundo eje; está en el combinado
+hundredPercentStackedAreaChart,Área 100 %,Visual,Eje Y secundario,y2Axis,secTitleFontSize,Title text size,fontSize,,1,Falta,Este gráfico no tiene segundo eje; está en el combinado
+hundredPercentStackedAreaChart,Área 100 %,Visual,Eje Y secundario,y2Axis,secTitleItalic,Italic,boolean,,1,Falta,Este gráfico no tiene segundo eje; está en el combinado
+hundredPercentStackedAreaChart,Área 100 %,Visual,Eje Y secundario,y2Axis,secTitleText,Axis title,string,,1,Falta,Este gráfico no tiene segundo eje; está en el combinado
 hundredPercentStackedAreaChart,Área 100 %,Visual,Eje Y secundario,y2Axis,secTitleUnderline,Underline,boolean,,1,Falta,El motor de gráficos no dibuja texto subrayado
 hundredPercentStackedAreaChart,Área 100 %,Visual,Eje Y secundario,y2Axis,secUnderline,Underline,boolean,,1,Falta,El motor de gráficos no dibuja texto subrayado
-hundredPercentStackedAreaChart,Área 100 %,Visual,Eje Y secundario,y2Axis,show,Show,boolean,,1,Falta,
+hundredPercentStackedAreaChart,Área 100 %,Visual,Eje Y secundario,y2Axis,show,Show,boolean,,1,Falta,Este gráfico no tiene segundo eje; está en el combinado
 hundredPercentStackedAreaChart,Área 100 %,Visual,Etiquetas de datos,labels,backgroundColor,Color,fill,Background color,1,Tiene,Fondo de etiquetas (value_label_background)
 hundredPercentStackedAreaChart,Área 100 %,Visual,Etiquetas de datos,labels,backgroundTransparency,Transparency,number,Background color transparency,1,Tiene,Fondo de etiquetas (value_label_background)
 hundredPercentStackedAreaChart,Área 100 %,Visual,Etiquetas de datos,labels,bold,Bold,boolean,,1,Tiene,Fuente de etiquetas (value_label_font)

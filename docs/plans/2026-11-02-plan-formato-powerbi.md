@@ -4,7 +4,7 @@ Fecha: 2026-11-02 · Rama base: `main` (`75c11378e9`)
 Inventario: [`powerbi-format-inventory/`](powerbi-format-inventory/README.md) · Revisión:
 [`2026-11-02-investigacion-ux-powerbi.md`](2026-11-02-investigacion-ux-powerbi.md)
 
-**Estado:** fases 0, 1 y 2 terminadas, con commit. Fase 3 terminada, sin commit. La fase 4 es la siguiente. Resultados en cada fase.
+**Estado:** fases 0 a 3 terminadas, con commit. La fase 4 es la siguiente. El resumen está en [`estado-formato-powerbi.md`](estado-formato-powerbi.md); aquí, el detalle de cada fase.
 
 ## Objetivo
 
@@ -13,14 +13,9 @@ al lienzo.
 
 ## Dónde estamos
 
-**Ya hecho (commits de hoy):** cinta (Inicio, Insertar, Diseño, Vista), panel de Selección, bloqueo y
-ocultar objetos, menú de página (duplicar, ocultar, mover), páginas ocultas, niveles Visual y General,
-búsqueda en Formato, texto alternativo, linaje y panel de filtros acoplado.
-
-**Lo que frena el objetivo:** cascada, embudo, treemap y medidor no usan las secciones compartidas de
-`visualFormat.tsx`, así que tienen pocas opciones aunque ya salgan en el panel.
-
-**Cobertura:** en barras agrupadas tenemos 291 de las 491 opciones que aplican y 20 a medias. Detalle en el inventario.
+**Cobertura:** en barras agrupadas tenemos 291 de las 491 opciones que aplican y 20 a medias. El estado de todas las fases está
+en [`estado-formato-powerbi.md`](estado-formato-powerbi.md), y lo que falta, en
+[`pendientes.md`](powerbi-format-inventory/pendientes.md).
 
 ## Decisión clave: dónde guardar el formato del gráfico
 
@@ -45,27 +40,26 @@ lo comprueba antes de construir encima.
 
 ## Fases
 
-Tamaño relativo: S, M, L, XL. «Abiertas» son opciones distintas en estado Falta, Parcial o Por decidir,
-contadas por sección y opción.
+Tamaño relativo: S, M, L, XL. Las opciones abiertas de cada fase están en
+[`pendientes.md`](powerbi-format-inventory/pendientes.md).
 
-| Fase | Qué | Abiertas P1 / P2 / P3 | Tamaño | Depende de |
-| --- | --- | ---: | --- | --- |
-| 0 | Comprobaciones y seguimiento | - | S | - |
-| 1 | Panel único de formato | Sin opciones nuevas | L | 0 |
-| 2 | General, común a todos | 86 / 56 / 83 | M | 1 |
-| 3 | Barras, columnas, líneas, áreas, combinados | Terminada: ver sus resultados | XL | 1 |
-| 4 | Tabla y matriz | 131 / 16 / 3 | L | 1 |
-| 5 | Tarjeta, KPI, circular, anillo | 94 / 0 / 12 | M | 1 |
-| 6 | Cascada, embudo, treemap, medidor, dispersión | 145 / 123 / 0 | L | 3 |
-| 7 | Segmentadores | 128 / 76 / 384 | L | 1 |
-| 8 | Análisis y tooltips | Incluidas en P2 de 2, 3 y 6 | L | 3 |
-| 9 | Paridad de reporte: páginas tooltip y restablecer | - | L | Ninguna |
-| 10 | Campos y panel de datos | - | L | 1 |
-| 11 | Mapas | 31 / 3 / 195 | Por decidir | 1 |
-| 12 | Resto de P3 y gráficos nuevos | Ver fase | Opcional | 3–7 |
+| Fase | Qué | Estado | Tamaño | Depende de |
+| --- | --- | --- | --- | --- |
+| 0 | Comprobaciones y seguimiento | Hecha | S | - |
+| 1 | Panel único de formato | Hecha | L | 0 |
+| 2 | General, común a todos | Hecha | M | 1 |
+| 3 | Barras, columnas, líneas, áreas, combinados | Hecha | XL | 1 |
+| 4 | Tabla y matriz | Siguiente | L | 1 |
+| 5 | Tarjeta, KPI, circular, anillo | Pendiente | M | 1 |
+| 6 | Cascada, embudo, treemap, medidor, dispersión | Pendiente | L | 3 |
+| 7 | Segmentadores | Pendiente | L | 1 |
+| 8 | Análisis y tooltips | Pendiente | L | 3 |
+| 9 | Paridad de reporte: páginas tooltip y restablecer | Pendiente | L | Ninguna |
+| 10 | Campos y panel de datos | Pendiente | L | 1 |
+| 11 | Mapas | Sin decidir el motor | Por decidir | 1 |
+| 12 | Resto de P3 y gráficos nuevos | Opcional | Opcional | 3–7 |
 
-Las fases 2, 4, 5, 7 y 10 son independientes entre sí una vez lista la 1. La 9 no depende del panel y puede
-hacerse en paralelo. Los números se solapan si una misma opción aparece en dos familias.
+Las fases 4, 5, 7 y 10 son independientes entre sí. La 9 no depende del panel y puede hacerse en paralelo.
 
 ### Fase 0: comprobaciones y seguimiento
 
@@ -389,11 +383,9 @@ de varias filas y la tarjeta nueva son gráficos por construir; su inventario ya
 
 ## Orden recomendado
 
-1. **Fases 0 y 1:** todo lo demás se apoya en ellas.
-2. **Fases 2 y 3:** se notan en todos los gráficos de SESEQ.
-3. **Fases 4 y 5:** tablas y tarjetas de SESEQ.
-4. **Fases 7 y 8:** segmentadores y tooltips con formato.
-5. **Fases 6, 10, 11 y 12:** según lo que vayas necesitando.
+1. **Fases 4 y 5:** tablas y tarjetas de SESEQ.
+2. **Fases 7 y 8:** segmentadores y análisis.
+3. **Fases 6, 10, 11 y 12:** según lo que vayas necesitando.
 
 La **fase 9** puede empezar en cualquier momento: las páginas tooltip son lo que más le falta a SESEQ y no esperan al
 panel.
@@ -408,17 +400,17 @@ panel.
   `tsc` y comprobación en el navegador en cada entrega. Playwright por flujo, con un trabajador.
 - **Al cerrar cada fase:** actualizar cobertura, `CLAUDE.md` y este documento.
 
-## Decisiones que necesito de ti
+## Decisiones
 
-1. **Almacenamiento:** ¿capa en el layout? Es lo único que bloquea el arranque.
-2. **Alcance:** recomiendo P1 y P2 en los gráficos que tenemos, y P3 solo bajo pedido.
-3. **Capturas:** las de cintas y galería siguen sin válidas. Ya no bloquean el formato, porque el inventario sale del
-   esquema, pero ayudarían a afinar la cinta y las fases 9 y 10.
+**Tomada:** el formato se guarda en una capa del layout (fase 0).
+
+**Pendientes:** están en [`estado-formato-powerbi.md`](estado-formato-powerbi.md).
+
+**Capturas de la investigación:** las de cintas y galería siguen sin ser válidas. No bloquean el formato, porque el inventario
+sale del esquema, pero ayudarían a afinar las fases 9 y 10.
 
 ## Límites de este plan
 
-- **Tamaños relativos, sin fechas:** dependen de lo que salga en la fase 0.
+- **Tamaños relativos, sin fechas.**
 - **Cobertura aproximada:** sale de comparar nombres de controles, no de probar cada opción. Hay que confirmarla al
   entrar en cada sección.
-- **Comprobado hoy:** leí el código actual y abrí la cinta en el tablero 142. No probé los commits de hoy uno a uno, ni
-  ejecuté las pruebas.

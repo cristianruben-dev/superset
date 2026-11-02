@@ -1023,6 +1023,20 @@ RULES = [
         "Límites secundarios",
     ),
     (r"y2Axis", r"secLogAxisScale", ["logAxisSecondary"], "Tiene", "Log secundario"),
+    (
+        r"valueAxis",
+        r"sec.*",
+        None,
+        "Falta",
+        "Este gráfico no tiene segundo eje; está en el combinado",
+    ),
+    (
+        r"y2Axis",
+        r".*",
+        None,
+        "Falta",
+        "Este gráfico no tiene segundo eje; está en el combinado",
+    ),
     (r"labels", r"show", ["show_value", "show_labels"], "Tiene", "Mostrar etiquetas"),
     (
         r"labels",
@@ -1507,6 +1521,168 @@ with open(os.path.join(OUT, "opciones.csv"), "w", newline="") as f:
     w.writeheader()
     w.writerows(rows)
 
+
+# The phase of the plan each chart belongs to; some sections go to their own
+CHART_PHASE = {
+    **dict.fromkeys(
+        (
+            "barChart",
+            "columnChart",
+            "clusteredBarChart",
+            "clusteredColumnChart",
+            "hundredPercentStackedBarChart",
+            "hundredPercentStackedColumnChart",
+            "lineChart",
+            "areaChart",
+            "stackedAreaChart",
+            "hundredPercentStackedAreaChart",
+            "lineClusteredColumnComboChart",
+            "lineStackedColumnComboChart",
+        ),
+        3,
+    ),
+    **dict.fromkeys(("tableEx", "pivotTable"), 4),
+    **dict.fromkeys(("card", "kpi", "pieChart", "donutChart"), 5),
+    **dict.fromkeys(
+        ("waterfallChart", "funnel", "treemap", "gauge", "scatterChart"), 6
+    ),
+    **dict.fromkeys(
+        ("slicer", "listSlicer", "textSlicer", "advancedSlicerVisual"),
+        7,
+    ),
+    **dict.fromkeys(("map", "filledMap", "shapeMap", "azureMap"), 11),
+    **dict.fromkeys(("ribbonChart", "multiRowCard", "cardVisual"), 12),
+}
+SECTION_PHASE = {
+    **dict.fromkeys(
+        (
+            "Línea de referencia",
+            "Línea de referencia X",
+            "Línea de referencia Y",
+            "Línea de tendencia",
+            "Control deslizante de zoom",
+            "Múltiplos pequeños",
+            "Encabezado de múltiplos",
+            "Anotaciones",
+            "Tooltips",
+            "Tooltip de iconos",
+        ),
+        8,
+    ),
+    **dict.fromkeys(("Barras de error", "Anomalías", "Pronóstico", "Cintas"), 12),
+}
+PHASE_NAME = {
+    2: "General, común a todos",
+    3: "Barras, columnas, líneas, áreas y combinados",
+    4: "Tabla y matriz",
+    5: "Tarjeta, KPI, circular y anillo",
+    6: "Cascada, embudo, treemap, medidor y dispersión",
+    7: "Segmentadores",
+    8: "Análisis y tooltips",
+    11: "Mapas",
+    12: "Resto de P3 y gráficos nuevos",
+}
+
+
+def phase_of(row):
+    """The phase of the plan an option of the inventory belongs to."""
+    chart_phase = CHART_PHASE[row["grafico"]]
+    # A chart still to build or to decide takes all its options with it
+    if chart_phase >= 7:
+        return chart_phase
+    if row["seccion"] in SECTION_PHASE:
+        return SECTION_PHASE[row["seccion"]]
+    return 2 if row["pestana"] == "General" else chart_phase
+
+
+def write_summary():
+    """Writes the coverage by chart and the list of what is left, by phase."""
+    charts = {}
+    for row in rows:
+        counts = charts.setdefault(row["grafico_es"], {})
+        counts[row["estado"]] = counts.get(row["estado"], 0) + 1
+    out = [
+        "# Cobertura de Power BI",
+        "",
+        "Generado por `scripts/mibi/format_inventory.py`: no lo edites a mano. El estado sale de comparar",
+        "nombres de controles, no de probar cada opción.",
+        "",
+        "| Gráfico | Aplican | Tiene | % | Parcial | Falta | Por decidir | Excluido |",
+        "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
+    ]
+    for name, counts in sorted(
+        charts.items(), key=lambda item: -item[1].get("Tiene", 0)
+    ):
+        applies = sum(n for state, n in counts.items() if state != "Excluido")
+        have = counts.get("Tiene", 0)
+        out.append(
+            f"| {name} | {applies} | {have} | {round(100 * have / applies)} % "
+            f"| {counts.get('Parcial', 0)} | {counts.get('Falta', 0)} "
+            f"| {counts.get('Por decidir', 0)} | {counts.get('Excluido', 0)} |"
+        )
+    with open(os.path.join(OUT, "cobertura.md"), "w") as f:
+        f.write("\n".join(out) + "\n")
+
+    pending = {}
+    for row in rows:
+        if row["estado"] not in ("Falta", "Parcial", "Por decidir"):
+            continue
+        key = (row["seccion"], row["propiedad"])
+        entry = pending.setdefault(phase_of(row), {}).setdefault(
+            key,
+            {
+                "titulo": row["titulo"],
+                "estado": row["estado"],
+                "nota": row["nota"],
+                "prioridad": row["prioridad"],
+                "graficos": set(),
+            },
+        )
+        entry["graficos"].add(row["grafico_es"])
+    out = [
+        "# Lo que falta de Power BI, por fase",
+        "",
+        "Generado por `scripts/mibi/format_inventory.py`: no lo edites a mano. Cada opción sale una vez, con los",
+        "gráficos donde falta. Lo que ya tenemos de cada gráfico está en [`por-grafico/`](por-grafico/).",
+        "",
+        "| Fase | Qué | Opciones abiertas | P1 | P2 | P3 |",
+        "| ---: | --- | ---: | ---: | ---: | ---: |",
+    ]
+    for phase in sorted(pending):
+        items = pending[phase].values()
+        by_priority = [
+            sum(1 for item in items if str(item["prioridad"]) == str(p))
+            for p in (1, 2, 3)
+        ]
+        out.append(
+            f"| {phase} | {PHASE_NAME[phase]} | {len(items)} "
+            f"| {by_priority[0]} | {by_priority[1]} | {by_priority[2]} |"
+        )
+    for phase in sorted(pending):
+        out += ["", f"## Fase {phase}: {PHASE_NAME[phase]}"]
+        sections = {}
+        for (section, prop), item in pending[phase].items():
+            sections.setdefault(section, []).append((prop, item))
+        for section in sorted(sections):
+            out += [
+                "",
+                f"### {section}",
+                "",
+                "| Opción | Clave | P | Estado | Gráficos | Nota |",
+                "| --- | --- | ---: | --- | ---: | --- |",
+            ]
+            for prop, item in sorted(sections[section]):
+                title = (item["titulo"] or prop).replace("|", "/")
+                note = item["nota"].replace("|", "/")
+                out.append(
+                    f"| {title} | `{prop}` | {item['prioridad']} | {item['estado']} "
+                    f"| {len(item['graficos'])} | {note} |"
+                )
+    with open(os.path.join(OUT, "pendientes.md"), "w") as f:
+        f.write("\n".join(out) + "\n")
+
+
+write_summary()
 
 total = {}
 for row in rows:

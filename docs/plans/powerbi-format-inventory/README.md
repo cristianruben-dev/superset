@@ -3,8 +3,8 @@
 Fecha: 2026-11-02 · Fuente: `reportThemeSchema-2.159.json`, publicado por Microsoft en
 [powerbi-desktop-samples](https://github.com/microsoft/powerbi-desktop-samples/tree/main/Report%20Theme%20JSON%20Schema).
 
-**Estado:** inventario y propuesta, sin implementar. El plan por fases está en
-[`2026-11-02-plan-formato-powerbi.md`](../2026-11-02-plan-formato-powerbi.md), y sustituye al orden de este documento.
+**Estado actual:** en [`estado-formato-powerbi.md`](../estado-formato-powerbi.md). El detalle por fases está en
+[`2026-11-02-plan-formato-powerbi.md`](../2026-11-02-plan-formato-powerbi.md).
 
 ## Resultado
 
@@ -18,6 +18,8 @@ Fecha: 2026-11-02 · Fuente: `reportThemeSchema-2.159.json`, publicado por Micro
 
 | Archivo | Contenido |
 | --- | --- |
+| [`cobertura.md`](cobertura.md) | Cuánto tenemos de cada gráfico |
+| [`pendientes.md`](pendientes.md) | Lo que falta, por fase y sección |
 | [`por-grafico/`](por-grafico/) | Un documento por visual: secciones, opciones, valores y estado |
 | [`opciones.csv`](opciones.csv) | Las 13,853 filas (visual × opción), para filtrar en una hoja de cálculo |
 
@@ -28,7 +30,7 @@ Estados:
 
 - **Tiene:** existe un control equivalente en ese gráfico.
 - **Parcial:** existe, pero es más limitado (por ejemplo, código d3 en lugar de unidades y decimales).
-- **Falta:** no encontré equivalente.
+- **Falta:** no hay equivalente; la nota dice si es porque el motor de gráficos no lo permite.
 - **Excluido:** interno o de una función que no tenemos, como Copilot o comentarios.
 - **Por decidir:** mapas, sin cruzar.
 
@@ -37,50 +39,11 @@ minigráficos; **P3** el resto.
 
 ## Cobertura por gráfico
 
-| Gráfico | Opciones | Tiene | Parcial | Falta P1 | Falta P2 | Falta P3 |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| Barras agrupadas | 491 | 291 | 20 | 28 | 117 | 35 |
-| Columnas agrupadas | 491 | 291 | 20 | 28 | 117 | 35 |
-| Líneas | 629 | 321 | 22 | 61 | 159 | 66 |
-| Área | 547 | 321 | 21 | 61 | 133 | 11 |
-| Línea y columnas agrupadas | 580 | 348 | 19 | 39 | 133 | 41 |
-| Cascada | 299 | 181 | 6 | 71 | 41 | 0 |
-| Embudo | 219 | 174 | 10 | 20 | 15 | 0 |
-| Dispersión | 410 | 244 | 17 | 33 | 116 | 0 |
-| Circular | 222 | 189 | 10 | 13 | 9 | 1 |
-| Anillo | 266 | 190 | 10 | 46 | 9 | 11 |
-| Treemap | 217 | 174 | 8 | 26 | 9 | 0 |
-| Medidor | 219 | 175 | 10 | 25 | 9 | 0 |
-| Tarjeta | 204 | 182 | 6 | 6 | 9 | 1 |
-| KPI | 229 | 179 | 8 | 33 | 9 | 0 |
-| Tabla | 264 | 186 | 15 | 44 | 17 | 2 |
-| Matriz | 335 | 176 | 6 | 126 | 25 | 2 |
-| Segmentador | 302 | 28 | 14 | 66 | 55 | 139 |
-| Segmentador de lista | 575 | 22 | 14 | 125 | 130 | 284 |
-| Ribbon (no tenemos el gráfico) | 491 | 22 | 13 | 194 | 147 | 115 |
-| Tarjeta de varias filas (no la tenemos) | 213 | 22 | 13 | 33 | 74 | 71 |
+Está en [`cobertura.md`](cobertura.md), y lo que falta, en [`pendientes.md`](pendientes.md). Se generan con el inventario.
 
-Lo que más se queda atrás: **matriz**, sin controles de estilo propios; **cascada, embudo, treemap y
-medidor**, sin las secciones compartidas de ejes, leyenda y etiquetas; y **segmentadores**.
+## Cómo se pensó el panel
 
-## Ejemplo: lo que falta en barras
-
-- **Eje X:** tamaño máximo (el «ancho máximo» de la captura 03), ancho mínimo de categoría, relleno
-  exterior, concatenar etiquetas, cambiar de posición, estilo del título, subrayado.
-- **Eje Y:** cambiar de posición, estilo del título, redondear rango, eje compartido, subrayado.
-- **Cuadrícula:** transparencia y guiones. Hoy además es una sola opción para los dos ejes.
-- **Etiquetas de datos:** posición, ancho máximo, densidad, disposición, desbordamiento, personalizar por
-  serie, y los bloques Título, Valor y Detalle con formato propio.
-- **Leyenda:** título, subrayado.
-- **Barras:** transparencia de relleno y de borde, borde igual al relleno.
-- **Secciones enteras:** fondo del área de trazado, líneas de referencia, línea de tendencia, barras de
-  error, control de zoom con formato, formato de múltiplos, tooltips con formato, Acción.
-- **General:** fuente, subrayado y ajuste del título; texto alternativo; sombra detallada (color, ángulo,
-  desenfoque); relleno por lado.
-
-## Cómo debería verse
-
-Propuesta para que más opciones no signifique más desorden:
+Criterios de la propuesta original, ya aplicados en la fase 1:
 
 1. **Un solo panel de formato.** Al seleccionar un visual aparece su formato en el panel del tablero.
    Reúne lo que hoy está en Formato (`meta.mibiFormat`) y Personalizar (`form_data`).
@@ -115,31 +78,6 @@ const valueAxis: FormatCard = {
 
 Cada gráfico declara qué secciones usa, y el panel se dibuja a partir de eso. Encaja con lo que ya hay:
 `sections/visualFormat.tsx`, `FontControl`, `SeriesColorsControl` y `formatting.ts`.
-
-### Orden
-
-1. **Panel único.** Registro, pestañas, buscador y secciones, migrando las opciones actuales sin añadir
-   nuevas. Es la base de todo lo demás.
-2. **Lo común a todos (P1).** General completo: título, sombra, relleno, alt text. Sirve a todos los
-   gráficos a la vez.
-3. **Barras, columnas, líneas y áreas (P1).** Ejes, etiquetas, leyenda y colores. Son la mayoría de los
-   gráficos de SESEQ.
-4. **Tabla y matriz (P1).** Encabezados, valores, totales, subtotales, columna específica.
-5. **Tarjeta, KPI, circular y anillo (P1).**
-6. **Cascada, embudo, treemap, medidor y dispersión (P1).** Sobre todo conectarlos a las secciones
-   compartidas.
-7. **Segmentadores.** Botones, lista y entrada, con su formato.
-8. **P2 en todos.** Tooltips, líneas de referencia, área de trazado, zoom, múltiplos, minigráficos.
-9. **Mapas.** Decidir primero qué motor usamos.
-
-## Decisiones pendientes
-
-- **Alcance «absolutamente todo»:** recomiendo P1 y P2 en los gráficos que tenemos. P3 incluye barras de
-  error, anomalías y detalles como el remate de los guiones, de poco uso.
-- **Líneas de referencia:** quitamos las capas de anotación, y estas opciones necesitan otro mecanismo.
-- **Límites de ECharts:** algunas opciones pueden no tener equivalente directo. Se ven al implementar
-  cada sección.
-- **Gráficos que no tenemos:** Ribbon y Tarjeta de varias filas.
 
 ## Límites de este inventario
 
