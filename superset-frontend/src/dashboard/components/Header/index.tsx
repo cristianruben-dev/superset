@@ -23,7 +23,7 @@ import {
   FeatureFlag,
   getExtensionsRegistry,
 } from '@superset-ui/core';
-import { styled, css, SupersetTheme } from '@apache-superset/core/theme';
+import { css, SupersetTheme } from '@apache-superset/core/theme';
 import { t } from '@apache-superset/core/translation';
 import { Global } from '@emotion/react';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
@@ -64,7 +64,7 @@ import { DashboardWorkspaceChip } from 'src/mibi/workspaces/DashboardWorkspaceCh
 import { ExportDashboardModal } from 'src/mibi/export/ExportDashboardModal';
 import { setPresenting } from 'src/mibi/present/presentation';
 import { BookmarksMenu } from 'src/mibi/report/BookmarksMenu';
-import { DataMenu } from 'src/mibi/dashboard/DataMenu';
+import { ModeMenu, Ribbon } from 'src/mibi/ribbon/Ribbon';
 import { useUnsavedChangesPrompt } from 'src/hooks/useUnsavedChangesPrompt';
 import DashboardEmbedModal from '../EmbeddedModal';
 import OverwriteConfirm from '../OverwriteConfirm';
@@ -191,48 +191,6 @@ const actionButtonsStyle = (theme: SupersetTheme) => css`
     display: flex;
     margin-right: ${theme.sizeUnit * 2}px;
   }
-`;
-
-const StyledUndoRedoButton = styled(Button)`
-  // TODO: check if we need this
-  padding: 0;
-  &:hover {
-    background: transparent;
-  }
-`;
-
-const undoRedoStyle = (theme: SupersetTheme) => css`
-  color: ${theme.colorIcon};
-  &:hover {
-    color: ${theme.colorIconHover};
-  }
-`;
-
-const undoRedoEmphasized = (theme: SupersetTheme) => css`
-  color: ${theme.colorIcon};
-`;
-
-const undoRedoDisabled = (theme: SupersetTheme) => css`
-  color: ${theme.colorTextDisabled};
-`;
-
-const saveBtnStyle = (theme: SupersetTheme) => css`
-  min-width: ${theme.sizeUnit * 17}px;
-  height: ${theme.sizeUnit * 8}px;
-  span > :first-of-type {
-    margin-right: 0;
-  }
-`;
-
-const discardBtnStyle = (theme: SupersetTheme) => css`
-  min-width: ${theme.sizeUnit * 22}px;
-  height: ${theme.sizeUnit * 8}px;
-`;
-
-const dataMenuStyle = (theme: SupersetTheme) => css`
-  height: ${theme.sizeUnit * 8}px;
-  margin-right: ${theme.sizeUnit * 2}px;
-  gap: ${theme.sizeUnit * 1.5}px;
 `;
 
 const discardChanges = () => {
@@ -685,76 +643,10 @@ const Header = (): JSX.Element => {
           <div className="button-container" data-test="dashboard-edit-actions">
             {editMode && (
               <div css={actionButtonsStyle}>
-                <div className="undoRedo">
-                  <Tooltip
-                    id="dashboard-undo-tooltip"
-                    title={t('Undo the action')}
-                  >
-                    <StyledUndoRedoButton
-                      buttonStyle="link"
-                      disabled={undoLength < 1}
-                      onClick={
-                        undoLength > 0 ? boundActionCreators.onUndo : undefined
-                      }
-                    >
-                      <Icons.Undo
-                        css={[
-                          undoRedoStyle,
-                          emphasizeUndo && undoRedoEmphasized,
-                          undoLength < 1 && undoRedoDisabled,
-                        ]}
-                        data-test="undo-action"
-                        iconSize="xl"
-                      />
-                    </StyledUndoRedoButton>
-                  </Tooltip>
-                  <Tooltip
-                    id="dashboard-redo-tooltip"
-                    title={t('Redo the action')}
-                  >
-                    <StyledUndoRedoButton
-                      buttonStyle="link"
-                      disabled={redoLength < 1}
-                      onClick={
-                        redoLength > 0 ? boundActionCreators.onRedo : undefined
-                      }
-                    >
-                      <Icons.Redo
-                        css={[
-                          undoRedoStyle,
-                          emphasizeRedo && undoRedoEmphasized,
-                          redoLength < 1 && undoRedoDisabled,
-                        ]}
-                        data-test="redo-action"
-                        iconSize="xl"
-                      />
-                    </StyledUndoRedoButton>
-                  </Tooltip>
-                </div>
-                {/* AuraData BI: datasets and SQL Lab open in the side panel */}
-                <DataMenu buttonCss={dataMenuStyle} />
-                <Button
-                  css={discardBtnStyle}
-                  buttonSize="small"
-                  onClick={discardChanges}
-                  buttonStyle="secondary"
-                  data-test="discard-changes-button"
-                  aria-label={t('Discard')}
-                >
-                  {t('Discard')}
-                </Button>
-                <Button
-                  css={saveBtnStyle}
-                  buttonSize="small"
-                  disabled={!hasUnsavedChanges}
-                  buttonStyle="primary"
-                  onClick={overwriteDashboard}
-                  data-test="header-save-button"
-                  aria-label={t('Save')}
-                >
-                  <Icons.SaveOutlined iconSize="m" />
-                  {t('Save')}
-                </Button>
+                <ModeMenu
+                  dirty={hasUnsavedChanges}
+                  onReading={discardChanges}
+                />
               </div>
             )}
           </div>
@@ -889,6 +781,24 @@ const Header = (): JSX.Element => {
         showFaveStar={Boolean(user?.userId && dashboardInfo?.id)}
         showTitlePanelItems
       />
+      {/* AuraData BI: the commands of the editor, as the Power BI ribbon */}
+      {editMode && userCanSaveAs && (
+        <Ribbon
+          hasUnsavedChanges={hasUnsavedChanges}
+          canUndo={undoLength > 0}
+          canRedo={redoLength > 0}
+          emphasizeUndo={emphasizeUndo}
+          emphasizeRedo={emphasizeRedo}
+          canExport={userCanExport}
+          onSave={overwriteDashboard}
+          onDiscard={discardChanges}
+          onUndo={boundActionCreators.onUndo}
+          onRedo={boundActionCreators.onRedo}
+          onRefresh={forceRefresh}
+          onExport={() => setShowingExportModal(true)}
+          onProperties={showPropertiesModal}
+        />
+      )}
       {showingPropertiesModal && (
         <PropertiesModal
           dashboardId={dashboardInfo.id}

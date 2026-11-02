@@ -50,6 +50,21 @@ const ICONS: Record<ElementKind, unknown> = {
   navigator: Icons.MenuOutlined,
 };
 
+/** The layout settings of a new design element of this kind. */
+export function newElementMeta(kind: ElementKind) {
+  const defaults = ELEMENT_DEFAULTS[kind];
+  return {
+    componentKey: elementKey(kind),
+    width: defaults.width,
+    height: defaults.height,
+    [VISUAL_FORMAT_KEY]: defaults.format,
+    [ELEMENT_KEY]:
+      kind === 'button'
+        ? { ...defaults.element, label: t('Button') }
+        : defaults.element,
+  };
+}
+
 /** Draggers for the AuraData BI design elements in the Layout elements tab. */
 export function NewElements() {
   return (
@@ -64,29 +79,16 @@ export function NewElements() {
           'filter',
           'navigator',
         ] as ElementKind[]
-      ).map(kind => {
-        const defaults = ELEMENT_DEFAULTS[kind];
-        const element =
-          kind === 'button'
-            ? { ...defaults.element, label: t('Button') }
-            : defaults.element;
-        return (
-          <DraggableNewComponent
-            key={kind}
-            id={`NEW_MIBI_${kind.toUpperCase()}`}
-            type={DYNAMIC_TYPE}
-            label={elementName(kind)}
-            IconComponent={ICONS[kind]}
-            meta={{
-              componentKey: elementKey(kind),
-              width: defaults.width,
-              height: defaults.height,
-              [VISUAL_FORMAT_KEY]: defaults.format,
-              [ELEMENT_KEY]: element,
-            }}
-          />
-        );
-      })}
+      ).map(kind => (
+        <DraggableNewComponent
+          key={kind}
+          id={`NEW_MIBI_${kind.toUpperCase()}`}
+          type={DYNAMIC_TYPE}
+          label={elementName(kind)}
+          IconComponent={ICONS[kind]}
+          meta={newElementMeta(kind)}
+        />
+      ))}
       <Heading>{t('Layout')}</Heading>
     </div>
   );

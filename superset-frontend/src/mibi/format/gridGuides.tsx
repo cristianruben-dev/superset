@@ -32,6 +32,8 @@ export interface GridSettings {
   color?: string;
   /** 0 to 100 */
   opacity: number;
+  /** False when the editor turned the lines off */
+  visible?: boolean;
 }
 
 export const DEFAULT_GRID: GridSettings = {
@@ -54,6 +56,7 @@ export function readGrid(): GridSettings {
         opacity: Number.isFinite(raw.opacity)
           ? clamp(raw.opacity, 5, 100)
           : DEFAULT_GRID.opacity,
+        ...(raw.visible === false && { visible: false }),
       };
     }
   } catch {
@@ -135,6 +138,7 @@ export function GridGuide() {
   const [settings] = useGridSettings();
   const [element, setElement] = useState<HTMLDivElement | null>(null);
   const pageBottom = usePageBottom(element);
+  if (settings.visible === false) return null;
   return (
     <div
       ref={setElement}

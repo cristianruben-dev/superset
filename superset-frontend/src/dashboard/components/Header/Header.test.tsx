@@ -490,7 +490,7 @@ test('should render the "Discard changes" button', () => {
 
 test('should render the "Save" button as disabled', () => {
   setup(editableState);
-  expect(screen.getByText('Save').parentElement).toBeDisabled();
+  expect(screen.getByTestId('header-save-button')).toBeDisabled();
 });
 
 test('should save', () => {
@@ -502,7 +502,7 @@ test('should save', () => {
     },
   };
   setup(unsavedState);
-  const save = screen.getByText('Save');
+  const save = screen.getByTestId('header-save-button');
   expect(onSave).not.toHaveBeenCalled();
   userEvent.click(save);
   expect(onSave).toHaveBeenCalledTimes(1);

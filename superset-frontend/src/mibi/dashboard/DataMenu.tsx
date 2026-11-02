@@ -18,9 +18,6 @@
  */
 import { useSelector } from 'react-redux';
 import { t } from '@apache-superset/core/translation';
-import type { SerializedStyles } from '@emotion/react';
-import type { SupersetTheme } from '@apache-superset/core/theme';
-import { Button, Dropdown } from '@superset-ui/core/components';
 import { Icons } from '@superset-ui/core/components/Icons';
 import type { UserWithPermissionsAndRoles } from 'src/types/bootstrapTypes';
 import { findPermission } from 'src/utils/findPermission';
@@ -30,6 +27,7 @@ import {
   type PanelKind,
   SQL_PANEL_URL,
 } from '../chartEditor';
+import { RibbonButton } from '../ribbon/parts';
 
 const NEW_DATASET_URL = '/dataset/add/';
 
@@ -37,11 +35,7 @@ const NEW_DATASET_URL = '/dataset/add/';
  * The "Data" menu of a dashboard in edit mode, as the Power BI ribbon: the
  * datasets, a new dataset and SQL Lab open in the side panel of the dashboard.
  */
-export function DataMenu({
-  buttonCss,
-}: {
-  buttonCss?: (theme: SupersetTheme) => SerializedStyles;
-}) {
+export function DataMenu() {
   const roles = useSelector(
     (state: { user?: UserWithPermissionsAndRoles }) => state.user?.roles,
   );
@@ -95,8 +89,10 @@ export function DataMenu({
   };
 
   return (
-    <Dropdown
-      trigger={['click']}
+    <RibbonButton
+      label={t('Data')}
+      icon={<Icons.DatabaseOutlined iconSize="m" />}
+      data-test="mibi-data-menu"
       menu={{
         items: entries.map(entry => ({
           key: entry.key,
@@ -110,18 +106,6 @@ export function DataMenu({
           }
         },
       }}
-    >
-      <Button
-        buttonStyle="secondary"
-        buttonSize="small"
-        css={buttonCss}
-        aria-label={t('Data')}
-        data-test="mibi-data-menu"
-      >
-        <Icons.DatabaseOutlined iconSize="m" />
-        {t('Data')}
-        <Icons.DownOutlined iconSize="xs" />
-      </Button>
-    </Dropdown>
+    />
   );
 }
