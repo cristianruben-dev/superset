@@ -35,14 +35,14 @@ import {
   chartLabelWeight,
   chartLabelExplanations,
 } from '@superset-ui/core';
+import { keyframes } from '@emotion/react';
 import {
   styled,
   css,
-  SupersetTheme,
   useTheme,
   isThemeDark,
 } from '@apache-superset/core/theme';
-import { Input, Collapse, Tooltip, Label } from '@superset-ui/core/components';
+import { Input, Collapse, Tooltip } from '@superset-ui/core/components';
 import { Icons } from '@superset-ui/core/components/Icons';
 import { nativeFilterGate } from 'src/dashboard/components/nativeFilters/utils';
 import { usePluginContext } from 'src/components';
@@ -69,7 +69,9 @@ enum Sections {
   Tags = 'TAGS',
 }
 
-const THUMBNAIL_GRID_UNITS = 24;
+// A preview card: wide enough to read the chart it shows
+const THUMBNAIL_WIDTH_UNITS = 46;
+const THUMBNAIL_HEIGHT_UNITS = 32;
 
 export const MAX_ADVISABLE_VIZ_GALLERY_WIDTH = 1090;
 
@@ -83,52 +85,44 @@ const RECOMMENDED_TAGS = [FEATURED, t('ECharts'), t('Advanced-Analytics')];
 
 export const VIZ_TYPE_CONTROL_TEST_ID = 'viz-type-control';
 
-const VizPickerLayout = styled.div<{ isSelectedVizMetadata: boolean }>`
-  ${({ isSelectedVizMetadata }) => `
-    display: grid;
-    grid-template-rows: ${
-      isSelectedVizMetadata
-        ? `auto minmax(100px, 1fr) minmax(200px, 35%)`
-        : 'auto minmax(100px, 1fr)'
-    };
-    // em is used here because the sidebar should be sized to fit the longest standard tag
-    grid-template-columns: minmax(14em, auto) 5fr;
-    grid-template-areas:
-      'sidebar search'
-      'sidebar main'
-      'details details';
-    height: 70vh;
-    overflow: auto;
-  `}
-`;
-
-const SectionTitle = styled.h3`
-  margin-top: 0;
-  margin-bottom: ${({ theme }) => theme.sizeUnit * 2}px;
-  font-size: ${({ theme }) => theme.fontSizeLG}px;
-  font-weight: ${({ theme }) => theme.fontWeightStrong};
-  line-height: ${({ theme }) => theme.sizeUnit * 6}px;
+const VizPickerLayout = styled.div`
+  display: grid;
+  grid-template-rows: auto minmax(100px, 1fr);
+  // em is used here because the sidebar should be sized to fit the longest standard tag
+  grid-template-columns: minmax(14em, auto) 5fr;
+  grid-template-areas:
+    'sidebar search'
+    'sidebar main';
+  height: 70vh;
+  overflow: auto;
 `;
 
 const LeftPane = styled.div`
   grid-area: sidebar;
   display: flex;
   flex-direction: column;
-  border-right: 1px solid ${({ theme }) => theme.colorBorder};
+  padding: ${({ theme }) => theme.sizeUnit * 2}px;
+  border-right: 1px solid ${({ theme }) => theme.colorBorderSecondary};
+  background: ${({ theme }) => theme.colorBgLayout};
   overflow: auto;
 
   .ant-collapse .ant-collapse-item {
+    border: 0;
     .ant-collapse-header {
       font-size: ${({ theme }) => theme.fontSizeSM}px;
-      color: ${({ theme }) => theme.colorText};
-      padding-left: ${({ theme }) => theme.sizeUnit * 2}px;
-      padding-bottom: ${({ theme }) => theme.sizeUnit}px;
+      font-weight: ${({ theme }) => theme.fontWeightStrong};
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: ${({ theme }) => theme.colorTextTertiary};
+      padding: ${({ theme }) => theme.sizeUnit * 3}px
+        ${({ theme }) => theme.sizeUnit * 2}px
+        ${({ theme }) => theme.sizeUnit}px;
     }
 
     .ant-collapse-content .ant-collapse-content-box {
       display: flex;
       flex-direction: column;
-      padding: 0 ${({ theme }) => theme.sizeUnit * 2}px;
+      padding: 0;
     }
   }
 `;
@@ -136,17 +130,22 @@ const LeftPane = styled.div`
 const RightPane = styled.div`
   grid-area: main;
   overflow-y: auto;
+  scrollbar-width: thin;
 `;
 
 const SearchWrapper = styled.div`
   ${({ theme }) => `
     grid-area: search;
-    margin-top: ${theme.sizeUnit * 3}px;
-    margin-bottom: ${theme.sizeUnit}px;
-    margin-left: ${theme.sizeUnit * 3}px;
-    margin-right: ${theme.sizeUnit * 3}px;
+    margin: ${theme.sizeUnit * 4}px ${theme.sizeUnit * 5}px ${theme.sizeUnit * 2}px;
     .ant-input-affix-wrapper {
-      padding-left: ${theme.sizeUnit * 2}px;
+      height: ${theme.sizeUnit * 10}px;
+      padding-left: ${theme.sizeUnit * 3}px;
+      border-radius: ${theme.borderRadiusLG * 1.5}px;
+      background: ${theme.colorBgContainer};
+      transition: box-shadow ${theme.motionDurationMid}, border-color ${theme.motionDurationMid};
+    }
+    .ant-input-affix-wrapper:focus-within {
+      box-shadow: 0 0 0 3px ${theme.colorPrimaryBg};
     }
   `}
 `;
@@ -166,40 +165,39 @@ const SelectorLabel = styled.button`
     flex-direction: row;
     align-items: center;
     cursor: pointer;
-    margin: ${theme.sizeUnit}px 0;
-    padding: 0 ${theme.sizeUnit}px;
-    border-radius: ${theme.borderRadius}px;
-    line-height: 2em;
+    margin: 1px 0;
+    padding: 0 ${theme.sizeUnit * 2.5}px;
+    border-radius: ${theme.borderRadiusLG}px;
+    line-height: 2.4em;
     text-overflow: ellipsis;
     white-space: nowrap;
     position: relative;
-    color: ${theme.colorText};
+    color: ${theme.colorTextSecondary};
+    transition:
+      background-color ${theme.motionDurationMid},
+      color ${theme.motionDurationMid};
 
-    &:focus {
-      outline: initial;
+    &:hover:not(.selected) {
+      background-color: ${theme.colorFillTertiary};
+      color: ${theme.colorText};
+    }
+
+    &:focus-visible {
+      outline: 2px solid ${theme.colorPrimaryBorder};
     }
 
     &.selected {
-      background-color: ${theme.colorPrimary};
-      color: ${theme.colorTextLightSolid};
+      background-color: ${theme.colorPrimaryBg};
+      color: ${theme.colorPrimaryText};
+      font-weight: ${theme.fontWeightStrong};
 
       svg {
-        color: ${theme.colorTextLightSolid};
-      }
-
-      &:hover {
-        .cancel {
-          visibility: visible;
-        }
+        color: ${theme.colorPrimary};
       }
     }
 
     & > span[role="img"] {
       margin-right: ${theme.sizeUnit * 2}px;
-    }
-
-    .cancel {
-      visibility: hidden;
     }
   `}
 `;
@@ -209,136 +207,207 @@ const IconsPane = styled.div`
   display: grid;
   grid-template-columns: repeat(
     auto-fill,
-    ${({ theme }) => theme.sizeUnit * THUMBNAIL_GRID_UNITS}px
+    ${({ theme }) => theme.sizeUnit * THUMBNAIL_WIDTH_UNITS}px
   );
   grid-auto-rows: max-content;
   justify-content: space-evenly;
-  grid-gap: ${({ theme }) => theme.sizeUnit * 2}px;
+  grid-gap: ${({ theme }) => theme.sizeUnit * 6}px
+    ${({ theme }) => theme.sizeUnit * 5}px;
   justify-items: center;
-  // for some reason this padding doesn't seem to apply at the bottom of the container. Why is a mystery.
-  padding: ${({ theme }) => theme.sizeUnit * 2}px;
+  padding: ${({ theme }) => theme.sizeUnit * 4}px
+    ${({ theme }) => theme.sizeUnit * 5}px
+    ${({ theme }) => theme.sizeUnit * 8}px;
 `;
 
-const DetailsPane = (theme: SupersetTheme) => css`
-  grid-area: details;
-  border-top: 1px solid ${theme.colorBorder};
-`;
-
-const DetailsPopulated = (theme: SupersetTheme) => css`
-  padding: ${theme.sizeUnit * 4}px;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: auto auto 1fr;
-  grid-template-areas:
-    'viz-name examples-header'
-    'viz-tags examples'
-    'description examples';
-`;
-
-// overflow hidden on the details pane and overflow auto on the description
-// (plus grid layout) enables the description to scroll while the header stays in place.
-const TagsWrapper = styled.div`
-  grid-area: viz-tags;
-  width: ${({ theme }) => theme.sizeUnit * 120}px;
-  padding-right: ${({ theme }) => theme.sizeUnit * 14}px;
-  padding-bottom: ${({ theme }) => theme.sizeUnit * 2}px;
-`;
-
-const Description = styled.p`
-  grid-area: description;
-  overflow: auto;
-  padding-right: ${({ theme }) => theme.sizeUnit * 14}px;
-  margin: 0;
-`;
-
-const Examples = styled.div`
-  grid-area: examples;
-  display: flex;
-  flex-direction: row;
-  flex-wrap: nowrap;
-  overflow: auto;
-  gap: ${({ theme }) => theme.sizeUnit * 4}px;
-
-  img {
-    height: 100%;
-    border-radius: ${({ theme }) => theme.borderRadius}px;
-    border: 1px solid ${({ theme }) => theme.colorBorder};
-    background-color: ${({ theme }) => theme.colorBgContainer};
+const fadeUp = keyframes`
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
   }
 `;
 
 const thumbnailContainerCss = (theme: SupersetTheme) => css`
   cursor: pointer;
-  width: ${theme.sizeUnit * THUMBNAIL_GRID_UNITS}px;
+  width: ${theme.sizeUnit * THUMBNAIL_WIDTH_UNITS}px;
   position: relative;
-  outline: none; /* Remove focus outline to show only selected state */
+  outline: none;
+  animation: ${fadeUp} 0.28s ease both;
 
   .viztype-selector {
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: ${theme.sizeUnit * THUMBNAIL_GRID_UNITS}px;
-    height: ${theme.sizeUnit * THUMBNAIL_GRID_UNITS}px;
+    box-sizing: border-box;
+    overflow: hidden;
+    width: ${theme.sizeUnit * THUMBNAIL_WIDTH_UNITS}px;
+    height: ${theme.sizeUnit * THUMBNAIL_HEIGHT_UNITS}px;
     border: 1px solid ${theme.colorBorderSecondary};
-    border-radius: ${theme.borderRadiusLG}px;
+    border-radius: ${theme.borderRadiusLG * 1.5}px;
     background: linear-gradient(
       160deg,
-      ${theme.colorBgContainer},
-      ${theme.colorPrimaryBg}
+      ${theme.colorBgElevated},
+      ${theme.colorBgLayout}
     );
     color: ${theme.colorPrimary};
+    box-shadow: ${theme.boxShadowTertiary};
     transition:
       border-color ${theme.motionDurationMid},
-      box-shadow ${theme.motionDurationMid},
-      transform ${theme.motionDurationMid};
+      box-shadow ${theme.motionDurationMid} ease,
+      transform ${theme.motionDurationMid} ease;
+  }
+
+  /* A soft sheen over the picture */
+  .viztype-selector::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    background: linear-gradient(
+      180deg,
+      ${theme.colorFillQuaternary},
+      transparent 40%
+    );
+  }
+
+  .viztype-selector img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    padding: ${theme.sizeUnit * 2}px;
+    box-sizing: border-box;
+    transition: transform 0.45s cubic-bezier(0.2, 0.7, 0.2, 1);
   }
 
   &:hover:not(.selected) .viztype-selector {
     border-color: ${theme.colorPrimaryBorder};
-    transform: translateY(-1px);
+    transform: translateY(-3px);
+    box-shadow: ${theme.boxShadowSecondary};
+  }
+
+  &:hover .viztype-selector img {
+    transform: scale(1.05);
+  }
+
+  &:focus-visible .viztype-selector {
+    border-color: ${theme.colorPrimaryBorder};
   }
 
   &.selected .viztype-selector {
     border-color: ${theme.colorPrimary};
-    box-shadow: 0 0 0 3px ${theme.colorPrimaryBg};
+    transform: translateY(-3px);
+    box-shadow:
+      0 0 0 3px ${theme.colorPrimaryBg},
+      0 18px 32px -14px ${theme.colorPrimary};
+  }
+
+  .viztype-check {
+    position: absolute;
+    top: ${theme.sizeUnit * 2}px;
+    left: ${theme.sizeUnit * 2}px;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: ${theme.sizeUnit * 5}px;
+    height: ${theme.sizeUnit * 5}px;
+    border-radius: 50%;
+    background: ${theme.colorPrimary};
+    color: ${theme.colorTextLightSolid};
+    box-shadow: ${theme.boxShadowTertiary};
+    animation: ${fadeUp} 0.2s ease both;
   }
 
   .viztype-label {
-    margin-top: ${theme.sizeUnit * 2}px;
+    margin-top: ${theme.sizeUnit * 2.5}px;
+    padding: 0 ${theme.sizeUnit}px;
     text-align: center;
+    font-size: ${theme.fontSize}px;
+    font-weight: ${theme.fontWeightStrong};
+    line-height: 1.3;
+    color: ${theme.colorText};
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    transition: color ${theme.motionDurationMid};
+  }
+
+  &.selected .viztype-label {
+    color: ${theme.colorPrimaryText};
   }
 `;
 
 const HighlightLabel = styled.div`
   ${({ theme }) => `
-    border: 1px solid ${theme.colorPrimaryText};
     box-sizing: border-box;
-    border-radius: ${theme.borderRadius}px;
-    background: ${theme.colorBgContainer};
-    line-height: ${theme.sizeUnit * 2.5}px;
-    color: ${theme.colorPrimaryText};
+    border-radius: 999px;
+    background: ${theme.colorPrimary};
+    line-height: ${theme.sizeUnit * 4}px;
+    color: ${theme.colorTextLightSolid};
     font-size: ${theme.fontSizeSM}px;
     font-weight: ${theme.fontWeightStrong};
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
     text-align: center;
-    padding: ${theme.sizeUnit * 0.5}px ${theme.sizeUnit}px;
-    cursor: pointer;
+    padding: 0 ${theme.sizeUnit * 2}px;
+    box-shadow: ${theme.boxShadowTertiary};
 
     div {
-      transform: scale(0.83,0.83);
+      transform: scale(0.85);
     }
   `}
 `;
 
 const ThumbnailLabelWrapper = styled.div`
   position: absolute;
-  right: ${({ theme }) => theme.sizeUnit}px;
-  top: ${({ theme }) => theme.sizeUnit * 19}px;
+  right: ${({ theme }) => theme.sizeUnit * 2}px;
+  top: ${({ theme }) => theme.sizeUnit * 2}px;
+  z-index: 1;
 `;
 
-const TitleLabelWrapper = styled.div`
-  display: inline-block !important;
-  margin-left: ${({ theme }) => theme.sizeUnit * 2}px;
+const TooltipBody = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.sizeUnit}px;
+  max-width: ${({ theme }) => theme.sizeUnit * 70}px;
+
+  strong {
+    font-weight: ${({ theme }) => theme.fontWeightStrong};
+  }
 `;
+
+/**
+ * The most representative picture of a chart type: its first example, or its
+ * thumbnail. Charts with no picture, or whose picture fails to load, show
+ * their icon.
+ */
+const VizPreview: FC<{ vizKey: string; type: ChartMetadata }> = ({
+  vizKey,
+  type,
+}) => {
+  const isDark = isThemeDark(useTheme());
+  const [failed, setFailed] = useState(false);
+  const example = type.exampleGallery?.[0];
+  const src =
+    (isDark ? example?.urlDark || type.thumbnailDark : undefined) ||
+    example?.url ||
+    type.thumbnail;
+  if (!src || failed) return <VizTypeIcon vizType={vizKey} size={52} />;
+  return (
+    <img
+      src={src}
+      alt={type.name}
+      loading="lazy"
+      onError={() => setFailed(true)}
+    />
+  );
+};
 
 interface ThumbnailProps {
   entry: VizEntry;
@@ -383,9 +452,30 @@ const Thumbnail: FC<ThumbnailProps> = ({
       onFocus={handleFocus}
       data-test="viztype-selector-container"
     >
-      <div className={`viztype-selector ${isSelected ? 'selected' : ''}`}>
-        <VizTypeIcon vizType={key} size={52} />
-      </div>
+      <Tooltip
+        placement="top"
+        mouseEnterDelay={0.3}
+        title={
+          <TooltipBody>
+            <strong>{type.name}</strong>
+            <span>{t(type.description || 'No description available.')}</span>
+            {type.label && (
+              <em>
+                {type.labelExplanation ?? chartLabelExplanations[type.label]}
+              </em>
+            )}
+          </TooltipBody>
+        }
+      >
+        <div className={`viztype-selector ${isSelected ? 'selected' : ''}`}>
+          {isSelected && (
+            <span className="viztype-check">
+              <Icons.CheckOutlined iconSize="s" />
+            </span>
+          )}
+          <VizPreview vizKey={key} type={type} />
+        </div>
+      </Tooltip>
       <div
         className="viztype-label"
         data-test={`${VIZ_TYPE_CONTROL_TEST_ID}__viztype-label`}
@@ -470,8 +560,6 @@ const doesVizMatchSelector = (viz: ChartMetadata, selector: string) =>
   (viz.tags || []).indexOf(selector) > -1;
 
 export default function VizTypeGallery(props: VizTypeGalleryProps) {
-  const theme = useTheme();
-  const isDarkMode = isThemeDark(theme);
   const { selectedViz, onChange, onDoubleClick, className, denyList } = props;
   const { mountedPluginMetadata } = usePluginContext();
   const searchInputRef = useRef<HTMLInputElement>();
@@ -695,10 +783,7 @@ export default function VizTypeGallery(props: VizTypeGalleryProps) {
   };
 
   return (
-    <VizPickerLayout
-      className={className}
-      isSelectedVizMetadata={Boolean(selectedVizMetadata)}
-    >
+    <VizPickerLayout className={className}>
       <LeftPane aria-label={t('Choose chart type')} role="tablist">
         <Selector
           css={({ sizeUnit }) =>
@@ -801,88 +886,6 @@ export default function VizTypeGallery(props: VizTypeGalleryProps) {
           onDoubleClick={onDoubleClick}
         />
       </RightPane>
-
-      {selectedVizMetadata ? (
-        <div
-          css={(theme: SupersetTheme) => [
-            DetailsPane(theme),
-            DetailsPopulated(theme),
-          ]}
-        >
-          <>
-            <SectionTitle
-              css={css`
-                grid-area: viz-name;
-                position: relative;
-              `}
-            >
-              {selectedVizMetadata?.name}
-              {selectedVizMetadata?.label && (
-                <Tooltip
-                  id="viz-badge-tooltip"
-                  placement="top"
-                  title={
-                    selectedVizMetadata.labelExplanation ??
-                    chartLabelExplanations[selectedVizMetadata.label]
-                  }
-                >
-                  <TitleLabelWrapper>
-                    <HighlightLabel>
-                      <div>{t(selectedVizMetadata.label)}</div>
-                    </HighlightLabel>
-                  </TitleLabelWrapper>
-                </Tooltip>
-              )}
-            </SectionTitle>
-            <TagsWrapper>
-              {selectedVizMetadata?.tags.map(tag => (
-                <Label
-                  key={tag}
-                  css={({ sizeUnit }) => css`
-                    margin-bottom: ${sizeUnit * 2}px;
-                  `}
-                >
-                  {tag}
-                </Label>
-              ))}
-            </TagsWrapper>
-            <Description>
-              {t(
-                selectedVizMetadata?.description || 'No description available.',
-              )}
-            </Description>
-            <SectionTitle
-              css={css`
-                grid-area: examples-header;
-              `}
-            >
-              {t('Examples')}
-            </SectionTitle>
-            <Examples>
-              {(selectedVizMetadata?.exampleGallery?.length
-                ? selectedVizMetadata.exampleGallery
-                : [
-                    {
-                      url: selectedVizMetadata?.thumbnail,
-                      caption: selectedVizMetadata?.name,
-                    },
-                  ]
-              ).map(example => (
-                <img
-                  key={example.url}
-                  src={
-                    isDarkMode && example.urlDark
-                      ? example.urlDark
-                      : example.url
-                  }
-                  alt={example.caption}
-                  title={example.caption}
-                />
-              ))}
-            </Examples>
-          </>
-        </div>
-      ) : null}
     </VizPickerLayout>
   );
 }
