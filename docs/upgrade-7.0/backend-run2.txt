@@ -1,0 +1,307 @@
+....................................F................................... [  0%]
+........................................................................ [  0%]
+............................................................s........... [  1%]
+........................................................................ [  1%]
+........................................................................ [  2%]
+........................................................................ [  2%]
+........................................................................ [  3%]
+........................................................................ [  3%]
+...........................................xx........................... [  4%]
+........................................................................ [  4%]
+........................................................................ [  5%]
+........................................................................ [  5%]
+........................................................................ [  6%]
+........................................................................ [  6%]
+........................................................................ [  7%]
+........................................................................ [  7%]
+........................................................................ [  8%]
+........................................................................ [  8%]
+........................................................................ [  9%]
+........................................................................ [  9%]
+........................................................................ [ 10%]
+........................................................................ [ 10%]
+........................................................................ [ 11%]
+........................................................................ [ 11%]
+........................................................................ [ 12%]
+........................................................................ [ 12%]
+........................................................................ [ 13%]
+........................................................................ [ 13%]
+........................................................................ [ 14%]
+........................................................................ [ 14%]
+........................................................................ [ 15%]
+........................................................................ [ 15%]
+........................................................................ [ 16%]
+........................................................................ [ 16%]
+........................................................................ [ 17%]
+........................................................................ [ 17%]
+........................................................................ [ 18%]
+........................................................................ [ 18%]
+........................................................................ [ 19%]
+........................................................................ [ 19%]
+.....................................s.................................. [ 19%]
+........................................................................ [ 20%]
+........................................................................ [ 20%]
+........................................................................ [ 21%]
+........................................................................ [ 21%]
+........................................................................ [ 22%]
+........................................................................ [ 22%]
+........................................................................ [ 23%]
+........................................................................ [ 23%]
+............................................s........................... [ 24%]
+.....................................................s.................. [ 24%]
+........................................................................ [ 25%]
+........................................................................ [ 25%]
+........................................................................ [ 26%]
+........................................................................ [ 26%]
+........................................................................ [ 27%]
+........................................................................ [ 27%]
+........................................................................ [ 28%]
+........................................................................ [ 28%]
+........................................................................ [ 29%]
+........................................................................ [ 29%]
+........................................................................ [ 30%]
+........................................................................ [ 30%]
+........................................................................ [ 31%]
+........................................................................ [ 31%]
+........................................................................ [ 32%]
+........................................................................ [ 32%]
+........................................................................ [ 33%]
+........................................................................ [ 33%]
+........................................................................ [ 34%]
+........................................................................ [ 34%]
+........................................................................ [ 35%]
+..............................................................F......... [ 35%]
+..............................F...............FF........................ [ 36%]
+........................................................................ [ 36%]
+........................................................................ [ 37%]
+........................................................................ [ 37%]
+...............................................F..F..................... [ 38%]
+.............F................F.................F....................... [ 38%]
+...........F................F........................................... [ 39%]
+........................................................................ [ 39%]
+........................................................................ [ 39%]
+........................................................................ [ 40%]
+.........................................................FFFFFFFFFFFFFFF [ 40%]
+FFFF.................................................................... [ 41%]
+........................................................................ [ 41%]
+........................................................................ [ 42%]
+........................................................................ [ 42%]
+........................................................................ [ 43%]
+........................................................................ [ 43%]
+........................................................................ [ 44%]
+........................................................................ [ 44%]
+........................................................................ [ 45%]
+......................s................................................. [ 45%]
+........................................................................ [ 46%]
+........................................................................ [ 46%]
+........................................................................ [ 47%]
+........ssssss.......................................................... [ 47%]
+........................................................................ [ 48%]
+........................................................................ [ 48%]
+........................................................................ [ 49%]
+........................................................................ [ 49%]
+........................................................................ [ 50%]
+........................................................................ [ 50%]
+........................................................................ [ 51%]
+........................................................................ [ 51%]
+........................................................................ [ 52%]
+........................................................................ [ 52%]
+........................................................................ [ 53%]
+........................................................................ [ 53%]
+........................................................................ [ 54%]
+........................................................................ [ 54%]
+........................................................................ [ 55%]
+........................................................................ [ 55%]
+........................................................................ [ 56%]
+........................................................................ [ 56%]
+........................................................................ [ 57%]
+........................................................................ [ 57%]
+........................................................................ [ 58%]
+........................................................................ [ 58%]
+........................................................................ [ 58%]
+........................................................................ [ 59%]
+........................................................................ [ 59%]
+........................................................................ [ 60%]
+........................................................................ [ 60%]
+........................................................................ [ 61%]
+........................................................................ [ 61%]
+...........................................................F.F.......... [ 62%]
+........................................................................ [ 62%]
+........................................................................ [ 63%]
+........................................................................ [ 63%]
+........................................................................ [ 64%]
+........................................................................ [ 64%]
+........................................................................ [ 65%]
+........................................................................ [ 65%]
+........................................................................ [ 66%]
+........................................................................ [ 66%]
+........................................................................ [ 67%]
+........................................................................ [ 67%]
+........................................................................ [ 68%]
+........................................................................ [ 68%]
+........................................................................ [ 69%]
+........................................................................ [ 69%]
+........................................................................ [ 70%]
+........................................................................ [ 70%]
+........................................................................ [ 71%]
+........................................................................ [ 71%]
+........................................................................ [ 72%]
+........................................................................ [ 72%]
+........................................................................ [ 73%]
+........................................................................ [ 73%]
+........................................................................ [ 74%]
+........................................................................ [ 74%]
+........................................................................ [ 75%]
+........................................................................ [ 75%]
+........................................................................ [ 76%]
+........................................................................ [ 76%]
+........................................................F............... [ 77%]
+........................................................................ [ 77%]
+........................................................................ [ 78%]
+........................................................................ [ 78%]
+........................................................................ [ 78%]
+........................................................................ [ 79%]
+........................................................................ [ 79%]
+........................................................................ [ 80%]
+........................................................................ [ 80%]
+........................................................................ [ 81%]
+........................................................................ [ 81%]
+........................................................................ [ 82%]
+........................................................................ [ 82%]
+........................................................................ [ 83%]
+........................................................................ [ 83%]
+........................................................................ [ 84%]
+.........................F..........................................FFFF [ 84%]
+FF...............FF..................................................... [ 85%]
+........................................................................ [ 85%]
+........................................................................ [ 86%]
+........................................................................ [ 86%]
+........................................................................ [ 87%]
+........................................................................ [ 87%]
+........................................................................ [ 88%]
+........................................................................ [ 88%]
+........................................................................ [ 89%]
+...................................F.................................... [ 89%]
+...................................................FF................... [ 90%]
+........................................................................ [ 90%]
+........................................................................ [ 91%]
+........................................................................ [ 91%]
+........................................................................ [ 92%]
+........................................................................ [ 92%]
+........................................................................ [ 93%]
+........................................................................ [ 93%]
+........................................................................ [ 94%]
+........................................................................ [ 94%]
+.................................................................s...... [ 95%]
+........................................................................ [ 95%]
+........................................................................ [ 96%]
+........................................................................ [ 96%]
+........................................................................ [ 97%]
+........................................................................ [ 97%]
+........................................................................ [ 98%]
+.......F................................................................ [ 98%]
+........................................................................ [ 98%]
+........................F.F............................................. [ 99%]
+........................................................................ [ 99%]
+.......                                                                  [100%]
+=================================== FAILURES ===================================
+/usr/local/lib/python3.11/pathlib.py:1044: FileNotFoundError: [Errno 2] No such file or directory: '/app/docker-compose-image-tag.yml'
+/app/tests/unit_tests/mcp_service/test_mcp_e2e_smoke.py:268: AssertionError: assert 'AuraData BI MCP Service' == 'Superset MCP Service'
+/app/tests/unit_tests/mcp_service/test_mcp_tool_registration.py:277: AssertionError: assert {'add_chart_t...shboard', ...} == {'add_chart_t...shboard', ...}
+/app/tests/unit_tests/mcp_service/test_mcp_tool_registration.py:683: KeyError: 'create_theme'
+/app/tests/unit_tests/mcp_service/test_mcp_tool_registration.py:712: KeyError: 'create_theme'
+/app/tests/unit_tests/mcp_service/test_tool_inventory.py:116: AssertionError: assert {'add_chart_t...shboard', ...} == {'add_chart_t...shboard', ...}
+/app/tests/unit_tests/mcp_service/test_tool_inventory.py:124: assert None is not None
+/app/tests/unit_tests/mcp_service/test_tool_inventory.py:124: assert None is not None
+/app/tests/unit_tests/mcp_service/test_tool_inventory.py:124: assert None is not None
+/app/tests/unit_tests/mcp_service/test_tool_inventory.py:138: assert None is not None
+/app/tests/unit_tests/mcp_service/test_tool_inventory.py:138: assert None is not None
+/app/tests/unit_tests/mcp_service/test_tool_inventory.py:138: assert None is not None
+/usr/local/lib/python3.11/pkgutil.py:715: AttributeError: module 'superset.daos' has no attribute 'annotation_layer'
+/usr/local/lib/python3.11/pkgutil.py:715: AttributeError: module 'superset.daos' has no attribute 'annotation_layer'
+/usr/local/lib/python3.11/pkgutil.py:715: AttributeError: module 'superset.daos' has no attribute 'annotation_layer'
+/usr/local/lib/python3.11/pkgutil.py:715: AttributeError: module 'superset.daos' has no attribute 'annotation_layer'
+/usr/local/lib/python3.11/pkgutil.py:715: AttributeError: module 'superset.daos' has no attribute 'annotation_layer'
+/usr/local/lib/python3.11/pkgutil.py:715: AttributeError: module 'superset.daos' has no attribute 'annotation_layer'
+/usr/local/lib/python3.11/pkgutil.py:715: AttributeError: module 'superset.daos' has no attribute 'annotation_layer'
+/usr/local/lib/python3.11/pkgutil.py:715: AttributeError: module 'superset.daos' has no attribute 'annotation_layer'
+/usr/local/lib/python3.11/pkgutil.py:715: AttributeError: module 'superset.daos' has no attribute 'annotation_layer'
+/usr/local/lib/python3.11/pkgutil.py:715: AttributeError: module 'superset.daos' has no attribute 'annotation_layer'
+/usr/local/lib/python3.11/pkgutil.py:715: AttributeError: module 'superset.daos' has no attribute 'annotation_layer'
+/usr/local/lib/python3.11/pkgutil.py:715: AttributeError: module 'superset.daos' has no attribute 'annotation_layer'
+/usr/local/lib/python3.11/pkgutil.py:715: AttributeError: module 'superset.daos' has no attribute 'annotation_layer'
+/usr/local/lib/python3.11/pkgutil.py:715: AttributeError: module 'superset.daos' has no attribute 'annotation_layer'
+/usr/local/lib/python3.11/pkgutil.py:715: AttributeError: module 'superset.daos' has no attribute 'annotation_layer'
+/usr/local/lib/python3.11/pkgutil.py:715: AttributeError: module 'superset.daos' has no attribute 'annotation_layer'
+/usr/local/lib/python3.11/pkgutil.py:715: AttributeError: module 'superset.daos' has no attribute 'annotation_layer'
+/usr/local/lib/python3.11/pkgutil.py:715: AttributeError: module 'superset.daos' has no attribute 'annotation_layer'
+/usr/local/lib/python3.11/pkgutil.py:715: AttributeError: module 'superset.daos' has no attribute 'annotation_layer'
+/app/tests/unit_tests/mcp_service/system/tool/test_health_check.py:110: AssertionError: assert 'AuraData BI MCP Service' == 'Superset MCP Service'
+/app/tests/unit_tests/mcp_service/system/tool/test_health_check.py:167: AssertionError: assert 'AuraData BI MCP Service' == 'Superset MCP Service'
+/usr/local/lib/python3.11/pathlib.py:1044: FileNotFoundError: [Errno 2] No such file or directory: '/app/superset-frontend/src/features/apiKeys/apiKeyScopes.ts'
+/app/superset/daos/dashboard.py:579: KeyError: 'positions'
+/app/.venv/lib/python3.11/site-packages/flask/ctx.py:56: AttributeError: user
+/app/.venv/lib/python3.11/site-packages/flask/ctx.py:56: AttributeError: user
+/app/.venv/lib/python3.11/site-packages/flask/ctx.py:56: AttributeError: user
+/app/.venv/lib/python3.11/site-packages/flask/ctx.py:56: AttributeError: user
+/app/.venv/lib/python3.11/site-packages/flask/ctx.py:56: AttributeError: user
+/app/.venv/lib/python3.11/site-packages/flask/ctx.py:56: AttributeError: user
+/app/.venv/lib/python3.11/site-packages/flask/ctx.py:56: AttributeError: user
+/app/.venv/lib/python3.11/site-packages/flask/ctx.py:56: AttributeError: user
+/app/.venv/lib/python3.11/site-packages/polib.py:1456: OSError: Syntax error in po file (line 1)
+/app/tests/unit_tests/utils/number_format_test.py:67: AssertionError: assert '1,234.50 R$' == 'R$ 1,234.50'
+/app/tests/unit_tests/utils/number_format_test.py:67: AssertionError: assert '1,234.50 ZZZ' == 'ZZZ 1,234.50'
+/app/tests/unit_tests/views/test_base_theme_helpers.py:68: AssertionError: assert {'algorithm':...: '#config1'}} == {'token': {'c...: '#config1'}}
+/app/tests/unit_tests/views/test_pwa_manifest.py:313: assert '<link rel="manifest" href="{{ application_root_rstrip }}/pwa-manifest.json">' in "{#\n  Licensed to the Apache Software Foundation (ASF) under one or more\n  contributor license agreements. See the N...ach(function (link) {\n          link.rel = 'stylesheet';\n        });\n      });\n    </script>\n  </body>\n</html>\n"
+/usr/local/lib/python3.11/pathlib.py:1044: FileNotFoundError: [Errno 2] No such file or directory: '/app/superset-frontend/webpack.config.js'
+=========================== short test summary info ============================
+FAILED tests/unit_tests/docker_compose_image_tag_test.py::test_image_tag_services_use_bundled_packages
+FAILED tests/unit_tests/mcp_service/test_mcp_e2e_smoke.py::test_tools_call_health_check_over_real_asgi_transport
+FAILED tests/unit_tests/mcp_service/test_mcp_tool_registration.py::test_all_registered_tools_have_complete_metadata
+FAILED tests/unit_tests/mcp_service/test_mcp_tool_registration.py::test_committed_write_specs_match_registered_output_schemas
+FAILED tests/unit_tests/mcp_service/test_mcp_tool_registration.py::test_committed_write_identifying_fields_are_the_container_ones
+FAILED tests/unit_tests/mcp_service/test_tool_inventory.py::test_inventory_budgets_cover_every_registered_tool
+FAILED tests/unit_tests/mcp_service/test_tool_inventory.py::test_tool_inventory_size[create_theme]
+FAILED tests/unit_tests/mcp_service/test_tool_inventory.py::test_tool_inventory_size[get_theme_info]
+FAILED tests/unit_tests/mcp_service/test_tool_inventory.py::test_tool_inventory_size[list_themes]
+FAILED tests/unit_tests/mcp_service/test_tool_inventory.py::test_tool_inventory_preserves_complete_schema[create_theme]
+FAILED tests/unit_tests/mcp_service/test_tool_inventory.py::test_tool_inventory_preserves_complete_schema[get_theme_info]
+FAILED tests/unit_tests/mcp_service/test_tool_inventory.py::test_tool_inventory_preserves_complete_schema[list_themes]
+FAILED tests/unit_tests/mcp_service/annotation_layer/tool/test_annotation_layer_tools.py::test_list_annotation_layers_basic
+FAILED tests/unit_tests/mcp_service/annotation_layer/tool/test_annotation_layer_tools.py::test_list_annotation_layers_empty
+FAILED tests/unit_tests/mcp_service/annotation_layer/tool/test_annotation_layer_tools.py::test_list_annotation_layers_search
+FAILED tests/unit_tests/mcp_service/annotation_layer/tool/test_annotation_layer_tools.py::test_list_annotation_layers_pagination
+FAILED tests/unit_tests/mcp_service/annotation_layer/tool/test_annotation_layer_tools.py::test_get_annotation_layer_info_found
+FAILED tests/unit_tests/mcp_service/annotation_layer/tool/test_annotation_layer_tools.py::test_get_annotation_layer_info_not_found
+FAILED tests/unit_tests/mcp_service/annotation_layer/tool/test_annotation_layer_tools.py::test_list_layer_annotations_basic
+FAILED tests/unit_tests/mcp_service/annotation_layer/tool/test_annotation_layer_tools.py::test_list_layer_annotations_layer_id_filter_prepended
+FAILED tests/unit_tests/mcp_service/annotation_layer/tool/test_annotation_layer_tools.py::test_list_layer_annotations_layer_not_found
+FAILED tests/unit_tests/mcp_service/annotation_layer/tool/test_annotation_layer_tools.py::test_list_layer_annotations_only_returns_own_layer
+FAILED tests/unit_tests/mcp_service/annotation_layer/tool/test_annotation_layer_tools.py::test_get_layer_annotation_info_found
+FAILED tests/unit_tests/mcp_service/annotation_layer/tool/test_annotation_layer_tools.py::test_get_layer_annotation_info_layer_not_found
+FAILED tests/unit_tests/mcp_service/annotation_layer/tool/test_annotation_layer_tools.py::test_get_layer_annotation_info_annotation_not_found
+FAILED tests/unit_tests/mcp_service/annotation_layer/tool/test_annotation_layer_tools.py::test_get_layer_annotation_info_wrong_layer
+FAILED tests/unit_tests/mcp_service/annotation_layer/tool/test_annotation_layer_tools.py::test_list_annotation_layers_preserves_name
+FAILED tests/unit_tests/mcp_service/annotation_layer/tool/test_annotation_layer_tools.py::test_get_annotation_layer_info_preserves_name
+FAILED tests/unit_tests/mcp_service/annotation_layer/tool/test_annotation_layer_tools.py::test_list_layer_annotations_preserves_descriptions
+FAILED tests/unit_tests/mcp_service/annotation_layer/tool/test_annotation_layer_tools.py::test_list_layer_annotations_preserves_json_metadata_bytes
+FAILED tests/unit_tests/mcp_service/annotation_layer/tool/test_annotation_layer_tools.py::test_get_layer_annotation_info_preserves_short_descr
+FAILED tests/unit_tests/mcp_service/system/tool/test_health_check.py::test_health_check_success_via_client
+FAILED tests/unit_tests/mcp_service/system/tool/test_health_check.py::test_health_check_returns_error_status_when_version_metadata_raises
+FAILED tests/unit_tests/security/test_api_key_scopes.py::test_frontend_scope_catalog_matches_backend_contract
+FAILED tests/unit_tests/subjects/test_creator_group_call_sites.py::test_dashboard_copy_dao_attaches_default_viewers
+FAILED tests/unit_tests/subjects/test_raise_for_access.py::test_raise_for_access_viewer_published_allows
+FAILED tests/unit_tests/subjects/test_raise_for_access.py::test_raise_for_access_viewer_unpublished_denies
+FAILED tests/unit_tests/subjects/test_raise_for_access.py::test_raise_for_access_no_viewers_dataset_fallback
+FAILED tests/unit_tests/subjects/test_raise_for_access.py::test_raise_for_access_no_viewers_no_charts_allows
+FAILED tests/unit_tests/subjects/test_raise_for_access.py::test_raise_for_access_legacy_when_viewers_off
+FAILED tests/unit_tests/subjects/test_raise_for_access.py::test_raise_for_access_dashboard_viewers_override_implicit_access
+FAILED tests/unit_tests/subjects/test_report_executor_remediation.py::test_viewer_membership_alone_does_not_unblock_an_unpublished_dashboard
+FAILED tests/unit_tests/subjects/test_report_executor_remediation.py::test_publishing_unblocks_the_viewer_execution_principal
+FAILED tests/unit_tests/translations/sk_sql_lab_progress_message_test.py::test_sk_progress_message_placeholders_match_source
+FAILED tests/unit_tests/utils/number_format_test.py::test_format_number_with_currency[currency2-1234.5-R$ 1,234.50]
+FAILED tests/unit_tests/utils/number_format_test.py::test_format_number_with_currency[currency3-1234.5-ZZZ 1,234.50]
+FAILED tests/unit_tests/views/test_base_theme_helpers.py::test_bootstrap_data_uses_config_themes
+FAILED tests/unit_tests/views/test_pwa_manifest.py::test_spa_html_link_uses_application_root_and_drops_v4_cache_bust
+FAILED tests/unit_tests/views/test_pwa_manifest.py::test_webpack_copy_rule_for_pwa_manifest_is_removed
+49 failed, 14704 passed, 12 skipped, 2 xfailed in 986.84s (0:16:26)

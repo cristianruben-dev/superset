@@ -1,0 +1,2 @@
+plugins/plugin-chart-echarts/src/Timeseries/transformers.ts(75,3): error TS2305: Module '"../constants"' has no exported member 'X_AXIS_CROSS_FILTER_SOURCE'.
+npx tsc -b plugins/plugin-chart-echarts plugins/plugin-chart-table             11.30s user 0.66s system 146% cpu 8.171 total

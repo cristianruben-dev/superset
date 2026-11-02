@@ -1,0 +1,131 @@
+
+  x eslint(no-use-before-define): 'objects' was used before it was defined.
+     ,-[playwright/tests/experimental/dashboard/layout-ux.spec.ts:144:16]
+ 143 |   });
+ 144 |   await expect(objects(page)).toHaveCount(3);
+     :                ^^^|^^^
+     :                   `-- used here
+ 145 | }
+ 146 | 
+ 147 | /** The three objects, in the order of the layout. */
+ 148 | const objects = (page: Page) =>
+     :       ^^^|^^^
+     :          `-- defined here
+ 149 |   page.locator('.mibi-canvas .dragdroppable[style*="position: absolute"]');
+     `----
+  help: Move the declaration before any references to it, or remove the reference if it is not needed.
+
+  x eslint(no-use-before-define): 'onUp' was used before it was defined.
+     ,-[src/mibi/format/useCellMove.ts:119:49]
+ 118 |         window.removeEventListener('pointermove', onMove);
+ 119 |         window.removeEventListener('pointerup', onUp);
+     :                                                 ^^|^
+     :                                                   `-- used here
+ 120 |         window.removeEventListener('pointercancel', onCancel);
+ 121 |         window.removeEventListener('keydown', onKey);
+ 122 |         document.body.classList.remove('mibi-moving');
+ 123 |         stop.current = null;
+ 124 |         setShift(null);
+ 125 |         if (
+ 126 |           moved &&
+ 127 |           commit &&
+ 128 |           (landing.x !== start.x || landing.y !== start.y)
+ 129 |         ) {
+ 130 |           dispatch(moveObject(component.id, landing));
+ 131 |           // The rest of a selection or group moves by the same distance
+ 132 |           const picked = selectedVisuals();
+ 133 |           if (picked.includes(component.id)) {
+ 134 |             picked
+ 135 |               .filter(id => id !== component.id)
+ 136 |               .forEach(id =>
+ 137 |                 dispatch(
+ 138 |                   nudgeObject(id, landing.x - start.x, landing.y - start.y),
+ 139 |                 ),
+ 140 |               );
+ 141 |           }
+ 142 |         }
+ 143 |       };
+ 144 |       const onUp = () => end(true);
+     :             ^^|^
+     :               `-- defined here
+ 145 |       const onCancel = () => end(false);
+     `----
+  help: Move the declaration before any references to it, or remove the reference if it is not needed.
+
+  x eslint(no-use-before-define): 'onCancel' was used before it was defined.
+     ,-[src/mibi/format/useCellMove.ts:120:53]
+ 119 |         window.removeEventListener('pointerup', onUp);
+ 120 |         window.removeEventListener('pointercancel', onCancel);
+     :                                                     ^^^^|^^^
+     :                                                         `-- used here
+ 121 |         window.removeEventListener('keydown', onKey);
+ 122 |         document.body.classList.remove('mibi-moving');
+ 123 |         stop.current = null;
+ 124 |         setShift(null);
+ 125 |         if (
+ 126 |           moved &&
+ 127 |           commit &&
+ 128 |           (landing.x !== start.x || landing.y !== start.y)
+ 129 |         ) {
+ 130 |           dispatch(moveObject(component.id, landing));
+ 131 |           // The rest of a selection or group moves by the same distance
+ 132 |           const picked = selectedVisuals();
+ 133 |           if (picked.includes(component.id)) {
+ 134 |             picked
+ 135 |               .filter(id => id !== component.id)
+ 136 |               .forEach(id =>
+ 137 |                 dispatch(
+ 138 |                   nudgeObject(id, landing.x - start.x, landing.y - start.y),
+ 139 |                 ),
+ 140 |               );
+ 141 |           }
+ 142 |         }
+ 143 |       };
+ 144 |       const onUp = () => end(true);
+ 145 |       const onCancel = () => end(false);
+     :             ^^^^|^^^
+     :                 `-- defined here
+ 146 |       const onKey = (key: KeyboardEvent) => {
+     `----
+  help: Move the declaration before any references to it, or remove the reference if it is not needed.
+
+  x eslint(no-use-before-define): 'onKey' was used before it was defined.
+     ,-[src/mibi/format/useCellMove.ts:121:47]
+ 120 |         window.removeEventListener('pointercancel', onCancel);
+ 121 |         window.removeEventListener('keydown', onKey);
+     :                                               ^^|^^
+     :                                                 `-- used here
+ 122 |         document.body.classList.remove('mibi-moving');
+ 123 |         stop.current = null;
+ 124 |         setShift(null);
+ 125 |         if (
+ 126 |           moved &&
+ 127 |           commit &&
+ 128 |           (landing.x !== start.x || landing.y !== start.y)
+ 129 |         ) {
+ 130 |           dispatch(moveObject(component.id, landing));
+ 131 |           // The rest of a selection or group moves by the same distance
+ 132 |           const picked = selectedVisuals();
+ 133 |           if (picked.includes(component.id)) {
+ 134 |             picked
+ 135 |               .filter(id => id !== component.id)
+ 136 |               .forEach(id =>
+ 137 |                 dispatch(
+ 138 |                   nudgeObject(id, landing.x - start.x, landing.y - start.y),
+ 139 |                 ),
+ 140 |               );
+ 141 |           }
+ 142 |         }
+ 143 |       };
+ 144 |       const onUp = () => end(true);
+ 145 |       const onCancel = () => end(false);
+ 146 |       const onKey = (key: KeyboardEvent) => {
+     :             ^^|^^
+     :               `-- defined here
+ 147 |         if (key.key === 'Escape') end(false);
+     `----
+  help: Move the declaration before any references to it, or remove the reference if it is not needed.
+
+Found 1458 warnings and 4 errors.
+Finished in 1.4s on 3394 files with 205 rules using 12 threads.
+npx oxlint --config oxlint.json --quiet  8.87s user 1.26s system 554% cpu 1.827 total

@@ -1,0 +1,13 @@
+
+                 License :: OSI Approved :: Python Software Foundation License
+
+                 See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license for details.
+                 ********************************************************************************
+
+         !!
+           self._finalize_license_expression()
+         no previously-included directories found matching 'Doc/.build'
+         error: [Errno 2] No such file or directory: 'gcc'
+
+hint: Build failures usually indicate a problem with the package or the build environment
+docker exec superset-superset-1 sh -c   0.02s user 0.02s system 1% cpu 3.094 total

@@ -1,0 +1,5 @@
+src/dashboard/reducers/dashboardInfo.test.ts(20,3): error TS6133: 'DASHBOARD_INFO_UPDATED' is declared but its value is never read.
+src/mibi/elements/ElementFormat.tsx(71,10): error TS6133: 'NavigatorView' is declared but its value is never read.
+src/mibi/format/formatPainter.ts(35,7): error TS2741: Property 'navigator' is missing in type '{ image: string[]; shape: string[]; button: string[]; text: string[]; filter: string[]; }' but required in type 'Record<ElementKind, string[]>'.
+src/theme/ThemeController.ts(24,3): error TS6133: 'isThemeConfigDark' is declared but its value is never read.
+npx tsc --noEmit -p .  11.75s user 1.85s system 128% cpu 10.559 total

@@ -1,0 +1,1 @@
+npx tsc -b packages/superset-core packages/superset-ui-core   8.44s user 0.78s system 151% cpu 6.072 total

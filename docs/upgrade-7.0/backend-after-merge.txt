@@ -1,0 +1,384 @@
+_ ERROR at setup of test_detect_column_format_failed_retry_surfaces_original_error _
+  def test_detect_column_format_failed_retry_surfaces_original_error(
+      assert any("failed" in r.message.lower() for r in caplog.records)
+      mask an otherwise-valid token as a generic ``"Token validation failed"``.
+_ ERROR at setup of test_failed_provider_preserves_healthy_dashboard_datasets[failure0-columns] _
+  async def test_failed_provider_preserves_healthy_dashboard_datasets(
+      """A failed view is counted once without losing healthy tables or views."""
+      failed: Mock = _build_view_slice(1)
+          slices=[failed, failed, _build_slice_mock(table), healthy]
+          type(failed.semantic_view),
+      failed.semantic_view.raise_for_access.assert_called_once_with()
+_ ERROR at setup of test_failed_provider_preserves_healthy_dashboard_datasets[failure0-metrics] _
+  async def test_failed_provider_preserves_healthy_dashboard_datasets(
+      """A failed view is counted once without losing healthy tables or views."""
+      failed: Mock = _build_view_slice(1)
+          slices=[failed, failed, _build_slice_mock(table), healthy]
+          type(failed.semantic_view),
+      failed.semantic_view.raise_for_access.assert_called_once_with()
+_ ERROR at setup of test_failed_provider_preserves_healthy_dashboard_datasets[failure1-columns] _
+  async def test_failed_provider_preserves_healthy_dashboard_datasets(
+      """A failed view is counted once without losing healthy tables or views."""
+      failed: Mock = _build_view_slice(1)
+          slices=[failed, failed, _build_slice_mock(table), healthy]
+          type(failed.semantic_view),
+      failed.semantic_view.raise_for_access.assert_called_once_with()
+_ ERROR at setup of test_failed_provider_preserves_healthy_dashboard_datasets[failure1-metrics] _
+  async def test_failed_provider_preserves_healthy_dashboard_datasets(
+      """A failed view is counted once without losing healthy tables or views."""
+      failed: Mock = _build_view_slice(1)
+          slices=[failed, failed, _build_slice_mock(table), healthy]
+          type(failed.semantic_view),
+      failed.semantic_view.raise_for_access.assert_called_once_with()
+          ("raising", "schema generation failed"),
+_ ERROR at setup of test_schema_fallback_warns_without_logging_credentials[raising-schema generation failed] _
+          ("raising", "schema generation failed"),
+          ("raising", "schema generation failed"),
+/app/tests/unit_tests/commands/extra_asset_fields_test.py:95: AssertionError: assert 'extra' in {'certification_details': <fields.String(dump_default=<marshmallow.missing>, attribute=None, validate=None, required=F...dat
+FAILED tests/unit_tests/config_test.py::test_theme_default_logo_defaults - As...
+FAILED tests/unit_tests/docker_compose_image_tag_test.py::test_image_tag_services_use_bundled_packages
+FAILED tests/unit_tests/initialization_test.py::TestSupersetApp::test_sync_config_to_db_initializes_when_tables_exist
+FAILED tests/unit_tests/initialization_test.py::TestRetentionBeatWarning::test_no_warn_when_soft_delete_on_and_both_entries_present
+FAILED tests/unit_tests/commands/extra_asset_fields_test.py::test_import_schemas_accept_extra
+FAILED tests/unit_tests/commands/deletion_retention/test_purge_chart_detach.py::test_purge_detaches_dataset_charts
+FAILED tests/unit_tests/commands/deletion_retention/test_purge_chart_detach.py::test_purge_detach_keeps_chart_history_and_etag
+FAILED tests/unit_tests/commands/deletion_retention/test_purge_chart_detach.py::test_purged_dataset_id_reuse_cannot_rebind_chart
+FAILED tests/unit_tests/commands/deletion_retention/test_purge_chart_detach.py::test_failed_purge_rolls_back_chart_detach
+FAILED tests/unit_tests/commands/deletion_retention/test_purge_policy.py::test_real_mapper_graph_has_complete_policy[Dashboard]
+FAILED tests/unit_tests/commands/deletion_retention/test_purge_policy.py::test_real_mapper_graph_has_complete_policy[SqlaTable]
+FAILED tests/unit_tests/commands/deletion_retention/test_purge_policy.py::test_non_preserve_dependencies_carry_phases[Dashboard]
+FAILED tests/unit_tests/commands/deletion_retention/test_purge_policy.py::test_non_preserve_dependencies_carry_phases[SqlaTable]
+FAILED tests/unit_tests/commands/deletion_retention/test_purge_policy.py::test_version_targets_are_policy_owned[Dashboard-expected_targets1]
+FAILED tests/unit_tests/commands/deletion_retention/test_purge_policy.py::test_version_targets_are_policy_owned[SqlaTable-expected_targets2]
+FAILED tests/unit_tests/commands/deletion_retention/test_purge_policy.py::test_supported_root_after_delete_listeners_are_declared_and_installed[Dashboard]
+FAILED tests/unit_tests/commands/deletion_retention/test_purge_policy.py::test_supported_root_after_delete_listeners_are_declared_and_installed[SqlaTable]
+FAILED tests/unit_tests/commands/deletion_retention/test_purge_policy.py::test_core_delete_actions_compile_for_supported_dialects[sqlite]
+FAILED tests/unit_tests/commands/deletion_retention/test_purge_policy.py::test_core_delete_actions_compile_for_supported_dialects[postgresql]
+FAILED tests/unit_tests/commands/deletion_retention/test_purge_policy.py::test_core_delete_actions_compile_for_supported_dialects[mysql]
+FAILED tests/unit_tests/commands/deletion_retention/test_reason_codes.py::test_welcome_dashboard_block_raises_with_the_user_attribute_code
+FAILED tests/unit_tests/commands/deletion_retention/test_reason_codes.py::test_first_declared_blocker_wins_when_several_match
+FAILED tests/unit_tests/common/test_query_context_processor.py::test_get_native_annotation_data_requires_annotation_read_access
+FAILED tests/unit_tests/connectors/sqla/models_test.py::test_data_for_slices_keeps_the_x_axis_of_charts_without_query_context
+FAILED tests/unit_tests/connectors/sqla/models_test.py::test_owners_data_includes_email
+FAILED tests/unit_tests/dao/test_query_stop_race.py::test_trino_early_cancel_key_behavior_is_unchanged
+FAILED tests/unit_tests/dashboards/semantic_view_access_test.py::test_gate_denies_semantic_dashboard_without_grant
+FAILED tests/unit_tests/dashboards/semantic_view_access_test.py::test_gate_allows_semantic_dashboard_for_entitled_user
+FAILED tests/unit_tests/dashboards/semantic_view_access_test.py::test_gate_allows_semantic_dashboard_for_layer_grant
+FAILED tests/unit_tests/dashboards/semantic_view_access_test.py::test_gate_layer_grant_is_inert_for_table_dashboards
+FAILED tests/unit_tests/dashboards/semantic_view_access_test.py::test_gate_denies_wrong_layer_grant
+FAILED tests/unit_tests/dashboards/semantic_view_access_test.py::test_gate_denies_regular_dashboard_without_grant
+FAILED tests/unit_tests/dashboards/semantic_view_access_test.py::test_gate_denies_dashboard_of_unresolvable_datasources
+FAILED tests/unit_tests/dashboards/semantic_view_access_test.py::test_gate_still_allows_empty_dashboard
+FAILED tests/unit_tests/dashboards/semantic_view_access_test.py::test_gate_denies_unpublished_empty_dashboard
+FAILED tests/unit_tests/dashboards/semantic_view_access_test.py::test_gate_allows_published_table_dashboard_for_entitled_user
+FAILED tests/unit_tests/dashboards/semantic_view_access_test.py::test_gate_denies_unpublished_dashboard_despite_datasource_grant
+FAILED tests/unit_tests/dashboards/semantic_view_access_test.py::test_gate_denies_dashboard_with_datasource_less_chart
+FAILED tests/unit_tests/dashboards/semantic_view_access_test.py::test_gate_denies_dashboard_of_unsupported_datasource_type
+FAILED tests/unit_tests/dashboards/commands/importers/dispatcher_test.py::test_dashboard_import_dispatcher_excludes_v0
+FAILED tests/unit_tests/dashboards/commands/importers/v0/import_test.py::test_import_dashboards_requires_dataset_write
+FAILED tests/unit_tests/dashboards/commands/importers/v0/import_test.py::test_import_dashboards_allows_dataset_write
+FAILED tests/unit_tests/dashboards/commands/importers/v0/import_test.py::test_import_dashboards_skips_check_without_user
+FAILED tests/unit_tests/databases/commands/importers/v1/import_test.py::test_import_datasources_cli_encrypts_password
+FAILED tests/unit_tests/databases/commands/importers/v1/import_test.py::test_import_datasources_cli_no_password_does_not_clobber_existing
+FAILED tests/unit_tests/datasets/commands/importers/dispatcher_test.py::test_dataset_import_dispatcher_excludes_v0
+FAILED tests/unit_tests/datasets/commands/importers/v0/import_test.py::test_import_from_dict_requires_database_write
+FAILED tests/unit_tests/datasets/commands/importers/v0/import_test.py::test_import_from_dict_allows_database_write
+FAILED tests/unit_tests/datasets/commands/importers/v0/import_test.py::test_import_from_dict_skips_check_without_user
+FAILED tests/unit_tests/datasets/commands/importers/v0/import_test.py::test_validate_parser_error_raises_incorrect_version_error
+FAILED tests/unit_tests/datasets/commands/importers/v0/import_test.py::test_validate_scanner_error_raises_incorrect_version_error
+FAILED tests/unit_tests/db_engine_specs/test_base.py::test_fetch_data_no_result_set[None-None-superset.db_engine_specs.db2.Db2EngineSpec]
+FAILED tests/unit_tests/db_engine_specs/test_base.py::test_fetch_data_no_result_set[None-None-superset.db_engine_specs.exasol.ExasolEngineSpec]
+FAILED tests/unit_tests/db_engine_specs/test_base.py::test_fetch_data_no_result_set[None-None-superset.db_engine_specs.impala.ImpalaEngineSpec]
+FAILED tests/unit_tests/db_engine_specs/test_base.py::test_fetch_data_no_result_set[None-description1-superset.db_engine_specs.db2.Db2EngineSpec]
+FAILED tests/unit_tests/db_engine_specs/test_base.py::test_fetch_data_no_result_set[None-description1-superset.db_engine_specs.exasol.ExasolEngineSpec]
+FAILED tests/unit_tests/db_engine_specs/test_base.py::test_fetch_data_no_result_set[None-description1-superset.db_engine_specs.impala.ImpalaEngineSpec]
+FAILED tests/unit_tests/db_engine_specs/test_base.py::test_fetch_data_no_result_set[100-None-superset.db_engine_specs.db2.Db2EngineSpec]
+FAILED tests/unit_tests/db_engine_specs/test_base.py::test_fetch_data_no_result_set[100-None-superset.db_engine_specs.exasol.ExasolEngineSpec]
+FAILED tests/unit_tests/db_engine_specs/test_base.py::test_fetch_data_no_result_set[100-None-superset.db_engine_specs.impala.ImpalaEngineSpec]
+FAILED tests/unit_tests/db_engine_specs/test_base.py::test_fetch_data_no_result_set[100-description1-superset.db_engine_specs.db2.Db2EngineSpec]
+FAILED tests/unit_tests/db_engine_specs/test_base.py::test_fetch_data_no_result_set[100-description1-superset.db_engine_specs.exasol.ExasolEngineSpec]
+FAILED tests/unit_tests/db_engine_specs/test_base.py::test_fetch_data_no_result_set[100-description1-superset.db_engine_specs.impala.ImpalaEngineSpec]
+FAILED tests/unit_tests/db_engine_specs/test_cancel_query_validation.py::TestSingleStoreCancelQueryValidation::test_cancel_query_valid_id
+FAILED tests/unit_tests/db_engine_specs/test_cancel_query_validation.py::TestSingleStoreCancelQueryValidation::test_cancel_query_sql_injection_blocked
+FAILED tests/unit_tests/db_engine_specs/test_cancel_query_validation.py::TestTrinoCancelQueryValidation::test_cancel_query_valid_id
+FAILED tests/unit_tests/db_engine_specs/test_cancel_query_validation.py::TestTrinoCancelQueryValidation::test_cancel_query_sql_injection_blocked
+FAILED tests/unit_tests/db_engine_specs/test_cancel_query_validation.py::TestImpalaCancelQueryValidation::test_cancel_query_valid_id
+FAILED tests/unit_tests/db_engine_specs/test_cancel_query_validation.py::TestImpalaCancelQueryValidation::test_cancel_query_url_injection_blocked
+FAILED tests/unit_tests/db_engine_specs/test_cancel_query_validation.py::TestImpalaCancelQueryValidation::test_cancel_query_invalid_format_blocked
+FAILED tests/unit_tests/db_engine_specs/test_cancel_query_validation.py::TestImpalaCancelQueryValidation::test_cancel_query_null_host_blocked
+FAILED tests/unit_tests/db_engine_specs/test_cancel_query_validation.py::TestOcientCancelQueryValidation::test_cancel_query_valid_id
+FAILED tests/unit_tests/db_engine_specs/test_cancel_query_validation.py::TestOcientCancelQueryValidation::test_cancel_query_sql_injection_blocked
+FAILED tests/unit_tests/db_engine_specs/test_d1.py::test_get_column_spec[DATETIME-DateTime-2-True]
+FAILED tests/unit_tests/db_engine_specs/test_d1.py::test_get_column_spec[TIMESTAMP-TIMESTAMP-2-True]
+FAILED tests/unit_tests/db_engine_specs/test_d1.py::test_get_column_spec[DATE-Date-2-True]
+FAILED tests/unit_tests/db_engine_specs/test_d1.py::test_get_column_spec[TIME-Time-2-True]
+FAILED tests/unit_tests/db_engine_specs/test_d1.py::test_get_column_spec[BOOLEAN-Boolean-3-False]
+FAILED tests/unit_tests/db_engine_specs/test_d1.py::test_get_column_spec[INTEGER-Integer-0-False]
+FAILED tests/unit_tests/db_engine_specs/test_d1.py::test_get_column_spec[TEXT-String-1-False]
+FAILED tests/unit_tests/db_engine_specs/test_d1.py::test_execute_moves_leading_comments[SELECT * FROM orders-SELECT * FROM orders]
+FAILED tests/unit_tests/db_engine_specs/test_d1.py::test_execute_moves_leading_comments[-- top customers\nSELECT * FROM orders-SELECT * FROM orders\n-- top customers]
+FAILED tests/unit_tests/db_engine_specs/test_d1.py::test_execute_moves_leading_comments[/* top customers */ SELECT * FROM orders-SELECT * FROM orders\n/* top customers */]
+FAILED tests/unit_tests/db_engine_specs/test_d1.py::test_execute_moves_leading_comments[  -- one\n/* two\n   lines */\n-- three\nWITH t AS (SELECT 1) SELECT 2-WITH t AS (SELECT 1) SELECT 2\n-- one\n/* two\n   lines */\n-
+FAILED tests/unit_tests/db_engine_specs/test_d1.py::test_execute_moves_leading_comments[-- tag\nSELECT 1 ;\n-SELECT 1\n-- tag]
+FAILED tests/unit_tests/db_engine_specs/test_d1.py::test_execute_moves_leading_comments[SELECT 1;-SELECT 1;]
+FAILED tests/unit_tests/db_engine_specs/test_d1.py::test_execute_moves_leading_comments[  SELECT 1-  SELECT 1]
+FAILED tests/unit_tests/db_engine_specs/test_d1.py::test_execute_moves_leading_comments[SELECT 1 -- trailing-SELECT 1 -- trailing]
+FAILED tests/unit_tests/db_engine_specs/test_d1.py::test_execute_moves_leading_comments[SELECT '-- not a comment' /* kept */-SELECT '-- not a comment' /* kept */]
+FAILED tests/unit_tests/db_engine_specs/test_d1.py::test_execute_moves_leading_comments[-- only a comment--- only a comment]
+FAILED tests/unit_tests/db_engine_specs/test_d1.py::test_validate_database_uri[d1+httpx://account:token@database-False]
+FAILED tests/unit_tests/db_engine_specs/test_d1.py::test_validate_database_uri[d1+httpx://account:token@database?base_url=https://elsewhere.example-True]
+FAILED tests/unit_tests/db_engine_specs/test_d1.py::test_validate_database_uri[d1://account:token@database?base_url=https://elsewhere.example-True]
+FAILED tests/unit_tests/db_engine_specs/test_d1.py::test_validate_database_uri[d1+other://account:token@database?base_url=https://elsewhere.example-True]
+FAILED tests/unit_tests/db_engine_specs/test_d1.py::test_metadata_points_at_sqlalchemy_d1
+FAILED tests/unit_tests/db_engine_specs/test_d1.py::test_driver_and_file_upload
+FAILED tests/unit_tests/db_engine_specs/test_d1.py::test_extract_errors[Execute failed: HTTP error 400: {"result":[],"success":false,"errors":[{"code":7500,"message":"no such column: nope at offset 9: SQLITE_ERROR"}],"me
+FAILED tests/unit_tests/db_engine_specs/test_d1.py::test_extract_errors[Execute failed: D1 API error: no such column: o.nope at offset 7: SQLITE_ERROR-COLUMN_DOES_NOT_EXIST_ERROR-We can't seem to resolve the column "o.no
+FAILED tests/unit_tests/db_engine_specs/test_d1.py::test_extract_errors[Execute failed: HTTP error 400: {"result":[],"success":false,"errors":[{"code":7500,"message":"no such table: nope: SQLITE_ERROR"}],"messages":[]}-G
+FAILED tests/unit_tests/db_engine_specs/test_d1.py::test_extract_errors[Execute failed: D1 API error: no such column: nope at offset 7: SQLITE_ERROR\nsecond line-COLUMN_DOES_NOT_EXIST_ERROR-We can't seem to resolve the c
+FAILED tests/unit_tests/db_engine_specs/test_d1.py::test_extract_errors[Execute failed: HTTP error 502: <html>Bad gateway</html>-GENERIC_DB_ENGINE_ERROR-Execute failed: HTTP error 502: <html>Bad gateway</html>]
+FAILED tests/unit_tests/db_engine_specs/test_d1.py::test_extract_errors[Execute failed: HTTP error 400: {"errors":{"message":"no such table"}}-GENERIC_DB_ENGINE_ERROR-Execute failed: HTTP error 400: {"errors":{"message":
+FAILED tests/unit_tests/db_engine_specs/test_d1.py::test_extract_errors[Execute failed: HTTP error 400: {"errors":[]}-GENERIC_DB_ENGINE_ERROR-Execute failed: HTTP error 400: {"errors":[]}]
+FAILED tests/unit_tests/db_engine_specs/test_d1.py::test_extract_errors[Execute failed: HTTP error 400: {"errors":["no such table: nope"]}-GENERIC_DB_ENGINE_ERROR-Execute failed: HTTP error 400: {"errors":["no such table
+FAILED tests/unit_tests/db_engine_specs/test_d1.py::test_extract_errors[Execute failed: HTTP error 400: {"errors":[{"code":7500}]}-GENERIC_DB_ENGINE_ERROR-Execute failed: HTTP error 400: {"errors":[{"code":7500}]}]
+FAILED tests/unit_tests/db_engine_specs/test_d1.py::test_extract_errors[Execute failed: D1 API error: near "{": syntax error-GENERIC_DB_ENGINE_ERROR-Execute failed: D1 API error: near "{": syntax error]
+FAILED tests/unit_tests/db_engine_specs/test_d1.py::test_convert_dttm[DATE-dttm0-'2026-09-20']
+FAILED tests/unit_tests/db_engine_specs/test_d1.py::test_convert_dttm[DATE-dttm1-'2026-09-20 12:30:05']
+FAILED tests/unit_tests/db_engine_specs/test_d1.py::test_convert_dttm[DATETIME-dttm2-'2026-09-20 00:00:00']
+FAILED tests/unit_tests/db_engine_specs/test_d1.py::test_convert_dttm[TIMESTAMP-dttm3-'2026-09-20 12:30:00']
+FAILED tests/unit_tests/db_engine_specs/test_d1.py::test_convert_dttm[TEXT-dttm4-'2026-09-20 00:00:00']
+FAILED tests/unit_tests/db_engine_specs/test_d1.py::test_convert_dttm[INTEGER-dttm5-None]
+FAILED tests/unit_tests/db_engine_specs/test_d1.py::test_time_filter_on_date_column[start0-end0-expected0]
+FAILED tests/unit_tests/db_engine_specs/test_d1.py::test_time_filter_on_date_column[start1-end1-expected1]
+FAILED tests/unit_tests/db_engine_specs/test_ibmi.py::test_epoch_to_dttm - Mo...
+FAILED tests/unit_tests/db_engine_specs/test_ibmi.py::test_time_grain_expressions[None-my_col]
+FAILED tests/unit_tests/db_engine_specs/test_ibmi.py::test_time_grain_expressions[PT1S-CAST(my_col as TIMESTAMP) - MICROSECOND(my_col) MICROSECONDS]
+FAILED tests/unit_tests/db_engine_specs/test_ibmi.py::test_time_grain_expressions[PT1M-CAST(my_col as TIMESTAMP) - SECOND(my_col) SECONDS - MICROSECOND(my_col) MICROSECONDS]
+FAILED tests/unit_tests/db_engine_specs/test_ibmi.py::test_time_grain_expressions[PT1H-CAST(my_col as TIMESTAMP) - MINUTE(my_col) MINUTES - SECOND(my_col) SECONDS - MICROSECOND(my_col) MICROSECONDS ]
+FAILED tests/unit_tests/db_engine_specs/test_ibmi.py::test_time_grain_expressions[P1D-DATE(my_col)]
+FAILED tests/unit_tests/db_engine_specs/test_ibmi.py::test_time_grain_expressions[P1W-my_col - (DAYOFWEEK_ISO(my_col)-1) DAYS]
+FAILED tests/unit_tests/db_engine_specs/test_ibmi.py::test_time_grain_expressions[P1M-my_col - (DAY(my_col)-1) DAYS]
+FAILED tests/unit_tests/db_engine_specs/test_ibmi.py::test_time_grain_expressions[P3M-my_col - (DAY(my_col)-1) DAYS - (MONTH(my_col)-1) MONTHS + ((QUARTER(my_col)-1) * 3) MONTHS]
+FAILED tests/unit_tests/db_engine_specs/test_ibmi.py::test_time_grain_expressions[P1Y-my_col - (DAY(my_col)-1) DAYS - (MONTH(my_col)-1) MONTHS]
+FAILED tests/unit_tests/db_engine_specs/test_lib.py::test_sql_validation_engines_matches_docs_generator
+FAILED tests/unit_tests/db_engine_specs/test_sybase.py::test_identifier_quote_uses_square_brackets
+FAILED tests/unit_tests/mcp_service/test_mcp_e2e_smoke.py::test_tools_list_over_real_asgi_transport
+FAILED tests/unit_tests/mcp_service/test_mcp_e2e_smoke.py::test_tools_call_health_check_over_real_asgi_transport
+FAILED tests/unit_tests/mcp_service/test_mcp_tool_registration.py::test_all_registered_tools_have_complete_metadata
+FAILED tests/unit_tests/mcp_service/test_mcp_tool_registration.py::test_committed_write_specs_match_registered_output_schemas
+FAILED tests/unit_tests/mcp_service/test_mcp_tool_registration.py::test_committed_write_identifying_fields_are_the_container_ones
+FAILED tests/unit_tests/mcp_service/test_tool_inventory.py::test_inventory_budgets_cover_every_registered_tool
+FAILED tests/unit_tests/mcp_service/test_tool_inventory.py::test_tool_inventory_size[create_theme]
+FAILED tests/unit_tests/mcp_service/test_tool_inventory.py::test_tool_inventory_size[get_theme_info]
+FAILED tests/unit_tests/mcp_service/test_tool_inventory.py::test_tool_inventory_size[list_themes]
+FAILED tests/unit_tests/mcp_service/test_tool_inventory.py::test_tool_inventory_preserves_complete_schema[create_theme]
+FAILED tests/unit_tests/mcp_service/test_tool_inventory.py::test_tool_inventory_preserves_complete_schema[get_theme_info]
+FAILED tests/unit_tests/mcp_service/test_tool_inventory.py::test_tool_inventory_preserves_complete_schema[list_themes]
+FAILED tests/unit_tests/mcp_service/annotation_layer/tool/test_annotation_layer_tools.py::test_list_annotation_layers_basic
+FAILED tests/unit_tests/mcp_service/annotation_layer/tool/test_annotation_layer_tools.py::test_list_annotation_layers_empty
+FAILED tests/unit_tests/mcp_service/annotation_layer/tool/test_annotation_layer_tools.py::test_list_annotation_layers_search
+FAILED tests/unit_tests/mcp_service/annotation_layer/tool/test_annotation_layer_tools.py::test_list_annotation_layers_pagination
+FAILED tests/unit_tests/mcp_service/annotation_layer/tool/test_annotation_layer_tools.py::test_get_annotation_layer_info_found
+FAILED tests/unit_tests/mcp_service/annotation_layer/tool/test_annotation_layer_tools.py::test_get_annotation_layer_info_not_found
+FAILED tests/unit_tests/mcp_service/annotation_layer/tool/test_annotation_layer_tools.py::test_list_layer_annotations_basic
+FAILED tests/unit_tests/mcp_service/annotation_layer/tool/test_annotation_layer_tools.py::test_list_layer_annotations_layer_id_filter_prepended
+FAILED tests/unit_tests/mcp_service/annotation_layer/tool/test_annotation_layer_tools.py::test_list_layer_annotations_layer_not_found
+FAILED tests/unit_tests/mcp_service/annotation_layer/tool/test_annotation_layer_tools.py::test_list_layer_annotations_only_returns_own_layer
+FAILED tests/unit_tests/mcp_service/annotation_layer/tool/test_annotation_layer_tools.py::test_get_layer_annotation_info_found
+FAILED tests/unit_tests/mcp_service/annotation_layer/tool/test_annotation_layer_tools.py::test_get_layer_annotation_info_layer_not_found
+FAILED tests/unit_tests/mcp_service/annotation_layer/tool/test_annotation_layer_tools.py::test_get_layer_annotation_info_annotation_not_found
+FAILED tests/unit_tests/mcp_service/annotation_layer/tool/test_annotation_layer_tools.py::test_get_layer_annotation_info_wrong_layer
+FAILED tests/unit_tests/mcp_service/annotation_layer/tool/test_annotation_layer_tools.py::test_list_annotation_layers_preserves_name
+FAILED tests/unit_tests/mcp_service/annotation_layer/tool/test_annotation_layer_tools.py::test_get_annotation_layer_info_preserves_name
+FAILED tests/unit_tests/mcp_service/annotation_layer/tool/test_annotation_layer_tools.py::test_list_layer_annotations_preserves_descriptions
+FAILED tests/unit_tests/mcp_service/annotation_layer/tool/test_annotation_layer_tools.py::test_list_layer_annotations_preserves_json_metadata_bytes
+FAILED tests/unit_tests/mcp_service/annotation_layer/tool/test_annotation_layer_tools.py::test_get_layer_annotation_info_preserves_short_descr
+FAILED tests/unit_tests/mcp_service/system/tool/test_health_check.py::test_health_check_success_via_client
+FAILED tests/unit_tests/mcp_service/system/tool/test_health_check.py::test_health_check_returns_error_status_when_version_metadata_raises
+FAILED tests/unit_tests/models/core_test.py::test_get_sqla_engine - Assertion...
+FAILED tests/unit_tests/models/core_test.py::test_get_sqla_engine_user_impersonation
+FAILED tests/unit_tests/models/core_test.py::test_get_sqla_engine_user_impersonation_email
+FAILED tests/unit_tests/models/core_test.py::test_clear_bootstrap_cache_logs_warning_on_failure
+FAILED tests/unit_tests/openapi/test_static_spec.py::test_documented_dashboard_list_schema_matches_public_contract
+FAILED tests/unit_tests/security/test_api_key_scopes.py::test_frontend_scope_catalog_matches_backend_contract
+FAILED tests/unit_tests/subjects/test_creator_group_call_sites.py::test_dashboard_copy_dao_attaches_default_viewers
+FAILED tests/unit_tests/subjects/test_raise_for_access.py::test_raise_for_access_viewer_published_allows
+FAILED tests/unit_tests/subjects/test_raise_for_access.py::test_raise_for_access_viewer_unpublished_denies
+FAILED tests/unit_tests/subjects/test_raise_for_access.py::test_raise_for_access_no_viewers_dataset_fallback
+FAILED tests/unit_tests/subjects/test_raise_for_access.py::test_raise_for_access_no_viewers_no_charts_allows
+FAILED tests/unit_tests/subjects/test_raise_for_access.py::test_raise_for_access_legacy_when_viewers_off
+FAILED tests/unit_tests/subjects/test_raise_for_access.py::test_raise_for_access_dashboard_viewers_override_implicit_access
+FAILED tests/unit_tests/subjects/test_report_executor_remediation.py::test_viewer_membership_alone_does_not_unblock_an_unpublished_dashboard
+FAILED tests/unit_tests/subjects/test_report_executor_remediation.py::test_publishing_unblocks_the_viewer_execution_principal
+FAILED tests/unit_tests/translations/sk_sql_lab_progress_message_test.py::test_sk_progress_message_placeholders_match_source
+FAILED tests/unit_tests/utils/number_format_test.py::test_format_number_with_currency[currency2-1234.5-R$ 1,234.50]
+FAILED tests/unit_tests/utils/number_format_test.py::test_format_number_with_currency[currency3-1234.5-ZZZ 1,234.50]
+FAILED tests/unit_tests/views/test_base_theme_helpers.py::test_bootstrap_data_uses_config_themes
+FAILED tests/unit_tests/views/test_pwa_manifest.py::test_spa_html_link_uses_application_root_and_drops_v4_cache_bust
+FAILED tests/unit_tests/views/test_pwa_manifest.py::test_webpack_copy_rule_for_pwa_manifest_is_removed
+ERROR tests/unit_tests/config_test.py::test_invalid_version_history_retention_env_uses_default
+ERROR tests/unit_tests/config_test.py::test_oversized_version_history_retention_env_uses_default
+ERROR tests/unit_tests/commands/databases/csv_reader_test.py::test_csv_reader_chunk_concatenation_error_warning
+ERROR tests/unit_tests/commands/databases/oauth2_test.py::test_run_logs_token_exchange_failure
+ERROR tests/unit_tests/commands/databases/update_test.py::test_update_unreachable_database_metadata[False-False]
+ERROR tests/unit_tests/commands/databases/update_test.py::test_update_unreachable_database_metadata[False-True]
+ERROR tests/unit_tests/commands/databases/update_test.py::test_update_unreachable_database_metadata[True-False]
+ERROR tests/unit_tests/commands/databases/update_test.py::test_update_unreachable_database_metadata[True-True]
+ERROR tests/unit_tests/commands/dataset/refresh_test.py::test_refresh_swallows_virtual_table_parse_exception
+ERROR tests/unit_tests/commands/importers/v1/import_models_test.py::test_validate_logs_per_file_failures_as_warning
+ERROR tests/unit_tests/commands/importers/v1/import_models_test.py::test_validate_logs_non_mapping_errors_as_warning
+ERROR tests/unit_tests/commands/importers/v1/utils_test.py::TestLoadConfigs::test_invalid_json_in_masked_encrypted_extra_is_collected
+ERROR tests/unit_tests/commands/importers/v1/utils_test.py::TestLoadConfigs::test_missing_key_read_before_validation_logged_as_warning
+ERROR tests/unit_tests/commands/importers/v1/utils_test.py::TestLoadConfigs::test_schema_validation_failure_logged_as_warning
+ERROR tests/unit_tests/commands/report/base_test.py::test_validate_report_frequency_invalid_config[10-20 * * * *-Alert]
+ERROR tests/unit_tests/commands/report/base_test.py::test_validate_report_frequency_invalid_config[10-20 * * * *-Report]
+ERROR tests/unit_tests/commands/report/base_test.py::test_validate_report_frequency_invalid_config[23,45,50,51 * * * *-Alert]
+ERROR tests/unit_tests/commands/report/base_test.py::test_validate_report_frequency_invalid_config[23,45,50,51 * * * *-Report]
+ERROR tests/unit_tests/commands/report/base_test.py::test_validate_report_frequency_invalid_config[0,45,10-20 * * * *-Alert]
+ERROR tests/unit_tests/commands/report/base_test.py::test_validate_report_frequency_invalid_config[0,45,10-20 * * * *-Report]
+ERROR tests/unit_tests/commands/report/base_test.py::test_validate_report_frequency_invalid_config[1,5,8,10,12 * * * *-Alert]
+ERROR tests/unit_tests/commands/report/base_test.py::test_validate_report_frequency_invalid_config[1,5,8,10,12 * * * *-Report]
+ERROR tests/unit_tests/commands/report/base_test.py::test_validate_report_frequency_invalid_config[27,2 1-5 * * *-Alert]
+ERROR tests/unit_tests/commands/report/base_test.py::test_validate_report_frequency_invalid_config[27,2 1-5 * * *-Report]
+ERROR tests/unit_tests/commands/report/base_test.py::test_validate_report_frequency_invalid_config[1-5 * * * *-Alert]
+ERROR tests/unit_tests/commands/report/base_test.py::test_validate_report_frequency_invalid_config[1-5 * * * *-Report]
+ERROR tests/unit_tests/commands/report/base_test.py::test_validate_report_frequency_invalid_config[10 1 * * *-Alert]
+ERROR tests/unit_tests/commands/report/base_test.py::test_validate_report_frequency_invalid_config[10 1 * * *-Report]
+ERROR tests/unit_tests/commands/report/base_test.py::test_validate_report_frequency_invalid_config[10,20,30,40-45 * * * *-Alert]
+ERROR tests/unit_tests/commands/report/base_test.py::test_validate_report_frequency_invalid_config[10,20,30,40-45 * * * *-Report]
+ERROR tests/unit_tests/commands/report/base_test.py::test_validate_report_frequency_invalid_config[* * * * *-Alert]
+ERROR tests/unit_tests/commands/report/base_test.py::test_validate_report_frequency_invalid_config[* * * * *-Report]
+ERROR tests/unit_tests/commands/report/chart_data_test.py::test_http_deterministic_error_is_sanitized[400]
+ERROR tests/unit_tests/commands/report/chart_data_test.py::test_http_deterministic_error_is_sanitized[401]
+ERROR tests/unit_tests/commands/report/chart_data_test.py::test_http_deterministic_error_is_sanitized[403]
+ERROR tests/unit_tests/commands/report/chart_data_test.py::test_http_deterministic_error_is_sanitized[404]
+ERROR tests/unit_tests/commands/report/chart_data_test.py::test_http_deterministic_error_is_sanitized[422]
+ERROR tests/unit_tests/commands/report/chart_data_test.py::test_http_deterministic_error_is_sanitized[501]
+ERROR tests/unit_tests/commands/report/chart_data_test.py::test_http_deterministic_error_is_sanitized[505]
+ERROR tests/unit_tests/commands/report/chart_data_test.py::test_error_body_is_bounded[xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+ERROR tests/unit_tests/commands/report/chart_data_test.py::test_error_body_is_bounded[<html>BODY_SECRET</html>]
+ERROR tests/unit_tests/commands/report/chart_data_test.py::test_error_body_is_bounded[{"message":"BODY_SECRET"}]
+ERROR tests/unit_tests/commands/report/chart_data_test.py::test_error_body_is_bounded[\xff]
+ERROR tests/unit_tests/commands/report/chart_data_test.py::test_transient_network_retry[error0]
+ERROR tests/unit_tests/commands/report/chart_data_test.py::test_transient_network_retry[error1]
+ERROR tests/unit_tests/commands/report/chart_data_test.py::test_transient_network_retry[error2]
+ERROR tests/unit_tests/commands/report/chart_data_test.py::test_transient_network_retry[error3]
+ERROR tests/unit_tests/commands/report/chart_data_test.py::test_transient_network_retry[error4]
+ERROR tests/unit_tests/commands/report/chart_data_test.py::test_transient_network_retry[error5]
+ERROR tests/unit_tests/commands/report/chart_data_test.py::test_non_transient_url_error
+ERROR tests/unit_tests/commands/report/chart_data_test.py::test_http_error_body_read_failure[read_error0]
+ERROR tests/unit_tests/commands/report/chart_data_test.py::test_http_error_body_read_failure[read_error1]
+ERROR tests/unit_tests/commands/report/execute_test.py::test_report_failure_has_one_terminal_outcome[False-ReportNotTriggeredErrorState]
+ERROR tests/unit_tests/commands/report/execute_test.py::test_report_failure_has_one_terminal_outcome[False-ReportSuccessState]
+ERROR tests/unit_tests/commands/report/execute_test.py::test_report_failure_has_one_terminal_outcome[True-ReportNotTriggeredErrorState]
+ERROR tests/unit_tests/commands/report/execute_test.py::test_report_failure_has_one_terminal_outcome[True-ReportSuccessState]
+ERROR tests/unit_tests/commands/report/execute_test.py::test_chart_data_normalizes_transport_timeouts[csv-False-False]
+ERROR tests/unit_tests/commands/report/execute_test.py::test_chart_data_normalizes_transport_timeouts[csv-False-True]
+ERROR tests/unit_tests/commands/report/execute_test.py::test_chart_data_normalizes_transport_timeouts[csv-True-False]
+ERROR tests/unit_tests/commands/report/execute_test.py::test_chart_data_normalizes_transport_timeouts[csv-True-True]
+ERROR tests/unit_tests/commands/report/execute_test.py::test_chart_data_normalizes_transport_timeouts[xlsx-False-False]
+ERROR tests/unit_tests/commands/report/execute_test.py::test_chart_data_normalizes_transport_timeouts[xlsx-False-True]
+ERROR tests/unit_tests/commands/report/execute_test.py::test_chart_data_normalizes_transport_timeouts[xlsx-True-False]
+ERROR tests/unit_tests/commands/report/execute_test.py::test_chart_data_normalizes_transport_timeouts[xlsx-True-True]
+ERROR tests/unit_tests/commands/report/execute_test.py::test_chart_data_http_failure_does_not_expose_request[False]
+ERROR tests/unit_tests/commands/report/execute_test.py::test_chart_data_http_failure_does_not_expose_request[True]
+ERROR tests/unit_tests/dashboards/datasets_test.py::test_dashboard_datasets_isolate_semantic_provider_failure[ValueError]
+ERROR tests/unit_tests/dashboards/datasets_test.py::test_dashboard_datasets_isolate_semantic_provider_failure[RuntimeError]
+ERROR tests/unit_tests/dashboards/datasets_test.py::test_dashboard_datasets_isolate_semantic_provider_failure[AttributeError]
+ERROR tests/unit_tests/databases/oauth2_api_test.py::test_oauth2_callback_redacts_exchange_exception_from_all_logs
+ERROR tests/unit_tests/databases/oauth2_api_test.py::test_oauth2_callback_event_log_failure_preserves_business_write
+ERROR tests/unit_tests/databases/oauth2_api_test.py::test_oauth2_callback_metric_failure_preserves_success_response
+ERROR tests/unit_tests/databases/oauth2_api_test.py::test_oauth2_callback_metric_failure_preserves_oauth_error
+ERROR tests/unit_tests/datasets/test_datetime_format_detector.py::test_detect_column_format_error_handling
+ERROR tests/unit_tests/datasets/test_datetime_format_detector.py::test_detect_column_format_internal_error_still_logs_at_error
+ERROR tests/unit_tests/datasets/test_datetime_format_detector.py::test_detect_column_format_read_limit_error_logs_warning
+ERROR tests/unit_tests/datasets/test_datetime_format_detector.py::test_detect_column_format_failed_retry_surfaces_original_error
+ERROR tests/unit_tests/datasets/test_datetime_format_detector.py::test_detect_all_formats_summary_reports_detected_of_attempted
+ERROR tests/unit_tests/datasets/test_datetime_format_detector.py::test_detect_all_formats_zero_detected_is_not_logged_as_success
+ERROR tests/unit_tests/datasource/utils/test_replace_verbose_with_column.py::test_replace_verbose_with_column_missing_col_key
+ERROR tests/unit_tests/datasource/utils/test_replace_verbose_with_column.py::test_replace_verbose_with_column_missing_column_attrs
+ERROR tests/unit_tests/db_engine_specs/test_odps.py::test_is_odps_partitioned_table_uri_no_match
+ERROR tests/unit_tests/key_value/utils_test.py::test_uuid_namespace_from_md5_logs_deprecation_at_info
+ERROR tests/unit_tests/mcp_service/test_auth_api_key.py::test_unauthenticated_error_does_not_leak_config
+ERROR tests/unit_tests/mcp_service/test_auth_rbac.py::test_scope_denies_unmapped_method_for_scoped_token
+ERROR tests/unit_tests/mcp_service/test_auth_safeguards.py::test_assert_all_tools_protected_warns_when_no_tools_found
+ERROR tests/unit_tests/mcp_service/test_composite_token_verifier.py::test_invalid_prefixes_emit_warning
+ERROR tests/unit_tests/mcp_service/test_composite_token_verifier.py::test_transport_validation_db_error_rejects_token
+ERROR tests/unit_tests/mcp_service/test_jwt_verifier.py::test_valid_token_logs_success
+ERROR tests/unit_tests/mcp_service/test_jwt_verifier.py::test_success_log_tolerates_non_orderable_scopes
+ERROR tests/unit_tests/mcp_service/test_jwt_verifier.py::test_warning_logs_never_contain_claim_values
+ERROR tests/unit_tests/mcp_service/test_jwt_verifier.py::test_hs256_secret_never_logged
+ERROR tests/unit_tests/mcp_service/test_jwt_verifier.py::test_successful_auth_logged_with_safe_metadata
+ERROR tests/unit_tests/mcp_service/test_jwt_verifier.py::test_warns_when_audience_not_configured
+ERROR tests/unit_tests/mcp_service/test_jwt_verifier.py::test_warns_when_algorithm_not_configured
+ERROR tests/unit_tests/mcp_service/test_jwt_verifier.py::test_warns_when_algorithm_not_configured_via_constructor
+ERROR tests/unit_tests/mcp_service/test_jwt_verifier.py::test_no_weak_config_warning_when_fully_configured
+ERROR tests/unit_tests/mcp_service/test_mcp_core.py::test_title_fallback_ambiguous_picks_first_and_warns
+ERROR tests/unit_tests/mcp_service/test_mcp_tool_registration.py::test_unknown_disabled_tool_logs_warning_not_raises
+ERROR tests/unit_tests/mcp_service/chart/test_registry.py::test_register_warns_on_duplicate
+ERROR tests/unit_tests/mcp_service/chart/test_registry.py::test_register_warns_on_viz_type_collision
+ERROR tests/unit_tests/mcp_service/chart/test_registry.py::test_register_same_plugin_no_collision_warning
+ERROR tests/unit_tests/mcp_service/chart/test_registry_filters.py::test_enabled_func_exception_fails_closed
+ERROR tests/unit_tests/mcp_service/chart/tool/test_get_chart_sql.py::TestSqlFromSavedQueryContextExtraFormData::test_schema_validation_failure_uses_form_data_fallback
+ERROR tests/unit_tests/mcp_service/dashboard/tool/test_get_dashboard_datasets.py::test_failed_provider_preserves_healthy_dashboard_datasets[failure0-columns]
+ERROR tests/unit_tests/mcp_service/dashboard/tool/test_get_dashboard_datasets.py::test_failed_provider_preserves_healthy_dashboard_datasets[failure0-metrics]
+ERROR tests/unit_tests/mcp_service/dashboard/tool/test_get_dashboard_datasets.py::test_failed_provider_preserves_healthy_dashboard_datasets[failure1-columns]
+ERROR tests/unit_tests/mcp_service/dashboard/tool/test_get_dashboard_datasets.py::test_failed_provider_preserves_healthy_dashboard_datasets[failure1-metrics]
+ERROR tests/unit_tests/mcp_service/utils/test_error_sanitization.py::test_sanitize_logs_original_by_default
+ERROR tests/unit_tests/mcp_service/utils/test_error_sanitization.py::test_sanitize_can_suppress_original_log
+ERROR tests/unit_tests/models/dashboard_test.py::test_tabs_skips_children_missing_from_the_layout
+ERROR tests/unit_tests/models/dashboard_test.py::test_tabs_skips_layout_nodes_that_are_not_mappings
+ERROR tests/unit_tests/models/dashboard_test.py::test_tabs_skips_layout_nodes_without_a_type
+ERROR tests/unit_tests/models/dashboard_test.py::test_tabs_handles_tab_nodes_without_a_title
+ERROR tests/unit_tests/models/dashboard_test.py::test_tabs_skips_tab_nodes_without_an_id
+ERROR tests/unit_tests/models/dashboard_test.py::test_tabs_returns_no_tabs_when_layout_has_no_root
+ERROR tests/unit_tests/models/dashboard_test.py::test_tabs_returns_no_tabs_when_layout_is_not_a_mapping
+ERROR tests/unit_tests/models/dashboard_test.py::test_tabs_handles_malformed_children
+ERROR tests/unit_tests/models/dashboard_test.py::test_tabs_skips_an_unusable_tab_outside_a_tab_bar
+ERROR tests/unit_tests/models/dashboard_test.py::test_tabs_keeps_nodes_that_are_not_usable_tabs_out_of_the_tree
+ERROR tests/unit_tests/models/dashboard_test.py::test_tabs_stops_at_a_layout_that_reaches_itself
+ERROR tests/unit_tests/models/dashboard_test.py::test_tabs_keeps_the_tabs_above_a_cycle
+ERROR tests/unit_tests/models/dashboard_test.py::test_tabs_places_a_node_the_layout_reaches_twice_only_once
+ERROR tests/unit_tests/models/slice_test.py::test_set_related_perm_unknown_datasource_type_fails_closed_and_warns
+ERROR tests/unit_tests/security/manager_test.py::test_raise_for_access_guest_user_logs_rejection_reason
+ERROR tests/unit_tests/security/test_permission_instructions_link.py::test_retired_datasource_name_placeholder_warns_the_operator
+ERROR tests/unit_tests/security/test_permission_instructions_link.py::test_link_without_retired_placeholder_does_not_warn
+ERROR tests/unit_tests/semantic_layers/api_test.py::test_layer_validation_does_not_expose_secrets[discriminator-create-app0]
+ERROR tests/unit_tests/semantic_layers/api_test.py::test_layer_validation_does_not_expose_secrets[discriminator-update-app0]
+ERROR tests/unit_tests/semantic_layers/api_test.py::test_layer_validation_does_not_expose_secrets[custom_validator-create-app0]
+ERROR tests/unit_tests/semantic_layers/api_test.py::test_layer_validation_does_not_expose_secrets[custom_validator-update-app0]
+ERROR tests/unit_tests/semantic_layers/api_test.py::test_layer_validation_does_not_expose_secrets[provider_runtime-create-app0]
+ERROR tests/unit_tests/semantic_layers/api_test.py::test_layer_validation_does_not_expose_secrets[provider_runtime-update-app0]
+ERROR tests/unit_tests/semantic_layers/mapper_test.py::test_get_results_ignores_limit_without_series_columns
+ERROR tests/unit_tests/semantic_layers/masking_test.py::test_malformed_schema_warning_never_includes_values
+ERROR tests/unit_tests/semantic_layers/masking_test.py::test_schema_fallback_warns_without_logging_credentials[missing-provider not registered]
+ERROR tests/unit_tests/semantic_layers/masking_test.py::test_schema_fallback_warns_without_logging_credentials[raising-schema generation failed]
+ERROR tests/unit_tests/semantic_layers/masking_test.py::test_schema_fallback_warns_without_logging_credentials[invalid-non-dictionary schema]
+ERROR tests/unit_tests/semantic_layers/masking_test.py::test_valid_secret_schema_does_not_warn
+ERROR tests/unit_tests/semantic_layers/masking_test.py::test_masking_diagnostic_excludes_exception_message[TypeError]
+ERROR tests/unit_tests/semantic_layers/masking_test.py::test_masking_diagnostic_excludes_exception_message[AttributeError]
+ERROR tests/unit_tests/semantic_layers/models_test.py::test_values_for_column_search_rejection_falls_back_unfiltered
+ERROR tests/unit_tests/tasks/test_scheduler_soft_timeout.py::test_attachment_timeout_failure_policy[csv]
+ERROR tests/unit_tests/tasks/test_scheduler_soft_timeout.py::test_attachment_timeout_failure_policy[xlsx]
+ERROR tests/unit_tests/tasks/test_scheduler_soft_timeout.py::test_attachment_timeout_failure_policy[screenshot]
+ERROR tests/unit_tests/utils/test_date_parsing.py::test_epoch_format_invalid_values
+ERROR tests/unit_tests/utils/test_date_parsing.py::test_datetime_conversion_value_error
+ERROR tests/unit_tests/utils/test_rison_filters.py::test_invalid_rison_logs_warning
+ERROR tests/unit_tests/views/test_error_handling.py::TestHandleApiExceptionSSHTunnelError::test_returns_400_with_connection_host_down_error_and_no_error_log
+ERROR tests/unit_tests/views/test_error_handling.py::TestHandleApiExceptionNoAuthorizationError::test_returns_401_and_logs_at_warning_not_error
+ERROR tests/unit_tests/views/test_error_handling.py::TestShowUnexpectedException::test_ssh_tunnel_error_returns_structured_400
+ERROR tests/unit_tests/views/test_error_handling.py::TestShowUnexpectedException::test_generic_exception_still_returns_original_500_shape
+ERROR tests/unit_tests/views/test_error_handling.py::TestShowSupersetException::test_4xx_superset_exception_returns_its_status_and_logs_at_warning
+ERROR tests/unit_tests/views/test_error_handling.py::TestShowSupersetException::test_5xx_superset_exception_still_returns_500_and_logs_at_error
+ERROR tests/unit_tests/views/test_error_handling.py::TestShowHttpException::test_routing_404_logs_no_warning_and_no_traceback[/no-matching-route]
+ERROR tests/unit_tests/views/test_error_handling.py::TestShowHttpException::test_routing_404_logs_no_warning_and_no_traceback[/missing%0D%0Aforged]
+ERROR tests/unit_tests/views/test_error_handling.py::TestShowHttpException::test_in_view_404_logs_a_warning_with_path_and_no_traceback
+ERROR tests/unit_tests/views/test_error_handling.py::TestShowHttpException::test_other_4xx_log_a_warning_without_traceback[error0]
+ERROR tests/unit_tests/views/test_error_handling.py::TestShowHttpException::test_other_4xx_log_a_warning_without_traceback[error1]
+ERROR tests/unit_tests/views/test_error_handling.py::TestShowHttpException::test_other_4xx_log_a_warning_without_traceback[error2]
+ERROR tests/unit_tests/views/test_error_handling.py::TestShowHttpException::test_other_4xx_log_a_warning_without_traceback[error3]
+ERROR tests/unit_tests/views/test_error_handling.py::TestShowHttpException::test_5xx_still_logs_a_warning_with_traceback[error0]
+ERROR tests/unit_tests/views/test_error_handling.py::TestShowHttpException::test_5xx_still_logs_a_warning_with_traceback[error1]
+ERROR tests/unit_tests/views/test_error_handling.py::TestShowHttpException::test_5xx_still_logs_a_warning_with_traceback[error2]
+ERROR tests/unit_tests/views/test_error_handling.py::TestShowHttpException::test_internal_server_error_still_logs_with_traceback
+ERROR tests/unit_tests/views/test_error_handling.py::TestRefreshCsrfToken::test_expired_token_on_json_request_reports_a_csrf_error_type
+180 failed, 14506 passed, 12 skipped, 2 xfailed, 166 errors in 888.95s (0:14:48)
