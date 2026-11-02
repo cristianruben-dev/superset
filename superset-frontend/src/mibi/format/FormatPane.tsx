@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { t } from '@apache-superset/core/translation';
 import { logging } from '@apache-superset/core/utils';
@@ -28,7 +28,6 @@ import {
   InputNumber,
   Select,
   Switch,
-  Tooltip,
 } from '@superset-ui/core/components';
 import { Icons } from '@superset-ui/core/components/Icons';
 import { useToasts } from 'src/components/MessageToasts/withToasts';
@@ -37,10 +36,12 @@ import type {
   LayoutItemMeta,
   RootState,
 } from 'src/dashboard/types';
+import { DashboardPageIdContext } from 'src/dashboard/containers/DashboardPage';
 import { DASHBOARD_ROOT_ID } from 'src/dashboard/util/constants';
 import { CHART_TYPE } from 'src/dashboard/util/componentTypes';
 import {
   deleteBackground,
+  setComponentMeta,
   setSharedVisualFormat,
   setCanvasFormat,
   setVisualFormat,
@@ -50,6 +51,7 @@ import {
   Hint,
   ColorField,
   Field,
+  FormatSearchContext,
   RangeField,
   Section,
   Segments,
@@ -59,7 +61,7 @@ import {
   useSelectedVisual,
   useSelectedVisuals,
 } from './selection';
-import { LayersSection, MultiSection } from './ArrangeSection';
+import { MultiSection } from './ArrangeSection';
 import { GridSection } from './GridSection';
 import { canvasSize, mergeVisualFormat } from './styles';
 import { useSharedVisualFormat } from './useVisualFormat';
@@ -68,8 +70,7 @@ import { useReportLook } from 'src/mibi/report/ReportTheme';
 import { EditInteractionsToggle } from 'src/mibi/report/InteractionControl';
 import { setEditingInteractions } from 'src/mibi/report/interactions';
 import { PageSection } from 'src/mibi/report/PageSection';
-import { isCopyable, useClipboard } from './clipboard';
-import { useObjectCommands } from './useObjectCommands';
+import { openChartEditor } from 'src/mibi/chartEditor';
 import {
   canPasteFormat,
   cancelFormatPainter,
@@ -110,6 +111,16 @@ const Pane = styled.div`
       align-items: center;
       gap: ${theme.sizeUnit * 2}px;
       min-height: 48px;
+      padding: ${theme.sizeUnit * 2}px ${theme.sizeUnit * 4}px;
+      border-bottom: 1px solid ${theme.colorBorderSecondary};
+    }
+
+    .pane-search {
+      padding: ${theme.sizeUnit * 2}px ${theme.sizeUnit * 4}px;
+      border-bottom: 1px solid ${theme.colorBorderSecondary};
+    }
+
+    .format-level {
       padding: ${theme.sizeUnit * 2}px ${theme.sizeUnit * 4}px;
       border-bottom: 1px solid ${theme.colorBorderSecondary};
     }
@@ -276,165 +287,211 @@ function VisualSection({ id }: { id: string }) {
       '',
   );
   const isCard = vizType.startsWith('big_number');
+  const [level, setLevel] = useState<'visual' | 'general'>('general');
+  const searching = !!useContext(FormatSearchContext).trim();
+  const showVisual = searching || level === 'visual';
+  const showGeneral = searching || level === 'general';
+  const dashboardPageId = useContext(DashboardPageIdContext);
 
   return (
     <>
-      <BoxSections id={id} />
-
-      <Section>
-        <h4>{t('Title')}</h4>
-        <Field
-          label={t('Show title')}
-          help={{
-            kind: 'cardTitle',
-            text: t(
-              'Shows the name of the chart above it, with the size, color and alignment you choose.',
-            ),
-          }}
-        >
-          <Switch
-            size="small"
-            checked={titleShown}
-            aria-label={t('Show title')}
-            data-test="mibi-format-title-show"
-            onChange={show => updateTitle({ show }, 'show')}
-          />
-        </Field>
-        {titleShown && (
-          <>
-            <RangeField
-              label={t('Size')}
-              value={format.title?.size ?? 14}
-              min={10}
-              max={28}
-              onChange={size => updateTitle({ size }, 'size')}
-            />
-            <ColorField
-              label={t('Color')}
-              value={format.title?.color || theme.colorText}
-              onChange={color => updateTitle({ color }, 'color')}
-            />
-            <ColorField
-              label={t('Header fill')}
-              value={format.title?.background || theme.colorBgContainer}
-              onChange={background => updateTitle({ background }, 'fill')}
-            />
-            <Input
-              value={format.title?.template ?? ''}
-              placeholder={t('Dynamic title, e.g. Employees: {value}')}
-              maxLength={300}
-              aria-label={t('Dynamic title')}
-              onChange={event =>
-                updateTitle(
-                  { template: event.target.value || undefined },
-                  'template',
-                )
-              }
-            />
-            <Hint>
-              {t(
-                'Tokens: {value} the first number of the chart, {filters} the selections of the page, {filter:Name} one filter and {chart} the chart name.',
-              )}
-            </Hint>
-            <Field label={t('Bold')}>
-              <Switch
-                size="small"
-                checked={format.title?.bold ?? true}
-                aria-label={t('Bold title')}
-                onChange={bold => updateTitle({ bold }, 'bold')}
-              />
-            </Field>
-            <Field label={t('Italic')}>
-              <Switch
-                size="small"
-                checked={format.title?.italic ?? false}
-                aria-label={t('Italic title')}
-                onChange={italic => updateTitle({ italic }, 'italic')}
-              />
-            </Field>
-            <Field label={t('Alignment')}>
-              <Segments<TitleAlign>
-                name={t('Alignment')}
-                value={format.title?.align ?? 'left'}
-                onChange={align => updateTitle({ align }, 'align')}
-                options={[
-                  {
-                    value: 'left',
-                    title: t('Left'),
-                    label: <Icons.AlignLeftOutlined iconSize="m" />,
-                  },
-                  {
-                    value: 'center',
-                    title: t('Center'),
-                    label: <Icons.AlignCenterOutlined iconSize="m" />,
-                  },
-                  {
-                    value: 'right',
-                    title: t('Right'),
-                    label: <Icons.AlignRightOutlined iconSize="m" />,
-                  },
-                ]}
-              />
-            </Field>
-            <Input
-              value={format.title?.subtitle ?? ''}
-              placeholder={t('Subtitle (optional)')}
-              maxLength={300}
-              aria-label={t('Subtitle')}
-              data-test="mibi-format-subtitle"
-              onChange={event =>
-                updateTitle({ subtitle: event.target.value }, 'subtitle')
-              }
-            />
-            {format.title?.subtitle && (
-              <>
-                <RangeField
-                  label={t('Subtitle size')}
-                  value={format.title?.subtitleSize ?? 12}
-                  min={9}
-                  max={20}
-                  onChange={subtitleSize =>
-                    updateTitle({ subtitleSize }, 'subtitle-size')
-                  }
-                />
-                <ColorField
-                  label={t('Subtitle color')}
-                  value={format.title?.subtitleColor || theme.colorTextTertiary}
-                  onChange={subtitleColor =>
-                    updateTitle({ subtitleColor }, 'subtitle-color')
-                  }
-                />
-              </>
+      <div className="format-level">
+        <Segments
+          name={t('Format level')}
+          value={level}
+          testId="mibi-format-level"
+          onChange={value => setLevel(value as 'visual' | 'general')}
+          options={[
+            { value: 'visual', label: t('Visual') },
+            { value: 'general', label: t('General') },
+          ]}
+        />
+      </div>
+      {showVisual && chartId !== undefined && (
+        <div className="actions">
+          <Hint>
+            {t(
+              'Axes, legend, data labels and series are set in the format of the chart.',
             )}
-            <Field
-              label={t('Line under the header')}
-              help={{
-                kind: 'headerLine',
-                text: t('Draws a line between the title and the chart.'),
-              }}
-            >
-              <Switch
-                size="small"
-                checked={!!format.title?.divider}
-                aria-label={t('Line under the header')}
-                data-test="mibi-format-divider"
-                onChange={divider => updateTitle({ divider }, 'divider')}
+          </Hint>
+          <Button
+            buttonStyle="secondary"
+            data-test="mibi-format-chart"
+            onClick={() =>
+              openChartEditor({
+                url: `/explore/?dashboard_page_id=${dashboardPageId}&slice_id=${chartId}`,
+                chartId,
+              })
+            }
+          >
+            <Icons.EditOutlined iconSize="m" />
+            {t('Open the format of the chart')}
+          </Button>
+        </div>
+      )}
+
+      {showGeneral && <BoxSections id={id} />}
+
+      {showGeneral && (
+        <Section>
+          <h4>{t('Title')}</h4>
+          <Field
+            label={t('Show title')}
+            help={{
+              kind: 'cardTitle',
+              text: t(
+                'Shows the name of the chart above it, with the size, color and alignment you choose.',
+              ),
+            }}
+          >
+            <Switch
+              size="small"
+              checked={titleShown}
+              aria-label={t('Show title')}
+              data-test="mibi-format-title-show"
+              onChange={show => updateTitle({ show }, 'show')}
+            />
+          </Field>
+          {titleShown && (
+            <>
+              <RangeField
+                label={t('Size')}
+                value={format.title?.size ?? 14}
+                min={10}
+                max={28}
+                onChange={size => updateTitle({ size }, 'size')}
               />
-            </Field>
-            {format.title?.divider && (
               <ColorField
-                label={t('Line color')}
-                value={format.title?.dividerColor || theme.colorBorderSecondary}
-                onChange={dividerColor =>
-                  updateTitle({ dividerColor }, 'divider-color')
+                label={t('Color')}
+                value={format.title?.color || theme.colorText}
+                onChange={color => updateTitle({ color }, 'color')}
+              />
+              <ColorField
+                label={t('Header fill')}
+                value={format.title?.background || theme.colorBgContainer}
+                onChange={background => updateTitle({ background }, 'fill')}
+              />
+              <Input
+                value={format.title?.template ?? ''}
+                placeholder={t('Dynamic title, e.g. Employees: {value}')}
+                maxLength={300}
+                aria-label={t('Dynamic title')}
+                onChange={event =>
+                  updateTitle(
+                    { template: event.target.value || undefined },
+                    'template',
+                  )
                 }
               />
-            )}
-          </>
-        )}
-      </Section>
+              <Hint>
+                {t(
+                  'Tokens: {value} the first number of the chart, {filters} the selections of the page, {filter:Name} one filter and {chart} the chart name.',
+                )}
+              </Hint>
+              <Field label={t('Bold')}>
+                <Switch
+                  size="small"
+                  checked={format.title?.bold ?? true}
+                  aria-label={t('Bold title')}
+                  onChange={bold => updateTitle({ bold }, 'bold')}
+                />
+              </Field>
+              <Field label={t('Italic')}>
+                <Switch
+                  size="small"
+                  checked={format.title?.italic ?? false}
+                  aria-label={t('Italic title')}
+                  onChange={italic => updateTitle({ italic }, 'italic')}
+                />
+              </Field>
+              <Field label={t('Alignment')}>
+                <Segments<TitleAlign>
+                  name={t('Alignment')}
+                  value={format.title?.align ?? 'left'}
+                  onChange={align => updateTitle({ align }, 'align')}
+                  options={[
+                    {
+                      value: 'left',
+                      title: t('Left'),
+                      label: <Icons.AlignLeftOutlined iconSize="m" />,
+                    },
+                    {
+                      value: 'center',
+                      title: t('Center'),
+                      label: <Icons.AlignCenterOutlined iconSize="m" />,
+                    },
+                    {
+                      value: 'right',
+                      title: t('Right'),
+                      label: <Icons.AlignRightOutlined iconSize="m" />,
+                    },
+                  ]}
+                />
+              </Field>
+              <Input
+                value={format.title?.subtitle ?? ''}
+                placeholder={t('Subtitle (optional)')}
+                maxLength={300}
+                aria-label={t('Subtitle')}
+                data-test="mibi-format-subtitle"
+                onChange={event =>
+                  updateTitle({ subtitle: event.target.value }, 'subtitle')
+                }
+              />
+              {format.title?.subtitle && (
+                <>
+                  <RangeField
+                    label={t('Subtitle size')}
+                    value={format.title?.subtitleSize ?? 12}
+                    min={9}
+                    max={20}
+                    onChange={subtitleSize =>
+                      updateTitle({ subtitleSize }, 'subtitle-size')
+                    }
+                  />
+                  <ColorField
+                    label={t('Subtitle color')}
+                    value={
+                      format.title?.subtitleColor || theme.colorTextTertiary
+                    }
+                    onChange={subtitleColor =>
+                      updateTitle({ subtitleColor }, 'subtitle-color')
+                    }
+                  />
+                </>
+              )}
+              <Field
+                label={t('Line under the header')}
+                help={{
+                  kind: 'headerLine',
+                  text: t('Draws a line between the title and the chart.'),
+                }}
+              >
+                <Switch
+                  size="small"
+                  checked={!!format.title?.divider}
+                  aria-label={t('Line under the header')}
+                  data-test="mibi-format-divider"
+                  onChange={divider => updateTitle({ divider }, 'divider')}
+                />
+              </Field>
+              {format.title?.divider && (
+                <ColorField
+                  label={t('Line color')}
+                  value={
+                    format.title?.dividerColor || theme.colorBorderSecondary
+                  }
+                  onChange={dividerColor =>
+                    updateTitle({ dividerColor }, 'divider-color')
+                  }
+                />
+              )}
+            </>
+          )}
+        </Section>
+      )}
 
-      {isCard && (
+      {showVisual && isCard && (
         <Section>
           <h4>{t('Card value')}</h4>
           <RangeField
@@ -504,30 +561,54 @@ function VisualSection({ id }: { id: string }) {
         </Section>
       )}
 
-      <Section>
-        <h4>{t('Header icons')}</h4>
-        <Field label={t('Chart menu')}>
-          <Switch
-            size="small"
-            checked={format.header?.menu !== false}
-            aria-label={t('Chart menu')}
-            data-test="mibi-format-menu"
-            onChange={menu =>
-              update({ header: { ...own.header, menu } }, 'header-menu')
+      {showGeneral && (
+        <Section>
+          <h4>{t('Header icons')}</h4>
+          <Field label={t('Chart menu')}>
+            <Switch
+              size="small"
+              checked={format.header?.menu !== false}
+              aria-label={t('Chart menu')}
+              data-test="mibi-format-menu"
+              onChange={menu =>
+                update({ header: { ...own.header, menu } }, 'header-menu')
+              }
+            />
+          </Field>
+          <Field label={t('Filter and cross-filter badges')}>
+            <Switch
+              size="small"
+              checked={format.header?.badges !== false}
+              aria-label={t('Filter and cross-filter badges')}
+              onChange={badges =>
+                update({ header: { ...own.header, badges } }, 'header-badges')
+              }
+            />
+          </Field>
+        </Section>
+      )}
+
+      {showGeneral && (
+        <Section>
+          <h4>{t('Alt text')}</h4>
+          <Input.TextArea
+            rows={2}
+            value={String(item?.meta?.mibiAltText ?? '')}
+            placeholder={t('Describes the chart for screen readers')}
+            aria-label={t('Alt text')}
+            data-test="mibi-format-alt-text"
+            onChange={event =>
+              dispatch(
+                setComponentMeta(
+                  id,
+                  'mibiAltText',
+                  event.target.value || undefined,
+                ),
+              )
             }
           />
-        </Field>
-        <Field label={t('Filter and cross-filter badges')}>
-          <Switch
-            size="small"
-            checked={format.header?.badges !== false}
-            aria-label={t('Filter and cross-filter badges')}
-            onChange={badges =>
-              update({ header: { ...own.header, badges } }, 'header-badges')
-            }
-          />
-        </Field>
-      </Section>
+        </Section>
+      )}
 
       <div className="actions">
         <Button
@@ -893,54 +974,6 @@ function CanvasSection() {
  * The Format tab of the dashboard builder: the canvas when nothing is
  * selected, the selected chart otherwise.
  */
-/** Copy, paste and duplicate the selected object, or paste on the canvas. */
-function ObjectBar({ item }: { item?: LayoutItem }) {
-  const clipboard = useClipboard();
-  const { copy, paste, duplicate } = useObjectCommands();
-  if (!item && !clipboard) return null;
-  return (
-    <div className="painter-bar" data-test="mibi-object-bar">
-      {item && isCopyable(item) && (
-        <>
-          <Tooltip title={t('Duplicate (Ctrl+D)')}>
-            <Button
-              buttonStyle="secondary"
-              buttonSize="small"
-              data-test="mibi-duplicate"
-              onClick={() => duplicate(item.id)}
-            >
-              <Icons.CopyOutlined iconSize="m" />
-              {t('Duplicate')}
-            </Button>
-          </Tooltip>
-          <Tooltip title={t('Copy (Ctrl+C)')}>
-            <Button
-              buttonStyle="secondary"
-              buttonSize="small"
-              data-test="mibi-copy"
-              onClick={() => copy(item.id)}
-            >
-              {t('Copy')}
-            </Button>
-          </Tooltip>
-        </>
-      )}
-      {clipboard && (
-        <Tooltip title={t('Paste (Ctrl+V)')}>
-          <Button
-            buttonStyle="secondary"
-            buttonSize="small"
-            data-test="mibi-paste"
-            onClick={() => paste(item?.id ?? null)}
-          >
-            {t('Paste')}
-          </Button>
-        </Tooltip>
-      )}
-    </div>
-  );
-}
-
 /** Copy format and paste format, for the selected object. */
 function PainterBar({ item }: { item: LayoutItem }) {
   const dispatch = useDispatch();
@@ -974,6 +1007,7 @@ export function FormatPane() {
   const many = useSelectedVisuals().length > 1;
   const dispatch = useDispatch();
   const { armed } = useFormatPainter();
+  const [query, setQuery] = useState('');
 
   // The format painter gives its format to the next object selected
   useEffect(() => {
@@ -1038,24 +1072,36 @@ export function FormatPane() {
           {t('Click another object to give it this format. Esc cancels.')}
         </div>
       )}
-      <ObjectBar item={visual && item ? item : undefined} />
       {visual && item && <PainterBar item={item} />}
+      <div className="pane-search">
+        <Input
+          allowClear
+          size="small"
+          value={query}
+          placeholder={t('Search')}
+          prefix={<Icons.SearchOutlined iconSize="s" />}
+          aria-label={t('Search settings')}
+          data-test="mibi-format-search"
+          onChange={event => setQuery(event.target.value)}
+        />
+      </div>
       <div className="pane-body">
-        {many && <MultiSection />}
-        {visual && kind ? (
-          <ElementSection id={visual} />
-        ) : visual ? (
-          <VisualSection id={visual} />
-        ) : (
-          <>
-            <div className="tip">
-              <Icons.InfoCircleOutlined iconSize="m" />
-              {t('Select a chart on the canvas to change its style.')}
-            </div>
-            <CanvasSection />
-            <LayersSection />
-          </>
-        )}
+        <FormatSearchContext.Provider value={query}>
+          {many && <MultiSection />}
+          {visual && kind ? (
+            <ElementSection id={visual} />
+          ) : visual ? (
+            <VisualSection id={visual} />
+          ) : (
+            <>
+              <div className="tip">
+                <Icons.InfoCircleOutlined iconSize="m" />
+                {t('Select a chart on the canvas to change its style.')}
+              </div>
+              <CanvasSection />
+            </>
+          )}
+        </FormatSearchContext.Provider>
       </div>
     </Pane>
   );

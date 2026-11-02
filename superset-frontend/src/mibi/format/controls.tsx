@@ -16,13 +16,23 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import type { ReactNode } from 'react';
+import {
+  Children,
+  createContext,
+  isValidElement,
+  useContext,
+  useState,
+  type HTMLAttributes,
+  type ReactElement,
+  type ReactNode,
+} from 'react';
 import { css, styled, useTheme } from '@apache-superset/core/theme';
 import { t } from '@apache-superset/core/translation';
 import { ColorPicker, Slider } from '@superset-ui/core/components';
+import { Icons } from '@superset-ui/core/components/Icons';
 import { FieldHelp, type FieldHelpContent } from '../help/FieldHelp';
 
-export const Section = styled.section`
+const SectionBox = styled.section`
   ${({ theme }) => css`
     display: flex;
     flex-direction: column;
@@ -38,8 +48,90 @@ export const Section = styled.section`
       text-transform: uppercase;
       color: ${theme.colorTextTertiary};
     }
+
+    .section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: ${theme.sizeUnit * 2}px;
+      cursor: pointer;
+      user-select: none;
+
+      .anticon {
+        color: ${theme.colorTextTertiary};
+      }
+    }
   `}
 `;
+
+/** What the search box of the Format pane looks for. */
+export const FormatSearchContext = createContext('');
+
+/** The words of a piece of JSX: texts, and the labels controls are given. */
+function textOf(node: ReactNode): string {
+  if (typeof node === 'string' || typeof node === 'number') return String(node);
+  if (Array.isArray(node)) return node.map(textOf).join(' ');
+  if (!isValidElement(node)) return '';
+  const { children, label, title, placeholder } = (node as ReactElement)
+    .props as Record<string, ReactNode>;
+  return [children, label, title, placeholder].map(textOf).join(' ');
+}
+
+/** Sections the editor folded: they stay so while going through objects. */
+const folded = new Set<string>();
+
+/**
+ * A group of settings. Its first heading names it and folds it, so a long list
+ * stays easy to scan; the search of the pane shows the sections that match.
+ */
+export function Section({
+  children,
+  ...props
+}: HTMLAttributes<HTMLElement> & { 'data-test'?: string }) {
+  const query = useContext(FormatSearchContext).trim().toLowerCase();
+  const items = Children.toArray(children);
+  const head = items.find(
+    (child): child is ReactElement =>
+      isValidElement(child) && child.type === 'h4',
+  );
+  const title = head ? textOf(head) : '';
+  const [open, setOpen] = useState(() => !folded.has(title));
+  if (query && !textOf(children).toLowerCase().includes(query)) return null;
+  const shown = open || !!query;
+  const toggle = () => {
+    if (open) folded.add(title);
+    else folded.delete(title);
+    setOpen(!open);
+  };
+  return (
+    <SectionBox {...props}>
+      {head && (
+        <div
+          className="section-head"
+          role="button"
+          tabIndex={0}
+          aria-label={title}
+          aria-expanded={shown}
+          onClick={toggle}
+          onKeyDown={event => {
+            if (event.key === 'Enter' || event.key === ' ') {
+              event.preventDefault();
+              toggle();
+            }
+          }}
+        >
+          {head}
+          {shown ? (
+            <Icons.UpOutlined iconSize="xs" />
+          ) : (
+            <Icons.DownOutlined iconSize="xs" />
+          )}
+        </div>
+      )}
+      {shown && items.filter(child => child !== head)}
+    </SectionBox>
+  );
+}
 
 const FieldRow = styled.label<{ $stacked?: boolean }>`
   ${({ theme, $stacked }) => css`
