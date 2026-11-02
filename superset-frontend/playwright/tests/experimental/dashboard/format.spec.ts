@@ -49,7 +49,7 @@ test('canvas format is saved with the dashboard and applied when viewing it', as
   const pane = page.getByTestId('mibi-format-pane');
   await expect(pane).toBeVisible({ timeout: TIMEOUT.PAGE_LOAD });
 
-  // Gradient background and a 16:9 page
+  // Gradient background and a 4:3 page (40 cells of 32 px; 16:9 is the default)
   await page
     .getByTestId('mibi-format-canvas-type')
     .getByRole('radio')
@@ -58,7 +58,7 @@ test('canvas format is saved with the dashboard and applied when viewing it', as
   await page.getByTestId('mibi-format-size').click();
   await page
     .locator('.ant-select-item-option')
-    .filter({ hasText: '16:9' })
+    .filter({ hasText: '4:3' })
     .click();
 
   const canvas = page.getByTestId('mibi-canvas');
