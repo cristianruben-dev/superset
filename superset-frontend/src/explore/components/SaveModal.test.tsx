@@ -239,8 +239,8 @@ test('renders a message when saving as with new dashboard', () => {
   );
 });
 
-test('disables overwrite option for new slice', () => {
-  const { getByRole } = setup(
+test('offers no overwrite option for a new slice', () => {
+  const { queryByRole } = setup(
     {},
     mockStore({
       ...initialState,
@@ -250,7 +250,10 @@ test('disables overwrite option for new slice', () => {
       },
     }),
   );
-  expect(getByRole('radio', { name: 'Save (Overwrite)' })).toBeDisabled();
+  expect(
+    queryByRole('radio', { name: 'Save (Overwrite)' }),
+  ).not.toBeInTheDocument();
+  expect(queryByRole('radio', { name: 'Save as...' })).not.toBeInTheDocument();
 });
 
 test('disables overwrite option for non-owner', () => {

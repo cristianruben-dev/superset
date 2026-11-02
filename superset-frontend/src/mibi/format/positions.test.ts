@@ -18,6 +18,7 @@
  */
 import type { DashboardLayout } from 'src/dashboard/types';
 import {
+  freeCell,
   layoutToPositions,
   maxWidthCells,
   placeAt,
@@ -86,6 +87,20 @@ test('an object is placed on a cell and kept inside the page', () => {
   const edge = placeAt(layout, 'CHART-a', { x: 60, y: 0 });
   expect(posOf(edge['CHART-a'].meta)).toEqual({ x: 38, y: 0 });
   expect(placeAt(layout, 'CHART-a', { x: 0, y: 0 })).toBe(layout);
+});
+
+test('a new object takes the first free cell of the page', () => {
+  const layout = layoutToPositions(flow());
+  // Right of CHART-b, the first place where 12 × 12 cells cover nothing
+  expect(freeCell(layout, 'GRID_ID', 12, 12)).toEqual({ x: 22, y: 0 });
+  // Under CHART-c once the width of the page is used
+  expect(freeCell(layout, 'GRID_ID', 40, 4)).toEqual({ x: 0, y: 13 });
+});
+
+test('a new object without room goes under the others, inside the page', () => {
+  const layout = layoutToPositions(flow());
+  // 27 rows on the default 16:9 page: 20 rows fit nowhere next to the others
+  expect(freeCell(layout, 'GRID_ID', 48, 20)).toEqual({ x: 0, y: 7 });
 });
 
 test('an object may grow to the right edge of the page', () => {

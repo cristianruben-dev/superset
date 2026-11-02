@@ -50,7 +50,11 @@ import {
 import { Radio } from '@superset-ui/core/components/Radio';
 import { columnCountOf } from 'src/mibi/format/columns';
 import { layoutToCells } from 'src/mibi/format/cells';
-import { layoutToPositions } from 'src/mibi/format/positions';
+import {
+  freeCell,
+  layoutToPositions,
+  POS_KEY,
+} from 'src/mibi/format/positions';
 import { canUserEditDashboard } from 'src/dashboard/util/permissionUtils';
 import { setSaveChartModalVisibility } from 'src/explore/actions/saveModalActions';
 import {
@@ -414,6 +418,10 @@ class SaveModal extends Component<SaveModalProps, SaveModalState> {
       }
 
       const updatedPositionJson = { ...positionJson };
+      const tabParents: string[] = [
+        ...(positionJson[tabId]?.parents || ['ROOT_ID', 'GRID_ID']),
+        tabId,
+      ];
 
       // Create a new row if no existing row has space
       if (!targetRowKey) {
@@ -422,7 +430,7 @@ class SaveModal extends Component<SaveModalProps, SaveModalState> {
           type: 'ROW',
           id: targetRowKey,
           children: [],
-          parents: ['ROOT_ID', 'GRID_ID', tabId],
+          parents: tabParents,
           meta: {
             background: 'BACKGROUND_TRANSPARENT',
           },
@@ -442,12 +450,14 @@ class SaveModal extends Component<SaveModalProps, SaveModalState> {
         type: 'CHART',
         id: chartKey,
         children: [],
-        parents: ['ROOT_ID', 'GRID_ID', tabId, targetRowKey],
+        parents: [...tabParents, targetRowKey],
         meta: {
           width: chartWidth,
           height: CHART_HEIGHT,
           chartId,
           sliceName: sliceName ?? `Chart ${chartId}`,
+          // On a free cell of the page, never over another object
+          [POS_KEY]: freeCell(positionJson, tabId, chartWidth, CHART_HEIGHT),
         },
       };
 
@@ -464,7 +474,6 @@ class SaveModal extends Component<SaveModalProps, SaveModalState> {
         endpoint: `/api/v1/dashboard/${dashboardId}`,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          // The new chart gets the cell it has in its row
           position_json: JSON.stringify(layoutToPositions(updatedPositionJson)),
         }),
       });
@@ -616,26 +625,31 @@ class SaveModal extends Component<SaveModalProps, SaveModalState> {
     const info = this.info();
     return (
       <Form data-test="save-modal-body" layout="vertical">
-        <FormItem data-test="radio-group">
-          <Radio
-            id="overwrite-radio"
-            disabled={!this.canOverwriteSlice()}
-            checked={this.state.action === 'overwrite'}
-            onChange={() => this.changeAction('overwrite')}
-            data-test="save-overwrite-radio"
-          >
-            {t('Save (Overwrite)')}
-          </Radio>
-          <Radio
-            id="saveas-radio"
-            data-test="saveas-radio"
-            checked={this.state.action === ChartStatusType.saveas}
-            onChange={() => this.changeAction('saveas')}
-          >
-            {t('Save as...')}
-          </Radio>
-        </FormItem>
-        <Divider />
+        {/* A new chart can only be saved as a new one: nothing to choose */}
+        {this.props.slice && (
+          <>
+            <FormItem data-test="radio-group">
+              <Radio
+                id="overwrite-radio"
+                disabled={!this.canOverwriteSlice()}
+                checked={this.state.action === 'overwrite'}
+                onChange={() => this.changeAction('overwrite')}
+                data-test="save-overwrite-radio"
+              >
+                {t('Save (Overwrite)')}
+              </Radio>
+              <Radio
+                id="saveas-radio"
+                data-test="saveas-radio"
+                checked={this.state.action === ChartStatusType.saveas}
+                onChange={() => this.changeAction('saveas')}
+              >
+                {t('Save as...')}
+              </Radio>
+            </FormItem>
+            <Divider />
+          </>
+        )}
         <FormItem label={t('Chart name')} required>
           <Input
             name="new_slice_name"

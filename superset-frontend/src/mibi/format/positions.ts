@@ -159,6 +159,58 @@ export function placeAt(
   } as DashboardLayout;
 }
 
+/**
+ * The first cell of a page, from the top left, where an object of this size
+ * covers no other object of that page. Below the lowest object (kept on the
+ * page) when there is no room.
+ */
+export function freeCell(
+  layout: DashboardLayout,
+  pageId: string,
+  width: number,
+  height: number,
+): Pos {
+  const taken: (Pos & { width: number; height: number })[] = [];
+  const collect = (id: string) => {
+    const item = layout[id];
+    if (!item) return;
+    const pos = isPositioned(item.type) ? posOf(item.meta) : undefined;
+    if (pos) {
+      taken.push({
+        ...pos,
+        width: Number(item.meta?.width) || 1,
+        height: Number(item.meta?.height) || 1,
+      });
+    }
+    // A set of tabs inside the page holds other pages
+    if (item.type !== TABS_TYPE || id === pageId) {
+      (item.children ?? []).forEach(collect);
+    }
+  };
+  collect(pageId);
+
+  const columns = columnCountOf(layout);
+  const canvas = layout[DASHBOARD_ROOT_ID]?.meta?.[CANVAS_FORMAT_KEY] as
+    | CanvasFormat
+    | undefined;
+  const rows = Math.floor(canvasSize(canvas).height / CELL);
+  const fits = (x: number, y: number) =>
+    taken.every(
+      box =>
+        x + width <= box.x ||
+        box.x + box.width <= x ||
+        y + height <= box.y ||
+        box.y + box.height <= y,
+    );
+  for (let y = 0; y + height <= rows; y += 1) {
+    for (let x = 0; x + width <= columns; x += 1) {
+      if (fits(x, y)) return { x, y };
+    }
+  }
+  const bottom = Math.max(0, ...taken.map(box => box.y + box.height));
+  return { x: 0, y: Math.max(0, Math.min(bottom, rows - height)) };
+}
+
 /** The widest an object can be before it leaves the page, in cells. */
 export function maxWidthCells(meta: Meta): number | undefined {
   const pos = posOf(meta);

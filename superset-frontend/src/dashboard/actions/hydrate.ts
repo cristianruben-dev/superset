@@ -50,11 +50,16 @@ import findFirstParentContainerId from 'src/dashboard/util/findFirstParentContai
 import getEmptyLayout from 'src/dashboard/util/getEmptyLayout';
 import {
   DEFAULT_OBJECT_COLUMNS,
+  DEFAULT_OBJECT_ROWS,
   gridColumnCount,
   syncGridColumnCount,
 } from 'src/mibi/format/columns';
 import { layoutToCells } from 'src/mibi/format/cells';
-import { layoutToPositions } from 'src/mibi/format/positions';
+import {
+  freeCell,
+  layoutToPositions,
+  POS_KEY,
+} from 'src/mibi/format/positions';
 import getLocationHash from 'src/dashboard/util/getLocationHash';
 import newComponentFactory, {
   DashboardEntity,
@@ -230,6 +235,13 @@ export const hydrateDashboard =
 
         layout[chartHolder.id] = chartHolder;
         newSlicesContainer!.children.push(chartHolder.id);
+        // AuraData BI: on a free cell of the page, never over another object
+        chartHolder.meta[POS_KEY] = freeCell(
+          layout as unknown as DashboardLayout,
+          parentId,
+          newChartWidth,
+          DEFAULT_OBJECT_ROWS,
+        );
         const holderChartId = chartHolder.meta.chartId;
         if (holderChartId !== undefined) {
           chartIdToLayoutId[holderChartId] = chartHolder.id;
