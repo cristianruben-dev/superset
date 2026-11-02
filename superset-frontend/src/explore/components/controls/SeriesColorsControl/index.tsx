@@ -36,6 +36,8 @@ export interface SeriesColorsControlProps extends ControlHeaderProps {
   onChange?: (value: SeriesColors) => void;
   /** Series names from the chart's last query results. */
   seriesNames?: string[];
+  /** What the names are, when they are not series */
+  namePlaceholder?: string;
 }
 
 /**
@@ -47,6 +49,7 @@ export default function SeriesColorsControl({
   value,
   onChange,
   seriesNames = [],
+  namePlaceholder = t('Series name'),
   ...headerProps
 }: SeriesColorsControlProps) {
   const colors: SeriesColors =
@@ -104,8 +107,8 @@ export default function SeriesColorsControl({
         ))}
         <Flex gap="small">
           <Input
-            aria-label={t('Series name')}
-            placeholder={t('Series name')}
+            aria-label={namePlaceholder}
+            placeholder={namePlaceholder}
             value={newName}
             onChange={event => setNewName(event.target.value)}
             onPressEnter={addSeries}

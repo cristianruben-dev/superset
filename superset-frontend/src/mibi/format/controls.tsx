@@ -49,6 +49,13 @@ const SectionBox = styled.section`
       color: ${theme.colorTextTertiary};
     }
 
+    h5 {
+      margin: ${theme.sizeUnit * 4}px 0 ${theme.sizeUnit * 2}px;
+      font-size: ${theme.fontSizeSM}px;
+      font-weight: 600;
+      color: ${theme.colorTextSecondary};
+    }
+
     .section-head {
       display: flex;
       align-items: center;
@@ -77,6 +84,10 @@ const SectionBox = styled.section`
 
 /** What the search box of the Format pane looks for. */
 export const FormatSearchContext = createContext('');
+
+/** A text as the search of the pane compares it, without case or accents. */
+export const searchable = (text: string) =>
+  text.normalize('NFD').replace(/\p{M}/gu, '').toLowerCase();
 
 /** The words of a piece of JSX: texts, and the labels controls are given. */
 function textOf(node: ReactNode): string {
@@ -109,7 +120,7 @@ export function Section({
   /** Next to the heading, like the switch of an option */
   headExtra?: ReactNode;
 }) {
-  const query = useContext(FormatSearchContext).trim().toLowerCase();
+  const query = searchable(useContext(FormatSearchContext).trim());
   const items = Children.toArray(children);
   const head = items.find(
     (child): child is ReactElement =>
@@ -119,7 +130,7 @@ export function Section({
   const [open, setOpen] = useState(() =>
     collapsedByDefault ? unfolded.has(title) : !folded.has(title),
   );
-  if (query && !textOf(children).toLowerCase().includes(query)) return null;
+  if (query && !searchable(textOf(children)).includes(query)) return null;
   const shown = open || !!query;
   const toggle = () => {
     if (open) {

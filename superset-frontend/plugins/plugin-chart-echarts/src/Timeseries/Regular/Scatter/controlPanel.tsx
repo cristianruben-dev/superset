@@ -209,10 +209,11 @@ const config: ControlPanelConfig = {
         ],
       ],
     },
-    sections.dataLabelsFormatSection,
-    sections.legendFormatSection,
+    sections.buildDataLabelsFormatSection({ marks: 'lines' }),
+    sections.seriesLegendFormatSection,
     sections.axesFormatSection,
     sections.buildSeriesFormatSection({ lines: false, bars: false }),
+    sections.plotAreaFormatSection,
     sections.chartConditionalFormattingSection,
   ],
   controlOverrides: {

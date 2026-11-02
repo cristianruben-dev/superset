@@ -95,3 +95,34 @@ test('a format without axes goes under the values', () => {
   ]);
   expect(bars.map(card => card.id)).toEqual(['y-axis']);
 });
+
+test('a section can start a group above one of its controls', () => {
+  const cards = buildFormatCards([
+    {
+      label: 'Series format',
+      controlSetRows: [
+        [{ name: 'series_line_width', config: { type: 'NumberControl' } }],
+        [{ name: 'series_line_type', config: { type: 'SelectControl' } }],
+      ],
+    },
+  ] as never);
+  const series = cards.find(card => card.id === 'series');
+  expect(series?.items.map(item => item.heading)).toEqual(['Lines', undefined]);
+});
+
+test('a control declared twice keeps both, as bars do for each orientation', () => {
+  const horizontal = () => false;
+  const vertical = () => true;
+  const cards = buildFormatCards([
+    {
+      label: 'Chart',
+      controlSetRows: [
+        [{ name: 'y_axis_title', config: { visibility: horizontal } }],
+        [{ name: 'y_axis_title', config: { visibility: vertical } }],
+      ],
+    },
+  ] as never);
+  const [item] = cards.find(card => card.id === 'y-axis')?.items ?? [];
+  expect(item.config?.visibility).toBe(horizontal);
+  expect(item.alternatives?.[0].config?.visibility).toBe(vertical);
+});

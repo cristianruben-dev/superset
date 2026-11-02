@@ -116,6 +116,13 @@ import {
 } from '../constants';
 import { getDefaultTooltip } from '../utils/tooltip';
 import {
+  applyChartFormat,
+  applySeriesFormat,
+  getDisplayFormatter,
+  xAxisFormatOptions,
+  yAxisFormatOptions,
+} from '../utils/chartFormatOptions';
+import {
   applyAxisFormatting,
   applyConditionalFormatting,
   applyLegendFormatting,
@@ -407,9 +414,12 @@ export default function transformProps(
     : getNumberFormatter(yAxisFormat);
   // "Label number format" overrides the display units/decimals of the data
   // labels only; tooltips and axes keep their own formats.
-  const valueLabelFormatter = valueLabelFormat
-    ? getNumberFormatter(valueLabelFormat)
-    : undefined;
+  const valueLabelFormatter =
+    getDisplayFormatter(
+      formData.valueLabelUnits,
+      formData.valueLabelDecimals,
+      forcePercentFormatter,
+    ) ?? (valueLabelFormat ? getNumberFormatter(valueLabelFormat) : undefined);
   const valueLabelStyle = {
     font: valueLabelFont,
     background: valueLabelBackground,
@@ -576,9 +586,13 @@ export default function transformProps(
       },
     );
     if (transformedSeries) {
-      const styledSeries = applySeriesStyle(
-        applyValueLabelStyle(transformedSeries, valueLabelStyle),
-        seriesStyleOptions,
+      const styledSeries = applySeriesFormat(
+        applySeriesStyle(
+          applyValueLabelStyle(transformedSeries, valueLabelStyle),
+          seriesStyleOptions,
+        ),
+        formData,
+        isHorizontal,
       );
       if (stack === StackControlsValue.Stream) {
         // bug in Echarts - `stackStrategy: 'all'` doesn't work with nulls, so we cast them to 0
@@ -1074,6 +1088,7 @@ export default function transformProps(
     inverse: xAxisInverse,
     hidden: xAxisHidden,
     ...gridlineFormat,
+    ...xAxisFormatOptions(formData, isHorizontal),
   });
   yAxis = applyAxisFormatting(yAxis, {
     labelFont: yAxisLabelFont,
@@ -1081,6 +1096,10 @@ export default function transformProps(
     inverse: yAxisInverse,
     hidden: yAxisHidden,
     ...gridlineFormat,
+    ...yAxisFormatOptions(formData, {
+      isHorizontal,
+      percent: forcePercentFormatter,
+    }),
   });
 
   // Increase right padding for rotated time axis labels to prevent
@@ -1308,9 +1327,22 @@ export default function transformProps(
     customEchartOptions = undefined;
   }
 
+  const formattedOptions = applyChartFormat(
+    echartOptions,
+    // Every total of a stack of 100% says the same
+    isAreaExpand ? { ...formData, totalLabelsShow: false } : formData,
+    {
+      isHorizontal,
+      width,
+      height,
+      legendState,
+      formatter: defaultFormatter,
+      categoryFormatter: tooltipFormatter,
+    },
+  );
   const mergedEchartOptions = customEchartOptions
-    ? mergeCustomEChartOptions(echartOptions, customEchartOptions)
-    : echartOptions;
+    ? mergeCustomEChartOptions(formattedOptions, customEchartOptions)
+    : formattedOptions;
 
   return {
     echartOptions: mergedEchartOptions,

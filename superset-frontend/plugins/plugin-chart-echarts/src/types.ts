@@ -38,6 +38,7 @@ import type { EChartsCoreOption, EChartsType } from 'echarts/core';
 import type { TooltipMarker } from 'echarts/types/src/util/format';
 import type { ECElementEvent } from 'echarts/types/src/util/types';
 import { StackControlsValue } from './constants';
+import type { ChartFormatOptions } from './utils/chartFormatOptions';
 import type { ChartConditionalRule } from './utils/formatting';
 
 export type EchartsStylesProps = {
@@ -143,7 +144,7 @@ export type VisualFormatFormData = {
   barBorderWidth?: number | string | null;
   barBorderRadius?: number | string | null;
   chartConditionalFormatting?: ChartConditionalRule[] | null;
-};
+} & ChartFormatOptions;
 
 export type EventHandlers = Record<string, { (props: any): void }>;
 

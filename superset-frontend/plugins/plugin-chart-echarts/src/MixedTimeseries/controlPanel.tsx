@@ -509,10 +509,14 @@ const config: ControlPanelConfig = {
     },
     sections.buildDataLabelsFormatSection({
       showWhen: ['show_value', 'show_valueB'],
+      marks: 'both',
     }),
-    sections.legendFormatSection,
+    sections.seriesLegendFormatSection,
     sections.buildAxesFormatSection({ secondaryYAxis: true }),
     sections.buildSeriesFormatSection(),
+    sections.totalLabelsFormatSection,
+    sections.seriesLabelsFormatSection,
+    sections.plotAreaFormatSection,
     sections.chartConditionalFormattingSection,
   ],
   formDataOverrides: formData => {

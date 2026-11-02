@@ -16,8 +16,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { useCallback, useContext, useMemo, type ReactNode } from 'react';
+import {
+  Fragment,
+  useCallback,
+  useContext,
+  useMemo,
+  type ReactNode,
+} from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { isEmpty, isEqual } from 'lodash';
 import { t } from '@apache-superset/core/translation';
 import { css, useTheme } from '@apache-superset/core/theme';
 import {
@@ -44,7 +51,7 @@ import {
 import { getControlStateFromControlConfig } from 'src/explore/controlUtils/getControlState';
 import { useChartFormat, withChartFormat } from './chartFormat';
 import { resetChartFormat, setChartFormatValue } from './chartFormatActions';
-import { Hint, Section } from './controls';
+import { FormatSearchContext, Hint, searchable, Section } from './controls';
 import type { VisualFormat } from './types';
 import {
   buildFormatCards,
@@ -60,6 +67,15 @@ type ChartEntry = {
   queriesResponse?: unknown;
 };
 type Anything = JsonObject;
+
+const isEmptyValue = (value: unknown) =>
+  value === undefined ||
+  value === null ||
+  value === '' ||
+  (typeof value === 'object' && isEmpty(value));
+
+const isSameValue = (next: unknown, current: unknown) =>
+  isEqual(next, current) || (isEmptyValue(next) && isEmptyValue(current));
 
 const safely = <T,>(run: () => T, fallback: T): T => {
   try {
@@ -99,6 +115,12 @@ function buildControls(
       controls[name] = { ...config, value: formData[name] ?? fallback };
     }),
   );
+  // The conditions of some controls look at the columns of the dataset
+  const datasourceControl = (controls as Anything).datasource ?? {};
+  (controls as Anything).datasource = {
+    ...datasourceControl,
+    datasource: panelState.datasource,
+  };
 
   const state = { ...panelState, controls } as ControlPanelState;
   const cards = buildFormatCards(lookSections);
@@ -149,6 +171,7 @@ export function ChartFormatSections({
     (state: RootState) =>
       (state.charts as unknown as Record<number, ChartEntry>)[chartId],
   );
+  const search = useContext(FormatSearchContext);
   const format = useChartFormat(id);
   const ownFormat = useSelector(
     (state: RootState) =>
@@ -189,8 +212,10 @@ export function ChartFormatSections({
 
   const setValue = useCallback(
     (name: string, value: unknown) => {
-      dispatch(setChartFormatValue(id, chartId, name, value) as never);
       const config = built?.state.controls?.[name] as ControlState | undefined;
+      // Some controls report their value when they appear: it changes nothing
+      if (isSameValue(value, config?.value)) return;
+      dispatch(setChartFormatValue(id, chartId, name, value) as never);
       // A setting a query depends on asks for the data again
       if (config && !config.renderTrigger) {
         dispatch(triggerQuery(true, chartId));
@@ -217,40 +242,51 @@ export function ChartFormatSections({
       ? safely(() => value(state, controls[name], chart), null)
       : (value as ReactNode);
 
-  const renderItem = ({ name, config, sectionVisibility }: FormatCardItem) => {
-    const {
-      visibility,
-      hidden,
-      disableStash: _disableStash,
-      ...rest
-    } = config as Anything;
-    const data = { ...rest, ...controls[name], name } as Anything;
+  const isItemShown = ({ name, config, sectionVisibility }: FormatCardItem) => {
+    const { visibility } = config as Anything;
+    const data = { ...config, ...controls[name], name } as Anything;
     const sectionShown = sectionVisibility
       ? safely(() => sectionVisibility(panelProps as never, controls), true)
       : true;
     const visible = visibility
       ? safely(() => visibility.call(config, panelProps, data), true)
       : undefined;
+    return sectionShown && visible !== false;
+  };
+
+  const renderItem = (first: FormatCardItem) => {
+    // A control declared twice shows as the one for this case
+    const { name, config, heading } =
+      [first, ...(first.alternatives ?? [])].find(isItemShown) ?? first;
+    if (!isItemShown({ ...first, config, name })) return null;
+    const {
+      visibility: _visibility,
+      hidden,
+      disableStash: _disableStash,
+      ...rest
+    } = config as Anything;
+    const data = { ...rest, ...controls[name], name } as Anything;
     const isHidden =
       typeof hidden === 'function'
         ? safely(() => hidden.call(config, panelProps, data), false)
         : hidden;
-    if (!sectionShown || visible === false) return null;
     const { validationErrors, label, description, ...props } = data;
     return (
-      <Control
-        key={name}
-        {...props}
-        type={props.type}
-        name={name}
-        label={resolve(label, name)}
-        description={resolve(description, name)}
-        validationErrors={validationErrors}
-        actions={actions as never}
-        hidden={isHidden}
-        // Hiding a control leaves its value alone: only the editor changes it
-        resetOnHide={false}
-      />
+      <Fragment key={name}>
+        {heading && <h5>{heading}</h5>}
+        <Control
+          {...props}
+          type={props.type}
+          name={name}
+          label={resolve(label, name)}
+          description={resolve(description, name)}
+          validationErrors={validationErrors}
+          actions={actions as never}
+          hidden={isHidden}
+          // Hiding a control leaves its value alone: only the editor changes it
+          resetOnHide={false}
+        />
+      </Fragment>
     );
   };
 
@@ -261,7 +297,19 @@ export function ChartFormatSections({
     const changed = cardControlNames(card).some(
       name => ownFormat && name in ownFormat,
     );
-    const body = card.items.map(renderItem).filter(Boolean);
+    // A switch of a section that does not apply takes the section with it
+    if (toggle && !isItemShown(toggle.item)) return null;
+    const query = searchable(search.trim());
+    const items =
+      query && !searchable(card.title).includes(query)
+        ? card.items.filter(item =>
+            searchable(
+              `${resolve(item.config.label, item.name)} ${item.heading ?? ''}`,
+            ).includes(query),
+          )
+        : card.items;
+    const body = items.map(renderItem).filter(Boolean);
+    if (!toggle && !body.length) return null;
     return (
       <Section
         key={card.id}

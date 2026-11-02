@@ -63,6 +63,7 @@ import SwitchControl from './SwitchControl';
 import VerticalRadioControl from './VerticalRadioControl';
 import FontControl from './FontControl';
 import SeriesColorsControl from './SeriesColorsControl';
+import SeriesFormatControl from './SeriesFormatControl';
 import ChartConditionalFormattingControl from './ChartConditionalFormattingControl';
 
 const extensionsRegistry = getExtensionsRegistry();
@@ -80,6 +81,7 @@ const controlMap = {
   ColumnConfigControl,
   FontControl,
   SeriesColorsControl,
+  SeriesFormatControl,
   ChartConditionalFormattingControl,
   CurrencyControl,
   DatasourceControl,

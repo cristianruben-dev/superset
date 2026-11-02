@@ -248,7 +248,28 @@ export type AxisFormatOptions = {
   gridlineColor?: ColorInput;
   gridlineWidth?: number | string | null;
   gridlineStyle?: string | null;
+  /** Dash and gap lengths, as "4 2"; wins over the style */
+  gridlineDash?: string | null;
+  gridlineCap?: string | null;
+  /** Draws the gridlines of an axis that has none by default */
+  showGridlines?: boolean | null;
+  /** Where the axis goes when it switches sides */
+  position?: string | null;
+  logScale?: boolean | null;
+  /** Replaces the formatter of the labels of a numeric axis */
+  labelFormatter?: ((value: number) => string) | null;
+  labelMaxWidth?: number | string | null;
 };
+
+/** The dash pattern in a text like "4 2", or undefined if it has none. */
+export function parseDashArray(value: unknown): number[] | undefined {
+  if (typeof value !== 'string') return undefined;
+  const parts = value
+    .trim()
+    .split(/[\s,]+/)
+    .map(Number);
+  return parts.length > 0 && parts.every(part => part > 0) ? parts : undefined;
+}
 
 const GRIDLINE_STYLES = ['solid', 'dashed', 'dotted'];
 
@@ -257,19 +278,23 @@ export function getGridlineStyle({
   gridlineColor,
   gridlineWidth,
   gridlineStyle,
+  gridlineDash,
+  gridlineCap,
 }: AxisFormatOptions): Record<string, unknown> | undefined {
   const color = toCssColor(gridlineColor);
   const width = toBoundedNumber(gridlineWidth, 1, 1, 10);
   const type = GRIDLINE_STYLES.includes(gridlineStyle ?? '')
     ? (gridlineStyle as string)
     : 'solid';
-  if (!color && width === 1 && type === 'solid') {
+  const dash = parseDashArray(gridlineDash);
+  if (!color && width === 1 && type === 'solid' && !dash && !gridlineCap) {
     return undefined;
   }
   return {
     ...(color ? { color } : {}),
     width,
-    type,
+    type: dash ?? type,
+    ...(gridlineCap ? { cap: gridlineCap } : {}),
   };
 }
 
@@ -310,13 +335,36 @@ export function applyAxisFormatting<T extends Record<string, unknown>>(
       };
     }
   }
+  if (options.position) {
+    next.position = options.position;
+  }
+  if (options.logScale && axis.type === 'value') {
+    next.type = 'log';
+  }
+  const isNumeric = next.type === 'value' || next.type === 'log';
+  const maxWidth = toBoundedNumber(options.labelMaxWidth, 0, 0, 2000);
+  if ((options.labelFormatter && isNumeric) || maxWidth > 0) {
+    next.axisLabel = {
+      ...(isRecord(next.axisLabel) ? next.axisLabel : {}),
+      ...(options.labelFormatter && isNumeric
+        ? { formatter: options.labelFormatter }
+        : {}),
+      ...(maxWidth > 0 ? { width: maxWidth, overflow: 'truncate' } : {}),
+    };
+  }
+  if (options.showGridlines && !options.hideGridlines) {
+    next.splitLine = {
+      ...(isRecord(next.splitLine) ? next.splitLine : {}),
+      show: true,
+    };
+  }
   if (options.hideGridlines) {
     next.splitLine = {
       ...(isRecord(next.splitLine) ? (next.splitLine as object) : {}),
       show: false,
     };
   } else if (gridline) {
-    const splitLine = isRecord(axis.splitLine) ? axis.splitLine : {};
+    const splitLine = isRecord(next.splitLine) ? next.splitLine : {};
     next.splitLine = {
       ...splitLine,
       lineStyle: {
@@ -582,6 +630,7 @@ export type HostFormat = {
     bold?: boolean;
     italic?: boolean;
     underline?: boolean;
+    textColor?: string;
     labelColor?: string;
     valueColor?: string;
     boldValues?: boolean;
@@ -602,16 +651,15 @@ const tooltipValue = (value: unknown) => {
 };
 
 /** A sentence for each mark under the mouse, instead of the usual table. */
-export const sentenceFormatter =
-  (template: string) => (params: unknown) =>
-    (Array.isArray(params) ? params : [params])
-      .map((mark: { seriesName?: string; name?: string; value?: unknown }) =>
-        escapeHtml(template)
-          .replace(/\{series\}/g, escapeHtml(mark.seriesName))
-          .replace(/\{name\}/g, escapeHtml(mark.name))
-          .replace(/\{value\}/g, escapeHtml(tooltipValue(mark.value))),
-      )
-      .join('<br/>');
+export const sentenceFormatter = (template: string) => (params: unknown) =>
+  (Array.isArray(params) ? params : [params])
+    .map((mark: { seriesName?: string; name?: string; value?: unknown }) =>
+      escapeHtml(template)
+        .replace(/\{series\}/g, escapeHtml(mark.seriesName))
+        .replace(/\{name\}/g, escapeHtml(mark.name))
+        .replace(/\{value\}/g, escapeHtml(tooltipValue(mark.value))),
+    )
+    .join('<br/>');
 
 /**
  * Adds what the page around a chart asks of it to its options: the look of the
@@ -645,6 +693,7 @@ export function applyHostFormat<T extends Record<string, any>>(
       className: `${options.tooltip?.className ?? ''} mibi-tooltip`.trim(),
       textStyle: {
         ...options.tooltip?.textStyle,
+        ...(tooltip.textColor && { color: tooltip.textColor }),
         ...(tooltip.fontFamily && { fontFamily: tooltip.fontFamily }),
         ...(tooltip.fontSize && { fontSize: tooltip.fontSize }),
         ...(tooltip.bold && { fontWeight: 'bold' }),

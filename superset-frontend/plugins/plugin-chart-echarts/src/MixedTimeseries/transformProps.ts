@@ -105,6 +105,14 @@ import {
 import { getMetricDisplayName } from '../utils/metricDisplayName';
 import { mergeCustomEChartOptions } from '../utils/mergeCustomEChartOptions';
 import {
+  applyChartFormat,
+  applySeriesFormat,
+  getDisplayFormatter,
+  secondaryYAxisFormatOptions,
+  xAxisFormatOptions,
+  yAxisFormatOptions,
+} from '../utils/chartFormatOptions';
+import {
   applyAxisFormatting,
   applyConditionalFormatting,
   applyLegendFormatting,
@@ -269,9 +277,12 @@ export default function transformProps(
 
   // "Label number format" overrides the data label units/decimals of both
   // queries; tooltips and axes keep their own formats.
-  const valueLabelFormatter = valueLabelFormat
-    ? getNumberFormatter(valueLabelFormat)
-    : undefined;
+  const valueLabelFormatter =
+    getDisplayFormatter(
+      formData.valueLabelUnits,
+      formData.valueLabelDecimals,
+      !!contributionMode,
+    ) ?? (valueLabelFormat ? getNumberFormatter(valueLabelFormat) : undefined);
   const valueLabelStyle = {
     font: valueLabelFont,
     background: valueLabelBackground,
@@ -294,9 +305,12 @@ export default function transformProps(
   // metric value is always the second item of each point.
   const styleSeries = (seriesOption: SeriesOption) =>
     applyConditionalFormatting(
-      applySeriesStyle(
-        applyValueLabelStyle(seriesOption, valueLabelStyle),
-        seriesStyleOptions,
+      applySeriesFormat(
+        applySeriesStyle(
+          applyValueLabelStyle(seriesOption, valueLabelStyle),
+          seriesStyleOptions,
+        ),
+        formData,
       ),
       conditionalRules,
       1,
@@ -990,6 +1004,7 @@ export default function transformProps(
       inverse: xAxisInverse,
       hidden: xAxisHidden,
       ...gridlineFormat,
+      ...xAxisFormatOptions(formData),
     },
   );
   echartOptions.yAxis = [
@@ -999,17 +1014,26 @@ export default function transformProps(
       inverse: yAxisInverse,
       hidden: yAxisHidden,
       ...gridlineFormat,
+      ...yAxisFormatOptions(formData, { percent: !!contributionMode }),
     }),
     applyAxisFormatting(secondaryYAxis, {
       labelFont: yAxisSecondaryLabelFont,
       titleFont: yAxisSecondaryTitleFont,
       inverse: yAxisInverse,
+      ...secondaryYAxisFormatOptions(formData, !!contributionMode),
     }),
   ];
 
+  const formattedOptions = applyChartFormat(echartOptions, formData, {
+    width,
+    height,
+    legendState,
+    formatter,
+    categoryFormatter: tooltipFormatter,
+  });
   const mergedEchartOptions = customEchartOptions
-    ? mergeCustomEChartOptions(echartOptions, customEchartOptions)
-    : echartOptions;
+    ? mergeCustomEChartOptions(formattedOptions, customEchartOptions)
+    : formattedOptions;
 
   return {
     formData,
