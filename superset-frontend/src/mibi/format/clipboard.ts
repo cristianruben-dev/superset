@@ -38,10 +38,15 @@ import {
   elementKind,
   type ImageElement,
 } from 'src/mibi/elements/types';
-import { activeTabIndex, topLevelTabs } from 'src/mibi/present/dashboardTabs';
+import {
+  activePageId,
+  activeTabIndex,
+  topLevelTabs,
+} from 'src/mibi/present/dashboardTabs';
 import { updateLayout } from './actions';
+import { GROUP_KEY, Z_KEY } from './arrange';
 import { columnCountOf } from './columns';
-import { posOf } from './positions';
+import { freeCell, POS_KEY, posOf } from './positions';
 import { selectVisual } from './selection';
 
 type AppDispatch = ThunkDispatch<RootState, undefined, AnyAction>;
@@ -238,6 +243,10 @@ export const pasteObject =
     const dashboardId = dashboardInfo.id;
     // A pasted object is visible and free to move
     const meta = { ...copied.meta };
+    delete meta.mibiHidden;
+    delete meta.mibiLocked;
+    delete meta[GROUP_KEY];
+    delete meta[Z_KEY];
     // Cells keep their size; an object wider than the canvas is trimmed
     const target = columnCountOf(getState().dashboardLayout.present);
     if (typeof meta.width === 'number') {
@@ -273,6 +282,13 @@ export const pasteObject =
     }
 
     const { dashboardLayout, dashboardState } = getState();
+    // On a free cell of the page on screen, never over another object
+    component.meta[POS_KEY] = freeCell(
+      dashboardLayout.present,
+      activePageId(dashboardLayout.present, dashboardState.activeTabs),
+      Number(component.meta.width) || 1,
+      Number(component.meta.height) || 1,
+    );
     const next = placeComponent(
       dashboardLayout.present,
       component,
