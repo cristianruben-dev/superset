@@ -19530,3 +19530,288 @@ msgstr "Agrupar"
 
 msgid "Page %s"
 msgstr "Página %s"
+
+msgid "X axis"
+msgstr "Eje X"
+
+msgid "Y axis"
+msgstr "Eje Y"
+
+msgid "Secondary Y axis"
+msgstr "Eje Y secundario"
+
+msgid "Colors and series"
+msgstr "Colores y series"
+
+msgid "Data labels"
+msgstr "Etiquetas de datos"
+
+msgid "Tooltips"
+msgstr "Información sobre herramientas"
+
+msgid "Table style"
+msgstr "Estilo de la tabla"
+
+msgid "Zoom and controls"
+msgstr "Zoom y controles"
+
+msgid "The chart is still loading."
+msgstr "El gráfico todavía se está cargando."
+
+msgid "This chart has no more options here."
+msgstr "Este gráfico no tiene más opciones aquí."
+
+msgid "Changed in this report"
+msgstr "Cambiado en este informe"
+
+msgid "Reset to default"
+msgstr "Restablecer"
+
+msgid "Underline title"
+msgstr "Subrayar el título"
+
+msgid "Wrap text"
+msgstr "Ajustar el texto"
+
+msgid "Bold subtitle"
+msgstr "Subtítulo en negrita"
+
+msgid "Italic subtitle"
+msgstr "Subtítulo en cursiva"
+
+msgid "Underline subtitle"
+msgstr "Subrayar el subtítulo"
+
+msgid "Subtitle alignment"
+msgstr "Alineación del subtítulo"
+
+msgid "Divider and spacing"
+msgstr "Divisor y espaciado"
+
+msgid "Space under the header"
+msgstr "Espacio bajo el encabezado"
+
+msgid "Icon color"
+msgstr "Color de los iconos"
+
+msgid "Icon background"
+msgstr "Fondo de los iconos"
+
+msgid "Distance"
+msgstr "Distancia"
+
+msgid "Spread"
+msgstr "Extensión"
+
+msgid "Inside the box"
+msgstr "Dentro del cuadro"
+
+msgid "Padding by side"
+msgstr "Relleno por lado"
+
+msgid "Fields and type of the chart, in the side panel"
+msgstr "Campos y tipo del gráfico, en el panel lateral"
+
+msgid "The options of this chart are in its editor."
+msgstr "Las opciones de este gráfico están en su editor."
+
+msgid "Action button"
+msgstr "Botón de acción"
+
+msgid "Above title"
+msgstr "Sobre el título"
+
+msgid "Below title"
+msgstr "Bajo el título"
+
+msgid "In title"
+msgstr "En el título"
+
+msgid "Bold values"
+msgstr "Valores en negrita"
+
+msgid "Border opacity"
+msgstr "Opacidad del borde"
+
+msgid "Background opacity"
+msgstr "Opacidad del fondo"
+
+msgid "Button text"
+msgstr "Texto del botón"
+
+msgid "Copy as an image"
+msgstr "Copiar como imagen"
+
+msgid "Copy image icon"
+msgstr "Icono de copiar imagen"
+
+msgid "Customize spacing"
+msgstr "Personalizar el espaciado"
+
+msgid "Error icon"
+msgstr "Icono de error"
+
+msgid "Exit focus mode"
+msgstr "Salir del modo enfoque"
+
+msgid "Fill opacity"
+msgstr "Opacidad del relleno"
+
+msgid "Focus mode"
+msgstr "Modo enfoque"
+
+msgid "Focus mode icon"
+msgstr "Icono de modo enfoque"
+
+msgid "Go to the action of this chart"
+msgstr "Ir a la acción de este gráfico"
+
+msgid "Header tooltip"
+msgstr "Información del encabezado"
+
+msgid "Heading %s"
+msgstr "Encabezado %s"
+
+msgid "Heading level"
+msgstr "Nivel de encabezado"
+
+msgid "High density sampling"
+msgstr "Muestreo de alta densidad"
+
+msgid "Icon border"
+msgstr "Borde de los iconos"
+
+msgid "Icon opacity"
+msgstr "Opacidad de los iconos"
+
+msgid "Icon padding"
+msgstr "Relleno del icono"
+
+msgid "Image copied"
+msgstr "Imagen copiada"
+
+msgid "Information icon"
+msgstr "Icono de información"
+
+msgid "It runs the action of the chart, set above."
+msgstr "Ejecuta la acción del gráfico, definida arriba."
+
+msgid "Lock aspect"
+msgstr "Bloquear proporción"
+
+msgid "Maintain layer order"
+msgstr "Mantener el orden de las capas"
+
+msgid "Match the chart background"
+msgstr "Igual al fondo del gráfico"
+
+msgid "Normal text"
+msgstr "Texto normal"
+
+msgid "Padding"
+msgstr "Relleno"
+
+msgid "%s by side"
+msgstr "%s por lado"
+
+msgid "Reach the edges of the card"
+msgstr "Llegar a los bordes de la tarjeta"
+
+msgid "See data icon"
+msgstr "Icono de ver datos"
+
+msgid "See the data"
+msgstr "Ver los datos"
+
+msgid "Sentence template"
+msgstr "Plantilla de frase"
+
+msgid "Sentence, e.g. {series} in {name}: {value}"
+msgstr "Frase, p. ej. {series} en {name}: {value}"
+
+msgid "Show the background"
+msgstr "Mostrar el fondo"
+
+msgid "Show the border"
+msgstr "Mostrar el borde"
+
+msgid "Show the fill"
+msgstr "Mostrar el relleno"
+
+msgid "Show the glow"
+msgstr "Mostrar el brillo"
+
+msgid "Show the header icons"
+msgstr "Mostrar los iconos del encabezado"
+
+msgid "Show the icon"
+msgstr "Mostrar el icono"
+
+msgid "Show the shadow"
+msgstr "Mostrar la sombra"
+
+msgid "Show the text"
+msgstr "Mostrar el texto"
+
+msgid "Show the tooltip icon"
+msgstr "Mostrar el icono de información"
+
+msgid "Space above divider"
+msgstr "Espacio sobre el divisor"
+
+msgid "Space above plot area"
+msgstr "Espacio sobre el área del gráfico"
+
+msgid "Space above subtitle"
+msgstr "Espacio sobre el subtítulo"
+
+msgid "Space below subtitle"
+msgstr "Espacio bajo el subtítulo"
+
+msgid "Space below title"
+msgstr "Espacio bajo el título"
+
+msgid "Space between label and value"
+msgstr "Espacio entre etiqueta y valor"
+
+msgid "Subtitle heading level"
+msgstr "Nivel de encabezado del subtítulo"
+
+msgid "Text color"
+msgstr "Color del texto"
+
+msgid "Text opacity"
+msgstr "Opacidad del texto"
+
+msgid "Text padding"
+msgstr "Relleno del texto"
+
+msgid "The image could not be copied"
+msgstr "No se pudo copiar la imagen"
+
+msgid "This action is not available"
+msgstr "Esta acción no está disponible"
+
+msgid "This chart could not be loaded"
+msgstr "No se pudo cargar este gráfico"
+
+msgid "Tooltip text"
+msgstr "Texto de la información"
+
+msgid "Tooltip while it is not available"
+msgstr "Información cuando no esté disponible"
+
+msgid "Vertical alignment"
+msgstr "Alineación vertical"
+
+msgid "Warning icon"
+msgstr "Icono de advertencia"
+
+msgid "With a sentence, the tooltip only shows it. Tokens: {series}, {name} and {value}."
+msgstr "Con una frase, la información solo muestra esa frase. Marcadores: {series}, {name} y {value}."
+
+msgid "Wrap the subtitle"
+msgstr "Ajustar el subtítulo"
+
+msgid "Position"
+msgstr "Posición"
