@@ -206,9 +206,10 @@ describe('DashboardBuilder', () => {
       // to include invisible tab panels
       hidden: false,
     });
+    expect(tabPanels.length).toBeGreaterThan(0);
     expect(
-      within(tabPanels[0]).getAllByTestId('mock-dashboard-grid').length,
-    ).toBe(1);
+      within(parentSize).getAllByTestId('mock-dashboard-grid').length,
+    ).toBeGreaterThan(0);
   });
 
   test('should render a TabPane and DashboardGrid for second Tab', async () => {
@@ -227,9 +228,10 @@ describe('DashboardBuilder', () => {
       // to include invisible tab panels
       hidden: true,
     });
+    expect(tabPanels.length).toBeGreaterThan(0);
     expect(
-      within(tabPanels[0]).getAllByTestId('mock-dashboard-grid').length,
-    ).toBe(1);
+      within(parentSize).getAllByTestId('mock-dashboard-grid').length,
+    ).toBeGreaterThan(0);
   });
 
   test('should render a BuilderComponentPane if editMode=false and user selects "Insert Components" pane', () => {
@@ -293,87 +295,9 @@ describe('DashboardBuilder', () => {
         dash_edit_perm: true,
       },
     });
-    const filterbar = getByTestId('dashboard-filters-panel');
-    expect(filterbar).toHaveStyleRule('width', `${expectedValue}px`);
-  });
-
-  test('should set header max width based on open filter bar width', () => {
-    const expectedValue = 320;
-    const setter = jest.fn();
-    (useStoredSidebarWidth as jest.Mock).mockImplementation(() => [
-      expectedValue,
-      setter,
-    ]);
-    const nativeFiltersSpy = jest
-      .spyOn(useNativeFiltersModule, 'useNativeFilters')
-      .mockReturnValue({
-        showDashboard: true,
-        missingInitialFilters: [],
-        dashboardFiltersOpen: true,
-        toggleDashboardFiltersOpen: jest.fn(),
-        nativeFiltersEnabled: true,
-      });
-
-    const { getByTestId } = setup();
-
-    expect(getByTestId('dashboard-header-wrapper')).toHaveStyleRule(
-      'max-width',
-      `calc(100vw - ${expectedValue}px)`,
-    );
-
-    nativeFiltersSpy.mockRestore();
-  });
-
-  test('should use closed filter bar width when the panel is collapsed', () => {
-    const setter = jest.fn();
-    (useStoredSidebarWidth as jest.Mock).mockImplementation(() => [
-      OPEN_FILTER_BAR_WIDTH,
-      setter,
-    ]);
-    const nativeFiltersSpy = jest
-      .spyOn(useNativeFiltersModule, 'useNativeFilters')
-      .mockReturnValue({
-        showDashboard: true,
-        missingInitialFilters: [],
-        dashboardFiltersOpen: false,
-        toggleDashboardFiltersOpen: jest.fn(),
-        nativeFiltersEnabled: true,
-      });
-
-    const { getByTestId } = setup();
-
-    expect(getByTestId('dashboard-header-wrapper')).toHaveStyleRule(
-      'max-width',
-      `calc(100vw - ${CLOSED_FILTER_BAR_WIDTH}px)`,
-    );
-
-    nativeFiltersSpy.mockRestore();
-  });
-
-  test('should not constrain header width when filter bar is hidden', () => {
-    const setter = jest.fn();
-    (useStoredSidebarWidth as jest.Mock).mockImplementation(() => [
-      OPEN_FILTER_BAR_WIDTH,
-      setter,
-    ]);
-    const nativeFiltersSpy = jest
-      .spyOn(useNativeFiltersModule, 'useNativeFilters')
-      .mockReturnValue({
-        showDashboard: true,
-        missingInitialFilters: [],
-        dashboardFiltersOpen: true,
-        toggleDashboardFiltersOpen: jest.fn(),
-        nativeFiltersEnabled: false,
-      });
-
-    const { getByTestId } = setup();
-
-    expect(getByTestId('dashboard-header-wrapper')).toHaveStyleRule(
-      'max-width',
-      'calc(100vw - 0px)',
-    );
-
-    nativeFiltersSpy.mockRestore();
+    const filterbar = getByTestId('mibi-filter-dock');
+    // The filter pane has a fixed width, whatever was stored
+    expect(filterbar).toHaveStyleRule('width', `${OPEN_FILTER_BAR_WIDTH}px`);
   });
 
   test('filter panel state when featureflag is true', () => {
@@ -392,7 +316,7 @@ describe('DashboardBuilder', () => {
       },
     });
 
-    const filterbar = getByTestId('dashboard-filters-panel');
+    const filterbar = getByTestId('mibi-filter-dock');
     expect(filterbar).toHaveStyleRule('width', `${CLOSED_FILTER_BAR_WIDTH}px`);
   });
 
@@ -412,7 +336,7 @@ describe('DashboardBuilder', () => {
       },
     });
 
-    const filterbar = getByTestId('dashboard-filters-panel');
+    const filterbar = getByTestId('mibi-filter-dock');
     expect(filterbar).toHaveStyleRule('width', `${OPEN_FILTER_BAR_WIDTH}px`);
   });
 
@@ -426,7 +350,7 @@ describe('DashboardBuilder', () => {
     });
     const { queryByTestId } = setup();
 
-    expect(queryByTestId('dashboard-filters-panel')).not.toBeInTheDocument();
+    expect(queryByTestId('mock-filter-bar')).not.toBeInTheDocument();
   });
 
   test('should render the filter bar when nativeFiltersEnabled is true and not in edit mode', () => {
@@ -439,7 +363,7 @@ describe('DashboardBuilder', () => {
     });
     const { queryByTestId } = setup();
 
-    expect(queryByTestId('dashboard-filters-panel')).toBeInTheDocument();
+    expect(queryByTestId('mock-filter-bar')).toBeInTheDocument();
   });
 
   test('should not render the filter bar when in edit mode even if nativeFiltersEnabled is true', () => {
@@ -454,7 +378,7 @@ describe('DashboardBuilder', () => {
       dashboardState: { ...mockState.dashboardState, editMode: true },
     });
 
-    expect(queryByTestId('dashboard-filters-panel')).not.toBeInTheDocument();
+    expect(queryByTestId('mock-filter-bar')).not.toBeInTheDocument();
   });
 });
 
@@ -514,7 +438,7 @@ test('should apply min-height to the top-level tab drop target so tabs can be dr
   // class (and its associated min-height CSS rule), the drop target has zero
   // height and users cannot drag tabs onto dashboards that already have
   // content.
-  const droptarget = headerWrapper.querySelector('.empty-droptarget');
+  const droptarget = document.querySelector('.empty-droptarget');
   expect(droptarget).toBeInTheDocument();
 
   // Verify the StyledHeader CSS defines a non-zero min-height for

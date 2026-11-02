@@ -166,6 +166,7 @@ function createStateWithFilter(
       id: 1,
       dash_edit_perm: true,
       metadata: {
+        filter_bar_auto_apply: false,
         native_filter_configuration: [filter],
       },
       ...dashboardInfoOverrides,
@@ -252,6 +253,18 @@ test('FilterBar renders without crashing', () => {
   expect(container).toBeInTheDocument();
 });
 
+/** The bar with its Apply button: a dashboard that opts out of instant filters. */
+const withManualApply = () => ({
+  ...stateWithoutNativeFilters,
+  dashboardInfo: {
+    ...stateWithoutNativeFilters.dashboardInfo,
+    metadata: {
+      ...stateWithoutNativeFilters.dashboardInfo.metadata,
+      filter_bar_auto_apply: false,
+    },
+  },
+});
+
 test('FilterBar renders "Filters and controls" heading', () => {
   const props = createClosedBarProps();
   renderFilterBar(props);
@@ -260,13 +273,13 @@ test('FilterBar renders "Filters and controls" heading', () => {
 
 test('FilterBar renders "Clear all" button', () => {
   const props = createClosedBarProps();
-  renderFilterBar(props);
+  renderFilterBar(props, withManualApply());
   expect(screen.getByText('Clear all')).toBeInTheDocument();
 });
 
 test('FilterBar renders "Apply filters" button', () => {
   const props = createClosedBarProps();
-  renderFilterBar(props);
+  renderFilterBar(props, withManualApply());
   expect(screen.getByText('Apply filters')).toBeInTheDocument();
 });
 
@@ -312,7 +325,7 @@ test('FilterBar hides edit filter button when user lacks permissions', () => {
   const props = createOpenedBarProps();
   const stateWithoutPermissions = {
     ...stateWithoutNativeFilters,
-    dashboardInfo: { metadata: {} },
+    dashboardInfo: { metadata: { filter_bar_auto_apply: false } },
   };
 
   renderFilterBar(props, stateWithoutPermissions);
@@ -336,7 +349,7 @@ test('FilterBar closes when collapse button is clicked', () => {
 
 test('FilterBar disables buttons when there are no filters', () => {
   const props = createOpenedBarProps();
-  renderFilterBar(props, stateWithoutNativeFilters);
+  renderFilterBar(props, withManualApply());
 
   expect(screen.getByTestId(getTestId('clear-button'))).toBeDisabled();
   expect(screen.getByTestId(getTestId('apply-button'))).toBeDisabled();
@@ -350,6 +363,7 @@ test('FilterBar renders dividers with title and description', async () => {
     dashboardInfo: {
       ...stateWithoutNativeFilters.dashboardInfo,
       metadata: {
+        filter_bar_auto_apply: false,
         ...stateWithoutNativeFilters.dashboardInfo.metadata,
         native_filter_configuration: [divider],
       },
@@ -379,7 +393,7 @@ test('FilterBar apply button is disabled after creating a filter', async () => {
   mockedMakeApi.mockReturnValue(createMockApi());
 
   const props = createOpenedBarProps();
-  renderFilterBar(props, stateWithoutNativeFilters);
+  renderFilterBar(props, withManualApply());
 
   expect(screen.getByTestId(getTestId('apply-button'))).toBeDisabled();
 
@@ -489,6 +503,7 @@ test('handleClearAll dispatches updateDataMask with value undefined for filter_s
       dash_edit_perm: true,
       filterBarOrientation: FilterBarOrientation.Vertical,
       metadata: {
+        filter_bar_auto_apply: false,
         native_filter_configuration: [selectFilter],
         chart_configuration: {},
       },
@@ -546,6 +561,7 @@ test('handleClearAll dispatches updateDataMask with [null, null] for filter_rang
       dash_edit_perm: true,
       filterBarOrientation: FilterBarOrientation.Vertical,
       metadata: {
+        filter_bar_auto_apply: false,
         native_filter_configuration: [rangeFilter],
         chart_configuration: {},
       },
@@ -607,6 +623,7 @@ test('handleClearAll only dispatches for filters present in dataMask', async () 
       dash_edit_perm: true,
       filterBarOrientation: FilterBarOrientation.Vertical,
       metadata: {
+        filter_bar_auto_apply: false,
         native_filter_configuration: [filterInMask, filterNotInMask],
         chart_configuration: {},
       },
@@ -733,6 +750,7 @@ test('FilterBar Clear All only clears in-scope filters, not out-of-scope ones', 
       id: 1,
       dash_edit_perm: true,
       metadata: {
+        filter_bar_auto_apply: false,
         native_filter_configuration: [
           inScopeFilter,
           outOfScopeRequiredFilter,
@@ -826,5 +844,8 @@ test('FilterBar hides the Apply button when filters apply instantly', async () =
   expect(
     screen.queryByTestId(getTestId('apply-button')),
   ).not.toBeInTheDocument();
-  expect(screen.getByTestId(getTestId('clear-button'))).toBeInTheDocument();
+  // The side bar clears one filter at a time
+  expect(
+    screen.queryByTestId(getTestId('clear-button')),
+  ).not.toBeInTheDocument();
 });
