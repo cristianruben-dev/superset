@@ -17,6 +17,7 @@
  * under the License.
  */
 import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { css, styled } from '@apache-superset/core/theme';
 import { useUiConfig } from 'src/components/UiConfigContext';
 import { URL_PARAMS } from 'src/constants';
@@ -24,7 +25,7 @@ import type { MenuData } from 'src/types/bootstrapTypes';
 import { getUrlParam } from 'src/utils/urlUtils';
 import { isPanelMode } from '../chartEditor';
 import { CommandPalette } from './CommandPalette';
-import { buildNavSections } from './navigation';
+import { buildNavSections, isReportRoute } from './navigation';
 import { Sidebar, SIDEBAR_COLLAPSED_WIDTH, SIDEBAR_WIDTH } from './Sidebar';
 import { ThemeVariables } from './ThemeVariables';
 import { TopBar } from './TopBar';
@@ -53,6 +54,12 @@ const Main = styled.div<{ $offset: number }>`
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+
+    /* A page taller than the window grows with its content, so its background
+       reaches the bottom instead of the page overflowing it */
+    & > .ant-layout {
+      flex-shrink: 0;
+    }
     transition: margin-left ${theme.motionDurationMid} ${theme.motionEaseInOut};
   `}
 `;
@@ -73,14 +80,18 @@ interface AppShellProps {
 
 /**
  * AuraData BI application frame: a collapsible sidebar with the navigation, a top bar
- * with search, create and user menus, and the page next to them. Standalone and
- * embedded views render the page alone.
+ * with search, create and user menus, and the page next to them. A dashboard takes
+ * the whole width, as a Power BI report does: the logo moves to the top bar. Standalone
+ * and embedded views render the page alone.
  */
 export function AppShell({ data, isFrontendRoute, children }: AppShellProps) {
   const uiConfig = useUiConfig();
+  const { pathname } = useLocation();
+  const report = isReportRoute(pathname);
   const [preferCollapsed, setCollapsed] = useState(readCollapsed);
   const narrow = useNarrowScreen();
   const collapsed = preferCollapsed || narrow;
+  const sidebarWidth = collapsed ? SIDEBAR_COLLAPSED_WIDTH : SIDEBAR_WIDTH;
   const [searching, setSearching] = useState(false);
   const sections = useMemo(() => buildNavSections(data.menu), [data.menu]);
   // Signed-out pages (login, register) and standalone or embedded views go alone
@@ -129,20 +140,21 @@ export function AppShell({ data, isFrontendRoute, children }: AppShellProps) {
   return (
     <>
       <ThemeVariables />
-      <Sidebar
-        sections={sections}
-        collapsed={collapsed}
-        onToggleCollapsed={toggleCollapsed}
-        isFrontendRoute={isFrontendRoute}
-      />
-      <Main
-        $offset={collapsed ? SIDEBAR_COLLAPSED_WIDTH : SIDEBAR_WIDTH}
-        data-test="mibi-main"
-      >
+      {!report && (
+        <Sidebar
+          sections={sections}
+          collapsed={collapsed}
+          onToggleCollapsed={toggleCollapsed}
+          isFrontendRoute={isFrontendRoute}
+        />
+      )}
+      <Main $offset={report ? 0 : sidebarWidth} data-test="mibi-main">
         <TopBar
           data={data}
           isFrontendRoute={isFrontendRoute}
           onSearch={() => setSearching(true)}
+          showBrand={report}
+          compactBrand={narrow}
         />
         {children}
       </Main>

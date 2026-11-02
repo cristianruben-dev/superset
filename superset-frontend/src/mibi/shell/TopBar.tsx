@@ -23,6 +23,7 @@ import { Icons } from '@superset-ui/core/components/Icons';
 import RightMenu from 'src/features/home/RightMenu';
 import type { MenuData, User } from 'src/types/bootstrapTypes';
 import { AURA_GRADIENT } from './brand';
+import { BrandLink } from './Sidebar';
 
 const Bar = styled.header`
   ${({ theme }) => css`
@@ -35,6 +36,27 @@ const Bar = styled.header`
     border-bottom: 1px solid ${theme.colorBorderSecondary};
     position: relative;
     z-index: 20;
+  `}
+`;
+
+const Brand = styled.div`
+  ${({ theme }) => css`
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+
+    a {
+      display: flex;
+      align-items: center;
+      /* Half the symbol's height around it, as the brand guidelines ask */
+      gap: ${theme.sizeUnit * 3}px;
+      text-decoration: none;
+    }
+
+    img {
+      display: block;
+      height: 26px;
+    }
   `}
 `;
 
@@ -163,13 +185,23 @@ interface TopBarProps {
   data: MenuData;
   isFrontendRoute: (path?: string) => boolean;
   onSearch: () => void;
+  /** Show the logo, for pages without the sidebar. */
+  showBrand?: boolean;
+  /** Only the AuraData symbol, for phones. */
+  compactBrand?: boolean;
 }
 
 const isMac =
   typeof navigator !== 'undefined' &&
   /Mac|iPhone|iPad/.test(navigator.platform);
 
-export function TopBar({ data, isFrontendRoute, onSearch }: TopBarProps) {
+export function TopBar({
+  data,
+  isFrontendRoute,
+  onSearch,
+  showBrand = false,
+  compactBrand = false,
+}: TopBarProps) {
   const user = useSelector<{ user?: User }, User | undefined>(
     state => state.user,
   );
@@ -177,6 +209,11 @@ export function TopBar({ data, isFrontendRoute, onSearch }: TopBarProps) {
 
   return (
     <Bar id="main-menu" role="banner" data-test="mibi-topbar">
+      {showBrand && (
+        <Brand data-test="mibi-topbar-brand">
+          <BrandLink compact={compactBrand} />
+        </Brand>
+      )}
       <SearchTrigger
         type="button"
         onClick={onSearch}

@@ -26,14 +26,9 @@ import type {
 export type NavIconName =
   | 'HomeOutlined'
   | 'DashboardOutlined'
-  | 'TableOutlined'
   | 'DatabaseOutlined'
-  | 'ConsoleSqlOutlined'
-  | 'SaveOutlined'
-  | 'HistoryOutlined'
   | 'UserOutlined'
   | 'TeamOutlined'
-  | 'GroupOutlined'
   | 'ProfileOutlined'
   | 'SafetyOutlined'
   | 'AppstoreOutlined';
@@ -59,40 +54,40 @@ const WORKSPACES_URL = '/workspace/list/';
 
 const ICONS: Record<string, NavIconName> = {
   Dashboards: 'DashboardOutlined',
-  Datasets: 'TableOutlined',
   Databases: 'DatabaseOutlined',
-  'SQL Editor': 'ConsoleSqlOutlined',
-  'Saved Queries': 'SaveOutlined',
-  'Query Search': 'HistoryOutlined',
   'List Users': 'UserOutlined',
   'List Roles': 'TeamOutlined',
-  'List Groups': 'GroupOutlined',
   'Action Log': 'ProfileOutlined',
   'Row Level Security': 'SafetyOutlined',
 };
 
 /** Menus whose entries go to the primary navigation, in this order. */
 const PRIMARY = ['Dashboards'];
-/** Menus folded into the single "Data" page. */
-const DATA_MENUS = ['Datasets', 'Data'];
-const DATA_URL = '/data/';
-/** Pages that belong to the "Data" entry of the sidebar. */
-const DATA_PATHS = [
-  '/data/',
-  '/tablemodelview/',
-  '/databaseview/',
-  '/dataset/',
-];
+/**
+ * Menus of the pages that build a report (datasets, uploads, SQL Lab). As in
+ * Power BI, they open from the side panel of a dashboard, not from the sidebar.
+ */
+const REPORT_MENUS = ['Datasets', 'Data', 'SQL Lab'];
+/** Database connections are shared by every report, so they are administration. */
+const CONNECTIONS = 'Databases';
 /** Menus grouped under their own titled section, in this order. */
 const SECTIONS: { key: string; menus: string[]; collapsible?: boolean }[] = [
-  { key: 'sql', menus: ['SQL Lab'] },
   { key: 'admin', menus: ['Security', 'Manage'], collapsible: true },
 ];
 
 /** Shorter labels than the backend menu ones, for the sidebar. */
 const labels = (): Record<string, string> => ({
-  Databases: t('Databases'),
+  Databases: t('Connections'),
+  'List Users': t('Users'),
+  'List Roles': t('Roles'),
 });
+
+const REPORT_PATH = /^\/superset\/dashboard\/[^/]+\/?$/;
+
+/** Whether the location is a dashboard, which shows without the sidebar. */
+export function isReportRoute(pathname: string): boolean {
+  return REPORT_PATH.test(pathname);
+}
 
 const toItem = (entry: MenuObjectChildProps): NavItem | null => {
   if (!entry.url) {
@@ -131,7 +126,6 @@ export function buildNavSections(menu: MenuObjectProps[]): NavSection[] {
     });
 
   const sectionTitles: Record<string, string> = {
-    sql: t('SQL'),
     admin: t('Administration'),
   };
 
@@ -152,31 +146,25 @@ export function buildNavSections(menu: MenuObjectProps[]): NavSection[] {
             ]
           : []),
         ...pick(PRIMARY),
-        // Connections, datasets and file uploads live on one page
-        ...(pick(DATA_MENUS).length
-          ? [
-              {
-                key: 'Data',
-                label: t('Data'),
-                url: DATA_URL,
-                icon: 'DatabaseOutlined' as NavIconName,
-              },
-            ]
-          : []),
       ],
     },
     ...SECTIONS.map(({ key, menus, collapsible }) => ({
       key,
       title: sectionTitles[key],
       collapsible,
-      items: pick(menus),
+      items: [
+        ...(key === 'admin'
+          ? pick(REPORT_MENUS).filter(item => item.key === CONNECTIONS)
+          : []),
+        ...pick(menus),
+      ],
     })),
   ];
 
   // Menus this layout does not know about still show up, at the end
   const known = new Set([
     ...PRIMARY,
-    ...DATA_MENUS,
+    ...REPORT_MENUS,
     ...SECTIONS.flatMap(s => s.menus),
   ]);
   const others = menu.filter(
@@ -198,9 +186,6 @@ export function buildNavSections(menu: MenuObjectProps[]): NavSection[] {
 export function isNavItemActive(item: NavItem, pathname: string): boolean {
   if (item.url === HOME_URL) {
     return pathname === HOME_URL;
-  }
-  if (item.url === DATA_URL) {
-    return DATA_PATHS.some(path => pathname.startsWith(path));
   }
   const base = item.url.replace(/(list\/?)?$/, '');
   return (

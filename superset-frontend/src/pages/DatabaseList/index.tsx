@@ -316,7 +316,8 @@ function DatabaseList({
   const menuData: SubMenuProps = {
     activeChild: 'Databases',
     dropDownLinks: filteredDropDown,
-    name: t('Databases'),
+    // AuraData BI: "Connections" in the sidebar too
+    name: t('Connections'),
   };
 
   if (canCreate) {

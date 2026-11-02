@@ -16,15 +16,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { useState, useEffect, FC, PureComponent, useMemo } from 'react';
-import rison from 'rison';
+import { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { useQueryParams, BooleanParam } from 'use-query-params';
-import { isEmpty } from 'lodash';
 import { t } from '@apache-superset/core/translation';
 import {
-  SupersetClient,
   getExtensionsRegistry,
   isFeatureEnabled,
   FeatureFlag,
@@ -37,34 +33,25 @@ import {
 } from '@apache-superset/core/theme';
 import {
   Tag,
-  Tooltip,
   Menu,
   Icons,
   Typography,
   TelemetryPixel,
 } from '@superset-ui/core/components';
 import type { ItemType, MenuItem } from '@superset-ui/core/components/Menu';
-import { ensureAppRoot, makeUrl } from 'src/utils/pathUtils';
+import { ensureAppRoot } from 'src/utils/pathUtils';
 import { isEmbedded } from 'src/dashboard/util/isEmbedded';
 import { findPermission } from 'src/utils/findPermission';
-import { isUserAdmin } from 'src/dashboard/util/permissionUtils';
 import {
   MenuObjectProps,
   UserWithPermissionsAndRoles,
   MenuObjectChildProps,
 } from 'src/types/bootstrapTypes';
 import { RootState } from 'src/dashboard/types';
-import DatabaseModal from 'src/features/databases/DatabaseModal';
-import UploadDataModal from 'src/features/databases/UploadDataModel';
-import { uploadUserPerms } from 'src/views/CRUD/utils';
 import { useThemeContext } from 'src/theme/ThemeProvider';
 import { useThemeMenuItems } from 'src/hooks/useThemeMenuItems';
 import { useLanguageMenuItems } from './LanguagePicker';
-import {
-  ExtensionConfigs,
-  GlobalMenuDataOptions,
-  RightMenuProps,
-} from './types';
+import { RightMenuProps } from './types';
 import { NAVBAR_MENU_POPUP_OFFSET } from './commonMenuData';
 
 const extensionsRegistry = getExtensionsRegistry();
@@ -89,19 +76,6 @@ const StyledAnchor = styled.a`
   padding-left: ${({ theme }) => theme.sizeUnit}px;
 `;
 
-const StyledMenuItem = styled.div<{ disabled?: boolean }>`
-  ${({ theme, disabled }) => css`
-    &&:hover {
-      color: ${!disabled && theme.colorPrimary};
-      cursor: ${!disabled ? 'pointer' : 'not-allowed'};
-    }
-    ${disabled &&
-    css`
-      color: ${theme.colorTextDisabled};
-    `}
-  `}
-`;
-
 const RightMenu = ({
   align,
   settings,
@@ -110,16 +84,7 @@ const RightMenu = ({
   environmentTag,
   newLabel,
   settingsLabel,
-  setQuery,
-}: RightMenuProps & {
-  setQuery: ({
-    databaseAdded,
-    datasetAdded,
-  }: {
-    databaseAdded?: boolean;
-    datasetAdded?: boolean;
-  }) => void;
-}) => {
+}: RightMenuProps) => {
   const theme = useTheme();
   const user = useSelector<any, UserWithPermissionsAndRoles>(
     state => state.user,
@@ -129,91 +94,15 @@ const RightMenu = ({
   );
   const userValues = user || {};
   const { roles } = userValues;
-  const {
-    CSV_EXTENSIONS,
-    COLUMNAR_EXTENSIONS,
-    EXCEL_EXTENSIONS,
-    ALLOWED_EXTENSIONS,
-    HAS_GSHEETS_INSTALLED,
-  } = useSelector<any, ExtensionConfigs>(state => state.common.conf);
-  const [showDatabaseModal, setShowDatabaseModal] = useState<boolean>(false);
-  const [showCSVUploadModal, setShowCSVUploadModal] = useState<boolean>(false);
-  const [showExcelUploadModal, setShowExcelUploadModal] =
-    useState<boolean>(false);
-  const [showColumnarUploadModal, setShowColumnarUploadModal] =
-    useState<boolean>(false);
-  const [engine, setEngine] = useState<string>('');
-  const canSql = findPermission('can_sqllab', 'Superset', roles);
   const canDashboard = findPermission('can_write', 'Dashboard', roles);
   const canChart = findPermission('can_write', 'Chart', roles);
-  const canDatabase = findPermission('can_write', 'Database', roles);
-  const canDataset = findPermission('can_write', 'Dataset', roles);
 
-  const { canUploadData, canUploadCSV, canUploadColumnar, canUploadExcel } =
-    uploadUserPerms(
-      roles,
-      CSV_EXTENSIONS,
-      COLUMNAR_EXTENSIONS,
-      EXCEL_EXTENSIONS,
-      ALLOWED_EXTENSIONS,
-    );
-
-  const showActionDropdown = canSql || canChart || canDashboard;
-  const [allowUploads, setAllowUploads] = useState<boolean>(false);
-  const [nonExamplesDBConnected, setNonExamplesDBConnected] =
-    useState<boolean>(false);
-  const isAdmin = isUserAdmin(user);
-  const showUploads = allowUploads || isAdmin;
+  const showActionDropdown = canChart || canDashboard;
   const { setThemeMode, themeMode, canSetMode, canDetectOSPreference } =
     useThemeContext();
+  // AuraData BI: connections, datasets, uploads and SQL Lab open from the
+  // "Data" menu of a dashboard, where the report is built
   const dropdownItems: MenuObjectProps[] = [
-    {
-      label: t('Data'),
-      icon: <Icons.DatabaseOutlined data-test={`menu-item-${t('Data')}`} />,
-      childs: [
-        {
-          label: t('Connect database'),
-          name: GlobalMenuDataOptions.DbConnection,
-          perm: canDatabase && !nonExamplesDBConnected,
-        },
-        {
-          label: t('Create dataset'),
-          name: GlobalMenuDataOptions.DatasetCreation,
-          url: '/dataset/add/',
-          perm: canDataset && nonExamplesDBConnected,
-        },
-        {
-          label: t('Connect Google Sheet'),
-          name: GlobalMenuDataOptions.GoogleSheets,
-          perm: canDatabase && HAS_GSHEETS_INSTALLED,
-        },
-        {
-          label: t('Upload CSV to database'),
-          name: GlobalMenuDataOptions.CSVUpload,
-          perm: canUploadCSV && showUploads,
-          disable: isAdmin && !allowUploads,
-        },
-        {
-          label: t('Upload Excel to database'),
-          name: GlobalMenuDataOptions.ExcelUpload,
-          perm: canUploadExcel && showUploads,
-          disable: isAdmin && !allowUploads,
-        },
-        {
-          label: t('Upload Columnar file to database'),
-          name: GlobalMenuDataOptions.ColumnarUpload,
-          perm: canUploadColumnar && showUploads,
-          disable: isAdmin && !allowUploads,
-        },
-      ],
-    },
-    {
-      label: t('SQL query'),
-      url: makeUrl('/sqllab?new=true'),
-      icon: <Icons.SearchOutlined data-test={`menu-item-${t('SQL query')}`} />,
-      perm: 'can_sqllab',
-      view: 'Superset',
-    },
     // Charts belong to a single dashboard (AuraData BI): only offered inside one
     ...(Number.isInteger(dashboardId)
       ? [
@@ -237,83 +126,21 @@ const RightMenu = ({
       perm: 'can_write',
       view: 'Dashboard',
     },
+    // AuraData BI: workspaces hold dashboards, so they follow its permission
+    {
+      label: t('Workspace'),
+      url: '/workspace/list/?new=true',
+      icon: (
+        <Icons.AppstoreOutlined data-test={`menu-item-${t('Workspace')}`} />
+      ),
+      perm: 'can_write',
+      view: 'Dashboard',
+    },
   ];
-
-  const checkAllowUploads = () => {
-    const payload = {
-      filters: [
-        { col: 'allow_file_upload', opr: 'upload_is_enabled', value: true },
-      ],
-    };
-    SupersetClient.get({
-      endpoint: `/api/v1/database/?q=${rison.encode(payload)}`,
-    }).then(({ json }: Record<string, any>) => {
-      // There might be some existing Gsheets and Clickhouse DBs
-      // with allow_file_upload set as True which is not possible from now on
-      const allowedDatabasesWithFileUpload =
-        json?.result?.filter(
-          (database: any) => database?.engine_information?.supports_file_upload,
-        ) || [];
-      setAllowUploads(allowedDatabasesWithFileUpload?.length >= 1);
-    });
-  };
-
-  const existsNonExamplesDatabases = () => {
-    const payload = {
-      filters: [{ col: 'database_name', opr: 'neq', value: 'examples' }],
-    };
-    SupersetClient.get({
-      endpoint: `/api/v1/database/?q=${rison.encode(payload)}`,
-    }).then(({ json }: Record<string, any>) => {
-      setNonExamplesDBConnected(json.count >= 1);
-    });
-  };
-
-  useEffect(() => {
-    if (canUploadData) {
-      checkAllowUploads();
-    }
-  }, [canUploadData]);
-
-  useEffect(() => {
-    if (canDatabase || canDataset) {
-      existsNonExamplesDatabases();
-    }
-  }, [canDatabase, canDataset]);
-
-  const handleMenuSelection = (itemChose: any) => {
-    if (itemChose.key === GlobalMenuDataOptions.DbConnection) {
-      setShowDatabaseModal(true);
-    } else if (itemChose.key === GlobalMenuDataOptions.GoogleSheets) {
-      setShowDatabaseModal(true);
-      setEngine('Google Sheets');
-    } else if (itemChose.key === GlobalMenuDataOptions.CSVUpload) {
-      setShowCSVUploadModal(true);
-    } else if (itemChose.key === GlobalMenuDataOptions.ExcelUpload) {
-      setShowExcelUploadModal(true);
-    } else if (itemChose.key === GlobalMenuDataOptions.ColumnarUpload) {
-      setShowColumnarUploadModal(true);
-    }
-  };
-
-  const handleOnHideModal = () => {
-    setEngine('');
-    setShowDatabaseModal(false);
-  };
-
-  const tooltipText = t(
-    "Enable 'Allow file uploads to database' in any database's settings",
-  );
 
   const buildMenuItem = (item: MenuObjectChildProps): MenuItem => ({
     key: item.name || item.label,
-    label: item.disable ? (
-      <StyledMenuItem disabled>
-        <Tooltip placement="top" title={tooltipText}>
-          {item.label}
-        </Tooltip>
-      </StyledMenuItem>
-    ) : item.url ? (
+    label: item.url ? (
       <Typography.Link href={ensureAppRoot(item.url)}>
         {item.label}
       </Typography.Link>
@@ -323,29 +150,10 @@ const RightMenu = ({
     disabled: item.disable,
   });
 
-  const onMenuOpen = (openKeys: string[]) => {
-    // We should query the API only if opening Data submenus
-    // because the rest don't need this information. Not using
-    // "Data" directly since we might change the label later on?
-    if (
-      openKeys.length > 1 &&
-      !isEmpty(
-        openKeys?.filter((key: string) =>
-          key.includes(`sub2_${dropdownItems?.[0]?.label}`),
-        ),
-      )
-    ) {
-      if (canUploadData) checkAllowUploads();
-      if (canDatabase || canDataset) existsNonExamplesDatabases();
-    }
-    return null;
-  };
   const RightMenuExtension = extensionsRegistry.get('navbar.right');
   const RightMenuItemIconExtension = extensionsRegistry.get(
     'navbar.right-menu.item.icon',
   );
-
-  const handleDatabaseAdd = () => setQuery({ databaseAdded: true });
 
   const handleLogout = () => {
     try {
@@ -624,38 +432,6 @@ const RightMenu = ({
 
   return (
     <StyledDiv align={align}>
-      {canDatabase && (
-        <DatabaseModal
-          onHide={handleOnHideModal}
-          show={showDatabaseModal}
-          dbEngine={engine}
-          onDatabaseAdd={handleDatabaseAdd}
-        />
-      )}
-      {canUploadCSV && (
-        <UploadDataModal
-          onHide={() => setShowCSVUploadModal(false)}
-          show={showCSVUploadModal}
-          allowedExtensions={CSV_EXTENSIONS}
-          type="csv"
-        />
-      )}
-      {canUploadExcel && (
-        <UploadDataModal
-          onHide={() => setShowExcelUploadModal(false)}
-          show={showExcelUploadModal}
-          allowedExtensions={EXCEL_EXTENSIONS}
-          type="excel"
-        />
-      )}
-      {canUploadColumnar && (
-        <UploadDataModal
-          onHide={() => setShowColumnarUploadModal(false)}
-          show={showColumnarUploadModal}
-          allowedExtensions={COLUMNAR_EXTENSIONS}
-          type="columnar"
-        />
-      )}
       {environmentTag?.text &&
         (() => {
           // Map color values to Ant Design semantic colors
@@ -719,8 +495,6 @@ const RightMenu = ({
         `}
         selectable={false}
         mode="horizontal"
-        onClick={handleMenuSelection}
-        onOpenChange={onMenuOpen}
         disabledOverflow
         items={menuItems}
       />
@@ -772,44 +546,4 @@ const RightMenu = ({
   );
 };
 
-const RightMenuWithQueryWrapper: FC<RightMenuProps> = props => {
-  const [, setQuery] = useQueryParams({
-    databaseAdded: BooleanParam,
-    datasetAdded: BooleanParam,
-  });
-
-  return <RightMenu setQuery={setQuery} {...props} />;
-};
-
-// Query param manipulation requires that, during the setup, the
-// QueryParamProvider is present and configured.
-// Superset still has multiple entry points, and not all of them have
-// the same setup, and critically, not all of them have the QueryParamProvider.
-// This wrapper ensures the RightMenu renders regardless of the provider being present.
-class RightMenuErrorWrapper extends PureComponent<RightMenuProps> {
-  state = {
-    hasError: false,
-  };
-
-  static getDerivedStateFromError() {
-    return { hasError: true };
-  }
-
-  noop = () => {};
-
-  render() {
-    if (this.state.hasError) {
-      return <RightMenu setQuery={this.noop} {...this.props} />;
-    }
-
-    return this.props.children;
-  }
-}
-
-const RightMenuWrapper: FC<RightMenuProps> = props => (
-  <RightMenuErrorWrapper {...props}>
-    <RightMenuWithQueryWrapper {...props} />
-  </RightMenuErrorWrapper>
-);
-
-export default RightMenuWrapper;
+export default RightMenu;

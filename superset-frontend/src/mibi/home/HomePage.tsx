@@ -66,13 +66,12 @@ const Page = styled.div`
 const Actions = styled.div`
   ${({ theme }) => css`
     display: grid;
-    /* Four in a row, or two by two: never a lonely card on its own row */
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: ${theme.sizeUnit * 4}px;
     margin-bottom: ${theme.sizeUnit * 10}px;
 
-    @media (max-width: 1279px) {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+    @media (max-width: 767px) {
+      grid-template-columns: minmax(0, 1fr);
     }
   `}
 `;
@@ -302,29 +301,14 @@ export function HomeBanner() {
       title: t('New dashboard'),
       description: t('Start a report and add charts to it'),
     },
+    // Data and SQL open from a dashboard, where the report is built
     {
-      key: 'database',
+      key: 'workspaces',
       tone: 'violet' as AuraTone,
-      to: '/data/',
-      icon: <Icons.DatabaseOutlined />,
-      title: t('Connect data'),
-      description: t('Add a database or upload a file'),
-    },
-    {
-      key: 'dataset',
-      tone: 'green' as AuraTone,
-      to: '/data/',
-      icon: <Icons.TableOutlined />,
-      title: t('Datasets'),
-      description: t('Prepare the tables your charts use'),
-    },
-    {
-      key: 'sql',
-      tone: 'amber' as AuraTone,
-      to: '/sqllab/?new=true',
-      icon: <Icons.ConsoleSqlOutlined />,
-      title: t('Explore with SQL'),
-      description: t('Query your data directly in SQL Lab'),
+      to: '/workspace/list/',
+      icon: <Icons.AppstoreOutlined />,
+      title: t('Workspaces'),
+      description: t('Group dashboards and share them with your team'),
     },
   ];
 

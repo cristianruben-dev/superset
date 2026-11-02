@@ -205,7 +205,6 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
         from superset.views.dynamic_plugins import DynamicPluginsView
         from superset.views.error_handling import set_app_error_handlers
         from superset.views.explore import ExplorePermalinkView, ExploreView
-        from superset.views.groups import GroupsListView
         from superset.views.log.api import LogRestApi
         from superset.views.logs import ActionLogView
         from superset.views.redirect import RedirectView
@@ -359,17 +358,6 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
             UsersListView,
             "List Users",
             label=_("List Users"),
-            category="Security",
-            category_label=_("Security"),
-            menu_cond=lambda: bool(
-                appbuilder.app.config.get("SUPERSET_SECURITY_VIEW_MENU", True)
-            ),
-        )
-
-        appbuilder.add_view(
-            GroupsListView,
-            "List Groups",
-            label=_("List Groups"),
             category="Security",
             category_label=_("Security"),
             menu_cond=lambda: bool(

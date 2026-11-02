@@ -27,7 +27,7 @@ import {
 import { isFeatureEnabled, FeatureFlag } from '@superset-ui/core';
 import { isEmbedded } from 'src/dashboard/util/isEmbedded';
 import RightMenu from './RightMenu';
-import { GlobalMenuDataOptions, RightMenuProps } from './types';
+import { RightMenuProps } from './types';
 
 jest.mock('@superset-ui/core', () => ({
   ...jest.requireActual('@superset-ui/core'),
@@ -48,69 +48,6 @@ jest.mock('react-redux', () => ({
   ...jest.requireActual('react-redux'),
   useSelector: jest.fn(),
 }));
-
-jest.mock('src/features/databases/DatabaseModal', () => {
-  const DatabaseModal = () => <span />;
-  DatabaseModal.displayName = 'DatabaseModal';
-  return DatabaseModal;
-});
-
-const dropdownItems = [
-  {
-    label: 'Data',
-    icon: 'fa-database',
-    childs: [
-      {
-        label: 'Connect database',
-        name: GlobalMenuDataOptions.DbConnection,
-        perm: true,
-      },
-      {
-        label: 'Create dataset',
-        name: GlobalMenuDataOptions.DatasetCreation,
-        perm: true,
-      },
-      {
-        label: 'Connect Google Sheet',
-        name: GlobalMenuDataOptions.GoogleSheets,
-        perm: true,
-      },
-      {
-        label: 'Upload CSV to database',
-        name: 'Upload a CSV',
-        url: '#',
-        perm: true,
-      },
-      {
-        label: 'Upload columnar file to database',
-        name: 'Upload a Columnar file',
-        url: '#',
-        perm: true,
-      },
-    ],
-  },
-  {
-    label: 'SQL query',
-    url: '/sqllab?new=true',
-    icon: 'fa-fw fa-search',
-    perm: 'can_sqllab',
-    view: 'Superset',
-  },
-  {
-    label: 'Chart',
-    url: '/chart/add',
-    icon: 'fa-fw fa-bar-chart',
-    perm: 'can_write',
-    view: 'Chart',
-  },
-  {
-    label: 'Dashboard',
-    url: '/dashboard/new',
-    icon: 'fa-fw fa-dashboard',
-    perm: 'can_write',
-    view: 'Dashboard',
-  },
-];
 
 const createProps = (): RightMenuProps => ({
   align: 'flex-end',
@@ -148,48 +85,12 @@ const createProps = (): RightMenuProps => ({
   },
 });
 
-const mockNonExamplesDB = Array.from({ length: 2 })
-  .fill(undefined)
-  .map((_, i) => ({
-    changed_by: {
-      first_name: `user`,
-      last_name: `${i}`,
-    },
-    database_name: `db ${i}`,
-    backend: 'postgresql',
-    allow_run_async: true,
-    allow_dml: false,
-    allow_file_upload: true,
-    expose_in_sqllab: false,
-    changed_on_delta_humanized: `${i} day(s) ago`,
-    changed_on: new Date().toISOString,
-    id: i,
-    engine_information: {
-      supports_file_upload: true,
-    },
-  }));
-
 const useSelectorMock = jest.spyOn(reactRedux, 'useSelector');
-
-const getDatabaseWithFileFiterMockUrl =
-  'glob:*api/v1/database/?q=(filters:!((col:allow_file_upload,opr:upload_is_enabled,value:!t)))';
-const getDatabaseWithNameFilterMockUrl =
-  'glob:*api/v1/database/?q=(filters:!((col:database_name,opr:neq,value:examples)))';
 
 beforeEach(async () => {
   mockIsFeatureEnabled.mockReturnValue(false);
   mockIsEmbedded.mockReturnValue(false);
   useSelectorMock.mockReset();
-  fetchMock.get(
-    getDatabaseWithFileFiterMockUrl,
-    { result: [], count: 0 },
-    { name: getDatabaseWithFileFiterMockUrl },
-  );
-  fetchMock.get(
-    getDatabaseWithNameFilterMockUrl,
-    { result: [], count: 0 },
-    { name: getDatabaseWithNameFilterMockUrl },
-  );
 });
 
 afterEach(() => fetchMock.clearHistory().removeRoutes());
@@ -214,15 +115,8 @@ const resetUseSelectorMock = () => {
     username: 'admin',
   });
 
-  // By default we get file extensions to be uploaded
-  useSelectorMock.mockReturnValueOnce('1');
-  // By default we get file extensions to be uploaded
-  useSelectorMock.mockReturnValueOnce({
-    CSV_EXTENSIONS: ['csv'],
-    EXCEL_EXTENSIONS: ['xls', 'xlsx'],
-    COLUMNAR_EXTENSIONS: ['parquet', 'zip'],
-    ALLOWED_EXTENSIONS: ['parquet', 'zip', 'xls', 'xlsx', 'csv'],
-  });
+  // The dashboard the menu is on
+  useSelectorMock.mockReturnValueOnce(1);
 };
 
 test('renders', async () => {
@@ -232,156 +126,45 @@ test('renders', async () => {
   const { container } = render(<RightMenu {...mockedProps} />, {
     useRedux: true,
     useRouter: true,
-    useQueryParams: true,
     useTheme: true,
   });
   // expect(await screen.findByText(/Settings/i)).toBeInTheDocument();
   await waitFor(() => expect(container).toBeInTheDocument());
 });
 
-test('If user has permission to upload files AND connect DBs we query existing DBs that has allow_file_upload as True and DBs that are not examples', async () => {
+test('the New menu leaves data and SQL Lab to the dashboard', async () => {
   const mockedProps = createProps();
-  // Initial Load
-  resetUseSelectorMock();
-  const { container } = render(<RightMenu {...mockedProps} />, {
-    useRedux: true,
-    useRouter: true,
-    useQueryParams: true,
-    useTheme: true,
-  });
-  await waitFor(() => expect(container).toBeVisible());
-  const callsD = fetchMock.callHistory.calls(/database\/\?q/);
-  expect(callsD).toHaveLength(2);
-  expect(callsD[0].url).toMatchInlineSnapshot(
-    `"http://localhost/api/v1/database/?q=(filters:!((col:allow_file_upload,opr:upload_is_enabled,value:!t)))"`,
-  );
-  expect(callsD[1].url).toMatchInlineSnapshot(
-    `"http://localhost/api/v1/database/?q=(filters:!((col:database_name,opr:neq,value:examples)))"`,
-  );
-});
-
-test('If only examples DB exist we must show the Connect Database option', async () => {
-  const mockedProps = createProps();
-  fetchMock.modifyRoute(getDatabaseWithFileFiterMockUrl, {
-    response: { result: [...mockNonExamplesDB], count: 2 },
-  });
-  fetchMock.modifyRoute(getDatabaseWithNameFilterMockUrl, {
-    response: { result: [], count: 0 },
-  });
-  // Initial Load
-  resetUseSelectorMock();
-  // setAllowUploads called
-  resetUseSelectorMock();
-  // setNonExamplesDBConnected called
   resetUseSelectorMock();
   render(<RightMenu {...mockedProps} />, {
     useRedux: true,
-    useQueryParams: true,
     useRouter: true,
     useTheme: true,
   });
-  const dropdown = screen.getByTestId('new-dropdown-icon');
-  await userEvent.hover(dropdown);
-  const dataMenu = await screen.findByText(dropdownItems[0].label);
-  await userEvent.hover(dataMenu);
-  expect(await screen.findByText('Connect database')).toBeInTheDocument();
-  expect(screen.queryByText('Create dataset')).not.toBeInTheDocument();
+  await userEvent.hover(screen.getByTestId('new-dropdown-icon'));
+
+  expect(await screen.findByText('Chart')).toBeInTheDocument();
+  expect(screen.queryByText('Data')).not.toBeInTheDocument();
+  expect(screen.queryByText('SQL query')).not.toBeInTheDocument();
+  expect(fetchMock.callHistory.calls(/database\/\?q/)).toHaveLength(0);
 });
 
-test('If more than just examples DB exist we must show the Create dataset option', async () => {
-  const mockedProps = createProps();
-  fetchMock.modifyRoute(getDatabaseWithFileFiterMockUrl, {
-    response: { result: [...mockNonExamplesDB], count: 2 },
+test('the New menu creates workspaces for users who write dashboards', async () => {
+  useSelectorMock.mockReturnValueOnce({
+    roles: { Editor: [['can_write', 'Dashboard']] },
   });
-  fetchMock.modifyRoute(getDatabaseWithNameFilterMockUrl, {
-    response: { result: [...mockNonExamplesDB], count: 2 },
-  });
-  // Initial Load
-  resetUseSelectorMock();
-  // setAllowUploads called
-  resetUseSelectorMock();
-  // setNonExamplesDBConnected called
-  resetUseSelectorMock();
-  render(<RightMenu {...mockedProps} />, {
+  useSelectorMock.mockReturnValueOnce(undefined);
+  render(<RightMenu {...createProps()} />, {
     useRedux: true,
-    useQueryParams: true,
     useRouter: true,
     useTheme: true,
   });
-  const dropdown = screen.getByTestId('new-dropdown-icon');
-  await userEvent.hover(dropdown);
-  const dataMenu = await screen.findByText(dropdownItems[0].label);
-  await userEvent.hover(dataMenu);
-  expect(await screen.findByText('Create dataset')).toBeInTheDocument();
-  expect(screen.queryByText('Connect database')).not.toBeInTheDocument();
-});
+  await userEvent.hover(screen.getByTestId('new-dropdown-icon'));
 
-test('If there is a DB with allow_file_upload set as True the option should be enabled', async () => {
-  const mockedProps = createProps();
-  fetchMock.get(
-    'glob:*api/v1/database/?q=(filters:!((col:allow_file_upload,opr:upload_is_enabled,value:!t)))',
-    { result: [...mockNonExamplesDB], count: 2 },
+  expect((await screen.findByText('Workspace')).closest('a')).toHaveAttribute(
+    'href',
+    '/workspace/list/?new=true',
   );
-  fetchMock.get(
-    'glob:*api/v1/database/?q=(filters:!((col:database_name,opr:neq,value:examples)))',
-    { result: [...mockNonExamplesDB], count: 2 },
-  );
-  // Initial load
-  resetUseSelectorMock();
-  // setAllowUploads called
-  resetUseSelectorMock();
-  // setNonExamplesDBConnected called
-  resetUseSelectorMock();
-  render(<RightMenu {...mockedProps} />, {
-    useRedux: true,
-    useQueryParams: true,
-    useRouter: true,
-    useTheme: true,
-  });
-  const dropdown = screen.getByTestId('new-dropdown-icon');
-  await userEvent.hover(dropdown);
-  const dataMenu = await screen.findByText(dropdownItems[0].label);
-  await userEvent.hover(dataMenu);
-  const csvMenu = await screen.findByText('Upload CSV to database');
-  expect(csvMenu).toBeInTheDocument();
-  expect(
-    await screen.findByText('Upload Excel to database'),
-  ).toBeInTheDocument();
-
-  expect(csvMenu).not.toHaveAttribute('aria-disabled', 'true');
-});
-
-test('If there is NOT a DB with allow_file_upload set as True the option should be disabled', async () => {
-  const mockedProps = createProps();
-  fetchMock.get(
-    'glob:*api/v1/database/?q=(filters:!((col:allow_file_upload,opr:upload_is_enabled,value:!t)))',
-    { result: [], count: 0 },
-  );
-  fetchMock.get(
-    'glob:*api/v1/database/?q=(filters:!((col:database_name,opr:neq,value:examples)))',
-    { result: [...mockNonExamplesDB], count: 2 },
-  );
-  // Initial load
-  resetUseSelectorMock();
-  // setAllowUploads called
-  resetUseSelectorMock();
-  // setNonExamplesDBConnected called
-  resetUseSelectorMock();
-  render(<RightMenu {...mockedProps} />, {
-    useRedux: true,
-    useQueryParams: true,
-    useRouter: true,
-    useTheme: true,
-  });
-  const dropdown = screen.getByTestId('new-dropdown-icon');
-  await userEvent.hover(dropdown);
-  const dataMenu = await screen.findByText(dropdownItems[0].label);
-  await userEvent.hover(dataMenu);
-  const csvMenu = await screen.findByRole('menuitem', {
-    name: 'Upload CSV to database',
-  });
-  expect(csvMenu).toBeInTheDocument();
-  expect(csvMenu).toHaveAttribute('aria-disabled', 'true');
+  expect(screen.queryByText('Chart')).not.toBeInTheDocument();
 });
 
 test('Logs out and clears local storage item redux', async () => {
@@ -389,7 +172,6 @@ test('Logs out and clears local storage item redux', async () => {
   resetUseSelectorMock();
   render(<RightMenu {...mockedProps} />, {
     useRedux: true,
-    useQueryParams: true,
     useRouter: true,
     useTheme: true,
   });
@@ -419,7 +201,6 @@ test('shows logout button when not embedded', async () => {
   resetUseSelectorMock();
   render(<RightMenu {...createProps()} />, {
     useRedux: true,
-    useQueryParams: true,
     useRouter: true,
     useTheme: true,
   });
@@ -434,7 +215,6 @@ test('shows logout button when embedded but flag is disabled', async () => {
   resetUseSelectorMock();
   render(<RightMenu {...createProps()} />, {
     useRedux: true,
-    useQueryParams: true,
     useRouter: true,
     useTheme: true,
   });
@@ -451,7 +231,6 @@ test('shows logout button when not embedded even if flag is enabled', async () =
   resetUseSelectorMock();
   render(<RightMenu {...createProps()} />, {
     useRedux: true,
-    useQueryParams: true,
     useRouter: true,
     useTheme: true,
   });
@@ -468,7 +247,6 @@ test('hides logout button when embedded and flag is enabled', async () => {
   resetUseSelectorMock();
   render(<RightMenu {...createProps()} />, {
     useRedux: true,
-    useQueryParams: true,
     useRouter: true,
     useTheme: true,
   });

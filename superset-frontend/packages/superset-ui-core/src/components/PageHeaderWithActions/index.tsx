@@ -81,6 +81,21 @@ const headerStyles = (theme: SupersetTheme) => css`
     display: flex;
     align-items: center;
   }
+
+  /* On phones the title keeps room to be read; the badges next to it give way */
+  @media (max-width: 767px) {
+    .title-panel {
+      flex: 1;
+      overflow: hidden;
+      margin-right: ${theme.sizeUnit * 2}px;
+    }
+
+    .title-panel > :first-child {
+      flex-shrink: 0;
+      min-width: min(140px, 40vw);
+      max-width: 60%;
+    }
+  }
 `;
 
 const buttonsStyles = (theme: SupersetTheme) => css`

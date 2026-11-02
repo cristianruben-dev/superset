@@ -113,5 +113,22 @@ test('Ctrl+K opens the search with dashboards and pages', async () => {
   await waitFor(() =>
     expect(screen.getByRole('option', { name: /Ventas/ })).toBeInTheDocument(),
   );
-  expect(screen.getByRole('option', { name: /SQL Lab/ })).toBeInTheDocument();
+  // SQL Lab opens from a dashboard, not from the navigation
+  expect(
+    screen.queryByRole('option', { name: /SQL Lab/ }),
+  ).not.toBeInTheDocument();
+});
+
+test('a dashboard shows without the sidebar, with the logo in the top bar', () => {
+  window.history.pushState({}, '', '/superset/dashboard/7/');
+  try {
+    renderShell();
+
+    expect(screen.queryByTestId('mibi-sidebar')).not.toBeInTheDocument();
+    expect(screen.getByTestId('mibi-topbar-brand')).toBeInTheDocument();
+    expect(screen.getByTestId('mibi-main')).toHaveStyle({ marginLeft: '0px' });
+    expect(screen.getByText('page content')).toBeInTheDocument();
+  } finally {
+    window.history.pushState({}, '', '/');
+  }
 });

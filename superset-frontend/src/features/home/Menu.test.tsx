@@ -384,18 +384,6 @@ test('should render the dropdown items', async () => {
   });
   const dropdown = screen.getByTestId('new-dropdown-icon');
   userEvent.hover(dropdown);
-  // todo (philip): test data submenu
-  expect(await screen.findByText(dropdownItems[1].label)).toHaveAttribute(
-    'href',
-    dropdownItems[1].url,
-  );
-  expect(await screen.findByText(dropdownItems[1].label)).toHaveAttribute(
-    'href',
-    dropdownItems[1].url,
-  );
-  expect(
-    screen.getByTestId(`menu-item-${dropdownItems[1].label}`),
-  ).toBeInTheDocument();
   expect(await screen.findByText(dropdownItems[3].label)).toHaveAttribute(
     'href',
     dropdownItems[3].url,
@@ -406,6 +394,13 @@ test('should render the dropdown items', async () => {
   // Charts are created from a dashboard (AuraData BI), so not offered outside one
   expect(
     screen.queryByTestId(`menu-item-${dropdownItems[2].label}`),
+  ).not.toBeInTheDocument();
+  // Data and SQL Lab open from the "Data" menu of a dashboard (AuraData BI)
+  expect(
+    screen.queryByTestId(`menu-item-${dropdownItems[0].label}`),
+  ).not.toBeInTheDocument();
+  expect(
+    screen.queryByTestId(`menu-item-${dropdownItems[1].label}`),
   ).not.toBeInTheDocument();
 });
 

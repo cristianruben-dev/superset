@@ -88,6 +88,22 @@ export const ProductTag = styled.span`
   `}
 `;
 
+/** The AuraData logo and the product tag, linking to the start page. */
+export function BrandLink({ compact = false }: { compact?: boolean }) {
+  const theme = useTheme();
+  return (
+    <a href={ensureAppRoot(theme.brandLogoHref || '/')}>
+      <img
+        src={ensureStaticPrefix(
+          compact ? MARK_URL : theme.brandLogoUrl || MARK_URL,
+        )}
+        alt={theme.brandLogoAlt || theme.brandAppName || ''}
+      />
+      {!compact && <ProductTag>{PRODUCT_TAG}</ProductTag>}
+    </a>
+  );
+}
+
 const Nav = styled.nav`
   ${({ theme }) => css`
     flex: 1;
@@ -235,7 +251,6 @@ export function Sidebar({
   onToggleCollapsed,
   isFrontendRoute,
 }: SidebarProps) {
-  const theme = useTheme();
   const { pathname } = useLocation();
   const activeKey = findActiveKey(sections, pathname);
   const activeSection = sections.find(section =>
@@ -279,18 +294,10 @@ export function Sidebar({
   const brand = useMemo(
     () => (
       <Brand $collapsed={collapsed}>
-        <a href={ensureAppRoot(theme.brandLogoHref || '/')}>
-          <img
-            src={ensureStaticPrefix(
-              collapsed ? MARK_URL : theme.brandLogoUrl || MARK_URL,
-            )}
-            alt={theme.brandLogoAlt || theme.brandAppName || ''}
-          />
-          {!collapsed && <ProductTag>{PRODUCT_TAG}</ProductTag>}
-        </a>
+        <BrandLink compact={collapsed} />
       </Brand>
     ),
-    [collapsed, theme],
+    [collapsed],
   );
 
   return (

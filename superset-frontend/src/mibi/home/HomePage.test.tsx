@@ -73,11 +73,17 @@ test('the banner offers the quick actions, without a greeting card', () => {
   render(<HomeBanner />, { useRouter: true });
 
   expect(screen.queryByRole('heading', { level: 1 })).not.toBeInTheDocument();
-  expect(screen.getAllByTestId('home-action')).toHaveLength(4);
+  expect(screen.getAllByTestId('home-action')).toHaveLength(2);
   expect(screen.getByRole('link', { name: /New dashboard/ })).toHaveAttribute(
     'href',
     '/dashboard/new/',
   );
+  expect(screen.getByRole('link', { name: /Workspaces/ })).toHaveAttribute(
+    'href',
+    '/workspace/list/',
+  );
+  // Data and SQL open from a dashboard
+  expect(screen.queryByRole('link', { name: /SQL/ })).not.toBeInTheDocument();
 });
 
 test('lists the dashboard cards without recently viewed items', async () => {

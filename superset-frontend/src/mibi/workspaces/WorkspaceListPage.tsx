@@ -183,7 +183,10 @@ export default function WorkspaceListPage() {
   const history = useHistory();
   const [workspaces, setWorkspaces] = useState<Workspace[] | null>(null);
   const [search, setSearch] = useState('');
-  const [creating, setCreating] = useState(false);
+  // "New > Workspace" of the top bar opens the creation dialog right away
+  const [creating, setCreating] = useState(
+    () => new URLSearchParams(window.location.search).get('new') === 'true',
+  );
 
   useEffect(() => {
     fetchWorkspaces()

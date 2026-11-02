@@ -17,7 +17,7 @@
  * under the License.
  */
 import type { MenuObjectProps } from 'src/types/bootstrapTypes';
-import { buildNavSections, isNavItemActive } from './navigation';
+import { buildNavSections, isNavItemActive, isReportRoute } from './navigation';
 
 const menu: MenuObjectProps[] = [
   {
@@ -53,12 +53,11 @@ const menu: MenuObjectProps[] = [
   },
 ];
 
-test('groups the menu into primary, SQL, admin and extra sections', () => {
+test('groups the menu into primary, admin and extra sections', () => {
   const sections = buildNavSections(menu);
 
   expect(sections.map(section => section.key)).toEqual([
     'main',
-    'sql',
     'admin',
     'more',
   ]);
@@ -66,33 +65,45 @@ test('groups the menu into primary, SQL, admin and extra sections', () => {
     'Home',
     'Workspaces',
     'Dashboards',
-    'Data',
   ]);
-  expect(sections[1].items.map(item => item.url)).toEqual([
-    '/sqllab/',
-    '/sqllab/history/',
+  expect(sections[1]).toMatchObject({ collapsible: true });
+  expect(sections[1].items.map(item => item.key)).toEqual([
+    'Databases',
+    'List Users',
   ]);
-  expect(sections[2]).toMatchObject({ collapsible: true });
   expect(sections[2].items[0]).toMatchObject({
-    key: 'List Users',
-    icon: 'UserOutlined',
-  });
-  expect(sections[3].items[0]).toMatchObject({
     key: 'Custom',
     icon: 'AppstoreOutlined',
   });
 });
 
-test('folds datasets and databases into the data page', () => {
-  const [main] = buildNavSections(menu);
-  const data = main.items.find(item => item.key === 'Data')!;
+test('leaves datasets and SQL Lab to the dashboard side panel', () => {
+  const urls = buildNavSections(menu).flatMap(section =>
+    section.items.map(item => item.url),
+  );
 
-  expect(data).toMatchObject({ url: '/data/', icon: 'DatabaseOutlined' });
-  expect(isNavItemActive(data, '/data/')).toBe(true);
-  expect(isNavItemActive(data, '/data/dataset/3/')).toBe(true);
-  expect(isNavItemActive(data, '/tablemodelview/list/')).toBe(true);
-  expect(isNavItemActive(data, '/databaseview/list/')).toBe(true);
-  expect(isNavItemActive(data, '/dashboard/list/')).toBe(false);
+  expect(urls).not.toContain('/data/');
+  expect(urls).not.toContain('/tablemodelview/list/');
+  expect(urls).not.toContain('/sqllab/');
+  expect(urls).not.toContain('/sqllab/history/');
+});
+
+test('names users and roles plainly under administration', () => {
+  const [, admin] = buildNavSections(menu);
+
+  expect(admin.items.find(item => item.key === 'List Users')).toMatchObject({
+    label: 'Users',
+  });
+});
+
+test('lists database connections under administration', () => {
+  const [, admin] = buildNavSections(menu);
+
+  expect(admin.items[0]).toMatchObject({
+    label: 'Connections',
+    url: '/databaseview/list/',
+    icon: 'DatabaseOutlined',
+  });
 });
 
 test('drops sections the user cannot access', () => {
@@ -104,7 +115,7 @@ test('drops sections the user cannot access', () => {
 });
 
 test('matches the current location to a navigation item', () => {
-  const [main, sql] = buildNavSections(menu);
+  const [main] = buildNavSections(menu);
   const [home, workspaces, dashboards] = main.items;
 
   expect(isNavItemActive(home, '/superset/welcome/')).toBe(true);
@@ -113,7 +124,6 @@ test('matches the current location to a navigation item', () => {
   expect(isNavItemActive(workspaces, '/workspace/list/')).toBe(true);
   expect(isNavItemActive(workspaces, '/workspace/3/')).toBe(true);
   expect(isNavItemActive(dashboards, '/superset/dashboard/1/')).toBe(false);
-  expect(isNavItemActive(sql.items[1], '/sqllab/history/')).toBe(true);
 });
 
 test('shows workspaces only to users who can see dashboards', () => {
@@ -121,5 +131,12 @@ test('shows workspaces only to users who can see dashboards', () => {
     { name: 'Datasets', label: 'Datasets', url: '/tablemodelview/list/' },
   ]);
 
-  expect(main.items.map(item => item.key)).toEqual(['Home', 'Data']);
+  expect(main.items.map(item => item.key)).toEqual(['Home']);
+});
+
+test('recognizes dashboards, which show without the sidebar', () => {
+  expect(isReportRoute('/superset/dashboard/7/')).toBe(true);
+  expect(isReportRoute('/superset/dashboard/sales')).toBe(true);
+  expect(isReportRoute('/dashboard/list/')).toBe(false);
+  expect(isReportRoute('/superset/welcome/')).toBe(false);
 });
