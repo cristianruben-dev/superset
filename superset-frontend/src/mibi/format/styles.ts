@@ -203,7 +203,7 @@ export function canvasZoom(
   const zoom = available.height
     ? Math.min(byWidth, available.height / size.height)
     : byWidth;
-  return clamp(Number.isFinite(zoom) && zoom > 0 ? zoom : 1, 0.25, 4);
+  return clamp(Number.isFinite(zoom) && zoom > 0 ? zoom : 1, 0.1, 4);
 }
 
 /** Background of the canvas. */

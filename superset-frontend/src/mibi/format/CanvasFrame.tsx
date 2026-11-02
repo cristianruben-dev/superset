@@ -21,6 +21,7 @@ import {
   ReactNode,
   useContext,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -43,12 +44,33 @@ import { selectVisual, setGroupResolver } from './selection';
 import { groupMembers } from './arrange';
 import { CELL, type CanvasFormat } from './types';
 import { canvasSize, canvasStyle, canvasZoom, hasCanvasFormat } from './styles';
+import { clampZoom, setCanvasView, useCanvasView } from './canvasView';
+import { ZoomToolbar } from './ZoomToolbar';
 
-const Outer = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+const Wrap = styled.div`
+  position: relative;
   width: 100%;
+`;
+
+/**
+ * Holds the page. A fixed page scrolls inside it (room above for the menus
+ * of the objects), so zooming in never moves the rest of the screen.
+ */
+const Outer = styled.div<{ $scroll: boolean }>`
+  width: 100%;
+  ${({ $scroll }) =>
+    $scroll
+      ? css`
+          height: 100%;
+          overflow: auto;
+          padding: 28px 8px 8px;
+          box-sizing: border-box;
+        `
+      : css`
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+        `}
 `;
 
 const Page = styled.div<{ $decorated: boolean; $fixed: boolean }>`
@@ -164,7 +186,13 @@ export function CanvasFrame({ children }: { children: ReactNode }) {
     (state: RootState) => state.dashboardState?.editMode,
   );
   const outerRef = useRef<HTMLDivElement>(null);
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const frameRef = useRef<HTMLDivElement>(null);
   const [available, setAvailable] = useState(0);
+  const [availableHeight, setAvailableHeight] = useState(0);
+  const [viewportHeight, setViewportHeight] = useState(0);
+  const [windowHeight, setWindowHeight] = useState(window.innerHeight);
+  const view = useCanvasView();
   const phone = usePhoneScreen();
   // Editing always uses the desktop layout
   const mobile = phone && !editMode;
@@ -278,21 +306,159 @@ export function CanvasFrame({ children }: { children: ReactNode }) {
   useEffect(() => {
     const element = outerRef.current;
     if (!element || typeof ResizeObserver === 'undefined') return undefined;
-    const observer = new ResizeObserver(([entry]) =>
-      setAvailable(entry.contentRect.width),
-    );
+    const measure = () => {
+      // The padding of a scrolling viewport is not room for the page
+      const style = window.getComputedStyle(element);
+      const sideX =
+        parseFloat(style.paddingLeft) + parseFloat(style.paddingRight);
+      const sideY =
+        parseFloat(style.paddingTop) + parseFloat(style.paddingBottom);
+      setAvailable(element.clientWidth - (sideX || 0));
+      setAvailableHeight(element.clientHeight - (sideY || 0));
+    };
+    const observer = new ResizeObserver(measure);
     observer.observe(element);
-    setAvailable(element.clientWidth);
+    measure();
     return () => observer.disconnect();
-  }, []);
+  }, [!!size]);
+
+  // The screen gives the viewport the height under the header
+  useEffect(() => {
+    const wrap = wrapRef.current;
+    if (!wrap || !size) return undefined;
+    const measure = () => {
+      const top = wrap.getBoundingClientRect().top + window.scrollY;
+      setWindowHeight(window.innerHeight);
+      setViewportHeight(Math.max(320, window.innerHeight - top - 16));
+    };
+    measure();
+    window.addEventListener('resize', measure);
+    const observer =
+      typeof ResizeObserver === 'undefined'
+        ? undefined
+        : new ResizeObserver(measure);
+    observer?.observe(document.body);
+    return () => {
+      window.removeEventListener('resize', measure);
+      observer?.disconnect();
+    };
+  }, [!!size]);
 
   const zoom = useMemo(() => {
     if (!size || !available) return 1;
-    return canvasZoom(size, {
-      width: available,
-      height: presenting ? window.innerHeight - PRESENTING_MARGIN : undefined,
-    });
-  }, [size, available, presenting]);
+    if (presenting) {
+      return canvasZoom(size, {
+        width: available,
+        height: windowHeight - PRESENTING_MARGIN,
+      });
+    }
+    if (view.mode === 'custom') return clampZoom(view.zoom);
+    if (view.mode === 'fit-page') {
+      return canvasZoom(size, {
+        width: available,
+        height: availableHeight || undefined,
+      });
+    }
+    return canvasZoom(size, { width: available });
+  }, [size, available, availableHeight, presenting, windowHeight, view]);
+
+  const scroll = !!size;
+  const zoomRef = useRef(zoom);
+  zoomRef.current = zoom;
+  const anchor = useRef<{
+    x: number;
+    y: number;
+    px: number;
+    py: number;
+  } | null>(null);
+
+  // Ctrl or Cmd with the wheel (and the pinch of a trackpad) zooms around the
+  // pointer
+  useEffect(() => {
+    const element = outerRef.current;
+    if (!element || !scroll) return undefined;
+    const onWheel = (event: WheelEvent) => {
+      if (!(event.ctrlKey || event.metaKey)) return;
+      event.preventDefault();
+      const frame = frameRef.current?.getBoundingClientRect();
+      if (!frame) return;
+      const { current } = zoomRef;
+      anchor.current = {
+        x: (event.clientX - frame.left) / current,
+        y: (event.clientY - frame.top) / current,
+        px: event.clientX,
+        py: event.clientY,
+      };
+      setCanvasView({
+        mode: 'custom',
+        zoom: clampZoom(current * Math.exp(-event.deltaY * 0.002)),
+      });
+    };
+    element.addEventListener('wheel', onWheel, { passive: false });
+    return () => element.removeEventListener('wheel', onWheel);
+  }, [scroll]);
+
+  useLayoutEffect(() => {
+    const point = anchor.current;
+    const element = outerRef.current;
+    const frame = frameRef.current?.getBoundingClientRect();
+    anchor.current = null;
+    if (!point || !element || !frame) return;
+    element.scrollLeft += frame.left + point.x * zoom - point.px;
+    element.scrollTop += frame.top + point.y * zoom - point.py;
+  }, [zoom]);
+
+  // Space with the pointer, or the middle button, drags the page around
+  useEffect(() => {
+    const element = outerRef.current;
+    if (!element || !scroll) return undefined;
+    let spaceDown = false;
+    const typing = (target: EventTarget | null) =>
+      !!(target as HTMLElement | null)?.closest?.(
+        'input, textarea, select, [contenteditable="true"], .ant-select',
+      );
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.code === 'Space' && !typing(event.target)) {
+        spaceDown = true;
+        element.style.cursor = 'grab';
+        event.preventDefault();
+      }
+    };
+    const onKeyUp = (event: KeyboardEvent) => {
+      if (event.code === 'Space') {
+        spaceDown = false;
+        element.style.cursor = '';
+      }
+    };
+    const onPointerDown = (event: PointerEvent) => {
+      if (!(spaceDown || event.button === 1)) return;
+      event.preventDefault();
+      event.stopPropagation();
+      let { clientX, clientY } = event;
+      element.style.cursor = 'grabbing';
+      const onMove = (move: PointerEvent) => {
+        element.scrollLeft -= move.clientX - clientX;
+        element.scrollTop -= move.clientY - clientY;
+        ({ clientX, clientY } = move);
+      };
+      const onUp = () => {
+        element.style.cursor = spaceDown ? 'grab' : '';
+        window.removeEventListener('pointermove', onMove);
+        window.removeEventListener('pointerup', onUp);
+      };
+      window.addEventListener('pointermove', onMove);
+      window.addEventListener('pointerup', onUp);
+    };
+    window.addEventListener('keydown', onKeyDown);
+    window.addEventListener('keyup', onKeyUp);
+    element.addEventListener('pointerdown', onPointerDown, true);
+    return () => {
+      window.removeEventListener('keydown', onKeyDown);
+      window.removeEventListener('keyup', onKeyUp);
+      element.removeEventListener('pointerdown', onPointerDown, true);
+      element.style.cursor = '';
+    };
+  }, [scroll]);
 
   const style = useMemo(
     () => ({
@@ -324,6 +490,7 @@ export function CanvasFrame({ children }: { children: ReactNode }) {
             width: size.width * zoom,
             height: scaledHeight ? scaledHeight * zoom : undefined,
             flex: 'none' as const,
+            margin: '0 auto',
           }
         : { width: '100%' },
     [size, zoom, scaledHeight],
@@ -341,51 +508,58 @@ export function CanvasFrame({ children }: { children: ReactNode }) {
   );
 
   return (
-    <Outer ref={outerRef} data-test="mibi-canvas-outer">
-      <ReportTheme>
-        <div style={frameStyle}>
-          <div ref={scaledRef} style={scaledStyle}>
-            <TabsDockTarget style={{ width: '100%' }} />
-            <Page
-              ref={pageRef}
-              data-test="mibi-canvas"
-              className={cx(
-                'mibi-canvas',
-                editMode && !mobile && 'mibi-show-grid',
-                mobile && 'mibi-mobile',
-              )}
-              $decorated={hasCanvasFormat(canvas)}
-              $fixed={!!size}
-              style={style}
-              onClick={
-                editMode
-                  ? event => {
-                      // A click on the canvas itself formats the canvas
-                      const target = event.target as Element;
-                      if (
-                        !target.closest?.(
-                          '.dashboard-component-chart-holder, .mibi-element',
-                        )
-                      ) {
-                        selectVisual(null);
+    <Wrap
+      ref={wrapRef}
+      className="mibi-viewport"
+      style={scroll && viewportHeight ? { height: viewportHeight } : undefined}
+    >
+      <Outer ref={outerRef} $scroll={scroll} data-test="mibi-canvas-outer">
+        <ReportTheme>
+          <div ref={frameRef} style={frameStyle}>
+            <div ref={scaledRef} style={scaledStyle}>
+              <TabsDockTarget style={{ width: '100%' }} />
+              <Page
+                ref={pageRef}
+                data-test="mibi-canvas"
+                className={cx(
+                  'mibi-canvas',
+                  editMode && !mobile && 'mibi-show-grid',
+                  mobile && 'mibi-mobile',
+                )}
+                $decorated={hasCanvasFormat(canvas)}
+                $fixed={!!size}
+                style={style}
+                onClick={
+                  editMode
+                    ? event => {
+                        // A click on the canvas itself formats the canvas
+                        const target = event.target as Element;
+                        if (
+                          !target.closest?.(
+                            '.dashboard-component-chart-holder, .mibi-element',
+                          )
+                        ) {
+                          selectVisual(null);
+                        }
                       }
-                    }
-                  : undefined
-              }
-            >
-              <CanvasZoomContext.Provider value={zoom}>
-                <CanvasMobileContext.Provider value={mobile}>
-                  <CanvasRoomContext.Provider
-                    value={size && editMode ? room - contentHeight : Infinity}
-                  >
-                    <div ref={contentRef}>{children}</div>
-                  </CanvasRoomContext.Provider>
-                </CanvasMobileContext.Provider>
-              </CanvasZoomContext.Provider>
-            </Page>
+                    : undefined
+                }
+              >
+                <CanvasZoomContext.Provider value={zoom}>
+                  <CanvasMobileContext.Provider value={mobile}>
+                    <CanvasRoomContext.Provider
+                      value={size && editMode ? room - contentHeight : Infinity}
+                    >
+                      <div ref={contentRef}>{children}</div>
+                    </CanvasRoomContext.Provider>
+                  </CanvasMobileContext.Provider>
+                </CanvasZoomContext.Provider>
+              </Page>
+            </div>
           </div>
-        </div>
-      </ReportTheme>
-    </Outer>
+        </ReportTheme>
+      </Outer>
+      {scroll && !presenting && <ZoomToolbar zoom={zoom} />}
+    </Wrap>
   );
 }
