@@ -201,7 +201,9 @@ Formats are stored in `position_json`, so they save, undo and export with the da
   page; "Preview" shows it as a phone viewer sees it, or the scaled canvas when the page has no layout.
   Mode, device, fit and safe-area marks are a browser preference (`useMobileViewSettings`), never saved in
   the report. The canvas never fits its visuals while it is open. A phone viewer gives the page the whole
-  width of the screen, less the filter rail.
+  width of the screen, less the closed filter rail, which a phone shows only when the report has filters
+  (`useNativeFilters`). The preview draws what a phone viewer loses around the page (the app bars and that
+  rail, `VIEWER_*` in `DeviceFrame.tsx`, measured on a phone 393 pt wide); keep them in step with the shell.
 - The report is light or dark from the canvas background color (`useReportAppearance`); there are no
   appearance settings.
 - `meta.mibiHidden` hides an object from viewers (faded for editors), `meta.mibiLocked` keeps it from
