@@ -100,7 +100,7 @@ class TestTagging(SupersetTestCase):
         test_chart = Slice(
             slice_name="test_chart",
             datasource_type=DatasourceType.TABLE,
-            viz_type="bubble",
+            viz_type="bubble_v2",
             datasource_id=1,
         )
         db.session.add(test_chart)
@@ -255,7 +255,7 @@ class TestTagging(SupersetTestCase):
         test_chart = Slice(
             slice_name="test_chart",
             datasource_type=DatasourceType.TABLE,
-            viz_type="bubble",
+            viz_type="bubble_v2",
             datasource_id=1,
         )
 

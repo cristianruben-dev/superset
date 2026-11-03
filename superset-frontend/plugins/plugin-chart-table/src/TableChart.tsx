@@ -228,11 +228,20 @@ function cellBackground({
   return `${theme.colorSuccess}50`;
 }
 
-function SortIcon<D extends object>({ column }: { column: ColumnInstance<D> }) {
+function SortIcon<D extends object>({
+  column,
+  savedDesc,
+}: {
+  column: ColumnInstance<D>;
+  /** Direction of the sort saved in the chart on this column, if any */
+  savedDesc?: boolean;
+}) {
   const { isSorted, isSortedDesc } = column;
   let sortIcon = <FaSort />;
   if (isSorted) {
     sortIcon = isSortedDesc ? <FaSortDesc /> : <FaSortAsc />;
+  } else if (savedDesc !== undefined) {
+    sortIcon = savedDesc ? <FaSortDesc /> : <FaSortAsc />;
   }
   return sortIcon;
 }
@@ -354,6 +363,7 @@ export default function TableChart<D extends DataRecord = DataRecord>(
     slice_id,
     columnLabelToNameMap = {},
     tableFormat,
+    savedSort,
   } = props;
 
   const comparisonColumns = useMemo(
@@ -1299,7 +1309,14 @@ export default function TableChart<D extends DataRecord = DataRecord>(
             </StyledCell>
           );
         },
-        Header: ({ column: col, onClick, style, onDragStart, onDrop }) => (
+        Header: ({
+          column: col,
+          onClick,
+          style,
+          onDragStart,
+          onDrop,
+          state,
+        }) => (
           <th
             id={`header-${headerId}`}
             title={
@@ -1364,7 +1381,15 @@ export default function TableChart<D extends DataRecord = DataRecord>(
                   displayLabel
                 )}
               </span>
-              <SortIcon column={col} />
+              <SortIcon
+                column={col}
+                // The order the query was sorted by, until a viewer sorts
+                savedDesc={
+                  !state?.sortBy?.length && savedSort?.key === key
+                    ? savedSort.desc
+                    : undefined
+                }
+              />
             </div>
           </th>
         ),
@@ -1436,6 +1461,7 @@ export default function TableChart<D extends DataRecord = DataRecord>(
       handleContextMenu,
       allowRearrangeColumns,
       tableFormat,
+      savedSort,
     ],
   );
 

@@ -46,6 +46,12 @@ import { getDatasourceUid } from 'src/utils/getDatasourceUid';
 import { getUrlParam } from 'src/utils/urlUtils';
 import { URL_PARAMS } from 'src/constants';
 import { findPermission } from 'src/utils/findPermission';
+import { t } from '@apache-superset/core/translation';
+import { addWarningToast } from 'src/components/MessageToasts/actions';
+import {
+  isUnavailableChartType,
+  unavailableChartTypeName,
+} from 'src/mibi/dashboard/UnavailableChart';
 
 enum ColorSchemeType {
   CATEGORICAL = 'CATEGORICAL',
@@ -79,6 +85,18 @@ export const hydrateExplore =
       const defaultVizType = common?.conf.DEFAULT_VIZ_TYPE || VizType.Table;
       initialFormData.viz_type =
         getUrlParam(URL_PARAMS.vizType) || defaultVizType;
+    } else if (isUnavailableChartType(initialFormData.viz_type)) {
+      // AuraData BI: a chart of a type that was removed opens as a table, so it
+      // can be given another type instead of failing to draw
+      dispatch(
+        addWarningToast(
+          t(
+            '%s charts are no longer available. Pick another chart type and save the chart.',
+            unavailableChartTypeName(initialFormData.viz_type),
+          ),
+        ),
+      );
+      initialFormData.viz_type = VizType.Table;
     }
     if (!initialFormData.time_range) {
       initialFormData.time_range =

@@ -181,7 +181,7 @@ export const sliceEntitiesForDashboard = {
       slice_url: '/explore/?form_data=%7B%22slice_id%22%3A%20132%7D',
       slice_name: 'Life Expectancy VS Rural %',
       form_data: {},
-      viz_type: VizType.LegacyBubble,
+      viz_type: VizType.Bubble,
       datasource: '2__table',
       description: '',
       description_markdown: '',

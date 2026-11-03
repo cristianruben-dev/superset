@@ -809,6 +809,7 @@ const transformProps = (
     slice_id,
     columnLabelToNameMap,
     tableFormat: getTableFormat(formData),
+    savedSort: ensureIsArray(formData.mibi_table_sort)[0],
   };
 };
 

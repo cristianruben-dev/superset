@@ -112,35 +112,6 @@ function getFormattedKey(seriesKey, shouldDompurify) {
   return shouldDompurify ? dompurify.sanitize(seriesKey) : seriesKey;
 }
 
-export function generateCompareTooltipContent(d, valueFormatter) {
-  let tooltip = '';
-  tooltip +=
-    "<table><thead><tr><td colspan='3'>" +
-    `<strong class='x-value'>${d.value}</strong>` +
-    '</td></tr></thead><tbody>';
-  d.series.sort((a, b) => (a.value >= b.value ? -1 : 1));
-  d.series.forEach(series => {
-    const key = getFormattedKey(series.key, true);
-    tooltip +=
-      `<tr class="${series.highlight ? 'emph' : ''}">` +
-      `<td class='legend-color-guide' style="opacity: ${
-        series.highlight ? '1' : '0.75'
-      };"">` +
-      '<div ' +
-      `style="border: 2px solid ${
-        series.highlight ? 'black' : 'transparent'
-      }; background-color: ${series.color};"` +
-      '></div>' +
-      '</td>' +
-      `<td>${key}</td>` +
-      `<td>${valueFormatter(series.value)}</td>` +
-      '</tr>';
-  });
-  tooltip += '</tbody></table>';
-
-  return dompurify.sanitize(tooltip);
-}
-
 export function generateMultiLineTooltipContent(d, xFormatter, yFormatters) {
   const tooltipTitle = xFormatter(d.value);
   let tooltip = '';
@@ -163,67 +134,6 @@ export function generateMultiLineTooltipContent(d, xFormatter, yFormatters) {
   tooltip += '</tbody></table>';
 
   return tooltip;
-}
-
-export function generateTimePivotTooltip(d, xFormatter, yFormatter) {
-  const tooltipTitle = xFormatter(d.value);
-  let tooltip = '';
-
-  tooltip +=
-    "<table><thead><tr><td colspan='3'>" +
-    `<strong class='x-value'>${tooltipTitle}</strong>` +
-    '</td></tr></thead><tbody>';
-
-  d.series.forEach(series => {
-    if (series.highlight) {
-      let label = '';
-      if (series.key === 'current') {
-        label = series.key;
-      } else {
-        label = `${series.key} of the selected frequency:`;
-      }
-      tooltip +=
-        "<tr><td class='legend-color-guide'>" +
-        `<div style="background-color: ${series.color};"></div></td>` +
-        `<td class='key'>${label}</td>` +
-        `<td class='value'>${yFormatter(series.value)}</td></tr>`;
-    }
-  });
-
-  tooltip += '</tbody></table>';
-
-  return dompurify.sanitize(tooltip);
-}
-
-function getLabel(stringOrObjectWithLabel) {
-  return stringOrObjectWithLabel.label || stringOrObjectWithLabel;
-}
-
-function createHTMLRow(col1, col2) {
-  return `<tr><td>${col1}</td><td>${col2}</td></tr>`;
-}
-
-export function generateBubbleTooltipContent({
-  point,
-  entity,
-  xField,
-  yField,
-  sizeField,
-  xFormatter,
-  yFormatter,
-  sizeFormatter,
-}) {
-  let s = '<table>';
-  s +=
-    `<tr><td style="color: ${point.color};">` +
-    `<strong>${point[entity]}</strong> (${point.group})` +
-    '</td></tr>';
-  s += createHTMLRow(getLabel(xField), xFormatter(point.x));
-  s += createHTMLRow(getLabel(yField), yFormatter(point.y));
-  s += createHTMLRow(getLabel(sizeField), sizeFormatter(point.size));
-  s += '</table>';
-
-  return s;
 }
 
 // shouldRemove indicates whether the nvtooltips should be removed from the DOM

@@ -104,6 +104,12 @@ jest.mock(
   }),
 );
 
+let mockDockMode = false;
+jest.mock('src/mibi/chartEditor', () => ({
+  ...jest.requireActual('src/mibi/chartEditor'),
+  isDockMode: () => mockDockMode,
+}));
+
 jest.mock('lodash/debounce', () => ({
   __esModule: true,
   default: (fuc: Function) => fuc,
@@ -919,4 +925,24 @@ test('automatic axis title margin adjustment handles both X and Y axis titles be
     getChartControlPanelRegistry().remove('table');
     jest.restoreAllMocks();
   }
+});
+
+const loadingState = {
+  ...reduxState,
+  charts: {
+    1: { ...reduxState.charts[1], chartStatus: 'loading' },
+  },
+};
+
+test('save waits for the chart to load', async () => {
+  mockDockMode = false;
+  renderWithRouter({ initialState: loadingState });
+  expect(await screen.findByTestId('query-save-button')).toBeDisabled();
+});
+
+test('docked beside the report, save does not wait for a chart it never draws', async () => {
+  mockDockMode = true;
+  renderWithRouter({ initialState: loadingState });
+  expect(await screen.findByTestId('query-save-button')).toBeEnabled();
+  mockDockMode = false;
 });

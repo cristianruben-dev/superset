@@ -61,6 +61,10 @@ export default function initPreamble(): Promise<void> {
       bootstrapData.common.d3_time_format,
     );
 
+    // Before the language pack: the modules of an entry that does not wait for
+    // the preamble (embedded) read the flags as they load
+    initFeatureFlags(bootstrapData.common.feature_flags);
+
     // Setup SupersetClient early so we can fetch language pack
     setupClient({ appRoot: applicationRoot() });
 
@@ -97,7 +101,6 @@ export default function initPreamble(): Promise<void> {
     }
 
     // Continue with rest of setup
-    initFeatureFlags(bootstrapData.common.feature_flags);
 
     setupColors(
       bootstrapData.common.extra_categorical_color_schemes,

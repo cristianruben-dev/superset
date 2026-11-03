@@ -346,6 +346,20 @@ describe('SelectFilterPlugin', () => {
     expect(screen.getByText('is not')).toBeInTheDocument();
   });
 
+  test('Does not pass layout props down to the DOM', () => {
+    const error = jest.spyOn(console, 'error').mockImplementation(() => {});
+    getWrapper({ inverseSelection: true });
+    const unknownProps = error.mock.calls.filter(args =>
+      args.some(
+        arg =>
+          typeof arg === 'string' &&
+          /appSection|inverseSelection|appsection|inverseselection/.test(arg),
+      ),
+    );
+    error.mockRestore();
+    expect(unknownProps).toEqual([]);
+  });
+
   test('Is/Is Not select is not visible when inverseSelection is false', () => {
     getWrapper({ inverseSelection: false });
     expect(screen.queryByText('is not')).not.toBeInTheDocument();

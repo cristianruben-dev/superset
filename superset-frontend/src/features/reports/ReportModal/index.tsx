@@ -86,11 +86,7 @@ interface ReportProps {
   props: any;
 }
 
-const TEXT_BASED_VISUALIZATION_TYPES = [
-  VizType.PivotTable,
-  'table',
-  VizType.PairedTTest,
-];
+const TEXT_BASED_VISUALIZATION_TYPES = [VizType.PivotTable, 'table'];
 
 const INITIAL_STATE = {
   crontab: '0 12 * * 1',

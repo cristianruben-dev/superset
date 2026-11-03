@@ -47,9 +47,6 @@ import {
   cleanColorInput,
   computeYDomain,
   drawBarValues,
-  generateBubbleTooltipContent,
-  generateCompareTooltipContent,
-  generateTimePivotTooltip,
   generateTooltipClassName,
   getMaxLabelSize,
   getTimeOrNumberFormatter,
@@ -65,10 +62,8 @@ import {
   boxPlotValueType,
   bulletDataType,
   categoryAndValueXYType,
-  rgbObjectType,
   numericXYType,
   numberOrAutoType,
-  stringOrObjectWithLabelType,
 } from './PropTypes';
 
 const NO_DATA_RENDER_DATA = [
@@ -125,8 +120,6 @@ const BREAKPOINTS = {
   small: 340,
 };
 
-const TIMESERIES_VIZ_TYPES = [VizType.Compare, VizType.TimePivot];
-
 const CHART_ID_PREFIX = 'chart-id-';
 
 const propTypes = {
@@ -179,15 +172,7 @@ const propTypes = {
   onError: PropTypes.func,
   showLegend: PropTypes.bool,
   showMarkers: PropTypes.bool,
-  vizType: PropTypes.oneOf([
-    VizType.BoxPlot,
-    'bubble',
-    VizType.Bullet,
-    VizType.Compare,
-    'column',
-    VizType.TimePivot,
-    'pie',
-  ]),
+  vizType: PropTypes.oneOf([VizType.BoxPlot, VizType.Bullet, 'column', 'pie']),
   xAxisFormat: PropTypes.string,
   numberFormat: PropTypes.string,
   xAxisLabel: PropTypes.string,
@@ -208,7 +193,6 @@ const propTypes = {
   // 'line-multi' or 'dual-line'
   yAxis2Format: PropTypes.string,
   // 'line', 'time-pivot', 'dual-line' or 'line-multi'
-  lineInterpolation: PropTypes.string,
   // 'pie' only
   isDonut: PropTypes.bool,
   isPieLabelOutside: PropTypes.bool,
@@ -222,17 +206,10 @@ const propTypes = {
   ]),
   showLabels: PropTypes.bool,
   // 'bubble' only
-  entity: PropTypes.string,
-  maxBubbleSize: PropTypes.number,
-  xField: stringOrObjectWithLabelType,
-  yField: stringOrObjectWithLabelType,
-  sizeField: stringOrObjectWithLabelType,
   // time-pivot only
-  baseColor: rgbObjectType,
 };
 
 const NOOP = () => {};
-const formatter = getNumberFormatter();
 
 function nvd3Vis(element, props) {
   const {
@@ -241,22 +218,18 @@ function nvd3Vis(element, props) {
     height: maxHeight,
     annotationData,
     annotationLayers = [],
-    baseColor,
     bottomMargin,
     colorScheme,
     comparisonType,
     contribution,
-    entity,
     isBarStacked,
     isDonut,
     isPieLabelOutside,
     leftMargin,
-    lineInterpolation = 'linear',
     markerLabels,
     markerLines,
     markerLineLabels,
     markers,
-    maxBubbleSize,
     onBrushEnd = NOOP,
     onError = NOOP,
     pieLabelType,
@@ -267,13 +240,11 @@ function nvd3Vis(element, props) {
     showLabels,
     showLegend,
     showMarkers,
-    sizeField,
     vizType,
     xAxisFormat,
     numberFormat,
     xAxisLabel,
     xAxisShowMinMax = false,
-    xField,
     xIsLogScale,
     xTicksLayout,
     yAxisFormat,
@@ -281,7 +252,6 @@ function nvd3Vis(element, props) {
     yAxisLabel,
     yAxisShowMinMax = false,
     yAxis2ShowMinMax = false,
-    yField,
     yIsLogScale,
     sliceId,
   } = props;
@@ -324,7 +294,8 @@ function nvd3Vis(element, props) {
     }
     const height =
       vizType === VizType.Bullet ? Math.min(maxHeight, 50) : maxHeight;
-    const isTimeSeries = isVizTypes(TIMESERIES_VIZ_TYPES);
+    // Only the bullet chart is left in this preset, and it is no time series
+    const isTimeSeries = false;
 
     // Handling xAxis ticks settings
     const staggerLabels = xTicksLayout === 'staggered';
@@ -345,12 +316,6 @@ function nvd3Vis(element, props) {
     const numberFormatter = getNumberFormatter(numberFormat);
 
     switch (vizType) {
-      case VizType.TimePivot:
-        chart = nv.models.lineChart();
-        chart.xScale(d3.time.scale.utc());
-        chart.interpolate(lineInterpolation);
-        break;
-
       case VizType.Pie:
         chart = nv.models.pieChart();
         colorKey = 'x';
@@ -398,36 +363,6 @@ function nvd3Vis(element, props) {
 
       case 'column':
         chart = nv.models.multiBarChart().reduceXTicks(false);
-        break;
-
-      case VizType.Compare:
-        chart = nv.models.cumulativeLineChart();
-        chart.xScale(d3.time.scale.utc());
-        chart.useInteractiveGuideline(true);
-        chart.xAxis.showMaxMin(false);
-        break;
-
-      case VizType.LegacyBubble:
-        chart = nv.models.scatterChart();
-        chart.showDistX(false);
-        chart.showDistY(false);
-        chart.tooltip.contentGenerator(d =>
-          generateBubbleTooltipContent({
-            point: d.point,
-            entity,
-            xField,
-            yField,
-            sizeField,
-            xFormatter: getTimeOrNumberFormatter(xAxisFormat),
-            yFormatter: getTimeOrNumberFormatter(yAxisFormat),
-            sizeFormatter: formatter,
-          }),
-        );
-        chart.pointRange([5, maxBubbleSize ** 2]);
-        chart.pointDomain([
-          0,
-          d3.max(data, d => d3.max(d.values, v => v.size)),
-        ]);
         break;
 
       case VizType.BoxPlot:
@@ -556,30 +491,10 @@ function nvd3Vis(element, props) {
     setAxisShowMaxMin(chart.yAxis, yAxisShowMinMax);
     setAxisShowMaxMin(chart.y2Axis, yAxis2ShowMinMax || yAxisShowMinMax);
 
-    if (vizType === VizType.TimePivot) {
-      if (baseColor) {
-        const { r, g, b } = baseColor;
-        chart.color(d => {
-          const alpha = d.rank > 0 ? d.perc * 0.5 : 1;
-
-          return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-        });
-      }
-
-      chart.useInteractiveGuideline(true);
-      chart.interactiveLayer.tooltip.contentGenerator(d =>
-        generateTimePivotTooltip(d, xAxisFormatter, yAxisFormatter),
-      );
-    } else if (vizType !== VizType.Bullet) {
+    if (vizType !== VizType.Bullet) {
       const colorFn = getScale(colorScheme);
       chart.color(
         d => d.color || colorFn(cleanColorInput(d[colorKey]), sliceId),
-      );
-    }
-
-    if (isVizTypes([VizType.Compare])) {
-      chart.interactiveLayer.tooltip.contentGenerator(d =>
-        generateCompareTooltipContent(d, yAxisFormatter),
       );
     }
 

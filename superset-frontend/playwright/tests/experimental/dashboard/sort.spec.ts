@@ -50,8 +50,10 @@ async function createSortFixture(
   testAssets: TestAssets,
   name: string,
 ): Promise<SortFixture> {
-  const database = await getDatabaseByName(page, 'examples');
-  expect(database?.id, 'examples database').toBeTruthy();
+  // Any connection that runs plain SQL works; `examples` unless told otherwise
+  const databaseName = process.env.PLAYWRIGHT_DATABASE || 'examples';
+  const database = await getDatabaseByName(page, databaseName);
+  expect(database?.id, `${databaseName} database`).toBeTruthy();
   const sql = Object.entries(CATEGORIES)
     .map(
       ([country, sales]) => `SELECT '${country}' AS country, ${sales} AS sales`,

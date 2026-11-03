@@ -227,6 +227,38 @@ function embeddedWebFonts(): Promise<string> {
   return fontCss;
 }
 
+const ONE_LINE = 'data-mibi-one-line';
+
+/**
+ * Marks the elements whose text fits in one line on screen. Text measures
+ * differ slightly in the picture, so these are kept on one line there; text
+ * that wraps on screen, as a long chart title, wraps in the picture too.
+ * Returns the marked elements, to clear them afterwards.
+ */
+export function markOneLineText(root: HTMLElement): HTMLElement[] {
+  const lines = new Map<HTMLElement, boolean>();
+  const range = document.createRange();
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+  for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+    const parent = node.parentElement;
+    if (!parent || !node.textContent?.trim() || lines.get(parent) === false) {
+      continue;
+    }
+    range.selectNodeContents(node);
+    const tops = new Set(
+      Array.from(range.getClientRects?.() ?? [])
+        .filter(rect => rect.width > 0)
+        .map(rect => Math.round(rect.top)),
+    );
+    if (tops.size) lines.set(parent, tops.size === 1);
+  }
+  const marked = [...lines]
+    .filter(([, oneLine]) => oneLine)
+    .map(([element]) => element);
+  marked.forEach(element => element.setAttribute(ONE_LINE, ''));
+  return marked;
+}
+
 /** Takes a picture of the dashboard grid, as shown on screen. */
 export async function captureDashboard(
   theme: SupersetTheme,
@@ -246,6 +278,7 @@ export async function captureDashboard(
       : window.innerHeight,
   );
   const { toCanvas } = domToImage as unknown as { toCanvas: DomToCanvas };
+  const oneLine = markOneLineText(root);
   const canvas = await toCanvas(root, {
     bgcolor: theme.colorBgLayout,
     width,
@@ -258,10 +291,12 @@ export async function captureDashboard(
       // A fixed size canvas is zoomed to fit the screen: capture it at its size
       if (clone instanceof HTMLElement) clone.style.setProperty('zoom', '1');
       const style = document.createElement('style');
-      // Text measures differ slightly in the picture: keep chart titles on one line
+      // Text that fits in one line on screen keeps to one line in the picture
       style.textContent = `${fonts}
-        .header-title, .header-title * {
+        [${ONE_LINE}] {
           white-space: nowrap !important;
+        }
+        .header-title, .header-title * {
           max-height: none !important;
         }`;
       clone.appendChild(style);
@@ -273,7 +308,9 @@ export async function captureDashboard(
           node.classList.contains('mapboxgl-control-container') ||
           node.classList.contains('ant-tabs-tabpane-hidden'))
       ),
-  });
+  }).finally(() =>
+    oneLine.forEach(element => element.removeAttribute(ONE_LINE)),
+  );
   const ratio = canvas.height / height || scale;
   const breaks = cssBreaks
     .map(y => Math.round(y * ratio))

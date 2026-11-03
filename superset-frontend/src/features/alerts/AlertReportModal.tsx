@@ -108,11 +108,7 @@ import { buildErrorTooltipMessage } from './buildErrorTooltipMessage';
 
 const TIMEOUT_MIN = 1;
 const COLLAPSE_ANIMATION_DURATION = 220;
-const TEXT_BASED_VISUALIZATION_TYPES = [
-  VizType.PivotTable,
-  'table',
-  VizType.PairedTTest,
-];
+const TEXT_BASED_VISUALIZATION_TYPES = [VizType.PivotTable, 'table'];
 
 const StyledDivider = styled.span`
   margin: 0 ${({ theme }) => theme.sizeUnit * 3}px;
