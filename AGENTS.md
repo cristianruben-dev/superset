@@ -110,7 +110,7 @@ This repository is **AuraData BI**, a fork of Apache Superset 6.1 shaped like Po
 | Presentation mode, PDF/PNG export | - | `mibi/present`, `mibi/export` |
 | Ribbon and lineage | - | `mibi/ribbon` |
 | Selection pane, locked and hidden objects, page menu | - | `mibi/format/SelectionPane.tsx`, `mibi/format/lock.ts`, `mibi/report/PageMenu.tsx`, `mibi/report/pageActions.ts` |
-| Report interactivity (edit interactions, drill through, sync slicers, bookmarks, Back/bookmark buttons) | - | `mibi/report` |
+| Report interactivity (edit interactions, drill through, sync slicers, bookmarks, Back/bookmark buttons, tooltip pages, reset filters) | - | `mibi/report` |
 | Chart type icons | - | `mibi/vizIcons` |
 
 AuraData BI APIs: `/api/v1/workspace/` (with `<id>/dashboards/` and `<id>/datasets/`),
@@ -205,6 +205,17 @@ Formats are stored in `position_json`, so they save, undo and export with the da
     charts cannot highlight); it saves with the dashboard.
   - "Sync slicers" sets the native filter scope (saved right away, like any filter setting) and
     places copies of the canvas filter on other pages (saved with the dashboard).
+  - Tooltip pages: `TAB-*.meta.mibiTooltipPage` (`{width, height, columns}` in cells) makes a page a
+    tooltip, hidden from viewers (`isHiddenPage`); its top-left area of that size is the tooltip. A chart
+    picks one in General › Tooltips (`meta.mibiFormat.tooltipPage`: `type: 'page'`, `page` or none for
+    Auto, the tooltip page whose `columns` the chart groups by). On hover, `Echart.tsx` calls the
+    plugin's own `contextmenu` handler with a probe mark (`data-mibi-probe`); `ChartRenderer` turns that
+    call into a `mibi:mark-hover` event instead of the menu. `TooltipPageHost` draws the page's charts
+    with `SuperChart` and its own queries (dashboard filters plus the mark's values, outside Redux),
+    after a short wait, cached by form data and aborted when the pointer leaves (`tooltipPages.ts`).
+    Only ECharts charts send marks; dates with a grain are not used as filters.
+  - "Reset filters" (`resetFilters.ts`, reading view and ribbon) sets every native filter and slicer to
+    its default, clears cross-filters, leaves a drill through and drops bookmark visibility overrides.
 - Write layout changes through `src/mibi/format/actions.ts` (`updateLayout`, `setVisualFormat`,
   `setCanvasFormat`, `setSharedVisualFormat`) so edits group into one undo step.
 - A canvas filter of a list of values can draw itself as a dropdown, list, buttons or text box (`mibi/elements/SlicerView.tsx`,

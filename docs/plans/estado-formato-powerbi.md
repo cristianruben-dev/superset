@@ -2,7 +2,7 @@
 
 **Empieza aquí.** Es el resumen de todo: qué fases hay, qué llevamos, qué tenemos y qué falta.
 
-Actualizado: 2026-11-02, con las fases 7, 8 y 10 hechas. Faltan sobre todo la P3 de segmentadores (454 opciones) y las páginas tooltip. Siguiente: **fase 9**.
+Actualizado: 2026-11-03, con las fases 7, 8, 9 y 10 hechas. Falta sobre todo la P3 de segmentadores (454 opciones) y los mapas (fase 11).
 
 ## Dónde está cada cosa
 
@@ -32,7 +32,7 @@ Actualizado: 2026-11-02, con las fases 7, 8 y 10 hechas. Faltan sobre todo la P3
 | 6 | Cascada, embudo, treemap, medidor y dispersión | **Hecha** | 63 |
 | 7 | Segmentadores | **Hecha con límites**; ampliada el 2026-11-03 (ver el plan de pendientes, bloques B y C) | 710, sin regenerar |
 | 8 | Análisis y tooltips | **Hecha con límites** | 57 |
-| 9 | Páginas tooltip y restablecer filtros | **Siguiente** | Fuera del inventario |
+| 9 | Páginas tooltip y restablecer filtros | **Hecha con límites** | Fuera del inventario |
 | 10 | Campos y panel de datos | **Hecha con límites** | Fuera del inventario |
 | 11 | Mapas | Sin decidir el motor | 429 |
 | 12 | Resto de P3 y gráficos nuevos | Opcional | 927 |
@@ -119,7 +119,7 @@ Tarjeta de varias filas y la tarjeta nueva están en `cobertura.md`.
 - **6, hecha con límites:** estilos comunes, conectores de cascada, porcentajes de conversión, espacios del treemap, objetivo numérico del medidor, tamaño de burbujas, línea y=x y sombreado geométrico en ejes numéricos lineales. Siguen pendientes el máximo de desgloses con Otros, algoritmos alternativos de treemap, objetivo por campo en medidor, contención automática y modos de rango de marcadores.
 - **7, hecha con límites:** quedan 134 P1 y 122 P2 de detalle (esquinas individuales, barra de acento, píldoras, imagen en la disposición) y 454 P3 (estados por botón, efectos de imagen, ajuste de fechas y deslizador). El menú de la lista desplegable no se formatea.
 - **8, hecha con límites:** sin deslizador del eje secundario, los límites del zoom van en porcentaje, los múltiplos no tienen formato de cuadrícula ni encabezado propio, y los campos de tooltip solo están en barras, líneas, áreas y dispersión.
-- **9, paridad de reporte:** páginas tooltip, lo que más le falta a SESEQ, y restablecer filtros. No depende del panel.
+- **9, hecha con límites:** una página se marca «Usar como información sobre herramientas» (tamaño y campos propios) y un gráfico la elige en General › Información sobre herramientas, o «Automático» por campos comunes. Al pasar sobre una marca se dibuja flotando, filtrada por ella, con espera de 250 ms, caché por valor y cancelación al salir, sin navegar. Solo los gráficos ECharts (barras, líneas con marcadores, circular, etc.) envían la marca; tablas, tarjetas y mapas no. Las fechas con grano no filtran el tooltip. La página tooltip dibuja gráficos y cuadros de texto, no elementos de diseño (formas, imágenes, botones, segmentadores). La página mantiene el tamaño del reporte en edición y una zona punteada marca el área del tooltip. Necesita el flag `DRILL_TO_DETAIL` (activo). Restablecer filtros vuelve a los valores por defecto de cada filtro y segmentador, quita filtros cruzados y la obtención de detalles, y olvida la visibilidad de un marcador; no cambia de página.
 - **10, hecha con límites:** Deshacer no revierte los campos (hay un botón para volver a los guardados). No se puede soltar un campo sobre el gráfico del lienzo, marcar una casilla para añadirlo ni cambiar el conjunto de datos de un gráfico. Datos lista solo los conjuntos que ya usa algún gráfico del tablero. Los gráficos sin tabla de roles, como mapas, muestran el nombre original de cada control. Abrir el editor de un gráfico con campos pendientes los guarda primero. Solo el propietario de un gráfico o un administrador cambia sus campos, y no se probó con un usuario sin permisos.
 - **11, mapas:** decidir el motor antes de nada.
 - **12, opcional:** barras de error, anomalías, pronóstico, y gráficos por construir como Ribbon.

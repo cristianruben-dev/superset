@@ -141,6 +141,11 @@ mayor parte de las 454 P3 de la fase 7.
 
 **Listo cuando:** InfoMap e InfoEmpleado de SESEQ funcionan como en Power BI.
 
+**Estado (2026-11-03):** hecho con límites. Páginas tooltip en gráficos ECharts y restablecer filtros, probados en
+el tablero 189 «QA páginas tooltip» (datos sintéticos, creado para esto) y con segmentadores en el 187. Fuera: el mapa de
+InfoMap (los mapas no son ECharts, fase 11), elementos de diseño dentro de la página tooltip y fechas como filtro de la
+marca. Sin probar con SESEQ (142).
+
 ## E. Hallazgos de QA y lo no comprobado (M)
 
 De [`qa-main.md`](qa-main.md), sin repetir los ya resueltos (#1, #5, #9, #19, #22) ni el #7 (los temas ya no

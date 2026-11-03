@@ -4,7 +4,7 @@ Fecha: 2026-11-02 · Rama base: `main` (`75c11378e9`)
 Inventario: [`powerbi-format-inventory/`](powerbi-format-inventory/README.md) · Revisión:
 [`2026-11-02-investigacion-ux-powerbi.md`](2026-11-02-investigacion-ux-powerbi.md)
 
-**Estado:** fases 0 a 8 hechas, con commit. La fase 9 es la siguiente. El resumen está en [`estado-formato-powerbi.md`](estado-formato-powerbi.md); aquí, el detalle de cada fase.
+**Estado:** fases 0 a 10 hechas, con commit (la 9 con límites). El resumen está en [`estado-formato-powerbi.md`](estado-formato-powerbi.md); aquí, el detalle de cada fase.
 
 ## Objetivo
 
@@ -54,7 +54,7 @@ Tamaño relativo: S, M, L, XL. Las opciones abiertas de cada fase están en
 | 6 | Cascada, embudo, treemap, medidor, dispersión | Hecha | L | 3 |
 | 7 | Segmentadores | Hecha con límites | L | 1 |
 | 8 | Análisis y tooltips | Hecha con límites | L | 3 |
-| 9 | Paridad de reporte: páginas tooltip y restablecer | Siguiente | L | Ninguna |
+| 9 | Paridad de reporte: páginas tooltip y restablecer | Hecha con límites | L | Ninguna |
 | 10 | Campos y panel de datos | **Hecha con límites** | L | 1 |
 | 11 | Mapas | Sin decidir el motor | Por decidir | 1 |
 | 12 | Resto de P3 y gráficos nuevos | Opcional | Opcional | 3–7 |
@@ -420,6 +420,9 @@ Conectarlos al registro y a las secciones de la fase 3, y añadir lo propio:
   gráficos.
 - **Restablecer filtros** al estado guardado.
 - **Pendientes de la revisión:** pestañas de página abajo, panel de filtros al editar, comentarios si los quieres.
+- **Hecho:** `TAB-*.meta.mibiTooltipPage`, `meta.mibiFormat.tooltipPage`, `src/mibi/report/tooltipPages.ts`,
+  `TooltipPageHost.tsx` y `resetFilters.ts` (botón en la vista de lectura y en la cinta, Inicio › Datos).
+  Límites en [`estado-formato-powerbi.md`](estado-formato-powerbi.md).
 
 ### Fase 10: campos y panel de datos
 
