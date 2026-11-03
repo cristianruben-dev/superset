@@ -158,9 +158,20 @@ Formats are stored in `position_json`, so they save, undo and export with the da
   scatter's shared formatting has already run, so do not apply it twice. Ratio/shading require numeric linear axes.
   Card value controls are unified: `legacyCardFormat` reads older `value`/`label` styles as defaults, and card text sets
   local CSS variables so explicit font settings beat the older important rules without rewriting layouts.
-  Fixed targets, labels and category mappings belong to `OWN_CHART_SETTINGS`. The image at a donut's center,
-  treemap tiling alternatives, automatic marker containment and waterfall max-breakdowns are still open; do not expose
-  controls for them until implemented. Roadmap state is in `docs/plans/estado-formato-powerbi.md`.
+  Fixed targets, labels and category mappings belong to `OWN_CHART_SETTINGS`. A donut's center takes an image of this
+  site or a data address (`center_image`, `sameOriginImage`: an image of another host would taint the canvas and break
+  exports) and a label on its own (`center_label`); a waterfall keeps its `waterfall_max_breakdowns`
+  largest breakdowns per period and adds the rest up; a gauge can read its target from a field (`gauge_target_metric`,
+  a query control). Treemap tiling alternatives (ECharts only has squarify) and automatic marker containment are still
+  open; do not expose controls for them until implemented. Roadmap state is in `docs/plans/estado-formato-powerbi.md`.
+- Lines, areas, steps and smooth lines move a series to a secondary Y axis from `series_format` (`axis: 'secondary'`,
+  `applySecondaryAxis`); the chart keeps one axis object until a series moves, and bars and charts drawn across never
+  get one. Zoom sliders take values instead of percents (`zoom_in_values`) and reach that axis (`zoom_secondary_*`).
+  `value_label_density` hides the label of all but every step-th point. The combo's tooltip fields are a third query by
+  the X-axis only. A matrix freezes its row headers (`table_freeze_row_headers`, offsets measured per level in
+  `TableRenderer`) and its value cells open tooltip pages. Small multiples read their grid format from `matrixify_grid_*`,
+  `matrixify_cell_*` and `matrixify_header_*` (`matrixifyGridStyle`). A table can describe the images of a row by another
+  column (`table_alt_text_column`) and name its rows by one (`table_row_reference_column`, a `rowheader` cell).
 - A control goes in the first section of `CARD_DEFINITIONS` that names it, and `table_cell` only exists for tables.
 - Tables and matrices share render-only controls and scoped CSS in
   `packages/superset-ui-chart-controls/src/sections/tableFormat.ts`; the plain table keeps its existing

@@ -166,3 +166,35 @@ test('hide totals', () => {
     ['-', '-'],
   ]);
 });
+
+test('a period keeps its largest breakdowns and adds the rest up', () => {
+  const chartProps = new ChartProps({
+    formData: {
+      ...formData,
+      groupby: 'name',
+      waterfallMaxBreakdowns: 1,
+      waterfallOtherLabel: 'Rest',
+    },
+    width: 800,
+    height: 600,
+    queriesData: [
+      {
+        data: [
+          { year: '2019', name: 'Sylvester', sum: 2 },
+          { year: '2019', name: 'Arnold', sum: -9 },
+          { year: '2019', name: 'Bruce', sum: 4 },
+        ],
+      },
+    ],
+    theme: supersetTheme,
+  });
+  const transformedProps = transformProps(
+    chartProps as unknown as EchartsWaterfallChartProps,
+  );
+  const { xAxis } = transformedProps.echartOptions as unknown as {
+    xAxis: { data: string[] };
+  };
+  expect(xAxis.data.slice(0, 2)).toEqual(['Arnold', 'Rest']);
+  // The rest keeps its sum, so the total of the period stays -9 + 2 + 4
+  expect(extractSeries(transformedProps)[3]).toEqual(['-', '-', -3]);
+});

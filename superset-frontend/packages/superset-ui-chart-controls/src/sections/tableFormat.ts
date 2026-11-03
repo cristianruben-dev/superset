@@ -274,11 +274,68 @@ export function buildTableFormatSections(
       ],
     ],
   };
-  if (!matrix) return [headers, cells, totals, grid, sparkline];
+  // Columns of the table a screen reader option can name
+  const columnChoices = {
+    shouldMapStateToProps: () => true,
+    mapStateToProps: (state: {
+      controls?: Record<string, { value?: unknown }>;
+    }) => {
+      const raw = state.controls?.query_mode?.value === 'raw';
+      const columns = (state.controls?.[raw ? 'all_columns' : 'groupby']
+        ?.value ?? []) as import('@superset-ui/core').QueryFormColumn[];
+      return {
+        choices: columns
+          .map(getColumnLabel)
+          .map(label => [label, label] as [string, string]),
+      };
+    },
+  };
+  const accessibility: ControlPanelSectionConfig = {
+    label: t('Accessibility'),
+    tabOverride: 'customize',
+    expanded: false,
+    controlSetRows: [
+      [
+        control(
+          'table_alt_text_column',
+          t('Column with alt text'),
+          'SelectControl',
+          {
+            description: t(
+              'The images of a row are described by the value of this column',
+            ),
+            clearable: true,
+            ...columnChoices,
+          },
+        ),
+      ],
+      [
+        control(
+          'table_row_reference_column',
+          t('Refer to row by'),
+          'SelectControl',
+          {
+            description: t(
+              'A screen reader names each row by the value of this column',
+            ),
+            clearable: true,
+            ...columnChoices,
+          },
+        ),
+      ],
+    ],
+  };
+  if (!matrix) return [headers, cells, totals, grid, sparkline, accessibility];
   const rows = textSection('table_row_header', t('Row headers'));
   rows.controlSetRows.push(
     [toggle('table_row_header_url_icon', t('Show URLs as icons'))],
     [toggle('table_banded_row_headers', t('Banded row headers'))],
+    [
+      toggle(
+        'table_freeze_row_headers',
+        t('Freeze row headers when scrolling sideways'),
+      ),
+    ],
     [toggle('table_stepped', t('Stepped layout'))],
     [number('table_stepped_indent', t('Indentation'), 100)],
     [number('table_row_expand_depth', t('Row expansion depth'), 20)],

@@ -16,14 +16,29 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { buildQueryContext, QueryFormData } from '@superset-ui/core';
+import {
+  buildQueryContext,
+  ensureIsArray,
+  getMetricLabel,
+  QueryFormData,
+  QueryFormMetric,
+} from '@superset-ui/core';
 
 export default function buildQuery(formData: QueryFormData) {
   const { metric, sort_by_metric } = formData;
-  return buildQueryContext(formData, baseQueryObject => [
-    {
-      ...baseQueryObject,
-      ...(sort_by_metric && { orderby: [[metric, false]] }),
-    },
-  ]);
+  // The target of a gauge can come from a field, as Power BI's target value
+  const target = formData.gauge_target_metric as QueryFormMetric | undefined;
+  return buildQueryContext(formData, baseQueryObject => {
+    const metrics = ensureIsArray(baseQueryObject.metrics);
+    return [
+      {
+        ...baseQueryObject,
+        ...(target &&
+          !metrics.some(
+            item => getMetricLabel(item) === getMetricLabel(target),
+          ) && { metrics: [...metrics, target] }),
+        ...(sort_by_metric && { orderby: [[metric, false]] }),
+      },
+    ];
+  });
 }

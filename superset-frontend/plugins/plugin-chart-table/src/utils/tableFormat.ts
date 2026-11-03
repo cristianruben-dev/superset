@@ -178,3 +178,22 @@ export function getCellIcon(
     ? { icon: rule.icon, color: toCssColor(rule.color) }
     : undefined;
 }
+
+const escapeAttribute = (value: string) =>
+  value
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+
+/**
+ * Gives the images of a cell without a description the text of another column
+ * of its row, as Power BI's "Column with alt text" does.
+ */
+export function withImageAltText(html: string, alt: unknown): string {
+  if (alt === null || alt === undefined || alt === '') return html;
+  return html.replace(
+    /<img\b(?![^>]*\salt\s*=)/gi,
+    `<img alt="${escapeAttribute(String(alt))}"`,
+  );
+}

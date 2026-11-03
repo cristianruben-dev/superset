@@ -281,6 +281,33 @@ describe('Echarts Gauge transformProps', () => {
   });
 });
 
+test('a gauge draws its target from a field', () => {
+  const chartProps = new ChartProps({
+    formData: {
+      datasource: '26__table',
+      viz_type: VizType.Gauge,
+      metric: 'count',
+      gauge_target_metric: 'goal',
+      minVal: 0,
+      maxVal: 100,
+      groupby: [],
+    },
+    width: 800,
+    height: 600,
+    queriesData: [
+      { colnames: ['count', 'goal'], data: [{ count: 40, goal: 75 }] },
+    ],
+    theme: supersetTheme,
+  });
+  const result = transformProps(
+    chartProps as unknown as EchartsGaugeChartProps,
+  );
+  const target = (
+    result.echartOptions as { series: { id?: string; data: unknown[] }[] }
+  ).series.find(series => series.id === '__mibi_gauge_target');
+  expect(target?.data).toEqual([{ value: 75 }]);
+});
+
 describe('Min/Max calculation and axis labels', () => {
   const baseFormData: SqlaFormData = {
     datasource: '26__table',

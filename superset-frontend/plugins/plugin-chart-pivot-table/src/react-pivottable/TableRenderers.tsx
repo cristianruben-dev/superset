@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, Fragment, ReactNode, MouseEvent } from 'react';
+import { Component, createRef, Fragment, ReactNode, MouseEvent } from 'react';
 import {
   safeHtmlSpan,
   getNumberFormatter,
@@ -371,6 +371,8 @@ export class TableRenderer extends Component<
   columnRanges: Record<string, [number, number]> = {};
   cachedProps: TableRendererProps | null;
   cachedBasePivotSettings: PivotSettings | null;
+
+  tableRef = createRef<HTMLTableElement>();
 
   static propTypes: Record<string, unknown>;
   static defaultProps: Record<string, unknown>;
@@ -892,6 +894,7 @@ export class TableRenderer extends Component<
           colSpan={rowAttrs.length}
           rowSpan={colAttrs.length}
           aria-hidden="true"
+          data-mibi-level={0}
         />
       ) : null;
 
@@ -907,7 +910,11 @@ export class TableRenderer extends Component<
       subArrow = attrIdx + 1 < maxColVisible! ? arrowExpanded : arrowCollapsed;
     }
     const attrNameCell = (
-      <th key="label" className="pvtAxisLabel">
+      <th
+        key="label"
+        className="pvtAxisLabel"
+        data-mibi-level={rowAttrs.length}
+      >
         {displayHeaderCell(
           needToggle,
           subArrow,
@@ -1133,7 +1140,12 @@ export class TableRenderer extends Component<
             subArrow = i + 1 < maxRowVisible! ? arrowExpanded : arrowCollapsed;
           }
           return (
-            <th className="pvtAxisLabel" key={`rowAttr-${i}`}>
+            <th
+              className="pvtAxisLabel"
+              key={`rowAttr-${i}`}
+              data-mibi-level={i}
+              data-mibi-head={i}
+            >
               {displayHeaderCell(
                 needLabelToggle,
                 subArrow,
@@ -1148,6 +1160,8 @@ export class TableRenderer extends Component<
         <th
           className="pvtTotalLabel"
           key="padding"
+          data-mibi-level={rowAttrs.length}
+          data-mibi-head={rowAttrs.length}
           role="columnheader button"
           onClick={this.clickHeaderHandler(
             pivotData,
@@ -1262,6 +1276,7 @@ export class TableRenderer extends Component<
             key={`rowKeyLabel-${i}`}
             className={valueCellClassName}
             style={style}
+            data-mibi-level={i}
             rowSpan={rowSpan}
             colSpan={colSpan}
             role="columnheader button"
@@ -1306,6 +1321,7 @@ export class TableRenderer extends Component<
         <th
           className="pvtRowLabel pvtSubtotalLabel"
           key="rowKeyBuffer"
+          data-mibi-level={rowKey.length}
           colSpan={rowAttrs.length - rowKey.length + colIncrSpan}
           rowSpan={1}
           role="columnheader button"
@@ -1377,6 +1393,8 @@ export class TableRenderer extends Component<
           key={`pvtVal-${flatColKey}`}
           onClick={rowClickHandlers[flatColKey]}
           onContextMenu={e => this.props.onContextMenu(e, colKey, rowKey)}
+          onMouseEnter={e => this.hoverCell(e, colKey, rowKey)}
+          onMouseLeave={this.leaveCell}
           style={{
             ...style,
             ...(config.showCellBars === true && { position: 'relative' }),
@@ -1456,6 +1474,7 @@ export class TableRenderer extends Component<
       <th
         key="stepped"
         className="pvtRowLabel"
+        data-mibi-level={0}
         colSpan={rowAttrs.length + colIncrSpan}
         style={{
           ...getTableColumnStyle(steppedConfig, 'header'),
@@ -1612,6 +1631,7 @@ export class TableRenderer extends Component<
       <th
         key="label"
         className="pvtTotalLabel pvtRowTotalLabel"
+        data-mibi-level={0}
         colSpan={rowAttrs.length + Math.min(colAttrs.length, 1)}
         role="columnheader button"
         onClick={this.clickHeaderHandler(
@@ -1703,6 +1723,61 @@ export class TableRenderer extends Component<
 
   isDashboardEditMode() {
     return document.contains(document.querySelector('.dashboard--editing'));
+  }
+
+  /**
+   * AuraData BI: with a tooltip page, the cell under the pointer is told to the
+   * report through the context menu handler, which the chart renderer reads as
+   * a hover while the probe mark is on.
+   */
+  hoverCell(e: MouseEvent<HTMLElement>, colKey?: string[], rowKey?: string[]) {
+    const cell = e.currentTarget;
+    if (!cell.closest('[data-mibi-tooltip-page]')) return;
+    cell.dataset.mibiProbe = 'true';
+    try {
+      this.props.onContextMenu(e, colKey, rowKey);
+    } finally {
+      delete cell.dataset.mibiProbe;
+    }
+  }
+
+  leaveCell = (e: MouseEvent<HTMLElement>) => {
+    if (e.currentTarget.closest('[data-mibi-tooltip-page]')) {
+      window.dispatchEvent(new CustomEvent('mibi:mark-leave'));
+    }
+  };
+
+  freezesRowHeaders() {
+    return (
+      this.props.tableOptions.tableFormat?.table_freeze_row_headers === true
+    );
+  }
+
+  /**
+   * Gives each level of the row headers the left offset where it stays while
+   * the table scrolls sideways: the widths of the levels before it.
+   */
+  placeFrozenRowHeaders() {
+    const table = this.tableRef.current;
+    if (!table || !this.freezesRowHeaders()) return;
+    let left = 0;
+    table
+      .querySelectorAll<HTMLElement>('thead th[data-mibi-head]')
+      .forEach(head => {
+        table.style.setProperty(
+          `--mibi-freeze-${head.dataset.mibiHead}`,
+          `${left}px`,
+        );
+        left += head.getBoundingClientRect().width;
+      });
+  }
+
+  componentDidMount() {
+    this.placeFrozenRowHeaders();
+  }
+
+  componentDidUpdate() {
+    this.placeFrozenRowHeaders();
   }
 
   componentWillUnmount() {
@@ -1833,8 +1908,11 @@ export class TableRenderer extends Component<
     );
     const totalRow = colTotals ? this.renderTotalsRow(pivotSettings) : null;
     return (
-      <Styles isDashboardEditMode={this.isDashboardEditMode()}>
-        <table className="pvtTable" role="grid">
+      <Styles
+        isDashboardEditMode={this.isDashboardEditMode()}
+        freezeRowHeaders={this.freezesRowHeaders()}
+      >
+        <table className="pvtTable" role="grid" ref={this.tableRef}>
           <thead>{renderedHeaders}</thead>
           <tbody>
             {visibleRowKeys.map((r: string[], i: number) =>

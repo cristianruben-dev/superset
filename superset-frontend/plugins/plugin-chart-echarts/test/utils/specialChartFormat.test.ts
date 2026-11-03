@@ -16,7 +16,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { applySpecialChartFormat } from '../../src/utils/specialChartFormat';
+import {
+  applySpecialChartFormat,
+  sameOriginImage,
+} from '../../src/utils/specialChartFormat';
 
 const dimensions = { width: 400, height: 300 };
 
@@ -115,6 +118,33 @@ test('the center label has its own line and style over the value', () => {
   expect(style.rich.value.fontSize).toBe(20);
 });
 
+test('the center of a donut takes an image and a label on its own', () => {
+  const next = applySpecialChartFormat(
+    { series: [{ type: 'pie', radius: ['30%', '60%'], data: [{ value: 5 }] }] },
+    {
+      centerValueShow: false,
+      centerLabel: 'Ventas',
+      centerImage: '/static/assets/images/logo.png',
+      centerImageSize: 50,
+    } as never,
+    'pie',
+    { width: 100, height: 100 },
+  ) as unknown as { graphic: Record<string, any>[] };
+  expect(next.graphic).toHaveLength(2);
+  expect(next.graphic[0]).toMatchObject({
+    type: 'image',
+    style: { image: '/static/assets/images/logo.png', width: 15, height: 15 },
+  });
+  expect(next.graphic[1].style.text).toBe('{label|Ventas}');
+  const hidden = applySpecialChartFormat(
+    { series: [{ type: 'pie', data: [{ value: 5 }] }], graphic: {} },
+    { centerValueShow: false } as never,
+    'pie',
+    { width: 100, height: 100 },
+  ) as unknown as { graphic: unknown };
+  expect(hidden.graphic).toBeNull();
+});
+
 test('labels keep the content the chart saved, as a funnel saves it', () => {
   const formatOf = (format: object) =>
     (
@@ -133,4 +163,17 @@ test('labels keep the content the chart saved, as a funnel saves it', () => {
     ).series[0].label.formatter({ name: 'A', value: 5, data: {} });
   expect(formatOf({ labelType: 3 })).toBe('{category|A}: {value|5}');
   expect(formatOf({})).toBe('{category|A}');
+});
+
+test('the center image only takes addresses of this site', () => {
+  expect(sameOriginImage('/static/a.png')).toBe('/static/a.png');
+  expect(sameOriginImage('data:image/png;base64,AA')).toBe(
+    'data:image/png;base64,AA',
+  );
+  expect(sameOriginImage(`${window.location.origin}/a.png`)).toBe(
+    `${window.location.origin}/a.png`,
+  );
+  expect(sameOriginImage('https://example.com/a.png')).toBe('');
+  expect(sameOriginImage('//example.com/a.png')).toBe('');
+  expect(sameOriginImage('ftp://example.com/a.png')).toBe('');
 });

@@ -463,6 +463,18 @@ const labelBlockRows = (
       t('Leave out the labels that would cover another one'),
     ),
   ],
+  [
+    numberControl(
+      'value_label_density',
+      t('Label density (%)'),
+      t(
+        'The share of the points that show their label: 50 shows every other one',
+      ),
+      100,
+      1,
+      100,
+    ),
+  ],
   ...unitRows('value_label', t('The scale of the values in the labels')),
   [
     checkboxControl(
@@ -984,7 +996,7 @@ export const getCategoryNamesFromChart = (
 };
 
 const seriesFormatControl = (
-  fields: ('labels' | 'bars' | 'lines' | 'markers')[],
+  fields: ('labels' | 'bars' | 'lines' | 'markers' | 'axis')[],
 ): ControlSetItem => ({
   name: 'series_format',
   config: {
@@ -1020,10 +1032,13 @@ export const buildSeriesFormatSection = ({
   lines = true,
   markers = true,
   bars = true,
+  axis = false,
 }: {
   lines?: boolean;
   markers?: boolean;
   bars?: boolean;
+  /** Lets a series move to the secondary Y axis. */
+  axis?: boolean;
 } = {}): ControlPanelSectionConfig => ({
   label: t('Series format'),
   description: t('Colors, lines, markers and bars of each series'),
@@ -1044,6 +1059,7 @@ export const buildSeriesFormatSection = ({
         ...(bars ? (['bars'] as const) : []),
         ...(lines ? (['lines'] as const) : []),
         ...(markers ? (['markers'] as const) : []),
+        ...(axis ? (['axis'] as const) : []),
       ]),
     ],
     ...(lines

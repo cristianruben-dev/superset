@@ -60,6 +60,8 @@ export type SeriesOverride = {
   markerSymbol?: string | null;
   markerSize?: Numeric;
   barTransparency?: Numeric;
+  /** 'secondary' draws the series against a second value axis. */
+  axis?: string | null;
 };
 
 export type ChartFormatOptions = {
@@ -95,6 +97,8 @@ export type ChartFormatOptions = {
   valueLabelMaxWidth?: Numeric;
   valueLabelOverflow?: string | null;
   valueLabelHideOverlap?: boolean | null;
+  /** The share of the labels shown, in percent: 50 shows every other one. */
+  valueLabelDensity?: Numeric;
   valueLabelDistance?: Numeric;
   valueLabelAlign?: string | null;
   valueLabelUnits?: string | null;
@@ -276,6 +280,60 @@ export const secondaryYAxisFormatOptions = (
   ...(format.yAxisSwitchPosition && { position: 'left' }),
 });
 
+/** The names of the series that their own format moves to the second axis. */
+export const secondaryAxisSeries = (format: ChartFormatOptions): Set<string> =>
+  new Set(
+    isRecord(format.seriesFormat)
+      ? Object.entries(format.seriesFormat)
+          .filter(([, own]) => isRecord(own) && own.axis === 'secondary')
+          .map(([name]) => name)
+      : [],
+  );
+
+/**
+ * Draws the series of `names` against a second value axis facing the first, as
+ * Power BI does for a line chart. A series on that axis leaves the stack of the
+ * others. Returns the options untouched when none of the series is moved.
+ */
+export function applySecondaryAxis<T extends object>(
+  options: T,
+  names: Set<string>,
+  secondaryAxis: Anything,
+): T {
+  const source = options as Anything;
+  const list = source.series as Anything[];
+  if (
+    !names.size ||
+    !Array.isArray(list) ||
+    !isRecord(source.yAxis) ||
+    !list.some(series => names.has(String(series.name)))
+  ) {
+    return options;
+  }
+  return {
+    ...source,
+    yAxis: [
+      { ...source.yAxis, alignTicks: true },
+      {
+        ...secondaryAxis,
+        position: secondaryAxis.position ?? 'right',
+        alignTicks: true,
+      },
+    ],
+    series: list.map(series =>
+      names.has(String(series.name))
+        ? {
+            ...series,
+            yAxisIndex: 1,
+            ...(series.stack !== undefined && {
+              stack: `${series.stack}__mibi_secondary`,
+            }),
+          }
+        : series,
+    ),
+  } as T;
+}
+
 /* -------------------------------------------------------------------------
  * One series
  * ---------------------------------------------------------------------- */
@@ -367,6 +425,16 @@ function applyLabelFormat(
   next.label = label;
   if (format.valueLabelHideOverlap) {
     next.labelLayout = { ...next.labelLayout, hideOverlap: true };
+  }
+  const density = toBoundedNumber(format.valueLabelDensity, 100, 1, 100);
+  if (density < 100 && label.show !== false && Array.isArray(next.data)) {
+    // Label density as Power BI has it: every step-th point keeps its label
+    const step = Math.max(1, Math.round(100 / density));
+    next.data = next.data.map((point: unknown, index: number) => {
+      if (index % step === 0) return point;
+      const base: Anything = isRecord(point) ? point : { value: point };
+      return { ...base, label: { ...base.label, show: false } };
+    });
   }
 }
 

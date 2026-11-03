@@ -304,6 +304,26 @@ function scatterExtras(options: Node, list: Node[], format: Format) {
 }
 
 /** Apply optional family controls to an existing option, preserving its data and hooks. */
+/**
+ * An image the chart can draw and still export: a path of this site, a data
+ * address or an address on this same host. One on another host would taint
+ * the canvas, so a picture of the report could not be taken.
+ */
+export function sameOriginImage(value: unknown): string {
+  const url = typeof value === 'string' ? value.trim() : '';
+  if (!url) return '';
+  if (url.startsWith('data:image/')) return url;
+  if (url.startsWith('/') && !url.startsWith('//')) return url;
+  try {
+    return typeof window !== 'undefined' &&
+      new URL(url).origin === window.location.origin
+      ? url
+      : '';
+  } catch {
+    return '';
+  }
+}
+
 export function applySpecialChartFormat<T extends object>(
   options: T,
   format: Format,
@@ -625,89 +645,113 @@ export function applySpecialChartFormat<T extends object>(
       set(format.centerLabel) ||
       set(format.centerLabelFont) ||
       set(format.centerBackgroundShow) ||
-      set(format.centerBackgroundColor))
+      set(format.centerBackgroundColor) ||
+      set(format.centerImage))
   ) {
-    if (format.centerValueShow === false) next.graphic = null;
-    else {
-      const base = record(source.graphic);
-      const style = record(base.style);
-      const total = (
-        Array.isArray(list[0]?.data) ? list[0].data : []
-      ).reduce<number>((sum, point) => sum + (valueOf(point) ?? 0), 0);
-      const number = (
-        getDisplayFormatter(
-          format.centerValueUnits as string | undefined,
-          format.centerValueDecimals as number | undefined,
-        ) ?? formatter
-      )(total);
-      const textStyle = font(format.centerValueFont);
-      const { color: textColor, ...rest } = textStyle;
-      const { color: labelColor, ...labelRest } = font(format.centerLabelFont);
-      // The label has its own line and style over the value
-      const text = format.centerLabel
-        ? `{label|${safeRich(format.centerLabel)}}\n{value|${safeRich(number)}}`
-        : number;
-      const center = {
-        ...base,
-        type: 'text',
-        left: base.left ?? 'center',
-        top: base.top ?? 'middle',
-        z: 10,
-        style: {
-          ...style,
-          text,
-          ...rest,
-          ...(textColor ? { fill: textColor } : {}),
-          ...(format.centerLabel
-            ? {
-                rich: {
-                  label: {
-                    lineHeight: (labelRest.fontSize ?? 12) * 1.5,
-                    ...labelRest,
-                    ...(labelColor ? { fill: labelColor } : {}),
-                  },
-                  value: {
-                    lineHeight: (rest.fontSize ?? 16) * 1.3,
-                    ...rest,
-                    ...(textColor ? { fill: textColor } : {}),
-                  },
+    const base = record(source.graphic);
+    const style = record(base.style);
+    const showValue = format.centerValueShow !== false;
+    const label = format.centerLabel ? safeRich(format.centerLabel) : '';
+    const total = (
+      Array.isArray(list[0]?.data) ? list[0].data : []
+    ).reduce<number>((sum, point) => sum + (valueOf(point) ?? 0), 0);
+    const number = (
+      getDisplayFormatter(
+        format.centerValueUnits as string | undefined,
+        format.centerValueDecimals as number | undefined,
+      ) ?? formatter
+    )(total);
+    const textStyle = font(format.centerValueFont);
+    const { color: textColor, ...rest } = textStyle;
+    const { color: labelColor, ...labelRest } = font(format.centerLabelFont);
+    // The label has its own line and style over the value, and shows on its
+    // own when the value is hidden
+    const lines = [
+      ...(label ? [`{label|${label}}`] : []),
+      ...(showValue ? [`{value|${safeRich(number)}}`] : []),
+    ];
+    const center =
+      lines.length > 0
+        ? {
+            ...base,
+            type: 'text',
+            left: base.left ?? 'center',
+            top: base.top ?? 'middle',
+            z: 10,
+            style: {
+              ...style,
+              text: lines.join('\n'),
+              ...rest,
+              ...(textColor ? { fill: textColor } : {}),
+              rich: {
+                label: {
+                  lineHeight: (labelRest.fontSize ?? 12) * 1.5,
+                  ...labelRest,
+                  ...(labelColor ? { fill: labelColor } : {}),
                 },
-              }
-            : {}),
-          align: 'center',
-          verticalAlign: 'middle',
-        },
-      };
-      const radius = Array.isArray(list[0]?.radius)
-        ? (parseFloat(String(list[0].radius[0])) * Math.min(width, height)) /
-          200
-        : Math.min(width, height) * 0.2;
-      next.graphic =
-        format.centerBackgroundShow === true &&
-        color(format.centerBackgroundColor)
-          ? [
-              {
-                type: 'circle',
-                left: 'center',
-                top: 'middle',
-                z: 9,
-                shape: {
-                  r: Math.max(
-                    0,
-                    radius - bound(format.centerBackgroundPadding, 0, 0, 100),
-                  ),
-                },
-                style: {
-                  fill: color(format.centerBackgroundColor),
-                  opacity:
-                    1 -
-                    bound(format.centerBackgroundTransparency, 0, 0, 100) / 100,
+                value: {
+                  lineHeight: (rest.fontSize ?? 16) * 1.3,
+                  ...rest,
+                  ...(textColor ? { fill: textColor } : {}),
                 },
               },
-              center,
-            ]
-          : center;
-    }
+              align: 'center',
+              verticalAlign: 'middle',
+            },
+          }
+        : undefined;
+    const radius = Array.isArray(list[0]?.radius)
+      ? (parseFloat(String(list[0].radius[0])) * Math.min(width, height)) / 200
+      : Math.min(width, height) * 0.2;
+    const imageUrl = sameOriginImage(format.centerImage);
+    const imageSize =
+      (radius * 2 * bound(format.centerImageSize, 60, 5, 100)) / 100;
+    const graphic = [
+      ...(format.centerBackgroundShow === true &&
+      color(format.centerBackgroundColor)
+        ? [
+            {
+              type: 'circle',
+              left: base.left ?? 'center',
+              top: base.top ?? 'middle',
+              z: 9,
+              shape: {
+                r: Math.max(
+                  0,
+                  radius - bound(format.centerBackgroundPadding, 0, 0, 100),
+                ),
+              },
+              style: {
+                fill: color(format.centerBackgroundColor),
+                opacity:
+                  1 -
+                  bound(format.centerBackgroundTransparency, 0, 0, 100) / 100,
+              },
+            },
+          ]
+        : []),
+      ...(imageUrl && imageSize > 0
+        ? [
+            {
+              type: 'image',
+              id: '__mibi_center_image',
+              left: base.left ?? 'center',
+              top: base.top ?? 'middle',
+              z: 9,
+              style: {
+                image: imageUrl,
+                width: imageSize,
+                height: imageSize,
+                opacity:
+                  1 - bound(format.centerImageTransparency, 0, 0, 100) / 100,
+              },
+            },
+          ]
+        : []),
+      ...(center ? [center] : []),
+    ];
+    next.graphic =
+      graphic.length === 0 ? null : graphic.length === 1 ? graphic[0] : graphic;
   }
   if (
     kind === 'gauge' &&

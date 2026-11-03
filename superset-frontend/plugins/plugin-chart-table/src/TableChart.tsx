@@ -105,6 +105,7 @@ import {
   getCellIcon,
   getTableClassName,
   getTableFormatCss,
+  withImageAltText,
 } from './utils/tableFormat';
 
 type ValueRange = [number, number];
@@ -999,7 +1000,16 @@ export default function TableChart<D extends DataRecord = DataRecord>(
           }
           const columnStyle = getTableColumnStyle(config, 'values');
           const [isHtml, text] = formatColumnValue(column, value, row.original);
-          const html = isHtml && allowRenderHtml ? { __html: text } : undefined;
+          const altColumn = tableFormat?.options.table_alt_text_column;
+          const html =
+            isHtml && allowRenderHtml
+              ? {
+                  __html:
+                    typeof altColumn === 'string'
+                      ? withImageAltText(text, row.original[altColumn])
+                      : text,
+                }
+              : undefined;
 
           // "Table format" conditional icons are user-chosen, so their color
           // is applied inline.
@@ -1171,7 +1181,11 @@ export default function TableChart<D extends DataRecord = DataRecord>(
 
           const cellProps = {
             'aria-labelledby': `header-${headerId}`,
-            role: 'cell',
+            // A screen reader names the row by the column chosen for it
+            role:
+              tableFormat?.options.table_row_reference_column === column.key
+                ? 'rowheader'
+                : 'cell',
             // show raw number in title in case of numeric values
             title: typeof value === 'number' ? String(value) : undefined,
             onClick:

@@ -17,9 +17,16 @@
  * under the License.
  */
 
-import { useMemo } from 'react';
+import { useMemo, type CSSProperties } from 'react';
 import { styled } from '@apache-superset/core/theme';
 import { MatrixifyFormData } from '../../types/matrixify';
+import {
+  getCustomFontCss,
+  toBoundedNumber,
+  toCssColor,
+  type ColorInput,
+  type FontStyleValue,
+} from '../../visualFormatting';
 import { generateMatrixifyGrid } from './MatrixifyGridGenerator';
 import MatrixifyGridCell from './MatrixifyGridCell';
 
@@ -64,7 +71,7 @@ const GridLayout = styled.div<{
     hasColumnHeaders
       ? `grid-template-rows: ${HEADER_HEIGHT}px; grid-auto-rows: ${rowHeight}px;`
       : `grid-auto-rows: ${rowHeight}px;`}
-  gap: ${GRID_GAP}px;
+  gap: var(--mibi-mx-gap, ${GRID_GAP}px);
   width: 100%;
   min-width: 0;
   min-height: 0;
@@ -75,17 +82,31 @@ const GridGroup = styled.div<{ isLast: boolean }>`
 `;
 
 const GridHeader = styled.div`
-  background-color: ${({ theme }) => theme.colorFillAlter};
+  background-color: var(
+    --mibi-mx-header-bg,
+    ${({ theme }) => theme.colorFillAlter}
+  );
+  color: var(--mibi-mx-header-color, inherit);
+  font-family: var(--mibi-mx-header-family, inherit);
+  font-style: var(--mibi-mx-header-style, normal);
   padding: ${({ theme }) => theme.sizeUnit / 2}px; /* Reduced padding */
-  font-weight: ${({ theme }) => theme.fontWeightStrong};
-  text-align: center;
-  border: 1px solid ${({ theme }) => theme.colorBorder};
+  font-weight: var(
+    --mibi-mx-header-weight,
+    ${({ theme }) => theme.fontWeightStrong}
+  );
+  text-align: var(--mibi-mx-header-align, center);
+  border: var(
+    --mibi-mx-header-border,
+    1px solid ${({ theme }) => theme.colorBorder}
+  );
   border-radius: ${({ theme }) => theme.borderRadius}px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  font-size: ${({ theme }) =>
-    theme.fontSizeSM}px; /* Back to small (readable) font */
+  font-size: var(
+    --mibi-mx-header-size,
+    ${({ theme }) => theme.fontSizeSM}px
+  ); /* Back to small (readable) font */
 
   &.matrixify-row-header {
     writing-mode: vertical-rl;
@@ -103,9 +124,77 @@ const GridHeader = styled.div`
     height: ${HEADER_HEIGHT}px;
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: var(--mibi-mx-header-justify, center);
   }
 `;
+
+const JUSTIFY: Record<string, string> = {
+  left: 'flex-start',
+  center: 'center',
+  right: 'flex-end',
+};
+
+/**
+ * The look of the grid of small multiples, as CSS variables its headers and
+ * cells read: gap, cell border and background, and the font, background and
+ * alignment of the headers. Settings left empty keep the look of the theme.
+ */
+export function matrixifyGridStyle(
+  formData: Record<string, unknown>,
+): CSSProperties {
+  const vars: Record<string, string> = {};
+  const gap = toBoundedNumber(formData.matrixify_grid_gap, Number.NaN, 0, 64);
+  if (Number.isFinite(gap)) vars['--mibi-mx-gap'] = `${gap}px`;
+  const font = getCustomFontCss(
+    formData.matrixify_header_font as FontStyleValue | null | undefined,
+  );
+  if (font.color) vars['--mibi-mx-header-color'] = font.color;
+  if (font.fontSize) vars['--mibi-mx-header-size'] = font.fontSize;
+  if (font.fontFamily) vars['--mibi-mx-header-family'] = font.fontFamily;
+  if (font.fontWeight)
+    vars['--mibi-mx-header-weight'] = String(font.fontWeight);
+  if (font.fontStyle) vars['--mibi-mx-header-style'] = font.fontStyle;
+  const headerBg = toCssColor(
+    formData.matrixify_header_background as ColorInput,
+  );
+  if (headerBg) vars['--mibi-mx-header-bg'] = headerBg;
+  const align = formData.matrixify_header_align;
+  if (typeof align === 'string' && JUSTIFY[align]) {
+    vars['--mibi-mx-header-align'] = align;
+    vars['--mibi-mx-header-justify'] = JUSTIFY[align];
+  }
+  const cellBg = toCssColor(formData.matrixify_cell_background as ColorInput);
+  if (cellBg) vars['--mibi-mx-cell-bg'] = cellBg;
+  if (formData.matrixify_cell_border_show === false) {
+    vars['--mibi-mx-cell-border'] = 'none';
+    vars['--mibi-mx-header-border'] = 'none';
+  } else {
+    const color = toCssColor(
+      formData.matrixify_cell_border_color as ColorInput,
+    );
+    const width = toBoundedNumber(
+      formData.matrixify_cell_border_width,
+      Number.NaN,
+      0,
+      20,
+    );
+    if (color || Number.isFinite(width)) {
+      const border = `${Number.isFinite(width) ? width : 1}px solid ${
+        color ?? 'currentColor'
+      }`;
+      vars['--mibi-mx-cell-border'] = border;
+      vars['--mibi-mx-header-border'] = border;
+    }
+  }
+  const radius = toBoundedNumber(
+    formData.matrixify_cell_radius,
+    Number.NaN,
+    0,
+    50,
+  );
+  if (Number.isFinite(radius)) vars['--mibi-mx-cell-radius'] = `${radius}px`;
+  return vars as CSSProperties;
+}
 
 interface MatrixifyGridRendererProps {
   formData: MatrixifyFormData;
@@ -181,7 +270,10 @@ function MatrixifyGridRenderer({
   const hasColumnHeaders = showColumnHeaders && colHeaders.length > 0;
 
   return (
-    <GridContainer height={height}>
+    <GridContainer
+      height={height}
+      style={matrixifyGridStyle(formData as Record<string, unknown>)}
+    >
       <GridScrollContainer>
         {/* Iterate through each row first */}
         {cells.map((row, rowIdx) => (

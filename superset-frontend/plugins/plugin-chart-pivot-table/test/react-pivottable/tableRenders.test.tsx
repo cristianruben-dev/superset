@@ -1148,3 +1148,58 @@ test.each([
     expect(formatter).toHaveBeenCalledWith(expected);
   },
 );
+
+test('frozen row headers stay at the widths of the levels before them', () => {
+  const renderer = new TableRenderer({
+    ...mockProps,
+    tableOptions: { tableFormat: { table_freeze_row_headers: true } },
+  } as unknown as ConstructorParameters<typeof TableRenderer>[0]);
+  const table = document.createElement('table');
+  table.innerHTML =
+    '<thead><tr><th data-mibi-head="0"></th><th data-mibi-head="1"></th>' +
+    '<th data-mibi-head="2"></th></tr></thead>';
+  const widths = [120, 80, 40];
+  table.querySelectorAll('th').forEach((cell, index) => {
+    cell.getBoundingClientRect = () => ({ width: widths[index] }) as DOMRect;
+  });
+  (renderer.tableRef as { current: HTMLTableElement | null }).current = table;
+  renderer.placeFrozenRowHeaders();
+  expect(table.style.getPropertyValue('--mibi-freeze-0')).toBe('0px');
+  expect(table.style.getPropertyValue('--mibi-freeze-1')).toBe('120px');
+  expect(table.style.getPropertyValue('--mibi-freeze-2')).toBe('200px');
+});
+
+test('a value cell under a tooltip page tells the report while the probe is on', () => {
+  const probes: (string | undefined)[] = [];
+  const onContextMenu = jest.fn((e: { currentTarget: HTMLElement }) => {
+    probes.push(e.currentTarget.dataset.mibiProbe);
+  });
+  const renderer = new TableRenderer({
+    ...mockProps,
+    onContextMenu,
+  } as unknown as ConstructorParameters<typeof TableRenderer>[0]);
+  const page = document.createElement('div');
+  page.dataset.mibiTooltipPage = 'TAB-1';
+  const cell = document.createElement('td');
+  page.appendChild(cell);
+  renderer.hoverCell(
+    { currentTarget: cell } as unknown as Parameters<
+      TableRenderer['hoverCell']
+    >[0],
+    ['Alfa'],
+    ['Norte'],
+  );
+  expect(onContextMenu).toHaveBeenCalledWith(
+    expect.anything(),
+    ['Alfa'],
+    ['Norte'],
+  );
+  expect(probes).toEqual(['true']);
+  expect(cell.dataset.mibiProbe).toBeUndefined();
+  // Outside a chart with a tooltip page, a hover does nothing
+  const alone = document.createElement('td');
+  renderer.hoverCell({ currentTarget: alone } as unknown as Parameters<
+    TableRenderer['hoverCell']
+  >[0]);
+  expect(onContextMenu).toHaveBeenCalledTimes(1);
+});

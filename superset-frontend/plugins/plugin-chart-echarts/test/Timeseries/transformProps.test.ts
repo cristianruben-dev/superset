@@ -1586,3 +1586,49 @@ test('categorical x-axis enables trigger events when dimensions are set', () => 
   expect(xAxis.type).toBe(AxisType.Category);
   expect(xAxis.triggerEvent).toBe(true);
 });
+
+test('a line series of a series format can go to the secondary Y axis', () => {
+  const transformed = transformProps(
+    createTestChartProps({
+      formData: {
+        seriesType: EchartsTimeseriesSeriesType.Line,
+        seriesFormat: { 'New York': { axis: 'secondary' } },
+        yAxisSecondaryLabelUnits: 'thousands',
+      } as Partial<EchartsTimeseriesFormData>,
+      queriesData,
+    }),
+  );
+  const { yAxis, series } = transformed.echartOptions as {
+    yAxis: Record<string, unknown>[];
+    series: { name: string; yAxisIndex?: number }[];
+  };
+  expect(yAxis).toHaveLength(2);
+  expect(yAxis[1]).toMatchObject({ position: 'right' });
+  expect(series.find(item => item.name === 'New York')?.yAxisIndex).toBe(1);
+  expect(
+    series.find(item => item.name === 'San Francisco')?.yAxisIndex ?? 0,
+  ).toBe(0);
+});
+
+test('a stream stack keeps the points label density turned into objects', () => {
+  const transformed = transformProps(
+    createTestChartProps({
+      formData: {
+        seriesType: EchartsTimeseriesSeriesType.Line,
+        stack: StackControlsValue.Stream,
+        showValue: true,
+        valueLabelDensity: 50,
+      } as Partial<EchartsTimeseriesFormData>,
+      queriesData,
+    }),
+  );
+  const { series } = transformed.echartOptions as {
+    series: { name: string; data: unknown[] }[];
+  };
+  const newYork = series.find(item => item.name === 'New York');
+  expect(newYork?.data).toHaveLength(2);
+  expect(newYork?.data[1]).toMatchObject({
+    value: [expect.anything(), 4],
+    label: { show: false },
+  });
+});

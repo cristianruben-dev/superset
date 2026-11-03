@@ -68,3 +68,22 @@ test('asks to run the chart when it has no series', () => {
     screen.getByText('Run the chart to list its series'),
   ).toBeInTheDocument();
 });
+
+test('moves a series to the secondary Y axis', async () => {
+  const onChange = jest.fn();
+  render(
+    <SeriesFormatControl
+      name="series_format"
+      seriesNames={['A', 'B']}
+      fields={['axis']}
+      onChange={onChange}
+    />,
+  );
+  await selectOption('B', 'Series');
+  const axis = await screen.findByRole('combobox', { name: 'Y axis' });
+  fireEvent.mouseDown(axis);
+  fireEvent.click(await screen.findByTitle('Secondary'));
+  await waitFor(() =>
+    expect(onChange).toHaveBeenCalledWith({ B: { axis: 'secondary' } }),
+  );
+});
