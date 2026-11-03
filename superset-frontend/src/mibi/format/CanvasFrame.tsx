@@ -100,6 +100,8 @@ const Page = styled.div<{ $decorated: boolean; $fixed: boolean }>`
 const Sheet = styled.div`
   display: flex;
   align-items: stretch;
+  /* As wide as the page, so a page narrower than the screen is centered */
+  width: fit-content;
   margin: 0 auto;
   flex: none;
   &:has([data-test='mibi-filter-dock']:not(:empty)) {
@@ -158,8 +160,9 @@ export function useMaxHeightMultiple(
 const hasOwnBackground = (canvas: CanvasFormat | undefined) =>
   ['color', 'gradient', 'image'].includes(canvas?.background?.type ?? '');
 
-// Room the presentation keeps around a canvas fitted to the screen
-const PRESENTING_MARGIN = 32;
+// Room the presentation keeps around a canvas fitted to the screen: the
+// page starts 28 px from the top, and keeps as much below it
+const PRESENTING_MARGIN = 56;
 
 /**
  * Wraps the dashboard grid with the canvas format: background, padding,
