@@ -318,7 +318,7 @@ function RolesList({ addDangerToast, addSuccessToast, user }: RolesListProps) {
 
   return (
     <>
-      <SubMenu name={t('List Roles')} buttons={subMenuButtons} />
+      <SubMenu name={t('Roles')} buttons={subMenuButtons} />
       <RoleListAddModal
         onHide={() => closeModal(ModalType.ADD)}
         show={modalState.add}

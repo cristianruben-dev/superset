@@ -31,6 +31,7 @@ export type NavIconName =
   | 'TeamOutlined'
   | 'ProfileOutlined'
   | 'SafetyOutlined'
+  | 'BellOutlined'
   | 'AppstoreOutlined';
 
 export interface NavItem {
@@ -59,6 +60,7 @@ const ICONS: Record<string, NavIconName> = {
   'List Roles': 'TeamOutlined',
   'Action Log': 'ProfileOutlined',
   'Row Level Security': 'SafetyOutlined',
+  'Alerts & Report': 'BellOutlined',
 };
 
 /** Menus whose entries go to the primary navigation, in this order. */

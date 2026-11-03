@@ -22,6 +22,7 @@ import { t } from '@apache-superset/core/translation';
 import { styled } from '@apache-superset/core/theme';
 import { Icons } from '@superset-ui/core/components/Icons';
 import { Typography } from '@superset-ui/core/components/Typography';
+import { NAVBAR_MENU_POPUP_OFFSET } from './commonMenuData';
 
 export interface Languages {
   [key: string]: {
@@ -37,18 +38,17 @@ interface LanguagePickerProps {
 }
 
 const StyledLabel = styled.div`
-  display: flex;
-  align-items: center;
-
-  & i {
-    margin-right: ${({ theme }) => theme.sizeUnit * 2}px;
+  & a {
+    display: flex;
+    align-items: center;
+    gap: ${({ theme }) => theme.sizeUnit * 2}px;
+    line-height: inherit;
+    text-decoration: none;
   }
 
-  & a {
-    display: block;
-    width: 150px;
-    word-wrap: break-word;
-    text-decoration: none;
+  & .current-language {
+    margin-left: auto;
+    color: ${({ theme }) => theme.colorPrimary};
   }
 `;
 
@@ -61,13 +61,15 @@ export const useLanguageMenuItems = ({
       key: langKey,
       label: (
         <StyledLabel className="f16">
-          <i className={`flag ${languages[langKey].flag}`} />
           <Typography.Link href={languages[langKey].url}>
+            <i className={`flag ${languages[langKey].flag}`} />
             {languages[langKey].name}
+            {langKey === locale && (
+              <Icons.CheckOutlined className="current-language" iconSize="s" />
+            )}
           </Typography.Link>
         </StyledLabel>
       ),
-      style: { whiteSpace: 'normal', height: 'auto' },
     }));
 
     return {
@@ -79,8 +81,16 @@ export const useLanguageMenuItems = ({
         </span>
       ),
       icon: <Icons.DownOutlined iconSize="xs" />,
-      children: items,
+      children: [
+        {
+          type: 'group' as const,
+          label: t('Language'),
+          key: 'language-group',
+          children: items,
+        },
+      ],
       className: 'submenu-with-caret',
       popupClassName: 'language-picker-popup',
+      popupOffset: NAVBAR_MENU_POPUP_OFFSET,
     };
   }, [languages, locale]);

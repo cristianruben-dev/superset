@@ -67,3 +67,14 @@ test('should render the items', async () => {
   expect(await screen.findByText('English')).toBeInTheDocument();
   expect(await screen.findByText('Italian')).toBeInTheDocument();
 });
+
+test('should mark only the current language', async () => {
+  render(<TestLanguagePicker {...mockedProps} />, {
+    useRouter: true,
+  });
+  userEvent.hover(screen.getByRole('menuitem'));
+  const english = await screen.findByRole('link', { name: /English/ });
+  const italian = await screen.findByRole('link', { name: /Italian/ });
+  expect(english.querySelector('.current-language')).toBeInTheDocument();
+  expect(italian.querySelector('.current-language')).not.toBeInTheDocument();
+});

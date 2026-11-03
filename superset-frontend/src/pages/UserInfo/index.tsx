@@ -40,7 +40,6 @@ const DescriptionsContainer = styled.div`
       grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
       align-items: start;
       gap: ${theme.sizeUnit * 4}px;
-      max-width: ${theme.sizeUnit * 284}px;
       margin: 0;
       border: 0;
       background: transparent;
@@ -52,6 +51,10 @@ const DescriptionsContainer = styled.div`
       border-radius: ${theme.borderRadiusLG}px;
       border: 1px solid ${theme.colorBorderSecondary};
       background: ${theme.colorBgContainer};
+    }
+
+    .ant-descriptions-item-label {
+      white-space: nowrap;
     }
   `}
 `;

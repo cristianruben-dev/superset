@@ -51,13 +51,13 @@ enum ModalType {
   EDIT = 'edit',
 }
 
-const isActiveOptions = [
+const isActiveOptions = () => [
   {
-    label: 'Yes',
+    label: t('Yes'),
     value: true,
   },
   {
-    label: 'No',
+    label: t('No'),
     value: false,
   },
 ];
@@ -239,7 +239,7 @@ function UsersList({ user }: UsersListProps) {
           row: {
             original: { active },
           },
-        }: any) => <span>{active ? 'Yes' : 'No'}</span>,
+        }: any) => <span>{active ? t('Yes') : t('No')}</span>,
       },
       {
         accessor: 'roles',
@@ -426,7 +426,7 @@ function UsersList({ user }: UsersListProps) {
         input: 'select',
         operator: ListViewFilterOperator.Equals,
         unfilteredLabel: t('All'),
-        selects: isActiveOptions?.map(option => ({
+        selects: isActiveOptions().map(option => ({
           label: option.label,
           value: option.value,
         })),
@@ -526,7 +526,7 @@ function UsersList({ user }: UsersListProps) {
 
   return (
     <>
-      <SubMenu name={t('List Users')} buttons={subMenuButtons} />
+      <SubMenu name={t('Users')} buttons={subMenuButtons} />
       <UserListAddModal
         onHide={() => closeModal(ModalType.ADD)}
         show={modalState.add}

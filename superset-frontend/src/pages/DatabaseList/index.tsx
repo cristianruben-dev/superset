@@ -325,7 +325,7 @@ function DatabaseList({
       {
         'data-test': 'btn-create-database',
         icon: <Icons.PlusOutlined iconSize="m" />,
-        name: t('Database'),
+        name: t('Connection'),
         buttonStyle: 'primary',
         onClick: () => {
           // Ensure modal will be opened in add mode

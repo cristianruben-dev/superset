@@ -116,7 +116,7 @@ describe('UsersList', () => {
 
   test('renders', async () => {
     await renderAndWait();
-    expect(await screen.findByText('List Users')).toBeInTheDocument();
+    expect(await screen.findByText('Users')).toBeInTheDocument();
   });
 
   test('fetches users on load', async () => {

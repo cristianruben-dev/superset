@@ -151,8 +151,17 @@ table,
   background: var(--mb-active);
 }
 
+/* Every top bar control centers on the same line, whatever it holds */
 #main-menu .ant-menu-submenu-title {
+  display: flex;
+  align-items: center;
+  height: 100%;
   padding: 0 !important;
+}
+
+#main-menu .ant-menu-submenu-title .f16 {
+  display: inline-flex;
+  align-items: center;
 }
 
 /* One quiet caret for every top bar dropdown */
@@ -313,7 +322,8 @@ table,
 .ant-select-selection-search-input:focus-visible,
 .ant-picker-input > input:focus-visible,
 .ant-input-number-input:focus-visible,
-.ant-input-affix-wrapper > input:focus-visible {
+.ant-input-affix-wrapper > input:focus-visible,
+.ant-modal div[tabindex]:not([class]):focus-visible {
   box-shadow: none !important;
 }
 
@@ -1422,7 +1432,19 @@ body:has(.dashboard--editing) [data-test='dashboard-header-container'] {
   border-radius: 12px !important;
   border: 1px solid var(--mb-hairline);
   box-shadow: var(--mb-shadow-pop) !important;
+}
+
+/* A list fills its surface, up to its own rounded rows */
+.ant-dropdown .ant-dropdown-menu,
+.ant-menu-submenu-popup .ant-menu,
+.ant-select-dropdown,
+.ant-picker-dropdown .ant-picker-panel-container {
   padding: 4px !important;
+}
+
+/* Free content needs room; a popover can still ask for its own padding */
+.ant-popover .ant-popover-inner {
+  padding: 12px;
 }
 
 .ant-dropdown-menu-item,
@@ -1482,6 +1504,7 @@ body:has(.dashboard--editing) [data-test='dashboard-header-container'] {
 /* Title, body and footer share one 24px gutter */
 .ant-modal .ant-modal-header {
   border-bottom: 0;
+  background: transparent;
   padding: 20px 56px 4px 24px !important;
   margin-bottom: 0 !important;
 }
@@ -1503,6 +1526,15 @@ body:has(.dashboard--editing) [data-test='dashboard-header-container'] {
 /* The database modal lays out its own 16px gutter */
 [data-test='database-modal'] .ant-modal-header {
   padding-left: 16px !important;
+}
+
+/* So do the sections of the alert and report modal */
+[data-test='alert-report-modal'] .ant-modal-header {
+  padding-left: 16px !important;
+}
+
+[data-test='alert-report-modal'] .ant-modal-footer {
+  padding-right: 16px !important;
 }
 
 .ant-modal .ant-modal-title {

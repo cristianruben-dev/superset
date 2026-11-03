@@ -136,9 +136,9 @@ describe('useThemeMenuItems', () => {
     expect(screen.getByTestId('moon')).toBeInTheDocument();
   });
 
-  test('displays format-painter icon for SYSTEM theme', () => {
+  test('displays desktop icon for SYSTEM theme', () => {
     renderThemeMenu({ ...defaultProps, themeMode: ThemeMode.SYSTEM });
-    expect(screen.getByTestId('format-painter')).toBeInTheDocument();
+    expect(screen.getByTestId('desktop')).toBeInTheDocument();
   });
 
   test('renders Theme group header', async () => {
@@ -170,16 +170,14 @@ describe('useThemeMenuItems', () => {
     expect(within(darkOption!).getByTestId('moon')).toBeInTheDocument();
   });
 
-  test('renders format-painter icon for Match system option', async () => {
+  test('renders desktop icon for Match system option', async () => {
     renderThemeMenu({ ...defaultProps, allowOSPreference: true });
 
     await userEvent.hover(await screen.findByRole('menuitem'));
     const menu = await findMenuWithText('Match system');
     const matchOption = within(menu).getByText('Match system').closest('li');
 
-    expect(
-      within(matchOption!).getByTestId('format-painter'),
-    ).toBeInTheDocument();
+    expect(within(matchOption!).getByTestId('desktop')).toBeInTheDocument();
   });
 
   test('does not render divider when clear option is not present', async () => {

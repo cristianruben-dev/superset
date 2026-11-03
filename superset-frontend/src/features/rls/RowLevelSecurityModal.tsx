@@ -62,6 +62,7 @@ const StyledSectionContainer = styled.div`
     label,
     .control-label {
       display: flex;
+      gap: ${theme.sizeUnit}px;
       font-size: ${theme.fontSizeSM}px;
       color: ${theme.colorTextLabel};
       align-items: center;

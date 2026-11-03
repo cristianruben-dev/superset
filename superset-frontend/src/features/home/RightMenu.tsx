@@ -294,7 +294,9 @@ const RightMenu = ({
       });
 
       if (!navbarRight.user_is_anonymous) {
-        items.push({ type: 'divider', key: 'user-divider' });
+        if (items.length) {
+          items.push({ type: 'divider', key: 'user-divider' });
+        }
 
         const userItems: MenuItem[] = [];
         if (navbarRight.user_info_url) {

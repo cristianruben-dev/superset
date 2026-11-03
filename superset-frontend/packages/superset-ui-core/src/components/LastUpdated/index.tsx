@@ -29,15 +29,14 @@ import type { LastUpdatedProps } from './types';
 
 const REFRESH_INTERVAL = 60000; // every minute
 
-extendedDayjs.updateLocale('en', {
-  calendar: {
-    lastDay: '[Yesterday at] LTS',
-    sameDay: '[Today at] LTS',
-    nextDay: '[Tomorrow at] LTS',
-    lastWeek: '[last] dddd [at] LTS',
-    nextWeek: 'dddd [at] LTS',
-    sameElse: 'L',
-  },
+// Most dayjs locales have no calendar formats, so they are translated here
+const calendarFormats = () => ({
+  lastDay: t('[Yesterday at] LTS'),
+  sameDay: t('[Today at] LTS'),
+  nextDay: t('[Tomorrow at] LTS'),
+  lastWeek: t('[last] dddd [at] LTS'),
+  nextWeek: t('dddd [at] LTS'),
+  sameElse: 'L',
 });
 
 const TextStyles = styled.span`
@@ -64,7 +63,12 @@ export const LastUpdated: FunctionComponent<LastUpdatedProps> = ({
 
   return (
     <TextStyles>
-      {t('Last Updated %s', timeSince.isValid() ? timeSince.calendar() : '--')}
+      {t(
+        'Last Updated %s',
+        timeSince.isValid()
+          ? timeSince.calendar(undefined, calendarFormats())
+          : '--',
+      )}
       {update && (
         <Icons.SyncOutlined
           css={css`

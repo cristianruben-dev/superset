@@ -127,7 +127,7 @@ describe('RolesList', () => {
 
   test('renders', async () => {
     await renderAndWait();
-    expect(await screen.findByText('List Roles')).toBeInTheDocument();
+    expect(await screen.findByText('Roles')).toBeInTheDocument();
   });
 
   test('fetches roles on load', async () => {

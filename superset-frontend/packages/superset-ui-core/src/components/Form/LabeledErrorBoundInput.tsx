@@ -67,7 +67,7 @@ export const LabeledErrorBoundInput = ({
   const hasError = !!errorMessage;
   return (
     <StyledFormGroup className={className}>
-      <Flex align="center">
+      <Flex align="center" gap={4}>
         <StyledFormLabel htmlFor={id} required={required}>
           {label}
         </StyledFormLabel>

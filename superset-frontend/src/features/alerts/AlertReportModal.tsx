@@ -594,7 +594,6 @@ const AlertReportModal: FunctionComponent<AlertReportModalProps> = ({
   // Chart metadata
   const [chartVizType, setChartVizType] = useState<string>('');
 
-  const reportOrAlert = isReport ? 'report' : 'alert';
   const isEditMode = alert !== null;
   const formatOptionEnabled =
     isFeatureEnabled(FeatureFlag.AlertsAttachReports) || isReport;
@@ -2160,10 +2159,11 @@ const AlertReportModal: FunctionComponent<AlertReportModalProps> = ({
                     <Input
                       name="description"
                       value={currentAlert ? currentAlert.description || '' : ''}
-                      placeholder={t(
-                        'Include description to be sent with %s',
-                        reportOrAlert,
-                      )}
+                      placeholder={
+                        isReport
+                          ? t('Include description to be sent with report')
+                          : t('Include description to be sent with alert')
+                      }
                       onChange={onInputChange}
                     />
                   </ModalFormField>
