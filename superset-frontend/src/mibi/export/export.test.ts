@@ -20,10 +20,11 @@ import type { RootState } from 'src/dashboard/types';
 import {
   anyChartLoading,
   appliedFilters,
+  markOneLineText,
   waitForCharts,
   type Capture,
 } from './capture';
-import { buildPdf, exportFileName, paginate } from './document';
+import { buildPdf, exportFileName, paginate, pdfText } from './document';
 import { supersetTheme } from '@apache-superset/core/theme';
 
 const capture = (height: number, breaks: number[]): Capture => ({
@@ -219,4 +220,35 @@ test('waits for loading charts and their animation, and no longer', async () => 
   await jest.advanceTimersByTimeAsync(400);
   expect(done).toBe(true);
   jest.useRealTimers();
+});
+
+test('PDF text keeps what the standard fonts draw and drops the rest', () => {
+  expect(pdfText('📊 Resumen de ventas')).toBe('Resumen de ventas');
+  expect(pdfText('Año «2026» – €')).toBe('Año «2026» – €');
+  expect(pdfText('3 de noviembre de 2026, 2:15\u202fp.m.')).toBe(
+    '3 de noviembre de 2026, 2:15 p.m.',
+  );
+  expect(pdfText('Países 🌎🇲🇽')).toBe('Países');
+});
+
+test('only text that fits in one line on screen is kept to one line', () => {
+  const root = document.createElement('div');
+  root.innerHTML =
+    '<h2 class="header-title">Total revenue by product line and quarter</h2>' +
+    '<label>Country</label><span> </span>';
+  const [title, label] = Array.from(root.children) as HTMLElement[];
+  const rect = (top: number) => ({ top, width: 40 }) as DOMRect;
+  const original = Range.prototype.getClientRects;
+  Range.prototype.getClientRects = function getClientRects(this: Range) {
+    const parent = this.startContainer.parentElement;
+    const rects = parent === title ? [rect(0), rect(20)] : [rect(0)];
+    return rects as unknown as DOMRectList;
+  };
+
+  const marked = markOneLineText(root);
+  Range.prototype.getClientRects = original;
+
+  expect(marked).toEqual([label]);
+  expect(label.hasAttribute('data-mibi-one-line')).toBe(true);
+  expect(title.hasAttribute('data-mibi-one-line')).toBe(false);
 });
