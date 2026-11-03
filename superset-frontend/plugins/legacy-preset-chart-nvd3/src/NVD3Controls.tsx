@@ -33,15 +33,12 @@ import {
 
   AreaChartPlugin,
   BarChartPlugin,
-  BubbleChartPlugin,
   BulletChartPlugin,
-  CompareChartPlugin,
   DistBarChartPlugin,
   DualLineChartPlugin,
   LineChartPlugin,
   LineMultiChartPlugin,
   PieChartPlugin,
-  TimePivotChartPlugin,
 */
 
 export const yAxis2Format: CustomControlItem = {

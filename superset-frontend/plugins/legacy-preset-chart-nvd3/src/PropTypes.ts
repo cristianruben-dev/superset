@@ -25,19 +25,6 @@ export const numberOrAutoType = PropTypes.oneOfType([
   PropTypes.oneOf(['auto']),
 ]);
 
-export const stringOrObjectWithLabelType = PropTypes.oneOfType([
-  PropTypes.string,
-  PropTypes.shape({
-    label: PropTypes.string,
-  }),
-]);
-
-export const rgbObjectType = PropTypes.shape({
-  r: PropTypes.number.isRequired,
-  g: PropTypes.number.isRequired,
-  b: PropTypes.number.isRequired,
-});
-
 export const numericXYType = PropTypes.shape({
   x: PropTypes.number,
   y: PropTypes.number,
