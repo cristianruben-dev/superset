@@ -224,11 +224,11 @@ export const FilterPanels = {
 export const CustomizationPanels = {
   configuration: {
     key: 'configuration',
-    name: t('Display control configuration'),
+    name: t('Control configuration'),
   },
   settings: {
     key: 'settings',
-    name: t('Display control settings'),
+    name: t('Control settings'),
   },
 };
 
@@ -844,7 +844,7 @@ const FiltersConfigForm = (
                     label={
                       <StyledLabel>
                         {isChartCustomization
-                          ? t('Display control name')
+                          ? t('Control name')
                           : t('Filter name')}
                       </StyledLabel>
                     }
@@ -873,9 +873,7 @@ const FiltersConfigForm = (
                         },
                       ]}
                       initialValue={customizationToEdit?.filterType}
-                      label={
-                        <StyledLabel>{t('Display control type')}</StyledLabel>
-                      }
+                      label={<StyledLabel>{t('Control type')}</StyledLabel>}
                     >
                       <Select
                         ariaLabel={t('Customization type')}
@@ -1216,7 +1214,7 @@ const FiltersConfigForm = (
                                       initialValue={hasSorting}
                                       title={
                                         isChartCustomization
-                                          ? t('Sort display control values')
+                                          ? t('Sort control values')
                                           : t('Sort filter values')
                                       }
                                       onChange={checked => {
@@ -1511,7 +1509,7 @@ const FiltersConfigForm = (
                               initialValue={hasDefaultValue}
                               title={
                                 isChartCustomization
-                                  ? t('Display control has default value')
+                                  ? t('Control has a default value')
                                   : t('Filter has default value')
                               }
                               tooltip={defaultValueTooltip}

@@ -333,14 +333,17 @@ export const getChartCustomizationIds = (
   config: ChartCustomizationConfiguration,
 ) => config.map(filter => filter.id);
 
-export const isFilterId = (id: string): boolean =>
-  id.startsWith(NATIVE_FILTER_PREFIX) ||
-  id.startsWith(NATIVE_FILTER_DIVIDER_PREFIX);
-
 export const isChartCustomizationId = (id: string): boolean =>
   id.startsWith(CHART_CUSTOMIZATION_PREFIX) ||
   id.startsWith(CHART_CUSTOMIZATION_DIVIDER_PREFIX) ||
   id.startsWith(LEGACY_GROUPBY_PREFIX);
+
+/**
+ * Anything that is not a customization is a filter: reports built by a script
+ * or imported may keep filter ids without the prefix the editor gives them.
+ */
+export const isFilterId = (id: string): boolean =>
+  !!id && !isChartCustomizationId(id);
 
 export const getItemType = (id: string): ItemType => {
   if (isFilterId(id)) return 'filter';

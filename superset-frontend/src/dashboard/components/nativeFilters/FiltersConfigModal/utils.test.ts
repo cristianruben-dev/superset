@@ -20,6 +20,8 @@ import {
   isDivider,
   transformDividerId,
   isNativeFilterDivider,
+  isFilterId,
+  isChartCustomizationId,
   isChartCustomizationDivider,
   getItemType,
   getItemTypeInfo,
@@ -118,10 +120,13 @@ test('getItemType returns customization for chart customization divider IDs', ()
   expect(getItemType(dividerId)).toBe('customization');
 });
 
-test('getItemType throws error for unknown ID types', () => {
-  expect(() => getItemType('unknown-id')).toThrow(
-    'Unknown item type for id: unknown-id',
-  );
+test('getItemType treats an id without a known prefix as a filter', () => {
+  expect(getItemType('f_region')).toBe('filter');
+});
+
+test('an empty id is neither a filter nor a customization', () => {
+  expect(isFilterId('')).toBe(false);
+  expect(isChartCustomizationId('')).toBe(false);
 });
 
 test('getItemTypeInfo returns correct info for filter type', () => {

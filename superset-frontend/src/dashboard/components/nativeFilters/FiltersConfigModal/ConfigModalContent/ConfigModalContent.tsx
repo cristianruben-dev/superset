@@ -24,6 +24,7 @@ import {
   ChartCustomizationDivider,
 } from '@superset-ui/core';
 import type { FormInstance } from '@superset-ui/core/components';
+import { t } from '@apache-superset/core/translation';
 import { styled } from '@apache-superset/core/theme';
 import { Flex } from '@superset-ui/core/components';
 import FilterContentRenderer from './FilterContentRenderer';
@@ -35,6 +36,16 @@ import { isFilterId, isChartCustomizationId } from '../utils';
 const StyledContentFlex = styled(Flex)`
   flex: 1;
   overflow: hidden;
+`;
+
+const StyledEmpty = styled.div`
+  ${({ theme }) => `
+    margin: auto;
+    padding: ${theme.sizeUnit * 6}px;
+    max-width: ${theme.sizeUnit * 90}px;
+    text-align: center;
+    color: ${theme.colorTextSecondary};
+  `}
 `;
 
 export interface ConfigModalContentProps {
@@ -107,6 +118,13 @@ function ConfigModalContent({
 
   return (
     <StyledContentFlex vertical>
+      {!isFilterActive && !isCustomizationActive && (
+        <StyledEmpty data-test="filter-modal-empty">
+          {t(
+            'Nothing to edit yet. Use New to add a filter, or pick one from the list.',
+          )}
+        </StyledEmpty>
+      )}
       <div
         style={{
           display: isFilterActive ? 'flex' : 'none',

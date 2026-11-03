@@ -52,7 +52,7 @@ const NewItemDropdown: FC<Props> = ({ onAddFilter, onAddCustomization }) => {
         },
         {
           key: 'customization',
-          label: t('Add display control'),
+          label: t('Add grouping control'),
           icon: (
             <Icons.SettingOutlined
               iconColor={theme.colorPrimary}

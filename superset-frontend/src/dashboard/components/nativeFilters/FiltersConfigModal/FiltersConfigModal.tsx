@@ -64,6 +64,13 @@ import ConfigModalSidebar from './ConfigModalSidebar';
 export { ALLOW_DEPENDENCIES };
 
 const StyledModalBody = styled(BaseModalBody)`
+  flex-direction: column;
+
+  > form {
+    flex: 1;
+    min-height: 0;
+  }
+
   .filters-list {
     width: ${({ theme }) => theme.sizeUnit * 50}px;
     overflow: auto;
@@ -72,6 +79,16 @@ const StyledModalBody = styled(BaseModalBody)`
 
 const StyledMainFlex = styled(Flex)`
   height: 100%;
+`;
+
+const StyledIntro = styled.p`
+  ${({ theme }) => `
+    margin: 0;
+    padding: ${theme.sizeUnit * 2}px ${theme.sizeUnit * 6}px;
+    font-size: ${theme.fontSizeSM}px;
+    color: ${theme.colorTextSecondary};
+    border-bottom: 1px solid ${theme.colorBorderSecondary};
+  `}
 `;
 
 export const FILTERS_CONFIG_MODAL_TEST_ID = 'filters-config-modal';
@@ -519,7 +536,7 @@ function FiltersConfigModal({
     <BaseModalWrapper
       open={isOpen}
       maskClosable={false}
-      title={t('Add or edit display controls')}
+      title={t('Filters and controls')}
       expanded={expanded}
       destroyOnHidden
       onCancel={handleCancel}
@@ -554,6 +571,11 @@ function FiltersConfigModal({
     >
       <ErrorBoundary>
         <StyledModalBody expanded={expanded}>
+          <StyledIntro data-test="filter-modal-intro">
+            {t(
+              'Filters narrow down the data of the charts in this report. Grouping controls let readers choose the field the charts group by.',
+            )}
+          </StyledIntro>
           <BaseForm
             form={form}
             onValuesChange={handleValuesChange}
