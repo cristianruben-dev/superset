@@ -154,7 +154,8 @@ const StyledContainer = styled.div`
       }
     }
 
-    &&&& .ant-tooltip-open {
+    /* A chart type keeps the box of its picture while its description shows */
+    &&&& .ant-tooltip-open:not(.viztype-selector) {
       display: inline;
     }
   `}
