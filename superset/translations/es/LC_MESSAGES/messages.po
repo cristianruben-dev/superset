@@ -20826,3 +20826,150 @@ msgstr "Fuente de la etiqueta central"
 
 msgid "Bounds for the Y axis. When left empty, they come from the data"
 msgstr "Límites del eje Y. Si los dejas vacíos, salen de los datos"
+
+msgid "(Blank)"
+msgstr "(En blanco)"
+
+msgid "Above the line"
+msgstr "Sobre la línea"
+
+msgid "Add a line"
+msgstr "Añadir una línea"
+
+msgid "After the line"
+msgstr "Después de la línea"
+
+msgid "Analytics"
+msgstr "Analítica"
+
+msgid "Before the line"
+msgstr "Antes de la línea"
+
+msgid "Behind the marks"
+msgstr "Detrás de las marcas"
+
+msgid "Buttons"
+msgstr "Botones"
+
+msgid "Constant value"
+msgstr "Valor constante"
+
+msgid "Dropdown"
+msgstr "Lista desplegable"
+
+msgid "End (%)"
+msgstr "Fin (%)"
+
+msgid "Header alignment"
+msgstr "Alineación del encabezado"
+
+msgid "Line %s"
+msgstr "Línea %s"
+
+msgid "Lines at a value or calculated from the data, with their label and shading"
+msgstr "Líneas en un valor o calculadas con los datos, con su etiqueta y sombreado"
+
+msgid "Metrics the tooltip adds to each mark, without drawing them"
+msgstr "Métricas que el tooltip añade a cada marca, sin dibujarlas"
+
+msgid "On the categories axis"
+msgstr "En el eje de categorías"
+
+msgid "On the values axis"
+msgstr "En el eje de valores"
+
+msgid "One line for all the series"
+msgstr "Una línea para todas las series"
+
+msgid "Only a filter that lists values can change its type. A range or date filter keeps its own control."
+msgstr "Solo un filtro que lista valores puede cambiar de tipo. Un filtro de rango o de fecha conserva su control."
+
+msgid "Percentile"
+msgstr "Percentil"
+
+msgid "Placeholder text"
+msgstr "Texto de ejemplo"
+
+msgid "Reference lines"
+msgstr "Líneas de referencia"
+
+msgid "Search %s"
+msgstr "Buscar en %s"
+
+msgid "Selection mark color"
+msgstr "Color de la marca de selección"
+
+msgid "Shading"
+msgstr "Sombreado"
+
+msgid "Shading color"
+msgstr "Color del sombreado"
+
+msgid "Shading transparency (%)"
+msgstr "Transparencia del sombreado (%)"
+
+msgid "Show %s"
+msgstr "Mostrar %s"
+
+msgid "Show the label"
+msgstr "Mostrar la etiqueta"
+
+msgid "Show the labels"
+msgstr "Mostrar las etiquetas"
+
+msgid "Show the search box"
+msgstr "Mostrar la caja de búsqueda"
+
+msgid "Show the selection mark"
+msgstr "Mostrar la marca de selección"
+
+msgid "Show the trend line"
+msgstr "Mostrar la línea de tendencia"
+
+msgid "Show «Select all»"
+msgstr "Mostrar «Seleccionar todo»"
+
+msgid "Slicer header"
+msgstr "Encabezado del segmentador"
+
+msgid "Slicer type"
+msgstr "Tipo de segmentador"
+
+msgid "Slicer values"
+msgstr "Valores del segmentador"
+
+msgid "Slider size"
+msgstr "Tamaño del deslizador"
+
+msgid "Small multiples"
+msgstr "Múltiplos pequeños"
+
+msgid "Space between values"
+msgstr "Espacio entre valores"
+
+msgid "Start (%)"
+msgstr "Inicio (%)"
+
+msgid "This chart has no options at this level."
+msgstr "Este gráfico no tiene opciones en este nivel."
+
+msgid "Tooltip fields"
+msgstr "Campos del tooltip"
+
+msgid "Trend line"
+msgstr "Línea de tendencia"
+
+msgid "Type to filter"
+msgstr "Escribe para filtrar"
+
+msgid "Values font"
+msgstr "Fuente de los valores"
+
+msgid "When it is selected"
+msgstr "Al seleccionarlo"
+
+msgid "When the pointer is over it"
+msgstr "Con el puntero encima"
+
+msgid "Zoom sliders"
+msgstr "Deslizadores de zoom"
