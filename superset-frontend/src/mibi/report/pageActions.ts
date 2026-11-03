@@ -37,6 +37,7 @@ import {
   TAB_TYPE,
 } from 'src/dashboard/util/componentTypes';
 import {
+  DASHBOARD_GRID_ID,
   DASHBOARD_ROOT_ID,
   NEW_COMPONENTS_SOURCE_ID,
   NEW_TABS_ID,
@@ -46,6 +47,7 @@ import newComponentFactory from 'src/dashboard/util/newComponentFactory';
 import { cloneChart } from 'src/mibi/format/clipboard';
 import { GROUP_KEY } from 'src/mibi/format/arrange';
 import { updateLayout } from 'src/mibi/format/actions';
+import { MOBILE_LAYOUT_KEY } from 'src/mibi/format/mobileLayout';
 
 type AppDispatch = ThunkDispatch<RootState, undefined, AnyAction>;
 
@@ -60,6 +62,12 @@ export const insertPage = () => (dispatch: AppDispatch, getState: GetState) => {
   const formatGroup = `new-page:${Date.now()}`;
   // What the report holds becomes its first page; the new one follows it
   if (!topTabs()) {
+    // The mobile layout of the report goes with its objects to the first page
+    const mobile = (
+      getState().dashboardLayout.present[DASHBOARD_GRID_ID]?.meta as
+        | Record<string, unknown>
+        | undefined
+    )?.[MOBILE_LAYOUT_KEY];
     dispatch({
       type: CREATE_TOP_LEVEL_TABS,
       payload: {
@@ -79,13 +87,23 @@ export const insertPage = () => (dispatch: AppDispatch, getState: GetState) => {
     const first =
       created && getState().dashboardLayout.present[created.children[0]];
     if (first) {
+      const grid = getState().dashboardLayout.present[DASHBOARD_GRID_ID];
+      const gridMeta = { ...grid?.meta } as Record<string, unknown>;
+      delete gridMeta[MOBILE_LAYOUT_KEY];
       dispatch(
         updateLayout(
           {
             [first.id]: {
               ...first,
-              meta: { ...first.meta, text: t('Page %s', 1) },
+              meta: {
+                ...first.meta,
+                text: t('Page %s', 1),
+                ...(mobile ? { [MOBILE_LAYOUT_KEY]: mobile } : undefined),
+              },
             },
+            ...(grid && mobile
+              ? { [grid.id]: { ...grid, meta: gridMeta as typeof grid.meta } }
+              : undefined),
           },
           formatGroup,
         ),
