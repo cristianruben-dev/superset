@@ -159,7 +159,7 @@ const BuilderComponentPane = ({ topOffset = 0, pageTop = 0 }) => {
           css={(theme: SupersetTheme) => css`
             display: ${collapsed ? 'none' : 'block'};
             height: 100%;
-            padding: ${theme.sizeUnit * 2}px 0 0 28px;
+            padding: ${theme.sizeUnit * 2}px 0 0;
             box-sizing: border-box;
           `}
         >
@@ -173,6 +173,11 @@ const BuilderComponentPane = ({ topOffset = 0, pageTop = 0 }) => {
             css={css`
               line-height: inherit;
               height: 100%;
+
+              /* The fold button sits at the start of the tabs */
+              & .ant-tabs-nav {
+                padding-left: 32px;
+              }
 
               & .ant-tabs-content-holder {
                 height: 100%;

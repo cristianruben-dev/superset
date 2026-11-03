@@ -318,7 +318,7 @@ const StyledDashboardContent = styled.div<{
 
       ${editMode &&
       `
-      max-width: calc(100% - ${sidepaneWidth + theme.sizeUnit * 16}px);
+      max-width: calc(100% - ${sidepaneWidth + theme.sizeUnit * 6}px);
     `}
 
       /* this is the ParentSize wrapper */

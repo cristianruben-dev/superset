@@ -38,7 +38,7 @@ export const RibbonTabs = styled.div`
     align-items: center;
     gap: ${theme.sizeUnit}px;
     padding: 0 ${theme.sizeUnit * 3}px;
-    height: ${theme.sizeUnit * 8}px;
+    height: ${theme.sizeUnit * 7}px;
 
     .spacer {
       flex: 1;
@@ -75,8 +75,8 @@ export const RibbonBody = styled.div`
   ${({ theme }) => css`
     display: flex;
     align-items: stretch;
-    min-height: ${theme.sizeUnit * 21}px;
-    padding: ${theme.sizeUnit}px ${theme.sizeUnit * 2}px 0;
+    min-height: ${theme.sizeUnit * 19}px;
+    padding: 2px ${theme.sizeUnit * 2}px 0;
     overflow-x: auto;
     overflow-y: hidden;
     scrollbar-width: thin;
@@ -103,7 +103,8 @@ const GroupBox = styled.div`
     }
 
     .caption {
-      padding: 2px 0;
+      padding: 0;
+      line-height: 14px;
       text-align: center;
       font-size: 11px;
       color: ${theme.colorTextTertiary};
@@ -171,21 +172,21 @@ const BaseButton = styled.button`
       justify-content: flex-start;
       gap: 2px;
       width: ${theme.sizeUnit * 16}px;
-      min-height: ${theme.sizeUnit * 15}px;
-      padding: ${theme.sizeUnit}px 2px;
+      min-height: ${theme.sizeUnit * 14}px;
+      padding: 2px;
       font-size: 11px;
       line-height: 1.2;
       text-align: center;
 
       .anticon {
-        font-size: 22px;
-        line-height: 26px;
+        font-size: 18px;
+        line-height: 22px;
       }
     }
 
     &.small {
       gap: ${theme.sizeUnit * 1.5}px;
-      height: ${theme.sizeUnit * 5}px;
+      height: ${theme.sizeUnit * 4.5}px;
       padding: 0 ${theme.sizeUnit * 1.5}px;
       font-size: 11px;
       white-space: nowrap;

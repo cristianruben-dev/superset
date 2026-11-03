@@ -19,10 +19,12 @@
 import { useSelector } from 'react-redux';
 import { t } from '@apache-superset/core/translation';
 import { css, styled } from '@apache-superset/core/theme';
+import { Tooltip } from '@superset-ui/core/components';
 import { Icons } from '@superset-ui/core/components/Icons';
 import RightMenu from 'src/features/home/RightMenu';
 import type { MenuData, User } from 'src/types/bootstrapTypes';
 import { AURA_GRADIENT } from './brand';
+import { setReportHeaderSlot } from './reportHeader';
 import { BrandLink } from './Sidebar';
 
 const Bar = styled.header`
@@ -88,6 +90,10 @@ const SearchTrigger = styled.button`
 
     .placeholder {
       flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
     }
 
     kbd {
@@ -98,6 +104,35 @@ const SearchTrigger = styled.button`
       border: 1px solid ${theme.colorBorder};
       background: ${theme.colorBgContainer};
       color: ${theme.colorTextSecondary};
+    }
+  `}
+`;
+
+const ReportSlot = styled.div`
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+`;
+
+const SearchIcon = styled.button`
+  ${({ theme }) => css`
+    all: unset;
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: ${theme.sizeUnit * 8}px;
+    height: ${theme.sizeUnit * 8}px;
+    border-radius: 50%;
+    color: ${theme.colorTextSecondary};
+    cursor: pointer;
+
+    &:hover {
+      background: ${theme.colorFillTertiary};
+    }
+
+    &:focus-visible {
+      outline: 2px solid ${theme.colorPrimaryBorder};
     }
   `}
 `;
@@ -185,10 +220,12 @@ interface TopBarProps {
   data: MenuData;
   isFrontendRoute: (path?: string) => boolean;
   onSearch: () => void;
-  /** Show the logo, for pages without the sidebar. */
+  /** Show the logo and only a search icon, for pages without the sidebar. */
   showBrand?: boolean;
   /** Only the AuraData symbol, for phones. */
   compactBrand?: boolean;
+  /** Leave room for the title and actions of the report. */
+  reportHeader?: boolean;
 }
 
 const isMac =
@@ -201,6 +238,7 @@ export function TopBar({
   onSearch,
   showBrand = false,
   compactBrand = false,
+  reportHeader = false,
 }: TopBarProps) {
   const user = useSelector<{ user?: User }, User | undefined>(
     state => state.user,
@@ -214,15 +252,38 @@ export function TopBar({
           <BrandLink compact={compactBrand} />
         </Brand>
       )}
-      <SearchTrigger
-        type="button"
-        onClick={onSearch}
-        data-test="mibi-search-trigger"
-      >
-        <Icons.SearchOutlined />
-        <span className="placeholder">{t('Search dashboards and pages…')}</span>
-        <kbd>{isMac ? '⌘ K' : 'Ctrl K'}</kbd>
-      </SearchTrigger>
+      {showBrand ? (
+        <>
+          {reportHeader && (
+            <ReportSlot
+              ref={setReportHeaderSlot}
+              data-test="mibi-report-slot"
+            />
+          )}
+          <Tooltip title={isMac ? '⌘ K' : 'Ctrl K'} placement="bottom">
+            <SearchIcon
+              type="button"
+              onClick={onSearch}
+              aria-label={t('Search dashboards and pages…')}
+              data-test="mibi-search-trigger"
+            >
+              <Icons.SearchOutlined />
+            </SearchIcon>
+          </Tooltip>
+        </>
+      ) : (
+        <SearchTrigger
+          type="button"
+          onClick={onSearch}
+          data-test="mibi-search-trigger"
+        >
+          <Icons.SearchOutlined />
+          <span className="placeholder">
+            {t('Search dashboards and pages…')}
+          </span>
+          <kbd>{isMac ? '⌘ K' : 'Ctrl K'}</kbd>
+        </SearchTrigger>
+      )}
       <Right>
         <RightMenu
           align="flex-end"
@@ -233,7 +294,7 @@ export function TopBar({
           newLabel={
             <NewButton>
               <Icons.PlusOutlined iconSize="m" />
-              <span className="label">{t('New')}</span>
+              <span className="label mibi-new-label">{t('New')}</span>
             </NewButton>
           }
           settingsLabel={

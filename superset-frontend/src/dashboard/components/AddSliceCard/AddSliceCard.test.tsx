@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { FeatureFlag, VizType } from '@superset-ui/core';
+import { VizType } from '@superset-ui/core';
 import {
   act,
   render,
@@ -38,32 +38,21 @@ const mockedProps = {
   sliceName: '-',
 };
 
-declare const globalThis: {
-  featureFlags: Record<string, boolean>;
-};
-
-test('do not render thumbnail if feature flag is not set', async () => {
-  globalThis.featureFlags = {
-    [FeatureFlag.Thumbnails]: false,
-  };
-
+test('shows a chart in a compact row, without a thumbnail', async () => {
   await act(async () => {
-    render(<AddSliceCard {...mockedProps} />);
+    render(
+      <AddSliceCard
+        {...mockedProps}
+        datasourceName="sales"
+        lastModified="a day ago"
+      />,
+    );
   });
 
   expect(screen.queryByTestId('thumbnail')).not.toBeInTheDocument();
-});
-
-test('render thumbnail if feature flag is set', async () => {
-  globalThis.featureFlags = {
-    [FeatureFlag.Thumbnails]: true,
-  };
-
-  await act(async () => {
-    render(<AddSliceCard {...mockedProps} />);
-  });
-
-  expect(screen.queryByTestId('thumbnail')).toBeInTheDocument();
+  expect(screen.getByTestId('viz-type-tile')).toBeInTheDocument();
+  expect(screen.getByText('sales')).toBeInTheDocument();
+  expect(screen.getByText('a day ago')).toBeInTheDocument();
 });
 
 test('does not render the tooltip with anchors', async () => {

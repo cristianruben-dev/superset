@@ -58,17 +58,17 @@ const Wrap = styled.div`
 
 /**
  * Holds the page. A fixed page scrolls inside it (room above for the menus
- * of the objects, and below for the zoom bar, which floats over it), so zooming
- * in never moves the rest of the screen.
+ * of the objects while editing, and below for the zoom bar, which floats over
+ * it), so zooming in never moves the rest of the screen.
  */
-const Outer = styled.div<{ $scroll: boolean }>`
+const Outer = styled.div<{ $scroll: boolean; $editing: boolean }>`
   width: 100%;
-  ${({ $scroll }) =>
+  ${({ $scroll, $editing }) =>
     $scroll
       ? css`
           height: 100%;
           overflow: auto;
-          padding: 28px 8px 56px;
+          padding: ${$editing ? 28 : 12}px 8px 56px;
           box-sizing: border-box;
         `
       : css`
@@ -542,7 +542,12 @@ export function CanvasFrame({ children }: { children: ReactNode }) {
       className="mibi-viewport"
       style={scroll && viewportHeight ? { height: viewportHeight } : undefined}
     >
-      <Outer ref={outerRef} $scroll={scroll} data-test="mibi-canvas-outer">
+      <Outer
+        ref={outerRef}
+        $scroll={scroll}
+        $editing={editMode}
+        data-test="mibi-canvas-outer"
+      >
         <ReportTheme>
           <Sheet style={size ? undefined : { width: '100%' }}>
             <div ref={frameRef} style={frameStyle}>

@@ -481,7 +481,7 @@ test('an element dragged from the panel lands under the pointer', async ({
   test.setTimeout(150_000);
   await openEditor(page, testAssets);
   await page
-    .getByRole('tab', { name: /Layout elements|Elementos de diseño/ })
+    .getByRole('tab', { name: /Elements|Elementos/ })
     .click();
   const source = page
     .getByTestId('new-component')

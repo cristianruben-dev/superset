@@ -82,23 +82,23 @@ const KEYS_TO_SORT = {
 
 export const DEFAULT_SORT_KEY = 'changed_on';
 
-const DEFAULT_CELL_HEIGHT = 128;
+const DEFAULT_CELL_HEIGHT = 64;
 
 const Controls = styled.div`
   ${({ theme }) => `
     display: flex;
     flex-direction: row;
     padding:
-      ${theme.sizeUnit * 4}px
+      ${theme.sizeUnit}px
       ${theme.sizeUnit * 3}px
-      ${theme.sizeUnit * 4}px
-      ${theme.sizeUnit * 3}px;
+      ${theme.sizeUnit * 2}px;
   `}
 `;
 
 const StyledSelect = styled(Select)<{ id?: string }>`
   margin-left: ${({ theme }) => theme.sizeUnit * 2}px;
-  min-width: 150px;
+  flex: none;
+  width: 164px;
 `;
 
 const EmptyMessage = styled.div`
@@ -309,7 +309,6 @@ class SliceAdder extends Component<SliceAdderProps, SliceAdderState> {
             visType={cellData.viz_type}
             datasourceUrl={cellData.datasource_url}
             datasourceName={cellData.datasource_name}
-            thumbnailUrl={cellData.thumbnail_url}
             isSelected={isSelected}
           />
         )}

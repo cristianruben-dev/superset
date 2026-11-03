@@ -121,6 +121,8 @@ test('Ctrl+K opens the search with dashboards and pages', async () => {
 
 test('a dashboard shows without the sidebar, with the logo in the top bar', () => {
   window.history.pushState({}, '', '/superset/dashboard/7/');
+  const width = window.innerWidth;
+  window.innerWidth = 1366;
   try {
     renderShell();
 
@@ -128,7 +130,37 @@ test('a dashboard shows without the sidebar, with the logo in the top bar', () =
     expect(screen.getByTestId('mibi-topbar-brand')).toBeInTheDocument();
     expect(screen.getByTestId('mibi-main')).toHaveStyle({ marginLeft: '0px' });
     expect(screen.getByText('page content')).toBeInTheDocument();
+    // The report's title and actions go in the top bar, next to a search icon
+    expect(screen.getByTestId('mibi-report-slot')).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Search dashboards and pages…' }),
+    ).toBeInTheDocument();
   } finally {
+    window.innerWidth = width;
     window.history.pushState({}, '', '/');
   }
+});
+
+test('a dashboard in a small window keeps its header over the page', () => {
+  window.history.pushState({}, '', '/superset/dashboard/7/');
+  const width = window.innerWidth;
+  window.innerWidth = 1100;
+  try {
+    renderShell();
+
+    expect(screen.queryByTestId('mibi-report-slot')).not.toBeInTheDocument();
+    expect(screen.getByTestId('mibi-topbar-brand')).toBeInTheDocument();
+  } finally {
+    window.innerWidth = width;
+    window.history.pushState({}, '', '/');
+  }
+});
+
+test('other pages keep the search box in the top bar', () => {
+  renderShell();
+
+  expect(screen.queryByTestId('mibi-report-slot')).not.toBeInTheDocument();
+  expect(screen.getByTestId('mibi-search-trigger')).toHaveTextContent(
+    'Search dashboards and pages…',
+  );
 });

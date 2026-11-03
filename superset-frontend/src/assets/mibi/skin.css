@@ -1001,7 +1001,45 @@ body.mibi-dock .controls-column .ant-tabs-nav {
   }
 }
 
-[data-test='dashboard-header-container'] .dynamic-title-input {
+/* In the top bar, as the file name of a Power BI report: "New" gives it room */
+[data-test='mibi-topbar']:has([data-test='mibi-topbar-brand']) .mibi-new-label {
+  display: none;
+}
+
+[data-test='mibi-report-slot'] [data-test='dashboard-header-container'] {
+  height: 100%;
+  border-bottom: 0;
+  box-shadow: none !important;
+}
+
+[data-test='mibi-report-slot']
+  [data-test='dashboard-header-container']
+  .header-with-actions {
+  height: 100%;
+  min-height: 0;
+  padding: 0;
+  border-bottom: 0;
+  background: transparent;
+}
+
+[data-test='mibi-report-slot'] .title-panel {
+  margin-right: 12px !important;
+}
+
+/* The title keeps room to be read; the status and refresh give way */
+[data-test='mibi-report-slot'] .title-panel > :first-child {
+  min-width: 160px;
+}
+
+@container (max-width: 620px) {
+  [data-test='mibi-report-slot'] .title-panel .ant-tag,
+  [data-test='mibi-report-slot'] [data-test='refresh-button'] {
+    display: none !important;
+  }
+}
+
+[data-test='dashboard-header-container'] .dynamic-title-input,
+[data-test='dashboard-header-container'] .input-sizer {
   font-size: 20px !important;
   font-weight: 600 !important;
   letter-spacing: -0.02em;
@@ -1050,7 +1088,7 @@ body.mibi-dock .controls-column .ant-tabs-nav {
 /* The page floats on the report wallpaper with the same room on every side,
    as Power BI centers its pages */
 .dashboard-content > [data-test='grid-container'] {
-  margin: 20px !important;
+  margin: 0 12px 12px !important;
 }
 
 /* Visuals as cards */
@@ -1157,7 +1195,9 @@ body.mibi-dock .controls-column .ant-tabs-nav {
 }
 
 .dashboard-component-chart-holder.mibi-spacing [data-test='slice-header'] {
-  margin-bottom: calc(var(--mb-v-header-gap, 8px) + var(--mb-s-plot, 0px)) !important;
+  margin-bottom: calc(
+    var(--mb-v-header-gap, 8px) + var(--mb-s-plot, 0px)
+  ) !important;
 }
 
 .dashboard-component-chart-holder.mibi-spacing .header-line {

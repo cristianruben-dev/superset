@@ -19,6 +19,7 @@
 /* eslint-env browser */
 import { hasPendingFields, saveChartFields } from 'src/mibi/format/chartFields';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import {
   isFeatureEnabled,
   FeatureFlag,
@@ -61,6 +62,7 @@ import {
   DeletableReport,
 } from 'src/features/reports/ReportModal/actions';
 import { PageHeaderWithActions } from '@superset-ui/core/components/PageHeaderWithActions';
+import { useReportHeaderSlot } from 'src/mibi/shell/reportHeader';
 import { DashboardWorkspaceChip } from 'src/mibi/workspaces/DashboardWorkspaceChip';
 import { ExportDashboardModal } from 'src/mibi/export/ExportDashboardModal';
 import { setPresenting } from 'src/mibi/present/presentation';
@@ -566,6 +568,7 @@ const Header = (): JSX.Element => {
   }, [toggleEditMode, boundActionCreators]);
 
   const NavExtension = extensionsRegistry.get('dashboard.nav.right');
+  const reportHeaderSlot = useReportHeaderSlot();
 
   const editableTitleProps = useMemo(
     () => ({
@@ -770,27 +773,43 @@ const Header = (): JSX.Element => {
     lastModifiedTime: actualLastModifiedTime,
     logEvent: boundActionCreators.logEvent,
   });
+  const pageHeader = (
+    <PageHeaderWithActions
+      editableTitleProps={editableTitleProps}
+      certificatiedBadgeProps={certifiedBadgeProps}
+      faveStarProps={faveStarProps}
+      titlePanelAdditionalItems={titlePanelAdditionalItems}
+      rightPanelAdditionalItems={rightPanelAdditionalItems}
+      menuDropdownProps={{
+        open: isDropdownVisible,
+        onOpenChange: setIsDropdownVisible,
+      }}
+      additionalActionsMenu={menu}
+      showFaveStar={Boolean(user?.userId && dashboardInfo?.id)}
+      showTitlePanelItems
+    />
+  );
   return (
     <div
-      css={headerContainerStyle}
-      data-test="dashboard-header-container"
-      data-test-id={dashboardInfo.id}
+      css={!reportHeaderSlot && headerContainerStyle}
+      {...(!reportHeaderSlot && {
+        'data-test': 'dashboard-header-container',
+        'data-test-id': dashboardInfo.id,
+      })}
       className="dashboard-header-container"
     >
-      <PageHeaderWithActions
-        editableTitleProps={editableTitleProps}
-        certificatiedBadgeProps={certifiedBadgeProps}
-        faveStarProps={faveStarProps}
-        titlePanelAdditionalItems={titlePanelAdditionalItems}
-        rightPanelAdditionalItems={rightPanelAdditionalItems}
-        menuDropdownProps={{
-          open: isDropdownVisible,
-          onOpenChange: setIsDropdownVisible,
-        }}
-        additionalActionsMenu={menu}
-        showFaveStar={Boolean(user?.userId && dashboardInfo?.id)}
-        showTitlePanelItems
-      />
+      {/* AuraData BI: the title and actions go in the top bar when there is one */}
+      {reportHeaderSlot
+        ? createPortal(
+            <div
+              data-test="dashboard-header-container"
+              data-test-id={dashboardInfo.id}
+            >
+              {pageHeader}
+            </div>,
+            reportHeaderSlot,
+          )
+        : pageHeader}
       {/* AuraData BI: the commands of the editor, as the Power BI ribbon */}
       {editMode && userCanSaveAs && (
         <Ribbon

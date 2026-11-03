@@ -80,10 +80,14 @@ This repository is **AuraData BI**, a fork of Apache Superset 6.1 shaped like Po
   `superset-frontend/src/assets/images/auradata/`.
 - Branding, theme tokens, languages and chart palettes live in `superset/mibi_config.py`.
 - **The editor has a ribbon, as in Power BI** (`src/mibi/ribbon`): Home, Insert, Design and View,
-  plus Format and Data and drill for the selected object. It lives under the title in `Header`, and
+  plus Format and Data and drill for the selected object. It lives under the top bar in `Header`, and
   commands of the ribbon call the same actions as the panes. A new command goes there, in a named
   group; settings stay in the panes (`BuilderComponentPane`: charts, elements, format, selection,
   bookmarks), which `openBuilderTab` opens.
+- **A report's title and actions sit in the top bar** (`useReportHeaderSlot`, `src/mibi/shell/reportHeader.ts`): `Header`
+  portals them there, and keeps them over the page without a top bar (standalone, embedded, phones).
+- **Pages share one margin:** `--mb-space-gutter`, `--mb-space-page-top` and `--mb-space-section` (`ThemeVariables`), tighter in
+  the side panel (`body.mibi-panel`). A list shows one row of filters and folds the rest under «Más filtros» (`ListView`).
 - **The look is fixed by the product.** There are no saved themes and no CSS templates: no
   theme screen, API or per-dashboard theme, and `ThemeController` only switches between the
   `THEME_DEFAULT` and `THEME_DARK` of the configuration (light, dark, match system). Set

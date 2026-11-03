@@ -19,7 +19,6 @@
 
 import {
   CSSProperties,
-  ReactNode,
   useEffect,
   useMemo,
   useRef,
@@ -30,17 +29,11 @@ import {
 } from 'react';
 
 import { t } from '@apache-superset/core/translation';
-import { isFeatureEnabled, FeatureFlag } from '@superset-ui/core';
 import { css } from '@apache-superset/core/theme';
-import { Tooltip, ImageLoader } from '@superset-ui/core/components';
+import { Tooltip } from '@superset-ui/core/components';
 import { GenericLink, usePluginContext } from 'src/components';
-import { assetUrl } from 'src/utils/assetUrl';
 import { VizTypeTile } from 'src/mibi/vizIcons/VizTypeIcon';
 import { Theme } from '@emotion/react';
-
-const FALLBACK_THUMBNAIL_URL = assetUrl(
-  '/static/assets/images/chart-card-fallback.svg',
-);
 
 const TruncatedTextWithTooltip = ({
   children,
@@ -80,46 +73,9 @@ const TruncatedTextWithTooltip = ({
   );
 };
 
-const MetadataItem: FC<{
-  label: ReactNode;
-  value: ReactNode;
-  tooltipText?: string;
-}> = ({ label, value, tooltipText }) => (
-  <div
-    css={(theme: Theme) => css`
-      font-size: ${theme.fontSizeSM}px;
-      display: flex;
-      justify-content: space-between;
-
-      &:not(:last-child) {
-        margin-bottom: ${theme.sizeUnit}px;
-      }
-    `}
-  >
-    <span
-      css={(theme: Theme) => css`
-        margin-right: ${theme.sizeUnit * 4}px;
-        color: ${theme.colorText};
-      `}
-    >
-      {label}
-    </span>
-    <span
-      css={css`
-        min-width: 0;
-      `}
-    >
-      <TruncatedTextWithTooltip tooltipText={tooltipText}>
-        {value}
-      </TruncatedTextWithTooltip>
-    </span>
-  </div>
-);
-
 const SliceAddedBadgePlaceholder: FC<{
-  showThumbnails?: boolean;
   placeholderRef: (element: HTMLDivElement) => void;
-}> = ({ showThumbnails, placeholderRef }) => (
+}> = ({ placeholderRef }) => (
   <div
     ref={placeholderRef}
     css={(theme: Theme) => css`
@@ -133,11 +89,7 @@ const SliceAddedBadgePlaceholder: FC<{
       margin-left: ${theme.sizeUnit * 4}px;
       pointer-events: none;
 
-      /* Position styles */
       visibility: hidden;
-      position: ${showThumbnails ? 'absolute' : 'unset'};
-      top: ${showThumbnails ? '72px' : 'unset'};
-      left: ${showThumbnails ? '84px' : 'unset'};
     `}
   >
     {t('Added')}
@@ -180,7 +132,6 @@ const AddSliceCard: FC<{
   lastModified?: string;
   sliceName: string;
   style?: CSSProperties;
-  thumbnailUrl?: string | null;
   visType: string;
 }> = ({
   datasourceUrl,
@@ -190,10 +141,8 @@ const AddSliceCard: FC<{
   lastModified,
   sliceName,
   style = {},
-  thumbnailUrl,
   visType,
 }) => {
-  const showThumbnails = isFeatureEnabled(FeatureFlag.Thumbnails);
   const [sliceAddedBadge, setSliceAddedBadge] = useState<HTMLDivElement>();
   const { mountedPluginMetadata } = usePluginContext();
   const vizName = useMemo(
@@ -208,9 +157,8 @@ const AddSliceCard: FC<{
         css={(theme: Theme) => css`
           border: 1px solid ${theme.colorBorder};
           border-radius: ${theme.borderRadius}px;
-          padding: ${theme.sizeUnit * 4}px;
-          margin: 0 ${theme.sizeUnit * 3}px ${theme.sizeUnit * 3}px
-            ${theme.sizeUnit * 3}px;
+          padding: ${theme.sizeUnit * 2}px ${theme.sizeUnit * 3}px;
+          margin: 0 ${theme.sizeUnit * 3}px ${theme.sizeUnit * 2}px;
           position: relative;
           cursor: ${isSelected ? 'not-allowed' : 'move'};
           white-space: nowrap;
@@ -230,41 +178,17 @@ const AddSliceCard: FC<{
             display: flex;
           `}
         >
-          {showThumbnails ? (
-            <div
-              data-test="thumbnail"
-              css={css`
-                width: 146px;
-                height: 82px;
-                flex-shrink: 0;
-                margin-right: 16px;
+          <Tooltip title={vizName}>
+            <span
+              data-test="viz-type-tile"
+              css={(theme: Theme) => css`
+                align-self: flex-start;
+                margin-right: ${theme.sizeUnit * 3}px;
               `}
             >
-              <ImageLoader
-                src={thumbnailUrl || ''}
-                fallback={FALLBACK_THUMBNAIL_URL}
-                position="top"
-              />
-              {isSelected && showThumbnails ? (
-                <SliceAddedBadgePlaceholder
-                  placeholderRef={setSliceAddedBadge}
-                  showThumbnails={showThumbnails}
-                />
-              ) : null}
-            </div>
-          ) : (
-            <Tooltip title={vizName}>
-              <span
-                data-test="viz-type-tile"
-                css={(theme: Theme) => css`
-                  align-self: flex-start;
-                  margin-right: ${theme.sizeUnit * 3}px;
-                `}
-              >
-                <VizTypeTile vizType={visType} size="m" title={vizName} />
-              </span>
-            </Tooltip>
-          )}
+              <VizTypeTile vizType={visType} size="m" title={vizName} />
+            </span>
+          </Tooltip>
           <div
             css={css`
               flex-grow: 1;
@@ -274,7 +198,7 @@ const AddSliceCard: FC<{
             <div
               data-test="card-title"
               css={(theme: Theme) => css`
-                margin-bottom: ${theme.sizeUnit * 2}px;
+                margin-bottom: 2px;
                 font-weight: ${theme.fontWeightStrong};
                 display: flex;
                 justify-content: space-between;
@@ -282,35 +206,43 @@ const AddSliceCard: FC<{
               `}
             >
               <TruncatedTextWithTooltip>{sliceName}</TruncatedTextWithTooltip>
-              {isSelected && !showThumbnails ? (
+              {isSelected ? (
                 <SliceAddedBadgePlaceholder
                   placeholderRef={setSliceAddedBadge}
                 />
               ) : null}
             </div>
             <div
-              css={css`
+              css={(theme: Theme) => css`
                 display: flex;
-                flex-direction: column;
+                gap: ${theme.sizeUnit * 2}px;
+                justify-content: space-between;
+                font-size: ${theme.fontSizeSM}px;
+                color: ${theme.colorTextSecondary};
               `}
             >
-              {showThumbnails && (
-                <MetadataItem label={t('Viz type')} value={vizName} />
-              )}
-              <MetadataItem
-                label={t('Dataset')}
-                value={
-                  datasourceUrl ? (
+              <span
+                css={css`
+                  min-width: 0;
+                `}
+              >
+                <TruncatedTextWithTooltip tooltipText={datasourceName}>
+                  {datasourceUrl ? (
                     <GenericLink to={datasourceUrl}>
                       {datasourceName}
                     </GenericLink>
                   ) : (
                     datasourceName
-                  )
-                }
-                tooltipText={datasourceName}
-              />
-              <MetadataItem label={t('Modified')} value={lastModified} />
+                  )}
+                </TruncatedTextWithTooltip>
+              </span>
+              <span
+                css={css`
+                  flex: none;
+                `}
+              >
+                {lastModified}
+              </span>
             </div>
           </div>
         </div>

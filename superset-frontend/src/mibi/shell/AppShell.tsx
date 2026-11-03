@@ -33,19 +33,21 @@ import { TopBar } from './TopBar';
 const COLLAPSED_KEY = 'mibi.sidebarCollapsed';
 // Narrower screens (phones, small tablets) always get the collapsed sidebar
 const NARROW_SCREEN = 768;
+// Below this, the top bar has no room for the title and actions of a report
+const REPORT_HEADER_SCREEN = 1200;
 
 // The screen width too: a page wider than a phone widens its window
-const isNarrow = () =>
-  Math.min(window.innerWidth, window.screen?.width || Infinity) < NARROW_SCREEN;
+const isBelow = (width: number) =>
+  Math.min(window.innerWidth, window.screen?.width || Infinity) < width;
 
-const useNarrowScreen = () => {
-  const [narrow, setNarrow] = useState(isNarrow);
+const useScreenBelow = (width: number) => {
+  const [below, setBelow] = useState(() => isBelow(width));
   useEffect(() => {
-    const onResize = () => setNarrow(isNarrow());
+    const onResize = () => setBelow(isBelow(width));
     window.addEventListener('resize', onResize);
     return () => window.removeEventListener('resize', onResize);
-  }, []);
-  return narrow;
+  }, [width]);
+  return below;
 };
 
 const Main = styled.div<{ $offset: number }>`
@@ -89,7 +91,8 @@ export function AppShell({ data, isFrontendRoute, children }: AppShellProps) {
   const { pathname } = useLocation();
   const report = isReportRoute(pathname);
   const [preferCollapsed, setCollapsed] = useState(readCollapsed);
-  const narrow = useNarrowScreen();
+  const narrow = useScreenBelow(NARROW_SCREEN);
+  const reportHeaderFits = !useScreenBelow(REPORT_HEADER_SCREEN);
   const collapsed = preferCollapsed || narrow;
   const sidebarWidth = collapsed ? SIDEBAR_COLLAPSED_WIDTH : SIDEBAR_WIDTH;
   const [searching, setSearching] = useState(false);
@@ -156,6 +159,7 @@ export function AppShell({ data, isFrontendRoute, children }: AppShellProps) {
           onSearch={() => setSearching(true)}
           showBrand={report}
           compactBrand={narrow}
+          reportHeader={report && reportHeaderFits}
         />
         {children}
       </Main>
