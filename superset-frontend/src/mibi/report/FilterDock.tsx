@@ -75,6 +75,11 @@ const Dock = styled.div<{ $width: number }>`
     flex: none;
     box-sizing: border-box;
     width: ${$width}px;
+    /* As tall as the page, and never too short to use while open: a small
+       zoom or a tooltip page leaves the page only a few lines high */
+    &:has([data-test='filter-bar'].open) {
+      min-height: ${theme.sizeUnit * 100}px;
+    }
     background: var(--mb-bg-container, ${theme.colorBgContainer});
     border-radius: 0 ${theme.borderRadiusLG * 1.5}px
       ${theme.borderRadiusLG * 1.5}px 0;
