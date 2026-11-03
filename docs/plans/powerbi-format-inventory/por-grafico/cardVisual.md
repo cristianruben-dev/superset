@@ -79,46 +79,46 @@ Nuestro gráfico: bigtotal. Generado desde `reportThemeSchema-2.159.json`.
 | Style | `style` | enum: Table, Tiles | Falta |  |
 | Top padding | `topOuterMargin` | integer | Falta |  |
 
-### label (`label`) · P1 · 5/16
+### label (`label`) · P1 · 10/16
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
 | $id | `$id` | enum: default / ? | Excluido | Selector interno de serie |
 | Align baselines | `alignBaselines` | boolean | Falta |  |
-| Bold | `bold` | boolean | Tiene | Formato > Etiqueta de la tarjeta |
-| Font color | `fontColor` | fill | Tiene | Formato > Etiqueta de la tarjeta |
-| Font family | `fontFamily` | string | Falta |  |
-| Text size | `fontSize` | fontSize | Tiene | Formato > Etiqueta de la tarjeta |
+| Bold | `bold` | boolean | Tiene | Etiqueta de categoría: texto, fuente, posición y separación |
+| Font color | `fontColor` | fill | Tiene | Etiqueta de categoría: texto, fuente, posición y separación |
+| Font family | `fontFamily` | string | Tiene | Etiqueta de categoría: texto, fuente, posición y separación |
+| Text size | `fontSize` | fontSize | Tiene | Etiqueta de categoría: texto, fuente, posición y separación |
 | Heading | `heading` | enum: Normal, Heading 2, Heading 3, Heading 4, Heading 5, Heading 6 | Falta |  |
 | Horizontal alignment | `horizontalAlignment` | alignment | Falta |  |
-| Italic | `italic` | boolean | Tiene | Formato > Etiqueta de la tarjeta |
+| Italic | `italic` | boolean | Tiene | Etiqueta de categoría: texto, fuente, posición y separación |
 | Match value alignment | `matchValueAlignment` | boolean | Falta |  |
-| Position | `position` | enum: Bottom, Top | Falta |  |
-| Show | `show` | boolean | Tiene | Formato > Etiqueta de la tarjeta |
-| Text | `text` | string | Falta |  |
-| Text wrap | `textWrap` | boolean | Falta |  |
+| Position | `position` | enum: Bottom, Top | Tiene | Etiqueta de categoría: texto, fuente, posición y separación |
+| Show | `show` | boolean | Tiene | Etiqueta de categoría: texto, fuente, posición y separación |
+| Text | `text` | string | Tiene | Etiqueta de categoría: texto, fuente, posición y separación |
+| Text wrap | `textWrap` | boolean | Tiene | Etiqueta de categoría: texto, fuente, posición y separación |
 | Transparency | `transparency` | number | Falta |  |
-| Underline | `underline` | boolean | Falta |  |
+| Underline | `underline` | boolean | Tiene | Etiqueta de categoría: texto, fuente, posición y separación |
 
-### value (`value`) · P1 · 4/15
+### value (`value`) · P1 · 12/15
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
 | $id | `$id` | enum: default / ? | Excluido | Selector interno de serie |
-| Bold | `bold` | boolean | Tiene | Formato > Valor de la tarjeta |
+| Bold | `bold` | boolean | Tiene | Valor destacado: fuente, unidades y decimales |
 | Format code | `customFormatString` | string | Falta |  |
-| Font color | `fontColor` | fill | Tiene | Formato > Valor de la tarjeta |
-| Font family | `fontFamily` | string | Falta |  |
-| Text size | `fontSize` | fontSize | Tiene | Formato > Valor de la tarjeta |
-| Horizontal alignment | `horizontalAlignment` | alignment | Falta |  |
-| Italic | `italic` | boolean | Tiene | Formato > Valor de la tarjeta |
-| Display units | `labelDisplayUnits` | enum: Auto, None, Thousands, Millions, Billions, Trillions, Custom | Falta |  |
-| Value decimal places | `labelPrecision` | integer | Falta |  |
-| Show | `show` | boolean | Falta |  |
-| Show blank as | `showBlankAs` | string | Falta |  |
-| Text wrap | `textWrap` | boolean | Falta |  |
+| Font color | `fontColor` | fill | Tiene | Valor destacado: fuente, unidades y decimales |
+| Font family | `fontFamily` | string | Tiene | Valor destacado: fuente, unidades y decimales |
+| Text size | `fontSize` | fontSize | Tiene | Valor destacado: fuente, unidades y decimales |
+| Horizontal alignment | `horizontalAlignment` | alignment | Tiene | Valor destacado: fuente, unidades y decimales |
+| Italic | `italic` | boolean | Tiene | Valor destacado: fuente, unidades y decimales |
+| Display units | `labelDisplayUnits` | enum: Auto, None, Thousands, Millions, Billions, Trillions, Custom | Tiene | Valor destacado: fuente, unidades y decimales |
+| Value decimal places | `labelPrecision` | integer | Tiene | Valor destacado: fuente, unidades y decimales |
+| Show | `show` | boolean | Tiene | Valor destacado: fuente, unidades y decimales |
+| Show blank as | `showBlankAs` | string | Tiene | Valor destacado: fuente, unidades y decimales |
+| Text wrap | `textWrap` | boolean | Tiene | Valor destacado: fuente, unidades y decimales |
 | Transparency | `transparency` | number | Falta |  |
-| Underline | `underline` | boolean | Falta |  |
+| Underline | `underline` | boolean | Tiene | Valor destacado: fuente, unidades y decimales |
 
 ### Múltiplos pequeños (`smallMultiplesLayout`) · P2 · 0/15
 

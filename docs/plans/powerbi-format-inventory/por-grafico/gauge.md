@@ -5,63 +5,63 @@ Nuestro gráfico: gauge. Generado desde `reportThemeSchema-2.159.json`.
 ## Visual
 
 
-### Colores / barras (`dataPoint`) · P1 · 1/2
+### Colores / barras (`dataPoint`) · P1 · 2/2
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
 | Fill color | `fill` | fill | Parcial | Color por serie o esquema; revisar color por categoría (color_scheme) |
-| Target color | `target` | fill | Falta |  |
+| Target color | `target` | fill | Tiene | Color del objetivo |
 
-### Etiquetas de datos (`labels`) · P1 · 2/9
+### Etiquetas de datos (`labels`) · P1 · 8/9
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
-| Bold | `bold` | boolean | Falta |  |
-| Color | `color` | fill | Falta |  |
-| Font family | `fontFamily` | string | Falta |  |
-| Text size | `fontSize` | fontSize | Falta |  |
-| Italic | `italic` | boolean | Falta |  |
-| Display units | `labelDisplayUnits` | labelDisplayUnits | Parcial | Con código d3 (number_format) |
-| Value decimal places | `labelPrecision` | integer | Parcial | Con código d3 (number_format) |
-| Show | `show` | boolean | Falta |  |
+| Bold | `bold` | boolean | Tiene | Fuente de etiquetas (value_label_font) |
+| Color | `color` | fill | Tiene | Fuente de etiquetas (value_label_font) |
+| Font family | `fontFamily` | string | Tiene | Fuente de etiquetas (value_label_font) |
+| Text size | `fontSize` | fontSize | Tiene | Fuente de etiquetas (value_label_font) |
+| Italic | `italic` | boolean | Tiene | Fuente de etiquetas (value_label_font) |
+| Display units | `labelDisplayUnits` | labelDisplayUnits | Tiene | Unidades y decimales de etiquetas |
+| Value decimal places | `labelPrecision` | integer | Tiene | Unidades y decimales de etiquetas |
+| Show | `show` | boolean | Tiene | Mostrar etiquetas |
 | Underline | `underline` | boolean | Falta | El motor de gráficos no dibuja texto subrayado |
 
-### Valor principal (`calloutValue`) · P1 · 3/10
+### Valor principal (`calloutValue`) · P1 · 9/10
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
-| Bold | `bold` | boolean | Falta |  |
-| Color | `color` | fill | Falta |  |
-| Field | `dynamicLabelValue` | string/number/integer/boolean | Falta |  |
-| Font family | `fontFamily` | string | Falta |  |
-| Italic | `italic` | boolean | Falta |  |
-| Display units | `labelDisplayUnits` | labelDisplayUnits | Parcial | Con código d3 (number_format) |
-| Value decimal places | `labelPrecision` | integer | Parcial | Con código d3 (number_format) |
-| Show | `show` | boolean | Parcial | Valor siempre visible (font_size/show_progress) |
-| Custom label | `showDynamicLabels` | boolean | Falta |  |
+| Bold | `bold` | boolean | Tiene | Fuente y formato del valor del medidor |
+| Color | `color` | fill | Tiene | Fuente y formato del valor del medidor |
+| Field | `dynamicLabelValue` | string/number/integer/boolean | Parcial | Etiqueta manual con {value}; sin campo dinámico |
+| Font family | `fontFamily` | string | Tiene | Fuente y formato del valor del medidor |
+| Italic | `italic` | boolean | Tiene | Fuente y formato del valor del medidor |
+| Display units | `labelDisplayUnits` | labelDisplayUnits | Tiene | Fuente y formato del valor del medidor |
+| Value decimal places | `labelPrecision` | integer | Tiene | Fuente y formato del valor del medidor |
+| Show | `show` | boolean | Tiene | Fuente y formato del valor del medidor |
+| Custom label | `showDynamicLabels` | boolean | Parcial | Etiqueta manual con {value}; sin campo dinámico |
 | Underline | `underline` | boolean | Falta |  |
 
-### axis (`axis`) · P1 · 2/3
+### axis (`axis`) · P1 · 3/3
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
 | Max | `max` | number | Tiene | Máximo (max_val) |
 | Min | `min` | number | Tiene | Mínimo (min_val) |
-| Target | `target` | number | Falta |  |
+| Target | `target` | number | Parcial | Objetivo numérico; sin campo de objetivo |
 
-### target (`target`) · P1 · 0/9
+### target (`target`) · P1 · 8/9
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
-| Bold | `bold` | boolean | Falta |  |
-| Color | `color` | fill | Falta |  |
-| Font family | `fontFamily` | string | Falta |  |
-| Text size | `fontSize` | fontSize | Falta |  |
-| Italic | `italic` | boolean | Falta |  |
-| Display units | `labelDisplayUnits` | labelDisplayUnits | Falta |  |
-| Value decimal places | `labelPrecision` | integer | Falta |  |
-| Show | `show` | boolean | Falta |  |
-| Underline | `underline` | boolean | Falta |  |
+| Bold | `bold` | boolean | Parcial | Puntero y fuente propios; unidades y decimales compartidos con valor |
+| Color | `color` | fill | Parcial | Puntero y fuente propios; unidades y decimales compartidos con valor |
+| Font family | `fontFamily` | string | Parcial | Puntero y fuente propios; unidades y decimales compartidos con valor |
+| Text size | `fontSize` | fontSize | Parcial | Puntero y fuente propios; unidades y decimales compartidos con valor |
+| Italic | `italic` | boolean | Parcial | Puntero y fuente propios; unidades y decimales compartidos con valor |
+| Display units | `labelDisplayUnits` | labelDisplayUnits | Parcial | Puntero y fuente propios; unidades y decimales compartidos con valor |
+| Value decimal places | `labelPrecision` | integer | Parcial | Puntero y fuente propios; unidades y decimales compartidos con valor |
+| Show | `show` | boolean | Parcial | Puntero y fuente propios; unidades y decimales compartidos con valor |
+| Underline | `underline` | boolean | Falta | El motor de gráficos no dibuja texto subrayado |
 
 ## General
 

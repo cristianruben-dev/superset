@@ -143,6 +143,25 @@ Formats are stored in `position_json`, so they save, undo and export with the da
   a series changes by name (`SeriesFormatControl`). Total labels are marks of no height at the end of each stack, and a
   legend title is a series without marks: both have ids starting with `__mibi`. `CardDefinition.headings` starts a group
   inside a section of the pane.
+- Cards and special ECharts charts use `sections/chartFamilies.ts` for their extra controls. Card HTML text and KPI
+  status are resolved in `BigNumber/cardFormat.ts`; an optional `goal_metric` belongs to Data and uses the indicator's
+  aggregation, while `kpi_target_value` only repaints. No goal keeps the older comparison behavior. Zero is a valid goal;
+  a percent distance from zero is N/A. `utils/specialChartFormat.ts` preserves original data shapes, helper series and hooks;
+  scatter's shared formatting has already run, so do not apply it twice. Ratio/shading require numeric linear axes.
+  Card value controls are unified: `legacyCardFormat` reads older `value`/`label` styles as defaults, and card text sets
+  local CSS variables so explicit font settings beat the older important rules without rewriting layouts.
+  Fixed targets, labels and category mappings belong to `OWN_CHART_SETTINGS`. The image at a donut's center,
+  treemap tiling alternatives, automatic marker containment and waterfall max-breakdowns are still open; do not expose
+  controls for them until implemented. Roadmap state is in `docs/plans/estado-formato-powerbi.md`.
+- A control goes in the first section of `CARD_DEFINITIONS` that names it, and `table_cell` only exists for tables.
+- Tables and matrices share render-only controls and scoped CSS in
+  `packages/superset-ui-chart-controls/src/sections/tableFormat.ts`; the plain table keeps its existing
+  `tableFormat` helper, and the pivot renderer receives raw `tableFormat` from `transformProps`.
+  Extended column styles are enabled only by `tableFormatting` in the two supported control panels;
+  do not expose them through the default column editor of another renderer without implementing them.
+  Matrix sparklines use existing column groups, table sparklines require ordered numeric arrays, and
+  neither introduces a new query role. Resolve result-dependent choices before control validation,
+  and merge pending column edits before sending a debounced update.
 - The General level also covers header icons (`mibi/format/HeaderExtras.tsx`), action button and
   chart link (`format.link`, `format.actionButton`), spacing, and the tooltip and sampling of
   ECharts (`chart.mibi_tooltip`, `chart.mibi_sampling`), which reach the chart through

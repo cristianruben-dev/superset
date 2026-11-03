@@ -266,7 +266,7 @@ barChart,Barras apiladas,Visual,Múltiplos pequeños,smallMultiplesLayout,layout
 barChart,Barras apiladas,Visual,Múltiplos pequeños,smallMultiplesLayout,rowCount,Rows,integer,,2,Falta,
 barChart,Barras apiladas,Visual,Múltiplos pequeños,smallMultiplesLayout,rowPaddingInner,Inner row padding,number,,2,Falta,
 barChart,Barras apiladas,Visual,Múltiplos pequeños,smallMultiplesLayout,rowPaddingOuter,Outer row padding,number,,2,Falta,
-barChart,Barras apiladas,Visual,Anotaciones,annotationTemplate,callout,callout,annotationTemplate,,3,Falta,
+barChart,Barras apiladas,Visual,Anotaciones,annotationTemplate,callout,callout,annotationTemplate,,3,Falta,Sin anotaciones en el gráfico: fase 8
 barChart,Barras apiladas,Visual,Barras de error,error,barBorderColor,Border color,fill,,3,Falta,
 barChart,Barras apiladas,Visual,Barras de error,error,barBorderSize,Border size,integer,,3,Falta,
 barChart,Barras apiladas,Visual,Barras de error,error,barColor,Bar color,fill,,3,Falta,
@@ -781,7 +781,7 @@ columnChart,Columnas apiladas,Visual,Múltiplos pequeños,smallMultiplesLayout,l
 columnChart,Columnas apiladas,Visual,Múltiplos pequeños,smallMultiplesLayout,rowCount,Rows,integer,,2,Falta,
 columnChart,Columnas apiladas,Visual,Múltiplos pequeños,smallMultiplesLayout,rowPaddingInner,Inner row padding,number,,2,Falta,
 columnChart,Columnas apiladas,Visual,Múltiplos pequeños,smallMultiplesLayout,rowPaddingOuter,Outer row padding,number,,2,Falta,
-columnChart,Columnas apiladas,Visual,Anotaciones,annotationTemplate,callout,callout,annotationTemplate,,3,Falta,
+columnChart,Columnas apiladas,Visual,Anotaciones,annotationTemplate,callout,callout,annotationTemplate,,3,Falta,Sin anotaciones en el gráfico: fase 8
 columnChart,Columnas apiladas,Visual,Barras de error,error,barBorderColor,Border color,fill,,3,Falta,
 columnChart,Columnas apiladas,Visual,Barras de error,error,barBorderSize,Border size,integer,,3,Falta,
 columnChart,Columnas apiladas,Visual,Barras de error,error,barColor,Bar color,fill,,3,Falta,
@@ -1305,7 +1305,7 @@ clusteredBarChart,Barras agrupadas,Visual,Múltiplos pequeños,smallMultiplesLay
 clusteredBarChart,Barras agrupadas,Visual,Múltiplos pequeños,smallMultiplesLayout,rowCount,Rows,integer,,2,Falta,
 clusteredBarChart,Barras agrupadas,Visual,Múltiplos pequeños,smallMultiplesLayout,rowPaddingInner,Inner row padding,number,,2,Falta,
 clusteredBarChart,Barras agrupadas,Visual,Múltiplos pequeños,smallMultiplesLayout,rowPaddingOuter,Outer row padding,number,,2,Falta,
-clusteredBarChart,Barras agrupadas,Visual,Anotaciones,annotationTemplate,callout,callout,annotationTemplate,,3,Falta,
+clusteredBarChart,Barras agrupadas,Visual,Anotaciones,annotationTemplate,callout,callout,annotationTemplate,,3,Falta,Sin anotaciones en el gráfico: fase 8
 clusteredBarChart,Barras agrupadas,Visual,Barras de error,error,barBorderColor,Border color,fill,,3,Falta,
 clusteredBarChart,Barras agrupadas,Visual,Barras de error,error,barBorderSize,Border size,integer,,3,Falta,
 clusteredBarChart,Barras agrupadas,Visual,Barras de error,error,barColor,Bar color,fill,,3,Falta,
@@ -1820,7 +1820,7 @@ clusteredColumnChart,Columnas agrupadas,Visual,Múltiplos pequeños,smallMultipl
 clusteredColumnChart,Columnas agrupadas,Visual,Múltiplos pequeños,smallMultiplesLayout,rowCount,Rows,integer,,2,Falta,
 clusteredColumnChart,Columnas agrupadas,Visual,Múltiplos pequeños,smallMultiplesLayout,rowPaddingInner,Inner row padding,number,,2,Falta,
 clusteredColumnChart,Columnas agrupadas,Visual,Múltiplos pequeños,smallMultiplesLayout,rowPaddingOuter,Outer row padding,number,,2,Falta,
-clusteredColumnChart,Columnas agrupadas,Visual,Anotaciones,annotationTemplate,callout,callout,annotationTemplate,,3,Falta,
+clusteredColumnChart,Columnas agrupadas,Visual,Anotaciones,annotationTemplate,callout,callout,annotationTemplate,,3,Falta,Sin anotaciones en el gráfico: fase 8
 clusteredColumnChart,Columnas agrupadas,Visual,Barras de error,error,barBorderColor,Border color,fill,,3,Falta,
 clusteredColumnChart,Columnas agrupadas,Visual,Barras de error,error,barBorderSize,Border size,integer,,3,Falta,
 clusteredColumnChart,Columnas agrupadas,Visual,Barras de error,error,barColor,Bar color,fill,,3,Falta,
@@ -2326,7 +2326,7 @@ hundredPercentStackedBarChart,Barras 100 %,Visual,Múltiplos pequeños,smallMult
 hundredPercentStackedBarChart,Barras 100 %,Visual,Múltiplos pequeños,smallMultiplesLayout,rowCount,Rows,integer,,2,Falta,
 hundredPercentStackedBarChart,Barras 100 %,Visual,Múltiplos pequeños,smallMultiplesLayout,rowPaddingInner,Inner row padding,number,,2,Falta,
 hundredPercentStackedBarChart,Barras 100 %,Visual,Múltiplos pequeños,smallMultiplesLayout,rowPaddingOuter,Outer row padding,number,,2,Falta,
-hundredPercentStackedBarChart,Barras 100 %,Visual,Anotaciones,annotationTemplate,callout,callout,annotationTemplate,,3,Falta,
+hundredPercentStackedBarChart,Barras 100 %,Visual,Anotaciones,annotationTemplate,callout,callout,annotationTemplate,,3,Falta,Sin anotaciones en el gráfico: fase 8
 hundredPercentStackedBarChart,Barras 100 %,Visual,Barras de error,error,barBorderColor,Border color,fill,,3,Falta,
 hundredPercentStackedBarChart,Barras 100 %,Visual,Barras de error,error,barBorderSize,Border size,integer,,3,Falta,
 hundredPercentStackedBarChart,Barras 100 %,Visual,Barras de error,error,barColor,Bar color,fill,,3,Falta,
@@ -2841,7 +2841,7 @@ hundredPercentStackedColumnChart,Columnas 100 %,Visual,Múltiplos pequeños,smal
 hundredPercentStackedColumnChart,Columnas 100 %,Visual,Múltiplos pequeños,smallMultiplesLayout,rowCount,Rows,integer,,2,Falta,
 hundredPercentStackedColumnChart,Columnas 100 %,Visual,Múltiplos pequeños,smallMultiplesLayout,rowPaddingInner,Inner row padding,number,,2,Falta,
 hundredPercentStackedColumnChart,Columnas 100 %,Visual,Múltiplos pequeños,smallMultiplesLayout,rowPaddingOuter,Outer row padding,number,,2,Falta,
-hundredPercentStackedColumnChart,Columnas 100 %,Visual,Anotaciones,annotationTemplate,callout,callout,annotationTemplate,,3,Falta,
+hundredPercentStackedColumnChart,Columnas 100 %,Visual,Anotaciones,annotationTemplate,callout,callout,annotationTemplate,,3,Falta,Sin anotaciones en el gráfico: fase 8
 hundredPercentStackedColumnChart,Columnas 100 %,Visual,Barras de error,error,barBorderColor,Border color,fill,,3,Falta,
 hundredPercentStackedColumnChart,Columnas 100 %,Visual,Barras de error,error,barBorderSize,Border size,integer,,3,Falta,
 hundredPercentStackedColumnChart,Columnas 100 %,Visual,Barras de error,error,barColor,Bar color,fill,,3,Falta,
@@ -3497,7 +3497,7 @@ lineChart,Líneas,Visual,Anomalías,anomalyDetection,markerShow,Show,boolean,,3,
 lineChart,Líneas,Visual,Anomalías,anomalyDetection,markerTransparency,Transparency,number,,3,Falta,
 lineChart,Líneas,Visual,Anomalías,anomalyDetection,show,Show,boolean,,3,Falta,
 lineChart,Líneas,Visual,Anomalías,anomalyDetection,transparency,Transparency,number,,3,Falta,
-lineChart,Líneas,Visual,Anotaciones,annotationTemplate,callout,callout,annotationTemplate,,3,Falta,
+lineChart,Líneas,Visual,Anotaciones,annotationTemplate,callout,callout,annotationTemplate,,3,Falta,Sin anotaciones en el gráfico: fase 8
 lineChart,Líneas,Visual,Barras de error,error,barBorderColor,Border color,fill,,3,Falta,
 lineChart,Líneas,Visual,Barras de error,error,barBorderSize,Border size,integer,,3,Falta,
 lineChart,Líneas,Visual,Barras de error,error,barColor,Bar color,fill,,3,Falta,
@@ -4099,7 +4099,7 @@ areaChart,Área,Visual,Múltiplos pequeños,smallMultiplesLayout,layoutType,Grid
 areaChart,Área,Visual,Múltiplos pequeños,smallMultiplesLayout,rowCount,Rows,integer,,2,Falta,
 areaChart,Área,Visual,Múltiplos pequeños,smallMultiplesLayout,rowPaddingInner,Inner row padding,number,,2,Falta,
 areaChart,Área,Visual,Múltiplos pequeños,smallMultiplesLayout,rowPaddingOuter,Outer row padding,number,,2,Falta,
-areaChart,Área,Visual,Anotaciones,annotationTemplate,callout,callout,annotationTemplate,,3,Falta,
+areaChart,Área,Visual,Anotaciones,annotationTemplate,callout,callout,annotationTemplate,,3,Falta,Sin anotaciones en el gráfico: fase 8
 areaChart,Área,Visual,Encabezado de múltiplos,subheader,alignment,Alignment,alignment,Alignment position for the title,3,Falta,
 areaChart,Área,Visual,Encabezado de múltiplos,subheader,bold,Bold,boolean,,3,Falta,
 areaChart,Área,Visual,Encabezado de múltiplos,subheader,fontColor,Font color,fill,,3,Falta,
@@ -4655,7 +4655,7 @@ stackedAreaChart,Área apilada,Visual,Múltiplos pequeños,smallMultiplesLayout,
 stackedAreaChart,Área apilada,Visual,Múltiplos pequeños,smallMultiplesLayout,rowCount,Rows,integer,,2,Falta,
 stackedAreaChart,Área apilada,Visual,Múltiplos pequeños,smallMultiplesLayout,rowPaddingInner,Inner row padding,number,,2,Falta,
 stackedAreaChart,Área apilada,Visual,Múltiplos pequeños,smallMultiplesLayout,rowPaddingOuter,Outer row padding,number,,2,Falta,
-stackedAreaChart,Área apilada,Visual,Anotaciones,annotationTemplate,callout,callout,annotationTemplate,,3,Falta,
+stackedAreaChart,Área apilada,Visual,Anotaciones,annotationTemplate,callout,callout,annotationTemplate,,3,Falta,Sin anotaciones en el gráfico: fase 8
 stackedAreaChart,Área apilada,Visual,Encabezado de múltiplos,subheader,alignment,Alignment,alignment,Alignment position for the title,3,Falta,
 stackedAreaChart,Área apilada,Visual,Encabezado de múltiplos,subheader,bold,Bold,boolean,,3,Falta,
 stackedAreaChart,Área apilada,Visual,Encabezado de múltiplos,subheader,fontColor,Font color,fill,,3,Falta,
@@ -5211,7 +5211,7 @@ hundredPercentStackedAreaChart,Área 100 %,Visual,Múltiplos pequeños,smallMult
 hundredPercentStackedAreaChart,Área 100 %,Visual,Múltiplos pequeños,smallMultiplesLayout,rowCount,Rows,integer,,2,Falta,
 hundredPercentStackedAreaChart,Área 100 %,Visual,Múltiplos pequeños,smallMultiplesLayout,rowPaddingInner,Inner row padding,number,,2,Falta,
 hundredPercentStackedAreaChart,Área 100 %,Visual,Múltiplos pequeños,smallMultiplesLayout,rowPaddingOuter,Outer row padding,number,,2,Falta,
-hundredPercentStackedAreaChart,Área 100 %,Visual,Anotaciones,annotationTemplate,callout,callout,annotationTemplate,,3,Falta,
+hundredPercentStackedAreaChart,Área 100 %,Visual,Anotaciones,annotationTemplate,callout,callout,annotationTemplate,,3,Falta,Sin anotaciones en el gráfico: fase 8
 hundredPercentStackedAreaChart,Área 100 %,Visual,Encabezado de múltiplos,subheader,alignment,Alignment,alignment,Alignment position for the title,3,Falta,
 hundredPercentStackedAreaChart,Área 100 %,Visual,Encabezado de múltiplos,subheader,bold,Bold,boolean,,3,Falta,
 hundredPercentStackedAreaChart,Área 100 %,Visual,Encabezado de múltiplos,subheader,fontColor,Font color,fill,,3,Falta,
@@ -5762,7 +5762,7 @@ lineStackedColumnComboChart,Línea y columnas apiladas,Visual,Múltiplos pequeñ
 lineStackedColumnComboChart,Línea y columnas apiladas,Visual,Múltiplos pequeños,smallMultiplesLayout,rowCount,Rows,integer,,2,Falta,
 lineStackedColumnComboChart,Línea y columnas apiladas,Visual,Múltiplos pequeños,smallMultiplesLayout,rowPaddingInner,Inner row padding,number,,2,Falta,
 lineStackedColumnComboChart,Línea y columnas apiladas,Visual,Múltiplos pequeños,smallMultiplesLayout,rowPaddingOuter,Outer row padding,number,,2,Falta,
-lineStackedColumnComboChart,Línea y columnas apiladas,Visual,Anotaciones,annotationTemplate,callout,callout,annotationTemplate,,3,Falta,
+lineStackedColumnComboChart,Línea y columnas apiladas,Visual,Anotaciones,annotationTemplate,callout,callout,annotationTemplate,,3,Falta,Sin anotaciones en el gráfico: fase 8
 lineStackedColumnComboChart,Línea y columnas apiladas,Visual,Barras de error,error,barBorderColor,Border color,fill,,3,Falta,
 lineStackedColumnComboChart,Línea y columnas apiladas,Visual,Barras de error,error,barBorderSize,Border size,integer,,3,Falta,
 lineStackedColumnComboChart,Línea y columnas apiladas,Visual,Barras de error,error,barColor,Bar color,fill,,3,Falta,
@@ -6366,7 +6366,7 @@ lineClusteredColumnComboChart,Línea y columnas agrupadas,Visual,Múltiplos pequ
 lineClusteredColumnComboChart,Línea y columnas agrupadas,Visual,Múltiplos pequeños,smallMultiplesLayout,rowCount,Rows,integer,,2,Falta,
 lineClusteredColumnComboChart,Línea y columnas agrupadas,Visual,Múltiplos pequeños,smallMultiplesLayout,rowPaddingInner,Inner row padding,number,,2,Falta,
 lineClusteredColumnComboChart,Línea y columnas agrupadas,Visual,Múltiplos pequeños,smallMultiplesLayout,rowPaddingOuter,Outer row padding,number,,2,Falta,
-lineClusteredColumnComboChart,Línea y columnas agrupadas,Visual,Anotaciones,annotationTemplate,callout,callout,annotationTemplate,,3,Falta,
+lineClusteredColumnComboChart,Línea y columnas agrupadas,Visual,Anotaciones,annotationTemplate,callout,callout,annotationTemplate,,3,Falta,Sin anotaciones en el gráfico: fase 8
 lineClusteredColumnComboChart,Línea y columnas agrupadas,Visual,Barras de error,error,barBorderColor,Border color,fill,,3,Falta,
 lineClusteredColumnComboChart,Línea y columnas agrupadas,Visual,Barras de error,error,barBorderSize,Border size,integer,,3,Falta,
 lineClusteredColumnComboChart,Línea y columnas agrupadas,Visual,Barras de error,error,barColor,Bar color,fill,,3,Falta,
@@ -6880,7 +6880,7 @@ ribbonChart,Ribbon,Visual,Múltiplos pequeños,smallMultiplesLayout,layoutType,G
 ribbonChart,Ribbon,Visual,Múltiplos pequeños,smallMultiplesLayout,rowCount,Rows,integer,,2,Falta,No tenemos este gráfico
 ribbonChart,Ribbon,Visual,Múltiplos pequeños,smallMultiplesLayout,rowPaddingInner,Inner row padding,number,,2,Falta,No tenemos este gráfico
 ribbonChart,Ribbon,Visual,Múltiplos pequeños,smallMultiplesLayout,rowPaddingOuter,Outer row padding,number,,2,Falta,No tenemos este gráfico
-ribbonChart,Ribbon,Visual,Anotaciones,annotationTemplate,callout,callout,annotationTemplate,,3,Falta,No tenemos este gráfico
+ribbonChart,Ribbon,Visual,Anotaciones,annotationTemplate,callout,callout,annotationTemplate,,3,Falta,Sin anotaciones en el gráfico: fase 8
 ribbonChart,Ribbon,Visual,Barras de error,error,barBorderColor,Border color,fill,,3,Falta,No tenemos este gráfico
 ribbonChart,Ribbon,Visual,Barras de error,error,barBorderSize,Border size,integer,,3,Falta,No tenemos este gráfico
 ribbonChart,Ribbon,Visual,Barras de error,error,barColor,Bar color,fill,,3,Falta,No tenemos este gráfico
@@ -7129,94 +7129,94 @@ ribbonChart,Ribbon,General,actionButtonSection,actionButtonSection,textVerticalA
 ribbonChart,Ribbon,General,actionButtonSection,actionButtonSection,underline,Underline,boolean,,3,Falta,No tenemos este gráfico
 ribbonChart,Ribbon,General,stylePreset,stylePreset,name,Style,string,,3,Excluido,"Estado interno, no es una opción de formato"
 waterfallChart,Cascada,Visual,Eje X / categorías,categoryAxis,axisStyle,Style,"enum: Show title only, Show unit only, Show both",,1,Falta,"El eje muestra sus valores y su título, sin elegir entre ellos"
-waterfallChart,Cascada,Visual,Eje X / categorías,categoryAxis,bold,Bold,boolean,,1,Falta,
-waterfallChart,Cascada,Visual,Eje X / categorías,categoryAxis,fontFamily,Font family,string,,1,Falta,
-waterfallChart,Cascada,Visual,Eje X / categorías,categoryAxis,fontSize,Text size,fontSize,,1,Falta,
-waterfallChart,Cascada,Visual,Eje X / categorías,categoryAxis,initialScrollPosition,Initial scroll position,"enum: Start, End",Anchor the initial scroll to the beginning or end of the category axis. Choosing End shows the last categories first. Categories in view keep their normal left-to-right order.,1,Falta,
-waterfallChart,Cascada,Visual,Eje X / categorías,categoryAxis,innerPadding,Space between categories,integer,Space between categories (inner padding) as a percentage of the total category width/height.,1,Falta,
-waterfallChart,Cascada,Visual,Eje X / categorías,categoryAxis,italic,Italic,boolean,,1,Falta,
-waterfallChart,Cascada,Visual,Eje X / categorías,categoryAxis,labelColor,Color,fill,,1,Falta,
-waterfallChart,Cascada,Visual,Eje X / categorías,categoryAxis,maxMarginFactor,Maximum size,integer,The maximum percent of the visual allowed for the axis,1,Falta,
+waterfallChart,Cascada,Visual,Eje X / categorías,categoryAxis,bold,Bold,boolean,,1,Tiene,Fuente de etiquetas X (x_axis_label_font)
+waterfallChart,Cascada,Visual,Eje X / categorías,categoryAxis,fontFamily,Font family,string,,1,Tiene,Fuente de etiquetas X (x_axis_label_font)
+waterfallChart,Cascada,Visual,Eje X / categorías,categoryAxis,fontSize,Text size,fontSize,,1,Tiene,Fuente de etiquetas X (x_axis_label_font)
+waterfallChart,Cascada,Visual,Eje X / categorías,categoryAxis,initialScrollPosition,Initial scroll position,"enum: Start, End",Anchor the initial scroll to the beginning or end of the category axis. Choosing End shows the last categories first. Categories in view keep their normal left-to-right order.,1,Tiene,Eje X > Categorías
+waterfallChart,Cascada,Visual,Eje X / categorías,categoryAxis,innerPadding,Space between categories,integer,Space between categories (inner padding) as a percentage of the total category width/height.,1,Tiene,Espacio entre barras
+waterfallChart,Cascada,Visual,Eje X / categorías,categoryAxis,italic,Italic,boolean,,1,Tiene,Fuente de etiquetas X (x_axis_label_font)
+waterfallChart,Cascada,Visual,Eje X / categorías,categoryAxis,labelColor,Color,fill,,1,Tiene,Fuente de etiquetas X (x_axis_label_font)
+waterfallChart,Cascada,Visual,Eje X / categorías,categoryAxis,maxMarginFactor,Maximum size,integer,The maximum percent of the visual allowed for the axis,1,Parcial,"Ancho máximo de etiqueta en píxeles, no en % del gráfico"
 waterfallChart,Cascada,Visual,Eje X / categorías,categoryAxis,outerPadding,Outer padding,integer,Space at chart edges (outer padding) as a percentage of the total category width/height.,1,Falta,El motor de gráficos no tiene relleno exterior de categorías
-waterfallChart,Cascada,Visual,Eje X / categorías,categoryAxis,preferredCategoryWidth,Minimum category width,number,,1,Falta,
-waterfallChart,Cascada,Visual,Eje X / categorías,categoryAxis,show,Show,boolean,,1,Falta,
+waterfallChart,Cascada,Visual,Eje X / categorías,categoryAxis,preferredCategoryWidth,Minimum category width,number,,1,Tiene,Eje X > Categorías
+waterfallChart,Cascada,Visual,Eje X / categorías,categoryAxis,show,Show,boolean,,1,Tiene,Ocultar eje X (x_axis_hidden)
 waterfallChart,Cascada,Visual,Eje X / categorías,categoryAxis,showAxisTitle,Title,boolean,Title for the X-axis,1,Tiene,Título del eje X (x_axis_label)
-waterfallChart,Cascada,Visual,Eje X / categorías,categoryAxis,titleBold,Bold,boolean,,1,Falta,
-waterfallChart,Cascada,Visual,Eje X / categorías,categoryAxis,titleColor,Title color,fill,,1,Falta,
-waterfallChart,Cascada,Visual,Eje X / categorías,categoryAxis,titleFontFamily,Font family,string,,1,Falta,
-waterfallChart,Cascada,Visual,Eje X / categorías,categoryAxis,titleFontSize,Title text size,fontSize,,1,Falta,
-waterfallChart,Cascada,Visual,Eje X / categorías,categoryAxis,titleItalic,Italic,boolean,,1,Falta,
+waterfallChart,Cascada,Visual,Eje X / categorías,categoryAxis,titleBold,Bold,boolean,,1,Tiene,Fuente de título X (x_axis_title_font)
+waterfallChart,Cascada,Visual,Eje X / categorías,categoryAxis,titleColor,Title color,fill,,1,Tiene,Fuente de título X (x_axis_title_font)
+waterfallChart,Cascada,Visual,Eje X / categorías,categoryAxis,titleFontFamily,Font family,string,,1,Tiene,Fuente de título X (x_axis_title_font)
+waterfallChart,Cascada,Visual,Eje X / categorías,categoryAxis,titleFontSize,Title text size,fontSize,,1,Tiene,Fuente de título X (x_axis_title_font)
+waterfallChart,Cascada,Visual,Eje X / categorías,categoryAxis,titleItalic,Italic,boolean,,1,Tiene,Fuente de título X (x_axis_title_font)
 waterfallChart,Cascada,Visual,Eje X / categorías,categoryAxis,titleText,Axis title,string,,1,Tiene,Título del eje X (x_axis_label)
 waterfallChart,Cascada,Visual,Eje X / categorías,categoryAxis,titleUnderline,Underline,boolean,,1,Falta,El motor de gráficos no dibuja texto subrayado
 waterfallChart,Cascada,Visual,Eje X / categorías,categoryAxis,underline,Underline,boolean,,1,Falta,El motor de gráficos no dibuja texto subrayado
 waterfallChart,Cascada,Visual,Eje Y / valores,valueAxis,axisStyle,Style,"enum: Show title only, Show unit only, Show both",,1,Falta,"El eje muestra sus valores y su título, sin elegir entre ellos"
-waterfallChart,Cascada,Visual,Eje Y / valores,valueAxis,bold,Bold,boolean,,1,Falta,
-waterfallChart,Cascada,Visual,Eje Y / valores,valueAxis,end,Maximum,number/string,Enter an ending value (optional),1,Falta,
-waterfallChart,Cascada,Visual,Eje Y / valores,valueAxis,fontFamily,Font family,string,,1,Falta,
-waterfallChart,Cascada,Visual,Eje Y / valores,valueAxis,fontSize,Text size,fontSize,,1,Falta,
+waterfallChart,Cascada,Visual,Eje Y / valores,valueAxis,bold,Bold,boolean,,1,Tiene,Fuente de etiquetas Y (y_axis_label_font)
+waterfallChart,Cascada,Visual,Eje Y / valores,valueAxis,end,Maximum,number/string,Enter an ending value (optional),1,Tiene,Límites del eje Y
+waterfallChart,Cascada,Visual,Eje Y / valores,valueAxis,fontFamily,Font family,string,,1,Tiene,Fuente de etiquetas Y (y_axis_label_font)
+waterfallChart,Cascada,Visual,Eje Y / valores,valueAxis,fontSize,Text size,fontSize,,1,Tiene,Fuente de etiquetas Y (y_axis_label_font)
 waterfallChart,Cascada,Visual,Eje Y / valores,valueAxis,gridlineAutoScale,Scale by width,boolean,Automatically adjust the spacing between dashes and dots based on line width.,1,Falta,El motor de gráficos no escala el trazo con el zoom
-waterfallChart,Cascada,Visual,Eje Y / valores,valueAxis,gridlineColor,Color,fill,,1,Falta,
-waterfallChart,Cascada,Visual,Eje Y / valores,valueAxis,gridlineDashArray,Dash array,string,"Space-separated values for dash and gap lengths in pixels, repeating in sequence.",1,Falta,
-waterfallChart,Cascada,Visual,Eje Y / valores,valueAxis,gridlineDashCap,Dash cap,"enum: Flat, Round, Square",,1,Falta,
-waterfallChart,Cascada,Visual,Eje Y / valores,valueAxis,gridlineShow,Show,boolean,,1,Falta,
-waterfallChart,Cascada,Visual,Eje Y / valores,valueAxis,gridlineStyle,Line style,"enum: Solid, Dashed, Dotted, Custom",,1,Falta,
-waterfallChart,Cascada,Visual,Eje Y / valores,valueAxis,gridlineThickness,Width,number,,1,Falta,
-waterfallChart,Cascada,Visual,Eje Y / valores,valueAxis,gridlineTransparency,Transparency,number,,1,Falta,
-waterfallChart,Cascada,Visual,Eje Y / valores,valueAxis,invertAxis,Invert range,boolean,,1,Falta,
-waterfallChart,Cascada,Visual,Eje Y / valores,valueAxis,italic,Italic,boolean,,1,Falta,
-waterfallChart,Cascada,Visual,Eje Y / valores,valueAxis,labelColor,Color,fill,,1,Falta,
-waterfallChart,Cascada,Visual,Eje Y / valores,valueAxis,labelDisplayUnits,Display units,labelDisplayUnits,"Select the units (millions, billions, etc.)",1,Parcial,"Con código d3, no con unidades y decimales (y_axis_format)"
-waterfallChart,Cascada,Visual,Eje Y / valores,valueAxis,labelPrecision,Value decimal places,integer,Select the number of decimal places to display for the values,1,Parcial,"Con código d3, no con unidades y decimales (y_axis_format)"
+waterfallChart,Cascada,Visual,Eje Y / valores,valueAxis,gridlineColor,Color,fill,,1,Tiene,Eje > Líneas de cuadrícula
+waterfallChart,Cascada,Visual,Eje Y / valores,valueAxis,gridlineDashArray,Dash array,string,"Space-separated values for dash and gap lengths in pixels, repeating in sequence.",1,Tiene,Eje > Líneas de cuadrícula
+waterfallChart,Cascada,Visual,Eje Y / valores,valueAxis,gridlineDashCap,Dash cap,"enum: Flat, Round, Square",,1,Tiene,Eje > Líneas de cuadrícula
+waterfallChart,Cascada,Visual,Eje Y / valores,valueAxis,gridlineShow,Show,boolean,,1,Tiene,Eje > Líneas de cuadrícula
+waterfallChart,Cascada,Visual,Eje Y / valores,valueAxis,gridlineStyle,Line style,"enum: Solid, Dashed, Dotted, Custom",,1,Tiene,Eje > Líneas de cuadrícula
+waterfallChart,Cascada,Visual,Eje Y / valores,valueAxis,gridlineThickness,Width,number,,1,Tiene,Eje > Líneas de cuadrícula
+waterfallChart,Cascada,Visual,Eje Y / valores,valueAxis,gridlineTransparency,Transparency,number,,1,Tiene,Eje > Líneas de cuadrícula
+waterfallChart,Cascada,Visual,Eje Y / valores,valueAxis,invertAxis,Invert range,boolean,,1,Tiene,Invertir eje Y (y_axis_inverse)
+waterfallChart,Cascada,Visual,Eje Y / valores,valueAxis,italic,Italic,boolean,,1,Tiene,Fuente de etiquetas Y (y_axis_label_font)
+waterfallChart,Cascada,Visual,Eje Y / valores,valueAxis,labelColor,Color,fill,,1,Tiene,Fuente de etiquetas Y (y_axis_label_font)
+waterfallChart,Cascada,Visual,Eje Y / valores,valueAxis,labelDisplayUnits,Display units,labelDisplayUnits,"Select the units (millions, billions, etc.)",1,Tiene,Sección del eje
+waterfallChart,Cascada,Visual,Eje Y / valores,valueAxis,labelPrecision,Value decimal places,integer,Select the number of decimal places to display for the values,1,Tiene,Sección del eje
 waterfallChart,Cascada,Visual,Eje Y / valores,valueAxis,roundRange,Round range,boolean,Round range limits to the nearest multiple.,1,Falta,El motor de gráficos redondea el eje salvo con límites fijos
-waterfallChart,Cascada,Visual,Eje Y / valores,valueAxis,show,Show,boolean,,1,Falta,
+waterfallChart,Cascada,Visual,Eje Y / valores,valueAxis,show,Show,boolean,,1,Tiene,Ocultar eje Y (y_axis_hidden)
 waterfallChart,Cascada,Visual,Eje Y / valores,valueAxis,showAxisTitle,Title,boolean,Title for the Y-axis,1,Tiene,Título del eje Y (y_axis_label)
-waterfallChart,Cascada,Visual,Eje Y / valores,valueAxis,start,Minimum,number/string,Enter a starting value (optional),1,Falta,
-waterfallChart,Cascada,Visual,Eje Y / valores,valueAxis,switchAxisPosition,Switch axis position,boolean,,1,Falta,
-waterfallChart,Cascada,Visual,Eje Y / valores,valueAxis,titleBold,Bold,boolean,,1,Falta,
-waterfallChart,Cascada,Visual,Eje Y / valores,valueAxis,titleColor,Title color,fill,,1,Falta,
-waterfallChart,Cascada,Visual,Eje Y / valores,valueAxis,titleFontFamily,Font family,string,,1,Falta,
-waterfallChart,Cascada,Visual,Eje Y / valores,valueAxis,titleFontSize,Title text size,fontSize,,1,Falta,
-waterfallChart,Cascada,Visual,Eje Y / valores,valueAxis,titleItalic,Italic,boolean,,1,Falta,
+waterfallChart,Cascada,Visual,Eje Y / valores,valueAxis,start,Minimum,number/string,Enter a starting value (optional),1,Tiene,Límites del eje Y
+waterfallChart,Cascada,Visual,Eje Y / valores,valueAxis,switchAxisPosition,Switch axis position,boolean,,1,Tiene,Sección del eje
+waterfallChart,Cascada,Visual,Eje Y / valores,valueAxis,titleBold,Bold,boolean,,1,Tiene,Fuente de título Y (y_axis_title_font)
+waterfallChart,Cascada,Visual,Eje Y / valores,valueAxis,titleColor,Title color,fill,,1,Tiene,Fuente de título Y (y_axis_title_font)
+waterfallChart,Cascada,Visual,Eje Y / valores,valueAxis,titleFontFamily,Font family,string,,1,Tiene,Fuente de título Y (y_axis_title_font)
+waterfallChart,Cascada,Visual,Eje Y / valores,valueAxis,titleFontSize,Title text size,fontSize,,1,Tiene,Fuente de título Y (y_axis_title_font)
+waterfallChart,Cascada,Visual,Eje Y / valores,valueAxis,titleItalic,Italic,boolean,,1,Tiene,Fuente de título Y (y_axis_title_font)
 waterfallChart,Cascada,Visual,Eje Y / valores,valueAxis,titleText,Axis title,string,,1,Tiene,Título del eje Y (y_axis_label)
 waterfallChart,Cascada,Visual,Eje Y / valores,valueAxis,titleUnderline,Underline,boolean,,1,Falta,El motor de gráficos no dibuja texto subrayado
-waterfallChart,Cascada,Visual,Eje Y / valores,valueAxis,totalsEnabled,Show total,boolean,Total toggle,1,Falta,
+waterfallChart,Cascada,Visual,Eje Y / valores,valueAxis,totalsEnabled,Show total,boolean,Total toggle,1,Tiene,Mostrar total
 waterfallChart,Cascada,Visual,Eje Y / valores,valueAxis,underline,Underline,boolean,,1,Falta,El motor de gráficos no dibuja texto subrayado
-waterfallChart,Cascada,Visual,Etiquetas de datos,labels,backgroundColor,Color,fill,Background color,1,Falta,
-waterfallChart,Cascada,Visual,Etiquetas de datos,labels,backgroundTransparency,Transparency,number,Background color transparency,1,Falta,
-waterfallChart,Cascada,Visual,Etiquetas de datos,labels,bold,Bold,boolean,,1,Falta,
-waterfallChart,Cascada,Visual,Etiquetas de datos,labels,color,Color,fill,Select color for data labels,1,Falta,
-waterfallChart,Cascada,Visual,Etiquetas de datos,labels,enableBackground,Show background,boolean,,1,Falta,
-waterfallChart,Cascada,Visual,Etiquetas de datos,labels,fontFamily,Font family,string,,1,Falta,
-waterfallChart,Cascada,Visual,Etiquetas de datos,labels,fontSize,Text size,fontSize,,1,Falta,
-waterfallChart,Cascada,Visual,Etiquetas de datos,labels,italic,Italic,boolean,,1,Falta,
-waterfallChart,Cascada,Visual,Etiquetas de datos,labels,labelDisplayUnits,Display units,labelDisplayUnits,"Select the units (millions, billions, etc.)",1,Falta,
-waterfallChart,Cascada,Visual,Etiquetas de datos,labels,labelOrientation,Orientation,"enum: Vertical, Horizontal",,1,Falta,
-waterfallChart,Cascada,Visual,Etiquetas de datos,labels,labelPosition,Position,"enum: Auto, Inside end, Outside end, Inside center, Inside base, Above, Under",,1,Falta,
-waterfallChart,Cascada,Visual,Etiquetas de datos,labels,labelPrecision,Value decimal places,integer,Select the number of decimal places to display for the values,1,Falta,
-waterfallChart,Cascada,Visual,Etiquetas de datos,labels,show,Show,boolean,,1,Falta,
+waterfallChart,Cascada,Visual,Etiquetas de datos,labels,backgroundColor,Color,fill,Background color,1,Tiene,Fondo de etiquetas (value_label_background)
+waterfallChart,Cascada,Visual,Etiquetas de datos,labels,backgroundTransparency,Transparency,number,Background color transparency,1,Tiene,Fondo de etiquetas (value_label_background)
+waterfallChart,Cascada,Visual,Etiquetas de datos,labels,bold,Bold,boolean,,1,Tiene,Fuente de etiquetas (value_label_font)
+waterfallChart,Cascada,Visual,Etiquetas de datos,labels,color,Color,fill,Select color for data labels,1,Tiene,Fuente de etiquetas (value_label_font)
+waterfallChart,Cascada,Visual,Etiquetas de datos,labels,enableBackground,Show background,boolean,,1,Tiene,Fondo de etiquetas (value_label_background)
+waterfallChart,Cascada,Visual,Etiquetas de datos,labels,fontFamily,Font family,string,,1,Tiene,Fuente de etiquetas (value_label_font)
+waterfallChart,Cascada,Visual,Etiquetas de datos,labels,fontSize,Text size,fontSize,,1,Tiene,Fuente de etiquetas (value_label_font)
+waterfallChart,Cascada,Visual,Etiquetas de datos,labels,italic,Italic,boolean,,1,Tiene,Fuente de etiquetas (value_label_font)
+waterfallChart,Cascada,Visual,Etiquetas de datos,labels,labelDisplayUnits,Display units,labelDisplayUnits,"Select the units (millions, billions, etc.)",1,Tiene,Unidades y decimales de etiquetas
+waterfallChart,Cascada,Visual,Etiquetas de datos,labels,labelOrientation,Orientation,"enum: Vertical, Horizontal",,1,Tiene,Rotación de etiquetas
+waterfallChart,Cascada,Visual,Etiquetas de datos,labels,labelPosition,Position,"enum: Auto, Inside end, Outside end, Inside center, Inside base, Above, Under",,1,Parcial,Posiciones explícitas del motor; sin preferencia automática
+waterfallChart,Cascada,Visual,Etiquetas de datos,labels,labelPrecision,Value decimal places,integer,Select the number of decimal places to display for the values,1,Tiene,Unidades y decimales de etiquetas
+waterfallChart,Cascada,Visual,Etiquetas de datos,labels,show,Show,boolean,,1,Tiene,Mostrar etiquetas
 waterfallChart,Cascada,Visual,Etiquetas de datos,labels,underline,Underline,boolean,,1,Falta,El motor de gráficos no dibuja texto subrayado
-waterfallChart,Cascada,Visual,Leyenda,legend,bold,Bold,boolean,,1,Falta,
-waterfallChart,Cascada,Visual,Leyenda,legend,fontFamily,Font family,string,,1,Falta,
-waterfallChart,Cascada,Visual,Leyenda,legend,fontSize,Text size,fontSize,,1,Falta,
-waterfallChart,Cascada,Visual,Leyenda,legend,italic,Italic,boolean,,1,Falta,
-waterfallChart,Cascada,Visual,Leyenda,legend,labelColor,Color,fill,,1,Falta,
-waterfallChart,Cascada,Visual,Leyenda,legend,position,Position,"enum: Top left, Top center, Top right, Top left stacked, Top right stacked, Center left, Center right, Bottom left, Bottom center, Bottom ri",Select the location for the legend,1,Falta,
+waterfallChart,Cascada,Visual,Leyenda,legend,bold,Bold,boolean,,1,Tiene,Fuente de leyenda (legend_font)
+waterfallChart,Cascada,Visual,Leyenda,legend,fontFamily,Font family,string,,1,Tiene,Fuente de leyenda (legend_font)
+waterfallChart,Cascada,Visual,Leyenda,legend,fontSize,Text size,fontSize,,1,Tiene,Fuente de leyenda (legend_font)
+waterfallChart,Cascada,Visual,Leyenda,legend,italic,Italic,boolean,,1,Tiene,Fuente de leyenda (legend_font)
+waterfallChart,Cascada,Visual,Leyenda,legend,labelColor,Color,fill,,1,Tiene,Fuente de leyenda (legend_font)
+waterfallChart,Cascada,Visual,Leyenda,legend,position,Position,"enum: Top left, Top center, Top right, Top left stacked, Top right stacked, Center left, Center right, Bottom left, Bottom center, Bottom ri",Select the location for the legend,1,Tiene,Posición
 waterfallChart,Cascada,Visual,Leyenda,legend,show,Show,boolean,,1,Tiene,Mostrar leyenda (show_legend)
-waterfallChart,Cascada,Visual,Leyenda,legend,showTitle,Title,boolean,Display a title for legend symbols,1,Falta,
-waterfallChart,Cascada,Visual,Leyenda,legend,titleText,Legend Name,string,Title text,1,Falta,
+waterfallChart,Cascada,Visual,Leyenda,legend,showTitle,Title,boolean,Display a title for legend symbols,1,Tiene,Título de leyenda
+waterfallChart,Cascada,Visual,Leyenda,legend,titleText,Legend Name,string,Title text,1,Tiene,Título de leyenda
 waterfallChart,Cascada,Visual,Leyenda,legend,underline,Underline,boolean,,1,Falta,El motor de gráficos no dibuja texto subrayado
 waterfallChart,Cascada,Visual,sentimentColors,sentimentColors,decreaseFill,Decrease,fill,,1,Tiene,Color de disminución (decrease_color)
 waterfallChart,Cascada,Visual,sentimentColors,sentimentColors,increaseFill,Increase,fill,,1,Tiene,Color de aumento (increase_color)
-waterfallChart,Cascada,Visual,sentimentColors,sentimentColors,otherFill,Other,fill,,1,Falta,
+waterfallChart,Cascada,Visual,sentimentColors,sentimentColors,otherFill,Other,fill,,1,Falta,Sin grupo Otros: depende del máximo de desgloses
 waterfallChart,Cascada,Visual,sentimentColors,sentimentColors,totalFill,Total,fill,,1,Tiene,Color de total (total_color)
-waterfallChart,Cascada,Visual,Fondo del área de trazado,plotArea,color,Background color,fill,,2,Falta,
-waterfallChart,Cascada,Visual,Fondo del área de trazado,plotArea,colorTransparency,Transparency,number,Background color transparency,2,Falta,
-waterfallChart,Cascada,Visual,Fondo del área de trazado,plotArea,fit,Image fit,"enum: Fit, Stretch, Fill, Center",,2,Falta,
-waterfallChart,Cascada,Visual,Fondo del área de trazado,plotArea,image,image,image,,2,Falta,
-waterfallChart,Cascada,Visual,Fondo del área de trazado,plotArea,imageData,Data,string,,2,Falta,
-waterfallChart,Cascada,Visual,Fondo del área de trazado,plotArea,sourceType,Image source,"enum: Upload Image, Enter URL, Select from data",,2,Falta,
+waterfallChart,Cascada,Visual,Fondo del área de trazado,plotArea,color,Background color,fill,,2,Tiene,Área de trazado
+waterfallChart,Cascada,Visual,Fondo del área de trazado,plotArea,colorTransparency,Transparency,number,Background color transparency,2,Tiene,Área de trazado
+waterfallChart,Cascada,Visual,Fondo del área de trazado,plotArea,fit,Image fit,"enum: Fit, Stretch, Fill, Center",,2,Parcial,"En mosaico o una vez, sin ajustar al área"
+waterfallChart,Cascada,Visual,Fondo del área de trazado,plotArea,image,image,image,,2,Parcial,"Por dirección de la imagen, sin subirla"
+waterfallChart,Cascada,Visual,Fondo del área de trazado,plotArea,imageData,Data,string,,2,Parcial,"Por dirección de la imagen, sin subirla"
+waterfallChart,Cascada,Visual,Fondo del área de trazado,plotArea,sourceType,Image source,"enum: Upload Image, Enter URL, Select from data",,2,Parcial,"Por dirección de la imagen, sin subirla"
 waterfallChart,Cascada,Visual,Fondo del área de trazado,plotArea,transparency,Transparency,number,Background color transparency,2,Falta,El motor de gráficos no atenúa una imagen de fondo
-waterfallChart,Cascada,Visual,Fondo del área de trazado,plotArea,url,Image URL,string,,2,Falta,
+waterfallChart,Cascada,Visual,Fondo del área de trazado,plotArea,url,Image URL,string,,2,Parcial,"Por dirección de la imagen, sin subirla"
 waterfallChart,Cascada,Visual,Línea de referencia Y,y1AxisReferenceLine,autoScale,Scale by width,boolean,Automatically adjust the spacing between dashes and dots based on line width.,2,Falta,
 waterfallChart,Cascada,Visual,Línea de referencia Y,y1AxisReferenceLine,dashArray,Dash array,string,"Space-separated values for dash and gap lengths in pixels, repeating in sequence.",2,Falta,
 waterfallChart,Cascada,Visual,Línea de referencia Y,y1AxisReferenceLine,dashCap,Dash cap,"enum: Flat, Round, Square",,2,Falta,
@@ -7240,7 +7240,7 @@ waterfallChart,Cascada,Visual,Línea de referencia Y,y1AxisReferenceLine,style,L
 waterfallChart,Cascada,Visual,Línea de referencia Y,y1AxisReferenceLine,transparency,Transparency,number,,2,Falta,
 waterfallChart,Cascada,Visual,Línea de referencia Y,y1AxisReferenceLine,value,Value,number,Set reference line numeric value ,2,Falta,
 waterfallChart,Cascada,Visual,Línea de referencia Y,y1AxisReferenceLine,width,Width,number,,2,Falta,
-waterfallChart,Cascada,Visual,breakdown,breakdown,maxBreakdowns,Max breakdowns,integer,The number of individual breakdowns to show (rest grouped into Other),2,Falta,
+waterfallChart,Cascada,Visual,breakdown,breakdown,maxBreakdowns,Max breakdowns,integer,The number of individual breakdowns to show (rest grouped into Other),2,Falta,Requiere reagrupar consulta y preservar filtros de Otros
 waterfallChart,Cascada,General,Borde,border,color,Color,fill,,1,Tiene,Formato > Borde
 waterfallChart,Cascada,General,Borde,border,radius,Radius,number,,1,Tiene,Formato > Borde
 waterfallChart,Cascada,General,Borde,border,show,Show,boolean,,1,Tiene,Formato > Borde
@@ -7444,39 +7444,39 @@ waterfallChart,Cascada,General,actionButtonSection,actionButtonSection,textTrans
 waterfallChart,Cascada,General,actionButtonSection,actionButtonSection,textVerticalAlignment,Vertical alignment,"enum: Top, Middle, Bottom",,3,Tiene,General > Botón de acción
 waterfallChart,Cascada,General,actionButtonSection,actionButtonSection,underline,Underline,boolean,,3,Tiene,General > Botón de acción
 waterfallChart,Cascada,General,stylePreset,stylePreset,name,Style,string,,3,Excluido,"Estado interno, no es una opción de formato"
-funnel,Embudo,Visual,Colores / barras,dataPoint,defaultColor,Default color,fill,,1,Parcial,Color por serie o esquema; revisar color por categoría (color_scheme)
-funnel,Embudo,Visual,Colores / barras,dataPoint,fill,Default color,fill,,1,Parcial,Color por serie o esquema; revisar color por categoría (color_scheme)
-funnel,Embudo,Visual,Colores / barras,dataPoint,fillRule,Color saturation,fillRule,,1,Falta,
-funnel,Embudo,Visual,Colores / barras,dataPoint,showAllDataPoints,Show all,boolean,,1,Falta,
-funnel,Embudo,Visual,Eje X / categorías,categoryAxis,bold,Bold,boolean,,1,Falta,
-funnel,Embudo,Visual,Eje X / categorías,categoryAxis,color,Color,fill,Select color for category labels,1,Falta,
-funnel,Embudo,Visual,Eje X / categorías,categoryAxis,fontFamily,Font family,string,,1,Falta,
-funnel,Embudo,Visual,Eje X / categorías,categoryAxis,fontSize,Text size,fontSize,,1,Falta,
-funnel,Embudo,Visual,Eje X / categorías,categoryAxis,italic,Italic,boolean,,1,Falta,
-funnel,Embudo,Visual,Eje X / categorías,categoryAxis,show,Show,boolean,,1,Falta,
+funnel,Embudo,Visual,Colores / barras,dataPoint,defaultColor,Default color,fill,,1,Tiene,Color por categoría y color predeterminado
+funnel,Embudo,Visual,Colores / barras,dataPoint,fill,Default color,fill,,1,Tiene,Color por categoría y color predeterminado
+funnel,Embudo,Visual,Colores / barras,dataPoint,fillRule,Color saturation,fillRule,,1,Parcial,Escala continua de dos colores; sin reglas por campo
+funnel,Embudo,Visual,Colores / barras,dataPoint,showAllDataPoints,Show all,boolean,,1,Tiene,Color por categoría y color predeterminado
+funnel,Embudo,Visual,Eje X / categorías,categoryAxis,bold,Bold,boolean,,1,Tiene,Fuente y visibilidad de categoría
+funnel,Embudo,Visual,Eje X / categorías,categoryAxis,color,Color,fill,Select color for category labels,1,Tiene,Fuente y visibilidad de categoría
+funnel,Embudo,Visual,Eje X / categorías,categoryAxis,fontFamily,Font family,string,,1,Tiene,Fuente y visibilidad de categoría
+funnel,Embudo,Visual,Eje X / categorías,categoryAxis,fontSize,Text size,fontSize,,1,Tiene,Fuente y visibilidad de categoría
+funnel,Embudo,Visual,Eje X / categorías,categoryAxis,italic,Italic,boolean,,1,Tiene,Fuente y visibilidad de categoría
+funnel,Embudo,Visual,Eje X / categorías,categoryAxis,show,Show,boolean,,1,Tiene,Fuente y visibilidad de categoría
 funnel,Embudo,Visual,Eje X / categorías,categoryAxis,underline,Underline,boolean,,1,Falta,El motor de gráficos no dibuja texto subrayado
-funnel,Embudo,Visual,Etiquetas de datos,labels,backgroundColor,Color,fill,Background color,1,Falta,
-funnel,Embudo,Visual,Etiquetas de datos,labels,backgroundTransparency,Transparency,number,Background color transparency,1,Falta,
-funnel,Embudo,Visual,Etiquetas de datos,labels,bold,Bold,boolean,,1,Falta,
-funnel,Embudo,Visual,Etiquetas de datos,labels,color,Color,fill,Select color for data labels,1,Falta,
-funnel,Embudo,Visual,Etiquetas de datos,labels,enableBackground,Show background,boolean,,1,Falta,
-funnel,Embudo,Visual,Etiquetas de datos,labels,fontFamily,Font family,string,,1,Falta,
-funnel,Embudo,Visual,Etiquetas de datos,labels,fontSize,Text size,fontSize,,1,Falta,
-funnel,Embudo,Visual,Etiquetas de datos,labels,funnelLabelStyle,Label style,"enum: Data value, Percent of first, Percent of previous, Data value, percent of first, Data value, percent of previous",,1,Falta,
-funnel,Embudo,Visual,Etiquetas de datos,labels,italic,Italic,boolean,,1,Falta,
-funnel,Embudo,Visual,Etiquetas de datos,labels,labelDisplayUnits,Display units,labelDisplayUnits,"Select the units (millions, billions, etc.)",1,Parcial,Con código d3 (number_format)
-funnel,Embudo,Visual,Etiquetas de datos,labels,labelPosition,Position,"enum: Auto, Inside end, Outside end, Inside center, Inside base, Above, Under",,1,Falta,
-funnel,Embudo,Visual,Etiquetas de datos,labels,labelPrecision,Value decimal places,integer,Select the number of decimal places to display for the values,1,Parcial,Con código d3 (number_format)
-funnel,Embudo,Visual,Etiquetas de datos,labels,percentageLabelPrecision,% decimal places,integer,Select the number of decimal places to display for the percentages,1,Parcial,Con código d3 (number_format)
+funnel,Embudo,Visual,Etiquetas de datos,labels,backgroundColor,Color,fill,Background color,1,Tiene,Fondo de etiquetas (value_label_background)
+funnel,Embudo,Visual,Etiquetas de datos,labels,backgroundTransparency,Transparency,number,Background color transparency,1,Tiene,Fondo de etiquetas (value_label_background)
+funnel,Embudo,Visual,Etiquetas de datos,labels,bold,Bold,boolean,,1,Tiene,Fuente de etiquetas (value_label_font)
+funnel,Embudo,Visual,Etiquetas de datos,labels,color,Color,fill,Select color for data labels,1,Tiene,Fuente de etiquetas (value_label_font)
+funnel,Embudo,Visual,Etiquetas de datos,labels,enableBackground,Show background,boolean,,1,Tiene,Fondo de etiquetas (value_label_background)
+funnel,Embudo,Visual,Etiquetas de datos,labels,fontFamily,Font family,string,,1,Tiene,Fuente de etiquetas (value_label_font)
+funnel,Embudo,Visual,Etiquetas de datos,labels,fontSize,Text size,fontSize,,1,Tiene,Fuente de etiquetas (value_label_font)
+funnel,Embudo,Visual,Etiquetas de datos,labels,funnelLabelStyle,Label style,"enum: Data value, Percent of first, Percent of previous, Data value, percent of first, Data value, percent of previous",,1,Tiene,"Categoría, valor y porcentaje"
+funnel,Embudo,Visual,Etiquetas de datos,labels,italic,Italic,boolean,,1,Tiene,Fuente de etiquetas (value_label_font)
+funnel,Embudo,Visual,Etiquetas de datos,labels,labelDisplayUnits,Display units,labelDisplayUnits,"Select the units (millions, billions, etc.)",1,Tiene,Unidades y decimales de etiquetas
+funnel,Embudo,Visual,Etiquetas de datos,labels,labelPosition,Position,"enum: Auto, Inside end, Outside end, Inside center, Inside base, Above, Under",,1,Parcial,Posiciones explícitas del motor; sin preferencia automática
+funnel,Embudo,Visual,Etiquetas de datos,labels,labelPrecision,Value decimal places,integer,Select the number of decimal places to display for the values,1,Tiene,Unidades y decimales de etiquetas
+funnel,Embudo,Visual,Etiquetas de datos,labels,percentageLabelPrecision,% decimal places,integer,Select the number of decimal places to display for the percentages,1,Tiene,Decimales del porcentaje
 funnel,Embudo,Visual,Etiquetas de datos,labels,show,Show,boolean,,1,Tiene,Mostrar etiquetas (show_labels)
 funnel,Embudo,Visual,Etiquetas de datos,labels,underline,Underline,boolean,,1,Falta,El motor de gráficos no dibuja texto subrayado
-funnel,Embudo,Visual,percentBarLabel,percentBarLabel,bold,Bold,boolean,,2,Falta,
-funnel,Embudo,Visual,percentBarLabel,percentBarLabel,color,Color,fill,Select color for data labels,2,Falta,
-funnel,Embudo,Visual,percentBarLabel,percentBarLabel,fontFamily,Font family,string,,2,Falta,
-funnel,Embudo,Visual,percentBarLabel,percentBarLabel,fontSize,Text size,fontSize,,2,Falta,
-funnel,Embudo,Visual,percentBarLabel,percentBarLabel,italic,Italic,boolean,,2,Falta,
-funnel,Embudo,Visual,percentBarLabel,percentBarLabel,show,Show,boolean,,2,Parcial,Porcentaje (percent_calculation_type)
-funnel,Embudo,Visual,percentBarLabel,percentBarLabel,underline,Underline,boolean,,2,Falta,
+funnel,Embudo,Visual,percentBarLabel,percentBarLabel,bold,Bold,boolean,,2,Tiene,Porcentaje real de conversión y fuente propia
+funnel,Embudo,Visual,percentBarLabel,percentBarLabel,color,Color,fill,Select color for data labels,2,Tiene,Porcentaje real de conversión y fuente propia
+funnel,Embudo,Visual,percentBarLabel,percentBarLabel,fontFamily,Font family,string,,2,Tiene,Porcentaje real de conversión y fuente propia
+funnel,Embudo,Visual,percentBarLabel,percentBarLabel,fontSize,Text size,fontSize,,2,Tiene,Porcentaje real de conversión y fuente propia
+funnel,Embudo,Visual,percentBarLabel,percentBarLabel,italic,Italic,boolean,,2,Tiene,Porcentaje real de conversión y fuente propia
+funnel,Embudo,Visual,percentBarLabel,percentBarLabel,show,Show,boolean,,2,Tiene,Porcentaje real de conversión y fuente propia
+funnel,Embudo,Visual,percentBarLabel,percentBarLabel,underline,Underline,boolean,,2,Falta,El motor de gráficos no dibuja texto subrayado
 funnel,Embudo,General,Borde,border,color,Color,fill,,1,Tiene,Formato > Borde
 funnel,Embudo,General,Borde,border,radius,Radius,number,,1,Tiene,Formato > Borde
 funnel,Embudo,General,Borde,border,show,Show,boolean,,1,Tiene,Formato > Borde
@@ -7678,10 +7678,10 @@ funnel,Embudo,General,actionButtonSection,actionButtonSection,textTransparency,T
 funnel,Embudo,General,actionButtonSection,actionButtonSection,textVerticalAlignment,Vertical alignment,"enum: Top, Middle, Bottom",,3,Tiene,General > Botón de acción
 funnel,Embudo,General,actionButtonSection,actionButtonSection,underline,Underline,boolean,,3,Tiene,General > Botón de acción
 funnel,Embudo,General,stylePreset,stylePreset,name,Style,string,,3,Excluido,"Estado interno, no es una opción de formato"
-scatterChart,Dispersión,Visual,Colores / barras,dataPoint,defaultColor,Default color,fill,,1,Parcial,Color por serie o esquema; revisar color por categoría (color_scheme/series_colors)
-scatterChart,Dispersión,Visual,Colores / barras,dataPoint,fill,Default color,fill,,1,Parcial,Color por serie o esquema; revisar color por categoría (color_scheme/series_colors)
-scatterChart,Dispersión,Visual,Colores / barras,dataPoint,fillRule,Color saturation,fillRule,,1,Parcial,Formato condicional por reglas (chart_conditional_formatting)
-scatterChart,Dispersión,Visual,Colores / barras,dataPoint,showAllDataPoints,Show all,boolean,,1,Falta,
+scatterChart,Dispersión,Visual,Colores / barras,dataPoint,defaultColor,Default color,fill,,1,Tiene,Color por categoría y color predeterminado
+scatterChart,Dispersión,Visual,Colores / barras,dataPoint,fill,Default color,fill,,1,Tiene,Color por categoría y color predeterminado
+scatterChart,Dispersión,Visual,Colores / barras,dataPoint,fillRule,Color saturation,fillRule,,1,Parcial,Escala continua de dos colores; sin reglas por campo
+scatterChart,Dispersión,Visual,Colores / barras,dataPoint,showAllDataPoints,Show all,boolean,,1,Tiene,Color por categoría y color predeterminado
 scatterChart,Dispersión,Visual,Eje X / categorías,categoryAxis,axisStyle,Style,"enum: Show title only, Show unit only, Show both",,1,Falta,"El eje muestra sus valores y su título, sin elegir entre ellos"
 scatterChart,Dispersión,Visual,Eje X / categorías,categoryAxis,axisType,Type,"enum: Continuous, Categorical",,1,Parcial,Sale del tipo de la columna; se fuerza con «Forzar categórico»
 scatterChart,Dispersión,Visual,Eje X / categorías,categoryAxis,bold,Bold,boolean,,1,Tiene,Fuente de etiquetas X (x_axis_label_font)
@@ -7697,7 +7697,7 @@ scatterChart,Dispersión,Visual,Eje X / categorías,categoryAxis,gridlineStyle,L
 scatterChart,Dispersión,Visual,Eje X / categorías,categoryAxis,gridlineThickness,Width,number,,1,Tiene,Eje > Líneas de cuadrícula
 scatterChart,Dispersión,Visual,Eje X / categorías,categoryAxis,gridlineTransparency,Transparency,number,,1,Tiene,Eje > Líneas de cuadrícula
 scatterChart,Dispersión,Visual,Eje X / categorías,categoryAxis,initialScrollPosition,Initial scroll position,"enum: Start, End",Anchor the initial scroll to the beginning or end of the category axis. Choosing End shows the last categories first. Categories in view keep their normal left-to-right order.,1,Tiene,Eje X > Categorías
-scatterChart,Dispersión,Visual,Eje X / categorías,categoryAxis,innerPadding,Space between categories,integer,Space between categories (inner padding) as a percentage of the total category width/height.,1,Falta,
+scatterChart,Dispersión,Visual,Eje X / categorías,categoryAxis,innerPadding,Space between categories,integer,Space between categories (inner padding) as a percentage of the total category width/height.,1,Excluido,Sin categorías: el eje es numérico
 scatterChart,Dispersión,Visual,Eje X / categorías,categoryAxis,invertAxis,Invert range,boolean,,1,Tiene,Invertir eje X (x_axis_inverse)
 scatterChart,Dispersión,Visual,Eje X / categorías,categoryAxis,italic,Italic,boolean,,1,Tiene,Fuente de etiquetas X (x_axis_label_font)
 scatterChart,Dispersión,Visual,Eje X / categorías,categoryAxis,labelColor,Color,fill,,1,Tiene,Fuente de etiquetas X (x_axis_label_font)
@@ -7718,7 +7718,7 @@ scatterChart,Dispersión,Visual,Eje X / categorías,categoryAxis,titleFontSize,T
 scatterChart,Dispersión,Visual,Eje X / categorías,categoryAxis,titleItalic,Italic,boolean,,1,Tiene,Fuente de título X (x_axis_title_font)
 scatterChart,Dispersión,Visual,Eje X / categorías,categoryAxis,titleText,Axis title,string,,1,Tiene,Título del eje X (x_axis_label/x_axis_title)
 scatterChart,Dispersión,Visual,Eje X / categorías,categoryAxis,titleUnderline,Underline,boolean,,1,Falta,El motor de gráficos no dibuja texto subrayado
-scatterChart,Dispersión,Visual,Eje X / categorías,categoryAxis,treatNullsAsZero,Show blank values,boolean,Visualize blank values in your data as zeroes,1,Falta,
+scatterChart,Dispersión,Visual,Eje X / categorías,categoryAxis,treatNullsAsZero,Show blank values,boolean,Visualize blank values in your data as zeroes,1,Falta,Un valor nulo no dibuja marca
 scatterChart,Dispersión,Visual,Eje X / categorías,categoryAxis,underline,Underline,boolean,,1,Falta,El motor de gráficos no dibuja texto subrayado
 scatterChart,Dispersión,Visual,Eje Y / valores,valueAxis,axisStyle,Style,"enum: Show title only, Show unit only, Show both",,1,Falta,"El eje muestra sus valores y su título, sin elegir entre ellos"
 scatterChart,Dispersión,Visual,Eje Y / valores,valueAxis,bold,Bold,boolean,,1,Tiene,Fuente de etiquetas Y (y_axis_label_font)
@@ -7751,18 +7751,18 @@ scatterChart,Dispersión,Visual,Eje Y / valores,valueAxis,titleFontSize,Title te
 scatterChart,Dispersión,Visual,Eje Y / valores,valueAxis,titleItalic,Italic,boolean,,1,Tiene,Fuente de título Y (y_axis_title_font)
 scatterChart,Dispersión,Visual,Eje Y / valores,valueAxis,titleText,Axis title,string,,1,Tiene,Título del eje Y (y_axis_label/y_axis_title)
 scatterChart,Dispersión,Visual,Eje Y / valores,valueAxis,titleUnderline,Underline,boolean,,1,Falta,El motor de gráficos no dibuja texto subrayado
-scatterChart,Dispersión,Visual,Eje Y / valores,valueAxis,treatNullsAsZero,Show blank values,boolean,Visualize blank values in your data as zeroes,1,Falta,
+scatterChart,Dispersión,Visual,Eje Y / valores,valueAxis,treatNullsAsZero,Show blank values,boolean,Visualize blank values in your data as zeroes,1,Falta,Un valor nulo no dibuja marca
 scatterChart,Dispersión,Visual,Eje Y / valores,valueAxis,underline,Underline,boolean,,1,Falta,El motor de gráficos no dibuja texto subrayado
-scatterChart,Dispersión,Visual,Etiqueta de categoría,categoryLabels,backgroundColor,Color,fill,Background color,1,Falta,
-scatterChart,Dispersión,Visual,Etiqueta de categoría,categoryLabels,backgroundTransparency,Transparency,number,Background color transparency,1,Falta,
-scatterChart,Dispersión,Visual,Etiqueta de categoría,categoryLabels,bold,Bold,boolean,,1,Falta,
-scatterChart,Dispersión,Visual,Etiqueta de categoría,categoryLabels,color,Color,fill,Select color for category labels,1,Falta,
-scatterChart,Dispersión,Visual,Etiqueta de categoría,categoryLabels,enableBackground,Show background,boolean,,1,Falta,
-scatterChart,Dispersión,Visual,Etiqueta de categoría,categoryLabels,fontFamily,Font family,string,,1,Falta,
-scatterChart,Dispersión,Visual,Etiqueta de categoría,categoryLabels,fontSize,Text size,fontSize,,1,Falta,
-scatterChart,Dispersión,Visual,Etiqueta de categoría,categoryLabels,italic,Italic,boolean,,1,Falta,
-scatterChart,Dispersión,Visual,Etiqueta de categoría,categoryLabels,show,Show,boolean,,1,Falta,
-scatterChart,Dispersión,Visual,Etiqueta de categoría,categoryLabels,underline,Underline,boolean,,1,Falta,
+scatterChart,Dispersión,Visual,Etiqueta de categoría,categoryLabels,backgroundColor,Color,fill,Background color,1,Falta,El título de la etiqueta no tiene fondo propio
+scatterChart,Dispersión,Visual,Etiqueta de categoría,categoryLabels,backgroundTransparency,Transparency,number,Background color transparency,1,Falta,El título de la etiqueta no tiene fondo propio
+scatterChart,Dispersión,Visual,Etiqueta de categoría,categoryLabels,bold,Bold,boolean,,1,Parcial,"Título de la etiqueta con la serie o la categoría, con su fuente"
+scatterChart,Dispersión,Visual,Etiqueta de categoría,categoryLabels,color,Color,fill,Select color for category labels,1,Parcial,"Título de la etiqueta con la serie o la categoría, con su fuente"
+scatterChart,Dispersión,Visual,Etiqueta de categoría,categoryLabels,enableBackground,Show background,boolean,,1,Falta,El título de la etiqueta no tiene fondo propio
+scatterChart,Dispersión,Visual,Etiqueta de categoría,categoryLabels,fontFamily,Font family,string,,1,Parcial,"Título de la etiqueta con la serie o la categoría, con su fuente"
+scatterChart,Dispersión,Visual,Etiqueta de categoría,categoryLabels,fontSize,Text size,fontSize,,1,Parcial,"Título de la etiqueta con la serie o la categoría, con su fuente"
+scatterChart,Dispersión,Visual,Etiqueta de categoría,categoryLabels,italic,Italic,boolean,,1,Parcial,"Título de la etiqueta con la serie o la categoría, con su fuente"
+scatterChart,Dispersión,Visual,Etiqueta de categoría,categoryLabels,show,Show,boolean,,1,Parcial,"Título de la etiqueta con la serie o la categoría, con su fuente"
+scatterChart,Dispersión,Visual,Etiqueta de categoría,categoryLabels,underline,Underline,boolean,,1,Falta,El motor de gráficos no dibuja texto subrayado
 scatterChart,Dispersión,Visual,Leyenda,legend,bold,Bold,boolean,,1,Tiene,Fuente de leyenda (legend_font)
 scatterChart,Dispersión,Visual,Leyenda,legend,fontFamily,Font family,string,,1,Tiene,Fuente de leyenda (legend_font)
 scatterChart,Dispersión,Visual,Leyenda,legend,fontSize,Text size,fontSize,,1,Tiene,Fuente de leyenda (legend_font)
@@ -7771,21 +7771,21 @@ scatterChart,Dispersión,Visual,Leyenda,legend,labelColor,Color,fill,,1,Tiene,Fu
 scatterChart,Dispersión,Visual,Leyenda,legend,position,Position,"enum: Top left, Top center, Top right, Top left stacked, Top right stacked, Center left, Center right, Bottom left, Bottom center, Bottom ri",Select the location for the legend,1,Tiene,Posición (legendOrientation)
 scatterChart,Dispersión,Visual,Leyenda,legend,show,Show,boolean,,1,Tiene,Mostrar leyenda (show_legend)
 scatterChart,Dispersión,Visual,Leyenda,legend,showGradientLegend,Show,boolean,,1,Falta,Sin leyenda para la escala de color
-scatterChart,Dispersión,Visual,Leyenda,legend,showTitle,Title,boolean,Display a title for legend symbols,1,Tiene,Leyenda
-scatterChart,Dispersión,Visual,Leyenda,legend,titleText,Legend Name,string,Title text,1,Tiene,Leyenda
+scatterChart,Dispersión,Visual,Leyenda,legend,showTitle,Title,boolean,Display a title for legend symbols,1,Tiene,Título de leyenda
+scatterChart,Dispersión,Visual,Leyenda,legend,titleText,Legend Name,string,Title text,1,Tiene,Título de leyenda
 scatterChart,Dispersión,Visual,Leyenda,legend,underline,Underline,boolean,,1,Falta,El motor de gráficos no dibuja texto subrayado
-scatterChart,Dispersión,Visual,Marcadores,markers,borderColor,Color,fill,,1,Tiene,Colores y series > Marcadores
-scatterChart,Dispersión,Visual,Marcadores,markers,borderColorMatchFill,Match fill color,boolean,Match the border color to the main shape color.,1,Tiene,Colores y series > Marcadores
-scatterChart,Dispersión,Visual,Marcadores,markers,borderShow,Border,boolean,,1,Tiene,Colores y series > Marcadores
-scatterChart,Dispersión,Visual,Marcadores,markers,borderTransparency,Transparency,number,,1,Tiene,Colores y series > Marcadores
-scatterChart,Dispersión,Visual,Marcadores,markers,borderWidth,Width,number,,1,Tiene,Colores y series > Marcadores
+scatterChart,Dispersión,Visual,Marcadores,markers,borderColor,Color,fill,,1,Tiene,Colores y bordes
+scatterChart,Dispersión,Visual,Marcadores,markers,borderColorMatchFill,Match fill color,boolean,Match the border color to the main shape color.,1,Tiene,Colores y bordes
+scatterChart,Dispersión,Visual,Marcadores,markers,borderShow,Border,boolean,,1,Tiene,Colores y bordes
+scatterChart,Dispersión,Visual,Marcadores,markers,borderTransparency,Transparency,number,,1,Tiene,Colores y bordes
+scatterChart,Dispersión,Visual,Marcadores,markers,borderWidth,Width,number,,1,Tiene,Colores y bordes
 scatterChart,Dispersión,Visual,Marcadores,markers,rotation,Rotation,number,,1,Tiene,Colores y series > Marcadores
 scatterChart,Dispersión,Visual,Marcadores,markers,transparency,Transparency,number,,1,Tiene,Colores y series > Marcadores
-scatterChart,Dispersión,Visual,bubbles,bubbles,bubbleSize,Size multiplier,integer,,1,Falta,
-scatterChart,Dispersión,Visual,bubbles,bubbles,markerRangeType,Range scaling,"enum: Magnitude, Data range, Auto",,1,Falta,
-scatterChart,Dispersión,Visual,bubbles,bubbles,markerShape,Type,"enum: ●, ■, ◆, ▲, ☓, -, —, +",,1,Falta,
-scatterChart,Dispersión,Visual,bubbles,bubbles,preventOverflow,Auto-fit markers,boolean,Adjusts the plot area so markers near edges aren't cut off,1,Falta,
-scatterChart,Dispersión,Visual,bubbles,bubbles,showSeries,Customize series,boolean,,1,Falta,
+scatterChart,Dispersión,Visual,bubbles,bubbles,bubbleSize,Size multiplier,integer,,1,Tiene,Multiplicador del tamaño de las burbujas
+scatterChart,Dispersión,Visual,bubbles,bubbles,markerRangeType,Range scaling,"enum: Magnitude, Data range, Auto",,1,Falta,Sin ajuste de escala para contener marcadores ni modos de rango
+scatterChart,Dispersión,Visual,bubbles,bubbles,markerShape,Type,"enum: ●, ■, ◆, ▲, ☓, -, —, +",,1,Tiene,Forma del marcador (series_marker_symbol)
+scatterChart,Dispersión,Visual,bubbles,bubbles,preventOverflow,Auto-fit markers,boolean,Adjusts the plot area so markers near edges aren't cut off,1,Falta,Sin ajuste de escala para contener marcadores ni modos de rango
+scatterChart,Dispersión,Visual,bubbles,bubbles,showSeries,Customize series,boolean,,1,Tiene,Aplicar a una serie
 scatterChart,Dispersión,Visual,Control deslizante de zoom,zoom,categoryMax,categoryMax,number,,2,Falta,
 scatterChart,Dispersión,Visual,Control deslizante de zoom,zoom,categoryMin,categoryMin,number,,2,Falta,
 scatterChart,Dispersión,Visual,Control deslizante de zoom,zoom,categorySize,categorySize,number,,2,Falta,
@@ -7884,23 +7884,23 @@ scatterChart,Dispersión,Visual,Línea de tendencia,trend,show,Show,boolean,,2,F
 scatterChart,Dispersión,Visual,Línea de tendencia,trend,style,Line style,"enum: Solid, Dashed, Dotted, Custom",,2,Falta,
 scatterChart,Dispersión,Visual,Línea de tendencia,trend,transparency,Transparency,number,,2,Falta,
 scatterChart,Dispersión,Visual,Línea de tendencia,trend,width,Width,number,,2,Falta,
-scatterChart,Dispersión,Visual,colorBorder,colorBorder,show,Show,boolean,,2,Falta,
-scatterChart,Dispersión,Visual,colorByCategory,colorByCategory,show,Show,boolean,,2,Falta,
-scatterChart,Dispersión,Visual,fillPoint,fillPoint,style,Style,"enum: Fill only, Border only",,2,Falta,
-scatterChart,Dispersión,Visual,plotAreaShading,plotAreaShading,displayName,Name,string,,2,Falta,
-scatterChart,Dispersión,Visual,plotAreaShading,plotAreaShading,lowerShadingColor,Lower shading,fill,Shading color of the lower region,2,Falta,
-scatterChart,Dispersión,Visual,plotAreaShading,plotAreaShading,show,Show,boolean,,2,Falta,
-scatterChart,Dispersión,Visual,plotAreaShading,plotAreaShading,transparency,Transparency,number,Background color transparency,2,Falta,
-scatterChart,Dispersión,Visual,plotAreaShading,plotAreaShading,upperShadingColor,Upper shading,fill,Shading color of the upper region,2,Falta,
-scatterChart,Dispersión,Visual,ratioLine,ratioLine,autoScale,Scale by width,boolean,Automatically adjust the spacing between dashes and dots based on line width.,2,Falta,
-scatterChart,Dispersión,Visual,ratioLine,ratioLine,dashArray,Dash array,string,"Space-separated values for dash and gap lengths in pixels, repeating in sequence.",2,Falta,
-scatterChart,Dispersión,Visual,ratioLine,ratioLine,dashCap,Dash cap,"enum: Flat, Round, Square",,2,Falta,
-scatterChart,Dispersión,Visual,ratioLine,ratioLine,displayName,Name,string,,2,Falta,
-scatterChart,Dispersión,Visual,ratioLine,ratioLine,lineColor,Color,fill,,2,Falta,
-scatterChart,Dispersión,Visual,ratioLine,ratioLine,show,Show,boolean,,2,Falta,
-scatterChart,Dispersión,Visual,ratioLine,ratioLine,style,Line style,"enum: Solid, Dashed, Dotted, Custom",,2,Falta,
-scatterChart,Dispersión,Visual,ratioLine,ratioLine,transparency,Transparency,number,,2,Falta,
-scatterChart,Dispersión,Visual,ratioLine,ratioLine,width,Width,number,,2,Falta,
+scatterChart,Dispersión,Visual,colorBorder,colorBorder,show,Show,boolean,,2,Tiene,Colores y series
+scatterChart,Dispersión,Visual,colorByCategory,colorByCategory,show,Show,boolean,,2,Tiene,Colores y series
+scatterChart,Dispersión,Visual,fillPoint,fillPoint,style,Style,"enum: Fill only, Border only",,2,Tiene,Forma y relleno del marcador
+scatterChart,Dispersión,Visual,plotAreaShading,plotAreaShading,displayName,Name,string,,2,Falta,El sombreado no tiene nombre
+scatterChart,Dispersión,Visual,plotAreaShading,plotAreaShading,lowerShadingColor,Lower shading,fill,Shading color of the lower region,2,Tiene,Semiplanos reales respecto de y=x; solo ejes numéricos lineales
+scatterChart,Dispersión,Visual,plotAreaShading,plotAreaShading,show,Show,boolean,,2,Tiene,Semiplanos reales respecto de y=x; solo ejes numéricos lineales
+scatterChart,Dispersión,Visual,plotAreaShading,plotAreaShading,transparency,Transparency,number,Background color transparency,2,Tiene,Semiplanos reales respecto de y=x; solo ejes numéricos lineales
+scatterChart,Dispersión,Visual,plotAreaShading,plotAreaShading,upperShadingColor,Upper shading,fill,Shading color of the upper region,2,Tiene,Semiplanos reales respecto de y=x; solo ejes numéricos lineales
+scatterChart,Dispersión,Visual,ratioLine,ratioLine,autoScale,Scale by width,boolean,Automatically adjust the spacing between dashes and dots based on line width.,2,Falta,El motor de gráficos no escala el trazo con el zoom
+scatterChart,Dispersión,Visual,ratioLine,ratioLine,dashArray,Dash array,string,"Space-separated values for dash and gap lengths in pixels, repeating in sequence.",2,Tiene,Patrón de guiones
+scatterChart,Dispersión,Visual,ratioLine,ratioLine,dashCap,Dash cap,"enum: Flat, Round, Square",,2,Falta,Los extremos no se eligen en esta línea
+scatterChart,Dispersión,Visual,ratioLine,ratioLine,displayName,Name,string,,2,Tiene,Línea y=x sobre el intervalo visible; solo ejes numéricos lineales
+scatterChart,Dispersión,Visual,ratioLine,ratioLine,lineColor,Color,fill,,2,Tiene,Línea y=x sobre el intervalo visible; solo ejes numéricos lineales
+scatterChart,Dispersión,Visual,ratioLine,ratioLine,show,Show,boolean,,2,Tiene,Línea y=x sobre el intervalo visible; solo ejes numéricos lineales
+scatterChart,Dispersión,Visual,ratioLine,ratioLine,style,Line style,"enum: Solid, Dashed, Dotted, Custom",,2,Tiene,Línea y=x sobre el intervalo visible; solo ejes numéricos lineales
+scatterChart,Dispersión,Visual,ratioLine,ratioLine,transparency,Transparency,number,,2,Tiene,Línea y=x sobre el intervalo visible; solo ejes numéricos lineales
+scatterChart,Dispersión,Visual,ratioLine,ratioLine,width,Width,number,,2,Tiene,Línea y=x sobre el intervalo visible; solo ejes numéricos lineales
 scatterChart,Dispersión,Visual,currentFrameIndex,currentFrameIndex,index,index,number,,3,Excluido,"Estado interno, no es una opción de formato"
 scatterChart,Dispersión,General,Borde,border,color,Color,fill,,1,Tiene,Formato > Borde
 scatterChart,Dispersión,General,Borde,border,radius,Radius,number,,1,Tiene,Formato > Borde
@@ -8106,27 +8106,27 @@ scatterChart,Dispersión,General,actionButtonSection,actionButtonSection,textTra
 scatterChart,Dispersión,General,actionButtonSection,actionButtonSection,textVerticalAlignment,Vertical alignment,"enum: Top, Middle, Bottom",,3,Tiene,General > Botón de acción
 scatterChart,Dispersión,General,actionButtonSection,actionButtonSection,underline,Underline,boolean,,3,Tiene,General > Botón de acción
 scatterChart,Dispersión,General,stylePreset,stylePreset,name,Style,string,,3,Excluido,"Estado interno, no es una opción de formato"
-pieChart,Circular,Visual,Colores / barras,dataPoint,borderColor,Color,fill,,1,Falta,
-pieChart,Circular,Visual,Colores / barras,dataPoint,borderColorMatchFill,Match fill color,boolean,Match the border color to the main shape color.,1,Falta,
-pieChart,Circular,Visual,Colores / barras,dataPoint,borderOutlineOnly,Hide inner borders,boolean,,1,Falta,
-pieChart,Circular,Visual,Colores / barras,dataPoint,borderShow,Border,boolean,,1,Falta,
-pieChart,Circular,Visual,Colores / barras,dataPoint,borderSize,Width,number,,1,Falta,
-pieChart,Circular,Visual,Colores / barras,dataPoint,borderTransparency,Transparency,number,,1,Falta,
-pieChart,Circular,Visual,Colores / barras,dataPoint,defaultColor,Default color,fill,,1,Parcial,Color por serie o esquema; revisar color por categoría (color_scheme)
-pieChart,Circular,Visual,Colores / barras,dataPoint,fill,Color,fill,,1,Parcial,Color por serie o esquema; revisar color por categoría (color_scheme)
-pieChart,Circular,Visual,Colores / barras,dataPoint,fillTransparency,Transparency,number,,1,Falta,
+pieChart,Circular,Visual,Colores / barras,dataPoint,borderColor,Color,fill,,1,Tiene,Colores y bordes
+pieChart,Circular,Visual,Colores / barras,dataPoint,borderColorMatchFill,Match fill color,boolean,Match the border color to the main shape color.,1,Tiene,Colores y bordes
+pieChart,Circular,Visual,Colores / barras,dataPoint,borderOutlineOnly,Hide inner borders,boolean,,1,Tiene,Colores y bordes
+pieChart,Circular,Visual,Colores / barras,dataPoint,borderShow,Border,boolean,,1,Tiene,Colores y bordes
+pieChart,Circular,Visual,Colores / barras,dataPoint,borderSize,Width,number,,1,Tiene,Colores y bordes
+pieChart,Circular,Visual,Colores / barras,dataPoint,borderTransparency,Transparency,number,,1,Tiene,Colores y bordes
+pieChart,Circular,Visual,Colores / barras,dataPoint,defaultColor,Default color,fill,,1,Tiene,Color por categoría y color predeterminado
+pieChart,Circular,Visual,Colores / barras,dataPoint,fill,Color,fill,,1,Tiene,Color por categoría y color predeterminado
+pieChart,Circular,Visual,Colores / barras,dataPoint,fillTransparency,Transparency,number,,1,Tiene,Colores y bordes
 pieChart,Circular,Visual,Etiquetas de datos,labels,background,Background,"enum: Auto, On, Off",,1,Tiene,Fondo de etiquetas (value_label_background)
 pieChart,Circular,Visual,Etiquetas de datos,labels,bold,Bold,boolean,,1,Tiene,Fuente de etiquetas (value_label_font)
 pieChart,Circular,Visual,Etiquetas de datos,labels,color,Color,fill,Select color for data labels,1,Tiene,Fuente de etiquetas (value_label_font)
 pieChart,Circular,Visual,Etiquetas de datos,labels,fontFamily,Font family,string,,1,Tiene,Fuente de etiquetas (value_label_font)
 pieChart,Circular,Visual,Etiquetas de datos,labels,fontSize,Text size,fontSize,,1,Tiene,Fuente de etiquetas (value_label_font)
 pieChart,Circular,Visual,Etiquetas de datos,labels,italic,Italic,boolean,,1,Tiene,Fuente de etiquetas (value_label_font)
-pieChart,Circular,Visual,Etiquetas de datos,labels,labelDisplayUnits,Display units,labelDisplayUnits,"Select the units (millions, billions, etc.)",1,Parcial,Con código d3 (number_format)
-pieChart,Circular,Visual,Etiquetas de datos,labels,labelPrecision,Value decimal places,integer,Select the number of decimal places to display for the values,1,Parcial,Con código d3 (number_format)
+pieChart,Circular,Visual,Etiquetas de datos,labels,labelDisplayUnits,Display units,labelDisplayUnits,"Select the units (millions, billions, etc.)",1,Tiene,Unidades y decimales de etiquetas
+pieChart,Circular,Visual,Etiquetas de datos,labels,labelPrecision,Value decimal places,integer,Select the number of decimal places to display for the values,1,Tiene,Unidades y decimales de etiquetas
 pieChart,Circular,Visual,Etiquetas de datos,labels,labelStyle,Label style,"enum: Category, Data value, Percent of total, Category, data value, Category, percent of total, Data value, percent of total, All detail lab",,1,Tiene,Contenido de etiqueta (label_type)
-pieChart,Circular,Visual,Etiquetas de datos,labels,overflow,Overflow text,boolean,,1,Falta,
-pieChart,Circular,Visual,Etiquetas de datos,labels,percentageLabelPrecision,% decimal places,integer,Select the number of decimal places to display for the percentages,1,Parcial,Con código d3 (number_format)
-pieChart,Circular,Visual,Etiquetas de datos,labels,position,Label position,"enum: Outside, Inside, Prefer outside, Prefer inside",,1,Parcial,Solo dentro o fuera (labels_outside)
+pieChart,Circular,Visual,Etiquetas de datos,labels,overflow,Overflow text,boolean,,1,Tiene,"Ancho máximo, truncado o ajuste de etiquetas"
+pieChart,Circular,Visual,Etiquetas de datos,labels,percentageLabelPrecision,% decimal places,integer,Select the number of decimal places to display for the percentages,1,Tiene,Decimales del porcentaje
+pieChart,Circular,Visual,Etiquetas de datos,labels,position,Label position,"enum: Outside, Inside, Prefer outside, Prefer inside",,1,Parcial,Posiciones explícitas del motor; sin preferencia automática
 pieChart,Circular,Visual,Etiquetas de datos,labels,show,Show,boolean,,1,Tiene,Mostrar etiquetas (show_labels)
 pieChart,Circular,Visual,Etiquetas de datos,labels,underline,Underline,boolean,,1,Falta,El motor de gráficos no dibuja texto subrayado
 pieChart,Circular,Visual,Leyenda,legend,bold,Bold,boolean,,1,Tiene,Fuente de leyenda (legend_font)
@@ -8136,12 +8136,12 @@ pieChart,Circular,Visual,Leyenda,legend,italic,Italic,boolean,,1,Tiene,Fuente de
 pieChart,Circular,Visual,Leyenda,legend,labelColor,Color,fill,,1,Tiene,Fuente de leyenda (legend_font)
 pieChart,Circular,Visual,Leyenda,legend,position,Position,"enum: Top left, Top center, Top right, Top left stacked, Top right stacked, Center left, Center right, Bottom left, Bottom center, Bottom ri",Select the location for the legend,1,Tiene,Posición (legendOrientation)
 pieChart,Circular,Visual,Leyenda,legend,show,Show,boolean,,1,Tiene,Mostrar leyenda (show_legend)
-pieChart,Circular,Visual,Leyenda,legend,showTitle,Title,boolean,Display a title for legend symbols,1,Falta,
-pieChart,Circular,Visual,Leyenda,legend,titleText,Legend Name,string,Title text,1,Falta,
+pieChart,Circular,Visual,Leyenda,legend,showTitle,Title,boolean,Display a title for legend symbols,1,Tiene,Título de leyenda
+pieChart,Circular,Visual,Leyenda,legend,titleText,Legend Name,string,Title text,1,Tiene,Título de leyenda
 pieChart,Circular,Visual,Leyenda,legend,underline,Underline,boolean,,1,Falta,El motor de gráficos no dibuja texto subrayado
 pieChart,Circular,Visual,Porciones,slices,innerRadiusRatio,Inner radius,integer,,1,Tiene,Radio interior (innerRadius)
-pieChart,Circular,Visual,Porciones,slices,startAngle,Start angle,integer,,1,Falta,
-pieChart,Circular,Visual,Anotaciones,annotationTemplate,callout,callout,annotationTemplate,,3,Falta,
+pieChart,Circular,Visual,Porciones,slices,startAngle,Start angle,integer,,1,Tiene,Ángulo inicial
+pieChart,Circular,Visual,Anotaciones,annotationTemplate,callout,callout,annotationTemplate,,3,Falta,Sin anotaciones en el gráfico: fase 8
 pieChart,Circular,General,Borde,border,color,Color,fill,,1,Tiene,Formato > Borde
 pieChart,Circular,General,Borde,border,radius,Radius,number,,1,Tiene,Formato > Borde
 pieChart,Circular,General,Borde,border,show,Show,boolean,,1,Tiene,Formato > Borde
@@ -8343,27 +8343,27 @@ pieChart,Circular,General,actionButtonSection,actionButtonSection,textTransparen
 pieChart,Circular,General,actionButtonSection,actionButtonSection,textVerticalAlignment,Vertical alignment,"enum: Top, Middle, Bottom",,3,Tiene,General > Botón de acción
 pieChart,Circular,General,actionButtonSection,actionButtonSection,underline,Underline,boolean,,3,Tiene,General > Botón de acción
 pieChart,Circular,General,stylePreset,stylePreset,name,Style,string,,3,Excluido,"Estado interno, no es una opción de formato"
-donutChart,Anillo,Visual,Colores / barras,dataPoint,borderColor,Color,fill,,1,Falta,
-donutChart,Anillo,Visual,Colores / barras,dataPoint,borderColorMatchFill,Match fill color,boolean,Match the border color to the main shape color.,1,Falta,
-donutChart,Anillo,Visual,Colores / barras,dataPoint,borderOutlineOnly,Hide inner borders,boolean,,1,Falta,
-donutChart,Anillo,Visual,Colores / barras,dataPoint,borderShow,Border,boolean,,1,Falta,
-donutChart,Anillo,Visual,Colores / barras,dataPoint,borderSize,Width,number,,1,Falta,
-donutChart,Anillo,Visual,Colores / barras,dataPoint,borderTransparency,Transparency,number,,1,Falta,
-donutChart,Anillo,Visual,Colores / barras,dataPoint,defaultColor,Default color,fill,,1,Parcial,Color por serie o esquema; revisar color por categoría (color_scheme)
-donutChart,Anillo,Visual,Colores / barras,dataPoint,fill,Color,fill,,1,Parcial,Color por serie o esquema; revisar color por categoría (color_scheme)
-donutChart,Anillo,Visual,Colores / barras,dataPoint,fillTransparency,Transparency,number,,1,Falta,
+donutChart,Anillo,Visual,Colores / barras,dataPoint,borderColor,Color,fill,,1,Tiene,Colores y bordes
+donutChart,Anillo,Visual,Colores / barras,dataPoint,borderColorMatchFill,Match fill color,boolean,Match the border color to the main shape color.,1,Tiene,Colores y bordes
+donutChart,Anillo,Visual,Colores / barras,dataPoint,borderOutlineOnly,Hide inner borders,boolean,,1,Tiene,Colores y bordes
+donutChart,Anillo,Visual,Colores / barras,dataPoint,borderShow,Border,boolean,,1,Tiene,Colores y bordes
+donutChart,Anillo,Visual,Colores / barras,dataPoint,borderSize,Width,number,,1,Tiene,Colores y bordes
+donutChart,Anillo,Visual,Colores / barras,dataPoint,borderTransparency,Transparency,number,,1,Tiene,Colores y bordes
+donutChart,Anillo,Visual,Colores / barras,dataPoint,defaultColor,Default color,fill,,1,Tiene,Color por categoría y color predeterminado
+donutChart,Anillo,Visual,Colores / barras,dataPoint,fill,Color,fill,,1,Tiene,Color por categoría y color predeterminado
+donutChart,Anillo,Visual,Colores / barras,dataPoint,fillTransparency,Transparency,number,,1,Tiene,Colores y bordes
 donutChart,Anillo,Visual,Etiquetas de datos,labels,background,Background,"enum: Auto, On, Off",,1,Tiene,Fondo de etiquetas (value_label_background)
 donutChart,Anillo,Visual,Etiquetas de datos,labels,bold,Bold,boolean,,1,Tiene,Fuente de etiquetas (value_label_font)
 donutChart,Anillo,Visual,Etiquetas de datos,labels,color,Color,fill,Select color for data labels,1,Tiene,Fuente de etiquetas (value_label_font)
 donutChart,Anillo,Visual,Etiquetas de datos,labels,fontFamily,Font family,string,,1,Tiene,Fuente de etiquetas (value_label_font)
 donutChart,Anillo,Visual,Etiquetas de datos,labels,fontSize,Text size,fontSize,,1,Tiene,Fuente de etiquetas (value_label_font)
 donutChart,Anillo,Visual,Etiquetas de datos,labels,italic,Italic,boolean,,1,Tiene,Fuente de etiquetas (value_label_font)
-donutChart,Anillo,Visual,Etiquetas de datos,labels,labelDisplayUnits,Display units,labelDisplayUnits,"Select the units (millions, billions, etc.)",1,Parcial,Con código d3 (number_format)
-donutChart,Anillo,Visual,Etiquetas de datos,labels,labelPrecision,Value decimal places,integer,Select the number of decimal places to display for the values,1,Parcial,Con código d3 (number_format)
+donutChart,Anillo,Visual,Etiquetas de datos,labels,labelDisplayUnits,Display units,labelDisplayUnits,"Select the units (millions, billions, etc.)",1,Tiene,Unidades y decimales de etiquetas
+donutChart,Anillo,Visual,Etiquetas de datos,labels,labelPrecision,Value decimal places,integer,Select the number of decimal places to display for the values,1,Tiene,Unidades y decimales de etiquetas
 donutChart,Anillo,Visual,Etiquetas de datos,labels,labelStyle,Label style,"enum: Category, Data value, Percent of total, Category, data value, Category, percent of total, Data value, percent of total, All detail lab",,1,Tiene,Contenido de etiqueta (label_type)
-donutChart,Anillo,Visual,Etiquetas de datos,labels,overflow,Overflow text,boolean,,1,Falta,
-donutChart,Anillo,Visual,Etiquetas de datos,labels,percentageLabelPrecision,% decimal places,integer,Select the number of decimal places to display for the percentages,1,Parcial,Con código d3 (number_format)
-donutChart,Anillo,Visual,Etiquetas de datos,labels,position,Label position,"enum: Outside, Inside, Prefer outside, Prefer inside",,1,Parcial,Solo dentro o fuera (labels_outside)
+donutChart,Anillo,Visual,Etiquetas de datos,labels,overflow,Overflow text,boolean,,1,Tiene,"Ancho máximo, truncado o ajuste de etiquetas"
+donutChart,Anillo,Visual,Etiquetas de datos,labels,percentageLabelPrecision,% decimal places,integer,Select the number of decimal places to display for the percentages,1,Tiene,Decimales del porcentaje
+donutChart,Anillo,Visual,Etiquetas de datos,labels,position,Label position,"enum: Outside, Inside, Prefer outside, Prefer inside",,1,Parcial,Posiciones explícitas del motor; sin preferencia automática
 donutChart,Anillo,Visual,Etiquetas de datos,labels,show,Show,boolean,,1,Tiene,Mostrar etiquetas (show_labels)
 donutChart,Anillo,Visual,Etiquetas de datos,labels,underline,Underline,boolean,,1,Falta,El motor de gráficos no dibuja texto subrayado
 donutChart,Anillo,Visual,Leyenda,legend,bold,Bold,boolean,,1,Tiene,Fuente de leyenda (legend_font)
@@ -8373,56 +8373,56 @@ donutChart,Anillo,Visual,Leyenda,legend,italic,Italic,boolean,,1,Tiene,Fuente de
 donutChart,Anillo,Visual,Leyenda,legend,labelColor,Color,fill,,1,Tiene,Fuente de leyenda (legend_font)
 donutChart,Anillo,Visual,Leyenda,legend,position,Position,"enum: Top left, Top center, Top right, Top left stacked, Top right stacked, Center left, Center right, Bottom left, Bottom center, Bottom ri",Select the location for the legend,1,Tiene,Posición (legendOrientation)
 donutChart,Anillo,Visual,Leyenda,legend,show,Show,boolean,,1,Tiene,Mostrar leyenda (show_legend)
-donutChart,Anillo,Visual,Leyenda,legend,showTitle,Title,boolean,Display a title for legend symbols,1,Falta,
-donutChart,Anillo,Visual,Leyenda,legend,titleText,Legend Name,string,Title text,1,Falta,
+donutChart,Anillo,Visual,Leyenda,legend,showTitle,Title,boolean,Display a title for legend symbols,1,Tiene,Título de leyenda
+donutChart,Anillo,Visual,Leyenda,legend,titleText,Legend Name,string,Title text,1,Tiene,Título de leyenda
 donutChart,Anillo,Visual,Leyenda,legend,underline,Underline,boolean,,1,Falta,El motor de gráficos no dibuja texto subrayado
 donutChart,Anillo,Visual,Porciones,slices,innerRadiusRatio,Inner radius,integer,,1,Tiene,Radio interior (innerRadius)
-donutChart,Anillo,Visual,Porciones,slices,startAngle,Start angle,integer,,1,Falta,
-donutChart,Anillo,Visual,Valor central,centerValue,show,Show,boolean,,1,Tiene,Valor central (show_total)
-donutChart,Anillo,Visual,centerBackground,centerBackground,fillColor,Fill,fill,,1,Falta,
-donutChart,Anillo,Visual,centerBackground,centerBackground,fit,Image fit,"enum: Fit, Stretch, Fill",,1,Falta,
-donutChart,Anillo,Visual,centerBackground,centerBackground,image,image,image,,1,Falta,
-donutChart,Anillo,Visual,centerBackground,centerBackground,imageData,Data,string,,1,Falta,
-donutChart,Anillo,Visual,centerBackground,centerBackground,imageTransparency,Transparency,number,,1,Falta,
-donutChart,Anillo,Visual,centerBackground,centerBackground,imageType,Image source,"enum: Upload Image, Enter URL, Select from data",,1,Falta,
-donutChart,Anillo,Visual,centerBackground,centerBackground,imageUrl,Image URL,string,,1,Falta,
-donutChart,Anillo,Visual,centerBackground,centerBackground,padding,Padding,integer,,1,Falta,
-donutChart,Anillo,Visual,centerBackground,centerBackground,show,Show,boolean,,1,Falta,
-donutChart,Anillo,Visual,centerBackground,centerBackground,transparency,Transparency,number,,1,Falta,
-donutChart,Anillo,Visual,label,label,bold,Bold,boolean,,1,Falta,
-donutChart,Anillo,Visual,label,label,fontColor,Color,fill,,1,Falta,
-donutChart,Anillo,Visual,label,label,fontFamily,Font family,string,,1,Falta,
-donutChart,Anillo,Visual,label,label,fontSize,Text size,fontSize,,1,Falta,
-donutChart,Anillo,Visual,label,label,gap,Gap,integer,,1,Falta,
-donutChart,Anillo,Visual,label,label,italic,Italic,boolean,,1,Falta,
-donutChart,Anillo,Visual,label,label,position,Position,"enum: Above text, Below text",,1,Falta,
-donutChart,Anillo,Visual,label,label,show,Show,boolean,,1,Falta,
-donutChart,Anillo,Visual,label,label,text,Text,string,,1,Falta,
-donutChart,Anillo,Visual,label,label,textWrap,Text wrap,boolean,,1,Falta,
-donutChart,Anillo,Visual,label,label,underline,Underline,boolean,,1,Falta,
-donutChart,Anillo,Visual,value,value,bold,Bold,boolean,,1,Falta,
-donutChart,Anillo,Visual,value,value,fontColor,Color,fill,,1,Falta,
-donutChart,Anillo,Visual,value,value,fontFamily,Font family,string,,1,Falta,
-donutChart,Anillo,Visual,value,value,fontSize,Text size,fontSize,,1,Falta,
-donutChart,Anillo,Visual,value,value,italic,Italic,boolean,,1,Falta,
-donutChart,Anillo,Visual,value,value,labelDisplayUnits,Display units,"enum: Auto, None, Thousands, Millions, Billions, Trillions, Custom","Select the units (millions, billions, etc.)",1,Falta,
-donutChart,Anillo,Visual,value,value,labelPrecision,Value decimal places,integer,Select the number of decimal places to display for the values,1,Falta,
-donutChart,Anillo,Visual,value,value,show,Show,boolean,,1,Falta,
-donutChart,Anillo,Visual,value,value,showBlankAs,Show blank as,string,,1,Falta,
-donutChart,Anillo,Visual,value,value,textWrap,Text wrap,boolean,,1,Falta,
-donutChart,Anillo,Visual,value,value,underline,Underline,boolean,,1,Falta,
-donutChart,Anillo,Visual,value,value,value,Value,string/number/integer/boolean,,1,Falta,
-donutChart,Anillo,Visual,Anotaciones,annotationTemplate,callout,callout,annotationTemplate,,3,Falta,
-donutChart,Anillo,Visual,image,image,altText,Alt text,string,,3,Falta,
-donutChart,Anillo,Visual,image,image,gap,Gap,integer,,3,Falta,
-donutChart,Anillo,Visual,image,image,image,image,image,,3,Falta,
-donutChart,Anillo,Visual,image,image,imageData,Data,string,,3,Falta,
-donutChart,Anillo,Visual,image,image,imageType,Image source,"enum: Upload Image, Enter URL, Select from data",,3,Falta,
-donutChart,Anillo,Visual,image,image,imageUrl,Image URL,string,,3,Falta,
-donutChart,Anillo,Visual,image,image,position,Position,"enum: Above text, Below text",,3,Falta,
-donutChart,Anillo,Visual,image,image,show,Show,boolean,,3,Falta,
-donutChart,Anillo,Visual,image,image,size,Size,integer,,3,Falta,
-donutChart,Anillo,Visual,image,image,transparency,Transparency,number,,3,Falta,
+donutChart,Anillo,Visual,Porciones,slices,startAngle,Start angle,integer,,1,Tiene,Ángulo inicial
+donutChart,Anillo,Visual,Valor central,centerValue,show,Show,boolean,,1,Tiene,Mostrar valor central
+donutChart,Anillo,Visual,centerBackground,centerBackground,fillColor,Fill,fill,,1,Tiene,Fondo circular del valor central
+donutChart,Anillo,Visual,centerBackground,centerBackground,fit,Image fit,"enum: Fit, Stretch, Fill",,1,Falta,"Sin imagen central: requiere carga, selección y ajuste"
+donutChart,Anillo,Visual,centerBackground,centerBackground,image,image,image,,1,Falta,"Sin imagen central: requiere carga, selección y ajuste"
+donutChart,Anillo,Visual,centerBackground,centerBackground,imageData,Data,string,,1,Falta,"Sin imagen central: requiere carga, selección y ajuste"
+donutChart,Anillo,Visual,centerBackground,centerBackground,imageTransparency,Transparency,number,,1,Falta,"Sin imagen central: requiere carga, selección y ajuste"
+donutChart,Anillo,Visual,centerBackground,centerBackground,imageType,Image source,"enum: Upload Image, Enter URL, Select from data",,1,Falta,"Sin imagen central: requiere carga, selección y ajuste"
+donutChart,Anillo,Visual,centerBackground,centerBackground,imageUrl,Image URL,string,,1,Falta,"Sin imagen central: requiere carga, selección y ajuste"
+donutChart,Anillo,Visual,centerBackground,centerBackground,padding,Padding,integer,,1,Tiene,Fondo circular del valor central
+donutChart,Anillo,Visual,centerBackground,centerBackground,show,Show,boolean,,1,Tiene,Fondo circular del valor central
+donutChart,Anillo,Visual,centerBackground,centerBackground,transparency,Transparency,number,,1,Tiene,Fondo circular del valor central
+donutChart,Anillo,Visual,label,label,bold,Bold,boolean,,1,Tiene,Fuente de la etiqueta central
+donutChart,Anillo,Visual,label,label,fontColor,Color,fill,,1,Tiene,Fuente de la etiqueta central
+donutChart,Anillo,Visual,label,label,fontFamily,Font family,string,,1,Tiene,Fuente de la etiqueta central
+donutChart,Anillo,Visual,label,label,fontSize,Text size,fontSize,,1,Tiene,Fuente de la etiqueta central
+donutChart,Anillo,Visual,label,label,gap,Gap,integer,,1,Falta,La etiqueta central va siempre sobre el valor
+donutChart,Anillo,Visual,label,label,italic,Italic,boolean,,1,Tiene,Fuente de la etiqueta central
+donutChart,Anillo,Visual,label,label,position,Position,"enum: Above text, Below text",,1,Falta,La etiqueta central va siempre sobre el valor
+donutChart,Anillo,Visual,label,label,show,Show,boolean,,1,Parcial,Prefijo del valor central; sin etiqueta independiente
+donutChart,Anillo,Visual,label,label,text,Text,string,,1,Parcial,Prefijo del valor central; sin etiqueta independiente
+donutChart,Anillo,Visual,label,label,textWrap,Text wrap,boolean,,1,Falta,La etiqueta central va siempre sobre el valor
+donutChart,Anillo,Visual,label,label,underline,Underline,boolean,,1,Falta,La etiqueta central va siempre sobre el valor
+donutChart,Anillo,Visual,value,value,bold,Bold,boolean,,1,Tiene,Fuente y formato del valor central
+donutChart,Anillo,Visual,value,value,fontColor,Color,fill,,1,Tiene,Fuente y formato del valor central
+donutChart,Anillo,Visual,value,value,fontFamily,Font family,string,,1,Tiene,Fuente y formato del valor central
+donutChart,Anillo,Visual,value,value,fontSize,Text size,fontSize,,1,Tiene,Fuente y formato del valor central
+donutChart,Anillo,Visual,value,value,italic,Italic,boolean,,1,Tiene,Fuente y formato del valor central
+donutChart,Anillo,Visual,value,value,labelDisplayUnits,Display units,"enum: Auto, None, Thousands, Millions, Billions, Trillions, Custom","Select the units (millions, billions, etc.)",1,Tiene,Fuente y formato del valor central
+donutChart,Anillo,Visual,value,value,labelPrecision,Value decimal places,integer,Select the number of decimal places to display for the values,1,Tiene,Fuente y formato del valor central
+donutChart,Anillo,Visual,value,value,show,Show,boolean,,1,Tiene,Fuente y formato del valor central
+donutChart,Anillo,Visual,value,value,showBlankAs,Show blank as,string,,1,Falta,"El valor central es texto del motor, sin esas opciones"
+donutChart,Anillo,Visual,value,value,textWrap,Text wrap,boolean,,1,Falta,"El valor central es texto del motor, sin esas opciones"
+donutChart,Anillo,Visual,value,value,underline,Underline,boolean,,1,Falta,"El valor central es texto del motor, sin esas opciones"
+donutChart,Anillo,Visual,value,value,value,Value,string/number/integer/boolean,,1,Falta,"El valor central es texto del motor, sin esas opciones"
+donutChart,Anillo,Visual,Anotaciones,annotationTemplate,callout,callout,annotationTemplate,,3,Falta,Sin anotaciones en el gráfico: fase 8
+donutChart,Anillo,Visual,image,image,altText,Alt text,string,,3,Falta,"Sin imagen central: requiere carga, selección y ajuste"
+donutChart,Anillo,Visual,image,image,gap,Gap,integer,,3,Falta,"Sin imagen central: requiere carga, selección y ajuste"
+donutChart,Anillo,Visual,image,image,image,image,image,,3,Falta,"Sin imagen central: requiere carga, selección y ajuste"
+donutChart,Anillo,Visual,image,image,imageData,Data,string,,3,Falta,"Sin imagen central: requiere carga, selección y ajuste"
+donutChart,Anillo,Visual,image,image,imageType,Image source,"enum: Upload Image, Enter URL, Select from data",,3,Falta,"Sin imagen central: requiere carga, selección y ajuste"
+donutChart,Anillo,Visual,image,image,imageUrl,Image URL,string,,3,Falta,"Sin imagen central: requiere carga, selección y ajuste"
+donutChart,Anillo,Visual,image,image,position,Position,"enum: Above text, Below text",,3,Falta,"Sin imagen central: requiere carga, selección y ajuste"
+donutChart,Anillo,Visual,image,image,show,Show,boolean,,3,Falta,"Sin imagen central: requiere carga, selección y ajuste"
+donutChart,Anillo,Visual,image,image,size,Size,integer,,3,Falta,"Sin imagen central: requiere carga, selección y ajuste"
+donutChart,Anillo,Visual,image,image,transparency,Transparency,number,,3,Falta,"Sin imagen central: requiere carga, selección y ajuste"
 donutChart,Anillo,General,Borde,border,color,Color,fill,,1,Tiene,Formato > Borde
 donutChart,Anillo,General,Borde,border,radius,Radius,number,,1,Tiene,Formato > Borde
 donutChart,Anillo,General,Borde,border,show,Show,boolean,,1,Tiene,Formato > Borde
@@ -8624,36 +8624,36 @@ donutChart,Anillo,General,actionButtonSection,actionButtonSection,textTransparen
 donutChart,Anillo,General,actionButtonSection,actionButtonSection,textVerticalAlignment,Vertical alignment,"enum: Top, Middle, Bottom",,3,Tiene,General > Botón de acción
 donutChart,Anillo,General,actionButtonSection,actionButtonSection,underline,Underline,boolean,,3,Tiene,General > Botón de acción
 donutChart,Anillo,General,stylePreset,stylePreset,name,Style,string,,3,Excluido,"Estado interno, no es una opción de formato"
-treemap,Treemap,Visual,Colores / barras,dataPoint,fill,Default color,fill,,1,Parcial,Color por serie o esquema; revisar color por categoría (color_scheme)
-treemap,Treemap,Visual,Colores / barras,dataPoint,fillRule,Color saturation,fillRule,,1,Falta,
-treemap,Treemap,Visual,Disposición,layout,innerPadding,Space between all nodes,number,Separate neighboring nodes across all levels,1,Falta,
-treemap,Treemap,Visual,Disposición,layout,outerPadding,Space between groups,number,Add additional space for each node group,1,Falta,
-treemap,Treemap,Visual,Disposición,layout,tilingMethod,Tiling Method,"enum: Squarified, Binary, Alternating (Columns, Rows)",Select the algorithm used to generate dimensions and positions of each rectangle.,1,Falta,
-treemap,Treemap,Visual,Etiqueta de categoría,categoryLabels,bold,Bold,boolean,,1,Falta,
-treemap,Treemap,Visual,Etiqueta de categoría,categoryLabels,color,Color,fill,Select color for category labels,1,Falta,
-treemap,Treemap,Visual,Etiqueta de categoría,categoryLabels,fontFamily,Font family,string,,1,Falta,
-treemap,Treemap,Visual,Etiqueta de categoría,categoryLabels,fontSize,Text size,fontSize,,1,Falta,
-treemap,Treemap,Visual,Etiqueta de categoría,categoryLabels,italic,Italic,boolean,,1,Falta,
-treemap,Treemap,Visual,Etiqueta de categoría,categoryLabels,show,Show,boolean,,1,Parcial,Etiquetas (show_labels)
-treemap,Treemap,Visual,Etiqueta de categoría,categoryLabels,underline,Underline,boolean,,1,Falta,
-treemap,Treemap,Visual,Etiquetas de datos,labels,bold,Bold,boolean,,1,Falta,
-treemap,Treemap,Visual,Etiquetas de datos,labels,color,Color,fill,Select color for data labels,1,Falta,
-treemap,Treemap,Visual,Etiquetas de datos,labels,fontFamily,Font family,string,,1,Falta,
-treemap,Treemap,Visual,Etiquetas de datos,labels,fontSize,Text size,fontSize,,1,Falta,
-treemap,Treemap,Visual,Etiquetas de datos,labels,italic,Italic,boolean,,1,Falta,
-treemap,Treemap,Visual,Etiquetas de datos,labels,labelDisplayUnits,Display units,labelDisplayUnits,"Select the units (millions, billions, etc.)",1,Parcial,Con código d3 (number_format)
-treemap,Treemap,Visual,Etiquetas de datos,labels,labelPrecision,Value decimal places,integer,Select the number of decimal places to display for the values,1,Parcial,Con código d3 (number_format)
+treemap,Treemap,Visual,Colores / barras,dataPoint,fill,Default color,fill,,1,Tiene,Color por categoría y color predeterminado
+treemap,Treemap,Visual,Colores / barras,dataPoint,fillRule,Color saturation,fillRule,,1,Parcial,Escala continua de dos colores; sin reglas por campo
+treemap,Treemap,Visual,Disposición,layout,innerPadding,Space between all nodes,number,Separate neighboring nodes across all levels,1,Tiene,Espacio entre nodos y grupos
+treemap,Treemap,Visual,Disposición,layout,outerPadding,Space between groups,number,Add additional space for each node group,1,Tiene,Espacio entre nodos y grupos
+treemap,Treemap,Visual,Disposición,layout,tilingMethod,Tiling Method,"enum: Squarified, Binary, Alternating (Columns, Rows)",Select the algorithm used to generate dimensions and positions of each rectangle.,1,Falta,ECharts no ofrece los algoritmos de disposición de Power BI
+treemap,Treemap,Visual,Etiqueta de categoría,categoryLabels,bold,Bold,boolean,,1,Tiene,Fuente y visibilidad de categoría
+treemap,Treemap,Visual,Etiqueta de categoría,categoryLabels,color,Color,fill,Select color for category labels,1,Tiene,Fuente y visibilidad de categoría
+treemap,Treemap,Visual,Etiqueta de categoría,categoryLabels,fontFamily,Font family,string,,1,Tiene,Fuente y visibilidad de categoría
+treemap,Treemap,Visual,Etiqueta de categoría,categoryLabels,fontSize,Text size,fontSize,,1,Tiene,Fuente y visibilidad de categoría
+treemap,Treemap,Visual,Etiqueta de categoría,categoryLabels,italic,Italic,boolean,,1,Tiene,Fuente y visibilidad de categoría
+treemap,Treemap,Visual,Etiqueta de categoría,categoryLabels,show,Show,boolean,,1,Tiene,Fuente y visibilidad de categoría
+treemap,Treemap,Visual,Etiqueta de categoría,categoryLabels,underline,Underline,boolean,,1,Falta,El motor de gráficos no dibuja texto subrayado
+treemap,Treemap,Visual,Etiquetas de datos,labels,bold,Bold,boolean,,1,Tiene,Fuente de etiquetas (value_label_font)
+treemap,Treemap,Visual,Etiquetas de datos,labels,color,Color,fill,Select color for data labels,1,Tiene,Fuente de etiquetas (value_label_font)
+treemap,Treemap,Visual,Etiquetas de datos,labels,fontFamily,Font family,string,,1,Tiene,Fuente de etiquetas (value_label_font)
+treemap,Treemap,Visual,Etiquetas de datos,labels,fontSize,Text size,fontSize,,1,Tiene,Fuente de etiquetas (value_label_font)
+treemap,Treemap,Visual,Etiquetas de datos,labels,italic,Italic,boolean,,1,Tiene,Fuente de etiquetas (value_label_font)
+treemap,Treemap,Visual,Etiquetas de datos,labels,labelDisplayUnits,Display units,labelDisplayUnits,"Select the units (millions, billions, etc.)",1,Tiene,Unidades y decimales de etiquetas
+treemap,Treemap,Visual,Etiquetas de datos,labels,labelPrecision,Value decimal places,integer,Select the number of decimal places to display for the values,1,Tiene,Unidades y decimales de etiquetas
 treemap,Treemap,Visual,Etiquetas de datos,labels,show,Show,boolean,,1,Tiene,Mostrar etiquetas (show_labels)
 treemap,Treemap,Visual,Etiquetas de datos,labels,underline,Underline,boolean,,1,Falta,El motor de gráficos no dibuja texto subrayado
-treemap,Treemap,Visual,Leyenda,legend,bold,Bold,boolean,,1,Falta,
-treemap,Treemap,Visual,Leyenda,legend,fontFamily,Font family,string,,1,Falta,
-treemap,Treemap,Visual,Leyenda,legend,fontSize,Text size,fontSize,,1,Falta,
-treemap,Treemap,Visual,Leyenda,legend,italic,Italic,boolean,,1,Falta,
-treemap,Treemap,Visual,Leyenda,legend,labelColor,Color,fill,,1,Falta,
-treemap,Treemap,Visual,Leyenda,legend,position,Position,"enum: Top left, Top center, Top right, Top left stacked, Top right stacked, Center left, Center right, Bottom left, Bottom center, Bottom ri",Select the location for the legend,1,Falta,
-treemap,Treemap,Visual,Leyenda,legend,show,Show,boolean,,1,Falta,
-treemap,Treemap,Visual,Leyenda,legend,showTitle,Title,boolean,Display a title for legend symbols,1,Falta,
-treemap,Treemap,Visual,Leyenda,legend,titleText,Legend Name,string,Title text,1,Falta,
+treemap,Treemap,Visual,Leyenda,legend,bold,Bold,boolean,,1,Tiene,Fuente de leyenda (legend_font)
+treemap,Treemap,Visual,Leyenda,legend,fontFamily,Font family,string,,1,Tiene,Fuente de leyenda (legend_font)
+treemap,Treemap,Visual,Leyenda,legend,fontSize,Text size,fontSize,,1,Tiene,Fuente de leyenda (legend_font)
+treemap,Treemap,Visual,Leyenda,legend,italic,Italic,boolean,,1,Tiene,Fuente de leyenda (legend_font)
+treemap,Treemap,Visual,Leyenda,legend,labelColor,Color,fill,,1,Tiene,Fuente de leyenda (legend_font)
+treemap,Treemap,Visual,Leyenda,legend,position,Position,"enum: Top left, Top center, Top right, Top left stacked, Top right stacked, Center left, Center right, Bottom left, Bottom center, Bottom ri",Select the location for the legend,1,Falta,El treemap no tiene leyenda: sus etiquetas nombran cada grupo
+treemap,Treemap,Visual,Leyenda,legend,show,Show,boolean,,1,Falta,El treemap no tiene leyenda: sus etiquetas nombran cada grupo
+treemap,Treemap,Visual,Leyenda,legend,showTitle,Title,boolean,Display a title for legend symbols,1,Tiene,Título de leyenda
+treemap,Treemap,Visual,Leyenda,legend,titleText,Legend Name,string,Title text,1,Tiene,Título de leyenda
 treemap,Treemap,Visual,Leyenda,legend,underline,Underline,boolean,,1,Falta,El motor de gráficos no dibuja texto subrayado
 treemap,Treemap,General,Borde,border,color,Color,fill,,1,Tiene,Formato > Borde
 treemap,Treemap,General,Borde,border,radius,Radius,number,,1,Tiene,Formato > Borde
@@ -9960,38 +9960,38 @@ azureMap,Azure Maps,General,actionButtonSection,actionButtonSection,textVertical
 azureMap,Azure Maps,General,actionButtonSection,actionButtonSection,underline,Underline,boolean,,3,Por decidir,Comparar con deck.gl y country_map: otro modelo de capas
 azureMap,Azure Maps,General,stylePreset,stylePreset,name,Style,string,,3,Por decidir,Comparar con deck.gl y country_map: otro modelo de capas
 gauge,Medidor,Visual,Colores / barras,dataPoint,fill,Fill color,fill,,1,Parcial,Color por serie o esquema; revisar color por categoría (color_scheme)
-gauge,Medidor,Visual,Colores / barras,dataPoint,target,Target color,fill,,1,Falta,
-gauge,Medidor,Visual,Etiquetas de datos,labels,bold,Bold,boolean,,1,Falta,
-gauge,Medidor,Visual,Etiquetas de datos,labels,color,Color,fill,Select color for data labels,1,Falta,
-gauge,Medidor,Visual,Etiquetas de datos,labels,fontFamily,Font family,string,,1,Falta,
-gauge,Medidor,Visual,Etiquetas de datos,labels,fontSize,Text size,fontSize,,1,Falta,
-gauge,Medidor,Visual,Etiquetas de datos,labels,italic,Italic,boolean,,1,Falta,
-gauge,Medidor,Visual,Etiquetas de datos,labels,labelDisplayUnits,Display units,labelDisplayUnits,"Select the units (millions, billions, etc.)",1,Parcial,Con código d3 (number_format)
-gauge,Medidor,Visual,Etiquetas de datos,labels,labelPrecision,Value decimal places,integer,Select the number of decimal places to display for the values,1,Parcial,Con código d3 (number_format)
-gauge,Medidor,Visual,Etiquetas de datos,labels,show,Show,boolean,,1,Falta,
+gauge,Medidor,Visual,Colores / barras,dataPoint,target,Target color,fill,,1,Tiene,Color del objetivo
+gauge,Medidor,Visual,Etiquetas de datos,labels,bold,Bold,boolean,,1,Tiene,Fuente de etiquetas (value_label_font)
+gauge,Medidor,Visual,Etiquetas de datos,labels,color,Color,fill,Select color for data labels,1,Tiene,Fuente de etiquetas (value_label_font)
+gauge,Medidor,Visual,Etiquetas de datos,labels,fontFamily,Font family,string,,1,Tiene,Fuente de etiquetas (value_label_font)
+gauge,Medidor,Visual,Etiquetas de datos,labels,fontSize,Text size,fontSize,,1,Tiene,Fuente de etiquetas (value_label_font)
+gauge,Medidor,Visual,Etiquetas de datos,labels,italic,Italic,boolean,,1,Tiene,Fuente de etiquetas (value_label_font)
+gauge,Medidor,Visual,Etiquetas de datos,labels,labelDisplayUnits,Display units,labelDisplayUnits,"Select the units (millions, billions, etc.)",1,Tiene,Unidades y decimales de etiquetas
+gauge,Medidor,Visual,Etiquetas de datos,labels,labelPrecision,Value decimal places,integer,Select the number of decimal places to display for the values,1,Tiene,Unidades y decimales de etiquetas
+gauge,Medidor,Visual,Etiquetas de datos,labels,show,Show,boolean,,1,Tiene,Mostrar etiquetas
 gauge,Medidor,Visual,Etiquetas de datos,labels,underline,Underline,boolean,,1,Falta,El motor de gráficos no dibuja texto subrayado
-gauge,Medidor,Visual,Valor principal,calloutValue,bold,Bold,boolean,,1,Falta,
-gauge,Medidor,Visual,Valor principal,calloutValue,color,Color,fill,Select color for data labels,1,Falta,
-gauge,Medidor,Visual,Valor principal,calloutValue,dynamicLabelValue,Field,string/number/integer/boolean,,1,Falta,
-gauge,Medidor,Visual,Valor principal,calloutValue,fontFamily,Font family,string,,1,Falta,
-gauge,Medidor,Visual,Valor principal,calloutValue,italic,Italic,boolean,,1,Falta,
-gauge,Medidor,Visual,Valor principal,calloutValue,labelDisplayUnits,Display units,labelDisplayUnits,"Select the units (millions, billions, etc.)",1,Parcial,Con código d3 (number_format)
-gauge,Medidor,Visual,Valor principal,calloutValue,labelPrecision,Value decimal places,integer,Select the number of decimal places to display for the values,1,Parcial,Con código d3 (number_format)
-gauge,Medidor,Visual,Valor principal,calloutValue,show,Show,boolean,,1,Parcial,Valor siempre visible (font_size/show_progress)
-gauge,Medidor,Visual,Valor principal,calloutValue,showDynamicLabels,Custom label,boolean,,1,Falta,
+gauge,Medidor,Visual,Valor principal,calloutValue,bold,Bold,boolean,,1,Tiene,Fuente y formato del valor del medidor
+gauge,Medidor,Visual,Valor principal,calloutValue,color,Color,fill,Select color for data labels,1,Tiene,Fuente y formato del valor del medidor
+gauge,Medidor,Visual,Valor principal,calloutValue,dynamicLabelValue,Field,string/number/integer/boolean,,1,Parcial,Etiqueta manual con {value}; sin campo dinámico
+gauge,Medidor,Visual,Valor principal,calloutValue,fontFamily,Font family,string,,1,Tiene,Fuente y formato del valor del medidor
+gauge,Medidor,Visual,Valor principal,calloutValue,italic,Italic,boolean,,1,Tiene,Fuente y formato del valor del medidor
+gauge,Medidor,Visual,Valor principal,calloutValue,labelDisplayUnits,Display units,labelDisplayUnits,"Select the units (millions, billions, etc.)",1,Tiene,Fuente y formato del valor del medidor
+gauge,Medidor,Visual,Valor principal,calloutValue,labelPrecision,Value decimal places,integer,Select the number of decimal places to display for the values,1,Tiene,Fuente y formato del valor del medidor
+gauge,Medidor,Visual,Valor principal,calloutValue,show,Show,boolean,,1,Tiene,Fuente y formato del valor del medidor
+gauge,Medidor,Visual,Valor principal,calloutValue,showDynamicLabels,Custom label,boolean,,1,Parcial,Etiqueta manual con {value}; sin campo dinámico
 gauge,Medidor,Visual,Valor principal,calloutValue,underline,Underline,boolean,,1,Falta,
 gauge,Medidor,Visual,axis,axis,max,Max,number,,1,Tiene,Máximo (max_val)
 gauge,Medidor,Visual,axis,axis,min,Min,number,,1,Tiene,Mínimo (min_val)
-gauge,Medidor,Visual,axis,axis,target,Target,number,,1,Falta,
-gauge,Medidor,Visual,target,target,bold,Bold,boolean,,1,Falta,
-gauge,Medidor,Visual,target,target,color,Color,fill,Select color for data labels,1,Falta,
-gauge,Medidor,Visual,target,target,fontFamily,Font family,string,,1,Falta,
-gauge,Medidor,Visual,target,target,fontSize,Text size,fontSize,,1,Falta,
-gauge,Medidor,Visual,target,target,italic,Italic,boolean,,1,Falta,
-gauge,Medidor,Visual,target,target,labelDisplayUnits,Display units,labelDisplayUnits,"Select the units (millions, billions, etc.)",1,Falta,
-gauge,Medidor,Visual,target,target,labelPrecision,Value decimal places,integer,Select the number of decimal places to display for the values,1,Falta,
-gauge,Medidor,Visual,target,target,show,Show,boolean,,1,Falta,
-gauge,Medidor,Visual,target,target,underline,Underline,boolean,,1,Falta,
+gauge,Medidor,Visual,axis,axis,target,Target,number,,1,Parcial,Objetivo numérico; sin campo de objetivo
+gauge,Medidor,Visual,target,target,bold,Bold,boolean,,1,Parcial,Puntero y fuente propios; unidades y decimales compartidos con valor
+gauge,Medidor,Visual,target,target,color,Color,fill,Select color for data labels,1,Parcial,Puntero y fuente propios; unidades y decimales compartidos con valor
+gauge,Medidor,Visual,target,target,fontFamily,Font family,string,,1,Parcial,Puntero y fuente propios; unidades y decimales compartidos con valor
+gauge,Medidor,Visual,target,target,fontSize,Text size,fontSize,,1,Parcial,Puntero y fuente propios; unidades y decimales compartidos con valor
+gauge,Medidor,Visual,target,target,italic,Italic,boolean,,1,Parcial,Puntero y fuente propios; unidades y decimales compartidos con valor
+gauge,Medidor,Visual,target,target,labelDisplayUnits,Display units,labelDisplayUnits,"Select the units (millions, billions, etc.)",1,Parcial,Puntero y fuente propios; unidades y decimales compartidos con valor
+gauge,Medidor,Visual,target,target,labelPrecision,Value decimal places,integer,Select the number of decimal places to display for the values,1,Parcial,Puntero y fuente propios; unidades y decimales compartidos con valor
+gauge,Medidor,Visual,target,target,show,Show,boolean,,1,Parcial,Puntero y fuente propios; unidades y decimales compartidos con valor
+gauge,Medidor,Visual,target,target,underline,Underline,boolean,,1,Falta,El motor de gráficos no dibuja texto subrayado
 gauge,Medidor,General,Borde,border,color,Color,fill,,1,Tiene,Formato > Borde
 gauge,Medidor,General,Borde,border,radius,Radius,number,,1,Tiene,Formato > Borde
 gauge,Medidor,General,Borde,border,show,Show,boolean,,1,Tiene,Formato > Borde
@@ -10259,35 +10259,35 @@ cardVisual,Tarjeta (nueva),Visual,Disposición,layout,style,Style,"enum: Table, 
 cardVisual,Tarjeta (nueva),Visual,Disposición,layout,topOuterMargin,Top padding,integer,,1,Falta,
 cardVisual,Tarjeta (nueva),Visual,label,label,$id,$id,enum: default | ?,,1,Excluido,Selector interno de serie
 cardVisual,Tarjeta (nueva),Visual,label,label,alignBaselines,Align baselines,boolean,,1,Falta,
-cardVisual,Tarjeta (nueva),Visual,label,label,bold,Bold,boolean,,1,Tiene,Formato > Etiqueta de la tarjeta
-cardVisual,Tarjeta (nueva),Visual,label,label,fontColor,Font color,fill,,1,Tiene,Formato > Etiqueta de la tarjeta
-cardVisual,Tarjeta (nueva),Visual,label,label,fontFamily,Font family,string,,1,Falta,
-cardVisual,Tarjeta (nueva),Visual,label,label,fontSize,Text size,fontSize,,1,Tiene,Formato > Etiqueta de la tarjeta
+cardVisual,Tarjeta (nueva),Visual,label,label,bold,Bold,boolean,,1,Tiene,"Etiqueta de categoría: texto, fuente, posición y separación"
+cardVisual,Tarjeta (nueva),Visual,label,label,fontColor,Font color,fill,,1,Tiene,"Etiqueta de categoría: texto, fuente, posición y separación"
+cardVisual,Tarjeta (nueva),Visual,label,label,fontFamily,Font family,string,,1,Tiene,"Etiqueta de categoría: texto, fuente, posición y separación"
+cardVisual,Tarjeta (nueva),Visual,label,label,fontSize,Text size,fontSize,,1,Tiene,"Etiqueta de categoría: texto, fuente, posición y separación"
 cardVisual,Tarjeta (nueva),Visual,label,label,heading,Heading,"enum: Normal, Heading 2, Heading 3, Heading 4, Heading 5, Heading 6",,1,Falta,
 cardVisual,Tarjeta (nueva),Visual,label,label,horizontalAlignment,Horizontal alignment,alignment,,1,Falta,
-cardVisual,Tarjeta (nueva),Visual,label,label,italic,Italic,boolean,,1,Tiene,Formato > Etiqueta de la tarjeta
+cardVisual,Tarjeta (nueva),Visual,label,label,italic,Italic,boolean,,1,Tiene,"Etiqueta de categoría: texto, fuente, posición y separación"
 cardVisual,Tarjeta (nueva),Visual,label,label,matchValueAlignment,Match value alignment,boolean,,1,Falta,
-cardVisual,Tarjeta (nueva),Visual,label,label,position,Position,"enum: Bottom, Top",,1,Falta,
-cardVisual,Tarjeta (nueva),Visual,label,label,show,Show,boolean,,1,Tiene,Formato > Etiqueta de la tarjeta
-cardVisual,Tarjeta (nueva),Visual,label,label,text,Text,string,,1,Falta,
-cardVisual,Tarjeta (nueva),Visual,label,label,textWrap,Text wrap,boolean,,1,Falta,
+cardVisual,Tarjeta (nueva),Visual,label,label,position,Position,"enum: Bottom, Top",,1,Tiene,"Etiqueta de categoría: texto, fuente, posición y separación"
+cardVisual,Tarjeta (nueva),Visual,label,label,show,Show,boolean,,1,Tiene,"Etiqueta de categoría: texto, fuente, posición y separación"
+cardVisual,Tarjeta (nueva),Visual,label,label,text,Text,string,,1,Tiene,"Etiqueta de categoría: texto, fuente, posición y separación"
+cardVisual,Tarjeta (nueva),Visual,label,label,textWrap,Text wrap,boolean,,1,Tiene,"Etiqueta de categoría: texto, fuente, posición y separación"
 cardVisual,Tarjeta (nueva),Visual,label,label,transparency,Transparency,number,,1,Falta,
-cardVisual,Tarjeta (nueva),Visual,label,label,underline,Underline,boolean,,1,Falta,
+cardVisual,Tarjeta (nueva),Visual,label,label,underline,Underline,boolean,,1,Tiene,"Etiqueta de categoría: texto, fuente, posición y separación"
 cardVisual,Tarjeta (nueva),Visual,value,value,$id,$id,enum: default | ?,,1,Excluido,Selector interno de serie
-cardVisual,Tarjeta (nueva),Visual,value,value,bold,Bold,boolean,,1,Tiene,Formato > Valor de la tarjeta
+cardVisual,Tarjeta (nueva),Visual,value,value,bold,Bold,boolean,,1,Tiene,"Valor destacado: fuente, unidades y decimales"
 cardVisual,Tarjeta (nueva),Visual,value,value,customFormatString,Format code,string,Enter a custom number format for your callout.,1,Falta,
-cardVisual,Tarjeta (nueva),Visual,value,value,fontColor,Font color,fill,,1,Tiene,Formato > Valor de la tarjeta
-cardVisual,Tarjeta (nueva),Visual,value,value,fontFamily,Font family,string,,1,Falta,
-cardVisual,Tarjeta (nueva),Visual,value,value,fontSize,Text size,fontSize,,1,Tiene,Formato > Valor de la tarjeta
-cardVisual,Tarjeta (nueva),Visual,value,value,horizontalAlignment,Horizontal alignment,alignment,,1,Falta,
-cardVisual,Tarjeta (nueva),Visual,value,value,italic,Italic,boolean,,1,Tiene,Formato > Valor de la tarjeta
-cardVisual,Tarjeta (nueva),Visual,value,value,labelDisplayUnits,Display units,"enum: Auto, None, Thousands, Millions, Billions, Trillions, Custom","Select the units (millions, billions, etc.)",1,Falta,
-cardVisual,Tarjeta (nueva),Visual,value,value,labelPrecision,Value decimal places,integer,Select the number of decimal places to display for the values,1,Falta,
-cardVisual,Tarjeta (nueva),Visual,value,value,show,Show,boolean,,1,Falta,
-cardVisual,Tarjeta (nueva),Visual,value,value,showBlankAs,Show blank as,string,,1,Falta,
-cardVisual,Tarjeta (nueva),Visual,value,value,textWrap,Text wrap,boolean,,1,Falta,
+cardVisual,Tarjeta (nueva),Visual,value,value,fontColor,Font color,fill,,1,Tiene,"Valor destacado: fuente, unidades y decimales"
+cardVisual,Tarjeta (nueva),Visual,value,value,fontFamily,Font family,string,,1,Tiene,"Valor destacado: fuente, unidades y decimales"
+cardVisual,Tarjeta (nueva),Visual,value,value,fontSize,Text size,fontSize,,1,Tiene,"Valor destacado: fuente, unidades y decimales"
+cardVisual,Tarjeta (nueva),Visual,value,value,horizontalAlignment,Horizontal alignment,alignment,,1,Tiene,"Valor destacado: fuente, unidades y decimales"
+cardVisual,Tarjeta (nueva),Visual,value,value,italic,Italic,boolean,,1,Tiene,"Valor destacado: fuente, unidades y decimales"
+cardVisual,Tarjeta (nueva),Visual,value,value,labelDisplayUnits,Display units,"enum: Auto, None, Thousands, Millions, Billions, Trillions, Custom","Select the units (millions, billions, etc.)",1,Tiene,"Valor destacado: fuente, unidades y decimales"
+cardVisual,Tarjeta (nueva),Visual,value,value,labelPrecision,Value decimal places,integer,Select the number of decimal places to display for the values,1,Tiene,"Valor destacado: fuente, unidades y decimales"
+cardVisual,Tarjeta (nueva),Visual,value,value,show,Show,boolean,,1,Tiene,"Valor destacado: fuente, unidades y decimales"
+cardVisual,Tarjeta (nueva),Visual,value,value,showBlankAs,Show blank as,string,,1,Tiene,"Valor destacado: fuente, unidades y decimales"
+cardVisual,Tarjeta (nueva),Visual,value,value,textWrap,Text wrap,boolean,,1,Tiene,"Valor destacado: fuente, unidades y decimales"
 cardVisual,Tarjeta (nueva),Visual,value,value,transparency,Transparency,number,,1,Falta,
-cardVisual,Tarjeta (nueva),Visual,value,value,underline,Underline,boolean,,1,Falta,
+cardVisual,Tarjeta (nueva),Visual,value,value,underline,Underline,boolean,,1,Tiene,"Valor destacado: fuente, unidades y decimales"
 cardVisual,Tarjeta (nueva),Visual,Múltiplos pequeños,smallMultiplesLayout,autoGrid,Fit to space,boolean,,2,Falta,
 cardVisual,Tarjeta (nueva),Visual,Múltiplos pequeños,smallMultiplesLayout,cellPadding,Space between cards,integer,,2,Falta,
 cardVisual,Tarjeta (nueva),Visual,Múltiplos pequeños,smallMultiplesLayout,columnCount,Columns,integer,,2,Falta,
@@ -10810,24 +10810,24 @@ cardVisual,Tarjeta (nueva),General,actionButtonSection,actionButtonSection,textT
 cardVisual,Tarjeta (nueva),General,actionButtonSection,actionButtonSection,textVerticalAlignment,Vertical alignment,"enum: Top, Middle, Bottom",,3,Tiene,General > Botón de acción
 cardVisual,Tarjeta (nueva),General,actionButtonSection,actionButtonSection,underline,Underline,boolean,,3,Tiene,General > Botón de acción
 cardVisual,Tarjeta (nueva),General,stylePreset,stylePreset,name,Style,string,,3,Excluido,"Estado interno, no es una opción de formato"
-card,Tarjeta,Visual,Etiqueta de categoría,categoryLabels,bold,Bold,boolean,,1,Tiene,Formato > Etiqueta de la tarjeta
-card,Tarjeta,Visual,Etiqueta de categoría,categoryLabels,color,Color,fill,Select color for data labels,1,Tiene,Formato > Etiqueta de la tarjeta
-card,Tarjeta,Visual,Etiqueta de categoría,categoryLabels,fontFamily,Font family,string,,1,Falta,
-card,Tarjeta,Visual,Etiqueta de categoría,categoryLabels,fontSize,Text size,fontSize,,1,Tiene,Formato > Etiqueta de la tarjeta
-card,Tarjeta,Visual,Etiqueta de categoría,categoryLabels,italic,Italic,boolean,,1,Tiene,Formato > Etiqueta de la tarjeta
-card,Tarjeta,Visual,Etiqueta de categoría,categoryLabels,preserveWhitespace,Source spacing,boolean,Display any extra spaces in the category label,1,Falta,
-card,Tarjeta,Visual,Etiqueta de categoría,categoryLabels,show,Show,boolean,,1,Tiene,Formato > Etiqueta de la tarjeta
-card,Tarjeta,Visual,Etiqueta de categoría,categoryLabels,underline,Underline,boolean,,1,Falta,
-card,Tarjeta,Visual,Etiquetas de datos,labels,bold,Bold,boolean,,1,Tiene,Formato > Valor de la tarjeta
-card,Tarjeta,Visual,Etiquetas de datos,labels,color,Color,fill,Select color for data labels,1,Tiene,Formato > Valor de la tarjeta
-card,Tarjeta,Visual,Etiquetas de datos,labels,fontFamily,Font family,string,,1,Falta,
-card,Tarjeta,Visual,Etiquetas de datos,labels,fontSize,Text size,fontSize,,1,Tiene,Formato > Valor de la tarjeta
-card,Tarjeta,Visual,Etiquetas de datos,labels,italic,Italic,boolean,,1,Tiene,Formato > Valor de la tarjeta
-card,Tarjeta,Visual,Etiquetas de datos,labels,labelDisplayUnits,Display units,labelDisplayUnits,"Select the units (millions, billions, etc.)",1,Parcial,Con código d3 (y_axis_format)
-card,Tarjeta,Visual,Etiquetas de datos,labels,labelPrecision,Value decimal places,integer,Select the number of decimal places to display for the values,1,Parcial,Con código d3 (y_axis_format)
-card,Tarjeta,Visual,Etiquetas de datos,labels,preserveWhitespace,Source spacing,boolean,Display any extra spaces in the data label,1,Falta,
-card,Tarjeta,Visual,Etiquetas de datos,labels,underline,Underline,boolean,,1,Falta,El motor de gráficos no dibuja texto subrayado
-card,Tarjeta,Visual,wordWrap,wordWrap,show,Show,boolean,,3,Falta,
+card,Tarjeta,Visual,Etiqueta de categoría,categoryLabels,bold,Bold,boolean,,1,Tiene,"Etiqueta de categoría: texto, fuente, posición y separación"
+card,Tarjeta,Visual,Etiqueta de categoría,categoryLabels,color,Color,fill,Select color for data labels,1,Tiene,"Etiqueta de categoría: texto, fuente, posición y separación"
+card,Tarjeta,Visual,Etiqueta de categoría,categoryLabels,fontFamily,Font family,string,,1,Tiene,"Etiqueta de categoría: texto, fuente, posición y separación"
+card,Tarjeta,Visual,Etiqueta de categoría,categoryLabels,fontSize,Text size,fontSize,,1,Tiene,"Etiqueta de categoría: texto, fuente, posición y separación"
+card,Tarjeta,Visual,Etiqueta de categoría,categoryLabels,italic,Italic,boolean,,1,Tiene,"Etiqueta de categoría: texto, fuente, posición y separación"
+card,Tarjeta,Visual,Etiqueta de categoría,categoryLabels,preserveWhitespace,Source spacing,boolean,Display any extra spaces in the category label,1,Parcial,Control de ajuste de texto; sin preservar espacios múltiples
+card,Tarjeta,Visual,Etiqueta de categoría,categoryLabels,show,Show,boolean,,1,Tiene,"Etiqueta de categoría: texto, fuente, posición y separación"
+card,Tarjeta,Visual,Etiqueta de categoría,categoryLabels,underline,Underline,boolean,,1,Tiene,"Etiqueta de categoría: texto, fuente, posición y separación"
+card,Tarjeta,Visual,Etiquetas de datos,labels,bold,Bold,boolean,,1,Tiene,"Valor destacado: fuente, unidades y decimales"
+card,Tarjeta,Visual,Etiquetas de datos,labels,color,Color,fill,Select color for data labels,1,Tiene,"Valor destacado: fuente, unidades y decimales"
+card,Tarjeta,Visual,Etiquetas de datos,labels,fontFamily,Font family,string,,1,Tiene,"Valor destacado: fuente, unidades y decimales"
+card,Tarjeta,Visual,Etiquetas de datos,labels,fontSize,Text size,fontSize,,1,Tiene,"Valor destacado: fuente, unidades y decimales"
+card,Tarjeta,Visual,Etiquetas de datos,labels,italic,Italic,boolean,,1,Tiene,"Valor destacado: fuente, unidades y decimales"
+card,Tarjeta,Visual,Etiquetas de datos,labels,labelDisplayUnits,Display units,labelDisplayUnits,"Select the units (millions, billions, etc.)",1,Tiene,"Valor destacado: fuente, unidades y decimales"
+card,Tarjeta,Visual,Etiquetas de datos,labels,labelPrecision,Value decimal places,integer,Select the number of decimal places to display for the values,1,Tiene,"Valor destacado: fuente, unidades y decimales"
+card,Tarjeta,Visual,Etiquetas de datos,labels,preserveWhitespace,Source spacing,boolean,Display any extra spaces in the data label,1,Parcial,Control de ajuste de texto; sin preservar espacios múltiples
+card,Tarjeta,Visual,Etiquetas de datos,labels,underline,Underline,boolean,,1,Tiene,"Valor destacado: fuente, unidades y decimales"
+card,Tarjeta,Visual,wordWrap,wordWrap,show,Show,boolean,,3,Tiene,Ajuste de texto por bloque
 card,Tarjeta,General,Borde,border,color,Color,fill,,1,Tiene,Formato > Borde
 card,Tarjeta,General,Borde,border,radius,Radius,number,,1,Tiene,Formato > Borde
 card,Tarjeta,General,Borde,border,show,Show,boolean,,1,Tiene,Formato > Borde
@@ -11035,7 +11035,7 @@ multiRowCard,Tarjeta de varias filas,Visual,Etiqueta de categoría,categoryLabel
 multiRowCard,Tarjeta de varias filas,Visual,Etiqueta de categoría,categoryLabels,fontSize,Text size,fontSize,,1,Falta,No tenemos este gráfico
 multiRowCard,Tarjeta de varias filas,Visual,Etiqueta de categoría,categoryLabels,italic,Italic,boolean,,1,Falta,No tenemos este gráfico
 multiRowCard,Tarjeta de varias filas,Visual,Etiqueta de categoría,categoryLabels,show,Show,boolean,,1,Falta,No tenemos este gráfico
-multiRowCard,Tarjeta de varias filas,Visual,Etiqueta de categoría,categoryLabels,underline,Underline,boolean,,1,Falta,No tenemos este gráfico
+multiRowCard,Tarjeta de varias filas,Visual,Etiqueta de categoría,categoryLabels,underline,Underline,boolean,,1,Falta,El motor de gráficos no dibuja texto subrayado
 multiRowCard,Tarjeta de varias filas,Visual,card,card,barColor,Bar color,fill,,2,Falta,No tenemos este gráfico
 multiRowCard,Tarjeta de varias filas,Visual,card,card,barShow,Show bar,boolean,Display a bar to the left side of the card as an accent,2,Falta,No tenemos este gráfico
 multiRowCard,Tarjeta de varias filas,Visual,card,card,barWeight,Bar thickness,number,Thickness of the bar in pixels,2,Falta,No tenemos este gráfico
@@ -11257,49 +11257,49 @@ multiRowCard,Tarjeta de varias filas,General,actionButtonSection,actionButtonSec
 multiRowCard,Tarjeta de varias filas,General,actionButtonSection,actionButtonSection,textVerticalAlignment,Vertical alignment,"enum: Top, Middle, Bottom",,3,Falta,No tenemos este gráfico
 multiRowCard,Tarjeta de varias filas,General,actionButtonSection,actionButtonSection,underline,Underline,boolean,,3,Falta,No tenemos este gráfico
 multiRowCard,Tarjeta de varias filas,General,stylePreset,stylePreset,name,Style,string,,3,Excluido,"Estado interno, no es una opción de formato"
-kpi,KPI,Visual,Estado,status,badColor,Bad Color,fill,,1,Falta,
-kpi,KPI,Visual,Estado,status,direction,Direction,"enum: High is good, Low is good",,1,Falta,
-kpi,KPI,Visual,Estado,status,goodColor,Good Color,fill,,1,Falta,
-kpi,KPI,Visual,Estado,status,neutralColor,Neutral Color,fill,,1,Falta,
-kpi,KPI,Visual,Fecha,lastDate,bold,Bold,boolean,,1,Falta,
-kpi,KPI,Visual,Fecha,lastDate,fontSize,Text size,fontSize,,1,Falta,
-kpi,KPI,Visual,Fecha,lastDate,italic,Italic,boolean,,1,Falta,
-kpi,KPI,Visual,Fecha,lastDate,lastDateFontColor,Font color,fill,,1,Falta,
-kpi,KPI,Visual,Fecha,lastDate,lastDateFontFamily,Font family,string,,1,Falta,
+kpi,KPI,Visual,Estado,status,badColor,Bad Color,fill,,1,Tiene,"Comparación contra objetivo, dirección favorable y margen neutro"
+kpi,KPI,Visual,Estado,status,direction,Direction,"enum: High is good, Low is good",,1,Tiene,"Comparación contra objetivo, dirección favorable y margen neutro"
+kpi,KPI,Visual,Estado,status,goodColor,Good Color,fill,,1,Tiene,"Comparación contra objetivo, dirección favorable y margen neutro"
+kpi,KPI,Visual,Estado,status,neutralColor,Neutral Color,fill,,1,Tiene,"Comparación contra objetivo, dirección favorable y margen neutro"
+kpi,KPI,Visual,Fecha,lastDate,bold,Bold,boolean,,1,Tiene,Fuente de última fecha
+kpi,KPI,Visual,Fecha,lastDate,fontSize,Text size,fontSize,,1,Tiene,Fuente de última fecha
+kpi,KPI,Visual,Fecha,lastDate,italic,Italic,boolean,,1,Tiene,Fuente de última fecha
+kpi,KPI,Visual,Fecha,lastDate,lastDateFontColor,Font color,fill,,1,Tiene,Fuente de última fecha
+kpi,KPI,Visual,Fecha,lastDate,lastDateFontFamily,Font family,string,,1,Tiene,Fuente de última fecha
 kpi,KPI,Visual,Fecha,lastDate,show,Show,boolean,,1,Tiene,Fecha (show_timestamp)
-kpi,KPI,Visual,Fecha,lastDate,underline,Underline,boolean,,1,Falta,
-kpi,KPI,Visual,Indicador,indicator,bold,Bold,boolean,,1,Tiene,Formato > Valor de la tarjeta
-kpi,KPI,Visual,Indicador,indicator,fontColor,Font color,fill,,1,Tiene,Formato > Valor de la tarjeta
-kpi,KPI,Visual,Indicador,indicator,fontFamily,Font family,string,,1,Falta,
-kpi,KPI,Visual,Indicador,indicator,fontSize,Text size,fontSize,,1,Tiene,Formato > Valor de la tarjeta
-kpi,KPI,Visual,Indicador,indicator,horizontalAlignment,Horizontal alignment,alignment,,1,Falta,
-kpi,KPI,Visual,Indicador,indicator,iconSize,Icon size,fontSize,,1,Falta,
-kpi,KPI,Visual,Indicador,indicator,indicatorDisplayUnits,Display units,labelDisplayUnits,"Select the units (millions, billions, etc.)",1,Parcial,Con código d3 (y_axis_format)
-kpi,KPI,Visual,Indicador,indicator,indicatorPrecision,Value decimal places,integer,Select the number of decimal places to display for the values,1,Parcial,Con código d3 (y_axis_format)
-kpi,KPI,Visual,Indicador,indicator,italic,Italic,boolean,,1,Tiene,Formato > Valor de la tarjeta
-kpi,KPI,Visual,Indicador,indicator,showIcon,Show icon,boolean,,1,Falta,
-kpi,KPI,Visual,Indicador,indicator,underline,Underline,boolean,,1,Falta,
-kpi,KPI,Visual,Indicador,indicator,verticalAlignment,Vertical alignment,verticalAlignment,,1,Falta,
-kpi,KPI,Visual,Objetivo,goals,bold,Bold,boolean,,1,Falta,
-kpi,KPI,Visual,Objetivo,goals,direction,Distance direction,"enum: Increasing is positive, Decreasing is positive",,1,Falta,
-kpi,KPI,Visual,Objetivo,goals,distanceFontColor,Font color,fill,,1,Falta,
-kpi,KPI,Visual,Objetivo,goals,distanceFontFamily,Font family,string,,1,Falta,
-kpi,KPI,Visual,Objetivo,goals,distanceLabel,Label,"enum: Value, Percent, Both",,1,Falta,
-kpi,KPI,Visual,Objetivo,goals,fontSize,Text size,fontSize,,1,Falta,
-kpi,KPI,Visual,Objetivo,goals,goalFontColor,Font color,fill,,1,Falta,
-kpi,KPI,Visual,Objetivo,goals,goalFontFamily,Font family,string,,1,Falta,
-kpi,KPI,Visual,Objetivo,goals,goalText,Label,string,,1,Falta,
-kpi,KPI,Visual,Objetivo,goals,italic,Italic,boolean,,1,Falta,
-kpi,KPI,Visual,Objetivo,goals,labelPrecision,Value decimal places,integer,Select the number of decimal places to display for the values,1,Falta,
-kpi,KPI,Visual,Objetivo,goals,showDistance,Distance,boolean,,1,Parcial,"Comparación contra periodo, no contra objetivo (compare_lag)"
-kpi,KPI,Visual,Objetivo,goals,showGoal,Goal,boolean,,1,Parcial,"Comparación contra periodo, no contra objetivo (compare_lag)"
-kpi,KPI,Visual,Objetivo,goals,titleBold,Bold,boolean,,1,Falta,
-kpi,KPI,Visual,Objetivo,goals,titleFontSize,Text size,fontSize,,1,Falta,
-kpi,KPI,Visual,Objetivo,goals,titleItalic,Italic,boolean,,1,Falta,
-kpi,KPI,Visual,Objetivo,goals,titleUnderline,Underline,boolean,,1,Falta,
-kpi,KPI,Visual,Objetivo,goals,underline,Underline,boolean,,1,Falta,
+kpi,KPI,Visual,Fecha,lastDate,underline,Underline,boolean,,1,Tiene,Fuente de última fecha
+kpi,KPI,Visual,Indicador,indicator,bold,Bold,boolean,,1,Tiene,"Valor destacado: fuente, unidades y decimales"
+kpi,KPI,Visual,Indicador,indicator,fontColor,Font color,fill,,1,Tiene,"Valor destacado: fuente, unidades y decimales"
+kpi,KPI,Visual,Indicador,indicator,fontFamily,Font family,string,,1,Tiene,"Valor destacado: fuente, unidades y decimales"
+kpi,KPI,Visual,Indicador,indicator,fontSize,Text size,fontSize,,1,Tiene,"Valor destacado: fuente, unidades y decimales"
+kpi,KPI,Visual,Indicador,indicator,horizontalAlignment,Horizontal alignment,alignment,,1,Tiene,"Valor destacado: fuente, unidades y decimales"
+kpi,KPI,Visual,Indicador,indicator,iconSize,Icon size,fontSize,,1,Tiene,Icono accesible de estado
+kpi,KPI,Visual,Indicador,indicator,indicatorDisplayUnits,Display units,labelDisplayUnits,"Select the units (millions, billions, etc.)",1,Tiene,"Valor destacado: fuente, unidades y decimales"
+kpi,KPI,Visual,Indicador,indicator,indicatorPrecision,Value decimal places,integer,Select the number of decimal places to display for the values,1,Tiene,"Valor destacado: fuente, unidades y decimales"
+kpi,KPI,Visual,Indicador,indicator,italic,Italic,boolean,,1,Tiene,"Valor destacado: fuente, unidades y decimales"
+kpi,KPI,Visual,Indicador,indicator,showIcon,Show icon,boolean,,1,Tiene,Icono accesible de estado
+kpi,KPI,Visual,Indicador,indicator,underline,Underline,boolean,,1,Tiene,"Valor destacado: fuente, unidades y decimales"
+kpi,KPI,Visual,Indicador,indicator,verticalAlignment,Vertical alignment,verticalAlignment,,1,Tiene,Alineación vertical del contenido
+kpi,KPI,Visual,Objetivo,goals,bold,Bold,boolean,,1,Tiene,Objetivo fijo o métrica: texto y distancia con fuente propia
+kpi,KPI,Visual,Objetivo,goals,direction,Distance direction,"enum: Increasing is positive, Decreasing is positive",,1,Parcial,Dirección favorable compartida con estado; distancia con signo aritmético
+kpi,KPI,Visual,Objetivo,goals,distanceFontColor,Font color,fill,,1,Tiene,Objetivo fijo o métrica: texto y distancia con fuente propia
+kpi,KPI,Visual,Objetivo,goals,distanceFontFamily,Font family,string,,1,Tiene,Objetivo fijo o métrica: texto y distancia con fuente propia
+kpi,KPI,Visual,Objetivo,goals,distanceLabel,Label,"enum: Value, Percent, Both",,1,Parcial,Valor absoluto o porcentaje; sin mostrar ambos a la vez
+kpi,KPI,Visual,Objetivo,goals,fontSize,Text size,fontSize,,1,Tiene,Objetivo fijo o métrica: texto y distancia con fuente propia
+kpi,KPI,Visual,Objetivo,goals,goalFontColor,Font color,fill,,1,Tiene,Objetivo fijo o métrica: texto y distancia con fuente propia
+kpi,KPI,Visual,Objetivo,goals,goalFontFamily,Font family,string,,1,Tiene,Objetivo fijo o métrica: texto y distancia con fuente propia
+kpi,KPI,Visual,Objetivo,goals,goalText,Label,string,,1,Tiene,Objetivo fijo o métrica: texto y distancia con fuente propia
+kpi,KPI,Visual,Objetivo,goals,italic,Italic,boolean,,1,Tiene,Objetivo fijo o métrica: texto y distancia con fuente propia
+kpi,KPI,Visual,Objetivo,goals,labelPrecision,Value decimal places,integer,Select the number of decimal places to display for the values,1,Parcial,Fuente de la fila completa; unidades y decimales compartidos con indicador
+kpi,KPI,Visual,Objetivo,goals,showDistance,Distance,boolean,,1,Tiene,Objetivo fijo o métrica: texto y distancia con fuente propia
+kpi,KPI,Visual,Objetivo,goals,showGoal,Goal,boolean,,1,Tiene,Objetivo fijo o métrica: texto y distancia con fuente propia
+kpi,KPI,Visual,Objetivo,goals,titleBold,Bold,boolean,,1,Parcial,Fuente de la fila completa; unidades y decimales compartidos con indicador
+kpi,KPI,Visual,Objetivo,goals,titleFontSize,Text size,fontSize,,1,Parcial,Fuente de la fila completa; unidades y decimales compartidos con indicador
+kpi,KPI,Visual,Objetivo,goals,titleItalic,Italic,boolean,,1,Parcial,Fuente de la fila completa; unidades y decimales compartidos con indicador
+kpi,KPI,Visual,Objetivo,goals,titleUnderline,Underline,boolean,,1,Parcial,Fuente de la fila completa; unidades y decimales compartidos con indicador
+kpi,KPI,Visual,Objetivo,goals,underline,Underline,boolean,,1,Tiene,Objetivo fijo o métrica: texto y distancia con fuente propia
 kpi,KPI,Visual,Tendencia,trendline,show,Show,boolean,,1,Tiene,Línea de tendencia (show_trend_line)
-kpi,KPI,Visual,Tendencia,trendline,transparency,Transparency,number,,1,Falta,
+kpi,KPI,Visual,Tendencia,trendline,transparency,Transparency,number,,1,Tiene,Transparencia de tendencia
 kpi,KPI,General,Borde,border,color,Color,fill,,1,Tiene,Formato > Borde
 kpi,KPI,General,Borde,border,radius,Radius,number,,1,Tiene,Formato > Borde
 kpi,KPI,General,Borde,border,show,Show,boolean,,1,Tiene,Formato > Borde
@@ -11501,84 +11501,84 @@ kpi,KPI,General,actionButtonSection,actionButtonSection,textTransparency,Transpa
 kpi,KPI,General,actionButtonSection,actionButtonSection,textVerticalAlignment,Vertical alignment,"enum: Top, Middle, Bottom",,3,Tiene,General > Botón de acción
 kpi,KPI,General,actionButtonSection,actionButtonSection,underline,Underline,boolean,,3,Tiene,General > Botón de acción
 kpi,KPI,General,stylePreset,stylePreset,name,Style,string,,3,Excluido,"Estado interno, no es una opción de formato"
-tableEx,Tabla,Visual,Columna específica,columnFormatting,alignment,Alignment,"enum: Auto, Left, Center, Right",,1,Parcial,"Por columna, revisar cobertura (column_config)"
-tableEx,Tabla,Visual,Columna específica,columnFormatting,backColor,Background color,fill,Background color of the cells,1,Parcial,"Por columna, revisar cobertura (column_config)"
-tableEx,Tabla,Visual,Columna específica,columnFormatting,dataBars,Data bars,dataBars,Format cells with bars based on their values.,1,Parcial,Barras en todas las columnas (show_cell_bars)
-tableEx,Tabla,Visual,Columna específica,columnFormatting,fontColor,Font color,fill,Font color of the cells,1,Parcial,"Por columna, revisar cobertura (column_config)"
-tableEx,Tabla,Visual,Columna específica,columnFormatting,labelDisplayUnits,Display units,displayUnitsWithoutAuto,"Select the units (millions, billions, etc.)",1,Parcial,"Por columna, revisar cobertura (column_config)"
-tableEx,Tabla,Visual,Columna específica,columnFormatting,labelPrecision,Value decimal places,integer,Select the number of decimal places to display for the values,1,Parcial,"Por columna, revisar cobertura (column_config)"
-tableEx,Tabla,Visual,Columna específica,columnFormatting,styleHeader,Apply to header,boolean,,1,Parcial,"Por columna, revisar cobertura (column_config)"
-tableEx,Tabla,Visual,Columna específica,columnFormatting,styleTotal,Apply to total,boolean,,1,Parcial,"Por columna, revisar cobertura (column_config)"
-tableEx,Tabla,Visual,Columna específica,columnFormatting,styleValues,Apply to values,boolean,,1,Parcial,"Por columna, revisar cobertura (column_config)"
-tableEx,Tabla,Visual,Cuadrícula,grid,gridHorizontal,Horizontal grid,boolean,Show/Hide the horizontal gridlines,1,Falta,
-tableEx,Tabla,Visual,Cuadrícula,grid,gridHorizontalColor,Horizontal grid color,fill,Color for the horizontal gridlines,1,Parcial,Un color para toda la rejilla (table_grid_color)
-tableEx,Tabla,Visual,Cuadrícula,grid,gridHorizontalWeight,Horizontal grid thickness,number,Thickness of the horizontal gridlines in pixels,1,Falta,
-tableEx,Tabla,Visual,Cuadrícula,grid,gridVertical,Vertical grid,boolean,Show/Hide the vertical gridlines,1,Falta,
-tableEx,Tabla,Visual,Cuadrícula,grid,gridVerticalColor,Vertical grid color,fill,Color for the vertical gridlines,1,Parcial,Un color para toda la rejilla (table_grid_color)
-tableEx,Tabla,Visual,Cuadrícula,grid,gridVerticalWeight,Vertical grid thickness,number,Thickness of the vertical gridlines in pixels,1,Falta,
-tableEx,Tabla,Visual,Cuadrícula,grid,imageHeight,Height,number,The height of images in pixels,1,Falta,
-tableEx,Tabla,Visual,Cuadrícula,grid,imageWidth,Width,number,The width of images in pixels,1,Falta,
-tableEx,Tabla,Visual,Cuadrícula,grid,outlineColor,Outline color,fill,Color of the outline,1,Parcial,Un color para toda la rejilla (table_grid_color)
-tableEx,Tabla,Visual,Cuadrícula,grid,outlineStyle,Outline,integer,,1,Falta,
-tableEx,Tabla,Visual,Cuadrícula,grid,outlineWeight,Outline weight,number,Thickness of the outline in pixels,1,Falta,
-tableEx,Tabla,Visual,Cuadrícula,grid,rowPadding,Row padding,number,Padding in pixels applied to top and bottom of every row,1,Falta,
-tableEx,Tabla,Visual,Cuadrícula,grid,textSize,Text size,number,,1,Falta,
-tableEx,Tabla,Visual,Encabezados de columna,columnHeaders,alignment,Alignment,"enum: Auto, Left, Center, Right",,1,Falta,
-tableEx,Tabla,Visual,Encabezados de columna,columnHeaders,autoSizeColumnWidth,Auto-size column width,boolean,,1,Falta,
-tableEx,Tabla,Visual,Encabezados de columna,columnHeaders,backColor,Background color,fill,Background color of the cells,1,Tiene,Fondo de cabecera (table_header_background)
-tableEx,Tabla,Visual,Encabezados de columna,columnHeaders,bold,Bold,boolean,,1,Tiene,Fuente de cabecera (table_header_font)
-tableEx,Tabla,Visual,Encabezados de columna,columnHeaders,columnAdjustment,Auto-size behavior,"enum: Fit to content, Grow to fit, Fixed width",,1,Falta,
-tableEx,Tabla,Visual,Encabezados de columna,columnHeaders,customColumnWidth,Custom widths,boolean,Customize individual column widths. Turning off clears all custom widths.,1,Falta,
-tableEx,Tabla,Visual,Encabezados de columna,columnHeaders,defaultColumnWidth,Default width,number,,1,Falta,
-tableEx,Tabla,Visual,Encabezados de columna,columnHeaders,fontColor,Font color,fill,Font color of the cells,1,Tiene,Fuente de cabecera (table_header_font)
-tableEx,Tabla,Visual,Encabezados de columna,columnHeaders,fontFamily,Font family,string,,1,Tiene,Fuente de cabecera (table_header_font)
-tableEx,Tabla,Visual,Encabezados de columna,columnHeaders,fontSize,Text size,fontSize,,1,Tiene,Fuente de cabecera (table_header_font)
-tableEx,Tabla,Visual,Encabezados de columna,columnHeaders,italic,Italic,boolean,,1,Tiene,Fuente de cabecera (table_header_font)
-tableEx,Tabla,Visual,Encabezados de columna,columnHeaders,outlineColor,Outline color,fill,Color of the outline,1,Falta,
-tableEx,Tabla,Visual,Encabezados de columna,columnHeaders,outlineStyle,Outline,integer,,1,Falta,
-tableEx,Tabla,Visual,Encabezados de columna,columnHeaders,outlineWeight,Outline weight,number,Thickness of the outline in pixels,1,Falta,
-tableEx,Tabla,Visual,Encabezados de columna,columnHeaders,underline,Underline,boolean,,1,Falta,
-tableEx,Tabla,Visual,Encabezados de columna,columnHeaders,wordWrap,Word wrap,boolean,,1,Falta,
-tableEx,Tabla,Visual,Totales,total,backColor,Background color,fill,Background color of the cells,1,Falta,
-tableEx,Tabla,Visual,Totales,total,bold,Bold,boolean,,1,Falta,
-tableEx,Tabla,Visual,Totales,total,fontColor,Font color,fill,Font color of the cells,1,Falta,
-tableEx,Tabla,Visual,Totales,total,fontFamily,Font family,string,,1,Falta,
-tableEx,Tabla,Visual,Totales,total,fontSize,Text size,fontSize,,1,Falta,
-tableEx,Tabla,Visual,Totales,total,italic,Italic,boolean,,1,Falta,
-tableEx,Tabla,Visual,Totales,total,label,Total label,string,,1,Falta,
-tableEx,Tabla,Visual,Totales,total,outlineColor,Outline color,fill,Color of the outline,1,Falta,
-tableEx,Tabla,Visual,Totales,total,outlineStyle,Outline,integer,,1,Falta,
-tableEx,Tabla,Visual,Totales,total,outlineWeight,Outline weight,number,Thickness of the outline in pixels,1,Falta,
+tableEx,Tabla,Visual,Columna específica,columnFormatting,alignment,Alignment,"enum: Auto, Left, Center, Right",,1,Tiene,Formato por columna; colores condicionales prevalecen
+tableEx,Tabla,Visual,Columna específica,columnFormatting,backColor,Background color,fill,Background color of the cells,1,Tiene,Formato por columna; colores condicionales prevalecen
+tableEx,Tabla,Visual,Columna específica,columnFormatting,dataBars,Data bars,dataBars,Format cells with bars based on their values.,1,Tiene,Formato por columna; colores condicionales prevalecen
+tableEx,Tabla,Visual,Columna específica,columnFormatting,fontColor,Font color,fill,Font color of the cells,1,Tiene,Formato por columna; colores condicionales prevalecen
+tableEx,Tabla,Visual,Columna específica,columnFormatting,labelDisplayUnits,Display units,displayUnitsWithoutAuto,"Select the units (millions, billions, etc.)",1,Tiene,Formato por columna; colores condicionales prevalecen
+tableEx,Tabla,Visual,Columna específica,columnFormatting,labelPrecision,Value decimal places,integer,Select the number of decimal places to display for the values,1,Tiene,Formato por columna; colores condicionales prevalecen
+tableEx,Tabla,Visual,Columna específica,columnFormatting,styleHeader,Apply to header,boolean,,1,Tiene,Formato por columna; colores condicionales prevalecen
+tableEx,Tabla,Visual,Columna específica,columnFormatting,styleTotal,Apply to total,boolean,,1,Tiene,Formato por columna; colores condicionales prevalecen
+tableEx,Tabla,Visual,Columna específica,columnFormatting,styleValues,Apply to values,boolean,,1,Tiene,Formato por columna; colores condicionales prevalecen
+tableEx,Tabla,Visual,Cuadrícula,grid,gridHorizontal,Horizontal grid,boolean,Show/Hide the horizontal gridlines,1,Tiene,"Cuadrícula por dirección, contorno, relleno y tamaño explícitos"
+tableEx,Tabla,Visual,Cuadrícula,grid,gridHorizontalColor,Horizontal grid color,fill,Color for the horizontal gridlines,1,Tiene,"Cuadrícula por dirección, contorno, relleno y tamaño explícitos"
+tableEx,Tabla,Visual,Cuadrícula,grid,gridHorizontalWeight,Horizontal grid thickness,number,Thickness of the horizontal gridlines in pixels,1,Tiene,"Cuadrícula por dirección, contorno, relleno y tamaño explícitos"
+tableEx,Tabla,Visual,Cuadrícula,grid,gridVertical,Vertical grid,boolean,Show/Hide the vertical gridlines,1,Tiene,"Cuadrícula por dirección, contorno, relleno y tamaño explícitos"
+tableEx,Tabla,Visual,Cuadrícula,grid,gridVerticalColor,Vertical grid color,fill,Color for the vertical gridlines,1,Tiene,"Cuadrícula por dirección, contorno, relleno y tamaño explícitos"
+tableEx,Tabla,Visual,Cuadrícula,grid,gridVerticalWeight,Vertical grid thickness,number,Thickness of the vertical gridlines in pixels,1,Tiene,"Cuadrícula por dirección, contorno, relleno y tamaño explícitos"
+tableEx,Tabla,Visual,Cuadrícula,grid,imageHeight,Height,number,The height of images in pixels,1,Tiene,"Cuadrícula por dirección, contorno, relleno y tamaño explícitos"
+tableEx,Tabla,Visual,Cuadrícula,grid,imageWidth,Width,number,The width of images in pixels,1,Tiene,"Cuadrícula por dirección, contorno, relleno y tamaño explícitos"
+tableEx,Tabla,Visual,Cuadrícula,grid,outlineColor,Outline color,fill,Color of the outline,1,Tiene,"Cuadrícula por dirección, contorno, relleno y tamaño explícitos"
+tableEx,Tabla,Visual,Cuadrícula,grid,outlineStyle,Outline,integer,,1,Tiene,"Cuadrícula por dirección, contorno, relleno y tamaño explícitos"
+tableEx,Tabla,Visual,Cuadrícula,grid,outlineWeight,Outline weight,number,Thickness of the outline in pixels,1,Tiene,"Cuadrícula por dirección, contorno, relleno y tamaño explícitos"
+tableEx,Tabla,Visual,Cuadrícula,grid,rowPadding,Row padding,number,Padding in pixels applied to top and bottom of every row,1,Tiene,"Cuadrícula por dirección, contorno, relleno y tamaño explícitos"
+tableEx,Tabla,Visual,Cuadrícula,grid,textSize,Text size,number,,1,Tiene,"Cuadrícula por dirección, contorno, relleno y tamaño explícitos"
+tableEx,Tabla,Visual,Encabezados de columna,columnHeaders,alignment,Alignment,"enum: Auto, Left, Center, Right",,1,Tiene,Estilos de encabezado propios
+tableEx,Tabla,Visual,Encabezados de columna,columnHeaders,autoSizeColumnWidth,Auto-size column width,boolean,,1,Tiene,Ajuste al contenido o ancho fijo; ancho mínimo por columna
+tableEx,Tabla,Visual,Encabezados de columna,columnHeaders,backColor,Background color,fill,Background color of the cells,1,Tiene,Estilos de encabezado propios
+tableEx,Tabla,Visual,Encabezados de columna,columnHeaders,bold,Bold,boolean,,1,Tiene,Estilos de encabezado propios
+tableEx,Tabla,Visual,Encabezados de columna,columnHeaders,columnAdjustment,Auto-size behavior,"enum: Fit to content, Grow to fit, Fixed width",,1,Tiene,Ajuste al contenido o ancho fijo; ancho mínimo por columna
+tableEx,Tabla,Visual,Encabezados de columna,columnHeaders,customColumnWidth,Custom widths,boolean,Customize individual column widths. Turning off clears all custom widths.,1,Tiene,Ajuste al contenido o ancho fijo; ancho mínimo por columna
+tableEx,Tabla,Visual,Encabezados de columna,columnHeaders,defaultColumnWidth,Default width,number,,1,Tiene,Ajuste al contenido o ancho fijo; ancho mínimo por columna
+tableEx,Tabla,Visual,Encabezados de columna,columnHeaders,fontColor,Font color,fill,Font color of the cells,1,Tiene,Estilos de encabezado propios
+tableEx,Tabla,Visual,Encabezados de columna,columnHeaders,fontFamily,Font family,string,,1,Tiene,Estilos de encabezado propios
+tableEx,Tabla,Visual,Encabezados de columna,columnHeaders,fontSize,Text size,fontSize,,1,Tiene,Estilos de encabezado propios
+tableEx,Tabla,Visual,Encabezados de columna,columnHeaders,italic,Italic,boolean,,1,Tiene,Estilos de encabezado propios
+tableEx,Tabla,Visual,Encabezados de columna,columnHeaders,outlineColor,Outline color,fill,Color of the outline,1,Tiene,Estilos de encabezado propios
+tableEx,Tabla,Visual,Encabezados de columna,columnHeaders,outlineStyle,Outline,integer,,1,Tiene,Estilos de encabezado propios
+tableEx,Tabla,Visual,Encabezados de columna,columnHeaders,outlineWeight,Outline weight,number,Thickness of the outline in pixels,1,Tiene,Estilos de encabezado propios
+tableEx,Tabla,Visual,Encabezados de columna,columnHeaders,underline,Underline,boolean,,1,Tiene,Estilos de encabezado propios
+tableEx,Tabla,Visual,Encabezados de columna,columnHeaders,wordWrap,Word wrap,boolean,,1,Tiene,Estilos de encabezado propios
+tableEx,Tabla,Visual,Totales,total,backColor,Background color,fill,Background color of the cells,1,Tiene,"Estilo propio para total, subtotal y totales generales por dirección"
+tableEx,Tabla,Visual,Totales,total,bold,Bold,boolean,,1,Tiene,"Estilo propio para total, subtotal y totales generales por dirección"
+tableEx,Tabla,Visual,Totales,total,fontColor,Font color,fill,Font color of the cells,1,Tiene,"Estilo propio para total, subtotal y totales generales por dirección"
+tableEx,Tabla,Visual,Totales,total,fontFamily,Font family,string,,1,Tiene,"Estilo propio para total, subtotal y totales generales por dirección"
+tableEx,Tabla,Visual,Totales,total,fontSize,Text size,fontSize,,1,Tiene,"Estilo propio para total, subtotal y totales generales por dirección"
+tableEx,Tabla,Visual,Totales,total,italic,Italic,boolean,,1,Tiene,"Estilo propio para total, subtotal y totales generales por dirección"
+tableEx,Tabla,Visual,Totales,total,label,Total label,string,,1,Tiene,Etiqueta del resumen de la tabla
+tableEx,Tabla,Visual,Totales,total,outlineColor,Outline color,fill,Color of the outline,1,Tiene,"Estilo propio para total, subtotal y totales generales por dirección"
+tableEx,Tabla,Visual,Totales,total,outlineStyle,Outline,integer,,1,Tiene,"Estilo propio para total, subtotal y totales generales por dirección"
+tableEx,Tabla,Visual,Totales,total,outlineWeight,Outline weight,number,Thickness of the outline in pixels,1,Tiene,"Estilo propio para total, subtotal y totales generales por dirección"
 tableEx,Tabla,Visual,Totales,total,totals,Totals,boolean,,1,Tiene,Totales (show_totals)
-tableEx,Tabla,Visual,Totales,total,underline,Underline,boolean,,1,Falta,
-tableEx,Tabla,Visual,Valores,values,backColor,Background color,fill,Format cells with color based on a value.,1,Falta,
-tableEx,Tabla,Visual,Valores,values,backColorPrimary,Background color,fill,Background color of the odd rows,1,Falta,
-tableEx,Tabla,Visual,Valores,values,backColorSecondary,Alternate background color,fill,Background color of the even rows,1,Tiene,Filas alternas (table_stripe_color)
-tableEx,Tabla,Visual,Valores,values,bold,Bold,boolean,,1,Tiene,Fuente de celdas (table_cell_font)
-tableEx,Tabla,Visual,Valores,values,fontColor,Font color,fill,Format the font color based on a value.,1,Tiene,Fuente de celdas (table_cell_font)
-tableEx,Tabla,Visual,Valores,values,fontColorPrimary,Font color,fill,Font color of the odd rows,1,Falta,
-tableEx,Tabla,Visual,Valores,values,fontColorSecondary,Alternate font color,fill,Font color of the even rows,1,Falta,
-tableEx,Tabla,Visual,Valores,values,fontFamily,Font family,string,,1,Tiene,Fuente de celdas (table_cell_font)
-tableEx,Tabla,Visual,Valores,values,fontSize,Text size,fontSize,,1,Tiene,Fuente de celdas (table_cell_font)
-tableEx,Tabla,Visual,Valores,values,icon,Icons,icon,Icon of the cells,1,Falta,
-tableEx,Tabla,Visual,Valores,values,italic,Italic,boolean,,1,Tiene,Fuente de celdas (table_cell_font)
-tableEx,Tabla,Visual,Valores,values,outlineColor,Outline color,fill,Color of the outline,1,Falta,
-tableEx,Tabla,Visual,Valores,values,outlineStyle,Outline,integer,,1,Falta,
-tableEx,Tabla,Visual,Valores,values,outlineWeight,Outline weight,number,Thickness of the outline in pixels,1,Falta,
-tableEx,Tabla,Visual,Valores,values,underline,Underline,boolean,,1,Falta,
-tableEx,Tabla,Visual,Valores,values,urlIcon,URL icon,boolean,Show an icon instead of the full URL,1,Falta,
-tableEx,Tabla,Visual,Valores,values,webURL,Web URL,string,,1,Falta,
-tableEx,Tabla,Visual,Valores,values,wordWrap,Word wrap,boolean,,1,Falta,
-tableEx,Tabla,Visual,Minigráficos,sparklines,chartType,Chart type,"enum: Line, Column",,2,Falta,
-tableEx,Tabla,Visual,Minigráficos,sparklines,dataColor,Data color,fill,,2,Falta,
-tableEx,Tabla,Visual,Minigráficos,sparklines,markerColor,Color,fill,,2,Falta,
-tableEx,Tabla,Visual,Minigráficos,sparklines,markerShape,Type,"enum: ●, ■, ◆, ▲, ☓, -, —, +",,2,Falta,
-tableEx,Tabla,Visual,Minigráficos,sparklines,markerSize,Size,number,,2,Falta,
-tableEx,Tabla,Visual,Minigráficos,sparklines,markers,Show these markers,integer,,2,Falta,
-tableEx,Tabla,Visual,Minigráficos,sparklines,strokeWidth,Width,number,,2,Falta,
-tableEx,Tabla,Visual,columnWidth,columnWidth,value,value,number,,2,Falta,
-tableEx,Tabla,Visual,accessibility,accessibility,altTextColumns,Column with alt text,string,,3,Falta,
-tableEx,Tabla,Visual,accessibility,accessibility,rowWithReferenceText,Refer to row by,string,,3,Falta,
+tableEx,Tabla,Visual,Totales,total,underline,Underline,boolean,,1,Tiene,"Estilo propio para total, subtotal y totales generales por dirección"
+tableEx,Tabla,Visual,Valores,values,backColor,Background color,fill,Format cells with color based on a value.,1,Tiene,Estilo de valores y filas alternas; formato condicional tiene prioridad
+tableEx,Tabla,Visual,Valores,values,backColorPrimary,Background color,fill,Background color of the odd rows,1,Tiene,Estilo de valores y filas alternas; formato condicional tiene prioridad
+tableEx,Tabla,Visual,Valores,values,backColorSecondary,Alternate background color,fill,Background color of the even rows,1,Tiene,Estilo de valores y filas alternas; formato condicional tiene prioridad
+tableEx,Tabla,Visual,Valores,values,bold,Bold,boolean,,1,Tiene,Estilo de valores y filas alternas; formato condicional tiene prioridad
+tableEx,Tabla,Visual,Valores,values,fontColor,Font color,fill,Format the font color based on a value.,1,Tiene,Estilo de valores y filas alternas; formato condicional tiene prioridad
+tableEx,Tabla,Visual,Valores,values,fontColorPrimary,Font color,fill,Font color of the odd rows,1,Tiene,Estilo de valores y filas alternas; formato condicional tiene prioridad
+tableEx,Tabla,Visual,Valores,values,fontColorSecondary,Alternate font color,fill,Font color of the even rows,1,Tiene,Estilo de valores y filas alternas; formato condicional tiene prioridad
+tableEx,Tabla,Visual,Valores,values,fontFamily,Font family,string,,1,Tiene,Estilo de valores y filas alternas; formato condicional tiene prioridad
+tableEx,Tabla,Visual,Valores,values,fontSize,Text size,fontSize,,1,Tiene,Estilo de valores y filas alternas; formato condicional tiene prioridad
+tableEx,Tabla,Visual,Valores,values,icon,Icons,icon,Icon of the cells,1,Tiene,Reglas de iconos numéricos por métrica en tabla y matriz
+tableEx,Tabla,Visual,Valores,values,italic,Italic,boolean,,1,Tiene,Estilo de valores y filas alternas; formato condicional tiene prioridad
+tableEx,Tabla,Visual,Valores,values,outlineColor,Outline color,fill,Color of the outline,1,Tiene,Estilo de valores y filas alternas; formato condicional tiene prioridad
+tableEx,Tabla,Visual,Valores,values,outlineStyle,Outline,integer,,1,Tiene,Estilo de valores y filas alternas; formato condicional tiene prioridad
+tableEx,Tabla,Visual,Valores,values,outlineWeight,Outline weight,number,Thickness of the outline in pixels,1,Tiene,Estilo de valores y filas alternas; formato condicional tiene prioridad
+tableEx,Tabla,Visual,Valores,values,underline,Underline,boolean,,1,Tiene,Estilo de valores y filas alternas; formato condicional tiene prioridad
+tableEx,Tabla,Visual,Valores,values,urlIcon,URL icon,boolean,Show an icon instead of the full URL,1,Tiene,"Enlace web explícito http/https, con icono y etiqueta accesible"
+tableEx,Tabla,Visual,Valores,values,webURL,Web URL,string,,1,Tiene,"Enlace web explícito http/https, con icono y etiqueta accesible"
+tableEx,Tabla,Visual,Valores,values,wordWrap,Word wrap,boolean,,1,Tiene,Estilo de valores y filas alternas; formato condicional tiene prioridad
+tableEx,Tabla,Visual,Minigráficos,sparklines,chartType,Chart type,"enum: Line, Column",,2,Parcial,"Línea/columnas y marcadores: matriz sobre grupos de columnas visibles; tabla requiere listas numéricas ordenadas, sin nuevo rol temporal ni consulta adicional"
+tableEx,Tabla,Visual,Minigráficos,sparklines,dataColor,Data color,fill,,2,Parcial,"Línea/columnas y marcadores: matriz sobre grupos de columnas visibles; tabla requiere listas numéricas ordenadas, sin nuevo rol temporal ni consulta adicional"
+tableEx,Tabla,Visual,Minigráficos,sparklines,markerColor,Color,fill,,2,Parcial,"Línea/columnas y marcadores: matriz sobre grupos de columnas visibles; tabla requiere listas numéricas ordenadas, sin nuevo rol temporal ni consulta adicional"
+tableEx,Tabla,Visual,Minigráficos,sparklines,markerShape,Type,"enum: ●, ■, ◆, ▲, ☓, -, —, +",,2,Parcial,"Línea/columnas y marcadores: matriz sobre grupos de columnas visibles; tabla requiere listas numéricas ordenadas, sin nuevo rol temporal ni consulta adicional"
+tableEx,Tabla,Visual,Minigráficos,sparklines,markerSize,Size,number,,2,Parcial,"Línea/columnas y marcadores: matriz sobre grupos de columnas visibles; tabla requiere listas numéricas ordenadas, sin nuevo rol temporal ni consulta adicional"
+tableEx,Tabla,Visual,Minigráficos,sparklines,markers,Show these markers,integer,,2,Parcial,"Línea/columnas y marcadores: matriz sobre grupos de columnas visibles; tabla requiere listas numéricas ordenadas, sin nuevo rol temporal ni consulta adicional"
+tableEx,Tabla,Visual,Minigráficos,sparklines,strokeWidth,Width,number,,2,Parcial,"Línea/columnas y marcadores: matriz sobre grupos de columnas visibles; tabla requiere listas numéricas ordenadas, sin nuevo rol temporal ni consulta adicional"
+tableEx,Tabla,Visual,columnWidth,columnWidth,value,value,number,,2,Tiene,Ancho mínimo por columna y ancho predeterminado
+tableEx,Tabla,Visual,accessibility,accessibility,altTextColumns,Column with alt text,string,,3,Falta,"Hay texto alternativo por gráfico, no por columna"
+tableEx,Tabla,Visual,accessibility,accessibility,rowWithReferenceText,Refer to row by,string,,3,Falta,"Hay texto alternativo por gráfico, no por columna"
 tableEx,Tabla,General,Borde,border,color,Color,fill,,1,Tiene,Formato > Borde
 tableEx,Tabla,General,Borde,border,radius,Radius,number,,1,Tiene,Formato > Borde
 tableEx,Tabla,General,Borde,border,show,Show,boolean,,1,Tiene,Formato > Borde
@@ -11780,155 +11780,155 @@ tableEx,Tabla,General,actionButtonSection,actionButtonSection,textTransparency,T
 tableEx,Tabla,General,actionButtonSection,actionButtonSection,textVerticalAlignment,Vertical alignment,"enum: Top, Middle, Bottom",,3,Tiene,General > Botón de acción
 tableEx,Tabla,General,actionButtonSection,actionButtonSection,underline,Underline,boolean,,3,Tiene,General > Botón de acción
 tableEx,Tabla,General,stylePreset,stylePreset,name,Style,string,,3,Excluido,"Estado interno, no es una opción de formato"
-pivotTable,Matriz,Visual,Columna específica,columnFormatting,alignment,Alignment,"enum: Auto, Left, Center, Right",,1,Falta,
-pivotTable,Matriz,Visual,Columna específica,columnFormatting,backColor,Background color,fill,Background color of the cells,1,Falta,
-pivotTable,Matriz,Visual,Columna específica,columnFormatting,dataBars,Data bars,dataBars,Format cells with bars based on their values.,1,Falta,
-pivotTable,Matriz,Visual,Columna específica,columnFormatting,fontColor,Font color,fill,Font color of the cells,1,Falta,
-pivotTable,Matriz,Visual,Columna específica,columnFormatting,labelDisplayUnits,Display units,displayUnitsWithoutAuto,"Select the units (millions, billions, etc.)",1,Falta,
-pivotTable,Matriz,Visual,Columna específica,columnFormatting,labelPrecision,Value decimal places,integer,Select the number of decimal places to display for the values,1,Falta,
-pivotTable,Matriz,Visual,Columna específica,columnFormatting,styleHeader,Apply to header,boolean,,1,Falta,
-pivotTable,Matriz,Visual,Columna específica,columnFormatting,styleSubtotals,Apply to subtotals,boolean,,1,Falta,
-pivotTable,Matriz,Visual,Columna específica,columnFormatting,styleTotal,Apply to total,boolean,,1,Falta,
-pivotTable,Matriz,Visual,Columna específica,columnFormatting,styleValues,Apply to values,boolean,,1,Falta,
-pivotTable,Matriz,Visual,Cuadrícula,grid,gridHorizontal,Horizontal grid,boolean,Show/Hide the horizontal gridlines,1,Falta,
-pivotTable,Matriz,Visual,Cuadrícula,grid,gridHorizontalColor,Horizontal grid color,fill,Color for the horizontal gridlines,1,Falta,
-pivotTable,Matriz,Visual,Cuadrícula,grid,gridHorizontalWeight,Horizontal grid thickness,number,Thickness of the horizontal gridlines in pixels,1,Falta,
-pivotTable,Matriz,Visual,Cuadrícula,grid,gridVertical,Vertical grid,boolean,Show/Hide the vertical gridlines,1,Falta,
-pivotTable,Matriz,Visual,Cuadrícula,grid,gridVerticalColor,Vertical grid color,fill,Color for the vertical gridlines,1,Falta,
-pivotTable,Matriz,Visual,Cuadrícula,grid,gridVerticalWeight,Vertical grid thickness,number,Thickness of the vertical gridlines in pixels,1,Falta,
-pivotTable,Matriz,Visual,Cuadrícula,grid,imageHeight,Height,number,The height of images in pixels,1,Falta,
-pivotTable,Matriz,Visual,Cuadrícula,grid,imageWidth,Width,number,The width of images in pixels,1,Falta,
-pivotTable,Matriz,Visual,Cuadrícula,grid,outlineColor,Outline color,fill,Color of the outline,1,Falta,
-pivotTable,Matriz,Visual,Cuadrícula,grid,outlineStyle,Outline,integer,,1,Falta,
-pivotTable,Matriz,Visual,Cuadrícula,grid,outlineWeight,Outline weight,number,Thickness of the outline in pixels,1,Falta,
-pivotTable,Matriz,Visual,Cuadrícula,grid,rowPadding,Row padding,number,Padding in pixels applied to top and bottom of every row,1,Falta,
-pivotTable,Matriz,Visual,Cuadrícula,grid,textSize,Text size,number,,1,Falta,
-pivotTable,Matriz,Visual,Encabezados de columna,columnHeaders,alignment,Alignment,"enum: Auto, Left, Center, Right",,1,Falta,
-pivotTable,Matriz,Visual,Encabezados de columna,columnHeaders,autoExpand,Auto expand,boolean,"While editing, automatically expands the matrix to show a new level when you add a field to Columns",1,Falta,
-pivotTable,Matriz,Visual,Encabezados de columna,columnHeaders,autoSizeColumnWidth,Auto-size column width,boolean,,1,Falta,
-pivotTable,Matriz,Visual,Encabezados de columna,columnHeaders,backColor,Background color,fill,Background color of the cells,1,Falta,
-pivotTable,Matriz,Visual,Encabezados de columna,columnHeaders,bold,Bold,boolean,,1,Falta,
-pivotTable,Matriz,Visual,Encabezados de columna,columnHeaders,columnAdjustment,Auto-size behavior,"enum: Fit to content, Grow to fit, Fixed width",,1,Falta,
-pivotTable,Matriz,Visual,Encabezados de columna,columnHeaders,customColumnWidth,Custom widths,boolean,Customize individual column widths. Turning off clears all custom widths.,1,Falta,
-pivotTable,Matriz,Visual,Encabezados de columna,columnHeaders,customColumnWidthGranularView,More granular,boolean,,1,Falta,
-pivotTable,Matriz,Visual,Encabezados de columna,columnHeaders,defaultColumnWidth,Default width,number,,1,Falta,
-pivotTable,Matriz,Visual,Encabezados de columna,columnHeaders,expandCollapseButtonsColor,Icon color,fill,,1,Falta,
-pivotTable,Matriz,Visual,Encabezados de columna,columnHeaders,expandCollapseButtonsSize,Icon size,fontSize,,1,Falta,
-pivotTable,Matriz,Visual,Encabezados de columna,columnHeaders,fontColor,Font color,fill,Font color of the cells,1,Falta,
-pivotTable,Matriz,Visual,Encabezados de columna,columnHeaders,fontFamily,Font family,string,,1,Falta,
-pivotTable,Matriz,Visual,Encabezados de columna,columnHeaders,fontSize,Text size,fontSize,,1,Falta,
-pivotTable,Matriz,Visual,Encabezados de columna,columnHeaders,italic,Italic,boolean,,1,Falta,
-pivotTable,Matriz,Visual,Encabezados de columna,columnHeaders,outlineColor,Outline color,fill,Color of the outline,1,Falta,
-pivotTable,Matriz,Visual,Encabezados de columna,columnHeaders,outlineStyle,Outline,integer,,1,Falta,
-pivotTable,Matriz,Visual,Encabezados de columna,columnHeaders,outlineWeight,Outline weight,number,Thickness of the outline in pixels,1,Falta,
-pivotTable,Matriz,Visual,Encabezados de columna,columnHeaders,showExpandCollapseButtons,+/- icons,boolean,,1,Falta,
-pivotTable,Matriz,Visual,Encabezados de columna,columnHeaders,titleAlignment,Title alignment,"enum: Auto, Left, Center, Right",,1,Falta,
-pivotTable,Matriz,Visual,Encabezados de columna,columnHeaders,underline,Underline,boolean,,1,Falta,
-pivotTable,Matriz,Visual,Encabezados de columna,columnHeaders,urlIcon,URL icon,boolean,Show an icon instead of the full URL,1,Falta,
-pivotTable,Matriz,Visual,Encabezados de columna,columnHeaders,wordWrap,Word wrap,boolean,,1,Falta,
-pivotTable,Matriz,Visual,Encabezados de fila,rowHeaders,alignment,Alignment,"enum: Auto, Left, Center, Right",,1,Falta,
-pivotTable,Matriz,Visual,Encabezados de fila,rowHeaders,autoExpand,Auto expand,boolean,"While editing, automatically expands the matrix to show a new level when you add a field to Rows",1,Falta,
-pivotTable,Matriz,Visual,Encabezados de fila,rowHeaders,backColor,Background color,fill,Background color of the cells,1,Falta,
-pivotTable,Matriz,Visual,Encabezados de fila,rowHeaders,bold,Bold,boolean,,1,Falta,
-pivotTable,Matriz,Visual,Encabezados de fila,rowHeaders,expandCollapseButtonsColor,Icon color,fill,,1,Falta,
-pivotTable,Matriz,Visual,Encabezados de fila,rowHeaders,expandCollapseButtonsSize,Icon size,fontSize,,1,Falta,
-pivotTable,Matriz,Visual,Encabezados de fila,rowHeaders,expandCompositeHierarchy,expandCompositeHierarchy,boolean,,1,Falta,
-pivotTable,Matriz,Visual,Encabezados de fila,rowHeaders,fontColor,Font color,fill,Font color of the cells,1,Falta,
-pivotTable,Matriz,Visual,Encabezados de fila,rowHeaders,fontFamily,Font family,string,,1,Falta,
-pivotTable,Matriz,Visual,Encabezados de fila,rowHeaders,fontSize,Text size,fontSize,,1,Falta,
-pivotTable,Matriz,Visual,Encabezados de fila,rowHeaders,italic,Italic,boolean,,1,Falta,
-pivotTable,Matriz,Visual,Encabezados de fila,rowHeaders,legacyStyleDisabled,legacyStyleDisabled,boolean,,1,Falta,
-pivotTable,Matriz,Visual,Encabezados de fila,rowHeaders,outlineColor,Outline color,fill,Color of the outline,1,Falta,
-pivotTable,Matriz,Visual,Encabezados de fila,rowHeaders,outlineStyle,Outline,integer,,1,Falta,
-pivotTable,Matriz,Visual,Encabezados de fila,rowHeaders,outlineWeight,Outline weight,number,Thickness of the outline in pixels,1,Falta,
-pivotTable,Matriz,Visual,Encabezados de fila,rowHeaders,repeatRowHeaders,Repeat row headers,boolean,,1,Falta,
-pivotTable,Matriz,Visual,Encabezados de fila,rowHeaders,showExpandCollapseButtons,+/- icons,boolean,,1,Falta,
-pivotTable,Matriz,Visual,Encabezados de fila,rowHeaders,stepped,Stepped layout,boolean,Render row headers with stepped layout,1,Falta,
-pivotTable,Matriz,Visual,Encabezados de fila,rowHeaders,steppedLayoutIndentation,Indentation,number,"Set the indentation, in pixels, applied to row headers",1,Falta,
-pivotTable,Matriz,Visual,Encabezados de fila,rowHeaders,underline,Underline,boolean,,1,Falta,
-pivotTable,Matriz,Visual,Encabezados de fila,rowHeaders,unfrozen,unfrozen,boolean,,1,Falta,
-pivotTable,Matriz,Visual,Encabezados de fila,rowHeaders,urlIcon,URL icon,boolean,Show an icon instead of the full URL,1,Falta,
-pivotTable,Matriz,Visual,Encabezados de fila,rowHeaders,wordWrap,Word wrap,boolean,,1,Falta,
+pivotTable,Matriz,Visual,Columna específica,columnFormatting,alignment,Alignment,"enum: Auto, Left, Center, Right",,1,Tiene,Formato por columna; colores condicionales prevalecen
+pivotTable,Matriz,Visual,Columna específica,columnFormatting,backColor,Background color,fill,Background color of the cells,1,Tiene,Formato por columna; colores condicionales prevalecen
+pivotTable,Matriz,Visual,Columna específica,columnFormatting,dataBars,Data bars,dataBars,Format cells with bars based on their values.,1,Tiene,Formato por columna; colores condicionales prevalecen
+pivotTable,Matriz,Visual,Columna específica,columnFormatting,fontColor,Font color,fill,Font color of the cells,1,Tiene,Formato por columna; colores condicionales prevalecen
+pivotTable,Matriz,Visual,Columna específica,columnFormatting,labelDisplayUnits,Display units,displayUnitsWithoutAuto,"Select the units (millions, billions, etc.)",1,Tiene,Formato por columna; colores condicionales prevalecen
+pivotTable,Matriz,Visual,Columna específica,columnFormatting,labelPrecision,Value decimal places,integer,Select the number of decimal places to display for the values,1,Tiene,Formato por columna; colores condicionales prevalecen
+pivotTable,Matriz,Visual,Columna específica,columnFormatting,styleHeader,Apply to header,boolean,,1,Tiene,Formato por columna; colores condicionales prevalecen
+pivotTable,Matriz,Visual,Columna específica,columnFormatting,styleSubtotals,Apply to subtotals,boolean,,1,Tiene,Formato por columna; colores condicionales prevalecen
+pivotTable,Matriz,Visual,Columna específica,columnFormatting,styleTotal,Apply to total,boolean,,1,Tiene,Formato por columna; colores condicionales prevalecen
+pivotTable,Matriz,Visual,Columna específica,columnFormatting,styleValues,Apply to values,boolean,,1,Tiene,Formato por columna; colores condicionales prevalecen
+pivotTable,Matriz,Visual,Cuadrícula,grid,gridHorizontal,Horizontal grid,boolean,Show/Hide the horizontal gridlines,1,Tiene,"Cuadrícula por dirección, contorno, relleno y tamaño explícitos"
+pivotTable,Matriz,Visual,Cuadrícula,grid,gridHorizontalColor,Horizontal grid color,fill,Color for the horizontal gridlines,1,Tiene,"Cuadrícula por dirección, contorno, relleno y tamaño explícitos"
+pivotTable,Matriz,Visual,Cuadrícula,grid,gridHorizontalWeight,Horizontal grid thickness,number,Thickness of the horizontal gridlines in pixels,1,Tiene,"Cuadrícula por dirección, contorno, relleno y tamaño explícitos"
+pivotTable,Matriz,Visual,Cuadrícula,grid,gridVertical,Vertical grid,boolean,Show/Hide the vertical gridlines,1,Tiene,"Cuadrícula por dirección, contorno, relleno y tamaño explícitos"
+pivotTable,Matriz,Visual,Cuadrícula,grid,gridVerticalColor,Vertical grid color,fill,Color for the vertical gridlines,1,Tiene,"Cuadrícula por dirección, contorno, relleno y tamaño explícitos"
+pivotTable,Matriz,Visual,Cuadrícula,grid,gridVerticalWeight,Vertical grid thickness,number,Thickness of the vertical gridlines in pixels,1,Tiene,"Cuadrícula por dirección, contorno, relleno y tamaño explícitos"
+pivotTable,Matriz,Visual,Cuadrícula,grid,imageHeight,Height,number,The height of images in pixels,1,Tiene,"Cuadrícula por dirección, contorno, relleno y tamaño explícitos"
+pivotTable,Matriz,Visual,Cuadrícula,grid,imageWidth,Width,number,The width of images in pixels,1,Tiene,"Cuadrícula por dirección, contorno, relleno y tamaño explícitos"
+pivotTable,Matriz,Visual,Cuadrícula,grid,outlineColor,Outline color,fill,Color of the outline,1,Tiene,"Cuadrícula por dirección, contorno, relleno y tamaño explícitos"
+pivotTable,Matriz,Visual,Cuadrícula,grid,outlineStyle,Outline,integer,,1,Tiene,"Cuadrícula por dirección, contorno, relleno y tamaño explícitos"
+pivotTable,Matriz,Visual,Cuadrícula,grid,outlineWeight,Outline weight,number,Thickness of the outline in pixels,1,Tiene,"Cuadrícula por dirección, contorno, relleno y tamaño explícitos"
+pivotTable,Matriz,Visual,Cuadrícula,grid,rowPadding,Row padding,number,Padding in pixels applied to top and bottom of every row,1,Tiene,"Cuadrícula por dirección, contorno, relleno y tamaño explícitos"
+pivotTable,Matriz,Visual,Cuadrícula,grid,textSize,Text size,number,,1,Tiene,"Cuadrícula por dirección, contorno, relleno y tamaño explícitos"
+pivotTable,Matriz,Visual,Encabezados de columna,columnHeaders,alignment,Alignment,"enum: Auto, Left, Center, Right",,1,Tiene,Estilos de encabezado propios
+pivotTable,Matriz,Visual,Encabezados de columna,columnHeaders,autoExpand,Auto expand,boolean,"While editing, automatically expands the matrix to show a new level when you add a field to Columns",1,Tiene,Profundidad inicial independiente para filas y columnas
+pivotTable,Matriz,Visual,Encabezados de columna,columnHeaders,autoSizeColumnWidth,Auto-size column width,boolean,,1,Tiene,Ajuste al contenido o ancho fijo; ancho mínimo por columna
+pivotTable,Matriz,Visual,Encabezados de columna,columnHeaders,backColor,Background color,fill,Background color of the cells,1,Tiene,Estilos de encabezado propios
+pivotTable,Matriz,Visual,Encabezados de columna,columnHeaders,bold,Bold,boolean,,1,Tiene,Estilos de encabezado propios
+pivotTable,Matriz,Visual,Encabezados de columna,columnHeaders,columnAdjustment,Auto-size behavior,"enum: Fit to content, Grow to fit, Fixed width",,1,Tiene,Ajuste al contenido o ancho fijo; ancho mínimo por columna
+pivotTable,Matriz,Visual,Encabezados de columna,columnHeaders,customColumnWidth,Custom widths,boolean,Customize individual column widths. Turning off clears all custom widths.,1,Tiene,Ajuste al contenido o ancho fijo; ancho mínimo por columna
+pivotTable,Matriz,Visual,Encabezados de columna,columnHeaders,customColumnWidthGranularView,More granular,boolean,,1,Falta,"El ancho se configura por campo o métrica, no por cada valor de una jerarquía"
+pivotTable,Matriz,Visual,Encabezados de columna,columnHeaders,defaultColumnWidth,Default width,number,,1,Tiene,Ajuste al contenido o ancho fijo; ancho mínimo por columna
+pivotTable,Matriz,Visual,Encabezados de columna,columnHeaders,expandCollapseButtonsColor,Icon color,fill,,1,Tiene,"Iconos de expansión con color, tamaño y visibilidad comunes"
+pivotTable,Matriz,Visual,Encabezados de columna,columnHeaders,expandCollapseButtonsSize,Icon size,fontSize,,1,Tiene,"Iconos de expansión con color, tamaño y visibilidad comunes"
+pivotTable,Matriz,Visual,Encabezados de columna,columnHeaders,fontColor,Font color,fill,Font color of the cells,1,Tiene,Estilos de encabezado propios
+pivotTable,Matriz,Visual,Encabezados de columna,columnHeaders,fontFamily,Font family,string,,1,Tiene,Estilos de encabezado propios
+pivotTable,Matriz,Visual,Encabezados de columna,columnHeaders,fontSize,Text size,fontSize,,1,Tiene,Estilos de encabezado propios
+pivotTable,Matriz,Visual,Encabezados de columna,columnHeaders,italic,Italic,boolean,,1,Tiene,Estilos de encabezado propios
+pivotTable,Matriz,Visual,Encabezados de columna,columnHeaders,outlineColor,Outline color,fill,Color of the outline,1,Tiene,Estilos de encabezado propios
+pivotTable,Matriz,Visual,Encabezados de columna,columnHeaders,outlineStyle,Outline,integer,,1,Tiene,Estilos de encabezado propios
+pivotTable,Matriz,Visual,Encabezados de columna,columnHeaders,outlineWeight,Outline weight,number,Thickness of the outline in pixels,1,Tiene,Estilos de encabezado propios
+pivotTable,Matriz,Visual,Encabezados de columna,columnHeaders,showExpandCollapseButtons,+/- icons,boolean,,1,Tiene,"Iconos de expansión con color, tamaño y visibilidad comunes"
+pivotTable,Matriz,Visual,Encabezados de columna,columnHeaders,titleAlignment,Title alignment,"enum: Auto, Left, Center, Right",,1,Tiene,Alineación independiente de los títulos de encabezado
+pivotTable,Matriz,Visual,Encabezados de columna,columnHeaders,underline,Underline,boolean,,1,Tiene,Estilos de encabezado propios
+pivotTable,Matriz,Visual,Encabezados de columna,columnHeaders,urlIcon,URL icon,boolean,Show an icon instead of the full URL,1,Tiene,Icono para enlaces web explícitos en encabezados
+pivotTable,Matriz,Visual,Encabezados de columna,columnHeaders,wordWrap,Word wrap,boolean,,1,Tiene,Estilos de encabezado propios
+pivotTable,Matriz,Visual,Encabezados de fila,rowHeaders,alignment,Alignment,"enum: Auto, Left, Center, Right",,1,Tiene,Estilos de encabezado propios
+pivotTable,Matriz,Visual,Encabezados de fila,rowHeaders,autoExpand,Auto expand,boolean,"While editing, automatically expands the matrix to show a new level when you add a field to Rows",1,Tiene,Profundidad inicial independiente para filas y columnas
+pivotTable,Matriz,Visual,Encabezados de fila,rowHeaders,backColor,Background color,fill,Background color of the cells,1,Tiene,Estilos de encabezado propios
+pivotTable,Matriz,Visual,Encabezados de fila,rowHeaders,bold,Bold,boolean,,1,Tiene,Estilos de encabezado propios
+pivotTable,Matriz,Visual,Encabezados de fila,rowHeaders,expandCollapseButtonsColor,Icon color,fill,,1,Tiene,"Iconos de expansión con color, tamaño y visibilidad comunes"
+pivotTable,Matriz,Visual,Encabezados de fila,rowHeaders,expandCollapseButtonsSize,Icon size,fontSize,,1,Tiene,"Iconos de expansión con color, tamaño y visibilidad comunes"
+pivotTable,Matriz,Visual,Encabezados de fila,rowHeaders,expandCompositeHierarchy,expandCompositeHierarchy,boolean,,1,Falta,Sin jerarquías compuestas ni expansión selectiva por campo
+pivotTable,Matriz,Visual,Encabezados de fila,rowHeaders,fontColor,Font color,fill,Font color of the cells,1,Tiene,Estilos de encabezado propios
+pivotTable,Matriz,Visual,Encabezados de fila,rowHeaders,fontFamily,Font family,string,,1,Tiene,Estilos de encabezado propios
+pivotTable,Matriz,Visual,Encabezados de fila,rowHeaders,fontSize,Text size,fontSize,,1,Tiene,Estilos de encabezado propios
+pivotTable,Matriz,Visual,Encabezados de fila,rowHeaders,italic,Italic,boolean,,1,Tiene,Estilos de encabezado propios
+pivotTable,Matriz,Visual,Encabezados de fila,rowHeaders,legacyStyleDisabled,legacyStyleDisabled,boolean,,1,Excluido,Compatibilidad de estilos antiguos de Power BI; no aplica al motor
+pivotTable,Matriz,Visual,Encabezados de fila,rowHeaders,outlineColor,Outline color,fill,Color of the outline,1,Tiene,Estilos de encabezado propios
+pivotTable,Matriz,Visual,Encabezados de fila,rowHeaders,outlineStyle,Outline,integer,,1,Tiene,Estilos de encabezado propios
+pivotTable,Matriz,Visual,Encabezados de fila,rowHeaders,outlineWeight,Outline weight,number,Thickness of the outline in pixels,1,Tiene,Estilos de encabezado propios
+pivotTable,Matriz,Visual,Encabezados de fila,rowHeaders,repeatRowHeaders,Repeat row headers,boolean,,1,Tiene,"Disposición escalonada, sangría y repetición de etiquetas"
+pivotTable,Matriz,Visual,Encabezados de fila,rowHeaders,showExpandCollapseButtons,+/- icons,boolean,,1,Tiene,"Iconos de expansión con color, tamaño y visibilidad comunes"
+pivotTable,Matriz,Visual,Encabezados de fila,rowHeaders,stepped,Stepped layout,boolean,Render row headers with stepped layout,1,Tiene,"Disposición escalonada, sangría y repetición de etiquetas"
+pivotTable,Matriz,Visual,Encabezados de fila,rowHeaders,steppedLayoutIndentation,Indentation,number,"Set the indentation, in pixels, applied to row headers",1,Tiene,"Disposición escalonada, sangría y repetición de etiquetas"
+pivotTable,Matriz,Visual,Encabezados de fila,rowHeaders,underline,Underline,boolean,,1,Tiene,Estilos de encabezado propios
+pivotTable,Matriz,Visual,Encabezados de fila,rowHeaders,unfrozen,unfrozen,boolean,,1,Falta,No hay fijación independiente del encabezado de fila
+pivotTable,Matriz,Visual,Encabezados de fila,rowHeaders,urlIcon,URL icon,boolean,Show an icon instead of the full URL,1,Tiene,Icono para enlaces web explícitos en encabezados
+pivotTable,Matriz,Visual,Encabezados de fila,rowHeaders,wordWrap,Word wrap,boolean,,1,Tiene,Estilos de encabezado propios
 pivotTable,Matriz,Visual,Subtotales,subTotals,$id,$id,"enum: Row, Column | ?",,1,Excluido,Selector interno de serie
-pivotTable,Matriz,Visual,Subtotales,subTotals,applyToHeaders,Apply to labels,boolean,,1,Falta,
-pivotTable,Matriz,Visual,Subtotales,subTotals,backColor,Background color,fill,Background color of the cells,1,Falta,
-pivotTable,Matriz,Visual,Subtotales,subTotals,bold,Bold,boolean,,1,Falta,
+pivotTable,Matriz,Visual,Subtotales,subTotals,applyToHeaders,Apply to labels,boolean,,1,Tiene,Interruptor independiente para aplicar el estilo a las etiquetas
+pivotTable,Matriz,Visual,Subtotales,subTotals,backColor,Background color,fill,Background color of the cells,1,Tiene,"Estilo propio para total, subtotal y totales generales por dirección"
+pivotTable,Matriz,Visual,Subtotales,subTotals,bold,Bold,boolean,,1,Tiene,"Estilo propio para total, subtotal y totales generales por dirección"
 pivotTable,Matriz,Visual,Subtotales,subTotals,columnSubtotals,Column subtotals,boolean,Show subtotals for all column groups,1,Tiene,Subtotales (colSubTotals/rowSubTotals)
-pivotTable,Matriz,Visual,Subtotales,subTotals,columnSubtotalsLabel,Column subtotals label,string,,1,Falta,
-pivotTable,Matriz,Visual,Subtotales,subTotals,fontColor,Font color,fill,Font color of the cells,1,Falta,
-pivotTable,Matriz,Visual,Subtotales,subTotals,fontFamily,Font family,string,,1,Falta,
-pivotTable,Matriz,Visual,Subtotales,subTotals,fontSize,Text size,fontSize,,1,Falta,
-pivotTable,Matriz,Visual,Subtotales,subTotals,italic,Italic,boolean,,1,Falta,
-pivotTable,Matriz,Visual,Subtotales,subTotals,levelSubtotalEnabled,levelSubtotalEnabled,boolean,,1,Falta,
-pivotTable,Matriz,Visual,Subtotales,subTotals,levelSubtotalLabel,levelSubtotalLabel,string,,1,Falta,
-pivotTable,Matriz,Visual,Subtotales,subTotals,perColumnLevel,Per column level,boolean,,1,Falta,
-pivotTable,Matriz,Visual,Subtotales,subTotals,perRowLevel,Per row level,boolean,,1,Falta,
+pivotTable,Matriz,Visual,Subtotales,subTotals,columnSubtotalsLabel,Column subtotals label,string,,1,Tiene,Etiqueta de subtotales por dirección
+pivotTable,Matriz,Visual,Subtotales,subTotals,fontColor,Font color,fill,Font color of the cells,1,Tiene,"Estilo propio para total, subtotal y totales generales por dirección"
+pivotTable,Matriz,Visual,Subtotales,subTotals,fontFamily,Font family,string,,1,Tiene,"Estilo propio para total, subtotal y totales generales por dirección"
+pivotTable,Matriz,Visual,Subtotales,subTotals,fontSize,Text size,fontSize,,1,Tiene,"Estilo propio para total, subtotal y totales generales por dirección"
+pivotTable,Matriz,Visual,Subtotales,subTotals,italic,Italic,boolean,,1,Tiene,"Estilo propio para total, subtotal y totales generales por dirección"
+pivotTable,Matriz,Visual,Subtotales,subTotals,levelSubtotalEnabled,levelSubtotalEnabled,boolean,,1,Tiene,Selección de niveles de subtotal; los grupos contraídos conservan su agregado
+pivotTable,Matriz,Visual,Subtotales,subTotals,levelSubtotalLabel,levelSubtotalLabel,string,,1,Tiene,Etiqueta por nivel desde la configuración de su campo
+pivotTable,Matriz,Visual,Subtotales,subTotals,perColumnLevel,Per column level,boolean,,1,Tiene,Selección de niveles de subtotal; los grupos contraídos conservan su agregado
+pivotTable,Matriz,Visual,Subtotales,subTotals,perRowLevel,Per row level,boolean,,1,Tiene,Selección de niveles de subtotal; los grupos contraídos conservan su agregado
 pivotTable,Matriz,Visual,Subtotales,subTotals,rowSubtotals,Row subtotals,boolean,Show subtotals for all row groups,1,Tiene,Subtotales (colSubTotals/rowSubTotals)
-pivotTable,Matriz,Visual,Subtotales,subTotals,rowSubtotalsLabel,Row subtotals label,string,,1,Falta,
+pivotTable,Matriz,Visual,Subtotales,subTotals,rowSubtotalsLabel,Row subtotals label,string,,1,Tiene,Etiqueta de subtotales por dirección
 pivotTable,Matriz,Visual,Subtotales,subTotals,rowSubtotalsPosition,Row subtotal position,"enum: Top, Bottom",,1,Tiene,Subtotales (colSubTotals/rowSubTotals)
-pivotTable,Matriz,Visual,Subtotales,subTotals,underline,Underline,boolean,,1,Falta,
-pivotTable,Matriz,Visual,Total general de columnas,columnTotal,applyToHeaders,Apply to labels,boolean,,1,Parcial,Solo mostrar (colTotals/rowTotals)
-pivotTable,Matriz,Visual,Total general de columnas,columnTotal,backColor,Background color,fill,Background color of the cells,1,Falta,
-pivotTable,Matriz,Visual,Total general de columnas,columnTotal,bold,Bold,boolean,,1,Falta,
-pivotTable,Matriz,Visual,Total general de columnas,columnTotal,fontColor,Font color,fill,Font color of the cells,1,Falta,
-pivotTable,Matriz,Visual,Total general de columnas,columnTotal,fontFamily,Font family,string,,1,Falta,
-pivotTable,Matriz,Visual,Total general de columnas,columnTotal,fontSize,Text size,fontSize,,1,Falta,
-pivotTable,Matriz,Visual,Total general de columnas,columnTotal,italic,Italic,boolean,,1,Falta,
-pivotTable,Matriz,Visual,Total general de columnas,columnTotal,underline,Underline,boolean,,1,Falta,
-pivotTable,Matriz,Visual,Total general de filas,rowTotal,applyToHeaders,Apply to labels,boolean,,1,Parcial,Solo mostrar (colTotals/rowTotals)
-pivotTable,Matriz,Visual,Total general de filas,rowTotal,backColor,Background color,fill,Background color of the cells,1,Falta,
-pivotTable,Matriz,Visual,Total general de filas,rowTotal,bold,Bold,boolean,,1,Falta,
-pivotTable,Matriz,Visual,Total general de filas,rowTotal,fontColor,Font color,fill,Font color of the cells,1,Falta,
-pivotTable,Matriz,Visual,Total general de filas,rowTotal,fontFamily,Font family,string,,1,Falta,
-pivotTable,Matriz,Visual,Total general de filas,rowTotal,fontSize,Text size,fontSize,,1,Falta,
-pivotTable,Matriz,Visual,Total general de filas,rowTotal,italic,Italic,boolean,,1,Falta,
-pivotTable,Matriz,Visual,Total general de filas,rowTotal,underline,Underline,boolean,,1,Falta,
-pivotTable,Matriz,Visual,Totales,total,applyToHeaders,Apply to labels,boolean,,1,Falta,
-pivotTable,Matriz,Visual,Totales,total,backColor,Background color,fill,Background color of the cells,1,Falta,
-pivotTable,Matriz,Visual,Totales,total,bold,Bold,boolean,,1,Falta,
-pivotTable,Matriz,Visual,Totales,total,fontColor,Font color,fill,Font color of the cells,1,Falta,
-pivotTable,Matriz,Visual,Totales,total,fontFamily,Font family,string,,1,Falta,
-pivotTable,Matriz,Visual,Totales,total,fontSize,Text size,fontSize,,1,Falta,
-pivotTable,Matriz,Visual,Totales,total,italic,Italic,boolean,,1,Falta,
-pivotTable,Matriz,Visual,Totales,total,underline,Underline,boolean,,1,Falta,
-pivotTable,Matriz,Visual,Valores,values,backColor,Background color,fill,Format cells with color based on a value.,1,Falta,
-pivotTable,Matriz,Visual,Valores,values,backColorPrimary,Background color,fill,Background color of the odd rows,1,Falta,
-pivotTable,Matriz,Visual,Valores,values,backColorSecondary,Alternate background color,fill,Background color of the even rows,1,Falta,
-pivotTable,Matriz,Visual,Valores,values,bandedRowHeaders,Banded row color,boolean,"Apply banded row style to the last level of the row group headers, using the colors of the values.",1,Falta,
-pivotTable,Matriz,Visual,Valores,values,bold,Bold,boolean,,1,Falta,
-pivotTable,Matriz,Visual,Valores,values,fontColor,Font color,fill,Format the font color based on a value.,1,Falta,
-pivotTable,Matriz,Visual,Valores,values,fontColorPrimary,Font color,fill,Font color of the odd rows,1,Falta,
-pivotTable,Matriz,Visual,Valores,values,fontColorSecondary,Alternate font color,fill,Font color of the even rows,1,Falta,
-pivotTable,Matriz,Visual,Valores,values,fontFamily,Font family,string,,1,Falta,
-pivotTable,Matriz,Visual,Valores,values,fontSize,Text size,fontSize,,1,Falta,
-pivotTable,Matriz,Visual,Valores,values,icon,Icons,icon,Icon of the cells,1,Falta,
-pivotTable,Matriz,Visual,Valores,values,italic,Italic,boolean,,1,Falta,
-pivotTable,Matriz,Visual,Valores,values,outlineColor,Outline color,fill,Color of the outline,1,Falta,
-pivotTable,Matriz,Visual,Valores,values,outlineStyle,Outline,integer,,1,Falta,
-pivotTable,Matriz,Visual,Valores,values,outlineWeight,Outline weight,number,Thickness of the outline in pixels,1,Falta,
-pivotTable,Matriz,Visual,Valores,values,underline,Underline,boolean,,1,Falta,
-pivotTable,Matriz,Visual,Valores,values,urlIcon,URL icon,boolean,Show an icon instead of the full URL,1,Falta,
-pivotTable,Matriz,Visual,Valores,values,valuesOnRow,Show on rows,boolean,Show values in row groups rather than columns,1,Falta,
-pivotTable,Matriz,Visual,Valores,values,webURL,Web URL,string,,1,Falta,
-pivotTable,Matriz,Visual,Valores,values,wordWrap,Word wrap,boolean,,1,Falta,
-pivotTable,Matriz,Visual,Filas en blanco,blankRows,blankRowColor,Color,fill,,2,Falta,
-pivotTable,Matriz,Visual,Filas en blanco,blankRows,blankRowTransparency,Transparency,number,,2,Falta,
-pivotTable,Matriz,Visual,Filas en blanco,blankRows,borderColor,Color,fill,,2,Falta,
-pivotTable,Matriz,Visual,Filas en blanco,blankRows,borderPosition,Position,"enum: Top, Bottom, Top and bottom",,2,Falta,
-pivotTable,Matriz,Visual,Filas en blanco,blankRows,borderTransparency,Transparency,number,,2,Falta,
-pivotTable,Matriz,Visual,Filas en blanco,blankRows,borderWidth,Width,number,,2,Falta,
-pivotTable,Matriz,Visual,Filas en blanco,blankRows,showBlankRows,Show,boolean,,2,Falta,
-pivotTable,Matriz,Visual,Filas en blanco,blankRows,showBorder,Show,boolean,,2,Falta,
-pivotTable,Matriz,Visual,Minigráficos,sparklines,chartType,Chart type,"enum: Line, Column",,2,Falta,
-pivotTable,Matriz,Visual,Minigráficos,sparklines,dataColor,Data color,fill,,2,Falta,
-pivotTable,Matriz,Visual,Minigráficos,sparklines,markerColor,Color,fill,,2,Falta,
-pivotTable,Matriz,Visual,Minigráficos,sparklines,markerShape,Type,"enum: ●, ■, ◆, ▲, ☓, -, —, +",,2,Falta,
-pivotTable,Matriz,Visual,Minigráficos,sparklines,markerSize,Size,number,,2,Falta,
-pivotTable,Matriz,Visual,Minigráficos,sparklines,markers,Show these markers,integer,,2,Falta,
-pivotTable,Matriz,Visual,Minigráficos,sparklines,strokeWidth,Width,number,,2,Falta,
-pivotTable,Matriz,Visual,columnWidth,columnWidth,value,value,number,,2,Falta,
-pivotTable,Matriz,Visual,Anotaciones,annotationTemplate,highlight,highlight,annotationTemplate,,3,Falta,
-pivotTable,Matriz,Visual,accessibility,accessibility,altTextColumns,Column with alt text,string,,3,Falta,
+pivotTable,Matriz,Visual,Subtotales,subTotals,underline,Underline,boolean,,1,Tiene,"Estilo propio para total, subtotal y totales generales por dirección"
+pivotTable,Matriz,Visual,Total general de columnas,columnTotal,applyToHeaders,Apply to labels,boolean,,1,Tiene,Interruptor independiente para aplicar el estilo a las etiquetas
+pivotTable,Matriz,Visual,Total general de columnas,columnTotal,backColor,Background color,fill,Background color of the cells,1,Tiene,"Estilo propio para total, subtotal y totales generales por dirección"
+pivotTable,Matriz,Visual,Total general de columnas,columnTotal,bold,Bold,boolean,,1,Tiene,"Estilo propio para total, subtotal y totales generales por dirección"
+pivotTable,Matriz,Visual,Total general de columnas,columnTotal,fontColor,Font color,fill,Font color of the cells,1,Tiene,"Estilo propio para total, subtotal y totales generales por dirección"
+pivotTable,Matriz,Visual,Total general de columnas,columnTotal,fontFamily,Font family,string,,1,Tiene,"Estilo propio para total, subtotal y totales generales por dirección"
+pivotTable,Matriz,Visual,Total general de columnas,columnTotal,fontSize,Text size,fontSize,,1,Tiene,"Estilo propio para total, subtotal y totales generales por dirección"
+pivotTable,Matriz,Visual,Total general de columnas,columnTotal,italic,Italic,boolean,,1,Tiene,"Estilo propio para total, subtotal y totales generales por dirección"
+pivotTable,Matriz,Visual,Total general de columnas,columnTotal,underline,Underline,boolean,,1,Tiene,"Estilo propio para total, subtotal y totales generales por dirección"
+pivotTable,Matriz,Visual,Total general de filas,rowTotal,applyToHeaders,Apply to labels,boolean,,1,Tiene,Interruptor independiente para aplicar el estilo a las etiquetas
+pivotTable,Matriz,Visual,Total general de filas,rowTotal,backColor,Background color,fill,Background color of the cells,1,Tiene,"Estilo propio para total, subtotal y totales generales por dirección"
+pivotTable,Matriz,Visual,Total general de filas,rowTotal,bold,Bold,boolean,,1,Tiene,"Estilo propio para total, subtotal y totales generales por dirección"
+pivotTable,Matriz,Visual,Total general de filas,rowTotal,fontColor,Font color,fill,Font color of the cells,1,Tiene,"Estilo propio para total, subtotal y totales generales por dirección"
+pivotTable,Matriz,Visual,Total general de filas,rowTotal,fontFamily,Font family,string,,1,Tiene,"Estilo propio para total, subtotal y totales generales por dirección"
+pivotTable,Matriz,Visual,Total general de filas,rowTotal,fontSize,Text size,fontSize,,1,Tiene,"Estilo propio para total, subtotal y totales generales por dirección"
+pivotTable,Matriz,Visual,Total general de filas,rowTotal,italic,Italic,boolean,,1,Tiene,"Estilo propio para total, subtotal y totales generales por dirección"
+pivotTable,Matriz,Visual,Total general de filas,rowTotal,underline,Underline,boolean,,1,Tiene,"Estilo propio para total, subtotal y totales generales por dirección"
+pivotTable,Matriz,Visual,Totales,total,applyToHeaders,Apply to labels,boolean,,1,Tiene,Interruptor independiente para aplicar el estilo a las etiquetas
+pivotTable,Matriz,Visual,Totales,total,backColor,Background color,fill,Background color of the cells,1,Tiene,"Estilo propio para total, subtotal y totales generales por dirección"
+pivotTable,Matriz,Visual,Totales,total,bold,Bold,boolean,,1,Tiene,"Estilo propio para total, subtotal y totales generales por dirección"
+pivotTable,Matriz,Visual,Totales,total,fontColor,Font color,fill,Font color of the cells,1,Tiene,"Estilo propio para total, subtotal y totales generales por dirección"
+pivotTable,Matriz,Visual,Totales,total,fontFamily,Font family,string,,1,Tiene,"Estilo propio para total, subtotal y totales generales por dirección"
+pivotTable,Matriz,Visual,Totales,total,fontSize,Text size,fontSize,,1,Tiene,"Estilo propio para total, subtotal y totales generales por dirección"
+pivotTable,Matriz,Visual,Totales,total,italic,Italic,boolean,,1,Tiene,"Estilo propio para total, subtotal y totales generales por dirección"
+pivotTable,Matriz,Visual,Totales,total,underline,Underline,boolean,,1,Tiene,"Estilo propio para total, subtotal y totales generales por dirección"
+pivotTable,Matriz,Visual,Valores,values,backColor,Background color,fill,Format cells with color based on a value.,1,Tiene,Estilo de valores y filas alternas; formato condicional tiene prioridad
+pivotTable,Matriz,Visual,Valores,values,backColorPrimary,Background color,fill,Background color of the odd rows,1,Tiene,Estilo de valores y filas alternas; formato condicional tiene prioridad
+pivotTable,Matriz,Visual,Valores,values,backColorSecondary,Alternate background color,fill,Background color of the even rows,1,Tiene,Estilo de valores y filas alternas; formato condicional tiene prioridad
+pivotTable,Matriz,Visual,Valores,values,bandedRowHeaders,Banded row color,boolean,"Apply banded row style to the last level of the row group headers, using the colors of the values.",1,Tiene,Alternado opcional también en los encabezados de fila
+pivotTable,Matriz,Visual,Valores,values,bold,Bold,boolean,,1,Tiene,Estilo de valores y filas alternas; formato condicional tiene prioridad
+pivotTable,Matriz,Visual,Valores,values,fontColor,Font color,fill,Format the font color based on a value.,1,Tiene,Estilo de valores y filas alternas; formato condicional tiene prioridad
+pivotTable,Matriz,Visual,Valores,values,fontColorPrimary,Font color,fill,Font color of the odd rows,1,Tiene,Estilo de valores y filas alternas; formato condicional tiene prioridad
+pivotTable,Matriz,Visual,Valores,values,fontColorSecondary,Alternate font color,fill,Font color of the even rows,1,Tiene,Estilo de valores y filas alternas; formato condicional tiene prioridad
+pivotTable,Matriz,Visual,Valores,values,fontFamily,Font family,string,,1,Tiene,Estilo de valores y filas alternas; formato condicional tiene prioridad
+pivotTable,Matriz,Visual,Valores,values,fontSize,Text size,fontSize,,1,Tiene,Estilo de valores y filas alternas; formato condicional tiene prioridad
+pivotTable,Matriz,Visual,Valores,values,icon,Icons,icon,Icon of the cells,1,Tiene,Reglas de iconos numéricos por métrica en tabla y matriz
+pivotTable,Matriz,Visual,Valores,values,italic,Italic,boolean,,1,Tiene,Estilo de valores y filas alternas; formato condicional tiene prioridad
+pivotTable,Matriz,Visual,Valores,values,outlineColor,Outline color,fill,Color of the outline,1,Tiene,Estilo de valores y filas alternas; formato condicional tiene prioridad
+pivotTable,Matriz,Visual,Valores,values,outlineStyle,Outline,integer,,1,Tiene,Estilo de valores y filas alternas; formato condicional tiene prioridad
+pivotTable,Matriz,Visual,Valores,values,outlineWeight,Outline weight,number,Thickness of the outline in pixels,1,Tiene,Estilo de valores y filas alternas; formato condicional tiene prioridad
+pivotTable,Matriz,Visual,Valores,values,underline,Underline,boolean,,1,Tiene,Estilo de valores y filas alternas; formato condicional tiene prioridad
+pivotTable,Matriz,Visual,Valores,values,urlIcon,URL icon,boolean,Show an icon instead of the full URL,1,Tiene,"Enlace web explícito http/https, con icono y etiqueta accesible"
+pivotTable,Matriz,Visual,Valores,values,valuesOnRow,Show on rows,boolean,Show values in row groups rather than columns,1,Tiene,"Orientación de métricas por filas o columnas, sin nueva consulta"
+pivotTable,Matriz,Visual,Valores,values,webURL,Web URL,string,,1,Tiene,"Enlace web explícito http/https, con icono y etiqueta accesible"
+pivotTable,Matriz,Visual,Valores,values,wordWrap,Word wrap,boolean,,1,Tiene,Estilo de valores y filas alternas; formato condicional tiene prioridad
+pivotTable,Matriz,Visual,Filas en blanco,blankRows,blankRowColor,Color,fill,,2,Tiene,Separador entre grupos de primer nivel; color con alfa y contorno por lado
+pivotTable,Matriz,Visual,Filas en blanco,blankRows,blankRowTransparency,Transparency,number,,2,Tiene,Separador entre grupos de primer nivel; color con alfa y contorno por lado
+pivotTable,Matriz,Visual,Filas en blanco,blankRows,borderColor,Color,fill,,2,Tiene,Separador entre grupos de primer nivel; color con alfa y contorno por lado
+pivotTable,Matriz,Visual,Filas en blanco,blankRows,borderPosition,Position,"enum: Top, Bottom, Top and bottom",,2,Tiene,Separador entre grupos de primer nivel; color con alfa y contorno por lado
+pivotTable,Matriz,Visual,Filas en blanco,blankRows,borderTransparency,Transparency,number,,2,Tiene,Separador entre grupos de primer nivel; color con alfa y contorno por lado
+pivotTable,Matriz,Visual,Filas en blanco,blankRows,borderWidth,Width,number,,2,Tiene,Separador entre grupos de primer nivel; color con alfa y contorno por lado
+pivotTable,Matriz,Visual,Filas en blanco,blankRows,showBlankRows,Show,boolean,,2,Tiene,Separador entre grupos de primer nivel; color con alfa y contorno por lado
+pivotTable,Matriz,Visual,Filas en blanco,blankRows,showBorder,Show,boolean,,2,Tiene,Separador entre grupos de primer nivel; color con alfa y contorno por lado
+pivotTable,Matriz,Visual,Minigráficos,sparklines,chartType,Chart type,"enum: Line, Column",,2,Parcial,"Línea/columnas y marcadores: matriz sobre grupos de columnas visibles; tabla requiere listas numéricas ordenadas, sin nuevo rol temporal ni consulta adicional"
+pivotTable,Matriz,Visual,Minigráficos,sparklines,dataColor,Data color,fill,,2,Parcial,"Línea/columnas y marcadores: matriz sobre grupos de columnas visibles; tabla requiere listas numéricas ordenadas, sin nuevo rol temporal ni consulta adicional"
+pivotTable,Matriz,Visual,Minigráficos,sparklines,markerColor,Color,fill,,2,Parcial,"Línea/columnas y marcadores: matriz sobre grupos de columnas visibles; tabla requiere listas numéricas ordenadas, sin nuevo rol temporal ni consulta adicional"
+pivotTable,Matriz,Visual,Minigráficos,sparklines,markerShape,Type,"enum: ●, ■, ◆, ▲, ☓, -, —, +",,2,Parcial,"Línea/columnas y marcadores: matriz sobre grupos de columnas visibles; tabla requiere listas numéricas ordenadas, sin nuevo rol temporal ni consulta adicional"
+pivotTable,Matriz,Visual,Minigráficos,sparklines,markerSize,Size,number,,2,Parcial,"Línea/columnas y marcadores: matriz sobre grupos de columnas visibles; tabla requiere listas numéricas ordenadas, sin nuevo rol temporal ni consulta adicional"
+pivotTable,Matriz,Visual,Minigráficos,sparklines,markers,Show these markers,integer,,2,Parcial,"Línea/columnas y marcadores: matriz sobre grupos de columnas visibles; tabla requiere listas numéricas ordenadas, sin nuevo rol temporal ni consulta adicional"
+pivotTable,Matriz,Visual,Minigráficos,sparklines,strokeWidth,Width,number,,2,Parcial,"Línea/columnas y marcadores: matriz sobre grupos de columnas visibles; tabla requiere listas numéricas ordenadas, sin nuevo rol temporal ni consulta adicional"
+pivotTable,Matriz,Visual,columnWidth,columnWidth,value,value,number,,2,Tiene,Ancho mínimo por columna y ancho predeterminado
+pivotTable,Matriz,Visual,Anotaciones,annotationTemplate,highlight,highlight,annotationTemplate,,3,Falta,Sin anotaciones en el gráfico: fase 8
+pivotTable,Matriz,Visual,accessibility,accessibility,altTextColumns,Column with alt text,string,,3,Falta,"Hay texto alternativo por gráfico, no por columna"
 pivotTable,Matriz,General,Borde,border,color,Color,fill,,1,Tiene,Formato > Borde
 pivotTable,Matriz,General,Borde,border,radius,Radius,number,,1,Tiene,Formato > Borde
 pivotTable,Matriz,General,Borde,border,show,Show,boolean,,1,Tiene,Formato > Borde

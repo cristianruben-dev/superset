@@ -5,14 +5,14 @@ Nuestro gráfico: scatter. Generado desde `reportThemeSchema-2.159.json`.
 ## Visual
 
 
-### Colores / barras (`dataPoint`) · P1 · 3/4
+### Colores / barras (`dataPoint`) · P1 · 4/4
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
-| Default color | `defaultColor` | fill | Parcial | Color por serie o esquema; revisar color por categoría (color_scheme/series_colors) |
-| Default color | `fill` | fill | Parcial | Color por serie o esquema; revisar color por categoría (color_scheme/series_colors) |
-| Color saturation | `fillRule` | fillRule | Parcial | Formato condicional por reglas (chart_conditional_formatting) |
-| Show all | `showAllDataPoints` | boolean | Falta |  |
+| Default color | `defaultColor` | fill | Tiene | Color por categoría y color predeterminado |
+| Default color | `fill` | fill | Tiene | Color por categoría y color predeterminado |
+| Color saturation | `fillRule` | fillRule | Parcial | Escala continua de dos colores; sin reglas por campo |
+| Show all | `showAllDataPoints` | boolean | Tiene | Color por categoría y color predeterminado |
 
 ### Eje X / categorías (`categoryAxis`) · P1 · 30/38
 
@@ -33,7 +33,7 @@ Nuestro gráfico: scatter. Generado desde `reportThemeSchema-2.159.json`.
 | Width | `gridlineThickness` | number | Tiene | Eje > Líneas de cuadrícula |
 | Transparency | `gridlineTransparency` | number | Tiene | Eje > Líneas de cuadrícula |
 | Initial scroll position | `initialScrollPosition` | enum: Start, End | Tiene | Eje X > Categorías |
-| Space between categories | `innerPadding` | integer | Falta |  |
+| Space between categories | `innerPadding` | integer | Excluido | Sin categorías: el eje es numérico |
 | Invert range | `invertAxis` | boolean | Tiene | Invertir eje X (x_axis_inverse) |
 | Italic | `italic` | boolean | Tiene | Fuente de etiquetas X (x_axis_label_font) |
 | Color | `labelColor` | fill | Tiene | Fuente de etiquetas X (x_axis_label_font) |
@@ -54,7 +54,7 @@ Nuestro gráfico: scatter. Generado desde `reportThemeSchema-2.159.json`.
 | Italic | `titleItalic` | boolean | Tiene | Fuente de título X (x_axis_title_font) |
 | Axis title | `titleText` | string | Tiene | Título del eje X (x_axis_label/x_axis_title) |
 | Underline | `titleUnderline` | boolean | Falta | El motor de gráficos no dibuja texto subrayado |
-| Show blank values | `treatNullsAsZero` | boolean | Falta |  |
+| Show blank values | `treatNullsAsZero` | boolean | Falta | Un valor nulo no dibuja marca |
 | Underline | `underline` | boolean | Falta | El motor de gráficos no dibuja texto subrayado |
 
 ### Eje Y / valores (`valueAxis`) · P1 · 27/33
@@ -92,23 +92,23 @@ Nuestro gráfico: scatter. Generado desde `reportThemeSchema-2.159.json`.
 | Italic | `titleItalic` | boolean | Tiene | Fuente de título Y (y_axis_title_font) |
 | Axis title | `titleText` | string | Tiene | Título del eje Y (y_axis_label/y_axis_title) |
 | Underline | `titleUnderline` | boolean | Falta | El motor de gráficos no dibuja texto subrayado |
-| Show blank values | `treatNullsAsZero` | boolean | Falta |  |
+| Show blank values | `treatNullsAsZero` | boolean | Falta | Un valor nulo no dibuja marca |
 | Underline | `underline` | boolean | Falta | El motor de gráficos no dibuja texto subrayado |
 
-### Etiqueta de categoría (`categoryLabels`) · P1 · 0/10
+### Etiqueta de categoría (`categoryLabels`) · P1 · 6/10
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
-| Color | `backgroundColor` | fill | Falta |  |
-| Transparency | `backgroundTransparency` | number | Falta |  |
-| Bold | `bold` | boolean | Falta |  |
-| Color | `color` | fill | Falta |  |
-| Show background | `enableBackground` | boolean | Falta |  |
-| Font family | `fontFamily` | string | Falta |  |
-| Text size | `fontSize` | fontSize | Falta |  |
-| Italic | `italic` | boolean | Falta |  |
-| Show | `show` | boolean | Falta |  |
-| Underline | `underline` | boolean | Falta |  |
+| Color | `backgroundColor` | fill | Falta | El título de la etiqueta no tiene fondo propio |
+| Transparency | `backgroundTransparency` | number | Falta | El título de la etiqueta no tiene fondo propio |
+| Bold | `bold` | boolean | Parcial | Título de la etiqueta con la serie o la categoría, con su fuente |
+| Color | `color` | fill | Parcial | Título de la etiqueta con la serie o la categoría, con su fuente |
+| Show background | `enableBackground` | boolean | Falta | El título de la etiqueta no tiene fondo propio |
+| Font family | `fontFamily` | string | Parcial | Título de la etiqueta con la serie o la categoría, con su fuente |
+| Text size | `fontSize` | fontSize | Parcial | Título de la etiqueta con la serie o la categoría, con su fuente |
+| Italic | `italic` | boolean | Parcial | Título de la etiqueta con la serie o la categoría, con su fuente |
+| Show | `show` | boolean | Parcial | Título de la etiqueta con la serie o la categoría, con su fuente |
+| Underline | `underline` | boolean | Falta | El motor de gráficos no dibuja texto subrayado |
 
 ### Leyenda (`legend`) · P1 · 9/11
 
@@ -122,31 +122,31 @@ Nuestro gráfico: scatter. Generado desde `reportThemeSchema-2.159.json`.
 | Position | `position` | enum: Top left, Top center, Top right, Top left stacked, Top right stacked, Center left, Center right, Bottom left, Bottom center, Bottom ri | Tiene | Posición (legendOrientation) |
 | Show | `show` | boolean | Tiene | Mostrar leyenda (show_legend) |
 | Show | `showGradientLegend` | boolean | Falta | Sin leyenda para la escala de color |
-| Title | `showTitle` | boolean | Tiene | Leyenda |
-| Legend Name | `titleText` | string | Tiene | Leyenda |
+| Title | `showTitle` | boolean | Tiene | Título de leyenda |
+| Legend Name | `titleText` | string | Tiene | Título de leyenda |
 | Underline | `underline` | boolean | Falta | El motor de gráficos no dibuja texto subrayado |
 
 ### Marcadores (`markers`) · P1 · 7/7
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
-| Color | `borderColor` | fill | Tiene | Colores y series > Marcadores |
-| Match fill color | `borderColorMatchFill` | boolean | Tiene | Colores y series > Marcadores |
-| Border | `borderShow` | boolean | Tiene | Colores y series > Marcadores |
-| Transparency | `borderTransparency` | number | Tiene | Colores y series > Marcadores |
-| Width | `borderWidth` | number | Tiene | Colores y series > Marcadores |
+| Color | `borderColor` | fill | Tiene | Colores y bordes |
+| Match fill color | `borderColorMatchFill` | boolean | Tiene | Colores y bordes |
+| Border | `borderShow` | boolean | Tiene | Colores y bordes |
+| Transparency | `borderTransparency` | number | Tiene | Colores y bordes |
+| Width | `borderWidth` | number | Tiene | Colores y bordes |
 | Rotation | `rotation` | number | Tiene | Colores y series > Marcadores |
 | Transparency | `transparency` | number | Tiene | Colores y series > Marcadores |
 
-### bubbles (`bubbles`) · P1 · 0/5
+### bubbles (`bubbles`) · P1 · 3/5
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
-| Size multiplier | `bubbleSize` | integer | Falta |  |
-| Range scaling | `markerRangeType` | enum: Magnitude, Data range, Auto | Falta |  |
-| Type | `markerShape` | enum: ●, ■, ◆, ▲, ☓, -, —, + | Falta |  |
-| Auto-fit markers | `preventOverflow` | boolean | Falta |  |
-| Customize series | `showSeries` | boolean | Falta |  |
+| Size multiplier | `bubbleSize` | integer | Tiene | Multiplicador del tamaño de las burbujas |
+| Range scaling | `markerRangeType` | enum: Magnitude, Data range, Auto | Falta | Sin ajuste de escala para contener marcadores ni modos de rango |
+| Type | `markerShape` | enum: ●, ■, ◆, ▲, ☓, -, —, + | Tiene | Forma del marcador (series_marker_symbol) |
+| Auto-fit markers | `preventOverflow` | boolean | Falta | Sin ajuste de escala para contener marcadores ni modos de rango |
+| Customize series | `showSeries` | boolean | Tiene | Aplicar a una serie |
 
 ### Control deslizante de zoom (`zoom`) · P2 · 1/11
 
@@ -276,47 +276,47 @@ Nuestro gráfico: scatter. Generado desde `reportThemeSchema-2.159.json`.
 | Transparency | `transparency` | number | Falta |  |
 | Width | `width` | number | Falta |  |
 
-### colorBorder (`colorBorder`) · P2 · 0/1
+### colorBorder (`colorBorder`) · P2 · 1/1
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
-| Show | `show` | boolean | Falta |  |
+| Show | `show` | boolean | Tiene | Colores y series |
 
-### colorByCategory (`colorByCategory`) · P2 · 0/1
-
-| Opción | Clave | Valores | Estado | Nota |
-| --- | --- | --- | --- | --- |
-| Show | `show` | boolean | Falta |  |
-
-### fillPoint (`fillPoint`) · P2 · 0/1
+### colorByCategory (`colorByCategory`) · P2 · 1/1
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
-| Style | `style` | enum: Fill only, Border only | Falta |  |
+| Show | `show` | boolean | Tiene | Colores y series |
 
-### plotAreaShading (`plotAreaShading`) · P2 · 0/5
-
-| Opción | Clave | Valores | Estado | Nota |
-| --- | --- | --- | --- | --- |
-| Name | `displayName` | string | Falta |  |
-| Lower shading | `lowerShadingColor` | fill | Falta |  |
-| Show | `show` | boolean | Falta |  |
-| Transparency | `transparency` | number | Falta |  |
-| Upper shading | `upperShadingColor` | fill | Falta |  |
-
-### ratioLine (`ratioLine`) · P2 · 0/9
+### fillPoint (`fillPoint`) · P2 · 1/1
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
-| Scale by width | `autoScale` | boolean | Falta |  |
-| Dash array | `dashArray` | string | Falta |  |
-| Dash cap | `dashCap` | enum: Flat, Round, Square | Falta |  |
-| Name | `displayName` | string | Falta |  |
-| Color | `lineColor` | fill | Falta |  |
-| Show | `show` | boolean | Falta |  |
-| Line style | `style` | enum: Solid, Dashed, Dotted, Custom | Falta |  |
-| Transparency | `transparency` | number | Falta |  |
-| Width | `width` | number | Falta |  |
+| Style | `style` | enum: Fill only, Border only | Tiene | Forma y relleno del marcador |
+
+### plotAreaShading (`plotAreaShading`) · P2 · 4/5
+
+| Opción | Clave | Valores | Estado | Nota |
+| --- | --- | --- | --- | --- |
+| Name | `displayName` | string | Falta | El sombreado no tiene nombre |
+| Lower shading | `lowerShadingColor` | fill | Tiene | Semiplanos reales respecto de y=x; solo ejes numéricos lineales |
+| Show | `show` | boolean | Tiene | Semiplanos reales respecto de y=x; solo ejes numéricos lineales |
+| Transparency | `transparency` | number | Tiene | Semiplanos reales respecto de y=x; solo ejes numéricos lineales |
+| Upper shading | `upperShadingColor` | fill | Tiene | Semiplanos reales respecto de y=x; solo ejes numéricos lineales |
+
+### ratioLine (`ratioLine`) · P2 · 7/9
+
+| Opción | Clave | Valores | Estado | Nota |
+| --- | --- | --- | --- | --- |
+| Scale by width | `autoScale` | boolean | Falta | El motor de gráficos no escala el trazo con el zoom |
+| Dash array | `dashArray` | string | Tiene | Patrón de guiones |
+| Dash cap | `dashCap` | enum: Flat, Round, Square | Falta | Los extremos no se eligen en esta línea |
+| Name | `displayName` | string | Tiene | Línea y=x sobre el intervalo visible; solo ejes numéricos lineales |
+| Color | `lineColor` | fill | Tiene | Línea y=x sobre el intervalo visible; solo ejes numéricos lineales |
+| Show | `show` | boolean | Tiene | Línea y=x sobre el intervalo visible; solo ejes numéricos lineales |
+| Line style | `style` | enum: Solid, Dashed, Dotted, Custom | Tiene | Línea y=x sobre el intervalo visible; solo ejes numéricos lineales |
+| Transparency | `transparency` | number | Tiene | Línea y=x sobre el intervalo visible; solo ejes numéricos lineales |
+| Width | `width` | number | Tiene | Línea y=x sobre el intervalo visible; solo ejes numéricos lineales |
 
 ### currentFrameIndex (`currentFrameIndex`) · P3 · 0/1
 

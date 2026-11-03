@@ -7,13 +7,13 @@ gráficos donde falta. Lo que ya tenemos de cada gráfico está en [`por-grafico
 | ---: | --- | ---: | ---: | ---: | ---: |
 | 2 | General, común a todos | 9 | 5 | 4 | 0 |
 | 3 | Barras, columnas, líneas, áreas y combinados | 104 | 85 | 19 | 0 |
-| 4 | Tabla y matriz | 149 | 131 | 16 | 2 |
-| 5 | Tarjeta, KPI, circular y anillo | 105 | 94 | 0 | 11 |
-| 6 | Cascada, embudo, treemap, medidor y dispersión | 161 | 128 | 33 | 0 |
+| 4 | Tabla y matriz | 12 | 3 | 7 | 2 |
+| 5 | Tarjeta, KPI, circular y anillo | 38 | 28 | 0 | 10 |
+| 6 | Cascada, embudo, treemap, medidor y dispersión | 63 | 52 | 11 | 0 |
 | 7 | Segmentadores | 763 | 178 | 130 | 455 |
 | 8 | Análisis y tooltips | 132 | 0 | 120 | 12 |
 | 11 | Mapas | 429 | 92 | 59 | 278 |
-| 12 | Resto de P3 y gráficos nuevos | 940 | 312 | 207 | 421 |
+| 12 | Resto de P3 y gráficos nuevos | 927 | 299 | 207 | 421 |
 
 ## Fase 2: General, común a todos
 
@@ -199,401 +199,117 @@ gráficos donde falta. Lo que ya tenemos de cada gráfico está en [`por-grafico
 
 ## Fase 4: Tabla y matriz
 
-### Columna específica
-
-| Opción | Clave | P | Estado | Gráficos | Nota |
-| --- | --- | ---: | --- | ---: | --- |
-| Alignment | `alignment` | 1 | Parcial | 2 | Por columna, revisar cobertura (column_config) |
-| Background color | `backColor` | 1 | Parcial | 2 | Por columna, revisar cobertura (column_config) |
-| Data bars | `dataBars` | 1 | Parcial | 2 | Barras en todas las columnas (show_cell_bars) |
-| Font color | `fontColor` | 1 | Parcial | 2 | Por columna, revisar cobertura (column_config) |
-| Display units | `labelDisplayUnits` | 1 | Parcial | 2 | Por columna, revisar cobertura (column_config) |
-| Value decimal places | `labelPrecision` | 1 | Parcial | 2 | Por columna, revisar cobertura (column_config) |
-| Apply to header | `styleHeader` | 1 | Parcial | 2 | Por columna, revisar cobertura (column_config) |
-| Apply to subtotals | `styleSubtotals` | 1 | Falta | 1 |  |
-| Apply to total | `styleTotal` | 1 | Parcial | 2 | Por columna, revisar cobertura (column_config) |
-| Apply to values | `styleValues` | 1 | Parcial | 2 | Por columna, revisar cobertura (column_config) |
-
-### Cuadrícula
-
-| Opción | Clave | P | Estado | Gráficos | Nota |
-| --- | --- | ---: | --- | ---: | --- |
-| Horizontal grid | `gridHorizontal` | 1 | Falta | 2 |  |
-| Horizontal grid color | `gridHorizontalColor` | 1 | Parcial | 2 | Un color para toda la rejilla (table_grid_color) |
-| Horizontal grid thickness | `gridHorizontalWeight` | 1 | Falta | 2 |  |
-| Vertical grid | `gridVertical` | 1 | Falta | 2 |  |
-| Vertical grid color | `gridVerticalColor` | 1 | Parcial | 2 | Un color para toda la rejilla (table_grid_color) |
-| Vertical grid thickness | `gridVerticalWeight` | 1 | Falta | 2 |  |
-| Height | `imageHeight` | 1 | Falta | 2 |  |
-| Width | `imageWidth` | 1 | Falta | 2 |  |
-| Outline color | `outlineColor` | 1 | Parcial | 2 | Un color para toda la rejilla (table_grid_color) |
-| Outline | `outlineStyle` | 1 | Falta | 2 |  |
-| Outline weight | `outlineWeight` | 1 | Falta | 2 |  |
-| Row padding | `rowPadding` | 1 | Falta | 2 |  |
-| Text size | `textSize` | 1 | Falta | 2 |  |
-
 ### Encabezados de columna
 
 | Opción | Clave | P | Estado | Gráficos | Nota |
 | --- | --- | ---: | --- | ---: | --- |
-| Alignment | `alignment` | 1 | Falta | 2 |  |
-| Auto expand | `autoExpand` | 1 | Falta | 1 |  |
-| Auto-size column width | `autoSizeColumnWidth` | 1 | Falta | 2 |  |
-| Background color | `backColor` | 1 | Falta | 1 |  |
-| Bold | `bold` | 1 | Falta | 1 |  |
-| Auto-size behavior | `columnAdjustment` | 1 | Falta | 2 |  |
-| Custom widths | `customColumnWidth` | 1 | Falta | 2 |  |
-| More granular | `customColumnWidthGranularView` | 1 | Falta | 1 |  |
-| Default width | `defaultColumnWidth` | 1 | Falta | 2 |  |
-| Icon color | `expandCollapseButtonsColor` | 1 | Falta | 1 |  |
-| Icon size | `expandCollapseButtonsSize` | 1 | Falta | 1 |  |
-| Font color | `fontColor` | 1 | Falta | 1 |  |
-| Font family | `fontFamily` | 1 | Falta | 1 |  |
-| Text size | `fontSize` | 1 | Falta | 1 |  |
-| Italic | `italic` | 1 | Falta | 1 |  |
-| Outline color | `outlineColor` | 1 | Falta | 2 |  |
-| Outline | `outlineStyle` | 1 | Falta | 2 |  |
-| Outline weight | `outlineWeight` | 1 | Falta | 2 |  |
-| +/- icons | `showExpandCollapseButtons` | 1 | Falta | 1 |  |
-| Title alignment | `titleAlignment` | 1 | Falta | 1 |  |
-| Underline | `underline` | 1 | Falta | 2 |  |
-| URL icon | `urlIcon` | 1 | Falta | 1 |  |
-| Word wrap | `wordWrap` | 1 | Falta | 2 |  |
+| More granular | `customColumnWidthGranularView` | 1 | Falta | 1 | El ancho se configura por campo o métrica, no por cada valor de una jerarquía |
 
 ### Encabezados de fila
 
 | Opción | Clave | P | Estado | Gráficos | Nota |
 | --- | --- | ---: | --- | ---: | --- |
-| Alignment | `alignment` | 1 | Falta | 1 |  |
-| Auto expand | `autoExpand` | 1 | Falta | 1 |  |
-| Background color | `backColor` | 1 | Falta | 1 |  |
-| Bold | `bold` | 1 | Falta | 1 |  |
-| Icon color | `expandCollapseButtonsColor` | 1 | Falta | 1 |  |
-| Icon size | `expandCollapseButtonsSize` | 1 | Falta | 1 |  |
-| expandCompositeHierarchy | `expandCompositeHierarchy` | 1 | Falta | 1 |  |
-| Font color | `fontColor` | 1 | Falta | 1 |  |
-| Font family | `fontFamily` | 1 | Falta | 1 |  |
-| Text size | `fontSize` | 1 | Falta | 1 |  |
-| Italic | `italic` | 1 | Falta | 1 |  |
-| legacyStyleDisabled | `legacyStyleDisabled` | 1 | Falta | 1 |  |
-| Outline color | `outlineColor` | 1 | Falta | 1 |  |
-| Outline | `outlineStyle` | 1 | Falta | 1 |  |
-| Outline weight | `outlineWeight` | 1 | Falta | 1 |  |
-| Repeat row headers | `repeatRowHeaders` | 1 | Falta | 1 |  |
-| +/- icons | `showExpandCollapseButtons` | 1 | Falta | 1 |  |
-| Stepped layout | `stepped` | 1 | Falta | 1 |  |
-| Indentation | `steppedLayoutIndentation` | 1 | Falta | 1 |  |
-| Underline | `underline` | 1 | Falta | 1 |  |
-| unfrozen | `unfrozen` | 1 | Falta | 1 |  |
-| URL icon | `urlIcon` | 1 | Falta | 1 |  |
-| Word wrap | `wordWrap` | 1 | Falta | 1 |  |
-
-### Filas en blanco
-
-| Opción | Clave | P | Estado | Gráficos | Nota |
-| --- | --- | ---: | --- | ---: | --- |
-| Color | `blankRowColor` | 2 | Falta | 1 |  |
-| Transparency | `blankRowTransparency` | 2 | Falta | 1 |  |
-| Color | `borderColor` | 2 | Falta | 1 |  |
-| Position | `borderPosition` | 2 | Falta | 1 |  |
-| Transparency | `borderTransparency` | 2 | Falta | 1 |  |
-| Width | `borderWidth` | 2 | Falta | 1 |  |
-| Show | `showBlankRows` | 2 | Falta | 1 |  |
-| Show | `showBorder` | 2 | Falta | 1 |  |
+| expandCompositeHierarchy | `expandCompositeHierarchy` | 1 | Falta | 1 | Sin jerarquías compuestas ni expansión selectiva por campo |
+| unfrozen | `unfrozen` | 1 | Falta | 1 | No hay fijación independiente del encabezado de fila |
 
 ### Minigráficos
 
 | Opción | Clave | P | Estado | Gráficos | Nota |
 | --- | --- | ---: | --- | ---: | --- |
-| Chart type | `chartType` | 2 | Falta | 2 |  |
-| Data color | `dataColor` | 2 | Falta | 2 |  |
-| Color | `markerColor` | 2 | Falta | 2 |  |
-| Type | `markerShape` | 2 | Falta | 2 |  |
-| Size | `markerSize` | 2 | Falta | 2 |  |
-| Show these markers | `markers` | 2 | Falta | 2 |  |
-| Width | `strokeWidth` | 2 | Falta | 2 |  |
-
-### Subtotales
-
-| Opción | Clave | P | Estado | Gráficos | Nota |
-| --- | --- | ---: | --- | ---: | --- |
-| Apply to labels | `applyToHeaders` | 1 | Falta | 1 |  |
-| Background color | `backColor` | 1 | Falta | 1 |  |
-| Bold | `bold` | 1 | Falta | 1 |  |
-| Column subtotals label | `columnSubtotalsLabel` | 1 | Falta | 1 |  |
-| Font color | `fontColor` | 1 | Falta | 1 |  |
-| Font family | `fontFamily` | 1 | Falta | 1 |  |
-| Text size | `fontSize` | 1 | Falta | 1 |  |
-| Italic | `italic` | 1 | Falta | 1 |  |
-| levelSubtotalEnabled | `levelSubtotalEnabled` | 1 | Falta | 1 |  |
-| levelSubtotalLabel | `levelSubtotalLabel` | 1 | Falta | 1 |  |
-| Per column level | `perColumnLevel` | 1 | Falta | 1 |  |
-| Per row level | `perRowLevel` | 1 | Falta | 1 |  |
-| Row subtotals label | `rowSubtotalsLabel` | 1 | Falta | 1 |  |
-| Underline | `underline` | 1 | Falta | 1 |  |
-
-### Total general de columnas
-
-| Opción | Clave | P | Estado | Gráficos | Nota |
-| --- | --- | ---: | --- | ---: | --- |
-| Apply to labels | `applyToHeaders` | 1 | Parcial | 1 | Solo mostrar (colTotals/rowTotals) |
-| Background color | `backColor` | 1 | Falta | 1 |  |
-| Bold | `bold` | 1 | Falta | 1 |  |
-| Font color | `fontColor` | 1 | Falta | 1 |  |
-| Font family | `fontFamily` | 1 | Falta | 1 |  |
-| Text size | `fontSize` | 1 | Falta | 1 |  |
-| Italic | `italic` | 1 | Falta | 1 |  |
-| Underline | `underline` | 1 | Falta | 1 |  |
-
-### Total general de filas
-
-| Opción | Clave | P | Estado | Gráficos | Nota |
-| --- | --- | ---: | --- | ---: | --- |
-| Apply to labels | `applyToHeaders` | 1 | Parcial | 1 | Solo mostrar (colTotals/rowTotals) |
-| Background color | `backColor` | 1 | Falta | 1 |  |
-| Bold | `bold` | 1 | Falta | 1 |  |
-| Font color | `fontColor` | 1 | Falta | 1 |  |
-| Font family | `fontFamily` | 1 | Falta | 1 |  |
-| Text size | `fontSize` | 1 | Falta | 1 |  |
-| Italic | `italic` | 1 | Falta | 1 |  |
-| Underline | `underline` | 1 | Falta | 1 |  |
-
-### Totales
-
-| Opción | Clave | P | Estado | Gráficos | Nota |
-| --- | --- | ---: | --- | ---: | --- |
-| Apply to labels | `applyToHeaders` | 1 | Falta | 1 |  |
-| Background color | `backColor` | 1 | Falta | 2 |  |
-| Bold | `bold` | 1 | Falta | 2 |  |
-| Font color | `fontColor` | 1 | Falta | 2 |  |
-| Font family | `fontFamily` | 1 | Falta | 2 |  |
-| Text size | `fontSize` | 1 | Falta | 2 |  |
-| Italic | `italic` | 1 | Falta | 2 |  |
-| Total label | `label` | 1 | Falta | 1 |  |
-| Outline color | `outlineColor` | 1 | Falta | 1 |  |
-| Outline | `outlineStyle` | 1 | Falta | 1 |  |
-| Outline weight | `outlineWeight` | 1 | Falta | 1 |  |
-| Underline | `underline` | 1 | Falta | 2 |  |
-
-### Valores
-
-| Opción | Clave | P | Estado | Gráficos | Nota |
-| --- | --- | ---: | --- | ---: | --- |
-| Background color | `backColor` | 1 | Falta | 2 |  |
-| Background color | `backColorPrimary` | 1 | Falta | 2 |  |
-| Alternate background color | `backColorSecondary` | 1 | Falta | 1 |  |
-| Banded row color | `bandedRowHeaders` | 1 | Falta | 1 |  |
-| Bold | `bold` | 1 | Falta | 1 |  |
-| Font color | `fontColor` | 1 | Falta | 1 |  |
-| Font color | `fontColorPrimary` | 1 | Falta | 2 |  |
-| Alternate font color | `fontColorSecondary` | 1 | Falta | 2 |  |
-| Font family | `fontFamily` | 1 | Falta | 1 |  |
-| Text size | `fontSize` | 1 | Falta | 1 |  |
-| Icons | `icon` | 1 | Falta | 2 |  |
-| Italic | `italic` | 1 | Falta | 1 |  |
-| Outline color | `outlineColor` | 1 | Falta | 2 |  |
-| Outline | `outlineStyle` | 1 | Falta | 2 |  |
-| Outline weight | `outlineWeight` | 1 | Falta | 2 |  |
-| Underline | `underline` | 1 | Falta | 2 |  |
-| URL icon | `urlIcon` | 1 | Falta | 2 |  |
-| Show on rows | `valuesOnRow` | 1 | Falta | 1 |  |
-| Web URL | `webURL` | 1 | Falta | 2 |  |
-| Word wrap | `wordWrap` | 1 | Falta | 2 |  |
+| Chart type | `chartType` | 2 | Parcial | 2 | Línea/columnas y marcadores: matriz sobre grupos de columnas visibles; tabla requiere listas numéricas ordenadas, sin nuevo rol temporal ni consulta adicional |
+| Data color | `dataColor` | 2 | Parcial | 2 | Línea/columnas y marcadores: matriz sobre grupos de columnas visibles; tabla requiere listas numéricas ordenadas, sin nuevo rol temporal ni consulta adicional |
+| Color | `markerColor` | 2 | Parcial | 2 | Línea/columnas y marcadores: matriz sobre grupos de columnas visibles; tabla requiere listas numéricas ordenadas, sin nuevo rol temporal ni consulta adicional |
+| Type | `markerShape` | 2 | Parcial | 2 | Línea/columnas y marcadores: matriz sobre grupos de columnas visibles; tabla requiere listas numéricas ordenadas, sin nuevo rol temporal ni consulta adicional |
+| Size | `markerSize` | 2 | Parcial | 2 | Línea/columnas y marcadores: matriz sobre grupos de columnas visibles; tabla requiere listas numéricas ordenadas, sin nuevo rol temporal ni consulta adicional |
+| Show these markers | `markers` | 2 | Parcial | 2 | Línea/columnas y marcadores: matriz sobre grupos de columnas visibles; tabla requiere listas numéricas ordenadas, sin nuevo rol temporal ni consulta adicional |
+| Width | `strokeWidth` | 2 | Parcial | 2 | Línea/columnas y marcadores: matriz sobre grupos de columnas visibles; tabla requiere listas numéricas ordenadas, sin nuevo rol temporal ni consulta adicional |
 
 ### accessibility
 
 | Opción | Clave | P | Estado | Gráficos | Nota |
 | --- | --- | ---: | --- | ---: | --- |
-| Column with alt text | `altTextColumns` | 3 | Falta | 2 |  |
-| Refer to row by | `rowWithReferenceText` | 3 | Falta | 1 |  |
-
-### columnWidth
-
-| Opción | Clave | P | Estado | Gráficos | Nota |
-| --- | --- | ---: | --- | ---: | --- |
-| value | `value` | 2 | Falta | 2 |  |
+| Column with alt text | `altTextColumns` | 3 | Falta | 2 | Hay texto alternativo por gráfico, no por columna |
+| Refer to row by | `rowWithReferenceText` | 3 | Falta | 1 | Hay texto alternativo por gráfico, no por columna |
 
 ## Fase 5: Tarjeta, KPI, circular y anillo
-
-### Colores / barras
-
-| Opción | Clave | P | Estado | Gráficos | Nota |
-| --- | --- | ---: | --- | ---: | --- |
-| Color | `borderColor` | 1 | Falta | 2 |  |
-| Match fill color | `borderColorMatchFill` | 1 | Falta | 2 |  |
-| Hide inner borders | `borderOutlineOnly` | 1 | Falta | 2 |  |
-| Border | `borderShow` | 1 | Falta | 2 |  |
-| Width | `borderSize` | 1 | Falta | 2 |  |
-| Transparency | `borderTransparency` | 1 | Falta | 2 |  |
-| Default color | `defaultColor` | 1 | Parcial | 2 | Color por serie o esquema; revisar color por categoría (color_scheme) |
-| Color | `fill` | 1 | Parcial | 2 | Color por serie o esquema; revisar color por categoría (color_scheme) |
-| Transparency | `fillTransparency` | 1 | Falta | 2 |  |
-
-### Estado
-
-| Opción | Clave | P | Estado | Gráficos | Nota |
-| --- | --- | ---: | --- | ---: | --- |
-| Bad Color | `badColor` | 1 | Falta | 1 |  |
-| Direction | `direction` | 1 | Falta | 1 |  |
-| Good Color | `goodColor` | 1 | Falta | 1 |  |
-| Neutral Color | `neutralColor` | 1 | Falta | 1 |  |
 
 ### Etiqueta de categoría
 
 | Opción | Clave | P | Estado | Gráficos | Nota |
 | --- | --- | ---: | --- | ---: | --- |
-| Font family | `fontFamily` | 1 | Falta | 1 |  |
-| Source spacing | `preserveWhitespace` | 1 | Falta | 1 |  |
-| Underline | `underline` | 1 | Falta | 1 |  |
+| Source spacing | `preserveWhitespace` | 1 | Parcial | 1 | Control de ajuste de texto; sin preservar espacios múltiples |
 
 ### Etiquetas de datos
 
 | Opción | Clave | P | Estado | Gráficos | Nota |
 | --- | --- | ---: | --- | ---: | --- |
-| Font family | `fontFamily` | 1 | Falta | 1 |  |
-| Display units | `labelDisplayUnits` | 1 | Parcial | 3 | Con código d3 (number_format) |
-| Value decimal places | `labelPrecision` | 1 | Parcial | 3 | Con código d3 (number_format) |
-| Overflow text | `overflow` | 1 | Falta | 2 |  |
-| % decimal places | `percentageLabelPrecision` | 1 | Parcial | 2 | Con código d3 (number_format) |
-| Label position | `position` | 1 | Parcial | 2 | Solo dentro o fuera (labels_outside) |
-| Source spacing | `preserveWhitespace` | 1 | Falta | 1 |  |
-| Underline | `underline` | 1 | Falta | 3 | El motor de gráficos no dibuja texto subrayado |
-
-### Fecha
-
-| Opción | Clave | P | Estado | Gráficos | Nota |
-| --- | --- | ---: | --- | ---: | --- |
-| Bold | `bold` | 1 | Falta | 1 |  |
-| Text size | `fontSize` | 1 | Falta | 1 |  |
-| Italic | `italic` | 1 | Falta | 1 |  |
-| Font color | `lastDateFontColor` | 1 | Falta | 1 |  |
-| Font family | `lastDateFontFamily` | 1 | Falta | 1 |  |
-| Underline | `underline` | 1 | Falta | 1 |  |
-
-### Indicador
-
-| Opción | Clave | P | Estado | Gráficos | Nota |
-| --- | --- | ---: | --- | ---: | --- |
-| Font family | `fontFamily` | 1 | Falta | 1 |  |
-| Horizontal alignment | `horizontalAlignment` | 1 | Falta | 1 |  |
-| Icon size | `iconSize` | 1 | Falta | 1 |  |
-| Display units | `indicatorDisplayUnits` | 1 | Parcial | 1 | Con código d3 (y_axis_format) |
-| Value decimal places | `indicatorPrecision` | 1 | Parcial | 1 | Con código d3 (y_axis_format) |
-| Show icon | `showIcon` | 1 | Falta | 1 |  |
-| Underline | `underline` | 1 | Falta | 1 |  |
-| Vertical alignment | `verticalAlignment` | 1 | Falta | 1 |  |
+| Label position | `position` | 1 | Parcial | 2 | Posiciones explícitas del motor; sin preferencia automática |
+| Source spacing | `preserveWhitespace` | 1 | Parcial | 1 | Control de ajuste de texto; sin preservar espacios múltiples |
+| Underline | `underline` | 1 | Falta | 2 | El motor de gráficos no dibuja texto subrayado |
 
 ### Leyenda
 
 | Opción | Clave | P | Estado | Gráficos | Nota |
 | --- | --- | ---: | --- | ---: | --- |
-| Title | `showTitle` | 1 | Falta | 2 |  |
-| Legend Name | `titleText` | 1 | Falta | 2 |  |
 | Underline | `underline` | 1 | Falta | 2 | El motor de gráficos no dibuja texto subrayado |
 
 ### Objetivo
 
 | Opción | Clave | P | Estado | Gráficos | Nota |
 | --- | --- | ---: | --- | ---: | --- |
-| Bold | `bold` | 1 | Falta | 1 |  |
-| Distance direction | `direction` | 1 | Falta | 1 |  |
-| Font color | `distanceFontColor` | 1 | Falta | 1 |  |
-| Font family | `distanceFontFamily` | 1 | Falta | 1 |  |
-| Label | `distanceLabel` | 1 | Falta | 1 |  |
-| Text size | `fontSize` | 1 | Falta | 1 |  |
-| Font color | `goalFontColor` | 1 | Falta | 1 |  |
-| Font family | `goalFontFamily` | 1 | Falta | 1 |  |
-| Label | `goalText` | 1 | Falta | 1 |  |
-| Italic | `italic` | 1 | Falta | 1 |  |
-| Value decimal places | `labelPrecision` | 1 | Falta | 1 |  |
-| Distance | `showDistance` | 1 | Parcial | 1 | Comparación contra periodo, no contra objetivo (compare_lag) |
-| Goal | `showGoal` | 1 | Parcial | 1 | Comparación contra periodo, no contra objetivo (compare_lag) |
-| Bold | `titleBold` | 1 | Falta | 1 |  |
-| Text size | `titleFontSize` | 1 | Falta | 1 |  |
-| Italic | `titleItalic` | 1 | Falta | 1 |  |
-| Underline | `titleUnderline` | 1 | Falta | 1 |  |
-| Underline | `underline` | 1 | Falta | 1 |  |
-
-### Porciones
-
-| Opción | Clave | P | Estado | Gráficos | Nota |
-| --- | --- | ---: | --- | ---: | --- |
-| Start angle | `startAngle` | 1 | Falta | 2 |  |
-
-### Tendencia
-
-| Opción | Clave | P | Estado | Gráficos | Nota |
-| --- | --- | ---: | --- | ---: | --- |
-| Transparency | `transparency` | 1 | Falta | 1 |  |
+| Distance direction | `direction` | 1 | Parcial | 1 | Dirección favorable compartida con estado; distancia con signo aritmético |
+| Label | `distanceLabel` | 1 | Parcial | 1 | Valor absoluto o porcentaje; sin mostrar ambos a la vez |
+| Value decimal places | `labelPrecision` | 1 | Parcial | 1 | Fuente de la fila completa; unidades y decimales compartidos con indicador |
+| Bold | `titleBold` | 1 | Parcial | 1 | Fuente de la fila completa; unidades y decimales compartidos con indicador |
+| Text size | `titleFontSize` | 1 | Parcial | 1 | Fuente de la fila completa; unidades y decimales compartidos con indicador |
+| Italic | `titleItalic` | 1 | Parcial | 1 | Fuente de la fila completa; unidades y decimales compartidos con indicador |
+| Underline | `titleUnderline` | 1 | Parcial | 1 | Fuente de la fila completa; unidades y decimales compartidos con indicador |
 
 ### centerBackground
 
 | Opción | Clave | P | Estado | Gráficos | Nota |
 | --- | --- | ---: | --- | ---: | --- |
-| Fill | `fillColor` | 1 | Falta | 1 |  |
-| Image fit | `fit` | 1 | Falta | 1 |  |
-| image | `image` | 1 | Falta | 1 |  |
-| Data | `imageData` | 1 | Falta | 1 |  |
-| Transparency | `imageTransparency` | 1 | Falta | 1 |  |
-| Image source | `imageType` | 1 | Falta | 1 |  |
-| Image URL | `imageUrl` | 1 | Falta | 1 |  |
-| Padding | `padding` | 1 | Falta | 1 |  |
-| Show | `show` | 1 | Falta | 1 |  |
-| Transparency | `transparency` | 1 | Falta | 1 |  |
+| Image fit | `fit` | 1 | Falta | 1 | Sin imagen central: requiere carga, selección y ajuste |
+| image | `image` | 1 | Falta | 1 | Sin imagen central: requiere carga, selección y ajuste |
+| Data | `imageData` | 1 | Falta | 1 | Sin imagen central: requiere carga, selección y ajuste |
+| Transparency | `imageTransparency` | 1 | Falta | 1 | Sin imagen central: requiere carga, selección y ajuste |
+| Image source | `imageType` | 1 | Falta | 1 | Sin imagen central: requiere carga, selección y ajuste |
+| Image URL | `imageUrl` | 1 | Falta | 1 | Sin imagen central: requiere carga, selección y ajuste |
 
 ### image
 
 | Opción | Clave | P | Estado | Gráficos | Nota |
 | --- | --- | ---: | --- | ---: | --- |
-| Alt text | `altText` | 3 | Falta | 1 |  |
-| Gap | `gap` | 3 | Falta | 1 |  |
-| image | `image` | 3 | Falta | 1 |  |
-| Data | `imageData` | 3 | Falta | 1 |  |
-| Image source | `imageType` | 3 | Falta | 1 |  |
-| Image URL | `imageUrl` | 3 | Falta | 1 |  |
-| Position | `position` | 3 | Falta | 1 |  |
-| Show | `show` | 3 | Falta | 1 |  |
-| Size | `size` | 3 | Falta | 1 |  |
-| Transparency | `transparency` | 3 | Falta | 1 |  |
+| Alt text | `altText` | 3 | Falta | 1 | Sin imagen central: requiere carga, selección y ajuste |
+| Gap | `gap` | 3 | Falta | 1 | Sin imagen central: requiere carga, selección y ajuste |
+| image | `image` | 3 | Falta | 1 | Sin imagen central: requiere carga, selección y ajuste |
+| Data | `imageData` | 3 | Falta | 1 | Sin imagen central: requiere carga, selección y ajuste |
+| Image source | `imageType` | 3 | Falta | 1 | Sin imagen central: requiere carga, selección y ajuste |
+| Image URL | `imageUrl` | 3 | Falta | 1 | Sin imagen central: requiere carga, selección y ajuste |
+| Position | `position` | 3 | Falta | 1 | Sin imagen central: requiere carga, selección y ajuste |
+| Show | `show` | 3 | Falta | 1 | Sin imagen central: requiere carga, selección y ajuste |
+| Size | `size` | 3 | Falta | 1 | Sin imagen central: requiere carga, selección y ajuste |
+| Transparency | `transparency` | 3 | Falta | 1 | Sin imagen central: requiere carga, selección y ajuste |
 
 ### label
 
 | Opción | Clave | P | Estado | Gráficos | Nota |
 | --- | --- | ---: | --- | ---: | --- |
-| Bold | `bold` | 1 | Falta | 1 |  |
-| Color | `fontColor` | 1 | Falta | 1 |  |
-| Font family | `fontFamily` | 1 | Falta | 1 |  |
-| Text size | `fontSize` | 1 | Falta | 1 |  |
-| Gap | `gap` | 1 | Falta | 1 |  |
-| Italic | `italic` | 1 | Falta | 1 |  |
-| Position | `position` | 1 | Falta | 1 |  |
-| Show | `show` | 1 | Falta | 1 |  |
-| Text | `text` | 1 | Falta | 1 |  |
-| Text wrap | `textWrap` | 1 | Falta | 1 |  |
-| Underline | `underline` | 1 | Falta | 1 |  |
+| Gap | `gap` | 1 | Falta | 1 | La etiqueta central va siempre sobre el valor |
+| Position | `position` | 1 | Falta | 1 | La etiqueta central va siempre sobre el valor |
+| Show | `show` | 1 | Parcial | 1 | Prefijo del valor central; sin etiqueta independiente |
+| Text | `text` | 1 | Parcial | 1 | Prefijo del valor central; sin etiqueta independiente |
+| Text wrap | `textWrap` | 1 | Falta | 1 | La etiqueta central va siempre sobre el valor |
+| Underline | `underline` | 1 | Falta | 1 | La etiqueta central va siempre sobre el valor |
 
 ### value
 
 | Opción | Clave | P | Estado | Gráficos | Nota |
 | --- | --- | ---: | --- | ---: | --- |
-| Bold | `bold` | 1 | Falta | 1 |  |
-| Color | `fontColor` | 1 | Falta | 1 |  |
-| Font family | `fontFamily` | 1 | Falta | 1 |  |
-| Text size | `fontSize` | 1 | Falta | 1 |  |
-| Italic | `italic` | 1 | Falta | 1 |  |
-| Display units | `labelDisplayUnits` | 1 | Falta | 1 |  |
-| Value decimal places | `labelPrecision` | 1 | Falta | 1 |  |
-| Show | `show` | 1 | Falta | 1 |  |
-| Show blank as | `showBlankAs` | 1 | Falta | 1 |  |
-| Text wrap | `textWrap` | 1 | Falta | 1 |  |
-| Underline | `underline` | 1 | Falta | 1 |  |
-| Value | `value` | 1 | Falta | 1 |  |
-
-### wordWrap
-
-| Opción | Clave | P | Estado | Gráficos | Nota |
-| --- | --- | ---: | --- | ---: | --- |
-| Show | `show` | 3 | Falta | 1 |  |
+| Show blank as | `showBlankAs` | 1 | Falta | 1 | El valor central es texto del motor, sin esas opciones |
+| Text wrap | `textWrap` | 1 | Falta | 1 | El valor central es texto del motor, sin esas opciones |
+| Underline | `underline` | 1 | Falta | 1 | El valor central es texto del motor, sin esas opciones |
+| Value | `value` | 1 | Falta | 1 | El valor central es texto del motor, sin esas opciones |
 
 ## Fase 6: Cascada, embudo, treemap, medidor y dispersión
 
@@ -601,19 +317,14 @@ gráficos donde falta. Lo que ya tenemos de cada gráfico está en [`por-grafico
 
 | Opción | Clave | P | Estado | Gráficos | Nota |
 | --- | --- | ---: | --- | ---: | --- |
-| Default color | `defaultColor` | 1 | Parcial | 2 | Color por serie o esquema; revisar color por categoría (color_scheme) |
-| Default color | `fill` | 1 | Parcial | 4 | Color por serie o esquema; revisar color por categoría (color_scheme) |
-| Color saturation | `fillRule` | 1 | Falta | 3 |  |
-| Show all | `showAllDataPoints` | 1 | Falta | 2 |  |
-| Target color | `target` | 1 | Falta | 1 |  |
+| Fill color | `fill` | 1 | Parcial | 1 | Color por serie o esquema; revisar color por categoría (color_scheme) |
+| Color saturation | `fillRule` | 1 | Parcial | 3 | Escala continua de dos colores; sin reglas por campo |
 
 ### Disposición
 
 | Opción | Clave | P | Estado | Gráficos | Nota |
 | --- | --- | ---: | --- | ---: | --- |
-| Space between all nodes | `innerPadding` | 1 | Falta | 1 |  |
-| Space between groups | `outerPadding` | 1 | Falta | 1 |  |
-| Tiling Method | `tilingMethod` | 1 | Falta | 1 |  |
+| Tiling Method | `tilingMethod` | 1 | Falta | 1 | ECharts no ofrece los algoritmos de disposición de Power BI |
 
 ### Eje X / categorías
 
@@ -621,29 +332,14 @@ gráficos donde falta. Lo que ya tenemos de cada gráfico está en [`por-grafico
 | --- | --- | ---: | --- | ---: | --- |
 | Style | `axisStyle` | 1 | Falta | 2 | El eje muestra sus valores y su título, sin elegir entre ellos |
 | Type | `axisType` | 1 | Parcial | 1 | Sale del tipo de la columna; se fuerza con «Forzar categórico» |
-| Bold | `bold` | 1 | Falta | 2 |  |
-| Color | `color` | 1 | Falta | 1 |  |
 | Maximum | `end` | 1 | Parcial | 1 | Solo ejes numéricos (truncateXAxis/xAxisBounds) |
-| Font family | `fontFamily` | 1 | Falta | 2 |  |
-| Text size | `fontSize` | 1 | Falta | 2 |  |
 | Scale by width | `gridlineAutoScale` | 1 | Falta | 1 | El motor de gráficos no escala el trazo con el zoom |
-| Initial scroll position | `initialScrollPosition` | 1 | Falta | 1 |  |
-| Space between categories | `innerPadding` | 1 | Falta | 2 |  |
-| Italic | `italic` | 1 | Falta | 2 |  |
-| Color | `labelColor` | 1 | Falta | 1 |  |
-| Maximum size | `maxMarginFactor` | 1 | Falta | 2 |  |
+| Maximum size | `maxMarginFactor` | 1 | Parcial | 2 | Ancho máximo de etiqueta en píxeles, no en % del gráfico |
 | Outer padding | `outerPadding` | 1 | Falta | 2 | El motor de gráficos no tiene relleno exterior de categorías |
-| Minimum category width | `preferredCategoryWidth` | 1 | Falta | 1 |  |
 | Round range | `roundRange` | 1 | Falta | 1 | El motor de gráficos redondea el eje salvo con límites fijos |
-| Show | `show` | 1 | Falta | 2 |  |
 | Minimum | `start` | 1 | Parcial | 1 | Solo ejes numéricos (truncateXAxis/xAxisBounds) |
-| Bold | `titleBold` | 1 | Falta | 1 |  |
-| Title color | `titleColor` | 1 | Falta | 1 |  |
-| Font family | `titleFontFamily` | 1 | Falta | 1 |  |
-| Title text size | `titleFontSize` | 1 | Falta | 1 |  |
-| Italic | `titleItalic` | 1 | Falta | 1 |  |
 | Underline | `titleUnderline` | 1 | Falta | 2 | El motor de gráficos no dibuja texto subrayado |
-| Show blank values | `treatNullsAsZero` | 1 | Falta | 1 |  |
+| Show blank values | `treatNullsAsZero` | 1 | Falta | 1 | Un valor nulo no dibuja marca |
 | Underline | `underline` | 1 | Falta | 3 | El motor de gráficos no dibuja texto subrayado |
 
 ### Eje Y / valores
@@ -651,212 +347,119 @@ gráficos donde falta. Lo que ya tenemos de cada gráfico está en [`por-grafico
 | Opción | Clave | P | Estado | Gráficos | Nota |
 | --- | --- | ---: | --- | ---: | --- |
 | Style | `axisStyle` | 1 | Falta | 2 | El eje muestra sus valores y su título, sin elegir entre ellos |
-| Bold | `bold` | 1 | Falta | 1 |  |
-| Maximum | `end` | 1 | Falta | 1 |  |
-| Font family | `fontFamily` | 1 | Falta | 1 |  |
-| Text size | `fontSize` | 1 | Falta | 1 |  |
 | Scale by width | `gridlineAutoScale` | 1 | Falta | 2 | El motor de gráficos no escala el trazo con el zoom |
-| Color | `gridlineColor` | 1 | Falta | 1 |  |
-| Dash array | `gridlineDashArray` | 1 | Falta | 1 |  |
-| Dash cap | `gridlineDashCap` | 1 | Falta | 1 |  |
-| Show | `gridlineShow` | 1 | Falta | 1 |  |
-| Line style | `gridlineStyle` | 1 | Falta | 1 |  |
-| Width | `gridlineThickness` | 1 | Falta | 1 |  |
-| Transparency | `gridlineTransparency` | 1 | Falta | 1 |  |
-| Invert range | `invertAxis` | 1 | Falta | 1 |  |
-| Italic | `italic` | 1 | Falta | 1 |  |
-| Color | `labelColor` | 1 | Falta | 1 |  |
-| Display units | `labelDisplayUnits` | 1 | Parcial | 1 | Con código d3, no con unidades y decimales (y_axis_format) |
-| Value decimal places | `labelPrecision` | 1 | Parcial | 1 | Con código d3, no con unidades y decimales (y_axis_format) |
 | Round range | `roundRange` | 1 | Falta | 2 | El motor de gráficos redondea el eje salvo con límites fijos |
-| Show | `show` | 1 | Falta | 1 |  |
-| Minimum | `start` | 1 | Falta | 1 |  |
-| Switch axis position | `switchAxisPosition` | 1 | Falta | 1 |  |
-| Bold | `titleBold` | 1 | Falta | 1 |  |
-| Title color | `titleColor` | 1 | Falta | 1 |  |
-| Font family | `titleFontFamily` | 1 | Falta | 1 |  |
-| Title text size | `titleFontSize` | 1 | Falta | 1 |  |
-| Italic | `titleItalic` | 1 | Falta | 1 |  |
 | Underline | `titleUnderline` | 1 | Falta | 2 | El motor de gráficos no dibuja texto subrayado |
-| Show total | `totalsEnabled` | 1 | Falta | 1 |  |
-| Show blank values | `treatNullsAsZero` | 1 | Falta | 1 |  |
+| Show blank values | `treatNullsAsZero` | 1 | Falta | 1 | Un valor nulo no dibuja marca |
 | Underline | `underline` | 1 | Falta | 2 | El motor de gráficos no dibuja texto subrayado |
 
 ### Etiqueta de categoría
 
 | Opción | Clave | P | Estado | Gráficos | Nota |
 | --- | --- | ---: | --- | ---: | --- |
-| Color | `backgroundColor` | 1 | Falta | 1 |  |
-| Transparency | `backgroundTransparency` | 1 | Falta | 1 |  |
-| Bold | `bold` | 1 | Falta | 2 |  |
-| Color | `color` | 1 | Falta | 2 |  |
-| Show background | `enableBackground` | 1 | Falta | 1 |  |
-| Font family | `fontFamily` | 1 | Falta | 2 |  |
-| Text size | `fontSize` | 1 | Falta | 2 |  |
-| Italic | `italic` | 1 | Falta | 2 |  |
-| Show | `show` | 1 | Falta | 2 |  |
-| Underline | `underline` | 1 | Falta | 2 |  |
+| Color | `backgroundColor` | 1 | Falta | 1 | El título de la etiqueta no tiene fondo propio |
+| Transparency | `backgroundTransparency` | 1 | Falta | 1 | El título de la etiqueta no tiene fondo propio |
+| Bold | `bold` | 1 | Parcial | 1 | Título de la etiqueta con la serie o la categoría, con su fuente |
+| Color | `color` | 1 | Parcial | 1 | Título de la etiqueta con la serie o la categoría, con su fuente |
+| Show background | `enableBackground` | 1 | Falta | 1 | El título de la etiqueta no tiene fondo propio |
+| Font family | `fontFamily` | 1 | Parcial | 1 | Título de la etiqueta con la serie o la categoría, con su fuente |
+| Text size | `fontSize` | 1 | Parcial | 1 | Título de la etiqueta con la serie o la categoría, con su fuente |
+| Italic | `italic` | 1 | Parcial | 1 | Título de la etiqueta con la serie o la categoría, con su fuente |
+| Show | `show` | 1 | Parcial | 1 | Título de la etiqueta con la serie o la categoría, con su fuente |
+| Underline | `underline` | 1 | Falta | 2 | El motor de gráficos no dibuja texto subrayado |
 
 ### Etiquetas de datos
 
 | Opción | Clave | P | Estado | Gráficos | Nota |
 | --- | --- | ---: | --- | ---: | --- |
-| Color | `backgroundColor` | 1 | Falta | 2 |  |
-| Transparency | `backgroundTransparency` | 1 | Falta | 2 |  |
-| Bold | `bold` | 1 | Falta | 4 |  |
-| Color | `color` | 1 | Falta | 4 |  |
-| Show background | `enableBackground` | 1 | Falta | 2 |  |
-| Font family | `fontFamily` | 1 | Falta | 4 |  |
-| Text size | `fontSize` | 1 | Falta | 4 |  |
-| Label style | `funnelLabelStyle` | 1 | Falta | 1 |  |
-| Italic | `italic` | 1 | Falta | 4 |  |
-| Display units | `labelDisplayUnits` | 1 | Falta | 4 |  |
-| Orientation | `labelOrientation` | 1 | Falta | 1 |  |
-| Position | `labelPosition` | 1 | Falta | 2 |  |
-| Value decimal places | `labelPrecision` | 1 | Falta | 4 |  |
-| % decimal places | `percentageLabelPrecision` | 1 | Parcial | 1 | Con código d3 (number_format) |
-| Show | `show` | 1 | Falta | 2 |  |
+| Position | `labelPosition` | 1 | Parcial | 2 | Posiciones explícitas del motor; sin preferencia automática |
 | Underline | `underline` | 1 | Falta | 4 | El motor de gráficos no dibuja texto subrayado |
 
 ### Fondo del área de trazado
 
 | Opción | Clave | P | Estado | Gráficos | Nota |
 | --- | --- | ---: | --- | ---: | --- |
-| Background color | `color` | 2 | Falta | 1 |  |
-| Transparency | `colorTransparency` | 2 | Falta | 1 |  |
-| Image fit | `fit` | 2 | Falta | 2 |  |
-| image | `image` | 2 | Falta | 2 |  |
-| Data | `imageData` | 2 | Falta | 2 |  |
-| Image source | `sourceType` | 2 | Falta | 2 |  |
+| Image fit | `fit` | 2 | Parcial | 2 | En mosaico o una vez, sin ajustar al área |
+| image | `image` | 2 | Parcial | 2 | Por dirección de la imagen, sin subirla |
+| Data | `imageData` | 2 | Parcial | 2 | Por dirección de la imagen, sin subirla |
+| Image source | `sourceType` | 2 | Parcial | 2 | Por dirección de la imagen, sin subirla |
 | Transparency | `transparency` | 2 | Falta | 2 | El motor de gráficos no atenúa una imagen de fondo |
-| Image URL | `url` | 2 | Falta | 2 |  |
+| Image URL | `url` | 2 | Parcial | 2 | Por dirección de la imagen, sin subirla |
 
 ### Leyenda
 
 | Opción | Clave | P | Estado | Gráficos | Nota |
 | --- | --- | ---: | --- | ---: | --- |
-| Bold | `bold` | 1 | Falta | 2 |  |
-| Font family | `fontFamily` | 1 | Falta | 2 |  |
-| Text size | `fontSize` | 1 | Falta | 2 |  |
-| Italic | `italic` | 1 | Falta | 2 |  |
-| Color | `labelColor` | 1 | Falta | 2 |  |
-| Position | `position` | 1 | Falta | 2 |  |
-| Show | `show` | 1 | Falta | 1 |  |
+| Position | `position` | 1 | Falta | 1 | El treemap no tiene leyenda: sus etiquetas nombran cada grupo |
+| Show | `show` | 1 | Falta | 1 | El treemap no tiene leyenda: sus etiquetas nombran cada grupo |
 | Show | `showGradientLegend` | 1 | Falta | 1 | Sin leyenda para la escala de color |
-| Title | `showTitle` | 1 | Falta | 2 |  |
-| Legend Name | `titleText` | 1 | Falta | 2 |  |
 | Underline | `underline` | 1 | Falta | 3 | El motor de gráficos no dibuja texto subrayado |
 
 ### Valor principal
 
 | Opción | Clave | P | Estado | Gráficos | Nota |
 | --- | --- | ---: | --- | ---: | --- |
-| Bold | `bold` | 1 | Falta | 1 |  |
-| Color | `color` | 1 | Falta | 1 |  |
-| Field | `dynamicLabelValue` | 1 | Falta | 1 |  |
-| Font family | `fontFamily` | 1 | Falta | 1 |  |
-| Italic | `italic` | 1 | Falta | 1 |  |
-| Display units | `labelDisplayUnits` | 1 | Parcial | 1 | Con código d3 (number_format) |
-| Value decimal places | `labelPrecision` | 1 | Parcial | 1 | Con código d3 (number_format) |
-| Show | `show` | 1 | Parcial | 1 | Valor siempre visible (font_size/show_progress) |
-| Custom label | `showDynamicLabels` | 1 | Falta | 1 |  |
+| Field | `dynamicLabelValue` | 1 | Parcial | 1 | Etiqueta manual con {value}; sin campo dinámico |
+| Custom label | `showDynamicLabels` | 1 | Parcial | 1 | Etiqueta manual con {value}; sin campo dinámico |
 | Underline | `underline` | 1 | Falta | 1 |  |
 
 ### axis
 
 | Opción | Clave | P | Estado | Gráficos | Nota |
 | --- | --- | ---: | --- | ---: | --- |
-| Target | `target` | 1 | Falta | 1 |  |
+| Target | `target` | 1 | Parcial | 1 | Objetivo numérico; sin campo de objetivo |
 
 ### breakdown
 
 | Opción | Clave | P | Estado | Gráficos | Nota |
 | --- | --- | ---: | --- | ---: | --- |
-| Max breakdowns | `maxBreakdowns` | 2 | Falta | 1 |  |
+| Max breakdowns | `maxBreakdowns` | 2 | Falta | 1 | Requiere reagrupar consulta y preservar filtros de Otros |
 
 ### bubbles
 
 | Opción | Clave | P | Estado | Gráficos | Nota |
 | --- | --- | ---: | --- | ---: | --- |
-| Size multiplier | `bubbleSize` | 1 | Falta | 1 |  |
-| Range scaling | `markerRangeType` | 1 | Falta | 1 |  |
-| Type | `markerShape` | 1 | Falta | 1 |  |
-| Auto-fit markers | `preventOverflow` | 1 | Falta | 1 |  |
-| Customize series | `showSeries` | 1 | Falta | 1 |  |
-
-### colorBorder
-
-| Opción | Clave | P | Estado | Gráficos | Nota |
-| --- | --- | ---: | --- | ---: | --- |
-| Show | `show` | 2 | Falta | 1 |  |
-
-### colorByCategory
-
-| Opción | Clave | P | Estado | Gráficos | Nota |
-| --- | --- | ---: | --- | ---: | --- |
-| Show | `show` | 2 | Falta | 1 |  |
-
-### fillPoint
-
-| Opción | Clave | P | Estado | Gráficos | Nota |
-| --- | --- | ---: | --- | ---: | --- |
-| Style | `style` | 2 | Falta | 1 |  |
+| Range scaling | `markerRangeType` | 1 | Falta | 1 | Sin ajuste de escala para contener marcadores ni modos de rango |
+| Auto-fit markers | `preventOverflow` | 1 | Falta | 1 | Sin ajuste de escala para contener marcadores ni modos de rango |
 
 ### percentBarLabel
 
 | Opción | Clave | P | Estado | Gráficos | Nota |
 | --- | --- | ---: | --- | ---: | --- |
-| Bold | `bold` | 2 | Falta | 1 |  |
-| Color | `color` | 2 | Falta | 1 |  |
-| Font family | `fontFamily` | 2 | Falta | 1 |  |
-| Text size | `fontSize` | 2 | Falta | 1 |  |
-| Italic | `italic` | 2 | Falta | 1 |  |
-| Show | `show` | 2 | Parcial | 1 | Porcentaje (percent_calculation_type) |
-| Underline | `underline` | 2 | Falta | 1 |  |
+| Underline | `underline` | 2 | Falta | 1 | El motor de gráficos no dibuja texto subrayado |
 
 ### plotAreaShading
 
 | Opción | Clave | P | Estado | Gráficos | Nota |
 | --- | --- | ---: | --- | ---: | --- |
-| Name | `displayName` | 2 | Falta | 1 |  |
-| Lower shading | `lowerShadingColor` | 2 | Falta | 1 |  |
-| Show | `show` | 2 | Falta | 1 |  |
-| Transparency | `transparency` | 2 | Falta | 1 |  |
-| Upper shading | `upperShadingColor` | 2 | Falta | 1 |  |
+| Name | `displayName` | 2 | Falta | 1 | El sombreado no tiene nombre |
 
 ### ratioLine
 
 | Opción | Clave | P | Estado | Gráficos | Nota |
 | --- | --- | ---: | --- | ---: | --- |
-| Scale by width | `autoScale` | 2 | Falta | 1 |  |
-| Dash array | `dashArray` | 2 | Falta | 1 |  |
-| Dash cap | `dashCap` | 2 | Falta | 1 |  |
-| Name | `displayName` | 2 | Falta | 1 |  |
-| Color | `lineColor` | 2 | Falta | 1 |  |
-| Show | `show` | 2 | Falta | 1 |  |
-| Line style | `style` | 2 | Falta | 1 |  |
-| Transparency | `transparency` | 2 | Falta | 1 |  |
-| Width | `width` | 2 | Falta | 1 |  |
+| Scale by width | `autoScale` | 2 | Falta | 1 | El motor de gráficos no escala el trazo con el zoom |
+| Dash cap | `dashCap` | 2 | Falta | 1 | Los extremos no se eligen en esta línea |
 
 ### sentimentColors
 
 | Opción | Clave | P | Estado | Gráficos | Nota |
 | --- | --- | ---: | --- | ---: | --- |
-| Other | `otherFill` | 1 | Falta | 1 |  |
+| Other | `otherFill` | 1 | Falta | 1 | Sin grupo Otros: depende del máximo de desgloses |
 
 ### target
 
 | Opción | Clave | P | Estado | Gráficos | Nota |
 | --- | --- | ---: | --- | ---: | --- |
-| Bold | `bold` | 1 | Falta | 1 |  |
-| Color | `color` | 1 | Falta | 1 |  |
-| Font family | `fontFamily` | 1 | Falta | 1 |  |
-| Text size | `fontSize` | 1 | Falta | 1 |  |
-| Italic | `italic` | 1 | Falta | 1 |  |
-| Display units | `labelDisplayUnits` | 1 | Falta | 1 |  |
-| Value decimal places | `labelPrecision` | 1 | Falta | 1 |  |
-| Show | `show` | 1 | Falta | 1 |  |
-| Underline | `underline` | 1 | Falta | 1 |  |
+| Bold | `bold` | 1 | Parcial | 1 | Puntero y fuente propios; unidades y decimales compartidos con valor |
+| Color | `color` | 1 | Parcial | 1 | Puntero y fuente propios; unidades y decimales compartidos con valor |
+| Font family | `fontFamily` | 1 | Parcial | 1 | Puntero y fuente propios; unidades y decimales compartidos con valor |
+| Text size | `fontSize` | 1 | Parcial | 1 | Puntero y fuente propios; unidades y decimales compartidos con valor |
+| Italic | `italic` | 1 | Parcial | 1 | Puntero y fuente propios; unidades y decimales compartidos con valor |
+| Display units | `labelDisplayUnits` | 1 | Parcial | 1 | Puntero y fuente propios; unidades y decimales compartidos con valor |
+| Value decimal places | `labelPrecision` | 1 | Parcial | 1 | Puntero y fuente propios; unidades y decimales compartidos con valor |
+| Show | `show` | 1 | Parcial | 1 | Puntero y fuente propios; unidades y decimales compartidos con valor |
+| Underline | `underline` | 1 | Falta | 1 | El motor de gráficos no dibuja texto subrayado |
 
 ## Fase 7: Segmentadores
 
@@ -1899,8 +1502,8 @@ gráficos donde falta. Lo que ya tenemos de cada gráfico está en [`por-grafico
 
 | Opción | Clave | P | Estado | Gráficos | Nota |
 | --- | --- | ---: | --- | ---: | --- |
-| callout | `callout` | 3 | Falta | 14 |  |
-| highlight | `highlight` | 3 | Falta | 1 |  |
+| callout | `callout` | 3 | Falta | 14 | Sin anotaciones en el gráfico: fase 8 |
+| highlight | `highlight` | 3 | Falta | 1 | Sin anotaciones en el gráfico: fase 8 |
 
 ### Control deslizante de zoom
 
@@ -2745,7 +2348,7 @@ gráficos donde falta. Lo que ya tenemos de cada gráfico está en [`por-grafico
 
 | Opción | Clave | P | Estado | Gráficos | Nota |
 | --- | --- | ---: | --- | ---: | --- |
-| callout | `callout` | 3 | Falta | 1 | No tenemos este gráfico |
+| callout | `callout` | 3 | Falta | 1 | Sin anotaciones en el gráfico: fase 8 |
 
 ### Barras de error
 
@@ -3051,7 +2654,7 @@ gráficos donde falta. Lo que ya tenemos de cada gráfico está en [`por-grafico
 | Text size | `fontSize` | 1 | Falta | 1 | No tenemos este gráfico |
 | Italic | `italic` | 1 | Falta | 1 | No tenemos este gráfico |
 | Show | `show` | 1 | Falta | 1 | No tenemos este gráfico |
-| Underline | `underline` | 1 | Falta | 1 | No tenemos este gráfico |
+| Underline | `underline` | 1 | Falta | 1 | El motor de gráficos no dibuja texto subrayado |
 
 ### Etiquetas de datos
 
@@ -3667,15 +3270,10 @@ gráficos donde falta. Lo que ya tenemos de cada gráfico está en [`por-grafico
 | Opción | Clave | P | Estado | Gráficos | Nota |
 | --- | --- | ---: | --- | ---: | --- |
 | Align baselines | `alignBaselines` | 1 | Falta | 1 |  |
-| Font family | `fontFamily` | 1 | Falta | 1 |  |
 | Heading | `heading` | 1 | Falta | 1 |  |
 | Horizontal alignment | `horizontalAlignment` | 1 | Falta | 1 |  |
 | Match value alignment | `matchValueAlignment` | 1 | Falta | 1 |  |
-| Position | `position` | 1 | Falta | 1 |  |
-| Text | `text` | 1 | Falta | 1 |  |
-| Text wrap | `textWrap` | 1 | Falta | 1 |  |
 | Transparency | `transparency` | 1 | Falta | 1 |  |
-| Underline | `underline` | 1 | Falta | 1 |  |
 
 ### outline
 
@@ -3940,12 +3538,4 @@ gráficos donde falta. Lo que ya tenemos de cada gráfico está en [`por-grafico
 | Opción | Clave | P | Estado | Gráficos | Nota |
 | --- | --- | ---: | --- | ---: | --- |
 | Format code | `customFormatString` | 1 | Falta | 1 |  |
-| Font family | `fontFamily` | 1 | Falta | 1 |  |
-| Horizontal alignment | `horizontalAlignment` | 1 | Falta | 1 |  |
-| Display units | `labelDisplayUnits` | 1 | Falta | 1 |  |
-| Value decimal places | `labelPrecision` | 1 | Falta | 1 |  |
-| Show | `show` | 1 | Falta | 1 |  |
-| Show blank as | `showBlankAs` | 1 | Falta | 1 |  |
-| Text wrap | `textWrap` | 1 | Falta | 1 |  |
 | Transparency | `transparency` | 1 | Falta | 1 |  |
-| Underline | `underline` | 1 | Falta | 1 |  |

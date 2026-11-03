@@ -5,73 +5,73 @@ Nuestro gráfico: bigtrend. Generado desde `reportThemeSchema-2.159.json`.
 ## Visual
 
 
-### Estado (`status`) · P1 · 0/4
+### Estado (`status`) · P1 · 4/4
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
-| Bad Color | `badColor` | fill | Falta |  |
-| Direction | `direction` | enum: High is good, Low is good | Falta |  |
-| Good Color | `goodColor` | fill | Falta |  |
-| Neutral Color | `neutralColor` | fill | Falta |  |
+| Bad Color | `badColor` | fill | Tiene | Comparación contra objetivo, dirección favorable y margen neutro |
+| Direction | `direction` | enum: High is good, Low is good | Tiene | Comparación contra objetivo, dirección favorable y margen neutro |
+| Good Color | `goodColor` | fill | Tiene | Comparación contra objetivo, dirección favorable y margen neutro |
+| Neutral Color | `neutralColor` | fill | Tiene | Comparación contra objetivo, dirección favorable y margen neutro |
 
-### Fecha (`lastDate`) · P1 · 1/7
+### Fecha (`lastDate`) · P1 · 7/7
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
-| Bold | `bold` | boolean | Falta |  |
-| Text size | `fontSize` | fontSize | Falta |  |
-| Italic | `italic` | boolean | Falta |  |
-| Font color | `lastDateFontColor` | fill | Falta |  |
-| Font family | `lastDateFontFamily` | string | Falta |  |
+| Bold | `bold` | boolean | Tiene | Fuente de última fecha |
+| Text size | `fontSize` | fontSize | Tiene | Fuente de última fecha |
+| Italic | `italic` | boolean | Tiene | Fuente de última fecha |
+| Font color | `lastDateFontColor` | fill | Tiene | Fuente de última fecha |
+| Font family | `lastDateFontFamily` | string | Tiene | Fuente de última fecha |
 | Show | `show` | boolean | Tiene | Fecha (show_timestamp) |
-| Underline | `underline` | boolean | Falta |  |
+| Underline | `underline` | boolean | Tiene | Fuente de última fecha |
 
-### Indicador (`indicator`) · P1 · 6/12
-
-| Opción | Clave | Valores | Estado | Nota |
-| --- | --- | --- | --- | --- |
-| Bold | `bold` | boolean | Tiene | Formato > Valor de la tarjeta |
-| Font color | `fontColor` | fill | Tiene | Formato > Valor de la tarjeta |
-| Font family | `fontFamily` | string | Falta |  |
-| Text size | `fontSize` | fontSize | Tiene | Formato > Valor de la tarjeta |
-| Horizontal alignment | `horizontalAlignment` | alignment | Falta |  |
-| Icon size | `iconSize` | fontSize | Falta |  |
-| Display units | `indicatorDisplayUnits` | labelDisplayUnits | Parcial | Con código d3 (y_axis_format) |
-| Value decimal places | `indicatorPrecision` | integer | Parcial | Con código d3 (y_axis_format) |
-| Italic | `italic` | boolean | Tiene | Formato > Valor de la tarjeta |
-| Show icon | `showIcon` | boolean | Falta |  |
-| Underline | `underline` | boolean | Falta |  |
-| Vertical alignment | `verticalAlignment` | verticalAlignment | Falta |  |
-
-### Objetivo (`goals`) · P1 · 2/18
+### Indicador (`indicator`) · P1 · 12/12
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
-| Bold | `bold` | boolean | Falta |  |
-| Distance direction | `direction` | enum: Increasing is positive, Decreasing is positive | Falta |  |
-| Font color | `distanceFontColor` | fill | Falta |  |
-| Font family | `distanceFontFamily` | string | Falta |  |
-| Label | `distanceLabel` | enum: Value, Percent, Both | Falta |  |
-| Text size | `fontSize` | fontSize | Falta |  |
-| Font color | `goalFontColor` | fill | Falta |  |
-| Font family | `goalFontFamily` | string | Falta |  |
-| Label | `goalText` | string | Falta |  |
-| Italic | `italic` | boolean | Falta |  |
-| Value decimal places | `labelPrecision` | integer | Falta |  |
-| Distance | `showDistance` | boolean | Parcial | Comparación contra periodo, no contra objetivo (compare_lag) |
-| Goal | `showGoal` | boolean | Parcial | Comparación contra periodo, no contra objetivo (compare_lag) |
-| Bold | `titleBold` | boolean | Falta |  |
-| Text size | `titleFontSize` | fontSize | Falta |  |
-| Italic | `titleItalic` | boolean | Falta |  |
-| Underline | `titleUnderline` | boolean | Falta |  |
-| Underline | `underline` | boolean | Falta |  |
+| Bold | `bold` | boolean | Tiene | Valor destacado: fuente, unidades y decimales |
+| Font color | `fontColor` | fill | Tiene | Valor destacado: fuente, unidades y decimales |
+| Font family | `fontFamily` | string | Tiene | Valor destacado: fuente, unidades y decimales |
+| Text size | `fontSize` | fontSize | Tiene | Valor destacado: fuente, unidades y decimales |
+| Horizontal alignment | `horizontalAlignment` | alignment | Tiene | Valor destacado: fuente, unidades y decimales |
+| Icon size | `iconSize` | fontSize | Tiene | Icono accesible de estado |
+| Display units | `indicatorDisplayUnits` | labelDisplayUnits | Tiene | Valor destacado: fuente, unidades y decimales |
+| Value decimal places | `indicatorPrecision` | integer | Tiene | Valor destacado: fuente, unidades y decimales |
+| Italic | `italic` | boolean | Tiene | Valor destacado: fuente, unidades y decimales |
+| Show icon | `showIcon` | boolean | Tiene | Icono accesible de estado |
+| Underline | `underline` | boolean | Tiene | Valor destacado: fuente, unidades y decimales |
+| Vertical alignment | `verticalAlignment` | verticalAlignment | Tiene | Alineación vertical del contenido |
 
-### Tendencia (`trendline`) · P1 · 1/2
+### Objetivo (`goals`) · P1 · 18/18
+
+| Opción | Clave | Valores | Estado | Nota |
+| --- | --- | --- | --- | --- |
+| Bold | `bold` | boolean | Tiene | Objetivo fijo o métrica: texto y distancia con fuente propia |
+| Distance direction | `direction` | enum: Increasing is positive, Decreasing is positive | Parcial | Dirección favorable compartida con estado; distancia con signo aritmético |
+| Font color | `distanceFontColor` | fill | Tiene | Objetivo fijo o métrica: texto y distancia con fuente propia |
+| Font family | `distanceFontFamily` | string | Tiene | Objetivo fijo o métrica: texto y distancia con fuente propia |
+| Label | `distanceLabel` | enum: Value, Percent, Both | Parcial | Valor absoluto o porcentaje; sin mostrar ambos a la vez |
+| Text size | `fontSize` | fontSize | Tiene | Objetivo fijo o métrica: texto y distancia con fuente propia |
+| Font color | `goalFontColor` | fill | Tiene | Objetivo fijo o métrica: texto y distancia con fuente propia |
+| Font family | `goalFontFamily` | string | Tiene | Objetivo fijo o métrica: texto y distancia con fuente propia |
+| Label | `goalText` | string | Tiene | Objetivo fijo o métrica: texto y distancia con fuente propia |
+| Italic | `italic` | boolean | Tiene | Objetivo fijo o métrica: texto y distancia con fuente propia |
+| Value decimal places | `labelPrecision` | integer | Parcial | Fuente de la fila completa; unidades y decimales compartidos con indicador |
+| Distance | `showDistance` | boolean | Tiene | Objetivo fijo o métrica: texto y distancia con fuente propia |
+| Goal | `showGoal` | boolean | Tiene | Objetivo fijo o métrica: texto y distancia con fuente propia |
+| Bold | `titleBold` | boolean | Parcial | Fuente de la fila completa; unidades y decimales compartidos con indicador |
+| Text size | `titleFontSize` | fontSize | Parcial | Fuente de la fila completa; unidades y decimales compartidos con indicador |
+| Italic | `titleItalic` | boolean | Parcial | Fuente de la fila completa; unidades y decimales compartidos con indicador |
+| Underline | `titleUnderline` | boolean | Parcial | Fuente de la fila completa; unidades y decimales compartidos con indicador |
+| Underline | `underline` | boolean | Tiene | Objetivo fijo o métrica: texto y distancia con fuente propia |
+
+### Tendencia (`trendline`) · P1 · 2/2
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
 | Show | `show` | boolean | Tiene | Línea de tendencia (show_trend_line) |
-| Transparency | `transparency` | number | Falta |  |
+| Transparency | `transparency` | number | Tiene | Transparencia de tendencia |
 
 ## General
 

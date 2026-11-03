@@ -5,58 +5,58 @@ Nuestro gráfico: funnel. Generado desde `reportThemeSchema-2.159.json`.
 ## Visual
 
 
-### Colores / barras (`dataPoint`) · P1 · 2/4
+### Colores / barras (`dataPoint`) · P1 · 4/4
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
-| Default color | `defaultColor` | fill | Parcial | Color por serie o esquema; revisar color por categoría (color_scheme) |
-| Default color | `fill` | fill | Parcial | Color por serie o esquema; revisar color por categoría (color_scheme) |
-| Color saturation | `fillRule` | fillRule | Falta |  |
-| Show all | `showAllDataPoints` | boolean | Falta |  |
+| Default color | `defaultColor` | fill | Tiene | Color por categoría y color predeterminado |
+| Default color | `fill` | fill | Tiene | Color por categoría y color predeterminado |
+| Color saturation | `fillRule` | fillRule | Parcial | Escala continua de dos colores; sin reglas por campo |
+| Show all | `showAllDataPoints` | boolean | Tiene | Color por categoría y color predeterminado |
 
-### Eje X / categorías (`categoryAxis`) · P1 · 0/7
+### Eje X / categorías (`categoryAxis`) · P1 · 6/7
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
-| Bold | `bold` | boolean | Falta |  |
-| Color | `color` | fill | Falta |  |
-| Font family | `fontFamily` | string | Falta |  |
-| Text size | `fontSize` | fontSize | Falta |  |
-| Italic | `italic` | boolean | Falta |  |
-| Show | `show` | boolean | Falta |  |
+| Bold | `bold` | boolean | Tiene | Fuente y visibilidad de categoría |
+| Color | `color` | fill | Tiene | Fuente y visibilidad de categoría |
+| Font family | `fontFamily` | string | Tiene | Fuente y visibilidad de categoría |
+| Text size | `fontSize` | fontSize | Tiene | Fuente y visibilidad de categoría |
+| Italic | `italic` | boolean | Tiene | Fuente y visibilidad de categoría |
+| Show | `show` | boolean | Tiene | Fuente y visibilidad de categoría |
 | Underline | `underline` | boolean | Falta | El motor de gráficos no dibuja texto subrayado |
 
-### Etiquetas de datos (`labels`) · P1 · 4/15
+### Etiquetas de datos (`labels`) · P1 · 14/15
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
-| Color | `backgroundColor` | fill | Falta |  |
-| Transparency | `backgroundTransparency` | number | Falta |  |
-| Bold | `bold` | boolean | Falta |  |
-| Color | `color` | fill | Falta |  |
-| Show background | `enableBackground` | boolean | Falta |  |
-| Font family | `fontFamily` | string | Falta |  |
-| Text size | `fontSize` | fontSize | Falta |  |
-| Label style | `funnelLabelStyle` | enum: Data value, Percent of first, Percent of previous, Data value, percent of first, Data value, percent of previous | Falta |  |
-| Italic | `italic` | boolean | Falta |  |
-| Display units | `labelDisplayUnits` | labelDisplayUnits | Parcial | Con código d3 (number_format) |
-| Position | `labelPosition` | enum: Auto, Inside end, Outside end, Inside center, Inside base, Above, Under | Falta |  |
-| Value decimal places | `labelPrecision` | integer | Parcial | Con código d3 (number_format) |
-| % decimal places | `percentageLabelPrecision` | integer | Parcial | Con código d3 (number_format) |
+| Color | `backgroundColor` | fill | Tiene | Fondo de etiquetas (value_label_background) |
+| Transparency | `backgroundTransparency` | number | Tiene | Fondo de etiquetas (value_label_background) |
+| Bold | `bold` | boolean | Tiene | Fuente de etiquetas (value_label_font) |
+| Color | `color` | fill | Tiene | Fuente de etiquetas (value_label_font) |
+| Show background | `enableBackground` | boolean | Tiene | Fondo de etiquetas (value_label_background) |
+| Font family | `fontFamily` | string | Tiene | Fuente de etiquetas (value_label_font) |
+| Text size | `fontSize` | fontSize | Tiene | Fuente de etiquetas (value_label_font) |
+| Label style | `funnelLabelStyle` | enum: Data value, Percent of first, Percent of previous, Data value, percent of first, Data value, percent of previous | Tiene | Categoría, valor y porcentaje |
+| Italic | `italic` | boolean | Tiene | Fuente de etiquetas (value_label_font) |
+| Display units | `labelDisplayUnits` | labelDisplayUnits | Tiene | Unidades y decimales de etiquetas |
+| Position | `labelPosition` | enum: Auto, Inside end, Outside end, Inside center, Inside base, Above, Under | Parcial | Posiciones explícitas del motor; sin preferencia automática |
+| Value decimal places | `labelPrecision` | integer | Tiene | Unidades y decimales de etiquetas |
+| % decimal places | `percentageLabelPrecision` | integer | Tiene | Decimales del porcentaje |
 | Show | `show` | boolean | Tiene | Mostrar etiquetas (show_labels) |
 | Underline | `underline` | boolean | Falta | El motor de gráficos no dibuja texto subrayado |
 
-### percentBarLabel (`percentBarLabel`) · P2 · 1/7
+### percentBarLabel (`percentBarLabel`) · P2 · 6/7
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
-| Bold | `bold` | boolean | Falta |  |
-| Color | `color` | fill | Falta |  |
-| Font family | `fontFamily` | string | Falta |  |
-| Text size | `fontSize` | fontSize | Falta |  |
-| Italic | `italic` | boolean | Falta |  |
-| Show | `show` | boolean | Parcial | Porcentaje (percent_calculation_type) |
-| Underline | `underline` | boolean | Falta |  |
+| Bold | `bold` | boolean | Tiene | Porcentaje real de conversión y fuente propia |
+| Color | `color` | fill | Tiene | Porcentaje real de conversión y fuente propia |
+| Font family | `fontFamily` | string | Tiene | Porcentaje real de conversión y fuente propia |
+| Text size | `fontSize` | fontSize | Tiene | Porcentaje real de conversión y fuente propia |
+| Italic | `italic` | boolean | Tiene | Porcentaje real de conversión y fuente propia |
+| Show | `show` | boolean | Tiene | Porcentaje real de conversión y fuente propia |
+| Underline | `underline` | boolean | Falta | El motor de gráficos no dibuja texto subrayado |
 
 ## General
 

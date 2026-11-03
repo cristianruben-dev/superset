@@ -341,7 +341,7 @@ Nuestro gráfico: bar. Generado desde `reportThemeSchema-2.159.json`.
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
-| callout | `callout` | annotationTemplate | Falta |  |
+| callout | `callout` | annotationTemplate | Falta | Sin anotaciones en el gráfico: fase 8 |
 
 ### Barras de error (`error`) · P3 · 0/24
 

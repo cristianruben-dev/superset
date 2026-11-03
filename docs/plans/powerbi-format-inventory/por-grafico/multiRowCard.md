@@ -15,7 +15,7 @@ Nuestro gráfico: ninguno. Generado desde `reportThemeSchema-2.159.json`.
 | Text size | `fontSize` | fontSize | Falta | No tenemos este gráfico |
 | Italic | `italic` | boolean | Falta | No tenemos este gráfico |
 | Show | `show` | boolean | Falta | No tenemos este gráfico |
-| Underline | `underline` | boolean | Falta | No tenemos este gráfico |
+| Underline | `underline` | boolean | Falta | El motor de gráficos no dibuja texto subrayado |
 
 ### card (`card`) · P2 · 0/8
 

@@ -5,60 +5,60 @@ Nuestro gráfico: treemap. Generado desde `reportThemeSchema-2.159.json`.
 ## Visual
 
 
-### Colores / barras (`dataPoint`) · P1 · 1/2
+### Colores / barras (`dataPoint`) · P1 · 2/2
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
-| Default color | `fill` | fill | Parcial | Color por serie o esquema; revisar color por categoría (color_scheme) |
-| Color saturation | `fillRule` | fillRule | Falta |  |
+| Default color | `fill` | fill | Tiene | Color por categoría y color predeterminado |
+| Color saturation | `fillRule` | fillRule | Parcial | Escala continua de dos colores; sin reglas por campo |
 
-### Disposición (`layout`) · P1 · 0/3
-
-| Opción | Clave | Valores | Estado | Nota |
-| --- | --- | --- | --- | --- |
-| Space between all nodes | `innerPadding` | number | Falta |  |
-| Space between groups | `outerPadding` | number | Falta |  |
-| Tiling Method | `tilingMethod` | enum: Squarified, Binary, Alternating (Columns, Rows) | Falta |  |
-
-### Etiqueta de categoría (`categoryLabels`) · P1 · 1/7
+### Disposición (`layout`) · P1 · 2/3
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
-| Bold | `bold` | boolean | Falta |  |
-| Color | `color` | fill | Falta |  |
-| Font family | `fontFamily` | string | Falta |  |
-| Text size | `fontSize` | fontSize | Falta |  |
-| Italic | `italic` | boolean | Falta |  |
-| Show | `show` | boolean | Parcial | Etiquetas (show_labels) |
-| Underline | `underline` | boolean | Falta |  |
+| Space between all nodes | `innerPadding` | number | Tiene | Espacio entre nodos y grupos |
+| Space between groups | `outerPadding` | number | Tiene | Espacio entre nodos y grupos |
+| Tiling Method | `tilingMethod` | enum: Squarified, Binary, Alternating (Columns, Rows) | Falta | ECharts no ofrece los algoritmos de disposición de Power BI |
 
-### Etiquetas de datos (`labels`) · P1 · 3/9
+### Etiqueta de categoría (`categoryLabels`) · P1 · 6/7
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
-| Bold | `bold` | boolean | Falta |  |
-| Color | `color` | fill | Falta |  |
-| Font family | `fontFamily` | string | Falta |  |
-| Text size | `fontSize` | fontSize | Falta |  |
-| Italic | `italic` | boolean | Falta |  |
-| Display units | `labelDisplayUnits` | labelDisplayUnits | Parcial | Con código d3 (number_format) |
-| Value decimal places | `labelPrecision` | integer | Parcial | Con código d3 (number_format) |
+| Bold | `bold` | boolean | Tiene | Fuente y visibilidad de categoría |
+| Color | `color` | fill | Tiene | Fuente y visibilidad de categoría |
+| Font family | `fontFamily` | string | Tiene | Fuente y visibilidad de categoría |
+| Text size | `fontSize` | fontSize | Tiene | Fuente y visibilidad de categoría |
+| Italic | `italic` | boolean | Tiene | Fuente y visibilidad de categoría |
+| Show | `show` | boolean | Tiene | Fuente y visibilidad de categoría |
+| Underline | `underline` | boolean | Falta | El motor de gráficos no dibuja texto subrayado |
+
+### Etiquetas de datos (`labels`) · P1 · 8/9
+
+| Opción | Clave | Valores | Estado | Nota |
+| --- | --- | --- | --- | --- |
+| Bold | `bold` | boolean | Tiene | Fuente de etiquetas (value_label_font) |
+| Color | `color` | fill | Tiene | Fuente de etiquetas (value_label_font) |
+| Font family | `fontFamily` | string | Tiene | Fuente de etiquetas (value_label_font) |
+| Text size | `fontSize` | fontSize | Tiene | Fuente de etiquetas (value_label_font) |
+| Italic | `italic` | boolean | Tiene | Fuente de etiquetas (value_label_font) |
+| Display units | `labelDisplayUnits` | labelDisplayUnits | Tiene | Unidades y decimales de etiquetas |
+| Value decimal places | `labelPrecision` | integer | Tiene | Unidades y decimales de etiquetas |
 | Show | `show` | boolean | Tiene | Mostrar etiquetas (show_labels) |
 | Underline | `underline` | boolean | Falta | El motor de gráficos no dibuja texto subrayado |
 
-### Leyenda (`legend`) · P1 · 0/10
+### Leyenda (`legend`) · P1 · 7/10
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
-| Bold | `bold` | boolean | Falta |  |
-| Font family | `fontFamily` | string | Falta |  |
-| Text size | `fontSize` | fontSize | Falta |  |
-| Italic | `italic` | boolean | Falta |  |
-| Color | `labelColor` | fill | Falta |  |
-| Position | `position` | enum: Top left, Top center, Top right, Top left stacked, Top right stacked, Center left, Center right, Bottom left, Bottom center, Bottom ri | Falta |  |
-| Show | `show` | boolean | Falta |  |
-| Title | `showTitle` | boolean | Falta |  |
-| Legend Name | `titleText` | string | Falta |  |
+| Bold | `bold` | boolean | Tiene | Fuente de leyenda (legend_font) |
+| Font family | `fontFamily` | string | Tiene | Fuente de leyenda (legend_font) |
+| Text size | `fontSize` | fontSize | Tiene | Fuente de leyenda (legend_font) |
+| Italic | `italic` | boolean | Tiene | Fuente de leyenda (legend_font) |
+| Color | `labelColor` | fill | Tiene | Fuente de leyenda (legend_font) |
+| Position | `position` | enum: Top left, Top center, Top right, Top left stacked, Top right stacked, Center left, Center right, Bottom left, Bottom center, Bottom ri | Falta | El treemap no tiene leyenda: sus etiquetas nombran cada grupo |
+| Show | `show` | boolean | Falta | El treemap no tiene leyenda: sus etiquetas nombran cada grupo |
+| Title | `showTitle` | boolean | Tiene | Título de leyenda |
+| Legend Name | `titleText` | string | Tiene | Título de leyenda |
 | Underline | `underline` | boolean | Falta | El motor de gráficos no dibuja texto subrayado |
 
 ## General

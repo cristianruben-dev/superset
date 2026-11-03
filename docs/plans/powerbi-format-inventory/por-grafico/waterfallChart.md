@@ -5,101 +5,101 @@ Nuestro gráfico: waterfall. Generado desde `reportThemeSchema-2.159.json`.
 ## Visual
 
 
-### Eje X / categorías (`categoryAxis`) · P1 · 2/21
+### Eje X / categorías (`categoryAxis`) · P1 · 17/21
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
 | Style | `axisStyle` | enum: Show title only, Show unit only, Show both | Falta | El eje muestra sus valores y su título, sin elegir entre ellos |
-| Bold | `bold` | boolean | Falta |  |
-| Font family | `fontFamily` | string | Falta |  |
-| Text size | `fontSize` | fontSize | Falta |  |
-| Initial scroll position | `initialScrollPosition` | enum: Start, End | Falta |  |
-| Space between categories | `innerPadding` | integer | Falta |  |
-| Italic | `italic` | boolean | Falta |  |
-| Color | `labelColor` | fill | Falta |  |
-| Maximum size | `maxMarginFactor` | integer | Falta |  |
+| Bold | `bold` | boolean | Tiene | Fuente de etiquetas X (x_axis_label_font) |
+| Font family | `fontFamily` | string | Tiene | Fuente de etiquetas X (x_axis_label_font) |
+| Text size | `fontSize` | fontSize | Tiene | Fuente de etiquetas X (x_axis_label_font) |
+| Initial scroll position | `initialScrollPosition` | enum: Start, End | Tiene | Eje X > Categorías |
+| Space between categories | `innerPadding` | integer | Tiene | Espacio entre barras |
+| Italic | `italic` | boolean | Tiene | Fuente de etiquetas X (x_axis_label_font) |
+| Color | `labelColor` | fill | Tiene | Fuente de etiquetas X (x_axis_label_font) |
+| Maximum size | `maxMarginFactor` | integer | Parcial | Ancho máximo de etiqueta en píxeles, no en % del gráfico |
 | Outer padding | `outerPadding` | integer | Falta | El motor de gráficos no tiene relleno exterior de categorías |
-| Minimum category width | `preferredCategoryWidth` | number | Falta |  |
-| Show | `show` | boolean | Falta |  |
+| Minimum category width | `preferredCategoryWidth` | number | Tiene | Eje X > Categorías |
+| Show | `show` | boolean | Tiene | Ocultar eje X (x_axis_hidden) |
 | Title | `showAxisTitle` | boolean | Tiene | Título del eje X (x_axis_label) |
-| Bold | `titleBold` | boolean | Falta |  |
-| Title color | `titleColor` | fill | Falta |  |
-| Font family | `titleFontFamily` | string | Falta |  |
-| Title text size | `titleFontSize` | fontSize | Falta |  |
-| Italic | `titleItalic` | boolean | Falta |  |
+| Bold | `titleBold` | boolean | Tiene | Fuente de título X (x_axis_title_font) |
+| Title color | `titleColor` | fill | Tiene | Fuente de título X (x_axis_title_font) |
+| Font family | `titleFontFamily` | string | Tiene | Fuente de título X (x_axis_title_font) |
+| Title text size | `titleFontSize` | fontSize | Tiene | Fuente de título X (x_axis_title_font) |
+| Italic | `titleItalic` | boolean | Tiene | Fuente de título X (x_axis_title_font) |
 | Axis title | `titleText` | string | Tiene | Título del eje X (x_axis_label) |
 | Underline | `titleUnderline` | boolean | Falta | El motor de gráficos no dibuja texto subrayado |
 | Underline | `underline` | boolean | Falta | El motor de gráficos no dibuja texto subrayado |
 
-### Eje Y / valores (`valueAxis`) · P1 · 4/32
+### Eje Y / valores (`valueAxis`) · P1 · 27/32
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
 | Style | `axisStyle` | enum: Show title only, Show unit only, Show both | Falta | El eje muestra sus valores y su título, sin elegir entre ellos |
-| Bold | `bold` | boolean | Falta |  |
-| Maximum | `end` | number/string | Falta |  |
-| Font family | `fontFamily` | string | Falta |  |
-| Text size | `fontSize` | fontSize | Falta |  |
+| Bold | `bold` | boolean | Tiene | Fuente de etiquetas Y (y_axis_label_font) |
+| Maximum | `end` | number/string | Tiene | Límites del eje Y |
+| Font family | `fontFamily` | string | Tiene | Fuente de etiquetas Y (y_axis_label_font) |
+| Text size | `fontSize` | fontSize | Tiene | Fuente de etiquetas Y (y_axis_label_font) |
 | Scale by width | `gridlineAutoScale` | boolean | Falta | El motor de gráficos no escala el trazo con el zoom |
-| Color | `gridlineColor` | fill | Falta |  |
-| Dash array | `gridlineDashArray` | string | Falta |  |
-| Dash cap | `gridlineDashCap` | enum: Flat, Round, Square | Falta |  |
-| Show | `gridlineShow` | boolean | Falta |  |
-| Line style | `gridlineStyle` | enum: Solid, Dashed, Dotted, Custom | Falta |  |
-| Width | `gridlineThickness` | number | Falta |  |
-| Transparency | `gridlineTransparency` | number | Falta |  |
-| Invert range | `invertAxis` | boolean | Falta |  |
-| Italic | `italic` | boolean | Falta |  |
-| Color | `labelColor` | fill | Falta |  |
-| Display units | `labelDisplayUnits` | labelDisplayUnits | Parcial | Con código d3, no con unidades y decimales (y_axis_format) |
-| Value decimal places | `labelPrecision` | integer | Parcial | Con código d3, no con unidades y decimales (y_axis_format) |
+| Color | `gridlineColor` | fill | Tiene | Eje > Líneas de cuadrícula |
+| Dash array | `gridlineDashArray` | string | Tiene | Eje > Líneas de cuadrícula |
+| Dash cap | `gridlineDashCap` | enum: Flat, Round, Square | Tiene | Eje > Líneas de cuadrícula |
+| Show | `gridlineShow` | boolean | Tiene | Eje > Líneas de cuadrícula |
+| Line style | `gridlineStyle` | enum: Solid, Dashed, Dotted, Custom | Tiene | Eje > Líneas de cuadrícula |
+| Width | `gridlineThickness` | number | Tiene | Eje > Líneas de cuadrícula |
+| Transparency | `gridlineTransparency` | number | Tiene | Eje > Líneas de cuadrícula |
+| Invert range | `invertAxis` | boolean | Tiene | Invertir eje Y (y_axis_inverse) |
+| Italic | `italic` | boolean | Tiene | Fuente de etiquetas Y (y_axis_label_font) |
+| Color | `labelColor` | fill | Tiene | Fuente de etiquetas Y (y_axis_label_font) |
+| Display units | `labelDisplayUnits` | labelDisplayUnits | Tiene | Sección del eje |
+| Value decimal places | `labelPrecision` | integer | Tiene | Sección del eje |
 | Round range | `roundRange` | boolean | Falta | El motor de gráficos redondea el eje salvo con límites fijos |
-| Show | `show` | boolean | Falta |  |
+| Show | `show` | boolean | Tiene | Ocultar eje Y (y_axis_hidden) |
 | Title | `showAxisTitle` | boolean | Tiene | Título del eje Y (y_axis_label) |
-| Minimum | `start` | number/string | Falta |  |
-| Switch axis position | `switchAxisPosition` | boolean | Falta |  |
-| Bold | `titleBold` | boolean | Falta |  |
-| Title color | `titleColor` | fill | Falta |  |
-| Font family | `titleFontFamily` | string | Falta |  |
-| Title text size | `titleFontSize` | fontSize | Falta |  |
-| Italic | `titleItalic` | boolean | Falta |  |
+| Minimum | `start` | number/string | Tiene | Límites del eje Y |
+| Switch axis position | `switchAxisPosition` | boolean | Tiene | Sección del eje |
+| Bold | `titleBold` | boolean | Tiene | Fuente de título Y (y_axis_title_font) |
+| Title color | `titleColor` | fill | Tiene | Fuente de título Y (y_axis_title_font) |
+| Font family | `titleFontFamily` | string | Tiene | Fuente de título Y (y_axis_title_font) |
+| Title text size | `titleFontSize` | fontSize | Tiene | Fuente de título Y (y_axis_title_font) |
+| Italic | `titleItalic` | boolean | Tiene | Fuente de título Y (y_axis_title_font) |
 | Axis title | `titleText` | string | Tiene | Título del eje Y (y_axis_label) |
 | Underline | `titleUnderline` | boolean | Falta | El motor de gráficos no dibuja texto subrayado |
-| Show total | `totalsEnabled` | boolean | Falta |  |
+| Show total | `totalsEnabled` | boolean | Tiene | Mostrar total |
 | Underline | `underline` | boolean | Falta | El motor de gráficos no dibuja texto subrayado |
 
-### Etiquetas de datos (`labels`) · P1 · 0/14
+### Etiquetas de datos (`labels`) · P1 · 13/14
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
-| Color | `backgroundColor` | fill | Falta |  |
-| Transparency | `backgroundTransparency` | number | Falta |  |
-| Bold | `bold` | boolean | Falta |  |
-| Color | `color` | fill | Falta |  |
-| Show background | `enableBackground` | boolean | Falta |  |
-| Font family | `fontFamily` | string | Falta |  |
-| Text size | `fontSize` | fontSize | Falta |  |
-| Italic | `italic` | boolean | Falta |  |
-| Display units | `labelDisplayUnits` | labelDisplayUnits | Falta |  |
-| Orientation | `labelOrientation` | enum: Vertical, Horizontal | Falta |  |
-| Position | `labelPosition` | enum: Auto, Inside end, Outside end, Inside center, Inside base, Above, Under | Falta |  |
-| Value decimal places | `labelPrecision` | integer | Falta |  |
-| Show | `show` | boolean | Falta |  |
+| Color | `backgroundColor` | fill | Tiene | Fondo de etiquetas (value_label_background) |
+| Transparency | `backgroundTransparency` | number | Tiene | Fondo de etiquetas (value_label_background) |
+| Bold | `bold` | boolean | Tiene | Fuente de etiquetas (value_label_font) |
+| Color | `color` | fill | Tiene | Fuente de etiquetas (value_label_font) |
+| Show background | `enableBackground` | boolean | Tiene | Fondo de etiquetas (value_label_background) |
+| Font family | `fontFamily` | string | Tiene | Fuente de etiquetas (value_label_font) |
+| Text size | `fontSize` | fontSize | Tiene | Fuente de etiquetas (value_label_font) |
+| Italic | `italic` | boolean | Tiene | Fuente de etiquetas (value_label_font) |
+| Display units | `labelDisplayUnits` | labelDisplayUnits | Tiene | Unidades y decimales de etiquetas |
+| Orientation | `labelOrientation` | enum: Vertical, Horizontal | Tiene | Rotación de etiquetas |
+| Position | `labelPosition` | enum: Auto, Inside end, Outside end, Inside center, Inside base, Above, Under | Parcial | Posiciones explícitas del motor; sin preferencia automática |
+| Value decimal places | `labelPrecision` | integer | Tiene | Unidades y decimales de etiquetas |
+| Show | `show` | boolean | Tiene | Mostrar etiquetas |
 | Underline | `underline` | boolean | Falta | El motor de gráficos no dibuja texto subrayado |
 
-### Leyenda (`legend`) · P1 · 1/10
+### Leyenda (`legend`) · P1 · 9/10
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
-| Bold | `bold` | boolean | Falta |  |
-| Font family | `fontFamily` | string | Falta |  |
-| Text size | `fontSize` | fontSize | Falta |  |
-| Italic | `italic` | boolean | Falta |  |
-| Color | `labelColor` | fill | Falta |  |
-| Position | `position` | enum: Top left, Top center, Top right, Top left stacked, Top right stacked, Center left, Center right, Bottom left, Bottom center, Bottom ri | Falta |  |
+| Bold | `bold` | boolean | Tiene | Fuente de leyenda (legend_font) |
+| Font family | `fontFamily` | string | Tiene | Fuente de leyenda (legend_font) |
+| Text size | `fontSize` | fontSize | Tiene | Fuente de leyenda (legend_font) |
+| Italic | `italic` | boolean | Tiene | Fuente de leyenda (legend_font) |
+| Color | `labelColor` | fill | Tiene | Fuente de leyenda (legend_font) |
+| Position | `position` | enum: Top left, Top center, Top right, Top left stacked, Top right stacked, Center left, Center right, Bottom left, Bottom center, Bottom ri | Tiene | Posición |
 | Show | `show` | boolean | Tiene | Mostrar leyenda (show_legend) |
-| Title | `showTitle` | boolean | Falta |  |
-| Legend Name | `titleText` | string | Falta |  |
+| Title | `showTitle` | boolean | Tiene | Título de leyenda |
+| Legend Name | `titleText` | string | Tiene | Título de leyenda |
 | Underline | `underline` | boolean | Falta | El motor de gráficos no dibuja texto subrayado |
 
 ### sentimentColors (`sentimentColors`) · P1 · 3/4
@@ -108,21 +108,21 @@ Nuestro gráfico: waterfall. Generado desde `reportThemeSchema-2.159.json`.
 | --- | --- | --- | --- | --- |
 | Decrease | `decreaseFill` | fill | Tiene | Color de disminución (decrease_color) |
 | Increase | `increaseFill` | fill | Tiene | Color de aumento (increase_color) |
-| Other | `otherFill` | fill | Falta |  |
+| Other | `otherFill` | fill | Falta | Sin grupo Otros: depende del máximo de desgloses |
 | Total | `totalFill` | fill | Tiene | Color de total (total_color) |
 
-### Fondo del área de trazado (`plotArea`) · P2 · 0/8
+### Fondo del área de trazado (`plotArea`) · P2 · 7/8
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
-| Background color | `color` | fill | Falta |  |
-| Transparency | `colorTransparency` | number | Falta |  |
-| Image fit | `fit` | enum: Fit, Stretch, Fill, Center | Falta |  |
-| image | `image` | image | Falta |  |
-| Data | `imageData` | string | Falta |  |
-| Image source | `sourceType` | enum: Upload Image, Enter URL, Select from data | Falta |  |
+| Background color | `color` | fill | Tiene | Área de trazado |
+| Transparency | `colorTransparency` | number | Tiene | Área de trazado |
+| Image fit | `fit` | enum: Fit, Stretch, Fill, Center | Parcial | En mosaico o una vez, sin ajustar al área |
+| image | `image` | image | Parcial | Por dirección de la imagen, sin subirla |
+| Data | `imageData` | string | Parcial | Por dirección de la imagen, sin subirla |
+| Image source | `sourceType` | enum: Upload Image, Enter URL, Select from data | Parcial | Por dirección de la imagen, sin subirla |
 | Transparency | `transparency` | number | Falta | El motor de gráficos no atenúa una imagen de fondo |
-| Image URL | `url` | string | Falta |  |
+| Image URL | `url` | string | Parcial | Por dirección de la imagen, sin subirla |
 
 ### Línea de referencia Y (`y1AxisReferenceLine`) · P2 · 0/23
 
@@ -156,7 +156,7 @@ Nuestro gráfico: waterfall. Generado desde `reportThemeSchema-2.159.json`.
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
-| Max breakdowns | `maxBreakdowns` | integer | Falta |  |
+| Max breakdowns | `maxBreakdowns` | integer | Falta | Requiere reagrupar consulta y preservar filtros de Otros |
 
 ## General
 

@@ -5,21 +5,21 @@ Nuestro gráfico: pie. Generado desde `reportThemeSchema-2.159.json`.
 ## Visual
 
 
-### Colores / barras (`dataPoint`) · P1 · 2/9
+### Colores / barras (`dataPoint`) · P1 · 9/9
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
-| Color | `borderColor` | fill | Falta |  |
-| Match fill color | `borderColorMatchFill` | boolean | Falta |  |
-| Hide inner borders | `borderOutlineOnly` | boolean | Falta |  |
-| Border | `borderShow` | boolean | Falta |  |
-| Width | `borderSize` | number | Falta |  |
-| Transparency | `borderTransparency` | number | Falta |  |
-| Default color | `defaultColor` | fill | Parcial | Color por serie o esquema; revisar color por categoría (color_scheme) |
-| Color | `fill` | fill | Parcial | Color por serie o esquema; revisar color por categoría (color_scheme) |
-| Transparency | `fillTransparency` | number | Falta |  |
+| Color | `borderColor` | fill | Tiene | Colores y bordes |
+| Match fill color | `borderColorMatchFill` | boolean | Tiene | Colores y bordes |
+| Hide inner borders | `borderOutlineOnly` | boolean | Tiene | Colores y bordes |
+| Border | `borderShow` | boolean | Tiene | Colores y bordes |
+| Width | `borderSize` | number | Tiene | Colores y bordes |
+| Transparency | `borderTransparency` | number | Tiene | Colores y bordes |
+| Default color | `defaultColor` | fill | Tiene | Color por categoría y color predeterminado |
+| Color | `fill` | fill | Tiene | Color por categoría y color predeterminado |
+| Transparency | `fillTransparency` | number | Tiene | Colores y bordes |
 
-### Etiquetas de datos (`labels`) · P1 · 12/14
+### Etiquetas de datos (`labels`) · P1 · 13/14
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
@@ -29,16 +29,16 @@ Nuestro gráfico: pie. Generado desde `reportThemeSchema-2.159.json`.
 | Font family | `fontFamily` | string | Tiene | Fuente de etiquetas (value_label_font) |
 | Text size | `fontSize` | fontSize | Tiene | Fuente de etiquetas (value_label_font) |
 | Italic | `italic` | boolean | Tiene | Fuente de etiquetas (value_label_font) |
-| Display units | `labelDisplayUnits` | labelDisplayUnits | Parcial | Con código d3 (number_format) |
-| Value decimal places | `labelPrecision` | integer | Parcial | Con código d3 (number_format) |
+| Display units | `labelDisplayUnits` | labelDisplayUnits | Tiene | Unidades y decimales de etiquetas |
+| Value decimal places | `labelPrecision` | integer | Tiene | Unidades y decimales de etiquetas |
 | Label style | `labelStyle` | enum: Category, Data value, Percent of total, Category, data value, Category, percent of total, Data value, percent of total, All detail lab | Tiene | Contenido de etiqueta (label_type) |
-| Overflow text | `overflow` | boolean | Falta |  |
-| % decimal places | `percentageLabelPrecision` | integer | Parcial | Con código d3 (number_format) |
-| Label position | `position` | enum: Outside, Inside, Prefer outside, Prefer inside | Parcial | Solo dentro o fuera (labels_outside) |
+| Overflow text | `overflow` | boolean | Tiene | Ancho máximo, truncado o ajuste de etiquetas |
+| % decimal places | `percentageLabelPrecision` | integer | Tiene | Decimales del porcentaje |
+| Label position | `position` | enum: Outside, Inside, Prefer outside, Prefer inside | Parcial | Posiciones explícitas del motor; sin preferencia automática |
 | Show | `show` | boolean | Tiene | Mostrar etiquetas (show_labels) |
 | Underline | `underline` | boolean | Falta | El motor de gráficos no dibuja texto subrayado |
 
-### Leyenda (`legend`) · P1 · 7/10
+### Leyenda (`legend`) · P1 · 9/10
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
@@ -49,22 +49,22 @@ Nuestro gráfico: pie. Generado desde `reportThemeSchema-2.159.json`.
 | Color | `labelColor` | fill | Tiene | Fuente de leyenda (legend_font) |
 | Position | `position` | enum: Top left, Top center, Top right, Top left stacked, Top right stacked, Center left, Center right, Bottom left, Bottom center, Bottom ri | Tiene | Posición (legendOrientation) |
 | Show | `show` | boolean | Tiene | Mostrar leyenda (show_legend) |
-| Title | `showTitle` | boolean | Falta |  |
-| Legend Name | `titleText` | string | Falta |  |
+| Title | `showTitle` | boolean | Tiene | Título de leyenda |
+| Legend Name | `titleText` | string | Tiene | Título de leyenda |
 | Underline | `underline` | boolean | Falta | El motor de gráficos no dibuja texto subrayado |
 
-### Porciones (`slices`) · P1 · 1/2
+### Porciones (`slices`) · P1 · 2/2
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
 | Inner radius | `innerRadiusRatio` | integer | Tiene | Radio interior (innerRadius) |
-| Start angle | `startAngle` | integer | Falta |  |
+| Start angle | `startAngle` | integer | Tiene | Ángulo inicial |
 
 ### Anotaciones (`annotationTemplate`) · P3 · 0/1
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
-| callout | `callout` | annotationTemplate | Falta |  |
+| callout | `callout` | annotationTemplate | Falta | Sin anotaciones en el gráfico: fase 8 |
 
 ## General
 

@@ -5,38 +5,38 @@ Nuestro gráfico: bigtotal. Generado desde `reportThemeSchema-2.159.json`.
 ## Visual
 
 
-### Etiqueta de categoría (`categoryLabels`) · P1 · 5/8
+### Etiqueta de categoría (`categoryLabels`) · P1 · 8/8
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
-| Bold | `bold` | boolean | Tiene | Formato > Etiqueta de la tarjeta |
-| Color | `color` | fill | Tiene | Formato > Etiqueta de la tarjeta |
-| Font family | `fontFamily` | string | Falta |  |
-| Text size | `fontSize` | fontSize | Tiene | Formato > Etiqueta de la tarjeta |
-| Italic | `italic` | boolean | Tiene | Formato > Etiqueta de la tarjeta |
-| Source spacing | `preserveWhitespace` | boolean | Falta |  |
-| Show | `show` | boolean | Tiene | Formato > Etiqueta de la tarjeta |
-| Underline | `underline` | boolean | Falta |  |
+| Bold | `bold` | boolean | Tiene | Etiqueta de categoría: texto, fuente, posición y separación |
+| Color | `color` | fill | Tiene | Etiqueta de categoría: texto, fuente, posición y separación |
+| Font family | `fontFamily` | string | Tiene | Etiqueta de categoría: texto, fuente, posición y separación |
+| Text size | `fontSize` | fontSize | Tiene | Etiqueta de categoría: texto, fuente, posición y separación |
+| Italic | `italic` | boolean | Tiene | Etiqueta de categoría: texto, fuente, posición y separación |
+| Source spacing | `preserveWhitespace` | boolean | Parcial | Control de ajuste de texto; sin preservar espacios múltiples |
+| Show | `show` | boolean | Tiene | Etiqueta de categoría: texto, fuente, posición y separación |
+| Underline | `underline` | boolean | Tiene | Etiqueta de categoría: texto, fuente, posición y separación |
 
-### Etiquetas de datos (`labels`) · P1 · 6/9
-
-| Opción | Clave | Valores | Estado | Nota |
-| --- | --- | --- | --- | --- |
-| Bold | `bold` | boolean | Tiene | Formato > Valor de la tarjeta |
-| Color | `color` | fill | Tiene | Formato > Valor de la tarjeta |
-| Font family | `fontFamily` | string | Falta |  |
-| Text size | `fontSize` | fontSize | Tiene | Formato > Valor de la tarjeta |
-| Italic | `italic` | boolean | Tiene | Formato > Valor de la tarjeta |
-| Display units | `labelDisplayUnits` | labelDisplayUnits | Parcial | Con código d3 (y_axis_format) |
-| Value decimal places | `labelPrecision` | integer | Parcial | Con código d3 (y_axis_format) |
-| Source spacing | `preserveWhitespace` | boolean | Falta |  |
-| Underline | `underline` | boolean | Falta | El motor de gráficos no dibuja texto subrayado |
-
-### wordWrap (`wordWrap`) · P3 · 0/1
+### Etiquetas de datos (`labels`) · P1 · 9/9
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
-| Show | `show` | boolean | Falta |  |
+| Bold | `bold` | boolean | Tiene | Valor destacado: fuente, unidades y decimales |
+| Color | `color` | fill | Tiene | Valor destacado: fuente, unidades y decimales |
+| Font family | `fontFamily` | string | Tiene | Valor destacado: fuente, unidades y decimales |
+| Text size | `fontSize` | fontSize | Tiene | Valor destacado: fuente, unidades y decimales |
+| Italic | `italic` | boolean | Tiene | Valor destacado: fuente, unidades y decimales |
+| Display units | `labelDisplayUnits` | labelDisplayUnits | Tiene | Valor destacado: fuente, unidades y decimales |
+| Value decimal places | `labelPrecision` | integer | Tiene | Valor destacado: fuente, unidades y decimales |
+| Source spacing | `preserveWhitespace` | boolean | Parcial | Control de ajuste de texto; sin preservar espacios múltiples |
+| Underline | `underline` | boolean | Tiene | Valor destacado: fuente, unidades y decimales |
+
+### wordWrap (`wordWrap`) · P3 · 1/1
+
+| Opción | Clave | Valores | Estado | Nota |
+| --- | --- | --- | --- | --- |
+| Show | `show` | boolean | Tiene | Ajuste de texto por bloque |
 
 ## General
 

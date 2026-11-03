@@ -5,224 +5,224 @@ Nuestro gráfico: pivot. Generado desde `reportThemeSchema-2.159.json`.
 ## Visual
 
 
-### Columna específica (`columnFormatting`) · P1 · 0/10
+### Columna específica (`columnFormatting`) · P1 · 10/10
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
-| Alignment | `alignment` | enum: Auto, Left, Center, Right | Falta |  |
-| Background color | `backColor` | fill | Falta |  |
-| Data bars | `dataBars` | dataBars | Falta |  |
-| Font color | `fontColor` | fill | Falta |  |
-| Display units | `labelDisplayUnits` | displayUnitsWithoutAuto | Falta |  |
-| Value decimal places | `labelPrecision` | integer | Falta |  |
-| Apply to header | `styleHeader` | boolean | Falta |  |
-| Apply to subtotals | `styleSubtotals` | boolean | Falta |  |
-| Apply to total | `styleTotal` | boolean | Falta |  |
-| Apply to values | `styleValues` | boolean | Falta |  |
+| Alignment | `alignment` | enum: Auto, Left, Center, Right | Tiene | Formato por columna; colores condicionales prevalecen |
+| Background color | `backColor` | fill | Tiene | Formato por columna; colores condicionales prevalecen |
+| Data bars | `dataBars` | dataBars | Tiene | Formato por columna; colores condicionales prevalecen |
+| Font color | `fontColor` | fill | Tiene | Formato por columna; colores condicionales prevalecen |
+| Display units | `labelDisplayUnits` | displayUnitsWithoutAuto | Tiene | Formato por columna; colores condicionales prevalecen |
+| Value decimal places | `labelPrecision` | integer | Tiene | Formato por columna; colores condicionales prevalecen |
+| Apply to header | `styleHeader` | boolean | Tiene | Formato por columna; colores condicionales prevalecen |
+| Apply to subtotals | `styleSubtotals` | boolean | Tiene | Formato por columna; colores condicionales prevalecen |
+| Apply to total | `styleTotal` | boolean | Tiene | Formato por columna; colores condicionales prevalecen |
+| Apply to values | `styleValues` | boolean | Tiene | Formato por columna; colores condicionales prevalecen |
 
-### Cuadrícula (`grid`) · P1 · 0/13
-
-| Opción | Clave | Valores | Estado | Nota |
-| --- | --- | --- | --- | --- |
-| Horizontal grid | `gridHorizontal` | boolean | Falta |  |
-| Horizontal grid color | `gridHorizontalColor` | fill | Falta |  |
-| Horizontal grid thickness | `gridHorizontalWeight` | number | Falta |  |
-| Vertical grid | `gridVertical` | boolean | Falta |  |
-| Vertical grid color | `gridVerticalColor` | fill | Falta |  |
-| Vertical grid thickness | `gridVerticalWeight` | number | Falta |  |
-| Height | `imageHeight` | number | Falta |  |
-| Width | `imageWidth` | number | Falta |  |
-| Outline color | `outlineColor` | fill | Falta |  |
-| Outline | `outlineStyle` | integer | Falta |  |
-| Outline weight | `outlineWeight` | number | Falta |  |
-| Row padding | `rowPadding` | number | Falta |  |
-| Text size | `textSize` | number | Falta |  |
-
-### Encabezados de columna (`columnHeaders`) · P1 · 0/23
+### Cuadrícula (`grid`) · P1 · 13/13
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
-| Alignment | `alignment` | enum: Auto, Left, Center, Right | Falta |  |
-| Auto expand | `autoExpand` | boolean | Falta |  |
-| Auto-size column width | `autoSizeColumnWidth` | boolean | Falta |  |
-| Background color | `backColor` | fill | Falta |  |
-| Bold | `bold` | boolean | Falta |  |
-| Auto-size behavior | `columnAdjustment` | enum: Fit to content, Grow to fit, Fixed width | Falta |  |
-| Custom widths | `customColumnWidth` | boolean | Falta |  |
-| More granular | `customColumnWidthGranularView` | boolean | Falta |  |
-| Default width | `defaultColumnWidth` | number | Falta |  |
-| Icon color | `expandCollapseButtonsColor` | fill | Falta |  |
-| Icon size | `expandCollapseButtonsSize` | fontSize | Falta |  |
-| Font color | `fontColor` | fill | Falta |  |
-| Font family | `fontFamily` | string | Falta |  |
-| Text size | `fontSize` | fontSize | Falta |  |
-| Italic | `italic` | boolean | Falta |  |
-| Outline color | `outlineColor` | fill | Falta |  |
-| Outline | `outlineStyle` | integer | Falta |  |
-| Outline weight | `outlineWeight` | number | Falta |  |
-| +/- icons | `showExpandCollapseButtons` | boolean | Falta |  |
-| Title alignment | `titleAlignment` | enum: Auto, Left, Center, Right | Falta |  |
-| Underline | `underline` | boolean | Falta |  |
-| URL icon | `urlIcon` | boolean | Falta |  |
-| Word wrap | `wordWrap` | boolean | Falta |  |
+| Horizontal grid | `gridHorizontal` | boolean | Tiene | Cuadrícula por dirección, contorno, relleno y tamaño explícitos |
+| Horizontal grid color | `gridHorizontalColor` | fill | Tiene | Cuadrícula por dirección, contorno, relleno y tamaño explícitos |
+| Horizontal grid thickness | `gridHorizontalWeight` | number | Tiene | Cuadrícula por dirección, contorno, relleno y tamaño explícitos |
+| Vertical grid | `gridVertical` | boolean | Tiene | Cuadrícula por dirección, contorno, relleno y tamaño explícitos |
+| Vertical grid color | `gridVerticalColor` | fill | Tiene | Cuadrícula por dirección, contorno, relleno y tamaño explícitos |
+| Vertical grid thickness | `gridVerticalWeight` | number | Tiene | Cuadrícula por dirección, contorno, relleno y tamaño explícitos |
+| Height | `imageHeight` | number | Tiene | Cuadrícula por dirección, contorno, relleno y tamaño explícitos |
+| Width | `imageWidth` | number | Tiene | Cuadrícula por dirección, contorno, relleno y tamaño explícitos |
+| Outline color | `outlineColor` | fill | Tiene | Cuadrícula por dirección, contorno, relleno y tamaño explícitos |
+| Outline | `outlineStyle` | integer | Tiene | Cuadrícula por dirección, contorno, relleno y tamaño explícitos |
+| Outline weight | `outlineWeight` | number | Tiene | Cuadrícula por dirección, contorno, relleno y tamaño explícitos |
+| Row padding | `rowPadding` | number | Tiene | Cuadrícula por dirección, contorno, relleno y tamaño explícitos |
+| Text size | `textSize` | number | Tiene | Cuadrícula por dirección, contorno, relleno y tamaño explícitos |
 
-### Encabezados de fila (`rowHeaders`) · P1 · 0/23
+### Encabezados de columna (`columnHeaders`) · P1 · 22/23
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
-| Alignment | `alignment` | enum: Auto, Left, Center, Right | Falta |  |
-| Auto expand | `autoExpand` | boolean | Falta |  |
-| Background color | `backColor` | fill | Falta |  |
-| Bold | `bold` | boolean | Falta |  |
-| Icon color | `expandCollapseButtonsColor` | fill | Falta |  |
-| Icon size | `expandCollapseButtonsSize` | fontSize | Falta |  |
-| expandCompositeHierarchy | `expandCompositeHierarchy` | boolean | Falta |  |
-| Font color | `fontColor` | fill | Falta |  |
-| Font family | `fontFamily` | string | Falta |  |
-| Text size | `fontSize` | fontSize | Falta |  |
-| Italic | `italic` | boolean | Falta |  |
-| legacyStyleDisabled | `legacyStyleDisabled` | boolean | Falta |  |
-| Outline color | `outlineColor` | fill | Falta |  |
-| Outline | `outlineStyle` | integer | Falta |  |
-| Outline weight | `outlineWeight` | number | Falta |  |
-| Repeat row headers | `repeatRowHeaders` | boolean | Falta |  |
-| +/- icons | `showExpandCollapseButtons` | boolean | Falta |  |
-| Stepped layout | `stepped` | boolean | Falta |  |
-| Indentation | `steppedLayoutIndentation` | number | Falta |  |
-| Underline | `underline` | boolean | Falta |  |
-| unfrozen | `unfrozen` | boolean | Falta |  |
-| URL icon | `urlIcon` | boolean | Falta |  |
-| Word wrap | `wordWrap` | boolean | Falta |  |
+| Alignment | `alignment` | enum: Auto, Left, Center, Right | Tiene | Estilos de encabezado propios |
+| Auto expand | `autoExpand` | boolean | Tiene | Profundidad inicial independiente para filas y columnas |
+| Auto-size column width | `autoSizeColumnWidth` | boolean | Tiene | Ajuste al contenido o ancho fijo; ancho mínimo por columna |
+| Background color | `backColor` | fill | Tiene | Estilos de encabezado propios |
+| Bold | `bold` | boolean | Tiene | Estilos de encabezado propios |
+| Auto-size behavior | `columnAdjustment` | enum: Fit to content, Grow to fit, Fixed width | Tiene | Ajuste al contenido o ancho fijo; ancho mínimo por columna |
+| Custom widths | `customColumnWidth` | boolean | Tiene | Ajuste al contenido o ancho fijo; ancho mínimo por columna |
+| More granular | `customColumnWidthGranularView` | boolean | Falta | El ancho se configura por campo o métrica, no por cada valor de una jerarquía |
+| Default width | `defaultColumnWidth` | number | Tiene | Ajuste al contenido o ancho fijo; ancho mínimo por columna |
+| Icon color | `expandCollapseButtonsColor` | fill | Tiene | Iconos de expansión con color, tamaño y visibilidad comunes |
+| Icon size | `expandCollapseButtonsSize` | fontSize | Tiene | Iconos de expansión con color, tamaño y visibilidad comunes |
+| Font color | `fontColor` | fill | Tiene | Estilos de encabezado propios |
+| Font family | `fontFamily` | string | Tiene | Estilos de encabezado propios |
+| Text size | `fontSize` | fontSize | Tiene | Estilos de encabezado propios |
+| Italic | `italic` | boolean | Tiene | Estilos de encabezado propios |
+| Outline color | `outlineColor` | fill | Tiene | Estilos de encabezado propios |
+| Outline | `outlineStyle` | integer | Tiene | Estilos de encabezado propios |
+| Outline weight | `outlineWeight` | number | Tiene | Estilos de encabezado propios |
+| +/- icons | `showExpandCollapseButtons` | boolean | Tiene | Iconos de expansión con color, tamaño y visibilidad comunes |
+| Title alignment | `titleAlignment` | enum: Auto, Left, Center, Right | Tiene | Alineación independiente de los títulos de encabezado |
+| Underline | `underline` | boolean | Tiene | Estilos de encabezado propios |
+| URL icon | `urlIcon` | boolean | Tiene | Icono para enlaces web explícitos en encabezados |
+| Word wrap | `wordWrap` | boolean | Tiene | Estilos de encabezado propios |
 
-### Subtotales (`subTotals`) · P1 · 3/18
+### Encabezados de fila (`rowHeaders`) · P1 · 20/23
+
+| Opción | Clave | Valores | Estado | Nota |
+| --- | --- | --- | --- | --- |
+| Alignment | `alignment` | enum: Auto, Left, Center, Right | Tiene | Estilos de encabezado propios |
+| Auto expand | `autoExpand` | boolean | Tiene | Profundidad inicial independiente para filas y columnas |
+| Background color | `backColor` | fill | Tiene | Estilos de encabezado propios |
+| Bold | `bold` | boolean | Tiene | Estilos de encabezado propios |
+| Icon color | `expandCollapseButtonsColor` | fill | Tiene | Iconos de expansión con color, tamaño y visibilidad comunes |
+| Icon size | `expandCollapseButtonsSize` | fontSize | Tiene | Iconos de expansión con color, tamaño y visibilidad comunes |
+| expandCompositeHierarchy | `expandCompositeHierarchy` | boolean | Falta | Sin jerarquías compuestas ni expansión selectiva por campo |
+| Font color | `fontColor` | fill | Tiene | Estilos de encabezado propios |
+| Font family | `fontFamily` | string | Tiene | Estilos de encabezado propios |
+| Text size | `fontSize` | fontSize | Tiene | Estilos de encabezado propios |
+| Italic | `italic` | boolean | Tiene | Estilos de encabezado propios |
+| legacyStyleDisabled | `legacyStyleDisabled` | boolean | Excluido | Compatibilidad de estilos antiguos de Power BI; no aplica al motor |
+| Outline color | `outlineColor` | fill | Tiene | Estilos de encabezado propios |
+| Outline | `outlineStyle` | integer | Tiene | Estilos de encabezado propios |
+| Outline weight | `outlineWeight` | number | Tiene | Estilos de encabezado propios |
+| Repeat row headers | `repeatRowHeaders` | boolean | Tiene | Disposición escalonada, sangría y repetición de etiquetas |
+| +/- icons | `showExpandCollapseButtons` | boolean | Tiene | Iconos de expansión con color, tamaño y visibilidad comunes |
+| Stepped layout | `stepped` | boolean | Tiene | Disposición escalonada, sangría y repetición de etiquetas |
+| Indentation | `steppedLayoutIndentation` | number | Tiene | Disposición escalonada, sangría y repetición de etiquetas |
+| Underline | `underline` | boolean | Tiene | Estilos de encabezado propios |
+| unfrozen | `unfrozen` | boolean | Falta | No hay fijación independiente del encabezado de fila |
+| URL icon | `urlIcon` | boolean | Tiene | Icono para enlaces web explícitos en encabezados |
+| Word wrap | `wordWrap` | boolean | Tiene | Estilos de encabezado propios |
+
+### Subtotales (`subTotals`) · P1 · 17/18
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
 | $id | `$id` | enum: Row, Column / ? | Excluido | Selector interno de serie |
-| Apply to labels | `applyToHeaders` | boolean | Falta |  |
-| Background color | `backColor` | fill | Falta |  |
-| Bold | `bold` | boolean | Falta |  |
+| Apply to labels | `applyToHeaders` | boolean | Tiene | Interruptor independiente para aplicar el estilo a las etiquetas |
+| Background color | `backColor` | fill | Tiene | Estilo propio para total, subtotal y totales generales por dirección |
+| Bold | `bold` | boolean | Tiene | Estilo propio para total, subtotal y totales generales por dirección |
 | Column subtotals | `columnSubtotals` | boolean | Tiene | Subtotales (colSubTotals/rowSubTotals) |
-| Column subtotals label | `columnSubtotalsLabel` | string | Falta |  |
-| Font color | `fontColor` | fill | Falta |  |
-| Font family | `fontFamily` | string | Falta |  |
-| Text size | `fontSize` | fontSize | Falta |  |
-| Italic | `italic` | boolean | Falta |  |
-| levelSubtotalEnabled | `levelSubtotalEnabled` | boolean | Falta |  |
-| levelSubtotalLabel | `levelSubtotalLabel` | string | Falta |  |
-| Per column level | `perColumnLevel` | boolean | Falta |  |
-| Per row level | `perRowLevel` | boolean | Falta |  |
+| Column subtotals label | `columnSubtotalsLabel` | string | Tiene | Etiqueta de subtotales por dirección |
+| Font color | `fontColor` | fill | Tiene | Estilo propio para total, subtotal y totales generales por dirección |
+| Font family | `fontFamily` | string | Tiene | Estilo propio para total, subtotal y totales generales por dirección |
+| Text size | `fontSize` | fontSize | Tiene | Estilo propio para total, subtotal y totales generales por dirección |
+| Italic | `italic` | boolean | Tiene | Estilo propio para total, subtotal y totales generales por dirección |
+| levelSubtotalEnabled | `levelSubtotalEnabled` | boolean | Tiene | Selección de niveles de subtotal; los grupos contraídos conservan su agregado |
+| levelSubtotalLabel | `levelSubtotalLabel` | string | Tiene | Etiqueta por nivel desde la configuración de su campo |
+| Per column level | `perColumnLevel` | boolean | Tiene | Selección de niveles de subtotal; los grupos contraídos conservan su agregado |
+| Per row level | `perRowLevel` | boolean | Tiene | Selección de niveles de subtotal; los grupos contraídos conservan su agregado |
 | Row subtotals | `rowSubtotals` | boolean | Tiene | Subtotales (colSubTotals/rowSubTotals) |
-| Row subtotals label | `rowSubtotalsLabel` | string | Falta |  |
+| Row subtotals label | `rowSubtotalsLabel` | string | Tiene | Etiqueta de subtotales por dirección |
 | Row subtotal position | `rowSubtotalsPosition` | enum: Top, Bottom | Tiene | Subtotales (colSubTotals/rowSubTotals) |
-| Underline | `underline` | boolean | Falta |  |
+| Underline | `underline` | boolean | Tiene | Estilo propio para total, subtotal y totales generales por dirección |
 
-### Total general de columnas (`columnTotal`) · P1 · 1/8
-
-| Opción | Clave | Valores | Estado | Nota |
-| --- | --- | --- | --- | --- |
-| Apply to labels | `applyToHeaders` | boolean | Parcial | Solo mostrar (colTotals/rowTotals) |
-| Background color | `backColor` | fill | Falta |  |
-| Bold | `bold` | boolean | Falta |  |
-| Font color | `fontColor` | fill | Falta |  |
-| Font family | `fontFamily` | string | Falta |  |
-| Text size | `fontSize` | fontSize | Falta |  |
-| Italic | `italic` | boolean | Falta |  |
-| Underline | `underline` | boolean | Falta |  |
-
-### Total general de filas (`rowTotal`) · P1 · 1/8
+### Total general de columnas (`columnTotal`) · P1 · 8/8
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
-| Apply to labels | `applyToHeaders` | boolean | Parcial | Solo mostrar (colTotals/rowTotals) |
-| Background color | `backColor` | fill | Falta |  |
-| Bold | `bold` | boolean | Falta |  |
-| Font color | `fontColor` | fill | Falta |  |
-| Font family | `fontFamily` | string | Falta |  |
-| Text size | `fontSize` | fontSize | Falta |  |
-| Italic | `italic` | boolean | Falta |  |
-| Underline | `underline` | boolean | Falta |  |
+| Apply to labels | `applyToHeaders` | boolean | Tiene | Interruptor independiente para aplicar el estilo a las etiquetas |
+| Background color | `backColor` | fill | Tiene | Estilo propio para total, subtotal y totales generales por dirección |
+| Bold | `bold` | boolean | Tiene | Estilo propio para total, subtotal y totales generales por dirección |
+| Font color | `fontColor` | fill | Tiene | Estilo propio para total, subtotal y totales generales por dirección |
+| Font family | `fontFamily` | string | Tiene | Estilo propio para total, subtotal y totales generales por dirección |
+| Text size | `fontSize` | fontSize | Tiene | Estilo propio para total, subtotal y totales generales por dirección |
+| Italic | `italic` | boolean | Tiene | Estilo propio para total, subtotal y totales generales por dirección |
+| Underline | `underline` | boolean | Tiene | Estilo propio para total, subtotal y totales generales por dirección |
 
-### Totales (`total`) · P1 · 0/8
-
-| Opción | Clave | Valores | Estado | Nota |
-| --- | --- | --- | --- | --- |
-| Apply to labels | `applyToHeaders` | boolean | Falta |  |
-| Background color | `backColor` | fill | Falta |  |
-| Bold | `bold` | boolean | Falta |  |
-| Font color | `fontColor` | fill | Falta |  |
-| Font family | `fontFamily` | string | Falta |  |
-| Text size | `fontSize` | fontSize | Falta |  |
-| Italic | `italic` | boolean | Falta |  |
-| Underline | `underline` | boolean | Falta |  |
-
-### Valores (`values`) · P1 · 0/20
+### Total general de filas (`rowTotal`) · P1 · 8/8
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
-| Background color | `backColor` | fill | Falta |  |
-| Background color | `backColorPrimary` | fill | Falta |  |
-| Alternate background color | `backColorSecondary` | fill | Falta |  |
-| Banded row color | `bandedRowHeaders` | boolean | Falta |  |
-| Bold | `bold` | boolean | Falta |  |
-| Font color | `fontColor` | fill | Falta |  |
-| Font color | `fontColorPrimary` | fill | Falta |  |
-| Alternate font color | `fontColorSecondary` | fill | Falta |  |
-| Font family | `fontFamily` | string | Falta |  |
-| Text size | `fontSize` | fontSize | Falta |  |
-| Icons | `icon` | icon | Falta |  |
-| Italic | `italic` | boolean | Falta |  |
-| Outline color | `outlineColor` | fill | Falta |  |
-| Outline | `outlineStyle` | integer | Falta |  |
-| Outline weight | `outlineWeight` | number | Falta |  |
-| Underline | `underline` | boolean | Falta |  |
-| URL icon | `urlIcon` | boolean | Falta |  |
-| Show on rows | `valuesOnRow` | boolean | Falta |  |
-| Web URL | `webURL` | string | Falta |  |
-| Word wrap | `wordWrap` | boolean | Falta |  |
+| Apply to labels | `applyToHeaders` | boolean | Tiene | Interruptor independiente para aplicar el estilo a las etiquetas |
+| Background color | `backColor` | fill | Tiene | Estilo propio para total, subtotal y totales generales por dirección |
+| Bold | `bold` | boolean | Tiene | Estilo propio para total, subtotal y totales generales por dirección |
+| Font color | `fontColor` | fill | Tiene | Estilo propio para total, subtotal y totales generales por dirección |
+| Font family | `fontFamily` | string | Tiene | Estilo propio para total, subtotal y totales generales por dirección |
+| Text size | `fontSize` | fontSize | Tiene | Estilo propio para total, subtotal y totales generales por dirección |
+| Italic | `italic` | boolean | Tiene | Estilo propio para total, subtotal y totales generales por dirección |
+| Underline | `underline` | boolean | Tiene | Estilo propio para total, subtotal y totales generales por dirección |
 
-### Filas en blanco (`blankRows`) · P2 · 0/8
+### Totales (`total`) · P1 · 8/8
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
-| Color | `blankRowColor` | fill | Falta |  |
-| Transparency | `blankRowTransparency` | number | Falta |  |
-| Color | `borderColor` | fill | Falta |  |
-| Position | `borderPosition` | enum: Top, Bottom, Top and bottom | Falta |  |
-| Transparency | `borderTransparency` | number | Falta |  |
-| Width | `borderWidth` | number | Falta |  |
-| Show | `showBlankRows` | boolean | Falta |  |
-| Show | `showBorder` | boolean | Falta |  |
+| Apply to labels | `applyToHeaders` | boolean | Tiene | Interruptor independiente para aplicar el estilo a las etiquetas |
+| Background color | `backColor` | fill | Tiene | Estilo propio para total, subtotal y totales generales por dirección |
+| Bold | `bold` | boolean | Tiene | Estilo propio para total, subtotal y totales generales por dirección |
+| Font color | `fontColor` | fill | Tiene | Estilo propio para total, subtotal y totales generales por dirección |
+| Font family | `fontFamily` | string | Tiene | Estilo propio para total, subtotal y totales generales por dirección |
+| Text size | `fontSize` | fontSize | Tiene | Estilo propio para total, subtotal y totales generales por dirección |
+| Italic | `italic` | boolean | Tiene | Estilo propio para total, subtotal y totales generales por dirección |
+| Underline | `underline` | boolean | Tiene | Estilo propio para total, subtotal y totales generales por dirección |
 
-### Minigráficos (`sparklines`) · P2 · 0/7
-
-| Opción | Clave | Valores | Estado | Nota |
-| --- | --- | --- | --- | --- |
-| Chart type | `chartType` | enum: Line, Column | Falta |  |
-| Data color | `dataColor` | fill | Falta |  |
-| Color | `markerColor` | fill | Falta |  |
-| Type | `markerShape` | enum: ●, ■, ◆, ▲, ☓, -, —, + | Falta |  |
-| Size | `markerSize` | number | Falta |  |
-| Show these markers | `markers` | integer | Falta |  |
-| Width | `strokeWidth` | number | Falta |  |
-
-### columnWidth (`columnWidth`) · P2 · 0/1
+### Valores (`values`) · P1 · 20/20
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
-| value | `value` | number | Falta |  |
+| Background color | `backColor` | fill | Tiene | Estilo de valores y filas alternas; formato condicional tiene prioridad |
+| Background color | `backColorPrimary` | fill | Tiene | Estilo de valores y filas alternas; formato condicional tiene prioridad |
+| Alternate background color | `backColorSecondary` | fill | Tiene | Estilo de valores y filas alternas; formato condicional tiene prioridad |
+| Banded row color | `bandedRowHeaders` | boolean | Tiene | Alternado opcional también en los encabezados de fila |
+| Bold | `bold` | boolean | Tiene | Estilo de valores y filas alternas; formato condicional tiene prioridad |
+| Font color | `fontColor` | fill | Tiene | Estilo de valores y filas alternas; formato condicional tiene prioridad |
+| Font color | `fontColorPrimary` | fill | Tiene | Estilo de valores y filas alternas; formato condicional tiene prioridad |
+| Alternate font color | `fontColorSecondary` | fill | Tiene | Estilo de valores y filas alternas; formato condicional tiene prioridad |
+| Font family | `fontFamily` | string | Tiene | Estilo de valores y filas alternas; formato condicional tiene prioridad |
+| Text size | `fontSize` | fontSize | Tiene | Estilo de valores y filas alternas; formato condicional tiene prioridad |
+| Icons | `icon` | icon | Tiene | Reglas de iconos numéricos por métrica en tabla y matriz |
+| Italic | `italic` | boolean | Tiene | Estilo de valores y filas alternas; formato condicional tiene prioridad |
+| Outline color | `outlineColor` | fill | Tiene | Estilo de valores y filas alternas; formato condicional tiene prioridad |
+| Outline | `outlineStyle` | integer | Tiene | Estilo de valores y filas alternas; formato condicional tiene prioridad |
+| Outline weight | `outlineWeight` | number | Tiene | Estilo de valores y filas alternas; formato condicional tiene prioridad |
+| Underline | `underline` | boolean | Tiene | Estilo de valores y filas alternas; formato condicional tiene prioridad |
+| URL icon | `urlIcon` | boolean | Tiene | Enlace web explícito http/https, con icono y etiqueta accesible |
+| Show on rows | `valuesOnRow` | boolean | Tiene | Orientación de métricas por filas o columnas, sin nueva consulta |
+| Web URL | `webURL` | string | Tiene | Enlace web explícito http/https, con icono y etiqueta accesible |
+| Word wrap | `wordWrap` | boolean | Tiene | Estilo de valores y filas alternas; formato condicional tiene prioridad |
+
+### Filas en blanco (`blankRows`) · P2 · 8/8
+
+| Opción | Clave | Valores | Estado | Nota |
+| --- | --- | --- | --- | --- |
+| Color | `blankRowColor` | fill | Tiene | Separador entre grupos de primer nivel; color con alfa y contorno por lado |
+| Transparency | `blankRowTransparency` | number | Tiene | Separador entre grupos de primer nivel; color con alfa y contorno por lado |
+| Color | `borderColor` | fill | Tiene | Separador entre grupos de primer nivel; color con alfa y contorno por lado |
+| Position | `borderPosition` | enum: Top, Bottom, Top and bottom | Tiene | Separador entre grupos de primer nivel; color con alfa y contorno por lado |
+| Transparency | `borderTransparency` | number | Tiene | Separador entre grupos de primer nivel; color con alfa y contorno por lado |
+| Width | `borderWidth` | number | Tiene | Separador entre grupos de primer nivel; color con alfa y contorno por lado |
+| Show | `showBlankRows` | boolean | Tiene | Separador entre grupos de primer nivel; color con alfa y contorno por lado |
+| Show | `showBorder` | boolean | Tiene | Separador entre grupos de primer nivel; color con alfa y contorno por lado |
+
+### Minigráficos (`sparklines`) · P2 · 7/7
+
+| Opción | Clave | Valores | Estado | Nota |
+| --- | --- | --- | --- | --- |
+| Chart type | `chartType` | enum: Line, Column | Parcial | Línea/columnas y marcadores: matriz sobre grupos de columnas visibles; tabla requiere listas numéricas ordenadas, sin nuevo rol temporal ni consulta adicional |
+| Data color | `dataColor` | fill | Parcial | Línea/columnas y marcadores: matriz sobre grupos de columnas visibles; tabla requiere listas numéricas ordenadas, sin nuevo rol temporal ni consulta adicional |
+| Color | `markerColor` | fill | Parcial | Línea/columnas y marcadores: matriz sobre grupos de columnas visibles; tabla requiere listas numéricas ordenadas, sin nuevo rol temporal ni consulta adicional |
+| Type | `markerShape` | enum: ●, ■, ◆, ▲, ☓, -, —, + | Parcial | Línea/columnas y marcadores: matriz sobre grupos de columnas visibles; tabla requiere listas numéricas ordenadas, sin nuevo rol temporal ni consulta adicional |
+| Size | `markerSize` | number | Parcial | Línea/columnas y marcadores: matriz sobre grupos de columnas visibles; tabla requiere listas numéricas ordenadas, sin nuevo rol temporal ni consulta adicional |
+| Show these markers | `markers` | integer | Parcial | Línea/columnas y marcadores: matriz sobre grupos de columnas visibles; tabla requiere listas numéricas ordenadas, sin nuevo rol temporal ni consulta adicional |
+| Width | `strokeWidth` | number | Parcial | Línea/columnas y marcadores: matriz sobre grupos de columnas visibles; tabla requiere listas numéricas ordenadas, sin nuevo rol temporal ni consulta adicional |
+
+### columnWidth (`columnWidth`) · P2 · 1/1
+
+| Opción | Clave | Valores | Estado | Nota |
+| --- | --- | --- | --- | --- |
+| value | `value` | number | Tiene | Ancho mínimo por columna y ancho predeterminado |
 
 ### Anotaciones (`annotationTemplate`) · P3 · 0/1
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
-| highlight | `highlight` | annotationTemplate | Falta |  |
+| highlight | `highlight` | annotationTemplate | Falta | Sin anotaciones en el gráfico: fase 8 |
 
 ### accessibility (`accessibility`) · P3 · 0/1
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
-| Column with alt text | `altTextColumns` | string | Falta |  |
+| Column with alt text | `altTextColumns` | string | Falta | Hay texto alternativo por gráfico, no por columna |
 
 ## General
 

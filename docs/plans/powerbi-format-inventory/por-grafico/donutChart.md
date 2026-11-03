@@ -5,21 +5,21 @@ Nuestro gráfico: pie. Generado desde `reportThemeSchema-2.159.json`.
 ## Visual
 
 
-### Colores / barras (`dataPoint`) · P1 · 2/9
+### Colores / barras (`dataPoint`) · P1 · 9/9
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
-| Color | `borderColor` | fill | Falta |  |
-| Match fill color | `borderColorMatchFill` | boolean | Falta |  |
-| Hide inner borders | `borderOutlineOnly` | boolean | Falta |  |
-| Border | `borderShow` | boolean | Falta |  |
-| Width | `borderSize` | number | Falta |  |
-| Transparency | `borderTransparency` | number | Falta |  |
-| Default color | `defaultColor` | fill | Parcial | Color por serie o esquema; revisar color por categoría (color_scheme) |
-| Color | `fill` | fill | Parcial | Color por serie o esquema; revisar color por categoría (color_scheme) |
-| Transparency | `fillTransparency` | number | Falta |  |
+| Color | `borderColor` | fill | Tiene | Colores y bordes |
+| Match fill color | `borderColorMatchFill` | boolean | Tiene | Colores y bordes |
+| Hide inner borders | `borderOutlineOnly` | boolean | Tiene | Colores y bordes |
+| Border | `borderShow` | boolean | Tiene | Colores y bordes |
+| Width | `borderSize` | number | Tiene | Colores y bordes |
+| Transparency | `borderTransparency` | number | Tiene | Colores y bordes |
+| Default color | `defaultColor` | fill | Tiene | Color por categoría y color predeterminado |
+| Color | `fill` | fill | Tiene | Color por categoría y color predeterminado |
+| Transparency | `fillTransparency` | number | Tiene | Colores y bordes |
 
-### Etiquetas de datos (`labels`) · P1 · 12/14
+### Etiquetas de datos (`labels`) · P1 · 13/14
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
@@ -29,16 +29,16 @@ Nuestro gráfico: pie. Generado desde `reportThemeSchema-2.159.json`.
 | Font family | `fontFamily` | string | Tiene | Fuente de etiquetas (value_label_font) |
 | Text size | `fontSize` | fontSize | Tiene | Fuente de etiquetas (value_label_font) |
 | Italic | `italic` | boolean | Tiene | Fuente de etiquetas (value_label_font) |
-| Display units | `labelDisplayUnits` | labelDisplayUnits | Parcial | Con código d3 (number_format) |
-| Value decimal places | `labelPrecision` | integer | Parcial | Con código d3 (number_format) |
+| Display units | `labelDisplayUnits` | labelDisplayUnits | Tiene | Unidades y decimales de etiquetas |
+| Value decimal places | `labelPrecision` | integer | Tiene | Unidades y decimales de etiquetas |
 | Label style | `labelStyle` | enum: Category, Data value, Percent of total, Category, data value, Category, percent of total, Data value, percent of total, All detail lab | Tiene | Contenido de etiqueta (label_type) |
-| Overflow text | `overflow` | boolean | Falta |  |
-| % decimal places | `percentageLabelPrecision` | integer | Parcial | Con código d3 (number_format) |
-| Label position | `position` | enum: Outside, Inside, Prefer outside, Prefer inside | Parcial | Solo dentro o fuera (labels_outside) |
+| Overflow text | `overflow` | boolean | Tiene | Ancho máximo, truncado o ajuste de etiquetas |
+| % decimal places | `percentageLabelPrecision` | integer | Tiene | Decimales del porcentaje |
+| Label position | `position` | enum: Outside, Inside, Prefer outside, Prefer inside | Parcial | Posiciones explícitas del motor; sin preferencia automática |
 | Show | `show` | boolean | Tiene | Mostrar etiquetas (show_labels) |
 | Underline | `underline` | boolean | Falta | El motor de gráficos no dibuja texto subrayado |
 
-### Leyenda (`legend`) · P1 · 7/10
+### Leyenda (`legend`) · P1 · 9/10
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
@@ -49,91 +49,91 @@ Nuestro gráfico: pie. Generado desde `reportThemeSchema-2.159.json`.
 | Color | `labelColor` | fill | Tiene | Fuente de leyenda (legend_font) |
 | Position | `position` | enum: Top left, Top center, Top right, Top left stacked, Top right stacked, Center left, Center right, Bottom left, Bottom center, Bottom ri | Tiene | Posición (legendOrientation) |
 | Show | `show` | boolean | Tiene | Mostrar leyenda (show_legend) |
-| Title | `showTitle` | boolean | Falta |  |
-| Legend Name | `titleText` | string | Falta |  |
+| Title | `showTitle` | boolean | Tiene | Título de leyenda |
+| Legend Name | `titleText` | string | Tiene | Título de leyenda |
 | Underline | `underline` | boolean | Falta | El motor de gráficos no dibuja texto subrayado |
 
-### Porciones (`slices`) · P1 · 1/2
+### Porciones (`slices`) · P1 · 2/2
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
 | Inner radius | `innerRadiusRatio` | integer | Tiene | Radio interior (innerRadius) |
-| Start angle | `startAngle` | integer | Falta |  |
+| Start angle | `startAngle` | integer | Tiene | Ángulo inicial |
 
 ### Valor central (`centerValue`) · P1 · 1/1
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
-| Show | `show` | boolean | Tiene | Valor central (show_total) |
+| Show | `show` | boolean | Tiene | Mostrar valor central |
 
-### centerBackground (`centerBackground`) · P1 · 0/10
-
-| Opción | Clave | Valores | Estado | Nota |
-| --- | --- | --- | --- | --- |
-| Fill | `fillColor` | fill | Falta |  |
-| Image fit | `fit` | enum: Fit, Stretch, Fill | Falta |  |
-| image | `image` | image | Falta |  |
-| Data | `imageData` | string | Falta |  |
-| Transparency | `imageTransparency` | number | Falta |  |
-| Image source | `imageType` | enum: Upload Image, Enter URL, Select from data | Falta |  |
-| Image URL | `imageUrl` | string | Falta |  |
-| Padding | `padding` | integer | Falta |  |
-| Show | `show` | boolean | Falta |  |
-| Transparency | `transparency` | number | Falta |  |
-
-### label (`label`) · P1 · 0/11
+### centerBackground (`centerBackground`) · P1 · 4/10
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
-| Bold | `bold` | boolean | Falta |  |
-| Color | `fontColor` | fill | Falta |  |
-| Font family | `fontFamily` | string | Falta |  |
-| Text size | `fontSize` | fontSize | Falta |  |
-| Gap | `gap` | integer | Falta |  |
-| Italic | `italic` | boolean | Falta |  |
-| Position | `position` | enum: Above text, Below text | Falta |  |
-| Show | `show` | boolean | Falta |  |
-| Text | `text` | string | Falta |  |
-| Text wrap | `textWrap` | boolean | Falta |  |
-| Underline | `underline` | boolean | Falta |  |
+| Fill | `fillColor` | fill | Tiene | Fondo circular del valor central |
+| Image fit | `fit` | enum: Fit, Stretch, Fill | Falta | Sin imagen central: requiere carga, selección y ajuste |
+| image | `image` | image | Falta | Sin imagen central: requiere carga, selección y ajuste |
+| Data | `imageData` | string | Falta | Sin imagen central: requiere carga, selección y ajuste |
+| Transparency | `imageTransparency` | number | Falta | Sin imagen central: requiere carga, selección y ajuste |
+| Image source | `imageType` | enum: Upload Image, Enter URL, Select from data | Falta | Sin imagen central: requiere carga, selección y ajuste |
+| Image URL | `imageUrl` | string | Falta | Sin imagen central: requiere carga, selección y ajuste |
+| Padding | `padding` | integer | Tiene | Fondo circular del valor central |
+| Show | `show` | boolean | Tiene | Fondo circular del valor central |
+| Transparency | `transparency` | number | Tiene | Fondo circular del valor central |
 
-### value (`value`) · P1 · 0/12
+### label (`label`) · P1 · 7/11
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
-| Bold | `bold` | boolean | Falta |  |
-| Color | `fontColor` | fill | Falta |  |
-| Font family | `fontFamily` | string | Falta |  |
-| Text size | `fontSize` | fontSize | Falta |  |
-| Italic | `italic` | boolean | Falta |  |
-| Display units | `labelDisplayUnits` | enum: Auto, None, Thousands, Millions, Billions, Trillions, Custom | Falta |  |
-| Value decimal places | `labelPrecision` | integer | Falta |  |
-| Show | `show` | boolean | Falta |  |
-| Show blank as | `showBlankAs` | string | Falta |  |
-| Text wrap | `textWrap` | boolean | Falta |  |
-| Underline | `underline` | boolean | Falta |  |
-| Value | `value` | string/number/integer/boolean | Falta |  |
+| Bold | `bold` | boolean | Tiene | Fuente de la etiqueta central |
+| Color | `fontColor` | fill | Tiene | Fuente de la etiqueta central |
+| Font family | `fontFamily` | string | Tiene | Fuente de la etiqueta central |
+| Text size | `fontSize` | fontSize | Tiene | Fuente de la etiqueta central |
+| Gap | `gap` | integer | Falta | La etiqueta central va siempre sobre el valor |
+| Italic | `italic` | boolean | Tiene | Fuente de la etiqueta central |
+| Position | `position` | enum: Above text, Below text | Falta | La etiqueta central va siempre sobre el valor |
+| Show | `show` | boolean | Parcial | Prefijo del valor central; sin etiqueta independiente |
+| Text | `text` | string | Parcial | Prefijo del valor central; sin etiqueta independiente |
+| Text wrap | `textWrap` | boolean | Falta | La etiqueta central va siempre sobre el valor |
+| Underline | `underline` | boolean | Falta | La etiqueta central va siempre sobre el valor |
+
+### value (`value`) · P1 · 8/12
+
+| Opción | Clave | Valores | Estado | Nota |
+| --- | --- | --- | --- | --- |
+| Bold | `bold` | boolean | Tiene | Fuente y formato del valor central |
+| Color | `fontColor` | fill | Tiene | Fuente y formato del valor central |
+| Font family | `fontFamily` | string | Tiene | Fuente y formato del valor central |
+| Text size | `fontSize` | fontSize | Tiene | Fuente y formato del valor central |
+| Italic | `italic` | boolean | Tiene | Fuente y formato del valor central |
+| Display units | `labelDisplayUnits` | enum: Auto, None, Thousands, Millions, Billions, Trillions, Custom | Tiene | Fuente y formato del valor central |
+| Value decimal places | `labelPrecision` | integer | Tiene | Fuente y formato del valor central |
+| Show | `show` | boolean | Tiene | Fuente y formato del valor central |
+| Show blank as | `showBlankAs` | string | Falta | El valor central es texto del motor, sin esas opciones |
+| Text wrap | `textWrap` | boolean | Falta | El valor central es texto del motor, sin esas opciones |
+| Underline | `underline` | boolean | Falta | El valor central es texto del motor, sin esas opciones |
+| Value | `value` | string/number/integer/boolean | Falta | El valor central es texto del motor, sin esas opciones |
 
 ### Anotaciones (`annotationTemplate`) · P3 · 0/1
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
-| callout | `callout` | annotationTemplate | Falta |  |
+| callout | `callout` | annotationTemplate | Falta | Sin anotaciones en el gráfico: fase 8 |
 
 ### image (`image`) · P3 · 0/10
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
-| Alt text | `altText` | string | Falta |  |
-| Gap | `gap` | integer | Falta |  |
-| image | `image` | image | Falta |  |
-| Data | `imageData` | string | Falta |  |
-| Image source | `imageType` | enum: Upload Image, Enter URL, Select from data | Falta |  |
-| Image URL | `imageUrl` | string | Falta |  |
-| Position | `position` | enum: Above text, Below text | Falta |  |
-| Show | `show` | boolean | Falta |  |
-| Size | `size` | integer | Falta |  |
-| Transparency | `transparency` | number | Falta |  |
+| Alt text | `altText` | string | Falta | Sin imagen central: requiere carga, selección y ajuste |
+| Gap | `gap` | integer | Falta | Sin imagen central: requiere carga, selección y ajuste |
+| image | `image` | image | Falta | Sin imagen central: requiere carga, selección y ajuste |
+| Data | `imageData` | string | Falta | Sin imagen central: requiere carga, selección y ajuste |
+| Image source | `imageType` | enum: Upload Image, Enter URL, Select from data | Falta | Sin imagen central: requiere carga, selección y ajuste |
+| Image URL | `imageUrl` | string | Falta | Sin imagen central: requiere carga, selección y ajuste |
+| Position | `position` | enum: Above text, Below text | Falta | Sin imagen central: requiere carga, selección y ajuste |
+| Show | `show` | boolean | Falta | Sin imagen central: requiere carga, selección y ajuste |
+| Size | `size` | integer | Falta | Sin imagen central: requiere carga, selección y ajuste |
+| Transparency | `transparency` | number | Falta | Sin imagen central: requiere carga, selección y ajuste |
 
 ## General
 

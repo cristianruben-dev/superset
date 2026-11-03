@@ -124,6 +124,20 @@ def controls(key):
     S = set(re.findall(r"name:\s*['\"](\w+)['\"]", t)) | set(
         re.findall(r"^\s*\[?['\"](\w+)['\"]\]?,?$", t, re.M)
     )
+    if "buildCardFormatSections" in t:
+        S.add("fmt_card5")
+    if "buildSpecialChartSections" in t:
+        S.add("fmt_special6")
+        S.add("fmt_" + key + "56")
+        S |= {"value_label_font", "value_label_background"}
+        if key != "gauge":
+            S |= {"fmt_legend", "legend_align", "legend_font", "legend_icon"}
+        if key in ("waterfall", "bubble"):
+            S |= set(AXES) | {"fmt_axes", "fmt_plot"}
+        if key == "bubble":
+            S |= {"fmt_markers", "series_marker_symbol", "series_colors"}
+    if "buildTableFormatSections" in t:
+        S.add("fmt_table4")
     if "axesFormatSection" in t:
         S |= set(AXES)
     if "buildAxesFormatSection" in t:
@@ -300,6 +314,153 @@ FONT = r"fontFamily|fontSize|bold|italic|labelColor|color|fontColor|textSize"
 F = "fmt"
 # (card regex, prop regex, controls, status, note); first match wins; a control absent from the chart means Falta
 RULES = [
+    (
+        r"bubbles",
+        r"markerShape",
+        ["series_marker_symbol"],
+        "Tiene",
+        "Forma del marcador",
+    ),
+    (r"bubbles", r"showSeries", ["fmt_markers"], "Tiene", "Aplicar a una serie"),
+    (
+        r"categoryLabels",
+        r".*[uU]nderline",
+        None,
+        "Falta",
+        "El motor de gráficos no dibuja texto subrayado",
+    ),
+    (
+        r"categoryLabels",
+        r"show|color|fontFamily|fontSize|bold|italic",
+        ["fmt_scatter56"],
+        "Parcial",
+        "Título de la etiqueta con la serie o la categoría, con su fuente",
+    ),
+    (
+        r"categoryLabels",
+        r"enableBackground|backgroundColor|backgroundTransparency",
+        ["fmt_scatter56"],
+        "Falta",
+        "El título de la etiqueta no tiene fondo propio",
+    ),
+    (r"ratioLine", r"dashArray", ["fmt_bubble56"], "Tiene", "Patrón de guiones"),
+    (
+        r"ratioLine",
+        r"autoScale",
+        None,
+        "Falta",
+        "El motor de gráficos no escala el trazo con el zoom",
+    ),
+    (
+        r"ratioLine",
+        r"dashCap",
+        None,
+        "Falta",
+        "Los extremos no se eligen en esta línea",
+    ),
+    (
+        r"colorBorder|colorByCategory",
+        r"show",
+        ["fmt_bubble56"],
+        "Tiene",
+        "Colores y series",
+    ),
+    (r"fillPoint", r"style", ["fmt_bubble56"], "Tiene", "Forma y relleno del marcador"),
+    (r"plotAreaShading", r"displayName", None, "Falta", "El sombreado no tiene nombre"),
+    (
+        r"percentBarLabel|target",
+        r"underline",
+        None,
+        "Falta",
+        "El motor de gráficos no dibuja texto subrayado",
+    ),
+    (
+        r"breakdown|sentimentColors",
+        r"otherFill",
+        None,
+        "Falta",
+        "Sin grupo Otros: depende del máximo de desgloses",
+    ),
+    (r"valueAxis", r"totalsEnabled", ["fmt_waterfall56"], "Tiene", "Mostrar total"),
+    (r"valueAxis", r"start|end", ["fmt_waterfall56"], "Tiene", "Límites del eje Y"),
+    (
+        r"categoryAxis",
+        r"innerPadding",
+        ["fmt_waterfall56"],
+        "Tiene",
+        "Espacio entre barras",
+    ),
+    (
+        r"categoryAxis|valueAxis",
+        r"treatNullsAsZero",
+        None,
+        "Falta",
+        "Un valor nulo no dibuja marca",
+    ),
+    (
+        r"categoryAxis",
+        r"innerPadding",
+        ["fmt_bubble56"],
+        "Excluido",
+        "Sin categorías: el eje es numérico",
+    ),
+    (
+        r"labels",
+        r"show",
+        ["fmt_waterfall56", "fmt_gauge56"],
+        "Tiene",
+        "Mostrar etiquetas",
+    ),
+    (r"legend", r"position", ["fmt_waterfall56"], "Tiene", "Posición"),
+    (
+        r"legend",
+        r"position|show",
+        ["fmt_treemap56"],
+        "Falta",
+        "El treemap no tiene leyenda: sus etiquetas nombran cada grupo",
+    ),
+    (
+        r"label",
+        r"bold|fontColor|fontFamily|fontSize|italic",
+        ["fmt_pie56"],
+        "Tiene",
+        "Fuente de la etiqueta central",
+    ),
+    (
+        r"label",
+        r"gap|position|textWrap|underline",
+        ["fmt_pie56"],
+        "Falta",
+        "La etiqueta central va siempre sobre el valor",
+    ),
+    (
+        r"value",
+        r"showBlankAs|textWrap|underline|value",
+        ["fmt_pie56"],
+        "Falta",
+        "El valor central es texto del motor, sin esas opciones",
+    ),
+    (
+        r"image",
+        r".*",
+        ["fmt_pie56"],
+        "Falta",
+        "Sin imagen central: requiere carga, selección y ajuste",
+    ),
+    (
+        r"accessibility",
+        r".*",
+        None,
+        "Falta",
+        "Hay texto alternativo por gráfico, no por columna",
+    ),
+    (
+        r"Annotations|annotationTemplate",
+        r".*",
+        None,
+        "Falta",
+        "Sin anotaciones en el gráfico: fase 8",
+    ),
     (
         r"categoryAxis|valueAxis|legend|labels|totals|seriesLabels|y2Axis",
         r".*[uU]nderline",
@@ -1273,6 +1434,476 @@ RULES = [
         "Subtotales",
     ),
 ]
+TABLE_RULES = [
+    (
+        "columnFormatting",
+        "alignment|backColor|dataBars|fontColor|labelDisplayUnits|labelPrecision|styleHeader|styleSubtotals|styleTotal|styleValues",
+        ["fmt_table4"],
+        "Tiene",
+        "Formato por columna; colores condicionales prevalecen",
+    ),
+    (
+        "grid",
+        "gridHorizontal|gridHorizontalColor|gridHorizontalWeight|gridVertical|gridVerticalColor|gridVerticalWeight|imageHeight|imageWidth|outlineColor|outlineStyle|outlineWeight|rowPadding|textSize",
+        ["fmt_table4"],
+        "Tiene",
+        "Cuadrícula por dirección, contorno, relleno y tamaño explícitos",
+    ),
+    (
+        "columnHeaders|rowHeaders",
+        "alignment|backColor|bold|fontColor|fontFamily|fontSize|italic|outlineColor|outlineStyle|outlineWeight|underline|wordWrap",
+        ["fmt_table4"],
+        "Tiene",
+        "Estilos de encabezado propios",
+    ),
+    (
+        "columnHeaders",
+        "autoSizeColumnWidth|columnAdjustment|defaultColumnWidth|customColumnWidth",
+        ["fmt_table4"],
+        "Tiene",
+        "Ajuste al contenido o ancho fijo; ancho mínimo por columna",
+    ),
+    (
+        "columnHeaders",
+        "customColumnWidthGranularView",
+        ["fmt_table4"],
+        "Falta",
+        "El ancho se configura por campo o métrica, no por cada valor de una jerarquía",
+    ),
+    (
+        "columnHeaders",
+        "titleAlignment",
+        ["fmt_table4"],
+        "Tiene",
+        "Alineación independiente de los títulos de encabezado",
+    ),
+    (
+        "columnHeaders|rowHeaders",
+        "autoExpand",
+        ["fmt_table4"],
+        "Tiene",
+        "Profundidad inicial independiente para filas y columnas",
+    ),
+    (
+        "columnHeaders|rowHeaders",
+        "expandCollapseButtonsColor|expandCollapseButtonsSize|showExpandCollapseButtons",
+        ["fmt_table4"],
+        "Tiene",
+        "Iconos de expansión con color, tamaño y visibilidad comunes",
+    ),
+    (
+        "columnHeaders|rowHeaders",
+        "urlIcon",
+        ["fmt_table4"],
+        "Tiene",
+        "Icono para enlaces web explícitos en encabezados",
+    ),
+    (
+        "rowHeaders",
+        "repeatRowHeaders|stepped|steppedLayoutIndentation",
+        ["fmt_table4"],
+        "Tiene",
+        "Disposición escalonada, sangría y repetición de etiquetas",
+    ),
+    (
+        "rowHeaders",
+        "expandCompositeHierarchy",
+        ["fmt_table4"],
+        "Falta",
+        "Sin jerarquías compuestas ni expansión selectiva por campo",
+    ),
+    (
+        "rowHeaders",
+        "legacyStyleDisabled",
+        ["fmt_table4"],
+        "Excluido",
+        "Compatibilidad de estilos antiguos de Power BI; no aplica al motor",
+    ),
+    (
+        "rowHeaders",
+        "unfrozen",
+        ["fmt_table4"],
+        "Falta",
+        "No hay fijación independiente del encabezado de fila",
+    ),
+    (
+        "total|columnTotal|rowTotal|subTotals",
+        "backColor|bold|fontColor|fontFamily|fontSize|italic|outlineColor|outlineStyle|outlineWeight|underline",
+        ["fmt_table4"],
+        "Tiene",
+        "Estilo propio para total, subtotal y totales generales por dirección",
+    ),
+    (
+        "total|columnTotal|rowTotal|subTotals",
+        "applyToHeaders",
+        ["fmt_table4"],
+        "Tiene",
+        "Interruptor independiente para aplicar el estilo a las etiquetas",
+    ),
+    ("total", "label", ["fmt_table4"], "Tiene", "Etiqueta del resumen de la tabla"),
+    (
+        "subTotals",
+        "rowSubtotalsLabel|columnSubtotalsLabel",
+        ["fmt_table4"],
+        "Tiene",
+        "Etiqueta de subtotales por dirección",
+    ),
+    (
+        "subTotals",
+        "perColumnLevel|perRowLevel|levelSubtotalEnabled",
+        ["fmt_table4"],
+        "Tiene",
+        "Selección de niveles de subtotal; los grupos contraídos conservan su agregado",
+    ),
+    (
+        "subTotals",
+        "levelSubtotalLabel",
+        ["fmt_table4"],
+        "Tiene",
+        "Etiqueta por nivel desde la configuración de su campo",
+    ),
+    (
+        "values",
+        "backColor|backColorPrimary|backColorSecondary|bold|fontColor|fontColorPrimary|fontColorSecondary|fontFamily|fontSize|italic|outlineColor|outlineStyle|outlineWeight|underline|wordWrap",
+        ["fmt_table4"],
+        "Tiene",
+        "Estilo de valores y filas alternas; formato condicional tiene prioridad",
+    ),
+    (
+        "values",
+        "bandedRowHeaders",
+        ["fmt_table4"],
+        "Tiene",
+        "Alternado opcional también en los encabezados de fila",
+    ),
+    (
+        "values",
+        "icon",
+        ["fmt_table4"],
+        "Tiene",
+        "Reglas de iconos numéricos por métrica en tabla y matriz",
+    ),
+    (
+        "values",
+        "urlIcon|webURL",
+        ["fmt_table4"],
+        "Tiene",
+        "Enlace web explícito http/https, con icono y etiqueta accesible",
+    ),
+    (
+        "values",
+        "valuesOnRow",
+        ["fmt_table4"],
+        "Tiene",
+        "Orientación de métricas por filas o columnas, sin nueva consulta",
+    ),
+    (
+        "sparklines",
+        "chartType|dataColor|markerColor|markerShape|markerSize|markers|strokeWidth",
+        ["fmt_table4"],
+        "Parcial",
+        "Línea/columnas y marcadores: matriz sobre grupos de columnas visibles; tabla "
+        "requiere listas numéricas ordenadas, sin nuevo rol temporal ni consulta adicional",
+    ),
+    (
+        "columnWidth",
+        "value",
+        ["fmt_table4"],
+        "Tiene",
+        "Ancho mínimo por columna y ancho predeterminado",
+    ),
+    (
+        "blankRows",
+        "blankRowColor|blankRowTransparency|borderColor|borderPosition|borderTransparency|borderWidth|showBlankRows|showBorder",
+        ["fmt_table4"],
+        "Tiene",
+        "Separador entre grupos de primer nivel; color con alfa y contorno por lado",
+    ),
+]
+
+# Family-specific mappings are intentionally narrow: an ECharts label is not HTML.
+FAMILY_RULES = [
+    (
+        r"labels",
+        r"labelDisplayUnits|labelPrecision",
+        ["fmt_special6"],
+        "Tiene",
+        "Unidades y decimales de etiquetas",
+    ),
+    (
+        r"labels",
+        r"labelPosition|position",
+        ["fmt_special6"],
+        "Parcial",
+        "Posiciones explícitas del motor; sin preferencia automática",
+    ),
+    (
+        r"labels",
+        r"labelOrientation",
+        ["fmt_special6"],
+        "Tiene",
+        "Rotación de etiquetas",
+    ),
+    (
+        r"labels",
+        r"overflow",
+        ["fmt_special6"],
+        "Tiene",
+        "Ancho máximo, truncado o ajuste de etiquetas",
+    ),
+    (
+        r"labels",
+        r"percentageLabelPrecision",
+        ["fmt_pie56", "fmt_funnel56"],
+        "Tiene",
+        "Decimales del porcentaje",
+    ),
+    (
+        r"dataPoint|markers",
+        r"borderColor|borderColorMatchFill|borderOutlineOnly|borderShow|borderSize|borderWidth|borderTransparency|fillTransparency",
+        ["fmt_special6"],
+        "Tiene",
+        "Colores y bordes",
+    ),
+    (
+        r"dataPoint",
+        r"defaultColor|fill|showAllDataPoints",
+        [
+            "fmt_pie56",
+            "fmt_funnel56",
+            "fmt_treemap56",
+            "fmt_waterfall56",
+            "fmt_scatter56",
+            "fmt_bubble56",
+        ],
+        "Tiene",
+        "Color por categoría y color predeterminado",
+    ),
+    (
+        r"dataPoint",
+        r"fillRule",
+        ["fmt_special6"],
+        "Parcial",
+        "Escala continua de dos colores; sin reglas por campo",
+    ),
+    (r"legend", r"showTitle|titleText", ["fmt_special6"], "Tiene", "Título de leyenda"),
+    (r"slices", r"startAngle", ["fmt_pie56"], "Tiene", "Ángulo inicial"),
+    (
+        r"centerBackground",
+        r"show|fillColor|transparency|padding",
+        ["fmt_pie56"],
+        "Tiene",
+        "Fondo circular del valor central",
+    ),
+    (
+        r"centerBackground",
+        r"image.*|fit",
+        ["fmt_pie56"],
+        "Falta",
+        "Sin imagen central: requiere carga, selección y ajuste",
+    ),
+    (r"centerValue", r"show", ["fmt_pie56"], "Tiene", "Mostrar valor central"),
+    (
+        r"value",
+        r"bold|fontColor|fontFamily|fontSize|italic|labelDisplayUnits|labelPrecision|show",
+        ["fmt_pie56"],
+        "Tiene",
+        "Fuente y formato del valor central",
+    ),
+    (
+        r"label",
+        r"text|show",
+        ["fmt_pie56"],
+        "Parcial",
+        "Prefijo del valor central; sin etiqueta independiente",
+    ),
+    (
+        r"categoryAxis|categoryLabels",
+        r"show|bold|color|fontFamily|fontSize|italic",
+        ["fmt_funnel56", "fmt_treemap56", "fmt_gauge56"],
+        "Tiene",
+        "Fuente y visibilidad de categoría",
+    ),
+    (
+        r"percentBarLabel",
+        r"show|bold|color|fontFamily|fontSize|italic",
+        ["fmt_funnel56"],
+        "Tiene",
+        "Porcentaje real de conversión y fuente propia",
+    ),
+    (
+        r"labels",
+        r"funnelLabelStyle",
+        ["fmt_funnel56"],
+        "Tiene",
+        "Categoría, valor y porcentaje",
+    ),
+    (
+        r"layout",
+        r"innerPadding|outerPadding",
+        ["fmt_treemap56"],
+        "Tiene",
+        "Espacio entre nodos y grupos",
+    ),
+    (
+        r"layout",
+        r"tilingMethod",
+        ["fmt_treemap56"],
+        "Falta",
+        "ECharts no ofrece los algoritmos de disposición de Power BI",
+    ),
+    (
+        r"calloutValue",
+        r"show|bold|color|fontFamily|italic|labelDisplayUnits|labelPrecision",
+        ["fmt_gauge56"],
+        "Tiene",
+        "Fuente y formato del valor del medidor",
+    ),
+    (
+        r"calloutValue",
+        r"showDynamicLabels|dynamicLabelValue",
+        ["fmt_gauge56"],
+        "Parcial",
+        "Etiqueta manual con {value}; sin campo dinámico",
+    ),
+    (
+        r"axis",
+        r"target",
+        ["fmt_gauge56"],
+        "Parcial",
+        "Objetivo numérico; sin campo de objetivo",
+    ),
+    (
+        r"target",
+        r"show|bold|color|fontFamily|fontSize|italic|labelDisplayUnits|labelPrecision",
+        ["fmt_gauge56"],
+        "Parcial",
+        "Puntero y fuente propios; unidades y decimales compartidos con valor",
+    ),
+    (r"dataPoint", r"target", ["fmt_gauge56"], "Tiene", "Color del objetivo"),
+    (
+        r"breakdown",
+        r"maxBreakdowns",
+        ["fmt_waterfall56"],
+        "Falta",
+        "Requiere reagrupar consulta y preservar filtros de Otros",
+    ),
+    (
+        r"bubbles",
+        r"bubbleSize",
+        ["fmt_special6"],
+        "Tiene",
+        "Multiplicador del tamaño de las burbujas",
+    ),
+    (
+        r"bubbles",
+        r"preventOverflow|markerRangeType",
+        ["fmt_special6"],
+        "Falta",
+        "Sin ajuste de escala para contener marcadores ni modos de rango",
+    ),
+    (
+        r"plotAreaShading",
+        r"show|lowerShadingColor|upperShadingColor|transparency",
+        ["fmt_special6"],
+        "Tiene",
+        "Semiplanos reales respecto de y=x; solo ejes numéricos lineales",
+    ),
+    (
+        r"ratioLine",
+        r"show|displayName|lineColor|style|transparency|width",
+        ["fmt_special6"],
+        "Tiene",
+        "Línea y=x sobre el intervalo visible; solo ejes numéricos lineales",
+    ),
+]
+NEW_CARD_RULES = [
+    (
+        r"labels|indicator|value",
+        r"fontFamily|fontSize|fontColor|color|bold|italic|underline|horizontalAlignment|show|showBlankAs|textWrap|labelDisplayUnits|labelPrecision|indicatorDisplayUnits|indicatorPrecision",
+        ["fmt_card5"],
+        "Tiene",
+        "Valor destacado: fuente, unidades y decimales",
+    ),
+    (
+        r"categoryLabels|label",
+        r"show|fontSize|color|fontColor|bold|italic|fontFamily|underline|textWrap|text|position|gap",
+        ["fmt_card5"],
+        "Tiene",
+        "Etiqueta de categoría: texto, fuente, posición y separación",
+    ),
+    (
+        r"labels|categoryLabels",
+        r"preserveWhitespace",
+        ["fmt_card5"],
+        "Parcial",
+        "Control de ajuste de texto; sin preservar espacios múltiples",
+    ),
+    (r"wordWrap", r"show", ["fmt_card5"], "Tiene", "Ajuste de texto por bloque"),
+    (
+        r"indicator",
+        r"verticalAlignment",
+        ["fmt_card5"],
+        "Tiene",
+        "Alineación vertical del contenido",
+    ),
+    (
+        r"indicator",
+        r"iconSize|showIcon",
+        ["fmt_card5"],
+        "Tiene",
+        "Icono accesible de estado",
+    ),
+    (
+        r"status",
+        r"badColor|direction|goodColor|neutralColor",
+        ["fmt_card5"],
+        "Tiene",
+        "Comparación contra objetivo, dirección favorable y margen neutro",
+    ),
+    (
+        r"lastDate",
+        r"bold|fontSize|italic|lastDateFontColor|lastDateFontFamily|underline",
+        ["fmt_card5"],
+        "Tiene",
+        "Fuente de última fecha",
+    ),
+    (
+        r"goals",
+        r"bold|distanceFontColor|distanceFontFamily|fontSize|goalFontColor|goalFontFamily|goalText|italic|showDistance|showGoal|underline",
+        ["fmt_card5"],
+        "Tiene",
+        "Objetivo fijo o métrica: texto y distancia con fuente propia",
+    ),
+    (
+        r"goals",
+        r"titleBold|titleFontSize|titleItalic|titleUnderline|labelPrecision",
+        ["fmt_card5"],
+        "Parcial",
+        "Fuente de la fila completa; unidades y decimales compartidos con indicador",
+    ),
+    (
+        r"goals",
+        r"distanceLabel",
+        ["fmt_card5"],
+        "Parcial",
+        "Valor absoluto o porcentaje; sin mostrar ambos a la vez",
+    ),
+    (
+        r"goals",
+        r"direction",
+        ["fmt_card5"],
+        "Parcial",
+        "Dirección favorable compartida con estado; distancia con signo aritmético",
+    ),
+    (
+        r"trendline",
+        r"transparency",
+        ["fmt_card5"],
+        "Tiene",
+        "Transparencia de tendencia",
+    ),
+]
 CARD_RULES = [
     (
         r"labels",
@@ -1436,9 +2067,9 @@ def status(v, c, p):
     o = V2O[v]
     if o == "MAP":
         return "Por decidir", "Comparar con deck.gl y country_map: otro modelo de capas"
-    rules = RULES
+    rules = TABLE_RULES + RULES if o in ("table", "pivot") else FAMILY_RULES + RULES
     if o in ("bigtotal", "bigtrend"):
-        rules = CARD_RULES + RULES
+        rules = NEW_CARD_RULES + CARD_RULES + RULES
     if o == "FILTER":
         rules = FILTER_RULES + [
             x for x in RULES if x[2] is None or x[2] == [F] or x[0] == "general"

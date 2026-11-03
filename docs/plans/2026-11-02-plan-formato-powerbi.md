@@ -4,7 +4,7 @@ Fecha: 2026-11-02 · Rama base: `main` (`75c11378e9`)
 Inventario: [`powerbi-format-inventory/`](powerbi-format-inventory/README.md) · Revisión:
 [`2026-11-02-investigacion-ux-powerbi.md`](2026-11-02-investigacion-ux-powerbi.md)
 
-**Estado:** fases 0 a 3 terminadas, con commit. La fase 4 es la siguiente. El resumen está en [`estado-formato-powerbi.md`](estado-formato-powerbi.md); aquí, el detalle de cada fase.
+**Estado:** fases 0 a 6 terminadas, con commit. La fase 7 es la siguiente. El resumen está en [`estado-formato-powerbi.md`](estado-formato-powerbi.md); aquí, el detalle de cada fase.
 
 ## Objetivo
 
@@ -49,10 +49,10 @@ Tamaño relativo: S, M, L, XL. Las opciones abiertas de cada fase están en
 | 1 | Panel único de formato | Hecha | L | 0 |
 | 2 | General, común a todos | Hecha | M | 1 |
 | 3 | Barras, columnas, líneas, áreas, combinados | Hecha | XL | 1 |
-| 4 | Tabla y matriz | Siguiente | L | 1 |
-| 5 | Tarjeta, KPI, circular, anillo | Pendiente | M | 1 |
-| 6 | Cascada, embudo, treemap, medidor, dispersión | Pendiente | L | 3 |
-| 7 | Segmentadores | Pendiente | L | 1 |
+| 4 | Tabla y matriz | Hecha | L | 1 |
+| 5 | Tarjeta, KPI, circular, anillo | Hecha | M | 1 |
+| 6 | Cascada, embudo, treemap, medidor, dispersión | Hecha | L | 3 |
+| 7 | Segmentadores | Siguiente | L | 1 |
 | 8 | Análisis y tooltips | Pendiente | L | 3 |
 | 9 | Paridad de reporte: páginas tooltip y restablecer | Pendiente | L | Ninguna |
 | 10 | Campos y panel de datos | Pendiente | L | 1 |
@@ -318,8 +318,27 @@ editor acoplado.
   generales, modo escalonado, expandir y contraer, filas en blanco.
 - **P2:** minigráficos, iconos de URL.
 
-**Por decidir al empezar:** si seguimos con `plugin-chart-table` o `plugin-chart-ag-grid-table`, porque afecta
-a cómo se aplica cada estilo.
+#### Resultados de la fase 4 (2026-11-02)
+
+**Motor:** se conserva `plugin-chart-table` y el renderer de matriz `plugin-chart-pivot-table`. La tabla ya tiene `tableFormat`, configuración por columna, barras, iconos y exportación. AG Grid tiene otro sistema de estilos, está condicionado por una bandera y no sustituye la matriz; migrar añadiría trabajo sin resolver esa parte.
+
+**Implementado:**
+
+- Secciones de encabezados de columna y fila, valores, totales, subtotales y totales generales por dirección; fuente, fondo con alfa, subrayado, ajuste, alineación, contornos y aplicación a las etiquetas.
+- Cuadrícula horizontal y vertical independientes; grosor, color, relleno de filas, tamaño de texto, anchos predeterminados/fijos y dimensiones de imágenes.
+- Configuración por columna ampliada únicamente para los dos renderers que la implementan: fuente, fondo, subrayado, ajuste, destinos, unidades y decimales. Barras de datos e iconos en matriz, conservando los de la tabla. Los colores condicionales prevalecen.
+- Matriz escalonada con sangría, repetición de etiquetas, niveles iniciales de expansión por dirección, iconos con color/tamaño/visibilidad y acceso por teclado. Subtotales por nivel y etiquetas desde la configuración del campo. Filas separadoras entre grupos principales.
+- URL como icono en valores y encabezados, solo para direcciones explícitas HTTP/HTTPS; HTML conserva su sanitización.
+- Minigráficos de línea y columnas, con color, grosor y marcadores: la matriz recorre sus grupos de columnas existentes; la tabla requiere columnas con listas numéricas ordenadas. No se inventan series de valores sueltos ni se añade un rol temporal.
+- Correcciones encontradas durante la revisión: las opciones dependientes del resultado se resuelven antes de validar la selección; cambios rápidos de varios campos de una columna se combinan antes de emitir el guardado diferido. Los campos que identifican una columna, métrica o nivel quedan fuera de copiar/aplicar formato a todos.
+
+**Inventario:** tabla, 242/264 con 10 parciales; matriz, 308/334 con 11 parciales. El total de matriz baja en uno al excluir la compatibilidad de estilos antiguos de Power BI. En la fase quedan 12 opciones abiertas: 3 P1 (ancho por valor de jerarquía, jerarquías compuestas y fijación del encabezado de fila), 7 P2 parciales de minigráficos y 2 P3 de accesibilidad. La cobertura se obtiene de reglas y controles; no prueba cada opción.
+
+**Comprobado manualmente en el tablero 147:** fuente de encabezados de fila y de una métrica, disposición escalonada, tres separadores de grupos, cuatro minigráficos con los valores agregados reales, cuadrículas por dirección, relleno, etiqueta y fuente del total de tabla, unidades y decimales, 12 iconos numéricos, expansión de columnas con teclado, deshacer/rehacer, guardar y recargar. Los cambios observados en matriz produjeron 0 peticiones nuevas a `chart/data`. Se restablecieron las secciones modificadas al acabar. No se abrió el tablero 142.
+
+**Comprobaciones técnicas:** `npm run build` y `npm run build-translation` completados. La revisión de tipos del código fuente conserva cuatro errores ajenos a la fase (deck.gl, PropertiesModal, VizTypeGallery y ThemeController). El lint focalizado terminó con 0 errores y 6 avisos de patrones existentes; Ruff del generador también pasó. No sustituye a `pre-commit run --all-files`.
+
+**Tests:** ver la revisión al final de los resultados de la fase 6.
 
 ### Fase 5: tarjeta, KPI, circular y anillo
 
@@ -327,7 +346,9 @@ a cómo se aplica cada estilo.
 - **KPI:** indicador, objetivo, distancia, estado y colores, tendencia, fecha.
 - **Circular y anillo:** porciones, rotación, etiquetas de detalle, valor central con formato.
 
-**Por decidir:** el KPI compara contra un periodo anterior, y Power BI contra un campo objetivo.
+**Hecha (2026-11-02), con límites:** el KPI admite objetivo manual o una métrica opcional en Datos, calculada con el mismo agregado que el indicador. Si no hay objetivo mantiene el comportamiento anterior. Se controla fuente, color, subrayado y ajuste por bloque HTML; unidades, decimales, alineación y etiqueta de categoría. El KPI añade distancia absoluta o porcentual, estado con dirección favorable y margen neutro, icono accesible, fecha y transparencia de tendencia. Cero es un objetivo válido; una distancia porcentual contra cero muestra N/A.
+
+Circular/anillo comparten colores por categoría, bordes, transparencia, escala de dos colores, leyenda, etiquetas con bloques y decimales, ángulo inicial y centro con texto, fuente, unidades, decimales y fondo circular. El centro no tiene imagen, etiqueta independiente ni subrayado del texto ECharts. El inventario mantiene esas opciones abiertas: 43 opciones únicas de la fase, contando límites compartidos y P3.
 
 ### Fase 6: cascada, embudo, treemap, medidor, dispersión
 
@@ -338,6 +359,34 @@ Conectarlos al registro y a las secciones de la fase 3, y añadir lo propio:
 - **Treemap:** colores, disposición, etiquetas.
 - **Medidor:** objetivo, valor principal, etiquetas.
 - **Dispersión:** burbujas, marcadores, sombreado y línea de proporción.
+
+#### Resultados de las fases 5 y 6 (2026-11-02)
+
+- `chartFamilies.ts` declara los controles; `cardFormat.ts` resuelve el texto HTML y los estados; `specialChartFormat.ts` aplica el estilo a las opciones existentes sin cambiar sus datos ni sus interacciones. `formatCards.ts` los distribuye en el panel único.
+- Cascada conserva sus series auxiliares y colores de incremento/decremento/total. Los conectores son segmentos sobre los acumulados reales, sin interacción. El máximo de desgloses necesita agrupar Otros y mantener sus filtros: sigue abierto.
+- Embudo usa los porcentajes reales del primer paso, paso anterior o total; fuente propia para categoría, valor y conversión. Treemap conserva la jerarquía y permite espacios entre nodos/grupos; no se simulan los algoritmos de disposición de Power BI.
+- Medidor: objetivo numérico con puntero y etiqueta propios, fuente de eje y valor, y etiqueta manual con `{value}`. Sin objetivo por campo ni etiqueta desde otro campo.
+- Dispersión/burbujas: tamaño, marcadores, colores/bordes, línea y=x y sombreado de sus dos semiplanos calculado en coordenadas reales. La sección de proporción se oculta para eje temporal o logarítmico. No incluye contención automática ni modos de rango de tamaño. Los estilos compartidos se aplican una sola vez.
+- Compilación de producción y traducciones correctas. Lint de los tres módulos nuevos sin errores. La comprobación de tipos de fuentes sigue mostrando cuatro errores anteriores en DeckGLContainer, PropertiesModal, VizTypeGallery y ThemeController. El lint ampliado también señala problemas heredados; no es un pase global limpio.
+- Navegador: tablero sintético 147 únicamente, comprobando tipografía y etiqueta de tarjeta; KPI con objetivo 3000 (+9.7 %) y luego SUM(costo), distancia +85.4 %; persistencia tras guardar/recargar; centro del anillo; conectores; objetivo del medidor; etiquetas de embudo; espacios del treemap; dispersión numérica con y=x. Los cambios de proporción generaron cero peticiones adicionales de datos y no hubo errores de consola en esa revisión. Las capturas son evidencia de una selección de opciones, no de paridad completa.
+- Se eliminó la sección duplicada de valor de tarjeta. Los estilos antiguos se leen como valores iniciales y sus variables CSS permiten que los controles nuevos prevalezcan sin reescribir los informes. Comprobado en navegador: tamaño nuevo de 46 px sobre estilo antiguo de 30 px, conservando color y alineación. El tablero 147 y los gráficos 215/223 se restauraron y cotejaron con sus originales tras la revisión.
+- Inventario regenerado desde las reglas: 38 opciones abiertas únicas en fase 5 y 63 en fase 6. Son correspondencias de controles, no pruebas de cada opción.
+
+#### Revisión de las fases 4, 5 y 6 (2026-11-02)
+
+**Corregido:**
+
+- El tablero 147 no estaba restaurado: combinado, dispersión, tabla y matriz tenían su definición cambiada y restos de formato. La captura de referencia pasa con los 15 gráficos.
+- Formato de fecha salía en dos secciones en circular y treemap, y formato numérico y de moneda en tarjeta: cada control va ahora en una sola.
+- El embudo perdía la categoría al personalizar sus etiquetas, porque guarda su contenido como posición en una lista.
+- Una regla de icono sin color no mostraba el icono, en tabla ni en matriz.
+- «Restablecer» no borraba el estilo antiguo de una tarjeta.
+- El sombreado de la dispersión añadía un punto invisible que podía estirar el eje, y el nombre de la línea y=x se salía del gráfico.
+- Filas de matriz sin separador envueltas sin necesidad, tests que no pasaban y 12 archivos sin formato.
+
+**Añadido:** fuente propia y línea aparte para la etiqueta central, patrón de guiones en la línea de proporción, límites del eje Y en cascada y nota de la razón en lo que seguía abierto sin explicar.
+
+**Sigue abierto, con razón en `pendientes.md`:** máximo de desgloses de cascada, imagen central del anillo, algoritmos de treemap, contención de burbujas, objetivo del medidor por campo, jerarquías compuestas y anchos por valor de jerarquía.
 
 ### Fase 7: segmentadores
 
@@ -383,7 +432,7 @@ de varias filas y la tarjeta nueva son gráficos por construir; su inventario ya
 
 ## Orden recomendado
 
-1. **Fases 4 y 5:** tablas y tarjetas de SESEQ.
+1. **Fase 7:** segmentadores, tras la implementación de las fases 5 y 6; las páginas tooltip de la fase 9 pueden adelantarse.
 2. **Fases 7 y 8:** segmentadores y análisis.
 3. **Fases 6, 10, 11 y 12:** según lo que vayas necesitando.
 

@@ -445,7 +445,7 @@ Nuestro gráfico: area. Generado desde `reportThemeSchema-2.159.json`.
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
-| callout | `callout` | annotationTemplate | Falta |  |
+| callout | `callout` | annotationTemplate | Falta | Sin anotaciones en el gráfico: fase 8 |
 
 ### Encabezado de múltiplos (`subheader`) · P3 · 0/10
 
