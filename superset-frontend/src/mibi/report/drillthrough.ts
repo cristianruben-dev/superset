@@ -18,10 +18,7 @@
  */
 import type { AnyAction } from 'redux';
 import type { ThunkDispatch } from 'redux-thunk';
-import type {
-  BinaryQueryObjectFilterClause,
-  DataMaskStateWithId,
-} from '@superset-ui/core';
+import type { DataMaskStateWithId } from '@superset-ui/core';
 import { setDirectPathToChild } from 'src/dashboard/actions/dashboardState';
 import type { DashboardLayout, GetState, RootState } from 'src/dashboard/types';
 import { CHART_TYPE } from 'src/dashboard/util/componentTypes';
@@ -37,6 +34,8 @@ import {
   type DrillthroughState,
 } from './drillthroughScope';
 import { DRILLTHROUGH_PAGE_KEY, type DrillthroughPage } from './types';
+
+export { pointFields } from './drillthroughScope';
 
 /**
  * "Drill through", as in Power BI: right-click a data point and open another
@@ -82,28 +81,8 @@ export function activeDrillthrough(
   return state?.dashboardId === dashboardId ? state : undefined;
 }
 
-/** The clicked point's values, one per plain column. */
-export function pointFields(
-  clauses: BinaryQueryObjectFilterClause[] | undefined,
-): DrillthroughField[] {
-  const fields: DrillthroughField[] = [];
-  (clauses ?? []).forEach(clause => {
-    if (
-      typeof clause.col === 'string' &&
-      clause.op === '==' &&
-      !fields.some(field => field.column === clause.col)
-    ) {
-      fields.push({
-        column: clause.col,
-        value: clause.val,
-        label: clause.formattedVal ?? String(clause.val),
-      });
-    }
-  });
-  return fields;
-}
-
-function datasetColumns(state: RootState, chartId: number): Set<string> {
+/** Columns of the dataset of a chart, empty when it is not loaded. */
+export function datasetColumns(state: RootState, chartId: number): Set<string> {
   const datasource = state.charts[chartId]?.form_data?.datasource;
   const columns = datasource ? state.datasources[datasource]?.columns : [];
   return new Set((columns ?? []).map(column => column.column_name));
