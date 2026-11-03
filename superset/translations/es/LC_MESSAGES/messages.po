@@ -21327,3 +21327,54 @@ msgstr "Espacio hasta el texto"
 
 msgid "The filter takes one value. Allow several in its settings to choose more here."
 msgstr "El filtro admite un solo valor. Permite varios en su configuración para elegir más aquí."
+
+msgid "A number format such as \",.0f\" or \"$,.2f\". It wins over units and decimals."
+msgstr "Un formato de número como \",.0f\" o \"$,.2f\". Manda sobre las unidades y los decimales."
+
+msgid "Bottom left corner"
+msgstr "Esquina inferior izquierda"
+
+msgid "Bottom right corner"
+msgstr "Esquina inferior derecha"
+
+msgid "Top left corner"
+msgstr "Esquina superior izquierda"
+
+msgid "Top right corner"
+msgstr "Esquina superior derecha"
+
+msgid "Clear selections"
+msgstr "Borrar selecciones"
+
+msgid "Eraser to clear the selection"
+msgstr "Borrador para quitar la selección"
+
+msgid "Format code"
+msgstr "Código de formato"
+
+msgid "Go to the action of this slicer"
+msgstr "Ir a la acción de este segmentador"
+
+msgid "Individual corners"
+msgstr "Esquinas por separado"
+
+msgid "Low contrast (%s:1): the text may be hard to read. Aim for 4.5:1 or more."
+msgstr "Contraste bajo (%s:1): el texto puede costar leerse. Busca 4.5:1 o más."
+
+msgid "Numbers only"
+msgstr "Solo números"
+
+msgid "Numbers separated by commas"
+msgstr "Números separados por comas"
+
+msgid "Over the corner of the value"
+msgstr "Sobre la esquina del valor"
+
+msgid "Transparency"
+msgstr "Transparencia"
+
+msgid "Turn off a value to leave it out of this slicer. It still counts in the charts when nothing is chosen."
+msgstr "Apaga un valor para quitarlo de este segmentador. Sigue contando en los gráficos cuando no hay nada elegido."
+
+msgid "Values shown"
+msgstr "Valores que se muestran"
