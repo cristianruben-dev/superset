@@ -66,7 +66,11 @@ function rolesOf(formData: FormData): Record<string, () => string> {
     pie: { groupby: () => t('Legend'), metric: () => t('Values') },
     funnel: { groupby: () => t('Category'), metric: () => t('Values') },
     treemap_v2: { groupby: () => t('Category'), metric: () => t('Values') },
-    gauge_chart: { groupby: () => t('Category'), metric: () => t('Value') },
+    gauge_chart: {
+      groupby: () => t('Category'),
+      metric: () => t('Value'),
+      gauge_target_metric: () => t('Target'),
+    },
     waterfall: {
       x_axis: () => t('Category'),
       groupby: () => t('Breakdown'),

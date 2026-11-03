@@ -21366,3 +21366,60 @@ msgstr "Los gráficos «%s» ya no están disponibles. Elige otro tipo de gráfi
 
 msgid "You can't change the fields of a chart you don't own: it keeps its saved fields."
 msgstr "No puedes cambiar los campos de un gráfico que no es tuyo: conserva los que tenía guardados."
+
+msgid "Limits of the value axes in values"
+msgstr "Límites de los ejes de valores en valores"
+
+msgid "On the secondary values axis"
+msgstr "En el eje de valores secundario"
+
+msgid "Center image (address)"
+msgstr "Imagen del centro (dirección)"
+
+msgid "Image size (%)"
+msgstr "Tamaño de la imagen (%)"
+
+msgid "Image transparency"
+msgstr "Transparencia de la imagen"
+
+msgid "Freeze row headers when scrolling sideways"
+msgstr "Fijar los encabezados de fila al desplazarte de lado"
+
+msgid "Max breakdowns"
+msgstr "Máximo de desgloses"
+
+msgid "Label of the rest"
+msgstr "Etiqueta del resto"
+
+msgid "A field with the target of the gauge, over the target value of the format"
+msgstr "Un campo con el objetivo del medidor, por encima del valor de objetivo del formato"
+
+msgid "Borders"
+msgstr "Bordes"
+
+msgid "Chart background"
+msgstr "Fondo del gráfico"
+
+msgid "Headers"
+msgstr "Encabezados"
+
+msgid "Label density (%)"
+msgstr "Densidad de etiquetas (%)"
+
+msgid "The share of the points that show their label: 50 shows every other one"
+msgstr "La parte de los puntos que muestran su etiqueta: 50 muestra uno sí y otro no"
+
+msgid "Accessibility"
+msgstr "Accesibilidad"
+
+msgid "Column with alt text"
+msgstr "Columna con texto alternativo"
+
+msgid "Refer to row by"
+msgstr "Referirse a la fila por"
+
+msgid "The images of a row are described by the value of this column"
+msgstr "Las imágenes de una fila se describen con el valor de esta columna"
+
+msgid "A screen reader names each row by the value of this column"
+msgstr "Un lector de pantalla nombra cada fila por el valor de esta columna"
