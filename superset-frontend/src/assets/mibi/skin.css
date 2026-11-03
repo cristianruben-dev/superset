@@ -1918,12 +1918,18 @@ body.mibi-presenting-idle * {
   filter: brightness(1.12) saturate(1.1);
 }
 
-/* ---- Mobile layout: the phone page of the editor ------------------------ */
+/* ---- Mobile layout: the page inside the phone of the editor ------------- */
 
-.dashboard--editing .mibi-canvas.mibi-phone-page {
-  outline: 8px solid var(--mb-text) !important;
-  outline-offset: 0;
-  border-radius: 28px !important;
+[data-test='mibi-device-viewport'] .mibi-canvas {
+  border-radius: 0 !important;
+}
+
+/* A phone gives the page of a report the whole width of its screen */
+@media (max-width: 639px) {
+  .dashboard:not(.dashboard--editing) .grid-container {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
 }
 
 /* ---- Narrow screens: compact top bar ------------------------------------- */

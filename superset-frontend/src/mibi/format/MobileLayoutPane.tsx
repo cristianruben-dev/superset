@@ -24,12 +24,20 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import { t } from '@apache-superset/core/translation';
 import { css, styled, type SupersetTheme } from '@apache-superset/core/theme';
-import { Button } from '@superset-ui/core/components';
+import { Button, Input } from '@superset-ui/core/components';
 import { Icons } from '@superset-ui/core/components/Icons';
 import { BUILDER_SIDEPANEL_WIDTH } from 'src/dashboard/constants';
-import type { RootState } from 'src/dashboard/types';
+import type { LayoutItem, RootState } from 'src/dashboard/types';
+import { CHART_TYPE } from 'src/dashboard/util/componentTypes';
+import { elementKind } from 'src/mibi/elements/types';
+import { VizTypeTile } from 'src/mibi/vizIcons/VizTypeIcon';
 import { activePageId } from 'src/mibi/present/dashboardTabs';
-import { setMobileEditing } from './mobile';
+import {
+  selectMobileBox,
+  setMobileEditing,
+  useSelectedMobileBox,
+} from './mobile';
+import { useMobileViewSettings } from './mobileDevices';
 import {
   addMobileBox,
   mobileCellAt,
@@ -47,20 +55,80 @@ const Pane = styled.div`
     inset: 0;
     display: flex;
     flex-direction: column;
-    gap: ${theme.sizeUnit * 3}px;
-    padding: ${theme.sizeUnit * 4}px;
-    overflow: auto;
     background-color: ${theme.colorBgBase};
     box-shadow: -${theme.sizeUnit}px 0 ${theme.sizeUnit}px 0
       ${theme.colorBorderSecondary};
+    header,
+    footer {
+      display: flex;
+      flex-direction: column;
+      gap: ${theme.sizeUnit * 2}px;
+      padding: ${theme.sizeUnit * 4}px;
+    }
+    header {
+      border-bottom: 1px solid ${theme.colorBorderSecondary};
+    }
+    footer {
+      border-top: 1px solid ${theme.colorBorderSecondary};
+    }
+    .body {
+      flex: 1;
+      min-height: 0;
+      overflow: auto;
+      display: flex;
+      flex-direction: column;
+      gap: ${theme.sizeUnit * 3}px;
+      padding: ${theme.sizeUnit * 3}px ${theme.sizeUnit * 4}px;
+    }
     h4 {
       margin: 0;
       font-size: ${theme.fontSizeLG}px;
+    }
+    h5 {
+      margin: 0;
+      font-size: 11px;
+      font-weight: ${theme.fontWeightStrong};
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: ${theme.colorTextTertiary};
+      font-family: 'Geist Mono', ${theme.fontFamilyCode};
     }
     p {
       margin: 0;
       color: ${theme.colorTextSecondary};
       font-size: ${theme.fontSizeSM}px;
+    }
+    .progress {
+      height: 4px;
+      border-radius: 2px;
+      background: ${theme.colorFillSecondary};
+      overflow: hidden;
+    }
+    .progress > span {
+      display: block;
+      height: 100%;
+      background: ${theme.colorPrimary};
+      transition: width 0.2s;
+    }
+    .actions {
+      display: flex;
+      gap: ${theme.sizeUnit * 2}px;
+    }
+    .actions > * {
+      flex: 1;
+    }
+    .notice {
+      display: flex;
+      gap: ${theme.sizeUnit * 2}px;
+      padding: ${theme.sizeUnit * 2}px ${theme.sizeUnit * 3}px;
+      border-radius: ${theme.borderRadius}px;
+      background: ${theme.colorInfoBg};
+      color: ${theme.colorText};
+      font-size: ${theme.fontSizeSM}px;
+    }
+    .notice .anticon {
+      color: ${theme.colorInfo};
+      margin-top: 2px;
     }
     ul {
       list-style: none;
@@ -78,14 +146,26 @@ const Pane = styled.div`
       border: 1px solid ${theme.colorBorderSecondary};
       border-radius: ${theme.borderRadius}px;
       background: ${theme.colorBgContainer};
+      transition:
+        border-color 0.15s,
+        background 0.15s;
     }
     li.draggable {
       cursor: grab;
       touch-action: none;
     }
-    li.placed {
+    li.draggable:hover {
       border-color: ${theme.colorPrimaryBorder};
+    }
+    li.placed {
+      cursor: pointer;
+    }
+    li.placed.selected {
+      border-color: ${theme.colorPrimary};
       background: ${theme.colorPrimaryBg};
+    }
+    li .grip {
+      color: ${theme.colorTextQuaternary};
     }
     li .name {
       flex: 1;
@@ -94,8 +174,63 @@ const Pane = styled.div`
       text-overflow: ellipsis;
       white-space: nowrap;
     }
+    li .meta {
+      font-size: 11px;
+      color: ${theme.colorTextTertiary};
+      font-family: 'Geist Mono', ${theme.fontFamilyCode};
+    }
+    .keys {
+      font-size: 11px;
+      color: ${theme.colorTextTertiary};
+    }
+    kbd {
+      padding: 0 4px;
+      border-radius: 3px;
+      border: 1px solid ${theme.colorBorder};
+      font-family: 'Geist Mono', ${theme.fontFamilyCode};
+      font-size: 10px;
+    }
   `}
 `;
+
+/** The icon of an object of the page: its chart type, or its kind of element. */
+function ObjectIcon({ item }: { item: LayoutItem | undefined }) {
+  const vizType = useSelector((state: RootState) =>
+    item?.type === CHART_TYPE
+      ? state.sliceEntities?.slices?.[item.meta?.chartId ?? -1]?.viz_type
+      : undefined,
+  );
+  if (item?.type === CHART_TYPE) {
+    return <VizTypeTile vizType={vizType} size="s" />;
+  }
+  const kind = elementKind(item?.meta?.componentKey);
+  const icons = {
+    text: Icons.FontSizeOutlined,
+    image: Icons.FileImageOutlined,
+    shape: Icons.BorderOutlined,
+    button: Icons.LinkOutlined,
+    filter: Icons.FilterOutlined,
+    navigator: Icons.MenuOutlined,
+  } as const;
+  const Icon = kind ? icons[kind] : Icons.FontSizeOutlined;
+  return (
+    <span
+      css={(theme: SupersetTheme) => css`
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: none;
+        width: 28px;
+        height: 28px;
+        border-radius: 7px;
+        color: ${theme.colorTextSecondary};
+        background: ${theme.colorFillTertiary};
+      `}
+    >
+      <Icon iconSize="m" />
+    </span>
+  );
+}
 
 /**
  * The pane of the mobile layout: the visuals of the page, which are dragged
@@ -123,6 +258,24 @@ export function MobileLayoutPane({ topOffset = 0, pageTop = 0 }) {
     [layout, pageId],
   );
   const placed = new Set(boxes.map(box => box.id));
+  const selected = useSelectedMobileBox();
+  const { mode } = useMobileViewSettings();
+  const [search, setSearch] = useState('');
+  const names = useMemo(
+    () =>
+      Object.fromEntries(
+        candidates.map(id => [id, objectName(layout[id], filters)]),
+      ),
+    [candidates, layout, filters],
+  );
+  const matches = (id: string) =>
+    !search.trim() ||
+    names[id].toLowerCase().includes(search.trim().toLowerCase());
+  // Placed objects in the order they read on the phone, from the top
+  const onPhone = [...boxes]
+    .sort((a, b) => a.y - b.y || a.x - b.x)
+    .filter(box => matches(box.id));
+  const offPhone = candidates.filter(id => !placed.has(id) && matches(id));
   // The visual being dragged onto the phone, drawn under the pointer
   const [ghost, setGhost] = useState<{
     name: string;
@@ -186,6 +339,15 @@ export function MobileLayoutPane({ topOffset = 0, pageTop = 0 }) {
       ) as never,
     );
   const clear = () => dispatch(setMobileBoxes(pageId, () => []) as never);
+  const addAll = () =>
+    dispatch(
+      setMobileBoxes(pageId, (current, currentBoxes) =>
+        candidates.reduce(
+          (next, id) => addMobileBox(current, next, id),
+          currentBoxes,
+        ),
+      ) as never,
+    );
 
   return (
     <div
@@ -200,76 +362,186 @@ export function MobileLayoutPane({ topOffset = 0, pageTop = 0 }) {
       `}
     >
       <Pane>
-        <h4>{t('Mobile layout')}</h4>
-        <p>
-          {t(
-            'Drag the visuals of this page onto the phone, then move and resize them. Phones show this layout; a page without one shows its canvas.',
+        <header>
+          <h4>{t('Mobile layout')}</h4>
+          <p>
+            {t(
+              'Drag the visuals of this page onto the phone, then move and resize them. Phones show this layout; a page without one shows its canvas.',
+            )}
+          </p>
+          <div
+            className="progress"
+            role="progressbar"
+            aria-valuemin={0}
+            aria-valuemax={candidates.length}
+            aria-valuenow={boxes.length}
+            aria-label={t('Visuals on the phone')}
+          >
+            <span
+              style={{
+                width: `${
+                  candidates.length
+                    ? (boxes.length / candidates.length) * 100
+                    : 0
+                }%`,
+              }}
+            />
+          </div>
+          <p data-test="mibi-mobile-count">
+            {t(
+              '%s of %s visuals on the phone',
+              boxes.length,
+              candidates.length,
+            )}
+          </p>
+          <div className="actions">
+            <Button
+              buttonStyle="secondary"
+              buttonSize="small"
+              disabled={boxes.length === candidates.length}
+              data-test="mibi-mobile-add-all"
+              onClick={addAll}
+            >
+              <Icons.PlusOutlined iconSize="m" />
+              {t('Add all')}
+            </Button>
+            <Button
+              buttonStyle="secondary"
+              buttonSize="small"
+              disabled={!boxes.length}
+              data-test="mibi-mobile-clear"
+              onClick={clear}
+            >
+              <Icons.ClearOutlined iconSize="m" />
+              {t('Empty the phone')}
+            </Button>
+          </div>
+        </header>
+        <div className="body">
+          {mode === 'preview' && (
+            <div className="notice" data-test="mibi-mobile-preview-notice">
+              <Icons.EyeOutlined iconSize="m" />
+              <span>
+                {boxes.length
+                  ? t('Preview: the phone shows the page as a viewer sees it.')
+                  : t(
+                      'This page has no mobile layout yet: phones show its canvas, scaled to their width.',
+                    )}
+              </span>
+            </div>
           )}
-        </p>
-        {candidates.length ? (
-          <ul aria-label={t('Visuals of the page')}>
-            {candidates.map(id => {
-              const isPlaced = placed.has(id);
-              const name = objectName(layout[id], filters);
-              return (
-                <li
-                  key={id}
-                  className={isPlaced ? 'placed' : 'draggable'}
-                  data-test="mibi-mobile-candidate"
-                  data-id={id}
-                  onPointerDown={
-                    isPlaced ? undefined : event => startDrag(event, id, name)
-                  }
-                >
-                  <span className="name" title={name}>
-                    {name}
-                  </span>
-                  {isPlaced ? (
+          {candidates.length > 6 && (
+            <Input
+              allowClear
+              placeholder={t('Search visuals')}
+              prefix={<Icons.SearchOutlined iconSize="m" />}
+              value={search}
+              onChange={event => setSearch(event.target.value)}
+              data-test="mibi-mobile-search"
+            />
+          )}
+          {!candidates.length && <p>{t('This page has no visuals yet.')}</p>}
+          {!!boxes.length && (
+            <section>
+              <h5>{t('On the phone')}</h5>
+              <ul aria-label={t('On the phone')}>
+                {onPhone.map(box => (
+                  <li
+                    key={box.id}
+                    className={
+                      selected === box.id ? 'placed selected' : 'placed'
+                    }
+                    data-test="mibi-mobile-candidate"
+                    data-id={box.id}
+                    onClick={() => {
+                      selectMobileBox(box.id);
+                      // Keep the chosen object in sight on the phone
+                      document
+                        .querySelector(
+                          `[data-test="mibi-mobile-box"][data-id="${box.id}"]`,
+                        )
+                        ?.scrollIntoView?.({
+                          block: 'nearest',
+                          behavior: 'smooth',
+                        });
+                    }}
+                  >
+                    <ObjectIcon item={layout[box.id]} />
+                    <span className="name" title={names[box.id]}>
+                      {names[box.id]}
+                    </span>
+                    <span className="meta">
+                      {box.width}×{box.height}
+                    </span>
                     <Button
                       buttonStyle="link"
                       buttonSize="xsmall"
-                      aria-label={t('Remove %s from the mobile layout', name)}
+                      aria-label={t(
+                        'Remove %s from the mobile layout',
+                        names[box.id],
+                      )}
                       data-test="mibi-mobile-candidate-remove"
-                      onClick={() => remove(id)}
+                      onClick={event => {
+                        event.stopPropagation();
+                        remove(box.id);
+                      }}
                     >
                       {t('Remove from phone')}
                     </Button>
-                  ) : (
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+          {candidates.length > boxes.length && (
+            <section>
+              <h5>{t('Not on the phone')}</h5>
+              <ul aria-label={t('Visuals of the page')}>
+                {offPhone.map(id => (
+                  <li
+                    key={id}
+                    className="draggable"
+                    data-test="mibi-mobile-candidate"
+                    data-id={id}
+                    title={t('Drag onto the phone')}
+                    onPointerDown={event => startDrag(event, id, names[id])}
+                  >
+                    <Icons.MoreOutlined className="grip" iconSize="m" />
+                    <ObjectIcon item={layout[id]} />
+                    <span className="name">{names[id]}</span>
                     <Button
                       buttonStyle="link"
                       buttonSize="xsmall"
-                      aria-label={t('Add %s to the mobile layout', name)}
+                      aria-label={t('Add %s to the mobile layout', names[id])}
                       data-test="mibi-mobile-candidate-add"
                       onClick={() => add(id)}
                     >
                       {t('Add')}
                     </Button>
-                  )}
-                </li>
-              );
-            })}
-          </ul>
-        ) : (
-          <p>{t('This page has no visuals yet.')}</p>
-        )}
-        <Button
-          buttonStyle="secondary"
-          buttonSize="small"
-          disabled={!boxes.length}
-          data-test="mibi-mobile-clear"
-          onClick={clear}
-        >
-          <Icons.ClearOutlined iconSize="m" />
-          {t('Clear the mobile layout')}
-        </Button>
-        <Button
-          buttonStyle="primary"
-          buttonSize="small"
-          data-test="mibi-mobile-close"
-          onClick={() => setMobileEditing(false)}
-        >
-          {t('Back to the canvas')}
-        </Button>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+          {search && !onPhone.length && !offPhone.length && (
+            <p>{t('No visual matches the search.')}</p>
+          )}
+        </div>
+        <footer>
+          <div className="keys">
+            <kbd>←↑→↓</kbd> {t('move')} · <kbd>⇧</kbd>+<kbd>←↑→↓</kbd>{' '}
+            {t('resize')} · <kbd>Supr</kbd> {t('remove')}
+          </div>
+          <Button
+            buttonStyle="primary"
+            buttonSize="small"
+            data-test="mibi-mobile-close"
+            onClick={() => setMobileEditing(false)}
+          >
+            <Icons.DesktopOutlined iconSize="m" />
+            {t('Back to the canvas')}
+          </Button>
+        </footer>
       </Pane>
       {ghost && (
         <div

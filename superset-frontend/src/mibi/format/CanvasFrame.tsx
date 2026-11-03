@@ -31,6 +31,7 @@ import cx from 'classnames';
 import { fitToCanvas } from './actions';
 import { setMobileEditing, useMobileEditing, usePhoneScreen } from './mobile';
 import {
+  CanvasReadOnlyProvider,
   MOBILE_COLUMNS,
   MobileViewProvider,
   mobileLayoutOf,
@@ -38,6 +39,12 @@ import {
   mobileViewOf,
 } from './mobileLayout';
 import { MobileLayoutEditor } from './MobileLayoutEditor';
+import {
+  deviceById,
+  safeHeightOf,
+  useMobileViewSettings,
+} from './mobileDevices';
+import { DeviceFrame, deviceScale } from './DeviceFrame';
 import { css, styled, useTheme } from '@apache-superset/core/theme';
 import type { LayoutItem, RootState } from 'src/dashboard/types';
 import { ROW_TYPE } from 'src/dashboard/util/componentTypes';
@@ -69,14 +76,19 @@ const Wrap = styled.div`
  * of the objects while editing, and below for the zoom bar, which floats over
  * it), so zooming in never moves the rest of the screen.
  */
-const Outer = styled.div<{ $scroll: boolean; $editing: boolean }>`
+const Outer = styled.div<{
+  $scroll: boolean;
+  $editing: boolean;
+  $phone: boolean;
+}>`
   width: 100%;
-  ${({ $scroll, $editing }) =>
+  ${({ $scroll, $editing, $phone }) =>
     $scroll
       ? css`
           height: 100%;
           overflow: auto;
-          padding: ${$editing ? 28 : 12}px 8px 56px;
+          /* A phone gives the page all of its width */
+          padding: ${$editing ? 28 : 12}px ${$phone ? 0 : 8}px 56px;
           box-sizing: border-box;
         `
       : css`
@@ -219,6 +231,11 @@ export function CanvasFrame({ children }: { children: ReactNode }) {
   const view = useCanvasView();
   const phone = usePhoneScreen();
   const mobileEditing = useMobileEditing() && !!editMode;
+  const mobileSettings = useMobileViewSettings();
+  const device = deviceById(mobileSettings.device);
+  // The preview shows the page as the phone does: its mobile layout, or the
+  // canvas scaled to the phone when it has none
+  const previewing = mobileEditing && mobileSettings.mode === 'preview';
   const layout = useSelector(
     (state: RootState) => state.dashboardLayout?.present,
   );
@@ -232,8 +249,9 @@ export function CanvasFrame({ children }: { children: ReactNode }) {
   );
   // A phone shows the mobile layout of a page that has one, and the canvas of
   // the rest; the editor shows it while the author arranges it
-  const showMobile =
-    mobileEditing || (phone && !editMode && !presenting && !!mobileBoxes);
+  const showMobile = mobileEditing
+    ? !previewing || !!mobileBoxes
+    : phone && !editMode && !presenting && !!mobileBoxes;
   const mobileView = useMemo(
     () =>
       showMobile && layout && pageId
@@ -242,7 +260,8 @@ export function CanvasFrame({ children }: { children: ReactNode }) {
     [showMobile, layout, pageId, mobileBoxes],
   );
   // Room below the lowest object to drop the next one
-  const mobileRows = mobilePageRows(mobileBoxes) + (mobileEditing ? 6 : 0);
+  const mobileRows =
+    mobilePageRows(mobileBoxes) + (mobileEditing && !previewing ? 6 : 0);
   const pageSize = canvasSize(canvas);
   const size = useMemo(
     () =>
@@ -302,7 +321,7 @@ export function CanvasFrame({ children }: { children: ReactNode }) {
   };
   const room = size ? size.height - padding() : 0;
   // The canvas fits its visuals to the page; the phone page grows with them
-  const fitting = !!size && !!editMode && !showMobile;
+  const fitting = !!size && !!editMode && !showMobile && !mobileEditing;
   const overflowing = fitting && contentHeight > room + 1;
 
   // The page is a limit: a change that makes the visuals overflow it (a
@@ -410,11 +429,10 @@ export function CanvasFrame({ children }: { children: ReactNode }) {
   const paneWidth = useFilterDockWidth();
   const zoom = useMemo(() => {
     if (!size || !available) return 1;
-    // The phone page fills the width of a phone; the editor shows it as it is
-    if (showMobile) {
-      const fit = canvasZoom(size, { width: available });
-      return mobileEditing ? Math.min(1, fit) : fit;
-    }
+    // On the phone of the editor the page fills the width of its screen
+    if (mobileEditing) return device.width / size.width;
+    // The phone page fills the width of a phone
+    if (showMobile) return canvasZoom(size, { width: available });
     if (presenting) {
       return canvasZoom(size, {
         width: available - paneWidth,
@@ -439,9 +457,20 @@ export function CanvasFrame({ children }: { children: ReactNode }) {
     view,
     showMobile,
     mobileEditing,
+    device.width,
   ]);
+  // The phone of the editor fits the room it has, or shows at its own size
+  const displayScale = mobileEditing
+    ? deviceScale(
+        device,
+        { width: available, height: availableHeight },
+        mobileSettings.fit,
+      )
+    : 1;
 
   const scroll = !!size;
+  // The desktop canvas zooms and pans; the phone of the editor scrolls itself
+  const pannable = scroll && !mobileEditing;
   const zoomRef = useRef(zoom);
   zoomRef.current = zoom;
   const anchor = useRef<{
@@ -455,7 +484,7 @@ export function CanvasFrame({ children }: { children: ReactNode }) {
   // pointer
   useEffect(() => {
     const element = outerRef.current;
-    if (!element || !scroll) return undefined;
+    if (!element || !pannable) return undefined;
     const onWheel = (event: WheelEvent) => {
       if (!(event.ctrlKey || event.metaKey)) return;
       event.preventDefault();
@@ -475,7 +504,7 @@ export function CanvasFrame({ children }: { children: ReactNode }) {
     };
     element.addEventListener('wheel', onWheel, { passive: false });
     return () => element.removeEventListener('wheel', onWheel);
-  }, [scroll]);
+  }, [pannable]);
 
   useLayoutEffect(() => {
     const point = anchor.current;
@@ -490,7 +519,7 @@ export function CanvasFrame({ children }: { children: ReactNode }) {
   // Space with the pointer, or the middle button, drags the page around
   useEffect(() => {
     const element = outerRef.current;
-    if (!element || !scroll) return undefined;
+    if (!element || !pannable) return undefined;
     let spaceDown = false;
     const typing = (target: EventTarget | null) =>
       !!(target as HTMLElement | null)?.closest?.(
@@ -537,7 +566,7 @@ export function CanvasFrame({ children }: { children: ReactNode }) {
       element.removeEventListener('pointerdown', onPointerDown, true);
       element.style.cursor = '';
     };
-  }, [scroll]);
+  }, [pannable]);
 
   const style = useMemo(
     () => ({
@@ -585,6 +614,61 @@ export function CanvasFrame({ children }: { children: ReactNode }) {
     [size, zoom],
   );
 
+  const pageFrame = (
+    <div ref={frameRef} style={frameStyle}>
+      <div ref={scaledRef} style={scaledStyle}>
+        <TabsDockTarget style={{ width: '100%' }} />
+        <Page
+          ref={pageRef}
+          data-test="mibi-canvas"
+          className={cx(
+            'mibi-canvas',
+            editMode && !previewing && 'mibi-show-grid',
+            showMobile && 'mibi-phone-page',
+          )}
+          $decorated={hasCanvasFormat(canvas)}
+          $fixed={!!size && !mobileEditing}
+          style={style}
+          onClick={
+            editMode && !mobileEditing
+              ? event => {
+                  // A click on the canvas itself formats the canvas
+                  const target = event.target as Element;
+                  if (
+                    !target.closest?.(
+                      '.dashboard-component-chart-holder, .mibi-element',
+                    )
+                  ) {
+                    selectVisual(null);
+                  }
+                }
+              : undefined
+          }
+        >
+          <CanvasZoomContext.Provider value={zoom}>
+            <CanvasRoomContext.Provider
+              value={fitting ? room - contentHeight : Infinity}
+            >
+              <MobileViewProvider value={mobileView}>
+                <CanvasReadOnlyProvider value={mobileEditing || !!mobileView}>
+                  <div ref={contentRef}>{children}</div>
+                </CanvasReadOnlyProvider>
+              </MobileViewProvider>
+            </CanvasRoomContext.Provider>
+            {mobileEditing && !previewing && pageId && (
+              <MobileLayoutEditor
+                pageId={pageId}
+                boxes={mobileBoxes ?? []}
+                zoom={zoom * displayScale}
+                foldY={safeHeightOf(device) / zoom}
+              />
+            )}
+          </CanvasZoomContext.Provider>
+        </Page>
+      </div>
+    </div>
+  );
+
   return (
     <Wrap
       ref={wrapRef}
@@ -595,64 +679,29 @@ export function CanvasFrame({ children }: { children: ReactNode }) {
         ref={outerRef}
         $scroll={scroll}
         $editing={editMode}
+        $phone={phone && !editMode}
         data-test="mibi-canvas-outer"
       >
         <ReportTheme>
           <Sheet style={size ? undefined : { width: '100%' }}>
-            <div ref={frameRef} style={frameStyle}>
-              <div ref={scaledRef} style={scaledStyle}>
-                <TabsDockTarget style={{ width: '100%' }} />
-                <Page
-                  ref={pageRef}
-                  data-test="mibi-canvas"
-                  className={cx(
-                    'mibi-canvas',
-                    editMode && 'mibi-show-grid',
-                    showMobile && 'mibi-phone-page',
-                  )}
-                  $decorated={hasCanvasFormat(canvas)}
-                  $fixed={!!size}
-                  style={style}
-                  onClick={
-                    editMode && !mobileEditing
-                      ? event => {
-                          // A click on the canvas itself formats the canvas
-                          const target = event.target as Element;
-                          if (
-                            !target.closest?.(
-                              '.dashboard-component-chart-holder, .mibi-element',
-                            )
-                          ) {
-                            selectVisual(null);
-                          }
-                        }
-                      : undefined
-                  }
-                >
-                  <CanvasZoomContext.Provider value={zoom}>
-                    <CanvasRoomContext.Provider
-                      value={fitting ? room - contentHeight : Infinity}
-                    >
-                      <MobileViewProvider value={mobileView}>
-                        <div ref={contentRef}>{children}</div>
-                      </MobileViewProvider>
-                    </CanvasRoomContext.Provider>
-                    {mobileEditing && pageId && (
-                      <MobileLayoutEditor
-                        pageId={pageId}
-                        boxes={mobileBoxes ?? []}
-                        zoom={zoom}
-                      />
-                    )}
-                  </CanvasZoomContext.Provider>
-                </Page>
-              </div>
-            </div>
-            {size && !showMobile && <FilterDockTarget />}
+            {mobileEditing ? (
+              <DeviceFrame
+                device={device}
+                scale={displayScale}
+                safeArea={mobileSettings.safeArea}
+              >
+                {pageFrame}
+              </DeviceFrame>
+            ) : (
+              pageFrame
+            )}
+            {size && !showMobile && !mobileEditing && <FilterDockTarget />}
           </Sheet>
         </ReportTheme>
       </Outer>
-      {scroll && !presenting && !showMobile && <ZoomToolbar zoom={zoom} />}
+      {scroll && !presenting && !showMobile && !mobileEditing && (
+        <ZoomToolbar zoom={zoom} />
+      )}
     </Wrap>
   );
 }

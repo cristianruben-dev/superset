@@ -302,6 +302,15 @@ export function mobileComponent(
 }
 
 const MobileViewContext = createContext<MobileView | null>(null);
+const CanvasReadOnlyContext = createContext(false);
+
+/**
+ * Marks a canvas that only shows its objects: the phone of the editor and the
+ * mobile layout of a viewer. Its objects are not edited in place.
+ */
+export const CanvasReadOnlyProvider = CanvasReadOnlyContext.Provider;
+
+export const useCanvasReadOnly = () => useContext(CanvasReadOnlyContext);
 
 /** Gives the components of the canvas the mobile layout they show, if any. */
 export const MobileViewProvider = MobileViewContext.Provider;

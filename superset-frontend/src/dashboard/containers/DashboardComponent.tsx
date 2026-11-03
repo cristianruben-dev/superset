@@ -38,7 +38,11 @@ import {
 } from 'src/dashboard/actions/dashboardState';
 import type { DropResult } from 'src/dashboard/components/dnd/dragDroppableConfig';
 import type { RootState, LayoutItem } from 'src/dashboard/types';
-import { mobileComponent, useMobileView } from 'src/mibi/format/mobileLayout';
+import {
+  mobileComponent,
+  useCanvasReadOnly,
+  useMobileView,
+} from 'src/mibi/format/mobileLayout';
 
 interface DashboardComponentProps {
   id: string;
@@ -108,6 +112,7 @@ const DashboardComponent = (
   // The mobile layout of the page places its objects on the phone page and
   // leaves out the rest; the canvas shows it as a viewer would
   const mobileView = useMobileView();
+  const readOnly = useCanvasReadOnly();
   const layoutComponent = dashboardLayout[props.id];
   const component = useMemo(
     () => mobileComponent(layoutComponent, mobileView),
@@ -180,7 +185,7 @@ const DashboardComponent = (
       component={component}
       getComponentById={getComponentById}
       parentComponent={parentComponent}
-      editMode={editMode && !mobileView}
+      editMode={editMode && !readOnly}
       filters={filters}
       dashboardId={dashboardId}
       dashboardInfo={dashboardInfo}

@@ -33,7 +33,17 @@ import { DataMenu } from 'src/mibi/dashboard/DataMenu';
 import { setCanvasFormat, setComponentMeta } from 'src/mibi/format/actions';
 import { arrangeLayer } from 'src/mibi/format/arrange';
 import { setCanvasView, useCanvasView } from 'src/mibi/format/canvasView';
-import { setMobileEditing, useMobileEditing } from 'src/mibi/format/mobile';
+import {
+  selectMobileBox,
+  setMobileEditing,
+  useMobileEditing,
+} from 'src/mibi/format/mobile';
+import {
+  MOBILE_DEVICES,
+  deviceById,
+  setMobileViewSettings,
+  useMobileViewSettings,
+} from 'src/mibi/format/mobileDevices';
 import { mobileLayoutOf } from 'src/mibi/format/mobileLayout';
 import { isCopyable, useClipboard } from 'src/mibi/format/clipboard';
 import {
@@ -193,6 +203,8 @@ export function Ribbon({
   const paneFolded = usePaneCollapsed('builder');
   const editingInteractions = useEditingInteractions();
   const mobileEditing = useMobileEditing();
+  const mobileSettings = useMobileViewSettings();
+  const mobileDevice = deviceById(mobileSettings.device);
   const hasMobileLayout = !!mobileLayoutOf(layout, pageId);
   const openMobileLayout = () => {
     selectVisual(null);
@@ -578,6 +590,90 @@ export function Ribbon({
     mobile: (
       <>
         {saveGroup}
+        <RibbonGroup label={t('Mode')}>
+          <RibbonButton
+            label={t('Place visuals')}
+            hint={t('Place, move and resize the visuals on the phone')}
+            icon={<Icons.EditOutlined iconSize="m" />}
+            pressed={mobileSettings.mode === 'work'}
+            onClick={() => setMobileViewSettings({ mode: 'work' })}
+            data-test="mibi-ribbon-mobile-work"
+          />
+          <RibbonButton
+            label={t('Preview')}
+            hint={t('Shows the page as a phone shows it to viewers')}
+            icon={<Icons.EyeOutlined iconSize="m" />}
+            pressed={mobileSettings.mode === 'preview'}
+            onClick={() => {
+              selectMobileBox(null);
+              setMobileViewSettings({ mode: 'preview' });
+            }}
+            data-test="mibi-ribbon-mobile-preview"
+          />
+        </RibbonGroup>
+        <RibbonGroup label={t('Device')}>
+          <RibbonButton
+            label={mobileDevice.name}
+            icon={<Icons.MobileOutlined iconSize="m" />}
+            data-test="mibi-ribbon-mobile-device"
+            menu={{
+              selectedKeys: [mobileDevice.id],
+              onClick: ({ key }) => setMobileViewSettings({ device: key }),
+              items: MOBILE_DEVICES.map(device => ({
+                key: device.id,
+                label: (
+                  <span
+                    data-test={`mibi-device-option-${device.id}`}
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      gap: 16,
+                      minWidth: 220,
+                    }}
+                  >
+                    <span>{device.name}</span>
+                    <span style={{ opacity: 0.6, fontSize: 12 }}>
+                      {t('%s × %s pt', device.width, device.height)}
+                    </span>
+                  </span>
+                ),
+              })),
+            }}
+          />
+        </RibbonGroup>
+        <RibbonGroup label={t('Show')}>
+          <div className="stack">
+            <RibbonButton
+              small
+              label={t('Fit to screen')}
+              icon={<Icons.CompressOutlined iconSize="m" />}
+              pressed={mobileSettings.fit}
+              onClick={() => setMobileViewSettings({ fit: true })}
+              data-test="mibi-ribbon-mobile-fit"
+            />
+            <RibbonButton
+              small
+              label={t('Actual size')}
+              icon={<Icons.ExpandOutlined iconSize="m" />}
+              pressed={!mobileSettings.fit}
+              onClick={() => setMobileViewSettings({ fit: false })}
+              data-test="mibi-ribbon-mobile-actual"
+            />
+            <RibbonButton
+              small
+              label={t('Safe area')}
+              hint={t(
+                'Marks the status bar and the home indicator, which the page does not use',
+              )}
+              icon={<Icons.BorderOutlined iconSize="m" />}
+              pressed={mobileSettings.safeArea}
+              onClick={() =>
+                setMobileViewSettings({ safeArea: !mobileSettings.safeArea })
+              }
+              data-test="mibi-ribbon-mobile-safe-area"
+            />
+          </div>
+        </RibbonGroup>
         <RibbonGroup label={t('Mobile layout')}>
           <RibbonButton
             label={t('Back to the canvas')}

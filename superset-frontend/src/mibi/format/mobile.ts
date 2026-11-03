@@ -64,3 +64,23 @@ export function useMobileEditing(): boolean {
   }, []);
   return value;
 }
+
+const SELECTION_EVENT = 'mibi:mobile-selection';
+let selectedBox: string | null = null;
+
+/** Chooses the object of the mobile layout the editor works on. */
+export function selectMobileBox(id: string | null) {
+  if (selectedBox === id) return;
+  selectedBox = id;
+  window.dispatchEvent(new CustomEvent(SELECTION_EVENT));
+}
+
+export function useSelectedMobileBox(): string | null {
+  const [value, setValue] = useState(selectedBox);
+  useEffect(() => {
+    const onChange = () => setValue(selectedBox);
+    window.addEventListener(SELECTION_EVENT, onChange);
+    return () => window.removeEventListener(SELECTION_EVENT, onChange);
+  }, []);
+  return value;
+}

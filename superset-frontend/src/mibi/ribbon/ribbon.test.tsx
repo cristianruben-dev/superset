@@ -38,6 +38,10 @@ import {
   HIDDEN_PAGE_KEY,
 } from 'src/mibi/present/dashboardTabs';
 import { isMobileEditing, setMobileEditing } from 'src/mibi/format/mobile';
+import {
+  mobileViewSettings,
+  setMobileViewSettings,
+} from 'src/mibi/format/mobileDevices';
 import { Ribbon, type RibbonProps } from './Ribbon';
 
 const layout = {
@@ -118,6 +122,7 @@ afterEach(() => {
   selectVisual(null);
   setAllLocked(false);
   setMobileEditing(false);
+  setMobileViewSettings({ device: 'iphone-17-pro', safeArea: true });
   window.localStorage.clear();
 });
 
@@ -184,6 +189,17 @@ test('"Mobile layout" opens the phone view with only its own commands', async ()
   ).not.toBeInTheDocument();
   // Saving and undoing stay at hand
   expect(screen.getByTestId('header-save-button')).toBeInTheDocument();
+
+  // Preview and arrange modes, the phone and how it shows
+  userEvent.click(screen.getByTestId('mibi-ribbon-mobile-preview'));
+  expect(mobileViewSettings().mode).toBe('preview');
+  userEvent.click(screen.getByTestId('mibi-ribbon-mobile-work'));
+  expect(mobileViewSettings().mode).toBe('work');
+  userEvent.click(screen.getByTestId('mibi-ribbon-mobile-device'));
+  userEvent.click(await screen.findByTestId('mibi-device-option-iphone-se'));
+  expect(mobileViewSettings().device).toBe('iphone-se');
+  userEvent.click(screen.getByTestId('mibi-ribbon-mobile-safe-area'));
+  expect(mobileViewSettings().safeArea).toBe(false);
 
   userEvent.click(screen.getByTestId('mibi-ribbon-mobile-close'));
   expect(isMobileEditing()).toBe(false);
