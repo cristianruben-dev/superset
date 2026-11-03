@@ -2243,3 +2243,9 @@ body.mibi-moving * {
   transform: none !important;
   z-index: 3000 !important;
 }
+
+/* The page bar of a report reaches the bottom of the screen, as in Power BI */
+.dashboard-content
+  > [data-test='grid-container']:has([data-test='mibi-page-bar']) {
+  margin-bottom: 0 !important;
+}

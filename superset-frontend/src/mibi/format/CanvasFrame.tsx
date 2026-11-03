@@ -452,14 +452,19 @@ export function CanvasFrame({ children }: { children: ReactNode }) {
     return () => observer.disconnect();
   }, [!!size]);
 
-  // The screen gives the viewport the height under the header
+  // The screen gives the viewport the height under the header; the page bar
+  // reaches the bottom of the screen, as in Power BI
+  const flushBottom = !presenting && !showMobile && !mobileEditing;
   useEffect(() => {
     const wrap = wrapRef.current;
     if (!wrap || !size) return undefined;
     const measure = () => {
       const top = wrap.getBoundingClientRect().top + window.scrollY;
       setWindowHeight(window.innerHeight);
-      setViewportHeight(Math.max(320, window.innerHeight - top - 20));
+      // skin.css drops the margin under the grid while the page bar shows
+      setViewportHeight(
+        Math.max(320, window.innerHeight - top - (flushBottom ? 0 : 20)),
+      );
     };
     measure();
     window.addEventListener('resize', measure);
@@ -468,11 +473,16 @@ export function CanvasFrame({ children }: { children: ReactNode }) {
         ? undefined
         : new ResizeObserver(measure);
     observer?.observe(document.body);
+    // The header above settles after the first paint (title, filter bar)
+    const header = document.querySelector(
+      '[data-test="dashboard-header-wrapper"]',
+    );
+    if (header) observer?.observe(header);
     return () => {
       window.removeEventListener('resize', measure);
       observer?.disconnect();
     };
-  }, [!!size]);
+  }, [!!size, flushBottom]);
 
   // The filter pane keeps its own size beside the scaled page
   const paneWidth = useFilterDockWidth();

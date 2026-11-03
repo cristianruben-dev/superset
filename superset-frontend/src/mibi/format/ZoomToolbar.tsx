@@ -39,8 +39,42 @@ const Bar = styled.div<{ $docked?: boolean }>`
           .percent {
             font-family: ${theme.fontFamilyCode};
           }
+          .mibi-zoom-step {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: ${theme.sizeUnit * 6}px;
+            height: ${theme.sizeUnit * 6}px;
+            padding: 0;
+            border: 0;
+            border-radius: ${theme.borderRadius}px;
+            background: transparent;
+            color: ${theme.colorTextSecondary};
+            font-size: ${theme.fontSizeLG}px;
+            line-height: 1;
+            cursor: pointer;
+            &:hover {
+              color: ${theme.colorText};
+              background: ${theme.colorFillTertiary};
+            }
+          }
+          .ant-slider {
+            margin: 0 ${theme.sizeUnit}px;
+          }
+          /* A compact choice that keeps to the height of the bar */
           .mibi-zoom-fit {
-            width: ${theme.sizeUnit * 46}px;
+            width: ${theme.sizeUnit * 44}px;
+            .ant-select-selector {
+              height: ${theme.sizeUnit * 7}px !important;
+              min-height: 0 !important;
+              padding-block: 0 !important;
+              font-size: ${theme.fontSizeSM}px;
+            }
+            .ant-select-selection-item,
+            .ant-select-selection-search-input {
+              height: ${theme.sizeUnit * 7 - 2}px !important;
+              line-height: ${theme.sizeUnit * 7 - 2}px !important;
+            }
           }
         `
       : css`
@@ -90,14 +124,14 @@ export function ZoomToolbar({
       view.mode === 'custom' ? (zoom === 1 ? 'actual' : 'custom') : view.mode;
     return (
       <Bar data-test="mibi-zoom-toolbar" $docked>
-        <Button
-          buttonSize="xsmall"
-          buttonStyle="link"
+        <button
+          type="button"
+          className="mibi-zoom-step"
           aria-label={t('Zoom out')}
           onClick={() => step(-1)}
         >
           −
-        </Button>
+        </button>
         <Slider
           min={Math.round(MIN_ZOOM * 100)}
           max={Math.round(MAX_ZOOM * 100)}
@@ -107,14 +141,14 @@ export function ZoomToolbar({
           }
           tooltip={{ open: false }}
         />
-        <Button
-          buttonSize="xsmall"
-          buttonStyle="link"
+        <button
+          type="button"
+          className="mibi-zoom-step"
           aria-label={t('Zoom in')}
           onClick={() => step(1)}
         >
           +
-        </Button>
+        </button>
         <span className="percent">{Math.round(zoom * 100)}%</span>
         <Select
           className="mibi-zoom-fit"

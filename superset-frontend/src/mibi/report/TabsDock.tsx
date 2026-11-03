@@ -116,7 +116,9 @@ const Dock = styled.div<{ $bar?: boolean }>`
       }
       .ant-tabs-nav {
         margin: 0;
-        padding: 0;
+        /* Over the padding Superset sets from the width of the filter bar */
+        padding: 0 !important;
+        min-height: 0;
         &::before {
           border: 0;
         }
@@ -131,6 +133,9 @@ const Dock = styled.div<{ $bar?: boolean }>`
       /* Flat tabs side by side, split by hairlines, as in Power BI */
       .ant-tabs-nav-list .ant-tabs-tab {
         position: relative;
+        box-sizing: border-box;
+        /* As tall as the bar, so the name sits in its middle */
+        height: ${theme.sizeUnit * 9 - 1}px;
         margin: 0 !important;
         padding: 0 ${theme.sizeUnit * 4}px;
         border: 0 !important;
@@ -348,7 +353,9 @@ const Bar = styled.div`
     flex: none;
     display: flex;
     align-items: stretch;
+    box-sizing: border-box;
     height: ${theme.sizeUnit * 9}px;
+    overflow: hidden;
     container-type: inline-size;
     border-top: 1px solid ${theme.colorBorderSecondary};
     background: ${theme.colorBgContainer};
