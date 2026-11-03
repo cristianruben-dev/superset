@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { memo, useCallback, useContext, useMemo, useState } from 'react';
+import { memo, useCallback, useMemo, useState } from 'react';
 import { t } from '@apache-superset/core/translation';
 import { css } from '@apache-superset/core/theme';
 import { Button, Icons } from '@superset-ui/core/components';
@@ -29,10 +29,7 @@ import { FilterBarOrientation } from 'src/dashboard/types';
 import { isChartCustomization, isDefined } from '@superset-ui/core';
 import { checkIsMissingRequiredValue } from '../utils';
 import FilterValue from './FilterValue';
-import { FilterCard } from '../../FilterCard';
-import { FilterBarScrollContext } from '../Vertical';
 import { FilterControlProps } from './types';
-import { FilterCardPlacement } from '../../FilterCard/types';
 import { useIsFilterInScope } from '../../state';
 import {
   FilterStyledIcon,
@@ -40,6 +37,7 @@ import {
   DescriptionToolTip,
   useFilterControlDisplay,
 } from './FilterControlShared';
+import FilterEditButton from './FilterEditButton';
 import GroupByFilterCard from './GroupByFilterCard';
 
 const FilterControl = ({
@@ -56,7 +54,6 @@ const FilterControl = ({
   onClearAllComplete,
 }: FilterControlProps) => {
   const portalNode = useMemo(() => createHtmlPortalNode(), []);
-  const [isFilterActive, setIsFilterActive] = useState(false);
   const [clearing, setClearing] = useState(false);
 
   const { name = '<undefined>' } = filter;
@@ -103,6 +100,7 @@ const FilterControl = ({
         {filter.description?.trim() && (
           <DescriptionToolTip description={filter.description} />
         )}
+        <FilterEditButton filterId={filter.id} name={name} />
         <FilterStyledIcon data-test="filter-icon">{icon}</FilterStyledIcon>
         {hasValue && orientation === FilterBarOrientation.Vertical && (
           <Button
@@ -129,20 +127,10 @@ const FilterControl = ({
       name,
       isRequired,
       filter.description,
+      filter.id,
       icon,
     ],
   );
-
-  const isScrolling = useContext(FilterBarScrollContext);
-  const filterCardPlacement = useMemo(() => {
-    if (orientation === FilterBarOrientation.Horizontal) {
-      if (overflow) {
-        return FilterCardPlacement.Left;
-      }
-      return FilterCardPlacement.Bottom;
-    }
-    return FilterCardPlacement.Right;
-  }, [orientation, overflow]);
 
   if (
     isChartCustomization(filter) &&
@@ -172,7 +160,6 @@ const FilterControl = ({
           onFilterSelectionChange={onFilterSelectionChange}
           inView={inView}
           parentRef={parentRef}
-          setFilterActive={setIsFilterActive}
           orientation={orientation}
           overflow={overflow}
           validateStatus={validateStatus}
@@ -190,22 +177,16 @@ const FilterControl = ({
             : 'vertical'
         }
       >
-        <FilterCard
-          filter={filter}
-          isVisible={!isFilterActive && !isScrolling}
-          placement={filterCardPlacement}
-        >
-          <div>
-            <FormItem
-              label={label}
-              htmlFor={filter.id}
-              required={filter?.controlValues?.enableEmptyFilter}
-              validateStatus={validateStatus}
-            >
-              <OutPortal node={portalNode} />
-            </FormItem>
-          </div>
-        </FilterCard>
+        <div>
+          <FormItem
+            label={label}
+            htmlFor={filter.id}
+            required={filter?.controlValues?.enableEmptyFilter}
+            validateStatus={validateStatus}
+          >
+            <OutPortal node={portalNode} />
+          </FormItem>
+        </div>
       </FilterControlContainer>
     </>
   );

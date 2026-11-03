@@ -65,16 +65,7 @@ export const chartHeaderStyles = (theme: SupersetTheme) => css`
   }
 `;
 
-export const filterCardPopoverStyle = () => css`
-  .filter-card-tooltip {
-    &.ant-tooltip-placement-bottom {
-      padding-top: 0;
-      & .ant-tooltip-arrow {
-        top: -13px;
-      }
-    }
-  }
-`;
+export const filterCardPopoverStyle = () => css``;
 
 export const chartContextMenuStyles = (theme: SupersetTheme) => css`
   .ant-dropdown-menu.chart-context-menu {

@@ -419,7 +419,7 @@ const FilterControls: FC<FilterControlsProps> = ({
                 tabIndex={0}
               >
                 <Title level={5} style={sectionTitleStyle}>
-                  {t('Display controls')}
+                  {t('Change grouping')}
                 </Title>
                 <StyledIcon
                   iconSize="m"
