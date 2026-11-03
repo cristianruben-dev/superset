@@ -674,10 +674,13 @@ DEFAULT_FEATURE_FLAGS: dict[str, bool] = {
     # These flags are stable and on path to becoming default behavior,
     # after which the flag will be deprecated.
     # -----------------------------------------------------------------
-    # Enables dashboard virtualization for improved performance
+    # Enables dashboard virtualization for improved performance. Off in
+    # AuraData BI: objects sit at absolute cells of a fixed page that scrolls
+    # inside its own container, so rows have no height and their observers
+    # would unmount every chart as soon as the page scrolls.
     # @lifecycle: stable
     # @category: path_to_deprecation
-    "DASHBOARD_VIRTUALIZATION": True,
+    "DASHBOARD_VIRTUALIZATION": False,
     # =================================================================
     # STABLE - RUNTIME CONFIGURATION
     # =================================================================

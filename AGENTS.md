@@ -209,6 +209,8 @@ Formats are stored in `position_json`, so they save, undo and export with the da
 - The Analytics level of the pane holds the cards with `level: 'analytics'`. `utils/analyticsFormat.ts` draws
   `reference_lines` and the trend line as series with `__mibi` ids, and the zoom sliders. `tooltip_metrics` are a second query
   of the timeseries charts, so they never change the series. Small multiples are Matrixify, opened to the pane without its flag.
+- `DASHBOARD_VIRTUALIZATION` stays off: rows have no height and the page scrolls inside its own container, so row observers
+  would unmount every chart on scroll. Playwright hides this kind of bug: `navigator.webdriver` turns virtualization off too.
 - There are no saved format themes: each dashboard is formatted on its own.
 
 ### Migrations
