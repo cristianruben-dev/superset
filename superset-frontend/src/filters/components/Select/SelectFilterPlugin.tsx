@@ -88,9 +88,10 @@ function reducer(draft: DataMask, action: DataMaskAction) {
   }
 }
 
-const StyledSpace = styled(Space)<{
+const StyledSpace = styled(Space, {
+  shouldForwardProp: prop => prop !== 'inverseSelection',
+})<{
   inverseSelection: boolean;
-  appSection: AppSection;
 }>`
   display: flex;
   align-items: center;
@@ -489,10 +490,7 @@ export default function PluginFilterSelect(props: PluginFilterSelectProps) {
         validateStatus={filterState.validateStatus}
         extra={formItemExtra}
       >
-        <StyledSpace
-          appSection={appSection}
-          inverseSelection={inverseSelection}
-        >
+        <StyledSpace inverseSelection={inverseSelection}>
           {appSection !== AppSection.FilterConfigModal && inverseSelection && (
             <Select
               className="exclude-select"
