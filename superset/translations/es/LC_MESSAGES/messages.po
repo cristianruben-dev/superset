@@ -21378,3 +21378,18 @@ msgstr "Apaga un valor para quitarlo de este segmentador. Sigue contando en los 
 
 msgid "Values shown"
 msgstr "Valores que se muestran"
+
+msgid "This chart type is no longer available"
+msgstr "Este tipo de gráfico ya no está disponible"
+
+msgid "%s charts were removed. Change its type to show it again."
+msgstr "Los gráficos «%s» se quitaron. Cambia su tipo para volver a verlo."
+
+msgid "%s charts were removed. Ask an editor of the report to change its type."
+msgstr "Los gráficos «%s» se quitaron. Pide a un editor del informe que cambie su tipo."
+
+msgid "Change chart type"
+msgstr "Cambiar tipo de gráfico"
+
+msgid "%s charts are no longer available. Pick another chart type and save the chart."
+msgstr "Los gráficos «%s» ya no están disponibles. Elige otro tipo de gráfico y guárdalo."
