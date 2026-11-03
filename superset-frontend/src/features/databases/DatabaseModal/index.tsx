@@ -84,6 +84,7 @@ import {
   antDAlertStyles,
   antdWarningAlertStyles,
   StyledAlertMargin,
+  antDModalFitBodyStyles,
   antDModalNoPaddingStyles,
   antDModalStyles,
   antDTabsStyles,
@@ -2192,6 +2193,7 @@ const DatabaseModal: FunctionComponent<DatabaseModalProps> = ({
       css={(theme: SupersetTheme) => [
         antDModalNoPaddingStyles,
         antDModalStyles(theme),
+        !db && !importingModal && antDModalFitBodyStyles,
         formHelperStyles(theme),
         formStyles(theme),
       ]}
@@ -2209,6 +2211,8 @@ const DatabaseModal: FunctionComponent<DatabaseModalProps> = ({
         />
       }
       footer={renderModalFooter()}
+      // Nothing to confirm yet while choosing the database
+      hideFooter={!db && !importingModal}
       maskClosable={false}
     >
       {!isLoading && hasConnectedDb ? (

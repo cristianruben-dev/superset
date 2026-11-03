@@ -29,10 +29,8 @@ import { WorkspaceModal } from './WorkspaceModal';
 export const Page = styled.div`
   ${({ theme }) => css`
     width: 100%;
-    max-width: 1320px;
-    margin: 0 auto;
-    padding: ${theme.sizeUnit * 8}px ${theme.sizeUnit * 10}px
-      ${theme.sizeUnit * 12}px;
+    padding: var(--mb-space-page-top) var(--mb-space-gutter)
+      ${theme.sizeUnit * 8}px;
   `}
 `;
 
@@ -42,7 +40,7 @@ const Header = styled.header`
     align-items: flex-end;
     flex-wrap: wrap;
     gap: ${theme.sizeUnit * 4}px;
-    margin-bottom: ${theme.sizeUnit * 6}px;
+    margin-bottom: ${theme.sizeUnit * 4}px;
 
     .titles {
       flex: 1;

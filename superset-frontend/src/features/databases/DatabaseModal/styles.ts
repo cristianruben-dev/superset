@@ -118,6 +118,13 @@ export const formScrollableStyles = (theme: SupersetTheme) => css`
   padding: ${theme.sizeUnit * 4}px ${theme.sizeUnit * 4}px 0;
 `;
 
+/** Choosing the database: the short list takes only its height. */
+export const antDModalFitBodyStyles = css`
+  .ant-modal-body {
+    height: auto;
+  }
+`;
+
 export const antDModalStyles = (theme: SupersetTheme) => css`
   .ant-select-dropdown {
     height: ${theme.sizeUnit * 40}px;
@@ -450,6 +457,16 @@ export const SelectDatabaseStyles = styled.div`
   .preferred-item {
     width: 32%;
     margin-bottom: ${({ theme }) => theme.sizeUnit * 2.5}px;
+
+    /* The tile of a database without a logo: the name says what it is */
+    .ant-card-cover > div {
+      height: ${({ theme }) => theme.sizeUnit * 10}px !important;
+      justify-content: center;
+    }
+
+    .ant-card-body {
+      padding: ${({ theme }) => theme.sizeUnit}px 0 0;
+    }
   }
 
   .available {

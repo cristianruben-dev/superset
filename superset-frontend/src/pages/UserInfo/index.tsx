@@ -31,43 +31,27 @@ import {
 } from 'src/features/userInfo/UserInfoModal';
 import { Icons, Collapse } from '@superset-ui/core/components';
 
-const StyledHeader = styled.div`
-  ${({ theme }) => css`
-    font-weight: ${theme.fontWeightStrong};
-    text-align: left;
-    font-size: 18px;
-    padding: ${theme.sizeUnit * 3}px;
-    padding-left: ${theme.sizeUnit * 7}px;
-    display: inline-block;
-    line-height: ${theme.sizeUnit * 9}px;
-    width: 100%;
-    background-color: ${theme.colorBgContainer};
-    margin-bottom: ${theme.sizeUnit * 6}px;
-  `}
-`;
-
 const DescriptionsContainer = styled.div`
   ${({ theme }) => css`
-    margin: 0px ${theme.sizeUnit * 3}px ${theme.sizeUnit * 6}px
-      ${theme.sizeUnit * 3}px;
-    background-color: ${theme.colorBgContainer};
-  `}
-`;
+    padding: 0 var(--mb-space-gutter) var(--mb-space-gutter);
 
-const StyledLayout = styled.div`
-  ${({ theme }) => css`
-    .ant-row {
-      margin: 0px ${theme.sizeUnit * 3}px ${theme.sizeUnit * 6}px
-        ${theme.sizeUnit * 3}px;
+    &&& > .ant-collapse {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      align-items: start;
+      gap: ${theme.sizeUnit * 4}px;
+      max-width: ${theme.sizeUnit * 284}px;
+      margin: 0;
+      border: 0;
+      background: transparent;
+      box-shadow: none;
     }
-    && .menu > .ant-menu {
-      padding: 0px;
-    }
-    && .nav-right {
-      left: 0;
-      padding-left: ${theme.sizeUnit * 4}px;
-      position: relative;
-      height: ${theme.sizeUnit * 15}px;
+
+    &&& > .ant-collapse > .ant-collapse-item {
+      margin: 0;
+      border-radius: ${theme.borderRadiusLG}px;
+      border: 1px solid ${theme.colorBorderSecondary};
+      background: ${theme.colorBgContainer};
     }
   `}
 `;
@@ -156,8 +140,8 @@ export function UserInfo({ user }: { user: UserWithPermissionsAndRoles }) {
   ];
 
   return (
-    <StyledLayout>
-      <StyledHeader>{t('Your user information')}</StyledHeader>
+    <>
+      <SubMenu name={t('Your user information')} buttons={SubMenuButtons} />
       <DescriptionsContainer>
         <Collapse defaultActiveKey={['userInfo', 'personalInfo']} ghost>
           <Collapse.Panel
@@ -227,8 +211,7 @@ export function UserInfo({ user }: { user: UserWithPermissionsAndRoles }) {
           user={userDetails}
         />
       )}
-      <SubMenu buttons={SubMenuButtons} />
-    </StyledLayout>
+    </>
   );
 }
 

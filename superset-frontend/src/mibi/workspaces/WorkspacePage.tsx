@@ -90,7 +90,7 @@ const Crumbs = styled.nav`
 const Hero = styled.header`
   ${({ theme }) => css`
     position: relative;
-    margin-bottom: ${theme.sizeUnit * 8}px;
+    margin-bottom: ${theme.sizeUnit * 6}px;
     border-radius: ${theme.borderRadiusLG + 4}px;
     border: 1px solid ${theme.colorBorderSecondary};
     background: ${theme.colorBgContainer};
@@ -98,7 +98,7 @@ const Hero = styled.header`
 
     .cover {
       position: relative;
-      height: 136px;
+      height: 72px;
       background-size: cover;
       background-position: center;
 
@@ -126,7 +126,7 @@ const Hero = styled.header`
       display: flex;
       align-items: flex-end;
       gap: ${theme.sizeUnit * 5}px;
-      padding: 0 ${theme.sizeUnit * 7}px ${theme.sizeUnit * 5}px;
+      padding: 0 ${theme.sizeUnit * 5}px ${theme.sizeUnit * 3}px;
     }
 
     /* On phones the name goes under the picture instead of being cut off */
@@ -152,14 +152,14 @@ const Hero = styled.header`
       justify-content: space-between;
       flex-wrap: wrap;
       gap: ${theme.sizeUnit * 3}px;
-      padding: ${theme.sizeUnit * 3}px ${theme.sizeUnit * 7}px;
+      padding: ${theme.sizeUnit * 2}px ${theme.sizeUnit * 5}px;
       border-top: 1px solid ${theme.colorBorderSecondary};
       background: ${theme.colorFillQuaternary};
     }
 
     .avatar {
-      margin-top: -44px;
-      border-radius: 24px;
+      margin-top: -28px;
+      border-radius: 16px;
       box-shadow:
         0 0 0 4px ${theme.colorBgContainer},
         ${theme.boxShadowSecondary};
@@ -168,12 +168,12 @@ const Hero = styled.header`
     .titles {
       flex: 1;
       min-width: min(240px, 100%);
-      padding-top: ${theme.sizeUnit * 4}px;
+      padding-top: ${theme.sizeUnit * 3}px;
     }
 
     h1 {
       margin: 0;
-      font-size: 28px;
+      font-size: 24px;
       font-weight: ${theme.fontWeightStrong};
       letter-spacing: -0.028em;
       line-height: 1.15;
@@ -187,9 +187,9 @@ const Hero = styled.header`
 
     .description {
       max-width: 720px;
-      margin: ${theme.sizeUnit * 2}px 0 0;
+      margin: ${theme.sizeUnit}px 0 0;
       color: ${theme.colorTextSecondary};
-      line-height: 1.55;
+      line-height: 1.45;
       white-space: pre-line;
       overflow-wrap: anywhere;
       display: -webkit-box;
@@ -478,7 +478,7 @@ export default function WorkspacePage() {
           style={cover}
         />
         <div className="content">
-          <WorkspaceAvatar workspace={workspace} size="xl" className="avatar" />
+          <WorkspaceAvatar workspace={workspace} size="l" className="avatar" />
           <div className="titles">
             <h1 title={workspace.name}>{workspace.name}</h1>
             {workspace.description && (

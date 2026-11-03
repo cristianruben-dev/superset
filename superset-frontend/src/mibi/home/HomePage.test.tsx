@@ -104,6 +104,19 @@ test('lists the dashboard cards without recently viewed items', async () => {
   expect(await screen.findAllByTestId('fave-unfave-icon')).toHaveLength(2);
 });
 
+test('the quick actions only show while there is nothing else', async () => {
+  const first = render(<HomeContent />, { useRouter: true, useRedux: true });
+  await screen.findAllByTestId('mibi-dashboard-card');
+  expect(screen.queryByTestId('home-action')).not.toBeInTheDocument();
+  first.unmount();
+
+  fetchMock.removeRoutes();
+  fetchMock.get('glob:*/api/v1/dashboard/?q=*', { result: [] });
+  render(<HomeContent />, { useRouter: true, useRedux: true });
+
+  expect(await screen.findAllByTestId('home-action')).toHaveLength(2);
+});
+
 test('the favorites tab shows an empty state', async () => {
   render(<HomeContent />, { useRouter: true, useRedux: true });
   await screen.findAllByTestId('mibi-dashboard-card');

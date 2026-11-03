@@ -147,7 +147,7 @@ function ActionLogList() {
           row: {
             original: { action },
           },
-        }: any) => <span>{action}</span>,
+        }: any) => <span title={action}>{action}</span>,
       },
       {
         accessor: 'user',
@@ -269,7 +269,7 @@ function ActionLogList() {
           row: {
             original: { dttm },
           },
-        }: any) => <span>{dttm}</span>,
+        }: any) => <span title={dttm}>{dttm}</span>,
       },
     ],
     [],

@@ -213,6 +213,8 @@ class TabbedSqlEditors extends PureComponent<TabbedSqlEditorsProps> {
           image="empty_sql_chart.svg"
           size="large"
           description={t('Add a new tab to create SQL Query')}
+          buttonText={t('Add a new tab')}
+          buttonAction={() => this.newQueryEditor()}
         />
       ),
     };

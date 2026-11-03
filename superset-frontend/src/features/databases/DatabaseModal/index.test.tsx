@@ -380,46 +380,10 @@ describe('DatabaseModal', () => {
       });
 
       const modal = screen.getByRole('dialog');
-      const footer = modal.querySelector('.ant-modal-footer');
-      // ---------- TODO (lyndsiWilliams): Selector options, can't seem to get these to render properly.
-
-      // renderAvailableSelector() => <Alert> - Supported databases alert
-      const alertIcon = screen.getAllByRole('img', { name: /info-circle/i });
-      const alertMessage = screen.getByText(/want to add a new database\?/i);
-      const alertDescription = screen.getByText(
-        /any databases that allow connections via sql alchemy uris can be added\. learn about how to connect a database driver \./i,
-      );
-      const alertLink = screen.getByRole('link', { name: /here/i });
-
-      // ---------- Assertions ----------
-      const visibleComponents = [
-        closeButton,
-        step1Header,
-        step1Helper,
-        selectDbHeader,
-        supportedDbsHeader,
-        selectorLabel,
-        selectorPlaceholder,
-        selectorArrow,
-        alertIcon[0],
-        alertMessage,
-        alertDescription,
-        alertLink,
-        preferredDbButtonPostgreSQL,
-        preferredDbButtonPresto,
-        preferredDbButtonMySQL,
-        preferredDbButtonSQLite,
-        preferredDbTextPostgreSQL,
-        preferredDbTextPresto,
-        preferredDbTextMySQL,
-        preferredDbTextSQLite,
-      ];
-
-      visibleComponents.forEach(component => {
-        expect(component).toBeInTheDocument();
-      });
-      // there should be a footer but it should not have any buttons in it
-      expect(footer).toBeEmptyDOMElement();
+      // nothing to confirm while choosing the database, so no footer
+      expect(
+        document.querySelector('.ant-modal-footer'),
+      ).not.toBeInTheDocument();
     });
 
     test('shows database options when pasting text in the select', async () => {

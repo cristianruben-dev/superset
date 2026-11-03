@@ -17,7 +17,7 @@
  * under the License.
  */
 import { getExtensionsRegistry } from '@superset-ui/core';
-import { HomeBanner, HomeContent } from './home/HomePage';
+import { HomeContent } from './home/HomePage';
 
 /**
  * Registers the AuraData BI replacements for Superset's extension points. Called once
@@ -32,10 +32,11 @@ export default function setupMibi() {
       registry.set(key, value);
     }
   };
-  // The home page: greeting and quick actions, then recents and dashboards.
-  // Registering both the banner and the main replacement hides the default
-  // collapsible sections; the "home.submenu" override drops the "Home" title.
+  // The home page: workspaces and dashboards, with the quick actions only while
+  // there is nothing else to show (HomeContent). Registering both the banner and
+  // the main replacement hides the default collapsible sections; the
+  // "home.submenu" override drops the "Home" title.
+  setDefault('welcome.banner', () => null);
   setDefault('home.submenu', () => null);
-  setDefault('welcome.banner', HomeBanner);
   setDefault('welcome.main.replacement', HomeContent);
 }

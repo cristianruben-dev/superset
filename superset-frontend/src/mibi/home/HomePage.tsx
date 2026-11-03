@@ -56,10 +56,8 @@ const PAGE_SIZE = 8;
 const Page = styled.div`
   ${({ theme }) => css`
     width: 100%;
-    max-width: 1320px;
-    margin: 0 auto;
-    padding: ${theme.sizeUnit * 8}px ${theme.sizeUnit * 10}px
-      ${theme.sizeUnit * 12}px;
+    padding: var(--mb-space-page-top) var(--mb-space-gutter)
+      ${theme.sizeUnit * 8}px;
   `}
 `;
 
@@ -68,7 +66,7 @@ const Actions = styled.div`
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: ${theme.sizeUnit * 4}px;
-    margin-bottom: ${theme.sizeUnit * 10}px;
+    margin-bottom: ${theme.sizeUnit * 6}px;
 
     @media (max-width: 767px) {
       grid-template-columns: minmax(0, 1fr);
@@ -152,7 +150,7 @@ const ActionCard = styled(Link)`
 
 const Section = styled.section`
   ${({ theme }) => css`
-    margin-bottom: ${theme.sizeUnit * 10}px;
+    margin-bottom: ${theme.sizeUnit * 6}px;
   `}
 `;
 
@@ -313,34 +311,28 @@ export function HomeBanner() {
   ];
 
   return (
-    <Page
-      css={css`
-        padding-bottom: 0 !important;
-      `}
-    >
-      <Actions>
-        {actions.map(action => (
-          <ActionCard
-            key={action.key}
-            to={action.to}
-            data-test="home-action"
-            style={
-              {
-                '--tone-color': AURA_TONES[action.tone].color,
-                '--tone-tint': AURA_TONES[action.tone].tint,
-              } as CSSProperties
-            }
-          >
-            <span className="icon">{action.icon}</span>
-            <span className="text">
-              <span className="title">{action.title}</span>
-              <span className="description">{action.description}</span>
-            </span>
-            <Icons.ArrowRightOutlined className="arrow" />
-          </ActionCard>
-        ))}
-      </Actions>
-    </Page>
+    <Actions>
+      {actions.map(action => (
+        <ActionCard
+          key={action.key}
+          to={action.to}
+          data-test="home-action"
+          style={
+            {
+              '--tone-color': AURA_TONES[action.tone].color,
+              '--tone-tint': AURA_TONES[action.tone].tint,
+            } as CSSProperties
+          }
+        >
+          <span className="icon">{action.icon}</span>
+          <span className="text">
+            <span className="title">{action.title}</span>
+            <span className="description">{action.description}</span>
+          </span>
+          <Icons.ArrowRightOutlined className="arrow" />
+        </ActionCard>
+      ))}
+    </Actions>
   );
 }
 
@@ -405,12 +397,12 @@ export function HomeContent() {
     { key: 'favorite', label: t('Favorites') },
   ];
 
+  const startingOut =
+    tab === 'recent' && dashboards?.length === 0 && !workspaces.length;
+
   return (
-    <Page
-      css={css`
-        padding-top: 0 !important;
-      `}
-    >
+    <Page>
+      {startingOut && <HomeBanner />}
       {workspaces.length > 0 && (
         <Section>
           <SectionHeader>

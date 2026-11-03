@@ -29,7 +29,7 @@ const Card = styled(Link)`
     position: relative;
     display: flex;
     flex-direction: column;
-    min-height: 228px;
+    min-height: 200px;
     border-radius: ${theme.borderRadiusLG}px;
     border: 1px solid ${theme.colorBorderSecondary};
     background: ${theme.colorBgContainer};
@@ -51,7 +51,7 @@ const Card = styled(Link)`
 
     .cover {
       position: relative;
-      height: 84px;
+      height: 56px;
       background-size: cover;
       background-position: center;
 
@@ -82,7 +82,7 @@ const Card = styled(Link)`
 
     .avatar {
       position: absolute;
-      top: 56px;
+      top: 28px;
       left: ${theme.sizeUnit * 5}px;
       border-radius: 16px;
       box-shadow:
@@ -92,7 +92,7 @@ const Card = styled(Link)`
 
     .role {
       position: absolute;
-      top: 94px;
+      top: 66px;
       right: ${theme.sizeUnit * 5}px;
     }
 

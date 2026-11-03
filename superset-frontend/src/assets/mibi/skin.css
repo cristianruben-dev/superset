@@ -794,6 +794,12 @@ table,
   display: none;
 }
 
+/* Pages inside the side panel of a dashboard, which has its own margins */
+body.mibi-panel {
+  --mb-space-gutter: 16px;
+  --mb-space-page-top: 12px;
+}
+
 /* Explore inside the side panel of a dashboard: tighter, so the chart keeps room */
 
 /* The chart area asks for 512 px by default, which pushes the chart out of the panel */
@@ -874,6 +880,20 @@ body.mibi-dock .controls-column {
   min-width: 0;
   width: auto !important;
   max-width: none !important;
+}
+
+/* The datasource tab floats beside the tabs instead of taking a column */
+body.mibi-dock [data-test='open-datasource-tab'] {
+  position: absolute;
+  top: 6px;
+  left: 0;
+  z-index: 2;
+  height: auto;
+  width: auto;
+}
+
+body.mibi-dock .controls-column .ant-tabs-nav {
+  padding-left: 28px;
 }
 
 /* ---------------------------------------------------------------- SQL Lab */
