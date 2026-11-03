@@ -488,60 +488,68 @@ const Tabs = (props: TabsProps): ReactElement => {
   // Extract tab items creation logic into a memoized value (not a hook inside hook)
   const tabItems = useMemo(
     () =>
-      tabIds.map((tabId, tabIndex) => ({
-        key: tabId,
-        label: (
-          <>
-            {showDropIndicators(tabIndex).left && (
-              <DropIndicator className="drop-indicator-left" pos="left" />
-            )}
+      tabIds
+        .map((tabId, tabIndex) => ({
+          key: tabId,
+          label: (
+            <>
+              {showDropIndicators(tabIndex).left && (
+                <DropIndicator className="drop-indicator-left" pos="left" />
+              )}
+              <DashboardComponent
+                id={tabId}
+                parentId={tabsComponent.id}
+                depth={depth}
+                index={tabIndex}
+                renderType={RENDER_TAB}
+                availableColumnCount={availableColumnCount}
+                columnWidth={columnWidth}
+                onDropOnTab={handleDropOnTab}
+                onDropPositionChange={handleGetDropPosition}
+                onHoverTab={() => handleClickTab(tabIndex)}
+                isFocused={activeKey === tabId}
+                isHighlighted={
+                  activeKey !== tabId && tabsToHighlight?.includes(tabId)
+                }
+                onTabTitleEditingChange={handleTabTitleEditingChange}
+                onDeletePage={() => showDeleteConfirmModal(tabId)}
+              />
+            </>
+          ),
+          closeIcon: (
+            <CloseIconWithDropIndicator
+              role="button"
+              tabIndex={tabIndex}
+              showDropIndicators={showDropIndicators(tabIndex)}
+            />
+          ),
+          children: renderTabContent ? (
             <DashboardComponent
               id={tabId}
               parentId={tabsComponent.id}
-              depth={depth}
+              depth={depth} // see isValidChild.js for why tabs don't increment child depth
               index={tabIndex}
-              renderType={RENDER_TAB}
+              renderType={RENDER_TAB_CONTENT}
               availableColumnCount={availableColumnCount}
               columnWidth={columnWidth}
+              onResizeStart={onResizeStart}
+              onResize={onResize}
+              onResizeStop={onResizeStop}
               onDropOnTab={handleDropOnTab}
-              onDropPositionChange={handleGetDropPosition}
-              onHoverTab={() => handleClickTab(tabIndex)}
-              isFocused={activeKey === tabId}
-              isHighlighted={
-                activeKey !== tabId && tabsToHighlight?.includes(tabId)
+              isComponentVisible={
+                selectedTabIndex === tabIndex && isCurrentTabVisible
               }
-              onTabTitleEditingChange={handleTabTitleEditingChange}
-              onDeletePage={() => showDeleteConfirmModal(tabId)}
             />
-          </>
+          ) : undefined,
+        }))
+        // AuraData BI: viewers get no tab for a hidden page, not even in the
+        // list of the tabs that do not fit
+        .filter(
+          item => props.editMode || renderTabContent || !isHiddenPage(item.key),
         ),
-        closeIcon: (
-          <CloseIconWithDropIndicator
-            role="button"
-            tabIndex={tabIndex}
-            showDropIndicators={showDropIndicators(tabIndex)}
-          />
-        ),
-        children: renderTabContent ? (
-          <DashboardComponent
-            id={tabId}
-            parentId={tabsComponent.id}
-            depth={depth} // see isValidChild.js for why tabs don't increment child depth
-            index={tabIndex}
-            renderType={RENDER_TAB_CONTENT}
-            availableColumnCount={availableColumnCount}
-            columnWidth={columnWidth}
-            onResizeStart={onResizeStart}
-            onResize={onResize}
-            onResizeStop={onResizeStop}
-            onDropOnTab={handleDropOnTab}
-            isComponentVisible={
-              selectedTabIndex === tabIndex && isCurrentTabVisible
-            }
-          />
-        ) : undefined,
-      })),
     [
+      props.editMode,
+      isHiddenPage,
       tabIds,
       showDropIndicators,
       tabsComponent.id,

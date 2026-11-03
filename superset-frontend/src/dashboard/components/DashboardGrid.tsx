@@ -31,7 +31,6 @@ import { Droppable } from './dnd/DragDroppable';
 import { CELL } from 'src/mibi/format/types';
 import { gridColumnCount } from 'src/mibi/format/columns';
 import { GridGuide } from 'src/mibi/format/gridGuides';
-import { TooltipArea } from 'src/mibi/report/TooltipArea';
 import { TAB_TYPE } from '../util/componentTypes';
 
 interface DashboardGridProps {
@@ -317,7 +316,6 @@ class DashboardGrid extends PureComponent<
             editMode={editMode}
           >
             {editMode && <GridGuide />}
-            {editMode && <TooltipArea pageId={gridComponent?.id} />}
             {/* make the area above components droppable */}
             {editMode && (
               <Droppable

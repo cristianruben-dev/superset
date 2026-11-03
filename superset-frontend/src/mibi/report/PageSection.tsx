@@ -276,7 +276,7 @@ export function PageSection() {
           />
           <Hint>
             {t(
-              'Viewers do not see this page. Its top-left area shows over the marks of the charts that use it, filtered to the mark. Charts set to Auto use it when they have its tooltip fields.',
+              'Viewers do not see this page. It shows at this size over the marks of the charts that use it, filtered to the mark. Charts set to Auto use it when they have its tooltip fields.',
             )}
           </Hint>
         </>

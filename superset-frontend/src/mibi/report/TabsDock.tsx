@@ -51,8 +51,8 @@ export function TabsDockProvider({ children }: { children: ReactNode }) {
   );
 }
 
-const Dock = styled.div`
-  ${({ theme }) => css`
+const Dock = styled.div<{ $bar?: boolean }>`
+  ${({ theme, $bar }) => css`
     position: relative;
     flex: none;
     box-sizing: border-box;
@@ -85,6 +85,97 @@ const Dock = styled.div`
     .empty-droptarget {
       min-height: ${theme.sizeUnit * 4}px;
     }
+
+    /* As in Power BI: the pages are a bar at the bottom of the report, of
+       a fixed size whatever the zoom of the page */
+    ${$bar &&
+    css`
+      flex: 1;
+      min-width: 0;
+      border-radius: 0;
+      outline: 0;
+      background: transparent;
+      &:empty {
+        display: block;
+      }
+      .dashboard-component-tabs {
+        background: transparent;
+      }
+      .ant-tabs-nav {
+        margin: 0;
+        padding: 0 ${theme.sizeUnit * 2}px;
+        &::before {
+          border: 0;
+        }
+      }
+      .ant-tabs-ink-bar {
+        display: none;
+      }
+      .ant-tabs-nav-list {
+        gap: ${theme.sizeUnit}px;
+        align-items: stretch;
+      }
+      .ant-tabs-nav-list .ant-tabs-tab {
+        position: relative;
+        margin: 0 !important;
+        padding: ${theme.sizeUnit * 2}px ${theme.sizeUnit * 3}px;
+        border: 0 !important;
+        border-radius: 0 !important;
+        background: transparent !important;
+        color: ${theme.colorTextSecondary};
+        transition:
+          background ${theme.motionDurationMid},
+          color ${theme.motionDurationMid};
+        &:hover {
+          color: ${theme.colorText};
+          background: ${theme.colorFillTertiary} !important;
+        }
+        &::after {
+          content: '';
+          position: absolute;
+          left: ${theme.sizeUnit * 2}px;
+          right: ${theme.sizeUnit * 2}px;
+          bottom: 0;
+          height: 3px;
+          border-radius: 3px 3px 0 0;
+          background: transparent;
+        }
+      }
+      /* The title being renamed reads as the tab, not as a field */
+      .ant-tabs-tab .editable-title input,
+      .ant-tabs-tab .editable-title textarea {
+        padding: 0;
+        border: 0;
+        outline: 0;
+        box-shadow: none;
+        background: transparent;
+        color: inherit;
+        font: inherit;
+      }
+      .ant-tabs-nav-list .ant-tabs-tab.ant-tabs-tab-active {
+        background: ${theme.colorBgContainer} !important;
+        box-shadow: 0 1px 0 ${theme.colorBgContainer};
+        .ant-tabs-tab-btn {
+          color: ${theme.colorText};
+          font-weight: ${theme.fontWeightStrong};
+        }
+        &::after {
+          background: ${theme.colorPrimary};
+        }
+      }
+      .ant-tabs-nav-add {
+        margin: ${theme.sizeUnit}px 0 ${theme.sizeUnit}px ${theme.sizeUnit}px;
+        min-width: ${theme.sizeUnit * 8}px;
+        border: 1px dashed ${theme.colorBorder} !important;
+        border-radius: ${theme.borderRadius}px !important;
+        background: transparent !important;
+        color: ${theme.colorTextSecondary};
+        &:hover {
+          color: ${theme.colorPrimary};
+          border-color: ${theme.colorPrimary} !important;
+        }
+      }
+    `}
 
     .empty-droptarget:before {
       position: absolute;
@@ -197,12 +288,26 @@ function TabsScrollButtons({ dock }: { dock: HTMLElement | null }) {
   );
 }
 
-/** Where the tabs go: right above the page, with its width and zoom. */
-export function TabsDockTarget({ style }: { style?: CSSProperties }) {
+/**
+ * Where the tabs go: right above the page, with its width and zoom, or with
+ * ``bar`` in the page bar at the bottom of the report.
+ */
+export function TabsDockTarget({
+  style,
+  bar = false,
+}: {
+  style?: CSSProperties;
+  bar?: boolean;
+}) {
   const context = useContext(TabsDockContext);
   const slot = context?.slot ?? null;
   return (
-    <Dock data-test="mibi-tabs-dock" ref={context?.setSlot} style={style}>
+    <Dock
+      data-test="mibi-tabs-dock"
+      ref={context?.setSlot}
+      style={style}
+      $bar={bar}
+    >
       <TabsScrollButtons dock={slot} />
     </Dock>
   );
@@ -212,4 +317,53 @@ export function TabsDockTarget({ style }: { style?: CSSProperties }) {
 export function InTabsDock({ children }: { children: ReactNode }) {
   const slot = useContext(TabsDockContext)?.slot ?? null;
   return slot ? createPortal(children, slot) : <>{children}</>;
+}
+
+const Bar = styled.div`
+  ${({ theme }) => css`
+    flex: none;
+    display: flex;
+    align-items: stretch;
+    container-type: inline-size;
+    /* The zoom gives up its slider, then its fit buttons, before the tabs
+       give up their room */
+    @container (max-width: 760px) {
+      [data-test='mibi-zoom-toolbar'] .ant-slider,
+      [data-test='mibi-zoom-toolbar'] .mibi-zoom-actual {
+        display: none;
+      }
+    }
+    @container (max-width: 560px) {
+      [data-test='mibi-zoom-toolbar'] .mibi-zoom-fit {
+        display: none;
+      }
+    }
+    min-height: ${theme.sizeUnit * 10}px;
+    border-top: 1px solid ${theme.colorBorderSecondary};
+    background: ${theme.colorBgLayout};
+  `}
+`;
+
+const Extra = styled.div`
+  ${({ theme }) => css`
+    flex: 0 1 auto;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: ${theme.sizeUnit * 2}px;
+    padding: 0 ${theme.sizeUnit * 3}px;
+  `}
+`;
+
+/**
+ * The bar at the bottom of a report, as in Power BI: the page tabs on the
+ * left, and what ``children`` holds (the zoom) on the right.
+ */
+export function PageBar({ children }: { children?: ReactNode }) {
+  return (
+    <Bar data-test="mibi-page-bar">
+      <TabsDockTarget bar />
+      {children && <Extra>{children}</Extra>}
+    </Bar>
+  );
 }

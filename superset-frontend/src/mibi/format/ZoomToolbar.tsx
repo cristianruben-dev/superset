@@ -28,20 +28,26 @@ import {
   useCanvasView,
 } from './canvasView';
 
-const Bar = styled.div`
-  ${({ theme }) => css`
-    position: absolute;
-    right: ${theme.sizeUnit * 4}px;
-    bottom: ${theme.sizeUnit * 3}px;
-    z-index: 20;
+const Bar = styled.div<{ $docked?: boolean }>`
+  ${({ theme, $docked }) => css`
     display: flex;
     align-items: center;
     gap: ${theme.sizeUnit}px;
-    padding: ${theme.sizeUnit}px ${theme.sizeUnit * 2}px;
-    border-radius: ${theme.borderRadiusLG}px;
-    border: 1px solid ${theme.colorBorderSecondary};
-    background: ${theme.colorBgElevated};
-    box-shadow: ${theme.boxShadowSecondary};
+    ${$docked
+      ? css`
+          padding: 0;
+        `
+      : css`
+          position: absolute;
+          right: ${theme.sizeUnit * 4}px;
+          bottom: ${theme.sizeUnit * 3}px;
+          z-index: 20;
+          padding: ${theme.sizeUnit}px ${theme.sizeUnit * 2}px;
+          border-radius: ${theme.borderRadiusLG}px;
+          border: 1px solid ${theme.colorBorderSecondary};
+          background: ${theme.colorBgElevated};
+          box-shadow: ${theme.boxShadowSecondary};
+        `}
     .ant-slider {
       width: ${theme.sizeUnit * 28}px;
       margin: 0 ${theme.sizeUnit}px;
@@ -55,8 +61,17 @@ const Bar = styled.div`
   `}
 `;
 
-/** Zoom controls of the report, like the ones at the bottom of Power BI. */
-export function ZoomToolbar({ zoom }: { zoom: number }) {
+/**
+ * Zoom controls of the report, like the ones at the bottom of Power BI:
+ * floating over the page, or ``docked`` in the page bar.
+ */
+export function ZoomToolbar({
+  zoom,
+  docked = false,
+}: {
+  zoom: number;
+  docked?: boolean;
+}) {
   const view = useCanvasView();
   const step = (direction: 1 | -1) =>
     setCanvasView({
@@ -64,9 +79,10 @@ export function ZoomToolbar({ zoom }: { zoom: number }) {
       zoom: clampZoom(Math.round(zoom * 100 + direction * 10) / 100),
     });
   return (
-    <Bar data-test="mibi-zoom-toolbar">
+    <Bar data-test="mibi-zoom-toolbar" $docked={docked}>
       <Button
         buttonSize="xsmall"
+        className="mibi-zoom-fit"
         buttonStyle={view.mode === 'fit-page' ? 'primary' : 'tertiary'}
         onClick={() => setCanvasView({ mode: 'fit-page' })}
       >
@@ -74,6 +90,7 @@ export function ZoomToolbar({ zoom }: { zoom: number }) {
       </Button>
       <Button
         buttonSize="xsmall"
+        className="mibi-zoom-fit"
         buttonStyle={view.mode === 'fit-width' ? 'primary' : 'tertiary'}
         onClick={() => setCanvasView({ mode: 'fit-width' })}
       >
@@ -82,6 +99,7 @@ export function ZoomToolbar({ zoom }: { zoom: number }) {
       <Button
         buttonSize="xsmall"
         buttonStyle="tertiary"
+        className="mibi-zoom-actual"
         onClick={() => setCanvasView({ mode: 'custom', zoom: 1 })}
       >
         100%
