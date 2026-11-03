@@ -18,6 +18,7 @@
  */
 import { t } from '@apache-superset/core/translation';
 import {
+  buildSpecialChartSections,
   ControlPanelConfig,
   formatSelectOptions,
   sections,
@@ -39,6 +40,7 @@ const { logAxis, truncateYAxis, yAxisBounds, opacity } = DEFAULT_FORM_DATA;
 
 const config: ControlPanelConfig = {
   controlPanelSections: [
+    ...buildSpecialChartSections('bubble'),
     {
       label: t('Query'),
       expanded: true,

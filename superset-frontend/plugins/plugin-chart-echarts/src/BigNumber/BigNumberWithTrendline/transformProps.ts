@@ -40,6 +40,7 @@ import {
 } from '../types';
 import { getDateFormatter, parseMetricValue, getOriginalLabel } from '../utils';
 import { getDefaultTooltip } from '../../utils/tooltip';
+import { finiteTarget } from '../cardFormat';
 import { Refs } from '../../types';
 
 const formatPercentChange = getNumberFormatter(
@@ -376,9 +377,50 @@ export default function transformProps(
       }
     : {};
 
+  const goalMetric = formData.goalMetric as
+    | import('@superset-ui/core').QueryFormMetric
+    | undefined;
+  const goalKey = goalMetric ? getMetricLabel(goalMetric) : undefined;
+  const goalSeries: [number | null, number | null][] = goalKey
+    ? data
+        .map((record): [number | null, number | null] => [
+          typeof record[xAxisLabel] === 'number'
+            ? (record[xAxisLabel] as number)
+            : null,
+          parseMetricValue(
+            typeof record[goalKey] === 'number' ||
+              typeof record[goalKey] === 'string'
+              ? (record[goalKey] as number | string)
+              : null,
+          ),
+        ])
+        .sort((a, b) => (b[0] ?? 0) - (a[0] ?? 0))
+    : [];
+  const goalValue = goalKey
+    ? finiteTarget(
+        aggregation === 'raw' && aggregatedData
+          ? aggregatedData[goalKey]
+          : computeClientSideAggregation(goalSeries, aggregation),
+      )
+    : finiteTarget(formData.kpiTargetValue);
+  if (
+    formData.kpiTrendTransparency != null &&
+    Array.isArray(echartOptions.series)
+  ) {
+    const opacity =
+      1 - Math.max(0, Math.min(100, formData.kpiTrendTransparency)) / 100;
+    echartOptions.series = echartOptions.series.map(series => ({
+      ...series,
+      lineStyle: { ...series.lineStyle, opacity },
+      areaStyle: { ...series.areaStyle, opacity },
+      itemStyle: { ...series.itemStyle, opacity },
+    }));
+  }
   const { onContextMenu } = hooks;
 
   return {
+    goalValue,
+    cardFormat: formData,
     width,
     height,
     bigNumber,

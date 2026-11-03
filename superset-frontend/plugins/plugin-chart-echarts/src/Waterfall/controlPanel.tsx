@@ -18,6 +18,7 @@
  */
 import { t } from '@apache-superset/core/translation';
 import {
+  buildSpecialChartSections,
   ControlPanelConfig,
   ControlSubSectionHeader,
   D3_TIME_FORMAT_DOCS,
@@ -29,6 +30,7 @@ import { showValueControl } from '../controls';
 
 const config: ControlPanelConfig = {
   controlPanelSections: [
+    ...buildSpecialChartSections('waterfall'),
     {
       label: t('Query'),
       expanded: true,
@@ -232,6 +234,20 @@ const config: ControlPanelConfig = {
           },
         ],
         ['y_axis_format'],
+        [
+          {
+            name: 'y_axis_bounds',
+            config: {
+              type: 'BoundsControl',
+              label: t('Y Axis Bounds'),
+              renderTrigger: true,
+              default: [null, null],
+              description: t(
+                'Bounds for the Y axis. When left empty, they come from the data',
+              ),
+            },
+          },
+        ],
         ['currency_format'],
       ],
     },

@@ -121,6 +121,7 @@ export default function transformProps(
     getColorFormatters(conditionalFormatting, data, theme, false) ??
     defaultColorFormatters;
   return {
+    cardFormat: formData,
     width,
     height,
     bigNumber,

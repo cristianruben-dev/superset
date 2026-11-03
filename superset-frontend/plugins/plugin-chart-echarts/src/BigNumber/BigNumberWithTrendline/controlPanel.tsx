@@ -19,6 +19,7 @@
 import { t } from '@apache-superset/core/translation';
 import { SMART_DATE_ID } from '@superset-ui/core';
 import {
+  buildCardFormatSections,
   aggregationControl,
   ControlPanelConfig,
   ControlPanelsContainerProps,
@@ -27,6 +28,7 @@ import {
   D3_TIME_FORMAT_OPTIONS,
   getStandardizedControls,
   temporalColumnMixin,
+  sharedControls,
 } from '@superset-ui/chart-controls';
 import {
   headerFontSize,
@@ -39,6 +41,7 @@ import {
 
 const config: ControlPanelConfig = {
   controlPanelSections: [
+    ...buildCardFormatSections(true),
     {
       label: t('Query'),
       expanded: true,
@@ -47,6 +50,17 @@ const config: ControlPanelConfig = {
         ['time_grain_sqla'],
         [aggregationControl],
         ['metric'],
+        [
+          {
+            name: 'goal_metric',
+            config: {
+              ...sharedControls.metric,
+              label: t('Goal metric'),
+              validators: [],
+              clearable: true,
+            },
+          },
+        ],
         ['adhoc_filters'],
       ],
     },

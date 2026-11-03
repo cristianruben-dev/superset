@@ -16,7 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { useState, useEffect, useRef, MouseEvent } from 'react';
+import {
+  useState,
+  useEffect,
+  useRef,
+  MouseEvent,
+  type CSSProperties,
+} from 'react';
 import { t } from '@apache-superset/core/translation';
 import {
   getNumberFormatter,
@@ -30,6 +36,8 @@ import {
 import { styled, useTheme } from '@apache-superset/core/theme';
 import Echart from '../components/Echart';
 import { BigNumberVizProps } from './types';
+import { cardTextStyle, kpiStatus, kpiColor } from './cardFormat';
+import { getDisplayFormatter } from '../utils/chartFormatOptions';
 import { EventHandlers } from '../types';
 
 const defaultNumberFormatter = getNumberFormatter();
@@ -63,6 +71,48 @@ function BigNumberVis({
   ...props
 }: BigNumberVizProps) {
   const theme = useTheme();
+  const format = props.cardFormat ?? {};
+  const status = kpiStatus(props.bigNumber, props.goalValue, format);
+  const statusColor =
+    kpiColor(status, format) ??
+    (status === 'good'
+      ? theme.colorSuccess
+      : status === 'bad'
+        ? theme.colorError
+        : status === 'neutral'
+          ? theme.colorTextSecondary
+          : undefined);
+  const displayFormatter =
+    getDisplayFormatter(format.cardValueUnits, format.cardValueDecimals) ??
+    headerFormatter;
+  const customText =
+    Object.entries(format).some(
+      ([key, value]) =>
+        value != null && (key.endsWith('Font') || key.endsWith('Wrap')),
+    ) || props.goalValue !== undefined;
+  const textLayout: CSSProperties = {
+    ...(customText ? { width: '100%', overflowY: 'auto', minHeight: 0 } : {}),
+    ...(format.cardVerticalAlign
+      ? {
+          justifyContent:
+            format.cardVerticalAlign === 'top'
+              ? 'flex-start'
+              : format.cardVerticalAlign === 'bottom'
+                ? 'flex-end'
+                : 'center',
+        }
+      : {}),
+    ...(format.cardValueAlign
+      ? {
+          alignItems:
+            format.cardValueAlign === 'center'
+              ? 'center'
+              : format.cardValueAlign === 'right'
+                ? 'flex-end'
+                : 'flex-start',
+        }
+      : {}),
+  };
 
   // Convert state to hooks
   const [elementsRendered, setElementsRendered] = useState(false);
@@ -82,11 +132,6 @@ function BigNumberVis({
     }, 0);
     return () => clearTimeout(timeout);
   }, []);
-
-  // Convert componentDidUpdate - trigger re-render when height or trendline changes
-  useEffect(() => {
-    // Re-render when height or showTrendLine changes
-  }, [props.height, showTrendLine]);
 
   const getClassName = () => {
     const names = `superset-legacy-chart-big-number ${className} ${
@@ -123,9 +168,13 @@ function BigNumberVis({
 
   const renderMetricName = (maxHeight: number) => {
     const { metricName, width } = props;
-    if (!showMetricName || !metricName) return null;
+    if (
+      !(format.cardLabelShow ?? showMetricName) ||
+      !(format.cardLabelText ?? metricName)
+    )
+      return null;
 
-    const text = metricName;
+    const text = format.cardLabelText ?? metricName ?? '';
 
     const container = createTemporaryContainer();
     document.body.append(container);
@@ -145,6 +194,12 @@ function BigNumberVis({
         style={{
           fontSize,
           height: 'auto',
+          ...cardTextStyle(format, 'cardLabel'),
+          ...(format.cardLabelGap != null && {
+            [format.cardLabelPosition === 'after'
+              ? 'marginTop'
+              : 'marginBottom']: Math.max(0, format.cardLabelGap),
+          }),
         }}
       >
         {text}
@@ -183,6 +238,7 @@ function BigNumberVis({
         style={{
           fontSize,
           height: 'auto',
+          ...cardTextStyle(format, 'cardDate'),
         }}
       >
         {text}
@@ -191,19 +247,20 @@ function BigNumberVis({
   };
 
   const renderHeader = (maxHeight: number) => {
+    if (format.cardValueShow === false) return null;
     const { bigNumber, width, colorThresholdFormatters, onContextMenu } = props;
     // Format bigNumber based on its type: null/undefined -> "No data", number -> format, else -> string
     let text: string;
     if (bigNumber === null || bigNumber === undefined) {
-      text = t('No data');
+      text = format.cardBlankText ?? t('No data');
     } else if (typeof bigNumber === 'number') {
-      text = headerFormatter(bigNumber);
+      text = displayFormatter(bigNumber);
     } else {
       // For string/boolean/Date values, convert to number if possible, else show as string
       const numValue = Number(bigNumber);
       text = Number.isNaN(numValue)
         ? String(bigNumber)
-        : headerFormatter(numValue);
+        : displayFormatter(numValue);
     }
 
     const hasThresholdColorFormatter =
@@ -252,9 +309,37 @@ function BigNumberVis({
           fontSize,
           height: 'auto',
           color: numberColor,
+          ...cardTextStyle(format, 'cardValue'),
+          ...(statusColor
+            ? { color: statusColor, '--mb-v-value-color': statusColor }
+            : {}),
         }}
         onContextMenu={handleContextMenu}
       >
+        {status && format.kpiShowIcon !== false && (
+          <i
+            role="img"
+            aria-label={
+              status === 'good'
+                ? t('Good')
+                : status === 'bad'
+                  ? t('Bad')
+                  : t('Neutral')
+            }
+            style={{
+              fontStyle: 'normal',
+              fontSize: format.kpiIconSize ?? '0.6em',
+              marginRight: 8,
+            }}
+          >
+            {status === 'neutral'
+              ? '●'
+              : typeof props.bigNumber === 'number' &&
+                  props.bigNumber > (props.goalValue ?? 0)
+                ? '▲'
+                : '▼'}
+          </i>
+        )}
         {text}
       </div>
     );
@@ -263,7 +348,41 @@ function BigNumberVis({
   const rendermetricComparisonSummary = (maxHeight: number) => {
     const { width } = props;
     let fontSize = 0;
-
+    if (props.goalValue !== undefined) {
+      const delta =
+        typeof props.bigNumber === 'number'
+          ? props.bigNumber - props.goalValue
+          : undefined;
+      const distance =
+        delta === undefined
+          ? t('N/A')
+          : format.kpiDistanceMode === 'absolute'
+            ? displayFormatter(delta)
+            : props.goalValue === 0
+              ? t('N/A')
+              : getNumberFormatter('+.1%')(delta / Math.abs(props.goalValue));
+      return (
+        <div
+          className="mibi-kpi-goal"
+          style={{
+            fontSize: Math.max(10, Math.min(16, maxHeight / 2)),
+            color: statusColor,
+          }}
+        >
+          {format.kpiGoalShow !== false && (
+            <div style={cardTextStyle(format, 'kpiGoal')}>
+              {format.kpiGoalLabel ?? t('Goal')}:{' '}
+              {displayFormatter(props.goalValue)}
+            </div>
+          )}
+          {format.kpiDistanceShow !== false && (
+            <div style={cardTextStyle(format, 'kpiDistance')}>
+              {format.kpiDistanceLabel ?? t('Distance')}: {distance}
+            </div>
+          )}
+        </div>
+      );
+    }
     const text = subheader;
 
     if (text) {
@@ -334,6 +453,7 @@ function BigNumberVis({
             style={{
               fontSize: `${fontSize}px`,
               height: maxHeight,
+              ...cardTextStyle(format, 'cardSubtitle'),
             }}
           >
             {text}
@@ -443,6 +563,7 @@ function BigNumberVis({
           className="text-container"
           style={{
             height: allTextHeight,
+            ...textLayout,
             ...(overflow
               ? {
                   display: 'block',
@@ -455,11 +576,12 @@ function BigNumberVis({
           }}
         >
           {renderFallbackWarning()}
-          {renderMetricName(
-            Math.ceil(
-              (metricNameFontSize || 0) * (1 - PROPORTION.TRENDLINE) * height,
-            ),
-          )}
+          {format.cardLabelPosition !== 'after' &&
+            renderMetricName(
+              Math.ceil(
+                (metricNameFontSize || 0) * (1 - PROPORTION.TRENDLINE) * height,
+              ),
+            )}
           {renderKicker(
             Math.ceil(
               (kickerFontSize || 0) * (1 - PROPORTION.TRENDLINE) * height,
@@ -468,6 +590,8 @@ function BigNumberVis({
           {renderHeader(
             Math.ceil(headerFontSize * (1 - PROPORTION.TRENDLINE) * height),
           )}
+          {format.cardLabelPosition === 'after' &&
+            renderMetricName((metricNameFontSize || 0) * height)}
           {rendermetricComparisonSummary(
             Math.ceil(subheaderFontSize * (1 - PROPORTION.TRENDLINE) * height),
           )}
@@ -496,11 +620,14 @@ function BigNumberVis({
           : {}),
       }}
     >
-      <div className="text-container">
+      <div className="text-container" style={textLayout}>
         {renderFallbackWarning()}
-        {renderMetricName((metricNameFontSize || 0) * height)}
+        {format.cardLabelPosition !== 'after' &&
+          renderMetricName((metricNameFontSize || 0) * height)}
         {renderKicker((kickerFontSize || 0) * height)}
         {renderHeader(Math.ceil(headerFontSize * height))}
+        {format.cardLabelPosition === 'after' &&
+          renderMetricName((metricNameFontSize || 0) * height)}
         {rendermetricComparisonSummary(Math.ceil(subheaderFontSize * height))}
         {renderSubtitle(Math.ceil(subtitleFontSize * height))}
       </div>

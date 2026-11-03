@@ -18,6 +18,7 @@
  */
 import { t } from '@apache-superset/core/translation';
 import {
+  buildSpecialChartSections,
   sharedControls,
   ControlPanelConfig,
   ControlSubSectionHeader,
@@ -28,6 +29,7 @@ import { DEFAULT_FORM_DATA } from './types';
 
 const config: ControlPanelConfig = {
   controlPanelSections: [
+    ...buildSpecialChartSections('gauge'),
     {
       label: t('Query'),
       expanded: true,

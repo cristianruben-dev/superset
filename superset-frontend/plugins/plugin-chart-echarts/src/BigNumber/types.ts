@@ -34,11 +34,12 @@ export interface BigNumberDatum {
   [key: string]: number | string | null;
 }
 
-export type BigNumberTotalFormData = QueryFormData & {
-  metric?: QueryFormMetric;
-  yAxisFormat?: string;
-  forceTimestampFormatting?: boolean;
-};
+export type BigNumberTotalFormData = QueryFormData &
+  import('./cardFormat').CardFormat & {
+    metric?: QueryFormMetric;
+    yAxisFormat?: string;
+    forceTimestampFormatting?: boolean;
+  };
 
 export type BigNumberWithTrendlineFormData = BigNumberTotalFormData & {
   colorPicker: {
@@ -72,6 +73,8 @@ export type BigNumberWithTrendlineChartProps =
 export type TimeSeriesDatum = [number, number | null];
 
 export type BigNumberVizProps = {
+  cardFormat?: import('./cardFormat').CardFormat;
+  goalValue?: number;
   className?: string;
   width: number;
   height: number;

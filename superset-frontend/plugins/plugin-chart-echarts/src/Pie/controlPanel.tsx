@@ -19,6 +19,7 @@
 import { t } from '@apache-superset/core/translation';
 import { ensureIsInt, validateNonEmpty } from '@superset-ui/core';
 import {
+  buildSpecialChartSections,
   ControlPanelConfig,
   ControlPanelsContainerProps,
   ControlSubSectionHeader,
@@ -47,6 +48,7 @@ const {
 
 const config: ControlPanelConfig = {
   controlPanelSections: [
+    ...buildSpecialChartSections('pie'),
     {
       label: t('Query'),
       expanded: true,

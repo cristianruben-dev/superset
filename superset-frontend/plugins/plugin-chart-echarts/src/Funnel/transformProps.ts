@@ -16,6 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import { applySpecialChartFormat } from '../utils/specialChartFormat';
 import {
   CategoricalColorNamespace,
   DataRecord,
@@ -331,7 +332,11 @@ export default function transformProps(
     formData,
     width,
     height,
-    echartOptions,
+    echartOptions: applySpecialChartFormat(echartOptions, formData, 'funnel', {
+      width,
+      height,
+      formatter: numberFormatter,
+    }),
     setDataMask,
     emitCrossFilters,
     labelMap,

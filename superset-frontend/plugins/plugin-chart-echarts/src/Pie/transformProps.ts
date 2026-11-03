@@ -16,6 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import { applySpecialChartFormat } from '../utils/specialChartFormat';
 import { t } from '@apache-superset/core/translation';
 import {
   CategoricalColorNamespace,
@@ -506,7 +507,11 @@ export default function transformProps(
     formData,
     width,
     height,
-    echartOptions,
+    echartOptions: applySpecialChartFormat(echartOptions, formData, 'pie', {
+      width,
+      height,
+      formatter: numberFormatter,
+    }),
     setDataMask,
     labelMap,
     groupby,

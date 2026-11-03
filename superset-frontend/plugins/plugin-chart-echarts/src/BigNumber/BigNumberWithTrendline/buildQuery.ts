@@ -20,6 +20,7 @@
 import {
   buildQueryContext,
   ensureIsArray,
+  getMetricLabel,
   getXAxisColumn,
   isXAxisSet,
   QueryFormData,
@@ -39,7 +40,16 @@ export default function buildQuery(formData: QueryFormData) {
     ? ensureIsArray(getXAxisColumn(formData))
     : [];
 
-  return buildQueryContext(formData, baseQueryObject => {
+  return buildQueryContext(formData, originalQuery => {
+    const target = formData.goal_metric as
+      | import('@superset-ui/core').QueryFormMetric
+      | undefined;
+    const metrics = ensureIsArray(originalQuery.metrics);
+    const baseQueryObject =
+      target &&
+      !metrics.some(metric => getMetricLabel(metric) === getMetricLabel(target))
+        ? { ...originalQuery, metrics: [...metrics, target] }
+        : originalQuery;
     const queries = [
       {
         ...baseQueryObject,

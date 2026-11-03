@@ -16,6 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import { applySpecialChartFormat } from '../utils/specialChartFormat';
 import {
   QueryFormMetric,
   CategoricalColorNamespace,
@@ -370,7 +371,11 @@ export default function transformProps(
     formData,
     width,
     height,
-    echartOptions,
+    echartOptions: applySpecialChartFormat(echartOptions, formData, 'gauge', {
+      width,
+      height,
+      formatter: numberFormatter,
+    }),
     setDataMask,
     emitCrossFilters,
     labelMap: Object.fromEntries(columnsLabelMap),

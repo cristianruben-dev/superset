@@ -57,6 +57,7 @@ export type EchartsWaterfallFormData = QueryFormData &
     xTicksLayout?: WaterfallFormXTicksLayout;
     yAxisLabel: string;
     yAxisFormat: string;
+    yAxisBounds?: [number | null, number | null];
     increaseLabel?: string;
     decreaseLabel?: string;
     totalLabel?: string;

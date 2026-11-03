@@ -16,6 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import { applySpecialChartFormat } from '../utils/specialChartFormat';
 import {
   CurrencyFormatter,
   DataRecord,
@@ -27,6 +28,7 @@ import {
   NumberFormatter,
   rgbToHex,
   tooltipHtml,
+  isDefined,
 } from '@superset-ui/core';
 import { GenericDataType } from '@apache-superset/core/common';
 import type { ComposeOption } from 'echarts/core';
@@ -188,6 +190,7 @@ export default function transformProps(
     yAxisLabel,
     xAxisLabel,
     yAxisFormat,
+    yAxisBounds,
     showValue,
     showTotal,
     totalLabel,
@@ -461,6 +464,8 @@ export default function transformProps(
       nameLocation: 'middle',
       name: yAxisLabel,
       axisLabel: { formatter: defaultFormatter },
+      ...(isDefined(yAxisBounds?.[0]) && { min: yAxisBounds?.[0] }),
+      ...(isDefined(yAxisBounds?.[1]) && { max: yAxisBounds?.[1] }),
     },
     tooltip: {
       ...getDefaultTooltip(refs),
@@ -484,7 +489,12 @@ export default function transformProps(
     formData,
     width,
     height,
-    echartOptions,
+    echartOptions: applySpecialChartFormat(
+      echartOptions,
+      formData,
+      'waterfall',
+      { width, height, formatter: defaultFormatter },
+    ),
     setDataMask,
     onContextMenu,
     onLegendStateChanged,

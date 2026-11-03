@@ -18,6 +18,7 @@
  */
 import { t } from '@apache-superset/core/translation';
 import {
+  buildSpecialChartSections,
   ControlPanelConfig,
   ControlSubSectionHeader,
   D3_FORMAT_DOCS,
@@ -33,6 +34,7 @@ const { labelType, numberFormat, showLabels, showUpperLabels, dateFormat } =
 
 const config: ControlPanelConfig = {
   controlPanelSections: [
+    ...buildSpecialChartSections('treemap'),
     {
       label: t('Query'),
       expanded: true,

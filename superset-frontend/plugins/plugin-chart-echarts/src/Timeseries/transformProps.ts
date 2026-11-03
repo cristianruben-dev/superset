@@ -138,6 +138,7 @@ import {
   getYAxisFormatter,
 } from '../utils/formatters';
 import { safeParseEChartOptions } from '../utils/safeEChartOptionsParser';
+import { applySpecialChartFormat } from '../utils/specialChartFormat';
 import { mergeCustomEChartOptions } from '../utils/mergeCustomEChartOptions';
 
 const visibleDashPatterns: ([number, number] | 'dashed' | 'dotted')[] = [
@@ -1345,7 +1346,13 @@ export default function transformProps(
     : formattedOptions;
 
   return {
-    echartOptions: mergedEchartOptions,
+    echartOptions: String(formData.vizType).includes('scatter')
+      ? applySpecialChartFormat(mergedEchartOptions, formData, 'scatter', {
+          width,
+          height,
+          formatter: defaultFormatter,
+        })
+      : mergedEchartOptions,
     emitCrossFilters,
     formData,
     groupby: groupBy,

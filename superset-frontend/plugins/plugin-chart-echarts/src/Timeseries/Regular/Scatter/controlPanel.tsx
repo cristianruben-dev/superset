@@ -20,6 +20,7 @@ import { t } from '@apache-superset/core/translation';
 import { getColumnLabel, QueryFormColumn } from '@superset-ui/core';
 import { GenericDataType } from '@apache-superset/core/common';
 import {
+  buildSpecialChartSections,
   checkColumnType,
   ControlPanelConfig,
   ControlPanelsContainerProps,
@@ -58,6 +59,7 @@ const {
 } = DEFAULT_FORM_DATA;
 const config: ControlPanelConfig = {
   controlPanelSections: [
+    ...buildSpecialChartSections('scatter'),
     sections.echartsTimeSeriesQueryWithXAxisSort,
     sections.advancedAnalyticsControls,
     sections.forecastIntervalControls,

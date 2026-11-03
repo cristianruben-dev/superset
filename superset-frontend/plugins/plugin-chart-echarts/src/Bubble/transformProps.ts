@@ -16,6 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import { applySpecialChartFormat } from '../utils/specialChartFormat';
 import type { EChartsCoreOption } from 'echarts/core';
 import type { ScatterSeriesOption } from 'echarts/charts';
 import { extent } from 'd3-array';
@@ -274,7 +275,11 @@ export default function transformProps(chartProps: EchartsBubbleChartProps) {
     refs,
     height,
     width,
-    echartOptions,
+    echartOptions: applySpecialChartFormat(echartOptions, formData, 'bubble', {
+      width,
+      height,
+      formatter: yAxisFormatter,
+    }),
     onContextMenu,
     setDataMask,
     formData,

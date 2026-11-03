@@ -20,6 +20,7 @@ import { t } from '@apache-superset/core/translation';
 import { SMART_DATE_ID } from '@superset-ui/core';
 import { GenericDataType } from '@apache-superset/core/common';
 import {
+  buildCardFormatSections,
   ControlPanelConfig,
   D3_FORMAT_DOCS,
   D3_TIME_FORMAT_OPTIONS,
@@ -36,6 +37,7 @@ import {
 
 export default {
   controlPanelSections: [
+    ...buildCardFormatSections(false),
     {
       label: t('Query'),
       expanded: true,

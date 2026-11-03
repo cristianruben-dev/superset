@@ -18,6 +18,7 @@
  */
 import { t } from '@apache-superset/core/translation';
 import {
+  buildSpecialChartSections,
   ControlPanelConfig,
   ControlSubSectionHeader,
   D3_FORMAT_DOCS,
@@ -41,6 +42,7 @@ funnelLegendSection.splice(2, 1);
 
 const config: ControlPanelConfig = {
   controlPanelSections: [
+    ...buildSpecialChartSections('funnel'),
     {
       label: t('Query'),
       expanded: true,
