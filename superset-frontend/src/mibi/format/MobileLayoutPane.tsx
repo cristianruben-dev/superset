@@ -16,10 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { useMemo } from 'react';
+import {
+  useMemo,
+  useState,
+  type PointerEvent as ReactPointerEvent,
+} from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { t } from '@apache-superset/core/translation';
-import { css, styled } from '@apache-superset/core/theme';
+import { css, styled, type SupersetTheme } from '@apache-superset/core/theme';
 import { Button } from '@superset-ui/core/components';
 import { Icons } from '@superset-ui/core/components/Icons';
 import { BUILDER_SIDEPANEL_WIDTH } from 'src/dashboard/constants';
@@ -28,11 +32,13 @@ import { activePageId } from 'src/mibi/present/dashboardTabs';
 import { setMobileEditing } from './mobile';
 import {
   addMobileBox,
+  mobileCellAt,
   mobileCandidates,
   mobileLayoutOf,
   removeMobileBox,
 } from './mobileLayout';
-import { MOBILE_DRAG_TYPE, setMobileBoxes } from './MobileLayoutEditor';
+import { MOBILE_EDITOR_TEST_ID, setMobileBoxes } from './MobileLayoutEditor';
+import { CELL } from './types';
 import { objectName } from './objectName';
 
 const Pane = styled.div`
@@ -73,8 +79,9 @@ const Pane = styled.div`
       border-radius: ${theme.borderRadius}px;
       background: ${theme.colorBgContainer};
     }
-    li[draggable='true'] {
+    li.draggable {
       cursor: grab;
+      touch-action: none;
     }
     li.placed {
       border-color: ${theme.colorPrimaryBorder};
@@ -116,13 +123,62 @@ export function MobileLayoutPane({ topOffset = 0, pageTop = 0 }) {
     [layout, pageId],
   );
   const placed = new Set(boxes.map(box => box.id));
+  // The visual being dragged onto the phone, drawn under the pointer
+  const [ghost, setGhost] = useState<{
+    name: string;
+    x: number;
+    y: number;
+  } | null>(null);
 
-  const add = (id: string) =>
+  const add = (id: string, cell?: { x: number; y: number }) =>
     dispatch(
       setMobileBoxes(pageId, (current, currentBoxes) =>
-        addMobileBox(current, currentBoxes, id),
+        addMobileBox(current, currentBoxes, id, cell),
       ) as never,
     );
+
+  // Dragged with the pointer, not with the drag and drop of the browser:
+  // the canvas already takes those, and this works with a finger too
+  const startDrag = (
+    event: ReactPointerEvent<HTMLElement>,
+    id: string,
+    name: string,
+  ) => {
+    if (event.button !== 0) return;
+    if ((event.target as HTMLElement).closest('button')) return;
+    event.preventDefault();
+    const startX = event.clientX;
+    const startY = event.clientY;
+    let moved = false;
+    const onMove = (move: PointerEvent) => {
+      moved ||= Math.hypot(move.clientX - startX, move.clientY - startY) > 4;
+      if (moved) setGhost({ name, x: move.clientX, y: move.clientY });
+    };
+    const onUp = (up: PointerEvent) => {
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerup', onUp);
+      setGhost(null);
+      if (!moved) return;
+      const phone = document
+        .elementsFromPoint(up.clientX, up.clientY)
+        .find(element =>
+          element.matches(`[data-test="${MOBILE_EDITOR_TEST_ID}"]`),
+        );
+      if (!phone) return;
+      const frame = phone.getBoundingClientRect();
+      const scale =
+        frame.width / ((phone as HTMLElement).offsetWidth || frame.width) || 1;
+      add(
+        id,
+        mobileCellAt(
+          (up.clientX - frame.left) / scale,
+          (up.clientY - frame.top) / scale,
+        ),
+      );
+    };
+    window.addEventListener('pointermove', onMove);
+    window.addEventListener('pointerup', onUp);
+  };
   const remove = (id: string) =>
     dispatch(
       setMobileBoxes(pageId, (_, currentBoxes) =>
@@ -158,15 +214,12 @@ export function MobileLayoutPane({ topOffset = 0, pageTop = 0 }) {
               return (
                 <li
                   key={id}
-                  className={isPlaced ? 'placed' : undefined}
-                  draggable={!isPlaced}
+                  className={isPlaced ? 'placed' : 'draggable'}
                   data-test="mibi-mobile-candidate"
                   data-id={id}
-                  onDragStart={event => {
-                    event.dataTransfer.setData(MOBILE_DRAG_TYPE, id);
-                    // eslint-disable-next-line no-param-reassign
-                    event.dataTransfer.effectAllowed = 'copy';
-                  }}
+                  onPointerDown={
+                    isPlaced ? undefined : event => startDrag(event, id, name)
+                  }
                 >
                   <span className="name" title={name}>
                     {name}
@@ -179,7 +232,7 @@ export function MobileLayoutPane({ topOffset = 0, pageTop = 0 }) {
                       data-test="mibi-mobile-candidate-remove"
                       onClick={() => remove(id)}
                     >
-                      {t('Remove')}
+                      {t('Remove from phone')}
                     </Button>
                   ) : (
                     <Button
@@ -218,6 +271,26 @@ export function MobileLayoutPane({ topOffset = 0, pageTop = 0 }) {
           {t('Back to the canvas')}
         </Button>
       </Pane>
+      {ghost && (
+        <div
+          data-test="mibi-mobile-ghost"
+          css={(theme: SupersetTheme) => css`
+            position: fixed;
+            z-index: 2000;
+            pointer-events: none;
+            width: ${CELL * 6}px;
+            padding: ${theme.sizeUnit * 2}px;
+            border: 2px dashed ${theme.colorPrimary};
+            border-radius: ${theme.borderRadius}px;
+            background: ${theme.colorPrimaryBg};
+            font-size: ${theme.fontSizeSM}px;
+            transform: translate(-50%, -50%);
+          `}
+          style={{ left: ghost.x, top: ghost.y }}
+        >
+          {ghost.name}
+        </div>
+      )}
     </div>
   );
 }

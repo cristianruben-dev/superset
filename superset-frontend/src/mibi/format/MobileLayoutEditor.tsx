@@ -19,7 +19,6 @@
 import {
   useEffect,
   useState,
-  type DragEvent,
   type PointerEvent as ReactPointerEvent,
 } from 'react';
 import { useDispatch, useSelector, useStore } from 'react-redux';
@@ -29,8 +28,6 @@ import { Icons } from '@superset-ui/core/components/Icons';
 import type { LayoutItem, RootState } from 'src/dashboard/types';
 import { updateLayout } from './actions';
 import {
-  addMobileBox,
-  mobileCellAt,
   mobileLayoutOf,
   moveMobileBox,
   removeMobileBox,
@@ -41,8 +38,8 @@ import {
 import { objectName } from './objectName';
 import { CELL } from './types';
 
-/** Type of the data an object of the mobile pane carries while dragged. */
-export const MOBILE_DRAG_TYPE = 'application/x-mibi-mobile-object';
+/** The phone page of the editor, where the mobile pane drops its visuals. */
+export const MOBILE_EDITOR_TEST_ID = 'mibi-mobile-editor';
 
 type Layout = Record<string, LayoutItem>;
 type Dispatch = (action: unknown) => unknown;
@@ -142,7 +139,8 @@ interface Gesture {
 /**
  * Arranges the mobile layout over the phone page: each object placed there
  * moves by dragging it, resizes from its corner and leaves the phone with its
- * cross. Objects of the page are dropped on it from the mobile layout pane.
+ * cross. Objects of the page are dropped on it from the mobile layout pane
+ * (MobileLayoutPane).
  */
 export function MobileLayoutEditor({
   pageId,
@@ -250,35 +248,9 @@ export function MobileLayoutEditor({
     );
   };
 
-  const onDragOver = (event: DragEvent<HTMLDivElement>) => {
-    if (event.dataTransfer.types.includes(MOBILE_DRAG_TYPE)) {
-      event.preventDefault();
-      // eslint-disable-next-line no-param-reassign
-      event.dataTransfer.dropEffect = 'copy';
-    }
-  };
-
-  const onDrop = (event: DragEvent<HTMLDivElement>) => {
-    const id = event.dataTransfer.getData(MOBILE_DRAG_TYPE);
-    if (!id) return;
-    event.preventDefault();
-    const frame = event.currentTarget.getBoundingClientRect();
-    const scale = zoom || 1;
-    const cell = mobileCellAt(
-      (event.clientX - frame.left) / scale,
-      (event.clientY - frame.top) / scale,
-    );
-    change((current, currentBoxes) =>
-      addMobileBox(current, currentBoxes, id, cell),
-    );
-    setSelected(id);
-  };
-
   return (
     <Layer
-      data-test="mibi-mobile-editor"
-      onDragOver={onDragOver}
-      onDrop={onDrop}
+      data-test={MOBILE_EDITOR_TEST_ID}
       onPointerDown={() => setSelected(null)}
     >
       {boxes.map(stored => {

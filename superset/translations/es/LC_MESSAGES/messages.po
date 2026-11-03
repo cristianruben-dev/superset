@@ -21197,3 +21197,6 @@ msgstr "Edita el diseño para teléfono de esta página"
 
 msgid "Creates a phone layout for this page"
 msgstr "Crea un diseño para teléfono de esta página"
+
+msgid "Remove from phone"
+msgstr "Quitar"

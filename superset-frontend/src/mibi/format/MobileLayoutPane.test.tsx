@@ -81,8 +81,11 @@ const storeWith = (gridMeta: Record<string, unknown> = {}) =>
 
 const boxesOf = (store: ReturnType<typeof storeWith>) =>
   mobileLayoutOf(
-    (store.getState() as { dashboardLayout: { present: typeof layout } })
-      .dashboardLayout.present,
+    (
+      store.getState() as unknown as {
+        dashboardLayout: { present: typeof layout };
+      }
+    ).dashboardLayout.present,
     'GRID_ID',
   );
 
@@ -116,7 +119,10 @@ test('the cross of a box on the phone takes it off the mobile layout', () => {
   expect(boxesOf(store)).toBeNull();
   // The chart itself stays on the canvas
   expect(
-    (store.getState() as { dashboardLayout: { present: typeof layout } })
-      .dashboardLayout.present['CHART-1'],
+    (
+      store.getState() as unknown as {
+        dashboardLayout: { present: typeof layout };
+      }
+    ).dashboardLayout.present['CHART-1'],
   ).toBeDefined();
 });
