@@ -18,6 +18,7 @@
  */
 import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
+import cx from 'classnames';
 import { useSelector, useStore } from 'react-redux';
 import { t } from '@apache-superset/core/translation';
 import { css, styled, useTheme } from '@apache-superset/core/theme';
@@ -55,6 +56,17 @@ import {
   type ChartTooltipFormat,
   type VisualFormat,
 } from 'src/mibi/format/types';
+import {
+  ELEMENT_DEFAULTS,
+  ELEMENT_KEY,
+  type ElementConfig,
+} from 'src/mibi/elements/types';
+import {
+  ButtonView,
+  ImageView,
+  ShapeView,
+  TextView,
+} from 'src/mibi/elements/views';
 import { datasetColumns } from './drillthrough';
 import type { DrillthroughField } from './drillthroughScope';
 import {
@@ -64,6 +76,7 @@ import {
 } from './markHover';
 import {
   chartDimensions,
+  isLessPrecise,
   markKey,
   QUERY_ABORTED,
   resolveTooltipPage,
@@ -326,7 +339,57 @@ const TooltipChart = memo(function TooltipChart({
   );
 });
 
-/** The tooltip area of a page with its charts and text boxes. */
+const noop = () => {};
+
+/** An image, shape, button or text of a tooltip page, as on the page. */
+function TooltipElement({ object }: { object: TooltipObject }) {
+  const theme = useTheme();
+  const meta = useSelector(
+    (state: RootState) => state.dashboardLayout.present[object.id]?.meta,
+  );
+  const kind = object.kind ?? 'shape';
+  const config = (meta?.[ELEMENT_KEY] ??
+    ELEMENT_DEFAULTS[kind].element) as ElementConfig;
+  const box = visualStyle(meta?.mibiFormat as VisualFormat | undefined, theme);
+  const content = () => {
+    switch (config.kind) {
+      case 'image':
+        return <ImageView config={config} editMode={false} />;
+      case 'button':
+        return <ButtonView config={config} editMode={false} />;
+      case 'text':
+        return (
+          <TextView
+            config={config}
+            editing={false}
+            editMode={false}
+            onChange={noop}
+          />
+        );
+      case 'shape':
+        return <ShapeView config={config} id={object.id} editMode={false} />;
+      default:
+        return null;
+    }
+  };
+  return (
+    <Placed
+      className={cx('mibi-element', `mibi-element-${kind}`, box.className)}
+      style={{
+        ...box.style,
+        left: object.x * CELL,
+        top: object.y * CELL,
+        width: object.width * CELL,
+        height: object.height * CELL,
+      }}
+      data-test="mibi-tooltip-element"
+    >
+      {content()}
+    </Placed>
+  );
+}
+
+/** The tooltip area of a page with its charts, texts and design elements. */
 function TooltipPageView({
   hover,
   boxRef,
@@ -377,6 +440,8 @@ function TooltipPageView({
       {objects.map(object =>
         object.type === CHART_TYPE ? (
           <TooltipChart key={object.id} object={object} fields={hover.fields} />
+        ) : object.kind ? (
+          <TooltipElement key={object.id} object={object} />
         ) : (
           <Placed
             key={object.id}
@@ -407,6 +472,8 @@ function TooltipPageView({
 export function TooltipPageHost() {
   const [hover, setHover] = useState<MarkHover | null>(null);
   const shown = useRef<string>();
+  // The last mark the pointer entered, shown or about to be
+  const latest = useRef<MarkHover>();
   const showTimer = useRef<ReturnType<typeof setTimeout>>();
   const hideTimer = useRef<ReturnType<typeof setTimeout>>();
   const pointer = useRef({ x: 0, y: 0 });
@@ -431,11 +498,14 @@ export function TooltipPageHost() {
   useEffect(() => () => queries.clear(), [dashboardId]);
 
   useEffect(() => {
+    // Leaving a mark for another one is not leaving: a mark about to show
+    // is only cancelled when the pointer stays out
     const hide = () => {
-      clearTimeout(showTimer.current);
       clearTimeout(hideTimer.current);
       hideTimer.current = setTimeout(() => {
+        clearTimeout(showTimer.current);
         shown.current = undefined;
+        latest.current = undefined;
         setHover(null);
         queries.abortPending();
       }, HIDE_DELAY);
@@ -444,6 +514,11 @@ export function TooltipPageHost() {
       const { detail } = event as CustomEvent<MarkHover>;
       clearTimeout(hideTimer.current);
       pointer.current = { x: detail.x, y: detail.y };
+      if (isLessPrecise(detail, latest.current)) {
+        place();
+        return;
+      }
+      latest.current = detail;
       const key = `${detail.chartId}|${detail.pageId}|${markKey(detail.fields)}`;
       if (key === shown.current) {
         place();
@@ -460,6 +535,7 @@ export function TooltipPageHost() {
     const hideNow = () => {
       clearTimeout(showTimer.current);
       clearTimeout(hideTimer.current);
+      latest.current = undefined;
       if (shown.current) {
         shown.current = undefined;
         setHover(null);

@@ -31,6 +31,8 @@ export interface DrillthroughField {
   column: string;
   value: DataRecordValue;
   label: string;
+  /** For a date: the time grain the value starts, as P1M */
+  grain?: string;
 }
 
 export interface DrillthroughState {
@@ -72,6 +74,7 @@ export function pointFields(
         column: clause.col,
         value: clause.val,
         label: clause.formattedVal ?? String(clause.val),
+        ...(clause.grain && { grain: String(clause.grain) }),
       });
     }
   });

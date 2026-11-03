@@ -52,6 +52,9 @@ import ChartContextMenu, {
   ChartContextMenuRef,
 } from './ChartContextMenu/ChartContextMenu';
 
+/** Charts without marks, whose tooltip page shows over the whole chart. */
+const WHOLE_CHART_TOOLTIP = new Set(['big_number_total', 'pop_kpi']);
+
 // Types for filter values
 type FilterValue = string | number | boolean | null | undefined;
 
@@ -235,6 +238,8 @@ class ChartRenderer extends Component<ChartRendererProps, ChartRendererState> {
     this.handleLegendStateChanged = this.handleLegendStateChanged.bind(this);
     this.onContextMenuFallback = this.onContextMenuFallback.bind(this);
     this.handleLegendScroll = this.handleLegendScroll.bind(this);
+    this.handleCardEnter = this.handleCardEnter.bind(this);
+    this.handleCardLeave = this.handleCardLeave.bind(this);
 
     this.hooks = {
       onAddFilter: this.handleAddFilter,
@@ -398,25 +403,10 @@ class ChartRenderer extends Component<ChartRendererProps, ChartRendererState> {
     // AuraData BI: a hover over a mark of a chart with a tooltip page
     const wrapper = this.wrapperRef.current;
     if (wrapper?.querySelector('[data-mibi-probe]')) {
-      const pageId = wrapper
-        .closest<HTMLElement>('[data-mibi-tooltip-page]')
-        ?.getAttribute('data-mibi-tooltip-page');
-      // A date with a grain names a period, not a value to filter on
-      const fields = pointFields(
-        filters?.drillToDetail?.filter(clause => !clause.grain),
-      );
+      const pageId = this.tooltipPageId();
+      const fields = pointFields(filters?.drillToDetail);
       if (pageId && fields.length) {
-        window.dispatchEvent(
-          new CustomEvent<MarkHover>(MARK_HOVER_EVENT, {
-            detail: {
-              chartId: this.props.chartId,
-              pageId,
-              fields,
-              x: offsetX,
-              y: offsetY,
-            },
-          }),
-        );
+        this.emitMarkHover(pageId, fields, offsetX, offsetY);
       } else {
         window.dispatchEvent(new CustomEvent(MARK_LEAVE_EVENT));
       }
@@ -424,6 +414,38 @@ class ChartRenderer extends Component<ChartRendererProps, ChartRendererState> {
     }
     this.contextMenuRef.current?.open(offsetX, offsetY, filters);
     this.setState({ inContextMenu: true });
+  }
+
+  /** The tooltip page the chart shows over its marks, if any. */
+  tooltipPageId(): string | null | undefined {
+    return this.wrapperRef.current
+      ?.closest<HTMLElement>('[data-mibi-tooltip-page]')
+      ?.getAttribute('data-mibi-tooltip-page');
+  }
+
+  emitMarkHover(
+    pageId: string,
+    fields: MarkHover['fields'],
+    x: number,
+    y: number,
+  ): void {
+    window.dispatchEvent(
+      new CustomEvent<MarkHover>(MARK_HOVER_EVENT, {
+        detail: { chartId: this.props.chartId, pageId, fields, x, y },
+      }),
+    );
+  }
+
+  // AuraData BI: a card has no marks; the whole chart shows its tooltip page
+  handleCardEnter(event: MouseEvent<HTMLDivElement>): void {
+    const pageId = this.tooltipPageId();
+    if (pageId) this.emitMarkHover(pageId, [], event.clientX, event.clientY);
+  }
+
+  handleCardLeave(): void {
+    if (this.tooltipPageId()) {
+      window.dispatchEvent(new CustomEvent(MARK_LEAVE_EVENT));
+    }
   }
 
   handleContextMenuSelected(): void {
@@ -571,6 +593,12 @@ class ChartRenderer extends Component<ChartRendererProps, ChartRendererState> {
         )}
         <div
           ref={this.wrapperRef}
+          onMouseEnter={
+            WHOLE_CHART_TOOLTIP.has(vizType) ? this.handleCardEnter : undefined
+          }
+          onMouseLeave={
+            WHOLE_CHART_TOOLTIP.has(vizType) ? this.handleCardLeave : undefined
+          }
           onContextMenu={
             this.state.showContextMenu ? this.onContextMenuFallback : undefined
           }

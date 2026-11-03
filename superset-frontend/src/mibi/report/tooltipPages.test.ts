@@ -21,6 +21,8 @@ import type { DashboardLayout } from 'src/dashboard/types';
 import { isHiddenPage, topLevelTabs } from 'src/mibi/present/dashboardTabs';
 import {
   chartDimensions,
+  grainRange,
+  isLessPrecise,
   markKey,
   QUERY_ABORTED,
   resolveTooltipPage,
@@ -75,6 +77,30 @@ const layout = () =>
       'CHART',
       [],
       { chartId: 8, width: 4, height: 3, mibiPos: { x: 12, y: 0 } },
+      ['ROOT_ID', 'TABS-1', 'TAB-tip', 'ROW-1'],
+    ),
+    'DYNAMIC-shape': item(
+      'DYNAMIC-shape',
+      'DYNAMIC',
+      [],
+      {
+        componentKey: 'mibi-shape',
+        width: 2,
+        height: 1,
+        mibiPos: { x: 6, y: 0 },
+      },
+      ['ROOT_ID', 'TABS-1', 'TAB-tip', 'ROW-1'],
+    ),
+    'DYNAMIC-slicer': item(
+      'DYNAMIC-slicer',
+      'DYNAMIC',
+      [],
+      {
+        componentKey: 'mibi-filter',
+        width: 2,
+        height: 1,
+        mibiPos: { x: 8, y: 0 },
+      },
       ['ROOT_ID', 'TABS-1', 'TAB-tip', 'ROW-1'],
     ),
     'CHART-hidden': item(
@@ -154,7 +180,7 @@ test('a chart shows the page it names, or the best match on Auto', () => {
   ).toBeUndefined();
 });
 
-test('the tooltip shows the visible objects of its area, by layer', () => {
+test('the tooltip shows its charts, texts and design elements, by layer', () => {
   const current = layout();
   const page = tooltipPageOf(current['TAB-tip'].meta)!;
   expect(tooltipObjects(current, 'TAB-tip', page)).toEqual([
@@ -166,6 +192,16 @@ test('the tooltip shows the visible objects of its area, by layer', () => {
       y: 0,
       width: 4,
       height: 2,
+    },
+    {
+      id: 'DYNAMIC-shape',
+      type: 'DYNAMIC',
+      kind: 'shape',
+      chartId: undefined,
+      x: 6,
+      y: 0,
+      width: 2,
+      height: 1,
     },
     {
       id: 'CHART-in',
@@ -280,4 +316,51 @@ test('the tooltip goes beside the pointer and stays on screen', () => {
     left: 564,
     top: 428,
   });
+});
+
+test('a date of a grain filters its whole period', () => {
+  const may = Date.UTC(2025, 4, 1);
+  expect(grainRange(may, 'P1M')).toBe(
+    '2025-05-01T00:00:00 : 2025-06-01T00:00:00',
+  );
+  expect(grainRange(may, 'P1W/1970-01-03T00:00:00Z')).toBe(
+    '2025-05-01T00:00:00 : 2025-05-08T00:00:00',
+  );
+  expect(grainRange(Date.UTC(2024, 10, 1), 'P3M')).toBe(
+    '2024-11-01T00:00:00 : 2025-02-01T00:00:00',
+  );
+  expect(grainRange(may, 'P2X')).toBeUndefined();
+  expect(grainRange('not a date', 'P1D')).toBeUndefined();
+  const formData = { viz_type: 'pie' } as QueryFormData;
+  expect(
+    withMarkFilters(formData, [
+      { column: 'fecha', value: may, label: 'May 2025', grain: 'P1M' },
+    ]).extra_form_data?.filters,
+  ).toEqual([
+    {
+      col: 'fecha',
+      op: 'TEMPORAL_RANGE',
+      val: '2025-05-01T00:00:00 : 2025-06-01T00:00:00',
+    },
+  ]);
+});
+
+test('the line of a series does not replace the point under the pointer', () => {
+  const point = {
+    chartId: 1,
+    fields: [
+      { column: 'fecha', value: 1, label: '1' },
+      { column: 'region', value: 'Sur', label: 'Sur' },
+    ],
+  };
+  const line = { chartId: 1, fields: [point.fields[1]] };
+  expect(isLessPrecise(line, point)).toBe(true);
+  expect(isLessPrecise(line, undefined)).toBe(false);
+  expect(isLessPrecise({ ...line, chartId: 2 }, point)).toBe(false);
+  expect(
+    isLessPrecise(
+      { chartId: 1, fields: [{ column: 'region', value: 'Norte', label: '' }] },
+      point,
+    ),
+  ).toBe(false);
 });

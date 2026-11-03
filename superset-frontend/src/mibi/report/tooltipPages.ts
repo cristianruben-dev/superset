@@ -18,7 +18,12 @@
  */
 import type { QueryFormData } from '@superset-ui/core';
 import type { DashboardLayout } from 'src/dashboard/types';
-import { CHART_TYPE, MARKDOWN_TYPE } from 'src/dashboard/util/componentTypes';
+import {
+  CHART_TYPE,
+  DYNAMIC_TYPE,
+  MARKDOWN_TYPE,
+} from 'src/dashboard/util/componentTypes';
+import { elementKind, type ElementKind } from 'src/mibi/elements/types';
 import { posOf } from 'src/mibi/format/positions';
 import type { VisualTooltipPage } from 'src/mibi/format/types';
 import {
@@ -124,10 +129,15 @@ export function resolveTooltipPage(
   return best?.tab.id;
 }
 
+/** Design elements a tooltip draws; slicers and navigators need the pointer. */
+const TOOLTIP_ELEMENTS: ElementKind[] = ['image', 'shape', 'button', 'text'];
+
 export interface TooltipObject {
   id: string;
   type: string;
   chartId?: number;
+  /** For design elements */
+  kind?: ElementKind;
   x: number;
   y: number;
   width: number;
@@ -135,8 +145,8 @@ export interface TooltipObject {
 }
 
 /**
- * Charts and text boxes of a tooltip page that reach its tooltip area, in
- * cells, the lower ones first.
+ * Charts, text boxes and design elements of a tooltip page that reach its
+ * tooltip area, in cells, the lower ones first.
  */
 export function tooltipObjects(
   layout: DashboardLayout,
@@ -144,19 +154,25 @@ export function tooltipObjects(
   page: TooltipPage,
 ): TooltipObject[] {
   return Object.values(layout)
-    .filter(
-      item =>
-        (item.type === CHART_TYPE || item.type === MARKDOWN_TYPE) &&
-        item.parents?.includes(tabId) &&
-        !item.meta?.mibiHidden,
-    )
     .flatMap(item => {
+      const kind =
+        item.type === DYNAMIC_TYPE
+          ? elementKind(item.meta.componentKey)
+          : undefined;
+      const drawn =
+        item.type === CHART_TYPE ||
+        item.type === MARKDOWN_TYPE ||
+        (!!kind && TOOLTIP_ELEMENTS.includes(kind));
+      if (!drawn || !item.parents?.includes(tabId) || item.meta?.mibiHidden) {
+        return [];
+      }
       const pos = posOf(item.meta);
       if (!pos || pos.x >= page.width || pos.y >= page.height) return [];
       return [
         {
           id: item.id,
           type: item.type,
+          ...(kind && { kind }),
           chartId:
             item.type === CHART_TYPE ? Number(item.meta.chartId) : undefined,
           x: pos.x,
@@ -171,6 +187,61 @@ export function tooltipObjects(
     .map(({ z: _z, ...object }) => object);
 }
 
+const pad = (value: number) => String(value).padStart(2, '0');
+const isoOf = (date: Date) =>
+  `${date.getUTCFullYear()}-${pad(date.getUTCMonth() + 1)}-${pad(
+    date.getUTCDate(),
+  )}T${pad(date.getUTCHours())}:${pad(date.getUTCMinutes())}:${pad(
+    date.getUTCSeconds(),
+  )}`;
+
+/**
+ * The period a date of a time grain stands for, as a time range from its
+ * start to the start of the next one; undefined for an unknown grain.
+ */
+export function grainRange(value: unknown, grain: string): string | undefined {
+  const start = new Date(
+    typeof value === 'number' || typeof value === 'string' ? value : NaN,
+  );
+  if (Number.isNaN(start.getTime())) return undefined;
+  const end = new Date(start.getTime());
+  // Week grains anchored on a day ("P1W/1970-01-03T00:00:00Z") are weeks
+  const base = grain.split('/')[0];
+  const add: Record<string, () => void> = {
+    PT1S: () => end.setUTCSeconds(end.getUTCSeconds() + 1),
+    PT1M: () => end.setUTCMinutes(end.getUTCMinutes() + 1),
+    PT5M: () => end.setUTCMinutes(end.getUTCMinutes() + 5),
+    PT10M: () => end.setUTCMinutes(end.getUTCMinutes() + 10),
+    PT15M: () => end.setUTCMinutes(end.getUTCMinutes() + 15),
+    PT30M: () => end.setUTCMinutes(end.getUTCMinutes() + 30),
+    PT1H: () => end.setUTCHours(end.getUTCHours() + 1),
+    PT6H: () => end.setUTCHours(end.getUTCHours() + 6),
+    P1D: () => end.setUTCDate(end.getUTCDate() + 1),
+    P1W: () => end.setUTCDate(end.getUTCDate() + 7),
+    P1M: () => end.setUTCMonth(end.getUTCMonth() + 1),
+    P3M: () => end.setUTCMonth(end.getUTCMonth() + 3),
+    P1Y: () => end.setUTCFullYear(end.getUTCFullYear() + 1),
+  };
+  if (!add[base]) return undefined;
+  add[base]();
+  return `${isoOf(start)} : ${isoOf(end)}`;
+}
+
+/** The filter of one value of a mark: equal to it, or within its period. */
+function markFilter(field: DrillthroughField) {
+  const range = field.grain ? grainRange(field.value, field.grain) : undefined;
+  if (field.grain) {
+    return range
+      ? { col: field.column, op: 'TEMPORAL_RANGE' as const, val: range }
+      : undefined;
+  }
+  return {
+    col: field.column,
+    op: 'IN' as const,
+    val: [field.value] as (string | number | boolean)[],
+  };
+}
+
 /**
  * The form data of a chart with the values of a mark as filters on top, only
  * for the columns its dataset has (all of them when the columns are unknown).
@@ -180,9 +251,12 @@ export function withMarkFilters(
   fields: DrillthroughField[],
   datasetColumns?: Set<string>,
 ): QueryFormData {
-  const usable = fields.filter(
-    field => !datasetColumns?.size || datasetColumns.has(field.column),
-  );
+  const usable = fields
+    .filter(field => !datasetColumns?.size || datasetColumns.has(field.column))
+    .flatMap(field => {
+      const filter = markFilter(field);
+      return filter ? [filter] : [];
+    });
   if (!usable.length) return formData;
   const extra = (formData.extra_form_data ?? {}) as NonNullable<
     QueryFormData['extra_form_data']
@@ -191,14 +265,9 @@ export function withMarkFilters(
     ...formData,
     extra_form_data: {
       ...extra,
-      filters: [
-        ...(extra.filters ?? []),
-        ...usable.map(field => ({
-          col: field.column,
-          op: 'IN' as const,
-          val: [field.value] as (string | number | boolean)[],
-        })),
-      ],
+      filters: [...(extra.filters ?? []), ...usable] as NonNullable<
+        typeof extra.filters
+      >,
     },
   };
 }
@@ -218,6 +287,23 @@ export const markKey = (fields: DrillthroughField[]) =>
       .sort((a, b) => a.column.localeCompare(b.column))
       .map(field => [field.column, field.value]),
   );
+
+/**
+ * Whether ``next`` only repeats part of ``current``, as the line of a series
+ * does after the point of it under the pointer: the point stays.
+ */
+export function isLessPrecise(
+  next: { chartId: number; fields: DrillthroughField[] },
+  current: { chartId: number; fields: DrillthroughField[] } | undefined,
+): boolean {
+  if (!current || current.chartId !== next.chartId) return false;
+  if (next.fields.length >= current.fields.length) return false;
+  return next.fields.every(field =>
+    current.fields.some(
+      other => other.column === field.column && other.value === field.value,
+    ),
+  );
+}
 
 interface CacheEntry<T> {
   promise: Promise<T>;
