@@ -212,6 +212,30 @@ test('a section folds from its heading and shows what the search asks', () => {
   expect(screen.queryByText('Shadow')).not.toBeInTheDocument();
 });
 
+test('the search finds what a nested component of a section draws', () => {
+  const Nested = () => <span>Copy image icon</span>;
+  const content = (
+    <Section>
+      <h4>Header icons</h4>
+      <Nested />
+    </Section>
+  );
+  const { rerender } = render(
+    <FormatSearchContext.Provider value="copy">
+      {content}
+    </FormatSearchContext.Provider>,
+    { useTheme: true },
+  );
+  expect(screen.getByText('Copy image icon')).toBeInTheDocument();
+
+  rerender(
+    <FormatSearchContext.Provider value="nothing">
+      {content}
+    </FormatSearchContext.Provider>,
+  );
+  expect(screen.queryByText('Header icons')).not.toBeInTheDocument();
+});
+
 test('the page on screen is the grid when the report has no tabs', () => {
   expect(activePageId(layout as never, ['TAB-2'])).toBe('TAB-2');
   expect(

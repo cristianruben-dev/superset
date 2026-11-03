@@ -21,6 +21,8 @@ import {
   createContext,
   isValidElement,
   useContext,
+  useLayoutEffect,
+  useRef,
   useState,
   type HTMLAttributes,
   type ReactElement,
@@ -130,7 +132,17 @@ export function Section({
   const [open, setOpen] = useState(() =>
     collapsedByDefault ? unfolded.has(title) : !folded.has(title),
   );
-  if (query && !searchable(textOf(children)).includes(query)) return null;
+  const boxRef = useRef<HTMLElement>(null);
+  const matchesJsx = !!query && searchable(textOf(children)).includes(query);
+  // The labels of a nested component are not in the JSX: a search draws the
+  // section once, and what it put on the page decides, before it is painted
+  const [rejected, setRejected] = useState('');
+  useLayoutEffect(() => {
+    if (!query || matchesJsx) return;
+    const drawn = searchable(boxRef.current?.textContent ?? '');
+    if (!drawn.includes(query)) setRejected(query);
+  }, [query, matchesJsx]);
+  if (query && !matchesJsx && rejected === query) return null;
   const shown = open || !!query;
   const toggle = () => {
     if (open) {
@@ -143,7 +155,7 @@ export function Section({
     setOpen(!open);
   };
   return (
-    <SectionBox {...props}>
+    <SectionBox ref={boxRef} {...props}>
       {head && (
         <div
           className="section-head"
