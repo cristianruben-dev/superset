@@ -29,7 +29,7 @@ import {
 } from '@superset-ui/core/components';
 import ControlHeader, { ControlHeaderProps } from '../../ControlHeader';
 
-type FieldGroup = 'labels' | 'bars' | 'lines' | 'markers';
+type FieldGroup = 'labels' | 'bars' | 'lines' | 'markers' | 'axis';
 type Override = Record<string, unknown>;
 export type SeriesFormat = Record<string, Override>;
 
@@ -60,6 +60,11 @@ const LINE_INTERPOLATIONS = () => [
   { value: 'start', label: t('Steps, before the point') },
   { value: 'middle', label: t('Steps, between the points') },
   { value: 'end', label: t('Steps, after the point') },
+];
+
+const AXES = () => [
+  { value: 'primary', label: t('Primary') },
+  { value: 'secondary', label: t('Secondary') },
 ];
 
 const MARKER_SHAPES = () => [
@@ -222,6 +227,9 @@ export default function SeriesFormatControl({
             )}
           </>
         )}
+        {series &&
+          fields.includes('axis') &&
+          choiceSelect('axis', t('Y axis'), AXES())}
         {series && fields.includes('markers') && (
           <>
             {booleanSelect('markerEnabled', t('Markers'))}

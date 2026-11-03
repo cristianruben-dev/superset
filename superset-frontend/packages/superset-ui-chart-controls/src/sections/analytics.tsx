@@ -59,14 +59,25 @@ export function buildAnalyticsSections({
   trend = true,
   zoom = true,
   tooltipFields = false,
+  secondaryAxis = false,
 }: {
   trend?: boolean;
   zoom?: boolean;
   tooltipFields?: boolean;
+  /** Adds a zoom slider for the secondary value axis. */
+  secondaryAxis?: boolean;
 } = {}): ControlPanelSectionConfig[] {
   const trendOn = isOn('trend_show');
   const categoryOn = isOn('zoom_category_show');
   const valueOn = isOn('zoom_value_show');
+  const inValues = isOn('zoom_in_values');
+  const both =
+    (first: ReturnType<typeof isOn>, second: ReturnType<typeof isOn>) =>
+    (state: Parameters<ReturnType<typeof isOn>>[0]) =>
+      first(state) && second(state);
+  const notInValues = (state: Parameters<ReturnType<typeof isOn>>[0]) =>
+    !inValues(state);
+  const secondaryOn = isOn('zoom_secondary_show');
   return [
     {
       label: t('Analytics'),
@@ -163,9 +174,74 @@ export function buildAnalyticsSections({
               ],
               [toggle('zoom_value_show', t('On the values axis'))],
               [
-                number('zoom_value_start', t('Start (%)'), 0, 100, valueOn),
-                number('zoom_value_end', t('End (%)'), 0, 100, valueOn),
+                toggle(
+                  'zoom_in_values',
+                  t('Limits of the value axes in values'),
+                ),
               ],
+              [
+                number(
+                  'zoom_value_start',
+                  t('Start (%)'),
+                  0,
+                  100,
+                  both(valueOn, notInValues),
+                ),
+                number(
+                  'zoom_value_end',
+                  t('End (%)'),
+                  0,
+                  100,
+                  both(valueOn, notInValues),
+                ),
+              ],
+              [
+                control('zoom_value_min', t('From'), 'NumberControl', {
+                  visibility: both(valueOn, inValues),
+                }),
+                control('zoom_value_max', t('To'), 'NumberControl', {
+                  visibility: both(valueOn, inValues),
+                }),
+              ],
+              ...(secondaryAxis
+                ? ([
+                    [
+                      toggle(
+                        'zoom_secondary_show',
+                        t('On the secondary values axis'),
+                      ),
+                    ],
+                    [
+                      number(
+                        'zoom_secondary_start',
+                        t('Start (%)'),
+                        0,
+                        100,
+                        both(secondaryOn, notInValues),
+                      ),
+                      number(
+                        'zoom_secondary_end',
+                        t('End (%)'),
+                        0,
+                        100,
+                        both(secondaryOn, notInValues),
+                      ),
+                    ],
+                    [
+                      control(
+                        'zoom_secondary_min',
+                        t('From'),
+                        'NumberControl',
+                        {
+                          visibility: both(secondaryOn, inValues),
+                        },
+                      ),
+                      control('zoom_secondary_max', t('To'), 'NumberControl', {
+                        visibility: both(secondaryOn, inValues),
+                      }),
+                    ],
+                  ] as ControlSetRow[])
+                : []),
               [
                 control(
                   'zoom_show_labels',

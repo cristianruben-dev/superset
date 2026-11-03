@@ -86,8 +86,32 @@ export default function buildQuery(formData: QueryFormData) {
     }),
   );
 
+  // The fields of the tooltip, apart so they never change the series: by the
+  // X-axis only, since the two kinds of series may group by other columns
+  const tooltipMetrics = ensureIsArray(formData.tooltip_metrics);
+  const [first] = queryContexts[0].queries;
+  const tooltipQuery: QueryObject[] = tooltipMetrics.length
+    ? [
+        {
+          ...first,
+          metrics: tooltipMetrics,
+          columns: isXAxisSet(formData)
+            ? ensureIsArray(getXAxisColumn(formData))
+            : [],
+          series_columns: [],
+          orderby: undefined,
+          time_offsets: [],
+          post_processing: [],
+        } as QueryObject,
+      ]
+    : [];
+
   return {
     ...queryContexts[0],
-    queries: [...queryContexts[0].queries, ...queryContexts[1].queries],
+    queries: [
+      ...queryContexts[0].queries,
+      ...queryContexts[1].queries,
+      ...tooltipQuery,
+    ],
   };
 }

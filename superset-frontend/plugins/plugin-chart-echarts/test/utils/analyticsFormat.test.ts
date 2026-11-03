@@ -153,6 +153,36 @@ test('zoom sliders go along their axis and make room', () => {
   expect(zoomFormat({}, {}, false)).toBeUndefined();
 });
 
+test('zoom sliders take values of the axis and reach the second axis', () => {
+  const zoom = zoomFormat(
+    { yAxis: [{}, {}], grid: {} },
+    {
+      zoomValueShow: true,
+      zoomInValues: true,
+      zoomValueMin: 100,
+      zoomValueMax: 500,
+      zoomSecondaryShow: true,
+      zoomSecondaryMin: 0,
+    },
+    false,
+  ) as any;
+  expect(zoom.dataZoom[0]).toMatchObject({
+    yAxisIndex: 0,
+    startValue: 100,
+    endValue: 500,
+  });
+  expect(zoom.dataZoom[0].start).toBeUndefined();
+  expect(zoom.dataZoom[1]).toMatchObject({
+    yAxisIndex: 1,
+    startValue: 0,
+    left: 4,
+  });
+  expect(zoom.dataZoom[1].endValue).toBeUndefined();
+  expect(zoom.grid.left).toBe(26);
+  // Without a second axis there is nothing to zoom on that side
+  expect(zoomFormat({}, { zoomSecondaryShow: true }, false)).toBeUndefined();
+});
+
 test('tooltip fields read their row, by series when it has groups', () => {
   const rows = [
     { x: 'a', region: 'N', cost: 2 },

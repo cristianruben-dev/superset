@@ -214,11 +214,14 @@ const config: ControlPanelConfig = {
     },
     sections.buildDataLabelsFormatSection({ marks: 'lines' }),
     sections.seriesLegendFormatSection,
-    sections.axesFormatSection,
-    sections.buildSeriesFormatSection({ bars: false }),
+    sections.buildAxesFormatSection({ secondaryYAxis: true }),
+    sections.buildSeriesFormatSection({ bars: false, axis: true }),
     sections.seriesLabelsFormatSection,
     sections.plotAreaFormatSection,
-    ...sections.buildAnalyticsSections({ tooltipFields: true }),
+    ...sections.buildAnalyticsSections({
+      tooltipFields: true,
+      secondaryAxis: true,
+    }),
     sections.chartConditionalFormattingSection,
   ],
   controlOverrides: {

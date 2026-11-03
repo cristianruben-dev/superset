@@ -89,6 +89,15 @@ export type AnalyticsOptions = {
   zoomValueShow?: boolean | null;
   zoomValueStart?: number | null;
   zoomValueEnd?: number | null;
+  /** The value sliders start and end at values of the axis, not at percents. */
+  zoomInValues?: boolean | null;
+  zoomValueMin?: number | null;
+  zoomValueMax?: number | null;
+  zoomSecondaryShow?: boolean | null;
+  zoomSecondaryMin?: number | null;
+  zoomSecondaryMax?: number | null;
+  zoomSecondaryStart?: number | null;
+  zoomSecondaryEnd?: number | null;
   zoomShowLabels?: boolean | null;
   zoomSize?: number | null;
   tooltipMetrics?: QueryFormMetric[] | null;
@@ -410,13 +419,21 @@ export function analyticsSeries(
 
 const ZOOM_SIZE = 18;
 
+const isNumber = (value: unknown): value is number =>
+  typeof value === 'number' && Number.isFinite(value);
+
 /** The zoom sliders of a chart, with the margin they need in its plot. */
 export function zoomFormat(
   options: Anything,
   format: AnalyticsOptions,
   isHorizontal: boolean,
 ) {
-  if (!format.zoomCategoryShow && !format.zoomValueShow) return undefined;
+  const hasSecondary =
+    Array.isArray(options.yAxis) && options.yAxis.length > 1 && !isHorizontal;
+  const secondaryOn = !!format.zoomSecondaryShow && hasSecondary;
+  if (!format.zoomCategoryShow && !format.zoomValueShow && !secondaryOn) {
+    return undefined;
+  }
   const size = toBoundedNumber(format.zoomSize, ZOOM_SIZE, 8, 60);
   const showDetail = format.zoomShowLabels !== false;
   const inside = (options.dataZoom ?? []).filter(
@@ -429,26 +446,53 @@ export function zoomFormat(
   const sliders: Anything[] = [];
   const slider = (
     across: boolean,
-    start: number | null | undefined,
-    end: number | null | undefined,
+    range: { start?: unknown; end?: unknown; min?: unknown; max?: unknown },
+    { axisIndex = 0, side }: { axisIndex?: number; side?: string } = {},
   ) => {
     // An axis along the bottom scrolls there, and one up the side at the right
-    margin(across ? 'bottom' : 'right');
+    const at = side ?? (across ? 'bottom' : 'right');
+    margin(at);
+    const inValues = isNumber(range.min) || isNumber(range.max);
     sliders.push({
       type: 'slider',
-      ...(across ? { xAxisIndex: 0 } : { yAxisIndex: 0 }),
+      ...(across ? { xAxisIndex: axisIndex } : { yAxisIndex: axisIndex }),
       filterMode: 'none',
-      start: toBoundedNumber(start, 0, 0, 100),
-      end: toBoundedNumber(end, 100, 0, 100),
+      ...(inValues
+        ? {
+            ...(isNumber(range.min) && { startValue: range.min }),
+            ...(isNumber(range.max) && { endValue: range.max }),
+          }
+        : {
+            start: toBoundedNumber(range.start, 0, 0, 100),
+            end: toBoundedNumber(range.end, 100, 0, 100),
+          }),
       showDetail,
-      ...(across ? { bottom: 4, height: size } : { right: 4, width: size }),
+      ...(across ? { bottom: 4, height: size } : { [at]: 4, width: size }),
     });
   };
   if (format.zoomCategoryShow) {
-    slider(!isHorizontal, format.zoomCategoryStart, format.zoomCategoryEnd);
+    slider(!isHorizontal, {
+      start: format.zoomCategoryStart,
+      end: format.zoomCategoryEnd,
+    });
   }
   if (format.zoomValueShow) {
-    slider(isHorizontal, format.zoomValueStart, format.zoomValueEnd);
+    slider(
+      isHorizontal,
+      format.zoomInValues
+        ? { min: format.zoomValueMin, max: format.zoomValueMax }
+        : { start: format.zoomValueStart, end: format.zoomValueEnd },
+    );
+  }
+  if (secondaryOn) {
+    // The second axis faces the first, so its slider goes on the other side
+    slider(
+      false,
+      format.zoomInValues
+        ? { min: format.zoomSecondaryMin, max: format.zoomSecondaryMax }
+        : { start: format.zoomSecondaryStart, end: format.zoomSecondaryEnd },
+      { axisIndex: 1, side: 'left' },
+    );
   }
   return { dataZoom: [...inside, ...sliders], grid };
 }

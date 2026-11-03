@@ -97,6 +97,7 @@ import {
 } from '../Timeseries/transformers';
 import { TIMEGRAIN_TO_TIMESTAMP, TIMESERIES_CONSTANTS } from '../constants';
 import { getDefaultTooltip } from '../utils/tooltip';
+import { tooltipFieldRows } from '../utils/analyticsFormat';
 import {
   getTooltipTimeFormatter,
   getXAxisFormatter,
@@ -922,6 +923,20 @@ export default function transformProps(
               focusedRow = rows.length - 1;
             }
           });
+        rows.push(
+          ...tooltipFieldRows(
+            queriesData[2]?.data,
+            (formData as { tooltipMetrics?: QueryFormMetric[] }).tooltipMetrics,
+            {
+              xColumn: getXAxisLabel(
+                chartProps.rawFormData as QueryFormData,
+              ) as string,
+              groupby: [],
+              xValue,
+              formatter: value => String(formatter(value)),
+            },
+          ),
+        );
         return tooltipHtml(rows, tooltipFormatter(xValue), focusedRow);
       },
     },

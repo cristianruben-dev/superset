@@ -118,8 +118,11 @@ import {
 import { getDefaultTooltip } from '../utils/tooltip';
 import {
   applyChartFormat,
+  applySecondaryAxis,
   applySeriesFormat,
   getDisplayFormatter,
+  secondaryAxisSeries,
+  secondaryYAxisFormatOptions,
   xAxisFormatOptions,
   yAxisFormatOptions,
 } from '../utils/chartFormatOptions';
@@ -305,6 +308,8 @@ export default function transformProps(
     yAxisLabelFont,
     yAxisTitleFont,
     yAxisInverse,
+    yAxisSecondaryLabelFont,
+    yAxisSecondaryTitleFont,
     gridlineColor,
     xAxisHidden,
     yAxisHidden,
@@ -604,7 +609,16 @@ export default function transformProps(
             {
               ...styledSeries,
               data: (styledSeries.data as any).map(
-                (row: [string | number, number]) => [row[0], row[1] ?? 0],
+                (
+                  row:
+                    | [string | number, number]
+                    | { value: [string | number, number] },
+                ) =>
+                  Array.isArray(row)
+                    ? [row[0], row[1] ?? 0]
+                    : // A point the format turned into an object, as label
+                      // density does, keeps its own options
+                      { ...row, value: [row.value[0], row.value[1] ?? 0] },
               ),
             },
             conditionalRules,
@@ -1093,6 +1107,32 @@ export default function transformProps(
     ...gridlineFormat,
     ...xAxisFormatOptions(formData, isHorizontal),
   });
+  // A series moved to the second axis draws against a copy of the first one,
+  // with its own scale; bars and charts drawn across keep a single axis
+  const secondaryNames =
+    isHorizontal ||
+    isAreaExpand ||
+    seriesType === EchartsTimeseriesSeriesType.Bar
+      ? new Set<string>()
+      : secondaryAxisSeries(formData);
+  const secondaryYAxis = secondaryNames.size
+    ? applyAxisFormatting(
+        {
+          ...yAxis,
+          min: undefined,
+          max: undefined,
+          name: undefined,
+          splitLine: { show: false },
+          minorSplitLine: { show: false },
+        },
+        {
+          labelFont: yAxisSecondaryLabelFont,
+          titleFont: yAxisSecondaryTitleFont,
+          inverse: yAxisInverse,
+          ...secondaryYAxisFormatOptions(formData, forcePercentFormatter),
+        },
+      )
+    : undefined;
   yAxis = applyAxisFormatting(yAxis, {
     labelFont: yAxisLabelFont,
     titleFont: yAxisTitleFont,
@@ -1340,7 +1380,9 @@ export default function transformProps(
   }
 
   const formattedOptions = applyChartFormat(
-    echartOptions,
+    secondaryYAxis
+      ? applySecondaryAxis(echartOptions, secondaryNames, secondaryYAxis)
+      : echartOptions,
     // Every total of a stack of 100% says the same
     isAreaExpand ? { ...formData, totalLabelsShow: false } : formData,
     {

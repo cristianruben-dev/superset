@@ -18,9 +18,11 @@
  */
 import {
   applyChartFormat,
+  applySecondaryAxis,
   applySeriesFormat,
   getDisplayFormatter,
   mixColors,
+  secondaryAxisSeries,
   secondaryYAxisFormatOptions,
   xAxisFormatOptions,
   yAxisFormatOptions,
@@ -475,4 +477,46 @@ test('categories that do not fit scroll, only on a categorical axis', () => {
     { width: 100 },
   ) as any;
   expect(time.dataZoom).toBeUndefined();
+});
+
+test('a series moved to the secondary axis draws against a second axis', () => {
+  const names = secondaryAxisSeries({
+    seriesFormat: { Cost: { axis: 'secondary' }, Sales: { axis: 'primary' } },
+  });
+  expect([...names]).toEqual(['Cost']);
+  const options = {
+    yAxis: { type: 'value' },
+    series: [
+      { name: 'Sales', type: 'line', stack: 'all' },
+      { name: 'Cost', type: 'line', stack: 'all' },
+    ],
+  };
+  const next = applySecondaryAxis(options, names, {
+    type: 'value',
+    splitLine: { show: false },
+  }) as any;
+  expect(next.yAxis).toHaveLength(2);
+  expect(next.yAxis[0]).toMatchObject({ type: 'value', alignTicks: true });
+  expect(next.yAxis[1]).toMatchObject({ position: 'right', alignTicks: true });
+  expect(next.series[0].yAxisIndex).toBeUndefined();
+  expect(next.series[1]).toMatchObject({ yAxisIndex: 1 });
+  // It leaves the stack of the series on the first axis
+  expect(next.series[1].stack).not.toBe('all');
+  // Nothing changes without a series to move
+  expect(applySecondaryAxis(options, new Set(['Other']), {})).toBe(options);
+  expect(applySecondaryAxis(options, new Set(), {})).toBe(options);
+});
+
+test('label density keeps the label of every step-th point', () => {
+  const series = applySeriesFormat(
+    { name: 'a', type: 'line', label: { show: true }, data: [1, 2, 3, 4] },
+    { valueLabelDensity: 50 },
+  ) as any;
+  expect(series.data[0]).toBe(1);
+  expect(series.data[1]).toEqual({ value: 2, label: { show: false } });
+  expect(series.data[2]).toBe(3);
+  const all = { name: 'a', type: 'line', label: { show: true }, data: [1, 2] };
+  expect(
+    (applySeriesFormat(all, { valueLabelDensity: 100 }) as any).data,
+  ).toEqual([1, 2]);
 });

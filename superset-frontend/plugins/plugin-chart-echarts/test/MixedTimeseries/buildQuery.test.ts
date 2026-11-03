@@ -374,3 +374,18 @@ test('ensure correct pivot columns', () => {
     },
   });
 });
+
+test('tooltip fields of a combo chart come in a third query by the X-axis', () => {
+  const { queries } = buildQuery({
+    ...formDataMixedChart,
+    x_axis: 'ds',
+    tooltip_metrics: ['avg(price)'],
+  });
+  expect(queries).toHaveLength(3);
+  expect(queries[2]).toMatchObject({
+    metrics: ['avg(price)'],
+    columns: ['ds'],
+    post_processing: [],
+  });
+  expect(buildQuery(formDataMixedChart).queries).toHaveLength(2);
+});
