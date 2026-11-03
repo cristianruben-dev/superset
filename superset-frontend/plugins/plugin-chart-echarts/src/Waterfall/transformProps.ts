@@ -16,6 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import { t } from '@apache-superset/core/translation';
 import { applySpecialChartFormat } from '../utils/specialChartFormat';
 import {
   CurrencyFormatter,
@@ -97,6 +98,8 @@ function transformer({
   breakdown,
   totalMark,
   showTotal,
+  maxBreakdowns,
+  otherMark = 'Other',
 }: {
   data: DataRecord[];
   xAxis: string;
@@ -104,6 +107,9 @@ function transformer({
   breakdown?: string;
   totalMark: string;
   showTotal: boolean;
+  /** The breakdowns a period keeps, by size; the rest add up to one more. */
+  maxBreakdowns?: number;
+  otherMark?: string;
 }) {
   // Group by series (temporary map)
   const groupedData = data.reduce((acc, cur) => {
@@ -118,7 +124,28 @@ function transformer({
 
   if (breakdown) {
     groupedData.forEach((value, key) => {
-      const tempValue = value;
+      let tempValue = value;
+      // Keep the largest breakdowns of the period and add the rest up
+      if (maxBreakdowns && maxBreakdowns > 0 && value.length > maxBreakdowns) {
+        const bySize = [...value].sort(
+          (a, b) =>
+            Math.abs((b[metric] as number) ?? 0) -
+            Math.abs((a[metric] as number) ?? 0),
+        );
+        const kept = new Set(bySize.slice(0, maxBreakdowns));
+        const rest = value.filter(row => !kept.has(row));
+        tempValue = [
+          ...value.filter(row => kept.has(row)),
+          {
+            [xAxis]: key,
+            [breakdown]: otherMark,
+            [metric]: rest.reduce(
+              (acc, cur) => acc + ((cur[metric] as number) ?? 0),
+              0,
+            ),
+          },
+        ];
+      }
       // Calc total per period
       const sum = tempValue.reduce(
         (acc, cur) => acc + ((cur[metric] as number) ?? 0),
@@ -231,6 +258,14 @@ export default function transformProps(
     metric: metricLabel,
     totalMark,
     showTotal,
+    maxBreakdowns: Number(
+      (formData as { waterfallMaxBreakdowns?: unknown }).waterfallMaxBreakdowns,
+    ),
+    otherMark:
+      String(
+        (formData as { waterfallOtherLabel?: unknown }).waterfallOtherLabel ??
+          '',
+      ).trim() || t('Other'),
   });
 
   const assistData: ISeriesData[] = [];

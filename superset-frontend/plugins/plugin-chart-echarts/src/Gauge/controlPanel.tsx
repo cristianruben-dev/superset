@@ -44,6 +44,20 @@ const config: ControlPanelConfig = {
           },
         ],
         ['metric'],
+        [
+          {
+            name: 'gauge_target_metric',
+            config: {
+              ...sharedControls.metric,
+              label: t('Target'),
+              description: t(
+                'A field with the target of the gauge, over the target value of the format',
+              ),
+              validators: [],
+              clearable: true,
+            },
+          },
+        ],
         ['adhoc_filters'],
         [
           {

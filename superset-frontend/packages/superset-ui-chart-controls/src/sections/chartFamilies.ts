@@ -352,6 +352,11 @@ export function buildSpecialChartSections(
           ),
           number('center_background_padding', t('Padding'), 0, 100),
         ],
+        [text('center_image', t('Center image (address)'))],
+        [
+          number('center_image_size', t('Image size (%)'), 5, 100),
+          number('center_image_transparency', t('Image transparency'), 0, 100),
+        ],
       ]),
     );
   if (kind === 'funnel')
@@ -408,6 +413,12 @@ export function buildSpecialChartSections(
     );
   if (kind === 'waterfall')
     result.push(
+      section(t('Breakdown'), [
+        [
+          number('waterfall_max_breakdowns', t('Max breakdowns'), 1, 100),
+          text('waterfall_other_label', t('Label of the rest')),
+        ],
+      ]),
       section(t('Connectors'), [
         [
           toggle('waterfall_connectors_show', t('Show connectors')),

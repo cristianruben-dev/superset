@@ -45,4 +45,17 @@ describe('Gauge buildQuery', () => {
     const [query] = queryContext.queries;
     expect(query.columns).toEqual(['foo', 'bar']);
   });
+
+  test('adds the target field to the metrics of the query once', () => {
+    const [query] = buildQuery({
+      ...baseFormData,
+      gauge_target_metric: 'goal',
+    }).queries;
+    expect(query.metrics).toEqual(['foo', 'goal']);
+    const [same] = buildQuery({
+      ...baseFormData,
+      gauge_target_metric: 'foo',
+    }).queries;
+    expect(same.metrics).toEqual(['foo']);
+  });
 });

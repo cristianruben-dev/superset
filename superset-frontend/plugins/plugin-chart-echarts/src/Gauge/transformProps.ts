@@ -167,6 +167,20 @@ export default function transformProps(
     FONT_SIZE_MULTIPLIERS.detailOffsetFromTitle * fontSize;
   const columnsLabelMap = new Map<string, string[]>();
   const metricLabel = getMetricLabel(metric as QueryFormMetric);
+  // A target from a field: its value, added up over the rows of the gauge
+  const targetMetric = (formData as { gaugeTargetMetric?: QueryFormMetric })
+    .gaugeTargetMetric;
+  const targetValues = targetMetric
+    ? data
+        .map(row => row[getMetricLabel(targetMetric)])
+        .filter(
+          (value): value is number =>
+            typeof value === 'number' && Number.isFinite(value),
+        )
+    : [];
+  const targetFromField = targetValues.length
+    ? targetValues.reduce((sum, value) => sum + value, 0)
+    : undefined;
 
   const transformedData: GaugeDataItemOption[] = data.map(
     (data_point, index) => {
@@ -371,11 +385,18 @@ export default function transformProps(
     formData,
     width,
     height,
-    echartOptions: applySpecialChartFormat(echartOptions, formData, 'gauge', {
-      width,
-      height,
-      formatter: numberFormatter,
-    }),
+    echartOptions: applySpecialChartFormat(
+      echartOptions,
+      targetFromField === undefined
+        ? formData
+        : { ...formData, gaugeTargetValue: targetFromField },
+      'gauge',
+      {
+        width,
+        height,
+        formatter: numberFormatter,
+      },
+    ),
     setDataMask,
     emitCrossFilters,
     labelMap: Object.fromEntries(columnsLabelMap),
