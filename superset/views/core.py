@@ -842,7 +842,8 @@ class Superset(BaseSupersetView):
         file_path = safe_join(base_dir, lang, "LC_MESSAGES", "messages.json")
 
         if file_path and os.path.isfile(file_path):
-            return send_file(file_path, mimetype="application/json")
+            # Same URL for every release, so browsers must revalidate it (ETag)
+            return send_file(file_path, mimetype="application/json", max_age=0)
 
         return json_error_response(
             "Language pack doesn't exist on the server", status=404
