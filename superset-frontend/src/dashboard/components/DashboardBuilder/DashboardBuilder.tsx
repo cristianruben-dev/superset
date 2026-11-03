@@ -443,6 +443,7 @@ const DashboardBuilder = () => {
     isReport;
 
   const [barTopOffset, setBarTopOffset] = useState(0);
+  const [pageTop, setPageTop] = useState(0);
   // Behind the page, as Power BI's report wallpaper: the report's own color
   // (a shade darker than the page, so the page reads as a sheet)
   const reportLook = useReportLook();
@@ -453,7 +454,9 @@ const DashboardBuilder = () => {
     : undefined;
 
   useEffect(() => {
-    setBarTopOffset(headerRef.current?.getBoundingClientRect()?.height || 0);
+    const header = headerRef.current?.getBoundingClientRect();
+    setBarTopOffset(header?.height || 0);
+    setPageTop(header ? Math.max(0, header.top + window.scrollY) : 0);
 
     let observer: ResizeObserver;
     if (global.hasOwnProperty('ResizeObserver') && headerRef.current) {
@@ -772,9 +775,15 @@ const DashboardBuilder = () => {
                   ) : (
                     <Loading />
                   )}
-                  <ChartEditorPanel topOffset={barTopOffset} />
+                  <ChartEditorPanel
+                    topOffset={barTopOffset}
+                    pageTop={pageTop}
+                  />
                   {editMode && (
-                    <BuilderComponentPane topOffset={barTopOffset} />
+                    <BuilderComponentPane
+                      topOffset={barTopOffset}
+                      pageTop={pageTop}
+                    />
                   )}
                 </StyledDashboardContent>
               </DashboardContentWrapper>

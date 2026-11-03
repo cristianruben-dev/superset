@@ -76,7 +76,9 @@ const paneLabel = (icon: ReactNode, label: string) => (
   </span>
 );
 
-const BuilderComponentPane = ({ topOffset = 0 }) => {
+const BuilderComponentPane = ({ topOffset = 0, pageTop = 0 }) => {
+  // The header is sticky and the app bar is not: the pane fills what they leave
+  const occupied = topOffset + pageTop;
   const activeKey = useBuilderTab();
   const collapsed = usePaneCollapsed('builder');
   const width = collapsed
@@ -105,7 +107,7 @@ const BuilderComponentPane = ({ topOffset = 0 }) => {
         position: sticky;
         right: 0;
         top: ${topOffset}px;
-        height: calc(100vh - ${topOffset}px);
+        height: calc(100vh - ${occupied}px);
         width: ${width}px;
       `}
     >
@@ -152,10 +154,10 @@ const BuilderComponentPane = ({ topOffset = 0 }) => {
           )}
         </button>
         <div
-          css={css`
+          css={(theme: SupersetTheme) => css`
             display: ${collapsed ? 'none' : 'block'};
             height: 100%;
-            padding-left: 28px;
+            padding: ${theme.sizeUnit * 2}px 0 0 28px;
             box-sizing: border-box;
           `}
         >
@@ -166,9 +168,8 @@ const BuilderComponentPane = ({ topOffset = 0 }) => {
             onChange={key => setBuilderTab(key as BuilderTab)}
             // AuraData BI: five tabs fit side by side
             tabBarGutter={4}
-            css={(theme: SupersetTheme) => css`
+            css={css`
               line-height: inherit;
-              margin-top: ${theme.sizeUnit * 2}px;
               height: 100%;
 
               & .ant-tabs-content-holder {
@@ -188,7 +189,7 @@ const BuilderComponentPane = ({ topOffset = 0 }) => {
                 children: (
                   <div
                     css={css`
-                      height: calc(100vh - ${topOffset * 2}px);
+                      height: calc(100vh - ${occupied + 77}px);
                     `}
                   >
                     <SliceAdder />
@@ -229,7 +230,7 @@ const BuilderComponentPane = ({ topOffset = 0 }) => {
                 children: (
                   <div
                     css={css`
-                      height: calc(100vh - ${topOffset + 72}px);
+                      height: calc(100vh - ${occupied + 77}px);
                     `}
                   >
                     <FormatPane />
@@ -245,7 +246,7 @@ const BuilderComponentPane = ({ topOffset = 0 }) => {
                 children: (
                   <div
                     css={css`
-                      height: calc(100vh - ${topOffset + 72}px);
+                      height: calc(100vh - ${occupied + 77}px);
                     `}
                   >
                     <SelectionPane />
@@ -261,7 +262,7 @@ const BuilderComponentPane = ({ topOffset = 0 }) => {
                 children: (
                   <div
                     css={css`
-                      height: calc(100vh - ${topOffset + 72}px);
+                      height: calc(100vh - ${occupied + 77}px);
                       overflow-y: auto;
                     `}
                   >

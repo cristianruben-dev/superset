@@ -85,13 +85,13 @@ const Frame = styled.div`
 /** Width of the editor docked beside the report */
 export const DOCK_WIDTH = 460;
 
-const Dock = styled.aside<{ $top: number }>`
-  ${({ theme, $top }) => css`
+const Dock = styled.aside<{ $top: number; $pageTop: number }>`
+  ${({ theme, $top, $pageTop }) => css`
     position: sticky;
     top: ${$top}px;
     flex: none;
     width: ${DOCK_WIDTH}px;
-    height: calc(100vh - ${$top}px);
+    height: calc(100vh - ${$top + $pageTop}px);
     display: flex;
     flex-direction: column;
     background: ${theme.colorBgBase};
@@ -157,7 +157,13 @@ const panelTitle = (editor: OpenChartEditorDetail | null) => {
  * without leaving it: the page runs inside in panel mode. Explore reports when it
  * saves; the data pages and SQL Lab ask for a chart built from what they made.
  */
-export function ChartEditorPanel({ topOffset = 0 }: { topOffset?: number }) {
+export function ChartEditorPanel({
+  topOffset = 0,
+  pageTop = 0,
+}: {
+  topOffset?: number;
+  pageTop?: number;
+}) {
   const dispatch = useDispatch();
   const store = useStore<RootState>();
   const [editor, setEditor] = useState<OpenChartEditorDetail | null>(null);
@@ -366,7 +372,11 @@ export function ChartEditorPanel({ topOffset = 0 }: { topOffset?: number }) {
   if (docked) {
     return (
       <>
-        <Dock $top={topOffset} data-test="mibi-chart-editor-dock">
+        <Dock
+          $top={topOffset}
+          $pageTop={pageTop}
+          data-test="mibi-chart-editor-dock"
+        >
           <div className="dock-header">
             <span>{title}</span>
             <Button

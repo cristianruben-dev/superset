@@ -58,7 +58,8 @@ const Wrap = styled.div`
 
 /**
  * Holds the page. A fixed page scrolls inside it (room above for the menus
- * of the objects), so zooming in never moves the rest of the screen.
+ * of the objects, and below for the zoom bar, which floats over it), so zooming
+ * in never moves the rest of the screen.
  */
 const Outer = styled.div<{ $scroll: boolean }>`
   width: 100%;
@@ -67,7 +68,7 @@ const Outer = styled.div<{ $scroll: boolean }>`
       ? css`
           height: 100%;
           overflow: auto;
-          padding: 28px 8px 8px;
+          padding: 28px 8px 56px;
           box-sizing: border-box;
         `
       : css`
@@ -348,7 +349,7 @@ export function CanvasFrame({ children }: { children: ReactNode }) {
     const measure = () => {
       const top = wrap.getBoundingClientRect().top + window.scrollY;
       setWindowHeight(window.innerHeight);
-      setViewportHeight(Math.max(320, window.innerHeight - top - 16));
+      setViewportHeight(Math.max(320, window.innerHeight - top - 20));
     };
     measure();
     window.addEventListener('resize', measure);
