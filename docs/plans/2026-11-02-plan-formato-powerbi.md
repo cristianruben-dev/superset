@@ -55,7 +55,7 @@ Tamaño relativo: S, M, L, XL. Las opciones abiertas de cada fase están en
 | 7 | Segmentadores | Hecha con límites | L | 1 |
 | 8 | Análisis y tooltips | Hecha con límites | L | 3 |
 | 9 | Paridad de reporte: páginas tooltip y restablecer | Siguiente | L | Ninguna |
-| 10 | Campos y panel de datos | Pendiente | L | 1 |
+| 10 | Campos y panel de datos | **Hecha con límites** | L | 1 |
 | 11 | Mapas | Sin decidir el motor | Por decidir | 1 |
 | 12 | Resto de P3 y gráficos nuevos | Opcional | Opcional | 3–7 |
 
@@ -425,6 +425,8 @@ Conectarlos al registro y a las secciones de la fase 3, y añadir lo propio:
 
 - **Campos por rol:** nombres del tipo Eje X, Leyenda, Valores y Tooltips, en lugar de Métricas y Dimensiones.
 - **Panel Datos junto al lienzo,** con tablas y arrastrar a los campos.
+- **Hecho:** nivel Campos del panel de Formato (`mibi/format/ChartFieldsSections.tsx`), roles por gráfico (`chartFields.ts`) y panel Datos (`DataPane.tsx`). Los campos se guardan en el gráfico al guardar el tablero, con `query_context` regenerado. Los campos de tooltip pasan de Analítica a Campos y siguen en la capa del layout.
+- **Límites:** ver [`estado-formato-powerbi.md`](estado-formato-powerbi.md).
 - **Sin iframe de Explore, si conviene:** evaluar con lo aprendido en la fase 1.
 
 Antes de empezar hay que comparar con la pantalla actual: no se ha revisado a fondo el editor acoplado.

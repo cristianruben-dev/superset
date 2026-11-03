@@ -2,7 +2,7 @@
 
 **Empieza aquí.** Es el resumen de todo: qué fases hay, qué llevamos, qué tenemos y qué falta.
 
-Actualizado: 2026-11-02, con las fases 7 y 8 hechas. Faltan sobre todo la P3 de segmentadores (454 opciones), las páginas tooltip y los campos. Siguiente: **fase 9**.
+Actualizado: 2026-11-02, con las fases 7, 8 y 10 hechas. Faltan sobre todo la P3 de segmentadores (454 opciones) y las páginas tooltip. Siguiente: **fase 9**.
 
 ## Dónde está cada cosa
 
@@ -32,7 +32,7 @@ Actualizado: 2026-11-02, con las fases 7 y 8 hechas. Faltan sobre todo la P3 de 
 | 7 | Segmentadores | **Hecha con límites** | 710 |
 | 8 | Análisis y tooltips | **Hecha con límites** | 57 |
 | 9 | Páginas tooltip y restablecer filtros | **Siguiente** | Fuera del inventario |
-| 10 | Campos y panel de datos | Pendiente | Fuera del inventario |
+| 10 | Campos y panel de datos | **Hecha con límites** | Fuera del inventario |
 | 11 | Mapas | Sin decidir el motor | 429 |
 | 12 | Resto de P3 y gráficos nuevos | Opcional | 927 |
 
@@ -62,9 +62,13 @@ Las fases 5 y 6 reutilizan el motor ECharts y el formato compartido. Las metas y
 
 La fase 7 añade segmentadores de lista, botones y texto, con disposición, búsqueda, seleccionar todo, marca de selección y formato de encabezado y valores, con estados al pasar el puntero y al seleccionar. La fase 8 añade el nivel Analítica: líneas de referencia constantes y calculadas con etiqueta y sombreado, línea de tendencia, deslizadores de zoom, campos de tooltip y múltiplos pequeños.
 
+La fase 10 añade el nivel Campos en el panel de Formato, con cada campo por su rol (Eje X, Leyenda, Valores, Filas, Columnas...), y el panel Datos junto al lienzo, para arrastrar columnas y medidas a esos campos. Un cambio se ve al instante, consultando solo ese gráfico; se guarda en el propio gráfico con el botón Guardar del tablero y Descartar lo revierte.
+
 **Validación de las fases 7 y 8:** tests de los archivos tocados y comprobación con datos del tablero 147: las cuatro variantes filtran los gráficos, las líneas de referencia y la tendencia se dibujan en barras, líneas, combinado y cascada, el zoom en líneas y área, el tooltip añade su campo, los múltiplos dividen un gráfico y añadir una línea desde el panel no consulta datos.
 
 **Pasada de pruebas de lo no probado (2026-11-02):** en Chromium headless, con la marca de automatización apagada, tablero 147 y SESEQ en solo lectura. Guardar y recargar desde el panel (línea de referencia, tendencia, múltiplos, variante de segmentador), filtrar con el segmentador de texto, barras horizontales con líneas, burbujas, mover y redimensionar con scroll y zoom, deshacer, editor acoplado, exportar a PNG y PDF, copiar imagen. En SESEQ: scroll y páginas en vista y edición, sin consultas en la segunda visita. Corrigió: la virtualización vaciaba todos los gráficos al hacer scroll, el doble scroll de la edición, la barra de zoom tapando la página, la búsqueda que no veía opciones de subcomponentes, las fuentes de la exportación y las burbujas cortadas.
+
+**Validación de la fase 10:** tests de los archivos tocados y navegador con el tablero 147, en inglés y español: roles de los 15 gráficos, arrastrar columnas a los campos (una sola consulta, de ese gráfico; una columna numérica entra como suma), guardar con `query_context` nuevo y recargar, descartar, volver a los guardados, campo obligatorio vacío, soltar en el lienzo sin efecto, editor acoplado y scroll con los paneles abiertos. Burbujas y mapas no se probaron con esta fase.
 
 **Sin comprobar:** el mapa deck.gl de SESEQ da errores de WebGL en headless (`maxTextureDimension2D`) y hay que verlo en un navegador normal; exportar SESEQ; arrastrar y exportar en Safari o Firefox.
 
@@ -115,7 +119,7 @@ Tarjeta de varias filas y la tarjeta nueva están en `cobertura.md`.
 - **7, hecha con límites:** quedan 134 P1 y 122 P2 de detalle (esquinas individuales, barra de acento, píldoras, imagen en la disposición) y 454 P3 (estados por botón, efectos de imagen, ajuste de fechas y deslizador). El menú de la lista desplegable no se formatea.
 - **8, hecha con límites:** sin deslizador del eje secundario, los límites del zoom van en porcentaje, los múltiplos no tienen formato de cuadrícula ni encabezado propio, y los campos de tooltip solo están en barras, líneas, áreas y dispersión.
 - **9, paridad de reporte:** páginas tooltip, lo que más le falta a SESEQ, y restablecer filtros. No depende del panel.
-- **10, campos y panel de datos:** campos por rol, como Eje X, Leyenda y Valores, y panel Datos junto al lienzo.
+- **10, hecha con límites:** Deshacer no revierte los campos (hay un botón para volver a los guardados). No se puede soltar un campo sobre el gráfico del lienzo, marcar una casilla para añadirlo ni cambiar el conjunto de datos de un gráfico. Datos lista solo los conjuntos que ya usa algún gráfico del tablero. Los gráficos sin tabla de roles, como mapas, muestran el nombre original de cada control. Abrir el editor de un gráfico con campos pendientes los guarda primero. Solo el propietario de un gráfico o un administrador cambia sus campos, y no se probó con un usuario sin permisos.
 - **11, mapas:** decidir el motor antes de nada.
 - **12, opcional:** barras de error, anomalías, pronóstico, y gráficos por construir como Ribbon.
 
@@ -131,4 +135,3 @@ Tarjeta de varias filas y la tarjeta nueva están en `cobertura.md`.
 
 - `pre-commit run --all-files`, dentro del contenedor.
 - 3 errores de lint en `useCellMove.ts`, de antes de estas fases.
-- `src/mibi/dashboard/ChartEditorPanel.test.tsx`: 2 tests desactualizados desde `800abe878c` (esperan el editor sin acoplar).

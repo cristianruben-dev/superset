@@ -211,6 +211,10 @@ Formats are stored in `position_json`, so they save, undo and export with the da
   of the timeseries charts, so they never change the series. Small multiples are Matrixify, opened to the pane without its flag.
 - `DASHBOARD_VIRTUALIZATION` stays off: rows have no height and the page scrolls inside its own container, so row observers
   would unmount every chart on scroll. Playwright hides this kind of bug: `navigator.webdriver` turns virtualization off too.
+- The Fields level of the pane (`mibi/format/ChartFieldsSections.tsx`) draws the query controls of a chart with Explore's
+  `Control`; `chartFields.ts` names them by role. Fields are chart settings, never layout ones: a change previews through the
+  chart's form data and `saveChartFields` writes it to the chart, with a new `query_context`, when the report saves. A key the
+  layout holds moves out of it. Tooltip fields and small multiples stay in the layout. `mibi/format/DataPane.tsx` is the Data pane.
 - There are no saved format themes: each dashboard is formatted on its own.
 
 ### Migrations
