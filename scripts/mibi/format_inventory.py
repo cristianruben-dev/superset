@@ -2047,6 +2047,97 @@ CARD_RULES = [
     ),
 ]
 FILTER_RULES = [
+    # Slicer options of the canvas filter (mibi/elements/SlicerFormat.tsx)
+    (
+        r"title",
+        r"fontFamily|heading|titleWrap|underline",
+        ["ok"],
+        "Tiene",
+        "Segmentador: título del nivel General",
+    ),
+    (
+        r"subTitle",
+        r"alignment|bold|fontColor|fontFamily|fontSize|heading|italic|show|text"
+        r"|titleWrap|underline",
+        ["ok"],
+        "Tiene",
+        "Segmentador: subtítulo del nivel General",
+    ),
+    (r"divider", r"style|width|ignorePadding", ["ok"], "Tiene", "Segmentador: divisor"),
+    (
+        r"dropShadow",
+        r"angle|color|preset|shadowBlur|shadowDistance|shadowSpread|show|transparency",
+        ["ok"],
+        "Tiene",
+        "Segmentador: sombra del nivel General",
+    ),
+    (
+        r"padding",
+        r"bottom|left|right|top|paddingSelection",
+        ["ok"],
+        "Tiene",
+        "Segmentador: relleno por lado",
+    ),
+    (r"selection", r"singleSelect|strictSingleSelect", ["ok"], "Tiene", "Segmentador: selección"),
+    (r"slicerSettings", r"multiselect", ["ok"], "Tiene", "Segmentador: selección"),
+    (
+        r"value",
+        r"horizontalAlignment|verticalAlignment|labelDisplayUnits|labelPrecision|showBlankAs",
+        ["ok"],
+        "Tiene",
+        "Segmentador: valores",
+    ),
+    (r"header", r"showRestatement", ["ok"], "Tiene", "Segmentador: resumen de la selección"),
+    (
+        r"search",
+        r"bold|fontFamily|fontSize|italic|paddingUniform",
+        ["ok"],
+        "Tiene",
+        "Segmentador: caja de búsqueda",
+    ),
+    (r"searchBox", r"borderColor", ["ok"], "Tiene", "Segmentador: caja de búsqueda"),
+    (
+        r"dropdownMenu",
+        r"backgroundColor|backgroundShow|borderColor|borderShow|cornerRadius|maxHeight"
+        r"|shadowShow",
+        ["ok"],
+        "Tiene",
+        "Segmentador: lista abierta del desplegable",
+    ),
+    (
+        r"pills",
+        r"backgroundColor|backgroundShow|cornerRadius|fontColor",
+        ["ok"],
+        "Tiene",
+        "Segmentador: valores elegidos",
+    ),
+    (r"selectionIcon", r"position|size|spacing", ["ok"], "Tiene", "Segmentador: marca de selección"),
+    (r"applyButton", r"backColor|backShow|iconColor", ["ok"], "Tiene", "Segmentador: botón Aplicar"),
+    (r"pendingChangesIcon", r"show", ["ok"], "Tiene", "Segmentador: cambios sin aplicar"),
+    (
+        r"selectedOnly",
+        r"backgroundColor|bold|borderColor|borderWidth|cornerRadius|fontColor|italic"
+        r"|paddingUniform|underline",
+        ["ok"],
+        "Tiene",
+        "Segmentador: estado seleccionado",
+    ),
+    (
+        r"data",
+        r"mode|relativeDuration|relativePeriod|relativeRange|relativeTimePeriod"
+        r"|startDate|endDate|numericStart|numericEnd",
+        ["ok"],
+        "Tiene",
+        "Segmentador: rango, fecha relativa y entre fechas",
+    ),
+    (r"slider", r"show|color", ["ok"], "Tiene", "Segmentador: deslizador del rango"),
+    (
+        r"inputTextBox|inputText",
+        r"placeholder|backColor|borderColor|fontColor|fontFamily|fontSize",
+        ["ok"],
+        "Tiene",
+        "Segmentador: caja de texto",
+    ),
     (
         r"header",
         r"background|bold|fontColor|fontFamily|italic|outlineStyle|show|textSize|underline",

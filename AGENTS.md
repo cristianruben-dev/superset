@@ -209,7 +209,13 @@ Formats are stored in `position_json`, so they save, undo and export with the da
   `setCanvasFormat`, `setSharedVisualFormat`) so edits group into one undo step.
 - A canvas filter of a list of values can draw itself as a dropdown, list, buttons or text box (`mibi/elements/SlicerView.tsx`,
   `meta.mibiElement.variant`). Only the dropdown is the filter plugin; the others ask for its values with `getFormData` and
-  write the same data mask.
+  write the same data mask. A range filter can draw itself as "Between" boxes or a slider (`rangeStyle`) and a time filter as
+  a relative date or two days (`dateStyle`, `RangeSlicerView.tsx`); the rules of selection, sorting, value format and time
+  ranges live in `mibi/elements/slicer.ts`. A slicer's Format pane (`SlicerFormat.tsx`) has a Visual and a General level; the
+  General level reuses `TitleSections`, `BoxSections` and alt text, and its title is drawn by `ElementTitle`; the title
+  text of an element is its own and stays out of "Copy format". A filter that takes one value keeps one whatever the slicer
+  says. Not built: a hierarchy slicer (it needs an OR across columns that native filters cannot express), header icons and
+  the action of a slicer, numeric-only text input, value format codes and per-corner styles.
 - The Analytics level of the pane holds the cards with `level: 'analytics'`. `utils/analyticsFormat.ts` draws
   `reference_lines` and the trend line as series with `__mibi` ids, and the zoom sliders. `tooltip_metrics` are a second query
   of the timeseries charts, so they never change the series. Small multiples are Matrixify, opened to the pane without its flag.

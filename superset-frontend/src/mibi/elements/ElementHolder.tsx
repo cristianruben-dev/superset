@@ -114,6 +114,7 @@ function ElementHolder({
   const hiddenOverride = useHiddenOverride(component.id);
   const hidden = hiddenOverride ?? !!component.meta.mibiHidden;
   const locked = useObjectLocked(component.meta);
+  const altText = component.meta.mibiAltText as string | undefined;
   const box = useMemo(
     () => visualStyle(component.meta.mibiFormat, theme),
     [component.meta.mibiFormat, theme],
@@ -145,7 +146,13 @@ function ElementHolder({
       case 'button':
         return <ButtonView config={config} editMode={editMode} />;
       case 'filter':
-        return <FilterView config={config} editMode={editMode} />;
+        return (
+          <FilterView
+            config={config}
+            editMode={editMode}
+            format={component.meta.mibiFormat}
+          />
+        );
       case 'navigator':
         return <NavigatorView config={config} editMode={editMode} />;
       case 'text':
@@ -213,6 +220,8 @@ function ElementHolder({
               editMode && hidden && 'mibi-hidden',
             )}
             style={box.style}
+            role={altText ? 'group' : undefined}
+            aria-label={altText}
             onClickCapture={
               editMode
                 ? event =>

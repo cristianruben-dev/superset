@@ -18,10 +18,13 @@
  */
 import type { CSSProperties } from 'react';
 import { t } from '@apache-superset/core/translation';
-import { css, styled } from '@apache-superset/core/theme';
+import { css, styled, useTheme } from '@apache-superset/core/theme';
 import { Filter, NativeFilterType } from '@superset-ui/core';
 import { useFilters } from 'src/dashboard/components/nativeFilters/FilterBar/state';
+import type { VisualFormat } from 'src/mibi/format/types';
 import CanvasFilterControl from './CanvasFilterControl';
+import { ElementTitle } from './ElementTitle';
+import { DateSlicerView, RangeSlicerView } from './RangeSlicerView';
 import { SlicerView } from './SlicerView';
 import type { FilterElement } from './types';
 
@@ -39,9 +42,32 @@ const Placeholder = styled.div`
 `;
 
 const Body = styled.div`
+  display: flex;
+  flex-direction: column;
   width: 100%;
   height: 100%;
   overflow: visible;
+
+  .mibi-slicer-body {
+    flex: 1;
+    min-height: 0;
+  }
+  /* The open list of the dropdown is drawn inside the element */
+  &.has-menu .ant-select-dropdown.ant-select-dropdown {
+    background: var(--mb-f-menu-fill);
+    border: var(--mb-f-menu-border, 0);
+    border-radius: var(--mb-f-menu-radius) !important;
+    box-shadow: var(--mb-f-menu-shadow) !important;
+  }
+  &.has-menu .ant-select-dropdown .rc-virtual-list-holder {
+    max-height: var(--mb-f-menu-height) !important;
+  }
+  &.has-menu .ant-select-dropdown .ant-select-item {
+    color: var(--mb-f-menu-color);
+  }
+  &.has-menu .ant-select-dropdown .ant-select-item-option-selected {
+    background: var(--mb-f-menu-selected);
+  }
 
   &.hide-label .ant-form-item-label,
   &.hide-label label[for] {
@@ -71,6 +97,12 @@ const Body = styled.div`
   }
 `;
 
+const JUSTIFY = {
+  left: 'flex-start',
+  center: 'center',
+  right: 'flex-end',
+} as const;
+
 /**
  * A dashboard native filter drawn on the canvas, like a BI slicer. It
  * applies selections right away and shares its value with the filter bar.
@@ -78,10 +110,14 @@ const Body = styled.div`
 export function FilterView({
   config,
   editMode,
+  format,
 }: {
   config: FilterElement;
   editMode: boolean;
+  /** The element's own format, with its title from the General level */
+  format?: VisualFormat;
 }) {
+  const theme = useTheme();
   const filters = useFilters();
   const candidate = config.filterId ? filters[config.filterId] : undefined;
   const filter =
@@ -103,7 +139,32 @@ export function FilterView({
     if (config.labelItalic) style['--mb-f-label-style'] = 'italic';
     if (config.labelUnderline) style['--mb-f-label-decoration'] = 'underline';
     if (config.labelFamily) style['--mb-f-label-family'] = config.labelFamily;
-    if (config.labelAlign) style['--mb-f-label-align'] = config.labelAlign;
+    if (config.labelAlign) {
+      style['--mb-f-label-align'] = config.labelAlign;
+      style['--mb-f-label-justify'] = JUSTIFY[config.labelAlign];
+    }
+    const hasMenu =
+      !!config.menuFill ||
+      !!config.menuColor ||
+      !!config.menuSelected ||
+      !!config.menuBorder ||
+      config.menuShadow === false ||
+      config.menuRadius !== undefined ||
+      !!config.menuMaxHeight;
+    if (hasMenu) {
+      style['--mb-f-menu-fill'] = config.menuFill || theme.colorBgElevated;
+      style['--mb-f-menu-color'] = config.menuColor || theme.colorText;
+      style['--mb-f-menu-selected'] =
+        config.menuSelected || theme.controlItemBgActive;
+      style['--mb-f-menu-radius'] = `${
+        config.menuRadius ?? theme.borderRadiusLG
+      }px`;
+      style['--mb-f-menu-height'] = `${config.menuMaxHeight ?? 256}px`;
+      if (config.menuBorder)
+        style['--mb-f-menu-border'] = `1px solid ${config.menuBorder}`;
+      style['--mb-f-menu-shadow'] =
+        config.menuShadow === false ? 'none' : theme.boxShadowSecondary;
+    }
     if (config.labelFill) style['--mb-f-label-fill'] = config.labelFill;
     if (config.labelDivider)
       style['--mb-f-label-divider'] = '1px solid currentColor';
@@ -111,6 +172,13 @@ export function FilterView({
     const variant = config.variant ?? 'dropdown';
     const drawn =
       variant !== 'dropdown' && filter.filterType === 'filter_select';
+    const range = !!config.rangeStyle && filter.filterType === 'filter_range';
+    const date = !!config.dateStyle && filter.filterType === 'filter_time';
+    let control = <CanvasFilterControl filter={filter} />;
+    if (drawn) control = <SlicerView filter={filter} config={config} />;
+    else if (range)
+      control = <RangeSlicerView filter={filter} config={config} />;
+    else if (date) control = <DateSlicerView filter={filter} config={config} />;
     const hasBox =
       !!config.boxFill ||
       !!config.boxBorder ||
@@ -131,16 +199,14 @@ export function FilterView({
           config.hideLabel && 'hide-label',
           hasLabelStyle && 'has-label-style',
           hasBox && 'has-box',
+          hasMenu && 'has-menu',
         ]
           .filter(Boolean)
           .join(' ')}
         style={style as CSSProperties}
       >
-        {drawn ? (
-          <SlicerView filter={filter} config={config} />
-        ) : (
-          <CanvasFilterControl filter={filter} />
-        )}
+        <ElementTitle format={format} fallback={filter.name} />
+        <div className="mibi-slicer-body">{control}</div>
       </Body>
     );
   }

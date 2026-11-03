@@ -16,10 +16,24 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { act, fireEvent, render, screen } from 'spec/helpers/testing-library';
-import { NativeFilterType, type Filter } from '@superset-ui/core';
+import {
+  act,
+  createStore,
+  fireEvent,
+  render,
+  screen,
+} from 'spec/helpers/testing-library';
+import reducerIndex from 'spec/helpers/reducerIndex';
+import {
+  NativeFilterType,
+  type DataMaskStateWithId,
+  type Filter,
+} from '@superset-ui/core';
 import { getChartDataRequest } from 'src/components/Chart/chartAction';
 import { slicerStyle, SlicerView } from './SlicerView';
+
+const dataMaskOf = (store: { getState: () => unknown }, id: string) =>
+  (store.getState() as { dataMask: DataMaskStateWithId }).dataMask[id];
 
 jest.mock('src/components/Chart/chartAction', () => ({
   ...jest.requireActual('src/components/Chart/chartAction'),
@@ -48,14 +62,15 @@ const renderSlicer = async (config: object, initial: object = state) => {
     response: { status: 200 },
     json: { result: [{ data: [{ region: 'North' }, { region: 'South' }] }] },
   });
+  const store = createStore(initial, reducerIndex);
   const view = render(
     <SlicerView filter={filter} config={{ kind: 'filter', ...config }} />,
-    { useRedux: true, initialState: initial },
+    { store },
   );
   await act(async () => {
     await Promise.resolve();
   });
-  return view;
+  return { ...view, store };
 };
 
 test('lists the values and selects them', async () => {
@@ -81,7 +96,9 @@ test('offers select all and search when asked', async () => {
   fireEvent.change(screen.getByTestId('mibi-slicer-search'), {
     target: { value: 'nor' },
   });
-  expect(screen.queryByRole('button', { name: 'South' })).toBeNull();
+  expect(
+    screen.queryByRole('button', { name: 'South' }),
+  ).not.toBeInTheDocument();
 });
 
 test('a text slicer filters by what it contains', async () => {
@@ -107,4 +124,120 @@ test('the look only sets what was chosen', () => {
     '--mb-s-weight': 400,
     '--mb-s-columns': 'repeat(3, minmax(0, 1fr))',
   });
+});
+
+test('a single selection slicer keeps one value', async () => {
+  await renderSlicer({ variant: 'buttons', selection: 'single' });
+  fireEvent.click(await screen.findByRole('button', { name: 'North' }));
+  fireEvent.click(screen.getByRole('button', { name: 'South' }));
+  expect(
+    await screen.findByRole('button', { name: 'South', pressed: true }),
+  ).toBeInTheDocument();
+  expect(
+    screen.getByRole('button', { name: 'North', pressed: false }),
+  ).toBeInTheDocument();
+});
+
+test('with Ctrl selection a plain click replaces and Ctrl adds', async () => {
+  await renderSlicer({ variant: 'list', selection: 'ctrl' });
+  fireEvent.click(await screen.findByRole('button', { name: 'North' }));
+  fireEvent.click(screen.getByRole('button', { name: 'South' }));
+  expect(
+    await screen.findByRole('button', { name: 'North', pressed: false }),
+  ).toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button', { name: 'North' }), {
+    ctrlKey: true,
+  });
+  expect(
+    await screen.findByRole('button', { name: 'North', pressed: true }),
+  ).toBeInTheDocument();
+  expect(
+    screen.getByRole('button', { name: 'South', pressed: true }),
+  ).toBeInTheDocument();
+});
+
+test('an Apply button holds the choices until it is pressed', async () => {
+  const { store } = await renderSlicer({
+    variant: 'list',
+    applyButton: true,
+    showSummary: true,
+  });
+  fireEvent.click(await screen.findByRole('button', { name: 'North' }));
+  expect(
+    screen.getByRole('img', { name: 'Changes not applied' }),
+  ).toBeVisible();
+  expect(dataMaskOf(store, filter.id)).toBeUndefined();
+  fireEvent.click(screen.getByTestId('mibi-slicer-apply'));
+  expect(dataMaskOf(store, filter.id)?.filterState?.value).toEqual(['North']);
+  expect(screen.getByTestId('mibi-slicer-summary')).toHaveTextContent('North');
+  expect(
+    screen.queryByRole('img', { name: 'Changes not applied' }),
+  ).not.toBeInTheDocument();
+});
+
+test('the chosen values show as chips that remove them', async () => {
+  await renderSlicer({ variant: 'buttons', showPills: true });
+  fireEvent.click(await screen.findByRole('button', { name: 'North' }));
+  const chip = await screen.findByRole('button', {
+    name: 'Remove the value North',
+  });
+  fireEvent.click(chip);
+  expect(
+    await screen.findByRole('button', { name: 'North', pressed: false }),
+  ).toBeInTheDocument();
+  expect(screen.queryByTestId('mibi-slicer-pills')).not.toBeInTheDocument();
+});
+
+test('values can be sorted', async () => {
+  await renderSlicer({ variant: 'list', sortValues: 'desc' });
+  await screen.findByRole('button', { name: 'North' });
+  expect(
+    screen.getAllByTestId('mibi-slicer-item').map(item => item.textContent),
+  ).toEqual(['South', 'North']);
+});
+
+test('a text slicer of whole values filters by the list', async () => {
+  const { store } = await renderSlicer({
+    variant: 'input',
+    inputMatch: 'exact',
+  });
+  const input = screen.getByTestId('mibi-slicer-input');
+  fireEvent.change(input, { target: { value: 'North, South' } });
+  fireEvent.keyDown(input, { key: 'Enter' });
+  expect(dataMaskOf(store, filter.id).extraFormData).toEqual({
+    filters: [{ col: 'region', op: 'IN', val: ['North', 'South'] }],
+  });
+});
+
+test('applying the same text again does not filter again', async () => {
+  const { store } = await renderSlicer({ variant: 'input' });
+  const input = screen.getByTestId('mibi-slicer-input');
+  fireEvent.change(input, { target: { value: 'nor' } });
+  fireEvent.keyDown(input, { key: 'Enter' });
+  const first = dataMaskOf(store, filter.id);
+  fireEvent.blur(input);
+  expect(dataMaskOf(store, filter.id)).toBe(first);
+});
+
+test('a filter of one value keeps one whatever the slicer says', async () => {
+  const single = {
+    ...filter,
+    controlValues: { multiSelect: false },
+  } as unknown as Filter;
+  (getChartDataRequest as jest.Mock).mockResolvedValue({
+    response: { status: 200 },
+    json: { result: [{ data: [{ region: 'North' }, { region: 'South' }] }] },
+  });
+  render(
+    <SlicerView
+      filter={single}
+      config={{ kind: 'filter', variant: 'list', selection: 'multi' }}
+    />,
+    { useRedux: true, initialState: state },
+  );
+  fireEvent.click(await screen.findByRole('button', { name: 'North' }));
+  fireEvent.click(screen.getByRole('button', { name: 'South' }));
+  expect(
+    await screen.findByRole('button', { name: 'North', pressed: false }),
+  ).toBeInTheDocument();
 });
