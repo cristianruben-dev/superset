@@ -73,10 +73,16 @@ export function formatOf(item: LayoutItem): CopiedFormat {
       delete (style as Record<string, unknown>)[key];
     });
   }
+  let box = sharableFormat(item.meta[VISUAL_FORMAT_KEY] as VisualFormat);
+  // The title of an element is its own text, not a template of its kind
+  if (source !== 'chart' && box?.title?.template !== undefined) {
+    const { template: _template, ...title } = box.title;
+    box = { ...box, title };
+  }
   return {
     sourceId: item.id,
     source,
-    box: sharableFormat(item.meta[VISUAL_FORMAT_KEY] as VisualFormat),
+    box,
     style,
   };
 }
@@ -107,10 +113,12 @@ export const pasteFormat =
     if (!copied || !item) return;
     const meta = { ...item.meta };
     // What belongs to this chart stays with it
-    const box = withOwnFormat(
-      copied.box,
-      ownFormat(item.meta[VISUAL_FORMAT_KEY] as VisualFormat | undefined),
-    );
+    const current = item.meta[VISUAL_FORMAT_KEY] as VisualFormat | undefined;
+    let box = withOwnFormat(copied.box, ownFormat(current));
+    const template = current?.title?.template;
+    if (sourceOf(item) !== 'chart' && template !== undefined) {
+      box = { ...box, title: { ...box?.title, template } };
+    }
     if (box) meta[VISUAL_FORMAT_KEY] = box;
     else delete meta[VISUAL_FORMAT_KEY];
     if (copied.style && copied.source === sourceOf(item)) {

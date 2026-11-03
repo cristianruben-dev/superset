@@ -217,9 +217,95 @@ export interface FilterElement {
   selectedColor?: string;
   selectedBorder?: string;
   selectedBold?: boolean;
+  selectedItalic?: boolean;
+  selectedUnderline?: boolean;
+  selectedBorderWidth?: number;
+  selectedRadius?: number;
+  selectedPadding?: number;
+  itemVAlign?: 'top' | 'middle' | 'bottom';
+  /** Space between the selection mark and the text */
+  iconGap?: number;
+  searchPadding?: number;
+  menuBorder?: string;
+  /** The open list of the dropdown casts its shadow (on by default) */
+  menuShadow?: boolean;
+  /** How many values a click picks; unset follows the filter's own setting */
+  selection?: SlicerSelection;
+  /** Choices wait for an Apply button instead of filtering right away */
+  applyButton?: boolean;
+  applyFill?: string;
+  applyColor?: string;
+  /** The chosen values as chips under the header, each one removable */
+  showPills?: boolean;
+  pillFill?: string;
+  pillColor?: string;
+  pillRadius?: number;
+  /** How many values are chosen, next to the header */
+  showSummary?: boolean;
+  /** Order of the values; unset keeps the order of the query */
+  sortValues?: 'asc' | 'desc';
+  /** Text shown for an empty value */
+  blankText?: string;
+  /** Display units and decimals of numeric values */
+  valueUnits?: ValueUnits;
+  valueDecimals?: number;
+  itemAlign?: 'left' | 'center' | 'right';
+  iconSize?: number;
+  iconPosition?: 'left' | 'right';
+  /** The box of the search and of the text slicer */
+  searchFamily?: string;
+  searchSize?: number;
+  searchColor?: string;
+  searchFill?: string;
+  searchBorder?: string;
+  searchRadius?: number;
+  /** The open list of the dropdown */
+  menuFill?: string;
+  menuColor?: string;
+  menuSelected?: string;
+  menuRadius?: number;
+  menuMaxHeight?: number;
+  /** A text slicer matches part of a value, or whole values separated by commas */
+  inputMatch?: 'contains' | 'exact';
+  /** How a range filter is drawn; unset keeps the filter's own control */
+  rangeStyle?: 'between' | 'slider';
+  /** How a time filter is drawn; unset keeps the filter's own control */
+  dateStyle?: 'relative' | 'between';
+  /** Values left out of the slicer, by `slicerValueKey` */
+  hiddenValues?: string[];
+  /** An eraser in the corner clears what is chosen (on by default) */
+  showClear?: boolean;
+  /** A text slicer only takes numbers, and matches them whole */
+  inputNumeric?: boolean;
+  /** A d3 number format, such as ",.0f" or "$,.2f", over units and decimals */
+  valueFormat?: string;
+  /** The selection mark sits over the corner of the value */
+  iconOverlay?: boolean;
+  /** Corners of the values one by one: top left, top right, bottom right, bottom left */
+  itemCorners?: Corners;
+  searchCorners?: Corners;
+  /** 0 to 100 */
+  itemFillOpacity?: number;
+  selectedFillOpacity?: number;
+  searchFillOpacity?: number;
+  menuFillOpacity?: number;
+  pillFillOpacity?: number;
 }
 
+export type Corners = [number, number, number, number];
+
 export type SlicerVariant = 'dropdown' | 'list' | 'buttons' | 'input';
+
+/** `ctrl` picks one value per click, and more with Ctrl or Cmd held. */
+export type SlicerSelection = 'multi' | 'single' | 'ctrl';
+
+export type ValueUnits =
+  | 'none'
+  | 'auto'
+  | 'thousands'
+  | 'millions'
+  | 'billions'
+  | 'trillions';
 
 /** One button per page of the report; the page that is open is highlighted. */
 export interface NavigatorElement {
