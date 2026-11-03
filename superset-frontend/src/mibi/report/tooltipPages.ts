@@ -223,7 +223,11 @@ interface CacheEntry<T> {
   promise: Promise<T>;
   controller: AbortController;
   settled: boolean;
+  aborted?: boolean;
 }
+
+/** What a query cancelled by `abortPending` rejects with. */
+export const QUERY_ABORTED = new Error('Tooltip query aborted');
 
 /**
  * Queries of tooltip charts by key. A key asked again shares the request in
@@ -255,7 +259,7 @@ export class TooltipQueryCache<T> {
         error => {
           // Failures are asked again next time
           if (this.entries.get(key) === entry) this.entries.delete(key);
-          throw error;
+          throw entry.aborted ? QUERY_ABORTED : error;
         },
       ),
     };
@@ -276,6 +280,7 @@ export class TooltipQueryCache<T> {
   abortPending(keep: Set<string> = new Set()) {
     this.entries.forEach((entry, key) => {
       if (!entry.settled && !keep.has(key)) {
+        entry.aborted = true;
         entry.controller.abort();
         this.entries.delete(key);
       }

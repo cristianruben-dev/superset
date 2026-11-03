@@ -65,6 +65,7 @@ import {
 import {
   chartDimensions,
   markKey,
+  QUERY_ABORTED,
   resolveTooltipPage,
   tooltipObjects,
   tooltipPageOf,
@@ -266,7 +267,9 @@ const TooltipChart = memo(function TooltipChart({
       .get(key, signal => fetchChartData(formData, signal))
       .then(
         data => live && setResult({ key, data }),
-        () => live && setResult({ key, failed: true }),
+        // A query cancelled because the pointer left is not a failure
+        error =>
+          live && error !== QUERY_ABORTED && setResult({ key, failed: true }),
       );
     return () => {
       live = false;
@@ -448,11 +451,19 @@ export function TooltipPageHost() {
       }
       clearTimeout(showTimer.current);
       showTimer.current = setTimeout(() => {
-        // The mark before this one no longer needs its queries
-        queries.abortPending();
+        // Queries of the mark before this one go on and fill the cache
         shown.current = key;
         setHover(detail);
       }, SHOW_DELAY);
+    };
+    // A click or a context menu takes over from the tooltip at once
+    const hideNow = () => {
+      clearTimeout(showTimer.current);
+      clearTimeout(hideTimer.current);
+      if (shown.current) {
+        shown.current = undefined;
+        setHover(null);
+      }
     };
     const onMove = (event: MouseEvent) => {
       pointer.current = { x: event.clientX, y: event.clientY };
@@ -463,6 +474,8 @@ export function TooltipPageHost() {
     window.addEventListener('mousemove', onMove, { passive: true });
     window.addEventListener('blur', hide);
     window.addEventListener('wheel', hide, { passive: true });
+    window.addEventListener('pointerdown', hideNow, true);
+    window.addEventListener('contextmenu', hideNow, true);
     return () => {
       clearTimeout(showTimer.current);
       clearTimeout(hideTimer.current);
@@ -471,6 +484,8 @@ export function TooltipPageHost() {
       window.removeEventListener('mousemove', onMove);
       window.removeEventListener('blur', hide);
       window.removeEventListener('wheel', hide);
+      window.removeEventListener('pointerdown', hideNow, true);
+      window.removeEventListener('contextmenu', hideNow, true);
     };
   }, [place]);
 

@@ -22,6 +22,7 @@ import { isHiddenPage, topLevelTabs } from 'src/mibi/present/dashboardTabs';
 import {
   chartDimensions,
   markKey,
+  QUERY_ABORTED,
   resolveTooltipPage,
   tooltipObjects,
   tooltipPageOf,
@@ -241,7 +242,7 @@ test('aborting forgets the queries still running, never the answered ones', asyn
   await cache.get('done', () => Promise.resolve('ok'));
   cache.abortPending();
   expect(signal?.aborted).toBe(true);
-  await expect(pending).rejects.toThrow('aborted');
+  await expect(pending).rejects.toBe(QUERY_ABORTED);
   expect(cache.has('done')).toBe(true);
   // The aborted key is asked again
   const again = jest.fn(() => Promise.resolve('fresh'));
