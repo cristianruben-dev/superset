@@ -64,6 +64,10 @@ La fase 7 añade segmentadores de lista, botones y texto, con disposición, bús
 
 **Validación de las fases 7 y 8:** tests de los archivos tocados y comprobación con datos del tablero 147: las cuatro variantes filtran los gráficos, las líneas de referencia y la tendencia se dibujan en barras, líneas, combinado y cascada, el zoom en líneas y área, el tooltip añade su campo, los múltiplos dividen un gráfico y añadir una línea desde el panel no consulta datos.
 
+**Pasada de pruebas de lo no probado (2026-11-02):** en Chromium headless, con la marca de automatización apagada, tablero 147 y SESEQ en solo lectura. Guardar y recargar desde el panel (línea de referencia, tendencia, múltiplos, variante de segmentador), filtrar con el segmentador de texto, barras horizontales con líneas, burbujas, mover y redimensionar con scroll y zoom, deshacer, editor acoplado, exportar a PNG y PDF, copiar imagen. En SESEQ: scroll y páginas en vista y edición, sin consultas en la segunda visita. Corrigió: la virtualización vaciaba todos los gráficos al hacer scroll, el doble scroll de la edición, la barra de zoom tapando la página, la búsqueda que no veía opciones de subcomponentes, las fuentes de la exportación y las burbujas cortadas.
+
+**Sin comprobar:** el mapa deck.gl de SESEQ da errores de WebGL en headless (`maxTextureDimension2D`) y hay que verlo en un navegador normal; exportar SESEQ; arrastrar y exportar en Safari o Firefox.
+
 ## Cobertura
 
 | Gráfico | Tenemos | A medias | Faltan |
@@ -127,4 +131,4 @@ Tarjeta de varias filas y la tarjeta nueva están en `cobertura.md`.
 
 - `pre-commit run --all-files`, dentro del contenedor.
 - 3 errores de lint en `useCellMove.ts`, de antes de estas fases.
-- Probar con un archivo real la exportación a PDF o PNG, y copiar imagen en un navegador normal.
+- `src/mibi/dashboard/ChartEditorPanel.test.tsx`: 2 tests desactualizados desde `800abe878c` (esperan el editor sin acoplar).
