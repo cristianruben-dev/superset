@@ -183,7 +183,43 @@ export interface FilterElement {
   boxBorder?: string;
   boxRadius?: number;
   textColor?: string;
+  /** How a list filter draws its values; a dropdown is the filter itself */
+  variant?: SlicerVariant;
+  labelItalic?: boolean;
+  labelUnderline?: boolean;
+  labelFamily?: string;
+  labelAlign?: 'left' | 'center' | 'right';
+  labelFill?: string;
+  labelDivider?: boolean;
+  layout?: 'vertical' | 'horizontal' | 'grid';
+  columns?: number;
+  showSearch?: boolean;
+  searchPlaceholder?: string;
+  showSelectAll?: boolean;
+  showIcon?: boolean;
+  iconColor?: string;
+  itemFamily?: string;
+  itemSize?: number;
+  itemColor?: string;
+  itemFill?: string;
+  itemBold?: boolean;
+  itemItalic?: boolean;
+  itemUnderline?: boolean;
+  itemWrap?: boolean;
+  itemBorder?: string;
+  itemBorderWidth?: number;
+  itemRadius?: number;
+  itemPadding?: number;
+  itemGap?: number;
+  hoverFill?: string;
+  hoverColor?: string;
+  selectedFill?: string;
+  selectedColor?: string;
+  selectedBorder?: string;
+  selectedBold?: boolean;
 }
+
+export type SlicerVariant = 'dropdown' | 'list' | 'buttons' | 'input';
 
 /** One button per page of the report; the page that is open is highlighted. */
 export interface NavigatorElement {

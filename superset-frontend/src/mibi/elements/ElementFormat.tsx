@@ -23,6 +23,7 @@ import { logging } from '@apache-superset/core/utils';
 import { css, styled, useTheme } from '@apache-superset/core/theme';
 import {
   Filter,
+  FONT_FAMILY_OPTIONS,
   getClientErrorObject,
   NativeFilterType,
 } from '@superset-ui/core';
@@ -59,6 +60,7 @@ import {
   type ElementKind,
   type Fill,
   type FilterElement,
+  type SlicerVariant,
   type HoverEffect,
   type ImageElement,
   type Interactive,
@@ -1352,6 +1354,209 @@ function NavigatorSection({
   );
 }
 
+const FONT_CHOICES = FONT_FAMILY_OPTIONS.map(([value, label]) => ({
+  value,
+  label,
+}));
+
+/** How a slicer draws its values, and the look of those values. */
+function SlicerSections({
+  config,
+  update,
+  isList,
+}: {
+  config: FilterElement;
+  update: (patch: Partial<FilterElement>, setting: string) => void;
+  isList: boolean;
+}) {
+  const theme = useTheme();
+  const variant = config.variant ?? 'dropdown';
+  const drawn = isList && variant !== 'dropdown';
+  const fromList = drawn && variant !== 'input';
+  const toggle = (
+    key: keyof FilterElement,
+    label: string,
+    fallback = false,
+  ) => (
+    <Field label={label}>
+      <Switch
+        size="small"
+        checked={(config[key] as boolean | undefined) ?? fallback}
+        aria-label={label}
+        onChange={value => update({ [key]: value }, `filter-${key}`)}
+      />
+    </Field>
+  );
+  const color = (key: keyof FilterElement, label: string, fallback: string) => (
+    <ColorField
+      label={label}
+      value={(config[key] as string | undefined) || fallback}
+      onChange={value => update({ [key]: value }, `filter-${key}`)}
+    />
+  );
+  const range = (
+    key: keyof FilterElement,
+    label: string,
+    fallback: number,
+    min: number,
+    max: number,
+  ) => (
+    <RangeField
+      label={label}
+      value={(config[key] as number | undefined) ?? fallback}
+      min={min}
+      max={max}
+      onChange={value => update({ [key]: value }, `filter-${key}`)}
+    />
+  );
+  return (
+    <>
+      <Section>
+        <h4>{t('Slicer type')}</h4>
+        {isList ? (
+          <Segments<SlicerVariant>
+            name={t('Slicer type')}
+            testId="mibi-slicer-variant"
+            value={variant}
+            onChange={next => update({ variant: next }, 'filter-variant')}
+            options={[
+              { value: 'dropdown', label: t('Dropdown') },
+              { value: 'list', label: t('List') },
+              { value: 'buttons', label: t('Buttons') },
+              { value: 'input', label: t('Text') },
+            ]}
+          />
+        ) : (
+          <Hint>
+            {t(
+              'Only a filter that lists values can change its type. A range or date filter keeps its own control.',
+            )}
+          </Hint>
+        )}
+        {fromList && (
+          <>
+            <Field label={t('Layout')} stacked>
+              <Segments<NonNullable<FilterElement['layout']>>
+                name={t('Layout')}
+                value={config.layout ?? 'vertical'}
+                onChange={layout => update({ layout }, 'filter-layout')}
+                options={[
+                  { value: 'vertical', label: t('Vertical') },
+                  { value: 'horizontal', label: t('Horizontal') },
+                  { value: 'grid', label: t('Grid') },
+                ]}
+              />
+            </Field>
+            {config.layout === 'grid' &&
+              range('columns', t('Columns'), 2, 1, 8)}
+            {toggle('showSearch', t('Show the search box'))}
+            {toggle('showSelectAll', t('Show «Select all»'))}
+            {variant === 'list' &&
+              toggle('showIcon', t('Show the selection mark'), true)}
+            {variant === 'list' &&
+              config.showIcon !== false &&
+              color('iconColor', t('Selection mark color'), theme.colorPrimary)}
+          </>
+        )}
+        {drawn && (config.showSearch || variant === 'input') && (
+          <Field label={t('Placeholder text')} stacked>
+            <Input
+              aria-label={t('Placeholder text')}
+              value={config.searchPlaceholder ?? ''}
+              onChange={event =>
+                update(
+                  { searchPlaceholder: event.target.value },
+                  'filter-placeholder',
+                )
+              }
+            />
+          </Field>
+        )}
+      </Section>
+      <Section>
+        <h4>{t('Slicer header')}</h4>
+        <Field label={t('Font')} stacked>
+          <Select
+            ariaLabel={t('Header font')}
+            allowClear
+            value={config.labelFamily}
+            options={FONT_CHOICES}
+            onChange={value =>
+              update(
+                { labelFamily: (value as string | null) ?? undefined },
+                'filter-label-family',
+              )
+            }
+          />
+        </Field>
+        {toggle('labelItalic', t('Italic'))}
+        {toggle('labelUnderline', t('Underline'))}
+        {toggle('labelDivider', t('Line under the header'))}
+        <Field label={t('Alignment')} stacked>
+          <Segments<NonNullable<FilterElement['labelAlign']>>
+            name={t('Header alignment')}
+            value={config.labelAlign ?? 'left'}
+            onChange={labelAlign =>
+              update({ labelAlign }, 'filter-label-align')
+            }
+            options={[
+              { value: 'left', label: t('Left') },
+              { value: 'center', label: t('Center') },
+              { value: 'right', label: t('Right') },
+            ]}
+          />
+        </Field>
+        {color('labelFill', t('Header background'), theme.colorBgContainer)}
+      </Section>
+      {fromList && (
+        <Section>
+          <h4>{t('Slicer values')}</h4>
+          <Field label={t('Font')} stacked>
+            <Select
+              ariaLabel={t('Values font')}
+              allowClear
+              value={config.itemFamily}
+              options={FONT_CHOICES}
+              onChange={value =>
+                update(
+                  { itemFamily: (value as string | null) ?? undefined },
+                  'filter-item-family',
+                )
+              }
+            />
+          </Field>
+          {range('itemSize', t('Size'), 13, 8, 40)}
+          {toggle('itemBold', t('Bold'))}
+          {toggle('itemItalic', t('Italic'))}
+          {toggle('itemUnderline', t('Underline'))}
+          {toggle('itemWrap', t('Wrap the text'))}
+          {color('itemColor', t('Text color'), theme.colorText)}
+          {color('itemFill', t('Background'), theme.colorBgContainer)}
+          {color('itemBorder', t('Border color'), theme.colorBorder)}
+          {range(
+            'itemBorderWidth',
+            t('Border width'),
+            variant === 'buttons' ? 1 : 0,
+            0,
+            8,
+          )}
+          {range('itemRadius', t('Corner radius'), 6, 0, 40)}
+          {range('itemPadding', t('Padding'), 4, 0, 24)}
+          {range('itemGap', t('Space between values'), 4, 0, 24)}
+          <h5>{t('When the pointer is over it')}</h5>
+          {color('hoverFill', t('Background'), theme.colorFillTertiary)}
+          {color('hoverColor', t('Text color'), theme.colorText)}
+          <h5>{t('When it is selected')}</h5>
+          {color('selectedFill', t('Background'), theme.colorPrimary)}
+          {color('selectedColor', t('Text color'), theme.colorTextLightSolid)}
+          {color('selectedBorder', t('Border color'), theme.colorPrimary)}
+          {toggle('selectedBold', t('Bold'))}
+        </Section>
+      )}
+    </>
+  );
+}
+
 function FilterSection({
   id,
   config,
@@ -1372,6 +1577,8 @@ function FilterSection({
         .map(filter => ({ value: filter.id, label: filter.name })),
     [filters],
   );
+  const chosen = config.filterId ? filters[config.filterId] : undefined;
+  const isList = (chosen as Filter | undefined)?.filterType === 'filter_select';
   return (
     <>
       <Section>
@@ -1404,6 +1611,7 @@ function FilterSection({
           />
         </Field>
       </Section>
+      <SlicerSections config={config} update={update} isList={isList} />
       <Section>
         <h4>{t('Slicer style')}</h4>
         <Field label={t('Show label')}>

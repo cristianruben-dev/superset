@@ -22,6 +22,7 @@ import { css, styled } from '@apache-superset/core/theme';
 import { Filter, NativeFilterType } from '@superset-ui/core';
 import { useFilters } from 'src/dashboard/components/nativeFilters/FilterBar/state';
 import CanvasFilterControl from './CanvasFilterControl';
+import { SlicerView } from './SlicerView';
 import type { FilterElement } from './types';
 
 const Placeholder = styled.div`
@@ -50,6 +51,11 @@ const Body = styled.div`
     font-size: var(--mb-f-label-size, inherit) !important;
     color: var(--mb-f-label-color, inherit) !important;
     font-weight: var(--mb-f-label-weight, inherit) !important;
+    font-style: var(--mb-f-label-style, inherit) !important;
+    text-decoration: var(--mb-f-label-decoration, none) !important;
+    font-family: var(--mb-f-label-family, inherit) !important;
+    display: block;
+    text-align: var(--mb-f-label-align, left);
   }
   &.has-box .ant-select-selector,
   &.has-box .ant-picker,
@@ -94,6 +100,17 @@ export function FilterView({
     if (config.boxRadius !== undefined)
       style['--mb-f-box-radius'] = `${config.boxRadius}px`;
     if (config.textColor) style['--mb-f-text-color'] = config.textColor;
+    if (config.labelItalic) style['--mb-f-label-style'] = 'italic';
+    if (config.labelUnderline) style['--mb-f-label-decoration'] = 'underline';
+    if (config.labelFamily) style['--mb-f-label-family'] = config.labelFamily;
+    if (config.labelAlign) style['--mb-f-label-align'] = config.labelAlign;
+    if (config.labelFill) style['--mb-f-label-fill'] = config.labelFill;
+    if (config.labelDivider)
+      style['--mb-f-label-divider'] = '1px solid currentColor';
+    // Only a list of values can be drawn as other than its filter
+    const variant = config.variant ?? 'dropdown';
+    const drawn =
+      variant !== 'dropdown' && filter.filterType === 'filter_select';
     const hasBox =
       !!config.boxFill ||
       !!config.boxBorder ||
@@ -102,7 +119,11 @@ export function FilterView({
     const hasLabelStyle =
       !!config.labelSize ||
       !!config.labelColor ||
-      config.labelBold !== undefined;
+      config.labelBold !== undefined ||
+      !!config.labelItalic ||
+      !!config.labelUnderline ||
+      !!config.labelFamily ||
+      !!config.labelAlign;
     return (
       <Body
         data-test="mibi-filter-control"
@@ -115,7 +136,11 @@ export function FilterView({
           .join(' ')}
         style={style as CSSProperties}
       >
-        <CanvasFilterControl filter={filter} />
+        {drawn ? (
+          <SlicerView filter={filter} config={config} />
+        ) : (
+          <CanvasFilterControl filter={filter} />
+        )}
       </Body>
     );
   }
