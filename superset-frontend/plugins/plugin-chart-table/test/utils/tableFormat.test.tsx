@@ -25,6 +25,7 @@ import {
   getTableClassName,
   getTableFormat,
   getTableFormatCss,
+  withImageAltText,
 } from '../../src/utils/tableFormat';
 import testData from '../testData';
 import { ProviderWrapper } from '../testHelpers';
@@ -174,4 +175,16 @@ test('global table alignment and widths override defaults while explicit columns
     textAlign: 'right',
     minWidth: '180px',
   });
+});
+
+test('images without a description take the text of the chosen column', () => {
+  expect(withImageAltText('<img src="/a.png">', 'Norte "1"')).toBe(
+    '<img alt="Norte &quot;1&quot;" src="/a.png">',
+  );
+  expect(withImageAltText('<img alt="kept" src="/a.png">', 'Norte')).toBe(
+    '<img alt="kept" src="/a.png">',
+  );
+  expect(withImageAltText('<img src="/a.png">', null)).toBe(
+    '<img src="/a.png">',
+  );
 });

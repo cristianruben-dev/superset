@@ -19,8 +19,34 @@
 
 import { css, styled } from '@apache-superset/core/theme';
 
-export const Styles = styled.div<{ isDashboardEditMode: boolean }>`
-  ${({ theme, isDashboardEditMode }) => css`
+// The levels of row headers a frozen matrix keeps in place
+const FROZEN_LEVELS = Array.from({ length: 12 }, (_, level) => level);
+
+export const Styles = styled.div<{
+  isDashboardEditMode: boolean;
+  freezeRowHeaders?: boolean;
+}>`
+  ${({ theme, isDashboardEditMode, freezeRowHeaders }) => css`
+    ${freezeRowHeaders &&
+    !isDashboardEditMode &&
+    css`
+      table.pvtTable th[data-mibi-level] {
+        position: sticky;
+        z-index: 1;
+        background-color: ${theme.colorBgBase};
+      }
+      table.pvtTable thead th[data-mibi-level] {
+        z-index: 2;
+      }
+      ${FROZEN_LEVELS.map(
+        level => `
+          table.pvtTable th[data-mibi-level='${level}'] {
+            left: var(--mibi-freeze-${level}, 0px);
+          }
+        `,
+      ).join('')}
+    `}
+
     table.pvtTable {
       position: ${isDashboardEditMode ? 'inherit' : 'relative'};
       width: calc(100% - ${theme.sizeUnit}px);
