@@ -162,8 +162,16 @@ export function setupStore({
   initialState?: ConfigureStoreOptions['preloadedState'];
   rootReducers?: ConfigureStoreOptions['reducer'];
 } & Partial<ConfigureStoreOptions> = {}) {
+  // Bootstrap data some pages carry (the embedded config) has no reducer
+  const known = new Set([api.reducerPath, ...Object.keys(rootReducers)]);
+  const preloadedState =
+    initialState && typeof initialState === 'object'
+      ? Object.fromEntries(
+          Object.entries(initialState).filter(([key]) => known.has(key)),
+        )
+      : initialState;
   return configureStore({
-    preloadedState: initialState,
+    preloadedState,
     reducer: {
       [api.reducerPath]: api.reducer,
       ...rootReducers,
