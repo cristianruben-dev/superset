@@ -21,7 +21,6 @@ import { useRef, useState } from 'react';
 import { Radio, RadioChangeEvent } from '@superset-ui/core/components/Radio';
 import {
   Button,
-  Checkbox,
   Form,
   Input,
   Divider,
@@ -89,12 +88,6 @@ function SaveModal({
   const [newDashName, setNewDashName] = useState(
     `${dashboardTitle} ${t('[copy]')}`,
   );
-  const [duplicateSlices, setDuplicateSlices] = useState(false);
-
-  const toggleDuplicateSlices = () => {
-    setDuplicateSlices(prev => !prev);
-  };
-
   const handleSaveTypeChange = (event: RadioChangeEvent) => {
     setSaveType((event.target as HTMLInputElement).value as SaveType);
   };
@@ -116,7 +109,8 @@ function SaveModal({
       css: customCss,
       dashboard_title:
         saveType === SAVE_TYPE_NEWDASHBOARD ? newDashName : dashboardTitle,
-      duplicate_slices: duplicateSlices,
+      // A chart belongs to one dashboard, so a copy always gets its own charts
+      duplicate_slices: true,
       last_modified_time: lastModifiedTime,
       owners: dashboardInfo.owners,
       roles: dashboardInfo.roles,
@@ -172,15 +166,6 @@ function SaveModal({
               onFocus={e => handleNameChange(e.target.value)}
               onChange={e => handleNameChange(e.target.value)}
             />
-          </Form.Item>
-
-          <Form.Item>
-            <Checkbox
-              checked={duplicateSlices}
-              onChange={() => toggleDuplicateSlices()}
-            >
-              {t('also copy (duplicate) charts')}
-            </Checkbox>
           </Form.Item>
         </Form>
       }
