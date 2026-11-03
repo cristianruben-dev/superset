@@ -134,6 +134,8 @@ export interface TableChartTransformedProps<D extends DataRecord = DataRecord> {
   columnLabelToNameMap?: Record<string, string>;
   /** Resolved "Table format" controls. */
   tableFormat?: TableFormat;
+  /** The first sort saved from the dashboard, drawn as the header's arrow */
+  savedSort?: TableSortItem;
 }
 
 export default {};
