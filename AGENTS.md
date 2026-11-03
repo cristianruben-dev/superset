@@ -239,6 +239,9 @@ Formats are stored in `position_json`, so they save, undo and export with the da
   fixed size whatever the zoom: previous/next arrows, flat page tabs split by hairlines with the accent
   under the active one, "Page 1 of 3" and the zoom with a fit choice (`ZoomToolbar docked`); narrow bars
   drop the slider, then the fit choice. Presenting and the mobile layout keep the tabs above the page.
+- With the page bar, the vertical filter pane is a pane of the report at its right edge, as tall as the
+  page area and out of the page (`FilterDockTarget atEdge` in `CanvasFrame`); the page floats alone and its
+  zoom does not count the pane. Presenting keeps the pane beside the page.
 - The vertical filter pane stays beside the page while editing. Each filter is a card (`mibi/dashboard/FilterCard.tsx`):
   name and what it selects (`filterSummary`: "is (All)", "is North"), folded until opened (remembered in
   the browser), with the accent on its edge while it selects something; the folded rail counts the
