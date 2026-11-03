@@ -21569,3 +21569,21 @@ msgstr "Restablecer filtros: vuelve a los filtros y segmentadores guardados"
 
 msgid "Back to the saved filters, slicers and cross-filters"
 msgstr "Vuelve a los filtros, segmentadores y filtros cruzados guardados"
+
+msgid "is (All)"
+msgstr "es (Todos)"
+
+msgid "is %s"
+msgstr "es %s"
+
+msgid "is at most %s"
+msgstr "es como máximo %s"
+
+msgid "is at least %s"
+msgstr "es como mínimo %s"
+
+msgid "is between %s and %s"
+msgstr "está entre %s y %s"
+
+msgid "%s filters applied"
+msgstr "%s filtros aplicados"
