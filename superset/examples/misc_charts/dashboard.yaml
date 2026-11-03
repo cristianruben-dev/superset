@@ -28,7 +28,6 @@ metadata:
   expanded_slices: {}
   global_chart_configuration:
     chartsInScope:
-    - 48bf196c-f5fe-4e6c-b8ed-166e36b6648b
     - fe23db78-c168-4ce2-86b0-38d82bb37d88
     - ed3032d8-7961-4576-8fc4-2a61639a38bf
     scope:
@@ -83,20 +82,6 @@ metadata:
   shared_label_colors: []
   timed_refresh_immune_slices: []
 position:
-  CHART-S1WYNz4AVX:
-    children: []
-    id: CHART-S1WYNz4AVX
-    meta:
-      chartId: 131
-      height: 69
-      sliceName: Parallel Coordinates
-      uuid: 48bf196c-f5fe-4e6c-b8ed-166e36b6648b
-      width: 4
-    parents:
-    - ROOT_ID
-    - GRID_ID
-    - ROW-SytNzNA4X
-    type: CHART
   CHART-explore-160-1:
     children: []
     id: CHART-explore-160-1
@@ -146,7 +131,6 @@ position:
   ROW-SytNzNA4X:
     children:
     - CHART-rkgF4G4A4X
-    - CHART-S1WYNz4AVX
     - CHART-explore-160-1
     id: ROW-SytNzNA4X
     meta:

@@ -34,16 +34,6 @@ metadata:
   shared_label_colors: []
   timed_refresh_immune_slices: []
 position:
-  CHART-0fd0d252:
-    children: []
-    id: CHART-0fd0d252
-    meta:
-      chartId: 126
-      height: 50
-      sliceName: Life Expectancy VS Rural %
-      uuid: c18faec9-ec43-4d36-8b66-4c8b1372020f
-      width: 8
-    type: CHART
   CHART-17e0f8d8:
     children: []
     id: CHART-17e0f8d8
@@ -170,7 +160,6 @@ position:
   ROW-3fa26c5d:
     children:
     - CHART-b5e05d6f
-    - CHART-0fd0d252
     id: ROW-3fa26c5d
     meta:
       background: BACKGROUND_TRANSPARENT

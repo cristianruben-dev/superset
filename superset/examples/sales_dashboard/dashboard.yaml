@@ -487,21 +487,6 @@ position:
     - TAB-4fthLQmdX
     - ROW-0l1WcDzW3
     type: CHART
-  CHART-YFg-9wHE7s:
-    children: []
-    id: CHART-YFg-9wHE7s
-    meta:
-      chartId: 47
-      height: 49
-      sliceName: Seasonality of Revenue (per Product Line)
-      uuid: cf0da099-b3ab-4d94-ab62-cf353ac3c611
-      width: 6
-    parents:
-    - ROOT_ID
-    - TABS-e5Ruro0cjP
-    - TAB-4fthLQmdX
-    - ROW-E7MDSGfnm
-    type: CHART
   CHART-_LMKI0D3tj:
     children: []
     id: CHART-_LMKI0D3tj
@@ -686,7 +671,6 @@ position:
     type: ROW
   ROW-E7MDSGfnm:
     children:
-    - CHART-YFg-9wHE7s
     - CHART-_LMKI0D3tj
     id: ROW-E7MDSGfnm
     meta:
