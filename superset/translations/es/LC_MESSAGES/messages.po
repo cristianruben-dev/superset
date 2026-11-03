@@ -2970,7 +2970,7 @@ msgstr ""
 "asignar un color basado en una paleta de colores categórica"
 
 msgid "Choose..."
-msgstr "Selecciona..."
+msgstr "Selecciona…"
 
 msgid "Chord Diagram"
 msgstr "Diagrama de cuerdas"
@@ -10650,7 +10650,7 @@ msgid "Select"
 msgstr "Seleccionar"
 
 msgid "Select ..."
-msgstr "Seleccionar …"
+msgstr "Selecciona…"
 
 msgid "Select All"
 msgstr "Seleccionar todo"
@@ -15853,7 +15853,7 @@ msgstr ""
 "categórico y se basa en etiquetas."
 
 msgid "[untitled customization]"
-msgstr "[personalización sin título]"
+msgstr "[control sin nombre]"
 
 msgid "`compare_columns` must have the same length as `source_columns`."
 msgstr "«compare_columns» debe tener la misma longitud que «source_columns»."
@@ -21033,3 +21033,129 @@ msgstr "El gráfico seleccionado usa otra tabla."
 
 msgid "Only the owners of this chart can change its fields."
 msgstr "Solo los propietarios de este gráfico pueden cambiar sus campos."
+
+msgid "Language"
+msgstr "Idioma"
+
+msgid "[Yesterday at] LTS"
+msgstr "[ayer,] LTS"
+
+msgid "[Today at] LTS"
+msgstr "[hoy,] LTS"
+
+msgid "[Tomorrow at] LTS"
+msgstr "[mañana,] LTS"
+
+msgid "[last] dddd [at] LTS"
+msgstr "[el] dddd [pasado,] LTS"
+
+msgid "dddd [at] LTS"
+msgstr "[el] dddd[,] LTS"
+
+msgid "Include description to be sent with alert"
+msgstr "Incluye una descripción para enviar con la alerta"
+
+msgid "Include description to be sent with report"
+msgstr "Incluye una descripción para enviar con el informe"
+
+msgid "Change grouping"
+msgstr "Cambiar agrupación"
+
+msgid "Change grouping (%d)"
+msgstr "Cambiar agrupación (%d)"
+
+msgid "Change grouping (%s)"
+msgstr "Cambiar agrupación (%s)"
+
+msgid "Add grouping control"
+msgstr "Añadir cambio de agrupación"
+
+msgid "Control configuration"
+msgstr "Configuración del control"
+
+msgid "Control settings"
+msgstr "Ajustes del control"
+
+msgid "Control name"
+msgstr "Nombre del control"
+
+msgid "Control type"
+msgstr "Tipo de control"
+
+msgid "Sort control values"
+msgstr "Ordenar los valores del control"
+
+msgid "Control has a default value"
+msgstr "El control tiene un valor predeterminado"
+
+msgid "Filters narrow down the data of the charts in this report. Grouping controls let readers choose the field the charts group by."
+msgstr "Los filtros reducen los datos de los gráficos de este informe. «Cambiar agrupación» deja que quien lo lee elija por qué campo se agrupan."
+
+msgid "Nothing to edit yet. Use New to add a filter, or pick one from the list."
+msgstr "Aún no hay nada que editar. Usa «Nuevo» para añadir un filtro o elige uno de la lista."
+
+msgid "Edit filter %s"
+msgstr "Editar el filtro %s"
+
+msgid "Needs at least 3 objects"
+msgstr "Necesita al menos 3 objetos"
+
+msgid "Align, match size and group need 2 or more objects; distribute needs 3."
+msgstr "Alinear, igualar y agrupar necesitan 2 o más objetos; distribuir, 3."
+
+msgid "%s object changed. Ctrl+Z undoes it."
+msgid_plural "%s objects changed. Ctrl+Z undoes it."
+msgstr[0] "Cambió %s objeto. Ctrl+Z lo deshace."
+msgstr[1] "Cambiaron %s objetos. Ctrl+Z lo deshace."
+
+msgid "Nothing to change: they are already like that."
+msgstr "Nada que cambiar: ya estaban así."
+
+msgid "%s locked object stayed in place."
+msgid_plural "%s locked objects stayed in place."
+msgstr[0] "%s objeto bloqueado se quedó en su lugar."
+msgstr[1] "%s objetos bloqueados se quedaron en su lugar."
+
+msgid "%s object selected"
+msgid_plural "%s objects selected"
+msgstr[0] "%s objeto seleccionado"
+msgstr[1] "%s objetos seleccionados"
+
+msgid "No objects selected"
+msgstr "Ningún objeto seleccionado"
+
+msgid "Click an object, then hold Ctrl (⌘ on Mac) or Shift and click the others."
+msgstr "Haz clic en un objeto y, con Ctrl (⌘ en Mac) o Mayús pulsado, en los demás."
+
+msgid "Select all on this page"
+msgstr "Seleccionar todos los de esta página"
+
+msgid "Leaves the same space between them; the outer two stay in place."
+msgstr "Deja el mismo espacio entre ellos; los dos de los extremos no se mueven."
+
+msgid "Horizontally"
+msgstr "En horizontal"
+
+msgid "Vertically"
+msgstr "En vertical"
+
+msgid "Match size"
+msgstr "Igualar tamaño"
+
+msgid "They take the size of «%s», the last one you picked."
+msgstr "Toman el tamaño de «%s», el último que elegiste."
+
+msgid "They take the size of the last one you picked."
+msgstr "Toman el tamaño del último que elegiste."
+
+msgid "Edit filter"
+msgstr "Editar filtro"
+
+msgid "Align"
+msgstr "Alinear"
+
+msgid "Distribute"
+msgstr "Distribuir"
+
+msgid "[untitled]"
+msgstr "[sin nombre]"
