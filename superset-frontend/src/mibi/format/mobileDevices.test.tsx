@@ -17,6 +17,7 @@
  * under the License.
  */
 import { render, screen } from 'spec/helpers/testing-library';
+import { supersetTheme } from '@apache-superset/core/theme';
 import { DeviceFrame, deviceFrameSize, deviceScale } from './DeviceFrame';
 import {
   DEFAULT_MOBILE_DEVICE,
@@ -120,4 +121,23 @@ test('boxes that cover part of another are flagged', () => {
   expect([
     ...overlappingBoxes([box('a', 0), box('b', 5), box('c', 20)]),
   ]).toEqual(['a', 'b']);
+});
+
+test('the preview draws the bars and the filter rail a viewer has', () => {
+  render(
+    <DeviceFrame
+      device={deviceById('iphone-16')}
+      scale={1}
+      safeArea={false}
+      viewer={{ title: 'Ventas', rail: true, theme: supersetTheme }}
+    >
+      <div />
+    </DeviceFrame>,
+    { useTheme: true },
+  );
+  expect(screen.getByTestId('mibi-device-viewer-bars')).toHaveTextContent(
+    'Ventas',
+  );
+  expect(screen.getByTestId('mibi-device-viewer-rail')).toBeInTheDocument();
+  expect(screen.queryByTestId('mibi-safe-top')).not.toBeInTheDocument();
 });

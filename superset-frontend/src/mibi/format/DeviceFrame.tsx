@@ -18,7 +18,14 @@
  */
 import { forwardRef, type ReactNode } from 'react';
 import { t } from '@apache-superset/core/translation';
-import { css, styled, useTheme } from '@apache-superset/core/theme';
+import {
+  css,
+  styled,
+  useTheme,
+  type SupersetTheme,
+} from '@apache-superset/core/theme';
+import { Icons } from '@superset-ui/core/components/Icons';
+import { CLOSED_FILTER_BAR_WIDTH } from 'src/dashboard/constants';
 import { pixelsOf, safeHeightOf, type MobileDevice } from './mobileDevices';
 
 /**
@@ -35,6 +42,24 @@ const HARDWARE = {
   outline: 'rgba(0, 0, 0, 0.35)',
 };
 /* eslint-enable theme-colors/no-literal-colors */
+
+/**
+ * What the app takes of a phone screen around a report, as measured on a
+ * phone 393 points wide: the top bar (57) and the report header (65) above,
+ * the room above the page, and the closed filter rail on the right.
+ */
+export const VIEWER_HEADER_HEIGHT = 122;
+export const VIEWER_PAGE_TOP = 12;
+export const VIEWER_RAIL_WIDTH = CLOSED_FILTER_BAR_WIDTH;
+
+/** What the preview draws around the page, as a phone viewer sees it. */
+export interface ViewerChrome {
+  title: string;
+  /** The report shows the closed filter rail beside the page */
+  rail: boolean;
+  /** The theme of the app, which the bars use instead of the report's */
+  theme: SupersetTheme;
+}
 
 /** Width of the body of the phone around its screen, in points. */
 const BEZEL = 12;
@@ -140,11 +165,119 @@ const Viewport = styled.div`
   position: absolute;
   left: 0;
   right: 0;
-  overflow-x: hidden;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  scrollbar-width: thin;
+  display: flex;
+  flex-direction: column;
+  .mibi-device-scroll {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+  }
 `;
+
+/** The top bar and the report header of the app, drawn plainly. */
+function ViewerBars({ chrome }: { chrome: ViewerChrome }) {
+  const { theme } = chrome;
+  return (
+    <div
+      aria-hidden
+      data-test="mibi-device-viewer-bars"
+      css={css`
+        flex: none;
+        height: ${VIEWER_HEADER_HEIGHT}px;
+        display: flex;
+        flex-direction: column;
+        background: ${theme.colorBgContainer};
+        color: ${theme.colorText};
+        border-bottom: 1px solid ${theme.colorBorderSecondary};
+        .bar {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          padding: 0 16px;
+          box-sizing: border-box;
+        }
+        .top {
+          height: 57px;
+          border-bottom: 1px solid ${theme.colorBorderSecondary};
+        }
+        .header {
+          flex: 1;
+        }
+        .title {
+          flex: 1;
+          min-width: 0;
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+          font-size: 20px;
+          font-weight: 600;
+        }
+        .dot {
+          width: 32px;
+          height: 32px;
+          border-radius: 50%;
+          background: ${theme.colorFillSecondary};
+        }
+        .icon {
+          color: ${theme.colorTextSecondary};
+          font-size: 18px;
+        }
+      `}
+    >
+      <div className="bar top">
+        <img
+          src="/static/assets/images/auradata/mark.svg"
+          alt=""
+          width={34}
+          height={22}
+        />
+        <Icons.SearchOutlined className="icon" iconSize="l" />
+        <span style={{ flex: 1 }} />
+        <span className="dot" />
+      </div>
+      <div className="bar header">
+        <span className="title">{chrome.title}</span>
+        <Icons.StarOutlined className="icon" iconSize="l" />
+        <Icons.EllipsisOutlined className="icon" iconSize="l" />
+      </div>
+    </div>
+  );
+}
+
+/** The closed filter rail beside the page. */
+function ViewerRail({ chrome }: { chrome: ViewerChrome }) {
+  const { theme } = chrome;
+  return (
+    <div
+      aria-hidden
+      data-test="mibi-device-viewer-rail"
+      css={css`
+        flex: none;
+        width: ${VIEWER_RAIL_WIDTH}px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+        padding-top: 16px;
+        background: ${theme.colorBgContainer};
+        color: ${theme.colorTextSecondary};
+        border-left: 1px solid ${theme.colorBorderSecondary};
+        span {
+          writing-mode: vertical-rl;
+          font-size: 11px;
+          font-weight: 600;
+        }
+      `}
+    >
+      <Icons.FilterOutlined iconSize="m" />
+      <span>{t('Filters')}</span>
+    </div>
+  );
+}
 
 const SafeMark = styled.div<{ $edge: 'top' | 'bottom' }>`
   ${({ theme, $edge }) => css`
@@ -285,9 +418,14 @@ export const DeviceFrame = forwardRef<
     device: MobileDevice;
     scale: number;
     safeArea: boolean;
+    /** Draws the bars of the app around the page, as a viewer sees it */
+    viewer?: ViewerChrome | null;
     children: ReactNode;
   }
->(function DeviceFrame({ device, scale, safeArea, children }, viewportRef) {
+>(function DeviceFrame(
+  { device, scale, safeArea, viewer, children },
+  viewportRef,
+) {
   const theme = useTheme();
   const frame = deviceFrameSize(device);
   const top = device.homeButton ? HOME_BUTTON_BEZEL : BEZEL;
@@ -369,11 +507,20 @@ export const DeviceFrame = forwardRef<
             <StatusBar device={device} />
             <Cutout device={device} />
             <Viewport
-              ref={viewportRef}
               data-test="mibi-device-viewport"
               style={{ top: device.safeTop, bottom: device.safeBottom }}
             >
-              {children}
+              {viewer && <ViewerBars chrome={viewer} />}
+              <div style={{ flex: 1, minHeight: 0, display: 'flex' }}>
+                <div
+                  ref={viewportRef}
+                  className="mibi-device-scroll"
+                  style={viewer ? { paddingTop: VIEWER_PAGE_TOP } : undefined}
+                >
+                  {children}
+                </div>
+                {viewer?.rail && <ViewerRail chrome={viewer} />}
+              </div>
             </Viewport>
             {!device.homeButton && (
               <div

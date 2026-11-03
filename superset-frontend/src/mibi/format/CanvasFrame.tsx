@@ -44,11 +44,23 @@ import {
   safeHeightOf,
   useMobileViewSettings,
 } from './mobileDevices';
-import { DeviceFrame, deviceScale } from './DeviceFrame';
+import {
+  DeviceFrame,
+  deviceScale,
+  VIEWER_HEADER_HEIGHT,
+  VIEWER_PAGE_TOP,
+  VIEWER_RAIL_WIDTH,
+} from './DeviceFrame';
+import { FilterBarOrientation } from 'src/dashboard/types';
+import { useFilters } from 'src/dashboard/components/nativeFilters/FilterBar/state';
+import { useChartCustomizationFromRedux } from 'src/dashboard/components/nativeFilters/state';
 import { css, styled, useTheme } from '@apache-superset/core/theme';
 import type { LayoutItem, RootState } from 'src/dashboard/types';
 import { ROW_TYPE } from 'src/dashboard/util/componentTypes';
-import { DASHBOARD_ROOT_ID } from 'src/dashboard/util/constants';
+import {
+  DASHBOARD_HEADER_ID,
+  DASHBOARD_ROOT_ID,
+} from 'src/dashboard/util/constants';
 import { usePresenting } from 'src/mibi/present/presentation';
 import { activePageId, topLevelTabs } from 'src/mibi/present/dashboardTabs';
 import { PAGE_BACKGROUND_KEY } from 'src/mibi/report/types';
@@ -236,6 +248,22 @@ export function CanvasFrame({ children }: { children: ReactNode }) {
   // The preview shows the page as the phone does: its mobile layout, or the
   // canvas scaled to the phone when it has none
   const previewing = mobileEditing && mobileSettings.mode === 'preview';
+  // A viewer of a report with filters has the closed filter rail beside it
+  const filterCount = Object.keys(useFilters()).length;
+  const customizationCount = useChartCustomizationFromRedux().length;
+  const verticalFilters = useSelector(
+    (state: RootState) =>
+      state.dashboardInfo?.filterBarOrientation !==
+      FilterBarOrientation.Horizontal,
+  );
+  const viewerRail = verticalFilters && filterCount + customizationCount > 0;
+  const reportTitle = useSelector((state: RootState) =>
+    String(
+      state.dashboardLayout?.present?.[DASHBOARD_HEADER_ID]?.meta?.text ?? '',
+    ),
+  );
+  // Width of the page on the phone of a viewer
+  const viewerWidth = device.width - (viewerRail ? VIEWER_RAIL_WIDTH : 0);
   const layout = useSelector(
     (state: RootState) => state.dashboardLayout?.present,
   );
@@ -430,7 +458,9 @@ export function CanvasFrame({ children }: { children: ReactNode }) {
   const zoom = useMemo(() => {
     if (!size || !available) return 1;
     // On the phone of the editor the page fills the width of its screen
-    if (mobileEditing) return device.width / size.width;
+    if (mobileEditing) {
+      return (previewing ? viewerWidth : device.width) / size.width;
+    }
     // The phone page fills the width of a phone
     if (showMobile) return canvasZoom(size, { width: available });
     if (presenting) {
@@ -458,6 +488,8 @@ export function CanvasFrame({ children }: { children: ReactNode }) {
     showMobile,
     mobileEditing,
     device.width,
+    previewing,
+    viewerWidth,
   ]);
   // The phone of the editor fits the room it has, or shows at its own size
   const displayScale = mobileEditing
@@ -660,7 +692,15 @@ export function CanvasFrame({ children }: { children: ReactNode }) {
                 pageId={pageId}
                 boxes={mobileBoxes ?? []}
                 zoom={zoom * displayScale}
-                foldY={safeHeightOf(device) / zoom}
+                foldY={
+                  // Where a viewer's first screen ends, below the bars of
+                  // the app and beside the filter rail
+                  ((safeHeightOf(device) -
+                    VIEWER_HEADER_HEIGHT -
+                    VIEWER_PAGE_TOP) *
+                    size.width) /
+                  viewerWidth
+                }
               />
             )}
           </CanvasZoomContext.Provider>
@@ -689,6 +729,11 @@ export function CanvasFrame({ children }: { children: ReactNode }) {
                 device={device}
                 scale={displayScale}
                 safeArea={mobileSettings.safeArea}
+                viewer={
+                  previewing
+                    ? { title: reportTitle, rail: viewerRail, theme: appTheme }
+                    : null
+                }
               >
                 {pageFrame}
               </DeviceFrame>

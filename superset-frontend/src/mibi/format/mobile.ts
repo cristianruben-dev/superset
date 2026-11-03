@@ -43,28 +43,6 @@ export function usePhoneScreen(): boolean {
   return value;
 }
 
-const EDITING_EVENT = 'mibi:mobile-editing';
-let editing = false;
-
-/** Whether the editor shows the mobile layout of the page instead of its canvas. */
-export const isMobileEditing = () => editing;
-
-export function setMobileEditing(value: boolean) {
-  if (editing === value) return;
-  editing = value;
-  window.dispatchEvent(new CustomEvent(EDITING_EVENT));
-}
-
-export function useMobileEditing(): boolean {
-  const [value, setValue] = useState(editing);
-  useEffect(() => {
-    const onChange = () => setValue(editing);
-    window.addEventListener(EDITING_EVENT, onChange);
-    return () => window.removeEventListener(EDITING_EVENT, onChange);
-  }, []);
-  return value;
-}
-
 const SELECTION_EVENT = 'mibi:mobile-selection';
 let selectedBox: string | null = null;
 
@@ -81,6 +59,30 @@ export function useSelectedMobileBox(): string | null {
     const onChange = () => setValue(selectedBox);
     window.addEventListener(SELECTION_EVENT, onChange);
     return () => window.removeEventListener(SELECTION_EVENT, onChange);
+  }, []);
+  return value;
+}
+
+const EDITING_EVENT = 'mibi:mobile-editing';
+let editing = false;
+
+/** Whether the editor shows the mobile layout of the page instead of its canvas. */
+export const isMobileEditing = () => editing;
+
+export function setMobileEditing(value: boolean) {
+  if (editing === value) return;
+  editing = value;
+  // A box chosen before belongs to another visit of the mobile layout
+  selectMobileBox(null);
+  window.dispatchEvent(new CustomEvent(EDITING_EVENT));
+}
+
+export function useMobileEditing(): boolean {
+  const [value, setValue] = useState(editing);
+  useEffect(() => {
+    const onChange = () => setValue(editing);
+    window.addEventListener(EDITING_EVENT, onChange);
+    return () => window.removeEventListener(EDITING_EVENT, onChange);
   }, []);
   return value;
 }

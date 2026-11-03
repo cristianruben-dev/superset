@@ -1924,6 +1924,11 @@ body.mibi-presenting-idle * {
   border-radius: 0 !important;
 }
 
+/* The phone shows the page as a viewer does: no drop targets of the editor */
+[data-test='mibi-device-viewport'] .empty-droptarget {
+  display: none !important;
+}
+
 /* A phone gives the page of a report the whole width of its screen */
 @media (max-width: 639px) {
   .dashboard:not(.dashboard--editing) .grid-container {
