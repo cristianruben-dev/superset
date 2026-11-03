@@ -132,14 +132,21 @@ export function placeActions(
   }
   const maxX = area.right - bar.width - GAP;
   const x = Math.max(area.left + GAP, Math.min(object.right - bar.width, maxX));
+  // Above the object; else below it; else inside, at the bottom of what
+  // shows, so they never cover the icons of its header
   const above = object.top - bar.height - GAP;
-  const y =
-    above >= area.top + GAP
-      ? above
-      : Math.min(
-          Math.max(object.top, area.top) + GAP,
-          area.bottom - bar.height - GAP,
-        );
+  const below = object.bottom + GAP;
+  let y: number;
+  if (above >= area.top + GAP) {
+    y = above;
+  } else if (below + bar.height <= area.bottom - GAP) {
+    y = below;
+  } else {
+    y = Math.max(
+      Math.min(object.bottom, area.bottom) - bar.height - GAP,
+      Math.max(object.top, area.top) + GAP,
+    );
+  }
   return { x, y };
 }
 

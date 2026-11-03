@@ -27,14 +27,21 @@ test('the buttons sit above the right end of the object', () => {
   expect(placeActions(object, area, bar)).toEqual({ x: 300, y: 256 });
 });
 
-test('with no room above, they go inside the object', () => {
+test('with no room above, they go below the object', () => {
   const object = { top: 110, left: 100, right: 500, bottom: 500 };
-  expect(placeActions(object, area, bar)).toEqual({ x: 300, y: 114 });
+  expect(placeActions(object, area, bar)).toEqual({ x: 300, y: 504 });
+});
+
+test('with no room above or below, they go inside at the bottom, off the header', () => {
+  const object = { top: 110, left: 100, right: 500, bottom: 690 };
+  expect(placeActions(object, area, bar)).toEqual({ x: 300, y: 646 });
+  const cut = { top: 110, left: 100, right: 500, bottom: 900 };
+  expect(placeActions(cut, area, bar)).toEqual({ x: 300, y: 656 });
 });
 
 test('an object cut by the scroll area keeps its buttons in view', () => {
   const object = { top: 50, left: 600, right: 1200, bottom: 500 };
-  expect(placeActions(object, area, bar)).toEqual({ x: 596, y: 104 });
+  expect(placeActions(object, area, bar)).toEqual({ x: 596, y: 504 });
   const narrow = { top: 300, left: 0, right: 80, bottom: 400 };
   expect(placeActions(narrow, area, bar)?.x).toBe(4);
 });
