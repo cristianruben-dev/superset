@@ -20,6 +20,7 @@
 import { invert } from 'lodash';
 import { t } from '@apache-superset/core/translation';
 import {
+  getColumnLabel,
   AnnotationLayer,
   AxisType,
   buildCustomFormatters,
@@ -139,6 +140,7 @@ import {
 } from '../utils/formatters';
 import { safeParseEChartOptions } from '../utils/safeEChartOptionsParser';
 import { applySpecialChartFormat } from '../utils/specialChartFormat';
+import { tooltipFieldRows } from '../utils/analyticsFormat';
 import { mergeCustomEChartOptions } from '../utils/mergeCustomEChartOptions';
 
 const visibleDashPatterns: ([number, number] | 'dashed' | 'dotted')[] = [
@@ -1243,6 +1245,15 @@ export default function transformProps(
           }
           rows.push(totalRow);
         }
+        rows.push(
+          ...tooltipFieldRows(queriesData[1]?.data, formData.tooltipMetrics, {
+            xColumn: xAxisLabel,
+            groupby: groupBy.map(column => String(getColumnLabel(column))),
+            xValue,
+            seriesName: richTooltip ? undefined : params.seriesName,
+            formatter: value => String(defaultFormatter(value)),
+          }),
+        );
         return tooltipHtml(rows, tooltipFormatter(xValue), focusedRow);
       },
     },

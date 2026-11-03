@@ -27,3 +27,4 @@ export * from './matrixify';
 export * from './visualFormat';
 
 export * from './tableFormat';
+export * from './analytics';

@@ -517,6 +517,7 @@ const config: ControlPanelConfig = {
     sections.totalLabelsFormatSection,
     sections.seriesLabelsFormatSection,
     sections.plotAreaFormatSection,
+    ...sections.buildAnalyticsSections(),
     sections.chartConditionalFormattingSection,
   ],
   formDataOverrides: formData => {

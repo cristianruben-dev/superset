@@ -216,6 +216,7 @@ const config: ControlPanelConfig = {
     sections.axesFormatSection,
     sections.buildSeriesFormatSection({ lines: false, bars: false }),
     sections.plotAreaFormatSection,
+    ...sections.buildAnalyticsSections({ tooltipFields: true }),
     sections.chartConditionalFormattingSection,
   ],
   controlOverrides: {

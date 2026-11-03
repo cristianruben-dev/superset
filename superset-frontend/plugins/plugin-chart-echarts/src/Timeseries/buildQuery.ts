@@ -65,6 +65,7 @@ export default function buildQuery(formData: QueryFormData) {
      */
     // only add series limit metric if it's explicitly needed e.g. for sorting
     const extra_metrics = extractExtraMetrics(formData);
+    const tooltipMetrics = ensureIsArray(formData.tooltip_metrics);
 
     const pivotOperatorInRuntime: PostProcessingPivot = isTimeComparison(
       formData,
@@ -111,6 +112,19 @@ export default function buildQuery(formData: QueryFormData) {
           prophetOperator(formData, baseQueryObject),
         ],
       },
+      // The fields of the tooltip, apart so they never change the series
+      ...(tooltipMetrics.length
+        ? [
+            {
+              ...baseQueryObject,
+              metrics: tooltipMetrics,
+              columns,
+              orderby: undefined,
+              time_offsets: [],
+              post_processing: [],
+            },
+          ]
+        : []),
     ];
   });
 }

@@ -45,6 +45,8 @@ export interface CardDefinition {
   softControls?: string[];
   /** A heading above a control, which starts a group of the section */
   headings?: Record<string, () => string>;
+  /** The level of the pane it belongs to, other than Visual */
+  level?: 'analytics';
 }
 
 export const CARD_DEFINITIONS: CardDefinition[] = [
@@ -768,6 +770,81 @@ export const CARD_DEFINITIONS: CardDefinition[] = [
     controls: ['show_extra_controls'],
   },
   {
+    id: 'analytics-reference',
+    title: () => t('Reference lines'),
+    level: 'analytics',
+    controls: ['reference_lines'],
+  },
+  {
+    id: 'analytics-trend',
+    title: () => t('Trend line'),
+    level: 'analytics',
+    toggles: [{ control: 'trend_show' }],
+    controls: [
+      'trend_combine',
+      'trend_color',
+      'trend_width',
+      'trend_transparency',
+      'trend_style',
+      'trend_dash',
+    ],
+  },
+  {
+    id: 'analytics-zoom',
+    title: () => t('Zoom sliders'),
+    level: 'analytics',
+    controls: [
+      'zoom_category_show',
+      'zoom_category_start',
+      'zoom_category_end',
+      'zoom_value_show',
+      'zoom_value_start',
+      'zoom_value_end',
+      'zoom_show_labels',
+      'zoom_size',
+    ],
+  },
+  {
+    id: 'analytics-tooltip',
+    title: () => t('Tooltip fields'),
+    level: 'analytics',
+    controls: ['tooltip_metrics'],
+  },
+  {
+    id: 'analytics-multiples',
+    title: () => t('Small multiples'),
+    level: 'analytics',
+    toggles: [{ control: 'matrixify_enable' }],
+    controls: [
+      'matrixify_mode_columns',
+      'matrixify_columns',
+      'matrixify_dimension_selection_mode_columns',
+      'matrixify_dimension_columns',
+      'matrixify_topn_value_columns',
+      'matrixify_topn_metric_columns',
+      'matrixify_topn_order_columns',
+      'matrixify_all_sort_by_columns',
+      'matrixify_show_column_headers',
+      'matrixify_fit_columns_dynamically',
+      'matrixify_charts_per_row',
+      'matrixify_mode_rows',
+      'matrixify_rows',
+      'matrixify_dimension_selection_mode_rows',
+      'matrixify_dimension_rows',
+      'matrixify_topn_value_rows',
+      'matrixify_topn_metric_rows',
+      'matrixify_topn_order_rows',
+      'matrixify_all_sort_by_rows',
+      'matrixify_show_row_labels',
+      'matrixify_row_height',
+      'matrixify_cell_title_template',
+    ],
+    headings: {
+      matrixify_mode_columns: () => t('Columns'),
+      matrixify_mode_rows: () => t('Rows'),
+    },
+  },
+  {
     id: 'second-query',
     title: () => t('Second query'),
     controls: [
@@ -806,6 +883,7 @@ export interface FormatCardItem extends CustomControlItem {
 export interface FormatCard {
   id: string;
   title: string;
+  level?: 'analytics';
   toggle?: CardToggle & { item: FormatCardItem };
   items: FormatCardItem[];
 }
@@ -887,6 +965,7 @@ export function buildFormatCards(
     cards.push({
       id: definition.id,
       title: definition.title(),
+      ...(definition.level && { level: definition.level }),
       toggle: toggleOf && {
         ...toggleOf,
         item: items.get(toggleOf.control) as FormatCardItem,

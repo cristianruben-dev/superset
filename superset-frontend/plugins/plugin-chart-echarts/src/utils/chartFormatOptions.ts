@@ -25,6 +25,11 @@ import {
   toCssColor,
 } from '@superset-ui/core';
 import {
+  type AnalyticsOptions,
+  analyticsSeries,
+  zoomFormat,
+} from './analyticsFormat';
+import {
   type AxisFormatOptions,
   type EchartsTextStyle,
   VALUE_LABEL_BACKGROUND_PADDING,
@@ -148,7 +153,7 @@ export type ChartFormatOptions = {
   plotAreaColor?: ColorInput;
   plotAreaImage?: string | null;
   plotAreaImageRepeat?: string | null;
-};
+} & AnalyticsOptions;
 
 type Anything = Record<string, any>;
 
@@ -1075,6 +1080,18 @@ export function applyChartFormat<T extends object>(
       [side]: Number(next.grid?.[side] ?? 0) + SCROLLBAR_SIZE,
     };
   }
+  const zoom = zoomFormat({ ...next, series: list }, format, isHorizontal);
+  if (zoom) {
+    next.dataZoom = zoom.dataZoom;
+    next.grid = zoom.grid;
+  }
+  const added = analyticsSeries(list, format, {
+    isHorizontal,
+    formatter,
+    display: line =>
+      getDisplayFormatter(line.labelUnits, line.labelDecimals) ?? undefined,
+  });
+  if (added.length) list = [...list, ...added];
   next.series = list;
 
   const unchanged =

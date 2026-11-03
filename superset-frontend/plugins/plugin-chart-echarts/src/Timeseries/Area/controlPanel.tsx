@@ -287,6 +287,7 @@ const config: ControlPanelConfig = {
     sections.totalLabelsFormatSection,
     sections.seriesLabelsFormatSection,
     sections.plotAreaFormatSection,
+    ...sections.buildAnalyticsSections({ tooltipFields: true }),
     sections.chartConditionalFormattingSection,
   ],
   controlOverrides: {

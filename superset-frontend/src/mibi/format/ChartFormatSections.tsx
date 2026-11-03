@@ -101,8 +101,8 @@ function buildControls(
   ) as ControlPanelSectionConfig[];
   const lookSections = sections.filter(
     section =>
-      section.tabOverride !== 'matrixify' &&
-      !isQuerySection(section) &&
+      // Small multiples ask for data, but are part of the Analytics level
+      (section.tabOverride === 'matrixify' || !isQuerySection(section)) &&
       section.controlSetRows?.length > 0,
   );
   const formData = panelState.form_data as unknown as FormData;
@@ -173,9 +173,12 @@ function buildControls(
 export function ChartFormatSections({
   id,
   chartId,
+  level,
 }: {
   id: string;
   chartId: number;
+  /** Which sections to show; without it, all of them */
+  level?: 'visual' | 'analytics';
 }) {
   const theme = useTheme();
   const dispatch = useDispatch();
@@ -403,5 +406,11 @@ export function ChartFormatSections({
     );
   }
 
-  return <>{built.cards.map(renderCard)}</>;
+  const shown = built.cards.filter(
+    card => !level || (card.level ?? 'visual') === level,
+  );
+  if (!shown.length) {
+    return <Hint>{t('This chart has no options at this level.')}</Hint>;
+  }
+  return <>{shown.map(renderCard)}</>;
 }

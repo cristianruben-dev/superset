@@ -308,7 +308,7 @@ function FontFamilyField({
   );
 }
 
-type FormatLevel = 'visual' | 'general';
+type FormatLevel = 'visual' | 'analytics' | 'general';
 
 /** The level stays while going through objects. */
 let shownLevel: FormatLevel = 'visual';
@@ -349,13 +349,20 @@ function VisualSection({ id }: { id: string }) {
           onChange={setLevel}
           options={[
             { value: 'visual', label: t('Visual') },
+            ...(chartId !== undefined
+              ? [{ value: 'analytics' as const, label: t('Analytics') }]
+              : []),
             { value: 'general', label: t('General') },
           ]}
         />
       </div>
-      {showVisual && chartId !== undefined && (
+      {(showVisual || level === 'analytics') && chartId !== undefined && (
         <Suspense fallback={<Hint>{t('Loading...')}</Hint>}>
-          <ChartFormatSections id={id} chartId={chartId} />
+          <ChartFormatSections
+            id={id}
+            chartId={chartId}
+            level={searching ? undefined : (level as 'visual' | 'analytics')}
+          />
         </Suspense>
       )}
 

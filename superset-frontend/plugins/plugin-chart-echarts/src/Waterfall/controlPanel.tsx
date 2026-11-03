@@ -19,6 +19,7 @@
 import { t } from '@apache-superset/core/translation';
 import {
   buildSpecialChartSections,
+  sections,
   ControlPanelConfig,
   ControlSubSectionHeader,
   D3_TIME_FORMAT_DOCS,
@@ -31,6 +32,7 @@ import { showValueControl } from '../controls';
 const config: ControlPanelConfig = {
   controlPanelSections: [
     ...buildSpecialChartSections('waterfall'),
+    ...sections.buildAnalyticsSections({ trend: false, zoom: false }),
     {
       label: t('Query'),
       expanded: true,

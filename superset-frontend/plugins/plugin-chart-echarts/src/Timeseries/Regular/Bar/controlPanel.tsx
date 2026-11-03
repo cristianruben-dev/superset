@@ -412,6 +412,7 @@ const config: ControlPanelConfig = {
     sections.buildSeriesFormatSection({ lines: false, markers: false }),
     sections.totalLabelsFormatSection,
     sections.plotAreaFormatSection,
+    ...sections.buildAnalyticsSections({ tooltipFields: true }),
     sections.chartConditionalFormattingSection,
   ],
   formDataOverrides: formData => {
