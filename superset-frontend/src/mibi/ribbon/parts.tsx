@@ -192,9 +192,21 @@ const BaseButton = styled.button`
       white-space: nowrap;
     }
 
-    .caret {
-      font-size: 8px;
+    .caret,
+    &.large .caret {
+      font-size: 10px;
+      line-height: 1;
       color: ${theme.colorTextTertiary};
+    }
+
+    /* The icon draws at the size of its own svg, whatever the font says */
+    .caret svg {
+      width: 10px;
+      height: 10px;
+    }
+
+    &:disabled .caret {
+      color: ${theme.colorTextDisabled};
     }
   `}
 `;
@@ -210,6 +222,8 @@ export interface RibbonButtonProps {
   hint?: string;
   /** Opens this menu instead of running an action */
   menu?: MenuProps;
+  /** Draws the arrow of a button that opens something of its own */
+  caret?: boolean;
   'data-test'?: string;
 }
 
@@ -223,6 +237,7 @@ export function RibbonButton({
   small,
   hint,
   menu,
+  caret,
   'data-test': dataTest,
 }: RibbonButtonProps) {
   const button = (
@@ -237,7 +252,7 @@ export function RibbonButton({
       {icon}
       <span>
         {label}
-        {menu && (
+        {(menu || caret) && (
           <>
             {' '}
             <Icons.DownOutlined className="caret" iconSize="xs" />

@@ -78,13 +78,31 @@ const commit = (dispatch: Dispatch, changes: Layout, setting: string) => {
   }
 };
 
+/** What a command did: the objects it changed and the locked ones it left. */
+export interface ArrangeResult {
+  changed: number;
+  locked: number;
+}
+
+/** Applies the changes to the objects that are not locked and says how it went. */
+const commitUnlocked = (
+  dispatch: Dispatch,
+  changes: Layout,
+  setting: string,
+): ArrangeResult => {
+  const unlocked = withoutLocked(changes);
+  commit(dispatch, unlocked, setting);
+  const changed = Object.keys(unlocked).length;
+  return { changed, locked: Object.keys(changes).length - changed };
+};
+
 /** Lines the objects up against the first, the last or the middle of them all. */
 export const alignObjects =
   (ids: string[], mode: AlignMode) =>
-  (dispatch: Dispatch, getState: GetState) => {
+  (dispatch: Dispatch, getState: GetState): ArrangeResult => {
     const layout = getState().dashboardLayout.present as Layout;
     const picked = boxes(layout, ids);
-    if (picked.length < 2) return;
+    if (picked.length < 2) return { changed: 0, locked: 0 };
     const left = Math.min(...picked.map(b => b.x));
     const right = Math.max(...picked.map(b => b.x + b.w));
     const top = Math.min(...picked.map(b => b.y));
@@ -100,16 +118,16 @@ export const alignObjects =
       if (mode === 'middle') y = Math.round((top + bottom - b.h) / 2);
       if (x !== b.x || y !== b.y) changes[b.id] = withPos(layout[b.id], x, y);
     });
-    commit(dispatch, withoutLocked(changes), mode);
+    return commitUnlocked(dispatch, changes, mode);
   };
 
 /** Spaces three or more objects evenly between the outer two. */
 export const distributeObjects =
   (ids: string[], axis: 'horizontal' | 'vertical') =>
-  (dispatch: Dispatch, getState: GetState) => {
+  (dispatch: Dispatch, getState: GetState): ArrangeResult => {
     const layout = getState().dashboardLayout.present as Layout;
     const picked = boxes(layout, ids);
-    if (picked.length < 3) return;
+    if (picked.length < 3) return { changed: 0, locked: 0 };
     const horizontal = axis === 'horizontal';
     const start = (b: Box) => (horizontal ? b.x : b.y);
     const size = (b: Box) => (horizontal ? b.w : b.h);
@@ -128,16 +146,16 @@ export const distributeObjects =
       if (x !== b.x || y !== b.y) changes[b.id] = withPos(layout[b.id], x, y);
       cursor += size(b) + gap;
     });
-    commit(dispatch, withoutLocked(changes), axis);
+    return commitUnlocked(dispatch, changes, axis);
   };
 
 /** Gives the objects the size of the one the pane is editing. */
 export const matchSize =
   (ids: string[], source: string, dimension: 'width' | 'height' | 'both') =>
-  (dispatch: Dispatch, getState: GetState) => {
+  (dispatch: Dispatch, getState: GetState): ArrangeResult => {
     const layout = getState().dashboardLayout.present as Layout;
     const from = boxOf(layout, source);
-    if (!from) return;
+    if (!from) return { changed: 0, locked: 0 };
     const columns = gridColumnCount();
     const changes: Layout = {};
     ids.forEach(id => {
@@ -149,9 +167,11 @@ export const matchSize =
         meta.width = Math.min(from.w, columns - (pos?.x ?? 0));
       }
       if (dimension !== 'width') meta.height = from.h;
-      changes[id] = { ...item, meta };
+      if (meta.width !== item.meta.width || meta.height !== item.meta.height) {
+        changes[id] = { ...item, meta };
+      }
     });
-    commit(dispatch, withoutLocked(changes), `size-${dimension}`);
+    return commitUnlocked(dispatch, changes, `size-${dimension}`);
   };
 
 /** The objects of a page, in the order they are stacked (back to front). */

@@ -31,15 +31,7 @@ import { DashboardPageIdContext } from 'src/dashboard/containers/DashboardPage';
 import { openChartEditor } from 'src/mibi/chartEditor';
 import { DataMenu } from 'src/mibi/dashboard/DataMenu';
 import { setCanvasFormat, setComponentMeta } from 'src/mibi/format/actions';
-import {
-  alignObjects,
-  arrangeLayer,
-  distributeObjects,
-  GROUP_KEY,
-  groupObjects,
-  matchSize,
-  type AlignMode,
-} from 'src/mibi/format/arrange';
+import { arrangeLayer } from 'src/mibi/format/arrange';
 import { setCanvasView, useCanvasView } from 'src/mibi/format/canvasView';
 import { isCopyable, useClipboard } from 'src/mibi/format/clipboard';
 import {
@@ -70,6 +62,7 @@ import {
 import { clearVisibilityOverride } from 'src/mibi/report/visibility';
 import { fetchDashboardWorkspace, workspaceUrl } from 'src/mibi/workspaces/api';
 import { insertElement } from './insert';
+import { ArrangeButton } from './ArrangeButton';
 import { LineageModal } from './LineageModal';
 import { insertPage } from 'src/mibi/report/pageActions';
 import {
@@ -250,100 +243,6 @@ export function Ribbon({
 
   const layer = (move: 'front' | 'back' | 'forward' | 'backward') =>
     ids.forEach(id => dispatch(arrangeLayer(pageId, id, move) as never));
-  const grouped = ids.some(id => layout[id]?.meta?.[GROUP_KEY]);
-
-  const arrangeMenu = {
-    items: [
-      {
-        key: 'front',
-        label: t('Bring to front'),
-        disabled: !ids.length,
-        icon: <Icons.VerticalAlignTopOutlined iconSize="m" />,
-      },
-      {
-        key: 'forward',
-        label: t('Bring forward'),
-        disabled: !ids.length,
-        icon: <Icons.ArrowUpOutlined iconSize="m" />,
-      },
-      {
-        key: 'backward',
-        label: t('Send backward'),
-        disabled: !ids.length,
-        icon: <Icons.ArrowDownOutlined iconSize="m" />,
-      },
-      {
-        key: 'back',
-        label: t('Send to back'),
-        disabled: !ids.length,
-        icon: <Icons.VerticalAlignBottomOutlined iconSize="m" />,
-      },
-      { type: 'divider' as const },
-      ...(
-        [
-          ['left', t('Align left')],
-          ['center', t('Align center')],
-          ['right', t('Align right')],
-          ['top', t('Align top')],
-          ['middle', t('Align middle')],
-          ['bottom', t('Align bottom')],
-        ] as [AlignMode, string][]
-      ).map(([mode, label]) => ({
-        key: `align-${mode}`,
-        label,
-        disabled: ids.length < 2,
-      })),
-      { type: 'divider' as const },
-      {
-        key: 'distribute-horizontal',
-        label: t('Distribute horizontally'),
-        disabled: ids.length < 3,
-      },
-      {
-        key: 'distribute-vertical',
-        label: t('Distribute vertically'),
-        disabled: ids.length < 3,
-      },
-      { type: 'divider' as const },
-      {
-        key: 'same-width',
-        label: t('Same width'),
-        disabled: ids.length < 2,
-      },
-      {
-        key: 'same-height',
-        label: t('Same height'),
-        disabled: ids.length < 2,
-      },
-      { type: 'divider' as const },
-      {
-        key: 'group',
-        label: t('Group objects'),
-        disabled: ids.length < 2,
-        icon: <Icons.GroupOutlined iconSize="m" />,
-      },
-      { key: 'ungroup', label: t('Ungroup'), disabled: !grouped },
-    ],
-    onClick: ({ key }: { key: string }) => {
-      if (['front', 'forward', 'backward', 'back'].includes(key)) {
-        layer(key as 'front');
-      } else if (key.startsWith('align-')) {
-        dispatch(alignObjects(ids, key.slice(6) as AlignMode) as never);
-      } else if (key === 'distribute-horizontal') {
-        dispatch(distributeObjects(ids, 'horizontal') as never);
-      } else if (key === 'distribute-vertical') {
-        dispatch(distributeObjects(ids, 'vertical') as never);
-      } else if (key === 'same-width' && primary) {
-        dispatch(matchSize(ids, primary, 'width') as never);
-      } else if (key === 'same-height' && primary) {
-        dispatch(matchSize(ids, primary, 'height') as never);
-      } else if (key === 'group') {
-        dispatch(groupObjects(ids, true) as never);
-      } else if (key === 'ungroup') {
-        dispatch(groupObjects(ids, false) as never);
-      }
-    },
-  };
 
   const newVisual = () =>
     openChartEditor({ url: `/chart/add?dashboard_id=${dashboardId}` });
@@ -377,14 +276,7 @@ export function Ribbon({
     />
   );
 
-  const arrangeButton = (
-    <RibbonButton
-      label={t('Arrange')}
-      icon={<Icons.AppstoreOutlined iconSize="m" />}
-      menu={arrangeMenu}
-      data-test="mibi-ribbon-arrange"
-    />
-  );
+  const arrangeButton = <ArrangeButton />;
 
   const insertGroup = (
     <RibbonGroup label={t('Insert')}>

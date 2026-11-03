@@ -109,7 +109,10 @@ export function useCellMove(component: LayoutItem, enabled: boolean): CellMove {
           document.body.classList.add('mibi-moving');
           // Dragging an object picks it, with its group
           if (!selectedVisuals().includes(component.id)) {
-            selectVisual(component.id, move.shiftKey || move.ctrlKey);
+            selectVisual(
+              component.id,
+              move.shiftKey || move.ctrlKey || move.metaKey,
+            );
           }
         }
         landing = {
