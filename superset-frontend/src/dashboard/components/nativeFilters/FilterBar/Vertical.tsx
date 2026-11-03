@@ -118,6 +118,19 @@ const CollapsedBar = styled.div<{ offset: number }>`
       cursor: pointer;
       user-select: none;
     }
+    .mibi-filters-count {
+      min-width: 18px;
+      height: 18px;
+      padding: 0 5px;
+      box-sizing: border-box;
+      border-radius: 9px;
+      background: ${theme.colorPrimary};
+      color: ${theme.colorTextLightSolid};
+      font-family: ${theme.fontFamilyCode};
+      font-size: 10px;
+      font-weight: ${theme.fontWeightStrong};
+      line-height: 18px;
+    }
     .anticon {
       display: flex;
       box-sizing: content-box;
@@ -171,6 +184,20 @@ const VerticalFilterBar: FC<VerticalBarProps> = ({
   const theme = useTheme();
   const [isScrolling, setIsScrolling] = useState(false);
   const timeout = useRef<any>();
+
+  // AuraData BI: the folded pane tells how many filters select something
+  const activeFilters = useMemo(
+    () =>
+      filterValues.filter(filter => {
+        const value = dataMaskSelected[filter.id]?.filterState?.value;
+        return (
+          value !== undefined &&
+          value !== null &&
+          !(Array.isArray(value) && value.every(item => item === null))
+        );
+      }).length,
+    [filterValues, dataMaskSelected],
+  );
 
   const openFiltersBar = useCallback(
     () => toggleFiltersBar(true),
@@ -315,6 +342,15 @@ const VerticalFilterBar: FC<VerticalBarProps> = ({
             iconSize="l"
           />
           <span className="mibi-filters-label">{t('Filters')}</span>
+          {activeFilters > 0 && (
+            <span
+              className="mibi-filters-count"
+              data-test="mibi-filters-count"
+              aria-label={t('%s filters applied', activeFilters)}
+            >
+              {activeFilters}
+            </span>
+          )}
         </CollapsedBar>
         <Bar
           className={cx({ open: filtersOpen })}

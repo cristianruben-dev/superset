@@ -39,6 +39,8 @@ import {
 } from './FilterControlShared';
 import FilterEditButton from './FilterEditButton';
 import GroupByFilterCard from './GroupByFilterCard';
+import { FilterCard } from 'src/mibi/dashboard/FilterCard';
+import { filterSummary } from 'src/mibi/dashboard/filterSummary';
 
 const FilterControl = ({
   dataMaskSelected,
@@ -150,26 +152,85 @@ const FilterControl = ({
     );
   }
 
+  const valuePortal = (
+    <InPortal node={portalNode}>
+      <FilterValue
+        dataMaskSelected={dataMaskSelected}
+        filter={filter}
+        showOverflow={showOverflow}
+        onFilterSelectionChange={onFilterSelectionChange}
+        inView={inView}
+        parentRef={parentRef}
+        orientation={orientation}
+        overflow={overflow}
+        validateStatus={validateStatus}
+        clearAllTrigger={clearAllTrigger || clearing}
+        onClearAllComplete={() => {
+          setClearing(false);
+          onClearAllComplete?.();
+        }}
+      />
+    </InPortal>
+  );
+
+  // AuraData BI: in the filter pane, each filter is a card with what it
+  // selects, as in Power BI
+  if (orientation === FilterBarOrientation.Vertical && !overflow) {
+    return (
+      <>
+        {valuePortal}
+        <FilterCard
+          id={filter.id}
+          name={name}
+          summary={filterSummary(
+            filter.dataMask?.filterState as
+              | { value?: unknown; label?: unknown }
+              | undefined,
+          )}
+          active={hasValue}
+          forceOpen={!!isMissingRequiredValue}
+          extra={
+            <>
+              {isRequired && <RequiredFieldIndicator />}
+              {filter.description?.trim() && (
+                <DescriptionToolTip description={filter.description} />
+              )}
+            </>
+          }
+          actions={
+            <>
+              <FilterEditButton filterId={filter.id} name={name} />
+              {hasValue && (
+                <Button
+                  buttonStyle="link"
+                  buttonSize="xsmall"
+                  aria-label={t('Clear %s', name)}
+                  data-test="filter-control-clear"
+                  onClick={clearFilter}
+                >
+                  <Icons.ClearOutlined iconSize="s" />
+                </Button>
+              )}
+            </>
+          }
+        >
+          <FilterControlContainer layout="vertical">
+            <FormItem
+              htmlFor={filter.id}
+              required={filter?.controlValues?.enableEmptyFilter}
+              validateStatus={validateStatus}
+            >
+              <OutPortal node={portalNode} />
+            </FormItem>
+          </FilterControlContainer>
+        </FilterCard>
+      </>
+    );
+  }
+
   return (
     <>
-      <InPortal node={portalNode}>
-        <FilterValue
-          dataMaskSelected={dataMaskSelected}
-          filter={filter}
-          showOverflow={showOverflow}
-          onFilterSelectionChange={onFilterSelectionChange}
-          inView={inView}
-          parentRef={parentRef}
-          orientation={orientation}
-          overflow={overflow}
-          validateStatus={validateStatus}
-          clearAllTrigger={clearAllTrigger || clearing}
-          onClearAllComplete={() => {
-            setClearing(false);
-            onClearAllComplete?.();
-          }}
-        />
-      </InPortal>
+      {valuePortal}
       <FilterControlContainer
         layout={
           orientation === FilterBarOrientation.Horizontal && !overflow
