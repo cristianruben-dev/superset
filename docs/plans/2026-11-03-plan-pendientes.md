@@ -109,7 +109,9 @@ o el rango y el botón Aplicar funcionan y se guardan.
 **Estado (2026-11-03):** hecho con límites. Páginas tooltip (desde gráficos ECharts, tablas y tarjetas, con
 elementos de diseño y fechas por periodo), restablecer filtros, pestañas de página abajo como en Power BI y panel de
 filtros al editar, probados en el tablero 189 «QA páginas tooltip» (datos sintéticos) y con segmentadores en el 187.
-Fuera: el mapa de InfoMap (fase 11), la matriz y segmentadores dentro del tooltip. Sin probar con SESEQ (142). Los
+La barra inferior y el panel de filtros siguen el concepto del informe de frijoles (flechas, «Página 1 de 3»,
+pestañas planas, tarjetas de filtro con su resumen y contador en el riel). Fuera: el mapa de InfoMap (fase 11), la
+matriz y segmentadores dentro del tooltip. Sin probar con SESEQ (142). Los
 comentarios siguen sin decidir.
 
 ### Fuera por defecto (P3, se decide tras usar B y C)

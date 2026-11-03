@@ -235,9 +235,14 @@ Formats are stored in `position_json`, so they save, undo and export with the da
     line of a series never replaces the point of it under the pointer (`isLessPrecise`).
   - "Reset filters" (`resetFilters.ts`, reading view and ribbon) sets every native filter and slicer to
     its default, clears cross-filters, leaves a drill through and drops bookmark visibility overrides.
-- A fixed page shows its tabs and the zoom in a bar at the bottom, as in Power BI (`PageBar` in
-  `mibi/report/TabsDock.tsx`), of a fixed size whatever the zoom; presenting and the mobile layout keep
-  the tabs above the page. The vertical filter pane stays beside the page while editing.
+- A fixed page shows a bar at the bottom, as in Power BI (`PageBar` in `mibi/report/TabsDock.tsx`), of a
+  fixed size whatever the zoom: previous/next arrows, flat page tabs split by hairlines with the accent
+  under the active one, "Page 1 of 3" and the zoom with a fit choice (`ZoomToolbar docked`); narrow bars
+  drop the slider, then the fit choice. Presenting and the mobile layout keep the tabs above the page.
+- The vertical filter pane stays beside the page while editing. Each filter is a card (`mibi/dashboard/FilterCard.tsx`):
+  name and what it selects (`filterSummary`: "is (All)", "is North"), folded until opened (remembered in
+  the browser), with the accent on its edge while it selects something; the folded rail counts the
+  filters that select something.
 - Write layout changes through `src/mibi/format/actions.ts` (`updateLayout`, `setVisualFormat`,
   `setCanvasFormat`, `setSharedVisualFormat`) so edits group into one undo step.
 - A canvas filter of a list of values can draw itself as a dropdown, list, buttons or text box (`mibi/elements/SlicerView.tsx`,
