@@ -87,9 +87,27 @@ MIBI_WORKSPACE_DATASETS = True
 # --- Databases --------------------------------------------------------------
 # Presto is not offered, but its engine spec stays: Hive, Spark and Databricks
 # build on it. The Hive driver (pyhive) also registers the Presto dialect, so it
-# is hidden from the "Connect a database" list here.
+# is hidden from the "Connect a database" list here. Azure Synapse needs pyodbc,
+# which is not installed (SQL Server uses pymssql), so it is hidden too.
 
-DBS_AVAILABLE_DENYLIST: dict[str, set[str | None]] = {"presto": {None}}
+DBS_AVAILABLE_DENYLIST: dict[str, set[str | None]] = {
+    "presto": {None},
+    "mssql": {"pyodbc"},
+}
+
+# The databases shown as cards with their logo when connecting a database, by
+# the engine_name of their engine spec. Their drivers are installed in the
+# Docker images; the logos live in src/mibi/databases/dbImages.ts. SQLite is
+# left out: PREVENT_UNSAFE_DB_CONNECTIONS refuses it.
+
+PREFERRED_DATABASES: list[str] = [
+    "PostgreSQL",
+    "Microsoft SQL Server",
+    "MySQL",
+    "Databricks",
+    "Amazon Redshift",
+    "DuckDB",
+]
 
 # --- Languages --------------------------------------------------------------
 # The navbar shows a language selector when there is more than one language.

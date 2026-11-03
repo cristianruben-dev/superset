@@ -44,6 +44,7 @@ import Chart, { Slice } from 'src/types/Chart';
 import copyTextToClipboard from 'src/utils/copy';
 import { ensureAppRoot } from 'src/utils/pathUtils';
 import SupersetText from 'src/utils/textUtils';
+import { databaseImages } from 'src/mibi/databases/dbImages';
 import { DatabaseObject } from 'src/features/databases/types';
 import {
   FavoriteStatus,
@@ -759,7 +760,8 @@ export const copyQueryLink = (
     });
 };
 
-export const getDatabaseImages = () => SupersetText.DB_IMAGES;
+export const getDatabaseImages = () =>
+  databaseImages(SupersetText.DB_IMAGES);
 
 export const getConnectionAlert = () => SupersetText.DB_CONNECTION_ALERTS;
 export const getDatabaseDocumentationLinks = () =>

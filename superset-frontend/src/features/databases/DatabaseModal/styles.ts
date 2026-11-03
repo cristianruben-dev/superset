@@ -458,10 +458,17 @@ export const SelectDatabaseStyles = styled.div`
     width: 32%;
     margin-bottom: ${({ theme }) => theme.sizeUnit * 2.5}px;
 
-    /* The tile of a database without a logo: the name says what it is */
+    /* The logo sits on white, as the logo files are drawn, in both themes */
     .ant-card-cover > div {
-      height: ${({ theme }) => theme.sizeUnit * 10}px !important;
+      height: ${({ theme }) => theme.sizeUnit * 16}px !important;
       justify-content: center;
+      border-radius: ${({ theme }) => theme.borderRadius}px;
+      background: #ffffff;
+      overflow: hidden;
+    }
+
+    .ant-card-cover img {
+      height: ${({ theme }) => theme.sizeUnit * 16}px !important;
     }
 
     .ant-card-body {
