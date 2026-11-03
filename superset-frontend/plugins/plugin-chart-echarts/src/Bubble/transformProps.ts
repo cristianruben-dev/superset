@@ -161,6 +161,8 @@ export default function transformProps(chartProps: EchartsBubbleChartProps) {
         ],
       ],
       type: 'scatter',
+      // A bubble at the limit of an axis shows whole, not cut by the plot area
+      clip: false,
       itemStyle: {
         color: colorFn(name, sliceId),
         opacity,
@@ -266,7 +268,12 @@ export default function transformProps(chartProps: EchartsBubbleChartProps) {
           tooltipSizeFormatter,
         ),
     },
-    grid: { ...defaultGrid, ...padding },
+    grid: {
+      ...defaultGrid,
+      ...padding,
+      // Room for the largest bubble at the end of the X axis
+      right: (padding.right ?? 0) + (Number(maxBubbleSize) || 0),
+    },
   };
 
   const { onContextMenu, setDataMask = () => {} } = hooks;
