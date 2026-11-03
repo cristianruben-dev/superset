@@ -79,6 +79,25 @@ import { canvasSize, canvasStyle, canvasZoom, hasCanvasFormat } from './styles';
 import { clampZoom, setCanvasView, useCanvasView } from './canvasView';
 import { ZoomToolbar } from './ZoomToolbar';
 
+/** The page and, at the edge of the report, the filter pane. */
+const Row = styled.div<{ $pane: boolean }>`
+  ${({ $pane }) =>
+    $pane
+      ? css`
+          display: flex;
+          flex: 1;
+          min-height: 0;
+          width: 100%;
+          & > [data-test='mibi-canvas-outer'] {
+            flex: 1;
+            min-width: 0;
+          }
+        `
+      : css`
+          display: contents;
+        `}
+`;
+
 const Wrap = styled.div<{ $bar?: boolean }>`
   position: relative;
   width: 100%;
@@ -484,8 +503,12 @@ export function CanvasFrame({ children }: { children: ReactNode }) {
     };
   }, [!!size, flushBottom]);
 
-  // The filter pane keeps its own size beside the scaled page
-  const paneWidth = useFilterDockWidth();
+  // The filter pane keeps its own size beside the scaled page; with the page
+  // bar it is a pane of the report at its edge, as in Power BI, and the page
+  // floats alone in the room left
+  const paneAtEdge = !!size && !presenting && !showMobile && !mobileEditing;
+  const dockWidth = useFilterDockWidth();
+  const paneWidth = paneAtEdge ? 0 : dockWidth;
   const zoom = useMemo(() => {
     if (!size || !available) return 1;
     // On the phone of the editor the page fills the width of its screen
@@ -765,36 +788,49 @@ export function CanvasFrame({ children }: { children: ReactNode }) {
       className="mibi-viewport"
       style={scroll && viewportHeight ? { height: viewportHeight } : undefined}
     >
-      <Outer
-        ref={outerRef}
-        $scroll={scroll}
-        $bar={pageBar}
-        $editing={editMode}
-        $phone={phone && !editMode}
-        data-test="mibi-canvas-outer"
-      >
-        <ReportTheme>
-          <Sheet style={size ? undefined : { width: '100%' }}>
-            {mobileEditing ? (
-              <DeviceFrame
-                device={device}
-                scale={displayScale}
-                safeArea={mobileSettings.safeArea}
-                viewer={
-                  previewing
-                    ? { title: reportTitle, rail: viewerRail, theme: appTheme }
-                    : null
-                }
-              >
-                {pageFrame}
-              </DeviceFrame>
-            ) : (
-              pageFrame
-            )}
-            {size && !showMobile && !mobileEditing && <FilterDockTarget />}
-          </Sheet>
-        </ReportTheme>
-      </Outer>
+      <Row $pane={paneAtEdge}>
+        <Outer
+          ref={outerRef}
+          $scroll={scroll}
+          $bar={pageBar}
+          $editing={editMode}
+          $phone={phone && !editMode}
+          data-test="mibi-canvas-outer"
+        >
+          <ReportTheme>
+            <Sheet style={size ? undefined : { width: '100%' }}>
+              {mobileEditing ? (
+                <DeviceFrame
+                  device={device}
+                  scale={displayScale}
+                  safeArea={mobileSettings.safeArea}
+                  viewer={
+                    previewing
+                      ? {
+                          title: reportTitle,
+                          rail: viewerRail,
+                          theme: appTheme,
+                        }
+                      : null
+                  }
+                >
+                  {pageFrame}
+                </DeviceFrame>
+              ) : (
+                pageFrame
+              )}
+              {size && !showMobile && !mobileEditing && !paneAtEdge && (
+                <FilterDockTarget />
+              )}
+            </Sheet>
+          </ReportTheme>
+        </Outer>
+        {paneAtEdge && (
+          <ReportTheme area="filterBar">
+            <FilterDockTarget atEdge />
+          </ReportTheme>
+        )}
+      </Row>
       {pageBar && (
         <ReportTheme area="tabs">
           <PageBar>
