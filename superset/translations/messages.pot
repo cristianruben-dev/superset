@@ -417,12 +417,6 @@ msgstr ""
 msgid "1 week ago"
 msgstr ""
 
-msgid "1 week starting Monday (freq=W-MON)"
-msgstr ""
-
-msgid "1 week starting Sunday (freq=W-SUN)"
-msgstr ""
-
 msgid "1 year"
 msgstr ""
 
@@ -534,9 +528,6 @@ msgstr ""
 msgid "3D"
 msgstr ""
 
-msgid "4 weeks (freq=4W-MON)"
-msgstr ""
-
 msgid "5 minute"
 msgstr ""
 
@@ -556,9 +547,6 @@ msgid "52 weeks"
 msgstr ""
 
 msgid "52 weeks ago"
-msgstr ""
-
-msgid "52 weeks starting Monday (freq=52W-MON)"
 msgstr ""
 
 msgid "6 hour"
@@ -691,12 +679,6 @@ msgid "A new chart will be created."
 msgstr ""
 
 msgid "A new dashboard will be created."
-msgstr ""
-
-msgid ""
-"A polar coordinate chart where the circle is broken into wedges of equal "
-"angle, and the value represented by any wedge is illustrated by its area,"
-" rather than its radius or sweep angle."
 msgstr ""
 
 msgid "A readable URL for your dashboard"
@@ -1078,12 +1060,6 @@ msgid ""
 msgstr ""
 
 msgid "Aggregate"
-msgstr ""
-
-msgid "Aggregate Mean"
-msgstr ""
-
-msgid "Aggregate Sum"
 msgstr ""
 
 msgid ""
@@ -2608,9 +2584,6 @@ msgstr ""
 msgid "Check out this dashboard: "
 msgstr ""
 
-msgid "Check to force date partitions to have the same height"
-msgstr ""
-
 msgid "Child label position"
 msgstr ""
 
@@ -3067,27 +3040,7 @@ msgstr ""
 msgid "Comparator option"
 msgstr ""
 
-msgid ""
-"Compare multiple time series charts (as sparklines) and related metrics "
-"quickly."
-msgstr ""
-
 msgid "Compare results with other time periods."
-msgstr ""
-
-msgid "Compare the same summarized metric across multiple groups."
-msgstr ""
-
-msgid ""
-"Compares how a metric changes over time between different groups. Each "
-"group is mapped to a row and change over time is visualized bar lengths "
-"and color."
-msgstr ""
-
-msgid ""
-"Compares metrics between different time periods. Displays time series "
-"data across multiple periods (like weeks or months) to show period-over-"
-"period trends and patterns."
 msgstr ""
 
 msgid "Comparison"
@@ -3933,9 +3886,6 @@ msgstr ""
 msgid "Datasource type is required when datasource_id is given"
 msgstr ""
 
-msgid "Date Time Format"
-msgstr ""
-
 msgid "Date format"
 msgstr ""
 
@@ -3954,9 +3904,6 @@ msgid "Datetime format"
 msgstr ""
 
 msgid "Day"
-msgstr ""
-
-msgid "Day (freq=D)"
 msgstr ""
 
 #, python-format
@@ -5157,9 +5104,6 @@ msgstr ""
 msgid "Entity"
 msgstr ""
 
-msgid "Equal Date Sizes"
-msgstr ""
-
 msgid "Equal to (=)"
 msgstr ""
 
@@ -6157,9 +6101,6 @@ msgstr ""
 msgid "Horizon Chart"
 msgstr ""
 
-msgid "Horizon Charts"
-msgstr ""
-
 msgid "Horizontal"
 msgstr ""
 
@@ -6266,9 +6207,6 @@ msgstr ""
 msgid "Ignore null locations"
 msgstr ""
 
-msgid "Ignore time"
-msgstr ""
-
 msgid "Image (PNG) embedded in email"
 msgstr ""
 
@@ -6335,9 +6273,6 @@ msgstr ""
 msgid "In this view you can preview the first 25 rows. "
 msgstr ""
 
-msgid "Include Series"
-msgstr ""
-
 msgid "Include Template Parameters"
 msgstr ""
 
@@ -6346,9 +6281,6 @@ msgstr ""
 
 #, python-format
 msgid "Include description to be sent with %s"
-msgstr ""
-
-msgid "Include series name as an axis"
 msgstr ""
 
 msgid "Include time"
@@ -6936,9 +6868,6 @@ msgstr ""
 msgid "Less than (<)"
 msgstr ""
 
-msgid "Lift percent precision"
-msgstr ""
-
 msgid "Light"
 msgstr ""
 
@@ -7296,9 +7225,6 @@ msgstr ""
 msgid "May"
 msgstr ""
 
-msgid "Mean of values over specified period"
-msgstr ""
-
 msgid "Mean values"
 msgstr ""
 
@@ -7384,16 +7310,10 @@ msgstr ""
 msgid "Metric assigned to the [Y] axis"
 msgstr ""
 
-msgid "Metric change in value from `since` to `until`"
-msgstr ""
-
 msgid "Metric currency"
 msgstr ""
 
 msgid "Metric descending"
-msgstr ""
-
-msgid "Metric factor change from `since` to `until`"
 msgstr ""
 
 msgid "Metric for node values"
@@ -7407,9 +7327,6 @@ msgstr ""
 
 #, python-format
 msgid "Metric name [%s] is duplicated"
-msgstr ""
-
-msgid "Metric percent change in value from `since` to `until`"
 msgstr ""
 
 msgid "Metric that defines the size of the bubble"
@@ -7968,9 +7885,6 @@ msgstr ""
 msgid "Not Equal"
 msgstr ""
 
-msgid "Not Time Series"
-msgstr ""
-
 msgid "Not a valid ZIP file"
 msgstr ""
 
@@ -8060,12 +7974,6 @@ msgid "Number of charts to display per row"
 msgstr ""
 
 msgid "Number of decimal digits to round numbers to"
-msgstr ""
-
-msgid "Number of decimal places with which to display lift values"
-msgstr ""
-
-msgid "Number of decimal places with which to display p-values"
 msgstr ""
 
 msgid ""
@@ -8445,20 +8353,6 @@ msgstr ""
 msgid "Partition Chart"
 msgstr ""
 
-msgid "Partition Diagram"
-msgstr ""
-
-msgid "Partition Limit"
-msgstr ""
-
-msgid "Partition Threshold"
-msgstr ""
-
-msgid ""
-"Partitions whose height to parent height proportions are below this value"
-" are pruned"
-msgstr ""
-
 msgid "Password"
 msgstr ""
 
@@ -8562,9 +8456,6 @@ msgstr ""
 msgid "Pick a dimension from which categorical colors are defined"
 msgstr ""
 
-msgid "Pick a metric for x, y and size"
-msgstr ""
-
 msgid "Pick a metric to display"
 msgstr ""
 
@@ -8575,9 +8466,6 @@ msgid "Pick a nickname for how the database will display in Superset."
 msgstr ""
 
 msgid "Pick a title for you annotation."
-msgstr ""
-
-msgid "Pick at least one metric"
 msgstr ""
 
 msgid ""
@@ -8633,9 +8521,6 @@ msgstr ""
 msgid "Pivots"
 msgstr ""
 
-msgid "Pixel height of each series"
-msgstr ""
-
 msgid "Pixels"
 msgstr ""
 
@@ -8667,9 +8552,6 @@ msgid ""
 msgstr ""
 
 msgid "Please choose a valid value"
-msgstr ""
-
-msgid "Please choose at least one groupby"
 msgstr ""
 
 msgid "Please confirm"
@@ -8743,16 +8625,7 @@ msgid ""
 "macro."
 msgstr ""
 
-msgid "Please use 3 different metric labels"
-msgstr ""
-
 msgid "Plot the distance (like flight paths) between origin and destination."
-msgstr ""
-
-msgid ""
-"Plots the individual metrics for each row in the data vertically and "
-"links them together as a line. This chart is useful for comparing "
-"multiple metrics across all of the samples or rows in the data."
 msgstr ""
 
 msgid "Plugins"
@@ -10300,9 +10173,6 @@ msgstr ""
 msgid "Series"
 msgstr ""
 
-msgid "Series Height"
-msgstr ""
-
 msgid "Series Order"
 msgstr ""
 
@@ -10400,9 +10270,6 @@ msgid ""
 msgstr ""
 
 msgid "Settings"
-msgstr ""
-
-msgid "Settings for time series"
 msgstr ""
 
 msgid "Shape"
@@ -10664,9 +10531,6 @@ msgid "Sign in"
 msgstr ""
 
 msgid "Sign in with"
-msgstr ""
-
-msgid "Significance Level"
 msgstr ""
 
 msgid "Simple"
@@ -10944,9 +10808,6 @@ msgstr ""
 msgid "Stacked Style"
 msgstr ""
 
-msgid "Standard time series"
-msgstr ""
-
 msgid "Start"
 msgstr ""
 
@@ -11101,9 +10962,6 @@ msgid "Sum as Fraction of Rows"
 msgstr ""
 
 msgid "Sum as Fraction of Total"
-msgstr ""
-
-msgid "Sum of values over specified period"
 msgstr ""
 
 msgid "Sum values"
@@ -11264,11 +11122,6 @@ msgstr ""
 msgid "Table or View \"%(table)s\" does not exist."
 msgstr ""
 
-msgid ""
-"Table that visualizes paired t-tests, which are used to understand "
-"statistical differences between groups."
-msgstr ""
-
 msgid "Tables"
 msgstr ""
 
@@ -11348,11 +11201,6 @@ msgstr ""
 
 #, python-format
 msgid "Template processing failed: %(ex)s"
-msgstr ""
-
-msgid ""
-"Templated link, it's possible to include {{ metric }} or other values "
-"coming from the controls."
 msgstr ""
 
 msgid "Temporal X-Axis"
@@ -11700,11 +11548,6 @@ msgid "The layer attribution"
 msgstr ""
 
 msgid "The lower limit of the threshold range of the Isoband"
-msgstr ""
-
-msgid ""
-"The maximum number of subdivisions of each group; lower values are pruned"
-" first"
 msgstr ""
 
 msgid "The maximum value of metrics. It is an optional configuration"
@@ -12666,9 +12509,6 @@ msgstr ""
 msgid "Threshold"
 msgstr ""
 
-msgid "Threshold alpha level for determining significance"
-msgstr ""
-
 msgid "Threshold for Other"
 msgstr ""
 
@@ -12717,25 +12557,7 @@ msgstr ""
 msgid "Time Series - Line Chart"
 msgstr ""
 
-msgid "Time Series - Nightingale Rose Chart"
-msgstr ""
-
-msgid "Time Series - Paired t-test"
-msgstr ""
-
-msgid "Time Series - Percent Change"
-msgstr ""
-
-msgid "Time Series - Period Pivot"
-msgstr ""
-
-msgid "Time Series Options"
-msgstr ""
-
 msgid "Time Shift"
-msgstr ""
-
-msgid "Time Table View"
 msgstr ""
 
 msgid "Time column"
@@ -13340,9 +13162,6 @@ msgstr ""
 msgid "Use a log scale"
 msgstr ""
 
-msgid "Use a log scale for the X-axis"
-msgstr ""
-
 msgid "Use a log scale for the Y-axis"
 msgstr ""
 
@@ -13374,9 +13193,6 @@ msgid "Use metrics as a top level group for columns or for rows"
 msgstr ""
 
 msgid "Use only a single value."
-msgstr ""
-
-msgid "Use the Advanced Analytics options below"
 msgstr ""
 
 msgid "Use this section if you want a query that aggregates"
@@ -13486,9 +13302,6 @@ msgid "Value Aggregation"
 msgstr ""
 
 msgid "Value Columns"
-msgstr ""
-
-msgid "Value Domain"
 msgstr ""
 
 msgid "Value Format"
@@ -13672,12 +13485,6 @@ msgid ""
 "subdivisions (states, provinces, etc) on a choropleth map. Each "
 "subdivision's value is elevated when you hover over the corresponding "
 "geographic boundary."
-msgstr ""
-
-msgid ""
-"Visualizes many different time-series objects in a single chart. This "
-"chart is being deprecated and we recommend using the Time-series Chart "
-"instead."
 msgstr ""
 
 msgid ""
@@ -13885,9 +13692,6 @@ msgid ""
 "relative time filter on a partitioned or indexed time-related field."
 msgstr ""
 
-msgid "When using 'Group By' you are limited to use a single metric"
-msgstr ""
-
 msgid "When using other than adaptive formatting, labels may overlap"
 msgstr ""
 
@@ -13943,9 +13747,6 @@ msgid "Whether to display the Y Axis"
 msgstr ""
 
 msgid "Whether to display the aggregate count"
-msgstr ""
-
-msgid "Whether to display the interactive data table"
 msgstr ""
 
 msgid "Whether to display the labels."
@@ -14127,9 +13928,6 @@ msgstr ""
 msgid "X Axis Title Margin"
 msgstr ""
 
-msgid "X Log Scale"
-msgstr ""
-
 msgid "X Tick Layout"
 msgstr ""
 
@@ -14209,9 +14007,6 @@ msgid "Y-scale interval"
 msgstr ""
 
 msgid "Year"
-msgstr ""
-
-msgid "Year (freq=AS)"
 msgstr ""
 
 msgid "Yearly seasonality"
@@ -15065,9 +14860,6 @@ msgstr ""
 msgid "owners"
 msgstr ""
 
-msgid "p-value precision"
-msgstr ""
-
 msgid "p1"
 msgstr ""
 
@@ -15155,12 +14947,6 @@ msgid "seconds"
 msgstr ""
 
 msgid "series"
-msgstr ""
-
-msgid ""
-"series: Treat each series independently; overall: All series use the same"
-" scale; change: Show changes compared to the first data point in each "
-"series"
 msgstr ""
 
 msgid "sql"
