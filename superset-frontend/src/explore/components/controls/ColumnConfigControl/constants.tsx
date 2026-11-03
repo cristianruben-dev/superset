@@ -27,9 +27,25 @@ import {
   D3_TIME_FORMAT_OPTIONS,
 } from '@superset-ui/chart-controls';
 import { Icons } from '@superset-ui/core/components/Icons';
-import { ColumnConfigFormLayout } from './types';
+import {
+  ColumnConfigFormLayout,
+  ColumnConfigFormItem,
+  TabLayoutItem,
+} from './types';
 
 export type SharedColumnConfigProp =
+  | 'displayUnits'
+  | 'decimalPlaces'
+  | 'subtotalLabel'
+  | 'fontStyle'
+  | 'backgroundColor'
+  | 'underline'
+  | 'wordWrap'
+  | 'styleValues'
+  | 'styleHeader'
+  | 'styleTotal'
+  | 'styleSubtotals'
+  | 'urlIcon'
   | 'alignPositiveNegative'
   | 'colorPositiveNegative'
   | 'columnWidth'
@@ -184,6 +200,77 @@ const visible: ControlFormItemSpec<'Checkbox'> = {
  * All configurable column formatting properties.
  */
 export const SHARED_COLUMN_CONFIG_PROPS = {
+  displayUnits: {
+    controlType: 'Select',
+    label: t('Display units'),
+    description: '',
+    options: [
+      { value: 'none', label: t('None') },
+      { value: 'thousand', label: t('Thousands') },
+      { value: 'million', label: t('Millions') },
+      { value: 'billion', label: t('Billions') },
+    ],
+  } as ControlFormItemSpec<'Select'>,
+  decimalPlaces: {
+    controlType: 'InputNumber',
+    label: t('Decimal places'),
+    description: '',
+    min: 0,
+    max: 20,
+    step: 1,
+  } as ControlFormItemSpec<'InputNumber'>,
+  subtotalLabel: {
+    controlType: 'Input',
+    label: t('Subtotal label'),
+    description: '',
+  } as ControlFormItemSpec<'Input'>,
+  fontStyle: {
+    controlType: 'FontControl',
+    label: t('Font'),
+    description: '',
+  } as ControlFormItemSpec<'FontControl'>,
+  backgroundColor: {
+    controlType: 'ColorPickerControl',
+    label: t('Background color'),
+    description: '',
+    allowClear: true,
+  } as ControlFormItemSpec<'ColorPickerControl'>,
+  underline: {
+    controlType: 'Checkbox',
+    label: t('Underline'),
+    description: '',
+  } as ControlFormItemSpec<'Checkbox'>,
+  wordWrap: {
+    controlType: 'Checkbox',
+    label: t('Word wrap'),
+    description: '',
+  } as ControlFormItemSpec<'Checkbox'>,
+  styleValues: {
+    controlType: 'Checkbox',
+    label: t('Apply to values'),
+    description: '',
+    defaultValue: true,
+  } as ControlFormItemSpec<'Checkbox'>,
+  styleHeader: {
+    controlType: 'Checkbox',
+    label: t('Apply to header'),
+    description: '',
+  } as ControlFormItemSpec<'Checkbox'>,
+  styleTotal: {
+    controlType: 'Checkbox',
+    label: t('Apply to total'),
+    description: '',
+  } as ControlFormItemSpec<'Checkbox'>,
+  styleSubtotals: {
+    controlType: 'Checkbox',
+    label: t('Apply to subtotals'),
+    description: '',
+  } as ControlFormItemSpec<'Checkbox'>,
+  urlIcon: {
+    controlType: 'Checkbox',
+    label: t('Show URLs as icons'),
+    description: '',
+  } as ControlFormItemSpec<'Checkbox'>,
   d3NumberFormat,
   d3SmallNumberFormat: {
     ...d3NumberFormat,
@@ -251,3 +338,42 @@ export const DEFAULT_CONFIG_FORM_LAYOUT: ColumnConfigFormLayout = {
     ],
   ],
 };
+
+/** Extended styles only appear in renderers that implement them. */
+export const buildTableColumnFormLayout = (
+  matrix: boolean,
+): ColumnConfigFormLayout =>
+  Object.fromEntries(
+    Object.entries(DEFAULT_CONFIG_FORM_LAYOUT).map(([type, layout]) => {
+      const styleRows: ColumnConfigFormItem[][] = [
+        ['fontStyle'],
+        ['backgroundColor'],
+        ['underline', 'wordWrap'],
+        ['styleValues', 'styleHeader'],
+        ['styleTotal'],
+        ...(matrix
+          ? ([
+              ['styleSubtotals'],
+              ['subtotalLabel'],
+            ] as ColumnConfigFormItem[][])
+          : []),
+        ['urlIcon'],
+      ];
+      if ('tab' in layout[0]) {
+        return [
+          type,
+          [
+            ...(layout as TabLayoutItem[]).map(tab => ({
+              ...tab,
+              children:
+                tab.tab === t('Number formatting')
+                  ? [['displayUnits', 'decimalPlaces'], ...tab.children]
+                  : tab.children,
+            })),
+            { tab: t('Style'), children: styleRows },
+          ],
+        ];
+      }
+      return [type, [...layout, ...styleRows]];
+    }),
+  ) as ColumnConfigFormLayout;

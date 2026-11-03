@@ -21,6 +21,8 @@ import {
   cloneElement,
   FunctionComponentElement,
   useMemo,
+  useRef,
+  useEffect,
 } from 'react';
 import { JsonObject, JsonValue } from '@superset-ui/core';
 import { useTheme } from '@apache-superset/core/theme';
@@ -70,13 +72,31 @@ export default function ControlForm({
   children,
 }: ControlFormProps) {
   const theme = useTheme();
-  const debouncedOnChange = useMemo(
-    () =>
-      ({
-        0: onChange,
-        [Constants.FAST_DEBOUNCE]: debounce(onChange, Constants.FAST_DEBOUNCE),
-      }) as Record<number, typeof onChange>,
-    [onChange],
+  const currentValue = useRef(value);
+  const currentOnChange = useRef(onChange);
+  const pending = useRef<JsonObject>({});
+  currentValue.current = value;
+  currentOnChange.current = onChange;
+  const debouncedOnChange = useMemo(() => {
+    const emit = () => {
+      if (!Object.keys(pending.current).length) return;
+      const next = { ...currentValue.current, ...pending.current };
+      currentValue.current = next;
+      pending.current = {};
+      currentOnChange.current(next);
+    };
+    return {
+      0: emit,
+      [Constants.FAST_DEBOUNCE]: debounce(emit, Constants.FAST_DEBOUNCE),
+    } as Record<number, typeof emit | ReturnType<typeof debounce>>;
+  }, []);
+  useEffect(
+    () => () => {
+      Object.values(debouncedOnChange).forEach(notify => {
+        if ('flush' in notify) notify.flush();
+      });
+    },
+    [debouncedOnChange],
   );
 
   const updatedChildren = Children.map(children, row => {
@@ -106,14 +126,12 @@ export default function ControlForm({
               // propagate to the form
               if (!(debounceDelay in debouncedOnChange)) {
                 debouncedOnChange[debounceDelay] = debounce(
-                  onChange,
+                  debouncedOnChange[0],
                   debounceDelay,
                 );
               }
-              debouncedOnChange[debounceDelay]({
-                ...value,
-                [name]: fieldValue,
-              });
+              pending.current[name] = fieldValue;
+              debouncedOnChange[debounceDelay]();
             },
           });
         }),

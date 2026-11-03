@@ -40,7 +40,11 @@ import {
   normalizeCurrency,
   NumberFormatter,
 } from '@superset-ui/core';
-import { styled, useTheme } from '@apache-superset/core/theme';
+import { css, styled, useTheme } from '@apache-superset/core/theme';
+import {
+  getTabularFormatCss,
+  type TabularFormat,
+} from '@superset-ui/chart-controls';
 import { aggregatorTemplates, PivotTable, sortAs } from './react-pivottable';
 import {
   FilterType,
@@ -60,7 +64,7 @@ const Styles = styled.div<PivotTableStylesProps>`
  `}
 `;
 
-const PivotTableWrapper = styled.div`
+const PivotTableWrapper = styled.div<{ tableFormat?: TabularFormat }>`
   ${({ theme }) => `
     height: 100%;
     max-width: inherit;
@@ -93,6 +97,13 @@ const PivotTableWrapper = styled.div`
     scrollbar-width: thin;
     scrollbar-color: ${theme.colorFillSecondary} ${theme.colorFillQuaternary};
   `}
+  ${({ tableFormat }) =>
+    tableFormat &&
+    css`
+      &&& {
+        ${getTabularFormatCss(tableFormat, true)}
+      }
+    `}
 `;
 
 const METRIC_KEY = t('Metric');
@@ -225,6 +236,7 @@ const aggregatorsFactory = (formatter: NumberFormatter) => ({
 export default function PivotTableChart(props: PivotTableProps) {
   const {
     data,
+    tableFormat,
     height,
     width,
     groupbyRows: groupbyRowsRaw,
@@ -578,6 +590,7 @@ export default function PivotTableChart(props: PivotTableProps) {
 
   const tableOptions = useMemo(
     () => ({
+      tableFormat,
       clickRowHeaderCallback: toggleFilter,
       clickColumnHeaderCallback: toggleFilter,
       colTotals,
@@ -597,6 +610,7 @@ export default function PivotTableChart(props: PivotTableProps) {
       activeHeaderBackgroundColor: theme.colorPrimaryBg,
     }),
     [
+      tableFormat,
       colTotals,
       colSubTotals,
       dateFormatters,
@@ -693,7 +707,7 @@ export default function PivotTableChart(props: PivotTableProps) {
 
   return (
     <Styles height={height} width={width} margin={theme.sizeUnit * 4}>
-      <PivotTableWrapper>
+      <PivotTableWrapper tableFormat={tableFormat}>
         <PivotTable
           data={unpivotedData}
           rows={rows}

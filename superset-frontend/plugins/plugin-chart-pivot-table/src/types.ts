@@ -51,6 +51,7 @@ export enum MetricsLayoutEnum {
 }
 
 interface PivotTableCustomizeProps {
+  tableFormat?: import('@superset-ui/chart-controls').TabularFormat;
   groupbyRows: QueryFormColumn[];
   groupbyColumns: QueryFormColumn[];
   metrics: QueryFormMetric[];

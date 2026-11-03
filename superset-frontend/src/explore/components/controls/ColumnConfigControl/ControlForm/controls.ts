@@ -19,10 +19,14 @@
 import { sharedControlComponents } from '@superset-ui/chart-controls';
 import { Input, InputNumber, Select } from '@superset-ui/core/components';
 import Slider from '@superset-ui/core/components/Slider';
+import FontControl from '../../FontControl';
+import ColorPickerControl from '../../ColorPickerControl';
 import CurrencyControl from '../../CurrencyControl';
 import CheckboxControl from '../../CheckboxControl';
 
 export const ControlFormItemComponents = {
+  FontControl,
+  ColorPickerControl,
   Slider,
   InputNumber,
   Input,

@@ -44,6 +44,7 @@ import {
   ObjectFormattingEnum,
   ColorSchemeEnum,
 } from '@superset-ui/chart-controls';
+import { buildTableFormatSections } from '@superset-ui/chart-controls';
 import { t } from '@apache-superset/core/translation';
 import {
   ensureIsArray,
@@ -225,6 +226,7 @@ export const ROW_LIMIT_OPTIONS_TABLE = [
 
 const config: ControlPanelConfig = {
   controlPanelSections: [
+    ...buildTableFormatSections(),
     {
       label: t('Query'),
       expanded: true,
@@ -558,6 +560,7 @@ const config: ControlPanelConfig = {
             name: 'column_config',
             config: {
               type: 'ColumnConfigControl',
+              tableFormatting: true,
               label: t('Customize columns'),
               description: t('Further customize how to display each column'),
               width: 400,

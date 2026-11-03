@@ -31,7 +31,10 @@ import {
   ColumnConfig,
   ColumnConfigFormLayout,
 } from './types';
-import { DEFAULT_CONFIG_FORM_LAYOUT } from './constants';
+import {
+  DEFAULT_CONFIG_FORM_LAYOUT,
+  buildTableColumnFormLayout,
+} from './constants';
 import ControlHeader from '../../ControlHeader';
 
 export type ColumnConfigControlProps<T extends ColumnConfig> =
@@ -44,6 +47,8 @@ export type ColumnConfigControlProps<T extends ColumnConfig> =
     };
     configFormLayout?: ColumnConfigFormLayout;
     appliedColumnNames?: string[];
+    tableFormatting?: boolean | 'matrix';
+    defaultShowCellBars?: boolean;
     width?: number | string;
     height?: number | string;
   };
@@ -61,11 +66,21 @@ export default function ColumnConfigControl<T extends ColumnConfig>({
   appliedColumnNames = [],
   value,
   onChange,
-  configFormLayout = DEFAULT_CONFIG_FORM_LAYOUT,
+  configFormLayout: customConfigFormLayout,
+  tableFormatting = false,
+  defaultShowCellBars,
   width,
   height,
   ...props
 }: ColumnConfigControlProps<T>) {
+  const configFormLayout = useMemo(
+    () =>
+      customConfigFormLayout ??
+      (tableFormatting
+        ? buildTableColumnFormLayout(tableFormatting === 'matrix')
+        : DEFAULT_CONFIG_FORM_LAYOUT),
+    [customConfigFormLayout, tableFormatting],
+  );
   const { colnames: _colnames, coltypes: _coltypes } = columnsPropsObject || {};
   let colnames: string[] = [];
   let coltypes: GenericDataType[] = [];
@@ -89,14 +104,25 @@ export default function ColumnConfigControl<T extends ColumnConfig>({
       configs[col] = {
         name: COLUMN_NAME_ALIASES[col] || col,
         type: coltypes?.[idx],
-        config: value?.[col] || {},
+        config: {
+          ...(defaultShowCellBars !== undefined && {
+            showCellBars: defaultShowCellBars,
+          }),
+          ...value?.[col],
+        },
         isChildColumn: columnsPropsObject?.childColumnMap?.[col] ?? false,
         isTimeComparisonColumn:
           columnsPropsObject?.timeComparisonColumnMap?.[col] ?? false,
       };
     });
     return configs;
-  }, [value, colnames, coltypes, columnsPropsObject?.childColumnMap]);
+  }, [
+    value,
+    colnames,
+    coltypes,
+    columnsPropsObject?.childColumnMap,
+    defaultShowCellBars,
+  ]);
 
   const [showAllColumns, setShowAllColumns] = useState(false);
 

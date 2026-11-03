@@ -58,7 +58,15 @@ export default class CheckboxControl extends Component<CheckboxControlProps> {
   };
 
   renderCheckbox(): ReactNode {
-    return <Checkbox onChange={this.onChange} checked={!!this.props.value} />;
+    return (
+      <Checkbox
+        onChange={this.onChange}
+        checked={!!this.props.value}
+        aria-label={
+          typeof this.props.label === 'string' ? this.props.label : undefined
+        }
+      />
+    );
   }
 
   render(): ReactNode {

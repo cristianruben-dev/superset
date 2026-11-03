@@ -66,6 +66,7 @@ const chartProps = new ChartProps<QueryFormData>({
 
 test('should transform chart props for viz', () => {
   expect(transformProps(chartProps)).toEqual({
+    tableFormat: expect.any(Object),
     width: 800,
     height: 600,
     groupbyRows: ['row1', 'row2'],

@@ -286,6 +286,12 @@ export const CARD_DEFINITIONS: CardDefinition[] = [
       'value_label_max_width',
       'value_label_overflow',
       'value_label_hide_overlap',
+      'special_labels_show',
+      'special_percent_decimals',
+      'special_label_position',
+      'special_label_rotation',
+      'special_label_max_width',
+      'special_label_overflow',
       'value_label_hide_value',
       'value_label_title',
       'value_label_title_font',
@@ -342,15 +348,403 @@ export const CARD_DEFINITIONS: CardDefinition[] = [
     ],
   },
   {
+    id: 'card-value',
+    title: () => t('Callout value'),
+    controls: [
+      'card_value_show',
+      'card_value_font',
+      'card_value_underline',
+      'card_value_wrap',
+      'card_value_align',
+      'card_value_units',
+      'card_value_decimals',
+      'card_blank_text',
+      'card_vertical_align',
+      'header_font_size',
+    ],
+  },
+  {
+    id: 'card-label',
+    title: () => t('Category label'),
+    controls: [
+      'card_label_show',
+      'card_label_text',
+      'card_label_font',
+      'card_label_underline',
+      'card_label_wrap',
+      'card_label_align',
+      'card_label_position',
+      'card_label_gap',
+      'show_metric_name',
+      'metric_name_font_size',
+    ],
+  },
+  {
+    id: 'card-subtitle',
+    title: () => t('Subtitle'),
+    controls: [
+      'card_subtitle_font',
+      'card_subtitle_underline',
+      'card_subtitle_wrap',
+      'card_subtitle_align',
+      'subtitle',
+      'subtitle_font_size',
+      'subheader',
+      'subheader_font_size',
+    ],
+  },
+  {
+    id: 'kpi-goal',
+    title: () => t('Goal'),
+    controls: [
+      'kpi_target_value',
+      'kpi_goal_show',
+      'kpi_goal_label',
+      'kpi_goal_font',
+      'kpi_goal_underline',
+      'kpi_goal_wrap',
+      'kpi_goal_align',
+      'kpi_distance_show',
+      'kpi_distance_label',
+      'kpi_distance_font',
+      'kpi_distance_underline',
+      'kpi_distance_wrap',
+      'kpi_distance_align',
+      'kpi_distance_mode',
+      'kpi_direction',
+      'kpi_neutral_band',
+    ],
+  },
+  {
+    id: 'kpi-status',
+    title: () => t('Status'),
+    controls: [
+      'kpi_good_color',
+      'kpi_bad_color',
+      'kpi_neutral_color',
+      'kpi_show_icon',
+      'kpi_icon_size',
+    ],
+  },
+  {
+    id: 'card-date',
+    title: () => t('Last date'),
+    controls: [
+      'show_timestamp',
+      'card_date_font',
+      'card_date_underline',
+      'card_date_wrap',
+      'card_date_align',
+    ],
+  },
+  {
+    id: 'kpi-trend',
+    title: () => t('Trend'),
+    controls: ['show_trend_line', 'kpi_trend_transparency', 'color_picker'],
+  },
+  {
+    id: 'special-colors',
+    title: () => t('Colors and borders'),
+    controls: [
+      'special_fill_color',
+      'special_fill_transparency',
+      'special_border_show',
+      'special_border_match_fill',
+      'special_border_color',
+      'special_border_width',
+      'special_border_transparency',
+      'special_border_only',
+      'special_category_colors',
+    ],
+  },
+  {
+    id: 'special-category',
+    title: () => t('Category label'),
+    controls: [
+      'special_category_show',
+      'special_category_font',
+      'special_category_background',
+    ],
+  },
+  {
+    id: 'pie-slices',
+    title: () => t('Slices'),
+    controls: ['special_start_angle'],
+  },
+  {
+    id: 'pie-center',
+    title: () => t('Center value'),
+    controls: [
+      'center_value_show',
+      'center_label',
+      'center_label_font',
+      'center_value_font',
+      'center_value_units',
+      'center_value_decimals',
+      'center_background_show',
+      'center_background_color',
+      'center_background_transparency',
+      'center_background_padding',
+    ],
+  },
+  {
+    id: 'funnel-conversion',
+    title: () => t('Conversion labels'),
+    controls: [
+      'special_label_style',
+      'funnel_percent_font',
+      'funnel_percent_background',
+      'funnel_percent_show',
+    ],
+  },
+  {
+    id: 'treemap-layout',
+    title: () => t('Layout'),
+    controls: ['treemap_inner_padding', 'treemap_outer_padding'],
+  },
+  {
+    id: 'gauge-value',
+    title: () => t('Gauge value'),
+    controls: ['gauge_value_show', 'gauge_value_font', 'gauge_value_label'],
+  },
+  {
+    id: 'gauge-axis',
+    title: () => t('Gauge axis'),
+    controls: ['gauge_axis_font'],
+  },
+  {
+    id: 'gauge-target',
+    title: () => t('Target'),
+    controls: [
+      'gauge_target_value',
+      'gauge_target_show',
+      'gauge_target_color',
+      'gauge_target_font',
+      'gauge_target_label',
+    ],
+  },
+  {
+    id: 'waterfall-connectors',
+    title: () => t('Connectors'),
+    controls: [
+      'waterfall_connectors_show',
+      'waterfall_connector_color',
+      'waterfall_connector_width',
+      'waterfall_connector_style',
+    ],
+  },
+  {
+    id: 'scatter-bubbles',
+    title: () => t('Bubbles'),
+    controls: ['scatter_size_multiplier'],
+  },
+  {
+    id: 'scatter-ratio',
+    title: () => t('Ratio line'),
+    controls: [
+      'scatter_ratio_show',
+      'scatter_ratio_label',
+      'scatter_ratio_color',
+      'scatter_ratio_width',
+      'scatter_ratio_style',
+      'scatter_ratio_dash',
+      'scatter_ratio_transparency',
+      'scatter_shading_show',
+      'scatter_upper_color',
+      'scatter_lower_color',
+      'scatter_shading_transparency',
+    ],
+  },
+  {
+    id: 'table_header',
+    title: () => t('Column headers'),
+    controls: [
+      'table_header_font',
+      'table_header_background',
+      'table_header_align',
+      'table_header_underline',
+      'table_header_wrap',
+      'table_header_outline',
+      'table_header_outline_color',
+      'table_header_outline_width',
+      'table_header_title_align',
+      'table_column_expand_depth',
+      'table_header_url_icon',
+      'table_column_sizing',
+      'table_default_column_width',
+    ],
+  },
+  {
+    id: 'table_row_header',
+    title: () => t('Row headers'),
+    controls: [
+      'table_row_header_font',
+      'table_row_header_background',
+      'table_row_header_align',
+      'table_row_header_underline',
+      'table_row_header_wrap',
+      'table_row_header_outline',
+      'table_row_header_outline_color',
+      'table_row_header_outline_width',
+      'table_row_header_url_icon',
+      'table_banded_row_headers',
+      'table_stepped',
+      'table_stepped_indent',
+      'table_row_expand_depth',
+      'table_repeat_headers',
+      'table_expand_icons',
+      'table_expand_icon_color',
+      'table_expand_icon_size',
+    ],
+  },
+  {
+    id: 'table_cell',
+    title: () => t('Values'),
+    controls: [
+      'valueFormat',
+      'date_format',
+      'table_cell_font',
+      'table_cell_background',
+      'table_cell_align',
+      'table_cell_underline',
+      'table_cell_wrap',
+      'table_cell_outline',
+      'table_cell_outline_color',
+      'table_cell_outline_width',
+      'table_stripe_color',
+      'table_alternate_text_color',
+      'table_image_width',
+      'table_image_height',
+      'table_url_icon',
+      'metricsLayout',
+    ],
+  },
+  {
+    id: 'table_total',
+    title: () => t('Totals'),
+    controls: [
+      'table_total_apply_labels',
+      'table_total_font',
+      'table_total_background',
+      'table_total_align',
+      'table_total_underline',
+      'table_total_wrap',
+      'table_total_outline',
+      'table_total_outline_color',
+      'table_total_outline_width',
+      'table_total_label',
+      'show_totals',
+    ],
+  },
+  {
+    id: 'table_subtotal',
+    title: () => t('Subtotals'),
+    controls: [
+      'table_subtotal_apply_labels',
+      'table_subtotal_font',
+      'table_subtotal_background',
+      'table_subtotal_align',
+      'table_subtotal_underline',
+      'table_subtotal_wrap',
+      'table_subtotal_outline',
+      'table_subtotal_outline_color',
+      'table_subtotal_outline_width',
+      'rowSubTotals',
+      'colSubTotals',
+      'rowSubtotalPosition',
+      'colSubtotalPosition',
+      'table_row_subtotal_label',
+      'table_row_subtotal_levels',
+      'table_column_subtotal_levels',
+      'table_column_subtotal_label',
+    ],
+  },
+  {
+    id: 'table_row_total',
+    title: () => t('Row grand total'),
+    controls: [
+      'table_row_total_apply_labels',
+      'table_row_total_font',
+      'table_row_total_background',
+      'table_row_total_align',
+      'table_row_total_underline',
+      'table_row_total_wrap',
+      'table_row_total_outline',
+      'table_row_total_outline_color',
+      'table_row_total_outline_width',
+      'rowTotals',
+    ],
+  },
+  {
+    id: 'table_column_total',
+    title: () => t('Column grand total'),
+    controls: [
+      'table_column_total_apply_labels',
+      'table_column_total_font',
+      'table_column_total_background',
+      'table_column_total_align',
+      'table_column_total_underline',
+      'table_column_total_wrap',
+      'table_column_total_outline',
+      'table_column_total_outline_color',
+      'table_column_total_outline_width',
+      'colTotals',
+    ],
+  },
+  {
+    id: 'table-grid',
+    title: () => t('Table grid'),
+    controls: [
+      'table_grid_horizontal',
+      'table_grid_vertical',
+      'table_grid_horizontal_color',
+      'table_grid_vertical_color',
+      'table_grid_horizontal_width',
+      'table_grid_vertical_width',
+      'table_row_padding',
+      'table_text_size',
+      'table_outline',
+      'table_outline_color',
+      'table_outline_width',
+      'table_grid_color',
+    ],
+  },
+  {
+    id: 'table-blank',
+    title: () => t('Blank rows'),
+    controls: [
+      'table_blank_rows',
+      'table_blank_background',
+      'table_blank_height',
+      'table_blank_outline',
+      'table_blank_outline_color',
+      'table_blank_outline_width',
+    ],
+  },
+  {
+    id: 'table-column',
+    title: () => t('Specific column'),
+    controls: ['column_config'],
+  },
+  {
+    id: 'table-sparklines',
+    title: () => t('Sparklines'),
+    controls: [
+      'table_sparkline_columns',
+      'table_sparkline_type',
+      'table_sparkline_color',
+      'table_sparkline_width',
+      'table_sparkline_markers',
+      'table_sparkline_marker_color',
+      'table_sparkline_marker_size',
+      'table_sparkline_marker_shape',
+    ],
+  },
+  {
     id: 'table',
     title: () => t('Table style'),
     controls: [
       'table_style_preset',
-      'table_header_font',
-      'table_header_background',
-      'table_cell_font',
-      'table_stripe_color',
-      'table_grid_color',
       'show_cell_bars',
       'align_pn',
       'color_pn',
@@ -450,7 +844,11 @@ export function buildFormatCards(
   const cards: FormatCard[] = [];
   const known = new Set<string>();
   let strayValues: FormatCardItem[] = [];
+  const placed = new Set<string>();
+  const tabular = items.has('table_cell_font');
   CARD_DEFINITIONS.forEach(definition => {
+    // The values of a table only make a section for a table
+    if (definition.id === 'table_cell' && !tabular) return;
     const toggleOf = definition.toggles?.find(({ control }) =>
       items.has(control),
     );
@@ -458,11 +856,24 @@ export function buildFormatCards(
     definition.controls.forEach(control => known.add(control));
     let cardItems = definition.controls.flatMap(control => {
       const item = items.get(control);
-      if (!item) return [];
+      // A control goes in the first section that names it
+      if (!item || placed.has(control)) return [];
+      placed.add(control);
       const heading = definition.headings?.[control]?.();
       return [heading ? { ...item, heading } : item];
     });
+    if (tabular && definition.id === 'labels')
+      cardItems = cardItems.filter(item => item.name !== 'date_format');
     if (definition.id === 'values') cardItems = strayValues;
+    if (
+      (definition.id === 'table_cell' ||
+        (definition.id === 'card-value' && items.has('card_value_font'))) &&
+      strayValues.length
+    ) {
+      const previous = cards.findIndex(card => card.id === 'values');
+      if (previous !== -1) cards.splice(previous, 1);
+      cardItems = [...strayValues, ...cardItems];
+    }
     const soft = definition.softControls;
     if (
       soft &&

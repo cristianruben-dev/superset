@@ -74,6 +74,10 @@ import {
 } from '@ant-design/icons';
 import { isEmpty, debounce, isEqual } from 'lodash';
 import {
+  TabularSparkline,
+  getTableColumnStyle,
+  getTableSparklineValues,
+  getTableCellUrl,
   ColorFormatters,
   getTextColorForBackground,
   ObjectFormattingEnum,
@@ -522,16 +526,28 @@ export default function TableChart<D extends DataRecord = DataRecord>(
   );
 
   const getSharedStyle = useCallback(
-    (column: DataColumnMeta): CSSProperties => {
+    (
+      column: DataColumnMeta,
+      target: 'cell' | 'header' | 'total' = 'cell',
+    ): CSSProperties => {
       const { isNumeric, config = {} } = column;
+      const selectedAlign =
+        tableFormat?.options[
+          target === 'header'
+            ? 'table_header_title_align'
+            : `table_${target}_align`
+        ] ?? tableFormat?.options[`table_${target}_align`];
       const textAlign =
         config.horizontalAlign ||
+        (['left', 'center', 'right'].includes(String(selectedAlign))
+          ? (selectedAlign as CSSProperties['textAlign'])
+          : undefined) ||
         (isNumeric && !isUsingTimeComparison ? 'right' : 'left');
       return {
         textAlign,
       };
     },
-    [isUsingTimeComparison],
+    [isUsingTimeComparison, tableFormat],
   );
 
   const comparisonLabels = useMemo(() => [t('Main'), '#', '△', '%'], []);
@@ -882,9 +898,19 @@ export default function TableChart<D extends DataRecord = DataRecord>(
         }
       }
 
-      const columnWidth = Number.isNaN(Number(config.columnWidth))
-        ? config.columnWidth
-        : Number(config.columnWidth);
+      const headerUrl =
+        (config.urlIcon ?? tableFormat?.options.table_header_url_icon)
+          ? getTableCellUrl(displayLabel)
+          : undefined;
+      const defaultWidth = tableFormat?.options.table_default_column_width;
+      const selectedWidth =
+        config.columnWidth ??
+        (typeof defaultWidth === 'number' && Number.isFinite(defaultWidth)
+          ? Math.max(0, Math.min(2000, defaultWidth))
+          : undefined);
+      const columnWidth = Number.isNaN(Number(selectedWidth))
+        ? selectedWidth
+        : Number(selectedWidth);
 
       // inline style for both th and td cell
       const sharedStyle: CSSProperties = getSharedStyle(column);
@@ -942,6 +968,26 @@ export default function TableChart<D extends DataRecord = DataRecord>(
         columnKey: key,
         accessor: ((datum: D) => datum[key]) as never,
         Cell: ({ value, row }: { value: DataRecordValue; row: Row<D> }) => {
+          const sparklineValues =
+            Array.isArray(tableFormat?.options.table_sparkline_columns) &&
+            tableFormat.options.table_sparkline_columns.includes(key)
+              ? getTableSparklineValues(value)
+              : undefined;
+          if (
+            Array.isArray(tableFormat?.options.table_sparkline_columns) &&
+            tableFormat.options.table_sparkline_columns.includes(key) &&
+            sparklineValues
+          ) {
+            return (
+              <td style={getTableColumnStyle(config, 'values')}>
+                <TabularSparkline
+                  values={sparklineValues}
+                  format={tableFormat.options}
+                />
+              </td>
+            );
+          }
+          const columnStyle = getTableColumnStyle(config, 'values');
           const [isHtml, text] = formatColumnValue(column, value, row.original);
           const html = isHtml && allowRenderHtml ? { __html: text } : undefined;
 
@@ -1147,11 +1193,30 @@ export default function TableChart<D extends DataRecord = DataRecord>(
                 : '',
               isActiveFilterValue(key, value) ? ' dt-is-active-filter' : '',
             ].join(' '),
-            style: resolvedTextColor
-              ? ({ color: resolvedTextColor } as CSSProperties)
-              : undefined,
+            style: {
+              ...columnStyle,
+              ...(resolvedTextColor && { color: resolvedTextColor }),
+            },
             tabIndex: 0,
           };
+          const url =
+            (config.urlIcon ?? tableFormat?.options.table_url_icon)
+              ? getTableCellUrl(value)
+              : undefined;
+          if (url)
+            return (
+              <StyledCell {...cellProps}>
+                <a
+                  href={url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={t('Open link: %s', String(value))}
+                  onClick={event => event.stopPropagation()}
+                >
+                  ↗
+                </a>
+              </StyledCell>
+            );
           if (html) {
             if (truncateLongCells) {
               return (
@@ -1214,8 +1279,12 @@ export default function TableChart<D extends DataRecord = DataRecord>(
             }
             className={[className, col.isSorted ? 'is-sorted' : ''].join(' ')}
             style={{
-              ...sharedStyle,
               ...style,
+              ...getSharedStyle(column, 'header'),
+              ...(columnWidth
+                ? { width: columnWidth, minWidth: columnWidth }
+                : {}),
+              ...getTableColumnStyle(config, 'header'),
             }}
             onKeyDown={(e: ReactKeyboardEvent<HTMLElement>) => {
               // programatically sort column on keypress
@@ -1236,7 +1305,7 @@ export default function TableChart<D extends DataRecord = DataRecord>(
             tabIndex={0}
           >
             {/* can't use `columnWidth &&` because it may also be zero */}
-            {config.columnWidth ? (
+            {columnWidth ? (
               // column width hint
               <div
                 style={{
@@ -1252,7 +1321,21 @@ export default function TableChart<D extends DataRecord = DataRecord>(
                 alignItems: 'flex-end',
               }}
             >
-              <span data-column-name={col.id}>{displayLabel}</span>
+              <span data-column-name={col.id}>
+                {headerUrl ? (
+                  <a
+                    href={headerUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={t('Open link: %s', displayLabel)}
+                    onClick={event => event.stopPropagation()}
+                  >
+                    ↗
+                  </a>
+                ) : (
+                  displayLabel
+                )}
+              </span>
               <SortIcon column={col} />
             </div>
           </th>
@@ -1260,7 +1343,10 @@ export default function TableChart<D extends DataRecord = DataRecord>(
 
         Footer: displayedTotals ? (
           i === 0 ? (
-            <th key={`footer-summary-${i}`}>
+            <th
+              key={`footer-summary-${i}`}
+              style={getTableColumnStyle(config, 'total')}
+            >
               <div
                 css={css`
                   display: flex;
@@ -1271,7 +1357,7 @@ export default function TableChart<D extends DataRecord = DataRecord>(
                   }
                 `}
               >
-                {t('Summary')}
+                {String(tableFormat?.options.table_total_label || t('Summary'))}
                 <Tooltip
                   overlay={t(
                     'Show total aggregations of selected metrics. Note that row limit does not apply to the result.',
@@ -1282,7 +1368,13 @@ export default function TableChart<D extends DataRecord = DataRecord>(
               </div>
             </th>
           ) : (
-            <td key={`footer-total-${i}`} style={sharedStyle}>
+            <td
+              key={`footer-total-${i}`}
+              style={{
+                ...getSharedStyle(column, 'total'),
+                ...getTableColumnStyle(config, 'total'),
+              }}
+            >
               <strong>
                 {formatColumnValue(column, displayedTotals[key])[1]}
               </strong>
@@ -1519,9 +1611,26 @@ export default function TableChart<D extends DataRecord = DataRecord>(
   ]);
 
   const tableFormatCss = tableFormat ? getTableFormatCss(tableFormat) : '';
+  const minimumTableWidth = columnsMeta.reduce((total, column) => {
+    const configured =
+      column.config?.columnWidth ??
+      tableFormat?.options.table_default_column_width;
+    return (
+      total +
+      (typeof configured === 'number' && Number.isFinite(configured)
+        ? Math.max(0, Math.min(2000, configured))
+        : 0)
+    );
+  }, 0);
   const tableFormatStyles = tableFormatCss
     ? css`
         ${tableFormatCss}
+        ${minimumTableWidth > 0 &&
+        css`
+          table.table {
+            min-width: ${minimumTableWidth}px;
+          }
+        `}
       `
     : undefined;
 

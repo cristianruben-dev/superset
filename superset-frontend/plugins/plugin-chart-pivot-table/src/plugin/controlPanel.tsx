@@ -17,6 +17,7 @@
  * under the License.
  */
 import {
+  buildTableFormatSections,
   ControlPanelConfig,
   D3_TIME_FORMAT_OPTIONS,
   Dataset,
@@ -37,6 +38,32 @@ import { MetricsLayoutEnum } from '../types';
 
 const config: ControlPanelConfig = {
   controlPanelSections: [
+    ...buildTableFormatSections(true),
+    {
+      label: t('Specific column'),
+      tabOverride: 'customize',
+      controlSetRows: [
+        [
+          {
+            name: 'column_config',
+            config: {
+              type: 'ColumnConfigControl',
+              tableFormatting: 'matrix',
+              defaultShowCellBars: false,
+              label: t('Customize columns'),
+              renderTrigger: true,
+              shouldMapStateToProps: () => true,
+              mapStateToProps: (_state, _control, chart) => ({
+                columnsPropsObject: {
+                  colnames: chart?.queriesResponse?.[0]?.colnames ?? [],
+                  coltypes: chart?.queriesResponse?.[0]?.coltypes ?? [],
+                },
+              }),
+            },
+          },
+        ],
+      ],
+    },
     {
       label: t('Query'),
       expanded: true,
@@ -99,24 +126,6 @@ const config: ControlPanelConfig = {
               ...sharedControls.metrics,
               validators: [validateNonEmpty],
               rerender: ['conditional_formatting'],
-            },
-          },
-        ],
-        [
-          {
-            name: 'metricsLayout',
-            config: {
-              type: 'RadioButtonControl',
-              renderTrigger: true,
-              label: t('Apply metrics on'),
-              default: MetricsLayoutEnum.COLUMNS,
-              options: [
-                [MetricsLayoutEnum.COLUMNS, t('Columns')],
-                [MetricsLayoutEnum.ROWS, t('Rows')],
-              ],
-              description: t(
-                'Use metrics as a top level group for columns or for rows',
-              ),
             },
           },
         ],
@@ -198,6 +207,31 @@ const config: ControlPanelConfig = {
                 'Aggregate function to apply when pivoting and computing the total rows and columns',
               ),
               renderTrigger: true,
+            },
+          },
+        ],
+      ],
+    },
+    {
+      label: t('Matrix layout'),
+      tabOverride: 'customize',
+      expanded: false,
+      controlSetRows: [
+        [
+          {
+            name: 'metricsLayout',
+            config: {
+              type: 'RadioButtonControl',
+              renderTrigger: true,
+              label: t('Apply metrics on'),
+              default: MetricsLayoutEnum.COLUMNS,
+              options: [
+                [MetricsLayoutEnum.COLUMNS, t('Columns')],
+                [MetricsLayoutEnum.ROWS, t('Rows')],
+              ],
+              description: t(
+                'Use metrics as a top level group for columns or for rows',
+              ),
             },
           },
         ],

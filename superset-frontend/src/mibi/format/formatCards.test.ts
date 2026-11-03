@@ -126,3 +126,17 @@ test('a control declared twice keeps both, as bars do for each orientation', () 
   expect(item.config?.visibility).toBe(horizontal);
   expect(item.alternatives?.[0].config?.visibility).toBe(vertical);
 });
+
+test('a control shows in one section only', () => {
+  const cards = buildFormatCards([
+    section('Any', [
+      'currency_format',
+      'date_format',
+      'number_format',
+      'y_axis_format',
+    ]),
+  ]);
+  const names = cards.flatMap(card => card.items.map(item => item.name));
+  expect(names).toHaveLength(new Set(names).size);
+  expect(cards.map(card => card.id)).not.toContain('table_cell');
+});

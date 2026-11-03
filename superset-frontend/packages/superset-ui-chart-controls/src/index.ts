@@ -34,3 +34,12 @@ export * from './components/ControlHeader';
 export * from './shared-controls';
 export * from './types';
 export * from './fixtures';
+
+export { TabularSparkline } from './components/TabularSparkline';
+
+export * from './sections/tableFormat';
+
+export {
+  buildCardFormatSections,
+  buildSpecialChartSections,
+} from './sections/chartFamilies';

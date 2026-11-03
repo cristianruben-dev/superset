@@ -23,6 +23,7 @@ import { renderTriggered } from 'src/components/Chart/chartAction';
 import type { RootState } from 'src/dashboard/types';
 import { DASHBOARD_ROOT_ID } from 'src/dashboard/util/constants';
 import type { CanvasFormat, VisualFormat } from './types';
+import { mergeVisualFormat } from './styles';
 
 type ChartFormat = NonNullable<VisualFormat['chart']>;
 
@@ -38,16 +39,38 @@ export function withChartFormat<T extends object>(
   return format && formData ? { ...formData, ...format } : formData;
 }
 
+/** Read older card styles as defaults for the unified controls without rewriting saved layouts. */
+export function legacyCardFormat(
+  format: VisualFormat | undefined,
+): ChartFormat {
+  const result: ChartFormat = {};
+  for (const [key, source] of [
+    ['card_value', format?.value],
+    ['card_label', format?.label],
+    ['card_subtitle', format?.label],
+  ] as const) {
+    if (!source) continue;
+    const { size, color, bold, italic } = source;
+    result[`${key}_font`] = { fontSize: size, color, bold, italic };
+  }
+  if (format?.value?.align) result.card_value_align = format.value.align;
+  return result;
+}
+
 /** What the layout changes of a chart: its own settings over the shared ones. */
 export function useChartFormat(componentId: string): ChartFormat | undefined {
   return useSelector((state: RootState) => {
     const layout = state.dashboardLayout?.present;
-    const own = (layout?.[componentId]?.meta?.mibiFormat as VisualFormat)
-      ?.chart;
+    const own = layout?.[componentId]?.meta?.mibiFormat as
+      | VisualFormat
+      | undefined;
     const shared = (
       layout?.[DASHBOARD_ROOT_ID]?.meta?.mibiCanvas as CanvasFormat | undefined
-    )?.visuals?.chart;
-    return own || shared ? { ...shared, ...own } : undefined;
+    )?.visuals;
+    const legacy = legacyCardFormat(mergeVisualFormat(shared, own));
+    return own?.chart || shared?.chart || Object.keys(legacy).length
+      ? { ...legacy, ...shared?.chart, ...own?.chart }
+      : undefined;
   }, isEqual);
 }
 

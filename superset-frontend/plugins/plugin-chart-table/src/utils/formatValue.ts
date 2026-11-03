@@ -23,6 +23,7 @@ import {
   isProbablyHTML,
   sanitizeHtml,
 } from '@superset-ui/core';
+import { formatTableNumber } from '@superset-ui/chart-controls';
 import { GenericDataType } from '@apache-superset/core/common';
 import { DataColumnMeta } from '../types';
 import DateWithFormatter from './DateWithFormatter';
@@ -68,6 +69,8 @@ export function formatColumnValue(
   rowData?: Record<string, DataRecordValue>,
 ) {
   const { dataType, formatter, config = {}, currencyCodeColumn } = column;
+  const number = formatTableNumber(value, config);
+  if (number !== undefined) return [false, number] as [boolean, string];
   const isNumber = dataType === GenericDataType.Numeric;
   const smallNumberFormatter =
     config.d3SmallNumberFormat === undefined

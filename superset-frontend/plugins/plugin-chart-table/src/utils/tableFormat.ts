@@ -17,10 +17,13 @@
  * under the License.
  */
 import {
+  getTabularFormatCss,
+  type TabularFormat,
+} from '@superset-ui/chart-controls';
+import {
   type ColorInput,
   type FontStyleValue,
   type ValueRule,
-  getCompleteValueRules,
   getCustomFontCss,
   matchesValueRule,
   toCssColor,
@@ -61,6 +64,7 @@ export interface TableIconRule extends ValueRule {
 }
 
 export interface TableFormat {
+  options: TabularFormat;
   preset: TableStylePreset;
   headerCss: ReturnType<typeof getCustomFontCss> & { background?: string };
   cellCss: ReturnType<typeof getCustomFontCss>;
@@ -91,6 +95,7 @@ export function getTableFormat(
     : 'default';
   const headerBackground = toCssColor(formData.table_header_background);
   return {
+    options: rawFormData,
     preset,
     headerCss: {
       ...getCustomFontCss(formData.table_header_font),
@@ -99,9 +104,11 @@ export function getTableFormat(
     cellCss: getCustomFontCss(formData.table_cell_font),
     stripeColor: toCssColor(formData.table_stripe_color),
     gridColor: toCssColor(formData.table_grid_color),
-    iconRules: getCompleteValueRules<TableIconRule>(
-      formData.table_conditional_icons,
-    ).filter(rule => typeof rule.icon === 'string' && rule.icon !== ''),
+    // An icon needs no color: it takes that of the text
+    iconRules: (Array.isArray(formData.table_conditional_icons)
+      ? (formData.table_conditional_icons as TableIconRule[])
+      : []
+    ).filter(rule => typeof rule?.icon === 'string' && rule.icon !== ''),
   };
 }
 
@@ -151,7 +158,7 @@ export function getTableFormatCss(format: TableFormat): string {
       `table.table-bordered, table.table-bordered th, table.table-bordered td { border-color: ${format.gridColor}; }`,
     );
   }
-  return rules.join('\n');
+  return [...rules, getTabularFormatCss(format.options)].join('\n');
 }
 
 /**

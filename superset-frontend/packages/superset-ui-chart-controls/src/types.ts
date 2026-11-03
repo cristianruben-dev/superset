@@ -186,6 +186,7 @@ export type InternalControlType =
   | 'DndFilterSelect'
   | 'DndMetricSelect'
   | 'CurrencyControl'
+  | 'FontControl'
   | 'InputNumber'
   | 'Checkbox'
   | 'Select'
@@ -620,7 +621,18 @@ export type ControlFormItemSpec<T extends ControlType = ControlType> = {
                 value?: Currency;
                 defaultValue?: Currency;
               }
-            : {});
+            : T extends 'FontControl'
+              ? {
+                  value?: import('@superset-ui/core').FontStyleValue;
+                  defaultValue?: import('@superset-ui/core').FontStyleValue;
+                }
+              : T extends 'ColorPickerControl'
+                ? {
+                    value?: import('@superset-ui/core').ColorInput;
+                    defaultValue?: import('@superset-ui/core').ColorInput;
+                    allowClear?: boolean;
+                  }
+                : {});
 
 export enum ObjectFormattingEnum {
   BACKGROUND_COLOR = 'BACKGROUND_COLOR',
@@ -667,6 +679,18 @@ export interface ServerPaginationData {
 }
 
 export type TableColumnConfig = {
+  subtotalLabel?: string;
+  displayUnits?: string;
+  decimalPlaces?: number;
+  fontStyle?: import('@superset-ui/core').FontStyleValue;
+  backgroundColor?: import('@superset-ui/core').ColorInput;
+  underline?: boolean;
+  wordWrap?: boolean;
+  styleValues?: boolean;
+  styleHeader?: boolean;
+  styleTotal?: boolean;
+  styleSubtotals?: boolean;
+  urlIcon?: boolean;
   d3NumberFormat?: string;
   d3SmallNumberFormat?: string;
   d3TimeFormat?: string;

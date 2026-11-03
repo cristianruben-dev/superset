@@ -190,8 +190,11 @@ function StickyWrap({
     // multi-level headers assuming the last one is the more detailed one
     const ths = bodyThead.childNodes?.[bodyThead.childNodes?.length - 1 || 0]
       .childNodes as NodeListOf<HTMLTableHeaderCellElement>;
+    // Canvas zoom changes screen pixels; column widths belong to the table's layout pixels.
+    const scale =
+      bodyThead.getBoundingClientRect().width / bodyThead.offsetWidth || 1;
     const widths = Array.from(ths).map(
-      th => th.getBoundingClientRect()?.width || th.clientWidth,
+      th => th.getBoundingClientRect().width / scale || th.offsetWidth,
     );
     const [hasVerticalScroll, hasHorizontalScroll] = needScrollBar({
       width: maxWidth,

@@ -17,8 +17,14 @@
  * under the License.
  */
 
-import { Component, ReactNode, MouseEvent } from 'react';
-import { safeHtmlSpan } from '@superset-ui/core';
+import { Component, Fragment, ReactNode, MouseEvent } from 'react';
+import {
+  safeHtmlSpan,
+  getNumberFormatter,
+  getMetricLabel,
+  CurrencyFormatter,
+  getCustomFontCss,
+} from '@superset-ui/core';
 import { t } from '@apache-superset/core/translation';
 import { supersetTheme } from '@apache-superset/core/theme';
 import PropTypes from 'prop-types';
@@ -26,6 +32,13 @@ import { FaSort } from 'react-icons/fa';
 import { FaSortDown as FaSortDesc } from 'react-icons/fa';
 import { FaSortUp as FaSortAsc } from 'react-icons/fa';
 import {
+  TabularSparkline,
+  formatTableNumber,
+  getTabularCellIcon,
+  getTableColumnStyle,
+  getTableCellUrl,
+  type TabularFormat,
+  type TableColumnConfig,
   ColorFormatters,
   getTextColorForBackground,
   ObjectFormattingEnum,
@@ -51,6 +64,7 @@ type HeaderClickCallback = (
 ) => void;
 
 interface TableOptions {
+  tableFormat?: TabularFormat;
   rowTotals?: boolean;
   colTotals?: boolean;
   rowSubTotals?: boolean;
@@ -155,13 +169,26 @@ function displayHeaderCell(
   value: unknown,
   namesMapping: Record<string, string>,
   allowRenderHtml?: boolean,
+  urlIcon?: boolean,
 ): ReactNode {
   const name = namesMapping[String(value)] || value;
   const parsedLabel = parseLabel(name);
-  const labelContent =
-    allowRenderHtml && typeof parsedLabel === 'string'
-      ? safeHtmlSpan(parsedLabel)
-      : parsedLabel;
+  const url = urlIcon ? getTableCellUrl(name) : undefined;
+  const labelContent = url ? (
+    <a
+      href={url}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label={t('Open link: %s', String(name))}
+      onClick={event => event.stopPropagation()}
+    >
+      ↗
+    </a>
+  ) : allowRenderHtml && typeof parsedLabel === 'string' ? (
+    safeHtmlSpan(parsedLabel)
+  ) : (
+    parsedLabel
+  );
   return needToggle ? (
     <span className="toggle-wrapper">
       <span
@@ -169,6 +196,14 @@ function displayHeaderCell(
         tabIndex={0}
         className="toggle"
         onClick={onArrowClick || undefined}
+        aria-label={t('Expand or collapse group')}
+        onKeyDown={event => {
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            event.stopPropagation();
+            onArrowClick?.(event as unknown as MouseEvent<HTMLSpanElement>);
+          }
+        }}
       >
         {ArrowIcon}
       </span>
@@ -331,6 +366,9 @@ export class TableRenderer extends Component<
   TableRendererState
 > {
   sortCache: Map<string, string[][]>;
+  rowExpansionDepth: unknown;
+  columnExpansionDepth: unknown;
+  columnRanges: Record<string, [number, number]> = {};
   cachedProps: TableRendererProps | null;
   cachedBasePivotSettings: PivotSettings | null;
 
@@ -349,6 +387,32 @@ export class TableRenderer extends Component<
     this.cachedBasePivotSettings = null;
     this.clickHeaderHandler = this.clickHeaderHandler.bind(this);
     this.clickHandler = this.clickHandler.bind(this);
+  }
+
+  /** Resolve a metric or grouping field against the existing per-column settings. */
+  columnConfig(keys: string[], attribute?: string): TableColumnConfig {
+    const config = this.props.tableOptions.tableFormat?.column_config as
+      | Record<string, TableColumnConfig>
+      | undefined;
+    return config?.[keys.find(key => config?.[key]) ?? attribute ?? ''] ?? {};
+  }
+
+  /** Format the same aggregate for detail cells and totals. */
+  formatValue(
+    value: unknown,
+    fallback: unknown,
+    config: TableColumnConfig,
+  ): unknown {
+    const number = formatTableNumber(value, config);
+    if (number !== undefined) return number;
+    if (typeof value !== 'number' || !config.d3NumberFormat) return fallback;
+    return config.currencyFormat?.symbol &&
+      config.currencyFormat.symbol !== 'AUTO'
+      ? new CurrencyFormatter({
+          currency: config.currencyFormat,
+          d3Format: config.d3NumberFormat,
+        })(value)
+      : getNumberFormatter(config.d3NumberFormat)(value);
   }
 
   getBasePivotSettings(): PivotSettings {
@@ -378,20 +442,32 @@ export class TableRenderer extends Component<
 
     const colSubtotalDisplay: SubtotalDisplay = {
       displayOnTop: false,
-      enabled: tableOptions.colSubTotals,
-      hideOnExpand: false,
+      enabled:
+        tableOptions.colSubTotals ||
+        typeof tableOptions.tableFormat?.table_column_expand_depth === 'number',
+      hideOnExpand:
+        !tableOptions.colSubTotals &&
+        typeof tableOptions.tableFormat?.table_column_expand_depth === 'number',
       ...subtotalOptions.colSubtotalDisplay,
     };
 
     const rowSubtotalDisplay: SubtotalDisplay = {
       displayOnTop: false,
-      enabled: tableOptions.rowSubTotals,
-      hideOnExpand: false,
+      enabled:
+        tableOptions.rowSubTotals ||
+        tableOptions.tableFormat?.table_stepped === true ||
+        typeof tableOptions.tableFormat?.table_row_expand_depth === 'number',
+      hideOnExpand:
+        !tableOptions.rowSubTotals &&
+        tableOptions.tableFormat?.table_stepped !== true &&
+        typeof tableOptions.tableFormat?.table_row_expand_depth === 'number',
       ...subtotalOptions.rowSubtotalDisplay,
     };
 
     const pivotData = new PivotData(props as Record<string, unknown>, {
-      rowEnabled: rowSubtotalDisplay.enabled,
+      rowEnabled:
+        rowSubtotalDisplay.enabled ||
+        props.tableOptions.tableFormat?.table_stepped === true,
       colEnabled: colSubtotalDisplay.enabled,
       rowPartialOnTop: rowSubtotalDisplay.displayOnTop,
       colPartialOnTop: colSubtotalDisplay.displayOnTop,
@@ -447,6 +523,34 @@ export class TableRenderer extends Component<
       }
     }
 
+    this.columnRanges = {};
+    if (
+      Object.values(
+        (tableOptions.tableFormat?.column_config ?? {}) as Record<
+          string,
+          TableColumnConfig
+        >,
+      ).some(config => config.showCellBars === true)
+    ) {
+      rowKeys
+        .filter(key => key.length === rowAttrs.length)
+        .forEach(rowKey =>
+          colKeys
+            .filter(key => key.length === colAttrs.length)
+            .forEach(colKey => {
+              const config = this.columnConfig([...rowKey, ...colKey]);
+              if (config.showCellBars !== true) return;
+              const value = pivotData.getAggregator(rowKey, colKey).value();
+              if (typeof value !== 'number' || !Number.isFinite(value)) return;
+              const key = flatKey(colKey);
+              const range = this.columnRanges[key] ?? [0, 0];
+              this.columnRanges[key] = [
+                Math.min(range[0], value),
+                Math.max(range[1], value),
+              ];
+            }),
+        );
+    }
     return {
       pivotData,
       colAttrs,
@@ -882,8 +986,13 @@ export class TableRenderer extends Component<
           cellColorFormatters,
           isActiveHeader ? activeHeaderBackgroundColor : cellBackgroundColor,
         );
+        const config = this.columnConfig([colKey[attrIdx]], attrName);
         const style = {
-          backgroundColor,
+          ...getTableColumnStyle(config, 'header'),
+          ...(config.columnWidth !== undefined && {
+            minWidth: config.columnWidth,
+          }),
+          ...(backgroundColor && { backgroundColor }),
           ...(color ? { color } : {}),
         };
         attrValueCells.push(
@@ -912,6 +1021,9 @@ export class TableRenderer extends Component<
               headerCellFormattedValue,
               namesMapping,
               allowRenderHtml,
+              config.urlIcon ??
+                this.props.tableOptions.tableFormat?.table_header_url_icon ===
+                  true,
             )}
             <span
               role="columnheader"
@@ -949,7 +1061,13 @@ export class TableRenderer extends Component<
               true,
             )}
           >
-            {t('Subtotal')}
+            {String(
+              this.columnConfig([], colAttrs[colKey.length - 1])
+                .subtotalLabel ||
+                this.props.tableOptions.tableFormat
+                  ?.table_column_subtotal_label ||
+                t('Subtotal'),
+            )}
           </th>,
         );
       }
@@ -1107,7 +1225,11 @@ export class TableRenderer extends Component<
         valueCellClassName += ' active';
       }
       const isActiveHeader = valueCellClassName.includes('active');
-      const rowSpan = rowAttrSpans![rowIdx][i];
+      const rowSpan =
+        this.props.tableOptions.tableFormat?.table_repeat_headers === true ||
+        this.props.tableOptions.tableFormat?.table_blank_rows === true
+          ? 1
+          : rowAttrSpans![rowIdx][i];
       if (rowSpan > 0) {
         const flatRowKey = flatKey(rowKey.slice(0, i + 1));
         const colSpan = 1 + (i === rowAttrs.length - 1 ? colIncrSpan : 0);
@@ -1126,8 +1248,13 @@ export class TableRenderer extends Component<
           cellColorFormatters,
           isActiveHeader ? activeHeaderBackgroundColor : cellBackgroundColor,
         );
+        const config = this.columnConfig([], rowAttrs[i]);
         const style = {
-          backgroundColor,
+          ...getTableColumnStyle(config, 'header'),
+          ...(config.columnWidth !== undefined && {
+            minWidth: config.columnWidth,
+          }),
+          ...(backgroundColor && { backgroundColor }),
           ...(color ? { color } : {}),
         };
         return (
@@ -1156,6 +1283,9 @@ export class TableRenderer extends Component<
               headerCellFormattedValue,
               namesMapping,
               allowRenderHtml,
+              config.urlIcon ??
+                this.props.tableOptions.tableFormat
+                  ?.table_row_header_url_icon === true,
             )}
           </th>
         );
@@ -1163,8 +1293,16 @@ export class TableRenderer extends Component<
       return null;
     });
 
+    const stepped =
+      rowAttrs.length > 0 &&
+      this.props.tableOptions.tableFormat?.table_stepped === true;
+    const rawIndent = this.props.tableOptions.tableFormat?.table_stepped_indent;
+    const indentation =
+      typeof rawIndent === 'number' && Number.isFinite(rawIndent)
+        ? Math.max(0, Math.min(100, rawIndent))
+        : 16;
     const attrValuePaddingCell =
-      rowKey.length < rowAttrs.length ? (
+      !stepped && rowKey.length < rowAttrs.length ? (
         <th
           className="pvtRowLabel pvtSubtotalLabel"
           key="rowKeyBuffer"
@@ -1180,7 +1318,11 @@ export class TableRenderer extends Component<
             true,
           )}
         >
-          {t('Subtotal')}
+          {String(
+            this.columnConfig([], rowAttrs[rowKey.length - 1]).subtotalLabel ||
+              this.props.tableOptions.tableFormat?.table_row_subtotal_label ||
+              t('Subtotal'),
+          )}
         </th>
       ) : null;
 
@@ -1195,6 +1337,13 @@ export class TableRenderer extends Component<
       const aggValue = agg.value();
 
       const keys = [...rowKey, ...colKey];
+      const subtotalVisible =
+        (rowKey.length === rowAttrs.length ||
+          this.props.tableOptions.rowSubTotals ||
+          this.state.collapsedRows[flatRowKey]) &&
+        (colKey.length === colAttrs.length ||
+          this.props.tableOptions.colSubTotals ||
+          this.state.collapsedCols[flatColKey]);
 
       const { backgroundColor, color } = getCellColor(
         keys,
@@ -1203,10 +1352,20 @@ export class TableRenderer extends Component<
         cellBackgroundColor,
       );
 
+      const config = this.columnConfig(keys);
+      const columnStyle = getTableColumnStyle(
+        config,
+        agg.isSubtotal ? 'subtotal' : 'values',
+      );
       const style = agg.isSubtotal
         ? {
             backgroundColor,
             fontWeight: 'bold',
+            ...getCustomFontCss(
+              this.props.tableOptions.tableFormat?.table_subtotal_font as
+                | import('@superset-ui/core').FontStyleValue
+                | undefined,
+            ),
             color: color ?? cellTextColor,
           }
         : { backgroundColor, color: color ?? cellTextColor };
@@ -1214,13 +1373,54 @@ export class TableRenderer extends Component<
       return (
         <td
           role="gridcell"
-          className="pvtVal"
+          className={agg.isSubtotal ? 'pvtVal pvtSubtotalValue' : 'pvtVal'}
           key={`pvtVal-${flatColKey}`}
           onClick={rowClickHandlers[flatColKey]}
           onContextMenu={e => this.props.onContextMenu(e, colKey, rowKey)}
-          style={style}
+          style={{
+            ...style,
+            ...(config.showCellBars === true && { position: 'relative' }),
+            color: color ?? columnStyle.color,
+            ...columnStyle,
+            ...(backgroundColor && { backgroundColor }),
+            ...(color && { color }),
+            ...(config.columnWidth !== undefined && {
+              minWidth: config.columnWidth,
+            }),
+          }}
         >
-          {displayCell(agg.format(aggValue, agg), allowRenderHtml)}
+          {subtotalVisible &&
+            config.showCellBars === true &&
+            typeof aggValue === 'number' &&
+            this.columnRanges[flatColKey] &&
+            (() => {
+              const [min, max] = this.columnRanges[flatColKey];
+              const span = max - min || 1;
+              return (
+                <span
+                  aria-hidden="true"
+                  style={{
+                    display: 'block',
+                    position: 'absolute',
+                    top: 0,
+                    bottom: 0,
+                    left: `${((Math.min(0, aggValue) - min) / span) * 100}%`,
+                    width: `${(Math.abs(aggValue) / span) * 100}%`,
+                    backgroundColor: 'currentColor',
+                    opacity: 0.16,
+                    pointerEvents: 'none',
+                  }}
+                />
+              );
+            })()}
+          {subtotalVisible &&
+            this.renderValue(
+              aggValue,
+              this.formatValue(aggValue, agg.format(aggValue, agg), config),
+              allowRenderHtml,
+              config.urlIcon,
+              keys,
+            )}
         </td>
       );
     });
@@ -1229,27 +1429,166 @@ export class TableRenderer extends Component<
     if (rowTotals) {
       const agg = pivotData.getAggregator(rowKey, []);
       const aggValue = agg.value();
+      const config = this.columnConfig(rowKey);
       totalCell = (
         <td
           role="gridcell"
           key="total"
           className="pvtTotal"
+          style={getTableColumnStyle(config, 'total')}
           onClick={rowTotalCallbacks[flatRowKey]}
           onContextMenu={e => this.props.onContextMenu(e, undefined, rowKey)}
         >
-          {displayCell(agg.format(aggValue, agg), allowRenderHtml)}
+          {this.renderValue(
+            aggValue,
+            this.formatValue(aggValue, agg.format(aggValue, agg), config),
+            allowRenderHtml,
+            config.urlIcon,
+          )}
         </td>
       );
     }
 
+    const steppedConfig = stepped
+      ? this.columnConfig([], rowAttrs[rowKey.length - 1])
+      : {};
+    const steppedCell = stepped ? (
+      <th
+        key="stepped"
+        className="pvtRowLabel"
+        colSpan={rowAttrs.length + colIncrSpan}
+        style={{
+          ...getTableColumnStyle(steppedConfig, 'header'),
+          ...(steppedConfig.columnWidth !== undefined && {
+            minWidth: steppedConfig.columnWidth,
+          }),
+          paddingLeft: Math.max(0, rowKey.length - 1) * indentation + 4,
+        }}
+        onClick={this.clickHeaderHandler(
+          pivotData,
+          rowKey,
+          this.props.rows,
+          rowKey.length - 1,
+          this.props.tableOptions.clickRowHeaderCallback,
+          rowKey.length < rowAttrs.length,
+        )}
+        onContextMenu={event =>
+          this.props.onContextMenu(event, undefined, rowKey)
+        }
+      >
+        {displayHeaderCell(
+          rowKey.length < rowAttrs.length,
+          this.state.collapsedRows[flatRowKey] ? arrowCollapsed : arrowExpanded,
+          this.toggleRowKey(flatRowKey),
+          dateFormatters?.[rowAttrs[rowKey.length - 1]]?.(
+            convertToNumberIfNumeric(rowKey[rowKey.length - 1]),
+          ) ?? rowKey[rowKey.length - 1],
+          namesMapping,
+          allowRenderHtml,
+          steppedConfig.urlIcon ??
+            this.props.tableOptions.tableFormat?.table_row_header_url_icon ===
+              true,
+        )}
+      </th>
+    ) : null;
+    const format = this.props.tableOptions.tableFormat ?? {};
+    const sparklineMetrics = Array.isArray(format.table_sparkline_columns)
+      ? format.table_sparkline_columns.filter(
+          (metric): metric is string =>
+            typeof metric === 'string' &&
+            colAttrs.length > 0 &&
+            visibleColKeys.some(key => key.includes(metric)) &&
+            !rowAttrs.includes(metric),
+        )
+      : [];
+    const sparklineCells = sparklineMetrics.map(metric => (
+      <td key={`sparkline-${metric}`}>
+        <TabularSparkline
+          format={format}
+          values={visibleColKeys
+            .filter(
+              key => key.length === colAttrs.length && key.includes(metric),
+            )
+            .map(key => pivotData.getAggregator(rowKey, key).value())}
+        />
+      </td>
+    ));
     const rowCells = [
-      ...attrValueCells,
+      ...(stepped ? [steppedCell] : attrValueCells),
       attrValuePaddingCell,
       ...valueCells,
       totalCell,
+      ...sparklineCells,
     ];
 
-    return <tr key={`keyRow-${flatRowKey}`}>{rowCells}</tr>;
+    const blank =
+      this.props.tableOptions.tableFormat?.table_blank_rows === true &&
+      rowIdx > 0 &&
+      pivotSettings.visibleRowKeys?.[rowIdx - 1]?.[0] !== rowKey[0];
+    if (!blank) return <tr key={`keyRow-${flatRowKey}`}>{rowCells}</tr>;
+    return (
+      <Fragment key={`keyRow-${flatRowKey}`}>
+        <tr className="pvtBlankRow" aria-hidden="true">
+          <td
+            colSpan={
+              rowAttrs.length +
+              colIncrSpan +
+              visibleColKeys.length +
+              sparklineMetrics.length +
+              Number(rowTotals)
+            }
+          />
+        </tr>
+        <tr>{rowCells}</tr>
+      </Fragment>
+    );
+  }
+
+  /** Render plain values with an optional safe URL icon. */
+  renderValue(
+    value: unknown,
+    formatted: unknown,
+    allowRenderHtml?: boolean,
+    urlIcon?: boolean,
+    keys: string[] = [],
+  ): ReactNode {
+    const url =
+      (urlIcon ?? this.props.tableOptions.tableFormat?.table_url_icon)
+        ? getTableCellUrl(value)
+        : undefined;
+    const metrics = (this.props.tableOptions.tableFormat?.metrics ??
+      []) as import('@superset-ui/core').QueryFormMetric[];
+    const metric = metrics
+      .map(getMetricLabel)
+      .find(name => keys.includes(name));
+    const icon = getTabularCellIcon(
+      this.props.tableOptions.tableFormat?.table_conditional_icons,
+      metric,
+      value,
+    );
+    const content = url ? (
+      <a
+        href={url}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label={t('Open link: %s', String(value))}
+        onClick={event => event.stopPropagation()}
+      >
+        ↗
+      </a>
+    ) : (
+      displayCell(formatted, allowRenderHtml)
+    );
+    return icon ? (
+      <>
+        <span aria-hidden="true" style={{ color: icon.color, marginRight: 4 }}>
+          {icon.icon}
+        </span>
+        {content}
+      </>
+    ) : (
+      content
+    );
   }
 
   renderTotalsRow(pivotSettings: PivotSettings) {
@@ -1295,7 +1634,7 @@ export class TableRenderer extends Component<
       const flatColKey = flatKey(colKey);
       const agg = pivotData.getAggregator([], colKey);
       const aggValue = agg.value();
-
+      const config = this.columnConfig(colKey);
       return (
         <td
           role="gridcell"
@@ -1303,9 +1642,14 @@ export class TableRenderer extends Component<
           key={`total-${flatColKey}`}
           onClick={colTotalCallbacks[flatColKey]}
           onContextMenu={e => this.props.onContextMenu(e, colKey, undefined)}
-          style={{ padding: '5px' }}
+          style={{ padding: '5px', ...getTableColumnStyle(config, 'total') }}
         >
-          {displayCell(agg.format(aggValue, agg), this.props.allowRenderHtml)}
+          {this.renderValue(
+            aggValue,
+            this.formatValue(aggValue, agg.format(aggValue, agg), config),
+            this.props.allowRenderHtml,
+            config.urlIcon,
+          )}
         </td>
       );
     });
@@ -1351,7 +1695,7 @@ export class TableRenderer extends Component<
         // Leaf key.
         (key.length === numAttrs ||
           // Children hidden. Must show total.
-          flatKey(key) in collapsed ||
+          collapsed[flatKey(key)] === true ||
           // Don't hide totals.
           !subtotalDisplay.hideOnExpand),
     );
@@ -1387,16 +1731,64 @@ export class TableRenderer extends Component<
       allowRenderHtml,
     } = basePivotSettings;
 
+    const format = this.props.tableOptions.tableFormat ?? {};
+    for (const axis of ['row', 'column'] as const) {
+      const depthValue = format[`table_${axis}_expand_depth`];
+      const previous =
+        axis === 'row' ? this.rowExpansionDepth : this.columnExpansionDepth;
+      if (depthValue === previous) continue;
+      if (axis === 'row') this.rowExpansionDepth = depthValue;
+      else this.columnExpansionDepth = depthValue;
+      const depth =
+        typeof depthValue === 'number'
+          ? Math.max(1, Math.floor(depthValue))
+          : undefined;
+      const keys = axis === 'row' ? rowKeys : colKeys;
+      const count = axis === 'row' ? rowAttrs.length : colAttrs.length;
+      const collapsed =
+        depth === undefined
+          ? {}
+          : Object.fromEntries(
+              keys
+                .filter(key => key.length === depth && key.length < count)
+                .map(key => [flatKey(key), true]),
+            );
+      if (axis === 'row')
+        (this.state as TableRendererState).collapsedRows = collapsed;
+      else (this.state as TableRendererState).collapsedCols = collapsed;
+    }
+    const visibleAtLevel = (
+      keys: string[][],
+      axis: string,
+      count: number,
+      collapsed: Record<string, boolean>,
+    ) => {
+      const levels = format[`table_${axis}_subtotal_levels`];
+      return !Array.isArray(levels) || !levels.length
+        ? keys
+        : keys.filter(
+            key =>
+              key.length === count ||
+              levels.includes(String(key.length)) ||
+              collapsed[flatKey(key)] ||
+              (axis === 'row' && format.table_stepped === true),
+          );
+    };
     // Need to account for exclusions to compute the effective row
     // and column keys.
     const visibleRowKeys = this.visibleKeys(
-      rowKeys,
+      visibleAtLevel(rowKeys, 'row', rowAttrs.length, this.state.collapsedRows),
       this.state.collapsedRows,
       rowAttrs.length,
       rowSubtotalDisplay,
     );
     const visibleColKeys = this.visibleKeys(
-      colKeys,
+      visibleAtLevel(
+        colKeys,
+        'column',
+        colAttrs.length,
+        this.state.collapsedCols,
+      ),
       this.state.collapsedCols,
       colAttrs.length,
       colSubtotalDisplay,
@@ -1413,20 +1805,49 @@ export class TableRenderer extends Component<
       ...basePivotSettings,
     };
 
+    const sparklineMetrics = Array.isArray(format.table_sparkline_columns)
+      ? format.table_sparkline_columns.filter(
+          (metric): metric is string =>
+            typeof metric === 'string' &&
+            visibleColKeys.some(key => key.includes(metric)),
+        )
+      : [];
+    const headerRows = colAttrs.map((c: string, j: number) =>
+      this.renderColHeaderRow(c, j, pivotSettings),
+    );
+    if (rowAttrs.length !== 0)
+      headerRows.push(this.renderRowHeaderRow(pivotSettings));
+    const renderedHeaders = headerRows.map((row, index) =>
+      index === 0 && row ? (
+        <tr key="sparkline-header">
+          {row.props.children}
+          {sparklineMetrics.map(metric => (
+            <th key={metric} rowSpan={headerRows.length}>
+              {t('Trend: %s', metric)}
+            </th>
+          ))}
+        </tr>
+      ) : (
+        row
+      ),
+    );
+    const totalRow = colTotals ? this.renderTotalsRow(pivotSettings) : null;
     return (
       <Styles isDashboardEditMode={this.isDashboardEditMode()}>
         <table className="pvtTable" role="grid">
-          <thead>
-            {colAttrs.map((c: string, j: number) =>
-              this.renderColHeaderRow(c, j, pivotSettings),
-            )}
-            {rowAttrs.length !== 0 && this.renderRowHeaderRow(pivotSettings)}
-          </thead>
+          <thead>{renderedHeaders}</thead>
           <tbody>
             {visibleRowKeys.map((r: string[], i: number) =>
               this.renderTableRow(r, i, pivotSettings),
             )}
-            {colTotals && this.renderTotalsRow(pivotSettings)}
+            {totalRow && (
+              <tr className="pvtRowTotals">
+                {totalRow.props.children}
+                {sparklineMetrics.map(metric => (
+                  <td key={metric} />
+                ))}
+              </tr>
+            )}
           </tbody>
         </table>
       </Styles>

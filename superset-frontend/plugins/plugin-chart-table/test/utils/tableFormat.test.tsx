@@ -32,6 +32,7 @@ import { ProviderWrapper } from '../testHelpers';
 test('getTableFormat defaults to the original look', () => {
   const format = getTableFormat({});
   expect(format).toEqual({
+    options: {},
     preset: 'default',
     headerCss: {},
     cellCss: {},
@@ -124,7 +125,9 @@ test('TableChart renders the preset class and conditional icons', () => {
   };
   const { container } = render(
     ProviderWrapper({
-      children: <TableChart {...transformProps(chartProps)} sticky={false} />,
+      children: (
+        <TableChart {...transformProps(chartProps as never)} sticky={false} />
+      ),
     }),
   );
   expect(container.querySelector('table')).toHaveClass(
@@ -136,4 +139,39 @@ test('TableChart renders the preset class and conditional icons', () => {
   // Michael (2467063) and Maria (12342) exceed 10000; Joe (2467) does not.
   expect(container.querySelectorAll('.dt-cell-icon')).toHaveLength(2);
   expect(container.querySelector('.dt-cell-icon')).toHaveTextContent('★');
+});
+
+test('global table alignment and widths override defaults while explicit columns win', () => {
+  const chartProps = {
+    ...testData.basic,
+    rawFormData: {
+      ...testData.basic.rawFormData,
+      table_header_align: 'center',
+      table_cell_align: 'center',
+      table_total_align: 'left',
+      table_default_column_width: 140,
+      column_config: {
+        sum__num: { horizontalAlign: 'right', columnWidth: 180 },
+      },
+    },
+  };
+  const { container } = render(
+    ProviderWrapper({
+      children: (
+        <TableChart {...transformProps(chartProps as never)} sticky={false} />
+      ),
+    }),
+  );
+  expect(container.querySelector('thead th')).toHaveStyle({
+    textAlign: 'center',
+    minWidth: '140px',
+  });
+  expect(
+    [...container.querySelectorAll('thead th')].find(
+      header => header.textContent === 'sum__num',
+    ),
+  ).toHaveStyle({
+    textAlign: 'right',
+    minWidth: '180px',
+  });
 });

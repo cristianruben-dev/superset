@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { withChartFormat } from './chartFormat';
+import { withChartFormat, legacyCardFormat } from './chartFormat';
 import {
   ownChartFormat,
   ownFormat,
@@ -93,5 +93,19 @@ test('what says something about one chart stays with it', () => {
     link: { show: true },
     actionButton: { show: true },
     chart: { series_colors: {} },
+  });
+});
+
+test('legacy card styles become defaults for the unified format controls', () => {
+  expect(
+    legacyCardFormat({
+      value: { size: 48, bold: false, align: 'right' },
+      label: { color: '#ff0000' },
+    }),
+  ).toMatchObject({
+    card_value_font: { fontSize: 48, bold: false },
+    card_value_align: 'right',
+    card_label_font: { color: '#ff0000' },
+    card_subtitle_font: { color: '#ff0000' },
   });
 });

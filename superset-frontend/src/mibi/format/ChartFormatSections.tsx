@@ -49,7 +49,11 @@ import {
   isQuerySection,
 } from 'src/explore/controlUtils/getSectionsToRender';
 import { getControlStateFromControlConfig } from 'src/explore/controlUtils/getControlState';
-import { useChartFormat, withChartFormat } from './chartFormat';
+import {
+  legacyCardFormat,
+  useChartFormat,
+  withChartFormat,
+} from './chartFormat';
 import { resetChartFormat, setChartFormatValue } from './chartFormatActions';
 import { FormatSearchContext, Hint, searchable, Section } from './controls';
 import type { VisualFormat } from './types';
@@ -130,24 +134,33 @@ function buildControls(
       ...card.items,
     ])
     .forEach(({ name, config }) => {
-      const base = safely(
-        () =>
-          getControlStateFromControlConfig(
-            config,
-            state,
-            formData[name] as JsonValue,
-          ),
-        null,
-      );
-      const current = (base ?? controls[name]) as ControlState;
+      // Resolve result-dependent choices before validation can discard a value.
       const mapped = config.mapStateToProps
         ? safely(
             () =>
-              config.mapStateToProps?.(state, current as never, chart as never),
+              config.mapStateToProps?.(
+                state,
+                controls[name] as never,
+                chart as never,
+              ),
             undefined,
           )
         : undefined;
-      controls[name] = { ...current, ...mapped };
+      const base = safely(
+        () =>
+          getControlStateFromControlConfig(
+            { ...config, ...mapped, mapStateToProps: undefined },
+            state,
+            (mapped && 'value' in mapped
+              ? mapped.value
+              : formData[name]) as JsonValue,
+          ),
+        null,
+      );
+      controls[name] = (base ?? {
+        ...controls[name],
+        ...mapped,
+      }) as ControlState;
     });
   return { cards, state };
 }
@@ -173,10 +186,15 @@ export function ChartFormatSections({
   );
   const search = useContext(FormatSearchContext);
   const format = useChartFormat(id);
-  const ownFormat = useSelector(
+  const ownVisual = useSelector(
     (state: RootState) =>
-      (state.dashboardLayout.present[id]?.meta?.mibiFormat as VisualFormat)
-        ?.chart,
+      state.dashboardLayout.present[id]?.meta?.mibiFormat as
+        | VisualFormat
+        | undefined,
+  );
+  const ownFormat = useMemo(
+    () => ({ ...legacyCardFormat(ownVisual), ...ownVisual?.chart }),
+    [ownVisual],
   );
   const formData = useMemo(
     () => withChartFormat(chart?.form_data, format),

@@ -25,3 +25,5 @@ export * from './echartsTimeSeriesQuery';
 export * from './timeComparison';
 export * from './matrixify';
 export * from './visualFormat';
+
+export * from './tableFormat';

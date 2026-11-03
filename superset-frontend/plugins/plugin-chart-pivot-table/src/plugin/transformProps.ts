@@ -163,6 +163,7 @@ export default function transformProps(chartProps: ChartProps<QueryFormData>) {
   return {
     width,
     height,
+    tableFormat: rawFormData,
     data,
     groupbyRows,
     groupbyColumns,

@@ -74,10 +74,19 @@ export const resetChartFormat =
       {}) as VisualFormat;
     const chart = { ...own.chart };
     names.forEach(name => delete chart[name]);
+    // The style of a card from before its controls goes with them
+    const { value, label, ...rest } = own;
+    const kept: VisualFormat = {
+      ...rest,
+      ...(!names.includes('card_value_font') && value && { value }),
+      ...(!names.includes('card_label_font') &&
+        !names.includes('card_subtitle_font') &&
+        label && { label }),
+    };
     dispatch(
       setVisualFormat(
         id,
-        withChart(own, chart),
+        withChart(kept, chart),
         `visual:${id}:chart-reset-${Date.now()}`,
       ),
     );

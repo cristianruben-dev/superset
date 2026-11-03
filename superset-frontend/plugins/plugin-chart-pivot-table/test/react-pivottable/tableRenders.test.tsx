@@ -827,7 +827,9 @@ test('renderTableRow keeps subtotal background and readable text in sync', () =>
 
   const cells = Children.toArray(row.props.children);
   const valueCell = cells.find(
-    child => isValidElement(child) && child.props.className === 'pvtVal',
+    child =>
+      isValidElement(child) &&
+      child.props.className === 'pvtVal pvtSubtotalValue',
   ) as ReactElement;
 
   expect(valueCell.props.style).toEqual({
