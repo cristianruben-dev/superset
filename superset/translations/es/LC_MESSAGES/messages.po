@@ -20973,3 +20973,60 @@ msgstr "Con el puntero encima"
 
 msgid "Zoom sliders"
 msgstr "Deslizadores de zoom"
+
+msgid "Column Y-axis"
+msgstr "Eje Y de columnas"
+
+msgid "Column legend"
+msgstr "Leyenda de columnas"
+
+msgid "Line Y-axis"
+msgstr "Eje Y de líneas"
+
+msgid "Line legend"
+msgstr "Leyenda de líneas"
+
+msgid "Breakdown"
+msgstr "Desglose"
+
+msgid "Fields"
+msgstr "Campos"
+
+msgid "Trend axis"
+msgstr "Eje de tendencia"
+
+msgid "Values as a percentage"
+msgstr "Valores como porcentaje"
+
+msgid "A chart lacks a required field: it keeps its saved fields."
+msgstr "A un gráfico le falta un campo obligatorio: conserva sus campos guardados."
+
+msgid "The fields of a chart could not be saved. Try again."
+msgstr "No se pudieron guardar los campos de un gráfico. Inténtalo de nuevo."
+
+msgid "Fields are saved with the report. Undo does not change them: use the button below."
+msgstr "Los campos se guardan con el informe. Deshacer no los cambia: usa el botón de abajo."
+
+msgid "Back to the saved fields"
+msgstr "Volver a los campos guardados"
+
+msgid "Filters on this visual"
+msgstr "Filtros de este objeto visual"
+
+msgid "More data options"
+msgstr "Más opciones de datos"
+
+msgid "This chart has no fields to choose."
+msgstr "Este gráfico no tiene campos que elegir."
+
+msgid "Measures"
+msgstr "Medidas"
+
+msgid "Search fields"
+msgstr "Buscar campos"
+
+msgid "The selected chart uses another table."
+msgstr "El gráfico seleccionado usa otra tabla."
+
+msgid "Only the owners of this chart can change its fields."
+msgstr "Solo los propietarios de este gráfico pueden cambiar sus campos."
