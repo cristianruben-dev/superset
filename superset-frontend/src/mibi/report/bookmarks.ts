@@ -42,7 +42,7 @@ type AppDispatch = ThunkDispatch<RootState, undefined, AnyAction>;
 
 const NATIVE_FILTER_PREFIX = 'NATIVE_FILTER-';
 const isNativeFilter = (id: string) => id.startsWith(NATIVE_FILTER_PREFIX);
-const isCrossFilter = (id: string) => /^\d+$/.test(id);
+export const isCrossFilter = (id: string) => /^\d+$/.test(id);
 
 export const DEFAULT_BOOKMARK_OPTIONS: BookmarkOptions = {
   data: true,
@@ -174,7 +174,7 @@ export const moveBookmark =
     dispatch(saveBookmarks(bookmarks, `bookmark-move:${id}:${Date.now()}`));
   };
 
-const EMPTY_CROSS_FILTER: DataMask = {
+export const EMPTY_CROSS_FILTER: DataMask = {
   extraFormData: { filters: [] },
   filterState: { value: null, selectedValues: null },
 };

@@ -67,6 +67,7 @@ import { DashboardWorkspaceChip } from 'src/mibi/workspaces/DashboardWorkspaceCh
 import { ExportDashboardModal } from 'src/mibi/export/ExportDashboardModal';
 import { setPresenting } from 'src/mibi/present/presentation';
 import { BookmarksMenu } from 'src/mibi/report/BookmarksMenu';
+import { ResetFiltersButton } from 'src/mibi/report/ResetFiltersButton';
 import { ModeMenu, Ribbon } from 'src/mibi/ribbon/Ribbon';
 import { useUnsavedChangesPrompt } from 'src/hooks/useUnsavedChangesPrompt';
 import DashboardEmbedModal from '../EmbeddedModal';
@@ -672,6 +673,7 @@ const Header = (): JSX.Element => {
             {!isEmbedded && (
               <>
                 {/* AuraData BI: bookmarks of the report */}
+                <ResetFiltersButton buttonCss={iconButtonStyle} />
                 <BookmarksMenu buttonCss={iconButtonStyle} />
                 <Tooltip title={t('Present')} placement="bottom">
                   <Button
