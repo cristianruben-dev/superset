@@ -45,6 +45,7 @@ import {
   withChartFormat,
 } from 'src/mibi/format/chartFormat';
 import {
+  BASE_VISUAL_PADDING,
   canvasStyle,
   mergeVisualFormat,
   visualStyle,
@@ -187,6 +188,8 @@ async function fetchChartData(
   );
 }
 
+const TITLE_HEIGHT = 26;
+
 const Box = styled.div`
   ${({ theme }) => css`
     position: fixed;
@@ -195,7 +198,8 @@ const Box = styled.div`
     overflow: hidden;
     border-radius: ${theme.borderRadius}px;
     box-shadow: ${theme.boxShadowSecondary};
-    background: ${theme.colorBgContainer};
+    /* The page of the report, as the editor shows it */
+    background: ${theme.colorBgLayout};
     color: ${theme.colorText};
   `}
 `;
@@ -208,10 +212,22 @@ const Placed = styled.div`
   box-sizing: border-box;
 `;
 
+/** A chart as a card, as on the page (see `.dashboard-component-chart-holder`). */
+const ChartCard = styled(Placed)`
+  ${({ theme }) => css`
+    border: 1px solid ${theme.colorBorderSecondary};
+    border-radius: var(--mb-v-radius, 14px);
+    background: ${theme.colorBgContainer};
+  `}
+`;
+
 const Title = styled.div`
   ${({ theme }) => css`
     flex: none;
-    padding: ${theme.sizeUnit}px ${theme.sizeUnit * 2}px 0;
+    height: ${TITLE_HEIGHT}px;
+    padding-bottom: ${theme.sizeUnit * 2}px;
+    box-sizing: border-box;
+    line-height: ${TITLE_HEIGHT - theme.sizeUnit * 2}px;
     font-weight: ${theme.fontWeightStrong};
     white-space: nowrap;
     overflow: hidden;
@@ -229,8 +245,6 @@ const Centered = styled.div`
     font-size: ${theme.fontSizeSM}px;
   `}
 `;
-
-const TITLE_HEIGHT = 26;
 
 /** One chart of a tooltip page, filtered to the mark. */
 const TooltipChart = memo(function TooltipChart({
@@ -294,12 +308,22 @@ const TooltipChart = memo(function TooltipChart({
   const height = object.height * CELL;
   const showTitle = format?.title?.show !== false;
   const title = String(meta?.sliceNameOverride || meta?.sliceName || '');
-  const { style } = visualStyle(format, theme);
-  const chartHeight = height - (showTitle ? TITLE_HEIGHT : 0);
+  const { style, shrinkX, shrinkY } = visualStyle(format, theme);
+  // The room of a chart as on the dashboard: the base padding of a visual,
+  // and what its own padding and border take beyond it
+  const chartWidth = Math.max(1, width - BASE_VISUAL_PADDING * 2 - shrinkX);
+  const chartHeight = Math.max(
+    1,
+    height -
+      BASE_VISUAL_PADDING * 2 -
+      shrinkY -
+      (showTitle && title ? TITLE_HEIGHT : 0),
+  );
   const current = result?.key === key ? result : undefined;
   return (
-    <Placed
+    <ChartCard
       style={{
+        padding: BASE_VISUAL_PADDING,
         ...style,
         left: object.x * CELL,
         top: object.y * CELL,
@@ -311,7 +335,7 @@ const TooltipChart = memo(function TooltipChart({
       {showTitle && title && (
         <Title
           style={{
-            fontSize: format?.title?.size,
+            fontSize: format?.title?.size ?? 14,
             color: format?.title?.color,
           }}
         >
@@ -326,8 +350,8 @@ const TooltipChart = memo(function TooltipChart({
           formData={formData}
           queriesData={current.data}
           datasource={datasource}
-          width={width}
-          height={Math.max(1, chartHeight)}
+          width={chartWidth}
+          height={chartHeight}
           enableNoResults
         />
       ) : (
@@ -335,7 +359,7 @@ const TooltipChart = memo(function TooltipChart({
           <Loading position="inline-centered" size="s" />
         </Centered>
       )}
-    </Placed>
+    </ChartCard>
   );
 });
 
