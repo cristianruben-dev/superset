@@ -24,14 +24,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import cx from 'classnames';
 import type { ResizeCallback, ResizeStartCallback } from 're-resizable';
 import type { ConnectDragSource } from 'react-dnd';
-import { t } from '@apache-superset/core/translation';
 import { useTheme } from '@apache-superset/core/theme';
-import { Tooltip } from '@superset-ui/core/components';
-import { Icons } from '@superset-ui/core/components/Icons';
-import DeleteComponentButton from 'src/dashboard/components/DeleteComponentButton';
-import IconButton from 'src/dashboard/components/IconButton';
+import { ObjectActions } from 'src/mibi/format/ObjectActions';
 import { MovableDraggable } from 'src/mibi/format/MovableDraggable';
-import HoverMenu from 'src/dashboard/components/menu/HoverMenu';
 import ResizableContainer from 'src/dashboard/components/resizable/ResizableContainer';
 import type { LayoutItem, RootState } from 'src/dashboard/types';
 import { COLUMN_TYPE, ROW_TYPE } from 'src/dashboard/util/componentTypes';
@@ -230,21 +225,14 @@ function ElementHolder({
           >
             {editMode && <ObjectBadges meta={component.meta} hidden={hidden} />}
             {editMode && (
-              <HoverMenu position="top">
-                {!locked && (
-                  <DeleteComponentButton
-                    onDelete={() => deleteComponent(id, parentId)}
-                  />
-                )}
-                <Tooltip title={t('Format')} placement="top">
-                  <div data-test="mibi-format-element-button">
-                    <IconButton
-                      onClick={() => openFormat(component.id)}
-                      icon={<Icons.BgColorsOutlined iconSize="l" />}
-                    />
-                  </div>
-                </Tooltip>
-              </HoverMenu>
+              <ObjectActions
+                id={component.id}
+                onDelete={
+                  locked ? undefined : () => deleteComponent(id, parentId)
+                }
+                onFormat={() => openFormat(component.id)}
+                formatTestId="mibi-format-element-button"
+              />
             )}
             {content()}
           </div>

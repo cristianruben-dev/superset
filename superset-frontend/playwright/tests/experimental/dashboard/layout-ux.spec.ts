@@ -401,9 +401,7 @@ test('the controls inside an object keep working', async ({
   const first = objects(page).nth(0);
   await first.hover();
   // The menu over an object is a button: pressing it must not start a move
-  const menu = first
-    .locator('.hover-menu button, .hover-menu [role="button"]')
-    .first();
+  const menu = page.locator('.mibi-object-actions:visible button').first();
   if (await menu.count()) {
     const box = (await menu.boundingBox())!;
     await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
@@ -480,9 +478,7 @@ test('an element dragged from the panel lands under the pointer', async ({
 }) => {
   test.setTimeout(150_000);
   await openEditor(page, testAssets);
-  await page
-    .getByRole('tab', { name: /Elements|Elementos/ })
-    .click();
+  await page.getByRole('tab', { name: /Elements|Elementos/ }).click();
   const source = page
     .getByTestId('new-component')
     .filter({ hasText: /Shape|Forma/ })

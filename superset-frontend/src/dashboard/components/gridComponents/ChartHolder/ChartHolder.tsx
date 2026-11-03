@@ -35,16 +35,13 @@ import { css, useTheme } from '@apache-superset/core/theme';
 import { LayoutItem, RootState } from 'src/dashboard/types';
 import AnchorLink from 'src/dashboard/components/AnchorLink';
 import Chart from 'src/dashboard/components/gridComponents/Chart';
-import DeleteComponentButton from 'src/dashboard/components/DeleteComponentButton';
-import IconButton from 'src/dashboard/components/IconButton';
+import { ObjectActions } from 'src/mibi/format/ObjectActions';
 import { MovableDraggable } from 'src/mibi/format/MovableDraggable';
-import HoverMenu from 'src/dashboard/components/menu/HoverMenu';
 import ResizableContainer from 'src/dashboard/components/resizable/ResizableContainer';
 import getChartAndLabelComponentIdFromPath from 'src/dashboard/util/getChartAndLabelComponentIdFromPath';
 import useFilterFocusHighlightStyles from 'src/dashboard/util/useFilterFocusHighlightStyles';
-import { AntdThemeProvider, Tooltip } from '@superset-ui/core/components';
+import { AntdThemeProvider } from '@superset-ui/core/components';
 import { COLUMN_TYPE, ROW_TYPE } from 'src/dashboard/util/componentTypes';
-import { Icons } from '@superset-ui/core/components/Icons';
 import { t } from '@apache-superset/core/translation';
 import { echartsHostFormat, visualStyle } from 'src/mibi/format/styles';
 import { InteractionControl } from 'src/mibi/report/InteractionControl';
@@ -434,21 +431,13 @@ const ChartHolder = ({
             )}
             {editMode && <ObjectBadges meta={component.meta} hidden={hidden} />}
             {editMode && (
-              <HoverMenu position="top">
-                {!locked && (
-                  <div data-test="dashboard-delete-component-button">
-                    <DeleteComponentButton onDelete={handleDeleteComponent} />
-                  </div>
-                )}
-                <Tooltip title={t('Format')} placement="top">
-                  <div data-test="mibi-format-visual-button">
-                    <IconButton
-                      onClick={() => openFormat(component.id)}
-                      icon={<Icons.BgColorsOutlined iconSize="l" />}
-                    />
-                  </div>
-                </Tooltip>
-              </HoverMenu>
+              <ObjectActions
+                id={component.id}
+                onDelete={locked ? undefined : handleDeleteComponent}
+                onFormat={() => openFormat(component.id)}
+                formatTestId="mibi-format-visual-button"
+                deleteTestId="dashboard-delete-component-button"
+              />
             )}
           </AntdThemeProvider>
         </div>
