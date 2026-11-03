@@ -623,6 +623,8 @@ export function keepBarRadiusOnStackTop<T extends object>(series: T[]): T[] {
 /** What the page around a chart asks of it, as a JSON string. */
 export type HostFormat = {
   sampling?: boolean;
+  /** A tooltip page of the report replaces the tooltip box */
+  tooltipPage?: boolean;
   tooltip?: {
     show?: boolean;
     fontFamily?: string;
@@ -678,7 +680,7 @@ export function applyHostFormat<T extends Record<string, any>>(
     return options;
   }
   const next: Record<string, any> = { ...options };
-  const { tooltip, sampling } = format;
+  const { tooltip, sampling, tooltipPage } = format;
   if (tooltip) {
     const cssVars = [
       tooltip.labelColor && `--mb-tt-label:${tooltip.labelColor}`,
@@ -706,6 +708,10 @@ export function applyHostFormat<T extends Record<string, any>>(
         formatter: sentenceFormatter(tooltip.sentence),
       }),
     };
+  }
+  // A report page shows instead of the box; the pointer marks stay
+  if (tooltipPage) {
+    next.tooltip = { ...next.tooltip, showContent: false };
   }
   if (sampling && Array.isArray(options.series)) {
     next.series = options.series.map((series: Record<string, unknown>) =>

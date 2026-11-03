@@ -42,9 +42,18 @@ import { EmptyState } from '@superset-ui/core/components';
 import { ChartSource } from 'src/types/ChartSource';
 import type { Datasource, ChartStatus } from 'src/explore/types';
 import type { Dispatch } from 'redux';
+import { pointFields } from 'src/mibi/report/drillthroughScope';
+import {
+  MARK_HOVER_EVENT,
+  MARK_LEAVE_EVENT,
+  type MarkHover,
+} from 'src/mibi/report/markHover';
 import ChartContextMenu, {
   ChartContextMenuRef,
 } from './ChartContextMenu/ChartContextMenu';
+
+/** Charts without marks, whose tooltip page shows over the whole chart. */
+const WHOLE_CHART_TOOLTIP = new Set(['big_number_total', 'pop_kpi']);
 
 // Types for filter values
 type FilterValue = string | number | boolean | null | undefined;
@@ -191,6 +200,8 @@ class ChartRenderer extends Component<ChartRendererProps, ChartRendererState> {
 
   private contextMenuRef: RefObject<ChartContextMenuRef>;
 
+  private wrapperRef: RefObject<HTMLDivElement>;
+
   private hooks: ChartHooks;
 
   private mutableQueriesResponse: QueryData[] | null | undefined;
@@ -215,6 +226,7 @@ class ChartRenderer extends Component<ChartRendererProps, ChartRendererState> {
     this.renderStartTime = 0;
 
     this.contextMenuRef = createRef<ChartContextMenuRef>();
+    this.wrapperRef = createRef<HTMLDivElement>();
 
     this.handleAddFilter = this.handleAddFilter.bind(this);
     this.handleRenderSuccess = this.handleRenderSuccess.bind(this);
@@ -226,6 +238,8 @@ class ChartRenderer extends Component<ChartRendererProps, ChartRendererState> {
     this.handleLegendStateChanged = this.handleLegendStateChanged.bind(this);
     this.onContextMenuFallback = this.onContextMenuFallback.bind(this);
     this.handleLegendScroll = this.handleLegendScroll.bind(this);
+    this.handleCardEnter = this.handleCardEnter.bind(this);
+    this.handleCardLeave = this.handleCardLeave.bind(this);
 
     this.hooks = {
       onAddFilter: this.handleAddFilter,
@@ -386,8 +400,52 @@ class ChartRenderer extends Component<ChartRendererProps, ChartRendererState> {
     offsetY: number,
     filters?: ContextMenuFilters,
   ): void {
+    // AuraData BI: a hover over a mark of a chart with a tooltip page
+    const wrapper = this.wrapperRef.current;
+    if (wrapper?.querySelector('[data-mibi-probe]')) {
+      const pageId = this.tooltipPageId();
+      const fields = pointFields(filters?.drillToDetail);
+      if (pageId && fields.length) {
+        this.emitMarkHover(pageId, fields, offsetX, offsetY);
+      } else {
+        window.dispatchEvent(new CustomEvent(MARK_LEAVE_EVENT));
+      }
+      return;
+    }
     this.contextMenuRef.current?.open(offsetX, offsetY, filters);
     this.setState({ inContextMenu: true });
+  }
+
+  /** The tooltip page the chart shows over its marks, if any. */
+  tooltipPageId(): string | null | undefined {
+    return this.wrapperRef.current
+      ?.closest<HTMLElement>('[data-mibi-tooltip-page]')
+      ?.getAttribute('data-mibi-tooltip-page');
+  }
+
+  emitMarkHover(
+    pageId: string,
+    fields: MarkHover['fields'],
+    x: number,
+    y: number,
+  ): void {
+    window.dispatchEvent(
+      new CustomEvent<MarkHover>(MARK_HOVER_EVENT, {
+        detail: { chartId: this.props.chartId, pageId, fields, x, y },
+      }),
+    );
+  }
+
+  // AuraData BI: a card has no marks; the whole chart shows its tooltip page
+  handleCardEnter(event: MouseEvent<HTMLDivElement>): void {
+    const pageId = this.tooltipPageId();
+    if (pageId) this.emitMarkHover(pageId, [], event.clientX, event.clientY);
+  }
+
+  handleCardLeave(): void {
+    if (this.tooltipPageId()) {
+      window.dispatchEvent(new CustomEvent(MARK_LEAVE_EVENT));
+    }
   }
 
   handleContextMenuSelected(): void {
@@ -534,6 +592,13 @@ class ChartRenderer extends Component<ChartRendererProps, ChartRendererState> {
           />
         )}
         <div
+          ref={this.wrapperRef}
+          onMouseEnter={
+            WHOLE_CHART_TOOLTIP.has(vizType) ? this.handleCardEnter : undefined
+          }
+          onMouseLeave={
+            WHOLE_CHART_TOOLTIP.has(vizType) ? this.handleCardLeave : undefined
+          }
           onContextMenu={
             this.state.showContextMenu ? this.onContextMenuFallback : undefined
           }

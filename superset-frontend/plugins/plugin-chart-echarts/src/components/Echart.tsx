@@ -165,6 +165,47 @@ function Echart(
     getEchartInstance: () => chartRef.current,
   }));
 
+  // AuraData BI: with a tooltip page, the mark under the pointer is told to
+  // the report through the plugin's own context menu handler, which knows its
+  // values. The chart renderer reads the call as a hover while the probe mark
+  // is on the element.
+  const eventHandlersRef = useRef(eventHandlers);
+  eventHandlersRef.current = eventHandlers;
+  const onMarkOver = useCallback((params: { event?: { event?: unknown } }) => {
+    const div = divRef.current;
+    const handler = eventHandlersRef.current?.contextmenu;
+    const pointer = params?.event?.event as MouseEvent | undefined;
+    if (!div?.closest('[data-mibi-tooltip-page]') || !handler || !pointer) {
+      return;
+    }
+    div.dataset.mibiProbe = 'true';
+    let result: unknown;
+    try {
+      result = handler({
+        ...params,
+        event: {
+          ...params.event,
+          stop: () => {},
+          event: {
+            clientX: pointer.clientX,
+            clientY: pointer.clientY,
+            preventDefault: () => {},
+            stopPropagation: () => {},
+          },
+        },
+      });
+    } finally {
+      Promise.resolve(result).finally(() => {
+        delete div.dataset.mibiProbe;
+      });
+    }
+  }, []);
+  const onMarkOut = useCallback(() => {
+    if (divRef.current?.closest('[data-mibi-tooltip-page]')) {
+      window.dispatchEvent(new CustomEvent('mibi:mark-leave'));
+    }
+  }, []);
+
   const locale = useSelector(
     (state: ExplorePageState) => state?.common?.locale ?? DEFAULT_LOCALE,
   ).toUpperCase();
@@ -214,6 +255,13 @@ function Echart(
       Object.entries(zrEventHandlers || {}).forEach(([name, handler]) => {
         chartRef.current?.getZr().off(name);
         chartRef.current?.getZr().on(name, handler);
+      });
+      // After the plugin's own handlers, which replace those of their event
+      chartRef.current?.off('mouseover', onMarkOver);
+      chartRef.current?.on('mouseover', onMarkOver);
+      ['mouseout', 'globalout'].forEach(name => {
+        chartRef.current?.off(name, onMarkOut);
+        chartRef.current?.on(name, onMarkOut);
       });
 
       const getEchartsTheme = (options: any) => {
@@ -307,10 +355,10 @@ function Echart(
       chartRef.current?.setOption(
         applyHostFormat(themedEchartOptions, hostFormat),
         {
-        notMerge,
-        replaceMerge: notMerge ? undefined : ['series'],
-        // lazyUpdate defers render, causing tooltip crashes on stale shapes (#39247)
-        lazyUpdate: false,
+          notMerge,
+          replaceMerge: notMerge ? undefined : ['series'],
+          // lazyUpdate defers render, causing tooltip crashes on stale shapes (#39247)
+          lazyUpdate: false,
         },
       );
       if (previousZoom?.length) {

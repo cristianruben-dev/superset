@@ -20,7 +20,7 @@ import { useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { isEqual } from 'lodash';
 import { renderTriggered } from 'src/components/Chart/chartAction';
-import type { RootState } from 'src/dashboard/types';
+import type { DashboardLayout, RootState } from 'src/dashboard/types';
 import { DASHBOARD_ROOT_ID } from 'src/dashboard/util/constants';
 import type { CanvasFormat, VisualFormat } from './types';
 import { mergeVisualFormat } from './styles';
@@ -57,21 +57,30 @@ export function legacyCardFormat(
   return result;
 }
 
+/** What the layout changes of the chart of a component, outside React. */
+export function layoutChartFormat(
+  layout: DashboardLayout | undefined,
+  componentId: string,
+): ChartFormat | undefined {
+  const own = layout?.[componentId]?.meta?.mibiFormat as
+    | VisualFormat
+    | undefined;
+  const shared = (
+    layout?.[DASHBOARD_ROOT_ID]?.meta?.mibiCanvas as CanvasFormat | undefined
+  )?.visuals;
+  const legacy = legacyCardFormat(mergeVisualFormat(shared, own));
+  return own?.chart || shared?.chart || Object.keys(legacy).length
+    ? { ...legacy, ...shared?.chart, ...own?.chart }
+    : undefined;
+}
+
 /** What the layout changes of a chart: its own settings over the shared ones. */
 export function useChartFormat(componentId: string): ChartFormat | undefined {
-  return useSelector((state: RootState) => {
-    const layout = state.dashboardLayout?.present;
-    const own = layout?.[componentId]?.meta?.mibiFormat as
-      | VisualFormat
-      | undefined;
-    const shared = (
-      layout?.[DASHBOARD_ROOT_ID]?.meta?.mibiCanvas as CanvasFormat | undefined
-    )?.visuals;
-    const legacy = legacyCardFormat(mergeVisualFormat(shared, own));
-    return own?.chart || shared?.chart || Object.keys(legacy).length
-      ? { ...legacy, ...shared?.chart, ...own?.chart }
-      : undefined;
-  }, isEqual);
+  return useSelector(
+    (state: RootState) =>
+      layoutChartFormat(state.dashboardLayout?.present, componentId),
+    isEqual,
+  );
 }
 
 /**

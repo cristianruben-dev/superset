@@ -21280,6 +21280,75 @@ msgstr "Apaga un valor para quitarlo de este segmentador. Sigue contando en los 
 msgid "Values shown"
 msgstr "Valores que se muestran"
 
+msgid "Tooltip type"
+msgstr "Tipo de información sobre herramientas"
+
+msgid "Report page"
+msgstr "Página del informe"
+
+msgid "Tooltip page"
+msgstr "Página de información sobre herramientas"
+
+msgid ""
+"Auto shows the tooltip page whose tooltip fields the chart uses. Hovering a "
+"mark shows the page filtered to it."
+msgstr ""
+"«Automático» muestra la página de información sobre herramientas cuyos "
+"campos usa el gráfico. Al pasar el puntero sobre una marca, la página se "
+"muestra filtrada por ella."
+
+msgid ""
+"No page is a tooltip yet. Turn on \"Use as tooltip\" in the Format pane of a"
+" page."
+msgstr ""
+"Aún no hay ninguna página de información sobre herramientas. Activa «Usar "
+"como información sobre herramientas» en el panel Formato de una página."
+
+msgid "Use as tooltip"
+msgstr "Usar como información sobre herramientas"
+
+msgid "Tooltip width"
+msgstr "Anchura de la información sobre herramientas"
+
+msgid "Tooltip height"
+msgstr "Altura de la información sobre herramientas"
+
+msgid ""
+"Viewers do not see this page. It shows at this size over the marks of the "
+"charts that use it, filtered to the mark. Charts set to Auto use it when "
+"they have its tooltip fields."
+msgstr ""
+"Los lectores no ven esta página. Aparece con este tamaño sobre las marcas "
+"de los gráficos que la usan, filtrada por la marca. Los gráficos en "
+"«Automático» la usan cuando tienen sus campos del tooltip."
+
+msgid "Reset filters"
+msgstr "Restablecer filtros"
+
+msgid "Reset filters: back to the saved filters and slicers"
+msgstr "Restablecer filtros: vuelve a los filtros y segmentadores guardados"
+
+msgid "Back to the saved filters, slicers and cross-filters"
+msgstr "Vuelve a los filtros, segmentadores y filtros cruzados guardados"
+
+msgid "is (All)"
+msgstr "es (Todos)"
+
+msgid "is %s"
+msgstr "es %s"
+
+msgid "is at most %s"
+msgstr "es como máximo %s"
+
+msgid "is at least %s"
+msgstr "es como mínimo %s"
+
+msgid "is between %s and %s"
+msgstr "está entre %s y %s"
+
+msgid "%s filters applied"
+msgstr "%s filtros aplicados"
+
 msgid "This chart type is no longer available"
 msgstr "Este tipo de gráfico ya no está disponible"
 

@@ -42,6 +42,7 @@ import {
 } from 'spec/fixtures/mockDashboardLayout';
 import { storeWithState } from 'spec/fixtures/mockStore';
 import mockState from 'spec/fixtures/mockState';
+import { FilterBarOrientation } from 'src/dashboard/types';
 import { DASHBOARD_ROOT_ID } from 'src/dashboard/util/constants';
 import * as useNativeFiltersModule from './state';
 
@@ -366,7 +367,7 @@ describe('DashboardBuilder', () => {
     expect(queryByTestId('mock-filter-bar')).toBeInTheDocument();
   });
 
-  test('should not render the filter bar when in edit mode even if nativeFiltersEnabled is true', () => {
+  test('should keep the vertical filter bar beside the page in edit mode', () => {
     jest.spyOn(useNativeFiltersModule, 'useNativeFilters').mockReturnValue({
       showDashboard: true,
       missingInitialFilters: [],
@@ -376,6 +377,25 @@ describe('DashboardBuilder', () => {
     });
     const { queryByTestId } = setup({
       dashboardState: { ...mockState.dashboardState, editMode: true },
+    });
+
+    expect(queryByTestId('mock-filter-bar')).toBeInTheDocument();
+  });
+
+  test('should not render a horizontal filter bar in edit mode', () => {
+    jest.spyOn(useNativeFiltersModule, 'useNativeFilters').mockReturnValue({
+      showDashboard: true,
+      missingInitialFilters: [],
+      dashboardFiltersOpen: true,
+      toggleDashboardFiltersOpen: jest.fn(),
+      nativeFiltersEnabled: true,
+    });
+    const { queryByTestId } = setup({
+      dashboardState: { ...mockState.dashboardState, editMode: true },
+      dashboardInfo: {
+        ...mockState.dashboardInfo,
+        filterBarOrientation: FilterBarOrientation.Horizontal,
+      },
     });
 
     expect(queryByTestId('mock-filter-bar')).not.toBeInTheDocument();

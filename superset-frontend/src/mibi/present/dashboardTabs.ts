@@ -25,6 +25,12 @@ import type { DashboardLayout } from 'src/dashboard/types';
 
 /** A page viewers do not see in the tabs; links and drill through still open it. */
 export const HIDDEN_PAGE_KEY = 'mibiHiddenPage';
+/** Same key as `TOOLTIP_PAGE_KEY` in `src/mibi/report/types`. */
+const TOOLTIP_PAGE_KEY = 'mibiTooltipPage';
+
+/** Whether viewers miss a page in the tabs: hidden, or a tooltip page. */
+export const isHiddenPage = (meta: Record<string, unknown> | undefined) =>
+  !!meta?.[HIDDEN_PAGE_KEY] || !!meta?.[TOOLTIP_PAGE_KEY];
 
 export interface DashboardTab {
   id: string;
@@ -46,7 +52,7 @@ export function topLevelTabs(layout: DashboardLayout): DashboardTab[] {
       id,
       title: String(layout[id].meta?.text ?? ''),
       path: [...parents, tabs.id, id],
-      hidden: !!layout[id].meta?.[HIDDEN_PAGE_KEY],
+      hidden: isHiddenPage(layout[id].meta),
     }));
 }
 

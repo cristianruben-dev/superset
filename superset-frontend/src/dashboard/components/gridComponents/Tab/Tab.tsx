@@ -32,7 +32,7 @@ import { t } from '@apache-superset/core/translation';
 
 import { EditableTitle, EmptyState } from '@superset-ui/core/components';
 import { Icons } from '@superset-ui/core/components/Icons';
-import { HIDDEN_PAGE_KEY } from 'src/mibi/present/dashboardTabs';
+import { isHiddenPage } from 'src/mibi/present/dashboardTabs';
 import { PageMenu } from 'src/mibi/report/PageMenu';
 import { setEditMode, onRefresh } from 'src/dashboard/actions/dashboardState';
 import getChartIdsFromComponent from 'src/dashboard/util/getChartIdsFromComponent';
@@ -441,7 +441,7 @@ const Tab = (props: TabProps): ReactElement => {
         onTabTitleEditingChange,
         onDeletePage,
       } = props;
-      const hiddenPage = !!component.meta?.[HIDDEN_PAGE_KEY];
+      const hiddenPage = isHiddenPage(component.meta);
       const title = (
         <TabTitleContainer
           isHighlighted={isHighlighted}

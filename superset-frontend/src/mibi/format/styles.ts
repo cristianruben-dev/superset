@@ -302,15 +302,17 @@ export function headerTooltipStyle(
 /** What a chart hands to its ECharts, as read by `applyHostFormat`. */
 export function echartsHostFormat(
   format: VisualFormat | undefined,
+  tooltipPage = false,
 ): string | undefined {
   const tooltip = format?.chart?.[TOOLTIP_FORMAT_KEY] as
     | ChartTooltipFormat
     | undefined;
   const sampling = !!format?.chart?.[SAMPLING_FORMAT_KEY];
-  if (!tooltip && !sampling) return undefined;
+  if (!tooltip && !sampling && !tooltipPage) return undefined;
   const { background, opacity, ...rest } = tooltip ?? {};
   return JSON.stringify({
     sampling,
+    ...(tooltipPage && { tooltipPage }),
     tooltip: tooltip && {
       ...rest,
       background: background ? withOpacity(background, opacity) : undefined,

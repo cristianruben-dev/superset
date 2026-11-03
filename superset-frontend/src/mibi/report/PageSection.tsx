@@ -39,10 +39,15 @@ import {
   Segments,
 } from 'src/mibi/format/controls';
 import { topLevelTabs } from 'src/mibi/present/dashboardTabs';
+import { CELL } from 'src/mibi/format/types';
+import { tooltipPageOf } from './tooltipPages';
 import {
+  DEFAULT_TOOLTIP_PAGE,
   DRILLTHROUGH_PAGE_KEY,
   PAGE_BACKGROUND_KEY,
+  TOOLTIP_PAGE_KEY,
   type DrillthroughPage,
+  type TooltipPage,
 } from './types';
 
 const MAX_IMAGE_BYTES = 2 * 1024 * 1024;
@@ -97,6 +102,17 @@ export function PageSection() {
     | undefined;
   const save = (next: DrillthroughPage | undefined) =>
     dispatch(setComponentMeta(page.id, DRILLTHROUGH_PAGE_KEY, next) as never);
+
+  const tooltip = tooltipPageOf(layout[page.id]?.meta);
+  const saveTooltip = (next: TooltipPage | undefined, setting: string) =>
+    dispatch(
+      setComponentMeta(
+        page.id,
+        TOOLTIP_PAGE_KEY,
+        next,
+        `meta:${page.id}:${TOOLTIP_PAGE_KEY}:${setting}`,
+      ) as never,
+    );
 
   const background = (layout[page.id]?.meta?.[PAGE_BACKGROUND_KEY] ?? {
     type: 'none',
@@ -198,6 +214,71 @@ export function PageSection() {
             max={100}
             onChange={opacity => setBackground({ ...background, opacity })}
           />
+        </>
+      )}
+      <Field label={t('Use as tooltip')}>
+        <Switch
+          size="small"
+          checked={!!tooltip}
+          aria-label={t('Use as tooltip')}
+          data-test="mibi-tooltip-page-toggle"
+          onChange={on =>
+            saveTooltip(on ? { ...DEFAULT_TOOLTIP_PAGE } : undefined, 'on')
+          }
+        />
+      </Field>
+      {tooltip && (
+        <>
+          <RangeField
+            label={t('Tooltip width')}
+            value={tooltip.width * CELL}
+            min={4 * CELL}
+            max={30 * CELL}
+            step={CELL}
+            testId="mibi-tooltip-page-width"
+            onChange={width =>
+              saveTooltip(
+                { ...tooltip, width: Math.round(width / CELL) },
+                'width',
+              )
+            }
+          />
+          <RangeField
+            label={t('Tooltip height')}
+            value={tooltip.height * CELL}
+            min={2 * CELL}
+            max={24 * CELL}
+            step={CELL}
+            testId="mibi-tooltip-page-height"
+            onChange={height =>
+              saveTooltip(
+                { ...tooltip, height: Math.round(height / CELL) },
+                'height',
+              )
+            }
+          />
+          <Select
+            mode="multiple"
+            ariaLabel={t('Tooltip fields')}
+            placeholder={t('Tooltip fields')}
+            value={tooltip.columns}
+            data-test="mibi-tooltip-page-columns"
+            onChange={value =>
+              saveTooltip(
+                { ...tooltip, columns: (value as string[]).map(String) },
+                'columns',
+              )
+            }
+            options={columns.map(column => ({
+              value: column,
+              label: column,
+            }))}
+          />
+          <Hint>
+            {t(
+              'Viewers do not see this page. It shows at this size over the marks of the charts that use it, filtered to the mark. Charts set to Auto use it when they have its tooltip fields.',
+            )}
+          </Hint>
         </>
       )}
       <Field label={t('Drill through to this page')}>

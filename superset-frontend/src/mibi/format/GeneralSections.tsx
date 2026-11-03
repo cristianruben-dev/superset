@@ -18,12 +18,14 @@
  */
 import type { ReactNode } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { isEqual } from 'lodash';
 import { t } from '@apache-superset/core/translation';
 import { useReportTokens } from 'src/mibi/report/ReportTheme';
 import { FONT_FAMILY_OPTIONS } from '@superset-ui/core';
 import { Input, Select, Switch } from '@superset-ui/core/components';
 import type { RootState } from 'src/dashboard/types';
 import { ActionFields } from 'src/mibi/elements/ElementFormat';
+import { tooltipPages } from 'src/mibi/report/tooltipPages';
 import { setVisualFormat } from './actions';
 import {
   ColorField,
@@ -42,6 +44,7 @@ import type {
   HeaderTooltipFormat,
   TitleSpacing,
   VisualFormat,
+  VisualTooltipPage,
 } from './types';
 import { TOOLTIP_FORMAT_KEY, SAMPLING_FORMAT_KEY } from './types';
 import { useSharedVisualFormat } from './useVisualFormat';
@@ -332,6 +335,21 @@ export function ChartTooltipSection({ id }: { id: string }) {
       `tooltip-${setting}`,
     );
   const shown = tooltip.show !== false;
+  const tooltipPage = format.tooltipPage ?? {};
+  const setPage = (patch: Partial<VisualTooltipPage>, setting: string) =>
+    update(
+      { tooltipPage: { ...own.tooltipPage, ...patch } },
+      `tooltip-page-${setting}`,
+    );
+  const pages = useSelector(
+    (state: RootState) =>
+      tooltipPages(state.dashboardLayout.present).map(({ tab }) => ({
+        value: tab.id,
+        label: tab.title || t('Untitled'),
+      })),
+    isEqual,
+  );
+  const pageType = tooltipPage.type ?? 'default';
   return (
     <Section
       collapsedByDefault
@@ -348,6 +366,43 @@ export function ChartTooltipSection({ id }: { id: string }) {
     >
       <h4>{t('Tooltips')}</h4>
       {shown && (
+        <Field label={t('Type')}>
+          <Segments<'default' | 'page'>
+            name={t('Tooltip type')}
+            value={pageType}
+            onChange={type => setPage({ type }, 'type')}
+            options={[
+              { value: 'default', label: t('Default') },
+              { value: 'page', label: t('Report page') },
+            ]}
+          />
+        </Field>
+      )}
+      {shown && pageType === 'page' && (
+        <>
+          <Field label={t('Page')}>
+            <Select
+              ariaLabel={t('Tooltip page')}
+              data-test="mibi-format-tooltip-page"
+              value={tooltipPage.page ?? ''}
+              onChange={value =>
+                setPage({ page: value ? String(value) : undefined }, 'page')
+              }
+              options={[{ value: '', label: t('Auto') }, ...pages]}
+            />
+          </Field>
+          <Hint>
+            {pages.length
+              ? t(
+                  'Auto shows the tooltip page whose tooltip fields the chart uses. Hovering a mark shows the page filtered to it.',
+                )
+              : t(
+                  'No page is a tooltip yet. Turn on "Use as tooltip" in the Format pane of a page.',
+                )}
+          </Hint>
+        </>
+      )}
+      {shown && pageType !== 'page' && (
         <>
           <TextFields value={tooltip} onChange={patch => set(patch, 'text')} />
           <ColorField

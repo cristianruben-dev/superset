@@ -80,3 +80,16 @@ test('a sentence replaces the tokens and escapes what comes from the data', () =
     ]),
   ).toBe('A en x: 1<br/>B en x: 2');
 });
+
+test('a tooltip page hides the tooltip box and keeps the pointer marks', () => {
+  const options = { tooltip: { trigger: 'axis', show: true } };
+  const next = applyHostFormat(options, JSON.stringify({ tooltipPage: true }));
+  expect(next.tooltip).toMatchObject({
+    trigger: 'axis',
+    show: true,
+    showContent: false,
+  });
+  expect(applyHostFormat(options, JSON.stringify({})).tooltip).toBe(
+    options.tooltip,
+  );
+});

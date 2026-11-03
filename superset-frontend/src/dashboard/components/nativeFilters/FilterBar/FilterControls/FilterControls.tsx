@@ -330,9 +330,8 @@ const FilterControls: FC<FilterControlsProps> = ({
       margin: 0,
       fontSize: theme.fontSizeSM,
       fontWeight: theme.fontWeightStrong,
-      color: theme.colorTextTertiary,
-      letterSpacing: '0.04em',
-      textTransform: 'uppercase' as const,
+      // AuraData BI: sentence case, as the sections of the Power BI pane
+      color: theme.colorTextSecondary,
       lineHeight: 1.3,
     }),
     [theme],

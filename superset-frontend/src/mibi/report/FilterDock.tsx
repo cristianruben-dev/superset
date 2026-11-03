@@ -69,12 +69,17 @@ export const useFilterDockWidth = () =>
 /** Whether the page offers a dock for the filter pane. */
 export const useHasFilterDock = () => !!useContext(FilterDockContext)?.slot;
 
-const Dock = styled.div<{ $width: number }>`
-  ${({ theme, $width }) => css`
+const Dock = styled.div<{ $width: number; $edge?: boolean }>`
+  ${({ theme, $width, $edge }) => css`
     position: relative;
     flex: none;
     box-sizing: border-box;
     width: ${$width}px;
+    /* As tall as the page, and never too short to use while open: a small
+       zoom or a tooltip page leaves the page only a few lines high */
+    &:has([data-test='filter-bar'].open) {
+      min-height: ${theme.sizeUnit * 100}px;
+    }
     background: var(--mb-bg-container, ${theme.colorBgContainer});
     border-radius: 0 ${theme.borderRadiusLG * 1.5}px
       ${theme.borderRadiusLG * 1.5}px 0;
@@ -83,17 +88,36 @@ const Dock = styled.div<{ $width: number }>`
     &:empty {
       display: none;
     }
+    /* A pane of the report at its edge, as tall as the page area, not a
+       part of the page */
+    ${$edge &&
+    css`
+      align-self: stretch;
+      min-height: 0;
+      border-radius: 0;
+      outline: 0;
+      box-shadow: none;
+      border-left: 1px solid ${theme.colorBorderSecondary};
+      background: ${theme.colorBgContainer};
+      &:has([data-test='filter-bar'].open) {
+        min-height: 0;
+      }
+    `}
   `}
 `;
 
-/** Where the filter bar goes: right of the page, with its height. */
-export function FilterDockTarget() {
+/**
+ * Where the filter bar goes: right of the page, with its height, or with
+ * ``atEdge`` at the right edge of the report, as tall as the page area.
+ */
+export function FilterDockTarget({ atEdge = false }: { atEdge?: boolean }) {
   const context = useContext(FilterDockContext);
   return (
     <Dock
       data-test="mibi-filter-dock"
       ref={context?.setSlot}
       $width={context?.width ?? 0}
+      $edge={atEdge}
     />
   );
 }

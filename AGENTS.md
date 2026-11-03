@@ -110,7 +110,7 @@ This repository is **AuraData BI**, a fork of Apache Superset 6.1 shaped like Po
 | Presentation mode, PDF/PNG export | - | `mibi/present`, `mibi/export` |
 | Ribbon and lineage | - | `mibi/ribbon` |
 | Selection pane, locked and hidden objects, page menu | - | `mibi/format/SelectionPane.tsx`, `mibi/format/lock.ts`, `mibi/report/PageMenu.tsx`, `mibi/report/pageActions.ts` |
-| Report interactivity (edit interactions, drill through, sync slicers, bookmarks, Back/bookmark buttons) | - | `mibi/report` |
+| Report interactivity (edit interactions, drill through, sync slicers, bookmarks, Back/bookmark buttons, tooltip pages, reset filters) | - | `mibi/report` |
 | Chart type icons | - | `mibi/vizIcons` |
 
 AuraData BI APIs: `/api/v1/workspace/` (with `<id>/dashboards/` and `<id>/datasets/`),
@@ -221,6 +221,31 @@ Formats are stored in `position_json`, so they save, undo and export with the da
     charts cannot highlight); it saves with the dashboard.
   - "Sync slicers" sets the native filter scope (saved right away, like any filter setting) and
     places copies of the canvas filter on other pages (saved with the dashboard).
+  - Tooltip pages: `TAB-*.meta.mibiTooltipPage` (`{width, height, columns}` in cells) makes a page a
+    tooltip, hidden from viewers (`isHiddenPage`, also left out of the tab list) and edited at that size
+    (`CanvasFrame`, objects past its edge are clipped). A chart picks one in General › Tooltips
+    (`meta.mibiFormat.tooltipPage`: `type: 'page'`, `page` or none for Auto, the tooltip page whose
+    `columns` the chart groups by). On hover, `Echart.tsx` and the table's cells call the plugin's own
+    `contextmenu` handler with a probe mark (`data-mibi-probe`); `ChartRenderer` turns that call into a
+    `mibi:mark-hover` event instead of the menu, and cards (`WHOLE_CHART_TOOLTIP`) send one for the
+    whole chart. `TooltipPageHost` draws the page's charts with `SuperChart` and its own queries
+    (dashboard filters plus the mark's values, a date of a grain as a `TEMPORAL_RANGE`, outside Redux),
+    plus its text boxes, images, shapes, buttons and texts; slicers and navigators are left out. Queries
+    wait a moment, are cached by form data and aborted when the pointer leaves (`tooltipPages.ts`); the
+    line of a series never replaces the point of it under the pointer (`isLessPrecise`).
+  - "Reset filters" (`resetFilters.ts`, reading view and ribbon) sets every native filter and slicer to
+    its default, clears cross-filters, leaves a drill through and drops bookmark visibility overrides.
+- A fixed page shows a bar at the bottom, as in Power BI (`PageBar` in `mibi/report/TabsDock.tsx`), of a
+  fixed size whatever the zoom: previous/next arrows, flat page tabs split by hairlines with the accent
+  under the active one, "Page 1 of 3" and the zoom with a fit choice (`ZoomToolbar docked`); narrow bars
+  drop the slider, then the fit choice. Presenting and the mobile layout keep the tabs above the page.
+- With the page bar, the vertical filter pane is a pane of the report at its right edge, as tall as the
+  page area and out of the page (`FilterDockTarget atEdge` in `CanvasFrame`); the page floats alone and its
+  zoom does not count the pane. Presenting keeps the pane beside the page.
+- The vertical filter pane stays beside the page while editing. Each filter is a card (`mibi/dashboard/FilterCard.tsx`):
+  name and what it selects (`filterSummary`: "is (All)", "is North"), folded until opened (remembered in
+  the browser), with the accent on its edge while it selects something; the folded rail counts the
+  filters that select something.
 - Write layout changes through `src/mibi/format/actions.ts` (`updateLayout`, `setVisualFormat`,
   `setCanvasFormat`, `setSharedVisualFormat`) so edits group into one undo step.
 - A canvas filter of a list of values can draw itself as a dropdown, list, buttons or text box (`mibi/elements/SlicerView.tsx`,

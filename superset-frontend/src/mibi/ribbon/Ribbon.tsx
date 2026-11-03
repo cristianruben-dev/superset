@@ -78,6 +78,8 @@ import { insertElement } from './insert';
 import { ArrangeButton } from './ArrangeButton';
 import { LineageModal } from './LineageModal';
 import { insertPage } from 'src/mibi/report/pageActions';
+import { resetFilters } from 'src/mibi/report/resetFilters';
+import { useFiltersChanged } from 'src/mibi/report/ResetFiltersButton';
 import {
   RibbonBar,
   RibbonBody,
@@ -166,6 +168,7 @@ export function Ribbon({
   onProperties,
 }: RibbonProps) {
   const dispatch = useDispatch();
+  const filtersChanged = useFiltersChanged();
   const [chosenTab, setTab] = useState<RibbonTabKey>('home');
   const [folded, setFolded] = useState(readFolded);
   const [lineage, setLineage] = useState(false);
@@ -420,6 +423,14 @@ export function Ribbon({
             data-test="mibi-ribbon-refresh"
           />
           <DataMenu />
+          <RibbonButton
+            label={t('Reset filters')}
+            hint={t('Back to the saved filters, slicers and cross-filters')}
+            icon={<Icons.Undo iconSize="m" />}
+            disabled={!filtersChanged}
+            onClick={() => dispatch(resetFilters() as never)}
+            data-test="mibi-ribbon-reset-filters"
+          />
           <RibbonButton
             label={t('Lineage')}
             hint={t('Where the data of the report comes from')}

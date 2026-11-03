@@ -1183,6 +1183,34 @@ export default function TableChart<D extends DataRecord = DataRecord>(
                     }
                   }
                 : undefined,
+            // AuraData BI: with a tooltip page, the row under the pointer is
+            // told to the report through the context menu handler, which
+            // the chart renderer reads as a hover while the probe mark is on
+            onMouseEnter: (e: MouseEvent<HTMLElement>) => {
+              const cell = e.currentTarget;
+              if (
+                !handleContextMenu ||
+                !cell.closest('[data-mibi-tooltip-page]')
+              ) {
+                return;
+              }
+              cell.dataset.mibiProbe = 'true';
+              try {
+                handleContextMenu(
+                  row.original,
+                  { key, value, isMetric },
+                  e.clientX,
+                  e.clientY,
+                );
+              } finally {
+                delete cell.dataset.mibiProbe;
+              }
+            },
+            onMouseLeave: (e: MouseEvent<HTMLElement>) => {
+              if (e.currentTarget.closest('[data-mibi-tooltip-page]')) {
+                window.dispatchEvent(new CustomEvent('mibi:mark-leave'));
+              }
+            },
             onContextMenu: (e: MouseEvent) => {
               if (handleContextMenu) {
                 e.preventDefault();

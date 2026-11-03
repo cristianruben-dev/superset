@@ -44,6 +44,7 @@ import { AntdThemeProvider } from '@superset-ui/core/components';
 import { COLUMN_TYPE, ROW_TYPE } from 'src/dashboard/util/componentTypes';
 import { t } from '@apache-superset/core/translation';
 import { echartsHostFormat, visualStyle } from 'src/mibi/format/styles';
+import { useChartTooltipPage } from 'src/mibi/report/TooltipPageHost';
 import { InteractionControl } from 'src/mibi/report/InteractionControl';
 import { isInteractionControl } from 'src/mibi/report/interactions';
 import { useHiddenOverride } from 'src/mibi/report/visibility';
@@ -139,6 +140,8 @@ const ChartHolder = ({
 
   const focusHighlightStyles = useFilterFocusHighlightStyles(chartId ?? 0);
   const visualFormat = useMergedVisualFormat(component.meta.mibiFormat);
+  // AuraData BI: the report page its marks show as tooltip
+  const tooltipPage = useChartTooltipPage(chartId, visualFormat);
   // A title with tokens shows the value or the selections it names
   const dynamicName = useDynamicTitle(
     visualFormat?.title?.template,
@@ -345,7 +348,8 @@ const ChartHolder = ({
           role={altText ? 'group' : undefined}
           aria-label={altText || undefined}
           style={holderStyle}
-          data-mibi-echarts={echartsHostFormat(visualFormat)}
+          data-mibi-echarts={echartsHostFormat(visualFormat, !!tooltipPage)}
+          data-mibi-tooltip-page={tooltipPage}
           css={isFullSize ? fullSizeStyle : undefined}
           onClickCapture={
             editMode
@@ -472,6 +476,7 @@ const ChartHolder = ({
       extraControls,
       isInView,
       handleDeleteComponent,
+      tooltipPage,
     ],
   );
 

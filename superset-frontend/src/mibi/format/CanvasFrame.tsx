@@ -65,7 +65,8 @@ import { usePresenting } from 'src/mibi/present/presentation';
 import { activePageId, topLevelTabs } from 'src/mibi/present/dashboardTabs';
 import { PAGE_BACKGROUND_KEY } from 'src/mibi/report/types';
 import { ReportTheme, useReportLook } from 'src/mibi/report/ReportTheme';
-import { TabsDockTarget } from 'src/mibi/report/TabsDock';
+import { PageBar, TabsDockTarget } from 'src/mibi/report/TabsDock';
+import { tooltipPageOf } from 'src/mibi/report/tooltipPages';
 import {
   FilterDockTarget,
   useFilterDockWidth,
@@ -78,9 +79,34 @@ import { canvasSize, canvasStyle, canvasZoom, hasCanvasFormat } from './styles';
 import { clampZoom, setCanvasView, useCanvasView } from './canvasView';
 import { ZoomToolbar } from './ZoomToolbar';
 
-const Wrap = styled.div`
+/** The page and, at the edge of the report, the filter pane. */
+const Row = styled.div<{ $pane: boolean }>`
+  ${({ $pane }) =>
+    $pane
+      ? css`
+          display: flex;
+          flex: 1;
+          min-height: 0;
+          width: 100%;
+          & > [data-test='mibi-canvas-outer'] {
+            flex: 1;
+            min-width: 0;
+          }
+        `
+      : css`
+          display: contents;
+        `}
+`;
+
+const Wrap = styled.div<{ $bar?: boolean }>`
   position: relative;
   width: 100%;
+  ${({ $bar }) =>
+    $bar &&
+    css`
+      display: flex;
+      flex-direction: column;
+    `}
 `;
 
 /**
@@ -92,15 +118,24 @@ const Outer = styled.div<{
   $scroll: boolean;
   $editing: boolean;
   $phone: boolean;
+  $bar?: boolean;
 }>`
   width: 100%;
-  ${({ $scroll, $editing, $phone }) =>
+  ${({ $scroll, $editing, $phone, $bar }) =>
     $scroll
       ? css`
           height: 100%;
           overflow: auto;
-          /* A phone gives the page all of its width */
-          padding: ${$editing ? 28 : 12}px ${$phone ? 0 : 8}px 56px;
+          ${$bar &&
+          css`
+            flex: 1;
+            min-height: 0;
+            height: auto;
+          `}
+          /* A phone gives the page all of its width; the floating zoom bar
+             takes room below the page */
+          padding: ${$editing ? 28 : 12}px ${$phone ? 0 : 8}px
+            ${$bar ? 16 : 56}px;
           box-sizing: border-box;
         `
       : css`
@@ -293,7 +328,12 @@ export function CanvasFrame({ children }: { children: ReactNode }) {
   // Room below the lowest object to drop the next one
   const mobileRows =
     mobilePageRows(mobileBoxes) + (mobileEditing && !previewing ? 6 : 0);
-  const pageSize = canvasSize(canvas);
+  // A tooltip page is as small as the tooltip it is
+  const tooltipPage =
+    layout && pageId ? tooltipPageOf(layout[pageId]?.meta) : undefined;
+  const pageSize = tooltipPage
+    ? { width: tooltipPage.width * CELL, height: tooltipPage.height * CELL }
+    : canvasSize(canvas);
   const size = useMemo(
     () =>
       showMobile
@@ -434,14 +474,19 @@ export function CanvasFrame({ children }: { children: ReactNode }) {
     return () => observer.disconnect();
   }, [!!size]);
 
-  // The screen gives the viewport the height under the header
+  // The screen gives the viewport the height under the header; the page bar
+  // reaches the bottom of the screen, as in Power BI
+  const flushBottom = !presenting && !showMobile && !mobileEditing;
   useEffect(() => {
     const wrap = wrapRef.current;
     if (!wrap || !size) return undefined;
     const measure = () => {
       const top = wrap.getBoundingClientRect().top + window.scrollY;
       setWindowHeight(window.innerHeight);
-      setViewportHeight(Math.max(320, window.innerHeight - top - 20));
+      // skin.css drops the margin under the grid while the page bar shows
+      setViewportHeight(
+        Math.max(320, window.innerHeight - top - (flushBottom ? 0 : 20)),
+      );
     };
     measure();
     window.addEventListener('resize', measure);
@@ -450,14 +495,23 @@ export function CanvasFrame({ children }: { children: ReactNode }) {
         ? undefined
         : new ResizeObserver(measure);
     observer?.observe(document.body);
+    // The header above settles after the first paint (title, filter bar)
+    const header = document.querySelector(
+      '[data-test="dashboard-header-wrapper"]',
+    );
+    if (header) observer?.observe(header);
     return () => {
       window.removeEventListener('resize', measure);
       observer?.disconnect();
     };
-  }, [!!size]);
+  }, [!!size, flushBottom]);
 
-  // The filter pane keeps its own size beside the scaled page
-  const paneWidth = useFilterDockWidth();
+  // The filter pane keeps its own size beside the scaled page; with the page
+  // bar it is a pane of the report at its edge, as in Power BI, and the page
+  // floats alone in the room left
+  const paneAtEdge = !!size && !presenting && !showMobile && !mobileEditing;
+  const dockWidth = useFilterDockWidth();
+  const paneWidth = paneAtEdge ? 0 : dockWidth;
   const zoom = useMemo(() => {
     if (!size || !available) return 1;
     // On the phone of the editor the page fills the width of its screen
@@ -620,8 +674,23 @@ export function CanvasFrame({ children }: { children: ReactNode }) {
             height: editMode && !overflowing ? size.height : undefined,
           }
         : undefined),
+      // Objects of a tooltip page past its edge are not in the tooltip;
+      // the margin keeps the menus of the objects on the top row
+      ...(tooltipPage && !showMobile
+        ? { overflow: 'clip', overflowClipMargin: 40 }
+        : undefined),
     }),
-    [canvas, theme, look, size, zoom, editMode, overflowing],
+    [
+      canvas,
+      theme,
+      look,
+      size,
+      zoom,
+      editMode,
+      overflowing,
+      !!tooltipPage,
+      showMobile,
+    ],
   );
 
   // The page is scaled with a transform, not with CSS zoom: charts read the
@@ -649,10 +718,13 @@ export function CanvasFrame({ children }: { children: ReactNode }) {
     [size, zoom],
   );
 
+  // A fixed page shows its tabs and zoom in a bar at the bottom, as in Power BI
+  const pageBar = scroll && !presenting && !showMobile && !mobileEditing;
+
   const pageFrame = (
     <div ref={frameRef} style={frameStyle}>
       <div ref={scaledRef} style={scaledStyle}>
-        <TabsDockTarget style={{ width: '100%' }} />
+        {!pageBar && <TabsDockTarget style={{ width: '100%' }} />}
         <Page
           ref={pageRef}
           data-test="mibi-canvas"
@@ -715,40 +787,59 @@ export function CanvasFrame({ children }: { children: ReactNode }) {
   return (
     <Wrap
       ref={wrapRef}
+      $bar={pageBar}
       className="mibi-viewport"
       style={scroll && viewportHeight ? { height: viewportHeight } : undefined}
     >
-      <Outer
-        ref={outerRef}
-        $scroll={scroll}
-        $editing={editMode}
-        $phone={phone && !editMode}
-        data-test="mibi-canvas-outer"
-      >
-        <ReportTheme>
-          <Sheet style={size ? undefined : { width: '100%' }}>
-            {mobileEditing ? (
-              <DeviceFrame
-                device={device}
-                scale={displayScale}
-                safeArea={mobileSettings.safeArea}
-                viewer={
-                  previewing
-                    ? { title: reportTitle, rail: viewerRail, theme: appTheme }
-                    : null
-                }
-              >
-                {pageFrame}
-              </DeviceFrame>
-            ) : (
-              pageFrame
-            )}
-            {size && !showMobile && !mobileEditing && <FilterDockTarget />}
-          </Sheet>
+      <Row $pane={paneAtEdge}>
+        <Outer
+          ref={outerRef}
+          $scroll={scroll}
+          $bar={pageBar}
+          $editing={editMode}
+          $phone={phone && !editMode}
+          data-test="mibi-canvas-outer"
+        >
+          <ReportTheme>
+            <Sheet style={size ? undefined : { width: '100%' }}>
+              {mobileEditing ? (
+                <DeviceFrame
+                  device={device}
+                  scale={displayScale}
+                  safeArea={mobileSettings.safeArea}
+                  viewer={
+                    previewing
+                      ? {
+                          title: reportTitle,
+                          rail: viewerRail,
+                          theme: appTheme,
+                        }
+                      : null
+                  }
+                >
+                  {pageFrame}
+                </DeviceFrame>
+              ) : (
+                pageFrame
+              )}
+              {size && !showMobile && !mobileEditing && !paneAtEdge && (
+                <FilterDockTarget />
+              )}
+            </Sheet>
+          </ReportTheme>
+        </Outer>
+        {paneAtEdge && (
+          <ReportTheme area="filterBar">
+            <FilterDockTarget atEdge />
+          </ReportTheme>
+        )}
+      </Row>
+      {pageBar && (
+        <ReportTheme area="tabs">
+          <PageBar>
+            <ZoomToolbar zoom={zoom} docked />
+          </PageBar>
         </ReportTheme>
-      </Outer>
-      {scroll && !presenting && !showMobile && !mobileEditing && (
-        <ZoomToolbar zoom={zoom} />
       )}
     </Wrap>
   );

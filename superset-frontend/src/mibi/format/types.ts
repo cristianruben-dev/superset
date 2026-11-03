@@ -74,6 +74,13 @@ export interface HeaderTooltipFormat {
   opacity?: number;
 }
 
+/** Which tooltip the marks of a chart show. */
+export interface VisualTooltipPage {
+  type?: 'default' | 'page';
+  /** Id of a tooltip page; none for the automatic choice by common fields */
+  page?: string;
+}
+
 /** What the tooltips of the marks of a chart look like. */
 export interface ChartTooltipFormat {
   show?: boolean;
@@ -251,6 +258,8 @@ export interface VisualFormat {
     disabledTooltip?: string;
   };
   actionButton?: ActionButtonFormat;
+  /** A report page as the tooltip of the marks, instead of the default one */
+  tooltipPage?: VisualTooltipPage;
   /** Resizing keeps the proportions */
   lockAspect?: boolean;
   /** Selecting it does not bring it over its neighbors */

@@ -16,7 +16,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import type { DataRecordValue } from '@superset-ui/core';
+import type {
+  BinaryQueryObjectFilterClause,
+  DataRecordValue,
+} from '@superset-ui/core';
 
 /** The drill through data mask: its id, state and the charts it reaches. */
 
@@ -28,6 +31,8 @@ export interface DrillthroughField {
   column: string;
   value: DataRecordValue;
   label: string;
+  /** For a date: the time grain the value starts, as P1M */
+  grain?: string;
 }
 
 export interface DrillthroughState {
@@ -52,4 +57,26 @@ export function drillthroughChartsInScope(
   return (
     filterState?.[DRILLTHROUGH_STATE_KEY] as DrillthroughState | undefined
   )?.chartsInScope;
+}
+
+/** The clicked point's values, one per plain column. */
+export function pointFields(
+  clauses: BinaryQueryObjectFilterClause[] | undefined,
+): DrillthroughField[] {
+  const fields: DrillthroughField[] = [];
+  (clauses ?? []).forEach(clause => {
+    if (
+      typeof clause.col === 'string' &&
+      clause.op === '==' &&
+      !fields.some(field => field.column === clause.col)
+    ) {
+      fields.push({
+        column: clause.col,
+        value: clause.val,
+        label: clause.formattedVal ?? String(clause.val),
+        ...(clause.grain && { grain: String(clause.grain) }),
+      });
+    }
+  });
+  return fields;
 }
