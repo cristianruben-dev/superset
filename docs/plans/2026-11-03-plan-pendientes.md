@@ -55,13 +55,14 @@ fecha, conviene hacer A → D → B → C.
   días para fechas.
 - **Comprobado en el navegador** con el tablero 187 «QA segmentadores» y una tabla del dataset 41: lista, botones con
   Aplicar, rango y fecha relativa filtran la tabla.
-- **Falta de B:**
-  - Iconos del encabezado y su tooltip, texto de ayuda y acción del elemento (los segmentadores no tienen cabecera de
-    iconos).
-  - «Solo números» del segmentador de texto.
-  - **Jerarquía:** una selección en árbol necesita un OR entre columnas (Norte/Monterrey o Sur/Mérida), y los filtros
-    nativos solo hacen AND. Hay dos caminos: un operador nuevo en el backend, o un filtro SQL con las comillas de cada
-    dialecto. Decisión tuya.
+- **Segunda tanda (2026-11-03):**
+  - Iconos en la esquina: borrador de la selección, ayuda del encabezado y acción.
+  - «Solo números» en el segmentador de texto.
+  - **Valores que se muestran:** el editor apaga valores para quitarlos del segmentador, como el filtro de nivel de
+    objeto de Power BI. No filtran los gráficos.
+- **Falta de B:** la **jerarquía**. Una selección en árbol necesita un OR entre columnas (Norte/Monterrey o
+  Sur/Mérida), y los filtros nativos solo hacen AND. Hay dos caminos: un operador nuevo en el backend, o un filtro SQL
+  con las comillas de cada dialecto. Decisión tuya.
 
 Hoy el filtro de lienzo (`mibi-filter`, `SlicerView.tsx`) tiene cuatro variantes (desplegable, lista, botones,
 texto), disposición, búsqueda, seleccionar todo, marca de selección y formato de encabezado y valores. Su caja ya
@@ -113,8 +114,10 @@ o el rango y el botón Aplicar funcionan y se guardan.
   - Estado seleccionado: cursiva, subrayado, borde, esquinas y relleno.
   - Valores: alineación horizontal y vertical, unidades, decimales y «mostrar vacío como».
   - Colores de las píldoras y del botón Aplicar.
-- **Falta de C:** la superposición de la marca de selección, el código de formato de los valores, el contraste de
-  accesibilidad, las esquinas por separado y las transparencias de cada parte.
+- **Segunda tanda (2026-11-03):** código de formato de los valores, marca de selección superpuesta (también en
+  botones), esquinas por separado de valores y búsqueda, transparencia de los fondos (valores, seleccionado, búsqueda,
+  lista abierta, píldoras) y aviso de contraste bajo en el panel.
+- **Falta de C:** solo la P3 y las transparencias de borde y de texto.
 - **Inventario:** `scripts/mibi/format_inventory.py` ya reconoce estas opciones. Para regenerar `cobertura.md` y
   `pendientes.md` hace falta descargar el esquema `reportThemeSchema-2.159.json` de Microsoft, que no está en el repo.
 
