@@ -173,6 +173,28 @@ test('a failed save keeps the changes waiting', async () => {
   expect(actions.some(action => action.type === 'ADD_TOAST')).toBe(true);
 });
 
+test('a save the server forbids goes back to the saved fields', async () => {
+  jest.useRealTimers();
+  jest.spyOn(SupersetClient, 'get').mockResolvedValue({
+    json: { result: { params: '{}' } },
+  } as never);
+  jest
+    .spyOn(SupersetClient, 'put')
+    .mockRejectedValue({ status: 403, statusText: 'FORBIDDEN' });
+  const { dispatch, state, actions } = setup();
+  dispatch(change(['b']));
+  await dispatch(saveChartFields());
+  expect(hasPendingFields(3)).toBe(false);
+  expect(state.charts[3].form_data.groupby).toEqual(['a']);
+  expect(
+    actions.some(
+      action =>
+        action.type === 'ADD_TOAST' &&
+        /don't own/.test(String(action.payload?.text)),
+    ),
+  ).toBe(true);
+});
+
 test('a chart lacking a required field goes back instead of saving', async () => {
   jest.useRealTimers();
   const put = jest.spyOn(SupersetClient, 'put');

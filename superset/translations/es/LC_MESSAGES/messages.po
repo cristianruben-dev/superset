@@ -21393,3 +21393,6 @@ msgstr "Cambiar tipo de gráfico"
 
 msgid "%s charts are no longer available. Pick another chart type and save the chart."
 msgstr "Los gráficos «%s» ya no están disponibles. Elige otro tipo de gráfico y guárdalo."
+
+msgid "You can't change the fields of a chart you don't own: it keeps its saved fields."
+msgstr "No puedes cambiar los campos de un gráfico que no es tuyo: conserva los que tenía guardados."
