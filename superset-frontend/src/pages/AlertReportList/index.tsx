@@ -97,9 +97,8 @@ const deleteAlerts = makeApi<number[], { message: string }>({
 
 const RefreshContainer = styled.div`
   ${({ theme }) => css`
-    margin-top: ${theme.sizeUnit}px;
-    width: 100%;
-    padding: ${theme.sizeUnit * 2}px 0px ${theme.sizeUnit * 3}px;
+    margin-left: ${theme.sizeUnit * 4}px;
+    white-space: nowrap;
   `}
 `;
 const StyledHeaderWithIcon = styled.div`
@@ -577,11 +576,12 @@ function AlertList({
           },
         ]}
         buttons={subMenuButtons}
-      >
-        <RefreshContainer>
-          <LastUpdated updatedAt={lastFetched} update={() => refreshData()} />
-        </RefreshContainer>
-      </SubMenu>
+        headerExtra={
+          <RefreshContainer>
+            <LastUpdated updatedAt={lastFetched} update={() => refreshData()} />
+          </RefreshContainer>
+        }
+      />
       <AlertReportModal
         alert={currentAlert}
         addDangerToast={addDangerToast}

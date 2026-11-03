@@ -164,6 +164,8 @@ export interface SubMenuProps {
   color?: string;
   dropDownLinks?: Array<MenuObjectProps>;
   backgroundColor?: string;
+  /** Shown in the header row, between the tabs and the buttons. */
+  headerExtra?: ReactNode;
 }
 
 const { SubMenu } = MainNav;
@@ -253,6 +255,7 @@ const SubMenuComponent: FunctionComponent<SubMenuProps> = props => {
             };
           })}
         />
+        {props.headerExtra}
         <div className={navRightStyle}>
           <Menu mode="horizontal" triggerSubMenuAction="click" disabledOverflow>
             {props.dropDownLinks?.map((link, i) => (

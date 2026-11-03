@@ -35,10 +35,13 @@ export const themeCssVariables = (theme: SupersetTheme) => ({
   '--mb-border-secondary': theme.colorBorderSecondary,
   '--mb-success': theme.colorSuccess,
   '--mb-error': theme.colorError,
+  '--mb-space-gutter': `${theme.sizeUnit * 6}px`,
+  '--mb-space-page-top': `${theme.sizeUnit * 5}px`,
+  '--mb-space-section': `${theme.sizeUnit * 4}px`,
 });
 
 /**
- * Publishes the theme colors as CSS variables (--mb-*) so the global stylesheet
+ * Publishes the theme colors and page spacing as CSS variables (--mb-*) so the global stylesheet
  * (src/assets/mibi/skin.css) can use them and follow light/dark mode.
  */
 export function ThemeVariables() {

@@ -19,7 +19,15 @@
 import { t } from '@apache-superset/core/translation';
 import { Alert } from '@apache-superset/core/components';
 import { styled } from '@apache-superset/core/theme';
-import { useCallback, useEffect, useRef, useState, ReactNode } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  ReactNode,
+  RefObject,
+} from 'react';
 import cx from 'classnames';
 import TableCollection from '@superset-ui/core/components/TableCollection';
 import BulkTagModal from 'src/features/tags/BulkTagModal';
@@ -97,6 +105,15 @@ const ListViewStyles = styled.div`
       text-align: center;
     }
   `}
+`;
+
+/** Hides the filters from a position on; they stay mounted, keeping their values. */
+const FilterGrid = styled.div<{ $hideFrom?: number; $hideTo: number }>`
+  ${({ $hideFrom, $hideTo }) =>
+    $hideFrom !== undefined &&
+    `& > :nth-of-type(n + ${$hideFrom}):nth-of-type(-n + ${$hideTo}) {
+      display: none;
+    }`}
 `;
 
 const FullPageLoadingWrapper = styled.div`
@@ -195,6 +212,32 @@ const EmptyWrapper = styled.div`
     }
   `}
 `;
+
+/** A cleared range keeps its empty ends, so an array counts by what it holds. */
+const hasFilterValue = (value: unknown): boolean =>
+  Array.isArray(value)
+    ? value.some(hasFilterValue)
+    : value !== undefined && value !== null && value !== '';
+
+/** The columns the stylesheet gives an element laid out as a grid, if any. */
+const useGridColumnCount = (ref: RefObject<HTMLDivElement>) => {
+  const [columns, setColumns] = useState<number>();
+  useLayoutEffect(() => {
+    const element = ref.current;
+    if (!element || typeof ResizeObserver === 'undefined') return undefined;
+    const measure = () => {
+      const template = getComputedStyle(element).gridTemplateColumns;
+      const count =
+        !template || template === 'none' ? 0 : template.split(' ').length;
+      setColumns(count || undefined);
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [ref]);
+  return columns;
+};
 
 const ViewModeToggle = ({
   mode,
@@ -346,6 +389,21 @@ export function ListView<T extends object = any>({
     }
   }, [query.filters]);
 
+  const controlsRef = useRef<HTMLDivElement>(null);
+  const columnCount = useGridColumnCount(controlsRef);
+  const [filtersExpanded, setFiltersExpanded] = useState(false);
+  const showsCardSort = viewMode === 'card' && Boolean(cardSortSelectOptions);
+  const controlCount = filters.length + (showsCardSort ? 1 : 0);
+  const filtersOverflow =
+    columnCount !== undefined && controlCount > columnCount;
+  // One row: the filters that fit next to the sort and the button itself
+  const visibleFilters = filtersOverflow
+    ? Math.max(columnCount - (showsCardSort ? 2 : 1), 1)
+    : filters.length;
+  const hiddenFilterValues = (internalFilters as { value?: unknown }[])
+    .slice(visibleFilters)
+    .filter(filter => hasFilterValue(filter.value)).length;
+
   const cardViewEnabled = Boolean(renderCard);
   const [showBulkTagModal, setShowBulkTagModal] = useState<boolean>(false);
 
@@ -378,7 +436,17 @@ export function ListView<T extends object = any>({
           {cardViewEnabled && (
             <ViewModeToggle mode={viewMode} setMode={setViewMode} />
           )}
-          <div className="controls" data-test="filters-select">
+          <FilterGrid
+            ref={controlsRef}
+            className="controls"
+            data-test="filters-select"
+            $hideFrom={
+              filtersOverflow && !filtersExpanded
+                ? visibleFilters + 1
+                : undefined
+            }
+            $hideTo={filters.length}
+          >
             {filterable && (
               <FilterControls
                 ref={filterControlsRef}
@@ -394,7 +462,24 @@ export function ListView<T extends object = any>({
                 options={cardSortSelectOptions}
               />
             )}
-          </div>
+            {filtersOverflow && (
+              <div className="more-filters">
+                <Button
+                  buttonStyle="secondary"
+                  icon={<Icons.FilterOutlined />}
+                  aria-expanded={filtersExpanded}
+                  data-test="more-filters"
+                  onClick={() => setFiltersExpanded(value => !value)}
+                >
+                  {filtersExpanded
+                    ? t('Fewer filters')
+                    : hiddenFilterValues
+                      ? `${t('More filters')} (${hiddenFilterValues})`
+                      : t('More filters')}
+                </Button>
+              </div>
+            )}
+          </FilterGrid>
         </div>
         <div className={`body ${rows.length === 0 ? 'empty' : ''} `}>
           {bulkSelectEnabled && (
