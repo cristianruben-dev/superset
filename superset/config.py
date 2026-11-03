@@ -2138,6 +2138,8 @@ TALISMAN_CONFIG = {
             "https://tile.openstreetmap.org",
             "https://tile.osm.ch",
             "https://a.basemaps.cartocdn.com",
+            # The PDF and PNG exports inline the web fonts of the page
+            *[f"https://{d}" for d in THEME_FONT_URL_ALLOWED_DOMAINS],
         ],
         "object-src": "'none'",
         "style-src": [
@@ -2178,6 +2180,8 @@ TALISMAN_DEV_CONFIG = {
             "https://tile.openstreetmap.org",
             "https://tile.osm.ch",
             "https://a.basemaps.cartocdn.com",
+            # The PDF and PNG exports inline the web fonts of the page
+            *[f"https://{d}" for d in THEME_FONT_URL_ALLOWED_DOMAINS],
         ],
         "object-src": "'none'",
         "style-src": [
