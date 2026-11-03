@@ -90,7 +90,10 @@ test('opens Explore in the panel and reloads the chart once it is saved', async 
   act(() => openChartEditor({ url: '/explore/?slice_id=3', chartId: 3 }));
 
   const frame = await screen.findByTestId('mibi-chart-editor-frame');
-  expect(frame).toHaveAttribute('src', '/explore/?slice_id=3&mibi_panel=1');
+  expect(frame).toHaveAttribute(
+    'src',
+    '/explore/?slice_id=3&mibi_panel=1&mibi_dock=1',
+  );
   expect(screen.getByText('Edit visual')).toBeInTheDocument();
 
   act(() => {
@@ -205,6 +208,6 @@ test('opening the page it already shows does not leave it loading', async () => 
   act(() => openChartEditor({ url: '/explore/?slice_id=3', chartId: 3 }));
 
   expect(
-    screen.getByTestId('mibi-chart-editor').querySelector('.loading'),
+    screen.getByTestId('mibi-chart-editor-dock').querySelector('.loading'),
   ).toBeNull();
 });
