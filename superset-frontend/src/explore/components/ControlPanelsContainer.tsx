@@ -97,8 +97,6 @@ const MATRIXIFY_INCOMPATIBLE_CHARTS = new Set([
   VizType.Table,
   VizType.TableAgGrid,
   VizType.PivotTable,
-  VizType.TimeTable,
-  VizType.TimePivot,
 ]);
 
 export type ControlPanelsContainerProps = {

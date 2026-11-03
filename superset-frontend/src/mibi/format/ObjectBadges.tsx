@@ -21,10 +21,11 @@ import { css, styled } from '@apache-superset/core/theme';
 import { Icons } from '@superset-ui/core/components/Icons';
 import type { LayoutItemMeta } from 'src/dashboard/types';
 
+// At the bottom corner, so they never cover the title of the object
 const Badges = styled.div`
   ${({ theme }) => css`
     position: absolute;
-    top: ${theme.sizeUnit}px;
+    bottom: ${theme.sizeUnit}px;
     left: ${theme.sizeUnit}px;
     z-index: 5;
     display: flex;

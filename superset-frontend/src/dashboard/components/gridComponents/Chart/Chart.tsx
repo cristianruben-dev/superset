@@ -59,6 +59,9 @@ import { useIsAutoRefreshing } from 'src/dashboard/contexts/AutoRefreshContext';
 
 import SliceHeader from '../../SliceHeader';
 import MissingChart from '../../MissingChart';
+import UnavailableChart, {
+  isUnavailableChartType,
+} from 'src/mibi/dashboard/UnavailableChart';
 
 import {
   addDangerToast,
@@ -661,7 +664,12 @@ const Chart = (props: ChartProps) => {
     return <MissingChart height={getChartHeight()} />;
   }
 
-  const isLoading = chartStatus === 'loading';
+  // The type the chart is drawn with: the docked editor previews another one
+  const drawnVizType =
+    (chartFormData?.viz_type as string | undefined) ?? slice.viz_type;
+  const unavailable = isUnavailableChartType(drawnVizType);
+  // A chart of a removed type is never drawn, so it never stops loading
+  const isLoading = chartStatus === 'loading' && !unavailable;
   const cachedDttm: string[] =
     queriesResponse?.map(
       // eslint-disable-next-line camelcase
@@ -762,48 +770,57 @@ const Chart = (props: ChartProps) => {
           />
         )}
 
-        <ChartContainer
-          width={width}
-          height={getChartHeight()}
-          addFilter={addFilter}
-          onFilterMenuOpen={handleFilterMenuOpen}
-          onFilterMenuClose={handleFilterMenuClose}
-          annotationData={chart.annotationData ?? undefined}
-          chartAlert={chart.chartAlert ?? undefined}
-          chartId={props.id}
-          chartStatus={chartStatus ?? undefined}
-          datasource={datasource}
-          dashboardId={props.dashboardId}
-          initialValues={EMPTY_OBJECT}
-          formData={
-            formData as unknown as import('@superset-ui/core').QueryFormData
-          }
-          ownState={createOwnStateWithChartState(
-            (dataMask[props.id]?.ownState as JsonObject) || EMPTY_OBJECT,
-            {
-              state:
-                getChartStateWithFallback(
-                  chartState as { state?: JsonObject } | undefined,
-                  formData as JsonObject,
-                  slice.viz_type,
-                ) ?? undefined,
-            },
-            slice.viz_type,
-          )}
-          queriesResponse={chart.queriesResponse ?? undefined}
-          timeout={timeout}
-          triggerQuery={chart.triggerQuery}
-          vizType={slice.viz_type}
-          setControlValue={props.setControlValue}
-          datasetsStatus={
-            datasetsStatus as 'loading' | 'error' | 'complete' | undefined
-          }
-          isInView={props.isInView}
-          emitCrossFilters={emitCrossFilters}
-          onChartStateChange={handleChartStateChange}
-          suppressLoadingSpinner={suppressLoadingSpinner}
-          filterState={dataMask[props.id]?.filterState}
-        />
+        {unavailable ? (
+          <UnavailableChart
+            chartId={props.id}
+            vizType={drawnVizType}
+            height={getChartHeight()}
+            canChangeType={supersetCanExplore}
+          />
+        ) : (
+          <ChartContainer
+            width={width}
+            height={getChartHeight()}
+            addFilter={addFilter}
+            onFilterMenuOpen={handleFilterMenuOpen}
+            onFilterMenuClose={handleFilterMenuClose}
+            annotationData={chart.annotationData ?? undefined}
+            chartAlert={chart.chartAlert ?? undefined}
+            chartId={props.id}
+            chartStatus={chartStatus ?? undefined}
+            datasource={datasource}
+            dashboardId={props.dashboardId}
+            initialValues={EMPTY_OBJECT}
+            formData={
+              formData as unknown as import('@superset-ui/core').QueryFormData
+            }
+            ownState={createOwnStateWithChartState(
+              (dataMask[props.id]?.ownState as JsonObject) || EMPTY_OBJECT,
+              {
+                state:
+                  getChartStateWithFallback(
+                    chartState as { state?: JsonObject } | undefined,
+                    formData as JsonObject,
+                    slice.viz_type,
+                  ) ?? undefined,
+              },
+              slice.viz_type,
+            )}
+            queriesResponse={chart.queriesResponse ?? undefined}
+            timeout={timeout}
+            triggerQuery={chart.triggerQuery}
+            vizType={slice.viz_type}
+            setControlValue={props.setControlValue}
+            datasetsStatus={
+              datasetsStatus as 'loading' | 'error' | 'complete' | undefined
+            }
+            isInView={props.isInView}
+            emitCrossFilters={emitCrossFilters}
+            onChartStateChange={handleChartStateChange}
+            suppressLoadingSpinner={suppressLoadingSpinner}
+            filterState={dataMask[props.id]?.filterState}
+          />
+        )}
       </ChartWrapper>
 
       {!isLoading && showChartTimestamps && queriedDttm != null && (

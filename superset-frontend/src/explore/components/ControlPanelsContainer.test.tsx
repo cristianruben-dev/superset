@@ -527,13 +527,7 @@ describe('ControlPanelsContainer', () => {
     );
 
     // All table-type charts that don't support matrixify
-    const tableVizTypes = [
-      'table',
-      'ag-grid-table',
-      'pivot_table_v2',
-      'time_table',
-      'time_pivot',
-    ];
+    const tableVizTypes = ['table', 'ag-grid-table', 'pivot_table_v2'];
 
     for (const vizType of tableVizTypes) {
       const props = getDefaultProps();

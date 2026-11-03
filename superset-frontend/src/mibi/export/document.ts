@@ -68,6 +68,21 @@ export const formatExportDate = (date: Date, locale?: string) => {
   }
 };
 
+// Characters past Latin-1 that the standard PDF fonts (WinAnsi) still draw
+const WIN_ANSI_EXTRAS = new Set('€‚ƒ„…†‡ˆ‰Š‹ŒŽ‘’“”•–—˜™š›œžŸ'.split(''));
+
+/**
+ * Text the standard PDF fonts can draw. One character they lack, such as an
+ * emoji in a page name, makes jsPDF write the whole string as UTF-16, which
+ * shows as garbage with a space between letters: such characters are dropped,
+ * and the thin spaces of some dates become plain ones.
+ */
+export const pdfText = (text: string): string =>
+  Array.from(text.normalize('NFC').replace(/[\u2000-\u200A\u202F\u205F]/g, ' '))
+    .filter(char => char.charCodeAt(0) <= 0xff || WIN_ANSI_EXTRAS.has(char))
+    .join('')
+    .trim();
+
 const subtitleOf = (info: ExportInfo) =>
   [info.workspace, formatExportDate(info.date, info.locale)]
     .filter(Boolean)
@@ -219,14 +234,14 @@ function drawCover(
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(unit * 7);
   doc.setTextColor(...text);
-  const titleLines = doc.splitTextToSize(info.title, columnWidth);
+  const titleLines = doc.splitTextToSize(pdfText(info.title), columnWidth);
   doc.text(titleLines, margin, y);
   y += unit * 7 * 1.15 * (titleLines.length - 1) + unit * 5;
 
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(unit * 2.6);
   doc.setTextColor(...muted);
-  doc.text(subtitleOf(info), margin, y, { maxWidth: columnWidth });
+  doc.text(pdfText(subtitleOf(info)), margin, y, { maxWidth: columnWidth });
   y += unit * 3.2;
 
   doc.setDrawColor(...primary);
@@ -239,12 +254,12 @@ function drawCover(
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(unit * 1.9);
     doc.setTextColor(...text);
-    doc.text(t('Filters').toUpperCase(), margin, y);
+    doc.text(pdfText(t('Filters').toUpperCase()), margin, y);
     y += unit * 3;
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(unit * 2.2);
     doc.setTextColor(...muted);
-    const lines = doc.splitTextToSize(filters, columnWidth);
+    const lines = doc.splitTextToSize(pdfText(filters), columnWidth);
     doc.text(lines.slice(0, 4), margin, y);
   }
 
@@ -256,7 +271,7 @@ function drawCover(
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(unit * 1.9);
     doc.setTextColor(...text);
-    doc.text(t('Contents').toUpperCase(), left, row);
+    doc.text(pdfText(t('Contents').toUpperCase()), left, row);
     row += unit * 2;
     const step = Math.min(unit * 6, (height * 0.5) / listed.length);
     listed.forEach((section, index) => {
@@ -270,7 +285,7 @@ function drawCover(
       doc.text(String(index + 1).padStart(2, '0'), left, middle);
       doc.setFont('helvetica', 'normal');
       doc.setTextColor(...text);
-      doc.text(String(section.title), left + unit * 5, middle, {
+      doc.text(pdfText(String(section.title)), left + unit * 5, middle, {
         maxWidth: right - left - unit * 12,
       });
       doc.setTextColor(...muted);
@@ -285,7 +300,7 @@ function drawCover(
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(unit * 1.8);
   doc.setTextColor(...muted);
-  doc.text(footerOf(info), margin, height - margin * 0.7);
+  doc.text(pdfText(footerOf(info)), margin, height - margin * 0.7);
 }
 
 /**

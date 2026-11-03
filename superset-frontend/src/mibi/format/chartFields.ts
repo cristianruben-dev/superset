@@ -298,12 +298,24 @@ export const saveChartFields =
           // eslint-disable-next-line no-await-in-loop
           await saveChart(chartId, entry.changes);
           pending.delete(chartId);
-        } catch {
-          dispatch(
-            addDangerToast(
-              t('The fields of a chart could not be saved. Try again.'),
-            ),
-          );
+        } catch (error) {
+          if ((error as { status?: number })?.status === 403) {
+            // Trying again cannot help: the chart goes back to what it saved
+            dispatch(revertChartFields(chartId));
+            dispatch(
+              addDangerToast(
+                t(
+                  "You can't change the fields of a chart you don't own: it keeps its saved fields.",
+                ),
+              ),
+            );
+          } else {
+            dispatch(
+              addDangerToast(
+                t('The fields of a chart could not be saved. Try again.'),
+              ),
+            );
+          }
         }
       }
     }

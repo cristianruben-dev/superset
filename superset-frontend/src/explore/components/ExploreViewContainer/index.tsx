@@ -926,7 +926,12 @@ function ExploreViewContainer(props: ExploreViewContainerProps) {
         chart={props.chart}
         ownState={props.ownState}
         user={props.user}
-        saveDisabled={!!errorMessage || props.chart.chartStatus === 'loading'}
+        saveDisabled={
+          !!errorMessage ||
+          // Docked beside the report the report draws the chart, so this
+          // page never queries it and its chart never stops loading
+          (!isDockMode() && props.chart.chartStatus === 'loading')
+        }
         metadata={props.metadata}
         isSaveModalVisible={props.isSaveModalVisible}
       />

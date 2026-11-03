@@ -17,7 +17,12 @@
  * under the License.
  */
 
-import { VizType } from '@superset-ui/core';
+import {
+  ChartMetadata,
+  getChartMetadataRegistry,
+  VizType,
+} from '@superset-ui/core';
+import { ADD_TOAST } from 'src/components/MessageToasts/actions';
 import { hydrateExplore, HYDRATE_EXPLORE } from './hydrateExplore';
 import { exploreInitialData } from '../fixtures';
 
@@ -260,4 +265,47 @@ test('extracts currency formats from metrics in dataset', () => {
       }),
     }),
   );
+});
+
+test('opens a chart of a removed type as a table and says so', () => {
+  const registry = getChartMetadataRegistry();
+  registry.registerValue(
+    VizType.Table,
+    new ChartMetadata({ name: 'Table', thumbnail: '' }),
+  );
+  const dispatch = jest.fn();
+  const getState = jest.fn(() => ({
+    user: {},
+    charts: {},
+    datasources: {},
+    common: {},
+    explore: {},
+  }));
+  const data = {
+    ...exploreInitialData,
+    form_data: { ...exploreInitialData.form_data, viz_type: 'horizon' },
+  };
+
+  // @ts-expect-error
+  hydrateExplore(data)(dispatch, getState);
+
+  expect(dispatch).toHaveBeenCalledWith(
+    expect.objectContaining({
+      type: ADD_TOAST,
+      payload: expect.objectContaining({
+        text: 'Horizon Chart charts are no longer available. Pick another chart type and save the chart.',
+      }),
+    }),
+  );
+  expect(dispatch).toHaveBeenCalledWith(
+    expect.objectContaining({
+      type: HYDRATE_EXPLORE,
+      data: expect.objectContaining({
+        explore: expect.objectContaining({
+          form_data: expect.objectContaining({ viz_type: VizType.Table }),
+        }),
+      }),
+    }),
+  );
+  registry.remove(VizType.Table);
 });

@@ -28,7 +28,6 @@ import {
 import { stateWithoutNativeFilters } from 'spec/fixtures/mockStore';
 import { DynamicPluginProvider } from 'src/components';
 import { testWithId } from 'src/utils/testUtils';
-import TimeTableChartPlugin from 'src/visualizations/TimeTable';
 import {
   BigNumberTotalChartPlugin,
   EchartsAreaChartPlugin,
@@ -69,7 +68,6 @@ class MainPreset extends Preset {
         new EchartsTimeseriesChartPlugin().configure({
           key: VizType.Timeseries,
         }),
-        new TimeTableChartPlugin().configure({ key: VizType.TimeTable }),
         new EchartsMixedTimeseriesChartPlugin().configure({
           key: VizType.MixedTimeseries,
         }),
@@ -272,19 +270,16 @@ describe('VizTypeControl', () => {
     ).toBeInTheDocument();
 
     // search
-    userEvent.type(
-      screen.getByTestId(getTestId('search-input')),
-      'time series',
-    );
+    userEvent.type(screen.getByTestId(getTestId('search-input')), 'pie');
     expect(
-      await within(visualizations).findByText('Time-series Table'),
+      await within(visualizations).findByText('Pie Chart'),
     ).toBeInTheDocument();
     expect(within(visualizations).queryByText('Table')).not.toBeInTheDocument();
     expect(
       within(visualizations).queryByText('Big Number'),
     ).not.toBeInTheDocument();
     expect(
-      within(visualizations).queryByText('Pie Chart'),
+      within(visualizations).queryByText('Area Chart'),
     ).not.toBeInTheDocument();
   });
 

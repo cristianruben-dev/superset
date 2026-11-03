@@ -422,7 +422,7 @@ async def get_chart_data(  # noqa: C901
                     "gauge_chart",
                 )
 
-                if viz_type == "bubble":
+                if viz_type == "bubble_v2":
                     # Bubble charts store metrics in x, y, size fields
                     bubble_metrics = []
                     for field in ("x", "y", "size"):

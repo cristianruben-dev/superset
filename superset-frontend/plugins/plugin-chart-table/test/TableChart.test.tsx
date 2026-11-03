@@ -37,6 +37,7 @@ import {
   getTimeFormatterForGranularity,
 } from '@superset-ui/core';
 import { CellProps, Column, HeaderProps } from 'react-table';
+import { FaSort, FaSortUp } from 'react-icons/fa';
 import DataTable from '../src/DataTable/DataTable';
 import TableChart, { sanitizeHeaderId } from '../src/TableChart';
 import { GenericDataType } from '@apache-superset/core/common';
@@ -2347,4 +2348,35 @@ test('headers sort descending first when "Sort descending" is not saved', () => 
   expect(transformProps({ ...testData.basic, rawFormData }).sortDesc).toBe(
     true,
   );
+});
+
+test('the header shows the sort saved from the dashboard until a viewer sorts', () => {
+  const iconPath = (element: Element | null) =>
+    element?.querySelector('svg path')?.getAttribute('d');
+  const { container: ascending } = render(<FaSortUp />);
+  const ascendingPath = iconPath(ascending);
+  const { container: unsorted } = render(<FaSort />);
+  const unsortedPath = iconPath(unsorted);
+
+  const props = transformProps({
+    ...testData.basic,
+    rawFormData: {
+      ...testData.basic.rawFormData,
+      mibi_table_sort: [{ key: 'sum__num', desc: false }],
+    },
+  });
+  expect(props.savedSort).toEqual({ key: 'sum__num', desc: false });
+  render(
+    ProviderWrapper({
+      children: <TableChart {...props} sticky={false} />,
+    }),
+  );
+
+  const header = (name: string) =>
+    screen.getAllByRole('columnheader').find(th => th.textContent === name)!;
+  expect(iconPath(header('sum__num'))).toBe(ascendingPath);
+  expect(iconPath(header('name'))).toBe(unsortedPath);
+
+  fireEvent.click(header('name'));
+  expect(iconPath(header('sum__num'))).toBe(unsortedPath);
 });

@@ -38,6 +38,10 @@ from superset.dashboards.filters import DashboardAccessFilter, is_uuid
 from superset.exceptions import SupersetSecurityException
 from superset.extensions import db
 from superset.mibi import single_dashboard
+from superset.mibi.chart_refs import (
+    remap_bookmark_chart_ids,
+    remap_metadata_chart_ids,
+)
 from superset.models.core import FavStar, FavStarClassName
 from superset.models.dashboard import Dashboard, id_or_slug_filter
 from superset.models.embedded_dashboard import EmbeddedDashboard
@@ -386,6 +390,13 @@ class DashboardDAO(BaseDAO[Dashboard]):
             dash.slices = original_dash.slices
 
         dash.params = original_dash.params
+        if old_to_new_slice_ids:
+            # Bookmarks, interactions and filter scopes name charts by id too
+            remap_bookmark_chart_ids(metadata.get("positions"), old_to_new_slice_ids)
+            remap_metadata_chart_ids(metadata, old_to_new_slice_ids)
+            params = json.loads(original_dash.params or "{}")
+            remap_metadata_chart_ids(params, old_to_new_slice_ids)
+            dash.params = json.dumps(params)
         cls.set_dash_metadata(dash, metadata, old_to_new_slice_ids)
         db.session.add(dash)
         return dash

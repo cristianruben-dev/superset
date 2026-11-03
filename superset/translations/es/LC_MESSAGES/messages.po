@@ -485,12 +485,6 @@ msgstr "1 semana"
 msgid "1 week ago"
 msgstr "Hace 1 semana"
 
-msgid "1 week starting Monday (freq=W-MON)"
-msgstr "1 semana con comienzo el lunes (frec. = W-MON)"
-
-msgid "1 week starting Sunday (freq=W-SUN)"
-msgstr "1 semana con comienzo el domingo (frec. = W-SUN)"
-
 msgid "1 year"
 msgstr "1 año"
 
@@ -602,9 +596,6 @@ msgstr "30 segundos"
 msgid "3D"
 msgstr "3D"
 
-msgid "4 weeks (freq=4W-MON)"
-msgstr "4 semanas (frec. = 4W-MON)"
-
 msgid "5 minute"
 msgstr "5 minutos"
 
@@ -625,9 +616,6 @@ msgstr "52 semanas"
 
 msgid "52 weeks ago"
 msgstr "Hace 52 semanas"
-
-msgid "52 weeks starting Monday (freq=52W-MON)"
-msgstr "52 semanas con comienzo el lunes (frec. = 52W-MON)"
 
 msgid "6 hour"
 msgstr "6 horas"
@@ -776,15 +764,6 @@ msgstr "Se creará un nuevo gráfico."
 
 msgid "A new dashboard will be created."
 msgstr "Se creará un nuevo panel de control."
-
-msgid ""
-"A polar coordinate chart where the circle is broken into wedges of equal "
-"angle, and the value represented by any wedge is illustrated by its area,"
-" rather than its radius or sweep angle."
-msgstr ""
-"Un gráfico de coordenadas polares en el que el círculo se divide en cuñas"
-" de igual ángulo y el valor representado por cualquiera de las cuñas se "
-"ilustra por su área, en lugar de por su radio o su ángulo de barrido."
 
 msgid "A readable URL for your dashboard"
 msgstr "Una URL legible para tu panel de control"
@@ -1200,12 +1179,6 @@ msgstr "Después de hacer los cambios, copia la consulta y pégala en la configu
 
 msgid "Aggregate"
 msgstr "Agregado"
-
-msgid "Aggregate Mean"
-msgstr "Media agregada"
-
-msgid "Aggregate Sum"
-msgstr "Suma agregada"
 
 msgid ""
 "Aggregate function applied to the list of points in each cluster to "
@@ -2861,9 +2834,6 @@ msgstr "Revisa este gráfico: "
 msgid "Check out this dashboard: "
 msgstr "Revisa este panel de control: "
 
-msgid "Check to force date partitions to have the same height"
-msgstr "Marca para forzar que las particiones de fecha tengan la misma altura"
-
 msgid "Child label position"
 msgstr "Posición de la etiqueta secundaria"
 
@@ -3351,33 +3321,8 @@ msgstr ""
 msgid "Comparator option"
 msgstr "Opción de comparador"
 
-msgid ""
-"Compare multiple time series charts (as sparklines) and related metrics "
-"quickly."
-msgstr ""
-"Compara rápidamente varios gráficos de series temporales (como "
-"minigráficos) y métricas relacionadas."
-
 msgid "Compare results with other time periods."
 msgstr "Compara resultados con otros periodos de tiempo."
-
-msgid "Compare the same summarized metric across multiple groups."
-msgstr "Compara la misma métrica resumida en varios grupos."
-
-msgid ""
-"Compares how a metric changes over time between different groups. Each "
-"group is mapped to a row and change over time is visualized bar lengths "
-"and color."
-msgstr ""
-"Compara cómo cambia una métrica a lo largo del tiempo entre diferentes "
-"grupos. Cada grupo se asigna a una fila y el cambio a lo largo del tiempo"
-" se visualiza en longitudes y colores de barras."
-
-msgid ""
-"Compares metrics between different time periods. Displays time series "
-"data across multiple periods (like weeks or months) to show period-over-"
-"period trends and patterns."
-msgstr "Compara métricas entre periodos. Muestra series temporales de varios periodos (como semanas o meses) para ver tendencias de un periodo a otro."
 
 msgid "Comparison"
 msgstr "Comparación"
@@ -4258,9 +4203,6 @@ msgstr ""
 "Se requiere el tipo de fuente de datos cuando se proporciona un ID de "
 "fuentes de datos"
 
-msgid "Date Time Format"
-msgstr "Formato de fecha y hora"
-
 msgid "Date format"
 msgstr "Formato de fecha"
 
@@ -4282,9 +4224,6 @@ msgstr "Formato de fecha y hora"
 
 msgid "Day"
 msgstr "Día"
-
-msgid "Day (freq=D)"
-msgstr "Día (frec. = D)"
 
 #, python-format
 msgid "Days %s"
@@ -5578,9 +5517,6 @@ msgstr "Introduce tu usuario y contraseña:"
 msgid "Entity"
 msgstr "Entidad"
 
-msgid "Equal Date Sizes"
-msgstr "Tamaños de fecha iguales"
-
 msgid "Equal to (=)"
 msgstr "Igual a (=)"
 
@@ -6627,9 +6563,6 @@ msgstr "Inicio"
 msgid "Horizon Chart"
 msgstr "Gráfico de horizonte"
 
-msgid "Horizon Charts"
-msgstr "Gráficos de horizonte"
-
 msgid "Horizontal"
 msgstr "Horizontal"
 
@@ -6750,9 +6683,6 @@ msgstr "Ignorar el caché al generar un informe"
 msgid "Ignore null locations"
 msgstr "Ignorar ubicaciones nulas"
 
-msgid "Ignore time"
-msgstr "Ignorar tiempo"
-
 msgid "Image (PNG) embedded in email"
 msgstr "Imagen (PNG) incrustada en el correo electrónico"
 
@@ -6825,9 +6755,6 @@ msgstr ""
 msgid "In this view you can preview the first 25 rows. "
 msgstr "Aquí puedes ver las primeras 25 filas. "
 
-msgid "Include Series"
-msgstr "Incluir series"
-
 msgid "Include Template Parameters"
 msgstr "Incluir parámetros de plantilla"
 
@@ -6837,9 +6764,6 @@ msgstr "Incluye una descripción que se enviará con tu informe"
 #, python-format
 msgid "Include description to be sent with %s"
 msgstr "Incluye una descripción para ser enviada con %s"
-
-msgid "Include series name as an axis"
-msgstr "Incluir el nombre de la serie como eje"
 
 msgid "Include time"
 msgstr "Incluir hora"
@@ -7449,9 +7373,6 @@ msgstr "Menor o igual (<=)"
 msgid "Less than (<)"
 msgstr "Menor que (<)"
 
-msgid "Lift percent precision"
-msgstr "Precisión del porcentaje de elevación"
-
 msgid "Light"
 msgstr "Claro"
 
@@ -7828,9 +7749,6 @@ msgstr "Valor máximo en el eje del indicador"
 msgid "May"
 msgstr "Mayo"
 
-msgid "Mean of values over specified period"
-msgstr "Media de los valores durante el periodo especificado"
-
 msgid "Mean values"
 msgstr "Valores medios"
 
@@ -7924,17 +7842,11 @@ msgstr "Métrica asignada al eje [X]"
 msgid "Metric assigned to the [Y] axis"
 msgstr "Métrica asignada al eje [Y]"
 
-msgid "Metric change in value from `since` to `until`"
-msgstr "Cambio de la métrica en el valor de «desde» a «hasta»"
-
 msgid "Metric currency"
 msgstr "Moneda de la métrica"
 
 msgid "Metric descending"
 msgstr "Métrica descendente"
-
-msgid "Metric factor change from `since` to `until`"
-msgstr "Cambio del factor de la métrica de «desde» a «hasta»"
 
 msgid "Metric for node values"
 msgstr "Métrica para valores de nodo"
@@ -7948,9 +7860,6 @@ msgstr "Nombre de la métrica"
 #, python-format
 msgid "Metric name [%s] is duplicated"
 msgstr "El nombre de la métrica [%s] está duplicado"
-
-msgid "Metric percent change in value from `since` to `until`"
-msgstr "Cambio porcentual de la métrica en el valor de «desde» a «hasta»"
 
 msgid "Metric that defines the size of the bubble"
 msgstr "Métrica que define el tamaño de la burbuja"
@@ -8531,9 +8440,6 @@ msgstr "No contiene"
 msgid "Not Equal"
 msgstr "Distinto de"
 
-msgid "Not Time Series"
-msgstr "No es una serie temporal"
-
 msgid "Not a valid ZIP file"
 msgstr "No es un archivo ZIP válido"
 
@@ -8631,12 +8537,6 @@ msgstr "Gráficos por fila"
 
 msgid "Number of decimal digits to round numbers to"
 msgstr "Número de dígitos decimales para redondear números a"
-
-msgid "Number of decimal places with which to display lift values"
-msgstr "Número de decimales con los que mostrar los valores de elevación"
-
-msgid "Number of decimal places with which to display p-values"
-msgstr "Número de decimales con los que mostrar los valores p"
 
 msgid ""
 "Number of periods to compare against. You can use negative numbers to "
@@ -9062,22 +8962,6 @@ msgstr "Parte de un todo"
 msgid "Partition Chart"
 msgstr "Gráfico de partición"
 
-msgid "Partition Diagram"
-msgstr "Diagrama de partición"
-
-msgid "Partition Limit"
-msgstr "Límite de partición"
-
-msgid "Partition Threshold"
-msgstr "Umbral de partición"
-
-msgid ""
-"Partitions whose height to parent height proportions are below this value"
-" are pruned"
-msgstr ""
-"Las particiones cuya altura hasta las proporciones de altura primaria "
-"están por debajo de este valor se depuran"
-
 msgid "Password"
 msgstr "Contraseña"
 
@@ -9181,9 +9065,6 @@ msgstr "Físico (tabla o vista)"
 msgid "Pick a dimension from which categorical colors are defined"
 msgstr "Elige una dimensión a partir de la cual se definen los colores categóricos"
 
-msgid "Pick a metric for x, y and size"
-msgstr "Elige una métrica para X, Y y tamaño"
-
 msgid "Pick a metric to display"
 msgstr "Elige una métrica a mostrar"
 
@@ -9197,9 +9078,6 @@ msgstr ""
 
 msgid "Pick a title for you annotation."
 msgstr "Elige un título para tu anotación."
-
-msgid "Pick at least one metric"
-msgstr "Elige al menos una métrica"
 
 msgid ""
 "Pick one or more columns that should be shown in the annotation. If you "
@@ -9256,9 +9134,6 @@ msgstr "Pivotado"
 msgid "Pivots"
 msgstr "Columnas dinámicas"
 
-msgid "Pixel height of each series"
-msgstr "Altura en píxeles de cada serie"
-
 msgid "Pixels"
 msgstr "Píxeles"
 
@@ -9303,9 +9178,6 @@ msgstr ""
 
 msgid "Please choose a valid value"
 msgstr "Elige un valor válido"
-
-msgid "Please choose at least one groupby"
-msgstr "Elige al menos un «groupby»"
 
 msgid "Please confirm"
 msgstr "Confirma"
@@ -9384,20 +9256,8 @@ msgstr ""
 "Especifica el ID del conjunto de datos para la métrica «%(name)s» en la "
 "macro de Jinja."
 
-msgid "Please use 3 different metric labels"
-msgstr "Utiliza 3 etiquetas métricas diferentes"
-
 msgid "Plot the distance (like flight paths) between origin and destination."
 msgstr "Traza la distancia (como rutas de vuelo) entre el origen y el destino."
-
-msgid ""
-"Plots the individual metrics for each row in the data vertically and "
-"links them together as a line. This chart is useful for comparing "
-"multiple metrics across all of the samples or rows in the data."
-msgstr ""
-"Traza las métricas individuales para cada fila en los datos verticalmente"
-" y las vincula como una línea. Este gráfico es útil para comparar "
-"múltiples métricas en todas las muestras o filas de los datos."
 
 msgid "Plugins"
 msgstr "«Plugins»"
@@ -11044,9 +10904,6 @@ msgstr "Secuencial"
 msgid "Series"
 msgstr "Serie"
 
-msgid "Series Height"
-msgstr "Altura de la serie"
-
 msgid "Series Order"
 msgstr "Orden de la serie"
 
@@ -11148,9 +11005,6 @@ msgstr ""
 
 msgid "Settings"
 msgstr "Ajustes"
-
-msgid "Settings for time series"
-msgstr "Ajustes para series temporales"
 
 msgid "Shape"
 msgstr "Forma"
@@ -11440,9 +11294,6 @@ msgstr "Iniciar sesión"
 
 msgid "Sign in with"
 msgstr "Iniciar sesión con"
-
-msgid "Significance Level"
-msgstr "Nivel de significación"
 
 msgid "Simple"
 msgstr "Simple"
@@ -11737,9 +11588,6 @@ msgstr "Barras apiladas"
 msgid "Stacked Style"
 msgstr "Estilo apilado"
 
-msgid "Standard time series"
-msgstr "Series temporales estándar"
-
 msgid "Start"
 msgstr "Inicio"
 
@@ -11902,9 +11750,6 @@ msgstr "Suma como fracción de filas"
 
 msgid "Sum as Fraction of Total"
 msgstr "Suma como fracción del total"
-
-msgid "Sum of values over specified period"
-msgstr "Suma de los valores durante el periodo especificado"
 
 msgid "Sum values"
 msgstr "Sumar valores"
@@ -12074,13 +11919,6 @@ msgstr "No se ha definido el nombre de la tabla"
 msgid "Table or View \"%(table)s\" does not exist."
 msgstr "La tabla o vista \"%(table)s\" no existe"
 
-msgid ""
-"Table that visualizes paired t-tests, which are used to understand "
-"statistical differences between groups."
-msgstr ""
-"Tabla que visualiza las pruebas t emparejadas, que se utilizan para "
-"comprender las diferencias estadísticas entre los grupos."
-
 msgid "Tables"
 msgstr "Tablas"
 
@@ -12160,13 +11998,6 @@ msgstr "Error al procesar la plantilla: %(error)s"
 #, python-format
 msgid "Template processing failed: %(ex)s"
 msgstr "No se pudo procesar la plantilla: %(ex)s"
-
-msgid ""
-"Templated link, it's possible to include {{ metric }} or other values "
-"coming from the controls."
-msgstr ""
-"Enlace con plantilla; es posible incluir {{ metric }} u otros valores "
-"procedentes de los controles."
 
 msgid "Temporal X-Axis"
 msgstr "Eje X temporal"
@@ -12598,13 +12429,6 @@ msgstr "La atribución de la capa"
 
 msgid "The lower limit of the threshold range of the Isoband"
 msgstr "El límite inferior del intervalo del umbral de la isobanda"
-
-msgid ""
-"The maximum number of subdivisions of each group; lower values are pruned"
-" first"
-msgstr ""
-"El número máximo de subdivisiones de cada grupo; los valores más bajos se"
-" depuran primero"
 
 msgid "The maximum value of metrics. It is an optional configuration"
 msgstr "El valor máximo de las métricas. Se trata de una configuración opcional."
@@ -13787,9 +13611,6 @@ msgstr "Se moverán todas las métricas y columnas a las carpetas predeterminada
 msgid "Threshold"
 msgstr "Umbral"
 
-msgid "Threshold alpha level for determining significance"
-msgstr "Nivel alfa del umbral para determinar la significación"
-
 msgid "Threshold for Other"
 msgstr "Umbral para \"Otros\""
 
@@ -13840,26 +13661,8 @@ msgstr "Serie temporal"
 msgid "Time Series - Line Chart"
 msgstr "Serie temporal: gráfico de líneas"
 
-msgid "Time Series - Nightingale Rose Chart"
-msgstr "Serie temporal: gráfico Nightingale Rose"
-
-msgid "Time Series - Paired t-test"
-msgstr "Serie temporal: prueba t emparejada"
-
-msgid "Time Series - Percent Change"
-msgstr "Serie temporal: cambio porcentual"
-
-msgid "Time Series - Period Pivot"
-msgstr "Serie temporal: pivote de periodo"
-
-msgid "Time Series Options"
-msgstr "Opciones de la serie temporal"
-
 msgid "Time Shift"
 msgstr "Cambio de hora/fecha"
-
-msgid "Time Table View"
-msgstr "Vista de tabla de tiempos"
 
 msgid "Time column"
 msgstr "Columna de hora/fecha"
@@ -14498,9 +14301,6 @@ msgstr "Usa la sintaxis de Handlebars para personalizar la descripción emergent
 msgid "Use a log scale"
 msgstr "Utilizar una escala logarítmica"
 
-msgid "Use a log scale for the X-axis"
-msgstr "Utilizar una escala logarítmica para el eje X"
-
 msgid "Use a log scale for the Y-axis"
 msgstr "Utilizar una escala logarítmica para el eje Y"
 
@@ -14539,9 +14339,6 @@ msgstr "Utilizar las métricas como grupo de nivel superior para columnas o fila
 
 msgid "Use only a single value."
 msgstr "Utiliza únicamente un valor individual."
-
-msgid "Use the Advanced Analytics options below"
-msgstr "Utiliza las opciones de análisis avanzado a continuación"
 
 msgid "Use this section if you want a query that aggregates"
 msgstr "Utiliza esta sección si quieres una consulta que agregue"
@@ -14670,9 +14467,6 @@ msgstr "Agregación de valores"
 
 msgid "Value Columns"
 msgstr "Columnas de valores"
-
-msgid "Value Domain"
-msgstr "Dominio del valor"
 
 msgid "Value Format"
 msgstr "Formato del valor"
@@ -14887,15 +14681,6 @@ msgstr ""
 " de un país (estados, provincias, etc.) en un mapa coroplético. El valor "
 "de cada subdivisión se eleva cuando se pasa el ratón por encima del "
 "límite geográfico correspondiente."
-
-msgid ""
-"Visualizes many different time-series objects in a single chart. This "
-"chart is being deprecated and we recommend using the Time-series Chart "
-"instead."
-msgstr ""
-"Se visualizan muchos objetos de series temporales diferentes en un solo "
-"gráfico. Este gráfico está en desuso y recomendamos usar el gráfico de "
-"series temporales en su lugar."
 
 msgid ""
 "Visualizes the words in a column that appear the most often. Bigger font "
@@ -15144,9 +14929,6 @@ msgstr ""
 "intención sería limitar el escaneo aplicando un filtro de tiempo relativo"
 " en un campo relacionado con el tiempo particionado o indexado."
 
-msgid "When using 'Group By' you are limited to use a single metric"
-msgstr "Al usar «Agrupar por», solo puedes usar una métrica"
-
 msgid "When using other than adaptive formatting, labels may overlap"
 msgstr ""
 "Cuando se utiliza un formato distinto al adaptativo, las etiquetas pueden"
@@ -15220,9 +15002,6 @@ msgstr "Si se muestra el eje Y"
 
 msgid "Whether to display the aggregate count"
 msgstr "Si se debe mostrar el recuento agregado"
-
-msgid "Whether to display the interactive data table"
-msgstr "Si se debe mostrar la tabla de datos interactiva"
 
 msgid "Whether to display the labels."
 msgstr "Si se deben mostrar las etiquetas."
@@ -15414,9 +15193,6 @@ msgstr "Nombre del eje X"
 msgid "X Axis Title Margin"
 msgstr "Margen del título del eje X"
 
-msgid "X Log Scale"
-msgstr "Escala logarítmica X"
-
 msgid "X Tick Layout"
 msgstr "Diseño de marca de X"
 
@@ -15497,9 +15273,6 @@ msgstr "Intervalo de escala Y"
 
 msgid "Year"
 msgstr "Año"
-
-msgid "Year (freq=AS)"
-msgstr "Año (frec. = AS)"
 
 msgid "Yearly seasonality"
 msgstr "Estacionalidad anual"
@@ -16419,9 +16192,6 @@ msgstr "general"
 msgid "owners"
 msgstr "propietarios"
 
-msgid "p-value precision"
-msgstr "precisión del valor p"
-
 msgid "p1"
 msgstr "p1"
 
@@ -16512,15 +16282,6 @@ msgstr "segundos"
 
 msgid "series"
 msgstr "series"
-
-msgid ""
-"series: Treat each series independently; overall: All series use the same"
-" scale; change: Show changes compared to the first data point in each "
-"series"
-msgstr ""
-"serie: se trata cada serie de forma independiente; general: todas las "
-"series utilizan la misma escala; cambio: se muestran los cambios en "
-"comparación con el primer punto de datos de cada serie"
 
 msgid "sql"
 msgstr "sql"
@@ -21518,3 +21279,21 @@ msgstr "Apaga un valor para quitarlo de este segmentador. Sigue contando en los 
 
 msgid "Values shown"
 msgstr "Valores que se muestran"
+
+msgid "This chart type is no longer available"
+msgstr "Este tipo de gráfico ya no está disponible"
+
+msgid "%s charts were removed. Change its type to show it again."
+msgstr "Los gráficos «%s» se quitaron. Cambia su tipo para volver a verlo."
+
+msgid "%s charts were removed. Ask an editor of the report to change its type."
+msgstr "Los gráficos «%s» se quitaron. Pide a un editor del informe que cambie su tipo."
+
+msgid "Change chart type"
+msgstr "Cambiar tipo de gráfico"
+
+msgid "%s charts are no longer available. Pick another chart type and save the chart."
+msgstr "Los gráficos «%s» ya no están disponibles. Elige otro tipo de gráfico y guárdalo."
+
+msgid "You can't change the fields of a chart you don't own: it keeps its saved fields."
+msgstr "No puedes cambiar los campos de un gráfico que no es tuyo: conserva los que tenía guardados."

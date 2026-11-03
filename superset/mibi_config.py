@@ -190,10 +190,10 @@ THEME_DARK: Theme = {
 }
 
 # --- Chart types ------------------------------------------------------------
-# Hidden from the chart gallery: the ones Superset marks as deprecated
-# (Bubble Chart (legacy) and Time-series Percent Change).
+# Chart types hidden from the chart gallery. The deprecated and niche plugins
+# are not registered at all, so nothing needs hiding by default.
 
-VIZ_TYPE_DENYLIST: list[str] = ["bubble", "compare"]
+VIZ_TYPE_DENYLIST: list[str] = []
 
 # --- Chart palettes ---------------------------------------------------------
 # "AuraData" is the default; each dashboard can pick another one. Its id stays

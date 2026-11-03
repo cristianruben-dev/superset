@@ -1678,8 +1678,10 @@ body.mibi-presenting [data-test='mibi-main'] {
   margin-left: 0 !important;
 }
 
+/* The page is scaled to the screen; the floating controls go over it and
+   hide when the mouse rests, so no room is kept for them below */
 body.mibi-presenting .dashboard-content {
-  padding: 16px 16px 96px 8px;
+  padding: 16px 16px 16px 8px;
 }
 
 body.mibi-presenting-idle,

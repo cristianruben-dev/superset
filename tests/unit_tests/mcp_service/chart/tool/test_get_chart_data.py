@@ -82,7 +82,7 @@ def _extract_metrics_and_groupby(
     viz_type = form_data.get("viz_type", "")
 
     groupby_columns: list[str]
-    if viz_type == "bubble":
+    if viz_type == "bubble_v2":
         metrics, groupby_columns = _extract_bubble(form_data)
     elif viz_type in _SINGULAR_METRIC_TYPES:
         metric = form_data.get("metric")
@@ -357,7 +357,7 @@ class TestBubbleChartFallback:
             "y": {"label": "Life Expectancy"},
             "size": {"label": "Population"},
             "entity": "country",
-            "viz_type": "bubble",
+            "viz_type": "bubble_v2",
         }
 
         metrics, groupby = _extract_metrics_and_groupby(form_data)
@@ -374,7 +374,7 @@ class TestBubbleChartFallback:
             "y": {"label": "Life Expectancy"},
             "size": {"label": "Population"},
             "entity": "country",
-            "viz_type": "bubble",
+            "viz_type": "bubble_v2",
         }
 
         metrics, groupby = _extract_metrics_and_groupby(form_data)
@@ -389,7 +389,7 @@ class TestBubbleChartFallback:
             "size": {"label": "Population"},
             "entity": "country",
             "series": "continent",
-            "viz_type": "bubble",
+            "viz_type": "bubble_v2",
         }
 
         metrics, groupby = _extract_metrics_and_groupby(form_data)
@@ -404,7 +404,7 @@ class TestBubbleChartFallback:
             "y": None,
             "size": {"label": "Population"},
             "entity": "country",
-            "viz_type": "bubble",
+            "viz_type": "bubble_v2",
         }
 
         metrics, groupby = _extract_metrics_and_groupby(form_data)
