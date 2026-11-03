@@ -8,6 +8,7 @@ Actualizado: 2026-11-02, con las fases 7, 8 y 10 hechas. Faltan sobre todo la P3
 
 | Quiero ver | Archivo |
 | --- | --- |
+| Todo lo pendiente del producto, en orden | [`2026-11-03-plan-pendientes.md`](2026-11-03-plan-pendientes.md) |
 | Qué falta, por fase, opción por opción | [`pendientes.md`](powerbi-format-inventory/pendientes.md) |
 | Cuánto tenemos de cada gráfico | [`cobertura.md`](powerbi-format-inventory/cobertura.md) |
 | Qué tenemos y qué falta de un gráfico | [`por-grafico/`](powerbi-format-inventory/por-grafico/), como [barras agrupadas](powerbi-format-inventory/por-grafico/clusteredBarChart.md) o [tabla](powerbi-format-inventory/por-grafico/tableEx.md) |
@@ -29,7 +30,7 @@ Actualizado: 2026-11-02, con las fases 7, 8 y 10 hechas. Faltan sobre todo la P3
 | 4 | Tabla y matriz | **Hecha** | 12 |
 | 5 | Tarjeta, KPI, circular y anillo | **Hecha** | 38 |
 | 6 | Cascada, embudo, treemap, medidor y dispersión | **Hecha** | 63 |
-| 7 | Segmentadores | **Hecha con límites** | 710 |
+| 7 | Segmentadores | **Hecha con límites**; ampliada el 2026-11-03 (ver el plan de pendientes, bloques B y C) | 710, sin regenerar |
 | 8 | Análisis y tooltips | **Hecha con límites** | 57 |
 | 9 | Páginas tooltip y restablecer filtros | **Siguiente** | Fuera del inventario |
 | 10 | Campos y panel de datos | **Hecha con límites** | Fuera del inventario |
