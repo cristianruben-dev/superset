@@ -121,7 +121,8 @@ AuraData BI APIs: `/api/v1/workspace/` (with `<id>/dashboards/` and `<id>/datase
 Formats are stored in `position_json`, so they save, undo and export with the dashboard:
 - Canvases always have a fixed page size, as in Power BI (16:9 by default, 4:3, letter or custom;
   see `canvasSize`); 16:9 is Full HD, 60 × 34 cells (1920 × 1088 px), and the other presets
-  share its height. There is no screen-width mode. Phones switch to the mobile layout instead.
+  share its height. There is no screen-width mode: a phone shows the same canvas, scaled to its width,
+  unless the page has a mobile layout (below).
   While editing, the page is a limit: resizing stops at its bottom (`useMaxHeightMultiple`) and a
   change that overflows it fits the visuals back inside (`CanvasFrame`).
 - `ROOT_ID.meta.mibiCanvas`: canvas format (`CanvasFormat` in `src/mibi/format/types.ts`),
@@ -183,13 +184,28 @@ Formats are stored in `position_json`, so they save, undo and export with the da
   in 8 px steps, canvas padding and gap) on load; `ROOT_ID.meta.mibiCells` marks a converted layout.
 - Charts, elements and text boxes sit at an absolute cell of the page: `meta.mibiPos` is `{x, y}` in
   cells from its top-left corner, so moving or resizing one never moves another. Rows stay as
-  containers (they keep the order of the mobile layout, where positions are ignored). A drop sets
+  containers. A drop sets
   the cell from where the object lands (`src/mibi/format/positions.ts`, `DropResult.cell`, handled
   in `handleComponentDrop`); `layoutToPositions` gives a cell to every object without one on load.
   A chart added without a drop (saved from the side panel or Explore, or attached outside edit
   mode) takes the first free cell of its page (`freeCell`), never one over another object.
+- `TAB-*.meta.mibiMobile` (`GRID_ID` for a report of one page) is the optional mobile layout of a page, as in
+  Power BI: `{items: [{id, x, y, width, height}]}` in cells of a phone page `MOBILE_COLUMNS` (12) wide, back
+  to front (`src/mibi/format/mobileLayout.ts`). It only places objects the page already has; read it with
+  `mobileLayoutOf`, which drops boxes of objects that left the page. A phone (`usePhoneScreen`) shows it when
+  the page has one and the canvas otherwise; nothing switches layout on its own. `DashboardComponent` gives
+  each object its box (`mobileComponent`) and leaves out the rest. The editor opens it from View → Mobile
+  layout (`useMobileEditing`): the page shows inside an iPhone (`DeviceFrame`, presets with points, pixels
+  and safe-area insets in `mobileDevices.ts`) and scrolls only between its safe insets, `MobileLayoutPane`
+  replaces the panes and the ribbon gets a Mobile layout tab. "Place" draws `MobileLayoutEditor` over the
+  page; "Preview" shows it as a phone viewer sees it, or the scaled canvas when the page has no layout.
+  Mode, device, fit and safe-area marks are a browser preference (`useMobileViewSettings`), never saved in
+  the report. The canvas never fits its visuals while it is open. A phone viewer gives the page the whole
+  width of the screen, less the closed filter rail, which a phone shows only when the report has filters
+  (`useNativeFilters`). The preview draws what a phone viewer loses around the page (the app bars and that
+  rail, `VIEWER_*` in `DeviceFrame.tsx`, measured on a phone 393 pt wide); keep them in step with the shell.
 - The report is light or dark from the canvas background color (`useReportAppearance`); there are no
-  appearance or mobile-preview settings.
+  appearance settings.
 - `meta.mibiHidden` hides an object from viewers (faded for editors), `meta.mibiLocked` keeps it from
   being moved, resized or removed; both are set in the Selection pane (`mibi/format/SelectionPane.tsx`)
   and the object tabs of the ribbon. "Lock objects" locks the whole report for one editor, in the

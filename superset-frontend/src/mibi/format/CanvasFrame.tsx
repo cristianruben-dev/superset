@@ -29,13 +29,40 @@ import {
 import { useDispatch, useSelector, useStore } from 'react-redux';
 import cx from 'classnames';
 import { fitToCanvas } from './actions';
-import { usePhoneScreen } from './mobile';
+import { setMobileEditing, useMobileEditing, usePhoneScreen } from './mobile';
+import {
+  CanvasReadOnlyProvider,
+  MOBILE_COLUMNS,
+  MobileViewProvider,
+  mobileLayoutOf,
+  mobilePageRows,
+  mobileViewOf,
+} from './mobileLayout';
+import { MobileLayoutEditor } from './MobileLayoutEditor';
+import {
+  deviceById,
+  safeHeightOf,
+  useMobileViewSettings,
+} from './mobileDevices';
+import {
+  DeviceFrame,
+  deviceScale,
+  VIEWER_HEADER_HEIGHT,
+  VIEWER_PAGE_TOP,
+  VIEWER_RAIL_WIDTH,
+} from './DeviceFrame';
+import { FilterBarOrientation } from 'src/dashboard/types';
+import { useFilters } from 'src/dashboard/components/nativeFilters/FilterBar/state';
+import { useChartCustomizationFromRedux } from 'src/dashboard/components/nativeFilters/state';
 import { css, styled, useTheme } from '@apache-superset/core/theme';
 import type { LayoutItem, RootState } from 'src/dashboard/types';
 import { ROW_TYPE } from 'src/dashboard/util/componentTypes';
-import { DASHBOARD_ROOT_ID } from 'src/dashboard/util/constants';
+import {
+  DASHBOARD_HEADER_ID,
+  DASHBOARD_ROOT_ID,
+} from 'src/dashboard/util/constants';
 import { usePresenting } from 'src/mibi/present/presentation';
-import { topLevelTabs } from 'src/mibi/present/dashboardTabs';
+import { activePageId, topLevelTabs } from 'src/mibi/present/dashboardTabs';
 import { PAGE_BACKGROUND_KEY } from 'src/mibi/report/types';
 import { ReportTheme, useReportLook } from 'src/mibi/report/ReportTheme';
 import { TabsDockTarget } from 'src/mibi/report/TabsDock';
@@ -61,14 +88,19 @@ const Wrap = styled.div`
  * of the objects while editing, and below for the zoom bar, which floats over
  * it), so zooming in never moves the rest of the screen.
  */
-const Outer = styled.div<{ $scroll: boolean; $editing: boolean }>`
+const Outer = styled.div<{
+  $scroll: boolean;
+  $editing: boolean;
+  $phone: boolean;
+}>`
   width: 100%;
-  ${({ $scroll, $editing }) =>
+  ${({ $scroll, $editing, $phone }) =>
     $scroll
       ? css`
           height: 100%;
           overflow: auto;
-          padding: ${$editing ? 28 : 12}px 8px 56px;
+          /* A phone gives the page all of its width */
+          padding: ${$editing ? 28 : 12}px ${$phone ? 0 : 8}px 56px;
           box-sizing: border-box;
         `
       : css`
@@ -114,7 +146,6 @@ const Sheet = styled.div`
 `;
 
 const CanvasZoomContext = createContext(1);
-const CanvasMobileContext = createContext(false);
 const FIT_PAGE_EVENT = 'mibi:fit-page';
 
 /** Shrinks or grows the visuals on screen so they fill the page height. */
@@ -126,9 +157,6 @@ const CanvasRoomContext = createContext(Infinity);
 
 /** Zoom of a fixed size canvas, so drag and resize can follow the mouse. */
 export const useCanvasZoom = () => useContext(CanvasZoomContext);
-
-/** Whether the canvas uses its mobile layout: one object per line. */
-export const useCanvasMobile = () => useContext(CanvasMobileContext);
 
 /**
  * The tallest an object may be resized, in grid units, so the page keeps
@@ -217,10 +245,66 @@ export function CanvasFrame({ children }: { children: ReactNode }) {
   const [windowHeight, setWindowHeight] = useState(window.innerHeight);
   const view = useCanvasView();
   const phone = usePhoneScreen();
-  // Editing always uses the desktop layout
-  const mobile = phone && !editMode;
-  // The mobile layout ignores the fixed page size
-  const size = mobile ? null : canvasSize(canvas);
+  const mobileEditing = useMobileEditing() && !!editMode;
+  const mobileSettings = useMobileViewSettings();
+  const device = deviceById(mobileSettings.device);
+  // The preview shows the page as the phone does: its mobile layout, or the
+  // canvas scaled to the phone when it has none
+  const previewing = mobileEditing && mobileSettings.mode === 'preview';
+  // A viewer of a report with filters has the closed filter rail beside it
+  const filterCount = Object.keys(useFilters()).length;
+  const customizationCount = useChartCustomizationFromRedux().length;
+  const verticalFilters = useSelector(
+    (state: RootState) =>
+      state.dashboardInfo?.filterBarOrientation !==
+      FilterBarOrientation.Horizontal,
+  );
+  const viewerRail = verticalFilters && filterCount + customizationCount > 0;
+  const reportTitle = useSelector((state: RootState) =>
+    String(
+      state.dashboardLayout?.present?.[DASHBOARD_HEADER_ID]?.meta?.text ?? '',
+    ),
+  );
+  // Width of the page on the phone of a viewer
+  const viewerWidth = device.width - (viewerRail ? VIEWER_RAIL_WIDTH : 0);
+  const layout = useSelector(
+    (state: RootState) => state.dashboardLayout?.present,
+  );
+  const activeTabs = useSelector(
+    (state: RootState) => state.dashboardState?.activeTabs,
+  );
+  const pageId = layout ? activePageId(layout, activeTabs) : undefined;
+  const mobileBoxes = useMemo(
+    () => (layout ? mobileLayoutOf(layout, pageId) : null),
+    [layout, pageId],
+  );
+  // A phone shows the mobile layout of a page that has one, and the canvas of
+  // the rest; the editor shows it while the author arranges it
+  const showMobile = mobileEditing
+    ? !previewing || !!mobileBoxes
+    : phone && !editMode && !presenting && !!mobileBoxes;
+  const mobileView = useMemo(
+    () =>
+      showMobile && layout && pageId
+        ? mobileViewOf(layout, pageId, mobileBoxes ?? [])
+        : null,
+    [showMobile, layout, pageId, mobileBoxes],
+  );
+  // Room below the lowest object to drop the next one
+  const mobileRows =
+    mobilePageRows(mobileBoxes) + (mobileEditing && !previewing ? 6 : 0);
+  const pageSize = canvasSize(canvas);
+  const size = useMemo(
+    () =>
+      showMobile
+        ? { width: MOBILE_COLUMNS * CELL, height: mobileRows * CELL }
+        : pageSize,
+    [showMobile, mobileRows, pageSize.width, pageSize.height],
+  );
+  // Leaving the editor leaves its mobile layout too
+  useEffect(() => {
+    if (!editMode) setMobileEditing(false);
+  }, [editMode]);
   const dispatch = useDispatch();
   const pageRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -267,10 +351,9 @@ export function CanvasFrame({ children }: { children: ReactNode }) {
     return parseFloat(style.paddingTop) + parseFloat(style.paddingBottom) || 0;
   };
   const room = size ? size.height - padding() : 0;
-  const overflowing = !!size && editMode && contentHeight > room + 1;
-  const layout = useSelector(
-    (state: RootState) => state.dashboardLayout?.present,
-  );
+  // The canvas fits its visuals to the page; the phone page grows with them
+  const fitting = !!size && !!editMode && !showMobile && !mobileEditing;
+  const overflowing = fitting && contentHeight > room + 1;
 
   // The page is a limit: a change that makes the visuals overflow it (a
   // chart dropped on a full page) shrinks them back inside, in a few passes
@@ -280,7 +363,13 @@ export function CanvasFrame({ children }: { children: ReactNode }) {
   const fitted = useRef(false);
   const measuredLayout = useRef(layout);
   useEffect(() => {
-    if (!size || !editMode || !contentHeight) return;
+    // Changes made on the phone page never fit the canvas when it comes back
+    if (!fitting) {
+      measuredLayout.current = layout;
+      fitPasses.current = 0;
+      return;
+    }
+    if (!contentHeight) return;
     const changed = measuredLayout.current !== layout;
     measuredLayout.current = layout;
     if (!overflowing) {
@@ -317,14 +406,14 @@ export function CanvasFrame({ children }: { children: ReactNode }) {
 
   // "Fit the objects to the page" in the Format pane
   useEffect(() => {
-    if (!size || !editMode) return undefined;
+    if (!fitting) return undefined;
     const onFit = () => {
       fitPasses.current = 3;
       dispatch(fitToCanvas(room, contentHeight));
     };
     window.addEventListener(FIT_PAGE_EVENT, onFit);
     return () => window.removeEventListener(FIT_PAGE_EVENT, onFit);
-  }, [size, editMode, room, contentHeight, dispatch]);
+  }, [fitting, room, contentHeight, dispatch]);
 
   useEffect(() => {
     const element = outerRef.current;
@@ -371,6 +460,12 @@ export function CanvasFrame({ children }: { children: ReactNode }) {
   const paneWidth = useFilterDockWidth();
   const zoom = useMemo(() => {
     if (!size || !available) return 1;
+    // On the phone of the editor the page fills the width of its screen
+    if (mobileEditing) {
+      return (previewing ? viewerWidth : device.width) / size.width;
+    }
+    // The phone page fills the width of a phone
+    if (showMobile) return canvasZoom(size, { width: available });
     if (presenting) {
       return canvasZoom(size, {
         width: available - paneWidth,
@@ -393,9 +488,24 @@ export function CanvasFrame({ children }: { children: ReactNode }) {
     presenting,
     windowHeight,
     view,
+    showMobile,
+    mobileEditing,
+    device.width,
+    previewing,
+    viewerWidth,
   ]);
+  // The phone of the editor fits the room it has, or shows at its own size
+  const displayScale = mobileEditing
+    ? deviceScale(
+        device,
+        { width: available, height: availableHeight },
+        mobileSettings.fit,
+      )
+    : 1;
 
   const scroll = !!size;
+  // The desktop canvas zooms and pans; the phone of the editor scrolls itself
+  const pannable = scroll && !mobileEditing;
   const zoomRef = useRef(zoom);
   zoomRef.current = zoom;
   const anchor = useRef<{
@@ -409,7 +519,7 @@ export function CanvasFrame({ children }: { children: ReactNode }) {
   // pointer
   useEffect(() => {
     const element = outerRef.current;
-    if (!element || !scroll) return undefined;
+    if (!element || !pannable) return undefined;
     const onWheel = (event: WheelEvent) => {
       if (!(event.ctrlKey || event.metaKey)) return;
       event.preventDefault();
@@ -429,7 +539,7 @@ export function CanvasFrame({ children }: { children: ReactNode }) {
     };
     element.addEventListener('wheel', onWheel, { passive: false });
     return () => element.removeEventListener('wheel', onWheel);
-  }, [scroll]);
+  }, [pannable]);
 
   useLayoutEffect(() => {
     const point = anchor.current;
@@ -444,7 +554,7 @@ export function CanvasFrame({ children }: { children: ReactNode }) {
   // Space with the pointer, or the middle button, drags the page around
   useEffect(() => {
     const element = outerRef.current;
-    if (!element || !scroll) return undefined;
+    if (!element || !pannable) return undefined;
     let spaceDown = false;
     const typing = (target: EventTarget | null) =>
       !!(target as HTMLElement | null)?.closest?.(
@@ -491,7 +601,7 @@ export function CanvasFrame({ children }: { children: ReactNode }) {
       element.removeEventListener('pointerdown', onPointerDown, true);
       element.style.cursor = '';
     };
-  }, [scroll]);
+  }, [pannable]);
 
   const style = useMemo(
     () => ({
@@ -539,6 +649,69 @@ export function CanvasFrame({ children }: { children: ReactNode }) {
     [size, zoom],
   );
 
+  const pageFrame = (
+    <div ref={frameRef} style={frameStyle}>
+      <div ref={scaledRef} style={scaledStyle}>
+        <TabsDockTarget style={{ width: '100%' }} />
+        <Page
+          ref={pageRef}
+          data-test="mibi-canvas"
+          className={cx(
+            'mibi-canvas',
+            editMode && !previewing && 'mibi-show-grid',
+            showMobile && 'mibi-phone-page',
+          )}
+          $decorated={hasCanvasFormat(canvas)}
+          $fixed={!!size && !mobileEditing}
+          style={style}
+          onClick={
+            editMode && !mobileEditing
+              ? event => {
+                  // A click on the canvas itself formats the canvas
+                  const target = event.target as Element;
+                  if (
+                    !target.closest?.(
+                      '.dashboard-component-chart-holder, .mibi-element',
+                    )
+                  ) {
+                    selectVisual(null);
+                  }
+                }
+              : undefined
+          }
+        >
+          <CanvasZoomContext.Provider value={zoom}>
+            <CanvasRoomContext.Provider
+              value={fitting ? room - contentHeight : Infinity}
+            >
+              <MobileViewProvider value={mobileView}>
+                <CanvasReadOnlyProvider value={mobileEditing || !!mobileView}>
+                  <div ref={contentRef}>{children}</div>
+                </CanvasReadOnlyProvider>
+              </MobileViewProvider>
+            </CanvasRoomContext.Provider>
+            {mobileEditing && !previewing && pageId && (
+              <MobileLayoutEditor
+                pageId={pageId}
+                boxes={mobileBoxes ?? []}
+                zoom={zoom * displayScale}
+                foldY={
+                  // Where a viewer's first screen ends, below the bars of
+                  // the app and beside the filter rail
+                  ((safeHeightOf(device) -
+                    VIEWER_HEADER_HEIGHT -
+                    VIEWER_PAGE_TOP) *
+                    size.width) /
+                  viewerWidth
+                }
+              />
+            )}
+          </CanvasZoomContext.Provider>
+        </Page>
+      </div>
+    </div>
+  );
+
   return (
     <Wrap
       ref={wrapRef}
@@ -549,59 +722,34 @@ export function CanvasFrame({ children }: { children: ReactNode }) {
         ref={outerRef}
         $scroll={scroll}
         $editing={editMode}
+        $phone={phone && !editMode}
         data-test="mibi-canvas-outer"
       >
         <ReportTheme>
           <Sheet style={size ? undefined : { width: '100%' }}>
-            <div ref={frameRef} style={frameStyle}>
-              <div ref={scaledRef} style={scaledStyle}>
-                <TabsDockTarget style={{ width: '100%' }} />
-                <Page
-                  ref={pageRef}
-                  data-test="mibi-canvas"
-                  className={cx(
-                    'mibi-canvas',
-                    editMode && !mobile && 'mibi-show-grid',
-                    mobile && 'mibi-mobile',
-                  )}
-                  $decorated={hasCanvasFormat(canvas)}
-                  $fixed={!!size}
-                  style={style}
-                  onClick={
-                    editMode
-                      ? event => {
-                          // A click on the canvas itself formats the canvas
-                          const target = event.target as Element;
-                          if (
-                            !target.closest?.(
-                              '.dashboard-component-chart-holder, .mibi-element',
-                            )
-                          ) {
-                            selectVisual(null);
-                          }
-                        }
-                      : undefined
-                  }
-                >
-                  <CanvasZoomContext.Provider value={zoom}>
-                    <CanvasMobileContext.Provider value={mobile}>
-                      <CanvasRoomContext.Provider
-                        value={
-                          size && editMode ? room - contentHeight : Infinity
-                        }
-                      >
-                        <div ref={contentRef}>{children}</div>
-                      </CanvasRoomContext.Provider>
-                    </CanvasMobileContext.Provider>
-                  </CanvasZoomContext.Provider>
-                </Page>
-              </div>
-            </div>
-            {size && !mobile && <FilterDockTarget />}
+            {mobileEditing ? (
+              <DeviceFrame
+                device={device}
+                scale={displayScale}
+                safeArea={mobileSettings.safeArea}
+                viewer={
+                  previewing
+                    ? { title: reportTitle, rail: viewerRail, theme: appTheme }
+                    : null
+                }
+              >
+                {pageFrame}
+              </DeviceFrame>
+            ) : (
+              pageFrame
+            )}
+            {size && !showMobile && !mobileEditing && <FilterDockTarget />}
           </Sheet>
         </ReportTheme>
       </Outer>
-      {scroll && !presenting && <ZoomToolbar zoom={zoom} />}
+      {scroll && !presenting && !showMobile && !mobileEditing && (
+        <ZoomToolbar zoom={zoom} />
+      )}
     </Wrap>
   );
 }
