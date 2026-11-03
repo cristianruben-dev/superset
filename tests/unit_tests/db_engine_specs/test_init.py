@@ -77,3 +77,34 @@ def test_get_available_engine_specs_with_denylist(mocker: MockerFixture) -> None
     )
     available = get_available_engine_specs()
     assert list(available.keys()) == [DatabricksNativeEngineSpec]
+
+
+def test_get_available_engine_specs_finds_pymssql(mocker: MockerFixture) -> None:
+    """
+    SQL Server is available with pymssql, which is not the default driver of its
+    SQLAlchemy dialect
+    """
+    from sqlalchemy.exc import NoSuchModuleError
+
+    from superset.db_engine_specs.mssql import MssqlEngineSpec
+
+    class PymssqlDialect:
+        driver = "pymssql"
+
+        @staticmethod
+        def dbapi() -> None:
+            return None
+
+    def load(name: str) -> type[PymssqlDialect]:
+        if name == "mssql.pymssql":
+            return PymssqlDialect
+        raise NoSuchModuleError(name)
+
+    mocker.patch("superset.db_engine_specs.sqlalchemy.dialects.registry.load", load)
+    mocker.patch("superset.db_engine_specs.entry_points", return_value=[])
+    mocker.patch(
+        "superset.db_engine_specs.load_engine_specs",
+        return_value=iter([MssqlEngineSpec]),
+    )
+
+    assert get_available_engine_specs() == {MssqlEngineSpec: {"pymssql"}}

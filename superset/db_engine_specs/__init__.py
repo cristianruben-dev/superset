@@ -120,6 +120,13 @@ backend_replacements = {
     "exasol": "exa",
 }
 
+# Native SQLAlchemy drivers that are not the default of their dialect, so the
+# loop over the dialects below does not find them (SQL Server's default is
+# pyodbc, while the `mssql` extra installs pymssql).
+extra_native_drivers = {
+    "mssql": ("pymssql",),
+}
+
 
 # pylint: disable=too-many-branches
 def get_available_engine_specs() -> dict[type[BaseEngineSpec], set[str]]:  # noqa: C901
@@ -149,6 +156,18 @@ def get_available_engine_specs() -> dict[type[BaseEngineSpec], set[str]]:  # noq
                 drivers[attr].add(dialect.driver)
         except NoSuchModuleError:
             continue
+
+    for backend, names in extra_native_drivers.items():
+        for name in names:
+            try:
+                dialect = sqlalchemy.dialects.registry.load(f"{backend}.{name}")
+                dialect.dbapi()
+            except (NoSuchModuleError, ModuleNotFoundError):
+                continue
+            except Exception as ex:  # pylint: disable=broad-except
+                logger.warning("Unable to load dialect %s.%s: %s", backend, name, ex)
+                continue
+            drivers[backend].add(dialect.driver)
 
     # installed 3rd-party dialects
     for ep in entry_points(group="sqlalchemy.dialects"):

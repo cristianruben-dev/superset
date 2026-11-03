@@ -52,6 +52,8 @@ CONNECTION_HOST_DOWN_REGEX = re.compile(
 class MssqlEngineSpec(BaseEngineSpec):
     engine = "mssql"
     engine_name = "Microsoft SQL Server"
+    default_driver = "pymssql"
+    sqlalchemy_uri_placeholder = "mssql+pymssql://user:password@host:port/database"
 
     metadata = {
         "description": (

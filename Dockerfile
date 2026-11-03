@@ -266,7 +266,9 @@ RUN --mount=type=cache,target=${SUPERSET_HOME}/.cache/uv \
 RUN --mount=type=cache,target=${SUPERSET_HOME}/.cache/uv \
     uv pip install -e .
 
-RUN uv pip install .[postgres]
+# Drivers of the databases AuraData BI offers (MySQL and DuckDB come with
+# requirements/development.txt)
+RUN uv pip install .[postgres,mssql,databricks,redshift]
 RUN python -m compileall /app/superset
 
 USER superset
@@ -294,7 +296,11 @@ CMD ["/app/docker/entrypoints/docker-ci.sh"]
 ######################################################################
 FROM lean AS prod
 USER root
-RUN uv pip install .[postgres,fastmcp]
+# Drivers of the databases AuraData BI offers. mysqlclient builds from source,
+# so it needs the MySQL client headers and, only while building, build-essential.
+RUN /app/docker/apt-install.sh pkg-config default-libmysqlclient-dev \
+    && /app/docker/pip-install.sh --requires-build-essential \
+    ".[postgres,mysql,mssql,databricks,duckdb,redshift,fastmcp]"
 COPY --chmod=755 docker/mibi/docker-init-prod.sh /app/docker/mibi/
 COPY docker/pythonpath_prod/superset_config.py /app/pythonpath/
 USER superset
