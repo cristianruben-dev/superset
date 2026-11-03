@@ -36,6 +36,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { EmptyState, Loading } from '@superset-ui/core/components';
 import { ErrorBoundary, BasicErrorAlert } from 'src/components';
 import BuilderComponentPane from 'src/dashboard/components/BuilderComponentPane';
+import { DataPane, DATA_PANE_WIDTH } from 'src/mibi/format/DataPane';
 import { useDockWidth, usePaneCollapsed } from 'src/mibi/format/panes';
 import DashboardHeader from 'src/dashboard/components/Header';
 import { Icons } from '@superset-ui/core/components/Icons';
@@ -582,7 +583,11 @@ const DashboardBuilder = () => {
   );
 
   const paneCollapsed = usePaneCollapsed('builder');
+  const dataPaneCollapsed = usePaneCollapsed('data');
   const dockWidth = useDockWidth();
+  // The Data pane serves the fields of the edit pane, which folds for the editor
+  const showDataPane =
+    editMode && !dataPaneCollapsed && !paneCollapsed && !dockWidth;
   const dashboardContentMarginLeft = !editMode
     ? theme.sizeUnit * 4
     : theme.sizeUnit * 8;
@@ -742,7 +747,9 @@ const DashboardBuilder = () => {
                   sidepaneWidth={
                     (paneCollapsed
                       ? BUILDER_SIDEPANEL_RAIL_WIDTH
-                      : BUILDER_SIDEPANEL_WIDTH) + dockWidth
+                      : BUILDER_SIDEPANEL_WIDTH) +
+                    dockWidth +
+                    (showDataPane ? DATA_PANE_WIDTH : 0)
                   }
                 >
                   {showDashboard ? (
@@ -779,6 +786,9 @@ const DashboardBuilder = () => {
                     topOffset={barTopOffset}
                     pageTop={pageTop}
                   />
+                  {showDataPane && (
+                    <DataPane topOffset={barTopOffset} pageTop={pageTop} />
+                  )}
                   {editMode && (
                     <BuilderComponentPane
                       topOffset={barTopOffset}

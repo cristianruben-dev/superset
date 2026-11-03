@@ -1,0 +1,257 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+import { useMemo, useState } from 'react';
+import { useSelector } from 'react-redux';
+import { css, styled } from '@apache-superset/core/theme';
+import { t } from '@apache-superset/core/translation';
+import type { ColumnMeta, Metric } from '@superset-ui/chart-controls';
+import { Button, Input } from '@superset-ui/core/components';
+import { Icons } from '@superset-ui/core/components/Icons';
+import type { RootState } from 'src/dashboard/types';
+import DatasourcePanelDragOption from 'src/explore/components/DatasourcePanel/DatasourcePanelDragOption';
+import { DndItemType } from 'src/explore/components/DndItemType';
+import { searchable } from './controls';
+import { setPaneCollapsed } from './panes';
+import { useSelectedVisual } from './selection';
+
+export const DATA_PANE_WIDTH = 260;
+
+const Pane = styled.aside<{ $top: number; $pageTop: number }>`
+  ${({ theme, $top, $pageTop }) => css`
+    position: sticky;
+    top: ${$top}px;
+    flex: none;
+    box-sizing: border-box;
+    width: ${DATA_PANE_WIDTH}px;
+    height: calc(100vh - ${$top + $pageTop}px);
+    display: flex;
+    flex-direction: column;
+    gap: ${theme.sizeUnit * 2}px;
+    padding: ${theme.sizeUnit * 3}px;
+    background: ${theme.colorBgBase};
+    border-left: 1px solid ${theme.colorBorderSecondary};
+
+    .pane-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-weight: ${theme.fontWeightStrong};
+    }
+
+    .pane-list {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+    }
+
+    .dataset-name {
+      display: flex;
+      align-items: center;
+      gap: ${theme.sizeUnit}px;
+      width: 100%;
+      padding: ${theme.sizeUnit}px 0;
+      border: 0;
+      background: none;
+      color: ${theme.colorText};
+      font-weight: ${theme.fontWeightStrong};
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .dataset-group {
+      margin: ${theme.sizeUnit}px 0;
+      color: ${theme.colorTextSecondary};
+      font-size: ${theme.fontSizeSM}px;
+    }
+
+    .dataset-fields {
+      display: flex;
+      flex-direction: column;
+      gap: ${theme.sizeUnit / 2}px;
+      margin-bottom: ${theme.sizeUnit * 2}px;
+    }
+
+    .dataset-fields.other {
+      opacity: 0.5;
+      pointer-events: none;
+    }
+
+    .dataset-other {
+      color: ${theme.colorTextSecondary};
+      font-size: ${theme.fontSizeSM}px;
+    }
+  `}
+`;
+
+type Dataset = {
+  datasource_name?: string;
+  table_name?: string;
+  name?: string;
+  columns?: ColumnMeta[];
+  metrics?: Metric[];
+};
+
+const nameOfMetric = (metric: Metric) =>
+  metric.verbose_name || metric.metric_name;
+const nameOfColumn = (column: ColumnMeta) =>
+  column.verbose_name || column.column_name;
+
+/**
+ * The tables of the report and their fields, beside the canvas as in Power BI, to
+ * drag onto the field wells of a chart. A chart only takes fields of its dataset.
+ */
+export function DataPane({
+  topOffset = 0,
+  pageTop = 0,
+}: {
+  topOffset?: number;
+  pageTop?: number;
+}) {
+  const datasources = useSelector(
+    (state: RootState) =>
+      state.datasources as unknown as Record<string, Dataset>,
+  );
+  const selected = useSelectedVisual();
+  const selectedDataset = useSelector((state: RootState) => {
+    const chartId = selected
+      ? state.dashboardLayout.present[selected]?.meta?.chartId
+      : undefined;
+    return chartId === undefined
+      ? undefined
+      : String(
+          (
+            state.charts as unknown as Record<
+              number,
+              { form_data?: { datasource?: string } }
+            >
+          )[chartId]?.form_data?.datasource,
+        );
+  });
+  const [search, setSearch] = useState('');
+  const [toggled, setToggled] = useState<Record<string, boolean>>({});
+  const query = searchable(search.trim());
+  const keys = useMemo(
+    () =>
+      Object.keys(datasources ?? {}).sort((a, b) =>
+        a === selectedDataset ? -1 : b === selectedDataset ? 1 : 0,
+      ),
+    [datasources, selectedDataset],
+  );
+  const matches = (text: string) => searchable(text).includes(query);
+
+  return (
+    <Pane $top={topOffset} $pageTop={pageTop} data-test="mibi-data-pane">
+      <div className="pane-title">
+        <span>{t('Data')}</span>
+        <Button
+          buttonStyle="link"
+          aria-label={t('Close')}
+          data-test="mibi-data-pane-close"
+          onClick={() => setPaneCollapsed('data', true)}
+        >
+          <Icons.CloseOutlined iconSize="s" />
+        </Button>
+      </div>
+      <Input
+        allowClear
+        placeholder={t('Search')}
+        aria-label={t('Search fields')}
+        value={search}
+        onChange={event => setSearch(event.target.value)}
+      />
+      <div className="pane-list">
+        {keys.map(key => {
+          const dataset = datasources[key];
+          const metrics = (dataset.metrics ?? []).filter(metric =>
+            matches(nameOfMetric(metric)),
+          );
+          const columns = (dataset.columns ?? []).filter(column =>
+            matches(nameOfColumn(column)),
+          );
+          if (query && !metrics.length && !columns.length) return null;
+          // A chart only takes fields of its own dataset
+          const usable = !selectedDataset || key === selectedDataset;
+          const open =
+            !!query ||
+            (toggled[key] ?? (key === selectedDataset || keys.length === 1));
+          return (
+            <section key={key} data-test="mibi-data-pane-dataset">
+              <button
+                type="button"
+                className="dataset-name"
+                aria-expanded={open}
+                onClick={() => setToggled({ ...toggled, [key]: !open })}
+              >
+                {open ? (
+                  <Icons.DownOutlined iconSize="xs" />
+                ) : (
+                  <Icons.RightOutlined iconSize="xs" />
+                )}
+                {dataset.datasource_name || dataset.table_name || dataset.name}
+              </button>
+              {open && !usable && (
+                <div className="dataset-other">
+                  {t('The selected chart uses another table.')}
+                </div>
+              )}
+              {open && !!metrics.length && (
+                <>
+                  <div className="dataset-group">{t('Measures')}</div>
+                  <div
+                    className={
+                      usable ? 'dataset-fields' : 'dataset-fields other'
+                    }
+                  >
+                    {metrics.map(metric => (
+                      <DatasourcePanelDragOption
+                        key={metric.metric_name}
+                        value={metric}
+                        type={DndItemType.Metric}
+                        showTooltip
+                      />
+                    ))}
+                  </div>
+                </>
+              )}
+              {open && !!columns.length && (
+                <>
+                  <div className="dataset-group">{t('Columns')}</div>
+                  <div
+                    className={
+                      usable ? 'dataset-fields' : 'dataset-fields other'
+                    }
+                  >
+                    {columns.map(column => (
+                      <DatasourcePanelDragOption
+                        key={column.column_name}
+                        value={column}
+                        type={DndItemType.Column}
+                        showTooltip
+                      />
+                    ))}
+                  </div>
+                </>
+              )}
+            </section>
+          );
+        })}
+      </div>
+    </Pane>
+  );
+}

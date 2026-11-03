@@ -20,7 +20,7 @@
 import { useEffect, useState } from 'react';
 
 /** Panes of the dashboard editor that fold into a rail, as in Power BI. */
-export type PaneName = 'builder';
+export type PaneName = 'builder' | 'data';
 
 const KEY = 'mibi.panes';
 const EVENT = 'mibi:panes';
@@ -28,9 +28,10 @@ const EVENT = 'mibi:panes';
 function read(): Record<PaneName, boolean> {
   try {
     const raw = JSON.parse(window.localStorage.getItem(KEY) ?? 'null');
-    return { builder: !!raw?.builder };
+    // The Data pane starts closed: it opens when choosing the fields of a chart
+    return { builder: !!raw?.builder, data: raw?.data !== false };
   } catch {
-    return { builder: false };
+    return { builder: false, data: true };
   }
 }
 

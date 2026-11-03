@@ -17,7 +17,14 @@
  * under the License.
  */
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  useContext,
+  createContext,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { nanoid } from 'nanoid';
 import { t } from '@apache-superset/core/translation';
 import {
@@ -44,6 +51,30 @@ import { AGGREGATES } from 'src/explore/constants';
 
 const EMPTY_OBJECT = {};
 const DND_ACCEPTED_TYPES = [DndItemType.Column, DndItemType.Metric];
+
+/**
+ * AuraData BI: a column dropped on a field well of a report takes its usual
+ * aggregation right away, as in Power BI, instead of asking for it.
+ */
+export const DirectMetricDropContext = createContext(false);
+
+/** A metric of a column, with the aggregation that fits its type. */
+const metricOfColumn = (column: ColumnMeta) => {
+  // Cast config to handle ColumnMeta/ColumnType mismatch
+  const config = {
+    column,
+  } as Partial<AdhocMetric>;
+  if (column.type_generic === GenericDataType.Numeric) {
+    config.aggregate = AGGREGATES.SUM;
+  } else if (
+    column.type_generic === GenericDataType.String ||
+    column.type_generic === GenericDataType.Boolean ||
+    column.type_generic === GenericDataType.Temporal
+  ) {
+    config.aggregate = AGGREGATES.COUNT_DISTINCT;
+  }
+  return new AdhocMetric(config);
+};
 
 const isDictionaryForAdhocMetric = (value: QueryFormMetric) =>
   value &&
@@ -164,6 +195,7 @@ const DndMetricSelect = (props: any) => {
   const [value, setValue] = useState<ValueType[]>(
     coerceMetrics(props.value, props.savedMetrics, props.columns),
   );
+  const directDrop = useContext(DirectMetricDropContext);
   const [droppedItem, setDroppedItem] = useState<
     DatasourcePanelDndItem | typeof EMPTY_OBJECT
   >({});
@@ -335,11 +367,17 @@ const DndMetricSelect = (props: any) => {
         onNewMetric(item.value as Metric);
       }
       if (item.type === DndItemType.Column) {
+        const column = item.value as ColumnMeta;
+        // Without a known type there is no usual aggregation to take
+        if (directDrop && column.type_generic !== undefined) {
+          onNewMetric(metricOfColumn(column) as never);
+          return;
+        }
         setDroppedItem(item);
         togglePopover(true);
       }
     },
-    [onNewMetric, togglePopover],
+    [directDrop, onNewMetric, togglePopover],
   );
 
   const handleClickGhostButton = useCallback(() => {
@@ -352,21 +390,7 @@ const DndMetricSelect = (props: any) => {
       isDatasourcePanelDndItem(droppedItem) &&
       droppedItem.type === DndItemType.Column
     ) {
-      const itemValue = droppedItem.value as ColumnMeta;
-      // Cast config to handle ColumnMeta/ColumnType mismatch
-      const config = {
-        column: itemValue,
-      } as Partial<AdhocMetric>;
-      if (itemValue.type_generic === GenericDataType.Numeric) {
-        config.aggregate = AGGREGATES.SUM;
-      } else if (
-        itemValue.type_generic === GenericDataType.String ||
-        itemValue.type_generic === GenericDataType.Boolean ||
-        itemValue.type_generic === GenericDataType.Temporal
-      ) {
-        config.aggregate = AGGREGATES.COUNT_DISTINCT;
-      }
-      return new AdhocMetric(config);
+      return metricOfColumn(droppedItem.value as ColumnMeta);
     }
     return new AdhocMetric({});
   }, [droppedItem]);

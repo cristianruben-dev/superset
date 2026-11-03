@@ -24,7 +24,10 @@ import {
   userEvent,
   waitFor,
 } from 'spec/helpers/testing-library';
-import { DndMetricSelect } from 'src/explore/components/controls/DndColumnSelectControl/DndMetricSelect';
+import {
+  DirectMetricDropContext,
+  DndMetricSelect,
+} from 'src/explore/components/controls/DndColumnSelectControl/DndMetricSelect';
 import { AGGREGATES } from 'src/explore/constants';
 import { EXPRESSION_TYPES } from '../MetricControl/AdhocMetric';
 import DatasourcePanelDragOption from '../../DatasourcePanel/DatasourcePanelDragOption';
@@ -514,4 +517,27 @@ test('title changes on custom SQL text change', async () => {
   expect(screen.getByTestId('AdhocMetricEditTitle#trigger')).toHaveTextContent(
     'New metric',
   );
+});
+
+test('a column dropped on a field well takes its usual aggregation', () => {
+  const onChange = jest.fn();
+  const { getByTestId } = render(
+    <DirectMetricDropContext.Provider value>
+      <DatasourcePanelDragOption
+        value={{ column_name: 'column_a', type_generic: 0 } as never}
+        type={DndItemType.Column}
+      />
+      <DndMetricSelect {...defaultProps} value={[]} onChange={onChange} multi />
+    </DirectMetricDropContext.Provider>,
+    { useDnd: true },
+  );
+  const well = getByTestId('dnd-labels-container');
+  fireEvent.dragStart(getByTestId('DatasourcePanelDragOption'));
+  fireEvent.dragOver(well);
+  fireEvent.drop(well);
+  expect(onChange).toHaveBeenCalledTimes(1);
+  expect(onChange.mock.calls[0][0][0]).toMatchObject({
+    aggregate: AGGREGATES.SUM,
+    column: { column_name: 'column_a' },
+  });
 });

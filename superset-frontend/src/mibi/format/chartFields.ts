@@ -1,0 +1,311 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+import { isEqual } from 'lodash';
+import { SupersetClient } from '@superset-ui/core';
+import { t } from '@apache-superset/core/translation';
+import {
+  addChart,
+  renderTriggered,
+  triggerQuery,
+} from 'src/components/Chart/chartAction';
+import { addDangerToast } from 'src/components/MessageToasts/actions';
+import { setUnsavedChanges } from 'src/dashboard/actions/dashboardState';
+import type { GetState } from 'src/dashboard/types';
+import { isUserAdmin } from 'src/dashboard/util/permissionUtils';
+import type { UserWithPermissionsAndRoles } from 'src/types/bootstrapTypes';
+import { fetchDashboardSlices } from 'src/mibi/dashboard/reloadSavedChart';
+import { buildV1ChartDataPayload } from 'src/explore/exploreUtils';
+import type { ChartState } from 'src/explore/types';
+import { resetChartFormat } from './chartFormatActions';
+import type { VisualFormat } from './types';
+
+type Dispatch = (action: unknown) => unknown;
+type FormData = Record<string, unknown>;
+
+/**
+ * The field wells of a chart, in the order Power BI shows them: each control that
+ * takes a field and the name of its role. Empty for a chart without roles.
+ */
+function rolesOf(formData: FormData): Record<string, () => string> {
+  const horizontal = formData.orientation === 'horizontal';
+  const xy: Record<string, () => string> = {
+    x_axis: () => (horizontal ? t('Y-axis') : t('X-axis')),
+    metrics: () => (horizontal ? t('X-axis') : t('Y-axis')),
+    groupby: () => t('Legend'),
+  };
+  const byChart: Record<string, Record<string, () => string>> = {
+    echarts_timeseries_bar: xy,
+    echarts_timeseries_line: xy,
+    echarts_timeseries_smooth: xy,
+    echarts_timeseries_step: xy,
+    echarts_timeseries_scatter: xy,
+    echarts_area: xy,
+    mixed_timeseries: {
+      x_axis: () => t('X-axis'),
+      metrics: () => t('Column Y-axis'),
+      groupby: () => t('Column legend'),
+      metrics_b: () => t('Line Y-axis'),
+      groupby_b: () => t('Line legend'),
+    },
+    pie: { groupby: () => t('Legend'), metric: () => t('Values') },
+    funnel: { groupby: () => t('Category'), metric: () => t('Values') },
+    treemap_v2: { groupby: () => t('Category'), metric: () => t('Values') },
+    gauge_chart: { groupby: () => t('Category'), metric: () => t('Value') },
+    waterfall: {
+      x_axis: () => t('Category'),
+      groupby: () => t('Breakdown'),
+      metric: () => t('Values'),
+    },
+    big_number_total: { metric: () => t('Fields') },
+    big_number: {
+      x_axis: () => t('Trend axis'),
+      metric: () => t('Value'),
+      goal_metric: () => t('Target'),
+    },
+    table: {
+      groupby: () => t('Columns'),
+      all_columns: () => t('Columns'),
+      metrics: () => t('Values'),
+      percent_metrics: () => t('Values as a percentage'),
+    },
+    pivot_table_v2: {
+      groupbyRows: () => t('Rows'),
+      groupbyColumns: () => t('Columns'),
+      metrics: () => t('Values'),
+    },
+    bubble_v2: {
+      entity: () => t('Details'),
+      series: () => t('Legend'),
+      x: () => t('X-axis'),
+      y: () => t('Y-axis'),
+      size: () => t('Size'),
+    },
+  };
+  return byChart[String(formData.viz_type)] ?? {};
+}
+
+/** Controls of a chart that take a field, whatever chart it is. */
+const isFieldControl = (type: unknown) =>
+  typeof type === 'string' && /^Dnd(?!Filter)/.test(type);
+
+/** The name of a control as a role of its chart, if it has one. */
+export const fieldRole = (formData: FormData, name: string) =>
+  rolesOf(formData)[name]?.();
+
+/**
+ * Whether a control is a field well: one with a role or, on a chart without roles,
+ * any that takes a field. Others, like the sort of a query, are data options.
+ */
+export function isFieldWell(formData: FormData, name: string, type: unknown) {
+  const roles = rolesOf(formData);
+  return Object.keys(roles).length ? name in roles : isFieldControl(type);
+}
+
+/** Sorts field wells as Power BI shows them; the rest keep their order. */
+export function wellOrder(formData: FormData, name: string) {
+  const index = Object.keys(rolesOf(formData)).indexOf(name);
+  return index < 0 ? Number.MAX_SAFE_INTEGER : index;
+}
+
+/**
+ * Whether a viewer may change the fields of a chart: the server asks for the same
+ * when saving it. Owners that have not loaded yet leave the decision to the server.
+ */
+export function canChangeFields(
+  user: UserWithPermissionsAndRoles | undefined,
+  owners: { id?: number }[] | undefined,
+) {
+  if (!owners || !user) return true;
+  return isUserAdmin(user) || owners.some(owner => owner.id === user.userId);
+}
+
+type Pending = {
+  /** The form data of the chart when its first field changed */
+  saved: FormData;
+  changes: FormData;
+  /** It lacks a required field: it asks for no data and cannot be saved */
+  invalid: boolean;
+};
+
+/**
+ * Field changes waiting for the report to be saved. They belong to the chart, not
+ * to the layout, so the chart keeps them wherever it is used. Discarding the
+ * report reloads the page, which forgets them.
+ */
+const pending = new Map<number, Pending>();
+const timers = new Map<number, ReturnType<typeof setTimeout>>();
+
+export const hasPendingFields = (chartId?: number) =>
+  chartId === undefined ? pending.size > 0 : pending.has(chartId);
+
+/** Forgets the changes waiting, as leaving the editor without saving does. */
+export function clearPendingFields() {
+  pending.clear();
+}
+
+const chartOf = (getState: GetState, chartId: number) =>
+  (getState().charts as Record<number, ChartState>)[chartId];
+
+const QUERY_DELAY = 300;
+
+/** Shows a form data on the chart, asking for its data unless told otherwise. */
+const applyFormData =
+  (chartId: number, formData: FormData, ask: 'query' | 'render' | 'none') =>
+  (dispatch: Dispatch, getState: GetState) => {
+    const chart = chartOf(getState, chartId);
+    if (!chart) return;
+    dispatch(
+      addChart(
+        { ...chart, form_data: formData } as unknown as ChartState,
+        chartId,
+      ),
+    );
+    clearTimeout(timers.get(chartId));
+    if (ask === 'render') dispatch(renderTriggered(Date.now(), chartId));
+    if (ask === 'query') {
+      // Quick changes ask once: every query takes time on the server
+      timers.set(
+        chartId,
+        setTimeout(() => dispatch(triggerQuery(true, chartId)), QUERY_DELAY),
+      );
+    }
+  };
+
+/**
+ * Changes a field of a chart: it shows at once and waits for the report to be
+ * saved. A value the layout also holds moves here, or the layout would hide it.
+ */
+export const setChartFieldValue =
+  ({
+    id,
+    chartId,
+    name,
+    value,
+    ask,
+    invalid,
+  }: {
+    id: string;
+    chartId: number;
+    name: string;
+    value: unknown;
+    ask: 'query' | 'render';
+    invalid: boolean;
+  }) =>
+  (dispatch: Dispatch, getState: GetState) => {
+    const chart = chartOf(getState, chartId);
+    if (!chart) return;
+    const current = (chart as unknown as { form_data: FormData }).form_data;
+    const entry: Pending = pending.get(chartId) ?? {
+      saved: current,
+      changes: {},
+      invalid,
+    };
+    const changes = { ...entry.changes };
+    if (isEqual(value, entry.saved[name])) delete changes[name];
+    else changes[name] = value;
+    if (Object.keys(changes).length) {
+      pending.set(chartId, { ...entry, changes, invalid });
+    } else {
+      pending.delete(chartId);
+    }
+    const own = getState().dashboardLayout.present[id]?.meta?.mibiFormat as
+      | VisualFormat
+      | undefined;
+    if (own?.chart && name in own.chart) {
+      dispatch(resetChartFormat(id, [name]));
+    }
+    dispatch(
+      applyFormData(
+        chartId,
+        { ...current, [name]: value },
+        invalid ? 'none' : ask,
+      ),
+    );
+    dispatch(setUnsavedChanges(true));
+  };
+
+/** Puts the fields of a chart back as they were saved. */
+export const revertChartFields = (chartId: number) => (dispatch: Dispatch) => {
+  const entry = pending.get(chartId);
+  if (!entry) return;
+  pending.delete(chartId);
+  dispatch(applyFormData(chartId, entry.saved, 'query'));
+};
+
+async function saveChart(chartId: number, changes: FormData) {
+  const { json } = await SupersetClient.get({
+    endpoint: `/api/v1/chart/${chartId}`,
+  });
+  // What the server keeps, not what the report holds: the report adds its filters
+  // and colors to the form data of its charts
+  const formData = { ...JSON.parse(json.result.params || '{}'), ...changes };
+  const queryContext = await buildV1ChartDataPayload({
+    formData,
+    force: false,
+    resultFormat: 'json',
+    resultType: 'full',
+    setDataMask: undefined,
+    ownState: undefined,
+  });
+  await SupersetClient.put({
+    endpoint: `/api/v1/chart/${chartId}`,
+    jsonPayload: {
+      params: JSON.stringify(formData),
+      query_context: JSON.stringify(queryContext),
+      query_context_generation: true,
+    },
+  });
+}
+
+/**
+ * Saves the fields waiting on the charts, all of them or just one. A chart that
+ * lacks a required field goes back as it was, since it could not draw itself.
+ */
+export const saveChartFields =
+  (only?: number) => async (dispatch: Dispatch) => {
+    const ids = [...pending.keys()].filter(
+      chartId => only === undefined || chartId === only,
+    );
+    if (!ids.length) return;
+    // One at a time: the server may attend a single request at once
+    for (const chartId of ids) {
+      const entry = pending.get(chartId);
+      if (entry?.invalid) {
+        dispatch(revertChartFields(chartId));
+        dispatch(
+          addDangerToast(
+            t('A chart lacks a required field: it keeps its saved fields.'),
+          ),
+        );
+      } else if (entry) {
+        try {
+          // eslint-disable-next-line no-await-in-loop
+          await saveChart(chartId, entry.changes);
+          pending.delete(chartId);
+        } catch {
+          dispatch(
+            addDangerToast(
+              t('The fields of a chart could not be saved. Try again.'),
+            ),
+          );
+        }
+      }
+    }
+    await dispatch(fetchDashboardSlices());
+  };

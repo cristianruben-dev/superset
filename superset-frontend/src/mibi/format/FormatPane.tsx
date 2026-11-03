@@ -16,6 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import { setPaneCollapsed } from './panes';
 import { lazy, Suspense, useContext, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { t } from '@apache-superset/core/translation';
@@ -264,6 +265,11 @@ const visualName = (meta: LayoutItemMeta | undefined) =>
   String(meta?.sliceNameOverride || meta?.sliceName || t('Chart'));
 
 // The controls of Explore load when a chart asks for them, not with the report
+const ChartFieldsSections = lazy(() =>
+  import('./ChartFieldsSections').then(module => ({
+    default: module.ChartFieldsSections,
+  })),
+);
 const ChartFormatSections = lazy(() =>
   import('./ChartFormatSections').then(module => ({
     default: module.ChartFormatSections,
@@ -308,7 +314,7 @@ function FontFamilyField({
   );
 }
 
-type FormatLevel = 'visual' | 'analytics' | 'general';
+type FormatLevel = 'fields' | 'visual' | 'analytics' | 'general';
 
 /** The level stays while going through objects. */
 let shownLevel: FormatLevel = 'visual';
@@ -330,11 +336,19 @@ function VisualSection({ id }: { id: string }) {
     update({ title: { ...own.title, ...patch } }, `title-${setting}`);
   const titleShown = format.title?.show !== false;
   const chartId = item?.meta?.chartId;
-  const [level, setLevelState] = useState(shownLevel);
+  const [chosenLevel, setLevelState] = useState(shownLevel);
   const setLevel = (next: FormatLevel) => {
     shownLevel = next;
     setLevelState(next);
+    // Fields are dragged from the Data pane
+    if (next === 'fields') setPaneCollapsed('data', false);
   };
+  // What only charts have shows their look on any other object
+  const level =
+    chartId === undefined &&
+    (chosenLevel === 'fields' || chosenLevel === 'analytics')
+      ? 'visual'
+      : chosenLevel;
   const searching = !!useContext(FormatSearchContext).trim();
   const showVisual = searching || level === 'visual';
   const showGeneral = searching || level === 'general';
@@ -348,6 +362,9 @@ function VisualSection({ id }: { id: string }) {
           testId="mibi-format-level"
           onChange={setLevel}
           options={[
+            ...(chartId !== undefined
+              ? [{ value: 'fields' as const, label: t('Fields') }]
+              : []),
             { value: 'visual', label: t('Visual') },
             ...(chartId !== undefined
               ? [{ value: 'analytics' as const, label: t('Analytics') }]
@@ -356,6 +373,11 @@ function VisualSection({ id }: { id: string }) {
           ]}
         />
       </div>
+      {level === 'fields' && !searching && chartId !== undefined && (
+        <Suspense fallback={<Hint>{t('Loading...')}</Hint>}>
+          <ChartFieldsSections id={id} chartId={chartId} />
+        </Suspense>
+      )}
       {(showVisual || level === 'analytics') && chartId !== undefined && (
         <Suspense fallback={<Hint>{t('Loading...')}</Hint>}>
           <ChartFormatSections

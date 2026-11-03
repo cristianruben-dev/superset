@@ -186,6 +186,7 @@ export function Ribbon({
   const [grid, updateGrid] = useGridSettings();
   const allLocked = useAllLocked();
   const paneTab = useBuilderTab();
+  const dataPaneFolded = usePaneCollapsed('data');
   const paneFolded = usePaneCollapsed('builder');
   const editingInteractions = useEditingInteractions();
 
@@ -700,6 +701,16 @@ export function Ribbon({
           />
         </RibbonGroup>
         <RibbonGroup label={t('Show panes')}>
+          <RibbonButton
+            label={t('Data')}
+            icon={<Icons.DatabaseOutlined iconSize="m" />}
+            pressed={!dataPaneFolded}
+            data-test="mibi-ribbon-pane-data"
+            onClick={() => {
+              setPaneCollapsed('data', !dataPaneFolded);
+              if (dataPaneFolded) setPaneCollapsed('builder', false);
+            }}
+          />
           {(
             [
               ['CHARTS', t('Charts'), <Icons.BarChartOutlined iconSize="m" />],

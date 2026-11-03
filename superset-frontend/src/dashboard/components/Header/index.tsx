@@ -17,6 +17,7 @@
  * under the License.
  */
 /* eslint-env browser */
+import { hasPendingFields, saveChartFields } from 'src/mibi/format/chartFields';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   isFeatureEnabled,
@@ -445,7 +446,16 @@ const Header = (): JSX.Element => {
         );
       }
 
-      boundActionCreators.onSave(data, dashboardInfo.id, SAVE_TYPE_OVERWRITE);
+      const saveDashboard = () =>
+        boundActionCreators.onSave(data, dashboardInfo.id, SAVE_TYPE_OVERWRITE);
+      // Fields belong to the charts: they save first, then the report
+      if (hasPendingFields()) {
+        (dispatch(saveChartFields() as never) as unknown as Promise<void>).then(
+          saveDashboard,
+        );
+      } else {
+        saveDashboard();
+      }
     }
   }, [
     actualLastModifiedTime,

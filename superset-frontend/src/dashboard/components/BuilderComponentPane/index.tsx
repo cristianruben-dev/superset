@@ -17,6 +17,7 @@
  * under the License.
  */
 /* eslint-env browser */
+import { clearPendingFields } from 'src/mibi/format/chartFields';
 import { useCallback, useEffect, type ReactNode } from 'react';
 import tinycolor from 'tinycolor2';
 import Tabs from '@superset-ui/core/components/Tabs';
@@ -91,10 +92,11 @@ const BuilderComponentPane = ({ topOffset = 0, pageTop = 0 }) => {
       setPaneCollapsed('builder', false);
     }, []),
   );
-  // Leaving the builder forgets the chart being formatted
+  // Leaving the builder forgets the chart being formatted and its unsaved fields
   useEffect(
     () => () => {
       selectVisual(null);
+      clearPendingFields();
     },
     [],
   );

@@ -46,7 +46,7 @@ export interface CardDefinition {
   /** A heading above a control, which starts a group of the section */
   headings?: Record<string, () => string>;
   /** The level of the pane it belongs to, other than Visual */
-  level?: 'analytics';
+  level?: 'analytics' | 'fields';
 }
 
 export const CARD_DEFINITIONS: CardDefinition[] = [
@@ -807,7 +807,7 @@ export const CARD_DEFINITIONS: CardDefinition[] = [
   {
     id: 'analytics-tooltip',
     title: () => t('Tooltip fields'),
-    level: 'analytics',
+    level: 'fields',
     controls: ['tooltip_metrics'],
   },
   {
@@ -883,7 +883,7 @@ export interface FormatCardItem extends CustomControlItem {
 export interface FormatCard {
   id: string;
   title: string;
-  level?: 'analytics';
+  level?: 'analytics' | 'fields';
   toggle?: CardToggle & { item: FormatCardItem };
   items: FormatCardItem[];
 }

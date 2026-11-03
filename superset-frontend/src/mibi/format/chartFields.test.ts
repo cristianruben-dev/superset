@@ -1,0 +1,198 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+import { SupersetClient } from '@superset-ui/core';
+import {
+  canChangeFields,
+  clearPendingFields,
+  fieldRole,
+  hasPendingFields,
+  isFieldWell,
+  revertChartFields,
+  saveChartFields,
+  setChartFieldValue,
+  wellOrder,
+} from './chartFields';
+
+jest.mock('src/explore/exploreUtils', () => ({
+  ...jest.requireActual('src/explore/exploreUtils'),
+  buildV1ChartDataPayload: jest.fn(() =>
+    Promise.resolve({ queries: [{ columns: ['b'] }] }),
+  ),
+}));
+jest.mock('src/mibi/dashboard/reloadSavedChart', () => ({
+  fetchDashboardSlices: () => ({ type: 'FETCH_SLICES' }),
+}));
+
+const setup = (formData = { viz_type: 'pie', groupby: ['a'] }, chart = {}) => {
+  const state: Record<string, any> = {
+    charts: { 3: { id: 3, form_data: formData, ...chart } },
+    dashboardLayout: { present: { 'CHART-1': { meta: {} } } },
+  };
+  const actions: any[] = [];
+  const dispatch = (action: any): any => {
+    if (typeof action === 'function') return action(dispatch, () => state);
+    actions.push(action);
+    if (action.type === 'ADD_TOAST') return action;
+    if (action.chart) state.charts[3] = action.chart;
+    return action;
+  };
+  return { state, actions, dispatch };
+};
+
+const change = (value: unknown, extra = {}) =>
+  setChartFieldValue({
+    id: 'CHART-1',
+    chartId: 3,
+    name: 'groupby',
+    value,
+    ask: 'query',
+    invalid: false,
+    ...extra,
+  });
+
+beforeEach(() => {
+  clearPendingFields();
+  jest.useFakeTimers();
+});
+
+afterEach(() => {
+  jest.useRealTimers();
+  jest.restoreAllMocks();
+});
+
+test('roles follow the chart and the orientation of the bars', () => {
+  const vertical = { viz_type: 'echarts_timeseries_bar' };
+  const horizontal = { ...vertical, orientation: 'horizontal' };
+  expect(fieldRole(vertical, 'x_axis')).toBe('X-axis');
+  expect(fieldRole(horizontal, 'x_axis')).toBe('Y-axis');
+  expect(fieldRole(horizontal, 'metrics')).toBe('X-axis');
+  expect(fieldRole({ viz_type: 'other' }, 'metrics')).toBeUndefined();
+});
+
+test('a chart with roles only has those wells, and other charts any field', () => {
+  const bars = { viz_type: 'echarts_timeseries_bar' };
+  expect(isFieldWell(bars, 'metrics', 'DndMetricSelect')).toBe(true);
+  expect(isFieldWell(bars, 'timeseries_limit_metric', 'DndMetricSelect')).toBe(
+    false,
+  );
+  const other = { viz_type: 'other' };
+  expect(isFieldWell(other, 'anything', 'DndColumnSelect')).toBe(true);
+  expect(isFieldWell(other, 'adhoc_filters', 'DndFilterSelect')).toBe(false);
+  expect(isFieldWell(other, 'row_limit', 'SelectControl')).toBe(false);
+});
+
+test('rows go before columns in a matrix', () => {
+  const matrix = { viz_type: 'pivot_table_v2' };
+  expect(wellOrder(matrix, 'groupbyRows')).toBeLessThan(
+    wellOrder(matrix, 'groupbyColumns'),
+  );
+});
+
+test('a change shows at once, asks once and waits for the save', () => {
+  const { dispatch, actions, state } = setup();
+  dispatch(change(['b']));
+  dispatch(change(['c']));
+  expect(state.charts[3].form_data.groupby).toEqual(['c']);
+  expect(hasPendingFields(3)).toBe(true);
+  jest.runAllTimers();
+  expect(
+    actions.filter(action => action.type === 'TRIGGER_QUERY'),
+  ).toHaveLength(1);
+  expect(actions.some(action => action.type === 'SET_UNSAVED_CHANGES')).toBe(
+    true,
+  );
+});
+
+test('a chart lacking a required field asks for no data', () => {
+  const { dispatch, actions } = setup();
+  dispatch(change([], { invalid: true }));
+  jest.runAllTimers();
+  expect(actions.some(action => action.type === 'TRIGGER_QUERY')).toBe(false);
+});
+
+test('going back to the saved value leaves nothing waiting', () => {
+  const { dispatch } = setup();
+  dispatch(change(['b']));
+  dispatch(change(['a']));
+  expect(hasPendingFields(3)).toBe(false);
+});
+
+test('reverting restores what the chart had', () => {
+  const { dispatch, state } = setup();
+  dispatch(change(['b']));
+  dispatch(revertChartFields(3));
+  expect(state.charts[3].form_data.groupby).toEqual(['a']);
+  expect(hasPendingFields(3)).toBe(false);
+});
+
+test('saving writes only the changes over what the server keeps', async () => {
+  jest.useRealTimers();
+  const params = { viz_type: 'pie', groupby: ['a'], row_limit: 5 };
+  jest.spyOn(SupersetClient, 'get').mockResolvedValue({
+    json: { result: { params: JSON.stringify(params) } },
+  } as never);
+  const put = jest
+    .spyOn(SupersetClient, 'put')
+    .mockResolvedValue({ json: {} } as never);
+  const { dispatch } = setup({
+    viz_type: 'pie',
+    groupby: ['a'],
+    extra_form_data: { filters: [] },
+  } as never);
+  dispatch(change(['b']));
+  await dispatch(saveChartFields());
+  const payload = put.mock.calls[0][0].jsonPayload as Record<string, string>;
+  expect(JSON.parse(payload.params)).toEqual({ ...params, groupby: ['b'] });
+  expect(JSON.parse(payload.query_context).queries[0].columns).toEqual(['b']);
+  expect(hasPendingFields(3)).toBe(false);
+});
+
+test('a failed save keeps the changes waiting', async () => {
+  jest.useRealTimers();
+  jest.spyOn(SupersetClient, 'get').mockRejectedValue(new Error('no'));
+  const { dispatch, actions } = setup();
+  dispatch(change(['b']));
+  await dispatch(saveChartFields());
+  expect(hasPendingFields(3)).toBe(true);
+  expect(actions.some(action => action.type === 'ADD_TOAST')).toBe(true);
+});
+
+test('a chart lacking a required field goes back instead of saving', async () => {
+  jest.useRealTimers();
+  const put = jest.spyOn(SupersetClient, 'put');
+  const { dispatch, state } = setup();
+  dispatch(change([], { invalid: true }));
+  await dispatch(saveChartFields());
+  expect(put).not.toHaveBeenCalled();
+  expect(state.charts[3].form_data.groupby).toEqual(['a']);
+});
+
+test('only owners and admins change the fields of a chart', () => {
+  const user = { userId: 1, roles: { Gamma: [] } } as never;
+  const admin = {
+    userId: 2,
+    username: 'admin',
+    roles: { Admin: [] },
+    permissions: {},
+  } as never;
+  expect(canChangeFields(user, [{ id: 1 }])).toBe(true);
+  expect(canChangeFields(user, [{ id: 9 }])).toBe(false);
+  expect(canChangeFields(admin, [{ id: 9 }])).toBe(true);
+  expect(canChangeFields(user, undefined)).toBe(true);
+});

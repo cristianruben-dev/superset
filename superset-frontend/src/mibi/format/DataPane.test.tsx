@@ -1,0 +1,98 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+import { render, screen, userEvent } from 'spec/helpers/testing-library';
+import { act } from 'react-dom/test-utils';
+import { DataPane } from './DataPane';
+import { selectVisual } from './selection';
+import { setPaneCollapsed, usePaneCollapsed } from './panes';
+
+const datasources = {
+  '1__table': {
+    table_name: 'sales',
+    columns: [{ column_name: 'region' }, { column_name: 'amount' }],
+    metrics: [{ metric_name: 'total' }],
+  },
+  '2__table': {
+    table_name: 'costs',
+    columns: [{ column_name: 'center' }],
+    metrics: [],
+  },
+};
+
+function Pane() {
+  const closed = usePaneCollapsed('data');
+  return closed ? <span>closed</span> : <DataPane />;
+}
+
+const setup = () =>
+  render(<Pane />, {
+    useRedux: true,
+    useDnd: true,
+    useTheme: true,
+    initialState: {
+      datasources,
+      charts: { 3: { id: 3, form_data: { datasource: '2__table' } } },
+      dashboardLayout: {
+        past: [],
+        present: { 'CHART-1': { meta: { chartId: 3 } } },
+        future: [],
+      },
+    },
+  });
+
+afterEach(() => selectVisual(null));
+
+beforeEach(() => setPaneCollapsed('data', false));
+
+test('lists the tables of the report and opens them on demand', () => {
+  setup();
+  expect(screen.getByText('sales')).toBeInTheDocument();
+  expect(screen.queryByText('region')).not.toBeInTheDocument();
+  userEvent.click(screen.getByText('sales'));
+  expect(screen.getByText('region')).toBeInTheDocument();
+  expect(screen.getByText('total')).toBeInTheDocument();
+});
+
+test('searching opens the tables with a match and hides the others', async () => {
+  setup();
+  await userEvent.type(screen.getByLabelText('Search fields'), 'cent');
+  expect(screen.getByText('center')).toBeInTheDocument();
+  expect(screen.queryByText('sales')).not.toBeInTheDocument();
+});
+
+test('closes as a pane the ribbon can bring back', () => {
+  setup();
+  userEvent.click(screen.getByTestId('mibi-data-pane-close'));
+  expect(screen.getByText('closed')).toBeInTheDocument();
+});
+
+test('only the table of the selected chart can be dragged', () => {
+  setup();
+  act(() => selectVisual('CHART-1'));
+  expect(screen.getByText('center').closest('.dataset-fields')).not.toHaveClass(
+    'other',
+  );
+  userEvent.click(screen.getByText('sales'));
+  expect(screen.getByText('region').closest('.dataset-fields')).toHaveClass(
+    'other',
+  );
+  expect(
+    screen.getByText('The selected chart uses another table.'),
+  ).toBeInTheDocument();
+});

@@ -16,6 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import { hasPendingFields, saveChartFields } from 'src/mibi/format/chartFields';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useDispatch, useStore } from 'react-redux';
 import { t } from '@apache-superset/core/translation';
@@ -202,7 +203,13 @@ export function ChartEditorPanel({
   }, [docked, dockedChartId, store]);
 
   const open = useCallback(
-    (detail: OpenChartEditorDetail) => {
+    async (detail: OpenChartEditorDetail) => {
+      // The editor reads the chart from the server: fields waiting go there first
+      if (detail.chartId && hasPendingFields(detail.chartId)) {
+        await (dispatch(
+          saveChartFields(detail.chartId) as never,
+        ) as unknown as Promise<void>);
+      }
       // The data pages and SQL Lab save new datasets to this dashboard's workspace
       const next =
         detail.kind === 'data' || detail.kind === 'sql'
@@ -220,7 +227,7 @@ export function ChartEditorPanel({
       }
       setEditor(next);
     },
-    [store],
+    [dispatch, store],
   );
 
   useEffect(() => {

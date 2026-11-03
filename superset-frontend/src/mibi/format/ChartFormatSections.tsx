@@ -78,10 +78,10 @@ const isEmptyValue = (value: unknown) =>
   value === '' ||
   (typeof value === 'object' && isEmpty(value));
 
-const isSameValue = (next: unknown, current: unknown) =>
+export const isSameValue = (next: unknown, current: unknown) =>
   isEqual(next, current) || (isEmptyValue(next) && isEmptyValue(current));
 
-const safely = <T,>(run: () => T, fallback: T): T => {
+export const safely = <T,>(run: () => T, fallback: T): T => {
   try {
     return run();
   } catch {
@@ -89,7 +89,68 @@ const safely = <T,>(run: () => T, fallback: T): T => {
   }
 };
 
-/** What Explore keeps in its store for each control, built from the report. */
+/** The value of every control of a chart: conditions read each other's. */
+export function seedControls(
+  sections: ControlPanelSectionConfig[],
+  formData: FormData,
+  datasource: unknown,
+) {
+  const controls: Anything = {};
+  sections.forEach(section =>
+    section.controlSetRows?.flat().forEach(item => {
+      if (!item || typeof item !== 'object' || !('config' in item)) return;
+      const { name, config } = item;
+      if (!config) return;
+      const fallback =
+        typeof config.default === 'function' ? undefined : config.default;
+      controls[name] = { ...config, value: formData[name] ?? fallback };
+    }),
+  );
+  // The conditions of some controls look at the columns of the dataset
+  const datasourceControl = (controls as Anything).datasource ?? {};
+  (controls as Anything).datasource = {
+    ...datasourceControl,
+    datasource,
+  };
+  return controls;
+}
+
+/** What Explore keeps in its store for a control, built from the report. */
+export function controlWithState(
+  name: string,
+  config: Anything,
+  state: ControlPanelState,
+  controls: Anything,
+  chart: unknown,
+) {
+  const formData = state.form_data as unknown as FormData;
+  // Resolve result-dependent choices before validation can discard a value.
+  const mapped = config.mapStateToProps
+    ? safely(
+        () =>
+          config.mapStateToProps?.(
+            state,
+            controls[name] as never,
+            chart as never,
+          ),
+        undefined,
+      )
+    : undefined;
+  const base = safely(
+    () =>
+      getControlStateFromControlConfig(
+        { ...config, ...mapped, mapStateToProps: undefined },
+        state,
+        (mapped && 'value' in mapped
+          ? mapped.value
+          : formData[name]) as JsonValue,
+      ),
+    null,
+  );
+  return (base ?? { ...controls[name], ...mapped }) as ControlState;
+}
+
+/** The look controls of a chart, sorted into the sections of the pane. */
 function buildControls(
   vizType: string,
   datasourceType: DatasourceType,
@@ -106,26 +167,7 @@ function buildControls(
       section.controlSetRows?.length > 0,
   );
   const formData = panelState.form_data as unknown as FormData;
-
-  // Conditions read the query controls too: their value is all they need
-  const controls: Anything = {};
-  sections.forEach(section =>
-    section.controlSetRows?.flat().forEach(item => {
-      if (!item || typeof item !== 'object' || !('config' in item)) return;
-      const { name, config } = item;
-      if (!config) return;
-      const fallback =
-        typeof config.default === 'function' ? undefined : config.default;
-      controls[name] = { ...config, value: formData[name] ?? fallback };
-    }),
-  );
-  // The conditions of some controls look at the columns of the dataset
-  const datasourceControl = (controls as Anything).datasource ?? {};
-  (controls as Anything).datasource = {
-    ...datasourceControl,
-    datasource: panelState.datasource,
-  };
-
+  const controls = seedControls(sections, formData, panelState.datasource);
   const state = { ...panelState, controls } as ControlPanelState;
   const cards = buildFormatCards(lookSections);
   cards
@@ -134,33 +176,13 @@ function buildControls(
       ...card.items,
     ])
     .forEach(({ name, config }) => {
-      // Resolve result-dependent choices before validation can discard a value.
-      const mapped = config.mapStateToProps
-        ? safely(
-            () =>
-              config.mapStateToProps?.(
-                state,
-                controls[name] as never,
-                chart as never,
-              ),
-            undefined,
-          )
-        : undefined;
-      const base = safely(
-        () =>
-          getControlStateFromControlConfig(
-            { ...config, ...mapped, mapStateToProps: undefined },
-            state,
-            (mapped && 'value' in mapped
-              ? mapped.value
-              : formData[name]) as JsonValue,
-          ),
-        null,
+      controls[name] = controlWithState(
+        name,
+        config as Anything,
+        state,
+        controls,
+        chart,
       );
-      controls[name] = (base ?? {
-        ...controls[name],
-        ...mapped,
-      }) as ControlState;
     });
   return { cards, state };
 }
@@ -178,7 +200,7 @@ export function ChartFormatSections({
   id: string;
   chartId: number;
   /** Which sections to show; without it, all of them */
-  level?: 'visual' | 'analytics';
+  level?: 'visual' | 'analytics' | 'fields';
 }) {
   const theme = useTheme();
   const dispatch = useDispatch();
@@ -387,6 +409,7 @@ export function ChartFormatSections({
 
   // Some charts, like the deck.gl maps, keep their look with their data
   if (!built.cards.length) {
+    if (level === 'fields') return null;
     return (
       <div className="actions">
         <Hint>{t('The options of this chart are in its editor.')}</Hint>
@@ -410,6 +433,7 @@ export function ChartFormatSections({
     card => !level || (card.level ?? 'visual') === level,
   );
   if (!shown.length) {
+    if (level === 'fields') return null;
     return <Hint>{t('This chart has no options at this level.')}</Hint>;
   }
   return <>{shown.map(renderCard)}</>;
