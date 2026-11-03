@@ -21159,3 +21159,171 @@ msgstr "Distribuir"
 
 msgid "[untitled]"
 msgstr "[sin nombre]"
+
+msgid "%s selected"
+msgstr "%s seleccionados"
+
+msgid "A click picks one value; Ctrl or Cmd and a click adds more."
+msgstr "Un clic elige un valor; con Ctrl o Cmd y clic añades más."
+
+msgid "All values"
+msgstr "Todos"
+
+msgid "Apply button"
+msgstr "Botón Aplicar"
+
+msgid "As the filter"
+msgstr "Como el filtro"
+
+msgid "As they come"
+msgstr "Como llegan"
+
+msgid "Between"
+msgstr "Entre"
+
+msgid "Between dates"
+msgstr "Entre fechas"
+
+msgid "Changes not applied"
+msgstr "Cambios sin aplicar"
+
+msgid "Chosen values"
+msgstr "Valores elegidos"
+
+msgid "Contains the text"
+msgstr "Contiene el texto"
+
+msgid "Control box"
+msgstr "Caja del control"
+
+msgid "Date style"
+msgstr "Estilo de fecha"
+
+msgid "Days"
+msgstr "Días"
+
+msgid "Describes the slicer for screen readers"
+msgstr "Describe el segmentador para lectores de pantalla"
+
+msgid "Filter control"
+msgstr "Control del filtro"
+
+msgid "Highest value"
+msgstr "Valor más alto"
+
+msgid "How many"
+msgstr "Cuántos"
+
+msgid "In the last"
+msgstr "En los últimos"
+
+msgid "In the next"
+msgstr "En los próximos"
+
+msgid "In this"
+msgstr "En este"
+
+msgid "Input boxes"
+msgstr "Cajas de entrada"
+
+msgid "Lowest value"
+msgstr "Valor más bajo"
+
+msgid "Match"
+msgstr "Coincidencia"
+
+msgid "Maximum height"
+msgstr "Altura máxima"
+
+msgid "Months"
+msgstr "Meses"
+
+msgid "Numbers"
+msgstr "Números"
+
+msgid "Numbers and blanks"
+msgstr "Números y vacíos"
+
+msgid "Open list"
+msgstr "Lista abierta"
+
+msgid "Order of the values"
+msgstr "Orden de los valores"
+
+msgid "Period"
+msgstr "Periodo"
+
+msgid "Quarters"
+msgstr "Trimestres"
+
+msgid "Range style"
+msgstr "Estilo del rango"
+
+msgid "Relative date"
+msgstr "Fecha relativa"
+
+msgid "Remove the value %s"
+msgstr "Quitar el valor %s"
+
+msgid "Search font"
+msgstr "Fuente de la búsqueda"
+
+msgid "Selected value"
+msgstr "Valor seleccionado"
+
+msgid "Selection mark"
+msgstr "Marca de selección"
+
+msgid "Selection mark position"
+msgstr "Posición de la marca de selección"
+
+msgid "Show how many are chosen"
+msgstr "Mostrar cuántos hay elegidos"
+
+msgid "Show the chosen values"
+msgstr "Mostrar los valores elegidos"
+
+msgid "Show the slicer header"
+msgstr "Mostrar el encabezado del segmentador"
+
+msgid "Slicer settings"
+msgstr "Configuración del segmentador"
+
+msgid "Slider color"
+msgstr "Color del deslizador"
+
+msgid "This filter keeps its own control. Its box can still be styled."
+msgstr "Este filtro conserva su propio control. Aun así puedes dar formato a su caja."
+
+msgid "Title text"
+msgstr "Texto del título"
+
+msgid "Unit"
+msgstr "Unidad"
+
+msgid "Value states"
+msgstr "Estados de los valores"
+
+msgid "Values alignment"
+msgstr "Alineación de los valores"
+
+msgid "Values separated by commas"
+msgstr "Valores separados por comas"
+
+msgid "Weeks"
+msgstr "Semanas"
+
+msgid "Whole values"
+msgstr "Valores completos"
+
+msgid "With Ctrl"
+msgstr "Con Ctrl"
+
+msgid "Years"
+msgstr "Años"
+
+msgid "Space to the text"
+msgstr "Espacio hasta el texto"
+
+msgid "The filter takes one value. Allow several in its settings to choose more here."
+msgstr "El filtro admite un solo valor. Permite varios en su configuración para elegir más aquí."
