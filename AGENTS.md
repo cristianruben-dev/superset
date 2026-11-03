@@ -195,8 +195,13 @@ Formats are stored in `position_json`, so they save, undo and export with the da
   `mobileLayoutOf`, which drops boxes of objects that left the page. A phone (`usePhoneScreen`) shows it when
   the page has one and the canvas otherwise; nothing switches layout on its own. `DashboardComponent` gives
   each object its box (`mobileComponent`) and leaves out the rest. The editor opens it from View → Mobile
-  layout (`useMobileEditing`): the canvas becomes the phone page with `MobileLayoutEditor` over it and
-  `MobileLayoutPane` replaces the panes; the canvas never fits its visuals while it is open.
+  layout (`useMobileEditing`): the page shows inside an iPhone (`DeviceFrame`, presets with points, pixels
+  and safe-area insets in `mobileDevices.ts`) and scrolls only between its safe insets, `MobileLayoutPane`
+  replaces the panes and the ribbon gets a Mobile layout tab. "Place" draws `MobileLayoutEditor` over the
+  page; "Preview" shows it as a phone viewer sees it, or the scaled canvas when the page has no layout.
+  Mode, device, fit and safe-area marks are a browser preference (`useMobileViewSettings`), never saved in
+  the report. The canvas never fits its visuals while it is open. A phone viewer gives the page the whole
+  width of the screen, less the filter rail.
 - The report is light or dark from the canvas background color (`useReportAppearance`); there are no
   appearance settings.
 - `meta.mibiHidden` hides an object from viewers (faded for editors), `meta.mibiLocked` keeps it from
