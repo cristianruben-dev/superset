@@ -33,6 +33,18 @@ import { DataMenu } from 'src/mibi/dashboard/DataMenu';
 import { setCanvasFormat, setComponentMeta } from 'src/mibi/format/actions';
 import { arrangeLayer } from 'src/mibi/format/arrange';
 import { setCanvasView, useCanvasView } from 'src/mibi/format/canvasView';
+import {
+  selectMobileBox,
+  setMobileEditing,
+  useMobileEditing,
+} from 'src/mibi/format/mobile';
+import {
+  MOBILE_DEVICES,
+  deviceById,
+  setMobileViewSettings,
+  useMobileViewSettings,
+} from 'src/mibi/format/mobileDevices';
+import { mobileLayoutOf } from 'src/mibi/format/mobileLayout';
 import { isCopyable, useClipboard } from 'src/mibi/format/clipboard';
 import {
   cancelFormatPainter,
@@ -50,6 +62,7 @@ import {
 } from 'src/mibi/format/panes';
 import {
   openFormat,
+  selectVisual,
   useSelectedVisual,
   useSelectedVisuals,
 } from 'src/mibi/format/selection';
@@ -76,7 +89,14 @@ import {
   RibbonTabs,
 } from './parts';
 
-type RibbonTabKey = 'home' | 'insert' | 'design' | 'view' | 'format' | 'data';
+type RibbonTabKey =
+  | 'home'
+  | 'insert'
+  | 'design'
+  | 'view'
+  | 'format'
+  | 'data'
+  | 'mobile';
 
 const FOLDED_KEY = 'mibi.ribbonFolded';
 
@@ -185,12 +205,24 @@ export function Ribbon({
   const dataPaneFolded = usePaneCollapsed('data');
   const paneFolded = usePaneCollapsed('builder');
   const editingInteractions = useEditingInteractions();
+  const mobileEditing = useMobileEditing();
+  const mobileSettings = useMobileViewSettings();
+  const mobileDevice = deviceById(mobileSettings.device);
+  const hasMobileLayout = !!mobileLayoutOf(layout, pageId);
+  const openMobileLayout = () => {
+    selectVisual(null);
+    setMobileEditing(true);
+  };
 
   // The tabs of the selected object go away with it
-  const tab =
-    (chosenTab === 'format' && !item) || (chosenTab === 'data' && !isChart)
+  // and the mobile layout has a tab of its own while it is open
+  const tab = mobileEditing
+    ? 'mobile'
+    : (chosenTab === 'format' && !item) || (chosenTab === 'data' && !isChart)
       ? 'home'
-      : chosenTab;
+      : chosenTab === 'mobile'
+        ? 'view'
+        : chosenTab;
 
   // Ctrl or Cmd + S saves the report instead of the web page
   const saveRef = useRef(onSave);
@@ -304,47 +336,51 @@ export function Ribbon({
     </RibbonGroup>
   );
 
+  const saveGroup = (
+    <RibbonGroup label={t('Save')} data-test="dashboard-edit-actions">
+      <RibbonButton
+        label={t('Save')}
+        hint={t('Save (Ctrl+S)')}
+        icon={<Icons.SaveOutlined iconSize="m" />}
+        disabled={!hasUnsavedChanges}
+        onClick={onSave}
+        data-test="header-save-button"
+      />
+      <div className="stack">
+        <RibbonButton
+          small
+          label={t('Undo')}
+          hint={t('Undo (Ctrl+Z)')}
+          icon={<Icons.Undo data-test="undo-action" iconSize="m" />}
+          disabled={!canUndo}
+          pressed={emphasizeUndo}
+          onClick={onUndo}
+        />
+        <RibbonButton
+          small
+          label={t('Redo')}
+          hint={t('Redo (Ctrl+Y)')}
+          icon={<Icons.Redo data-test="redo-action" iconSize="m" />}
+          disabled={!canRedo}
+          pressed={emphasizeRedo}
+          onClick={onRedo}
+        />
+        <RibbonButton
+          small
+          label={t('Discard')}
+          hint={t('Leaves the editor without saving')}
+          icon={<Icons.CloseOutlined iconSize="m" />}
+          onClick={confirmLeaving}
+          data-test="discard-changes-button"
+        />
+      </div>
+    </RibbonGroup>
+  );
+
   const body: Record<RibbonTabKey, ReactNode> = {
     home: (
       <>
-        <RibbonGroup label={t('Save')} data-test="dashboard-edit-actions">
-          <RibbonButton
-            label={t('Save')}
-            hint={t('Save (Ctrl+S)')}
-            icon={<Icons.SaveOutlined iconSize="m" />}
-            disabled={!hasUnsavedChanges}
-            onClick={onSave}
-            data-test="header-save-button"
-          />
-          <div className="stack">
-            <RibbonButton
-              small
-              label={t('Undo')}
-              hint={t('Undo (Ctrl+Z)')}
-              icon={<Icons.Undo data-test="undo-action" iconSize="m" />}
-              disabled={!canUndo}
-              pressed={emphasizeUndo}
-              onClick={onUndo}
-            />
-            <RibbonButton
-              small
-              label={t('Redo')}
-              hint={t('Redo (Ctrl+Y)')}
-              icon={<Icons.Redo data-test="redo-action" iconSize="m" />}
-              disabled={!canRedo}
-              pressed={emphasizeRedo}
-              onClick={onRedo}
-            />
-            <RibbonButton
-              small
-              label={t('Discard')}
-              hint={t('Leaves the editor without saving')}
-              icon={<Icons.CloseOutlined iconSize="m" />}
-              onClick={confirmLeaving}
-              data-test="discard-changes-button"
-            />
-          </div>
-        </RibbonGroup>
+        {saveGroup}
         <RibbonGroup label={t('Clipboard')}>
           <RibbonButton
             label={t('Paste')}
@@ -562,8 +598,120 @@ export function Ribbon({
         </RibbonGroup>
       </>
     ),
+    mobile: (
+      <>
+        {saveGroup}
+        <RibbonGroup label={t('Mode')}>
+          <RibbonButton
+            label={t('Place visuals')}
+            hint={t('Place, move and resize the visuals on the phone')}
+            icon={<Icons.EditOutlined iconSize="m" />}
+            pressed={mobileSettings.mode === 'work'}
+            onClick={() => setMobileViewSettings({ mode: 'work' })}
+            data-test="mibi-ribbon-mobile-work"
+          />
+          <RibbonButton
+            label={t('Preview')}
+            hint={t('Shows the page as a phone shows it to viewers')}
+            icon={<Icons.EyeOutlined iconSize="m" />}
+            pressed={mobileSettings.mode === 'preview'}
+            onClick={() => {
+              selectMobileBox(null);
+              setMobileViewSettings({ mode: 'preview' });
+            }}
+            data-test="mibi-ribbon-mobile-preview"
+          />
+        </RibbonGroup>
+        <RibbonGroup label={t('Device')}>
+          <RibbonButton
+            label={mobileDevice.name}
+            icon={<Icons.MobileOutlined iconSize="m" />}
+            data-test="mibi-ribbon-mobile-device"
+            menu={{
+              selectedKeys: [mobileDevice.id],
+              onClick: ({ key }) => setMobileViewSettings({ device: key }),
+              items: MOBILE_DEVICES.map(device => ({
+                key: device.id,
+                label: (
+                  <span
+                    data-test={`mibi-device-option-${device.id}`}
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      gap: 16,
+                      minWidth: 220,
+                    }}
+                  >
+                    <span>{device.name}</span>
+                    <span style={{ opacity: 0.6, fontSize: 12 }}>
+                      {t('%s × %s pt', device.width, device.height)}
+                    </span>
+                  </span>
+                ),
+              })),
+            }}
+          />
+        </RibbonGroup>
+        <RibbonGroup label={t('Show')}>
+          <div className="stack">
+            <RibbonButton
+              small
+              label={t('Fit to screen')}
+              icon={<Icons.CompressOutlined iconSize="m" />}
+              pressed={mobileSettings.fit}
+              onClick={() => setMobileViewSettings({ fit: true })}
+              data-test="mibi-ribbon-mobile-fit"
+            />
+            <RibbonButton
+              small
+              label={t('Actual size')}
+              icon={<Icons.ExpandOutlined iconSize="m" />}
+              pressed={!mobileSettings.fit}
+              onClick={() => setMobileViewSettings({ fit: false })}
+              data-test="mibi-ribbon-mobile-actual"
+            />
+            <RibbonButton
+              small
+              label={t('Safe area')}
+              hint={t(
+                'Marks the status bar and the home indicator, which the page does not use',
+              )}
+              icon={<Icons.BorderOutlined iconSize="m" />}
+              pressed={mobileSettings.safeArea}
+              onClick={() =>
+                setMobileViewSettings({ safeArea: !mobileSettings.safeArea })
+              }
+              data-test="mibi-ribbon-mobile-safe-area"
+            />
+          </div>
+        </RibbonGroup>
+        <RibbonGroup label={t('Mobile layout')}>
+          <RibbonButton
+            label={t('Back to the canvas')}
+            hint={t('Edits the canvas of the report again')}
+            icon={<Icons.DesktopOutlined iconSize="m" />}
+            onClick={() => setMobileEditing(false)}
+            data-test="mibi-ribbon-mobile-close"
+          />
+        </RibbonGroup>
+      </>
+    ),
     view: (
       <>
+        <RibbonGroup label={t('Mobile')}>
+          <RibbonButton
+            label={t('Mobile layout')}
+            hint={
+              hasMobileLayout
+                ? t('Edits the phone layout of this page')
+                : t('Creates a phone layout for this page')
+            }
+            icon={<Icons.MobileOutlined iconSize="m" />}
+            pressed={hasMobileLayout}
+            onClick={openMobileLayout}
+            data-test="mibi-ribbon-mobile-layout"
+          />
+        </RibbonGroup>
         <RibbonGroup label={t('Scale to fit')}>
           <RibbonButton
             label={t('Fit page')}
@@ -783,18 +931,27 @@ export function Ribbon({
     ),
   };
 
-  const tabs: { key: RibbonTabKey; label: string; contextual?: boolean }[] = [
-    { key: 'home', label: t('Home') },
-    { key: 'insert', label: t('Insert') },
-    { key: 'design', label: t('Design') },
-    { key: 'view', label: t('View') },
-    ...(item
-      ? [{ key: 'format' as const, label: t('Format'), contextual: true }]
-      : []),
-    ...(isChart
-      ? [{ key: 'data' as const, label: t('Data and drill'), contextual: true }]
-      : []),
-  ];
+  const tabs: { key: RibbonTabKey; label: string; contextual?: boolean }[] =
+    mobileEditing
+      ? [{ key: 'mobile', label: t('Mobile layout') }]
+      : [
+          { key: 'home', label: t('Home') },
+          { key: 'insert', label: t('Insert') },
+          { key: 'design', label: t('Design') },
+          { key: 'view', label: t('View') },
+          ...(item
+            ? [{ key: 'format' as const, label: t('Format'), contextual: true }]
+            : []),
+          ...(isChart
+            ? [
+                {
+                  key: 'data' as const,
+                  label: t('Data and drill'),
+                  contextual: true,
+                },
+              ]
+            : []),
+        ];
 
   return (
     <RibbonBar data-test="mibi-ribbon">

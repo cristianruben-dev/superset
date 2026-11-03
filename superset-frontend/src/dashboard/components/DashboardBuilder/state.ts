@@ -28,6 +28,7 @@ import {
 } from '../nativeFilters/FilterBar/state';
 import { useChartCustomizationFromRedux } from '../nativeFilters/state';
 import { toggleNativeFiltersBar } from '../../actions/dashboardState';
+import { usePhoneScreen } from 'src/mibi/format/mobile';
 
 export const useNativeFilters = () => {
   const dispatch = useDispatch();
@@ -49,11 +50,14 @@ export const useNativeFilters = () => {
   const expandFilters = getUrlParam(URL_PARAMS.expandFilters);
   const chartCustomizations = useChartCustomizationFromRedux();
 
+  // Editors add filters from the bar, which a phone never does: there the
+  // bar shows only with filters, as for any viewer, and leaves the page room
+  const phone = usePhoneScreen();
   const nativeFiltersEnabled =
     showNativeFilters &&
-    (canEdit ||
-      (!canEdit &&
-        (filterValues.length !== 0 || chartCustomizations.length !== 0)));
+    ((canEdit && !phone) ||
+      filterValues.length !== 0 ||
+      chartCustomizations.length !== 0);
 
   const requiredFirstFilter = useMemo(
     () =>

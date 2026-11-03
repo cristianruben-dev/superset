@@ -52,12 +52,8 @@ import { useObjectLocked } from 'src/mibi/format/lock';
 import { ObjectBadges } from 'src/mibi/format/ObjectBadges';
 import { useMergedVisualFormat } from 'src/mibi/format/useVisualFormat';
 import { useDynamicTitle } from 'src/mibi/format/dynamicTitle';
+import { useMaxHeightMultiple } from 'src/mibi/format/CanvasFrame';
 import {
-  useCanvasMobile,
-  useMaxHeightMultiple,
-} from 'src/mibi/format/CanvasFrame';
-import {
-  gridColumnCount,
   MIN_CHART_COLUMNS,
   MIN_CHART_ROWS,
   minObjectColumns,
@@ -158,7 +154,6 @@ const ChartHolder = ({
     [visualFormat, theme],
   );
   const isSelected = useIsVisualSelected(component.id) && editMode;
-  const mobile = useCanvasMobile();
   // The page is a limit: an object grows only into the room left on it
   const maxHeightMultiple = useMaxHeightMultiple(
     component.meta.height ?? GRID_MIN_ROW_UNITS,
@@ -245,10 +240,8 @@ const ChartHolder = ({
       widthMultiple = columnParentWidth;
     }
 
-    // The mobile layout gives every object the full width
-    return mobile ? gridColumnCount() : widthMultiple;
+    return widthMultiple;
   }, [
-    mobile,
     component,
     getComponentById,
     parentComponent.meta.width,

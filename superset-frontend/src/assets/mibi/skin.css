@@ -1918,28 +1918,23 @@ body.mibi-presenting-idle * {
   filter: brightness(1.12) saturate(1.1);
 }
 
-/* ---- Mobile layout: one object per line ---------------------------------- */
+/* ---- Mobile layout: the page inside the phone of the editor ------------- */
 
-.mibi-mobile .grid-row {
-  flex-wrap: wrap;
-  row-gap: 16px;
+[data-test='mibi-device-viewport'] .mibi-canvas {
+  border-radius: 0 !important;
 }
 
-.mibi-mobile .grid-row > .empty-droptarget--vertical {
-  display: none;
+/* The phone shows the page as a viewer does: no drop targets of the editor */
+[data-test='mibi-device-viewport'] .empty-droptarget {
+  display: none !important;
 }
 
-.mibi-phone-preview {
-  outline: 8px solid var(--mb-text) !important;
-  outline-offset: 0;
-  border-radius: 28px !important;
-  margin: 8px auto;
-}
-
-.mibi-mobile .grid-row > .dragdroppable {
-  flex: 0 0 100%;
-  width: 100%;
-  max-width: 100%;
+/* A phone gives the page of a report the whole width of its screen */
+@media (max-width: 639px) {
+  .dashboard:not(.dashboard--editing) .grid-container {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
 }
 
 /* ---- Narrow screens: compact top bar ------------------------------------- */
@@ -2049,13 +2044,6 @@ body.mibi-presenting-idle * {
 .mibi-help-tooltip .ant-tooltip-arrow::before,
 .mibi-help-tooltip .ant-tooltip-arrow::after {
   box-shadow: none;
-}
-
-/* The empty cells left around objects do not exist in the mobile layout */
-.mibi-mobile .dragdroppable[style*='position: absolute'] {
-  position: relative !important;
-  left: auto !important;
-  top: auto !important;
 }
 
 /* ---- Moving and resizing objects on the cell grid ------------------------ */

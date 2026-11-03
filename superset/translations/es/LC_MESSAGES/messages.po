@@ -21160,6 +21160,146 @@ msgstr "Distribuir"
 msgid "[untitled]"
 msgstr "[sin nombre]"
 
+msgid "Remove from the mobile layout"
+msgstr "Quitar del diseño móvil"
+
+msgid "Mobile layout"
+msgstr "Diseño móvil"
+
+msgid ""
+"Drag the visuals of this page onto the phone, then move and resize them. "
+"Phones show this layout; a page without one shows its canvas."
+msgstr ""
+"Arrastra los visuales de esta página al teléfono y luego muévelos y "
+"cambia su tamaño. Los teléfonos muestran este diseño; una página sin él "
+"muestra su lienzo."
+
+msgid "Visuals of the page"
+msgstr "Visuales de la página"
+
+msgid "Remove %s from the mobile layout"
+msgstr "Quitar «%s» del diseño móvil"
+
+msgid "Add %s to the mobile layout"
+msgstr "Añadir «%s» al diseño móvil"
+
+msgid "This page has no visuals yet."
+msgstr "Esta página aún no tiene visuales."
+
+msgid "Clear the mobile layout"
+msgstr "Vaciar el diseño móvil"
+
+msgid "Edits the canvas of the report again"
+msgstr "Vuelve a editar el lienzo del informe"
+
+msgid "Edits the phone layout of this page"
+msgstr "Edita el diseño para teléfono de esta página"
+
+msgid "Creates a phone layout for this page"
+msgstr "Crea un diseño para teléfono de esta página"
+
+msgid "Remove from phone"
+msgstr "Quitar"
+
+msgid "Safe area"
+msgstr "Zona segura"
+
+msgid "%s × %s pt"
+msgstr "%s × %s pt"
+
+msgid "%s × %s px · @%sx"
+msgstr "%s × %s px · @%sx"
+
+msgid "Safe area %s × %s pt"
+msgstr "Zona segura %s × %s pt"
+
+msgid "%s pt"
+msgstr "%s pt"
+
+msgid "End of the first screen"
+msgstr "Fin de la primera pantalla"
+
+msgid "Drop visuals here"
+msgstr "Suelta aquí los visuales"
+
+msgid ""
+"Drag them from the pane, or add them with a click. Each one keeps its data "
+"and format."
+msgstr ""
+"Arrástralos desde el panel o añádelos con un clic. Cada uno conserva sus "
+"datos y su formato."
+
+msgid "It covers part of another visual"
+msgstr "Tapa parte de otro visual"
+
+msgid "Visuals on the phone"
+msgstr "Visuales en el teléfono"
+
+msgid "%s of %s visuals on the phone"
+msgstr "%s de %s visuales en el teléfono"
+
+msgid "Add all"
+msgstr "Añadir todos"
+
+msgid "Empty the phone"
+msgstr "Vaciar"
+
+msgid "Preview: the phone shows the page as a viewer sees it."
+msgstr "Vista previa: el teléfono muestra la página como la ve quien la consulta."
+
+msgid ""
+"This page has no mobile layout yet: phones show its canvas, scaled to their "
+"width."
+msgstr ""
+"Esta página aún no tiene diseño móvil: los teléfonos muestran su lienzo, "
+"escalado a su ancho."
+
+msgid "Search visuals"
+msgstr "Buscar visuales"
+
+msgid "On the phone"
+msgstr "En el teléfono"
+
+msgid "Not on the phone"
+msgstr "Fuera del teléfono"
+
+msgid "Drag onto the phone"
+msgstr "Arrastra al teléfono"
+
+msgid "No visual matches the search."
+msgstr "Ningún visual coincide con la búsqueda."
+
+msgid "move"
+msgstr "mover"
+
+msgid "resize"
+msgstr "cambiar tamaño"
+
+msgid "remove"
+msgstr "quitar"
+
+msgid "Mode"
+msgstr "Modo"
+
+msgid "Place visuals"
+msgstr "Colocar"
+
+msgid "Place, move and resize the visuals on the phone"
+msgstr "Coloca, mueve y cambia el tamaño de los visuales en el teléfono"
+
+msgid "Shows the page as a phone shows it to viewers"
+msgstr "Muestra la página como la ve un teléfono"
+
+msgid "Device"
+msgstr "Dispositivo"
+
+msgid "Fit to screen"
+msgstr "Ajustar a la pantalla"
+
+msgid ""
+"Marks the status bar and the home indicator, which the page does not use"
+msgstr ""
+"Marca la barra de estado y el indicador de inicio, que la página no usa"
 msgid "%s selected"
 msgstr "%s seleccionados"
 
