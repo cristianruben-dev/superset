@@ -271,7 +271,28 @@ export interface FilterElement {
   rangeStyle?: 'between' | 'slider';
   /** How a time filter is drawn; unset keeps the filter's own control */
   dateStyle?: 'relative' | 'between';
+  /** Values left out of the slicer, by `slicerValueKey` */
+  hiddenValues?: string[];
+  /** An eraser in the corner clears what is chosen (on by default) */
+  showClear?: boolean;
+  /** A text slicer only takes numbers, and matches them whole */
+  inputNumeric?: boolean;
+  /** A d3 number format, such as ",.0f" or "$,.2f", over units and decimals */
+  valueFormat?: string;
+  /** The selection mark sits over the corner of the value */
+  iconOverlay?: boolean;
+  /** Corners of the values one by one: top left, top right, bottom right, bottom left */
+  itemCorners?: Corners;
+  searchCorners?: Corners;
+  /** 0 to 100 */
+  itemFillOpacity?: number;
+  selectedFillOpacity?: number;
+  searchFillOpacity?: number;
+  menuFillOpacity?: number;
+  pillFillOpacity?: number;
 }
+
+export type Corners = [number, number, number, number];
 
 export type SlicerVariant = 'dropdown' | 'list' | 'buttons' | 'input';
 

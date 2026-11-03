@@ -39,9 +39,16 @@ import {
   Section,
   Segments,
 } from 'src/mibi/format/controls';
+import {
+  ActionSection,
+  HeaderTooltipSection,
+} from 'src/mibi/format/GeneralSections';
 import { TitleSections } from 'src/mibi/format/TitleSections';
 import { SyncSlicers } from 'src/mibi/report/SyncSlicers';
+import { contrastRatio, slicerText, slicerValueKey } from './slicer';
+import { useFilterRows } from './SlicerView';
 import type {
+  Corners,
   FilterElement,
   SlicerSelection,
   SlicerVariant,
@@ -131,7 +138,163 @@ function useFields(config: FilterElement, update: Update) {
       />
     </Field>
   );
-  return { toggle, color, range, font, align };
+  /** The transparency of a fill; setting it keeps the fill shown. */
+  const opacity = (
+    key: keyof FilterElement,
+    colorKey: keyof FilterElement,
+    fallbackColor: string,
+  ) => (
+    <RangeField
+      label={t('Transparency')}
+      value={100 - ((config[key] as number | undefined) ?? 100)}
+      min={0}
+      max={100}
+      unit="%"
+      onChange={value =>
+        update(
+          {
+            [key]: 100 - value,
+            [colorKey]:
+              (config[colorKey] as string | undefined) || fallbackColor,
+          },
+          `filter-${String(key)}`,
+        )
+      }
+    />
+  );
+  /** One radius for every corner, or each corner on its own. */
+  const corners = (
+    key: 'itemCorners' | 'searchCorners',
+    radiusKey: 'itemRadius' | 'searchRadius',
+    fallback: number,
+  ) => {
+    const own = config[key];
+    const base = config[radiusKey] ?? fallback;
+    const names = [
+      t('Top left corner'),
+      t('Top right corner'),
+      t('Bottom right corner'),
+      t('Bottom left corner'),
+    ];
+    return (
+      <>
+        <Field label={t('Individual corners')}>
+          <Switch
+            size="small"
+            checked={!!own}
+            aria-label={t('Individual corners')}
+            data-test={`mibi-slicer-${key}`}
+            onChange={on =>
+              update(
+                {
+                  [key]: on ? ([base, base, base, base] as Corners) : undefined,
+                },
+                `filter-${key}`,
+              )
+            }
+          />
+        </Field>
+        {own
+          ? names.map((name, index) => (
+              <RangeField
+                key={name}
+                label={name}
+                value={own[index]}
+                min={0}
+                max={40}
+                onChange={value => {
+                  const next = [...own] as Corners;
+                  next[index] = value;
+                  update({ [key]: next }, `filter-${key}`);
+                }}
+              />
+            ))
+          : range(radiusKey, t('Corner radius'), fallback, 0, 40)}
+      </>
+    );
+  };
+  return { toggle, color, range, font, align, opacity, corners };
+}
+
+/** A warning when a text color is hard to read on its background. */
+function ContrastHint({
+  text,
+  background,
+}: {
+  text: string;
+  background: string;
+}) {
+  const ratio = contrastRatio(text, background);
+  if (ratio === undefined || ratio >= 4.5) return null;
+  return (
+    <Hint data-test="mibi-slicer-contrast">
+      {t(
+        'Low contrast (%s:1): the text may be hard to read. Aim for 4.5:1 or more.',
+        ratio,
+      )}
+    </Hint>
+  );
+}
+
+/** Which values of a list the slicer offers; the others are left out. */
+function VisibleValuesSection({
+  filter,
+  config,
+  update,
+}: {
+  filter: Filter;
+  config: FilterElement;
+  update: Update;
+}) {
+  const { column, rows } = useFilterRows(filter);
+  const values = column ? (rows ?? []).map(row => row[column]) : [];
+  const hidden = new Set(config.hiddenValues ?? []);
+  const setHidden = (next: Set<string>) =>
+    update(
+      { hiddenValues: next.size ? Array.from(next) : undefined },
+      'filter-hidden-values',
+    );
+  return (
+    <Section collapsedByDefault data-test="mibi-slicer-visible-values">
+      <h4>{t('Values shown')}</h4>
+      <Hint>
+        {t(
+          'Turn off a value to leave it out of this slicer. It still counts in the charts when nothing is chosen.',
+        )}
+      </Hint>
+      {rows === undefined && <Hint>{t('Loading...')}</Hint>}
+      {values.length > 0 && (
+        <Field label={t('Show all')}>
+          <Switch
+            size="small"
+            checked={!hidden.size}
+            aria-label={t('Show all')}
+            onChange={() => setHidden(new Set())}
+          />
+        </Field>
+      )}
+      {values.map(value => {
+        const key = slicerValueKey(value);
+        const label = slicerText(value, config);
+        return (
+          <Field key={key} label={label}>
+            <Switch
+              size="small"
+              checked={!hidden.has(key)}
+              aria-label={t('Show %s', label)}
+              data-test="mibi-slicer-value-shown"
+              onChange={show => {
+                const next = new Set(hidden);
+                if (show) next.delete(key);
+                else next.add(key);
+                setHidden(next);
+              }}
+            />
+          </Field>
+        );
+      })}
+    </Section>
+  );
 }
 
 /** What kind of control a filter is, as far as a slicer is concerned. */
@@ -304,7 +467,10 @@ function SettingsSection({
           {toggle('showPills', t('Show the chosen values'))}
         </>
       )}
-      {drawn && variant === 'input' && (
+      {drawn &&
+        variant === 'input' &&
+        toggle('inputNumeric', t('Numbers only'))}
+      {drawn && variant === 'input' && !config.inputNumeric && (
         <Field label={t('Match')} stacked>
           <Segments<NonNullable<FilterElement['inputMatch']>>
             name={t('Match')}
@@ -361,6 +527,7 @@ function HeaderSection({
           {drawn && toggle('showSummary', t('Show how many are chosen'))}
         </>
       )}
+      {toggle('showClear', t('Eraser to clear the selection'), true)}
     </Section>
   );
 }
@@ -374,8 +541,12 @@ function ValuesSection({
   update: Update;
 }) {
   const theme = useTheme();
-  const { toggle, color, range, font, align } = useFields(config, update);
+  const { toggle, color, range, font, align, opacity, corners } = useFields(
+    config,
+    update,
+  );
   const buttons = config.variant === 'buttons';
+  const itemFill = config.itemFill || theme.colorBgContainer;
   return (
     <>
       <Section>
@@ -401,9 +572,14 @@ function ValuesSection({
         </Field>
         {color('itemColor', t('Text color'), theme.colorText)}
         {color('itemFill', t('Background'), theme.colorBgContainer)}
+        {opacity('itemFillOpacity', 'itemFill', theme.colorBgContainer)}
+        <ContrastHint
+          text={config.itemColor || theme.colorText}
+          background={itemFill}
+        />
         {color('itemBorder', t('Border color'), theme.colorBorder)}
         {range('itemBorderWidth', t('Border width'), buttons ? 1 : 0, 0, 8)}
-        {range('itemRadius', t('Corner radius'), 6, 0, 40)}
+        {corners('itemCorners', 'itemRadius', 6)}
         {range('itemPadding', t('Padding'), 4, 0, 24)}
         {range('itemGap', t('Space between values'), 4, 0, 24)}
         <h5>{t('Numbers and blanks')}</h5>
@@ -430,6 +606,25 @@ function ValuesSection({
           />
         </Field>
         {range('valueDecimals', t('Decimal places'), 2, 0, 9)}
+        <Field label={t('Format code')} stacked>
+          <Input
+            aria-label={t('Format code')}
+            placeholder=",.0f"
+            data-test="mibi-slicer-format-code"
+            value={config.valueFormat ?? ''}
+            onChange={event =>
+              update(
+                { valueFormat: event.target.value.trim() || undefined },
+                'filter-format-code',
+              )
+            }
+          />
+        </Field>
+        <Hint>
+          {t(
+            'A number format such as ",.0f" or "$,.2f". It wins over units and decimals.',
+          )}
+        </Hint>
         <Field label={t('Show blank as')} stacked>
           <Input
             aria-label={t('Show blank as')}
@@ -451,7 +646,18 @@ function ValuesSection({
         {color('hoverColor', t('Text color'), theme.colorText)}
         <h5>{t('When it is selected')}</h5>
         {color('selectedFill', t('Background'), theme.colorPrimary)}
+        {opacity('selectedFillOpacity', 'selectedFill', theme.colorPrimary)}
         {color('selectedColor', t('Text color'), theme.colorTextLightSolid)}
+        <ContrastHint
+          text={
+            config.selectedColor ||
+            (buttons ? theme.colorTextLightSolid : theme.colorText)
+          }
+          background={
+            config.selectedFill ||
+            (buttons ? theme.colorPrimary : theme.colorBgContainer)
+          }
+        />
         {color('selectedBorder', t('Border color'), theme.colorPrimary)}
         {range('selectedBorderWidth', t('Border width'), buttons ? 1 : 0, 0, 8)}
         {range('selectedRadius', t('Corner radius'), 6, 0, 40)}
@@ -477,7 +683,7 @@ function SearchBoxSection({
   placeholder: boolean;
 }) {
   const theme = useTheme();
-  const { color, range, font } = useFields(config, update);
+  const { color, range, font, opacity, corners } = useFields(config, update);
   return (
     <Section collapsedByDefault>
       <h4>{title}</h4>
@@ -499,8 +705,9 @@ function SearchBoxSection({
       {range('searchSize', t('Size'), 13, 8, 28)}
       {color('searchColor', t('Text color'), theme.colorText)}
       {color('searchFill', t('Background'), theme.colorBgContainer)}
+      {opacity('searchFillOpacity', 'searchFill', theme.colorBgContainer)}
       {color('searchBorder', t('Border color'), theme.colorBorder)}
-      {range('searchRadius', t('Corner radius'), 6, 0, 24)}
+      {corners('searchCorners', 'searchRadius', 6)}
       {range('searchPadding', t('Padding'), 4, 0, 16)}
     </Section>
   );
@@ -517,7 +724,7 @@ function DropdownSection({
   menu: boolean;
 }) {
   const theme = useTheme();
-  const { color, range, toggle } = useFields(config, update);
+  const { color, range, toggle, opacity } = useFields(config, update);
   return (
     <Section collapsedByDefault>
       <h4>{menu ? t('Dropdown') : t('Control box')}</h4>
@@ -529,6 +736,7 @@ function DropdownSection({
         <>
           <h5>{t('Open list')}</h5>
           {color('menuFill', t('Background'), theme.colorBgElevated)}
+          {opacity('menuFillOpacity', 'menuFill', theme.colorBgElevated)}
           {color('menuColor', t('Text color'), theme.colorText)}
           {color('menuSelected', t('Selected value'), theme.colorPrimaryBg)}
           {range('menuRadius', t('Corner radius'), 8, 0, 24)}
@@ -553,7 +761,7 @@ function VisualLevel({
 }) {
   const theme = useTheme();
   const filters = useFilters();
-  const { color, range } = useFields(config, update);
+  const { color, range, toggle, opacity } = useFields(config, update);
   const options = useMemo(
     () =>
       Object.values(filters)
@@ -570,6 +778,9 @@ function VisualLevel({
   const variant = config.variant ?? 'dropdown';
   const drawn = kind === 'list' && variant !== 'dropdown';
   const fromList = drawn && variant !== 'input';
+  // Lists show their mark unless it is turned off; buttons only when asked
+  const markShown =
+    variant === 'list' ? config.showIcon !== false : !!config.showIcon;
   const ownFields =
     (kind === 'range' && !!config.rangeStyle) ||
     (kind === 'date' && !!config.dateStyle);
@@ -617,21 +828,25 @@ function VisualLevel({
       />
       <HeaderSection config={config} update={update} drawn={drawn} />
       {fromList && <ValuesSection config={config} update={update} />}
-      {fromList && variant === 'list' && (
+      {fromList && chosen && (
+        <VisibleValuesSection filter={chosen} config={config} update={update} />
+      )}
+      {fromList && (
         <Section
           collapsedByDefault
           headExtra={
             <Switch
               size="small"
-              checked={config.showIcon !== false}
+              checked={markShown}
               aria-label={t('Show the selection mark')}
               onChange={showIcon => update({ showIcon }, 'filter-showIcon')}
             />
           }
         >
           <h4>{t('Selection mark')}</h4>
-          {config.showIcon !== false && (
+          {markShown && (
             <>
+              {toggle('iconOverlay', t('Over the corner of the value'))}
               {color('iconColor', t('Color'), theme.colorPrimary)}
               {range('iconSize', t('Size'), 14, 8, 32)}
               {range('iconGap', t('Space to the text'), 6, 0, 24)}
@@ -672,6 +887,7 @@ function VisualLevel({
         <Section collapsedByDefault>
           <h4>{t('Chosen values')}</h4>
           {color('pillFill', t('Background'), theme.colorFillSecondary)}
+          {opacity('pillFillOpacity', 'pillFill', theme.colorFillSecondary)}
           {color('pillColor', t('Text color'), theme.colorText)}
           {range('pillRadius', t('Corner radius'), 12, 0, 24)}
         </Section>
@@ -715,6 +931,8 @@ function GeneralLevel({ id }: { id: string }) {
     <>
       <TitleSections id={id} />
       <BoxSections id={id} />
+      <HeaderTooltipSection id={id} />
+      <ActionSection id={id} />
       <Section collapsedByDefault>
         <h4>{t('Alt text')}</h4>
         <Input.TextArea

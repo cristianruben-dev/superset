@@ -42,10 +42,13 @@ import {
   selectionMode,
   selectionSummary,
   slicerText,
+  slicerValueKey,
   sortSlicerValues,
+  visibleValues,
   type SlicerValue,
 } from './slicer';
-import type { FilterElement } from './types';
+import { withOpacity } from 'src/mibi/format/styles';
+import type { Corners, FilterElement } from './types';
 
 const Box = styled.div`
   ${({ theme }) => css`
@@ -150,6 +153,14 @@ const Box = styled.div`
           var(--mb-s-padding, ${theme.sizeUnit}px ${theme.sizeUnit * 2}px)
         );
       }
+    }
+    .slicer-items.is-mark-overlay .slicer-item {
+      position: relative;
+    }
+    .slicer-items.is-mark-overlay .slicer-mark {
+      position: absolute;
+      top: ${theme.sizeUnit}px;
+      right: ${theme.sizeUnit}px;
     }
     .slicer-items.is-mark-right .slicer-mark {
       order: 2;
@@ -356,6 +367,14 @@ const V_ALIGN = {
   bottom: 'flex-end',
 } as const;
 
+/** A fill with its transparency, or nothing when no fill was chosen. */
+export const fillOf = (color: string | undefined, opacity?: number) =>
+  color && opacity !== undefined ? withOpacity(color, opacity) : color;
+
+/** Four corners as a CSS radius, top left first and clockwise. */
+const cornersOf = (corners: Corners | undefined) =>
+  corners?.map(corner => `${corner}px`).join(' ');
+
 /** The variables of the look of a slicer; what is unset keeps the theme. */
 export function slicerStyle(config: FilterElement): CSSProperties {
   const style: Record<string, string | number> = {};
@@ -367,10 +386,10 @@ export function slicerStyle(config: FilterElement): CSSProperties {
   set('--mb-s-family', config.itemFamily);
   set('--mb-s-size', px(config.itemSize));
   set('--mb-s-color', config.itemColor);
-  set('--mb-s-fill', config.itemFill);
+  set('--mb-s-fill', fillOf(config.itemFill, config.itemFillOpacity));
   set('--mb-s-border', config.itemBorder);
   set('--mb-s-border-width', px(config.itemBorderWidth));
-  set('--mb-s-radius', px(config.itemRadius));
+  set('--mb-s-radius', cornersOf(config.itemCorners) ?? px(config.itemRadius));
   set(
     '--mb-s-padding',
     config.itemPadding === undefined
@@ -389,7 +408,10 @@ export function slicerStyle(config: FilterElement): CSSProperties {
   }
   set('--mb-s-hover', config.hoverFill);
   set('--mb-s-hover-color', config.hoverColor);
-  set('--mb-s-selected', config.selectedFill);
+  set(
+    '--mb-s-selected',
+    fillOf(config.selectedFill, config.selectedFillOpacity),
+  );
   set('--mb-s-selected-color', config.selectedColor);
   set('--mb-s-selected-border', config.selectedBorder);
   set('--mb-s-selected-border-width', px(config.selectedBorderWidth));
@@ -420,10 +442,16 @@ export function slicerStyle(config: FilterElement): CSSProperties {
   set('--mb-s-search-family', config.searchFamily);
   set('--mb-s-search-size', px(config.searchSize));
   set('--mb-s-search-color', config.searchColor);
-  set('--mb-s-search-fill', config.searchFill);
+  set(
+    '--mb-s-search-fill',
+    fillOf(config.searchFill, config.searchFillOpacity),
+  );
   set('--mb-s-search-border', config.searchBorder);
-  set('--mb-s-search-radius', px(config.searchRadius));
-  set('--mb-s-pill-fill', config.pillFill);
+  set(
+    '--mb-s-search-radius',
+    cornersOf(config.searchCorners) ?? px(config.searchRadius),
+  );
+  set('--mb-s-pill-fill', fillOf(config.pillFill, config.pillFillOpacity));
   set('--mb-s-pill-color', config.pillColor);
   set('--mb-s-pill-radius', px(config.pillRadius));
   set('--mb-s-apply-fill', config.applyFill);
@@ -527,12 +555,13 @@ export function SlicerView({
 
   const applyText = (value: string) => {
     if (!column) return;
-    const asked = inputValues(value, config.inputMatch);
+    const numeric = !!config.inputNumeric;
+    const asked = inputValues(value, config.inputMatch, numeric);
     // Enter and leaving the box both apply; only a change filters again
-    if (sameValues(asked, applied.map(String))) return;
+    if (sameValues(asked.map(String), applied.map(String))) return;
     dispatch(
       updateDataMask(filter.id, {
-        extraFormData: inputFilters(column, asked, config.inputMatch),
+        extraFormData: inputFilters(column, asked, config.inputMatch, numeric),
         filterState: {
           value: asked.length ? asked : null,
           label: asked.join(', ') || undefined,
@@ -544,23 +573,34 @@ export function SlicerView({
   useEffect(() => {
     if (variant === 'input')
       setText(
-        applied.map(String).join(config.inputMatch === 'exact' ? ', ' : ' '),
+        applied
+          .map(String)
+          .join(
+            config.inputMatch === 'exact' || config.inputNumeric ? ', ' : ' ',
+          ),
       );
     // Follows selections made elsewhere, like the filter bar
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [applied.join('|'), variant]);
 
+  // Values the editor left out are not offered, nor chosen by «Select all»
+  const offered = useMemo(
+    () => values && visibleValues(values, config.hiddenValues),
+    [config.hiddenValues, values],
+  );
   const shown = useMemo(() => {
     const query = search.trim().toLowerCase();
-    return sortSlicerValues(values ?? [], config.sortValues).filter(
+    return sortSlicerValues(offered ?? [], config.sortValues).filter(
       value =>
         !query || slicerText(value, config).toLowerCase().includes(query),
     );
-  }, [config, search, values]);
+  }, [config, offered, search]);
 
-  const all = !!values?.length && values.every(v => selected.includes(v));
+  const all = !!offered?.length && offered.every(v => selected.includes(v));
   const placeholder = config.searchPlaceholder || t('Search');
-  const showMark = variant === 'list' && config.showIcon !== false;
+  // Lists show their mark unless it is turned off; buttons only when asked
+  const showMark =
+    variant === 'list' ? config.showIcon !== false : !!config.showIcon;
   const markClass = mode === 'single' ? 'slicer-mark is-single' : 'slicer-mark';
 
   return (
@@ -579,7 +619,7 @@ export function SlicerView({
           {selected.map(value => (
             <button
               type="button"
-              key={String(value)}
+              key={slicerValueKey(value)}
               className="slicer-pill"
               aria-label={t('Remove the value %s', slicerText(value, config))}
               onClick={() => choose(selected.filter(item => item !== value))}
@@ -597,10 +637,12 @@ export function SlicerView({
           aria-label={filter.name}
           placeholder={
             config.searchPlaceholder ||
+            (config.inputNumeric && t('Numbers separated by commas')) ||
             (config.inputMatch === 'exact'
               ? t('Values separated by commas')
               : t('Type to filter'))
           }
+          inputMode={config.inputNumeric ? 'decimal' : undefined}
           value={text}
           onChange={event => setText(event.target.value)}
           onBlur={() => applyText(text)}
@@ -626,6 +668,7 @@ export function SlicerView({
               variant === 'buttons' && 'is-buttons',
               config.layout === 'horizontal' && 'is-row',
               config.iconPosition === 'right' && 'is-mark-right',
+              config.iconOverlay && 'is-mark-overlay',
             ]
               .filter(Boolean)
               .join(' ')}
@@ -635,16 +678,16 @@ export function SlicerView({
             {values === undefined && (
               <span className="slicer-hint">{t('Loading...')}</span>
             )}
-            {values?.length === 0 && (
+            {offered?.length === 0 && (
               <span className="slicer-hint">{t('No data')}</span>
             )}
-            {mode !== 'single' && config.showSelectAll && !!values?.length && (
+            {mode !== 'single' && config.showSelectAll && !!offered?.length && (
               <button
                 type="button"
                 className="slicer-item"
                 aria-pressed={all}
                 data-test="mibi-slicer-all"
-                onClick={() => choose(all ? [] : values)}
+                onClick={() => choose(all ? [] : (offered ?? []))}
               >
                 {showMark && <span className="slicer-mark" />}
                 <span className="slicer-text">{t('Select all')}</span>
@@ -653,7 +696,7 @@ export function SlicerView({
             {shown.map(value => (
               <button
                 type="button"
-                key={String(value)}
+                key={slicerValueKey(value)}
                 className="slicer-item"
                 aria-pressed={selected.includes(value)}
                 title={slicerText(value, config)}

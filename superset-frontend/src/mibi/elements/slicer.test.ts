@@ -18,6 +18,7 @@
  */
 import {
   betweenTimeRange,
+  contrastRatio,
   inputFilters,
   inputValues,
   nextSelection,
@@ -27,7 +28,9 @@ import {
   selectionMode,
   selectionSummary,
   slicerText,
+  slicerValueKey,
   sortSlicerValues,
+  visibleValues,
 } from './slicer';
 
 test('a click adds, keeps one or waits for Ctrl, by selection mode', () => {
@@ -119,4 +122,32 @@ test('dates between two days include the last one', () => {
   ]);
   expect(parseBetweenTimeRange('Min : Max')).toEqual([undefined, undefined]);
   expect(parseBetweenTimeRange('Last 3 months')).toBeUndefined();
+});
+
+test('values left out by the editor are not offered', () => {
+  expect(
+    visibleValues(['North', null, 'South'], [slicerValueKey(null), 'South']),
+  ).toEqual(['North']);
+  const values = ['a'];
+  expect(visibleValues(values, undefined)).toBe(values);
+});
+
+test('a format code wins over units, and a wrong one is ignored', () => {
+  expect(slicerText(1234.5, { valueFormat: '$,.2f' })).toBe('$1,234.50');
+  expect(
+    slicerText(1234.5, { valueFormat: 'nope{', valueUnits: 'thousands' }),
+  ).toBe('1.23K');
+});
+
+test('a numeric text slicer takes whole numbers', () => {
+  expect(inputValues('10, x, 20,10', 'contains', true)).toEqual([10, 20]);
+  expect(inputFilters('units', [10, 20], 'contains', true)).toEqual({
+    filters: [{ col: 'units', op: 'IN', val: [10, 20] }],
+  });
+});
+
+test('contrast is measured as the WCAG ratio', () => {
+  expect(contrastRatio('#000000', '#ffffff')).toBe(21);
+  expect(contrastRatio('#777777', '#888888')).toBeLessThan(4.5);
+  expect(contrastRatio('not a color', '#fff')).toBeUndefined();
 });

@@ -18,6 +18,7 @@
  */
 import { t } from '@apache-superset/core/translation';
 import { getNumberFormatter } from '@superset-ui/core';
+import tinycolor from 'tinycolor2';
 import type { FilterElement, SlicerSelection, ValueUnits } from './types';
 
 /** What the rules of a slicer work on, independent of how it is drawn. */
@@ -46,12 +47,25 @@ export function formatNumber(
   return `${getNumberFormatter(`,${digits}f`)(value / divisor)}${suffix}`;
 }
 
+/** A number in a d3 format such as ",.0f", or undefined if it is not one. */
+export function formatWithCode(value: number, code: string) {
+  const formatter = getNumberFormatter(code);
+  return formatter.isInvalid ? undefined : formatter(value);
+}
+
 /** The text a slicer shows for one of its values. */
 export function slicerText(
   value: SlicerValue,
-  config: Pick<FilterElement, 'blankText' | 'valueUnits' | 'valueDecimals'>,
+  config: Pick<
+    FilterElement,
+    'blankText' | 'valueUnits' | 'valueDecimals' | 'valueFormat'
+  >,
 ): string {
   if (value === null || value === '') return config.blankText || t('(Blank)');
+  if (typeof value === 'number' && config.valueFormat) {
+    const coded = formatWithCode(value, config.valueFormat);
+    if (coded !== undefined) return coded;
+  }
   const numeric =
     typeof value === 'number' &&
     (config.valueUnits !== undefined || config.valueDecimals !== undefined);
@@ -110,11 +124,38 @@ export function nextSelection(
   return chosen && selected.length === 1 ? [] : [value];
 }
 
-/** What a text slicer asks for: one part of a value, or whole values. */
+/** The same key for a value wherever it is stored, blanks included. */
+export const slicerValueKey = (value: SlicerValue) =>
+  value === null ? '\u0000blank' : String(value);
+
+/** The values a slicer shows, without those the editor left out. */
+export function visibleValues(
+  values: SlicerValue[],
+  hidden: FilterElement['hiddenValues'],
+): SlicerValue[] {
+  if (!hidden?.length) return values;
+  const left = new Set(hidden);
+  return values.filter(value => !left.has(slicerValueKey(value)));
+}
+
+/**
+ * What a text slicer asks for: one part of a value, or whole values. A slicer
+ * of numbers takes whole numbers separated by commas and drops what is not one.
+ */
 export function inputValues(
   text: string,
   match: FilterElement['inputMatch'],
-): string[] {
+  numeric = false,
+): (string | number)[] {
+  if (numeric) {
+    const numbers = text
+      .split(',')
+      .map(part => part.trim())
+      .filter(Boolean)
+      .map(Number)
+      .filter(Number.isFinite);
+    return Array.from(new Set(numbers));
+  }
   if (match !== 'exact') {
     const clean = text.trim();
     return clean ? [clean] : [];
@@ -132,11 +173,12 @@ export function inputValues(
 /** The data mask filters of a text slicer. */
 export function inputFilters(
   column: string,
-  values: string[],
+  values: (string | number)[],
   match: FilterElement['inputMatch'],
+  numeric = false,
 ) {
   if (!values.length) return {};
-  return match === 'exact'
+  return match === 'exact' || numeric
     ? { filters: [{ col: column, op: 'IN' as const, val: values }] }
     : {
         filters: [{ col: column, op: 'ILIKE' as const, val: `%${values[0]}%` }],
@@ -227,4 +269,16 @@ export function parseBetweenTimeRange(
     end = isoDate(until);
   }
   return [match[1] === 'Min' ? undefined : match[1], end];
+}
+
+/**
+ * How readable a text color is on a background, as the WCAG contrast ratio, or
+ * undefined when a color cannot be read. 4.5 is the least for normal text.
+ */
+export function contrastRatio(text?: string, background?: string) {
+  if (!text || !background) return undefined;
+  const fg = tinycolor(text);
+  const bg = tinycolor(background);
+  if (!fg.isValid() || !bg.isValid()) return undefined;
+  return Math.round(tinycolor.readability(fg, bg) * 10) / 10;
 }

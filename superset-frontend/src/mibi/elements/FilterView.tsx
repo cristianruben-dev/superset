@@ -25,6 +25,7 @@ import type { VisualFormat } from 'src/mibi/format/types';
 import CanvasFilterControl from './CanvasFilterControl';
 import { ElementTitle } from './ElementTitle';
 import { DateSlicerView, RangeSlicerView } from './RangeSlicerView';
+import { SlicerIcons } from './SlicerIcons';
 import { SlicerView } from './SlicerView';
 import type { FilterElement } from './types';
 
@@ -42,6 +43,7 @@ const Placeholder = styled.div`
 `;
 
 const Body = styled.div`
+  position: relative;
   display: flex;
   flex-direction: column;
   width: 100%;
@@ -51,6 +53,12 @@ const Body = styled.div`
   .mibi-slicer-body {
     flex: 1;
     min-height: 0;
+  }
+  /* The corner icons keep clear of the header */
+  &.has-icons [data-test='mibi-slicer-header'],
+  &.has-icons [data-test='mibi-element-title'],
+  &.has-icons .ant-form-item-label {
+    padding-right: 52px;
   }
   /* The open list of the dropdown is drawn inside the element */
   &.has-menu .ant-select-dropdown.ant-select-dropdown {
@@ -143,6 +151,10 @@ export function FilterView({
       style['--mb-f-label-align'] = config.labelAlign;
       style['--mb-f-label-justify'] = JUSTIFY[config.labelAlign];
     }
+    const hasIcons =
+      config.showClear !== false ||
+      !!format?.link?.show ||
+      (!!format?.header?.tooltipIcon && !!format?.header?.tooltip?.text);
     const hasMenu =
       !!config.menuFill ||
       !!config.menuColor ||
@@ -200,11 +212,13 @@ export function FilterView({
           hasLabelStyle && 'has-label-style',
           hasBox && 'has-box',
           hasMenu && 'has-menu',
+          hasIcons && 'has-icons',
         ]
           .filter(Boolean)
           .join(' ')}
         style={style as CSSProperties}
       >
+        <SlicerIcons filterId={filter.id} config={config} format={format} />
         <ElementTitle format={format} fallback={filter.name} />
         <div className="mibi-slicer-body">{control}</div>
       </Body>

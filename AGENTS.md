@@ -214,8 +214,9 @@ Formats are stored in `position_json`, so they save, undo and export with the da
   ranges live in `mibi/elements/slicer.ts`. A slicer's Format pane (`SlicerFormat.tsx`) has a Visual and a General level; the
   General level reuses `TitleSections`, `BoxSections` and alt text, and its title is drawn by `ElementTitle`; the title
   text of an element is its own and stays out of "Copy format". A filter that takes one value keeps one whatever the slicer
-  says. Not built: a hierarchy slicer (it needs an OR across columns that native filters cannot express), header icons and
-  the action of a slicer, numeric-only text input, value format codes and per-corner styles.
+  says. `hiddenValues` leaves values out of one slicer only (keys from `slicerValueKey`); they still count in the charts.
+  `SlicerIcons` draws the eraser, the header help text and the action of `meta.mibiFormat`. Not built: a hierarchy slicer
+  (it needs an OR across columns that native filters cannot express).
 - The Analytics level of the pane holds the cards with `level: 'analytics'`. `utils/analyticsFormat.ts` draws
   `reference_lines` and the trend line as series with `__mibi` ids, and the zoom sliders. `tooltip_metrics` are a second query
   of the timeseries charts, so they never change the series. Small multiples are Matrixify, opened to the pane without its flag.

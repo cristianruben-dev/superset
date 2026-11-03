@@ -241,3 +241,44 @@ test('a filter of one value keeps one whatever the slicer says', async () => {
     await screen.findByRole('button', { name: 'North', pressed: false }),
   ).toBeInTheDocument();
 });
+
+test('values left out are not listed nor chosen by select all', async () => {
+  const { store } = await renderSlicer({
+    variant: 'list',
+    hiddenValues: ['South'],
+    showSelectAll: true,
+  });
+  await screen.findByRole('button', { name: 'North' });
+  expect(
+    screen.queryByRole('button', { name: 'South' }),
+  ).not.toBeInTheDocument();
+  fireEvent.click(screen.getByTestId('mibi-slicer-all'));
+  expect(dataMaskOf(store, filter.id)?.filterState?.value).toEqual(['North']);
+});
+
+test('a numeric text slicer filters by whole numbers', async () => {
+  const { store } = await renderSlicer({
+    variant: 'input',
+    inputNumeric: true,
+  });
+  const input = screen.getByTestId('mibi-slicer-input');
+  fireEvent.change(input, { target: { value: '5, abc, 7' } });
+  fireEvent.keyDown(input, { key: 'Enter' });
+  expect(dataMaskOf(store, filter.id)?.extraFormData).toEqual({
+    filters: [{ col: 'region', op: 'IN', val: [5, 7] }],
+  });
+});
+
+test('the look sets corners and transparency', () => {
+  expect(
+    slicerStyle({
+      kind: 'filter',
+      itemCorners: [1, 2, 3, 4],
+      itemFill: '#ff0000',
+      itemFillOpacity: 50,
+    }),
+  ).toEqual({
+    '--mb-s-radius': '1px 2px 3px 4px',
+    '--mb-s-fill': 'rgba(255, 0, 0, 0.5)',
+  });
+});
