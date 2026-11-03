@@ -106,20 +106,11 @@ o el rango y el botón Aplicar funcionan y se guardan.
 
 ## C. Segmentadores: formato de sus partes (fase 7c, M)
 
-**Estado (2026-11-03):** hecho en su mayor parte.
-- **Hecho:**
-  - Menú del desplegable: fondo, texto, valor elegido, borde, sombra, esquinas y altura.
-  - Caja de búsqueda y cajas de rango y fecha: fuente, colores, esquinas y relleno.
-  - Marca de selección: color, tamaño, lado y separación.
-  - Estado seleccionado: cursiva, subrayado, borde, esquinas y relleno.
-  - Valores: alineación horizontal y vertical, unidades, decimales y «mostrar vacío como».
-  - Colores de las píldoras y del botón Aplicar.
-- **Segunda tanda (2026-11-03):** código de formato de los valores, marca de selección superpuesta (también en
-  botones), esquinas por separado de valores y búsqueda, transparencia de los fondos (valores, seleccionado, búsqueda,
-  lista abierta, píldoras) y aviso de contraste bajo en el panel.
-- **Falta de C:** solo la P3 y las transparencias de borde y de texto.
-- **Inventario:** `scripts/mibi/format_inventory.py` ya reconoce estas opciones. Para regenerar `cobertura.md` y
-  `pendientes.md` hace falta descargar el esquema `reportThemeSchema-2.159.json` de Microsoft, que no está en el repo.
+**Estado (2026-11-03):** hecho con límites. Páginas tooltip (desde gráficos ECharts, tablas y tarjetas, con
+elementos de diseño y fechas por periodo), restablecer filtros, pestañas de página abajo como en Power BI y panel de
+filtros al editar, probados en el tablero 189 «QA páginas tooltip» (datos sintéticos) y con segmentadores en el 187.
+Fuera: el mapa de InfoMap (fase 11), la matriz y segmentadores dentro del tooltip. Sin probar con SESEQ (142). Los
+comentarios siguen sin decidir.
 
 ### Fuera por defecto (P3, se decide tras usar B y C)
 
