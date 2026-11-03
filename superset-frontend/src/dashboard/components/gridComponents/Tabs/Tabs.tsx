@@ -38,7 +38,7 @@ import findTabIndexByComponentId from '../../../util/findTabIndexByComponentId';
 import getDirectPathToTabIndex from '../../../util/getDirectPathToTabIndex';
 import getLeafComponentIdFromPath from '../../../util/getLeafComponentIdFromPath';
 import { NEW_TAB_ID } from '../../../util/constants';
-import { HIDDEN_PAGE_KEY } from 'src/mibi/present/dashboardTabs';
+import { isHiddenPage as isHiddenPageMeta } from 'src/mibi/present/dashboardTabs';
 import { RENDER_TAB, RENDER_TAB_CONTENT } from '../Tab';
 import { TABS_TYPE, TAB_TYPE } from '../../../util/componentTypes';
 import TabsRenderer from '../TabsRenderer';
@@ -137,7 +137,7 @@ const Tabs = (props: TabsProps): ReactElement => {
     (state: RootState) => state.dashboardLayout?.present,
   );
   const isHiddenPage = useCallback(
-    (tabId: string) => !!layout?.[tabId]?.meta?.[HIDDEN_PAGE_KEY],
+    (tabId: string) => isHiddenPageMeta(layout?.[tabId]?.meta),
     [layout],
   );
 

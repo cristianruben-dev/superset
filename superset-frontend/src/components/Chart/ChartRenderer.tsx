@@ -42,6 +42,12 @@ import { EmptyState } from '@superset-ui/core/components';
 import { ChartSource } from 'src/types/ChartSource';
 import type { Datasource, ChartStatus } from 'src/explore/types';
 import type { Dispatch } from 'redux';
+import { pointFields } from 'src/mibi/report/drillthroughScope';
+import {
+  MARK_HOVER_EVENT,
+  MARK_LEAVE_EVENT,
+  type MarkHover,
+} from 'src/mibi/report/markHover';
 import ChartContextMenu, {
   ChartContextMenuRef,
 } from './ChartContextMenu/ChartContextMenu';
@@ -191,6 +197,8 @@ class ChartRenderer extends Component<ChartRendererProps, ChartRendererState> {
 
   private contextMenuRef: RefObject<ChartContextMenuRef>;
 
+  private wrapperRef: RefObject<HTMLDivElement>;
+
   private hooks: ChartHooks;
 
   private mutableQueriesResponse: QueryData[] | null | undefined;
@@ -215,6 +223,7 @@ class ChartRenderer extends Component<ChartRendererProps, ChartRendererState> {
     this.renderStartTime = 0;
 
     this.contextMenuRef = createRef<ChartContextMenuRef>();
+    this.wrapperRef = createRef<HTMLDivElement>();
 
     this.handleAddFilter = this.handleAddFilter.bind(this);
     this.handleRenderSuccess = this.handleRenderSuccess.bind(this);
@@ -386,6 +395,33 @@ class ChartRenderer extends Component<ChartRendererProps, ChartRendererState> {
     offsetY: number,
     filters?: ContextMenuFilters,
   ): void {
+    // AuraData BI: a hover over a mark of a chart with a tooltip page
+    const wrapper = this.wrapperRef.current;
+    if (wrapper?.querySelector('[data-mibi-probe]')) {
+      const pageId = wrapper
+        .closest<HTMLElement>('[data-mibi-tooltip-page]')
+        ?.getAttribute('data-mibi-tooltip-page');
+      // A date with a grain names a period, not a value to filter on
+      const fields = pointFields(
+        filters?.drillToDetail?.filter(clause => !clause.grain),
+      );
+      if (pageId && fields.length) {
+        window.dispatchEvent(
+          new CustomEvent<MarkHover>(MARK_HOVER_EVENT, {
+            detail: {
+              chartId: this.props.chartId,
+              pageId,
+              fields,
+              x: offsetX,
+              y: offsetY,
+            },
+          }),
+        );
+      } else {
+        window.dispatchEvent(new CustomEvent(MARK_LEAVE_EVENT));
+      }
+      return;
+    }
     this.contextMenuRef.current?.open(offsetX, offsetY, filters);
     this.setState({ inContextMenu: true });
   }
@@ -534,6 +570,7 @@ class ChartRenderer extends Component<ChartRendererProps, ChartRendererState> {
           />
         )}
         <div
+          ref={this.wrapperRef}
           onContextMenu={
             this.state.showContextMenu ? this.onContextMenuFallback : undefined
           }

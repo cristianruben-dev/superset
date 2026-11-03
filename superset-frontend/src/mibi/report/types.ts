@@ -63,3 +63,24 @@ export const BOOKMARKS_KEY = 'mibiBookmarks';
 
 /** Background a page sets for itself; without one the page takes the canvas's. */
 export const PAGE_BACKGROUND_KEY = 'mibiPageBackground';
+
+/**
+ * On a top level tab: the page is a tooltip, as in Power BI. It is hidden
+ * from viewers and shows, floating, over the marks of the charts that use it.
+ * The tooltip is the top-left area of the page, of this size in cells.
+ */
+export interface TooltipPage {
+  width: number;
+  height: number;
+  /** Fields the page is made for; "Auto" on a chart matches on them */
+  columns: string[];
+}
+
+export const TOOLTIP_PAGE_KEY = 'mibiTooltipPage';
+
+/** 320 × 256 px, close to the 320 × 240 of Power BI on the cell grid. */
+export const DEFAULT_TOOLTIP_PAGE: TooltipPage = {
+  width: 10,
+  height: 8,
+  columns: [],
+};

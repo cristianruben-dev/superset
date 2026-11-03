@@ -91,6 +91,7 @@ import {
 } from 'src/mibi/report/FilterDock';
 import { PresentationControls } from 'src/mibi/present/PresentationControls';
 import { DrillthroughBar } from 'src/mibi/report/DrillthroughBar';
+import { TooltipPageHost } from 'src/mibi/report/TooltipPageHost';
 import { usePresenting } from 'src/mibi/present/presentation';
 
 // @z-index-above-dashboard-charts + 1 = 11
@@ -714,6 +715,8 @@ const DashboardBuilder = () => {
               </InTabsDock>
               {/* AuraData BI: the drill through applied to the page */}
               {!editMode && <DrillthroughBar />}
+              {/* AuraData BI: tooltip pages over the marks of the charts */}
+              <TooltipPageHost />
             </StyledHeader>
             <StyledContent fullSizeChartId={fullSizeChartId}>
               {!editMode &&
