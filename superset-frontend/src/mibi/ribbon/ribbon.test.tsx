@@ -37,6 +37,7 @@ import {
   visibleTabs,
   HIDDEN_PAGE_KEY,
 } from 'src/mibi/present/dashboardTabs';
+import { isMobileEditing, setMobileEditing } from 'src/mibi/format/mobile';
 import { Ribbon, type RibbonProps } from './Ribbon';
 
 const layout = {
@@ -116,6 +117,7 @@ const renderRibbon = (props: RibbonProps = handlers()) =>
 afterEach(() => {
   selectVisual(null);
   setAllLocked(false);
+  setMobileEditing(false);
   window.localStorage.clear();
 });
 
@@ -167,6 +169,27 @@ test('"Lock objects" locks every object while it is on', () => {
   userEvent.click(screen.getByTestId('mibi-ribbon-tab-view'));
   userEvent.click(screen.getByTestId('mibi-ribbon-lock'));
   expect(isObjectLocked({})).toBe(true);
+});
+
+test('"Mobile layout" opens the phone view with only its own commands', async () => {
+  renderRibbon();
+  userEvent.click(screen.getByTestId('mibi-ribbon-tab-view'));
+  userEvent.click(screen.getByTestId('mibi-ribbon-mobile-layout'));
+  expect(isMobileEditing()).toBe(true);
+  await waitFor(() =>
+    expect(screen.getByTestId('mibi-ribbon-tab-mobile')).toBeInTheDocument(),
+  );
+  expect(
+    screen.queryByTestId('mibi-ribbon-tab-insert'),
+  ).not.toBeInTheDocument();
+  // Saving and undoing stay at hand
+  expect(screen.getByTestId('header-save-button')).toBeInTheDocument();
+
+  userEvent.click(screen.getByTestId('mibi-ribbon-mobile-close'));
+  expect(isMobileEditing()).toBe(false);
+  await waitFor(() =>
+    expect(screen.getByTestId('mibi-ribbon-tab-insert')).toBeInTheDocument(),
+  );
 });
 
 test('the Selection pane lists the page and sets hidden and locked', () => {

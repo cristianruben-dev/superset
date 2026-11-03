@@ -18,7 +18,10 @@
  */
 import { useEffect, useState } from 'react';
 
-/** Below this screen width the dashboard uses its mobile layout. */
+/**
+ * Below this screen width a page shows its mobile layout, when the author made
+ * one. Without one the page is the same canvas, scaled to the width.
+ */
 export const MOBILE_BREAKPOINT = 640;
 
 /**
@@ -39,5 +42,25 @@ export function usePhoneScreen(): boolean {
   }, []);
   return value;
 }
-/** Width of the phone preview in edit mode. */
-export const PHONE_WIDTH = 390;
+
+const EDITING_EVENT = 'mibi:mobile-editing';
+let editing = false;
+
+/** Whether the editor shows the mobile layout of the page instead of its canvas. */
+export const isMobileEditing = () => editing;
+
+export function setMobileEditing(value: boolean) {
+  if (editing === value) return;
+  editing = value;
+  window.dispatchEvent(new CustomEvent(EDITING_EVENT));
+}
+
+export function useMobileEditing(): boolean {
+  const [value, setValue] = useState(editing);
+  useEffect(() => {
+    const onChange = () => setValue(editing);
+    window.addEventListener(EDITING_EVENT, onChange);
+    return () => window.removeEventListener(EDITING_EVENT, onChange);
+  }, []);
+  return value;
+}
