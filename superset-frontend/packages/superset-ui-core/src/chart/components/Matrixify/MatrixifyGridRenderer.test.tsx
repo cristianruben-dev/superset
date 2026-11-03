@@ -21,7 +21,9 @@ import { render } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { ThemeProvider } from '@apache-superset/core/theme';
 import { supersetTheme } from '@apache-superset/core/theme';
-import MatrixifyGridRenderer from './MatrixifyGridRenderer';
+import MatrixifyGridRenderer, {
+  matrixifyGridStyle,
+} from './MatrixifyGridRenderer';
 import type { MatrixifyMode } from '../../types/matrixify';
 import { generateMatrixifyGrid } from './MatrixifyGridGenerator';
 
@@ -416,4 +418,32 @@ test('should use default values for missing configuration', () => {
   expect(container).not.toBeEmptyDOMElement();
   const gridCells = container.querySelectorAll('[data-testid^="grid-cell-"]');
   expect(gridCells).toHaveLength(2);
+});
+
+test('the grid of small multiples takes its gap, borders and headers', () => {
+  expect(matrixifyGridStyle({})).toEqual({});
+  expect(
+    matrixifyGridStyle({
+      matrixify_grid_gap: 4,
+      matrixify_cell_border_color: '#ff0000',
+      matrixify_cell_border_width: 2,
+      matrixify_header_font: { fontSize: 16, bold: false, color: '#123456' },
+      matrixify_header_background: '#eeeeee',
+      matrixify_header_align: 'left',
+    }),
+  ).toEqual({
+    '--mibi-mx-gap': '4px',
+    '--mibi-mx-cell-border': '2px solid #ff0000',
+    '--mibi-mx-header-border': '2px solid #ff0000',
+    '--mibi-mx-header-size': '16px',
+    '--mibi-mx-header-weight': '400',
+    '--mibi-mx-header-color': '#123456',
+    '--mibi-mx-header-bg': '#eeeeee',
+    '--mibi-mx-header-align': 'left',
+    '--mibi-mx-header-justify': 'flex-start',
+  });
+  expect(matrixifyGridStyle({ matrixify_cell_border_show: false })).toEqual({
+    '--mibi-mx-cell-border': 'none',
+    '--mibi-mx-header-border': 'none',
+  });
 });

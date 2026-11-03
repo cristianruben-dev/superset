@@ -17,7 +17,17 @@
  * under the License.
  */
 import { t } from '@apache-superset/core/translation';
-import { ControlPanelSectionConfig } from '../types';
+import { ControlPanelSectionConfig, ControlSetItem } from '../types';
+
+const gridControl = (
+  name: string,
+  label: string,
+  type: string,
+  extra: Record<string, unknown> = {},
+): ControlSetItem => ({
+  name,
+  config: { type, label, default: null, renderTrigger: true, ...extra },
+});
 
 export const matrixifyEnableSection: ControlPanelSectionConfig = {
   label: t('Matrixify'),
@@ -103,6 +113,87 @@ export const matrixifySection: ControlPanelSectionConfig = {
           placeholder: '{{rowLabel}} by {{colLabel}}',
         },
       },
+    ],
+    [
+      gridControl(
+        'matrixify_grid_gap',
+        t('Space between charts'),
+        'NumberControl',
+        {
+          min: 0,
+          max: 64,
+        },
+      ),
+      gridControl(
+        'matrixify_cell_radius',
+        t('Rounded corners'),
+        'NumberControl',
+        {
+          min: 0,
+          max: 50,
+        },
+      ),
+    ],
+    [
+      gridControl(
+        'matrixify_cell_border_show',
+        t('Borders'),
+        'CheckboxControl',
+        {
+          default: true,
+        },
+      ),
+      gridControl(
+        'matrixify_cell_border_width',
+        t('Border width'),
+        'NumberControl',
+        {
+          min: 0,
+          max: 20,
+        },
+      ),
+    ],
+    [
+      gridControl(
+        'matrixify_cell_border_color',
+        t('Border color'),
+        'ColorPickerControl',
+        {
+          allowClear: true,
+        },
+      ),
+      gridControl(
+        'matrixify_cell_background',
+        t('Chart background'),
+        'ColorPickerControl',
+        {
+          allowClear: true,
+        },
+      ),
+    ],
+    [gridControl('matrixify_header_font', t('Header font'), 'FontControl')],
+    [
+      gridControl(
+        'matrixify_header_background',
+        t('Header background'),
+        'ColorPickerControl',
+        {
+          allowClear: true,
+        },
+      ),
+      gridControl(
+        'matrixify_header_align',
+        t('Header alignment'),
+        'SelectControl',
+        {
+          choices: [
+            ['left', t('Left')],
+            ['center', t('Center')],
+            ['right', t('Right')],
+          ],
+          clearable: true,
+        },
+      ),
     ],
   ],
   tabOverride: 'customize',

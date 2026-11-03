@@ -27,9 +27,18 @@ const CellContainer = styled.div`
   height: 100%;
   display: flex;
   flex-direction: column;
-  border: 1px solid ${({ theme }) => theme.colorBorder};
-  border-radius: ${({ theme }) => theme.borderRadius}px;
-  background-color: ${({ theme }) => theme.colorBgContainer};
+  border: var(
+    --mibi-mx-cell-border,
+    1px solid ${({ theme }) => theme.colorBorder}
+  );
+  border-radius: var(
+    --mibi-mx-cell-radius,
+    ${({ theme }) => theme.borderRadius}px
+  );
+  background-color: var(
+    --mibi-mx-cell-bg,
+    ${({ theme }) => theme.colorBgContainer}
+  );
   overflow: hidden;
 `;
 
