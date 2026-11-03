@@ -19,7 +19,7 @@
 
 import { t } from '@apache-superset/core/translation';
 import { css, styled } from '@apache-superset/core/theme';
-import { Button, Slider } from '@superset-ui/core/components';
+import { Button, Select, Slider } from '@superset-ui/core/components';
 import {
   clampZoom,
   MAX_ZOOM,
@@ -36,6 +36,12 @@ const Bar = styled.div<{ $docked?: boolean }>`
     ${$docked
       ? css`
           padding: 0;
+          .percent {
+            font-family: ${theme.fontFamilyCode};
+          }
+          .mibi-zoom-fit {
+            width: ${theme.sizeUnit * 46}px;
+          }
         `
       : css`
           position: absolute;
@@ -78,6 +84,63 @@ export function ZoomToolbar({
       mode: 'custom',
       zoom: clampZoom(Math.round(zoom * 100 + direction * 10) / 100),
     });
+  if (docked) {
+    // As in the status bar of Power BI: the zoom, then how the page fits
+    const fit =
+      view.mode === 'custom' ? (zoom === 1 ? 'actual' : 'custom') : view.mode;
+    return (
+      <Bar data-test="mibi-zoom-toolbar" $docked>
+        <Button
+          buttonSize="xsmall"
+          buttonStyle="link"
+          aria-label={t('Zoom out')}
+          onClick={() => step(-1)}
+        >
+          −
+        </Button>
+        <Slider
+          min={Math.round(MIN_ZOOM * 100)}
+          max={Math.round(MAX_ZOOM * 100)}
+          value={Math.round(zoom * 100)}
+          onChange={(value: number) =>
+            setCanvasView({ mode: 'custom', zoom: value / 100 })
+          }
+          tooltip={{ open: false }}
+        />
+        <Button
+          buttonSize="xsmall"
+          buttonStyle="link"
+          aria-label={t('Zoom in')}
+          onClick={() => step(1)}
+        >
+          +
+        </Button>
+        <span className="percent">{Math.round(zoom * 100)}%</span>
+        <Select
+          className="mibi-zoom-fit"
+          ariaLabel={t('Fit')}
+          data-test="mibi-zoom-fit"
+          value={fit}
+          showSearch={false}
+          onChange={value => {
+            if (value === 'actual') setCanvasView({ mode: 'custom', zoom: 1 });
+            else if (value === 'fit-page' || value === 'fit-width') {
+              setCanvasView({ mode: value });
+            }
+          }}
+          options={[
+            { value: 'fit-page', label: t('Fit page') },
+            { value: 'fit-width', label: t('Fit width') },
+            { value: 'actual', label: t('Actual size') },
+            ...(fit === 'custom'
+              ? [{ value: 'custom', label: t('Custom') }]
+              : []),
+          ]}
+        />
+      </Bar>
+    );
+  }
+
   return (
     <Bar data-test="mibi-zoom-toolbar" $docked={docked}>
       <Button
