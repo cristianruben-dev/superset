@@ -20322,3 +20322,507 @@ msgstr "Tamaño de fuente del encabezado secundario"
 
 msgid "Second query"
 msgstr "Segunda consulta"
+
+msgid "All borders"
+msgstr "Todos los bordes"
+
+msgid "Alternate text color"
+msgstr "Color de texto alterno"
+
+msgid "Apply to header"
+msgstr "Aplicar al encabezado"
+
+msgid "Apply to subtotals"
+msgstr "Aplicar a los subtotales"
+
+msgid "Apply to total"
+msgstr "Aplicar al total"
+
+msgid "Apply to values"
+msgstr "Aplicar a los valores"
+
+msgid "Billions"
+msgstr "Miles de millones"
+
+msgid "Blank row color"
+msgstr "Color de la fila en blanco"
+
+msgid "Blank row height"
+msgstr "Altura de la fila en blanco"
+
+msgid "Blank rows"
+msgstr "Filas en blanco"
+
+msgid "Column grand total"
+msgstr "Total general de columnas"
+
+msgid "Column headers"
+msgstr "Encabezados de columna"
+
+msgid "Column sizing"
+msgstr "Ancho de columnas"
+
+msgid "Column subtotal label"
+msgstr "Etiqueta de subtotales de columnas"
+
+msgid "Column subtotal levels"
+msgstr "Niveles de subtotales de columnas"
+
+msgid "Data color"
+msgstr "Color de datos"
+
+msgid "Default column width"
+msgstr "Ancho predeterminado de columna"
+
+msgid "Expand and collapse icon color"
+msgstr "Color de los iconos de expandir y contraer"
+
+msgid "Expand and collapse icon size"
+msgstr "Tamaño de los iconos de expandir y contraer"
+
+msgid "Expand or collapse group"
+msgstr "Expandir o contraer grupo"
+
+msgid "First and last"
+msgstr "Primero y último"
+
+msgid "Fit content"
+msgstr "Ajustar al contenido"
+
+msgid "Fixed width"
+msgstr "Ancho fijo"
+
+msgid "Horizontal grid"
+msgstr "Cuadrícula horizontal"
+
+msgid "Horizontal grid color"
+msgstr "Color de la cuadrícula horizontal"
+
+msgid "Horizontal grid width"
+msgstr "Grosor de la cuadrícula horizontal"
+
+msgid "Image height"
+msgstr "Altura de imagen"
+
+msgid "Image width"
+msgstr "Ancho de imagen"
+
+msgid "Indentation"
+msgstr "Sangría"
+
+msgid "Initial expansion depth"
+msgstr "Nivel de expansión inicial"
+
+msgid "Leave empty to include every level."
+msgstr "Déjalo vacío para incluir todos los niveles."
+
+msgid "Matrix layout"
+msgstr "Disposición de la matriz"
+
+msgid "Millions"
+msgstr "Millones"
+
+msgid "Minimum and maximum"
+msgstr "Mínimo y máximo"
+
+msgid "Open link: %s"
+msgstr "Abrir enlace: %s"
+
+msgid "Outline color"
+msgstr "Color del contorno"
+
+msgid "Outline width"
+msgstr "Grosor del contorno"
+
+msgid "Repeat row headers"
+msgstr "Repetir encabezados de fila"
+
+msgid "Row grand total"
+msgstr "Total general de filas"
+
+msgid "Row headers"
+msgstr "Encabezados de fila"
+
+msgid "Row padding"
+msgstr "Relleno de filas"
+
+msgid "Row subtotal label"
+msgstr "Etiqueta de subtotales de filas"
+
+msgid "Row subtotal levels"
+msgstr "Niveles de subtotales de filas"
+
+msgid "Select columns containing ordered numeric arrays. Scalar values are not a time series."
+msgstr "Selecciona columnas que contengan listas numéricas ordenadas. Un valor suelto no es una serie temporal."
+
+msgid "Show URLs as icons"
+msgstr "Mostrar URL como iconos"
+
+msgid "Show blank rows"
+msgstr "Mostrar filas en blanco"
+
+msgid "Show expand and collapse icons"
+msgstr "Mostrar iconos de expandir y contraer"
+
+msgid "Show these markers"
+msgstr "Mostrar estos marcadores"
+
+msgid "Sparkline array columns"
+msgstr "Columnas con series para minigráficos"
+
+msgid "Sparkline metrics"
+msgstr "Métricas de minigráficos"
+
+msgid "Sparklines"
+msgstr "Minigráficos"
+
+msgid "Specific column"
+msgstr "Columna específica"
+
+msgid "Stepped layout"
+msgstr "Disposición escalonada"
+
+msgid "Subtotals"
+msgstr "Subtotales"
+
+msgid "Table grid"
+msgstr "Cuadrícula de tabla"
+
+msgid "Thousands"
+msgstr "Miles"
+
+msgid "Totals"
+msgstr "Totales"
+
+msgid "Trend across the existing column groups, in their displayed order."
+msgstr "Tendencia entre los grupos de columnas existentes, en el orden en que se muestran."
+
+msgid "Trend: %s"
+msgstr "Tendencia: %s"
+
+msgid "Vertical grid"
+msgstr "Cuadrícula vertical"
+
+msgid "Vertical grid color"
+msgstr "Color de la cuadrícula vertical"
+
+msgid "Vertical grid width"
+msgstr "Grosor de la cuadrícula vertical"
+
+msgid "Word wrap"
+msgstr "Ajuste de texto"
+
+msgid "Background color"
+msgstr "Color de fondo"
+
+msgid "Apply to labels"
+msgstr "Aplicar a las etiquetas"
+
+msgid "Banded row headers"
+msgstr "Encabezados de fila alternos"
+
+msgid "Column expansion depth"
+msgstr "Nivel de expansión de columnas"
+
+msgid "Header title alignment"
+msgstr "Alineación del título del encabezado"
+
+msgid "Row expansion depth"
+msgstr "Nivel de expansión de filas"
+
+msgid "Subtotal label"
+msgstr "Etiqueta del subtotal"
+
+msgid "Absolute difference"
+msgstr "Diferencia absoluta"
+
+msgid "After value"
+msgstr "Después del valor"
+
+msgid "Axis label font"
+msgstr "Fuente de etiquetas del eje"
+
+msgid "Background transparency"
+msgstr "Transparencia del fondo"
+
+msgid "Bad"
+msgstr "Desfavorable"
+
+msgid "Bad color"
+msgstr "Color desfavorable"
+
+msgid "Before value"
+msgstr "Antes del valor"
+
+msgid "Border transparency"
+msgstr "Transparencia del borde"
+
+msgid "Bubbles"
+msgstr "Burbujas"
+
+msgid "Callout value"
+msgstr "Valor destacado"
+
+msgid "Category colors"
+msgstr "Colores por categoría"
+
+msgid "Category label"
+msgstr "Etiqueta de categoría"
+
+msgid "Category label background"
+msgstr "Fondo de etiqueta de categoría"
+
+msgid "Category label font"
+msgstr "Fuente de etiqueta de categoría"
+
+msgid "Category, value and percentage"
+msgstr "Categoría, valor y porcentaje"
+
+msgid "Center background"
+msgstr "Fondo central"
+
+msgid "Center label"
+msgstr "Etiqueta central"
+
+msgid "Center value"
+msgstr "Valor central"
+
+msgid "Center value font"
+msgstr "Fuente del valor central"
+
+msgid "Colors and borders"
+msgstr "Colores y bordes"
+
+msgid "Connector color"
+msgstr "Color del conector"
+
+msgid "Connector style"
+msgstr "Estilo del conector"
+
+msgid "Connector width"
+msgstr "Grosor del conector"
+
+msgid "Connectors"
+msgstr "Conectores"
+
+msgid "Conversion background"
+msgstr "Fondo de conversión"
+
+msgid "Conversion font"
+msgstr "Fuente de conversión"
+
+msgid "Conversion labels"
+msgstr "Etiquetas de conversión"
+
+msgid "Custom value label"
+msgstr "Etiqueta personalizada del valor"
+
+msgid "Distance format"
+msgstr "Formato de distancia"
+
+msgid "Distance label"
+msgstr "Etiqueta de distancia"
+
+msgid "Fill transparency"
+msgstr "Transparencia del relleno"
+
+msgid "Fit markers inside plot area"
+msgstr "Ajustar marcadores al área de trazado"
+
+msgid "Gauge axis"
+msgstr "Eje del medidor"
+
+msgid "Gauge value"
+msgstr "Valor del medidor"
+
+msgid "Goal"
+msgstr "Objetivo"
+
+msgid "Goal label"
+msgstr "Etiqueta del objetivo"
+
+msgid "Goal metric"
+msgstr "Métrica de objetivo"
+
+msgid "Good"
+msgstr "Favorable"
+
+msgid "Good color"
+msgstr "Color favorable"
+
+msgid "Good direction"
+msgstr "Dirección favorable"
+
+msgid "Higher is better"
+msgstr "Cuanto más alto, mejor"
+
+msgid "Label content"
+msgstr "Contenido de etiqueta"
+
+msgid "Label gap"
+msgstr "Separación de etiqueta"
+
+msgid "Label rotation"
+msgstr "Rotación de etiqueta"
+
+msgid "Label text"
+msgstr "Texto de etiqueta"
+
+msgid "Last date"
+msgstr "Última fecha"
+
+msgid "Lower is better"
+msgstr "Cuanto más bajo, mejor"
+
+msgid "Lower shading color"
+msgstr "Color del sombreado inferior"
+
+msgid "Match border to fill"
+msgstr "Igualar borde y relleno"
+
+msgid "Maximum color"
+msgstr "Color máximo"
+
+msgid "Minimum color"
+msgstr "Color mínimo"
+
+msgid "Neutral"
+msgstr "Neutro"
+
+msgid "Neutral band around target"
+msgstr "Margen neutro alrededor del objetivo"
+
+msgid "Neutral color"
+msgstr "Color neutro"
+
+msgid "Outline only"
+msgstr "Solo el borde"
+
+msgid "Outside"
+msgstr "Fuera"
+
+msgid "Overflow text"
+msgstr "Texto desbordado"
+
+msgid "Percentage decimal places"
+msgstr "Decimales del porcentaje"
+
+msgid "Ratio line"
+msgstr "Línea de proporción"
+
+msgid "Ratio line color"
+msgstr "Color de la línea de proporción"
+
+msgid "Ratio line name"
+msgstr "Nombre de la línea de proporción"
+
+msgid "Ratio line style"
+msgstr "Estilo de la línea de proporción"
+
+msgid "Ratio line transparency"
+msgstr "Transparencia de la línea de proporción"
+
+msgid "Ratio line width"
+msgstr "Grosor de la línea de proporción"
+
+msgid "Shading transparency"
+msgstr "Transparencia del sombreado"
+
+msgid "Show blank as"
+msgstr "Mostrar valores en blanco como"
+
+msgid "Show border"
+msgstr "Mostrar borde"
+
+msgid "Show category label"
+msgstr "Mostrar etiqueta de categoría"
+
+msgid "Show center background"
+msgstr "Mostrar fondo central"
+
+msgid "Show center value"
+msgstr "Mostrar valor central"
+
+msgid "Show connectors"
+msgstr "Mostrar conectores"
+
+msgid "Show conversion percentage"
+msgstr "Mostrar porcentaje de conversión"
+
+msgid "Show distance"
+msgstr "Mostrar distancia"
+
+msgid "Show goal"
+msgstr "Mostrar objetivo"
+
+msgid "Show labels"
+msgstr "Mostrar etiquetas"
+
+msgid "Show plot shading"
+msgstr "Mostrar sombreado del área de trazado"
+
+msgid "Show ratio line"
+msgstr "Mostrar línea de proporción"
+
+msgid "Show status icon"
+msgstr "Mostrar icono de estado"
+
+msgid "Show target"
+msgstr "Mostrar objetivo"
+
+msgid "Show trend line"
+msgstr "Mostrar línea de tendencia"
+
+msgid "Size multiplier"
+msgstr "Multiplicador de tamaño"
+
+msgid "Slices"
+msgstr "Porciones"
+
+msgid "Space between groups"
+msgstr "Espacio entre grupos"
+
+msgid "Space between nodes"
+msgstr "Espacio entre nodos"
+
+msgid "Target color"
+msgstr "Color del objetivo"
+
+msgid "Target label"
+msgstr "Etiqueta del objetivo"
+
+msgid "Target label font"
+msgstr "Fuente de etiqueta del objetivo"
+
+msgid "Trend transparency"
+msgstr "Transparencia de tendencia"
+
+msgid "Trillions"
+msgstr "Billones"
+
+msgid "Truncate"
+msgstr "Recortar"
+
+msgid "Upper shading color"
+msgstr "Color del sombreado superior"
+
+msgid "Value and percentage"
+msgstr "Valor y porcentaje"
+
+msgid "Value label background"
+msgstr "Fondo de etiqueta de valor"
+
+msgid "Value label font"
+msgstr "Fuente de etiqueta de valor"
+
+msgid "Wrap"
+msgstr "Ajustar"
+
+msgid "Wrap anywhere"
+msgstr "Ajustar en cualquier punto"
+
+msgid "Center label font"
+msgstr "Fuente de la etiqueta central"
+
+msgid "Bounds for the Y axis. When left empty, they come from the data"
+msgstr "Límites del eje Y. Si los dejas vacíos, salen de los datos"
