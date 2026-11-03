@@ -20,7 +20,8 @@
  * Free placement on the cell grid. Every chart, element and text box has an
  * absolute position on the page, in cells from its top-left corner
  * (``meta.mibiPos``), so moving or resizing one never moves another. The rows
- * of the layout stay as containers: they keep the order of the mobile layout.
+ * of the layout stay as containers. A phone shows the same page, scaled, unless
+ * the page has a mobile layout of its own (see mobileLayout.ts).
  */
 import type { CSSProperties } from 'react';
 import type { DropTargetMonitor } from 'react-dnd';

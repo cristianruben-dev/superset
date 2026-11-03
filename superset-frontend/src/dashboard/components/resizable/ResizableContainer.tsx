@@ -19,7 +19,7 @@
 import { useState, useCallback, useContext, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { ResizeCallback, ResizeStartCallback, Resizable } from 're-resizable';
-import { useCanvasMobile, useCanvasZoom } from 'src/mibi/format/CanvasFrame';
+import { useCanvasZoom } from 'src/mibi/format/CanvasFrame';
 import cx from 'classnames';
 import { css, styled } from '@apache-superset/core/theme';
 
@@ -193,9 +193,7 @@ export default function ResizableContainer({
 }: ResizableContainerProps) {
   const [isResizing, setIsResizing] = useState<boolean>(false);
   const canvasZoom = useCanvasZoom();
-  // The mobile layout stacks every object at full width
-  const mobile = useCanvasMobile();
-  const widthAdjustable = adjustableWidth && !mobile;
+  const widthAdjustable = adjustableWidth;
 
   // Size in cells while resizing, shown next to the object
   const [liveSize, setLiveSize] = useState<[number, number] | null>(null);
@@ -303,13 +301,11 @@ export default function ResizableContainer({
 
   const size = useMemo(
     () => ({
-      width: mobile
-        ? '100%'
-        : widthAdjustable
-          ? (widthStep + gutterWidth) * widthMultiple - gutterWidth
-          : (staticWidthMultiple && staticWidthMultiple * widthStep) ||
-            staticWidth ||
-            undefined,
+      width: widthAdjustable
+        ? (widthStep + gutterWidth) * widthMultiple - gutterWidth
+        : (staticWidthMultiple && staticWidthMultiple * widthStep) ||
+          staticWidth ||
+          undefined,
       height: adjustableHeight
         ? heightStep * heightMultiple
         : (staticHeightMultiple && staticHeightMultiple * heightStep) ||
@@ -317,7 +313,6 @@ export default function ResizableContainer({
           undefined,
     }),
     [
-      mobile,
       widthAdjustable,
       widthStep,
       gutterWidth,
