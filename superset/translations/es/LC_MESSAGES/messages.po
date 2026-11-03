@@ -21300,3 +21300,221 @@ msgid ""
 "Marks the status bar and the home indicator, which the page does not use"
 msgstr ""
 "Marca la barra de estado y el indicador de inicio, que la página no usa"
+msgid "%s selected"
+msgstr "%s seleccionados"
+
+msgid "A click picks one value; Ctrl or Cmd and a click adds more."
+msgstr "Un clic elige un valor; con Ctrl o Cmd y clic añades más."
+
+msgid "All values"
+msgstr "Todos"
+
+msgid "Apply button"
+msgstr "Botón Aplicar"
+
+msgid "As the filter"
+msgstr "Como el filtro"
+
+msgid "As they come"
+msgstr "Como llegan"
+
+msgid "Between"
+msgstr "Entre"
+
+msgid "Between dates"
+msgstr "Entre fechas"
+
+msgid "Changes not applied"
+msgstr "Cambios sin aplicar"
+
+msgid "Chosen values"
+msgstr "Valores elegidos"
+
+msgid "Contains the text"
+msgstr "Contiene el texto"
+
+msgid "Control box"
+msgstr "Caja del control"
+
+msgid "Date style"
+msgstr "Estilo de fecha"
+
+msgid "Days"
+msgstr "Días"
+
+msgid "Describes the slicer for screen readers"
+msgstr "Describe el segmentador para lectores de pantalla"
+
+msgid "Filter control"
+msgstr "Control del filtro"
+
+msgid "Highest value"
+msgstr "Valor más alto"
+
+msgid "How many"
+msgstr "Cuántos"
+
+msgid "In the last"
+msgstr "En los últimos"
+
+msgid "In the next"
+msgstr "En los próximos"
+
+msgid "In this"
+msgstr "En este"
+
+msgid "Input boxes"
+msgstr "Cajas de entrada"
+
+msgid "Lowest value"
+msgstr "Valor más bajo"
+
+msgid "Match"
+msgstr "Coincidencia"
+
+msgid "Maximum height"
+msgstr "Altura máxima"
+
+msgid "Months"
+msgstr "Meses"
+
+msgid "Numbers"
+msgstr "Números"
+
+msgid "Numbers and blanks"
+msgstr "Números y vacíos"
+
+msgid "Open list"
+msgstr "Lista abierta"
+
+msgid "Order of the values"
+msgstr "Orden de los valores"
+
+msgid "Period"
+msgstr "Periodo"
+
+msgid "Quarters"
+msgstr "Trimestres"
+
+msgid "Range style"
+msgstr "Estilo del rango"
+
+msgid "Relative date"
+msgstr "Fecha relativa"
+
+msgid "Remove the value %s"
+msgstr "Quitar el valor %s"
+
+msgid "Search font"
+msgstr "Fuente de la búsqueda"
+
+msgid "Selected value"
+msgstr "Valor seleccionado"
+
+msgid "Selection mark"
+msgstr "Marca de selección"
+
+msgid "Selection mark position"
+msgstr "Posición de la marca de selección"
+
+msgid "Show how many are chosen"
+msgstr "Mostrar cuántos hay elegidos"
+
+msgid "Show the chosen values"
+msgstr "Mostrar los valores elegidos"
+
+msgid "Show the slicer header"
+msgstr "Mostrar el encabezado del segmentador"
+
+msgid "Slicer settings"
+msgstr "Configuración del segmentador"
+
+msgid "Slider color"
+msgstr "Color del deslizador"
+
+msgid "This filter keeps its own control. Its box can still be styled."
+msgstr "Este filtro conserva su propio control. Aun así puedes dar formato a su caja."
+
+msgid "Title text"
+msgstr "Texto del título"
+
+msgid "Unit"
+msgstr "Unidad"
+
+msgid "Value states"
+msgstr "Estados de los valores"
+
+msgid "Values alignment"
+msgstr "Alineación de los valores"
+
+msgid "Values separated by commas"
+msgstr "Valores separados por comas"
+
+msgid "Weeks"
+msgstr "Semanas"
+
+msgid "Whole values"
+msgstr "Valores completos"
+
+msgid "With Ctrl"
+msgstr "Con Ctrl"
+
+msgid "Years"
+msgstr "Años"
+
+msgid "Space to the text"
+msgstr "Espacio hasta el texto"
+
+msgid "The filter takes one value. Allow several in its settings to choose more here."
+msgstr "El filtro admite un solo valor. Permite varios en su configuración para elegir más aquí."
+
+msgid "A number format such as \",.0f\" or \"$,.2f\". It wins over units and decimals."
+msgstr "Un formato de número como \",.0f\" o \"$,.2f\". Manda sobre las unidades y los decimales."
+
+msgid "Bottom left corner"
+msgstr "Esquina inferior izquierda"
+
+msgid "Bottom right corner"
+msgstr "Esquina inferior derecha"
+
+msgid "Top left corner"
+msgstr "Esquina superior izquierda"
+
+msgid "Top right corner"
+msgstr "Esquina superior derecha"
+
+msgid "Clear selections"
+msgstr "Borrar selecciones"
+
+msgid "Eraser to clear the selection"
+msgstr "Borrador para quitar la selección"
+
+msgid "Format code"
+msgstr "Código de formato"
+
+msgid "Go to the action of this slicer"
+msgstr "Ir a la acción de este segmentador"
+
+msgid "Individual corners"
+msgstr "Esquinas por separado"
+
+msgid "Low contrast (%s:1): the text may be hard to read. Aim for 4.5:1 or more."
+msgstr "Contraste bajo (%s:1): el texto puede costar leerse. Busca 4.5:1 o más."
+
+msgid "Numbers only"
+msgstr "Solo números"
+
+msgid "Numbers separated by commas"
+msgstr "Números separados por comas"
+
+msgid "Over the corner of the value"
+msgstr "Sobre la esquina del valor"
+
+msgid "Transparency"
+msgstr "Transparencia"
+
+msgid "Turn off a value to leave it out of this slicer. It still counts in the charts when nothing is chosen."
+msgstr "Apaga un valor para quitarlo de este segmentador. Sigue contando en los gráficos cuando no hay nada elegido."
+
+msgid "Values shown"
+msgstr "Valores que se muestran"
