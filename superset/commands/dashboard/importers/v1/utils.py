@@ -20,6 +20,7 @@ from typing import Any
 
 from superset import db, security_manager
 from superset.commands.exceptions import ImportFailedError
+from superset.mibi.chart_refs import remap_bookmark_chart_ids
 from superset.models.dashboard import Dashboard
 from superset.utils import json
 from superset.utils.core import get_user
@@ -122,6 +123,7 @@ def update_id_refs(  # pylint: disable=too-many-locals  # noqa: C901
             and child["meta"]["uuid"] in chart_ids
         ):
             child["meta"]["chartId"] = chart_ids[child["meta"]["uuid"]]
+    remap_bookmark_chart_ids(position, id_map)
 
     # fix native filter references
     native_filter_configuration = fixed.get("metadata", {}).get(
