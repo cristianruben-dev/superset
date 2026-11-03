@@ -10,8 +10,8 @@ gráficos donde falta. Lo que ya tenemos de cada gráfico está en [`por-grafico
 | 4 | Tabla y matriz | 12 | 3 | 7 | 2 |
 | 5 | Tarjeta, KPI, circular y anillo | 38 | 28 | 0 | 10 |
 | 6 | Cascada, embudo, treemap, medidor y dispersión | 63 | 52 | 11 | 0 |
-| 7 | Segmentadores | 763 | 178 | 130 | 455 |
-| 8 | Análisis y tooltips | 132 | 0 | 120 | 12 |
+| 7 | Segmentadores | 710 | 134 | 122 | 454 |
+| 8 | Análisis y tooltips | 57 | 0 | 46 | 11 |
 | 11 | Mapas | 429 | 92 | 59 | 278 |
 | 12 | Resto de P3 y gráficos nuevos | 927 | 299 | 207 | 421 |
 
@@ -489,9 +489,8 @@ gráficos donde falta. Lo que ya tenemos de cada gráfico está en [`por-grafico
 
 | Opción | Clave | P | Estado | Gráficos | Nota |
 | --- | --- | ---: | --- | ---: | --- |
-| Alignment | `alignment` | 1 | Falta | 2 |  |
-| Fit to space | `autoGrid` | 1 | Falta | 2 |  |
-| Color | `backgroundFillColor` | 1 | Falta | 2 |  |
+| Alignment | `alignment` | 1 | Falta | 2 | Las filas salen de los valores y las columnas |
+| Fit to space | `autoGrid` | 1 | Falta | 2 | Las filas salen de los valores y las columnas |
 | backgroundImage | `backgroundImage` | 1 | Falta | 2 |  |
 | Blur | `backgroundImageBlur` | 1 | Falta | 2 |  |
 | Contrast | `backgroundImageContrast` | 1 | Falta | 2 |  |
@@ -505,17 +504,11 @@ gráficos donde falta. Lo que ya tenemos de cada gráfico está en [`por-grafico
 | Image transparency | `backgroundImageTransparency` | 1 | Falta | 2 |  |
 | Image source | `backgroundImageType` | 1 | Falta | 2 |  |
 | Image URL | `backgroundImageUrl` | 1 | Falta | 2 |  |
-| Show | `backgroundShow` | 1 | Falta | 2 |  |
 | Transparency | `backgroundTransparency` | 1 | Falta | 2 |  |
-| Color | `borderColor` | 1 | Falta | 2 |  |
 | Line style | `borderStyle` | 1 | Falta | 2 |  |
 | Transparency | `borderTransparency` | 1 | Falta | 2 |  |
-| Width | `borderWidth` | 1 | Falta | 2 |  |
 | Bottom padding | `bottomOuterMargin` | 1 | Falta | 2 |  |
 | Callout size | `calloutSize` | 1 | Falta | 2 |  |
-| Space between cards | `cellPadding` | 1 | Falta | 2 |  |
-| Columns | `columnCount` | 1 | Falta | 2 |  |
-| Space between columns | `columnPadding` | 1 | Falta | 2 |  |
 | Indent button container | `containerIndentation` | 1 | Falta | 1 |  |
 | Customize lines | `customizeLines` | 1 | Falta | 2 |  |
 | Customize spacing | `customizePadding` | 1 | Falta | 2 |  |
@@ -532,9 +525,7 @@ gráficos donde falta. Lo que ya tenemos de cada gráfico está en [`por-grafico
 | Line style | `lineStyle` | 1 | Falta | 2 |  |
 | Transparency | `lineTransparency` | 1 | Falta | 2 |  |
 | Width | `lineWidth` | 1 | Falta | 2 |  |
-| Max cards shown | `maxTiles` | 1 | Falta | 2 |  |
-| Arrangement | `orientation` | 1 | Falta | 2 |  |
-| Rounded corners | `rectangleRoundedCurve` | 1 | Falta | 2 |  |
+| Max cards shown | `maxTiles` | 1 | Falta | 2 | Las filas salen de los valores y las columnas |
 | Individual corners | `rectangleRoundedCurveCustomStyle` | 1 | Falta | 2 |  |
 | Bottom left corner | `rectangleRoundedCurveLeftBottom` | 1 | Falta | 2 |  |
 | Top left corner | `rectangleRoundedCurveLeftTop` | 1 | Falta | 2 |  |
@@ -542,10 +533,8 @@ gráficos donde falta. Lo que ya tenemos de cada gráfico está en [`por-grafico
 | Top right corner | `rectangleRoundedCurveRightTop` | 1 | Falta | 2 |  |
 | Reverse indentation | `reverseIndentation` | 1 | Falta | 1 |  |
 | Right padding | `rightOuterMargin` | 1 | Falta | 2 |  |
-| Rows | `rowCount` | 1 | Falta | 2 |  |
-| Space between rows | `rowPadding` | 1 | Falta | 2 |  |
+| Rows | `rowCount` | 1 | Falta | 2 | Las filas salen de los valores y las columnas |
 | Fixed size | `showFixedSize` | 1 | Falta | 2 |  |
-| Style | `style` | 1 | Falta | 2 |  |
 | Top padding | `topOuterMargin` | 1 | Falta | 2 |  |
 
 ### Divisor
@@ -865,21 +854,19 @@ gráficos donde falta. Lo que ya tenemos de cada gráfico está en [`por-grafico
 
 | Opción | Clave | P | Estado | Gráficos | Nota |
 | --- | --- | ---: | --- | ---: | --- |
-| Color | `accentBarColor` | 1 | Falta | 1 |  |
-| Position | `accentBarPosition` | 1 | Falta | 1 |  |
-| Show | `accentBarShow` | 1 | Falta | 1 |  |
-| Transparency | `accentBarTransparency` | 1 | Falta | 1 |  |
-| Width | `accentBarWidth` | 1 | Falta | 1 |  |
+| Color | `accentBarColor` | 1 | Falta | 1 | P2 de detalle sin hacer |
+| Position | `accentBarPosition` | 1 | Falta | 1 | P2 de detalle sin hacer |
+| Show | `accentBarShow` | 1 | Falta | 1 | P2 de detalle sin hacer |
+| Transparency | `accentBarTransparency` | 1 | Falta | 1 | P2 de detalle sin hacer |
+| Width | `accentBarWidth` | 1 | Falta | 1 | P2 de detalle sin hacer |
 | Bottom left corner | `borderBottomLeftCorner` | 1 | Falta | 1 |  |
 | Bottom right corner | `borderBottomRightCorner` | 1 | Falta | 1 |  |
-| Color | `borderColor` | 1 | Falta | 1 |  |
 | Individual corners | `borderIndividualCorners` | 1 | Falta | 1 |  |
-| Rounded corners | `borderRadius` | 1 | Falta | 1 |  |
 | Top left corner | `borderTopLeftCorner` | 1 | Falta | 1 |  |
 | Top right corner | `borderTopRightCorner` | 1 | Falta | 1 |  |
 | filterMode | `filterMode` | 1 | Falta | 1 |  |
 | Color | `iconColor` | 1 | Falta | 1 |  |
-| Transparency | `iconTransparency` | 1 | Falta | 1 |  |
+| Transparency | `iconTransparency` | 1 | Falta | 1 | P2 de detalle sin hacer |
 
 ### dropdownButton
 
@@ -1023,13 +1010,8 @@ gráficos donde falta. Lo que ya tenemos de cada gráfico está en [`por-grafico
 
 | Opción | Clave | P | Estado | Gráficos | Nota |
 | --- | --- | ---: | --- | ---: | --- |
-| Background color | `background` | 1 | Falta | 1 |  |
-| Font family | `fontFamily` | 1 | Falta | 1 |  |
-| Italic | `italic` | 1 | Falta | 1 |  |
-| Outline | `outlineStyle` | 1 | Falta | 1 |  |
 | Show summary | `showRestatement` | 1 | Falta | 1 |  |
-| Title text | `text` | 1 | Falta | 1 |  |
-| Underline | `underline` | 1 | Falta | 1 |  |
+| Title text | `text` | 1 | Falta | 1 | El encabezado es el nombre del filtro |
 
 ### icon
 
@@ -1079,8 +1061,8 @@ gráficos donde falta. Lo que ya tenemos de cada gráfico está en [`por-grafico
 | Color | `backColor` | 3 | Falta | 1 |  |
 | Show | `backShow` | 3 | Falta | 1 |  |
 | Transparency | `backTransparency` | 3 | Falta | 1 |  |
-| Bold | `bold` | 3 | Falta | 1 |  |
-| Color | `borderColor` | 3 | Falta | 1 |  |
+| Bold | `bold` | 3 | Parcial | 1 | Segmentador de texto: colores de la caja |
+| Color | `borderColor` | 3 | Parcial | 1 | Segmentador de texto: colores de la caja |
 | Show | `borderShow` | 3 | Falta | 1 |  |
 | Transparency | `borderTransparency` | 3 | Falta | 1 |  |
 | Width | `borderWidth` | 3 | Falta | 1 |  |
@@ -1089,11 +1071,11 @@ gráficos donde falta. Lo que ya tenemos de cada gráfico está en [`por-grafico
 | Icon size | `dismissSize` | 3 | Falta | 1 |  |
 | Spacing | `dismissSpacing` | 3 | Falta | 1 |  |
 | Transparency | `dismissTransparency` | 3 | Falta | 1 |  |
-| Color | `fontColor` | 3 | Falta | 1 |  |
-| Font family | `fontFamily` | 3 | Falta | 1 |  |
-| Text size | `fontSize` | 3 | Falta | 1 |  |
+| Color | `fontColor` | 3 | Parcial | 1 | Segmentador de texto: colores de la caja |
+| Font family | `fontFamily` | 3 | Parcial | 1 | Segmentador de texto: colores de la caja |
+| Text size | `fontSize` | 3 | Parcial | 1 | Segmentador de texto: colores de la caja |
 | Transparency | `fontTransparency` | 3 | Falta | 1 |  |
-| Italic | `italic` | 3 | Falta | 1 |  |
+| Italic | `italic` | 3 | Parcial | 1 | Segmentador de texto: colores de la caja |
 | Bottom margin | `paddingBottom` | 3 | Falta | 1 |  |
 | Left margin | `paddingLeft` | 3 | Falta | 1 |  |
 | Right margin | `paddingRight` | 3 | Falta | 1 |  |
@@ -1120,7 +1102,7 @@ gráficos donde falta. Lo que ya tenemos de cada gráfico está en [`por-grafico
 | Color | `backColor` | 3 | Falta | 1 |  |
 | Show | `backShow` | 3 | Falta | 1 |  |
 | Transparency | `backTransparency` | 3 | Falta | 1 |  |
-| Color | `borderColor` | 3 | Falta | 1 |  |
+| Color | `borderColor` | 3 | Parcial | 1 | Segmentador de texto: colores de la caja |
 | Show | `borderShow` | 3 | Falta | 1 |  |
 | Transparency | `borderTransparency` | 3 | Falta | 1 |  |
 | Width | `borderWidth` | 3 | Falta | 1 |  |
@@ -1148,37 +1130,23 @@ gráficos donde falta. Lo que ya tenemos de cada gráfico está en [`por-grafico
 | Opción | Clave | P | Estado | Gráficos | Nota |
 | --- | --- | ---: | --- | ---: | --- |
 | accessibilityContrastProperties | `accessibilityContrastProperties` | 1 | Falta | 1 |  |
-| Bold | `bold` | 1 | Falta | 1 |  |
 | Color | `expandCollapseIconColor` | 1 | Falta | 1 |  |
 | Expand/collapse icon | `expandCollapseToggleType` | 1 | Falta | 1 |  |
-| Font family | `fontFamily` | 1 | Falta | 1 |  |
-| Italic | `italic` | 1 | Falta | 1 |  |
 | Outline | `outlineStyle` | 1 | Falta | 1 |  |
-| Padding | `padding` | 1 | Falta | 1 |  |
 | Stepped layout indentation | `steppedLayoutIndentation` | 1 | Falta | 1 |  |
-| Text size | `textSize` | 1 | Falta | 1 |  |
-| Underline | `underline` | 1 | Falta | 1 |  |
 
 ### label
 
 | Opción | Clave | P | Estado | Gráficos | Nota |
 | --- | --- | ---: | --- | ---: | --- |
 | Align baselines | `alignBaselines` | 1 | Falta | 2 |  |
-| Bold | `bold` | 1 | Falta | 2 |  |
 | Field | `field` | 1 | Falta | 2 |  |
-| Font color | `fontColor` | 1 | Falta | 2 |  |
-| Font family | `fontFamily` | 1 | Falta | 2 |  |
-| Text size | `fontSize` | 1 | Falta | 2 |  |
 | Heading | `heading` | 1 | Falta | 2 |  |
 | Horizontal alignment | `horizontalAlignment` | 1 | Falta | 2 |  |
-| Italic | `italic` | 1 | Falta | 2 |  |
 | Label source | `labelSource` | 1 | Falta | 1 |  |
 | Match value alignment | `matchValueAlignment` | 1 | Falta | 2 |  |
 | Position | `position` | 1 | Falta | 2 |  |
-| Show | `show` | 1 | Falta | 2 |  |
-| Text wrap | `textWrap` | 1 | Falta | 2 |  |
 | Transparency | `transparency` | 1 | Falta | 2 |  |
-| Underline | `underline` | 1 | Falta | 2 |  |
 
 ### numericInputStyle
 
@@ -1227,34 +1195,34 @@ gráficos donde falta. Lo que ya tenemos de cada gráfico está en [`por-grafico
 | --- | --- | ---: | --- | ---: | --- |
 | Color | `backgroundColor` | 2 | Falta | 1 |  |
 | Show | `backgroundShow` | 2 | Falta | 1 |  |
-| Transparency | `backgroundTransparency` | 2 | Falta | 1 |  |
+| Transparency | `backgroundTransparency` | 2 | Falta | 1 | P2 de detalle sin hacer |
 | Bold | `bold` | 2 | Falta | 1 |  |
 | Border color | `borderColor` | 2 | Falta | 1 |  |
 | Border | `borderShow` | 2 | Falta | 1 |  |
-| Transparency | `borderTransparency` | 2 | Falta | 1 |  |
+| Transparency | `borderTransparency` | 2 | Falta | 1 | P2 de detalle sin hacer |
 | Corner radius | `cornerRadius` | 2 | Falta | 1 |  |
-| Bottom left | `cornerRadiusBottomLeft` | 2 | Falta | 1 |  |
-| Bottom right | `cornerRadiusBottomRight` | 2 | Falta | 1 |  |
-| Top left | `cornerRadiusTopLeft` | 2 | Falta | 1 |  |
-| Top right | `cornerRadiusTopRight` | 2 | Falta | 1 |  |
-| Color | `dismissColor` | 2 | Falta | 1 |  |
-| Dismiss button and text gap | `dismissGap` | 2 | Falta | 1 |  |
-| Position | `dismissPosition` | 2 | Falta | 1 |  |
-| Size | `dismissSize` | 2 | Falta | 1 |  |
-| Transparency | `dismissTransparency` | 2 | Falta | 1 |  |
+| Bottom left | `cornerRadiusBottomLeft` | 2 | Falta | 1 | P2 de detalle sin hacer |
+| Bottom right | `cornerRadiusBottomRight` | 2 | Falta | 1 | P2 de detalle sin hacer |
+| Top left | `cornerRadiusTopLeft` | 2 | Falta | 1 | P2 de detalle sin hacer |
+| Top right | `cornerRadiusTopRight` | 2 | Falta | 1 | P2 de detalle sin hacer |
+| Color | `dismissColor` | 2 | Falta | 1 | P2 de detalle sin hacer |
+| Dismiss button and text gap | `dismissGap` | 2 | Falta | 1 | P2 de detalle sin hacer |
+| Position | `dismissPosition` | 2 | Falta | 1 | P2 de detalle sin hacer |
+| Size | `dismissSize` | 2 | Falta | 1 | P2 de detalle sin hacer |
+| Transparency | `dismissTransparency` | 2 | Falta | 1 | P2 de detalle sin hacer |
 | Color | `fontColor` | 2 | Falta | 1 |  |
 | Font family | `fontFamily` | 2 | Falta | 1 |  |
 | Text size | `fontSize` | 2 | Falta | 1 |  |
-| Transparency | `fontTransparency` | 2 | Falta | 1 |  |
-| Individual corners | `individualCorners` | 2 | Falta | 1 |  |
-| Individual padding | `individualPadding` | 2 | Falta | 1 |  |
+| Transparency | `fontTransparency` | 2 | Falta | 1 | P2 de detalle sin hacer |
+| Individual corners | `individualCorners` | 2 | Falta | 1 | P2 de detalle sin hacer |
+| Individual padding | `individualPadding` | 2 | Falta | 1 | P2 de detalle sin hacer |
 | Italic | `italic` | 2 | Falta | 1 |  |
 | Direction | `layoutDirection` | 2 | Falta | 1 |  |
-| Bottom | `paddingBottom` | 2 | Falta | 1 |  |
-| Left | `paddingLeft` | 2 | Falta | 1 |  |
-| Right | `paddingRight` | 2 | Falta | 1 |  |
-| Top | `paddingTop` | 2 | Falta | 1 |  |
-| Uniform padding | `paddingUniform` | 2 | Falta | 1 |  |
+| Bottom | `paddingBottom` | 2 | Falta | 1 | P2 de detalle sin hacer |
+| Left | `paddingLeft` | 2 | Falta | 1 | P2 de detalle sin hacer |
+| Right | `paddingRight` | 2 | Falta | 1 | P2 de detalle sin hacer |
+| Top | `paddingTop` | 2 | Falta | 1 | P2 de detalle sin hacer |
+| Uniform padding | `paddingUniform` | 2 | Falta | 1 | P2 de detalle sin hacer |
 | Underline | `underline` | 2 | Falta | 1 |  |
 
 ### relativeText
@@ -1282,39 +1250,33 @@ gráficos donde falta. Lo que ya tenemos de cada gráfico está en [`por-grafico
 
 | Opción | Clave | P | Estado | Gráficos | Nota |
 | --- | --- | ---: | --- | ---: | --- |
-| Color | `accentBarColor` | 2 | Falta | 2 |  |
-| Position | `accentBarPosition` | 2 | Falta | 2 |  |
-| Show | `accentBarShow` | 2 | Falta | 2 |  |
-| Transparency | `accentBarTransparency` | 2 | Falta | 2 |  |
-| Width | `accentBarWidth` | 2 | Falta | 2 |  |
-| Color | `backgroundColor` | 2 | Falta | 2 |  |
-| Show | `backgroundShow` | 2 | Falta | 2 |  |
-| Transparency | `backgroundTransparency` | 2 | Falta | 2 |  |
+| Color | `accentBarColor` | 2 | Falta | 2 | P2 de detalle sin hacer |
+| Position | `accentBarPosition` | 2 | Falta | 2 | P2 de detalle sin hacer |
+| Show | `accentBarShow` | 2 | Falta | 2 | P2 de detalle sin hacer |
+| Transparency | `accentBarTransparency` | 2 | Falta | 2 | P2 de detalle sin hacer |
+| Width | `accentBarWidth` | 2 | Falta | 2 | P2 de detalle sin hacer |
+| Transparency | `backgroundTransparency` | 2 | Falta | 2 | P2 de detalle sin hacer |
 | Bold | `bold` | 2 | Falta | 2 |  |
-| Border color | `borderColor` | 2 | Falta | 2 |  |
-| Border | `borderShow` | 2 | Falta | 2 |  |
-| Transparency | `borderTransparency` | 2 | Falta | 2 |  |
-| Corner radius | `cornerRadius` | 2 | Falta | 2 |  |
-| Bottom left | `cornerRadiusBottomLeft` | 2 | Falta | 2 |  |
-| Bottom right | `cornerRadiusBottomRight` | 2 | Falta | 2 |  |
-| Top left | `cornerRadiusTopLeft` | 2 | Falta | 2 |  |
-| Top right | `cornerRadiusTopRight` | 2 | Falta | 2 |  |
-| Color | `fontColor` | 2 | Falta | 2 |  |
+| Transparency | `borderTransparency` | 2 | Falta | 2 | P2 de detalle sin hacer |
+| Bottom left | `cornerRadiusBottomLeft` | 2 | Falta | 2 | P2 de detalle sin hacer |
+| Bottom right | `cornerRadiusBottomRight` | 2 | Falta | 2 | P2 de detalle sin hacer |
+| Top left | `cornerRadiusTopLeft` | 2 | Falta | 2 | P2 de detalle sin hacer |
+| Top right | `cornerRadiusTopRight` | 2 | Falta | 2 | P2 de detalle sin hacer |
 | Font family | `fontFamily` | 2 | Falta | 2 |  |
 | Text size | `fontSize` | 2 | Falta | 2 |  |
-| Transparency | `fontTransparency` | 2 | Falta | 2 |  |
+| Transparency | `fontTransparency` | 2 | Falta | 2 | P2 de detalle sin hacer |
 | Color | `iconColor` | 2 | Falta | 2 |  |
 | Show | `iconShow` | 2 | Falta | 2 |  |
 | Size | `iconSize` | 2 | Falta | 2 |  |
-| Transparency | `iconTransparency` | 2 | Falta | 2 |  |
-| Individual corners | `individualCorners` | 2 | Falta | 2 |  |
-| Individual padding | `individualPadding` | 2 | Falta | 2 |  |
+| Transparency | `iconTransparency` | 2 | Falta | 2 | P2 de detalle sin hacer |
+| Individual corners | `individualCorners` | 2 | Falta | 2 | P2 de detalle sin hacer |
+| Individual padding | `individualPadding` | 2 | Falta | 2 | P2 de detalle sin hacer |
 | Italic | `italic` | 2 | Falta | 2 |  |
-| Bottom | `paddingBottom` | 2 | Falta | 2 |  |
-| Left | `paddingLeft` | 2 | Falta | 2 |  |
-| Right | `paddingRight` | 2 | Falta | 2 |  |
-| Top | `paddingTop` | 2 | Falta | 2 |  |
-| Uniform padding | `paddingUniform` | 2 | Falta | 2 |  |
+| Bottom | `paddingBottom` | 2 | Falta | 2 | P2 de detalle sin hacer |
+| Left | `paddingLeft` | 2 | Falta | 2 | P2 de detalle sin hacer |
+| Right | `paddingRight` | 2 | Falta | 2 | P2 de detalle sin hacer |
+| Top | `paddingTop` | 2 | Falta | 2 | P2 de detalle sin hacer |
+| Uniform padding | `paddingUniform` | 2 | Falta | 2 | P2 de detalle sin hacer |
 | Underline | `underline` | 2 | Falta | 2 |  |
 | Vertical gap | `verticalGap` | 2 | Falta | 2 |  |
 
@@ -1322,7 +1284,6 @@ gráficos donde falta. Lo que ya tenemos de cada gráfico está en [`por-grafico
 
 | Opción | Clave | P | Estado | Gráficos | Nota |
 | --- | --- | ---: | --- | ---: | --- |
-| Background | `background` | 3 | Falta | 1 |  |
 | Outline color | `borderColor` | 3 | Falta | 1 |  |
 | Outline | `outlineStyle` | 3 | Falta | 1 |  |
 
@@ -1365,10 +1326,7 @@ gráficos donde falta. Lo que ya tenemos de cada gráfico está en [`por-grafico
 | Opción | Clave | P | Estado | Gráficos | Nota |
 | --- | --- | ---: | --- | ---: | --- |
 | Restrict to leaf nodes | `restrictToLeafNodes` | 1 | Falta | 2 |  |
-| Show "Select all" option | `selectAllCheckboxEnabled` | 1 | Falta | 3 |  |
 | Single date | `singleDate` | 1 | Falta | 1 |  |
-| Multi-select with CTRL | `singleSelect` | 1 | Parcial | 3 | Ajuste del filtro nativo |
-| Single select | `strictSingleSelect` | 1 | Falta | 3 |  |
 
 ### selectionBox
 
@@ -1411,11 +1369,9 @@ gráficos donde falta. Lo que ya tenemos de cada gráfico está en [`por-grafico
 
 | Opción | Clave | P | Estado | Gráficos | Nota |
 | --- | --- | ---: | --- | ---: | --- |
-| Color | `color` | 2 | Falta | 3 |  |
 | Position | `overlayPosition` | 2 | Falta | 2 |  |
 | Overlay | `overlayToggle` | 2 | Falta | 2 |  |
 | Position | `position` | 2 | Falta | 2 |  |
-| Show | `show` | 2 | Falta | 2 |  |
 | Show | `showIconByState` | 2 | Falta | 2 |  |
 | Size | `size` | 2 | Falta | 2 |  |
 | Horizontal gap | `spacing` | 2 | Falta | 2 |  |
@@ -1479,21 +1435,12 @@ gráficos donde falta. Lo que ya tenemos de cada gráfico está en [`por-grafico
 
 | Opción | Clave | P | Estado | Gráficos | Nota |
 | --- | --- | ---: | --- | ---: | --- |
-| Bold | `bold` | 1 | Falta | 2 |  |
 | Format code | `customFormatString` | 1 | Falta | 2 |  |
-| Font color | `fontColor` | 1 | Falta | 2 |  |
-| Font family | `fontFamily` | 1 | Falta | 2 |  |
-| Text size | `fontSize` | 1 | Falta | 2 |  |
 | Horizontal alignment | `horizontalAlignment` | 1 | Falta | 2 |  |
-| Italic | `italic` | 1 | Falta | 2 |  |
 | Display units | `labelDisplayUnits` | 1 | Falta | 2 |  |
 | Value decimal places | `labelPrecision` | 1 | Falta | 2 |  |
-| Show | `show` | 1 | Falta | 2 |  |
 | Show blank as | `showBlankAs` | 1 | Falta | 2 |  |
-| Text | `text` | 1 | Falta | 2 |  |
-| Text wrap | `textWrap` | 1 | Falta | 2 |  |
 | Transparency | `transparency` | 1 | Falta | 2 |  |
-| Underline | `underline` | 1 | Falta | 2 |  |
 | Vertical alignment | `verticalAlignment` | 1 | Falta | 2 |  |
 
 ## Fase 8: Análisis y tooltips
@@ -1509,158 +1456,83 @@ gráficos donde falta. Lo que ya tenemos de cada gráfico está en [`por-grafico
 
 | Opción | Clave | P | Estado | Gráficos | Nota |
 | --- | --- | ---: | --- | ---: | --- |
-| categoryMax | `categoryMax` | 2 | Falta | 13 |  |
-| categoryMin | `categoryMin` | 2 | Falta | 13 |  |
-| categorySize | `categorySize` | 2 | Falta | 13 |  |
-| Show | `show` | 2 | Parcial | 13 | Control de zoom, sin formato (zoomable) |
-| Slider labels | `showLabels` | 2 | Falta | 13 |  |
-| Y axis | `showOnCategoryAxis` | 2 | Falta | 13 |  |
-| X axis | `showOnValueAxis` | 2 | Falta | 13 |  |
-| Secondary Y axis | `showOnValueSecAxis` | 2 | Falta | 6 |  |
-| Slider tooltips | `showTooltip` | 2 | Falta | 13 |  |
-| valueMax | `valueMax` | 2 | Falta | 13 |  |
-| valueMin | `valueMin` | 2 | Falta | 13 |  |
-| valueSecMax | `valueSecMax` | 2 | Falta | 6 |  |
-| valueSecMin | `valueSecMin` | 2 | Falta | 6 |  |
-| valueSecSize | `valueSecSize` | 2 | Falta | 6 |  |
-| valueSize | `valueSize` | 2 | Falta | 13 |  |
+| categoryMax | `categoryMax` | 2 | Parcial | 13 | En porcentaje del eje, no en valores |
+| categoryMin | `categoryMin` | 2 | Parcial | 13 | En porcentaje del eje, no en valores |
+| Secondary Y axis | `showOnValueSecAxis` | 2 | Falta | 6 | Sin deslizador para el eje secundario |
+| Slider tooltips | `showTooltip` | 2 | Falta | 13 | El deslizador solo tiene etiquetas |
+| valueMax | `valueMax` | 2 | Parcial | 13 | En porcentaje del eje, no en valores |
+| valueMin | `valueMin` | 2 | Parcial | 13 | En porcentaje del eje, no en valores |
+| valueSecMax | `valueSecMax` | 2 | Falta | 6 | Sin deslizador para el eje secundario |
+| valueSecMin | `valueSecMin` | 2 | Falta | 6 | Sin deslizador para el eje secundario |
+| valueSecSize | `valueSecSize` | 2 | Falta | 6 | Sin deslizador para el eje secundario |
 
 ### Encabezado de múltiplos
 
 | Opción | Clave | P | Estado | Gráficos | Nota |
 | --- | --- | ---: | --- | ---: | --- |
-| Alignment | `alignment` | 3 | Falta | 12 |  |
-| Bold | `bold` | 3 | Falta | 12 |  |
-| Font color | `fontColor` | 3 | Falta | 12 |  |
-| Font family | `fontFamily` | 3 | Falta | 12 |  |
-| Text size | `fontSize` | 3 | Falta | 12 |  |
-| Italic | `italic` | 3 | Falta | 12 |  |
-| Position | `position` | 3 | Falta | 12 |  |
-| Show | `show` | 3 | Falta | 12 |  |
-| Word wrap | `titleWrap` | 3 | Falta | 12 |  |
-| Underline | `underline` | 3 | Falta | 12 |  |
+| Alignment | `alignment` | 3 | Falta | 12 | Los encabezados de múltiplos usan el estilo del tema |
+| Bold | `bold` | 3 | Falta | 12 | Los encabezados de múltiplos usan el estilo del tema |
+| Font color | `fontColor` | 3 | Falta | 12 | Los encabezados de múltiplos usan el estilo del tema |
+| Font family | `fontFamily` | 3 | Falta | 12 | Los encabezados de múltiplos usan el estilo del tema |
+| Text size | `fontSize` | 3 | Falta | 12 | Los encabezados de múltiplos usan el estilo del tema |
+| Italic | `italic` | 3 | Falta | 12 | Los encabezados de múltiplos usan el estilo del tema |
+| Position | `position` | 3 | Falta | 12 | Los encabezados de múltiplos usan el estilo del tema |
+| Word wrap | `titleWrap` | 3 | Falta | 12 | Los encabezados de múltiplos usan el estilo del tema |
+| Underline | `underline` | 3 | Falta | 12 | Los encabezados de múltiplos usan el estilo del tema |
 
 ### Línea de referencia
 
 | Opción | Clave | P | Estado | Gráficos | Nota |
 | --- | --- | ---: | --- | ---: | --- |
-| Scale by width | `autoScale` | 2 | Falta | 6 |  |
-| Dash array | `dashArray` | 2 | Falta | 6 |  |
-| Dash cap | `dashCap` | 2 | Falta | 6 |  |
-| Color | `dataLabelColor` | 2 | Falta | 6 |  |
-| Value decimal places | `dataLabelDecimalPoints` | 2 | Falta | 6 |  |
-| Display units | `dataLabelDisplayUnits` | 2 | Falta | 6 |  |
-| Horizontal position | `dataLabelHorizontalPosition` | 2 | Falta | 6 |  |
-| Data label | `dataLabelShow` | 2 | Falta | 6 |  |
-| Text | `dataLabelText` | 2 | Falta | 6 |  |
-| Vertical position | `dataLabelVerticalPosition` | 2 | Falta | 6 |  |
-| Name | `displayName` | 2 | Falta | 6 |  |
-| Color | `lineColor` | 2 | Falta | 6 |  |
-| Position | `position` | 2 | Falta | 6 |  |
-| Shade color | `shadeColor` | 2 | Falta | 6 |  |
-| Match line color | `shadeColorMatchStroke` | 2 | Falta | 6 |  |
-| Shade region | `shadeRegion` | 2 | Falta | 6 |  |
-| Show | `shadeShow` | 2 | Falta | 6 |  |
-| Shade transparency | `shadeTransparency` | 2 | Falta | 6 |  |
-| Show | `show` | 2 | Falta | 6 |  |
-| Line style | `style` | 2 | Falta | 6 |  |
-| Transparency | `transparency` | 2 | Falta | 6 |  |
-| Value | `value` | 2 | Falta | 6 |  |
-| Width | `width` | 2 | Falta | 6 |  |
+| Scale by width | `autoScale` | 2 | Falta | 6 | El motor de gráficos no escala el trazo con el zoom |
+| Dash cap | `dashCap` | 2 | Falta | 6 | Los extremos no se eligen en estas líneas |
+| Match line color | `shadeColorMatchStroke` | 2 | Parcial | 6 | Sin color propio, el sombreado toma el de la línea |
 
 ### Línea de referencia X
 
 | Opción | Clave | P | Estado | Gráficos | Nota |
 | --- | --- | ---: | --- | ---: | --- |
-| Scale by width | `autoScale` | 2 | Falta | 13 |  |
-| Dash array | `dashArray` | 2 | Falta | 13 |  |
-| Dash cap | `dashCap` | 2 | Falta | 13 |  |
-| Color | `dataLabelColor` | 2 | Falta | 13 |  |
-| Value decimal places | `dataLabelDecimalPoints` | 2 | Falta | 13 |  |
-| Display units | `dataLabelDisplayUnits` | 2 | Falta | 13 |  |
-| Horizontal position | `dataLabelHorizontalPosition` | 2 | Falta | 13 |  |
-| Data label | `dataLabelShow` | 2 | Falta | 13 |  |
-| Text | `dataLabelText` | 2 | Falta | 13 |  |
-| Vertical position | `dataLabelVerticalPosition` | 2 | Falta | 13 |  |
-| Name | `displayName` | 2 | Falta | 13 |  |
-| Color | `lineColor` | 2 | Falta | 13 |  |
-| Position | `position` | 2 | Falta | 13 |  |
-| Shade color | `shadeColor` | 2 | Falta | 13 |  |
-| Match line color | `shadeColorMatchStroke` | 2 | Falta | 13 |  |
-| Shade region | `shadeRegion` | 2 | Falta | 13 |  |
-| Show | `shadeShow` | 2 | Falta | 13 |  |
-| Shade transparency | `shadeTransparency` | 2 | Falta | 13 |  |
-| Show | `show` | 2 | Falta | 13 |  |
-| Line style | `style` | 2 | Falta | 13 |  |
-| Transparency | `transparency` | 2 | Falta | 13 |  |
-| Value | `value` | 2 | Falta | 13 |  |
-| Width | `width` | 2 | Falta | 13 |  |
+| Scale by width | `autoScale` | 2 | Falta | 13 | El motor de gráficos no escala el trazo con el zoom |
+| Dash cap | `dashCap` | 2 | Falta | 13 | Los extremos no se eligen en estas líneas |
+| Match line color | `shadeColorMatchStroke` | 2 | Parcial | 13 | Sin color propio, el sombreado toma el de la línea |
 
 ### Línea de referencia Y
 
 | Opción | Clave | P | Estado | Gráficos | Nota |
 | --- | --- | ---: | --- | ---: | --- |
-| Scale by width | `autoScale` | 2 | Falta | 14 |  |
-| Dash array | `dashArray` | 2 | Falta | 14 |  |
-| Dash cap | `dashCap` | 2 | Falta | 14 |  |
-| Color | `dataLabelColor` | 2 | Falta | 14 |  |
-| Value decimal places | `dataLabelDecimalPoints` | 2 | Falta | 14 |  |
-| Display units | `dataLabelDisplayUnits` | 2 | Falta | 14 |  |
-| Horizontal position | `dataLabelHorizontalPosition` | 2 | Falta | 14 |  |
-| Data label | `dataLabelShow` | 2 | Falta | 14 |  |
-| Text | `dataLabelText` | 2 | Falta | 14 |  |
-| Vertical position | `dataLabelVerticalPosition` | 2 | Falta | 14 |  |
-| Name | `displayName` | 2 | Falta | 14 |  |
-| Color | `lineColor` | 2 | Falta | 14 |  |
-| Position | `position` | 2 | Falta | 14 |  |
-| Shade color | `shadeColor` | 2 | Falta | 14 |  |
-| Match line color | `shadeColorMatchStroke` | 2 | Falta | 14 |  |
-| Shade region | `shadeRegion` | 2 | Falta | 14 |  |
-| Show | `shadeShow` | 2 | Falta | 14 |  |
-| Shade transparency | `shadeTransparency` | 2 | Falta | 14 |  |
-| Show | `show` | 2 | Falta | 14 |  |
-| Line style | `style` | 2 | Falta | 14 |  |
-| Transparency | `transparency` | 2 | Falta | 14 |  |
-| Value | `value` | 2 | Falta | 14 |  |
-| Width | `width` | 2 | Falta | 14 |  |
+| Scale by width | `autoScale` | 2 | Falta | 14 | El motor de gráficos no escala el trazo con el zoom |
+| Dash cap | `dashCap` | 2 | Falta | 14 | Los extremos no se eligen en estas líneas |
+| Match line color | `shadeColorMatchStroke` | 2 | Parcial | 14 | Sin color propio, el sombreado toma el de la línea |
 
 ### Línea de tendencia
 
 | Opción | Clave | P | Estado | Gráficos | Nota |
 | --- | --- | ---: | --- | ---: | --- |
-| Scale by width | `autoScale` | 2 | Falta | 12 |  |
-| Combine series | `combineSeries` | 2 | Falta | 12 |  |
-| Dash array | `dashArray` | 2 | Falta | 12 |  |
-| Dash cap | `dashCap` | 2 | Falta | 12 |  |
-| Name | `displayName` | 2 | Falta | 12 |  |
-| Color | `lineColor` | 2 | Falta | 12 |  |
-| Show | `show` | 2 | Falta | 12 |  |
-| Line style | `style` | 2 | Falta | 12 |  |
-| Transparency | `transparency` | 2 | Falta | 12 |  |
-| Use highlight values | `useHighlightValues` | 2 | Falta | 11 |  |
-| Width | `width` | 2 | Falta | 12 |  |
+| Scale by width | `autoScale` | 2 | Falta | 12 | Sin esa opción en la línea de tendencia |
+| Dash cap | `dashCap` | 2 | Falta | 12 | Sin esa opción en la línea de tendencia |
+| Name | `displayName` | 2 | Falta | 12 | Sin esa opción en la línea de tendencia |
+| Use highlight values | `useHighlightValues` | 2 | Falta | 11 | Sin esa opción en la línea de tendencia |
 
 ### Múltiplos pequeños
 
 | Opción | Clave | P | Estado | Gráficos | Nota |
 | --- | --- | ---: | --- | ---: | --- |
-| Advanced padding options | `advancedPaddingOptions` | 2 | Falta | 12 |  |
-| Background color | `backgroundColor` | 2 | Falta | 12 |  |
-| Background transparency | `backgroundTransparency` | 2 | Falta | 12 |  |
-| Columns | `columnCount` | 2 | Falta | 12 |  |
-| Inner column padding | `columnPaddingInner` | 2 | Falta | 12 |  |
-| Outer column padding | `columnPaddingOuter` | 2 | Falta | 12 |  |
-| Color | `gridLineColor` | 2 | Falta | 12 |  |
-| Show | `gridLineShow` | 2 | Falta | 12 |  |
-| Line style | `gridLineStyle` | 2 | Falta | 12 |  |
-| Transparency | `gridLineTransparency` | 2 | Falta | 12 |  |
-| Gridlines | `gridLineType` | 2 | Falta | 12 |  |
-| Width | `gridLineWidth` | 2 | Falta | 12 |  |
-| Grid padding | `gridPadding` | 2 | Falta | 12 |  |
-| Grid layout | `layoutType` | 2 | Falta | 12 |  |
-| Rows | `rowCount` | 2 | Falta | 12 |  |
-| Inner row padding | `rowPaddingInner` | 2 | Falta | 12 |  |
-| Outer row padding | `rowPaddingOuter` | 2 | Falta | 12 |  |
+| Advanced padding options | `advancedPaddingOptions` | 2 | Falta | 12 | El motor de múltiplos no tiene ese ajuste |
+| Background color | `backgroundColor` | 2 | Falta | 12 | El motor de múltiplos no tiene ese ajuste |
+| Background transparency | `backgroundTransparency` | 2 | Falta | 12 | El motor de múltiplos no tiene ese ajuste |
+| Inner column padding | `columnPaddingInner` | 2 | Falta | 12 | El motor de múltiplos no tiene ese ajuste |
+| Outer column padding | `columnPaddingOuter` | 2 | Falta | 12 | El motor de múltiplos no tiene ese ajuste |
+| Color | `gridLineColor` | 2 | Falta | 12 | El motor de múltiplos no tiene ese ajuste |
+| Show | `gridLineShow` | 2 | Falta | 12 | El motor de múltiplos no tiene ese ajuste |
+| Line style | `gridLineStyle` | 2 | Falta | 12 | El motor de múltiplos no tiene ese ajuste |
+| Transparency | `gridLineTransparency` | 2 | Falta | 12 | El motor de múltiplos no tiene ese ajuste |
+| Gridlines | `gridLineType` | 2 | Falta | 12 | El motor de múltiplos no tiene ese ajuste |
+| Width | `gridLineWidth` | 2 | Falta | 12 | El motor de múltiplos no tiene ese ajuste |
+| Grid padding | `gridPadding` | 2 | Falta | 12 | El motor de múltiplos no tiene ese ajuste |
+| Grid layout | `layoutType` | 2 | Falta | 12 | El motor de múltiplos no tiene ese ajuste |
+| Rows | `rowCount` | 2 | Falta | 12 | El motor de múltiplos no tiene ese ajuste |
+| Inner row padding | `rowPaddingInner` | 2 | Falta | 12 | El motor de múltiplos no tiene ese ajuste |
+| Outer row padding | `rowPaddingOuter` | 2 | Falta | 12 | El motor de múltiplos no tiene ese ajuste |
 
 ### Tooltip de iconos
 
@@ -1676,8 +1548,8 @@ gráficos donde falta. Lo que ya tenemos de cada gráfico está en [`por-grafico
 | Drill text and icon color | `actionFontColor` | 2 | Falta | 23 | Sin acciones de obtener detalles en el tooltip |
 | Page | `section` | 2 | Falta | 23 | Requiere páginas tooltip (fase 9) |
 | Actions | `showActionsInTooltips` | 2 | Falta | 23 | Sin acciones de obtener detalles en el tooltip |
-| Chart-specific tooltips | `showChartSpecificTooltips` | 2 | Falta | 23 | Requiere campos de tooltip (fase 8) |
-| Tooltip fields only | `showTooltipFieldsOnly` | 2 | Falta | 23 | Requiere campos de tooltip (fase 8) |
+| Chart-specific tooltips | `showChartSpecificTooltips` | 2 | Parcial | 23 | Analítica: campos de tooltip que se añaden a los del gráfico |
+| Tooltip fields only | `showTooltipFieldsOnly` | 2 | Parcial | 23 | Analítica: campos de tooltip que se añaden a los del gráfico |
 | Type | `type` | 2 | Falta | 23 | Requiere páginas tooltip (fase 9) |
 
 ## Fase 11: Mapas
@@ -2438,7 +2310,7 @@ gráficos donde falta. Lo que ya tenemos de cada gráfico está en [`por-grafico
 | Slider labels | `showLabels` | 2 | Falta | 1 | No tenemos este gráfico |
 | X axis | `showOnCategoryAxis` | 2 | Falta | 1 | No tenemos este gráfico |
 | Y axis | `showOnValueAxis` | 2 | Falta | 1 | No tenemos este gráfico |
-| Slider tooltips | `showTooltip` | 2 | Falta | 1 | No tenemos este gráfico |
+| Slider tooltips | `showTooltip` | 2 | Falta | 1 | El deslizador solo tiene etiquetas |
 | valueMax | `valueMax` | 2 | Falta | 1 | No tenemos este gráfico |
 | valueMin | `valueMin` | 2 | Falta | 1 | No tenemos este gráfico |
 | valueSize | `valueSize` | 2 | Falta | 1 | No tenemos este gráfico |
@@ -2620,16 +2492,16 @@ gráficos donde falta. Lo que ya tenemos de cada gráfico está en [`por-grafico
 
 | Opción | Clave | P | Estado | Gráficos | Nota |
 | --- | --- | ---: | --- | ---: | --- |
-| Alignment | `alignment` | 3 | Falta | 1 | No tenemos este gráfico |
-| Bold | `bold` | 3 | Falta | 1 | No tenemos este gráfico |
-| Font color | `fontColor` | 3 | Falta | 1 | No tenemos este gráfico |
-| Font family | `fontFamily` | 3 | Falta | 1 | No tenemos este gráfico |
-| Text size | `fontSize` | 3 | Falta | 1 | No tenemos este gráfico |
-| Italic | `italic` | 3 | Falta | 1 | No tenemos este gráfico |
-| Position | `position` | 3 | Falta | 1 | No tenemos este gráfico |
-| Show | `show` | 3 | Falta | 1 | No tenemos este gráfico |
-| Word wrap | `titleWrap` | 3 | Falta | 1 | No tenemos este gráfico |
-| Underline | `underline` | 3 | Falta | 1 | No tenemos este gráfico |
+| Alignment | `alignment` | 3 | Falta | 1 | Los encabezados de múltiplos usan el estilo del tema |
+| Bold | `bold` | 3 | Falta | 1 | Los encabezados de múltiplos usan el estilo del tema |
+| Font color | `fontColor` | 3 | Falta | 1 | Los encabezados de múltiplos usan el estilo del tema |
+| Font family | `fontFamily` | 3 | Falta | 1 | Los encabezados de múltiplos usan el estilo del tema |
+| Text size | `fontSize` | 3 | Falta | 1 | Los encabezados de múltiplos usan el estilo del tema |
+| Italic | `italic` | 3 | Falta | 1 | Los encabezados de múltiplos usan el estilo del tema |
+| Position | `position` | 3 | Falta | 1 | Los encabezados de múltiplos usan el estilo del tema |
+| Show | `show` | 3 | Falta | 1 | Los encabezados de múltiplos usan el estilo del tema |
+| Word wrap | `titleWrap` | 3 | Falta | 1 | Los encabezados de múltiplos usan el estilo del tema |
+| Underline | `underline` | 3 | Falta | 1 | Los encabezados de múltiplos usan el estilo del tema |
 
 ### Espaciado
 
@@ -2788,9 +2660,9 @@ gráficos donde falta. Lo que ya tenemos de cada gráfico está en [`por-grafico
 
 | Opción | Clave | P | Estado | Gráficos | Nota |
 | --- | --- | ---: | --- | ---: | --- |
-| Scale by width | `autoScale` | 2 | Falta | 1 | No tenemos este gráfico |
+| Scale by width | `autoScale` | 2 | Falta | 1 | El motor de gráficos no escala el trazo con el zoom |
 | Dash array | `dashArray` | 2 | Falta | 1 | No tenemos este gráfico |
-| Dash cap | `dashCap` | 2 | Falta | 1 | No tenemos este gráfico |
+| Dash cap | `dashCap` | 2 | Falta | 1 | Los extremos no se eligen en estas líneas |
 | Color | `dataLabelColor` | 2 | Falta | 1 | No tenemos este gráfico |
 | Value decimal places | `dataLabelDecimalPoints` | 2 | Falta | 1 | No tenemos este gráfico |
 | Display units | `dataLabelDisplayUnits` | 2 | Falta | 1 | No tenemos este gráfico |
@@ -2816,9 +2688,9 @@ gráficos donde falta. Lo que ya tenemos de cada gráfico está en [`por-grafico
 
 | Opción | Clave | P | Estado | Gráficos | Nota |
 | --- | --- | ---: | --- | ---: | --- |
-| Scale by width | `autoScale` | 2 | Falta | 1 | No tenemos este gráfico |
+| Scale by width | `autoScale` | 2 | Falta | 1 | El motor de gráficos no escala el trazo con el zoom |
 | Dash array | `dashArray` | 2 | Falta | 1 | No tenemos este gráfico |
-| Dash cap | `dashCap` | 2 | Falta | 1 | No tenemos este gráfico |
+| Dash cap | `dashCap` | 2 | Falta | 1 | Los extremos no se eligen en estas líneas |
 | Color | `dataLabelColor` | 2 | Falta | 1 | No tenemos este gráfico |
 | Value decimal places | `dataLabelDecimalPoints` | 2 | Falta | 1 | No tenemos este gráfico |
 | Display units | `dataLabelDisplayUnits` | 2 | Falta | 1 | No tenemos este gráfico |
@@ -2844,52 +2716,52 @@ gráficos donde falta. Lo que ya tenemos de cada gráfico está en [`por-grafico
 
 | Opción | Clave | P | Estado | Gráficos | Nota |
 | --- | --- | ---: | --- | ---: | --- |
-| Scale by width | `autoScale` | 2 | Falta | 1 | No tenemos este gráfico |
+| Scale by width | `autoScale` | 2 | Falta | 1 | Sin esa opción en la línea de tendencia |
 | Combine series | `combineSeries` | 2 | Falta | 1 | No tenemos este gráfico |
 | Dash array | `dashArray` | 2 | Falta | 1 | No tenemos este gráfico |
-| Dash cap | `dashCap` | 2 | Falta | 1 | No tenemos este gráfico |
-| Name | `displayName` | 2 | Falta | 1 | No tenemos este gráfico |
+| Dash cap | `dashCap` | 2 | Falta | 1 | Sin esa opción en la línea de tendencia |
+| Name | `displayName` | 2 | Falta | 1 | Sin esa opción en la línea de tendencia |
 | Color | `lineColor` | 2 | Falta | 1 | No tenemos este gráfico |
 | Show | `show` | 2 | Falta | 1 | No tenemos este gráfico |
 | Line style | `style` | 2 | Falta | 1 | No tenemos este gráfico |
 | Transparency | `transparency` | 2 | Falta | 1 | No tenemos este gráfico |
-| Use highlight values | `useHighlightValues` | 2 | Falta | 1 | No tenemos este gráfico |
+| Use highlight values | `useHighlightValues` | 2 | Falta | 1 | Sin esa opción en la línea de tendencia |
 | Width | `width` | 2 | Falta | 1 | No tenemos este gráfico |
 
 ### Múltiplos pequeños
 
 | Opción | Clave | P | Estado | Gráficos | Nota |
 | --- | --- | ---: | --- | ---: | --- |
-| Advanced padding options | `advancedPaddingOptions` | 2 | Falta | 1 | No tenemos este gráfico |
-| Fit to space | `autoGrid` | 2 | Falta | 1 |  |
-| Background color | `backgroundColor` | 2 | Falta | 1 | No tenemos este gráfico |
-| Background transparency | `backgroundTransparency` | 2 | Falta | 1 | No tenemos este gráfico |
-| Space between cards | `cellPadding` | 2 | Falta | 1 |  |
-| Columns | `columnCount` | 2 | Falta | 2 | No tenemos este gráfico |
-| Space between columns | `columnPadding` | 2 | Falta | 1 |  |
-| Inner column padding | `columnPaddingInner` | 2 | Falta | 1 | No tenemos este gráfico |
-| Outer column padding | `columnPaddingOuter` | 2 | Falta | 1 | No tenemos este gráfico |
-| Concatenate labels | `concatenateCategories` | 2 | Falta | 1 |  |
-| Customize spacing | `customizePadding` | 2 | Falta | 1 |  |
-| Fit to space | `fixNumberOfTiles` | 2 | Falta | 1 |  |
-| Color | `gridLineColor` | 2 | Falta | 1 | No tenemos este gráfico |
-| Show | `gridLineShow` | 2 | Falta | 1 | No tenemos este gráfico |
-| Line style | `gridLineStyle` | 2 | Falta | 1 | No tenemos este gráfico |
-| Transparency | `gridLineTransparency` | 2 | Falta | 1 | No tenemos este gráfico |
-| Gridlines | `gridLineType` | 2 | Falta | 1 | No tenemos este gráfico |
-| Width | `gridLineWidth` | 2 | Falta | 1 | No tenemos este gráfico |
-| Grid padding | `gridPadding` | 2 | Falta | 1 | No tenemos este gráfico |
-| Position | `headerPosition` | 2 | Falta | 1 |  |
-| Grid layout | `layoutType` | 2 | Falta | 1 | No tenemos este gráfico |
-| Maximum header size | `maxHeaderSize` | 2 | Falta | 1 |  |
-| Rows | `maxSmallMultiples` | 2 | Falta | 1 |  |
-| Arrangement | `orientation` | 2 | Falta | 1 |  |
-| Rows | `rowCount` | 2 | Falta | 2 | No tenemos este gráfico |
-| Space between rows | `rowPadding` | 2 | Falta | 1 |  |
-| Inner row padding | `rowPaddingInner` | 2 | Falta | 1 | No tenemos este gráfico |
-| Outer row padding | `rowPaddingOuter` | 2 | Falta | 1 | No tenemos este gráfico |
-| Style | `style` | 2 | Falta | 1 |  |
-| Orientation | `titleOrientation` | 2 | Falta | 1 |  |
+| Advanced padding options | `advancedPaddingOptions` | 2 | Falta | 1 | El motor de múltiplos no tiene ese ajuste |
+| Fit to space | `autoGrid` | 2 | Falta | 1 | El motor de múltiplos no tiene ese ajuste |
+| Background color | `backgroundColor` | 2 | Falta | 1 | El motor de múltiplos no tiene ese ajuste |
+| Background transparency | `backgroundTransparency` | 2 | Falta | 1 | El motor de múltiplos no tiene ese ajuste |
+| Space between cards | `cellPadding` | 2 | Falta | 1 | El motor de múltiplos no tiene ese ajuste |
+| Columns | `columnCount` | 2 | Falta | 2 | El motor de múltiplos no tiene ese ajuste |
+| Space between columns | `columnPadding` | 2 | Falta | 1 | El motor de múltiplos no tiene ese ajuste |
+| Inner column padding | `columnPaddingInner` | 2 | Falta | 1 | El motor de múltiplos no tiene ese ajuste |
+| Outer column padding | `columnPaddingOuter` | 2 | Falta | 1 | El motor de múltiplos no tiene ese ajuste |
+| Concatenate labels | `concatenateCategories` | 2 | Falta | 1 | El motor de múltiplos no tiene ese ajuste |
+| Customize spacing | `customizePadding` | 2 | Falta | 1 | El motor de múltiplos no tiene ese ajuste |
+| Fit to space | `fixNumberOfTiles` | 2 | Falta | 1 | El motor de múltiplos no tiene ese ajuste |
+| Color | `gridLineColor` | 2 | Falta | 1 | El motor de múltiplos no tiene ese ajuste |
+| Show | `gridLineShow` | 2 | Falta | 1 | El motor de múltiplos no tiene ese ajuste |
+| Line style | `gridLineStyle` | 2 | Falta | 1 | El motor de múltiplos no tiene ese ajuste |
+| Transparency | `gridLineTransparency` | 2 | Falta | 1 | El motor de múltiplos no tiene ese ajuste |
+| Gridlines | `gridLineType` | 2 | Falta | 1 | El motor de múltiplos no tiene ese ajuste |
+| Width | `gridLineWidth` | 2 | Falta | 1 | El motor de múltiplos no tiene ese ajuste |
+| Grid padding | `gridPadding` | 2 | Falta | 1 | El motor de múltiplos no tiene ese ajuste |
+| Position | `headerPosition` | 2 | Falta | 1 | El motor de múltiplos no tiene ese ajuste |
+| Grid layout | `layoutType` | 2 | Falta | 1 | El motor de múltiplos no tiene ese ajuste |
+| Maximum header size | `maxHeaderSize` | 2 | Falta | 1 | El motor de múltiplos no tiene ese ajuste |
+| Rows | `maxSmallMultiples` | 2 | Falta | 1 | El motor de múltiplos no tiene ese ajuste |
+| Arrangement | `orientation` | 2 | Falta | 1 | El motor de múltiplos no tiene ese ajuste |
+| Rows | `rowCount` | 2 | Falta | 2 | El motor de múltiplos no tiene ese ajuste |
+| Space between rows | `rowPadding` | 2 | Falta | 1 | El motor de múltiplos no tiene ese ajuste |
+| Inner row padding | `rowPaddingInner` | 2 | Falta | 1 | El motor de múltiplos no tiene ese ajuste |
+| Outer row padding | `rowPaddingOuter` | 2 | Falta | 1 | El motor de múltiplos no tiene ese ajuste |
+| Style | `style` | 2 | Falta | 1 | El motor de múltiplos no tiene ese ajuste |
+| Orientation | `titleOrientation` | 2 | Falta | 1 | El motor de múltiplos no tiene ese ajuste |
 
 ### Pronóstico
 

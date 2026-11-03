@@ -225,7 +225,7 @@ Nuestro gráfico: ninguno. Generado desde `reportThemeSchema-2.159.json`.
 | Slider labels | `showLabels` | boolean | Falta | No tenemos este gráfico |
 | X axis | `showOnCategoryAxis` | boolean | Falta | No tenemos este gráfico |
 | Y axis | `showOnValueAxis` | boolean | Falta | No tenemos este gráfico |
-| Slider tooltips | `showTooltip` | boolean | Falta | No tenemos este gráfico |
+| Slider tooltips | `showTooltip` | boolean | Falta | El deslizador solo tiene etiquetas |
 | valueMax | `valueMax` | number | Falta | No tenemos este gráfico |
 | valueMin | `valueMin` | number | Falta | No tenemos este gráfico |
 | valueSize | `valueSize` | number | Falta | No tenemos este gráfico |
@@ -247,9 +247,9 @@ Nuestro gráfico: ninguno. Generado desde `reportThemeSchema-2.159.json`.
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
-| Scale by width | `autoScale` | boolean | Falta | No tenemos este gráfico |
+| Scale by width | `autoScale` | boolean | Falta | El motor de gráficos no escala el trazo con el zoom |
 | Dash array | `dashArray` | string | Falta | No tenemos este gráfico |
-| Dash cap | `dashCap` | enum: Flat, Round, Square | Falta | No tenemos este gráfico |
+| Dash cap | `dashCap` | enum: Flat, Round, Square | Falta | Los extremos no se eligen en estas líneas |
 | Color | `dataLabelColor` | fill | Falta | No tenemos este gráfico |
 | Value decimal places | `dataLabelDecimalPoints` | number | Falta | No tenemos este gráfico |
 | Display units | `dataLabelDisplayUnits` | labelDisplayUnits | Falta | No tenemos este gráfico |
@@ -275,9 +275,9 @@ Nuestro gráfico: ninguno. Generado desde `reportThemeSchema-2.159.json`.
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
-| Scale by width | `autoScale` | boolean | Falta | No tenemos este gráfico |
+| Scale by width | `autoScale` | boolean | Falta | El motor de gráficos no escala el trazo con el zoom |
 | Dash array | `dashArray` | string | Falta | No tenemos este gráfico |
-| Dash cap | `dashCap` | enum: Flat, Round, Square | Falta | No tenemos este gráfico |
+| Dash cap | `dashCap` | enum: Flat, Round, Square | Falta | Los extremos no se eligen en estas líneas |
 | Color | `dataLabelColor` | fill | Falta | No tenemos este gráfico |
 | Value decimal places | `dataLabelDecimalPoints` | number | Falta | No tenemos este gráfico |
 | Display units | `dataLabelDisplayUnits` | labelDisplayUnits | Falta | No tenemos este gráfico |
@@ -303,39 +303,39 @@ Nuestro gráfico: ninguno. Generado desde `reportThemeSchema-2.159.json`.
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
-| Scale by width | `autoScale` | boolean | Falta | No tenemos este gráfico |
+| Scale by width | `autoScale` | boolean | Falta | Sin esa opción en la línea de tendencia |
 | Combine series | `combineSeries` | boolean | Falta | No tenemos este gráfico |
 | Dash array | `dashArray` | string | Falta | No tenemos este gráfico |
-| Dash cap | `dashCap` | enum: Flat, Round, Square | Falta | No tenemos este gráfico |
-| Name | `displayName` | string | Falta | No tenemos este gráfico |
+| Dash cap | `dashCap` | enum: Flat, Round, Square | Falta | Sin esa opción en la línea de tendencia |
+| Name | `displayName` | string | Falta | Sin esa opción en la línea de tendencia |
 | Color | `lineColor` | fill | Falta | No tenemos este gráfico |
 | Show | `show` | boolean | Falta | No tenemos este gráfico |
 | Line style | `style` | enum: Solid, Dashed, Dotted, Custom | Falta | No tenemos este gráfico |
 | Transparency | `transparency` | number | Falta | No tenemos este gráfico |
-| Use highlight values | `useHighlightValues` | boolean | Falta | No tenemos este gráfico |
+| Use highlight values | `useHighlightValues` | boolean | Falta | Sin esa opción en la línea de tendencia |
 | Width | `width` | number | Falta | No tenemos este gráfico |
 
 ### Múltiplos pequeños (`smallMultiplesLayout`) · P2 · 0/17
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
-| Advanced padding options | `advancedPaddingOptions` | boolean | Falta | No tenemos este gráfico |
-| Background color | `backgroundColor` | fill | Falta | No tenemos este gráfico |
-| Background transparency | `backgroundTransparency` | number | Falta | No tenemos este gráfico |
-| Columns | `columnCount` | integer | Falta | No tenemos este gráfico |
-| Inner column padding | `columnPaddingInner` | number | Falta | No tenemos este gráfico |
-| Outer column padding | `columnPaddingOuter` | number | Falta | No tenemos este gráfico |
-| Color | `gridLineColor` | fill | Falta | No tenemos este gráfico |
-| Show | `gridLineShow` | boolean | Falta | No tenemos este gráfico |
-| Line style | `gridLineStyle` | enum: Solid, Dashed, Dotted | Falta | No tenemos este gráfico |
-| Transparency | `gridLineTransparency` | number | Falta | No tenemos este gráfico |
-| Gridlines | `gridLineType` | enum: All, Horizontal and vertical, Horizontal only, Vertical only | Falta | No tenemos este gráfico |
-| Width | `gridLineWidth` | number | Falta | No tenemos este gráfico |
-| Grid padding | `gridPadding` | number | Falta | No tenemos este gráfico |
-| Grid layout | `layoutType` | enum: Auto, Custom | Falta | No tenemos este gráfico |
-| Rows | `rowCount` | integer | Falta | No tenemos este gráfico |
-| Inner row padding | `rowPaddingInner` | number | Falta | No tenemos este gráfico |
-| Outer row padding | `rowPaddingOuter` | number | Falta | No tenemos este gráfico |
+| Advanced padding options | `advancedPaddingOptions` | boolean | Falta | El motor de múltiplos no tiene ese ajuste |
+| Background color | `backgroundColor` | fill | Falta | El motor de múltiplos no tiene ese ajuste |
+| Background transparency | `backgroundTransparency` | number | Falta | El motor de múltiplos no tiene ese ajuste |
+| Columns | `columnCount` | integer | Falta | El motor de múltiplos no tiene ese ajuste |
+| Inner column padding | `columnPaddingInner` | number | Falta | El motor de múltiplos no tiene ese ajuste |
+| Outer column padding | `columnPaddingOuter` | number | Falta | El motor de múltiplos no tiene ese ajuste |
+| Color | `gridLineColor` | fill | Falta | El motor de múltiplos no tiene ese ajuste |
+| Show | `gridLineShow` | boolean | Falta | El motor de múltiplos no tiene ese ajuste |
+| Line style | `gridLineStyle` | enum: Solid, Dashed, Dotted | Falta | El motor de múltiplos no tiene ese ajuste |
+| Transparency | `gridLineTransparency` | number | Falta | El motor de múltiplos no tiene ese ajuste |
+| Gridlines | `gridLineType` | enum: All, Horizontal and vertical, Horizontal only, Vertical only | Falta | El motor de múltiplos no tiene ese ajuste |
+| Width | `gridLineWidth` | number | Falta | El motor de múltiplos no tiene ese ajuste |
+| Grid padding | `gridPadding` | number | Falta | El motor de múltiplos no tiene ese ajuste |
+| Grid layout | `layoutType` | enum: Auto, Custom | Falta | El motor de múltiplos no tiene ese ajuste |
+| Rows | `rowCount` | integer | Falta | El motor de múltiplos no tiene ese ajuste |
+| Inner row padding | `rowPaddingInner` | number | Falta | El motor de múltiplos no tiene ese ajuste |
+| Outer row padding | `rowPaddingOuter` | number | Falta | El motor de múltiplos no tiene ese ajuste |
 
 ### Anotaciones (`annotationTemplate`) · P3 · 0/1
 
@@ -390,16 +390,16 @@ Nuestro gráfico: ninguno. Generado desde `reportThemeSchema-2.159.json`.
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
-| Alignment | `alignment` | alignment | Falta | No tenemos este gráfico |
-| Bold | `bold` | boolean | Falta | No tenemos este gráfico |
-| Font color | `fontColor` | fill | Falta | No tenemos este gráfico |
-| Font family | `fontFamily` | string | Falta | No tenemos este gráfico |
-| Text size | `fontSize` | fontSize | Falta | No tenemos este gráfico |
-| Italic | `italic` | boolean | Falta | No tenemos este gráfico |
-| Position | `position` | enum: Top, Bottom | Falta | No tenemos este gráfico |
-| Show | `show` | boolean | Falta | No tenemos este gráfico |
-| Word wrap | `titleWrap` | boolean | Falta | No tenemos este gráfico |
-| Underline | `underline` | boolean | Falta | No tenemos este gráfico |
+| Alignment | `alignment` | alignment | Falta | Los encabezados de múltiplos usan el estilo del tema |
+| Bold | `bold` | boolean | Falta | Los encabezados de múltiplos usan el estilo del tema |
+| Font color | `fontColor` | fill | Falta | Los encabezados de múltiplos usan el estilo del tema |
+| Font family | `fontFamily` | string | Falta | Los encabezados de múltiplos usan el estilo del tema |
+| Text size | `fontSize` | fontSize | Falta | Los encabezados de múltiplos usan el estilo del tema |
+| Italic | `italic` | boolean | Falta | Los encabezados de múltiplos usan el estilo del tema |
+| Position | `position` | enum: Top, Bottom | Falta | Los encabezados de múltiplos usan el estilo del tema |
+| Show | `show` | boolean | Falta | Los encabezados de múltiplos usan el estilo del tema |
+| Word wrap | `titleWrap` | boolean | Falta | Los encabezados de múltiplos usan el estilo del tema |
+| Underline | `underline` | boolean | Falta | Los encabezados de múltiplos usan el estilo del tema |
 
 ### filters (`filters`) · P3 · 0/1
 

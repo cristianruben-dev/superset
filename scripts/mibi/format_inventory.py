@@ -183,6 +183,10 @@ def controls(key):
         S.add("fmt_series_labels")
     if "plotAreaFormatSection" in t:
         S.add("fmt_plot")
+    if "buildAnalyticsSections" in t:
+        S.add("fmt_analytics")
+    if "tooltipFields: true" in t:
+        S.add("fmt_tooltipfields")
     m = re.search(r"buildSeriesFormatSection\(\{?(.*?)\}?\)", t, re.S)
     if m:
         for part, token in (
@@ -314,6 +318,93 @@ FONT = r"fontFamily|fontSize|bold|italic|labelColor|color|fontColor|textSize"
 F = "fmt"
 # (card regex, prop regex, controls, status, note); first match wins; a control absent from the chart means Falta
 RULES = [
+    (
+        r"referenceLine|xAxisReferenceLine|y1AxisReferenceLine",
+        r"autoScale",
+        None,
+        "Falta",
+        "El motor de gráficos no escala el trazo con el zoom",
+    ),
+    (
+        r"referenceLine|xAxisReferenceLine|y1AxisReferenceLine",
+        r"dashCap",
+        None,
+        "Falta",
+        "Los extremos no se eligen en estas líneas",
+    ),
+    (
+        r"referenceLine|xAxisReferenceLine|y1AxisReferenceLine",
+        r"shadeColorMatchStroke",
+        ["fmt_analytics"],
+        "Parcial",
+        "Sin color propio, el sombreado toma el de la línea",
+    ),
+    (
+        r"referenceLine|xAxisReferenceLine|y1AxisReferenceLine",
+        r".*",
+        ["fmt_analytics"],
+        "Tiene",
+        "Analítica: líneas de referencia",
+    ),
+    (
+        r"trend",
+        r"autoScale|dashCap|displayName|useHighlightValues",
+        None,
+        "Falta",
+        "Sin esa opción en la línea de tendencia",
+    ),
+    (r"trend", r".*", ["fmt_analytics"], "Tiene", "Analítica: línea de tendencia"),
+    (
+        r"zoom",
+        r".*Sec.*|showOnValueSecAxis",
+        None,
+        "Falta",
+        "Sin deslizador para el eje secundario",
+    ),
+    (r"zoom", r"showTooltip", None, "Falta", "El deslizador solo tiene etiquetas"),
+    (
+        r"zoom",
+        r"categoryMin|categoryMax|valueMin|valueMax",
+        ["fmt_analytics"],
+        "Parcial",
+        "En porcentaje del eje, no en valores",
+    ),
+    (r"zoom", r".*", ["fmt_analytics"], "Tiene", "Analítica: deslizadores de zoom"),
+    (
+        r"smallMultiplesLayout",
+        r"columnCount",
+        ["fmt_analytics"],
+        "Tiene",
+        "Analítica: múltiplos por fila",
+    ),
+    (
+        r"smallMultiplesLayout",
+        r".*",
+        None,
+        "Falta",
+        "El motor de múltiplos no tiene ese ajuste",
+    ),
+    (
+        r"subheader",
+        r"show",
+        ["fmt_analytics"],
+        "Tiene",
+        "Analítica: encabezados de múltiplos",
+    ),
+    (
+        r"subheader",
+        r".*",
+        None,
+        "Falta",
+        "Los encabezados de múltiplos usan el estilo del tema",
+    ),
+    (
+        r"visualTooltip",
+        r"showChartSpecificTooltips|showTooltipFieldsOnly",
+        ["fmt_tooltipfields"],
+        "Parcial",
+        "Analítica: campos de tooltip que se añaden a los del gráfico",
+    ),
     (
         r"bubbles",
         r"markerShape",
@@ -1956,6 +2047,99 @@ CARD_RULES = [
     ),
 ]
 FILTER_RULES = [
+    (
+        r"header",
+        r"background|bold|fontColor|fontFamily|italic|outlineStyle|show|textSize|underline",
+        ["ok"],
+        "Tiene",
+        "Segmentador: encabezado",
+    ),
+    (r"header", r"text", ["none"], "Falta", "El encabezado es el nombre del filtro"),
+    (
+        r"items",
+        r"background|bold|fontColor|fontFamily|italic|padding|textSize|underline",
+        ["ok"],
+        "Tiene",
+        "Segmentador: valores de lista y botones",
+    ),
+    (
+        r"label|value",
+        r"bold|fontColor|fontFamily|fontSize|italic|show|textWrap|underline|text",
+        ["ok"],
+        "Tiene",
+        "Segmentador: valores",
+    ),
+    (
+        r"layout",
+        r"columnCount|orientation|style|columnPadding|rowPadding|cellPadding|borderColor|borderWidth"
+        r"|backgroundFillColor|backgroundShow|rectangleRoundedCurve",
+        ["ok"],
+        "Tiene",
+        "Segmentador: disposición de lista, botones o cuadrícula",
+    ),
+    (
+        r"layout",
+        r"rowCount|autoGrid|maxTiles|alignment",
+        ["none"],
+        "Falta",
+        "Las filas salen de los valores y las columnas",
+    ),
+    (
+        r"selection",
+        r"selectAllCheckboxEnabled",
+        ["ok"],
+        "Tiene",
+        "Segmentador: seleccionar todo",
+    ),
+    (
+        r"selection",
+        r"singleSelect|strictSingleSelect",
+        ["ok"],
+        "Tiene",
+        "Sigue la selección múltiple del filtro",
+    ),
+    (
+        r"selectionIcon",
+        r"show|color",
+        ["ok"],
+        "Tiene",
+        "Segmentador: marca de selección",
+    ),
+    (
+        r"search",
+        r"backgroundColor|backgroundShow|borderColor|borderShow|cornerRadius|fontColor",
+        ["ok"],
+        "Tiene",
+        "Segmentador: caja de búsqueda",
+    ),
+    (
+        r"searchBox",
+        r"fontColor|background",
+        ["ok"],
+        "Tiene",
+        "Segmentador: caja de búsqueda",
+    ),
+    (
+        r"inputText|inputTextBox",
+        r"fontColor|fontFamily|fontSize|bold|italic|backgroundColor|borderColor",
+        ["ok"],
+        "Parcial",
+        "Segmentador de texto: colores de la caja",
+    ),
+    (
+        r"dropdown",
+        r"borderColor|borderRadius",
+        ["ok"],
+        "Tiene",
+        "Filtro de lienzo: caja",
+    ),
+    (
+        r"dropdown|pills|search",
+        r"accentBar.*|cornerRadius.+|individual.*|padding.+|dismiss.*|.*Transparency",
+        ["none"],
+        "Falta",
+        "P2 de detalle sin hacer",
+    ),
     (r"header", r"show", ["ok"], "Tiene", "Filtro de lienzo: ocultar etiqueta"),
     (
         r"header",

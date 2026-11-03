@@ -2,7 +2,7 @@
 
 **Empieza aquí.** Es el resumen de todo: qué fases hay, qué llevamos, qué tenemos y qué falta.
 
-Actualizado: 2026-11-02, al cerrar las fases 4, 5 y 6. Siguiente: **fase 7, segmentadores**, salvo que adelantes la 9.
+Actualizado: 2026-11-02, con las fases 7 y 8 hechas. Faltan sobre todo la P3 de segmentadores (454 opciones), las páginas tooltip y los campos. Siguiente: **fase 9**.
 
 ## Dónde está cada cosa
 
@@ -29,9 +29,9 @@ Actualizado: 2026-11-02, al cerrar las fases 4, 5 y 6. Siguiente: **fase 7, segm
 | 4 | Tabla y matriz | **Hecha** | 12 |
 | 5 | Tarjeta, KPI, circular y anillo | **Hecha** | 38 |
 | 6 | Cascada, embudo, treemap, medidor y dispersión | **Hecha** | 63 |
-| 7 | Segmentadores | Pendiente | 763 |
-| 8 | Análisis y tooltips | Pendiente | 132 |
-| 9 | Páginas tooltip y restablecer filtros | Pendiente | Fuera del inventario |
+| 7 | Segmentadores | **Hecha con límites** | 710 |
+| 8 | Análisis y tooltips | **Hecha con límites** | 57 |
+| 9 | Páginas tooltip y restablecer filtros | **Siguiente** | Fuera del inventario |
 | 10 | Campos y panel de datos | Pendiente | Fuera del inventario |
 | 11 | Mapas | Sin decidir el motor | 429 |
 | 12 | Resto de P3 y gráficos nuevos | Opcional | 927 |
@@ -60,11 +60,15 @@ Las fases 5 y 6 reutilizan el motor ECharts y el formato compartido. Las metas y
 
 **Validación de las fases 4, 5 y 6:** tests de los archivos tocados, lint de esos archivos, compilación y captura de referencia de los 15 gráficos, con el tablero 147 restaurado. En el navegador: formato de tabla, matriz, tarjeta, KPI (objetivo fijo y por métrica), anillo, embudo, treemap, cascada, medidor y dispersión con línea y sombreado; cambios desde el panel sin consultas nuevas; restablecer; y sección por gráfico sin opciones repetidas. Las burbujas solo tienen tests. La cobertura sale de comparar controles: no se probó cada opción una por una.
 
+La fase 7 añade segmentadores de lista, botones y texto, con disposición, búsqueda, seleccionar todo, marca de selección y formato de encabezado y valores, con estados al pasar el puntero y al seleccionar. La fase 8 añade el nivel Analítica: líneas de referencia constantes y calculadas con etiqueta y sombreado, línea de tendencia, deslizadores de zoom, campos de tooltip y múltiplos pequeños.
+
+**Validación de las fases 7 y 8:** tests de los archivos tocados y comprobación con datos del tablero 147: las cuatro variantes filtran los gráficos, las líneas de referencia y la tendencia se dibujan en barras, líneas, combinado y cascada, el zoom en líneas y área, el tooltip añade su campo, los múltiplos dividen un gráfico y añadir una línea desde el panel no consulta datos.
+
 ## Cobertura
 
 | Gráfico | Tenemos | A medias | Faltan |
 | --- | ---: | ---: | ---: |
-| Barras y columnas agrupadas | 291 de 491 | 20 | 180 |
+| Barras y columnas agrupadas | 366 de 491 | 28 | 97 |
 | Barras y columnas apiladas | 301 de 491 | 20 | 170 |
 | Líneas | 321 de 629 | 22 | 286 |
 | Área apilada | 332 de 531 | 22 | 177 |
@@ -80,7 +84,9 @@ Las fases 5 y 6 reutilizan el motor ECharts y el formato compartido. Las metas y
 | Embudo | 201 de 219 | 6 | 12 |
 | Treemap | 197 de 217 | 5 | 15 |
 | Medidor | 191 de 219 | 16 | 12 |
-| Segmentador | 28 de 302 | 14 | 260 |
+| Segmentador | 46 de 302 | 13 | 243 |
+| Segmentador de lista | 61 de 575 | 13 | 501 |
+| Segmentador de botones | 61 de 452 | 13 | 378 |
 
 Las cifras salen de comparar nombres de controles, no de probar cada opción: un «tenemos» dice que el control existe, no
 que funcione igual que en Power BI. En muchos gráficos, buena parte de lo que tenemos es el nivel General. Mapas, Ribbon,
@@ -102,8 +108,8 @@ Tarjeta de varias filas y la tarjeta nueva están en `cobertura.md`.
 - **4, hecha con límites:** anchos por cada valor generado de la jerarquía, jerarquías compuestas y fijación de encabezados de fila siguen sin equivalente. Los minigráficos usan los datos ya consultados: grupos de columnas en matriz y listas numéricas en tabla. Las dos opciones P3 de accesibilidad siguen pendientes.
 - **5, hecha con límites:** tarjetas con tipografía por bloque, unidades, decimales, ajuste y subrayado. KPI con objetivo fijo o métrica, distancia, colores de estado, icono, fecha y tendencia. Circular/anillo con rotación, etiquetas y centro. Falta imagen central, etiqueta central independiente y parte de su ajuste; la distancia ofrece valor o porcentaje, no ambos a la vez.
 - **6, hecha con límites:** estilos comunes, conectores de cascada, porcentajes de conversión, espacios del treemap, objetivo numérico del medidor, tamaño de burbujas, línea y=x y sombreado geométrico en ejes numéricos lineales. Siguen pendientes el máximo de desgloses con Otros, algoritmos alternativos de treemap, objetivo por campo en medidor, contención automática y modos de rango de marcadores.
-- **7, segmentadores:** variantes de botones, lista y entrada, con su formato. Son 455 opciones P3 que se decidirían después.
-- **8, análisis y tooltips:** líneas de referencia y tendencia, zoom con formato, múltiplos pequeños y campos de tooltip.
+- **7, hecha con límites:** quedan 134 P1 y 122 P2 de detalle (esquinas individuales, barra de acento, píldoras, imagen en la disposición) y 454 P3 (estados por botón, efectos de imagen, ajuste de fechas y deslizador). El menú de la lista desplegable no se formatea.
+- **8, hecha con límites:** sin deslizador del eje secundario, los límites del zoom van en porcentaje, los múltiplos no tienen formato de cuadrícula ni encabezado propio, y los campos de tooltip solo están en barras, líneas, áreas y dispersión.
 - **9, paridad de reporte:** páginas tooltip, lo que más le falta a SESEQ, y restablecer filtros. No depende del panel.
 - **10, campos y panel de datos:** campos por rol, como Eje X, Leyenda y Valores, y panel Datos junto al lienzo.
 - **11, mapas:** decidir el motor antes de nada.

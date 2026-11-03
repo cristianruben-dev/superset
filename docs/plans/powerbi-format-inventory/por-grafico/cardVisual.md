@@ -124,21 +124,21 @@ Nuestro gráfico: bigtotal. Generado desde `reportThemeSchema-2.159.json`.
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
-| Fit to space | `autoGrid` | boolean | Falta |  |
-| Space between cards | `cellPadding` | integer | Falta |  |
-| Columns | `columnCount` | integer | Falta |  |
-| Space between columns | `columnPadding` | integer | Falta |  |
-| Concatenate labels | `concatenateCategories` | boolean | Falta |  |
-| Customize spacing | `customizePadding` | boolean | Falta |  |
-| Fit to space | `fixNumberOfTiles` | boolean | Falta |  |
-| Position | `headerPosition` | enum: Top, Bottom, Left, Right | Falta |  |
-| Maximum header size | `maxHeaderSize` | integer | Falta |  |
-| Rows | `maxSmallMultiples` | integer | Falta |  |
-| Arrangement | `orientation` | enum: Horizontal, Vertical, Grid | Falta |  |
-| Rows | `rowCount` | integer | Falta |  |
-| Space between rows | `rowPadding` | integer | Falta |  |
-| Style | `style` | enum: Table, Tiles | Falta |  |
-| Orientation | `titleOrientation` | enum: Rotate all text 270°, Horizontal, Rotate all text 90°, Stacked | Falta |  |
+| Fit to space | `autoGrid` | boolean | Falta | El motor de múltiplos no tiene ese ajuste |
+| Space between cards | `cellPadding` | integer | Falta | El motor de múltiplos no tiene ese ajuste |
+| Columns | `columnCount` | integer | Falta | El motor de múltiplos no tiene ese ajuste |
+| Space between columns | `columnPadding` | integer | Falta | El motor de múltiplos no tiene ese ajuste |
+| Concatenate labels | `concatenateCategories` | boolean | Falta | El motor de múltiplos no tiene ese ajuste |
+| Customize spacing | `customizePadding` | boolean | Falta | El motor de múltiplos no tiene ese ajuste |
+| Fit to space | `fixNumberOfTiles` | boolean | Falta | El motor de múltiplos no tiene ese ajuste |
+| Position | `headerPosition` | enum: Top, Bottom, Left, Right | Falta | El motor de múltiplos no tiene ese ajuste |
+| Maximum header size | `maxHeaderSize` | integer | Falta | El motor de múltiplos no tiene ese ajuste |
+| Rows | `maxSmallMultiples` | integer | Falta | El motor de múltiplos no tiene ese ajuste |
+| Arrangement | `orientation` | enum: Horizontal, Vertical, Grid | Falta | El motor de múltiplos no tiene ese ajuste |
+| Rows | `rowCount` | integer | Falta | El motor de múltiplos no tiene ese ajuste |
+| Space between rows | `rowPadding` | integer | Falta | El motor de múltiplos no tiene ese ajuste |
+| Style | `style` | enum: Table, Tiles | Falta | El motor de múltiplos no tiene ese ajuste |
+| Orientation | `titleOrientation` | enum: Rotate all text 270°, Horizontal, Rotate all text 90°, Stacked | Falta | El motor de múltiplos no tiene ese ajuste |
 
 ### accentBar (`accentBar`) · P3 · 0/6
 

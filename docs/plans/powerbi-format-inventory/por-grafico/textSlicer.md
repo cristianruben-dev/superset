@@ -60,15 +60,15 @@ Nuestro gráfico: filtro nativo y filtro de lienzo. Generado desde `reportThemeS
 | Show | `showText` | boolean | Falta |  |
 | Underline | `underline` | boolean | Falta |  |
 
-### inputText (`inputText`) · P3 · 0/31
+### inputText (`inputText`) · P3 · 6/31
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
 | Color | `backColor` | fill | Falta |  |
 | Show | `backShow` | boolean | Falta |  |
 | Transparency | `backTransparency` | number | Falta |  |
-| Bold | `bold` | boolean | Falta |  |
-| Color | `borderColor` | fill | Falta |  |
+| Bold | `bold` | boolean | Parcial | Segmentador de texto: colores de la caja |
+| Color | `borderColor` | fill | Parcial | Segmentador de texto: colores de la caja |
 | Show | `borderShow` | boolean | Falta |  |
 | Transparency | `borderTransparency` | number | Falta |  |
 | Width | `borderWidth` | number | Falta |  |
@@ -77,11 +77,11 @@ Nuestro gráfico: filtro nativo y filtro de lienzo. Generado desde `reportThemeS
 | Icon size | `dismissSize` | fontSize | Falta |  |
 | Spacing | `dismissSpacing` | integer | Falta |  |
 | Transparency | `dismissTransparency` | number | Falta |  |
-| Color | `fontColor` | fill | Falta |  |
-| Font family | `fontFamily` | string | Falta |  |
-| Text size | `fontSize` | fontSize | Falta |  |
+| Color | `fontColor` | fill | Parcial | Segmentador de texto: colores de la caja |
+| Font family | `fontFamily` | string | Parcial | Segmentador de texto: colores de la caja |
+| Text size | `fontSize` | fontSize | Parcial | Segmentador de texto: colores de la caja |
 | Transparency | `fontTransparency` | number | Falta |  |
-| Italic | `italic` | boolean | Falta |  |
+| Italic | `italic` | boolean | Parcial | Segmentador de texto: colores de la caja |
 | Bottom margin | `paddingBottom` | integer | Falta |  |
 | Left margin | `paddingLeft` | integer | Falta |  |
 | Right margin | `paddingRight` | integer | Falta |  |
@@ -96,7 +96,7 @@ Nuestro gráfico: filtro nativo y filtro de lienzo. Generado desde `reportThemeS
 | Placeholder | `placeholder` | string | Falta |  |
 | Underline | `underline` | boolean | Falta |  |
 
-### inputTextBox (`inputTextBox`) · P3 · 0/30
+### inputTextBox (`inputTextBox`) · P3 · 1/30
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
@@ -108,7 +108,7 @@ Nuestro gráfico: filtro nativo y filtro de lienzo. Generado desde `reportThemeS
 | Color | `backColor` | fill | Falta |  |
 | Show | `backShow` | boolean | Falta |  |
 | Transparency | `backTransparency` | number | Falta |  |
-| Color | `borderColor` | fill | Falta |  |
+| Color | `borderColor` | fill | Parcial | Segmentador de texto: colores de la caja |
 | Show | `borderShow` | boolean | Falta |  |
 | Transparency | `borderTransparency` | number | Falta |  |
 | Width | `borderWidth` | number | Falta |  |

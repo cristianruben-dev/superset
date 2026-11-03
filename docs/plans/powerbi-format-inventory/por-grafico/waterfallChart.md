@@ -124,33 +124,33 @@ Nuestro gráfico: waterfall. Generado desde `reportThemeSchema-2.159.json`.
 | Transparency | `transparency` | number | Falta | El motor de gráficos no atenúa una imagen de fondo |
 | Image URL | `url` | string | Parcial | Por dirección de la imagen, sin subirla |
 
-### Línea de referencia Y (`y1AxisReferenceLine`) · P2 · 0/23
+### Línea de referencia Y (`y1AxisReferenceLine`) · P2 · 21/23
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
-| Scale by width | `autoScale` | boolean | Falta |  |
-| Dash array | `dashArray` | string | Falta |  |
-| Dash cap | `dashCap` | enum: Flat, Round, Square | Falta |  |
-| Color | `dataLabelColor` | fill | Falta |  |
-| Value decimal places | `dataLabelDecimalPoints` | number | Falta |  |
-| Display units | `dataLabelDisplayUnits` | labelDisplayUnits | Falta |  |
-| Horizontal position | `dataLabelHorizontalPosition` | enum: Left, Right | Falta |  |
-| Data label | `dataLabelShow` | boolean | Falta |  |
-| Text | `dataLabelText` | enum: Data value, Name, Both | Falta |  |
-| Vertical position | `dataLabelVerticalPosition` | enum: Above, Under | Falta |  |
-| Name | `displayName` | string | Falta |  |
-| Color | `lineColor` | fill | Falta |  |
-| Position | `position` | enum: Behind, In front | Falta |  |
-| Shade color | `shadeColor` | fill | Falta |  |
-| Match line color | `shadeColorMatchStroke` | boolean | Falta |  |
-| Shade region | `shadeRegion` | enum: Before, After, None | Falta |  |
-| Show | `shadeShow` | boolean | Falta |  |
-| Shade transparency | `shadeTransparency` | number | Falta |  |
-| Show | `show` | boolean | Falta |  |
-| Line style | `style` | enum: Solid, Dashed, Dotted, Custom | Falta |  |
-| Transparency | `transparency` | number | Falta |  |
-| Value | `value` | number | Falta |  |
-| Width | `width` | number | Falta |  |
+| Scale by width | `autoScale` | boolean | Falta | El motor de gráficos no escala el trazo con el zoom |
+| Dash array | `dashArray` | string | Tiene | Analítica: líneas de referencia |
+| Dash cap | `dashCap` | enum: Flat, Round, Square | Falta | Los extremos no se eligen en estas líneas |
+| Color | `dataLabelColor` | fill | Tiene | Analítica: líneas de referencia |
+| Value decimal places | `dataLabelDecimalPoints` | number | Tiene | Analítica: líneas de referencia |
+| Display units | `dataLabelDisplayUnits` | labelDisplayUnits | Tiene | Analítica: líneas de referencia |
+| Horizontal position | `dataLabelHorizontalPosition` | enum: Left, Right | Tiene | Analítica: líneas de referencia |
+| Data label | `dataLabelShow` | boolean | Tiene | Analítica: líneas de referencia |
+| Text | `dataLabelText` | enum: Data value, Name, Both | Tiene | Analítica: líneas de referencia |
+| Vertical position | `dataLabelVerticalPosition` | enum: Above, Under | Tiene | Analítica: líneas de referencia |
+| Name | `displayName` | string | Tiene | Analítica: líneas de referencia |
+| Color | `lineColor` | fill | Tiene | Analítica: líneas de referencia |
+| Position | `position` | enum: Behind, In front | Tiene | Analítica: líneas de referencia |
+| Shade color | `shadeColor` | fill | Tiene | Analítica: líneas de referencia |
+| Match line color | `shadeColorMatchStroke` | boolean | Parcial | Sin color propio, el sombreado toma el de la línea |
+| Shade region | `shadeRegion` | enum: Before, After, None | Tiene | Analítica: líneas de referencia |
+| Show | `shadeShow` | boolean | Tiene | Analítica: líneas de referencia |
+| Shade transparency | `shadeTransparency` | number | Tiene | Analítica: líneas de referencia |
+| Show | `show` | boolean | Tiene | Analítica: líneas de referencia |
+| Line style | `style` | enum: Solid, Dashed, Dotted, Custom | Tiene | Analítica: líneas de referencia |
+| Transparency | `transparency` | number | Tiene | Analítica: líneas de referencia |
+| Value | `value` | number | Tiene | Analítica: líneas de referencia |
+| Width | `width` | number | Tiene | Analítica: líneas de referencia |
 
 ### breakdown (`breakdown`) · P2 · 0/1
 

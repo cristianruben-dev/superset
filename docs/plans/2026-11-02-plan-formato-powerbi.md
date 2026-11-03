@@ -4,7 +4,7 @@ Fecha: 2026-11-02 · Rama base: `main` (`75c11378e9`)
 Inventario: [`powerbi-format-inventory/`](powerbi-format-inventory/README.md) · Revisión:
 [`2026-11-02-investigacion-ux-powerbi.md`](2026-11-02-investigacion-ux-powerbi.md)
 
-**Estado:** fases 0 a 6 terminadas, con commit. La fase 7 es la siguiente. El resumen está en [`estado-formato-powerbi.md`](estado-formato-powerbi.md); aquí, el detalle de cada fase.
+**Estado:** fases 0 a 8 hechas, con commit. La fase 9 es la siguiente. El resumen está en [`estado-formato-powerbi.md`](estado-formato-powerbi.md); aquí, el detalle de cada fase.
 
 ## Objetivo
 
@@ -52,9 +52,9 @@ Tamaño relativo: S, M, L, XL. Las opciones abiertas de cada fase están en
 | 4 | Tabla y matriz | Hecha | L | 1 |
 | 5 | Tarjeta, KPI, circular, anillo | Hecha | M | 1 |
 | 6 | Cascada, embudo, treemap, medidor, dispersión | Hecha | L | 3 |
-| 7 | Segmentadores | Siguiente | L | 1 |
-| 8 | Análisis y tooltips | Pendiente | L | 3 |
-| 9 | Paridad de reporte: páginas tooltip y restablecer | Pendiente | L | Ninguna |
+| 7 | Segmentadores | Hecha con límites | L | 1 |
+| 8 | Análisis y tooltips | Hecha con límites | L | 3 |
+| 9 | Paridad de reporte: páginas tooltip y restablecer | Siguiente | L | Ninguna |
 | 10 | Campos y panel de datos | Pendiente | L | 1 |
 | 11 | Mapas | Sin decidir el motor | Por decidir | 1 |
 | 12 | Resto de P3 y gráficos nuevos | Opcional | Opcional | 3–7 |
@@ -395,6 +395,11 @@ Conectarlos al registro y a las secciones de la fase 3, y añadir lo propio:
 - **Fuera de alcance por defecto:** la P3 de esquinas individuales, efectos de imagen y estados por botón (384
   opciones). Se decide tras usar las variantes.
 
+#### Resultados de la fase 7 (2026-11-02)
+
+- **Hecho:** tipo de segmentador en el filtro de lienzo (lista desplegable, lista, botones, texto), disposición vertical, horizontal o en cuadrícula, búsqueda, seleccionar todo, marca de selección, y formato de encabezado y valores con estados. `SlicerView` usa la misma máscara que la barra de filtros.
+- **Límites:** el texto filtra con `ILIKE`, por lo que contiene. Rango y fecha conservan su control. El menú de la lista desplegable no se formatea. Quedan abiertas las opciones de detalle y la P3, con su razón o como Falta en `pendientes.md`.
+
 ### Fase 8: análisis y tooltips
 
 - **Tooltips:** el formato ya está (ver fase 2). Faltan los campos adicionales por gráfico.
@@ -402,6 +407,11 @@ Conectarlos al registro y a las secciones de la fase 3, y añadir lo propio:
   Propuesta: guardarlas en el formato y dibujarlas como `markLine`, sin volver a añadir pantallas de anotación.
 - **Zoom con formato y múltiplos** sobre Matrixify.
 - **Pestaña Analítica** junto a Visual y General.
+
+#### Resultados de la fase 8 (2026-11-02)
+
+- **Hecho:** nivel Analítica en el panel; líneas de referencia constantes, mínima, máxima, media, mediana y percentil, en cualquier eje, con etiqueta, delante o detrás y sombreado; línea de tendencia por serie o conjunta; deslizadores de zoom por eje; campos de tooltip en consulta aparte; múltiplos pequeños con Matrixify abierto al panel.
+- **Límites:** sin deslizador del eje secundario, zoom en porcentaje, sin formato de cuadrícula de múltiplos, y los campos de tooltip no están en el combinado. El sombreado sobre un eje de categorías no se dibuja.
 
 ### Fase 9: paridad de reporte
 

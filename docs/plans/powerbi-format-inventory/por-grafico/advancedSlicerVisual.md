@@ -5,13 +5,13 @@ Nuestro gráfico: filtro nativo y filtro de lienzo. Generado desde `reportThemeS
 ## Visual
 
 
-### Disposición (`layout`) · P1 · 0/54
+### Disposición (`layout`) · P1 · 11/54
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
-| Alignment | `alignment` | alignment | Falta |  |
-| Fit to space | `autoGrid` | boolean | Falta |  |
-| Color | `backgroundFillColor` | fill | Falta |  |
+| Alignment | `alignment` | alignment | Falta | Las filas salen de los valores y las columnas |
+| Fit to space | `autoGrid` | boolean | Falta | Las filas salen de los valores y las columnas |
+| Color | `backgroundFillColor` | fill | Tiene | Segmentador: disposición de lista, botones o cuadrícula |
 | backgroundImage | `backgroundImage` | image | Falta |  |
 | Blur | `backgroundImageBlur` | integer | Falta |  |
 | Contrast | `backgroundImageContrast` | integer | Falta |  |
@@ -25,17 +25,17 @@ Nuestro gráfico: filtro nativo y filtro de lienzo. Generado desde `reportThemeS
 | Image transparency | `backgroundImageTransparency` | number | Falta |  |
 | Image source | `backgroundImageType` | enum: Upload Image, Enter URL, Select from data | Falta |  |
 | Image URL | `backgroundImageUrl` | string | Falta |  |
-| Show | `backgroundShow` | boolean | Falta |  |
+| Show | `backgroundShow` | boolean | Tiene | Segmentador: disposición de lista, botones o cuadrícula |
 | Transparency | `backgroundTransparency` | number | Falta |  |
-| Color | `borderColor` | fill | Falta |  |
+| Color | `borderColor` | fill | Tiene | Segmentador: disposición de lista, botones o cuadrícula |
 | Line style | `borderStyle` | enum: Solid, Dashed, Dotted | Falta |  |
 | Transparency | `borderTransparency` | number | Falta |  |
-| Width | `borderWidth` | number | Falta |  |
+| Width | `borderWidth` | number | Tiene | Segmentador: disposición de lista, botones o cuadrícula |
 | Bottom padding | `bottomOuterMargin` | integer | Falta |  |
 | Callout size | `calloutSize` | number | Falta |  |
-| Space between cards | `cellPadding` | integer | Falta |  |
-| Columns | `columnCount` | integer | Falta |  |
-| Space between columns | `columnPadding` | integer | Falta |  |
+| Space between cards | `cellPadding` | integer | Tiene | Segmentador: disposición de lista, botones o cuadrícula |
+| Columns | `columnCount` | integer | Tiene | Segmentador: disposición de lista, botones o cuadrícula |
+| Space between columns | `columnPadding` | integer | Tiene | Segmentador: disposición de lista, botones o cuadrícula |
 | Customize lines | `customizeLines` | boolean | Falta |  |
 | Customize spacing | `customizePadding` | boolean | Falta |  |
 | Height | `fixedHeight` | integer | Falta |  |
@@ -49,124 +49,124 @@ Nuestro gráfico: filtro nativo y filtro de lienzo. Generado desde `reportThemeS
 | Line style | `lineStyle` | enum: Solid, Dashed, Dotted | Falta |  |
 | Transparency | `lineTransparency` | number | Falta |  |
 | Width | `lineWidth` | number | Falta |  |
-| Max cards shown | `maxTiles` | integer | Falta |  |
-| Arrangement | `orientation` | enum: Horizontal, Vertical, Grid | Falta |  |
-| Rounded corners | `rectangleRoundedCurve` | integer | Falta |  |
+| Max cards shown | `maxTiles` | integer | Falta | Las filas salen de los valores y las columnas |
+| Arrangement | `orientation` | enum: Horizontal, Vertical, Grid | Tiene | Segmentador: disposición de lista, botones o cuadrícula |
+| Rounded corners | `rectangleRoundedCurve` | integer | Tiene | Segmentador: disposición de lista, botones o cuadrícula |
 | Individual corners | `rectangleRoundedCurveCustomStyle` | boolean | Falta |  |
 | Bottom left corner | `rectangleRoundedCurveLeftBottom` | integer | Falta |  |
 | Top left corner | `rectangleRoundedCurveLeftTop` | integer | Falta |  |
 | Bottom right corner | `rectangleRoundedCurveRightBottom` | integer | Falta |  |
 | Top right corner | `rectangleRoundedCurveRightTop` | integer | Falta |  |
 | Right padding | `rightOuterMargin` | integer | Falta |  |
-| Rows | `rowCount` | integer | Falta |  |
-| Space between rows | `rowPadding` | integer | Falta |  |
+| Rows | `rowCount` | integer | Falta | Las filas salen de los valores y las columnas |
+| Space between rows | `rowPadding` | integer | Tiene | Segmentador: disposición de lista, botones o cuadrícula |
 | Fixed size | `showFixedSize` | boolean | Falta |  |
-| Style | `style` | enum: Table, Tiles | Falta |  |
+| Style | `style` | enum: Table, Tiles | Tiene | Segmentador: disposición de lista, botones o cuadrícula |
 | Top padding | `topOuterMargin` | integer | Falta |  |
 
-### label (`label`) · P1 · 0/17
+### label (`label`) · P1 · 8/17
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
 | $id | `$id` | actionStates-advancedSlicerVisual | Excluido | Selector interno de serie |
 | Align baselines | `alignBaselines` | boolean | Falta |  |
-| Bold | `bold` | boolean | Falta |  |
+| Bold | `bold` | boolean | Tiene | Segmentador: valores |
 | Field | `field` | string/integer | Falta |  |
-| Font color | `fontColor` | fill | Falta |  |
-| Font family | `fontFamily` | string | Falta |  |
-| Text size | `fontSize` | fontSize | Falta |  |
+| Font color | `fontColor` | fill | Tiene | Segmentador: valores |
+| Font family | `fontFamily` | string | Tiene | Segmentador: valores |
+| Text size | `fontSize` | fontSize | Tiene | Segmentador: valores |
 | Heading | `heading` | enum: Normal, Heading 2, Heading 3, Heading 4, Heading 5, Heading 6 | Falta |  |
 | Horizontal alignment | `horizontalAlignment` | alignment | Falta |  |
-| Italic | `italic` | boolean | Falta |  |
+| Italic | `italic` | boolean | Tiene | Segmentador: valores |
 | Label source | `labelSource` | enum: Label, Custom | Falta |  |
 | Match value alignment | `matchValueAlignment` | boolean | Falta |  |
 | Position | `position` | enum: Bottom, Top | Falta |  |
-| Show | `show` | boolean | Falta |  |
-| Text wrap | `textWrap` | boolean | Falta |  |
+| Show | `show` | boolean | Tiene | Segmentador: valores |
+| Text wrap | `textWrap` | boolean | Tiene | Segmentador: valores |
 | Transparency | `transparency` | number | Falta |  |
-| Underline | `underline` | boolean | Falta |  |
+| Underline | `underline` | boolean | Tiene | Segmentador: valores |
 
-### selection (`selection`) · P1 · 1/4
+### selection (`selection`) · P1 · 3/4
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
 | Restrict to leaf nodes | `restrictToLeafNodes` | boolean | Falta |  |
-| Show "Select all" option | `selectAllCheckboxEnabled` | boolean | Falta |  |
-| Single select | `singleSelect` | boolean | Parcial | Ajuste del filtro nativo |
-| Force selection | `strictSingleSelect` | boolean | Falta |  |
+| Show "Select all" option | `selectAllCheckboxEnabled` | boolean | Tiene | Segmentador: seleccionar todo |
+| Single select | `singleSelect` | boolean | Tiene | Sigue la selección múltiple del filtro |
+| Force selection | `strictSingleSelect` | boolean | Tiene | Sigue la selección múltiple del filtro |
 
-### value (`value`) · P1 · 0/17
+### value (`value`) · P1 · 9/17
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
 | $id | `$id` | actionStates-advancedSlicerVisual | Excluido | Selector interno de serie |
-| Bold | `bold` | boolean | Falta |  |
+| Bold | `bold` | boolean | Tiene | Segmentador: valores |
 | Format code | `customFormatString` | string | Falta |  |
-| Font color | `fontColor` | fill | Falta |  |
-| Font family | `fontFamily` | string | Falta |  |
-| Text size | `fontSize` | fontSize | Falta |  |
+| Font color | `fontColor` | fill | Tiene | Segmentador: valores |
+| Font family | `fontFamily` | string | Tiene | Segmentador: valores |
+| Text size | `fontSize` | fontSize | Tiene | Segmentador: valores |
 | Horizontal alignment | `horizontalAlignment` | alignment | Falta |  |
-| Italic | `italic` | boolean | Falta |  |
+| Italic | `italic` | boolean | Tiene | Segmentador: valores |
 | Display units | `labelDisplayUnits` | enum: Auto, None, Thousands, Millions, Billions, Trillions, Custom | Falta |  |
 | Value decimal places | `labelPrecision` | integer | Falta |  |
-| Show | `show` | boolean | Falta |  |
+| Show | `show` | boolean | Tiene | Segmentador: valores |
 | Show blank as | `showBlankAs` | string | Falta |  |
-| Text | `text` | string | Falta |  |
-| Text wrap | `textWrap` | boolean | Falta |  |
+| Text | `text` | string | Tiene | Segmentador: valores |
+| Text wrap | `textWrap` | boolean | Tiene | Segmentador: valores |
 | Transparency | `transparency` | number | Falta |  |
-| Underline | `underline` | boolean | Falta |  |
+| Underline | `underline` | boolean | Tiene | Segmentador: valores |
 | Vertical alignment | `verticalAlignment` | verticalAlignment | Falta |  |
 
-### search (`search`) · P2 · 0/35
+### search (`search`) · P2 · 6/35
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
-| Color | `accentBarColor` | fill | Falta |  |
-| Position | `accentBarPosition` | enum: Left, Right, Bottom, Top | Falta |  |
-| Show | `accentBarShow` | boolean | Falta |  |
-| Transparency | `accentBarTransparency` | number | Falta |  |
-| Width | `accentBarWidth` | number | Falta |  |
-| Color | `backgroundColor` | fill | Falta |  |
-| Show | `backgroundShow` | boolean | Falta |  |
-| Transparency | `backgroundTransparency` | number | Falta |  |
+| Color | `accentBarColor` | fill | Falta | P2 de detalle sin hacer |
+| Position | `accentBarPosition` | enum: Left, Right, Bottom, Top | Falta | P2 de detalle sin hacer |
+| Show | `accentBarShow` | boolean | Falta | P2 de detalle sin hacer |
+| Transparency | `accentBarTransparency` | number | Falta | P2 de detalle sin hacer |
+| Width | `accentBarWidth` | number | Falta | P2 de detalle sin hacer |
+| Color | `backgroundColor` | fill | Tiene | Segmentador: caja de búsqueda |
+| Show | `backgroundShow` | boolean | Tiene | Segmentador: caja de búsqueda |
+| Transparency | `backgroundTransparency` | number | Falta | P2 de detalle sin hacer |
 | Bold | `bold` | boolean | Falta |  |
-| Border color | `borderColor` | fill | Falta |  |
-| Border | `borderShow` | boolean | Falta |  |
-| Transparency | `borderTransparency` | number | Falta |  |
-| Corner radius | `cornerRadius` | number | Falta |  |
-| Bottom left | `cornerRadiusBottomLeft` | number | Falta |  |
-| Bottom right | `cornerRadiusBottomRight` | number | Falta |  |
-| Top left | `cornerRadiusTopLeft` | number | Falta |  |
-| Top right | `cornerRadiusTopRight` | number | Falta |  |
-| Color | `fontColor` | fill | Falta |  |
+| Border color | `borderColor` | fill | Tiene | Segmentador: caja de búsqueda |
+| Border | `borderShow` | boolean | Tiene | Segmentador: caja de búsqueda |
+| Transparency | `borderTransparency` | number | Falta | P2 de detalle sin hacer |
+| Corner radius | `cornerRadius` | number | Tiene | Segmentador: caja de búsqueda |
+| Bottom left | `cornerRadiusBottomLeft` | number | Falta | P2 de detalle sin hacer |
+| Bottom right | `cornerRadiusBottomRight` | number | Falta | P2 de detalle sin hacer |
+| Top left | `cornerRadiusTopLeft` | number | Falta | P2 de detalle sin hacer |
+| Top right | `cornerRadiusTopRight` | number | Falta | P2 de detalle sin hacer |
+| Color | `fontColor` | fill | Tiene | Segmentador: caja de búsqueda |
 | Font family | `fontFamily` | string | Falta |  |
 | Text size | `fontSize` | fontSize | Falta |  |
-| Transparency | `fontTransparency` | number | Falta |  |
+| Transparency | `fontTransparency` | number | Falta | P2 de detalle sin hacer |
 | Color | `iconColor` | fill | Falta |  |
 | Show | `iconShow` | boolean | Falta |  |
 | Size | `iconSize` | number | Falta |  |
-| Transparency | `iconTransparency` | number | Falta |  |
-| Individual corners | `individualCorners` | boolean | Falta |  |
-| Individual padding | `individualPadding` | boolean | Falta |  |
+| Transparency | `iconTransparency` | number | Falta | P2 de detalle sin hacer |
+| Individual corners | `individualCorners` | boolean | Falta | P2 de detalle sin hacer |
+| Individual padding | `individualPadding` | boolean | Falta | P2 de detalle sin hacer |
 | Italic | `italic` | boolean | Falta |  |
-| Bottom | `paddingBottom` | number | Falta |  |
-| Left | `paddingLeft` | number | Falta |  |
-| Right | `paddingRight` | number | Falta |  |
-| Top | `paddingTop` | number | Falta |  |
-| Uniform padding | `paddingUniform` | number | Falta |  |
+| Bottom | `paddingBottom` | number | Falta | P2 de detalle sin hacer |
+| Left | `paddingLeft` | number | Falta | P2 de detalle sin hacer |
+| Right | `paddingRight` | number | Falta | P2 de detalle sin hacer |
+| Top | `paddingTop` | number | Falta | P2 de detalle sin hacer |
+| Uniform padding | `paddingUniform` | number | Falta | P2 de detalle sin hacer |
 | Underline | `underline` | boolean | Falta |  |
 | Vertical gap | `verticalGap` | number | Falta |  |
 
-### selectionIcon (`selectionIcon`) · P2 · 0/11
+### selectionIcon (`selectionIcon`) · P2 · 2/11
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
 | $id | `$id` | actionStates-advancedSlicerVisual | Excluido | Selector interno de serie |
-| Color | `color` | fill | Falta |  |
+| Color | `color` | fill | Tiene | Segmentador: marca de selección |
 | Position | `overlayPosition` | enum: Top left, Top center, Top right, Middle left, Middle right, Bottom left, Bottom center, Bottom right | Falta |  |
 | Overlay | `overlayToggle` | boolean | Falta |  |
 | Position | `position` | enum: Left, Right | Falta |  |
-| Show | `show` | boolean | Falta |  |
+| Show | `show` | boolean | Tiene | Segmentador: marca de selección |
 | Show | `showIconByState` | boolean | Falta |  |
 | Size | `size` | integer | Falta |  |
 | Horizontal gap | `spacing` | integer | Falta |  |

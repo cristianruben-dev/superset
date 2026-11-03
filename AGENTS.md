@@ -203,6 +203,12 @@ Formats are stored in `position_json`, so they save, undo and export with the da
     places copies of the canvas filter on other pages (saved with the dashboard).
 - Write layout changes through `src/mibi/format/actions.ts` (`updateLayout`, `setVisualFormat`,
   `setCanvasFormat`, `setSharedVisualFormat`) so edits group into one undo step.
+- A canvas filter of a list of values can draw itself as a dropdown, list, buttons or text box (`mibi/elements/SlicerView.tsx`,
+  `meta.mibiElement.variant`). Only the dropdown is the filter plugin; the others ask for its values with `getFormData` and
+  write the same data mask.
+- The Analytics level of the pane holds the cards with `level: 'analytics'`. `utils/analyticsFormat.ts` draws
+  `reference_lines` and the trend line as series with `__mibi` ids, and the zoom sliders. `tooltip_metrics` are a second query
+  of the timeseries charts, so they never change the series. Small multiples are Matrixify, opened to the pane without its flag.
 - There are no saved format themes: each dashboard is formatted on its own.
 
 ### Migrations

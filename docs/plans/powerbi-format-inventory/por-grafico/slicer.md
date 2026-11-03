@@ -5,73 +5,73 @@ Nuestro gráfico: filtro nativo y filtro de lienzo. Generado desde `reportThemeS
 ## Visual
 
 
-### dropdown (`dropdown`) · P1 · 0/14
+### dropdown (`dropdown`) · P1 · 2/14
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
-| Color | `accentBarColor` | fill | Falta |  |
-| Position | `accentBarPosition` | enum: Left, Right, Bottom, Top | Falta |  |
-| Show | `accentBarShow` | boolean | Falta |  |
-| Transparency | `accentBarTransparency` | number | Falta |  |
-| Width | `accentBarWidth` | number | Falta |  |
+| Color | `accentBarColor` | fill | Falta | P2 de detalle sin hacer |
+| Position | `accentBarPosition` | enum: Left, Right, Bottom, Top | Falta | P2 de detalle sin hacer |
+| Show | `accentBarShow` | boolean | Falta | P2 de detalle sin hacer |
+| Transparency | `accentBarTransparency` | number | Falta | P2 de detalle sin hacer |
+| Width | `accentBarWidth` | number | Falta | P2 de detalle sin hacer |
 | Bottom left corner | `borderBottomLeftCorner` | integer | Falta |  |
 | Bottom right corner | `borderBottomRightCorner` | integer | Falta |  |
-| Color | `borderColor` | fill | Falta |  |
+| Color | `borderColor` | fill | Tiene | Filtro de lienzo: caja |
 | Individual corners | `borderIndividualCorners` | boolean | Falta |  |
-| Rounded corners | `borderRadius` | integer | Falta |  |
+| Rounded corners | `borderRadius` | integer | Tiene | Filtro de lienzo: caja |
 | Top left corner | `borderTopLeftCorner` | integer | Falta |  |
 | Top right corner | `borderTopRightCorner` | integer | Falta |  |
 | Color | `iconColor` | fill | Falta |  |
-| Transparency | `iconTransparency` | number | Falta |  |
+| Transparency | `iconTransparency` | number | Falta | P2 de detalle sin hacer |
 
-### header (`header`) · P1 · 4/11
+### header (`header`) · P1 · 9/11
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
-| Background color | `background` | fill | Falta |  |
-| Bold | `bold` | boolean | Tiene | Filtro de lienzo: etiqueta |
-| Font color | `fontColor` | fill | Tiene | Filtro de lienzo: etiqueta |
-| Font family | `fontFamily` | string | Falta |  |
-| Italic | `italic` | boolean | Falta |  |
-| Outline | `outlineStyle` | integer | Falta |  |
-| Show | `show` | boolean | Tiene | Filtro de lienzo: ocultar etiqueta |
+| Background color | `background` | fill | Tiene | Segmentador: encabezado |
+| Bold | `bold` | boolean | Tiene | Segmentador: encabezado |
+| Font color | `fontColor` | fill | Tiene | Segmentador: encabezado |
+| Font family | `fontFamily` | string | Tiene | Segmentador: encabezado |
+| Italic | `italic` | boolean | Tiene | Segmentador: encabezado |
+| Outline | `outlineStyle` | integer | Tiene | Segmentador: encabezado |
+| Show | `show` | boolean | Tiene | Segmentador: encabezado |
 | Show summary | `showRestatement` | boolean | Falta |  |
-| Title text | `text` | string | Falta |  |
-| Text size | `textSize` | fontSize | Tiene | Filtro de lienzo: etiqueta |
-| Underline | `underline` | boolean | Falta |  |
+| Title text | `text` | string | Falta | El encabezado es el nombre del filtro |
+| Text size | `textSize` | fontSize | Tiene | Segmentador: encabezado |
+| Underline | `underline` | boolean | Tiene | Segmentador: encabezado |
 
-### items (`items`) · P1 · 2/13
+### items (`items`) · P1 · 8/13
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
 | accessibilityContrastProperties | `accessibilityContrastProperties` | boolean | Falta |  |
-| Background color | `background` | fill | Tiene | Filtro de lienzo: caja |
-| Bold | `bold` | boolean | Falta |  |
+| Background color | `background` | fill | Tiene | Segmentador: valores de lista y botones |
+| Bold | `bold` | boolean | Tiene | Segmentador: valores de lista y botones |
 | Color | `expandCollapseIconColor` | fill | Falta |  |
 | Expand/collapse icon | `expandCollapseToggleType` | enum: Chevron, Plus/minus, Caret | Falta |  |
-| Font color | `fontColor` | fill | Tiene | Filtro de lienzo: caja |
-| Font family | `fontFamily` | string | Falta |  |
-| Italic | `italic` | boolean | Falta |  |
+| Font color | `fontColor` | fill | Tiene | Segmentador: valores de lista y botones |
+| Font family | `fontFamily` | string | Tiene | Segmentador: valores de lista y botones |
+| Italic | `italic` | boolean | Tiene | Segmentador: valores de lista y botones |
 | Outline | `outlineStyle` | integer | Falta |  |
-| Padding | `padding` | number | Falta |  |
+| Padding | `padding` | number | Tiene | Segmentador: valores de lista y botones |
 | Stepped layout indentation | `steppedLayoutIndentation` | number | Falta |  |
-| Text size | `textSize` | fontSize | Falta |  |
-| Underline | `underline` | boolean | Falta |  |
+| Text size | `textSize` | fontSize | Tiene | Segmentador: valores de lista y botones |
+| Underline | `underline` | boolean | Tiene | Segmentador: valores de lista y botones |
 
-### selection (`selection`) · P1 · 1/4
+### selection (`selection`) · P1 · 3/4
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
-| Show "Select all" option | `selectAllCheckboxEnabled` | boolean | Falta |  |
+| Show "Select all" option | `selectAllCheckboxEnabled` | boolean | Tiene | Segmentador: seleccionar todo |
 | Single date | `singleDate` | boolean | Falta |  |
-| Multi-select with CTRL | `singleSelect` | boolean | Parcial | Ajuste del filtro nativo |
-| Single select | `strictSingleSelect` | boolean | Falta |  |
+| Multi-select with CTRL | `singleSelect` | boolean | Tiene | Sigue la selección múltiple del filtro |
+| Single select | `strictSingleSelect` | boolean | Tiene | Sigue la selección múltiple del filtro |
 
-### selectionIcon (`selectionIcon`) · P2 · 0/1
+### selectionIcon (`selectionIcon`) · P2 · 1/1
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
-| Color | `color` | fill | Falta |  |
+| Color | `color` | fill | Tiene | Segmentador: marca de selección |
 
 ### calendarButton (`calendarButton`) · P3 · 0/17
 
@@ -180,11 +180,11 @@ Nuestro gráfico: filtro nativo y filtro de lienzo. Generado desde `reportThemeS
 | Transparency | `transparency` | number | Falta |  |
 | Underline | `underline` | boolean | Falta |  |
 
-### searchBox (`searchBox`) · P3 · 0/3
+### searchBox (`searchBox`) · P3 · 1/3
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
-| Background | `background` | fill | Falta |  |
+| Background | `background` | fill | Tiene | Segmentador: caja de búsqueda |
 | Outline color | `borderColor` | fill | Falta |  |
 | Outline | `outlineStyle` | integer | Falta |  |
 

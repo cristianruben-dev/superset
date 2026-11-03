@@ -148,21 +148,21 @@ Nuestro gráfico: scatter. Generado desde `reportThemeSchema-2.159.json`.
 | Auto-fit markers | `preventOverflow` | boolean | Falta | Sin ajuste de escala para contener marcadores ni modos de rango |
 | Customize series | `showSeries` | boolean | Tiene | Aplicar a una serie |
 
-### Control deslizante de zoom (`zoom`) · P2 · 1/11
+### Control deslizante de zoom (`zoom`) · P2 · 10/11
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
-| categoryMax | `categoryMax` | number | Falta |  |
-| categoryMin | `categoryMin` | number | Falta |  |
-| categorySize | `categorySize` | number | Falta |  |
-| Show | `show` | boolean | Parcial | Control de zoom, sin formato (zoomable) |
-| Slider labels | `showLabels` | boolean | Falta |  |
-| X axis | `showOnCategoryAxis` | boolean | Falta |  |
-| Y axis | `showOnValueAxis` | boolean | Falta |  |
-| Slider tooltips | `showTooltip` | boolean | Falta |  |
-| valueMax | `valueMax` | number | Falta |  |
-| valueMin | `valueMin` | number | Falta |  |
-| valueSize | `valueSize` | number | Falta |  |
+| categoryMax | `categoryMax` | number | Parcial | En porcentaje del eje, no en valores |
+| categoryMin | `categoryMin` | number | Parcial | En porcentaje del eje, no en valores |
+| categorySize | `categorySize` | number | Tiene | Analítica: deslizadores de zoom |
+| Show | `show` | boolean | Tiene | Analítica: deslizadores de zoom |
+| Slider labels | `showLabels` | boolean | Tiene | Analítica: deslizadores de zoom |
+| X axis | `showOnCategoryAxis` | boolean | Tiene | Analítica: deslizadores de zoom |
+| Y axis | `showOnValueAxis` | boolean | Tiene | Analítica: deslizadores de zoom |
+| Slider tooltips | `showTooltip` | boolean | Falta | El deslizador solo tiene etiquetas |
+| valueMax | `valueMax` | number | Parcial | En porcentaje del eje, no en valores |
+| valueMin | `valueMin` | number | Parcial | En porcentaje del eje, no en valores |
+| valueSize | `valueSize` | number | Tiene | Analítica: deslizadores de zoom |
 
 ### Fondo del área de trazado (`plotArea`) · P2 · 7/8
 
@@ -177,104 +177,104 @@ Nuestro gráfico: scatter. Generado desde `reportThemeSchema-2.159.json`.
 | Transparency | `transparency` | number | Falta | El motor de gráficos no atenúa una imagen de fondo |
 | Image URL | `url` | string | Parcial | Por dirección de la imagen, sin subirla |
 
-### Línea de referencia (`referenceLine`) · P2 · 0/23
+### Línea de referencia (`referenceLine`) · P2 · 21/23
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
-| Scale by width | `autoScale` | boolean | Falta |  |
-| Dash array | `dashArray` | string | Falta |  |
-| Dash cap | `dashCap` | enum: Flat, Round, Square | Falta |  |
-| Color | `dataLabelColor` | fill | Falta |  |
-| Value decimal places | `dataLabelDecimalPoints` | number | Falta |  |
-| Display units | `dataLabelDisplayUnits` | labelDisplayUnits | Falta |  |
-| Horizontal position | `dataLabelHorizontalPosition` | enum: Left, Right | Falta |  |
-| Data label | `dataLabelShow` | boolean | Falta |  |
-| Text | `dataLabelText` | enum: Data value, Name, Both | Falta |  |
-| Vertical position | `dataLabelVerticalPosition` | enum: Above, Under | Falta |  |
-| Name | `displayName` | string | Falta |  |
-| Color | `lineColor` | fill | Falta |  |
-| Position | `position` | enum: Behind, In front | Falta |  |
-| Shade color | `shadeColor` | fill | Falta |  |
-| Match line color | `shadeColorMatchStroke` | boolean | Falta |  |
-| Shade region | `shadeRegion` | enum: Before, After, None | Falta |  |
-| Show | `shadeShow` | boolean | Falta |  |
-| Shade transparency | `shadeTransparency` | number | Falta |  |
-| Show | `show` | boolean | Falta |  |
-| Line style | `style` | enum: Solid, Dashed, Dotted, Custom | Falta |  |
-| Transparency | `transparency` | number | Falta |  |
-| Value | `value` | number | Falta |  |
-| Width | `width` | number | Falta |  |
+| Scale by width | `autoScale` | boolean | Falta | El motor de gráficos no escala el trazo con el zoom |
+| Dash array | `dashArray` | string | Tiene | Analítica: líneas de referencia |
+| Dash cap | `dashCap` | enum: Flat, Round, Square | Falta | Los extremos no se eligen en estas líneas |
+| Color | `dataLabelColor` | fill | Tiene | Analítica: líneas de referencia |
+| Value decimal places | `dataLabelDecimalPoints` | number | Tiene | Analítica: líneas de referencia |
+| Display units | `dataLabelDisplayUnits` | labelDisplayUnits | Tiene | Analítica: líneas de referencia |
+| Horizontal position | `dataLabelHorizontalPosition` | enum: Left, Right | Tiene | Analítica: líneas de referencia |
+| Data label | `dataLabelShow` | boolean | Tiene | Analítica: líneas de referencia |
+| Text | `dataLabelText` | enum: Data value, Name, Both | Tiene | Analítica: líneas de referencia |
+| Vertical position | `dataLabelVerticalPosition` | enum: Above, Under | Tiene | Analítica: líneas de referencia |
+| Name | `displayName` | string | Tiene | Analítica: líneas de referencia |
+| Color | `lineColor` | fill | Tiene | Analítica: líneas de referencia |
+| Position | `position` | enum: Behind, In front | Tiene | Analítica: líneas de referencia |
+| Shade color | `shadeColor` | fill | Tiene | Analítica: líneas de referencia |
+| Match line color | `shadeColorMatchStroke` | boolean | Parcial | Sin color propio, el sombreado toma el de la línea |
+| Shade region | `shadeRegion` | enum: Before, After, None | Tiene | Analítica: líneas de referencia |
+| Show | `shadeShow` | boolean | Tiene | Analítica: líneas de referencia |
+| Shade transparency | `shadeTransparency` | number | Tiene | Analítica: líneas de referencia |
+| Show | `show` | boolean | Tiene | Analítica: líneas de referencia |
+| Line style | `style` | enum: Solid, Dashed, Dotted, Custom | Tiene | Analítica: líneas de referencia |
+| Transparency | `transparency` | number | Tiene | Analítica: líneas de referencia |
+| Value | `value` | number | Tiene | Analítica: líneas de referencia |
+| Width | `width` | number | Tiene | Analítica: líneas de referencia |
 
-### Línea de referencia X (`xAxisReferenceLine`) · P2 · 0/23
-
-| Opción | Clave | Valores | Estado | Nota |
-| --- | --- | --- | --- | --- |
-| Scale by width | `autoScale` | boolean | Falta |  |
-| Dash array | `dashArray` | string | Falta |  |
-| Dash cap | `dashCap` | enum: Flat, Round, Square | Falta |  |
-| Color | `dataLabelColor` | fill | Falta |  |
-| Value decimal places | `dataLabelDecimalPoints` | number | Falta |  |
-| Display units | `dataLabelDisplayUnits` | labelDisplayUnits | Falta |  |
-| Horizontal position | `dataLabelHorizontalPosition` | enum: Left, Right | Falta |  |
-| Data label | `dataLabelShow` | boolean | Falta |  |
-| Text | `dataLabelText` | enum: Data value, Name, Both | Falta |  |
-| Vertical position | `dataLabelVerticalPosition` | enum: Above, Under | Falta |  |
-| Name | `displayName` | string | Falta |  |
-| Color | `lineColor` | fill | Falta |  |
-| Position | `position` | enum: Behind, In front | Falta |  |
-| Shade color | `shadeColor` | fill | Falta |  |
-| Match line color | `shadeColorMatchStroke` | boolean | Falta |  |
-| Shade region | `shadeRegion` | enum: Before, After, None | Falta |  |
-| Show | `shadeShow` | boolean | Falta |  |
-| Shade transparency | `shadeTransparency` | number | Falta |  |
-| Show | `show` | boolean | Falta |  |
-| Line style | `style` | enum: Solid, Dashed, Dotted, Custom | Falta |  |
-| Transparency | `transparency` | number | Falta |  |
-| Value | `value` | number | Falta |  |
-| Width | `width` | number | Falta |  |
-
-### Línea de referencia Y (`y1AxisReferenceLine`) · P2 · 0/23
+### Línea de referencia X (`xAxisReferenceLine`) · P2 · 21/23
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
-| Scale by width | `autoScale` | boolean | Falta |  |
-| Dash array | `dashArray` | string | Falta |  |
-| Dash cap | `dashCap` | enum: Flat, Round, Square | Falta |  |
-| Color | `dataLabelColor` | fill | Falta |  |
-| Value decimal places | `dataLabelDecimalPoints` | number | Falta |  |
-| Display units | `dataLabelDisplayUnits` | labelDisplayUnits | Falta |  |
-| Horizontal position | `dataLabelHorizontalPosition` | enum: Left, Right | Falta |  |
-| Data label | `dataLabelShow` | boolean | Falta |  |
-| Text | `dataLabelText` | enum: Data value, Name, Both | Falta |  |
-| Vertical position | `dataLabelVerticalPosition` | enum: Above, Under | Falta |  |
-| Name | `displayName` | string | Falta |  |
-| Color | `lineColor` | fill | Falta |  |
-| Position | `position` | enum: Behind, In front | Falta |  |
-| Shade color | `shadeColor` | fill | Falta |  |
-| Match line color | `shadeColorMatchStroke` | boolean | Falta |  |
-| Shade region | `shadeRegion` | enum: Before, After, None | Falta |  |
-| Show | `shadeShow` | boolean | Falta |  |
-| Shade transparency | `shadeTransparency` | number | Falta |  |
-| Show | `show` | boolean | Falta |  |
-| Line style | `style` | enum: Solid, Dashed, Dotted, Custom | Falta |  |
-| Transparency | `transparency` | number | Falta |  |
-| Value | `value` | number | Falta |  |
-| Width | `width` | number | Falta |  |
+| Scale by width | `autoScale` | boolean | Falta | El motor de gráficos no escala el trazo con el zoom |
+| Dash array | `dashArray` | string | Tiene | Analítica: líneas de referencia |
+| Dash cap | `dashCap` | enum: Flat, Round, Square | Falta | Los extremos no se eligen en estas líneas |
+| Color | `dataLabelColor` | fill | Tiene | Analítica: líneas de referencia |
+| Value decimal places | `dataLabelDecimalPoints` | number | Tiene | Analítica: líneas de referencia |
+| Display units | `dataLabelDisplayUnits` | labelDisplayUnits | Tiene | Analítica: líneas de referencia |
+| Horizontal position | `dataLabelHorizontalPosition` | enum: Left, Right | Tiene | Analítica: líneas de referencia |
+| Data label | `dataLabelShow` | boolean | Tiene | Analítica: líneas de referencia |
+| Text | `dataLabelText` | enum: Data value, Name, Both | Tiene | Analítica: líneas de referencia |
+| Vertical position | `dataLabelVerticalPosition` | enum: Above, Under | Tiene | Analítica: líneas de referencia |
+| Name | `displayName` | string | Tiene | Analítica: líneas de referencia |
+| Color | `lineColor` | fill | Tiene | Analítica: líneas de referencia |
+| Position | `position` | enum: Behind, In front | Tiene | Analítica: líneas de referencia |
+| Shade color | `shadeColor` | fill | Tiene | Analítica: líneas de referencia |
+| Match line color | `shadeColorMatchStroke` | boolean | Parcial | Sin color propio, el sombreado toma el de la línea |
+| Shade region | `shadeRegion` | enum: Before, After, None | Tiene | Analítica: líneas de referencia |
+| Show | `shadeShow` | boolean | Tiene | Analítica: líneas de referencia |
+| Shade transparency | `shadeTransparency` | number | Tiene | Analítica: líneas de referencia |
+| Show | `show` | boolean | Tiene | Analítica: líneas de referencia |
+| Line style | `style` | enum: Solid, Dashed, Dotted, Custom | Tiene | Analítica: líneas de referencia |
+| Transparency | `transparency` | number | Tiene | Analítica: líneas de referencia |
+| Value | `value` | number | Tiene | Analítica: líneas de referencia |
+| Width | `width` | number | Tiene | Analítica: líneas de referencia |
 
-### Línea de tendencia (`trend`) · P2 · 0/10
+### Línea de referencia Y (`y1AxisReferenceLine`) · P2 · 21/23
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
-| Scale by width | `autoScale` | boolean | Falta |  |
-| Combine series | `combineSeries` | boolean | Falta |  |
-| Dash array | `dashArray` | string | Falta |  |
-| Dash cap | `dashCap` | enum: Flat, Round, Square | Falta |  |
-| Name | `displayName` | string | Falta |  |
-| Color | `lineColor` | fill | Falta |  |
-| Show | `show` | boolean | Falta |  |
-| Line style | `style` | enum: Solid, Dashed, Dotted, Custom | Falta |  |
-| Transparency | `transparency` | number | Falta |  |
-| Width | `width` | number | Falta |  |
+| Scale by width | `autoScale` | boolean | Falta | El motor de gráficos no escala el trazo con el zoom |
+| Dash array | `dashArray` | string | Tiene | Analítica: líneas de referencia |
+| Dash cap | `dashCap` | enum: Flat, Round, Square | Falta | Los extremos no se eligen en estas líneas |
+| Color | `dataLabelColor` | fill | Tiene | Analítica: líneas de referencia |
+| Value decimal places | `dataLabelDecimalPoints` | number | Tiene | Analítica: líneas de referencia |
+| Display units | `dataLabelDisplayUnits` | labelDisplayUnits | Tiene | Analítica: líneas de referencia |
+| Horizontal position | `dataLabelHorizontalPosition` | enum: Left, Right | Tiene | Analítica: líneas de referencia |
+| Data label | `dataLabelShow` | boolean | Tiene | Analítica: líneas de referencia |
+| Text | `dataLabelText` | enum: Data value, Name, Both | Tiene | Analítica: líneas de referencia |
+| Vertical position | `dataLabelVerticalPosition` | enum: Above, Under | Tiene | Analítica: líneas de referencia |
+| Name | `displayName` | string | Tiene | Analítica: líneas de referencia |
+| Color | `lineColor` | fill | Tiene | Analítica: líneas de referencia |
+| Position | `position` | enum: Behind, In front | Tiene | Analítica: líneas de referencia |
+| Shade color | `shadeColor` | fill | Tiene | Analítica: líneas de referencia |
+| Match line color | `shadeColorMatchStroke` | boolean | Parcial | Sin color propio, el sombreado toma el de la línea |
+| Shade region | `shadeRegion` | enum: Before, After, None | Tiene | Analítica: líneas de referencia |
+| Show | `shadeShow` | boolean | Tiene | Analítica: líneas de referencia |
+| Shade transparency | `shadeTransparency` | number | Tiene | Analítica: líneas de referencia |
+| Show | `show` | boolean | Tiene | Analítica: líneas de referencia |
+| Line style | `style` | enum: Solid, Dashed, Dotted, Custom | Tiene | Analítica: líneas de referencia |
+| Transparency | `transparency` | number | Tiene | Analítica: líneas de referencia |
+| Value | `value` | number | Tiene | Analítica: líneas de referencia |
+| Width | `width` | number | Tiene | Analítica: líneas de referencia |
+
+### Línea de tendencia (`trend`) · P2 · 7/10
+
+| Opción | Clave | Valores | Estado | Nota |
+| --- | --- | --- | --- | --- |
+| Scale by width | `autoScale` | boolean | Falta | Sin esa opción en la línea de tendencia |
+| Combine series | `combineSeries` | boolean | Tiene | Analítica: línea de tendencia |
+| Dash array | `dashArray` | string | Tiene | Analítica: línea de tendencia |
+| Dash cap | `dashCap` | enum: Flat, Round, Square | Falta | Sin esa opción en la línea de tendencia |
+| Name | `displayName` | string | Falta | Sin esa opción en la línea de tendencia |
+| Color | `lineColor` | fill | Tiene | Analítica: línea de tendencia |
+| Show | `show` | boolean | Tiene | Analítica: línea de tendencia |
+| Line style | `style` | enum: Solid, Dashed, Dotted, Custom | Tiene | Analítica: línea de tendencia |
+| Transparency | `transparency` | number | Tiene | Analítica: línea de tendencia |
+| Width | `width` | number | Tiene | Analítica: línea de tendencia |
 
 ### colorBorder (`colorBorder`) · P2 · 1/1
 
@@ -507,7 +507,7 @@ Nuestro gráfico: scatter. Generado desde `reportThemeSchema-2.159.json`.
 | Type | `type` | enum: Text, Report page | Falta | Requiere páginas tooltip (fase 9) |
 | Underline | `underline` | boolean | Tiene | General > Información del encabezado |
 
-### Tooltips (`visualTooltip`) · P2 · 16/22
+### Tooltips (`visualTooltip`) · P2 · 18/22
 
 | Opción | Clave | Valores | Estado | Nota |
 | --- | --- | --- | --- | --- |
@@ -521,9 +521,9 @@ Nuestro gráfico: scatter. Generado desde `reportThemeSchema-2.159.json`.
 | Sentence template | `sentenceTemplate` | string | Tiene | General > Tooltips, solo gráficos ECharts |
 | Show | `show` | boolean | Tiene | General > Tooltips, solo gráficos ECharts |
 | Actions | `showActionsInTooltips` | boolean | Falta | Sin acciones de obtener detalles en el tooltip |
-| Chart-specific tooltips | `showChartSpecificTooltips` | boolean | Falta | Requiere campos de tooltip (fase 8) |
+| Chart-specific tooltips | `showChartSpecificTooltips` | boolean | Parcial | Analítica: campos de tooltip que se añaden a los del gráfico |
 | Sentence format only | `showSentenceFormat` | boolean | Tiene | General > Tooltips, solo gráficos ECharts |
-| Tooltip fields only | `showTooltipFieldsOnly` | boolean | Falta | Requiere campos de tooltip (fase 8) |
+| Tooltip fields only | `showTooltipFieldsOnly` | boolean | Parcial | Analítica: campos de tooltip que se añaden a los del gráfico |
 | Bold values | `showValuesInBold` | boolean | Tiene | General > Tooltips, solo gráficos ECharts |
 | Background color | `themedBackground` | fill | Tiene | General > Tooltips, solo gráficos ECharts |
 | Label text color | `themedTitleFontColor` | fill | Tiene | General > Tooltips, solo gráficos ECharts |
