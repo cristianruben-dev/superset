@@ -253,7 +253,7 @@ class GetExploreCommand(BaseCommand, ABC):
         slice_data = slc.data if slc else None
         if slc and slice_data is not None:
             # Editors, admins and (AuraData BI) workspace contributors overwrite it
-            slice_data["can_edit"] = security_manager.is_editor(slc)
+            slice_data["can_edit"] = security_manager.can_edit_resource(slc)
 
         result: dict[str, Any] = {
             "dataset": sanitize_datasource_data(datasource_data),

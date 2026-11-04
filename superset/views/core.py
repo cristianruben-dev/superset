@@ -266,7 +266,7 @@ class Superset(BaseSupersetView):
 
         # slc perms
         slice_add_perm = security_manager.can_access("can_write", "Chart")
-        slice_overwrite_perm = security_manager.is_editor(slc) if slc else False
+        slice_overwrite_perm = security_manager.can_edit_resource(slc) if slc else False
         if is_feature_enabled("GRANULAR_EXPORT_CONTROLS"):
             slice_download_perm = security_manager.can_access(
                 "can_export_data", "Superset"
@@ -449,7 +449,7 @@ class Superset(BaseSupersetView):
                 .one(),
             )
             # check edit dashboard permissions
-            dash_overwrite_perm = security_manager.is_editor(dash)
+            dash_overwrite_perm = security_manager.can_edit_resource(dash)
             if not dash_overwrite_perm:
                 return json_error_response(
                     __("You don't have the rights to alter this dashboard"),
@@ -544,7 +544,7 @@ class Superset(BaseSupersetView):
             dashboard_id=dashboard.id,
             dashboard_version="v2",
             dash_edit_perm=(
-                security_manager.is_editor(dashboard)
+                security_manager.can_edit_resource(dashboard)
                 and security_manager.can_access("can_write", "Dashboard")
             ),
             edit_mode=(

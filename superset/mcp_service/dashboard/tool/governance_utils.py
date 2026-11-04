@@ -92,7 +92,9 @@ def find_and_authorize_dashboard(
         )
 
     try:
-        security_manager.raise_for_editorship(dashboard)
+        # AuraData BI: certifying a dashboard and managing who edits or views it
+        # need real editorship; a workspace role only edits its content.
+        security_manager.raise_for_editorship(dashboard, workspace_role=False)
     except SupersetSecurityException:
         return None, response_cls(
             permission_denied=True,

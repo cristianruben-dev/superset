@@ -322,7 +322,7 @@ class DashboardGetResponseSchema(Schema):
             serialized.pop("viewers", None)
         elif getattr(g, "user", None) is not None and getattr(original, "id", None):
             # Editors, admins and (AuraData BI) workspace contributors can change it
-            serialized["can_edit"] = security_manager.is_editor(original)
+            serialized["can_edit"] = security_manager.can_edit_resource(original)
         return serialized
 
 

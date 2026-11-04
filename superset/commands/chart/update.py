@@ -49,9 +49,9 @@ from superset.commands.utils import (
 from superset.daos.chart import ChartDAO
 from superset.daos.dashboard import DashboardDAO
 from superset.exceptions import SupersetSecurityException
+from superset.extensions import db
 from superset.mibi.single_dashboard import validate_chart_dashboards
 from superset.mibi.workspace_datasets import validate_chart_dataset
-from superset.extensions import db
 from superset.models.dashboard import Dashboard
 from superset.models.slice import Slice
 from superset.tags.models import ObjectType
@@ -134,7 +134,9 @@ class UpdateChartCommand(UpdateMixin, BaseCommand):
                 return
 
             for dash in accessible_dashboards:
-                if dash.is_managed_externally or not security_manager.is_editor(dash):
+                if dash.is_managed_externally or not security_manager.can_edit_resource(
+                    dash
+                ):
                     raise DashboardsForbiddenError()
 
     def _validate_query_context_datasource(

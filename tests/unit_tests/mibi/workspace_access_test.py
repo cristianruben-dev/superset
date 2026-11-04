@@ -120,11 +120,13 @@ def test_the_rules_can_be_turned_off(
     assert not workspace_access.edits_as_workspace_member(world["finanzas"])
 
 
-def test_raise_for_ownership_accepts_contributors(
+def test_raise_for_editorship_accepts_contributors(
     mocker: MockerFixture, world: dict[str, Any]
 ) -> None:
     mocker.patch("superset.security.manager.g")
 
-    security_manager.raise_for_ownership(world["finanzas"])
-    assert security_manager.is_owner(world["chart"])
-    assert not security_manager.is_owner(world["ventas"])
+    security_manager.raise_for_editorship(world["finanzas"])
+    assert security_manager.can_edit_resource(world["chart"])
+    assert not security_manager.can_edit_resource(world["ventas"])
+    # Editing is not editorship, which grants data access (workspace_security_test)
+    assert not security_manager.is_editor(world["chart"])

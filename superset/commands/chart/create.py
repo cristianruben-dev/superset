@@ -39,9 +39,9 @@ from superset.commands.chart.utils import (
 from superset.commands.utils import get_datasource_by_id, populate_subjects
 from superset.daos.chart import ChartDAO
 from superset.daos.dashboard import DashboardDAO
+from superset.exceptions import SupersetSecurityException
 from superset.mibi.single_dashboard import validate_chart_dashboards
 from superset.mibi.workspace_datasets import validate_chart_dataset
-from superset.exceptions import SupersetSecurityException
 from superset.utils import json
 from superset.utils.decorators import on_error, transaction
 
@@ -98,7 +98,9 @@ class CreateChartCommand(CreateMixin, BaseCommand):
         if len(dashboards) != len(dashboard_ids):
             exceptions.append(DashboardsNotFoundValidationError())
         for dash in dashboards:
-            if dash.is_managed_externally or not security_manager.is_editor(dash):
+            if dash.is_managed_externally or not security_manager.can_edit_resource(
+                dash
+            ):
                 raise DashboardsForbiddenError()
         self._properties["dashboards"] = dashboards
         if error := validate_chart_dashboards(None, dashboard_ids):

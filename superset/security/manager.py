@@ -5628,15 +5628,24 @@ class SupersetSecurityManager(  # pylint: disable=too-many-public-methods
                 return
 
             # AuraData BI: a dashboard inside a workspace is for the workspace members
-            from superset.mibi.workspace_access import can_see_dashboard
+            from superset.mibi.workspace_access import (
+                can_see_dashboard,
+                edits_as_workspace_member,
+            )
 
             if not can_see_dashboard(dashboard.id):
                 raise SupersetSecurityException(
                     self.get_dashboard_access_error_object(dashboard)
                 )
 
+            # AuraData BI: workspace contributors also open the drafts of their
+            # workspace, under the same viewer and datasource rules as published
+            # dashboards: a workspace role never grants access to data.
+            def published_for_user() -> bool:
+                return bool(dashboard.published) or edits_as_workspace_member(dashboard)
+
             if dashboard.viewers:
-                if dashboard.published and self.is_viewer(dashboard):
+                if published_for_user() and self.is_viewer(dashboard):
                     return
             else:
                 # Datasource-based fallback, published dashboards only —
@@ -5679,7 +5688,7 @@ class SupersetSecurityManager(  # pylint: disable=too-many-public-methods
                             return True
                     return False
 
-                if dashboard.published and (
+                if published_for_user() and (
                     not member_slices or member_datasource_accessible()
                 ):
                     return
@@ -6534,11 +6543,15 @@ class SupersetSecurityManager(  # pylint: disable=too-many-public-methods
                 return True
         return False
 
-    def raise_for_editorship(self, resource: Model) -> None:
+    def raise_for_editorship(
+        self, resource: Model, *, workspace_role: bool = True
+    ) -> None:
         """
         Raise an exception if the user is not an editor of the resource.
 
-        Note admins are deemed editors of all resources.
+        Note admins are deemed editors of all resources. AuraData BI: so are
+        contributors and admins of the resource's workspace, unless
+        ``workspace_role`` is False (managing who edits or views a resource).
 
         The internal re-query opts out of the soft-delete visibility
         listener via ``execution_options(_skip_visibility_filter_classes=
@@ -6548,6 +6561,7 @@ class SupersetSecurityManager(  # pylint: disable=too-many-public-methods
         from ``orig_resource`` remain filtered.
 
         :param resource: The dashboard, dataset, chart, etc. resource
+        :param workspace_role: Whether a workspace role counts as editorship
         :raises SupersetSecurityException: If the current user is not an editor
         """
         # Inline import: ``superset.models.helpers`` transitively imports
@@ -6586,7 +6600,11 @@ class SupersetSecurityManager(  # pylint: disable=too-many-public-methods
                     )
                 )
 
-        if self.is_editor(orig_resource):
+        if (
+            self.can_edit_resource(orig_resource)
+            if workspace_role
+            else self.is_editor(orig_resource)
+        ):
             return
 
         raise SupersetSecurityException(
@@ -6629,12 +6647,6 @@ class SupersetSecurityManager(  # pylint: disable=too-many-public-methods
         if self.is_admin():
             return True
 
-        # AuraData BI: workspace contributors and admins edit the workspace dashboards
-        from superset.mibi.workspace_access import edits_as_workspace_member
-
-        if edits_as_workspace_member(resource):
-            return True
-
         if user_id := get_user_id():
             subject_ids = set(get_user_subject_ids(user_id))
         else:
@@ -6657,6 +6669,27 @@ class SupersetSecurityManager(  # pylint: disable=too-many-public-methods
                 editor_subject_ids.add(subject.id)
 
         return bool(subject_ids & editor_subject_ids)
+
+    def can_edit_resource(self, resource: Model) -> bool:
+        """
+        Returns True if the current user may edit the resource.
+
+        AuraData BI: an editor of the resource, or a contributor or admin of the
+        workspace holding the dashboard (or the chart's dashboard). Only edit
+        points ask this; data access keeps asking ``is_editor``, so a workspace
+        role never grants access to data.
+
+        :param resource: The dashboard, dataset, chart, etc. resource
+        :returns: Whether the current user may edit the resource
+        """
+        if self.is_guest_user():
+            return False
+        if self.is_editor(resource):
+            return True
+
+        from superset.mibi.workspace_access import edits_as_workspace_member
+
+        return edits_as_workspace_member(resource)
 
     def is_viewer(self, resource: Model) -> bool:
         """

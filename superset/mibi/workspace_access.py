@@ -21,10 +21,12 @@ Membership is the privacy boundary of a workspace, as in Power BI:
 
 * A workspace is visible to its members and to Superset admins.
 * A dashboard inside a workspace is hidden from users who are neither members of
-  that workspace nor owners of the dashboard. Membership never grants data access:
+  that workspace nor editors of the dashboard. Membership never grants data access:
   the charts still need access to their datasets.
-* Contributors and admins of a workspace edit its dashboards and their charts, as
-  if they owned them.
+* Contributors and admins of a workspace edit its dashboards and their charts
+  (``SupersetSecurityManager.can_edit_resource``), but are not their editors:
+  editorship grants data access in Superset, so a workspace role never changes
+  who edits or views a dashboard or chart, nor makes the user an editor of it.
 
 ``MIBI_WORKSPACE_ACCESS = False`` turns the dashboard rules off; workspaces then
 only group dashboards.
@@ -36,6 +38,8 @@ from typing import Any
 
 import sqlalchemy as sa
 from flask import current_app
+from flask_babel import gettext as __
+from marshmallow import ValidationError
 from sqlalchemy.sql.elements import ColumnElement
 
 from superset import db, security_manager
@@ -152,3 +156,47 @@ def edits_as_workspace_member(resource: Any) -> bool:
         .first()
         is not None
     )
+
+
+def edits_only_through_workspace(resource: Any) -> bool:
+    """
+    Whether the current user edits a dashboard or chart only through a workspace
+    role, without being an admin or one of its editors.
+    """
+    return (
+        not security_manager.is_admin()
+        and not security_manager.is_editor(resource)
+        and edits_as_workspace_member(resource)
+    )
+
+
+def keep_subjects(
+    resource: Any, properties: dict[str, Any], include_viewers: bool
+) -> list[ValidationError]:
+    """
+    Keep the editors and viewers of a resource edited through a workspace role.
+
+    Superset adds whoever updates a resource to its editors so they cannot lock
+    themselves out; a workspace role must not, as editorship grants data access.
+
+    :param resource: The dashboard or chart being updated
+    :param properties: The update payload, completed with the current subjects
+    :param include_viewers: Whether the update handles viewers too
+    :returns: An error for each list the payload tries to change
+    """
+    errors = []
+    fields = ["editors"]
+    if include_viewers and hasattr(resource, "viewers"):
+        fields.append("viewers")
+    for field in fields:
+        current = list(getattr(resource, field))
+        requested = properties.get(field)
+        if requested is not None and set(requested) != {s.id for s in current}:
+            errors.append(
+                ValidationError(
+                    __("Only its editors can change who edits or views it."),
+                    field_name=field,
+                )
+            )
+        properties[field] = current
+    return errors

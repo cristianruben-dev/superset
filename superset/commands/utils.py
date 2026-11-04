@@ -221,6 +221,17 @@ def compute_subjects(
 
     Appends any validation errors to *exceptions*.
     """
+    # AuraData BI: editing through a workspace role keeps editors and viewers as
+    # they are (editorship grants data access, a workspace role must not).
+    from superset.mibi.workspace_access import (
+        edits_only_through_workspace,
+        keep_subjects,
+    )
+
+    if edits_only_through_workspace(model):
+        exceptions.extend(keep_subjects(model, properties, include_viewers))
+        return
+
     try:
         properties["editors"] = compute_subject_list(
             model.editors,
