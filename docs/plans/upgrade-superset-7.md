@@ -281,26 +281,57 @@ Lista completa en las bitácoras de [backend](upgrade-superset-7/bitacora-backen
 8. Tests de 7.0 que importan motores quitados: `test_cancel_query_validation.py`, `test_grouping_sets_capability.py`,
    `test_base.py` (impala).
 
+### Cierre de la fase 2
+
+Lo que quedaba del backend, pedido antes de pasar a la fase 3.
+
+- **Payload de invitados embebidos** (`15255003ac`). El diagnóstico anterior estaba al revés: los 13 tests del fork no
+  fallaban porque un invitado pudiera colar cambios, sino porque la comparación de 7.0 **rechazaba como manipulación la
+  carga normal** de esos gráficos embebidos (Gantt `tooltip_metrics`, query B de mixed timeseries, categorías del
+  grafo, deck.gl `spatial`/`tooltip_contents`/`point_radius_fixed`, cartodiagram `selected_chart`, pivot
+  `groupbyRows`, `order_by_cols` y la referencia de columna del box plot). Qué protege cada una:
+  - 7.0 compara contra una lista corta de controles, pero añadió vectores que el fork no tenía: forma y objetivos del
+    `orderby` (solo columnas y métricas visibles), SQL en filtros y `extras`, capas de anotación, tipo de resultado y
+    métrica de series limit.
+  - El fork sabía dónde guarda cada tipo de gráfico sus valores (más controles y valores anidados), y además colapsaba
+    a nombre cualquier adhoc cuyo `sqlExpression` es su label, también en métricas.
+  - Se queda lo más estricto de cada lado: todos los vectores de 7.0 sin tocar; la lista y la descomposición del fork
+    (`superset/security/guest_payload.py`, ahora solo eso) solo amplían dónde se buscan valores guardados, y cada valor
+    pedido tiene que coincidir exactamente con uno. Las métricas se comparan exactas (no se colapsan: un adhoc
+    `revenue`/`revenue` ejecutaría la columna `revenue` como SQL aunque el gráfico solo guarde la métrica `revenue`);
+    las columnas sí colapsan una referencia pura. El `orderby` admite como objetivo cualquier métrica guardada que el
+    gráfico lee (no solo `metrics`/`metric`), con la misma exclusión de columnas ocultas; las columnas de orden siguen
+    como en 7.0. Los tests no se tocaron: `tests/unit_tests/security/`, 561/561.
+- **Marca de la PWA** (`1612de45dd`). `pwa_manifest.py` toma `APP_NAME`, la descripción en español, los colores
+  AuraData y los iconos del fork (con el maskable propio); fuera las capturas de Superset, que no existen aquí.
+- **`key_value`** (`e68cfefaf1`). Solo `lock: RowLock`, como upstream master; la liberación del lock distribuido pasa
+  `RowLock()` (exclusivo) y los permalinks `RowLock(read=True)`.
+- **Tests de 7.0 sobre lo que el fork quitó** (`b8811a38d4`, `2e380ed053`, `d0953ce93e`, `7e333c958a`, `117ffddbfb`).
+  Criterio: si el test prueba una función que ya no existe, fuera; si prueba algo genérico usando un motor o una
+  herramienta quitada, se adapta a uno que exista.
+  - Motores (Trino, Impala, Db2, Exasol, SingleStore, Ocient, CockroachDB, Greenplum, Netezza, RisingWave, TimescaleDB):
+    fuera sus casos; la caché de engines usa Presto y la familia Postgres usa Redshift y Aurora Postgres.
+  - Anotaciones: el test de que las capas nativas piden permiso de lectura pasa a fijar que nunca se sirven.
+  - Temas: el logo enlaza a la lista de tableros (tema del fork) y los tokens del tooltip se comprueban en el tema
+    fusionado que recibe el navegador; fuera el test de la caché del modelo `Theme`.
+  - MCP: fuera las herramientas de temas y anotaciones de los inventarios y de `COMMITTED_WRITE_SPECS`; el test de
+    control de RBAC usa `save_sql_query`.
+  - `/datasource/get/` (quitado por el fork) sale del test de alcance de invitados.
+  - `jinja_context_test.py::test_get_time_filter` falla en el Mac por la zona horaria local y pasa con `TZ=UTC` (como el
+    contenedor): no se toca.
+- **Comprobaciones.** `tests/unit_tests/mibi/` 100/100, `tests/unit_tests/security/` 561/561,
+  `tests/unit_tests/mcp_service/dashboard/` 585/585 y los archivos tocados, cada uno por separado. La recolección de
+  `tests/unit_tests` ya no da errores de importación.
+
 ## Pendiente del backend (tras la fase 2)
 
-No bloquea arrancar ni los tests del fork; conviene cerrarlo antes de la fase 7.
-
-1. `superset/views/pwa_manifest.py` (7.0) sirve «Apache Superset»: ponerle la marca AuraData (nombre, descripción en
-   español, colores, icono).
-2. **Seguridad, prioritario.** Payload de invitados embebidos: el código es el de 7.0; `superset/security/guest_payload.py`
-   del fork queda sin usar y 13 de sus tests fallan (`test_query_context_modified_*`: mixed timeseries `*_b`, deck.gl,
-   `point_radius_fixed`, cartodiagram, `selected_chart`, pivot `groupbyRows`, `order_by_cols`...). Es decir, un invitado
-   embebido puede cambiar esos controles del payload sin que se detecte. Ampliar la comparación de 7.0 con la del fork.
-3. `daos/key_value.py` acepta `for_update` (7.0) y `lock: RowLock` (6.2): unificar en `lock`.
-4. Copiar un tablero: `remap_metadata_chart_ids` (fork) y `_remap_filter_scopes` (7.0) remapean en parte lo mismo.
-5. Tests de 7.0 que importan motores quitados (`test_cancel_query_validation.py`, `test_grouping_sets_capability.py`,
-   `test_base.py` con impala) y tests MCP que nombran temas y capas de anotación (`test_tool_inventory.py`,
-   `test_mcp_tool_registration.py`, `test_rbac_tool_enforcement.py`, `test_result_value_contract.py`...). Sin correr.
-6. `ImportV1DashboardSchema` rechaza `theme_uuid`/`theme_id` de exports antiguos antes del `pop` del importador.
-7. Rutas sin `/superset/` emitidas por el backend del fork (revisar con el frontend en la fase 3).
-8. La imagen Docker de dev sigue con dependencias de 6.1: construir la de 7.0 (fase 5, preguntar antes) y regenerar
+1. La imagen Docker de dev sigue con dependencias de 6.1: construir la de 7.0 en la fase 5 (preguntar antes) y regenerar
    allí `requirements/development.txt` con `mysqlclient` compilado.
-9. Las herramientas MCP siguen sin colocar `mibiPos` (lo arregla el frontend al cargar).
+2. Copiar un tablero: `remap_metadata_chart_ids` (fork) y `_remap_filter_scopes` (7.0) remapean en parte lo mismo.
+3. `ImportV1DashboardSchema` rechaza `theme_uuid`/`theme_id` de exports antiguos antes del `pop` del importador.
+4. Rutas sin `/superset/` emitidas por el backend del fork (revisar con el frontend en la fase 3).
+5. Las herramientas MCP siguen sin colocar `mibiPos` (lo arregla el frontend al cargar).
+6. No se ha corrido la suite completa de `tests/unit_tests` (ni los de integración): hacerlo cuando la máquina lo permita.
 
 ## Abiertos para la fase 3 (frontend)
 
