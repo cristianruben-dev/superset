@@ -163,7 +163,8 @@ drivers de las bases que ofrece AuraData BI (PostgreSQL, SQL Server, MySQL, Data
 Amazon Redshift y DuckDB) y un Chromium con Playwright para las capturas de informes y
 alertas (`INCLUDE_CHROMIUM=false` lo omite y ahorra unos 600 MB). Una conexión MySQL con el
 interruptor SSL exige TLS verificado: si el servidor usa un certificado propio, indica la
-CA en el URI (`?ssl=1&ssl_ca=/ruta/ca.pem`) y que esa ruta exista en la web y en los workers.
+CA en el URI (`?ssl=1&ssl_ca=/ruta/ca.pem`) y que esa ruta exista en la web y en los workers; el certificado
+debe ser válido para el nombre del servidor. Sin el interruptor la conexión no usa TLS.
 
 ## Traer correcciones de Superset
 

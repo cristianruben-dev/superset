@@ -479,6 +479,24 @@ Rama `claude/upgrade-superset-7-infra-223641` (cortada de la de la fase 4). Ento
   es editor ni admin del tablero; hay que publicarlo o dar la editoría a ese usuario. Revisar los informes de los tableros en
   borrador antes de desplegar.
 
+- **Imagen `prod` construida y probada** (`docker build --target prod --build-arg INCLUDE_CHROMIUM=true`, 3,37 GB, borrada al
+  terminar; Postgres 17, Redis y MySQL 8.0 desechables, app en el 8199, todo retirado):
+  - `docker-init-prod.sh` aplica todas las migraciones (con la revisión de merge) en una base nueva y crea el admin; `/health` OK.
+  - Importan `MySQLdb` (mysqlclient con **MariaDB Connector/C 3.4.9**, confirmado), `pymssql`, `psycopg2`, `duckdb` y `playwright`;
+    `create_engine` resuelve los dialectos de mysql, mssql, postgresql, redshift, duckdb y databricks. SQLAlchemy 2.0.52.
+  - Chromium 1248 en `/usr/local/share/playwright-browsers`, legible por el usuario `superset`.
+  - El worker registra `deletion_retention.purge_soft_deleted`, `version_history.prune_old_versions`, `export_dashboard_excel`,
+    `reports.execute` y `reports.scheduler`.
+  - Captura real: `DashboardScreenshot` desde el worker sobre un tablero (`?standalone=3`) como admin devuelve un PNG de
+    1600 × 2400 (30 KB). Probado el motor de capturas, no una ejecución completa de `ReportSchedule` con correo.
+  - **MySQL con mysqlclient en la imagen:** sin interruptor conecta pero **sin TLS** (`Ssl_cipher` vacío); con `?ssl=1` y
+    certificado autofirmado falla (`self-signed certificate in certificate chain`); con `?ssl=1&ssl_ca=...` y un CA correcto
+    falla igualmente si el certificado no corresponde al nombre del host (`Hostname verification failed`), porque con
+    MariaDB Connector/C `REQUIRED` se sube a `VERIFY_CA` y verifica también el host. El interruptor sirve con un servidor cuyo
+    certificado es válido para su nombre; con certificados propios hay que apagarlo y configurar `connect_args` nativos.
+- **Sin verificar:** SQL Server, Databricks y Redshift contra servidores reales; el target `dev` (no se construyó); una
+  ejecución completa de informe con envío de correo.
+
 ## Abiertos tras la fase 3
 
 Para la fase 4 (funciones que chocan), además de la lista de abajo:
