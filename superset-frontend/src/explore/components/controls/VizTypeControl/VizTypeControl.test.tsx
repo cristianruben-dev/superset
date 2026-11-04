@@ -308,25 +308,26 @@ describe('VizTypeControl', () => {
     ).not.toBeInTheDocument();
   });
 
-  // The gallery of the fork draws its own tiles, without the Featured badge of
-  // 7.0 (phase 4 decides whether to adopt it)
-  test.skip('anchors the Featured badge to the bottom-right of the thumbnail image', async () => {
-    // The badge is positioned relative to the thumbnail image only (not the
-    // whole tile), so it must hang off the image's bottom-right corner
-    // rather than its top edge.
+  test('draws the Featured badge on the tile of a featured chart only', async () => {
+    // The gallery of the fork draws its own tiles: the badge hangs off the top
+    // right corner of the tile, over its picture
     await waitForRenderWrapper();
     userEvent.click(screen.getByRole('tab', { name: 'All charts' }));
 
     const visualizations = screen.getByTestId(getTestId('viz-row'));
-    const image = await within(visualizations).findByAltText(
-      'Featured Test Chart',
-    );
-    const badgeWrapper = image.nextElementSibling as HTMLElement;
+    const featured = (
+      await within(visualizations).findByText('Featured Test Chart')
+    ).closest('button') as HTMLElement;
+    const badge = within(featured).getByText('FEATURED');
+    const badgeWrapper = badge.parentElement?.parentElement as HTMLElement;
 
-    expect(badgeWrapper).toHaveStyleRule('bottom', '4px');
-    expect(badgeWrapper).toHaveStyleRule('right', '4px');
-    expect(badgeWrapper).not.toHaveStyleRule('top', expect.anything());
-    expect(within(badgeWrapper).getByText('FEATURED')).toBeInTheDocument();
+    expect(badgeWrapper).toHaveStyleRule('top', '8px');
+    expect(badgeWrapper).toHaveStyleRule('right', '8px');
+    expect(badgeWrapper).not.toHaveStyleRule('bottom', expect.anything());
+    const plain = within(visualizations)
+      .getByText('Bar Chart')
+      .closest('button') as HTMLElement;
+    expect(within(plain).queryByText('FEATURED')).not.toBeInTheDocument();
   });
 
   test('Thumbnail labels expose the full chart name via a title tooltip', async () => {
