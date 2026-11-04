@@ -29,7 +29,7 @@ import { DashboardPreview, glyphFor } from './DashboardPreview';
 const props = {
   id: 3,
   title: 'Ventas 2025',
-  url: '/superset/dashboard/3/',
+  url: '/dashboard/3/',
   published: true,
   modified: 'Modified 1 hour ago',
 };
@@ -72,7 +72,7 @@ test('shows the layout preview, title, date and status', () => {
   expect(preview.querySelectorAll('.leaf')).toHaveLength(3);
   expect(screen.getByRole('link', { name: 'Ventas 2025' })).toHaveAttribute(
     'href',
-    '/superset/dashboard/3/',
+    '/dashboard/3/',
   );
   expect(screen.getByText('Modified 1 hour ago')).toBeInTheDocument();
   expect(screen.getByText('Published')).toBeInTheDocument();

@@ -399,7 +399,7 @@ export default function WorkspacePage() {
       });
       const dashboardId = json.id as number;
       await moveDashboards(id, { add: [dashboardId] });
-      history.push(`/superset/dashboard/${dashboardId}/?edit=true`);
+      history.push(`/dashboard/${dashboardId}/?edit=true`);
     } catch (error) {
       const { error: message } = await getClientErrorObject(error);
       addDangerToast(message || t('The dashboard could not be created'));

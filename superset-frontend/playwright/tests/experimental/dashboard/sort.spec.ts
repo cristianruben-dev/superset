@@ -175,7 +175,7 @@ test('an editor sorts a bar chart from its header and viewers see that order', a
   );
 
   // Viewing: no sort option
-  await page.goto(`superset/dashboard/${dashboardId}/`);
+  await page.goto(`dashboard/${dashboardId}/`);
   await expect(page.getByTestId('edit-dashboard-button')).toBeVisible({
     timeout: TIMEOUT.PAGE_LOAD,
   });
@@ -210,7 +210,7 @@ test('an editor undoes the last sort saved', async ({ page, testAssets }) => {
     'test_sort_undo',
   );
 
-  await page.goto(`superset/dashboard/${dashboardId}/`);
+  await page.goto(`dashboard/${dashboardId}/`);
   await page.getByTestId('edit-dashboard-button').click();
   const sortButton = page.getByTestId(`mibi-sort-button-${chartId}`);
   const menu = page.getByTestId(`mibi-sort-menu-${chartId}`);

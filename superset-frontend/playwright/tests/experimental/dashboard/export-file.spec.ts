@@ -196,7 +196,7 @@ test('the PDF lists pages named with emojis and the PNG keeps two line titles', 
 }) => {
   test.setTimeout(120_000);
   const { dashboardId, chartId } = await createReport(page, testAssets);
-  await page.goto(`superset/dashboard/${dashboardId}/`);
+  await page.goto(`dashboard/${dashboardId}/`);
   const chart = page.locator(`[data-test-chart-id="${chartId}"]`);
   await expect(chart.locator('canvas').first()).toBeVisible({
     timeout: TIMEOUT.PAGE_LOAD,

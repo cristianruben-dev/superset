@@ -21,7 +21,6 @@ import type { Locator, Page } from '@playwright/test';
 import { test, expect } from '../../../helpers/fixtures/testAssets';
 import type { TestAssets } from '../../../helpers/fixtures/testAssets';
 import { apiPutDashboard } from '../../../helpers/api/dashboard';
-import { TIMEOUT } from '../../../utils/constants';
 import { createTestDashboard } from './dashboard-test-helpers';
 
 /**
@@ -117,6 +116,10 @@ test.afterEach(({ page }) => {
   expect(pageErrors.get(page) ?? []).toEqual([]);
 });
 
+/** The three objects, in the order of the layout. */
+const objects = (page: Page) =>
+  page.locator('.mibi-canvas .dragdroppable[style*="position: absolute"]');
+
 async function openEditor(page: Page, testAssets: TestAssets) {
   const errors: string[] = [];
   pageErrors.set(page, errors);
@@ -137,16 +140,12 @@ async function openEditor(page: Page, testAssets: TestAssets) {
     position_json: JSON.stringify(LAYOUT),
   });
   expect(saved.ok()).toBeTruthy();
-  await page.goto(`superset/dashboard/${id}/?edit=true`);
+  await page.goto(`dashboard/${id}/?edit=true`);
   await expect(page.getByTestId('mibi-canvas')).toBeVisible({
     timeout: 90_000,
   });
   await expect(objects(page)).toHaveCount(3);
 }
-
-/** The three objects, in the order of the layout. */
-const objects = (page: Page) =>
-  page.locator('.mibi-canvas .dragdroppable[style*="position: absolute"]');
 
 /** Screen pixels of one cell: the page is zoomed to fit its space. */
 const unitOf = (page: Page) =>

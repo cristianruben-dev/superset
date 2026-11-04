@@ -33,7 +33,7 @@ test('charts without a format keep their look', async ({ page }) => {
   test.skip(!dashboard, 'Run scripts/mibi/format_reference.py first');
 
   await page.setViewportSize({ width: 1600, height: 1000 });
-  await page.goto(`superset/dashboard/${dashboard.id}/`);
+  await page.goto(`dashboard/${dashboard.id}/`);
   const charts = page.locator('[data-test="dashboard-component-chart-holder"]');
   await expect(charts).toHaveCount(15, { timeout: 60000 });
   await expect(page.locator('[data-test="loading-indicator"]')).toHaveCount(0, {

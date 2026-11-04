@@ -31,7 +31,7 @@ jest.mock('src/utils/getBootstrapData', () => ({
 const dashboard = (id: number, title: string, published = false) => ({
   id,
   dashboard_title: title,
-  url: `/superset/dashboard/${id}/`,
+  url: `/dashboard/${id}/`,
   published,
   changed_on_delta_humanized: 'hace 1 hora',
 });
