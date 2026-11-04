@@ -30,6 +30,7 @@ import { Icons } from '@superset-ui/core/components/Icons';
 import { Tooltip } from '@superset-ui/core/components';
 import { CopyToClipboardButton } from 'src/explore/components/DataTableControl';
 import { TabularDataRow } from 'src/utils/common';
+import { usePermissions } from 'src/hooks/usePermissions';
 import DownloadDropdown from './DownloadDropdown';
 
 export type TableControlsProps = {
@@ -58,6 +59,7 @@ export default function TableControls({
   columnNames,
 }: TableControlsProps) {
   const theme = useTheme();
+  const { canCopyClipboard: copyEnabled } = usePermissions();
   const filterMap: Record<string, BinaryQueryObjectFilterClause> = useMemo(
     () =>
       Object.assign(
@@ -72,7 +74,7 @@ export default function TableControls({
   );
 
   const removeFilter = useCallback(
-    colName => {
+    (colName: string) => {
       const updatedFilterMap = { ...filterMap };
       delete updatedFilterMap[colName];
       setFilters(Object.values(updatedFilterMap));
@@ -123,7 +125,7 @@ export default function TableControls({
             >
               {colName}
             </span>
-            <strong data-test="filter-val">{val}</strong>
+            <strong data-test="filter-val">{String(val)}</strong>
           </Tag>
         ))}
       </div>
@@ -142,15 +144,27 @@ export default function TableControls({
             onDownloadXLSX={onDownloadXLSX}
           />
         )}
-        {canDownload && (
+        {copyEnabled ? (
           <CopyToClipboardButton data={data} columns={columnNames} />
+        ) : (
+          <Tooltip title={t("You don't have permission to copy to clipboard")}>
+            <span>
+              <CopyToClipboardButton
+                data={data}
+                columns={columnNames}
+                disabled
+              />
+            </span>
+          </Tooltip>
         )}
         <Tooltip title={t('Reload')}>
+          {/* role is auto-computed by BaseIconComponent as "button" since
+              onClick is present, so no explicit role needed here. */}
           <Icons.ReloadOutlined
             iconColor={theme.colorIcon}
             iconSize="l"
             aria-label={t('Reload')}
-            role="button"
+            tabIndex={0}
             onClick={onReload}
           />
         </Tooltip>

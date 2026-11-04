@@ -25,7 +25,11 @@ import {
   FeatureFlag,
   getExtensionsRegistry,
 } from '@superset-ui/core';
-import { css, SupersetTheme } from '@apache-superset/core/theme';
+import {
+  css,
+  SupersetTheme,
+  useTheme,
+} from '@apache-superset/core/theme';
 import { t } from '@apache-superset/core/translation';
 import { Global } from '@emotion/react';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
@@ -39,9 +43,9 @@ import {
   UnsavedChangesModal,
 } from '@superset-ui/core/components';
 import { findPermission } from 'src/utils/findPermission';
+import { useIsMobile } from 'src/hooks/useIsMobile';
 import { safeStringify } from 'src/utils/safeStringify';
-import Role from 'src/types/Role';
-import Owner from 'src/types/Owner';
+import Subject from 'src/types/Subject';
 import { DashboardLayout, RootState } from 'src/dashboard/types';
 import { UserWithPermissionsAndRoles } from 'src/types/bootstrapTypes';
 import { AlertObject } from 'src/features/alerts/types';
@@ -70,6 +74,7 @@ import { BookmarksMenu } from 'src/mibi/report/BookmarksMenu';
 import { ResetFiltersButton } from 'src/mibi/report/ResetFiltersButton';
 import { ModeMenu, Ribbon } from 'src/mibi/ribbon/Ribbon';
 import { useUnsavedChangesPrompt } from 'src/hooks/useUnsavedChangesPrompt';
+import { selectIsDashboardVersionPreviewActive } from 'src/features/versionHistory/reducer';
 import DashboardEmbedModal from '../EmbeddedModal';
 import OverwriteConfirm from '../OverwriteConfirm';
 import {
@@ -110,11 +115,11 @@ import { RefreshButton } from '../RefreshButton';
 
 type DashboardPropertiesUpdate = {
   slug?: string;
+  description?: string | null;
   jsonMetadata?: string;
   certifiedBy?: string;
   certificationDetails?: string;
-  owners?: Owner[];
-  roles?: Role[];
+  editors?: Subject[];
   tags?: TagType[];
   css?: string;
   title?: string;
@@ -130,10 +135,10 @@ type DashboardInfoState = RootState['dashboardInfo'] & {
   dash_share_perm?: boolean;
   is_managed_externally?: boolean;
   slug?: string;
+  description?: string | null;
   last_modified_time?: number;
   certified_by?: string;
   certification_details?: string;
-  roles?: Role[];
   tags?: TagType[];
   metadata: RootState['dashboardInfo']['metadata'] & {
     timed_refresh_immune_slices?: number[];
@@ -204,8 +209,14 @@ const discardChanges = () => {
   window.location.assign(url);
 };
 
-const Header = (): JSX.Element => {
+interface HeaderComponentProps {
+  onOpenMobileFilters?: () => void;
+}
+
+const Header = ({ onOpenMobileFilters }: HeaderComponentProps): JSX.Element => {
   const dispatch = useDispatch();
+  const theme = useTheme();
+  const isMobile = useIsMobile();
   const [didNotifyMaxUndoHistoryToast, setDidNotifyMaxUndoHistoryToast] =
     useState(false);
   const [emphasizeUndo, setEmphasizeUndo] = useState(false);
@@ -414,9 +425,9 @@ const Header = (): JSX.Element => {
       css: customCss,
       dashboard_title: dashboardTitle,
       last_modified_time: actualLastModifiedTime,
-      owners: dashboardInfo.owners,
-      roles: dashboardInfo.roles,
+      editors: dashboardInfo.editors,
       slug,
+      description: dashboardInfo.description,
       tags: (dashboardInfo.tags || []).filter(
         item => item.type === TagTypeEnum.Custom || !item.type,
       ),
@@ -439,7 +450,9 @@ const Header = (): JSX.Element => {
     if (positionJSONLength >= limit) {
       boundActionCreators.addDangerToast(
         t(
-          'Your dashboard is too large. Please reduce its size before saving it.',
+          'Your dashboard is too large to save: the serialized layout length is %s but the limit is %s. Reduce the dashboard size (for example, split it into multiple dashboards) or raise the SUPERSET_DASHBOARD_POSITION_DATA_LIMIT config setting.',
+          positionJSONLength.toLocaleString(),
+          limit.toLocaleString(),
         ),
       );
     } else {
@@ -471,14 +484,14 @@ const Header = (): JSX.Element => {
     dashboardInfo.common?.conf?.SUPERSET_DASHBOARD_POSITION_DATA_LIMIT,
     dashboardInfo.id,
     dashboardInfo.metadata,
-    dashboardInfo.owners,
-    dashboardInfo.roles,
+    dashboardInfo.editors,
     dashboardInfo.tags,
     dashboardTitle,
     layout,
     refreshFrequency,
     shouldPersistRefreshFrequency,
     slug,
+    dashboardInfo.description,
   ]);
 
   const {
@@ -523,10 +536,21 @@ const Header = (): JSX.Element => {
 
   const metadataBar = useDashboardMetadataBar(dashboardInfo);
 
+  const isVersionPreviewActive = useSelector(
+    selectIsDashboardVersionPreviewActive,
+  );
   const userCanEdit =
-    dashboardInfo.dash_edit_perm && !dashboardInfo.is_managed_externally;
-  const userCanShare = !!dashboardInfo.dash_share_perm;
-  const userCanSaveAs = !!dashboardInfo.dash_save_perm;
+    dashboardInfo.dash_edit_perm &&
+    !dashboardInfo.is_managed_externally &&
+    !isVersionPreviewActive;
+  const userCanShare =
+    !!dashboardInfo.dash_share_perm && !isVersionPreviewActive;
+  // Gated on preview like userCanEdit above: the Save/Discard toolbar acts on
+  // whatever is currently hydrated, and during a preview that is the
+  // snapshot's layout -- so leaving this ungated is a route to writing a
+  // historical version over the live dashboard.
+  const userCanSaveAs =
+    !!dashboardInfo.dash_save_perm && !isVersionPreviewActive;
   const userCanCurate =
     isFeatureEnabled(FeatureFlag.EmbeddedSuperset) &&
     findPermission('can_set_embedded', 'Dashboard', user.roles);
@@ -537,11 +561,11 @@ const Header = (): JSX.Element => {
     (updates: DashboardPropertiesUpdate) => {
       boundActionCreators.dashboardInfoChanged({
         slug: updates.slug,
+        description: updates.description,
         metadata: JSON.parse(updates.jsonMetadata || '{}'),
         certified_by: updates.certifiedBy,
         certification_details: updates.certificationDetails,
-        owners: updates.owners,
-        roles: updates.roles,
+        editors: updates.editors,
         tags: updates.tags,
         css: updates.css,
       });
@@ -609,7 +633,8 @@ const Header = (): JSX.Element => {
 
   const titlePanelAdditionalItems = useMemo(
     () => [
-      !editMode && (
+      // The kebab menu's "Refresh dashboard" item covers this on mobile
+      !editMode && !isMobile && (
         <RefreshButton key="refresh-button" onRefresh={forceRefresh} />
       ),
       !editMode && (
@@ -618,7 +643,7 @@ const Header = (): JSX.Element => {
           onTogglePause={handlePauseToggle}
         />
       ),
-      !editMode && (
+      !editMode && !isMobile && (
         <PublishedStatus
           key="published-status"
           dashboardId={dashboardInfo.id}
@@ -628,7 +653,7 @@ const Header = (): JSX.Element => {
           userCanSave={userCanSaveAs}
         />
       ),
-      !editMode && !isEmbedded && metadataBar,
+      !editMode && !isEmbedded && !isMobile && metadataBar,
       !editMode && !isEmbedded && dashboardInfo.id && (
         <DashboardWorkspaceChip
           key="workspace-chip"
@@ -640,6 +665,7 @@ const Header = (): JSX.Element => {
       boundActionCreators.savePublished,
       dashboardInfo.id,
       editMode,
+      isMobile,
       metadataBar,
       isEmbedded,
       isPublished,
@@ -702,7 +728,7 @@ const Header = (): JSX.Element => {
                 </Tooltip>
               </>
             )}
-            {userCanEdit && (
+            {userCanEdit && !isEmbedded && !isMobile && (
               <Button
                 buttonStyle="secondary"
                 onClick={handleEnterEditMode}
@@ -731,6 +757,7 @@ const Header = (): JSX.Element => {
       handleCtrlZ,
       handleEnterEditMode,
       hasUnsavedChanges,
+      isMobile,
       overwriteDashboard,
       redoLength,
       undoLength,
@@ -767,6 +794,10 @@ const Header = (): JSX.Element => {
     userCanCurate,
     userCanExport,
     isLoading,
+    isMobile,
+    isStarred,
+    isPublished,
+    saveFaveStar: boundActionCreators.saveFaveStar,
     showReportModal,
     showPropertiesModal,
     showRefreshModal,
@@ -780,14 +811,27 @@ const Header = (): JSX.Element => {
       editableTitleProps={editableTitleProps}
       certificatiedBadgeProps={certifiedBadgeProps}
       faveStarProps={faveStarProps}
+      leftPanelItems={
+        onOpenMobileFilters && (
+          <Button
+            buttonStyle="link"
+            aria-label={t('Open filters')}
+            onClick={onOpenMobileFilters}
+            data-test="mobile-filters-trigger"
+          >
+            <Icons.FilterOutlined iconColor={theme.colorPrimary} iconSize="l" />
+          </Button>
+        )
+      }
       titlePanelAdditionalItems={titlePanelAdditionalItems}
       rightPanelAdditionalItems={rightPanelAdditionalItems}
       menuDropdownProps={{
         open: isDropdownVisible,
         onOpenChange: setIsDropdownVisible,
+        disabled: isVersionPreviewActive,
       }}
       additionalActionsMenu={menu}
-      showFaveStar={Boolean(user?.userId && dashboardInfo?.id)}
+      showFaveStar={!!(user?.userId && dashboardInfo?.id && !isMobile)}
       showTitlePanelItems
     />
   );
@@ -856,7 +900,6 @@ const Header = (): JSX.Element => {
       )}
 
       <ReportModal
-        userId={user.userId}
         show={showingReportModal}
         onHide={hideReportModal}
         userEmail={user.email}

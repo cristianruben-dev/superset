@@ -35,6 +35,7 @@ import { GetState, LayoutItem, RootState } from '../types';
 import { isPositioned, placeAt, posOf } from 'src/mibi/format/positions';
 import { updateLayoutComponents } from './dashboardFilters';
 import { setUnsavedChanges } from './dashboardState';
+
 type AppDispatch = ThunkDispatch<RootState, undefined, AnyAction>;
 
 // Component CRUD -------------------------------------------------------------
@@ -330,7 +331,7 @@ export function handleComponentDrop(dropResult: DropResult) {
       source &&
       !(
         // ensure it has moved
-        (destination.id === source.id && destination.index === source.index)
+        destination.id === source.id && destination.index === source.index
       )
     ) {
       dispatch(moveComponent(dropResult));

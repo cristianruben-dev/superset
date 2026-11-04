@@ -24,16 +24,27 @@ import {
   waitFor,
 } from 'spec/helpers/testing-library';
 import fetchMock from 'fetch-mock';
-import { createMemoryHistory } from 'history';
+import { FeatureFlag, isFeatureEnabled } from '@superset-ui/core';
 import { ChartCreation } from 'src/pages/ChartCreation';
 import { UserWithPermissionsAndRoles } from 'src/types/bootstrapTypes';
-import { supersetTheme } from '@apache-superset/core/theme';
 
 jest.mock('src/components/DynamicPlugins', () => ({
   usePluginContext: () => ({
     mountedPluginMetadata: { table: { name: 'Table', tags: [] } },
   }),
 }));
+
+jest.mock('@superset-ui/core', () => ({
+  ...jest.requireActual('@superset-ui/core'),
+  isFeatureEnabled: jest.fn(),
+}));
+
+const mockIsFeatureEnabled = jest.mocked(isFeatureEnabled);
+
+const enableSemanticLayers = () =>
+  mockIsFeatureEnabled.mockImplementation(
+    flag => flag === FeatureFlag.SemanticLayers,
+  );
 
 const mockDatasourceResponse = {
   result: [
@@ -48,9 +59,23 @@ const mockDatasourceResponse = {
   count: 1,
 };
 
-fetchMock.get(/\/api\/v1\/dataset\/\?q=.*/, {
-  body: mockDatasourceResponse,
-  status: 200,
+const legacyDatasetFixtures = [
+  {
+    id: 42,
+    table_name: 'shared_source',
+    datasource_type: 'table',
+    database: { database_name: 'examples' },
+    schema: 'public',
+  },
+];
+
+beforeEach(() => {
+  mockIsFeatureEnabled.mockReturnValue(false);
+  fetchMock.clearHistory().removeRoutes();
+  fetchMock.get(/\/api\/v1\/dataset\/\?q=.*/, {
+    body: mockDatasourceResponse,
+    status: 200,
+  });
 });
 
 const mockUser: UserWithPermissionsAndRoles = {
@@ -64,6 +89,7 @@ const mockUser: UserWithPermissionsAndRoles = {
   userId: 1,
   username: 'admin',
   isAnonymous: false,
+  groups: [],
 };
 
 const mockUserWithDatasetWrite: UserWithPermissionsAndRoles = {
@@ -77,16 +103,17 @@ const mockUserWithDatasetWrite: UserWithPermissionsAndRoles = {
   userId: 1,
   username: 'admin',
   isAnonymous: false,
+  groups: [],
 };
-const history = createMemoryHistory();
 
-history.push = jest.fn();
+const mockHistoryPush = jest.fn();
 
-const routeProps = {
-  history,
-  location: {} as any,
-  match: {} as any,
-};
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useHistory: () => ({
+    push: mockHistoryPush,
+  }),
+}));
 
 // Charts are created from a dashboard (AuraData BI)
 beforeEach(() => {
@@ -94,13 +121,9 @@ beforeEach(() => {
 });
 
 async function renderComponent(user = mockUser) {
+  mockHistoryPush.mockClear();
   const rendered = render(
-    <ChartCreation
-      user={user}
-      addSuccessToast={() => null}
-      theme={supersetTheme}
-      {...routeProps}
-    />,
+    <ChartCreation user={user} addSuccessToast={() => null} />,
     {
       useRedux: true,
       useRouter: true,
@@ -114,6 +137,20 @@ test('renders a select and a VizTypeGallery', async () => {
   await renderComponent();
   expect(screen.getByRole('combobox', { name: 'Dataset' })).toBeInTheDocument();
   expect(screen.getByText(/choose chart type/i)).toBeInTheDocument();
+});
+
+test('does not double up the vertical Steps icon-to-content gap', async () => {
+  // antd 6 added its own icon->content gap on `.ant-steps-item-wrapper`
+  // (column-gap), stacking on top of the pre-existing `margin-right` on
+  // `.ant-steps-item-icon` and shifting every step's content to the right.
+  const { container } = await renderComponent();
+  const styledContainer = container.firstChild;
+  expect(styledContainer).toHaveStyleRule('column-gap', '0', {
+    target: '.ant-steps-item-wrapper',
+  });
+  expect(styledContainer).toHaveStyleRule('margin-right', '8px', {
+    target: '.ant-steps-item-icon',
+  });
 });
 
 test('renders dataset help text when user lacks dataset write permissions', async () => {
@@ -174,7 +211,7 @@ test('double-click viz type does nothing if no datasource is selected', async ()
   expect(
     screen.getByRole('button', { name: 'Create new chart' }),
   ).toBeDisabled();
-  expect(history.push).not.toHaveBeenCalled();
+  expect(mockHistoryPush).not.toHaveBeenCalled();
 });
 
 test('double-click viz type submits with formatted URL if datasource is selected', async () => {
@@ -197,7 +234,7 @@ test('double-click viz type submits with formatted URL if datasource is selected
   ).toBeEnabled();
   const formattedUrl =
     '/explore/?viz_type=table&datasource=table_1__table&dashboard_id=7';
-  expect(history.push).toHaveBeenCalledWith(formattedUrl);
+  expect(mockHistoryPush).toHaveBeenCalledWith(formattedUrl);
 });
 
 test('dropdown displays matching datasets when user types a search term', async () => {
@@ -255,23 +292,16 @@ test('handles special characters in dataset name from URL parameter', async () =
     status: 200,
   });
 
-  const originalLocation = window.location;
-  Object.defineProperty(window, 'location', {
-    value: {
-      ...originalLocation,
-      search: '?dataset=flights%C3%86%20test&dashboard_id=7',
-    },
-    writable: true,
-  });
+  const locationSpy = jest.spyOn(window, 'location', 'get').mockReturnValue({
+    ...window.location,
+    search: '?dataset=flights%C3%86%20test&dashboard_id=7',
+  } as Location);
 
   await renderComponent();
 
   expect(await screen.findByText('flightsÆ test')).toBeInTheDocument();
 
-  Object.defineProperty(window, 'location', {
-    value: originalLocation,
-    writable: true,
-  });
+  locationSpy.mockRestore();
 });
 
 test('pre-selects the dataset from URL parameter and shows it in dropdown', async () => {
@@ -292,20 +322,16 @@ test('pre-selects the dataset from URL parameter and shows it in dropdown', asyn
     status: 200,
   });
 
-  const originalLocation = window.location;
-  Object.defineProperty(window, 'location', {
-    value: { ...originalLocation, search: '?dataset=flights&dashboard_id=7' },
-    writable: true,
-  });
+  const locationSpy = jest.spyOn(window, 'location', 'get').mockReturnValue({
+    ...window.location,
+    search: '?dataset=flights&dashboard_id=7',
+  } as Location);
 
   await renderComponent();
 
   expect(await screen.findByText('flights')).toBeInTheDocument();
 
-  Object.defineProperty(window, 'location', {
-    value: originalLocation,
-    writable: true,
-  });
+  locationSpy.mockRestore();
 });
 
 test('shows loading spinner when dataset parameter is present in URL', async () => {
@@ -333,24 +359,15 @@ test('shows loading spinner when dataset parameter is present in URL', async () 
     })),
   );
 
-  const originalLocation = window.location;
-  Object.defineProperty(window, 'location', {
-    value: { ...originalLocation, search: '?dataset=flights&dashboard_id=7' },
-    writable: true,
-  });
+  const locationSpy = jest.spyOn(window, 'location', 'get').mockReturnValue({
+    ...window.location,
+    search: '?dataset=flights&dashboard_id=7',
+  } as Location);
 
-  render(
-    <ChartCreation
-      user={mockUser}
-      addSuccessToast={() => null}
-      theme={supersetTheme}
-      {...routeProps}
-    />,
-    {
-      useRedux: true,
-      useRouter: true,
-    },
-  );
+  render(<ChartCreation user={mockUser} addSuccessToast={() => null} />, {
+    useRedux: true,
+    useRouter: true,
+  });
 
   expect(screen.getByRole('status')).toBeInTheDocument();
 
@@ -360,10 +377,66 @@ test('shows loading spinner when dataset parameter is present in URL', async () 
     expect(screen.queryByRole('status')).not.toBeInTheDocument();
   });
 
-  Object.defineProperty(window, 'location', {
-    value: originalLocation,
-    writable: true,
+  locationSpy.mockRestore();
+});
+
+test('dataset dropdown sorts options alphabetically by table name regardless of id order', async () => {
+  fetchMock.clearHistory().removeRoutes();
+  // Mixed-case names are required: code-point comparison would place every
+  // uppercase name before every lowercase one (Mango, Zebra, apple), while
+  // localeCompare produces the correct case-insensitive order (apple, Mango, Zebra).
+  // IDs are also out of alphabetical order to rule out ID-based sorting.
+  fetchMock.get(/\/api\/v1\/dataset\/\?q=.*/, {
+    body: {
+      result: [
+        {
+          id: 2,
+          table_name: 'Zebra_table',
+          datasource_type: 'table',
+          database: { database_name: 'test_db' },
+          schema: 'public',
+        },
+        {
+          id: 3,
+          table_name: 'apple_table',
+          datasource_type: 'table',
+          database: { database_name: 'test_db' },
+          schema: 'public',
+        },
+        {
+          id: 1,
+          table_name: 'Mango_table',
+          datasource_type: 'table',
+          database: { database_name: 'test_db' },
+          schema: 'public',
+        },
+      ],
+      count: 3,
+    },
+    status: 200,
   });
+
+  await renderComponent();
+
+  const datasourceSelect = screen.getByRole('combobox', { name: 'Dataset' });
+  userEvent.click(datasourceSelect);
+
+  // Wait for all three to appear
+  await screen.findByText('apple_table');
+  expect(screen.getByText('Mango_table')).toBeInTheDocument();
+  expect(screen.getByText('Zebra_table')).toBeInTheDocument();
+
+  const apple = screen.getByText('apple_table');
+  const mango = screen.getByText('Mango_table');
+  const zebra = screen.getByText('Zebra_table');
+
+  // Verify case-insensitive order: apple < Mango < Zebra
+  expect(
+    apple.compareDocumentPosition(mango) & Node.DOCUMENT_POSITION_FOLLOWING,
+  ).toBeTruthy();
+  expect(
+    mango.compareDocumentPosition(zebra) & Node.DOCUMENT_POSITION_FOLLOWING,
+  ).toBeTruthy();
 });
 
 test('shows only exact match when loading dataset from URL, not partial matches', async () => {
@@ -410,21 +483,99 @@ test('shows only exact match when loading dataset from URL, not partial matches'
     };
   });
 
-  const originalLocation = window.location;
-  Object.defineProperty(window, 'location', {
-    value: { ...originalLocation, search: '?dataset=flights&dashboard_id=7' },
-    writable: true,
-  });
+  const locationSpy = jest.spyOn(window, 'location', 'get').mockReturnValue({
+    ...window.location,
+    search: '?dataset=flights&dashboard_id=7',
+  } as Location);
 
   await renderComponent();
 
   await screen.findByText('flights');
   expect(screen.queryByText('flights_delayed')).not.toBeInTheDocument();
 
-  Object.defineProperty(window, 'location', {
-    value: originalLocation,
-    writable: true,
+  locationSpy.mockRestore();
+});
+
+test('keeps the legacy dataset-only picker when semantic layers are disabled', async () => {
+  fetchMock.clearHistory().removeRoutes();
+  fetchMock.get(/\/api\/v1\/dataset\/\?q=.*/, {
+    body: { result: legacyDatasetFixtures, count: 1 },
+    status: 200,
   });
+
+  await renderComponent();
+  const datasourceSelect = screen.getByRole('combobox', { name: 'Dataset' });
+  userEvent.click(datasourceSelect);
+  userEvent.click(await screen.findByText('shared_source'));
+
+  expect(screen.queryByText('Semantic View')).not.toBeInTheDocument();
+  expect(screen.queryByText('Dataset', { selector: '.ant-tag' })).toBeNull();
+  expect(
+    fetchMock.callHistory
+      .calls()
+      .some(call => call.url.includes('/api/v1/datasource/')),
+  ).toBe(false);
+
+  userEvent.click(screen.getByRole('tab', { name: /All charts/i }));
+  userEvent.dblClick(await screen.findByText('Table'));
+  expect(mockHistoryPush).toHaveBeenCalledWith(
+    '/explore/?viz_type=table&datasource=42__table&dashboard_id=7',
+  );
+});
+
+test('keeps the legacy no-options state when semantic layers are disabled', async () => {
+  fetchMock.clearHistory().removeRoutes();
+  fetchMock.get(/\/api\/v1\/dataset\/\?q=.*/, {
+    body: { result: [], count: 0 },
+    status: 200,
+  });
+
+  await renderComponent();
+  userEvent.click(screen.getByRole('combobox', { name: 'Dataset' }));
+
+  expect(
+    await screen.findByText('No data', { selector: '.ant-empty-description' }),
+  ).toBeInTheDocument();
+  expect(screen.queryByText('Semantic View')).not.toBeInTheDocument();
+});
+
+test('uses the exact dataset endpoint for URL preload with semantic layers enabled', async () => {
+  enableSemanticLayers();
+  fetchMock.clearHistory().removeRoutes();
+  fetchMock.get(/\/api\/v1\/dataset\/\?q=.*/, {
+    body: { result: legacyDatasetFixtures, count: 1 },
+    status: 200,
+  });
+
+  const locationSpy = jest.spyOn(window, 'location', 'get').mockReturnValue({
+    ...window.location,
+    search: '?dataset=shared_source&dashboard_id=7',
+  } as Location);
+
+  await renderComponent();
+
+  expect(await screen.findByText('shared_source')).toBeInTheDocument();
+  // The preloaded selection is labelled the same way dropdown options are.
+  expect(
+    screen.getByText('Dataset', { selector: '.ant-tag' }),
+  ).toBeInTheDocument();
+  expect(
+    fetchMock.callHistory.calls().some(call => {
+      const decodedUrl = decodeURIComponent(call.url);
+      return (
+        decodedUrl.includes('/api/v1/dataset/') &&
+        decodedUrl.includes('opr:eq') &&
+        decodedUrl.includes('shared_source')
+      );
+    }),
+  ).toBe(true);
+  expect(
+    fetchMock.callHistory
+      .calls()
+      .some(call => call.url.includes('/api/v1/datasource/')),
+  ).toBe(false);
+
+  locationSpy.mockRestore();
 });
 
 test('asks to create charts from a dashboard when there is no dashboard_id', async () => {
@@ -439,5 +590,5 @@ test('asks to create charts from a dashboard when there is no dashboard_id', asy
   ).not.toBeInTheDocument();
 
   userEvent.click(screen.getByRole('button', { name: 'Go to dashboards' }));
-  expect(history.push).toHaveBeenCalledWith('/dashboard/list/');
+  expect(mockHistoryPush).toHaveBeenCalledWith('/dashboard/list/');
 });

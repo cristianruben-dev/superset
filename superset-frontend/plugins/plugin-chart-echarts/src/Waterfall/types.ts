@@ -55,9 +55,11 @@ export type EchartsWaterfallFormData = QueryFormData &
     xAxisLabel: string;
     xAxisTimeFormat?: string;
     xTicksLayout?: WaterfallFormXTicksLayout;
+    showXAxis: boolean;
     yAxisLabel: string;
     yAxisFormat: string;
     yAxisBounds?: [number | null, number | null];
+    showYAxis: boolean;
     increaseLabel?: string;
     decreaseLabel?: string;
     totalLabel?: string;
@@ -66,6 +68,8 @@ export type EchartsWaterfallFormData = QueryFormData &
 
 export const DEFAULT_FORM_DATA: Partial<EchartsWaterfallFormData> = {
   showLegend: true,
+  showXAxis: true,
+  showYAxis: true,
 };
 
 export interface EchartsWaterfallChartProps extends ChartProps {

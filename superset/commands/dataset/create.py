@@ -16,7 +16,7 @@
 # under the License.
 import logging
 from functools import partial
-from typing import Any, Optional
+from typing import Any
 
 from flask_appbuilder.models.sqla import Model
 from marshmallow import ValidationError
@@ -28,12 +28,32 @@ from superset.commands.dataset.exceptions import (
     DatasetDataAccessIsNotAllowed,
     DatasetExistsValidationError,
     DatasetInvalidError,
+    DatasetSoftDeletedTwinExistsError,
+    DatasetSqlRenderValidationError,
     TableNotFoundValidationError,
+    TEMPLATE_RENDER_ERRORS,
+    TemplateParamsInvalidValidationError,
 )
+from superset.commands.utils import populate_subjects
 from superset.daos.dataset import DatasetDAO
-from superset.exceptions import SupersetParseError, SupersetSecurityException
+from superset.db_engine_specs.exceptions import (
+    SupersetDBAPIConnectionError,
+    SupersetDBAPIDatabaseError,
+    SupersetDBAPIOperationalError,
+)
+from superset.exceptions import (
+    OAuth2RedirectError,
+    SupersetException,
+    SupersetParseError,
+    SupersetSecurityException,
+    SupersetTimeoutException,
+)
 from superset.extensions import security_manager
-from superset.sql.parse import Table
+from superset.models.helpers import (
+    parse_template_params,
+    template_params_for_access_check,
+)
+from superset.sql.parse import process_jinja_sql, Table
 from superset.utils.decorators import on_error, transaction
 
 logger = logging.getLogger(__name__)
@@ -48,7 +68,38 @@ class CreateDatasetCommand(CreateMixin, BaseCommand):
         self.validate()
 
         dataset = DatasetDAO.create(attributes=self._properties)
-        dataset.fetch_metadata()
+        try:
+            dataset.fetch_metadata()
+        except OAuth2RedirectError:
+            # Must reach the caller unchanged to start the OAuth2 dance.
+            raise
+        except (
+            SupersetTimeoutException,
+            SupersetDBAPIConnectionError,
+            SupersetDBAPIOperationalError,
+            SupersetDBAPIDatabaseError,
+        ):
+            # Infra-level failures (unreachable database, query timeout), not
+            # bad user input: let them propagate with their own status
+            # instead of being coerced into a 422 "invalid table" error.
+            raise
+        except SupersetException as ex:
+            # Not a SQLAlchemyError, so ``on_error`` re-raises it untouched and
+            # it escapes to FAB's ``@safe`` as an opaque 500 "Fatal error".
+            # Deliberately covers the 403 ``SupersetSecurityException`` raised
+            # for mutation/multi-statement SQL too: ``validate()`` already
+            # reports that class of rejection as a 422 on ``sql`` via
+            # ``DatasetDataAccessIsNotAllowed``.
+            raise DatasetInvalidError(
+                exceptions=[
+                    ValidationError(
+                        # ``lazy_gettext`` messages aren't ``str``, so
+                        # marshmallow won't wrap them into a list on its own.
+                        [str(ex.message)],
+                        field_name="sql" if self._properties.get("sql") else "table",
+                    )
+                ]
+            ) from ex
         return dataset
 
     def validate(self) -> None:  # noqa: C901
@@ -58,7 +109,23 @@ class CreateDatasetCommand(CreateMixin, BaseCommand):
         schema = self._properties.get("schema")
         table_name = self._properties["table_name"]
         sql = self._properties.get("sql")
-        owner_ids: Optional[list[int]] = self._properties.get("owners")
+        # The access check below must render the SQL with the same template
+        # params that will be stored and executed, so a templated table
+        # reference is authorized as the table it actually resolves to rather
+        # than its ``default()``. Only a virtual dataset's SQL renders them, so
+        # a physical dataset's params are left unparsed as before; params that
+        # cannot be read as execution reads them are rejected (fail closed)
+        # rather than authorized against a guess.
+        template_params: dict[str, Any] = {}
+        template_params_valid = True
+        if sql:
+            try:
+                template_params = parse_template_params(
+                    self._properties.get("template_params")
+                )
+            except ValueError:
+                template_params_valid = False
+                exceptions.append(TemplateParamsInvalidValidationError())
 
         # Validate/Populate database
         database = DatasetDAO.get_database_by_id(database_id)
@@ -71,9 +138,96 @@ class CreateDatasetCommand(CreateMixin, BaseCommand):
             if not catalog:
                 catalog = self._properties["catalog"] = database.get_default_catalog()
 
+            if sql:
+                try:
+                    # Render with the params chart execution exposes, so the
+                    # derived schema comes from the SQL the access check sees.
+                    parse_result = process_jinja_sql(
+                        sql,
+                        database,
+                        template_params_for_access_check(template_params),
+                    )
+                except Exception:  # pylint: disable=broad-exception-caught
+                    logger.debug(
+                        "Keeping submitted dataset schema because optional SQL "
+                        "template processing failed",
+                        exc_info=True,
+                    )
+                else:
+                    script = parse_result.script
+                    tables = {table for table in parse_result.tables if table.table}
+                    if len(tables) != len(parse_result.tables):
+                        logger.debug(
+                            "Ignoring empty table-name parser artifacts while deriving "
+                            "the dataset schema"
+                        )
+
+                    if script.has_unparseable_statement:
+                        logger.debug(
+                            "Keeping submitted dataset schema because the SQL contains "
+                            "an unparseable statement"
+                        )
+                    elif script.has_show_statement():
+                        logger.debug(
+                            "Keeping submitted dataset schema because the SQL contains "
+                            "a metadata statement"
+                        )
+                    elif script.has_mutation():
+                        logger.debug(
+                            "Keeping submitted dataset schema because the SQL mutates "
+                            "database state"
+                        )
+                    elif script.changes_default_schema():
+                        logger.debug(
+                            "Keeping submitted dataset schema because the SQL changes "
+                            "the default schema"
+                        )
+                    elif script.has_quoted_table_location():
+                        logger.debug(
+                            "Keeping submitted dataset schema because a quoted table "
+                            "location may have case-sensitive identity"
+                        )
+                    elif not tables:
+                        logger.debug(
+                            "Keeping submitted dataset schema because the SQL has no "
+                            "table references"
+                        )
+                    elif any(table.schema is None for table in tables):
+                        logger.debug(
+                            "Keeping submitted dataset schema because the SQL has an "
+                            "unqualified table reference"
+                        )
+                    elif (
+                        len(
+                            qualified_table_locations := {
+                                (table.catalog, table.schema) for table in tables
+                            }
+                        )
+                        != 1
+                    ):
+                        logger.debug(
+                            "Keeping submitted dataset schema because the SQL spans "
+                            "multiple catalog/schema locations"
+                        )
+                    else:
+                        derived_catalog, derived_schema = next(
+                            iter(qualified_table_locations)
+                        )
+                        schema = self._properties["schema"] = derived_schema
+                        if derived_catalog is not None:
+                            catalog = self._properties["catalog"] = derived_catalog
+
             table = Table(table_name, schema, catalog)
 
             if not DatasetDAO.validate_uniqueness(database, table):
+                # Distinguish the hidden-twin case: uniqueness fails while
+                # the caller's dataset list looks empty. Raise the targeted
+                # 422 (naming the twin's uuid and the restore endpoint)
+                # instead of the opaque "already exists".
+                if soft_twin := DatasetDAO.find_soft_deleted_logical_duplicate(
+                    database, table
+                ):
+                    raise DatasetSoftDeletedTwinExistsError(str(soft_twin.uuid))
                 exceptions.append(DatasetExistsValidationError(table))
 
         # Validate table exists on dataset if sql is not provided
@@ -86,26 +240,44 @@ class CreateDatasetCommand(CreateMixin, BaseCommand):
             exceptions.append(TableNotFoundValidationError(table))
 
         if sql:
+            # Unreadable params already failed validation above; skip the check
+            # rather than report an access decision made against other params.
+            if template_params_valid:
+                try:
+                    security_manager.raise_for_access(
+                        database=database,
+                        sql=sql,
+                        catalog=catalog,
+                        schema=schema,
+                        template_params=template_params_for_access_check(
+                            template_params
+                        ),
+                        allow_editorship=False,
+                    )
+                except SupersetSecurityException as ex:
+                    exceptions.append(DatasetDataAccessIsNotAllowed(ex.error.message))
+                except SupersetParseError as ex:
+                    exceptions.append(
+                        ValidationError(
+                            f"Invalid SQL: {ex.error.message}",
+                            field_name="sql",
+                        )
+                    )
+                except TEMPLATE_RENDER_ERRORS as ex:
+                    exceptions.append(DatasetSqlRenderValidationError(ex))
+        elif database:
             try:
                 security_manager.raise_for_access(
                     database=database,
-                    sql=sql,
-                    catalog=catalog,
-                    schema=schema,
+                    table=table,
+                    allow_editorship=False,
                 )
             except SupersetSecurityException as ex:
                 exceptions.append(DatasetDataAccessIsNotAllowed(ex.error.message))
-            except SupersetParseError as ex:
-                exceptions.append(
-                    ValidationError(
-                        f"Invalid SQL: {ex.error.message}",
-                        field_name="sql",
-                    )
-                )
-        try:
-            owners = self.populate_owners(owner_ids)
-            self._properties["owners"] = owners
-        except ValidationError as ex:
-            exceptions.append(ex)
+
+        # Datasets have editors only — there is no ``sqlatable_viewers`` table,
+        # so a ``viewers`` key would be dropped by the DAO's ``setattr`` loop.
+        populate_subjects(self._properties, exceptions, include_viewers=False)
+
         if exceptions:
             raise DatasetInvalidError(exceptions=exceptions)

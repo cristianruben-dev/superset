@@ -119,7 +119,7 @@ const LeftPane = styled.div`
         ${({ theme }) => theme.sizeUnit}px;
     }
 
-    .ant-collapse-content .ant-collapse-content-box {
+    .ant-collapse-panel .ant-collapse-body {
       display: flex;
       flex-direction: column;
       padding: 0;
@@ -231,6 +231,11 @@ const fadeUp = keyframes`
 `;
 
 const thumbnailContainerCss = (theme: SupersetTheme) => css`
+  appearance: none;
+  border: none;
+  background: none;
+  padding: 0;
+  font: inherit;
   cursor: pointer;
   width: ${theme.sizeUnit * THUMBNAIL_WIDTH_UNITS}px;
   position: relative;
@@ -426,29 +431,21 @@ const Thumbnail: FC<ThumbnailProps> = ({
   const { key, value: type } = entry;
   const isSelected = selectedViz === entry.key;
 
-  const handleKeyDown = (event: React.KeyboardEvent) => {
-    if (event.key === 'Enter' || event.key === ' ') {
-      event.preventDefault();
-      setSelectedViz(key);
-    }
-  };
-
   const handleFocus = () => {
     // Auto-select chart when tabbed to
     setSelectedViz(key);
   };
 
   return (
-    <div
-      role="button"
+    <button
+      type="button"
       // using css instead of a styled component to preserve
       // the data-test attribute
       css={thumbnailContainerCss(theme)}
-      tabIndex={0}
       className={isSelected ? 'selected' : ''}
+      aria-pressed={isSelected}
       onClick={() => setSelectedViz(key)}
       onDoubleClick={onDoubleClick}
-      onKeyDown={handleKeyDown}
       onFocus={handleFocus}
       data-test="viztype-selector-container"
     >
@@ -479,6 +476,7 @@ const Thumbnail: FC<ThumbnailProps> = ({
       <div
         className="viztype-label"
         data-test={`${VIZ_TYPE_CONTROL_TEST_ID}__viztype-label`}
+        title={type.name}
       >
         {type.name}
       </div>
@@ -489,7 +487,7 @@ const Thumbnail: FC<ThumbnailProps> = ({
           </HighlightLabel>
         </ThumbnailLabelWrapper>
       )}
-    </div>
+    </button>
   );
 };
 
@@ -871,7 +869,11 @@ export default function VizTypeGallery(props: VizTypeGalleryProps) {
           suffix={
             <InputIconAlignment>
               {searchInputValue && (
-                <Icons.CloseOutlined iconSize="m" onClick={stopSearching} />
+                <Icons.CloseOutlined
+                  iconSize="m"
+                  onClick={stopSearching}
+                  aria-label={t('Clear search')}
+                />
               )}
             </InputIconAlignment>
           }

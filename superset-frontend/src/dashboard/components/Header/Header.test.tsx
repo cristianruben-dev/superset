@@ -16,6 +16,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+// Imported first: loading this before 'spec/helpers/testing-library' or
+// '@superset-ui/core' ensures mockAntdWithDesktopBreakpoint is defined
+// before anything transitively requires (and thus mocks) 'antd'.
+import { mockAntdWithDesktopBreakpoint } from 'spec/helpers/mobileTestUtils';
 import * as redux from 'redux';
 import { useUnsavedChangesPrompt } from 'src/hooks/useUnsavedChangesPrompt';
 import { screen, userEvent, within, waitFor } from '@superset-ui/core/spec';
@@ -23,13 +27,27 @@ import { ActionCreators as UndoActionCreators } from 'redux-undo';
 import fetchMock from 'fetch-mock';
 import { getExtensionsRegistry, JsonObject } from '@superset-ui/core';
 import setupCodeOverrides from 'src/setup/setupCodeOverrides';
-import getOwnerName from 'src/utils/getOwnerName';
+import getUserName from 'src/utils/getUserName';
 import { render, createStore } from 'spec/helpers/testing-library';
 import reducerIndex from 'spec/helpers/reducerIndex';
 import Header from '.';
 import { DASHBOARD_HEADER_ID } from '../../util/constants';
 import { UPDATE_COMPONENTS } from '../../actions/dashboardLayout';
 import { AutoRefreshStatus } from '../../types/autoRefresh';
+
+const mockHistoryReplace = jest.fn();
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useHistory: () => ({
+    replace: mockHistoryReplace,
+  }),
+  useLocation: jest.fn(() => ({
+    pathname: '/dashboard',
+    search: '?standalone=1',
+    hash: '',
+    state: undefined,
+  })),
+}));
 
 const initialState = {
   dashboardInfo: {
@@ -59,7 +77,7 @@ const initialState = {
       first_name: 'Kay',
       last_name: 'Mon',
     },
-    owners: [{ first_name: 'John', last_name: 'Doe', id: 1 }],
+    editors: [{ id: 1, label: 'John Doe', type: 1 }],
   },
   user: {
     createdOn: '2021-04-27T18:12:38.952304',
@@ -170,6 +188,9 @@ const recordError = jest.fn();
 const setPaused = jest.fn();
 const setPausedByTab = jest.fn();
 
+// Mock useBreakpoint to return desktop breakpoints (prevents mobile rendering)
+jest.mock('antd', () => mockAntdWithDesktopBreakpoint());
+
 jest.mock('src/hooks/useUnsavedChangesPrompt', () => ({
   useUnsavedChangesPrompt: jest.fn(),
 }));
@@ -221,6 +242,13 @@ beforeAll(() => {
 
 beforeEach(() => {
   jest.clearAllMocks();
+  const { useLocation } = jest.requireMock('react-router-dom');
+  useLocation.mockReturnValue({
+    pathname: '/dashboard',
+    search: '?standalone=1',
+    hash: '',
+    state: undefined,
+  });
 
   (useUnsavedChangesPrompt as jest.Mock).mockReturnValue({
     showModal: false,
@@ -278,6 +306,22 @@ test('should edit the title', () => {
   expect(screen.getByDisplayValue('New Title')).toBeInTheDocument();
 });
 
+test('typing in the title only dispatches once on commit, not per keystroke', () => {
+  setup(editableState);
+  const editableTitle = screen.getByDisplayValue('Dashboard Title');
+  userEvent.click(editableTitle);
+  userEvent.clear(editableTitle);
+  userEvent.type(editableTitle, 'abcdef');
+  // No commit yet - typing should keep state local to DynamicEditableTitle
+  expect(updateDashboardTitle).not.toHaveBeenCalled();
+  expect(onChange).not.toHaveBeenCalled();
+  // Commit by blurring
+  userEvent.click(document.body);
+  expect(updateDashboardTitle).toHaveBeenCalledTimes(1);
+  expect(updateDashboardTitle).toHaveBeenCalledWith('abcdef');
+  expect(onChange).toHaveBeenCalledTimes(1);
+});
+
 test('should render the "Draft" status', () => {
   setup();
   expect(screen.getByText('Draft')).toBeInTheDocument();
@@ -301,7 +345,7 @@ test('should publish', () => {
 test('should render metadata', () => {
   setup();
   expect(
-    screen.getByText(getOwnerName(initialState.dashboardInfo.created_by)),
+    screen.getByText(getUserName(initialState.dashboardInfo.created_by)),
   ).toBeInTheDocument();
   expect(
     screen.getByText(initialState.dashboardInfo.changed_on_delta_humanized),
@@ -483,6 +527,8 @@ test('should disable both buttons when no actions available', () => {
   expect(onRedo).not.toHaveBeenCalled();
 });
 
+// AuraData BI: the ribbon always offers "Discard" and only asks first when
+// there is something to lose
 test('should render the "Discard changes" button', () => {
   setup(editableState);
   expect(screen.getByText('Discard')).toBeInTheDocument();
@@ -506,6 +552,34 @@ test('should save', () => {
   expect(onSave).not.toHaveBeenCalled();
   userEvent.click(save);
   expect(onSave).toHaveBeenCalledTimes(1);
+});
+
+test('should block saving and surface the size, limit, and config key when the layout exceeds the limit', () => {
+  const oversizedState = {
+    ...editableState,
+    dashboardState: {
+      ...editableState.dashboardState,
+      hasUnsavedChanges: true,
+    },
+    dashboardInfo: {
+      ...editableState.dashboardInfo,
+      common: {
+        conf: {
+          ...editableState.dashboardInfo.common.conf,
+          // any non-empty layout serializes to more than 1 character
+          SUPERSET_DASHBOARD_POSITION_DATA_LIMIT: 1,
+        },
+      },
+    },
+  };
+  setup(oversizedState);
+  userEvent.click(screen.getByTestId('header-save-button'));
+  expect(onSave).not.toHaveBeenCalled();
+  expect(addDangerToast).toHaveBeenCalledTimes(1);
+  const message = addDangerToast.mock.calls[0][0];
+  expect(message).toContain('too large to save');
+  expect(message).toContain('the limit is 1');
+  expect(message).toContain('SUPERSET_DASHBOARD_POSITION_DATA_LIMIT');
 });
 
 test('should NOT render the "Draft" status', () => {
@@ -558,6 +632,35 @@ test('should fave', async () => {
   expect(saveFaveStar).toHaveBeenCalledTimes(1);
 });
 
+// FaveStar.onClick passes the *prior* isStarred value to saveFaveStar — the
+// reducer flips it. So favoriting (unstarred → starred) sends `false`, and
+// unfavoriting (starred → unstarred) sends `true`.
+test('should call saveFaveStar with false when favoriting from the header', () => {
+  setup();
+  const header = screen.getByTestId('dashboard-header-container');
+
+  userEvent.click(within(header).getByRole('img', { name: 'unstarred' }));
+  expect(saveFaveStar).toHaveBeenCalledTimes(1);
+  expect(saveFaveStar).toHaveBeenCalledWith(
+    initialState.dashboardInfo.id,
+    false,
+  );
+});
+
+test('should call saveFaveStar with true when unfavoriting from the header', () => {
+  setup({
+    dashboardState: { ...initialState.dashboardState, isStarred: true },
+  });
+  const header = screen.getByTestId('dashboard-header-container');
+
+  userEvent.click(within(header).getByRole('img', { name: 'starred' }));
+  expect(saveFaveStar).toHaveBeenCalledTimes(1);
+  expect(saveFaveStar).toHaveBeenCalledWith(
+    initialState.dashboardInfo.id,
+    true,
+  );
+});
+
 test('should toggle the edit mode', () => {
   const canEditState = {
     dashboardInfo: {
@@ -570,6 +673,21 @@ test('should toggle the edit mode', () => {
   expect(screen.queryByText('Edit dashboard')).toBeInTheDocument();
   userEvent.click(editDashboard);
   expect(logEvent).toHaveBeenCalled();
+});
+
+test('should NOT render the Edit dashboard button when embedded', () => {
+  // Embedded (Embedded SDK) dashboards authenticate with a guest token and so
+  // have no userId. The Edit button must be hidden even with edit permission,
+  // since the embedded context cannot handle entering/exiting edit mode.
+  const embeddedCanEditState = {
+    dashboardInfo: {
+      ...initialState.dashboardInfo,
+      dash_edit_perm: true,
+      userId: undefined,
+    },
+  };
+  setup(embeddedCanEditState);
+  expect(screen.queryByTestId('edit-dashboard-button')).not.toBeInTheDocument();
 });
 
 test('should render the dropdown icon', () => {
@@ -593,7 +711,7 @@ test('should refresh the charts', async () => {
 });
 
 test('auto-refresh uses onRefresh with skipped filters and toggles refresh state', async () => {
-  jest.useFakeTimers();
+  jest.useFakeTimers({ advanceTimers: true });
   onRefresh.mockResolvedValue(undefined);
 
   const originalRequestAnimationFrame = window.requestAnimationFrame;

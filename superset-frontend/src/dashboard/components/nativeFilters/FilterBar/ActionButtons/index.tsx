@@ -93,11 +93,13 @@ const clearAllButtonStyle = (theme: SupersetTheme, isVertical: boolean) => css`
       color: ${theme.colorTextDisabled};
     }
 
-    ${!isVertical &&
-    css`
-      text-transform: capitalize;
-      font-weight: ${theme.fontWeightNormal};
-    `}
+    ${
+      !isVertical &&
+      css`
+        text-transform: capitalize;
+        font-weight: ${theme.fontWeightNormal};
+      `
+    }
   }
 `;
 

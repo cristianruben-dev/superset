@@ -24,7 +24,7 @@
  * Extensions register menu items as side effects at import time.
  */
 
-import { useSyncExternalStore } from 'use-sync-external-store/shim';
+import { useSyncExternalStore } from 'react';
 import type { menus as menusApi } from '@apache-superset/core';
 import { Disposable } from '../models';
 import { createEventEmitter } from '../utils';

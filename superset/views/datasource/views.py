@@ -16,9 +16,9 @@
 # under the License.
 from typing import Any
 
-from flask import redirect, request
+from flask import redirect, request, url_for
 from flask_appbuilder import expose, permission_name
-from flask_appbuilder.api import rison
+from flask_appbuilder.api import rison as parse_rison
 from flask_appbuilder.security.decorators import has_access, has_access_api
 from flask_babel import _
 from marshmallow import ValidationError
@@ -32,17 +32,15 @@ from superset.connectors.sqla.models import SqlaTable
 from superset.connectors.sqla.utils import get_physical_table_metadata
 from superset.daos.dashboard import DashboardDAO
 from superset.daos.dataset import DatasetDAO
-from superset.daos.datasource import DatasourceDAO
-from superset.exceptions import SupersetException
+from superset.daos.datasource import Datasource as DatasourceModel, DatasourceDAO
+from superset.daos.exceptions import DatasourceNotFound, DatasourceTypeNotSupportedError
+from superset.exceptions import SupersetException, SupersetSecurityException
 from superset.models.core import Database
 from superset.sql.parse import Table
 from superset.superset_typing import FlaskResponse
 from superset.utils.core import DatasourceType
-from superset.views.base import (
-    api,
-    BaseSupersetView,
-    json_error_response,
-)
+from superset.utils.error_sanitization import redact_sensitive_query_fields
+from superset.views.base import api, BaseSupersetView, json_error_response
 from superset.views.datasource.schemas import (
     ExternalMetadataParams,
     ExternalMetadataSchema,
@@ -52,6 +50,38 @@ from superset.views.datasource.schemas import (
 )
 from superset.views.datasource.utils import get_samples
 from superset.views.error_handling import handle_api_exception
+
+# Datasource types whose ``datasource_id`` refers to a dataset row.
+_DATASET_TYPES = frozenset({DatasourceType.TABLE.value, DatasourceType.DATASET.value})
+
+
+def _load_dataset_for_samples(
+    view: BaseSupersetView, params: dict[str, Any]
+) -> tuple[DatasourceModel | None, FlaskResponse | None]:
+    """Pre-fetch and access-check the dataset for an authenticated request.
+
+    Only dataset-backed types are pre-fetched. Non-table types (query,
+    saved_query) use a different access model; passing them to
+    ``raise_for_access(datasource=...)`` would check the wrong attributes,
+    so ``get_samples()`` handles the lookup for those types.
+
+    Returns ``(dataset, None)`` on success and ``(None, error_response)``
+    when the caller should return the error response.
+    """
+    if params["datasource_type"] not in _DATASET_TYPES:
+        return None, None
+    try:
+        dataset = DatasourceDAO.get_datasource(
+            datasource_type=params["datasource_type"],
+            database_id_or_uuid=params["datasource_id"],
+        )
+    except (DatasourceNotFound, DatasourceTypeNotSupportedError):
+        return None, view.response_404()
+    try:
+        security_manager.raise_for_access(datasource=dataset)
+    except SupersetSecurityException:
+        return None, json_error_response(_("Forbidden"), status=403)
+    return dataset, None
 
 
 class Datasource(BaseSupersetView):
@@ -80,7 +110,7 @@ class Datasource(BaseSupersetView):
     @has_access_api
     @api
     @handle_api_exception
-    @rison(get_external_metadata_schema)
+    @parse_rison(get_external_metadata_schema)
     def external_metadata_by_name(self, **kwargs: Any) -> FlaskResponse:
         """Gets table metadata from the source system and SQLAlchemy inspector"""
         try:
@@ -136,10 +166,18 @@ class Datasource(BaseSupersetView):
             payload = SamplesPayloadSchema().load(request.json)
         except ValidationError as err:
             return json_error_response(err.messages, status=400)
+
         dashboard_id = None
         if security_manager.is_guest_user():
             if not params["dashboard_id"]:
                 return json_error_response(_("Forbidden"), status=403)
+            # Guest drill access is only defined for dataset-backed charts.
+            # Refuse other datasource types before the DatasetDAO lookup:
+            # ``datasource_id`` values for those types live in unrelated id
+            # spaces, so the lookup below would validate whichever unrelated
+            # SqlaTable happens to share the integer id.
+            if params["datasource_type"] not in _DATASET_TYPES:
+                return self.response_404()
             dashboard_id = params["dashboard_id"]
             dataset = DatasetDAO.find_by_id(
                 params["datasource_id"], skip_base_filter=True
@@ -152,6 +190,25 @@ class Datasource(BaseSupersetView):
                 dashboard,
             ):
                 return json_error_response(_("Forbidden"), status=403)
+        else:
+            dataset, error_response = _load_dataset_for_samples(self, params)
+            if error_response is not None:
+                return error_response
+
+        # Refuse datasource types that don't model raw rows only after the
+        # authorization checks above, keeping authorization-before-capability
+        # ordering: guests get 403/404 from the guest branch, while
+        # authenticated users hit this purely type-level gate (a 400 that is a
+        # function of the requested ``datasource_type`` alone -- no per-object
+        # lookup happens for non-table types, by design).
+        ds_class = DatasourceDAO.sources.get(
+            DatasourceType(params["datasource_type"]),
+        )
+        if ds_class is not None and not ds_class.supports_samples:
+            return json_error_response(
+                _("Samples are not available for this datasource type."),
+                status=400,
+            )
 
         rv = get_samples(
             datasource_type=params["datasource_type"],
@@ -160,8 +217,16 @@ class Datasource(BaseSupersetView):
             page=params["page"],
             per_page=params["per_page"],
             payload=payload,
+            datasource=dataset,
             dashboard_id=dashboard_id,
         )
+        # Drill to detail is available to embedded guests (see the guest branch
+        # above), and the samples payload carries the generated SQL under
+        # ``query``. Apply the same guest redaction as ``/api/v1/chart/data``
+        # (CVE-2025-55673, gated on "can view query on Dashboard" since #43151)
+        # so the SQL is not disclosed to a guest whose role lacks that
+        # permission.
+        redact_sensitive_query_fields([rv])
         return self.json_response({"result": rv})
 
 
@@ -183,4 +248,6 @@ class DatasetEditor(BaseSupersetView):
         dev = request.args.get("testing")
         if dev is not None:
             return super().render_app_template()
-        return redirect("/")
+        # url_for keeps the redirect inside the application root under
+        # subdirectory deployments (a bare "/" would escape the prefix).
+        return redirect(url_for("Superset.welcome"))

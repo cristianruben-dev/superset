@@ -29,6 +29,8 @@ import ExploreGate from 'src/mibi/ExploreGate';
 import { panelOnly } from 'src/mibi/PanelGate';
 import { isUserAdmin } from 'src/dashboard/util/permissionUtils';
 import getBootstrapData from 'src/utils/getBootstrapData';
+import { stripAppRoot } from 'src/utils/navigationUtils';
+import { RoutePaths } from './routePaths';
 
 // not lazy loaded since this is the home page.
 import Home from 'src/pages/Home';
@@ -47,6 +49,10 @@ const AlertReportList = lazy(
     import(
       /* webpackChunkName: "AlertReportList" */ 'src/pages/AlertReportList'
     ),
+);
+
+const ArchivedList = lazy(
+  () => import(/* webpackChunkName: "ArchivedList" */ 'src/pages/ArchivedList'),
 );
 
 const WorkspaceList = lazy(
@@ -199,155 +205,98 @@ type Routes = {
   Component: ComponentType;
   Fallback?: ComponentType;
   props?: ComponentProps<any>;
+  /**
+   * Marks a route as usable in the mobile consumption-only experience.
+   * Routes without this flag show the MobileUnsupported screen on small
+   * screens when MOBILE_CONSUMPTION_MODE is enabled.
+   */
+  mobileSupported?: boolean;
 }[];
 
 export const routes: Routes = [
   {
-    path: '/redirect/',
+    path: RoutePaths.REDIRECT,
     Component: RedirectWarning,
+    mobileSupported: true,
   },
+  { path: RoutePaths.LOGIN, Component: Login, mobileSupported: true },
   {
-    path: '/login/',
-    Component: Login,
-  },
-  {
-    path: '/register/activation/:activationHash',
+    path: RoutePaths.REGISTER_ACTIVATION,
     Component: Register,
+    mobileSupported: true,
   },
+  { path: RoutePaths.REGISTER, Component: Register, mobileSupported: true },
+  { path: RoutePaths.LOGOUT, Component: Login, mobileSupported: true },
+  { path: RoutePaths.HOME, Component: Home, mobileSupported: true },
+  { path: RoutePaths.FILE_HANDLER, Component: FileHandler },
+  { path: '/workspace/list/', Component: WorkspaceList },
+  { path: '/workspace/:workspaceId/', Component: WorkspacePage },
+  { path: '/data/dataset/:datasetId/', Component: DatasetPage },
+  { path: '/data/', Component: panelOnly(DataPage, DATA_FALLBACK) },
   {
-    path: '/register/',
-    Component: Register,
-  },
-  {
-    path: '/logout/',
-    Component: Login,
-  },
-  {
-    path: '/superset/welcome/',
-    Component: Home,
-  },
-  {
-    path: '/superset/file-handler',
-    Component: FileHandler,
-  },
-  {
-    path: '/workspace/list/',
-    Component: WorkspaceList,
-  },
-  {
-    path: '/workspace/:workspaceId/',
-    Component: WorkspacePage,
-  },
-  {
-    path: '/data/dataset/:datasetId/',
-    Component: DatasetPage,
-  },
-  {
-    path: '/data/',
-    Component: panelOnly(DataPage, DATA_FALLBACK),
-  },
-  {
-    path: '/dashboard/list/',
+    path: RoutePaths.DASHBOARD_LIST,
     Component: DashboardList,
+    mobileSupported: true,
   },
-  {
-    path: '/superset/dashboard/:idOrSlug/',
-    Component: Dashboard,
-  },
-  {
-    path: '/chart/add',
-    Component: ChartCreation,
-  },
+  { path: RoutePaths.DASHBOARD, Component: Dashboard, mobileSupported: true },
+  { path: RoutePaths.CHART_ADD, Component: ChartCreation },
   {
     // Charts live inside their dashboard, so the chart list goes to dashboards
-    path: '/chart/list/',
-    Component: () => <Redirect to="/dashboard/list/" />,
+    path: RoutePaths.CHART_LIST,
+    Component: () => <Redirect to={RoutePaths.DASHBOARD_LIST} />,
   },
   {
-    path: '/tablemodelview/list/',
+    path: RoutePaths.DATASET_LIST,
     Component: panelOnly(DatasetList, DATA_FALLBACK),
   },
+  { path: RoutePaths.DATABASE_LIST, Component: DatabaseList },
   {
-    path: '/databaseview/list/',
-    Component: DatabaseList,
-  },
-  {
-    path: '/savedqueryview/list/',
+    path: RoutePaths.SAVED_QUERIES,
     Component: panelOnly(SavedQueryList, SQL_FALLBACK),
   },
   {
-    path: '/sqllab/history/',
+    path: RoutePaths.QUERY_HISTORY,
     Component: panelOnly(QueryHistoryList, SQL_FALLBACK),
   },
+  { path: RoutePaths.ALERTS, Component: AlertReportList },
   {
-    path: '/alert/list/',
+    path: RoutePaths.REPORTS,
     Component: AlertReportList,
+    props: { isReportEnabled: true },
   },
+  { path: RoutePaths.ALERT_LOG, Component: ExecutionLogList },
   {
-    path: '/report/list/',
-    Component: AlertReportList,
-    props: {
-      isReportEnabled: true,
-    },
-  },
-  {
-    path: '/alert/:alertId/log/',
+    path: RoutePaths.REPORT_LOG,
     Component: ExecutionLogList,
+    props: { isReportEnabled: true },
   },
+  { path: RoutePaths.EXPLORE, Component: Chart },
+  { path: RoutePaths.EXPLORE_PERMALINK, Component: Chart },
   {
-    path: '/report/:alertId/log/',
-    Component: ExecutionLogList,
-    props: {
-      isReportEnabled: true,
-    },
-  },
-  {
-    path: '/explore/',
-    Component: Chart,
-  },
-  {
-    path: '/superset/explore/p',
-    Component: Chart,
-  },
-  {
-    path: '/dataset/add/',
+    path: RoutePaths.DATASET_ADD,
     Component: panelOnly(DatasetCreation, DATA_FALLBACK),
   },
   {
-    path: '/dataset/:datasetId',
+    path: RoutePaths.DATASET,
     Component: panelOnly(DatasetCreation, DATA_FALLBACK),
   },
-  {
-    path: '/rowlevelsecurity/list',
-    Component: RowLevelSecurityList,
-  },
-  {
-    path: '/tasks/list/',
-    Component: TaskList,
-  },
-  {
-    path: '/sqllab/',
-    Component: panelOnly(SqlLab, SQL_FALLBACK),
-  },
-  { path: '/user_info/', Component: UserInfo },
-  {
-    path: '/actionlog/list',
-    Component: ActionLogList,
-  },
-  {
-    path: '/registrations/',
-    Component: UserRegistrations,
-  },
+  { path: RoutePaths.ROW_LEVEL_SECURITY, Component: RowLevelSecurityList },
+  { path: RoutePaths.TASKS, Component: TaskList },
+  { path: RoutePaths.SQLLAB, Component: panelOnly(SqlLab, SQL_FALLBACK) },
+  { path: RoutePaths.USER_INFO, Component: UserInfo, mobileSupported: true },
+  { path: RoutePaths.ACTION_LOG, Component: ActionLogList },
 ];
 
 if (isFeatureEnabled(FeatureFlag.TaggingSystem)) {
+  routes.push({ path: RoutePaths.ALL_ENTITIES, Component: AllEntities });
+  routes.push({ path: RoutePaths.TAGS, Component: Tags });
+}
+
+// Recently-Archived view — gated by the soft-delete feature (T007).
+if (isFeatureEnabled(FeatureFlag.SoftDelete)) {
   routes.push({
-    path: '/superset/all_entities/',
-    Component: AllEntities,
-  });
-  routes.push({
-    path: '/superset/tags/',
-    Component: Tags,
+    path: '/archived/',
+    Component: ArchivedList,
   });
 }
 
@@ -358,29 +307,17 @@ const isAdmin = isUserAdmin(user);
 
 if (isAdmin) {
   routes.push(
-    {
-      path: '/roles/',
-      Component: RolesList,
-    },
-    {
-      path: '/users/',
-      Component: UsersList,
-    },
+    { path: RoutePaths.ROLES, Component: RolesList },
+    { path: RoutePaths.USERS, Component: UsersList },
   );
 
   if (isFeatureEnabled(FeatureFlag.EnableExtensions)) {
-    routes.push({
-      path: '/extensions/list/',
-      Component: Extensions,
-    });
+    routes.push({ path: RoutePaths.EXTENSIONS, Component: Extensions });
   }
 }
 
 if (authRegistrationEnabled) {
-  routes.push({
-    path: '/registrations/',
-    Component: UserRegistrations,
-  });
+  routes.push({ path: RoutePaths.REGISTRATIONS, Component: UserRegistrations });
 }
 
 const frontEndRoutes: Record<string, boolean> = routes
@@ -395,7 +332,16 @@ const frontEndRoutes: Record<string, boolean> = routes
 
 export const isFrontendRoute = (path?: string): boolean => {
   if (path) {
-    const basePath = path.split(/[?#]/)[0]; // strip out query params and link bookmarks
+    // Strip query / hash, then strip the application-root segment so menu URLs
+    // emitted by the backend (`url_for(...)` → `/<appRoot>/<route>`) match
+    // against the route table, which is keyed by post-basename paths.
+    //
+    // Note: this is a literal dictionary lookup, not a path-pattern match —
+    // parameterised routes such as `/dashboard/:idOrSlug/` are NOT matched
+    // by a concrete `/dashboard/123/` URL. Callers relying on that behaviour
+    // (e.g., the brand-link SPA-route check in `Menu.tsx`) accept a
+    // full-page-reload fallback for those URLs.
+    const basePath = stripAppRoot(path.split(/[?#]/)[0]);
     return !!frontEndRoutes[basePath];
   }
   return false;

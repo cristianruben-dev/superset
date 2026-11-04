@@ -39,7 +39,7 @@ const DownloadDropdown = ({
         onClick: ({ key }) => {
           if (key === 'csv') {
             onDownloadCSV();
-          } else {
+          } else if (key === 'xlsx') {
             onDownloadXLSX();
           }
         },
@@ -63,12 +63,13 @@ const DownloadDropdown = ({
           aria-label={t('Download')}
           data-test="drill-detail-download-btn"
           css={css`
-            display: inline-flex;
-            align-items: center;
-            padding: 0;
+            appearance: none;
             border: none;
             background: none;
-            cursor: pointer;
+            padding: 0;
+            font: inherit;
+            display: inline-flex;
+            align-items: center;
           `}
         >
           <Icons.DownloadOutlined

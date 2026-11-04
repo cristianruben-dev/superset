@@ -29,7 +29,7 @@
  * part of the public `@apache-superset/core` API.
  */
 
-import { useSyncExternalStore } from 'use-sync-external-store/shim';
+import { useSyncExternalStore } from 'react';
 import { editors as editorsApi } from '@apache-superset/core';
 import EditorProviders from './EditorProviders';
 

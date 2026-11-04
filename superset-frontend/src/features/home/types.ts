@@ -36,6 +36,7 @@ export interface ExtensionConfigs {
   COLUMNAR_EXTENSIONS: Array<any>;
   EXCEL_EXTENSIONS: Array<any>;
   HAS_GSHEETS_INSTALLED: boolean;
+  SCARF_ANALYTICS?: boolean;
 }
 export interface RightMenuProps {
   align: 'flex-start' | 'flex-end';
@@ -46,6 +47,8 @@ export interface RightMenuProps {
     text: string;
     color: string;
   };
+  children?: ReactNode;
+  menu?: MenuObjectProps[];
   /** Replaces the "+" trigger of the create menu */
   newLabel?: ReactNode;
   /** Replaces the "Settings" trigger of the settings and user menu */

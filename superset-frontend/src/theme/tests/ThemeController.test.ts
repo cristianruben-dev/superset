@@ -17,7 +17,6 @@
  * under the License.
  */
 import { theme as antdThemeImport } from 'antd';
-import {} from '@superset-ui/core';
 import {
   type AnyThemeConfig,
   type SupersetThemeConfig,
@@ -100,6 +99,7 @@ const createMockBootstrapData = (
 const mockThemeObject = {
   setConfig: mockSetConfig,
   theme: DEFAULT_THEME,
+  toSerializedConfig: jest.fn(() => DEFAULT_THEME),
 } as unknown as Theme;
 
 // Helper to create a fresh ThemeController with common setup
@@ -111,12 +111,15 @@ const createController = (
     ...options,
   });
 
-// Shared console spies
-const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
-const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+// Shared console spies — re-installed in beforeEach so each test starts
+// with a fresh call count and a clean implementation.
+let consoleSpy: jest.SpyInstance;
+let consoleErrorSpy: jest.SpyInstance;
 
 beforeEach(() => {
   jest.clearAllMocks();
+  consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
+  consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
 
   // Setup DOM environment
   Object.defineProperty(window, 'localStorage', {
@@ -930,6 +933,86 @@ test('setThemeConfig sets complete theme configuration', () => {
   expect(controller.canSetMode()).toBe(true);
 });
 
+test('setThemeConfig flags an active theme config override', () => {
+  mockGetBootstrapData.mockReturnValue(
+    createMockBootstrapData({ default: {}, dark: {} }),
+  );
+
+  const controller = createController({ defaultTheme: { token: {} } });
+
+  // No override until setThemeConfig is called (e.g. from the Embedded SDK).
+  expect(controller.hasThemeConfigOverride()).toBe(false);
+
+  controller.setThemeConfig({
+    theme_default: DEFAULT_THEME,
+    theme_dark: DARK_THEME,
+  });
+
+  expect(controller.hasThemeConfigOverride()).toBe(true);
+});
+
+test('setThemeConfig does not flag an override when the config matches the workspace default', () => {
+  // Regression: an auto-forwarded workspace default (e.g. the Embedded SDK
+  // echoing the workspace theme) must not flip the precedence flag, or an
+  // embedded dashboard's own assigned theme is suppressed.
+  const controller = createController();
+
+  // createController bootstraps DEFAULT_THEME/DARK_THEME as the workspace default.
+  controller.setThemeConfig({
+    theme_default: DEFAULT_THEME,
+    theme_dark: DARK_THEME,
+  });
+
+  expect(controller.hasThemeConfigOverride()).toBe(false);
+});
+
+test('setThemeConfig keeps the override on a repeated identical brand forward', () => {
+  // Regression: the second identical forward must not clear the override by
+  // comparing the brand theme against the slot the first call already mutated.
+  const controller = createController();
+  const brand: SupersetThemeConfig = {
+    theme_default: { token: { colorPrimary: '#sdk-brand' } },
+    theme_dark: DARK_THEME,
+  };
+
+  controller.setThemeConfig(brand);
+  expect(controller.hasThemeConfigOverride()).toBe(true);
+
+  controller.setThemeConfig(brand);
+  expect(controller.hasThemeConfigOverride()).toBe(true);
+});
+
+test('setThemeConfig flags an override when only theme_dark differs from the workspace default', () => {
+  // Exercises the theme_dark clause in isolation: theme_default matches the
+  // workspace default, so only the dark comparison can make it an override.
+  const controller = createController();
+
+  controller.setThemeConfig({
+    theme_default: DEFAULT_THEME,
+    theme_dark: { token: { colorPrimary: '#sdk-dark' } },
+  });
+
+  expect(controller.hasThemeConfigOverride()).toBe(true);
+});
+
+test('setThemeConfig clears the override when a brand forward reverts to the workspace default', () => {
+  // Guards the clear-on-revert direction: once the host forwards the workspace
+  // default again, the dashboard's own theme must be allowed to apply.
+  const controller = createController();
+
+  controller.setThemeConfig({
+    theme_default: { token: { colorPrimary: '#sdk-brand' } },
+    theme_dark: DARK_THEME,
+  });
+  expect(controller.hasThemeConfigOverride()).toBe(true);
+
+  controller.setThemeConfig({
+    theme_default: DEFAULT_THEME,
+    theme_dark: DARK_THEME,
+  });
+  expect(controller.hasThemeConfigOverride()).toBe(false);
+});
+
 test('setThemeConfig handles theme_default only', () => {
   mockGetBootstrapData.mockReturnValue(
     createMockBootstrapData({
@@ -1448,4 +1531,163 @@ test('ThemeController invalid initialMode falls back to SYSTEM', () => {
   // Invalid initialMode should be rejected by isValidThemeMode,
   // falling through to the default SYSTEM mode
   expect(controller.getCurrentMode()).toBe(ThemeMode.SYSTEM);
+});
+
+test('getCurrentModeResolved returns light for light theme', () => {
+  mockGetBootstrapData.mockReturnValue(
+    createMockBootstrapData({
+      default: { token: { colorBgBase: '#ffffff' } },
+      dark: {
+        token: { colorBgBase: '#000000' },
+        algorithm: ThemeAlgorithm.DARK,
+      },
+    }),
+  );
+
+  const controller = createController();
+  expect(controller.getCurrentModeResolved()).toBe('light');
+  controller.setThemeMode(ThemeMode.DARK);
+  expect(controller.getCurrentModeResolved()).toBe('dark');
+});
+
+test('getResolvedThemeMode returns dark when default theme is dark but mode is DEFAULT', () => {
+  // Setup: default theme is dark (has dark algorithm)
+  // This simulates single-theme deployments where THEME_DARK=None but default is dark
+  mockGetBootstrapData.mockReturnValue(
+    createMockBootstrapData({
+      default: {
+        token: { colorBgBase: '#000000' }, // dark background
+        algorithm: antdThemeImport.darkAlgorithm,
+      },
+      dark: {}, // empty - no separate dark theme
+    }),
+  );
+
+  const controller = createController();
+  expect(controller.getCurrentMode()).toBe(ThemeMode.DEFAULT);
+  expect(controller.getCurrentModeResolved()).toBe('dark');
+});
+
+test('SDK theme config sets the override flag', () => {
+  const controller = createController();
+
+  expect(controller.hasThemeConfigOverride()).toBe(false);
+
+  // Set theme config override
+  const sdkThemeConfig: SupersetThemeConfig = {
+    theme_default: { token: { colorPrimary: '#sdk-default' } },
+    theme_dark: { token: { colorPrimary: '#sdk-dark' } },
+  };
+  controller.setThemeConfig(sdkThemeConfig);
+  expect(controller.hasThemeConfigOverride()).toBe(true);
+});
+
+test('ThemeController cleans up injected fonts on destroy', () => {
+  const controller = createController();
+
+  // Inject some fonts
+  (controller as any).loadFonts(['https://fonts.example.com/font-test.css']);
+
+  let fontStyle = document.querySelector('style[data-superset-fonts]');
+  expect(fontStyle).not.toBeNull();
+
+  controller.destroy();
+
+  fontStyle = document.querySelector('style[data-superset-fonts]');
+  expect(fontStyle).toBeNull();
+});
+
+// bootstrapDefaultMode tests
+
+test('bootstrapDefaultMode: reads "dark" from bootstrap config and starts in DARK mode', () => {
+  mockGetBootstrapData.mockReturnValue(
+    createMockBootstrapData({
+      default: DEFAULT_THEME,
+      dark: DARK_THEME,
+      defaultMode: 'dark',
+    }),
+  );
+  const controller = createController();
+  expect(controller.getCurrentMode()).toBe(ThemeMode.DARK);
+});
+
+test('bootstrapDefaultMode: reads "default" from bootstrap config and starts in DEFAULT mode', () => {
+  mockGetBootstrapData.mockReturnValue(
+    createMockBootstrapData({
+      default: DEFAULT_THEME,
+      dark: DARK_THEME,
+      defaultMode: 'default',
+    }),
+  );
+  const controller = createController();
+  expect(controller.getCurrentMode()).toBe(ThemeMode.DEFAULT);
+});
+
+test('bootstrapDefaultMode: reads "system" from bootstrap config and starts in SYSTEM mode', () => {
+  mockGetBootstrapData.mockReturnValue(
+    createMockBootstrapData({
+      default: DEFAULT_THEME,
+      dark: DARK_THEME,
+      defaultMode: 'system',
+    }),
+  );
+  const controller = createController();
+  expect(controller.getCurrentMode()).toBe(ThemeMode.SYSTEM);
+});
+
+test('bootstrapDefaultMode: falls back to SYSTEM when defaultMode is missing from bootstrap', () => {
+  mockGetBootstrapData.mockReturnValue(
+    createMockBootstrapData({ default: DEFAULT_THEME, dark: DARK_THEME }),
+  );
+  const controller = createController();
+  expect(controller.getCurrentMode()).toBe(ThemeMode.SYSTEM);
+});
+
+test('bootstrapDefaultMode: falls back to SYSTEM when defaultMode is an invalid value', () => {
+  mockGetBootstrapData.mockReturnValue(
+    createMockBootstrapData({
+      default: DEFAULT_THEME,
+      dark: DARK_THEME,
+      defaultMode: 'invalid' as unknown as string,
+    }),
+  );
+  const controller = createController();
+  expect(controller.getCurrentMode()).toBe(ThemeMode.SYSTEM);
+});
+
+test('bootstrapDefaultMode: prototype-poison key does not override mode', () => {
+  mockGetBootstrapData.mockReturnValue(
+    createMockBootstrapData({
+      default: DEFAULT_THEME,
+      dark: DARK_THEME,
+      defaultMode: 'constructor' as unknown as string,
+    }),
+  );
+  const controller = createController();
+  expect(controller.getCurrentMode()).toBe(ThemeMode.SYSTEM);
+});
+
+test('bootstrapDefaultMode: saved mode takes precedence over bootstrapDefaultMode', () => {
+  mockGetBootstrapData.mockReturnValue(
+    createMockBootstrapData({
+      default: DEFAULT_THEME,
+      dark: DARK_THEME,
+      defaultMode: 'dark',
+    }),
+  );
+  mockLocalStorage.getItem.mockReturnValue(ThemeMode.DEFAULT);
+  const controller = createController();
+  expect(controller.getCurrentMode()).toBe(ThemeMode.DEFAULT);
+});
+
+test('bootstrapDefaultMode: explicit initialMode takes precedence over bootstrapDefaultMode', () => {
+  mockGetBootstrapData.mockReturnValue(
+    createMockBootstrapData({
+      default: DEFAULT_THEME,
+      dark: DARK_THEME,
+      defaultMode: 'dark',
+    }),
+  );
+  const controller = createController({ initialMode: ThemeMode.DEFAULT });
+  expect(controller.getCurrentMode()).toBe(ThemeMode.DEFAULT);
 });

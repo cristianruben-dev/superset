@@ -148,6 +148,10 @@ export const Styles = styled.div<{
       vertical-align: baseline;
     }
 
+    table.pvtTable tbody tr th.pvtRowLabel.pvtRowLabelLast {
+      border-bottom: 1px solid ${theme.colorSplit};
+    }
+
     .pvtTotal,
     .pvtGrandTotal {
       font-weight: ${theme.fontWeightStrong};
@@ -166,7 +170,23 @@ export const Styles = styled.div<{
     }
 
     .toggle {
+      appearance: none;
+      border: none;
+      background: none;
       padding-right: ${theme.sizeUnit}px;
+      font: inherit;
+      cursor: pointer;
+    }
+
+    .sort-icon-btn {
+      display: inline-flex;
+      align-items: center;
+      appearance: none;
+      border: none;
+      background: none;
+      padding: 0;
+      margin: 0;
+      font: inherit;
       cursor: pointer;
     }
 

@@ -28,7 +28,7 @@
  * `useChat` is host-internal and NOT part of the public `@apache-superset/core` API.
  */
 
-import { useSyncExternalStore } from 'use-sync-external-store/shim';
+import { useSyncExternalStore } from 'react';
 import memoizeOne from 'memoize-one';
 import type { chat as chatApi } from '@apache-superset/core';
 import ChatProvider from './ChatProvider';

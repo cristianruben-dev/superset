@@ -22,7 +22,7 @@ import random
 import string
 
 import pytest
-import prison
+import rison
 from sqlalchemy.sql import func
 
 import tests.integration_tests.test_app  # noqa: F401
@@ -97,11 +97,9 @@ class TestQueryApi(SupersetTestCase):
                         self.get_random_string(),
                         sql=f"SELECT col1, col2 from table{cx}",  # noqa: S608
                         rows=cx,
-                        status=(
-                            QueryStatus.SUCCESS
-                            if (cx % 2) == 0
-                            else QueryStatus.RUNNING
-                        ),
+                        status=QueryStatus.SUCCESS
+                        if (cx % 2) == 0
+                        else QueryStatus.RUNNING,
                     )
                 )
             queries.append(
@@ -307,7 +305,7 @@ class TestQueryApi(SupersetTestCase):
         """
         self.login(ADMIN_USERNAME)
         arguments = {"filters": [{"col": "sql", "opr": "ct", "value": "table2"}]}
-        uri = f"api/v1/query/?q={prison.dumps(arguments)}"
+        uri = f"api/v1/query/?q={rison.dumps(arguments)}"
         rv = self.client.get(uri)
         assert rv.status_code == 200
         data = json.loads(rv.data.decode("utf-8"))
@@ -323,7 +321,7 @@ class TestQueryApi(SupersetTestCase):
         arguments = {
             "filters": [{"col": "database", "opr": "rel_o_m", "value": database_id}]
         }
-        uri = f"api/v1/query/?q={prison.dumps(arguments)}"
+        uri = f"api/v1/query/?q={rison.dumps(arguments)}"
         rv = self.client.get(uri)
         assert rv.status_code == 200
         data = json.loads(rv.data.decode("utf-8"))
@@ -337,7 +335,7 @@ class TestQueryApi(SupersetTestCase):
         self.login(ADMIN_USERNAME)
         alpha_id = self.get_user("alpha").id
         arguments = {"filters": [{"col": "user", "opr": "rel_o_m", "value": alpha_id}]}
-        uri = f"api/v1/query/?q={prison.dumps(arguments)}"
+        uri = f"api/v1/query/?q={rison.dumps(arguments)}"
         rv = self.client.get(uri)
         assert rv.status_code == 200
         data = json.loads(rv.data.decode("utf-8"))
@@ -355,7 +353,7 @@ class TestQueryApi(SupersetTestCase):
                 {"col": "changed_on", "opr": "gt", "value": "2019-12-30T00:00:00Z"},
             ]
         }
-        uri = f"api/v1/query/?q={prison.dumps(arguments)}"
+        uri = f"api/v1/query/?q={rison.dumps(arguments)}"
         rv = self.client.get(uri)
         assert rv.status_code == 200
         data = json.loads(rv.data.decode("utf-8"))
@@ -380,7 +378,7 @@ class TestQueryApi(SupersetTestCase):
 
         for order_column in order_columns:
             arguments = {"order_column": order_column, "order_direction": "asc"}
-            uri = f"api/v1/query/?q={prison.dumps(arguments)}"
+            uri = f"api/v1/query/?q={rison.dumps(arguments)}"
             rv = self.client.get(uri)
             assert rv.status_code == 200
 
@@ -435,7 +433,7 @@ class TestQueryApi(SupersetTestCase):
             "order_direction": "asc",
             "filters": [{"col": "sql_editor_id", "opr": "eq", "value": test_editor_id}],
         }
-        uri = f"api/v1/query/?q={prison.dumps(arguments)}"
+        uri = f"api/v1/query/?q={rison.dumps(arguments)}"
         rv = self.client.get(uri)
         assert rv.status_code == 200
         data = rv.get_json()
@@ -444,7 +442,7 @@ class TestQueryApi(SupersetTestCase):
 
         # descending should be the reverse
         arguments["order_direction"] = "desc"
-        uri = f"api/v1/query/?q={prison.dumps(arguments)}"
+        uri = f"api/v1/query/?q={rison.dumps(arguments)}"
         rv = self.client.get(uri)
         assert rv.status_code == 200
         data = rv.get_json()
@@ -471,7 +469,7 @@ class TestQueryApi(SupersetTestCase):
 
         self.login(GAMMA_SQLLAB_USERNAME)
         arguments = {"filters": [{"col": "sql", "opr": "sw", "value": "SELECT col1"}]}
-        uri = f"api/v1/query/?q={prison.dumps(arguments)}"
+        uri = f"api/v1/query/?q={rison.dumps(arguments)}"
         rv = self.client.get(uri)
         assert rv.status_code == 200
         data = json.loads(rv.data.decode("utf-8"))
@@ -512,7 +510,7 @@ class TestQueryApi(SupersetTestCase):
 
         self.login(ADMIN_USERNAME)
         timestamp = datetime.timestamp(now - timedelta(days=2)) * 1000
-        uri = f"api/v1/query/updated_since?q={prison.dumps({'last_updated_ms': timestamp})}"  # noqa: E501
+        uri = f"api/v1/query/updated_since?q={rison.dumps({'last_updated_ms': timestamp})}"  # noqa: E501
         rv = self.client.get(uri)
         assert rv.status_code == 200
 

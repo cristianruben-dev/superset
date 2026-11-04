@@ -23,11 +23,12 @@ import { Chart } from 'src/types/Chart';
 import { Currency } from '@superset-ui/core';
 import { useApiV1Resource, useTransformedResource } from './apiResources';
 
-const DASHBOARD_GET_COLUMNS = [
+export const DASHBOARD_GET_COLUMNS = [
   'id',
   'slug',
   'url',
   'dashboard_title',
+  'description',
   'published',
   'css',
   'theme',
@@ -40,8 +41,8 @@ const DASHBOARD_GET_COLUMNS = [
   'changed_on',
   'created_by',
   'charts',
-  'owners',
-  'roles',
+  'editors',
+  'viewers',
   'tags',
   'changed_on_delta_humanized',
   'created_on_delta_humanized',
@@ -60,7 +61,8 @@ export const useDashboard = (idOrSlug: string | number) => {
         (dashboard.json_metadata && JSON.parse(dashboard.json_metadata)) || {},
       position_data:
         dashboard.position_json && JSON.parse(dashboard.position_json),
-      owners: dashboard.owners || [],
+      editors: dashboard.editors || [],
+      viewers: dashboard.viewers || [],
     }),
   );
 };

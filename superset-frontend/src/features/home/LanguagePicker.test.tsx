@@ -78,3 +78,13 @@ test('should mark only the current language', async () => {
   expect(english.querySelector('.current-language')).toBeInTheDocument();
   expect(italian.querySelector('.current-language')).not.toBeInTheDocument();
 });
+
+test('renders the down-chevron caret icon, not the caret glyph (regression #43531)', async () => {
+  render(<TestLanguagePicker {...mockedProps} />, {
+    useRouter: true,
+  });
+  const menuItem = await screen.findByRole('menuitem');
+  const caret = menuItem.querySelector('.ant-menu-item-icon');
+  expect(caret).toHaveClass('anticon-down');
+  expect(caret?.querySelector('svg')).toHaveAttribute('data-icon', 'down');
+});

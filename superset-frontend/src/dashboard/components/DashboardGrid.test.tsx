@@ -23,18 +23,26 @@ import newComponentFactory from 'src/dashboard/util/newComponentFactory';
 
 import { DASHBOARD_GRID_TYPE } from 'src/dashboard/util/componentTypes';
 
+// Prefixed with 'mock' so Jest allows it inside the jest.mock() factory
+const mockResizeElementRef = document.createElement('div');
+
 jest.mock('src/dashboard/containers/DashboardComponent', () => {
   const MockDashboardComponent = ({
     onResizeStart,
+    onResize,
     onResizeStop,
   }: {
     onResizeStart: () => void;
+    onResize: (...args: unknown[]) => void;
     onResizeStop: (...args: unknown[]) => void;
   }) => (
     <button
       type="button"
       data-test="mock-dashboard-component"
       onClick={() => onResizeStart()}
+      onMouseMove={() =>
+        onResize(null, 'bottom', mockResizeElementRef, { width: 0, height: 10 })
+      }
       onBlur={() =>
         onResizeStop(null, null, null, { width: 1, height: 3 }, 'id')
       }

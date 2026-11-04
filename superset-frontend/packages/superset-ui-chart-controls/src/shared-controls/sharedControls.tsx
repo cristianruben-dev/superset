@@ -32,7 +32,7 @@
  * here's a list of the keys that are common to all controls, and as a result define the
  * control interface.
  */
-import { isEmpty } from 'lodash';
+import { isEmpty } from 'lodash-es';
 import { t } from '@apache-superset/core/translation';
 import {
   getCategoricalSchemeRegistry,
@@ -468,7 +468,7 @@ const echart_options: SharedControlConfig<'JSEditorControl'> = {
   validators: [],
 };
 
-const sharedControls: Record<string, SharedControlConfig<any>> = {
+const controlConfigs = {
   metrics: dndAdhocMetricsControl,
   metric: dndAdhocMetricControl,
   datasource: datasourceControl,
@@ -519,5 +519,16 @@ const sharedControls: Record<string, SharedControlConfig<any>> = {
   // Add all Matrixify controls
   ...matrixifyControls,
 };
+
+type RegisteredControl = (typeof controlConfigs)[keyof typeof controlConfigs];
+
+// Each control retains the option type accepted by its renderer. The
+// Record<string, RegisteredControl> intersection is load-bearing: a TS object
+// spread does not propagate an index signature into the inferred type, so
+// without it keyof typeof sharedControls would collapse to the literal key
+// union and SharedControlAlias (string literals in controlSetRows, e.g.
+// matrixify.tsx) would no longer type-check.
+const sharedControls: typeof controlConfigs &
+  Record<string, RegisteredControl> = controlConfigs;
 
 export default sharedControls;

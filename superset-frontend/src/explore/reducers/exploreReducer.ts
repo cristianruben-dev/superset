@@ -28,7 +28,7 @@ import {
   ControlStateMapping,
   Dataset,
 } from '@superset-ui/chart-controls';
-import { omit, pick } from 'lodash';
+import { omit, pick } from 'lodash-es';
 import { DYNAMIC_PLUGIN_CONTROLS_READY } from 'src/components/Chart/chartAction';
 import { getControlsState } from 'src/explore/store';
 import {
@@ -46,6 +46,8 @@ import { SaveActionType } from 'src/explore/types';
 export interface ExploreState {
   can_add?: boolean;
   can_download?: boolean;
+  can_export_image?: boolean;
+  can_copy_clipboard?: boolean;
   can_overwrite?: boolean;
   isDatasourceMetaLoading?: boolean;
   isDatasourcesLoading?: boolean;
@@ -66,8 +68,11 @@ export interface ExploreState {
     };
   };
   metadata?: {
-    owners?: string[] | null;
+    editors?: string[] | null;
   };
+  compatibleMetrics?: string[] | null;
+  compatibleDimensions?: string[] | null;
+  compatibilityLoading?: boolean;
   saveAction?: SaveActionType | null;
   chartStates?: Record<number, JsonObject>;
 }
@@ -152,18 +157,14 @@ interface SetStashFormDataAction {
   isHidden: boolean;
 }
 
-// Owner can be a number (user ID), a select control option ({value, label}),
-// or an API entity object ({id, first_name, last_name}). This handles the Slice
-// format (number[]), select control format, and the raw chart API response format.
-type OwnerItem =
-  | number
-  | { value: number; label: string }
-  | { id: number; first_name?: string; last_name?: string };
+// Editor can be either a number (subject ID) or an object with value/label
+// This handles both Slice format (number[]) and select control format ({value, label}[])
+type EditorItem = number | { value: number; label: string };
 
 interface SliceUpdatedAction {
   type: typeof actions.SLICE_UPDATED;
-  slice: Omit<Slice, 'owners'> & {
-    owners?: OwnerItem[];
+  slice: Omit<Slice, 'editors'> & {
+    editors?: EditorItem[];
     slice_name?: string;
   };
 }
@@ -178,6 +179,13 @@ interface UpdateExploreChartStateAction {
   chartId: number;
   chartState: Record<string, unknown>;
   lastModified: number;
+}
+
+interface SetCompatibilityAction {
+  type: typeof actions.SET_COMPATIBILITY;
+  compatibleMetrics: string[] | null;
+  compatibleDimensions: string[] | null;
+  compatibilityLoading: boolean;
 }
 
 type ExploreAction =
@@ -199,6 +207,7 @@ type ExploreAction =
   | SliceUpdatedAction
   | SetForceQueryAction
   | UpdateExploreChartStateAction
+  | SetCompatibilityAction
   | HydrateExplore;
 
 // Extended control state for dynamic form controls - uses Record for flexibility
@@ -605,35 +614,26 @@ export default function exploreReducer(
     },
     [actions.SLICE_UPDATED]() {
       const typedAction = action as SliceUpdatedAction;
-      // Handle owners in number[], {value, label}[], or API {id, first_name, ...}[] form
-      const getOwnerId = (owner: OwnerItem): number => {
-        if (typeof owner === 'number') return owner;
-        return 'value' in owner ? owner.value : owner.id;
-      };
-      const getOwnerLabel = (owner: OwnerItem): string | null => {
-        if (typeof owner === 'number') return null;
-        if ('value' in owner) return owner.label;
-        const name = [owner.first_name, owner.last_name]
-          .filter(Boolean)
-          .join(' ')
-          .trim();
-        return name || null;
-      };
+      // Handle editors that can be either number[] or Array<{value, label}>
+      const getEditorId = (editor: EditorItem): number =>
+        typeof editor === 'number' ? editor : editor.value;
+      const getEditorLabel = (editor: EditorItem): string | null =>
+        typeof editor === 'number' ? null : editor.label;
       return {
         ...state,
         slice: {
           ...state.slice,
           ...typedAction.slice,
-          owners: typedAction.slice.owners
-            ? typedAction.slice.owners.map(getOwnerId)
+          editors: typedAction.slice.editors
+            ? typedAction.slice.editors.map(getEditorId)
             : null,
         } as Slice,
         sliceName: typedAction.slice.slice_name ?? state.sliceName,
         metadata: {
           ...state.metadata,
-          owners: typedAction.slice.owners
-            ? (typedAction.slice.owners
-                .map(getOwnerLabel)
+          editors: typedAction.slice.editors
+            ? (typedAction.slice.editors
+                .map(getEditorLabel)
                 .filter((x): x is string => x !== null) as string[])
             : null,
         },
@@ -644,6 +644,15 @@ export default function exploreReducer(
       return {
         ...state,
         force: typedAction.force,
+      };
+    },
+    [actions.SET_COMPATIBILITY]() {
+      const typedAction = action as SetCompatibilityAction;
+      return {
+        ...state,
+        compatibleMetrics: typedAction.compatibleMetrics,
+        compatibleDimensions: typedAction.compatibleDimensions,
+        compatibilityLoading: typedAction.compatibilityLoading,
       };
     },
     [actions.UPDATE_EXPLORE_CHART_STATE]() {

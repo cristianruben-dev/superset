@@ -34,7 +34,7 @@ import {
   removeDataMask,
   setDataMaskForFilterChangesComplete,
 } from 'src/dataMask/actions';
-import { dashboardInfoChanged } from './dashboardInfo';
+import { dashboardInfoChanged, dashboardSaveSucceeded } from './dashboardInfo';
 import {
   SET_NATIVE_FILTERS_CONFIG_COMPLETE,
   SET_IN_SCOPE_STATUS_OF_FILTERS,
@@ -106,8 +106,11 @@ export function saveChartCustomization(
         reordered: reorderedIds,
       });
 
+      dispatch(dashboardSaveSucceeded(id));
+
       const currentMetadata = getState().dashboardInfo.metadata;
-      const currentConfig = currentMetadata?.chart_customization_config || [];
+      const currentConfig =
+        currentMetadata?.chart_customization_config?.filter(Boolean) || [];
 
       const mergedResult = response.result.map(
         (item: ChartCustomization | ChartCustomizationDivider) => {
@@ -136,6 +139,7 @@ export function saveChartCustomization(
       dispatch({
         type: SET_NATIVE_FILTERS_CONFIG_COMPLETE,
         filterChanges: mergedResult,
+        deletedIds,
       });
 
       dispatch(
@@ -148,7 +152,8 @@ export function saveChartCustomization(
       );
 
       if (resetDataMask) {
-        const oldConfig = metadata?.chart_customization_config || [];
+        const oldConfig =
+          metadata?.chart_customization_config?.filter(Boolean) || [];
         const oldCustomizationsById = oldConfig.reduce<
           Record<string, ChartCustomization | ChartCustomizationDivider>
         >((acc, customization) => {
@@ -333,7 +338,8 @@ export function setInScopeStatusOfCustomizations(
     }
 
     const { metadata } = getState().dashboardInfo;
-    const customizationConfig = metadata?.chart_customization_config || [];
+    const customizationConfig =
+      metadata?.chart_customization_config?.filter(Boolean) || [];
 
     const scopeMap = new Map(
       customizationScopes.map(

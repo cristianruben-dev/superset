@@ -40,7 +40,9 @@ const extensionsRegistry = getExtensionsRegistry();
  * Gives Ant Design components (close buttons, pagination, empty tables,
  * confirmations, date pickers) the language of the user.
  */
-const AntdLocaleProvider: React.FC = ({ children }) => {
+const AntdLocaleProvider: React.FC<{ children?: React.ReactNode }> = ({
+  children,
+}) => {
   const locale = useLocale();
   return (
     <AntdThemeProvider locale={locale ?? undefined}>
@@ -49,7 +51,9 @@ const AntdLocaleProvider: React.FC = ({ children }) => {
   );
 };
 
-export const RootContextProviders: React.FC = ({ children }) => {
+export const RootContextProviders: React.FC<{ children?: React.ReactNode }> = ({
+  children,
+}) => {
   const RootContextProviderExtension = extensionsRegistry.get(
     'root.context.provider',
   );
@@ -58,6 +62,7 @@ export const RootContextProviders: React.FC = ({ children }) => {
     <SupersetThemeProvider themeController={themeController}>
       <ReduxProvider store={store}>
         <AntdLocaleProvider>
+          {/* @ts-expect-error react-dnd types not updated for React 18 */}
           <DndProvider backend={HTML5Backend}>
             <EmbeddedUiConfigProvider>
               <DynamicPluginProvider>

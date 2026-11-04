@@ -37,6 +37,7 @@ import AnchorLink from 'src/dashboard/components/AnchorLink';
 import Chart from 'src/dashboard/components/gridComponents/Chart';
 import { ObjectActions } from 'src/mibi/format/ObjectActions';
 import { MovableDraggable } from 'src/mibi/format/MovableDraggable';
+import { ConnectDragSource } from 'react-dnd';
 import ResizableContainer from 'src/dashboard/components/resizable/ResizableContainer';
 import getChartAndLabelComponentIdFromPath from 'src/dashboard/util/getChartAndLabelComponentIdFromPath';
 import useFilterFocusHighlightStyles from 'src/dashboard/util/useFilterFocusHighlightStyles';
@@ -70,7 +71,7 @@ import {
 
 export const CHART_MARGIN = 32;
 
-interface ChartHolderProps {
+export interface ChartHolderProps {
   id: string;
   parentId: string;
   dashboardId: number;
@@ -309,7 +310,7 @@ const ChartHolder = ({
   }, []);
 
   const renderChild = useCallback(
-    ({ dragSourceRef }) => (
+    ({ dragSourceRef }: { dragSourceRef?: ConnectDragSource }) => (
       <ResizableContainer
         id={component.id}
         adjustableWidth={parentComponent.type === ROW_TYPE}
@@ -377,13 +378,17 @@ const ChartHolder = ({
           )}
         >
           <AntdThemeProvider
-            getPopupContainer={(triggerNode: HTMLElement) =>
-              document.fullscreenElement
-                ? (triggerNode?.closest?.(
-                    '[data-test="dashboard-component-chart-holder"]',
-                  ) as HTMLElement) || document.body
-                : document.body
-            }
+            getPopupContainer={(triggerNode?: HTMLElement) => {
+              // Only the fullscreen element's subtree is painted, so popups
+              // have to be portaled into it rather than to document.body.
+              // Resolve it directly instead of matching a selector: the
+              // production build strips data-test attributes.
+              const fullscreenElement =
+                document.fullscreenElement as HTMLElement | null;
+              return triggerNode && fullscreenElement?.contains(triggerNode)
+                ? fullscreenElement
+                : document.body;
+            }}
           >
             {!editMode && (
               <AnchorLink
@@ -442,12 +447,12 @@ const ChartHolder = ({
     ),
     [
       component.id,
-      component.meta.height,
       component.meta.chartId,
       component.meta.sliceNameOverride,
       component.meta.sliceName,
       parentComponent.type,
       columnWidth,
+      component.meta.height,
       widthMultiple,
       availableColumnCount,
       onResizeStart,

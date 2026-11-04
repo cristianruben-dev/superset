@@ -33,7 +33,8 @@ export const URL = {
   DASHBOARD_LIST: 'dashboard/list/',
   DATASET_LIST: 'tablemodelview/list',
   LOGIN: 'login/',
+  SAVED_QUERIES_LIST: 'savedqueryview/list/',
   SQLLAB: 'sqllab',
-  WELCOME: 'superset/welcome/',
+  WELCOME: 'welcome/',
   ME: 'api/v1/me/',
 } as const;

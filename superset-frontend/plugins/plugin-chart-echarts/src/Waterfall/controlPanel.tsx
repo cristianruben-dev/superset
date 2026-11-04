@@ -17,6 +17,7 @@
  * under the License.
  */
 import { t } from '@apache-superset/core/translation';
+import { ensureIsArray } from '@superset-ui/core';
 import {
   buildSpecialChartSections,
   sections,
@@ -25,6 +26,7 @@ import {
   D3_TIME_FORMAT_DOCS,
   DEFAULT_TIME_FORMAT,
   formatSelectOptions,
+  getStandardizedControls,
   sharedControls,
 } from '@superset-ui/chart-controls';
 import { showValueControl } from '../controls';
@@ -179,12 +181,26 @@ const config: ControlPanelConfig = {
       controlSetRows: [
         [
           {
+            name: 'show_x_axis',
+            config: {
+              type: 'CheckboxControl',
+              label: t('Show X axis'),
+              renderTrigger: true,
+              default: true,
+              description: t('Show or hide the X axis line, ticks, and labels'),
+            },
+          },
+        ],
+        [
+          {
             name: 'x_axis_label',
             config: {
               type: 'TextControl',
               label: t('X Axis Label'),
               renderTrigger: true,
               default: '',
+              visibility: ({ controls }) =>
+                controls?.show_x_axis?.value !== false,
             },
           },
         ],
@@ -195,6 +211,8 @@ const config: ControlPanelConfig = {
               ...sharedControls.x_axis_time_format,
               default: DEFAULT_TIME_FORMAT,
               description: `${D3_TIME_FORMAT_DOCS}.`,
+              visibility: ({ controls }) =>
+                controls?.show_x_axis?.value !== false,
             },
           },
         ],
@@ -215,6 +233,8 @@ const config: ControlPanelConfig = {
               clearable: false,
               renderTrigger: true,
               description: t('The way the ticks are laid out on the X-axis'),
+              visibility: ({ controls }) =>
+                controls?.show_x_axis?.value !== false,
             },
           },
         ],
@@ -226,12 +246,28 @@ const config: ControlPanelConfig = {
       controlSetRows: [
         [
           {
+            name: 'show_y_axis',
+            config: {
+              type: 'CheckboxControl',
+              label: t('Show Y axis'),
+              renderTrigger: true,
+              default: true,
+              description: t(
+                'Show or hide the Y axis line, ticks, gridlines, and labels',
+              ),
+            },
+          },
+        ],
+        [
+          {
             name: 'y_axis_label',
             config: {
               type: 'TextControl',
               label: t('Y Axis Label'),
               renderTrigger: true,
               default: '',
+              visibility: ({ controls }) =>
+                controls?.show_y_axis?.value !== false,
             },
           },
         ],
@@ -255,6 +291,10 @@ const config: ControlPanelConfig = {
     },
   ],
   controlOverrides: {
+    // Note: y_axis_format and currency_format are intentionally NOT gated on
+    // show_y_axis. They drive `defaultFormatter`, which formats the bar labels
+    // and tooltips as well as the axis, so they must stay configurable even
+    // when the Y axis itself is hidden.
     groupby: {
       label: t('Breakdowns'),
       description:
@@ -263,6 +303,17 @@ const config: ControlPanelConfig = {
       multi: false,
     },
   },
+  formDataOverrides: formData => ({
+    ...formData,
+    metric: getStandardizedControls().shiftMetric(),
+    // Waterfall's `groupby` is a single-value control (multi: false;
+    // buildQuery groups by the whole array but transformProps only reads
+    // groupby[0]), so only one column should be taken off the queue here.
+    // Using popAllColumns() would let a memorized multi-column breakdown
+    // (e.g. from Table/Pivot) push extra dimensions into the SQL query
+    // that never surface in the rendered chart.
+    groupby: ensureIsArray(getStandardizedControls().shiftColumn()),
+  }),
 };
 
 export default config;

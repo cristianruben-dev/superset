@@ -27,9 +27,10 @@ import {
 } from 'react';
 
 import AutoSizer from 'react-virtualized-auto-sizer';
-import { shallowEqual, useDispatch, useSelector } from 'react-redux';
+import { shallowEqual, useSelector } from 'react-redux';
+import { useAppDispatch } from 'src/SqlLab/hooks/useAppDispatch';
 import { useHistory } from 'react-router-dom';
-import { pick } from 'lodash';
+import { pick } from 'lodash-es';
 import {
   Button,
   ButtonGroup,
@@ -43,8 +44,10 @@ import {
   FilterableTable,
   ErrorMessageWithStackTrace,
 } from 'src/components';
+import type { GridThemeOverrides } from 'src/components/GridTable/types';
+import { buildResultsGridThemeOverrides } from './buildResultsGridThemeOverrides';
 import { nanoid } from 'nanoid';
-import { t } from '@apache-superset/core/translation';
+import { t, tn } from '@apache-superset/core/translation';
 import {
   QueryState,
   usePrevious,
@@ -52,7 +55,6 @@ import {
   getExtensionsRegistry,
   ErrorTypeEnum,
 } from '@superset-ui/core';
-import { tn } from '@apache-superset/core/translation';
 import { Alert } from '@apache-superset/core/components';
 import { styled, useTheme, css } from '@apache-superset/core/theme';
 import {
@@ -83,11 +85,11 @@ import {
   LOG_ACTIONS_SQLLAB_DOWNLOAD_CSV,
 } from 'src/logger/LogUtils';
 import { Icons } from '@superset-ui/core/components/Icons';
-import { findPermission } from 'src/utils/findPermission';
+import { usePermissions } from 'src/hooks/usePermissions';
 import { StreamingExportModal } from 'src/components/StreamingExportModal';
 import { useStreamingExport } from 'src/components/StreamingExportModal/useStreamingExport';
 import { useConfirmModal } from 'src/hooks/useConfirmModal';
-import { makeUrl } from 'src/utils/pathUtils';
+import { makeUrl, openInNewTab, redirect } from 'src/utils/navigationUtils';
 import ExploreCtasResultsButton from '../ExploreCtasResultsButton';
 import ExploreResultsButton from '../ExploreResultsButton';
 import HighlightedSql from '../HighlightedSql';
@@ -136,7 +138,6 @@ const ResultlessStyles = styled.div`
 // but wrapping text too so text doesn't overflow
 const MonospaceDiv = styled.div`
   font-family: ${({ theme }) => theme.fontFamilyCode};
-  white-space: pre;
   word-break: break-word;
   overflow-x: auto;
   white-space: pre-wrap;
@@ -169,7 +170,6 @@ const ResultSet = ({
   visualize = true,
   defaultQueryLimit,
 }: ResultSetProps) => {
-  const user = useSelector(({ user }: SqlLabRootState) => user, shallowEqual);
   const streamingThreshold = useSelector(
     (state: SqlLabRootState) =>
       state.common?.conf?.CSV_STREAMING_ROW_THRESHOLD || 1000,
@@ -211,6 +211,12 @@ const ResultSet = ({
     extensionsRegistry.get('sqleditor.extension.resultTable') ??
     FilterableTable;
   const theme = useTheme();
+
+  const resultsGridThemeOverrides = useMemo<GridThemeOverrides | undefined>(
+    () => buildResultsGridThemeOverrides(theme),
+    [theme],
+  );
+
   const [searchText, setSearchText] = useState('');
   const [cachedData, setCachedData] = useState<Record<string, unknown>[]>([]);
   const [showSaveDatasetModal, setShowSaveDatasetModal] = useState(false);
@@ -224,8 +230,12 @@ const ResultSet = ({
     [query.results?.expanded_columns],
   );
 
+  const {
+    canExportDataSqlLab: canExportData,
+    canCopyClipboardSqlLab: canCopyClipboard,
+  } = usePermissions();
   const history = useHistory();
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const logAction = useLogAction({ queryId, sqlEditorId: query.sqlEditorId });
   const { showConfirm, ConfirmModal } = useConfirmModal();
 
@@ -314,7 +324,9 @@ const ResultSet = ({
         includeAppRoot,
       );
       if (openInNewWindow) {
-        window.open(url, '_blank', 'noreferrer');
+        // `url` is from `mountExploreUrl(..., includeAppRoot=true)`; the
+        // helper re-applies `ensureAppRoot` idempotently.
+        openInNewTab(url);
       } else {
         history.push(url);
       }
@@ -368,12 +380,6 @@ const ResultSet = ({
         schema: query?.schema,
       };
 
-      const canExportData = findPermission(
-        'can_export_csv',
-        'SQLLab',
-        user?.roles,
-      );
-
       const handleDownloadCsv = (event: React.MouseEvent<HTMLElement>) => {
         logAction(LOG_ACTIONS_SQLLAB_DOWNLOAD_CSV, {});
 
@@ -387,9 +393,15 @@ const ResultSet = ({
               { rows: rowsCount.toLocaleString() },
             ),
             onConfirm: () => {
-              window.location.href = getExportCsvUrl(query.id);
+              // `getExportCsvUrl` already runs the path through `makeUrl`;
+              // `redirect` re-applies `ensureAppRoot` idempotently and routes
+              // the sink through navigationUtils' barriers (scheme allowlist,
+              // userinfo rejection, backslash rejection), which is a
+              // strict superset of what `sanitizeUrl` from master PR #40546
+              // provides.
+              redirect(getExportCsvUrl(query.id));
             },
-            confirmText: t('OK'),
+            confirmText: t('Confirm'),
             cancelText: t('Close'),
           });
         }
@@ -403,19 +415,26 @@ const ResultSet = ({
               onClick={createExploreResultsOnClick}
             />
           )}
-          {csv && canExportData && (
+          {csv && (
             <Button
               buttonSize="small"
               variant="text"
               color="primary"
               icon={<Icons.DownloadOutlined iconSize="m" />}
-              tooltip={t('Download to CSV')}
+              tooltip={
+                !canExportData
+                  ? t("You don't have permission to export data")
+                  : t('Download to CSV')
+              }
               aria-label={t('Download to CSV')}
-              {...(!shouldUseStreamingExport() && {
-                href: getExportCsvUrl(query.id),
-              })}
+              disabled={!canExportData}
+              {...(canExportData &&
+                !shouldUseStreamingExport() && {
+                  href: getExportCsvUrl(query.id),
+                })}
               data-test="export-csv-button"
               onClick={e => {
+                if (!canExportData) return;
                 const useStreaming = shouldUseStreamingExport();
 
                 if (useStreaming) {
@@ -426,6 +445,7 @@ const ResultSet = ({
                     url: makeUrl('/api/v1/sqllab/export_streaming/'),
                     payload: { client_id: query.id },
                     exportType: 'csv',
+                    exportSource: 'sqllab',
                     expectedRows: rows,
                   });
                 } else {
@@ -434,30 +454,38 @@ const ResultSet = ({
               }}
             />
           )}
-          {canExportData && (
-            <CopyToClipboard
-              text={prepareCopyToClipboardTabularData(
-                data,
-                columns.map(c => c.column_name),
-              )}
-              wrapped={false}
-              copyNode={
-                <Button
-                  buttonSize="small"
-                  variant="text"
-                  color="primary"
-                  icon={<Icons.CopyOutlined iconSize="m" />}
-                  tooltip={t('Copy to Clipboard')}
-                  aria-label={t('Copy to Clipboard')}
-                  data-test="copy-to-clipboard-button"
-                />
-              }
-              hideTooltip
-              onCopyEnd={() =>
-                logAction(LOG_ACTIONS_SQLLAB_COPY_RESULT_TO_CLIPBOARD, {})
-              }
-            />
-          )}
+          <CopyToClipboard
+            text={
+              canCopyClipboard
+                ? prepareCopyToClipboardTabularData(
+                    data,
+                    columns.map(c => c.column_name),
+                  )
+                : ''
+            }
+            disabled={!canCopyClipboard}
+            wrapped={false}
+            copyNode={
+              <Button
+                buttonSize="small"
+                variant="text"
+                color="primary"
+                icon={<Icons.CopyOutlined iconSize="m" />}
+                tooltip={
+                  !canCopyClipboard
+                    ? t("You don't have permission to copy to clipboard")
+                    : t('Copy to Clipboard')
+                }
+                aria-label={t('Copy to Clipboard')}
+                disabled={!canCopyClipboard}
+                data-test="copy-to-clipboard-button"
+              />
+            }
+            hideTooltip
+            onCopyEnd={() =>
+              logAction(LOG_ACTIONS_SQLLAB_COPY_RESULT_TO_CLIPBOARD, {})
+            }
+          />
         </>
       );
 
@@ -601,7 +629,26 @@ const ResultSet = ({
   }
 
   if (query.state === QueryState.Failed) {
-    const errors = [...(query.extra?.errors || []), ...(query.errors || [])];
+    // A failed query can carry the same error in both `query.errors` (set by
+    // the queryFailed action) and `query.extra.errors` (set by the async
+    // refresh). When falling back to async polling both get populated with
+    // identical errors, so deduplicate to avoid rendering each error twice.
+    const seenErrors = new Set<string>();
+    const errors = [
+      ...(query.extra?.errors || []),
+      ...(query.errors || []),
+    ].filter(error => {
+      // json-bigint parsing can leave native BigInt values in payloads,
+      // which JSON.stringify rejects; serialize them as strings.
+      const key = JSON.stringify(error, (_, value) =>
+        typeof value === 'bigint' ? value.toString() : value,
+      );
+      if (seenErrors.has(key)) {
+        return false;
+      }
+      seenErrors.add(key);
+      return true;
+    });
 
     return (
       <ResultlessStyles>
@@ -683,7 +730,7 @@ const ResultSet = ({
     if (data && data.length > 0) {
       const allowHTML = getItem(
         LocalStorageKeys.SqllabIsRenderHtmlEnabled,
-        true,
+        false,
       );
 
       const tableProps = {
@@ -693,6 +740,7 @@ const ResultSet = ({
         filterText: searchText,
         expandedColumns,
         allowHTML,
+        themeOverrides: resultsGridThemeOverrides,
       };
 
       return (

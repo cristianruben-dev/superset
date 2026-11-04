@@ -22,7 +22,7 @@ from typing import Any
 
 from marshmallow import Schema
 from sqlalchemy.orm import Session  # noqa: F401
-from sqlalchemy.sql import delete, select
+from sqlalchemy.sql import select
 
 from superset import db
 from superset.charts.schemas import ImportV1ChartSchema
@@ -36,6 +36,7 @@ from superset.commands.dashboard.importers.v1.utils import (
 )
 from superset.commands.database.importers.v1.utils import import_database
 from superset.commands.dataset.importers.v1.utils import import_dataset
+from superset.commands.exceptions import CommandException
 from superset.commands.importers.v1 import ImportModelsCommand
 from superset.commands.importers.v1.utils import import_tag
 from superset.commands.utils import update_chart_config_dataset
@@ -47,6 +48,9 @@ from superset.extensions import feature_flag_manager
 from superset.mibi.single_dashboard import assert_single_dashboard
 from superset.migrations.shared.native_filters import migrate_dashboard
 from superset.models.dashboard import Dashboard, dashboard_slices
+from superset.models.slice import Slice
+from superset.subjects.utils import get_default_viewers_for_current_user
+from superset.utils.decorators import transaction
 
 logger = logging.getLogger(__name__)
 
@@ -65,6 +69,29 @@ class ImportDashboardsCommand(ImportModelsCommand):
     }
     import_error = DashboardImportError
 
+    def __init__(self, contents: dict[str, str], *args: Any, **kwargs: Any) -> None:
+        self.overwrite_all = kwargs.pop("overwrite_all", False)
+        super().__init__(contents, *args, **kwargs)
+
+    # not sure if overriding run is the best approach here
+    # it works fine and is better than a global variable imo
+    # open to suggestions
+    @transaction()
+    def run(self) -> None:
+        self.validate()
+
+        try:
+            self._import(
+                self._configs,
+                self.overwrite,
+                self.contents,
+                overwrite_all=self.overwrite_all,
+            )
+        except CommandException:
+            raise
+        except Exception as ex:
+            raise self.import_error() from ex
+
     # TODO (betodealmeida): refactor to use code from other commands
     # pylint: disable=too-many-branches, too-many-locals, too-many-statements
     @staticmethod
@@ -73,6 +100,7 @@ class ImportDashboardsCommand(ImportModelsCommand):
         configs: dict[str, Any],
         overwrite: bool = False,
         contents: dict[str, Any] | None = None,
+        **kwargs: Any,
     ) -> None:
         contents = {} if contents is None else contents
         # discover charts and datasets associated with dashboards
@@ -96,11 +124,15 @@ class ImportDashboardsCommand(ImportModelsCommand):
             if file_name.startswith("datasets/") and config["uuid"] in dataset_uuids:
                 database_uuids.add(config["database_uuid"])
 
+        # assets inside dashboard databases, datasets and charts
+        # should be overwritten only if both flags are set to True
+        overwrite_assets = overwrite and kwargs.get("overwrite_all", False)
+
         # import related databases
         database_ids: dict[str, int] = {}
         for file_name, config in configs.items():
             if file_name.startswith("databases/") and config["uuid"] in database_uuids:
-                database = import_database(config, overwrite=False)
+                database = import_database(config, overwrite=overwrite_assets)
                 database_ids[str(database.uuid)] = database.id
 
         # import datasets with the correct parent ref
@@ -111,12 +143,20 @@ class ImportDashboardsCommand(ImportModelsCommand):
                 and config["database_uuid"] in database_ids
             ):
                 config["database_id"] = database_ids[config["database_uuid"]]
-                dataset = import_dataset(config, overwrite=False)
-                dataset_info[str(dataset.uuid)] = {
+                dataset = import_dataset(config, overwrite=overwrite_assets)
+                # Key on the bundle's own uuid, which is what the bundle's
+                # charts reference. An import that resolves onto an existing
+                # dataset by physical identity returns a row whose uuid
+                # differs, and keying on that would strand those charts.
+                dataset_info[str(config["uuid"])] = {
                     "datasource_id": dataset.id,
                     "datasource_type": dataset.datasource_type,
                     "datasource_name": dataset.table_name,
                 }
+
+        # Resolve the creator's default viewers once for the whole bundle
+        # rather than once per chart/dashboard (a membership query each).
+        default_viewers = get_default_viewers_for_current_user()
 
         # import charts with the correct parent ref
         charts = []
@@ -130,7 +170,11 @@ class ImportDashboardsCommand(ImportModelsCommand):
                 dataset_dict = dataset_info[config["dataset_uuid"]]
                 config = update_chart_config_dataset(config, dataset_dict)
 
-                chart = import_chart(config, overwrite=False)
+                chart = import_chart(
+                    config,
+                    overwrite=overwrite_assets,
+                    default_viewers=default_viewers,
+                )
                 charts.append(chart)
                 chart_ids[str(chart.uuid)] = chart.id
 
@@ -153,27 +197,33 @@ class ImportDashboardsCommand(ImportModelsCommand):
             )
 
         # import dashboards
+        #
+        # Dashboard → charts associations go through the ORM relationship
+        # (``dashboard.slices = [...]``) rather than Core
+        # ``delete()``/``insert()`` on the ``dashboard_slices`` table.
+        # Bulk DML via Core would emit a malformed INSERT into
+        # ``dashboard_slices_version`` (missing the composite-PK columns)
+        # because SQLAlchemy-Continuum's M2M tracker can't see per-row
+        # column values when the DELETE/INSERT goes through the Core
+        # layer. The same pattern is applied in
+        # ``superset/commands/importers/v1/assets.py`` and the spike's
+        # ``DatasetDAO.update_columns`` rewrite.
         dashboards: list[Dashboard] = []
-        dashboard_chart_ids: list[tuple[int, int]] = []
+        attached_chart_ids: set[int] = set()
         for file_name, config in configs.items():
             if file_name.startswith("dashboards/"):
                 config = update_id_refs(config, chart_ids, dataset_info)
                 # Exports made before themes were removed carry a theme reference
                 config.pop("theme_uuid", None)
                 config.pop("theme_id", None)
-                dashboard = import_dashboard(config, overwrite=overwrite)
+                dashboard = import_dashboard(
+                    config, overwrite=overwrite, default_viewers=default_viewers
+                )
                 dashboards.append(dashboard)
 
-                # When overwriting, first delete all existing chart relationships
-                # so the dashboard is replaced rather than merged
-                if overwrite:
-                    db.session.execute(
-                        delete(dashboard_slices).where(
-                            dashboard_slices.c.dashboard_id == dashboard.id
-                        )
-                    )
-
-                # Collect chart IDs to associate with this dashboard
+                # Resolve the dashboard's chart membership from the imported
+                # position_json and apply it to the ORM relationship.
+                target_chart_ids: list[int] = []
                 for uuid in find_chart_uuids(config["position"]):
                     if uuid not in chart_ids:
                         continue
@@ -182,7 +232,32 @@ class ImportDashboardsCommand(ImportModelsCommand):
                         overwrite
                         or (dashboard.id, chart_id) not in existing_relationships
                     ):
-                        dashboard_chart_ids.append((dashboard.id, chart_id))
+                        target_chart_ids.append(chart_id)
+                attached_chart_ids.update(target_chart_ids)
+
+                if overwrite:
+                    # Replace the dashboard's chart membership entirely.
+                    dashboard.slices = (
+                        db.session.query(Slice)
+                        .filter(Slice.id.in_(target_chart_ids))
+                        .all()
+                        if target_chart_ids
+                        else []
+                    )
+                    # Flush eagerly so the M2M rows land in
+                    # ``dashboard_slices`` before any subsequent
+                    # autoflush fires an inner-flush event handler
+                    # that would reset the relationship change.
+                    db.session.flush()
+                elif target_chart_ids:
+                    # Append only the new associations to existing ones.
+                    new_slices = (
+                        db.session.query(Slice)
+                        .filter(Slice.id.in_(target_chart_ids))
+                        .all()
+                    )
+                    dashboard.slices = list(dashboard.slices) + new_slices
+                    db.session.flush()
 
                 # Handle tags using import_tag function
                 if feature_flag_manager.is_feature_enabled("TAGGING_SYSTEM"):
@@ -196,14 +271,9 @@ class ImportDashboardsCommand(ImportModelsCommand):
                             db.session,
                         )
 
-        # set ref in the dashboard_slices table
-        if dashboard_chart_ids:
-            values = [
-                {"dashboard_id": dashboard_id, "slice_id": chart_id}
-                for (dashboard_id, chart_id) in dashboard_chart_ids
-            ]
-            db.session.execute(dashboard_slices.insert(), values)
-            assert_single_dashboard({chart_id for _, chart_id in dashboard_chart_ids})
+        # AuraData BI: a chart belongs to a single dashboard
+        if attached_chart_ids:
+            assert_single_dashboard(attached_chart_ids)
 
         # Migrate any filter-box charts to native dashboard filters.
         for dashboard in dashboards:

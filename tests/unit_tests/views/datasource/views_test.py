@@ -21,12 +21,29 @@ bypassing the Flask-AppBuilder permission decorator machinery.
 """
 
 import inspect
+from typing import Any
 from unittest.mock import MagicMock, patch
 
 import pytest
+from flask import Flask
 
+from superset.commands.dataset.exceptions import (
+    DatasetSamplesFailedError,
+)
 from superset.errors import ErrorLevel, SupersetError, SupersetErrorType
 from superset.exceptions import SupersetSecurityException
+from superset.utils import json as superset_json
+from superset.utils.error_sanitization import GENERIC_ERROR_MESSAGE
+from superset.views.error_handling import handle_api_exception
+
+
+def _identity_gettext(message: str, **variables: Any) -> str:
+    """Typed stand-in for flask-babel's ``_`` in request-less unit tests.
+
+    Interpolates like the real one so a caller passing variables is exercised
+    rather than raising on the extra arguments.
+    """
+    return message % variables if variables else message
 
 
 def _security_exception() -> SupersetSecurityException:
@@ -51,11 +68,6 @@ def _view_self() -> MagicMock:
     self = MagicMock()
     self.json_response = MagicMock(return_value="ok")
     return self
-
-
-# ---------------------------------------------------------------------------
-# Datasource.get
-# ---------------------------------------------------------------------------
 
 
 # ---------------------------------------------------------------------------
@@ -174,5 +186,335 @@ def test_external_metadata_by_name_no_datasource_raises_when_access_denied(
 
 
 # ---------------------------------------------------------------------------
-# Datasource.save — ownership bypass prevention
+# Datasource.samples
 # ---------------------------------------------------------------------------
+
+
+@patch("superset.views.datasource.views._", _identity_gettext)
+@patch("superset.views.datasource.views.get_samples")
+@patch("superset.views.datasource.views.json_error_response")
+@patch("superset.views.datasource.views.security_manager", new_callable=MagicMock)
+def test_samples_returns_400_for_unsupported_datasource_type(
+    mock_security_manager: MagicMock,
+    mock_json_error_response: MagicMock,
+    mock_get_samples: MagicMock,
+) -> None:
+    """Semantic views can't return raw samples — endpoint should refuse with 400."""
+    mock_security_manager.is_guest_user.return_value = False
+    mock_json_error_response.return_value = "error-response"
+
+    app = Flask(__name__)
+    with app.test_request_context(
+        "/datasource/samples?datasource_type=semantic_view&datasource_id=1",
+        method="POST",
+        json={},
+    ):
+        result = _get_view_func("samples")(_view_self())
+
+    assert result == "error-response"
+    mock_json_error_response.assert_called_once()
+    _, kwargs = mock_json_error_response.call_args
+    assert kwargs.get("status") == 400
+    # The bail-out must happen before any sample fetching is attempted.
+    mock_get_samples.assert_not_called()
+
+
+@patch("superset.views.datasource.views._", _identity_gettext)
+@patch("superset.views.datasource.views.get_samples")
+@patch("superset.views.datasource.views.json_error_response")
+@patch("superset.views.datasource.views.security_manager", new_callable=MagicMock)
+def test_samples_checks_guest_access_before_datasource_capability(
+    mock_security_manager: MagicMock,
+    mock_json_error_response: MagicMock,
+    mock_get_samples: MagicMock,
+) -> None:
+    """An unauthorized guest gets 403 before semantic-view capability errors."""
+    mock_security_manager.is_guest_user.return_value = True
+    mock_json_error_response.return_value = "forbidden-response"
+
+    app = Flask(__name__)
+    with app.test_request_context(
+        "/datasource/samples?datasource_type=semantic_view&datasource_id=1",
+        method="POST",
+        json={},
+    ):
+        result = _get_view_func("samples")(_view_self())
+
+    assert result == "forbidden-response"
+    mock_json_error_response.assert_called_once_with("Forbidden", status=403)
+    mock_get_samples.assert_not_called()
+
+
+@patch("superset.views.datasource.views._", _identity_gettext)
+@patch("superset.views.datasource.views.get_samples")
+@patch("superset.views.datasource.views.DatasetDAO")
+@patch("superset.views.datasource.views.json_error_response")
+@patch("superset.views.datasource.views.security_manager", new_callable=MagicMock)
+def test_samples_guest_with_dashboard_gets_404_for_non_dataset_type(
+    mock_security_manager: MagicMock,
+    mock_json_error_response: MagicMock,
+    mock_dataset_dao: MagicMock,
+    mock_get_samples: MagicMock,
+) -> None:
+    """A guest with a dashboard_id gets 404 for a semantic view, not the 400.
+
+    The 404 must win over the capability 400, and the dataset lookup must not
+    run at all: ``datasource_id`` values for non-dataset types live in
+    unrelated id spaces, so ``DatasetDAO.find_by_id`` would validate whichever
+    unrelated table shares the integer id.
+    """
+    mock_security_manager.is_guest_user.return_value = True
+
+    view = _view_self()
+    app = Flask(__name__)
+    with app.test_request_context(
+        "/datasource/samples?datasource_type=semantic_view&datasource_id=1"
+        "&dashboard_id=5",
+        method="POST",
+        json={},
+    ):
+        result = _get_view_func("samples")(view)
+
+    assert result == view.response_404.return_value
+    view.response_404.assert_called_once()
+    mock_dataset_dao.find_by_id.assert_not_called()
+    mock_json_error_response.assert_not_called()
+    mock_get_samples.assert_not_called()
+
+
+@patch("superset.views.datasource.views._", _identity_gettext)
+@patch("superset.views.datasource.views.get_samples")
+@patch("superset.views.datasource.views.DashboardDAO")
+@patch("superset.views.datasource.views.DatasetDAO")
+@patch("superset.views.datasource.views.json_error_response")
+@patch("superset.views.datasource.views.security_manager", new_callable=MagicMock)
+def test_samples_guest_drill_denial_returns_403(
+    mock_security_manager: MagicMock,
+    mock_json_error_response: MagicMock,
+    mock_dataset_dao: MagicMock,
+    mock_dashboard_dao: MagicMock,
+    mock_get_samples: MagicMock,
+) -> None:
+    """A guest failing the drill-access check gets 403 from that gate."""
+    mock_security_manager.is_guest_user.return_value = True
+    mock_security_manager.can_drill_dataset_via_dashboard_access.return_value = False
+    mock_json_error_response.return_value = "forbidden-response"
+
+    app = Flask(__name__)
+    with app.test_request_context(
+        "/datasource/samples?datasource_type=table&datasource_id=1&dashboard_id=5",
+        method="POST",
+        json={},
+    ):
+        result = _get_view_func("samples")(_view_self())
+
+    assert result == "forbidden-response"
+    mock_security_manager.can_drill_dataset_via_dashboard_access.assert_called_once_with(
+        mock_dataset_dao.find_by_id.return_value,
+        mock_dashboard_dao.find_by_id.return_value,
+    )
+    mock_json_error_response.assert_called_once_with("Forbidden", status=403)
+    mock_get_samples.assert_not_called()
+
+
+@patch("superset.views.datasource.views.get_samples")
+@patch("superset.views.datasource.views.security_manager", new_callable=MagicMock)
+def test_samples_proceeds_for_supported_datasource_type(
+    mock_security_manager: MagicMock,
+    mock_get_samples: MagicMock,
+) -> None:
+    """A `query` datasource (supports_samples=True) bypasses the 400 short-circuit."""
+    mock_security_manager.is_guest_user.return_value = False
+    mock_get_samples.return_value = {"rows": []}
+
+    view = _view_self()
+    raw_samples = _get_view_func("samples")
+    app = Flask(__name__)
+    with app.test_request_context(
+        "/datasource/samples?datasource_type=query&datasource_id=1",
+        method="POST",
+        json={},
+    ):
+        raw_samples(view)
+
+    mock_get_samples.assert_called_once()
+    view.json_response.assert_called_once_with({"result": {"rows": []}})
+
+
+@patch("superset.views.datasource.views._", _identity_gettext)
+@patch("superset.security_manager", new_callable=MagicMock)
+@patch("superset.views.datasource.views.get_samples")
+@patch("superset.views.datasource.views.DashboardDAO")
+@patch("superset.views.datasource.views.DatasetDAO")
+@patch("superset.views.datasource.views.security_manager", new_callable=MagicMock)
+def test_samples_guest_response_is_redacted_by_the_real_helper(
+    mock_view_security_manager: MagicMock,
+    mock_dataset_dao: MagicMock,
+    mock_dashboard_dao: MagicMock,
+    mock_get_samples: MagicMock,
+    mock_global_security_manager: MagicMock,
+) -> None:
+    """An embedded guest without "can view query on Dashboard" gets the generated
+    SQL stripped from the actual samples response.
+
+    Exercises the real ``redact_sensitive_query_fields`` (not a mock) through the
+    guest branch, so a regression that made the redaction a no-op for guests
+    would fail here. ``mock_view_security_manager`` drives the view's guest-access
+    checks; ``mock_global_security_manager`` is the ``from superset import
+    security_manager`` the helper resolves (guest, lacking the permission)."""
+    mock_view_security_manager.is_guest_user.return_value = True
+    mock_view_security_manager.can_drill_dataset_via_dashboard_access.return_value = (
+        True
+    )
+    # The helper's principal: a guest without "can view query on Dashboard".
+    mock_global_security_manager.is_guest_user.return_value = True
+    mock_global_security_manager.can_access.return_value = False
+
+    rv = {
+        "query": "SELECT secret_col FROM private_table",
+        "stacktrace": "Traceback (most recent call last): ...",
+        "data": [{"id": 1}],
+        "colnames": ["id"],
+        "total_count": 1,
+    }
+    mock_get_samples.return_value = rv
+
+    # Serialize what the view hands to ``json_response`` at call time, as the
+    # real ``json_response`` does, so the assertions see what a client receives
+    # and would catch the redaction running only after the response is built.
+    sent: list[dict[str, Any]] = []
+    view = _view_self()
+    view.json_response.side_effect = lambda obj, *args, **kwargs: sent.append(
+        superset_json.loads(superset_json.dumps(obj))
+    )
+    app = Flask(__name__)
+    with app.test_request_context(
+        "/datasource/samples?datasource_type=table&datasource_id=1&dashboard_id=5",
+        method="POST",
+        json={},
+    ):
+        _get_view_func("samples")(view)
+
+    # The serialized response carries no generated SQL or stacktrace, while the
+    # rendering fields were left intact.
+    assert len(sent) == 1
+    result = sent[0]["result"]
+    assert "query" not in result
+    assert "stacktrace" not in result
+    assert result["data"] == [{"id": 1}]
+    mock_global_security_manager.can_access.assert_called_once_with(
+        "can_view_query", "Dashboard"
+    )
+
+
+# A raw driver error can quote the full statement (SQLAlchemy appends
+# ``[SQL: ...]``), so it must not reach a guest on the failure path either.
+_RAW_SAMPLES_ERROR = (
+    '(psycopg2.errors.UndefinedColumn) column "secret_col" does not exist\n'
+    "LINE 1: SELECT secret_col FROM private_table\n"
+    "[SQL: SELECT secret_col FROM private_table]"
+)
+
+
+def _run_failing_samples(app: Flask, *, is_guest: bool, query_string: str) -> Any:
+    """Run the samples view body under its real ``handle_api_exception`` for a
+    query that fails with a raw driver error, as a guest or an authenticated
+    user. On failure ``get_samples`` raises rather than returning the payload,
+    so the error handler -- not ``redact_sensitive_query_fields`` -- decides
+    what the client sees."""
+    with (
+        patch(
+            "superset.views.datasource.views.security_manager",
+            new_callable=MagicMock,
+        ) as view_security_manager,
+        patch("superset.views.datasource.views.DatasetDAO"),
+        patch("superset.views.datasource.views.DashboardDAO"),
+        patch(
+            "superset.views.datasource.views.get_samples",
+            side_effect=DatasetSamplesFailedError(_RAW_SAMPLES_ERROR),
+        ),
+        patch(
+            "superset.security.SupersetSecurityManager.is_guest_user",
+            return_value=is_guest,
+        ),
+        app.test_request_context(
+            f"/datasource/samples?{query_string}", method="POST", json={}
+        ),
+    ):
+        view_security_manager.is_guest_user.return_value = is_guest
+        view_security_manager.can_drill_dataset_via_dashboard_access.return_value = True
+        return handle_api_exception(_get_view_func("samples"))(_view_self())
+
+
+def test_samples_failure_returns_generic_error_to_guests(app: Flask) -> None:
+    """When the Drill to detail query fails for an embedded guest, the response
+    carries the generic message: no SQL, table or column names leak through the
+    driver error, and no ``query``/``stacktrace`` payload is serialized."""
+    response = _run_failing_samples(
+        app,
+        is_guest=True,
+        query_string="datasource_type=table&datasource_id=1&dashboard_id=5",
+    )
+
+    assert response.status_code == 422
+    body = response.get_data(as_text=True)
+    assert superset_json.loads(body) == {"error": str(GENERIC_ERROR_MESSAGE)}
+    for leaked in ("private_table", "secret_col", "SELECT"):
+        assert leaked not in body
+
+
+def test_samples_failure_keeps_driver_error_for_authenticated_users(
+    app: Flask,
+) -> None:
+    """The guest redaction is scoped: an authenticated user still gets the
+    actionable driver error from a failed samples query."""
+    response = _run_failing_samples(
+        app,
+        is_guest=False,
+        query_string="datasource_type=query&datasource_id=1",
+    )
+
+    assert response.status_code == 422
+    body = response.get_data(as_text=True)
+    assert superset_json.loads(body) == {"error": _RAW_SAMPLES_ERROR}
+
+
+@patch("superset.views.datasource.views._", _identity_gettext)
+@patch("superset.views.datasource.views.get_samples")
+@patch("superset.views.datasource.views.DatasourceDAO.get_datasource")
+@patch("superset.views.datasource.views.json_error_response")
+@patch("superset.views.datasource.views.security_manager", new_callable=MagicMock)
+def test_samples_authenticated_dataset_access_denied_returns_403_before_fetch(
+    mock_security_manager: MagicMock,
+    mock_json_error_response: MagicMock,
+    mock_get_datasource: MagicMock,
+    mock_get_samples: MagicMock,
+) -> None:
+    """An authenticated user denied access to a dataset short-circuits to 403
+    from ``raise_for_access`` on the pre-fetched dataset, and ``get_samples`` is
+    never reached — authorization runs before any sample fetch. (The
+    authenticated per-object check only runs for dataset-backed types, which
+    always support samples, so this pins authorization-before-fetch rather than
+    a race against the ``supports_samples`` gate.)"""
+    mock_security_manager.is_guest_user.return_value = False
+    mock_dataset = MagicMock()
+    mock_get_datasource.return_value = mock_dataset
+    mock_security_manager.raise_for_access.side_effect = _security_exception()
+    mock_json_error_response.return_value = "error-response"
+
+    app = Flask(__name__)
+    with app.test_request_context(
+        "/datasource/samples?datasource_type=table&datasource_id=1",
+        method="POST",
+        json={},
+    ):
+        result = _get_view_func("samples")(_view_self())
+
+    assert result == "error-response"
+    # The per-object gate runs on the pre-fetched dataset, and its denial
+    # short-circuits to a single 403 before any sample fetching.
+    mock_security_manager.raise_for_access.assert_called_once_with(
+        datasource=mock_dataset
+    )
+    mock_json_error_response.assert_called_once_with("Forbidden", status=403)
+    mock_get_samples.assert_not_called()

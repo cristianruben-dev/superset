@@ -276,6 +276,55 @@ test('should merge both filters and customization extraFormData', () => {
   expect(result.extra_form_data).toBeDefined();
 });
 
+test('cross-filter time_range takes precedence over a native time range filter', () => {
+  const nativeTimeFilterId = 'NATIVE_FILTER-time';
+  const crossFilterId = '42';
+  const nativeRange = 'Last week';
+  const clickedRange = '2021-01-01T00:00:00 : 2021-01-02T00:00:00';
+  const result = getFormDataWithExtraFilters({
+    ...mockArgs,
+    nativeFilters: {
+      [nativeTimeFilterId]: {
+        id: nativeTimeFilterId,
+        chartsInScope: [chartId],
+      },
+    } as unknown as GetFormDataWithExtraFiltersArguments['nativeFilters'],
+    activeFilters: {
+      [nativeTimeFilterId]: {
+        targets: [],
+        scope: [chartId],
+        values: { time_range: nativeRange },
+      },
+      [crossFilterId]: {
+        targets: [],
+        scope: [chartId],
+        values: { time_range: clickedRange },
+      },
+    },
+    dataMask: {
+      [nativeTimeFilterId]: {
+        id: nativeTimeFilterId,
+        extraFormData: { time_range: nativeRange },
+        filterState: { value: nativeRange },
+        ownState: {},
+      },
+      [crossFilterId]: {
+        id: crossFilterId,
+        extraFormData: {
+          filters: [{ col: 'ds', op: 'TEMPORAL_RANGE', val: clickedRange }],
+          time_range: clickedRange,
+        },
+        filterState: { value: [clickedRange] },
+        ownState: {},
+      },
+    },
+  });
+
+  expect(result.extra_form_data).toEqual(
+    expect.objectContaining({ time_range: clickedRange }),
+  );
+});
+
 const makeGroupByArgs = (
   selectedValue: string | string[],
   baseGroupby: string[] = [],
@@ -433,6 +482,88 @@ test('dataset mismatch: display control for a different dataset does not affect 
   expectGroupBy(result, ['original_column']);
 });
 
+test('dynamic group by replaces base groupby with the user selection (subset case)', () => {
+  const result = getFormDataWithExtraFilters(
+    makeGroupByArgs(['status'], ['status', 'category']),
+  );
+  expectGroupBy(result, ['status']);
+});
+
+test('timeseries chart: dynamic group by replaces base groupby with the user selection', () => {
+  const customizationId = 'CHART_CUSTOMIZATION-groupby-1';
+  const result = getFormDataWithExtraFilters({
+    ...mockArgs,
+    chart: {
+      ...mockChart,
+      form_data: {
+        ...mockChart.form_data,
+        viz_type: 'echarts_timeseries_line',
+        datasource: '3__table',
+        groupby: ['series_col', 'breakdown_col'],
+        x_axis: 'time_col',
+      },
+    },
+    dataMask: {
+      [customizationId]: {
+        id: customizationId,
+        extraFormData: {},
+        filterState: { value: ['series_col'] },
+        ownState: {},
+      },
+    },
+    chartCustomizationItems: [
+      createChartCustomization({ id: customizationId }),
+    ],
+  });
+  expectGroupBy(result, ['series_col']);
+});
+
+test('regression #39356: an all-conflicting selection keeps the base groupby and never empties it', () => {
+  // Selecting only the x_axis (already in use) contributes no new dimension, so the
+  // base groupby survives unchanged rather than the chart losing its dimensions.
+  const customizationId = 'CHART_CUSTOMIZATION-groupby-1';
+  const result = getFormDataWithExtraFilters({
+    ...mockArgs,
+    chart: {
+      ...mockChart,
+      form_data: {
+        ...mockChart.form_data,
+        viz_type: 'echarts_timeseries_line',
+        datasource: '3__table',
+        groupby: ['series_col', 'breakdown_col'],
+        x_axis: 'time_col',
+      },
+    },
+    dataMask: {
+      [customizationId]: {
+        id: customizationId,
+        extraFormData: {},
+        filterState: { value: ['time_col'] },
+        ownState: {},
+      },
+    },
+    chartCustomizationItems: [
+      createChartCustomization({ id: customizationId }),
+    ],
+  });
+  expectGroupBy(result, ['series_col', 'breakdown_col']);
+});
+
+test('SC-100237: selecting base dimension + new dimension keeps BOTH in groupby', () => {
+  const result = getFormDataWithExtraFilters(
+    makeGroupByArgs(['product_line', 'deal_size'], ['product_line']),
+  );
+  expectGroupBy(result, ['product_line', 'deal_size']);
+  expectGroupByLength(result, 2);
+});
+
+test('dynamic group by replaces base with mixed (overlap + new) selection', () => {
+  const result = getFormDataWithExtraFilters(
+    makeGroupByArgs(['status', 'new_col'], ['status', 'category']),
+  );
+  expectGroupBy(result, ['status', 'new_col']);
+});
+
 test('Scope boundary: display control with chartsInScope:[] does not affect the chart', () => {
   const customizationId = 'CHART_CUSTOMIZATION-groupby-out-of-scope';
   const argsOutOfScope: GetFormDataWithExtraFiltersArguments = {
@@ -464,5 +595,48 @@ test('Scope boundary: display control with chartsInScope:[] does not affect the 
   };
 
   const result = getFormDataWithExtraFilters(argsOutOfScope);
+  expectGroupBy(result, ['original_column']);
+});
+
+test('chart customization does not match across datasource ID spaces', () => {
+  // A customization targeting semantic_view ``3`` must not match a chart
+  // backed by table ``3``: the two have independent ID spaces.
+  const customizationId = 'CHART_CUSTOMIZATION-groupby-cross';
+  const args: GetFormDataWithExtraFiltersArguments = {
+    ...mockArgs,
+    chart: {
+      ...mockChart,
+      form_data: {
+        ...mockChart.form_data,
+        viz_type: 'table',
+        datasource: '3__table',
+        groupby: ['original_column'],
+      },
+    },
+    dataMask: {
+      [customizationId]: {
+        id: customizationId,
+        extraFormData: {},
+        filterState: { value: ['status'] },
+        ownState: {},
+      },
+    },
+    chartCustomizationItems: [
+      createChartCustomization({
+        id: customizationId,
+        targets: [
+          {
+            datasetId: 3,
+            datasourceType: 'semantic_view' as any,
+            column: { name: 'status' },
+          },
+        ],
+      }),
+    ],
+  };
+
+  // Customization is on semantic_view:3, chart is on table:3 — they
+  // shouldn't be linked, so the chart's groupby is unchanged.
+  const result = getFormDataWithExtraFilters(args);
   expectGroupBy(result, ['original_column']);
 });

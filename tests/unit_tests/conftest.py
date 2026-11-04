@@ -27,6 +27,7 @@ import pytest
 from _pytest.fixtures import SubRequest
 from pytest_mock import MockerFixture
 from sqlalchemy import create_engine
+from sqlalchemy.engine import Engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm.session import Session
 
@@ -34,16 +35,24 @@ from superset import security_manager
 from superset.app import SupersetApp
 from superset.common.chart_data import ChartDataResultType
 from superset.common.query_object_factory import QueryObjectFactory
-from superset.extensions import appbuilder, feature_flag_manager
+from superset.extensions import appbuilder, csrf, feature_flag_manager
 from superset.initialization import SupersetAppInitializer
 
 
 @pytest.fixture
-def get_session(mocker: MockerFixture) -> Callable[[], Session]:
+def session_engine() -> Engine:
+    """
+    The engine behind ``session``; a module may override it for one test file.
+    """
+    return create_engine("sqlite://")
+
+
+@pytest.fixture
+def get_session(mocker: MockerFixture, session_engine: Engine) -> Callable[[], Session]:
     """
     Create an in-memory SQLite db.session.to test models.
     """
-    engine = create_engine("sqlite://")
+    engine = session_engine
 
     def get_session():
         Session_ = sessionmaker(bind=engine)  # pylint: disable=invalid-name  # noqa: N806
@@ -112,6 +121,11 @@ def app(request: SubRequest) -> Iterator[SupersetApp]:
     # routes when this fixture is called multiple times; we need to clear the
     # registered views to ensure the initialization can happen more than once.
     appbuilder.baseviews = []
+    # ``superset.extensions.csrf`` is a singleton too, and accumulates the CSRF
+    # exemptions of every app built here; reset them so one test's config (e.g.
+    # FAB_API_KEY_ENABLED) can't leak exempt blueprints into later tests.
+    csrf._exempt_views = set()  # noqa: SLF001
+    csrf._exempt_blueprints = set()  # noqa: SLF001
 
     app_initializer = SupersetAppInitializer(app)
     app_initializer.init_app()

@@ -88,22 +88,21 @@ describe('logger middleware', () => {
     expect(next.mock.calls.length).toBe(1);
   });
 
-  test('should POST an event to /superset/log/ when called', () => {
+  test('should POST an event to /log/ when called', () => {
     (logger as Function)(mockStore)(next)(action);
     expect(next.mock.calls.length).toBe(0);
 
     jest.advanceTimersByTime(2000);
     expect(postStub.mock.calls.length).toBe(1);
-    expect(postStub.mock.calls[0][0].endpoint).toMatch('/superset/log/');
+    expect(postStub.mock.calls[0][0].endpoint).toMatch('/log/');
   });
 
   test('should include ts, start_offset, event_name, impression_id, source, and source_id in every event', () => {
     // Set window.location to include /dashboard/ so the middleware adds dashboard context
-    const originalHref = window.location.href;
-    Object.defineProperty(window, 'location', {
-      value: { href: `http://localhost/dashboard/${dashboardId}/` },
-      writable: true,
-    });
+    const locationSpy = jest.spyOn(window, 'location', 'get').mockReturnValue({
+      ...window.location,
+      href: `http://localhost/dashboard/${dashboardId}/`,
+    } as Location);
 
     try {
       const fetchLog = (logger as Function)(mockStore)(next);
@@ -134,30 +133,22 @@ describe('logger middleware', () => {
       expect(typeof events[0].ts).toBe('number');
       expect(typeof events[0].start_offset).toBe('number');
     } finally {
-      // Restore original location
-      Object.defineProperty(window, 'location', {
-        value: { href: originalHref },
-        writable: true,
-      });
+      locationSpy.mockRestore();
     }
   });
 
   const getSourceForPath = (href: string): string | undefined => {
-    const originalHref = window.location.href;
-    Object.defineProperty(window, 'location', {
-      value: { href },
-      writable: true,
-    });
+    const locationSpy = jest.spyOn(window, 'location', 'get').mockReturnValue({
+      ...window.location,
+      href,
+    } as Location);
     try {
       (logger as Function)(mockStore)(next)(action);
       jest.advanceTimersByTime(2000);
       const { events } = postStub.mock.calls[0][0].postPayload;
       return events[0].source;
     } finally {
-      Object.defineProperty(window, 'location', {
-        value: { href: originalHref },
-        writable: true,
-      });
+      locationSpy.mockRestore();
     }
   };
 
@@ -199,7 +190,7 @@ describe('logger middleware', () => {
 
     expect(beaconMock.mock.calls.length).toBe(1);
     const endpoint = beaconMock.mock.calls[0][0];
-    expect(endpoint).toMatch('/superset/log/');
+    expect(endpoint).toMatch('/log/');
   });
 
   test('should pass a guest token to sendBeacon if present', () => {

@@ -89,9 +89,11 @@ class CeleryConfig:
     broker_url = f"redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_CELERY_DB}"
     imports = (
         "superset.sql_lab",
+        "superset.tasks.deletion_retention",
         "superset.tasks.scheduler",
         "superset.tasks.thumbnails",
         "superset.tasks.cache",
+        "superset.tasks.export_dashboard_excel",
     )
     result_backend = f"redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_RESULTS_DB}"
     worker_prefetch_multiplier = 1
@@ -105,6 +107,13 @@ class CeleryConfig:
             "task": "reports.prune_log",
             "schedule": crontab(minute=10, hour=0),
         },
+        # Gated on the SOFT_DELETE feature flag, which is off by default: the
+        # task is scheduled either way, but purges nothing while the flag is
+        # unset. Enable it in FEATURE_FLAGS below to exercise retention locally.
+        "deletion_retention.purge_soft_deleted": {
+            "task": "deletion_retention.purge_soft_deleted",
+            "schedule": crontab(minute=0, hour=0),
+        },
     }
 
 
@@ -117,10 +126,18 @@ FEATURE_FLAGS = {
     # (INCLUDE_CHROMIUM in docker-compose.yml), as the user who views them
     "THUMBNAILS": True,
     "PLAYWRIGHT_REPORTS_AND_THUMBNAILS": True,
+    "ENABLE_EXTENSIONS": True,
+    # MOBILE_CONSUMPTION_MODE (Superset 7.0) stays off: AuraData BI has its own
+    # mobile layout per page (meta.mibiMobile)
+    "SEMANTIC_LAYERS": True,
 }
+EXTENSIONS_PATH = "/app/docker/extensions"
 ALERT_REPORTS_NOTIFICATION_DRY_RUN = True
 # The worker's headless browser reaches the app through its compose service name
-WEBDRIVER_BASEURL = f"http://superset:8088{os.environ.get('SUPERSET_APP_ROOT', '/')}"
+# ("superset", port 8088). Report paths are root-relative, so urljoin drops the base
+# path; only the scheme, host, and port must be correct here. SUPERSET_APP_ROOT is
+# kept for consumers that concatenate paths directly (e.g. cache warm-up).
+WEBDRIVER_BASEURL = f"http://superset:8088{os.environ.get('SUPERSET_APP_ROOT', '/')}/"
 # The base URL for the email report hyperlinks.
 WEBDRIVER_BASEURL_USER_FRIENDLY = (
     f"http://localhost:8888/{os.environ.get('SUPERSET_APP_ROOT', '/')}/"

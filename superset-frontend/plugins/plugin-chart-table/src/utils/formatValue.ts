@@ -19,14 +19,15 @@
 import {
   CurrencyFormatter,
   DataRecordValue,
-  getNumberFormatter,
+  getSmallNumberFormatter,
   isProbablyHTML,
   sanitizeHtml,
+  DateWithFormatter,
 } from '@superset-ui/core';
 import { formatTableNumber } from '@superset-ui/chart-controls';
 import { GenericDataType } from '@apache-superset/core/common';
+import { logging } from '@apache-superset/core/utils';
 import { DataColumnMeta } from '../types';
-import DateWithFormatter from './DateWithFormatter';
 
 /**
  * Format text for cell value.
@@ -51,11 +52,16 @@ function formatValue(
     return [false, 'N/A'];
   }
   if (formatter) {
-    // If formatter is a CurrencyFormatter, pass row context for AUTO mode
-    if (formatter instanceof CurrencyFormatter) {
-      return [false, formatter(value as number, rowData, currencyColumn)];
+    try {
+      // If formatter is a CurrencyFormatter, pass row context for AUTO mode
+      if (formatter instanceof CurrencyFormatter) {
+        return [false, formatter(value as number, rowData, currencyColumn)];
+      }
+      return [false, formatter(value as number)];
+    } catch (e) {
+      logging.warn('Formatter failed, falling back to raw value', e);
+      return [false, String(value)];
     }
-    return [false, formatter(value as number)];
   }
   if (typeof value === 'string') {
     return isProbablyHTML(value) ? [true, sanitizeHtml(value)] : [false, value];
@@ -72,15 +78,11 @@ export function formatColumnValue(
   const number = formatTableNumber(value, config);
   if (number !== undefined) return [false, number] as [boolean, string];
   const isNumber = dataType === GenericDataType.Numeric;
-  const smallNumberFormatter =
-    config.d3SmallNumberFormat === undefined
-      ? formatter
-      : config.currencyFormat
-        ? new CurrencyFormatter({
-            d3Format: config.d3SmallNumberFormat,
-            currency: config.currencyFormat,
-          })
-        : getNumberFormatter(config.d3SmallNumberFormat);
+  const smallNumberFormatter = getSmallNumberFormatter(
+    formatter,
+    config.d3SmallNumberFormat,
+    config.currencyFormat,
+  );
   return formatValue(
     isNumber && typeof value === 'number' && Math.abs(value) < 1
       ? smallNumberFormatter
