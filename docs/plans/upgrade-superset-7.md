@@ -553,6 +553,45 @@ prueba: `https://`, `schema1,schema2`, `markdown`…).
   `t('DB engine')` dentro de `t('%s Error', …)` no se extrae (Babel no recoge un `t()` anidado), así que «DB engine error»
   aparece en inglés en los errores de conexión; es de 7.0, sin tocar.
 
+### Fase 7
+
+Rama `claude/upgrade-superset-7-e5234c` (cortada de la de la fase 6). Entorno: venv de la fase 5, Postgres 17 desechable
+(`qa7-pg`, puerto 5551) con un `pg_dump` de la base del 8188 (en `d3f9a2b17c64`), servidor en el 8199 con una config propia sin
+Redis, `node_modules` clonados con `cp -cR` (también los anidados de `plugins/*` y `packages/*`). El 8188 no se tocó.
+
+- **Merge de `main`** (`e4552462af`, 8 commits: barra de menús, fila de comandos de la vista de lectura, barra de estado, menú con
+  clic derecho en las listas, cadenas en español, doc). 7 conflictos, resueltos a mano:
+  - `TableCollection`: se conserva `expandable` y los `components` memorizados de 7.0; `onRowContextMenu` entra por `onRow`.
+  - `ListView`: props de 7.0 (`filtersRef`, `expandable`, `headerContent`, filtros móviles) junto a `rowMenu`, `usePageStatus` y el menú contextual.
+  - `Header` del tablero: los botones de marcadores, presentar y exportar pasan a `ReadingBar`/`ReportMenuBar`; se conserva el
+    `!isEmbedded && !isMobile` de 7.0 en «Editar» y el import de `Icons` (lo usa el botón de filtros móviles).
+  - `HomePage`: el diseño con `PageHeader` de `main`, con la navegación completa a `/dashboard/new/` del port a 7.0.
+  - `DashboardList` (código y test): tabla primero (`main`) con las props móviles de 7.0 y `rowMenu`; los tests siguen el marcado de
+    7.0 (botones en vez de `role=button`, filtro «Editor»); los tests de tarjetas abren la lista con `?viewMode=card`
+    (`renderDashboardListAsCards`), porque `main` dejó de leer `LISTVIEWS_DEFAULT_CARD_VIEW`.
+  - `messages.po`: se conserva el catálogo de la fase 6 y se añaden las cadenas de `main` (tuteo, «tablero»); dos ya existían.
+  - Adaptado a 7.0 sin conflicto: rutas sin `/superset/` en `pageCrumbs`, `ReportMenuBar` y tests; `renderHook` de
+    `@testing-library/react`; tipos de antd 6 en `rowMenu.test`; `url` opcional de idiomas en `AppMenuBar`.
+- **Fallo real hallado a mano: la purga definitiva daba 500.** La política de purga de 7.0 exige nombrar cada tabla que apunta al
+  tablero o conjunto de datos; faltaban `mibi_dashboard_backgrounds`, `mibi_dashboard_images`, `mibi_workspace_dashboards`,
+  `mibi_workspace_datasets` y sobraba la clave a `themes`. Con eso fallaban «Eliminar definitivamente» y el job de retención.
+  Arreglado en `purge_policy.py` (las tablas del fork, `OWNED`) con `tests/unit_tests/mibi/purge_policy_test.py`; probado en el navegador.
+- **Meses de los ejes en español.** No eran de ECharts (7.0 ya carga su locale) sino de d3: `localeTimeFormat.ts` toma los nombres
+  de `Intl` para el idioma de la app salvo que `D3_TIME_FORMAT` los fije. Verificado: «ene, feb… dic».
+- **Cadenas.** 35 cadenas del fork decían «panel» por tablero (exportar, actualizar, incrustar…): corregidas. `messages.pot`
+  regenerado con las cadenas de `main` (el test de deriva pasa). Las etiquetas «% de…» con NBSP están en `messages.json` con su
+  traducción; **no** se abrieron en pantalla.
+- **Informes de tableros sin publicar.** Documentado en `README.md` y `AGENTS.md`; no se amplió ningún permiso. Un borrador lo ven
+  editores, admins y colaboradores/administradores del área, así que solo falla un ejecutor que no sea ninguno de ellos.
+- **Migración sobre datos reales.** `superset db upgrade` sobre la copia del 8188: 42 pasos hasta `f1c7a9e2b305`; 6 tableros, 59
+  gráficos, 8 conjuntos y 6 editores intactos; el 142 abre y se ve (cuatro páginas, gráficos y tablas con datos).
+- **Navegador (8199).** Admin: inicio, tablero 142, edición con cinta y panel Formato, lista de tableros con menú de clic derecho,
+  diálogos de mover a la papelera y de eliminar definitivamente (escribir «BORRAR»), papelera, alertas (modal completo), SQL Lab en
+  el panel, conexiones, presentación, exportar, historial y diseño móvil con vista previa. Colaborador: edita con cinta. Lector: ve el
+  tablero publicado sin «Editar». Externo: 404. Capturas en la carpeta de notas (`fase7-capturas/`).
+- **Conocido, sin tocar.** «Untitled Query N» de SQL Lab sale en inglés (nombre guardado, upstream). El modal de conexión solo
+  ofrece los drivers instalados: en el venv del Mac faltan `pymssql` y `mysqlclient`, la imagen los trae.
+
 ## Abiertos tras la fase 3
 
 Para la fase 4 (funciones que chocan), además de la lista de abajo:
