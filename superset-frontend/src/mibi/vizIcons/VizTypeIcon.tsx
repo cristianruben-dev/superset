@@ -43,6 +43,7 @@ export type VizIconKind =
   | 'histogram'
   | 'boxplot'
   | 'waterfall'
+  | 'butterfly'
   | 'graph'
   | 'tree'
   | 'mixed'
@@ -93,6 +94,7 @@ const KINDS: Record<string, VizIconKind> = {
   histogram_v2: 'histogram',
   box_plot: 'boxplot',
   waterfall: 'waterfall',
+  butterfly: 'butterfly',
   graph_chart: 'graph',
   tree_chart: 'tree',
   mixed_timeseries: 'mixed',
@@ -364,6 +366,17 @@ const DRAWINGS: Record<VizIconKind, ReactNode> = {
       <rect x="10.5" y="8" width="5" height="7" rx="1.4" fill="currentColor" opacity={MID} />
       <rect x="17" y="8" width="5" height="5" rx="1.4" fill="currentColor" opacity={SOFT} />
       <rect x="23.5" y="13" width="5" height="14" rx="1.4" fill="currentColor" />
+    </>
+  ),
+  butterfly: (
+    <>
+      <path d="M16 4v24" {...stroke} strokeWidth={1.6} opacity={SOFT} />
+      <rect x="6" y="6" width="9" height="5" rx="1.4" fill="currentColor" opacity={SOFT} />
+      <rect x="10" y="13.5" width="5" height="5" rx="1.4" fill="currentColor" opacity={MID} />
+      <rect x="3.5" y="21" width="11.5" height="5" rx="1.4" fill="currentColor" />
+      <rect x="17" y="6" width="6" height="5" rx="1.4" fill="currentColor" />
+      <rect x="17" y="13.5" width="11" height="5" rx="1.4" fill="currentColor" opacity={MID} />
+      <rect x="17" y="21" width="8" height="5" rx="1.4" fill="currentColor" opacity={SOFT} />
     </>
   ),
   graph: (

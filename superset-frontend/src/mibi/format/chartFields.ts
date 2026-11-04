@@ -80,6 +80,11 @@ function rolesOf(formData: FormData): Record<string, () => string> {
       groupby: () => t('Breakdown'),
       metric: () => t('Values'),
     },
+    butterfly: {
+      groupby: () => t('Category'),
+      left_metric: () => t('Left values'),
+      right_metric: () => t('Right values'),
+    },
     big_number_total: { metric: () => t('Fields') },
     big_number: {
       x_axis: () => t('Trend axis'),

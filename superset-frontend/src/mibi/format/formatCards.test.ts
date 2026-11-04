@@ -167,3 +167,18 @@ test('controls of Superset 7.0 get a section, or yield to the one that says the 
   expect(shown).not.toContain('startAngle');
   expect(cards.some(card => card.id.startsWith('other-'))).toBe(false);
 });
+
+test('the sides of a butterfly chart make a section of their own', () => {
+  const cards = buildFormatCards([
+    section('Series settings', [
+      'left_label',
+      'left_color',
+      'right_label',
+      'right_color',
+    ]),
+  ]);
+
+  expect(cards.map(card => [card.id, card.title])).toEqual([
+    ['butterfly-sides', 'Sides'],
+  ]);
+});

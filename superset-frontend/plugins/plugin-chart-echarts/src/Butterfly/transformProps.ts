@@ -43,6 +43,12 @@ import {
 } from '../utils/series';
 import { resolveLegendLayout } from '../utils/legendLayout';
 import { convertInteger } from '../utils/convertInteger';
+import {
+  applyChartFormat,
+  type ChartFormatOptions,
+} from '../utils/chartFormatOptions';
+import { applyLegendFormatting } from '../utils/formatting';
+import type { FontStyleValue } from '@superset-ui/core';
 
 type EChartsOption = ComposeOption<BarSeriesOption>;
 
@@ -259,6 +265,12 @@ export default function transformProps(
     true,
   );
 
+  // The format of the Format pane: the chart is a horizontal bar chart
+  const legendFormat = formData as ChartFormatOptions & {
+    legendAlign?: 'start' | 'center' | 'end' | null;
+    legendFont?: FontStyleValue | null;
+    legendIcon?: string | null;
+  };
   const echartOptions: EChartsOption = {
     grid: {
       ...defaultGrid,
@@ -274,13 +286,21 @@ export default function transformProps(
       right: theme.sizeUnit * 5 + legendPadding.right,
     },
     legend: {
-      ...getLegendProps(
-        effectiveLegendType,
+      ...applyLegendFormatting(
+        getLegendProps(
+          effectiveLegendType,
+          legendOrientation,
+          showLegend,
+          theme,
+          false,
+          legendState,
+        ) as Record<string, unknown>,
         legendOrientation,
-        showLegend,
-        theme,
-        false,
-        legendState,
+        {
+          align: legendFormat.legendAlign,
+          font: legendFormat.legendFont,
+          icon: legendFormat.legendIcon,
+        },
       ),
       data: legendData,
     },
@@ -335,12 +355,24 @@ export default function transformProps(
     series,
   };
 
+  const formattedOptions = applyChartFormat(
+    echartOptions,
+    formData as unknown as ChartFormatOptions,
+    {
+      isHorizontal: true,
+      width,
+      height,
+      legendState,
+      formatter: value => defaultFormatter(Math.abs(value)),
+    },
+  );
+
   return {
     refs,
     formData,
     width,
     height,
-    echartOptions,
+    echartOptions: formattedOptions,
     setDataMask,
     onContextMenu,
     onLegendStateChanged,

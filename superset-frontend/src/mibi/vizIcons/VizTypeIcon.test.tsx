@@ -23,6 +23,7 @@ test.each([
   ['echarts_timeseries_bar', 'bar'],
   ['echarts_timeseries_smooth', 'line'],
   ['pie', 'pie'],
+  ['butterfly', 'butterfly'],
   ['big_number_total', 'kpi'],
   ['big_number', 'kpiTrend'],
   ['pivot_table_v2', 'pivot'],

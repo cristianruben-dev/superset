@@ -223,6 +223,11 @@ const config: ControlPanelConfig = {
         ],
       ],
     },
+    sections.buildDataLabelsFormatSection({ marks: 'bars' }),
+    sections.seriesLegendFormatSection,
+    sections.axesFormatSection,
+    sections.buildSeriesFormatSection({ lines: false, markers: false }),
+    sections.plotAreaFormatSection,
   ],
   controlOverrides: {
     groupby: {

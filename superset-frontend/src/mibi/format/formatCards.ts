@@ -476,6 +476,11 @@ export const CARD_DEFINITIONS: CardDefinition[] = [
     ],
   },
   {
+    id: 'butterfly-sides',
+    title: () => t('Sides'),
+    controls: ['left_label', 'left_color', 'right_label', 'right_color'],
+  },
+  {
     id: 'pie-slices',
     title: () => t('Slices'),
     controls: ['special_start_angle', 'sweptAngle'],

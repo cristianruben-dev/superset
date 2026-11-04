@@ -231,3 +231,13 @@ test('only editors and admins change the fields of a chart', () => {
   // A workspace contributor edits the dashboard without being a chart editor
   expect(canChangeFields(user, [{ id: 9 }], true)).toBe(true);
 });
+
+test('names the fields of a butterfly chart by their side', () => {
+  const butterfly = { viz_type: 'butterfly' };
+
+  expect(fieldRole(butterfly, 'groupby')).toBe('Category');
+  expect(fieldRole(butterfly, 'left_metric')).toBe('Left values');
+  expect(fieldRole(butterfly, 'right_metric')).toBe('Right values');
+  expect(isFieldWell(butterfly, 'left_metric', 'MetricsControl')).toBe(true);
+  expect(isFieldWell(butterfly, 'order_desc', 'CheckboxControl')).toBe(false);
+});
