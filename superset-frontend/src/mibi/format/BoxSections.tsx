@@ -25,7 +25,14 @@ import { CHART_TYPE } from 'src/dashboard/util/componentTypes';
 import { setVisualFormat } from './actions';
 import { BASE_VISUAL_PADDING, mergeVisualFormat } from './styles';
 import { useSharedVisualFormat } from './useVisualFormat';
-import { ColorField, Field, RangeField, Section, Segments } from './controls';
+import {
+  ColorField,
+  Dependent,
+  Field,
+  RangeField,
+  Section,
+  Segments,
+} from './controls';
 import {
   DEFAULT_RADIUS,
   type ShadowDetail,
@@ -93,7 +100,7 @@ export function BoxSections({ id }: { id: string }) {
           onChange={background => update({ background }, 'background')}
           testId="mibi-format-visual-color"
         />
-        {!transparent && (
+        <Dependent off={transparent}>
           <RangeField
             label={t('Opacity')}
             help={{
@@ -116,7 +123,7 @@ export function BoxSections({ id }: { id: string }) {
               )
             }
           />
-        )}
+        </Dependent>
       </Section>
 
       <Section>

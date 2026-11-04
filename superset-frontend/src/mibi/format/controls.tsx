@@ -39,8 +39,16 @@ const SectionBox = styled.section`
     display: flex;
     flex-direction: column;
     gap: ${theme.sizeUnit * 2}px;
-    padding: ${theme.sizeUnit * 3}px ${theme.sizeUnit * 4}px;
-    border-bottom: 1px solid ${theme.colorBorderSecondary};
+    margin: ${theme.sizeUnit * 2}px ${theme.sizeUnit * 3}px;
+    padding: ${theme.sizeUnit * 3}px;
+    border: 1px solid ${theme.colorBorderSecondary};
+    border-radius: ${theme.borderRadiusLG}px;
+    background: ${theme.colorFillQuaternary};
+
+    > .section-head[aria-expanded='true'] {
+      padding-bottom: ${theme.sizeUnit * 2}px;
+      border-bottom: 1px solid ${theme.colorBorderSecondary};
+    }
 
     h4 {
       margin: 0;
@@ -84,6 +92,47 @@ const SectionBox = styled.section`
   `}
 `;
 
+const DependentBox = styled.div`
+  ${({ theme }) => css`
+    &[aria-disabled='true'] {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    > .dependent-body {
+      display: flex;
+      flex-direction: column;
+      gap: ${theme.sizeUnit * 2}px;
+    }
+  `}
+`;
+
+/**
+ * Settings that depend on a switch. A switch turned off keeps them in place,
+ * faded and locked, so the editor still sees what it would turn on.
+ */
+export function Dependent({
+  off,
+  children,
+}: {
+  off: boolean;
+  children: ReactNode;
+}) {
+  const bodyRef = useRef<HTMLDivElement>(null);
+  // `inert` locks the settings for the pointer, the keyboard and screen
+  // readers; the box around them keeps the pointer to show the locked cursor
+  useLayoutEffect(() => {
+    bodyRef.current?.toggleAttribute('inert', off);
+  }, [off]);
+  return (
+    <DependentBox aria-disabled={off} data-test="mibi-format-dependent">
+      <div ref={bodyRef} className="dependent-body">
+        {children}
+      </div>
+    </DependentBox>
+  );
+}
+
 /** What the search box of the Format pane looks for. */
 export const FormatSearchContext = createContext('');
 
@@ -114,6 +163,7 @@ export function Section({
   children,
   collapsedByDefault,
   headExtra,
+  off,
   ...props
 }: HTMLAttributes<HTMLElement> & {
   'data-test'?: string;
@@ -121,6 +171,8 @@ export function Section({
   collapsedByDefault?: boolean;
   /** Next to the heading, like the switch of an option */
   headExtra?: ReactNode;
+  /** The switch of the section is off: its settings show faded and locked */
+  off?: boolean;
 }) {
   const query = searchable(useContext(FormatSearchContext).trim());
   const items = Children.toArray(children);
@@ -189,7 +241,14 @@ export function Section({
           )}
         </div>
       )}
-      {shown && items.filter(child => child !== head)}
+      {shown &&
+        (off === undefined ? (
+          items.filter(child => child !== head)
+        ) : (
+          <Dependent off={off}>
+            {items.filter(child => child !== head)}
+          </Dependent>
+        ))}
     </SectionBox>
   );
 }

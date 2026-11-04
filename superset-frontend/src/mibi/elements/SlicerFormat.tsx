@@ -32,6 +32,7 @@ import { setComponentMeta } from 'src/mibi/format/actions';
 import { BoxSections } from 'src/mibi/format/BoxSections';
 import {
   ColorField,
+  Dependent,
   Field,
   FormatSearchContext,
   Hint,
@@ -657,7 +658,7 @@ function HeaderSection({
       }
     >
       <h4>{t('Slicer header')}</h4>
-      {!config.hideLabel && (
+      <Dependent off={!!config.hideLabel}>
         <>
           {font('labelFamily', t('Header font'))}
           {range('labelSize', t('Size'), 13, 8, 28)}
@@ -670,7 +671,7 @@ function HeaderSection({
           {toggle('labelDivider', t('Line under the header'))}
           {drawn && toggle('showSummary', t('Show how many are chosen'))}
         </>
-      )}
+      </Dependent>
       {toggle('showClear', t('Eraser to clear the selection'), true)}
     </Section>
   );
@@ -1008,6 +1009,7 @@ function VisualLevel({
       {fromList && (
         <Section
           collapsedByDefault
+          off={!markShown}
           headExtra={
             <Switch
               size="small"
@@ -1018,28 +1020,26 @@ function VisualLevel({
           }
         >
           <h4>{t('Selection mark')}</h4>
-          {markShown && (
-            <>
-              {toggle('iconOverlay', t('Over the corner of the value'))}
-              {color('iconColor', t('Color'), theme.colorPrimary)}
-              {opacity('iconOpacity', 'iconColor', theme.colorPrimary)}
-              {range('iconSize', t('Size'), 14, 8, 32)}
-              {range('iconGap', t('Space to the text'), 6, 0, 24)}
-              <Field label={t('Position')} stacked>
-                <Segments<'left' | 'right'>
-                  name={t('Selection mark position')}
-                  value={config.iconPosition ?? 'left'}
-                  onChange={iconPosition =>
-                    update({ iconPosition }, 'filter-icon-position')
-                  }
-                  options={[
-                    { value: 'left', label: t('Left') },
-                    { value: 'right', label: t('Right') },
-                  ]}
-                />
-              </Field>
-            </>
-          )}
+          <>
+            {toggle('iconOverlay', t('Over the corner of the value'))}
+            {color('iconColor', t('Color'), theme.colorPrimary)}
+            {opacity('iconOpacity', 'iconColor', theme.colorPrimary)}
+            {range('iconSize', t('Size'), 14, 8, 32)}
+            {range('iconGap', t('Space to the text'), 6, 0, 24)}
+            <Field label={t('Position')} stacked>
+              <Segments<'left' | 'right'>
+                name={t('Selection mark position')}
+                value={config.iconPosition ?? 'left'}
+                onChange={iconPosition =>
+                  update({ iconPosition }, 'filter-icon-position')
+                }
+                options={[
+                  { value: 'left', label: t('Left') },
+                  { value: 'right', label: t('Right') },
+                ]}
+              />
+            </Field>
+          </>
         </Section>
       )}
       {((fromList && config.showSearch) || variant === 'input') && drawn && (

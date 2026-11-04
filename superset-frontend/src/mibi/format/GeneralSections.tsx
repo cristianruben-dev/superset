@@ -29,6 +29,7 @@ import { tooltipPages } from 'src/mibi/report/tooltipPages';
 import { setVisualFormat } from './actions';
 import {
   ColorField,
+  Dependent,
   Field,
   Hint,
   RangeField,
@@ -353,6 +354,7 @@ export function ChartTooltipSection({ id }: { id: string }) {
   return (
     <Section
       collapsedByDefault
+      off={!shown}
       data-test="mibi-format-tooltip"
       headExtra={
         <Switch
@@ -365,20 +367,18 @@ export function ChartTooltipSection({ id }: { id: string }) {
       }
     >
       <h4>{t('Tooltips')}</h4>
-      {shown && (
-        <Field label={t('Type')}>
-          <Segments<'default' | 'page'>
-            name={t('Tooltip type')}
-            value={pageType}
-            onChange={type => setPage({ type }, 'type')}
-            options={[
-              { value: 'default', label: t('Default') },
-              { value: 'page', label: t('Report page') },
-            ]}
-          />
-        </Field>
-      )}
-      {shown && pageType === 'page' && (
+      <Field label={t('Type')}>
+        <Segments<'default' | 'page'>
+          name={t('Tooltip type')}
+          value={pageType}
+          onChange={type => setPage({ type }, 'type')}
+          options={[
+            { value: 'default', label: t('Default') },
+            { value: 'page', label: t('Report page') },
+          ]}
+        />
+      </Field>
+      {pageType === 'page' && (
         <>
           <Field label={t('Page')}>
             <Select
@@ -402,7 +402,7 @@ export function ChartTooltipSection({ id }: { id: string }) {
           </Hint>
         </>
       )}
-      {shown && pageType !== 'page' && (
+      {pageType !== 'page' && (
         <>
           <TextFields value={tooltip} onChange={patch => set(patch, 'text')} />
           <ColorField
@@ -464,6 +464,7 @@ export function ActionSection({ id }: { id: string }) {
     <>
       <Section
         collapsedByDefault
+        off={!link.show}
         data-test="mibi-format-action"
         headExtra={
           <Switch
@@ -476,30 +477,26 @@ export function ActionSection({ id }: { id: string }) {
         }
       >
         <h4>{t('Action')}</h4>
-        {link.show && (
-          <>
-            <Input
-              value={link.tooltip ?? ''}
-              placeholder={t('Tooltip')}
-              aria-label={t('Tooltip')}
-              onChange={event =>
-                set({ tooltip: event.target.value }, 'tooltip')
-              }
-            />
-            <Input
-              value={link.disabledTooltip ?? ''}
-              placeholder={t('Tooltip while it is not available')}
-              aria-label={t('Tooltip while it is not available')}
-              onChange={event =>
-                set({ disabledTooltip: event.target.value }, 'disabled-tooltip')
-              }
-            />
-            <ActionFields
-              action={link.action}
-              onChange={action => set({ action }, 'action')}
-            />
-          </>
-        )}
+        <>
+          <Input
+            value={link.tooltip ?? ''}
+            placeholder={t('Tooltip')}
+            aria-label={t('Tooltip')}
+            onChange={event => set({ tooltip: event.target.value }, 'tooltip')}
+          />
+          <Input
+            value={link.disabledTooltip ?? ''}
+            placeholder={t('Tooltip while it is not available')}
+            aria-label={t('Tooltip while it is not available')}
+            onChange={event =>
+              set({ disabledTooltip: event.target.value }, 'disabled-tooltip')
+            }
+          />
+          <ActionFields
+            action={link.action}
+            onChange={action => set({ action }, 'action')}
+          />
+        </>
       </Section>
     </>
   );
@@ -653,6 +650,7 @@ export function ActionButtonSection({ id }: { id: string }) {
   return (
     <Section
       collapsedByDefault
+      off={!button.show}
       data-test="mibi-format-action-button"
       headExtra={
         <Switch
@@ -665,244 +663,240 @@ export function ActionButtonSection({ id }: { id: string }) {
       }
     >
       <h4>{t('Action button')}</h4>
-      {button.show && (
-        <>
-          <Hint>{t('It runs the action of the chart, set above.')}</Hint>
-          <Field label={t('Position')} stacked>
-            <Segments<NonNullable<ActionButtonFormat['position']>>
-              name={t('Position')}
-              value={button.position ?? 'within'}
-              onChange={position => set({ position }, 'position')}
-              options={[
-                { value: 'above', label: t('Above title') },
-                { value: 'within', label: t('In title') },
-                { value: 'below', label: t('Below title') },
-              ]}
-            />
-          </Field>
-          <Toggle
-            label={t('Icon only')}
-            checked={!!button.iconOnly}
-            onChange={iconOnly => set({ iconOnly }, 'icon-only')}
+      <>
+        <Hint>{t('It runs the action of the chart, set above.')}</Hint>
+        <Field label={t('Position')} stacked>
+          <Segments<NonNullable<ActionButtonFormat['position']>>
+            name={t('Position')}
+            value={button.position ?? 'within'}
+            onChange={position => set({ position }, 'position')}
+            options={[
+              { value: 'above', label: t('Above title') },
+              { value: 'within', label: t('In title') },
+              { value: 'below', label: t('Below title') },
+            ]}
           />
+        </Field>
+        <Toggle
+          label={t('Icon only')}
+          checked={!!button.iconOnly}
+          onChange={iconOnly => set({ iconOnly }, 'icon-only')}
+        />
 
-          <Toggle
-            label={t('Show the text')}
-            checked={button.textShow !== false}
-            onChange={textShow => set({ textShow }, 'text-show')}
-          />
-          <Input
-            value={button.text ?? ''}
-            placeholder={t('Button text')}
-            aria-label={t('Button text')}
-            data-test="mibi-format-action-button-text"
-            onChange={event => set({ text: event.target.value }, 'text')}
-          />
-          <TextFields
-            value={button}
-            onChange={patch => set(patch, 'text-style')}
-          />
-          <ColorField
-            label={t('Text color')}
-            value={button.textColor || theme.colorText}
-            onChange={textColor => set({ textColor }, 'text-color')}
-          />
-          <RangeField
-            label={t('Text opacity')}
-            value={button.textOpacity ?? 100}
-            min={0}
-            max={100}
-            unit="%"
-            onChange={textOpacity => set({ textOpacity }, 'text-opacity')}
-          />
-          <Field label={t('Horizontal alignment')} stacked>
-            <Segments<NonNullable<ActionButtonFormat['alignHorizontal']>>
-              name={t('Horizontal alignment')}
-              value={button.alignHorizontal ?? 'center'}
-              onChange={alignHorizontal =>
-                set({ alignHorizontal }, 'align-horizontal')
-              }
-              options={[
-                { value: 'left', label: t('Left') },
-                { value: 'center', label: t('Center') },
-                { value: 'right', label: t('Right') },
-              ]}
-            />
-          </Field>
-          <Field label={t('Vertical alignment')} stacked>
-            <Segments<NonNullable<ActionButtonFormat['alignVertical']>>
-              name={t('Vertical alignment')}
-              value={button.alignVertical ?? 'middle'}
-              onChange={alignVertical =>
-                set({ alignVertical }, 'align-vertical')
-              }
-              options={[
-                { value: 'top', label: t('Top') },
-                { value: 'middle', label: t('Middle') },
-                { value: 'bottom', label: t('Bottom') },
-              ]}
-            />
-          </Field>
-          <PaddingFields
-            label={t('Text padding')}
-            value={button.textPadding}
-            sides={button.textPaddingSides}
-            base={0}
-            onChange={({ padding, paddingSides }) =>
-              set(
-                padding !== undefined
-                  ? { textPadding: padding }
-                  : { textPaddingSides: paddingSides },
-                'text-padding',
-              )
+        <Toggle
+          label={t('Show the text')}
+          checked={button.textShow !== false}
+          onChange={textShow => set({ textShow }, 'text-show')}
+        />
+        <Input
+          value={button.text ?? ''}
+          placeholder={t('Button text')}
+          aria-label={t('Button text')}
+          data-test="mibi-format-action-button-text"
+          onChange={event => set({ text: event.target.value }, 'text')}
+        />
+        <TextFields
+          value={button}
+          onChange={patch => set(patch, 'text-style')}
+        />
+        <ColorField
+          label={t('Text color')}
+          value={button.textColor || theme.colorText}
+          onChange={textColor => set({ textColor }, 'text-color')}
+        />
+        <RangeField
+          label={t('Text opacity')}
+          value={button.textOpacity ?? 100}
+          min={0}
+          max={100}
+          unit="%"
+          onChange={textOpacity => set({ textOpacity }, 'text-opacity')}
+        />
+        <Field label={t('Horizontal alignment')} stacked>
+          <Segments<NonNullable<ActionButtonFormat['alignHorizontal']>>
+            name={t('Horizontal alignment')}
+            value={button.alignHorizontal ?? 'center'}
+            onChange={alignHorizontal =>
+              set({ alignHorizontal }, 'align-horizontal')
             }
+            options={[
+              { value: 'left', label: t('Left') },
+              { value: 'center', label: t('Center') },
+              { value: 'right', label: t('Right') },
+            ]}
           />
+        </Field>
+        <Field label={t('Vertical alignment')} stacked>
+          <Segments<NonNullable<ActionButtonFormat['alignVertical']>>
+            name={t('Vertical alignment')}
+            value={button.alignVertical ?? 'middle'}
+            onChange={alignVertical => set({ alignVertical }, 'align-vertical')}
+            options={[
+              { value: 'top', label: t('Top') },
+              { value: 'middle', label: t('Middle') },
+              { value: 'bottom', label: t('Bottom') },
+            ]}
+          />
+        </Field>
+        <PaddingFields
+          label={t('Text padding')}
+          value={button.textPadding}
+          sides={button.textPaddingSides}
+          base={0}
+          onChange={({ padding, paddingSides }) =>
+            set(
+              padding !== undefined
+                ? { textPadding: padding }
+                : { textPaddingSides: paddingSides },
+              'text-padding',
+            )
+          }
+        />
 
-          <Toggle
-            label={t('Show the icon')}
-            checked={button.iconShow !== false}
-            onChange={iconShow => set({ iconShow }, 'icon-show')}
-          />
-          <ColorField
-            label={t('Icon color')}
-            value={button.iconColor || theme.colorPrimary}
-            onChange={iconColor => set({ iconColor }, 'icon-color')}
-          />
-          <RangeField
-            label={t('Icon size')}
-            value={button.iconSize ?? 14}
-            min={8}
-            max={40}
-            onChange={iconSize => set({ iconSize }, 'icon-size')}
-          />
-          <RangeField
-            label={t('Icon opacity')}
-            value={button.iconOpacity ?? 100}
-            min={0}
-            max={100}
-            unit="%"
-            onChange={iconOpacity => set({ iconOpacity }, 'icon-opacity')}
-          />
-          <PaddingFields
-            label={t('Icon padding')}
-            value={button.iconPadding}
-            sides={button.iconPaddingSides}
-            base={0}
-            onChange={({ padding, paddingSides }) =>
-              set(
-                padding !== undefined
-                  ? { iconPadding: padding }
-                  : { iconPaddingSides: paddingSides },
-                'icon-padding',
-              )
-            }
-          />
+        <Toggle
+          label={t('Show the icon')}
+          checked={button.iconShow !== false}
+          onChange={iconShow => set({ iconShow }, 'icon-show')}
+        />
+        <ColorField
+          label={t('Icon color')}
+          value={button.iconColor || theme.colorPrimary}
+          onChange={iconColor => set({ iconColor }, 'icon-color')}
+        />
+        <RangeField
+          label={t('Icon size')}
+          value={button.iconSize ?? 14}
+          min={8}
+          max={40}
+          onChange={iconSize => set({ iconSize }, 'icon-size')}
+        />
+        <RangeField
+          label={t('Icon opacity')}
+          value={button.iconOpacity ?? 100}
+          min={0}
+          max={100}
+          unit="%"
+          onChange={iconOpacity => set({ iconOpacity }, 'icon-opacity')}
+        />
+        <PaddingFields
+          label={t('Icon padding')}
+          value={button.iconPadding}
+          sides={button.iconPaddingSides}
+          base={0}
+          onChange={({ padding, paddingSides }) =>
+            set(
+              padding !== undefined
+                ? { iconPadding: padding }
+                : { iconPaddingSides: paddingSides },
+              'icon-padding',
+            )
+          }
+        />
 
-          <Toggle
-            label={t('Show the fill')}
-            checked={button.fill?.show !== false}
-            onChange={show => nested('fill', { show })}
-          />
-          <ColorField
-            label={t('Fill')}
-            value={button.fill?.color || theme.colorFillTertiary}
-            onChange={color => nested('fill', { color })}
-          />
-          <RangeField
-            label={t('Fill opacity')}
-            value={button.fill?.opacity ?? 100}
-            min={0}
-            max={100}
-            unit="%"
-            onChange={opacity => nested('fill', { opacity })}
-          />
-          <Toggle
-            label={t('Show the background')}
-            checked={!!button.background?.show}
-            onChange={show => nested('background', { show })}
-          />
-          <Toggle
-            label={t('Match the chart background')}
-            checked={!!button.matchBackground}
-            onChange={matchBackground =>
-              set({ matchBackground }, 'match-background')
-            }
-          />
-          <ColorField
-            label={t('Background')}
-            value={button.background?.color || theme.colorBgContainer}
-            onChange={color => nested('background', { color })}
-          />
-          <RangeField
-            label={t('Background opacity')}
-            value={button.background?.opacity ?? 100}
-            min={0}
-            max={100}
-            unit="%"
-            onChange={opacity => nested('background', { opacity })}
-          />
+        <Toggle
+          label={t('Show the fill')}
+          checked={button.fill?.show !== false}
+          onChange={show => nested('fill', { show })}
+        />
+        <ColorField
+          label={t('Fill')}
+          value={button.fill?.color || theme.colorFillTertiary}
+          onChange={color => nested('fill', { color })}
+        />
+        <RangeField
+          label={t('Fill opacity')}
+          value={button.fill?.opacity ?? 100}
+          min={0}
+          max={100}
+          unit="%"
+          onChange={opacity => nested('fill', { opacity })}
+        />
+        <Toggle
+          label={t('Show the background')}
+          checked={!!button.background?.show}
+          onChange={show => nested('background', { show })}
+        />
+        <Toggle
+          label={t('Match the chart background')}
+          checked={!!button.matchBackground}
+          onChange={matchBackground =>
+            set({ matchBackground }, 'match-background')
+          }
+        />
+        <ColorField
+          label={t('Background')}
+          value={button.background?.color || theme.colorBgContainer}
+          onChange={color => nested('background', { color })}
+        />
+        <RangeField
+          label={t('Background opacity')}
+          value={button.background?.opacity ?? 100}
+          min={0}
+          max={100}
+          unit="%"
+          onChange={opacity => nested('background', { opacity })}
+        />
 
-          <Toggle
-            label={t('Show the border')}
-            checked={!!button.border?.show}
-            onChange={show => nested('border', { show })}
-          />
-          <ColorField
-            label={t('Border color')}
-            value={button.border?.color || theme.colorBorder}
-            onChange={color => nested('border', { color })}
-          />
-          <RangeField
-            label={t('Border width')}
-            value={button.border?.width ?? 1}
-            min={0}
-            max={8}
-            onChange={width => nested('border', { width })}
-          />
-          <RangeField
-            label={t('Border opacity')}
-            value={button.border?.opacity ?? 100}
-            min={0}
-            max={100}
-            unit="%"
-            onChange={opacity => nested('border', { opacity })}
-          />
+        <Toggle
+          label={t('Show the border')}
+          checked={!!button.border?.show}
+          onChange={show => nested('border', { show })}
+        />
+        <ColorField
+          label={t('Border color')}
+          value={button.border?.color || theme.colorBorder}
+          onChange={color => nested('border', { color })}
+        />
+        <RangeField
+          label={t('Border width')}
+          value={button.border?.width ?? 1}
+          min={0}
+          max={8}
+          onChange={width => nested('border', { width })}
+        />
+        <RangeField
+          label={t('Border opacity')}
+          value={button.border?.opacity ?? 100}
+          min={0}
+          max={100}
+          unit="%"
+          onChange={opacity => nested('border', { opacity })}
+        />
 
-          <Toggle
-            label={t('Show the glow')}
-            checked={!!button.glow?.show}
-            onChange={show => nested('glow', { show })}
+        <Toggle
+          label={t('Show the glow')}
+          checked={!!button.glow?.show}
+          onChange={show => nested('glow', { show })}
+        />
+        <Dependent off={!button.glow?.show}>
+          <EffectFields
+            effect={button.glow ?? {}}
+            onChange={patch => nested('glow', patch)}
           />
-          {button.glow?.show && (
-            <EffectFields
-              effect={button.glow}
-              onChange={patch => nested('glow', patch)}
-            />
-          )}
-          <Toggle
-            label={t('Show the shadow')}
-            checked={!!button.shadow?.show}
-            onChange={show => nested('shadow', { show })}
+        </Dependent>
+        <Toggle
+          label={t('Show the shadow')}
+          checked={!!button.shadow?.show}
+          onChange={show => nested('shadow', { show })}
+        />
+        <Dependent off={!button.shadow?.show}>
+          <EffectFields
+            effect={button.shadow ?? {}}
+            onChange={patch => nested('shadow', patch)}
           />
-          {button.shadow?.show && (
-            <EffectFields
-              effect={button.shadow}
-              onChange={patch => nested('shadow', patch)}
-            />
-          )}
-          <PaddingFields
-            label={t('Padding')}
-            value={button.padding}
-            sides={button.paddingSides}
-            onChange={({ padding, paddingSides }) =>
-              set(
-                padding !== undefined ? { padding } : { paddingSides },
-                'padding',
-              )
-            }
-          />
-        </>
-      )}
+        </Dependent>
+        <PaddingFields
+          label={t('Padding')}
+          value={button.padding}
+          sides={button.paddingSides}
+          onChange={({ padding, paddingSides }) =>
+            set(
+              padding !== undefined ? { padding } : { paddingSides },
+              'padding',
+            )
+          }
+        />
+      </>
     </Section>
   );
 }

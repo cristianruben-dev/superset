@@ -27,6 +27,7 @@ import { useReportTokens } from 'src/mibi/report/ReportTheme';
 import { setVisualFormat } from './actions';
 import {
   ColorField,
+  Dependent,
   Field,
   Hint,
   RangeField,
@@ -127,7 +128,7 @@ export function TitleSections({ id }: { id: string }) {
             onChange={show => updateTitle({ show }, 'show')}
           />
         </Field>
-        {titleShown && (
+        <Dependent off={!titleShown}>
           <>
             <RangeField
               label={t('Size')}
@@ -245,11 +246,11 @@ export function TitleSections({ id }: { id: string }) {
               />
             </Field>
           </>
-        )}
+        </Dependent>
       </Section>
 
-      {titleShown && (
-        <Section>
+      {
+        <Section off={!titleShown}>
           <h4>{t('Subtitle')}</h4>
           <Input
             value={format.title?.subtitle ?? ''}
@@ -369,7 +370,7 @@ export function TitleSections({ id }: { id: string }) {
             </>
           )}
         </Section>
-      )}
+      }
 
       <Section>
         <h4>{t('Divider and spacing')}</h4>
@@ -388,7 +389,7 @@ export function TitleSections({ id }: { id: string }) {
             onChange={divider => updateTitle({ divider }, 'divider')}
           />
         </Field>
-        {format.title?.divider && (
+        <Dependent off={!format.title?.divider}>
           <>
             <ColorField
               label={t('Line color')}
@@ -429,7 +430,7 @@ export function TitleSections({ id }: { id: string }) {
               ]}
             />
           </>
-        )}
+        </Dependent>
         <RangeField
           label={t('Space under the header')}
           value={format.title?.gap ?? 8}

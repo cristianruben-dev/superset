@@ -299,23 +299,49 @@ export function ChartFormatSections({
       ? safely(() => value(state, controls[name], chart), null)
       : (value as ReactNode);
 
-  const isItemShown = ({ name, config, sectionVisibility }: FormatCardItem) => {
+  type View = { controls: ControlStateMapping; panelProps: typeof panelProps };
+  const actual: View = { controls, panelProps };
+  // The settings of a section whose switch is off, as they would be once on
+  const switchedOn = (control: string, value: boolean): View => {
+    const forced = {
+      ...controls,
+      [control]: { ...controls[control], value },
+    } as ControlStateMapping;
+    return {
+      controls: forced,
+      panelProps: {
+        ...panelProps,
+        controls: forced,
+        form_data: { ...formData, [control]: value },
+      },
+    };
+  };
+
+  const isItemShown = (
+    { name, config, sectionVisibility }: FormatCardItem,
+    view: View = actual,
+  ) => {
     const { visibility } = config as Anything;
-    const data = { ...config, ...controls[name], name } as Anything;
+    const data = { ...config, ...view.controls[name], name } as Anything;
     const sectionShown = sectionVisibility
-      ? safely(() => sectionVisibility(panelProps as never, controls), true)
+      ? safely(
+          () => sectionVisibility(view.panelProps as never, view.controls),
+          true,
+        )
       : true;
     const visible = visibility
-      ? safely(() => visibility.call(config, panelProps, data), true)
+      ? safely(() => visibility.call(config, view.panelProps, data), true)
       : undefined;
     return sectionShown && visible !== false;
   };
 
-  const renderItem = (first: FormatCardItem) => {
+  const renderItem = (first: FormatCardItem, view: View = actual) => {
     // A control declared twice shows as the one for this case
     const { name, config, heading } =
-      [first, ...(first.alternatives ?? [])].find(isItemShown) ?? first;
-    if (!isItemShown({ ...first, config, name })) return null;
+      [first, ...(first.alternatives ?? [])].find(item =>
+        isItemShown(item, view),
+      ) ?? first;
+    if (!isItemShown({ ...first, config, name }, view)) return null;
     const {
       visibility: _visibility,
       hidden,
@@ -325,7 +351,7 @@ export function ChartFormatSections({
     const data = { ...rest, ...controls[name], name } as Anything;
     const isHidden =
       typeof hidden === 'function'
-        ? safely(() => hidden.call(config, panelProps, data), false)
+        ? safely(() => hidden.call(config, view.panelProps, data), false)
         : hidden;
     const { validationErrors, label, description, ...props } = data;
     return (
@@ -365,12 +391,15 @@ export function ChartFormatSections({
             ).includes(query),
           )
         : card.items;
-    const body = items.map(renderItem).filter(Boolean);
+    const view =
+      toggle && !on ? switchedOn(toggle.control, !toggle.inverted) : actual;
+    const body = items.map(item => renderItem(item, view)).filter(Boolean);
     if (!toggle && !body.length) return null;
     return (
       <Section
         key={card.id}
         collapsedByDefault
+        off={toggle ? !on : undefined}
         data-test={`mibi-chart-format-${card.id}`}
         headExtra={
           <>
@@ -401,7 +430,7 @@ export function ChartFormatSections({
         }
       >
         <h4>{card.title}</h4>
-        {on && body}
+        {body}
         {on && !body.length && (
           <Hint>{t('This chart has no more options here.')}</Hint>
         )}
