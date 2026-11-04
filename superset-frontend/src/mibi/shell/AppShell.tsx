@@ -24,6 +24,7 @@ import { URL_PARAMS } from 'src/constants';
 import type { MenuData } from 'src/types/bootstrapTypes';
 import { getUrlParam } from 'src/utils/urlUtils';
 import { isDockMode, isPanelMode } from '../chartEditor';
+import { usePhoneScreen } from '../format/mobile';
 import { CommandPalette } from './CommandPalette';
 import { buildNavSections, isReportRoute } from './navigation';
 import { AppMenuBar } from './AppMenuBar';
@@ -60,6 +61,16 @@ const Frame = styled.div`
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+`;
+
+// Dims the page behind the navigation drawer of a phone
+const Backdrop = styled.div<{ $top: number }>`
+  ${({ theme, $top }) => css`
+    position: fixed;
+    inset: ${$top}px 0 0 0;
+    z-index: 99;
+    background: ${theme.colorBgMask};
+  `}
 `;
 
 const MenuRow = styled.div`
@@ -116,6 +127,11 @@ export function AppShell({ data, isFrontendRoute, children }: AppShellProps) {
   const [preferCollapsed, setCollapsed] = useState(readCollapsed);
   const narrow = useScreenBelow(NARROW_SCREEN);
   const reportHeaderFits = !useScreenBelow(REPORT_HEADER_SCREEN);
+  // A phone has no room for the rail: the navigation opens as a drawer
+  const phone = usePhoneScreen();
+  // The page the drawer was opened on: moving to another page closes it
+  const [navOpenOn, setNavOpenOn] = useState<string | null>(null);
+  const navOpen = phone && navOpenOn === pathname;
   const collapsed = preferCollapsed || narrow;
   const sidebarWidth = collapsed ? SIDEBAR_COLLAPSED_WIDTH : SIDEBAR_WIDTH;
   const [searching, setSearching] = useState(false);
@@ -137,6 +153,21 @@ export function AppShell({ data, isFrontendRoute, children }: AppShellProps) {
       return !value;
     });
   }, []);
+
+  const toggleNav = useCallback(
+    () => setNavOpenOn(value => (value === pathname ? null : pathname)),
+    [pathname],
+  );
+  const closeNav = useCallback(() => setNavOpenOn(null), []);
+
+  useEffect(() => {
+    if (!navOpen) return undefined;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setNavOpenOn(null);
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [navOpen]);
 
   useEffect(() => {
     // Lets the skin compact pages shown inside the chart editor panel
@@ -176,23 +207,30 @@ export function AppShell({ data, isFrontendRoute, children }: AppShellProps) {
               sections={sections}
               isFrontendRoute={isFrontendRoute}
               onSearch={() => setSearching(true)}
-              sidebarCollapsed={collapsed}
-              onToggleSidebar={toggleCollapsed}
+              sidebarCollapsed={phone ? !navOpen : collapsed}
+              onToggleSidebar={phone ? toggleNav : toggleCollapsed}
             />
           )}
         </MenuRow>
-        {!report && (
+        {!report && (!phone || navOpen) && (
           <Sidebar
             sections={sections}
-            collapsed={collapsed}
-            onToggleCollapsed={toggleCollapsed}
+            collapsed={phone ? false : collapsed}
+            onToggleCollapsed={phone ? closeNav : toggleCollapsed}
             isFrontendRoute={isFrontendRoute}
             top={MENU_BAR_HEIGHT}
-            bottom={STATUS_BAR_HEIGHT}
+            bottom={phone ? 0 : STATUS_BAR_HEIGHT}
+          />
+        )}
+        {!report && phone && navOpen && (
+          <Backdrop
+            $top={MENU_BAR_HEIGHT}
+            onClick={closeNav}
+            data-test="mibi-nav-backdrop"
           />
         )}
         <Main
-          $offset={report ? 0 : sidebarWidth}
+          $offset={report || phone ? 0 : sidebarWidth}
           $bottom={report ? 0 : STATUS_BAR_HEIGHT}
           data-test="mibi-main"
         >
@@ -200,8 +238,9 @@ export function AppShell({ data, isFrontendRoute, children }: AppShellProps) {
             data={data}
             isFrontendRoute={isFrontendRoute}
             onSearch={() => setSearching(true)}
-            showBrand={report}
+            showBrand={report || phone}
             compactBrand={narrow}
+            onOpenNav={!report && phone ? toggleNav : undefined}
             reportHeader={report && reportHeaderFits}
           />
           {!report && <ShellCrumbs sections={sections} pathname={pathname} />}

@@ -179,3 +179,30 @@ test('pages out of a report have a menu bar', async () => {
   expect(await screen.findByText('Collapse sidebar')).toBeInTheDocument();
   expect(screen.getByText('Dark')).toBeInTheDocument();
 });
+
+test('a phone opens the navigation as a drawer instead of a rail', () => {
+  const width = window.innerWidth;
+  window.innerWidth = 375;
+  try {
+    renderShell();
+
+    expect(screen.queryByTestId('mibi-sidebar')).not.toBeInTheDocument();
+    expect(screen.getByTestId('mibi-main')).toHaveStyle({ marginLeft: '0px' });
+
+    userEvent.click(screen.getByRole('button', { name: 'Open navigation' }));
+    // The drawer shows the labelled navigation, without touching the
+    // collapsed preference of larger screens
+    expect(screen.getByTestId('mibi-sidebar')).toBeInTheDocument();
+    expect(screen.getByText('Dashboards')).toBeInTheDocument();
+    expect(window.localStorage.getItem('mibi.sidebarCollapsed')).toBeNull();
+
+    userEvent.click(screen.getByTestId('mibi-nav-backdrop'));
+    expect(screen.queryByTestId('mibi-sidebar')).not.toBeInTheDocument();
+
+    userEvent.click(screen.getByRole('button', { name: 'Open navigation' }));
+    fireEvent.keyDown(window, { key: 'Escape' });
+    expect(screen.queryByTestId('mibi-sidebar')).not.toBeInTheDocument();
+  } finally {
+    window.innerWidth = width;
+  }
+});

@@ -141,28 +141,36 @@ marca. Sin probar con SESEQ (142).
 
 ## E. Hallazgos de QA y lo no comprobado (M)
 
-De [`qa-main.md`](qa-main.md), sin repetir los ya resueltos (#1, #5, #9, #19, #22) ni el #7 (los temas ya no
-existen). No se han vuelto a comprobar desde `5d75ca77f6` (103 commits después), así que el primer paso es
-repasarlos.
+Repasados en la app el 4/11, ya sobre 7.0 (detalle en [`qa-main.md`](qa-main.md)):
 
-| # | Qué | Severidad |
+| # | Qué | Estado |
 | --- | --- | --- |
-| 2, 3, 4 | Móvil a 375 px: la página desborda, tarjetas en dos columnas, raíl siempre visible | Alta / media |
-| 12 | Gráficos Horizon (plugin quitado): mensaje claro y ofrecer otro tipo, o migrarlos | Alta |
-| 16 | Modo presentación: escalar la página entera y entrar en pantalla completa | Alta |
-| 10 | «Guardar como» copia marcadores con los ids de los gráficos originales | Media |
-| 15 | La tabla no se reordena hasta recargar; además falta la flecha de orden en el encabezado | Media |
-| 17, 18 | PDF: emojis y espaciado del índice, títulos de dos líneas cortados | Media / baja |
-| 21 | Embebido a 375 px: lienzo de 269 px | Media |
-| 8 | Quitar la casilla «duplicar gráficos» de «Guardar como» (siempre duplica) | Baja |
-| 11, 13, 20 | Prop `appSection` en el DOM, insignia «Bloqueado» sobre el título, avisos del embebido | Baja |
+| 2, 4 | Móvil a 375 px: la página desborda, raíl siempre visible | Corregido: cajón de navegación en teléfonos, comandos que se parten |
+| 3 | Tarjetas de Inicio en dos columnas | Ya no aplica (Inicio cambió) |
+| 21 | Embebido a 375 px: lienzo de 269 px | Ya bien: 343 px con filtros, ancho entero sin ellos |
+| 12 | Gráficos Horizon | Hecho (`2cc4adf797`) |
+| 16 | Modo presentación | Ya bien: la página entra entera, sin scroll |
+| 10 | «Guardar como» y marcadores | Ya bien: la copia lleva los ids nuevos (comprobado con el DAO real, revertido) |
+| 15 | Orden de la tabla y flecha | Corregido en código y test; ningún gráfico tiene orden guardado para verlo |
+| 17, 18 | PDF: emojis, índice, títulos | Corregido en código y tests; no se reexportó |
+| 8 | Casilla «duplicar gráficos» | Ya bien: no existe |
+| 11, 13, 20 | `appSection`, insignia «Bloqueado», avisos del embebido | Ya bien |
 
 **Sin comprobar todavía:**
-- Ejecutar `tests/experimental/dashboard/sort.spec.ts` (nunca se ha corrido).
-- Prueba E2E de los datasets de espacio de trabajo (plan de datos).
-- Mapa deck.gl de SESEQ en un navegador normal (WebGL falla en headless).
-- Exportar SESEQ.
-- Arrastrar y exportar en Safari y Firefox.
+- `tests/experimental/dashboard/sort.spec.ts`: el 4/11 no arrancó por el entorno. El Playwright de 7.0 pide
+  `chromium_headless_shell-1234`, que no está descargado (`npx playwright install chromium` desde `superset-frontend/`,
+  unos 100 MB), y la prueba crea su tablero sobre la conexión `examples`, que ya no existe en el entorno de desarrollo
+  (o `PLAYWRIGHT_DATABASE=<otra conexión>`).
+- Prueba E2E de Playwright de los datasets de espacio de trabajo (`data-panel.spec.ts`, sin escribir). A mano, el 4/11:
+  cada espacio lista los suyos en su página y en `/api/v1/workspace/<id>/datasets/`; el filtro
+  `dataset_usable_in_dashboard` da al 156 (espacio 6) su `ventas_demo` y el compartido, al 147 (sin espacio) solo el
+  compartido; `validate_chart_dataset` rechaza un dataset de SESEQ en el 156 y uno de espacio en el 147.
+Para hacer a mano en un navegador normal (el panel de la app y el modo headless no lo cubren):
+- Mapa deck.gl de SESEQ (WebGL falla en headless).
+- Exportar SESEQ a PDF y PNG (sus capturas no se pueden publicar: datos personales).
+- Arrastrar, redimensionar y exportar en Safari y Firefox.
+- Pantalla completa del modo presentación en Chrome (el panel de la app no la admite).
+- El cajón de navegación en un teléfono de verdad (iPhone Safari): abrir, cerrar con el velo y al navegar.
 - Campos (fase 10) con un usuario sin permisos sobre el gráfico.
 
 ## F. Límites de las fases hechas (M)

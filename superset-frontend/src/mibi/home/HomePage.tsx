@@ -167,7 +167,8 @@ const SectionHeader = styled.div`
   ${({ theme }) => css`
     display: flex;
     align-items: center;
-    gap: ${theme.sizeUnit * 4}px;
+    flex-wrap: wrap;
+    gap: ${theme.sizeUnit * 2}px ${theme.sizeUnit * 4}px;
     margin-bottom: ${theme.sizeUnit * 4}px;
 
     h2 {
@@ -180,6 +181,7 @@ const SectionHeader = styled.div`
     .see-all {
       margin-left: auto;
       display: inline-flex;
+      white-space: nowrap;
       align-items: center;
       gap: ${theme.sizeUnit}px;
       font-size: ${theme.fontSizeSM}px;

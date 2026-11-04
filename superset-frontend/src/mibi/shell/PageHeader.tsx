@@ -169,6 +169,8 @@ const Group = styled.div`
   ${({ theme }) => css`
     display: flex;
     align-items: center;
+    /* A phone wraps the commands instead of widening the page */
+    flex-wrap: wrap;
     gap: ${theme.sizeUnit * 2}px;
 
     & + & {
