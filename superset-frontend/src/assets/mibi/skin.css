@@ -1718,6 +1718,7 @@ body.mibi-presenting-idle * {
 .mibi-canvas:not(.mibi-mobile) .dashboard-component-tabs,
 .mibi-canvas:not(.mibi-mobile) .dragdroppable-row > .with-popover-menu,
 .mibi-canvas:not(.mibi-mobile) .ant-tabs-content,
+.mibi-canvas:not(.mibi-mobile) .ant-tabs-body,
 .mibi-canvas:not(.mibi-mobile) .grid-content,
 .mibi-canvas:not(.mibi-mobile) .grid-row,
 .mibi-canvas:not(.mibi-mobile) .grid-column,
