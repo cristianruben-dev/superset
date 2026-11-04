@@ -1936,9 +1936,7 @@ class _NoResultSetCursor:
     [
         "superset.db_engine_specs.base.BaseEngineSpec",
         "superset.db_engine_specs.mysql.MySQLEngineSpec",
-        "superset.db_engine_specs.db2.Db2EngineSpec",
-        "superset.db_engine_specs.exasol.ExasolEngineSpec",
-        "superset.db_engine_specs.impala.ImpalaEngineSpec",
+        # AuraData BI removed Db2, Exasol and Impala (87d0739f35)
         "superset.db_engine_specs.postgres.PostgresEngineSpec",
         "superset.db_engine_specs.oracle.OracleEngineSpec",
         "superset.db_engine_specs.mssql.MssqlEngineSpec",

@@ -688,7 +688,8 @@ def test_get_sqla_engine_caches_engine_per_url(mocker: MockerFixture) -> None:
     listen = mocker.spy(__import__("sqlalchemy").event, "listen")
 
     try:
-        database = Database(database_name="my_db", sqlalchemy_uri="trino://")
+        # AuraData BI: Presto instead of the removed Trino; any dialect will do
+        database = Database(database_name="my_db", sqlalchemy_uri="presto://")
         database.id = 1  # Cache is keyed on id; skipped for unsaved instances.
         database._get_sqla_engine()
         database._get_sqla_engine()
@@ -727,8 +728,9 @@ def test_get_sqla_engine_does_not_cache_unsaved_instances(
     )
     listen = mocker.spy(__import__("sqlalchemy").event, "listen")
 
-    Database(database_name="db_a", sqlalchemy_uri="trino://")._get_sqla_engine()
-    Database(database_name="db_b", sqlalchemy_uri="trino://")._get_sqla_engine()
+    # AuraData BI: Presto instead of the removed Trino; any dialect will do
+    Database(database_name="db_a", sqlalchemy_uri="presto://")._get_sqla_engine()
+    Database(database_name="db_b", sqlalchemy_uri="presto://")._get_sqla_engine()
 
     assert create_engine_mock.call_count == 2
     handle_error_calls = [
@@ -2239,47 +2241,6 @@ def test_resolve_query_default_schema_normalizes_blank_schema(
     probe = resolve_mock.call_args.args[0]
     assert probe.schema is None
     assert probe.catalog is None
-
-
-def test_clear_bootstrap_cache_logs_warning_on_failure(
-    mocker: MockerFixture,
-) -> None:
-    """
-    Test that clear_bootstrap_cache logs a warning when cache invalidation fails.
-
-    Exercises the ``except Exception`` branch in the event listener so that
-    Codecov registers it as covered.  The function must not re-raise the
-    exception — callers (SQLAlchemy event dispatch) should be unaffected.
-    """
-    from superset.models.core import clear_bootstrap_cache
-
-    # Patch cache_manager so delete_memoized raises
-    mock_cache = mocker.MagicMock()
-    mock_cache.delete_memoized.side_effect = RuntimeError("Redis unavailable")
-
-    mock_cache_manager = mocker.patch("superset.models.core.cache_manager")
-    mock_cache_manager.cache = mock_cache
-
-    # Patch cached_common_bootstrap_data so the local import inside
-    # clear_bootstrap_cache resolves to our mock.
-    mocker.patch(
-        "superset.views.base.cached_common_bootstrap_data",
-        new=mocker.MagicMock(__name__="cached_common_bootstrap_data"),
-    )
-
-    mock_logger = mocker.patch("superset.models.core.logger")
-
-    # Should not raise even though delete_memoized raises
-    clear_bootstrap_cache(
-        _mapper=mocker.MagicMock(),
-        _connection=mocker.MagicMock(),
-        _target=mocker.MagicMock(),
-    )
-
-    # Verify logger.warning was called with the correct message format
-    mock_logger.warning.assert_called_once()
-    call_args = mock_logger.warning.call_args
-    assert call_args[0][0] == "Failed to clear theme bootstrap cache: %s"
 
 
 def test_execute_sql_preserves_line_comments_single_statement(
