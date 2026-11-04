@@ -369,11 +369,14 @@ def test_sync_theme_logo_href() -> None:
 
 
 def test_theme_default_logo_defaults() -> None:
-    """With the shipped defaults, brandLogoHref is "/" and brandLogoUrl is APP_ICON."""
+    """
+    With the shipped defaults, brandLogoUrl is APP_ICON. AuraData BI's theme
+    (``mibi_config.py``) links the logo to the dashboard list.
+    """
     from superset import config
 
     assert config.LOGO_TARGET_PATH is None
-    assert config.THEME_DEFAULT["token"]["brandLogoHref"] == "/"
+    assert config.THEME_DEFAULT["token"]["brandLogoHref"] == "/dashboard/list/"
     assert config.THEME_DEFAULT["token"]["brandLogoUrl"] == config.APP_ICON
 
 
@@ -386,15 +389,23 @@ def test_theme_defaults_seed_tooltip_component_tokens() -> None:
     and every tooltip renders two pixels larger than intended.
     """
     from superset import config
+    from superset.views.base import _merge_theme_dicts
 
+    # AuraData BI defines its own themes (``mibi_config.py``) without components;
+    # the bootstrap data merges them over Superset's built-in ones, which carry the
+    # override, so check the merged themes the browser receives.
     expected = {"fontSize": 12, "lineHeight": 1.6}
-    default_components = config.THEME_DEFAULT["components"]
-    assert default_components is not None
-    assert default_components["Tooltip"] == expected
     assert config.THEME_DARK is not None
-    dark_components = config.THEME_DARK["components"]
-    assert dark_components is not None
-    assert dark_components["Tooltip"] == expected
+    default_theme = _merge_theme_dicts(
+        dict(config._THEME_DEFAULT_BASE), dict(config.THEME_DEFAULT)
+    )
+    dark_theme = _merge_theme_dicts(
+        dict(config._THEME_DARK_BASE), dict(config.THEME_DARK)
+    )
+    for theme in (default_theme, dark_theme):
+        components = theme["components"]
+        assert components is not None
+        assert components["Tooltip"] == expected
 
 
 def test_smtp_ssl_server_auth_defaults_to_true() -> None:

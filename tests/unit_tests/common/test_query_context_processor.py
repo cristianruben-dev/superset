@@ -2490,27 +2490,16 @@ def test_relative_offset_preserves_inner_bounds(
     assert captured[0]["inner_to_dttm"] == pd.Timestamp("2026-05-28")
 
 
-def test_get_native_annotation_data_requires_annotation_read_access():
-    """Native annotation layers are only served to users who can read them."""
+def test_native_annotation_layers_are_never_served(processor):
+    """AuraData BI removed native annotation layers (660a568a4b): a request that
+    names one gets no data for it, whatever the user can read."""
     query_obj = MagicMock()
     query_obj.annotation_layers = [{"sourceType": "NATIVE", "name": "a", "value": 1}]
-    with (
-        patch(
-            "superset.common.query_context_processor.security_manager"
-        ) as security_manager_mock,
-        patch(
-            "superset.common.query_context_processor.AnnotationLayerDAO.find_by_ids",
-            return_value=[],
-        ) as find_by_ids_mock,
-    ):
-        # ``can_access`` is synchronous; force a plain Mock so the patched
-        # manager doesn't hand back a truthy coroutine that slips past the
-        # ``not can_access(...)`` guard.
-        security_manager_mock.can_access = MagicMock(return_value=False)
-        with pytest.raises(QueryObjectValidationError):
-            QueryContextProcessor.get_native_annotation_data(query_obj)
-    security_manager_mock.can_access.assert_called_once_with("can_read", "Annotation")
-    find_by_ids_mock.assert_not_called()
+    with patch.object(
+        QueryContextProcessor, "get_viz_annotation_data"
+    ) as get_viz_annotation_data:
+        assert processor.get_annotation_data(query_obj) == {}
+    get_viz_annotation_data.assert_not_called()
 
 
 # =============================================================================
