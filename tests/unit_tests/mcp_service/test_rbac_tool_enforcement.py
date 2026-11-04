@@ -111,12 +111,6 @@ _MUTATING_TOOLS: list[tuple[str, dict[str, Any], str, str]] = [
         "Dataset",
     ),
     (
-        "create_theme",
-        {"theme_name": "Denied Theme", "json_data": {"token": {}}},
-        "write",
-        "Theme",
-    ),
-    (
         "save_sql_query",
         {"database_id": 1, "label": "my query", "sql": "SELECT 1"},
         "write",
@@ -213,44 +207,54 @@ async def test_authorized_caller_is_not_blocked_by_rbac_gate(
     """Control test: proves the RBAC gate is the thing doing the rejecting
     above, not a false negative from the test harness itself.
 
-    Grants ``can_access`` for ``create_theme`` (RBAC enabled) and mocks the
-    downstream DAO/commit so the call fully succeeds. If the denial tests
-    above were actually failing for an unrelated reason (bad payload, broken
-    Client wiring, etc.), this test would fail the same way instead of
-    succeeding.
+    Grants ``can_access`` for ``save_sql_query`` (RBAC enabled) and mocks the
+    downstream database lookup, DAO and commit so the call fully succeeds. If
+    the denial tests above were actually failing for an unrelated reason (bad
+    payload, broken Client wiring, etc.), this test would fail the same way
+    instead of succeeding. (Upstream uses ``create_theme``, a tool AuraData BI
+    removed with saved themes.)
     """
-    import importlib
-
-    create_theme_module = importlib.import_module(
-        "superset.mcp_service.theme.tool.create_theme"
-    )
-
-    mock_theme = MagicMock()
-    mock_theme.id = 1
-    mock_theme.uuid = "11111111-1111-1111-1111-111111111111"
-    mock_theme.theme_name = "Allowed Theme"
+    mock_database = MagicMock()
+    mock_database.database_name = "examples"
+    mock_saved_query = MagicMock()
+    mock_saved_query.id = 1
+    mock_saved_query.label = "Allowed query"
+    mock_saved_query.sql = "SELECT 1"
+    mock_saved_query.db_id = 1
+    mock_saved_query.schema = ""
+    mock_saved_query.catalog = None
+    mock_saved_query.description = ""
 
     app.config["MCP_RBAC_ENABLED"] = True
     try:
         mock_sm = MagicMock()
         mock_sm.can_access = MagicMock(return_value=True)
+        mock_session = MagicMock()
+        mock_session.query.return_value.filter_by.return_value.first.return_value = (
+            mock_database
+        )
         with (
             patch("superset.mcp_service.auth.security_manager", mock_sm),
-            patch.object(create_theme_module.db.session, "commit"),
-            patch("superset.daos.theme.ThemeDAO.create", return_value=mock_theme),
+            patch("superset.security_manager", mock_sm),
+            patch("superset.db.session", mock_session),
+            patch(
+                "superset.daos.query.SavedQueryDAO.create",
+                return_value=mock_saved_query,
+            ),
         ):
             async with Client(mcp_server) as client:
                 result = await client.call_tool(
-                    "create_theme",
+                    "save_sql_query",
                     {
                         "request": {
-                            "theme_name": "Allowed Theme",
-                            "json_data": {"token": {"colorPrimary": "#1d4ed8"}},
+                            "database_id": 1,
+                            "label": "Allowed query",
+                            "sql": "SELECT 1",
                         }
                     },
                 )
-        mock_sm.can_access.assert_called_with("can_write", "Theme")
-        assert result.structured_content["success"] is True
+        mock_sm.can_access.assert_any_call("can_write", "SavedQuery")
         assert result.structured_content["id"] == 1
+        assert result.structured_content["label"] == "Allowed query"
     finally:
         app.config.pop("MCP_RBAC_ENABLED", None)

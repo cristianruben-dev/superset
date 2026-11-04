@@ -35,7 +35,6 @@ from superset.utils import json
 TOOL_BUDGETS = {
     "add_chart_to_existing_dashboard": 1_500,
     "create_dataset": 1_800,
-    "create_theme": 1_100,
     "create_virtual_dataset": 3_700,
     "delete_chart": 1_100,
     "delete_dashboard": 1_100,
@@ -46,7 +45,6 @@ TOOL_BUDGETS = {
     "generate_chart": 50_000,
     "generate_dashboard": 3_400,
     "generate_explore_link": 50_000,
-    "get_annotation_layer_info": 1_000,
     "get_chart_data": 2_900,
     "get_chart_info": 3_600,
     "get_chart_preview": 3_400,
@@ -60,7 +58,6 @@ TOOL_BUDGETS = {
     "get_database_info": 1_400,
     "get_dataset_info": 2_400,
     "get_instance_info": 900,
-    "get_layer_annotation_info": 1_100,
     "get_query_info": 1_100,
     "get_report_info": 1_400,
     "get_rls_filter_info": 1_000,
@@ -70,10 +67,8 @@ TOOL_BUDGETS = {
     "get_table": 3_900,
     "get_tag_info": 1_000,
     "get_task_info": 1_100,
-    "get_theme_info": 1_000,
     "get_user_info": 1_000,
     "health_check": 700,
-    "list_annotation_layers": 2_700,
     # Include the deleted_state edit/restore audience and under-enumeration
     # caveats from #44128: 5,149 and 4,626 bytes, plus the headroom above.
     # Keep the complete-schema parity test below alongside these size limits.
@@ -81,7 +76,6 @@ TOOL_BUDGETS = {
     "list_dashboards": 4_800,
     "list_databases": 3_500,
     "list_datasets": 4_600,
-    "list_layer_annotations": 2_900,
     "list_metrics": 1_900,
     "list_queries": 3_000,
     "list_reports": 3_900,
@@ -90,7 +84,6 @@ TOOL_BUDGETS = {
     "list_saved_queries": 3_000,
     "list_tags": 3_100,
     "list_tasks": 2_700,
-    "list_themes": 3_000,
     "list_users": 2_900,
     "manage_dashboard_certification": 1_900,
     "manage_dashboard_owners": 2_200,

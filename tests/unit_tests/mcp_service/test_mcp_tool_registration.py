@@ -31,13 +31,13 @@ from superset.mcp_service.utils.response_size_utils import COMMITTED_WRITE_SPECS
 _FFM_PATH = "superset.extensions.feature_flag_manager"
 
 
-# One response-specific field per native tool. Keeping the complete inventory
+# One response-specific field per native tool (AuraData BI: without the theme and
+# annotation layer tools, removed with those features). Keeping the complete inventory
 # here makes every new tool go through the metadata review below, while the
 # field assertion rejects missing or fully unconstrained output schemas.
 EXPECTED_TOOL_OUTPUT_FIELDS = {
     "add_chart_to_existing_dashboard": "dashboard_url",
     "create_dataset": "table_name",
-    "create_theme": "theme_name",
     "create_virtual_dataset": "dataset_name",
     "delete_chart": "deleted_id",
     "delete_dashboard": "deleted_id",
@@ -48,7 +48,6 @@ EXPECTED_TOOL_OUTPUT_FIELDS = {
     "generate_chart": "chart",
     "generate_dashboard": "dashboard",
     "generate_explore_link": "form_data_key",
-    "get_annotation_layer_info": "descr",
     "get_chart_data": "query_results",
     "get_chart_info": "slice_name",
     "get_chart_preview": "explore_url",
@@ -62,7 +61,6 @@ EXPECTED_TOOL_OUTPUT_FIELDS = {
     "get_database_info": "database_name",
     "get_dataset_info": "table_name",
     "get_instance_info": "instance_summary",
-    "get_layer_annotation_info": "short_descr",
     "get_query_info": "executed_sql",
     "get_report_info": "crontab",
     "get_rls_filter_info": "clause",
@@ -72,15 +70,12 @@ EXPECTED_TOOL_OUTPUT_FIELDS = {
     "get_table": "source",
     "get_tag_info": "name",
     "get_task_info": "task_type",
-    "get_theme_info": "theme_name",
     "get_user_info": "username",
     "health_check": "status",
-    "list_annotation_layers": "annotation_layers",
     "list_charts": "charts",
     "list_dashboards": "dashboards",
     "list_databases": "databases",
     "list_datasets": "datasets",
-    "list_layer_annotations": "annotations",
     "list_metrics": "metrics",
     "list_queries": "queries",
     "list_reports": "reports",
@@ -89,7 +84,6 @@ EXPECTED_TOOL_OUTPUT_FIELDS = {
     "list_saved_queries": "saved_queries",
     "list_tags": "tags",
     "list_tasks": "tasks",
-    "list_themes": "themes",
     "list_users": "users",
     "manage_dashboard_certification": "changed_fields",
     "manage_dashboard_owners": "owners",
@@ -120,7 +114,6 @@ EXPECTED_TOP_LEVEL_OUTPUT_FIELDS = {
 MUTATING_TOOLS = {
     "add_chart_to_existing_dashboard",
     "create_dataset",
-    "create_theme",
     "create_virtual_dataset",
     "delete_chart",
     "delete_dashboard",

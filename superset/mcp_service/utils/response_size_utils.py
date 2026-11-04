@@ -428,7 +428,6 @@ def _spec(
 COMMITTED_WRITE_SPECS: Dict[str, CommittedWriteSpec] = {
     "add_chart_to_existing_dashboard": _spec("dashboard", "dashboard"),
     "create_dataset": _spec("dataset"),
-    "create_theme": _spec("theme", reports_success=True),
     "create_virtual_dataset": _spec("dataset"),
     "delete_chart": _spec("chart", reports_success=True),
     "delete_dashboard": _spec("dashboard", reports_success=True),
