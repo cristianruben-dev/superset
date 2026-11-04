@@ -546,7 +546,7 @@ class WorkspaceRestApi(BaseSupersetApi):
                     "url": dashboard.url,
                     "published": dashboard.published,
                     "changed_on_delta_humanized": dashboard.changed_on_humanized,
-                    "can_edit": security_manager.is_owner(dashboard),
+                    "can_edit": security_manager.can_edit_resource(dashboard),
                     "thumbnail_url": dashboard.thumbnail_url,
                 }
                 for dashboard in dashboards
@@ -612,7 +612,7 @@ class WorkspaceRestApi(BaseSupersetApi):
             # Bringing a dashboard in needs the right to change it; taking one
             # out only needs a contributor role here
             for dashboard_id in data["add"]:
-                security_manager.raise_for_ownership(dashboards[dashboard_id])
+                security_manager.raise_for_editorship(dashboards[dashboard_id])
         except SupersetSecurityException:
             return self.response_403()
 
@@ -698,7 +698,7 @@ class WorkspaceRestApi(BaseSupersetApi):
                     else None,
                     "kind": dataset.kind,
                     "changed_on_delta_humanized": dataset.changed_on_humanized,
-                    "can_edit": security_manager.is_owner(dataset),
+                    "can_edit": security_manager.can_edit_resource(dataset),
                 }
                 for dataset in datasets
             ],
@@ -764,7 +764,7 @@ class WorkspaceRestApi(BaseSupersetApi):
             return self.response_404()
         try:
             for dataset_id in data["add"]:
-                security_manager.raise_for_ownership(datasets[dataset_id])
+                security_manager.raise_for_editorship(datasets[dataset_id])
         except SupersetSecurityException:
             return self.response_403()
         if conflicts := datasets_used_outside(data["add"], workspace.id):

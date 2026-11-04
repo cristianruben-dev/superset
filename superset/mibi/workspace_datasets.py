@@ -19,7 +19,7 @@ Workspace datasets: a dataset belongs to one workspace at most, like a Power BI
 semantic model, and the charts of that workspace's dashboards use it.
 
 * A dataset without a workspace is shared: any dashboard can use it.
-* A dataset of a workspace is listed for that workspace's members, its owners and
+* A dataset of a workspace is listed for that workspace's members, its editors and
   Superset admins. Membership never grants data access: the dataset permissions
   still apply.
 * A chart can only use a dataset of its dashboard's workspace, or a shared one.
@@ -79,15 +79,20 @@ class WorkspaceDatasetFilter(BaseFilter):  # pylint: disable=too-few-public-meth
 
     def apply(self, query: Query, value: Any) -> Query:
         from superset.connectors.sqla.models import SqlaTable
+        from superset.subjects.filters import (
+            subject_relation_exists_for_current_user,
+        )
+        from superset.subjects.models import sqlatable_editors
 
         if (condition := dataset_visibility_filter(SqlaTable.id)) is None:
             return query
-        user_id = get_user_id()
-        return query.filter(
-            sa.or_(condition, SqlaTable.owners.any(id=user_id))
-            if user_id is not None
-            else condition
+        # Its editors keep seeing a dataset: the user, or a role or group of theirs
+        edited = SqlaTable.id.in_(
+            sa.select(sqlatable_editors.c.table_id).where(
+                subject_relation_exists_for_current_user(sqlatable_editors)
+            )
         )
+        return query.filter(sa.or_(condition, edited))
 
 
 class DatasetUsableInDashboardFilter(BaseFilter):  # pylint: disable=too-few-public-methods

@@ -37,6 +37,7 @@ from superset.mibi.models import (
 from superset.models.core import Database
 from superset.models.dashboard import Dashboard
 from superset.models.slice import Slice
+from superset.subjects.utils import get_or_create_user_subject
 
 MIGRATION = (
     Path(__file__).parents[3]
@@ -128,10 +129,11 @@ def test_admins_guests_and_the_switch_are_not_filtered(
     assert workspace_datasets.dataset_visibility_filter(SqlaTable.id) is None
 
 
-def test_the_list_filter_keeps_the_datasets_a_user_owns(
-    world: dict[str, Any], session: Session
+def test_the_list_filter_keeps_the_datasets_a_user_edits(
+    mocker: MockerFixture, world: dict[str, Any], session: Session
 ) -> None:
-    world["ajena"].owners = [world["ana"]]
+    mocker.patch("superset.subjects.filters.get_user_id", return_value=world["ana"].id)
+    world["ajena"].editors = [get_or_create_user_subject(world["ana"].id)]
     session.flush()
     query = session.query(SqlaTable)
 
@@ -247,8 +249,8 @@ def api_world(
         "superset.daos.dataset.DatasetDAO.find_by_ids",
         side_effect=lambda ids, **kwargs: [d for d in datasets if d.id in ids],
     )
-    mocker.patch.object(security_manager, "raise_for_ownership")
-    mocker.patch.object(security_manager, "is_owner", return_value=True)
+    mocker.patch.object(security_manager, "raise_for_editorship")
+    mocker.patch.object(security_manager, "can_edit_resource", return_value=True)
     return world
 
 

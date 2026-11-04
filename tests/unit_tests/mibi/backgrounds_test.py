@@ -42,7 +42,7 @@ def dashboard(
     session.add(dashboard)
     session.flush()
     mocker.patch.object(security_manager, "raise_for_access")
-    mocker.patch.object(security_manager, "raise_for_ownership")
+    mocker.patch.object(security_manager, "raise_for_editorship")
     return dashboard
 
 
@@ -111,7 +111,7 @@ def test_only_editors_change_the_picture(
     assert upload(client, dashboard.id, PNG).status_code == 200
     mocker.patch.object(
         security_manager,
-        "raise_for_ownership",
+        "raise_for_editorship",
         side_effect=SupersetSecurityException(mocker.MagicMock()),
     )
 
@@ -199,7 +199,7 @@ def test_image_elements_check_access(
     url = upload_image(client, dashboard.id).json["result"]["url"]
     mocker.patch.object(
         security_manager,
-        "raise_for_ownership",
+        "raise_for_editorship",
         side_effect=SupersetSecurityException(mocker.MagicMock()),
     )
     assert upload_image(client, dashboard.id).status_code == 403

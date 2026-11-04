@@ -52,7 +52,7 @@ def find_dashboard(
         return None, api.response_404()
     if edit:
         try:
-            security_manager.raise_for_ownership(dashboard)
+            security_manager.raise_for_editorship(dashboard)
         except SupersetSecurityException:
             return None, api.response_403()
     return dashboard, None

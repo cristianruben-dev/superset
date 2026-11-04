@@ -86,7 +86,9 @@ def make_shared_dashboards(session: Session) -> tuple[Dashboard, Dashboard, Slic
         ):
             dashboard.position_json = json.dumps(make_layout(*chart_ids))
             dashboard.json_metadata = json.dumps(make_metadata(*chart_ids))
-        session.flush()
+        # The split runs in a later transaction, as the CLI command does: version
+        # history records one change per link and transaction
+        session.commit()
     finally:
         current_app.config["MIBI_SINGLE_DASHBOARD_CHARTS"] = True
     return first, second, shared
@@ -103,7 +105,7 @@ def test_split_shared_charts(db_session: Session) -> None:
 
     assert set(result.replacements) == {second.id}
     clone_id = result.replacements[second.id][shared.id]
-    clone = db_session.query(Slice).get(clone_id)
+    clone = db_session.get(Slice, clone_id)
     assert clone.slice_name == "shared"
     assert clone.uuid != shared.uuid
 
