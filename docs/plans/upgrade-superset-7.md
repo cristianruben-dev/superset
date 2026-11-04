@@ -396,11 +396,14 @@ de la fase 3 (`cp -cR`). Usuarios de prueba en la copia: admin, `qa_colaborador`
     - Se regeneraron las 7 referencias (con Chromium 1208); `format-reference` pasa.
   - «Desglosar por» desde un punto del gráfico: probado, abre el modal con las columnas del dataset («Desglosar por: Evolución
     mensual de ventas», region). Desde la etiqueta del eje X (clic derecho) 7.0 no ofrece Drill By: solo el clic izquierdo
-    filtra (filtro cruzado) y el derecho abre el menú del área. **Abierto:** al hacer Drill By desde un punto de un gráfico de
-    líneas hecho por API sobre un conjunto virtual, la petición lleva el filtro `TEMPORAL_RANGE` del mes pulsado
-    (comprobado en la petición) pero el servidor lo ignora (devuelve todos los meses, aun con `granularity_sqla`) y la
-    miga del valor X sale vacía; el código del servidor es idéntico al de 7.0. Falta comprobarlo con un gráfico hecho desde
-    la interfaz sobre un conjunto físico.
+    filtra (filtro cruzado) y el derecho abre el menú del área. **Conocido, heredado de 7.0 (no se parcheó):** repetido con un gráfico de líneas
+    por año sobre un conjunto físico (`v_plantilla`, con el filtro de tiempo «No filter» que pone la interfaz), Drill By desde
+    un punto abre el modal y la petición lleva, además del filtro «No filter», el `TEMPORAL_RANGE` del año pulsado
+    (`2023-01-01 : 2024-01-01`), pero la gráfica sigue mostrando todos los años (el servidor no aplica el segundo filtro
+    de tiempo sobre la misma columna) y la miga del valor X sale vacía. El código de Drill By y de
+    `getTemporalXAxisDrillByFilter`, y el del servidor (`_apply_granularity`), son los de 7.0 sin cambios del fork (el diff
+    contra `upstream/7.0` solo toca anotaciones y la UI de Timeseries ajena a Drill By). Hay que subirlo a Apache Superset o
+    esperar a 7.0.x; arreglarlo aquí obligaría a reescribir cómo se combinan los filtros temporales.
 - **Preexistentes que siguen:** Jest `src/mibi` 2 fallos de la línea base; `dropOverflowsParent`/`getDetailedComponentWidth` (4,
   tests de 12 columnas); `SliceHeaderControls` «subdirectory deployment» (2, «Editar gráfico» abre el panel, no Explore);
   `tests/unit_tests/subjects/test_creator_group_call_sites.py` (3) y `dashboards/semantic_view_access_test.py` (20, `g.user`).
