@@ -460,7 +460,6 @@ function ExploreViewContainer(props: ExploreViewContainerProps) {
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.form_data]);
-  const history = useHistory();
 
   const theme = useTheme();
 

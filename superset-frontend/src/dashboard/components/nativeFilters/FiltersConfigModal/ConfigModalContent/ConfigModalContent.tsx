@@ -27,7 +27,6 @@ import type { FormInstance } from '@superset-ui/core/components';
 import { t } from '@apache-superset/core/translation';
 import { styled } from '@apache-superset/core/theme';
 import { EmptyState, Flex } from '@superset-ui/core/components';
-import { t } from '@apache-superset/core/translation';
 import FilterContentRenderer from './FilterContentRenderer';
 import CustomizationContentRenderer from './CustomizationContentRenderer';
 import { FiltersConfigFormHandle } from '../FiltersConfigForm/FiltersConfigForm';

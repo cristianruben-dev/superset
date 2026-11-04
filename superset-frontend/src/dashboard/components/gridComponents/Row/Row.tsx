@@ -283,22 +283,6 @@ const Row = memo((props: RowProps) => {
     };
   }, []);
 
-  useLayoutEffect(() => {
-    if (!editMode) return;
-    // The drop zones between items take the row height, so measure the items:
-    // measuring the row would never let it shrink after its items do
-    const container = containerRef.current;
-    const items = Array.from(container?.children ?? []).filter(
-      child => !child.classList.contains('empty-droptarget'),
-    ) as HTMLElement[];
-    const updatedHeight = items.length
-      ? Math.max(...items.map(item => item.offsetHeight))
-      : container?.clientHeight;
-    if (updatedHeight !== undefined && updatedHeight !== containerHeight) {
-      setContainerHeight(updatedHeight);
-    }
-  });
-
   const handleChangeFocus = useCallback((nextFocus: boolean) => {
     setIsFocused(Boolean(nextFocus));
   }, []);

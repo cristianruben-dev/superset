@@ -300,7 +300,7 @@ const Tabs = (props: TabsProps): ReactElement => {
   // Leaving the editor on a hidden page: viewers have no tab for it
   const wasEditing = usePrevious(props.editMode);
   useEffect(() => {
-    if (wasEditing && !props.editMode && isHiddenPage(activeKey)) {
+    if (wasEditing && !props.editMode && activeKey && isHiddenPage(activeKey)) {
       const first = props.component.children.findIndex(
         tabId => !isHiddenPage(tabId),
       );

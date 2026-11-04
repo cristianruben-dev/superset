@@ -28,13 +28,12 @@ import { t } from '@apache-superset/core/translation';
 import { logging } from '@apache-superset/core/utils';
 import { css, styled } from '@apache-superset/core/theme';
 import type { DataMaskStateWithId, Filter } from '@superset-ui/core';
-import { getChartDataRequest } from 'src/components/Chart/chartAction';
+import { requestChartDataResolved } from 'src/components/Chart/chartAction';
 import { useFilterDependencies } from 'src/dashboard/components/nativeFilters/FilterBar/FilterControls/state';
 import { getFormData } from 'src/dashboard/components/nativeFilters/utils';
 import type { RootState } from 'src/dashboard/types';
 import { updateDataMask } from 'src/dataMask/actions';
 import { getSelectExtraFormData } from 'src/filters/utils';
-import { waitForAsyncData } from 'src/middleware/asyncEvent';
 import {
   inputFilters,
   inputValues,
@@ -320,14 +319,9 @@ export function useFilterRows(filter: Filter) {
       granularity_sqla: filter.granularity_sqla,
       dashboardId,
     } as never);
-    getChartDataRequest({ formData })
-      .then(async ({ response, json }) => {
-        const body = json as { result?: unknown[] };
-        const result = body.result ? body.result[0] : body;
-        const answer =
-          response.status === 202
-            ? ((await waitForAsyncData(result as never)) as unknown[])[0]
-            : result;
+    const controller = new AbortController();
+    requestChartDataResolved({ formData }, controller.signal)
+      .then(([answer]) => {
         if (current)
           setRows((answer as { data: Record<string, SlicerValue>[] }).data);
       })
@@ -337,6 +331,7 @@ export function useFilterRows(filter: Filter) {
       });
     return () => {
       current = false;
+      controller.abort();
     };
     // Asks again only when the parents of the filter change their selection
     // eslint-disable-next-line react-hooks/exhaustive-deps

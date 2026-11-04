@@ -81,6 +81,12 @@ export function ControlFormItem({
   };
 
   const Control = ControlFormItemComponents[controlType];
+  const controlProps = {
+    ...props,
+    'aria-label': typeof label === 'string' ? label : undefined,
+    value,
+    onChange: handleChange,
+  };
 
   return (
     <div
@@ -115,12 +121,7 @@ export function ControlFormItem({
             />
           )}
           {/* @ts-expect-error - dynamic Control component has varying prop types */}
-          <Control
-            {...props}
-            aria-label={typeof label === 'string' ? label : undefined}
-            value={value}
-            onChange={handleChange}
-          />
+          <Control {...controlProps} />
         </>
       )}
     </div>

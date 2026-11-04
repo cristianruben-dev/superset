@@ -205,7 +205,7 @@ export default function ReferenceLinesControl({
           { value: 'before', label: t('Before the line') },
           { value: 'after', label: t('After the line') },
         ])}
-        {line.shade && line.shade !== 'none' && (
+        {!!line.shade && line.shade !== 'none' && (
           <>
             {color('shadeColor', t('Shading color'))}
             {number('shadeTransparency', t('Shading transparency (%)'), 0, 100)}

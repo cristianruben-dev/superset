@@ -41,6 +41,7 @@ import {
   css,
   useTheme,
   isThemeDark,
+  type SupersetTheme,
 } from '@apache-superset/core/theme';
 import { Input, Collapse, Tooltip } from '@superset-ui/core/components';
 import { Icons } from '@superset-ui/core/components/Icons';
