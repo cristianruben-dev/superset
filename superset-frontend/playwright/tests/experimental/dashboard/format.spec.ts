@@ -19,7 +19,7 @@
 
 import { test, expect } from '../../../helpers/fixtures/testAssets';
 import { TIMEOUT } from '../../../utils/constants';
-import { createTestDashboard } from './dashboard-test-helpers';
+import { createTestDashboard } from '../../dashboard/dashboard-test-helpers';
 
 /**
  * Dashboard Format pane E2E tests (AuraData BI).
@@ -43,7 +43,7 @@ test('canvas format is saved with the dashboard and applied when viewing it', as
     prefix: 'test_format',
   });
 
-  await page.goto(`superset/dashboard/${id}/`);
+  await page.goto(`dashboard/${id}/`);
   await page.getByTestId('edit-dashboard-button').click();
   await page.getByRole('tab', { name: /Format|Formato/ }).click();
   const pane = page.getByTestId('mibi-format-pane');
@@ -83,7 +83,7 @@ test('background pictures are stored per dashboard and only accept images', asyn
   const { id } = await createTestDashboard(page, testAssets, test.info(), {
     prefix: 'test_background',
   });
-  await page.goto('superset/welcome/');
+  await page.goto('welcome/');
   const csrf = await page.evaluate(
     async () =>
       (await (await fetch('/api/v1/security/csrf_token/')).json()).result,
@@ -129,7 +129,7 @@ test('image elements store their pictures per dashboard', async ({
   const { id } = await createTestDashboard(page, testAssets, test.info(), {
     prefix: 'test_image_element',
   });
-  await page.goto('superset/welcome/');
+  await page.goto('welcome/');
   const csrf = await page.evaluate(
     async () =>
       (await (await fetch('/api/v1/security/csrf_token/')).json()).result,

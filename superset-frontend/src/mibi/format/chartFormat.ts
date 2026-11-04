@@ -18,7 +18,7 @@
  */
 import { useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { isEqual } from 'lodash';
+import { isEqual } from 'lodash-es';
 import { renderTriggered } from 'src/components/Chart/chartAction';
 import type { DashboardLayout, RootState } from 'src/dashboard/types';
 import { DASHBOARD_ROOT_ID } from 'src/dashboard/util/constants';

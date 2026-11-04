@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { renderHook } from '@testing-library/react-hooks';
+import { renderHook, waitFor } from '@testing-library/react';
 import fetchMock from 'fetch-mock';
 import { THUMBNAIL_MAX_ATTEMPTS, useThumbnail } from './useThumbnail';
 
@@ -58,13 +58,9 @@ test('returns nothing without a thumbnail URL', () => {
 
 test('returns the screenshot once it is ready', async () => {
   fetchMock.get(THUMB, image);
-  const { result, waitForNextUpdate } = renderHook(() =>
-    useThumbnail(URL_PATH),
-  );
+  const { result } = renderHook(() => useThumbnail(URL_PATH));
 
-  await waitForNextUpdate();
-
-  expect(result.current).toBe('blob:dashboard-1');
+  await waitFor(() => expect(result.current).toBe('blob:dashboard-1'));
 });
 
 test('asks again while the worker renders the screenshot', async () => {
@@ -75,7 +71,7 @@ test('asks again while the worker renders the screenshot', async () => {
     calls += 1;
     return calls < 3 ? computing() : image();
   });
-  const { result, waitFor } = renderHook(() => useThumbnail(URL_PATH));
+  const { result } = renderHook(() => useThumbnail(URL_PATH));
 
   await waitFor(() => expect(calls).toBe(1));
   expect(result.current).toBeNull();
@@ -94,7 +90,7 @@ test('gives up after the last attempt', async () => {
     calls += 1;
     return computing();
   });
-  const { result, waitFor } = renderHook(() => useThumbnail(URL_PATH));
+  const { result } = renderHook(() => useThumbnail(URL_PATH));
 
   for (let attempt = 1; attempt <= THUMBNAIL_MAX_ATTEMPTS; attempt += 1) {
     // eslint-disable-next-line no-await-in-loop

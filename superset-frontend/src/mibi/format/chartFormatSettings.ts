@@ -118,18 +118,18 @@ export function sharableFormat(
   format: VisualFormat | undefined,
 ): VisualFormat | undefined {
   if (!format) return format;
-  const { chart, link, actionButton, ...rest } = format;
+  const { chart, link: _link, actionButton: _actionButton, ...rest } = format;
   const sharable = sharableChartFormat(chart);
   const shared: VisualFormat = {
     ...rest,
     ...(sharable && { chart: sharable }),
   };
   if (shared.title?.subtitle !== undefined) {
-    const { subtitle, ...title } = shared.title;
+    const { subtitle: _subtitle, ...title } = shared.title;
     shared.title = title;
   }
   if (shared.header?.tooltip?.text !== undefined) {
-    const { text, ...tooltip } = shared.header.tooltip;
+    const { text: _text, ...tooltip } = shared.header.tooltip;
     shared.header = { ...shared.header, tooltip };
   }
   return shared;

@@ -1,6 +1,6 @@
 # LLM Context Guide for AuraData BI (Apache Superset fork)
 
-AuraData BI is a data visualization platform built on Apache Superset 6.1: a Flask/Python backend and a React/TypeScript frontend. See **AuraData BI: What This Fork Changes** below for what differs from upstream.
+AuraData BI is a data visualization platform built on Apache Superset 7.0: a Flask/Python backend and a React/TypeScript frontend. See **AuraData BI: What This Fork Changes** below for what differs from upstream.
 
 ## ⚠️ CRITICAL: Work From `main`, Never From `master`
 
@@ -20,30 +20,37 @@ git checkout -b my-change origin/main
 Upstream Superset fixes come into `main` by merging an upstream release branch (see README.md),
 never by basing work on `master`.
 
-## ⚠️ CRITICAL: Always Run Pre-commit Before Pushing
+## Run Pre-commit Before Pushing
 
-**ALWAYS run `pre-commit run --all-files` before pushing commits.** CI will fail if pre-commit checks don't pass. This is non-negotiable.
+Always run pre-commit against the files changed by the current branch before
+pushing. This matches CI and keeps unrelated failures already present on
+`master` from blocking otherwise independent work.
 
 ```bash
 # Stage your changes first
 git add .
 
-# Run pre-commit on all files
-pre-commit run --all-files
+# Run pre-commit on staged files
+pre-commit run
 
 # If there are auto-fixes, stage them and commit
 git add .
 git commit --amend  # or new commit
 ```
 
+Use `pre-commit run --all-files` when auditing or repairing the repository-wide
+baseline. If that check finds failures in files untouched by the current branch,
+fix them in a separate branch rather than adding unrelated changes to the
+current pull request.
+
 Common pre-commit failures:
-- **Formatting** - black, prettier, eslint will auto-fix
+- **Formatting** - ruff-format, oxfmt will auto-fix
 - **Type errors** - mypy failures need manual fixes
-- **Linting** - ruff, pylint issues need manual fixes
+- **Linting** - ruff, pylint and oxlint issues need manual fixes
 
 ## AuraData BI: What This Fork Changes
 
-This repository is **AuraData BI**, a fork of Apache Superset 6.1 shaped like Power BI. `README.md`
+This repository is **AuraData BI**, a fork of Apache Superset 7.0 shaped like Power BI. `README.md`
 (Spanish) is the human overview. Read this section before touching anything below.
 
 ### Product rules
@@ -63,10 +70,29 @@ This repository is **AuraData BI**, a fork of Apache Superset 6.1 shaped like Po
   wrapped in `panelOnly` (`src/mibi/PanelGate.tsx`) and redirect when opened on their own. A
   dashboard shows without the sidebar, with the logo in the top bar (`isReportRoute`).
 - **Workspaces** group dashboards, with members and roles (viewer, contributor, admin)
-  (`MIBI_WORKSPACE_ACCESS`).
+  (`MIBI_WORKSPACE_ACCESS`). A role never makes anyone an editor: Superset counts editorship
+  (`is_editor`) as data access, so contributors and admins edit through
+  `security_manager.can_edit_resource` (used by `raise_for_editorship` and the edit points) and
+  never become editors (`keep_subjects` in `compute_subjects`). A new edit point asks
+  `can_edit_resource` (`tests/unit_tests/mibi/workspace_security_test.py`). Data access has one
+  narrow grant (`superset/mibi/workspace_grants.py`): contributors and admins of a workspace read the
+  datasets that belong to it (`raise_for_access`, `DatasourceFilter`, `ChartFilter`,
+  `DashboardAccessFilter`), never viewers, other workspaces or shared datasets. RLS still applies;
+  SQL Lab, database schemas and editing a dataset keep their normal permissions. A new data-access
+  check keeps `is_editor` and adds this grant only where the dataset is the thing read
+  (`tests/unit_tests/mibi/workspace_grants_test.py`).
+- **Flags fixed by the product** (`FORCED_OFF_FLAGS`, `superset/utils/feature_flag_manager.py`): Superset's mobile consumption mode
+  (`mibiMobile` replaces it) and Table V2 stay off whatever the configuration says.
+- **Soft delete and version history** (on by default since 7.0): a deleted dashboard, chart or
+  dataset keeps its row (`deleted_at`) and links. The trash lives on the workspace page (contributors and admins,
+  `/api/v1/workspace/<id>/trash/`) and in Administration (`/archived/`, "Papelera"); the history opens from the "…" menu of a
+  dashboard. A contributor reads the history, copies dashboards (the copy keeps the original's editors and workspace) and lists
+  the drafts of the workspace, never becoming an editor. Fork rules count only live rows: 7.0's ORM
+  visibility filter hides them from ORM queries, but queries over link tables (`dashboard_slices`,
+  `mibi_workspace_*`) must join the live rows themselves (`_live_links` in `single_dashboard.py`).
 - **Datasets belong to a workspace** (`MIBI_WORKSPACE_DATASETS`, `superset/mibi/workspace_datasets.py`),
   like Power BI semantic models: a dataset is in one workspace at most, and one without a
-  workspace is shared. Only members (and owners, admins) list a workspace's datasets
+  workspace is shared. Only members (and editors, admins) list a workspace's datasets
   (`WorkspaceDatasetFilter` on the dataset API), and a chart only uses datasets of its
   dashboard's workspace or shared ones (`validate_chart_dataset` in the chart commands). A
   dataset created from a dashboard's side panel joins its workspace (`linkNewDataset`); the
@@ -81,7 +107,9 @@ This repository is **AuraData BI**, a fork of Apache Superset 6.1 shaped like Po
 - Branding, theme tokens, languages and chart palettes live in `superset/mibi_config.py`.
 - **Databases offered:** PostgreSQL, SQL Server (pymssql), MySQL, Databricks, Amazon Redshift and DuckDB, as cards
   with their logo (`PREFERRED_DATABASES` in `mibi_config.py`, logos in `src/mibi/databases/dbImages.ts`). Their drivers
-  are installed in the `dev` and `prod` targets of the `Dockerfile`; a new database needs its driver there too.
+  are installed in the `dev` and `prod` targets of the `Dockerfile` (`prod` is `lean` plus the six drivers and a Playwright Chromium, not the
+  batteries-included `superset` image); a new database needs its driver there too. The dev and prod `CeleryConfig` inherit
+  `superset.config.CeleryConfig`: never replace it, or Superset's own scheduled tasks (trash and history purge) stop running.
 - **The editor has a ribbon, as in Power BI** (`src/mibi/ribbon`): Home, Insert, Design and View,
   plus Format and Data and drill for the selected object. It lives under the top bar in `Header`, and
   commands of the ribbon call the same actions as the panes. A new command goes there, in a named
@@ -296,12 +324,47 @@ Formats are stored in `position_json`, so they save, undo and export with the da
   layout holds moves out of it. Tooltip fields and small multiples stay in the layout. `mibi/format/DataPane.tsx` is the Data pane.
 - There are no saved format themes: each dashboard is formatted on its own.
 
+### Superset 7.0 under the fork
+Things that changed in 7.0 and that the fork code relies on:
+- **Routes have no `/superset/` prefix** (`/dashboard/<id>/`, `/welcome/`, `/explore/`, `/sqllab/`); the backend never
+  emits the old ones (7.0 redirects old links). Use `REPORT_PATH`/`HOME_URL` of `src/mibi/shell/navigation.ts`.
+  `isReportRoute` leaves out `/dashboard/list/` and `/dashboard/new/` (the router would read them as a slug); "New
+  dashboard" is a full navigation, because its GET on the server creates the dashboard.
+- **Editors and viewers replace owners and roles-with-access.** There is no `owners`, `is_owner` or
+  `raise_for_ownership`: use `editors`/`viewers`, `security_manager.is_editor` (which also grants data access) and, for
+  edit points, `can_edit_resource`/`raise_for_editorship` (see Workspaces above). Chart fields read the editors of
+  the chart in the browser (`canChangeFields`).
+- **SQLAlchemy 2.0 and Flask 3**: `session.get`, no `Query.get`; commit between changes of the same dashboard links
+  (version history records one change per link and transaction).
+- **Frontend**: React 18, antd 6 (`styles.container` in tooltips, `.ant-tabs-body`, `Drawer size`), oxlint and oxfmt
+  instead of ESLint, `lodash-es`, `renderHook` from `@testing-library/react`, dnd-kit in Explore. The lockfile is
+  npm's; run `npm run plugins:build` before `tsc`. In a worktree without `node_modules`, clone them (and the nested
+  ones of `plugins/*` and `packages/*`) with `cp -cR` from another checkout of the same lockfile.
+- **Flags the product fixes**: `MOBILE_CONSUMPTION_MODE`, `AG_GRID_TABLE_ENABLED` and `TABLE_V2_TIME_COMPARISON_ENABLED`
+  stay off (`FORCED_OFF_FLAGS`).
+- **Month and day names** of axes and dates follow the language of the app (`src/setup/localeTimeFormat.ts`, from
+  `Intl`) unless `D3_TIME_FORMAT` sets them; ECharts' own locale (`echartsLocale.ts`) is loaded per language too.
+- **Reports and alerts** run as the report's editor (`ALERT_REPORTS_EXECUTORS`) and need access to the dashboard: a
+  draft is visible only to its editors, admins and the contributors and admins of its workspace. A scheduled report
+  of an unpublished dashboard whose executor is none of those stops running in 7.0: publish the dashboard, or make its
+  editor an editor of the dashboard or a contributor of the workspace. `ALERT_REPORTS_EXECUTORS` falls back to a
+  fixed admin only if the operator accepts that report images are taken with admin rights.
+- The prod `CeleryConfig` inherits `superset.config.CeleryConfig`; `prod` is `lean` plus the six drivers and Chromium.
+
 ### Migrations
-Fork migrations form one chain after the upstream head:
+Fork migrations form one chain after the Superset 6.1 head (`4b2a8c9d3e1f`; they were written on 6.1 and stay in that order):
 `8bc9e5b95335` (workspaces) → `cce7fe34b50d` (members) → `3a90eb47d506` (backgrounds) →
 `06c8a16b9fe1` (element images) → `b7d41e0c9a23` (format themes) → `e4ec3b61cadb` (drops the
 format themes) → `a91c5d27f3e8` (drops the annotation layers) → `c5f08a1d7e42` (drops the
-themes and CSS templates) → `d3f9a2b17c64` (workspace datasets). A new fork migration revises the last one. When merging a new Superset release, point `8bc9e5b95335` at the new upstream head.
+themes and CSS templates) → `d3f9a2b17c64` (workspace datasets). The chain ends in the merge revision
+`f1c7a9e2b305`, whose `down_revision` is the Superset 7.0 head (`88a01c781622`) and the fork head, so there is
+one head and a database at `d3f9a2b17c64` still runs the 41 migrations of 7.0 on `db upgrade`.
+- A new fork migration revises the current head (`f1c7a9e2b305` until the next one).
+- Each new Superset release follows the same rule: add another merge revision of its head and the fork head.
+  Never repoint `8bc9e5b95335` (or any fork revision) to the new upstream head: a database that already ran the
+  fork migrations would skip the new upstream ones.
+- Check both paths on a throwaway database, never the dev one: a new database and a copy at the previous head
+  must both reach the new head.
 
 ### Tests for AuraData BI code
 - Jest tests sit next to the code (`src/mibi/**/*.test.ts(x)`).
@@ -336,6 +399,43 @@ themes and CSS templates) → `d3f9a2b17c64` (workspace datasets). A new fork mi
 - **Prefer UUIDs over auto-incrementing IDs** - New models should use UUID primary keys
 - **External API exposure** - Use UUIDs in public APIs instead of internal integer IDs
 - **Existing models** - Add UUID fields alongside integer IDs for gradual migration
+
+## Security and Threat Model
+
+Before evaluating any code path for security issues, read [`SECURITY.md`](SECURITY.md). It is the canonical, authoritative source for Apache Superset's security model and is referenced by both human reporters and automated scanners.
+
+In short, the test for whether a finding is in scope is one question:
+
+> *Does it let a principal perform an action the role and capability matrix in `SECURITY.md` does not entitle them to?*
+
+If yes, it is in scope. If no, it is not.
+
+The three trust boundaries are:
+
+1. **The Admin role** is a fully trusted operational principal. Anything an Admin can do through documented configuration, API, or UI is an intended capability, not a vulnerability.
+2. **The operator** owns deployment-time decisions (secrets, network exposure, feature-flag selection, connector and codec choices, notification destinations, third-party plugins). Misconfiguration at this layer is a deployment defect, not a Superset vulnerability.
+3. **The codebase** is responsible for enforcing the role and capability matrix wherever it exposes functionality to a principal: API routes, command and DAO layers, UI handlers, background jobs, and any other entry point. A missing or incorrect enforcement check is in scope no matter where it lives.
+
+The security model assumes that operator-controlled infrastructure, including the metadata database, cache backends, message brokers, secret stores, and deployment environment, remains within the operator's trust boundary. Vulnerabilities must demonstrate a security boundary violation by an attacker who does not already control those systems.
+
+Route-level authorization in this codebase uses one of three Flask-AppBuilder decorators depending on the route type:
+
+- `@protect()` for REST API routes (`ModelRestApi` / `BaseApi`)
+- `@has_access_api` for legacy view routes
+- `@has_access` for legacy HTML view routes
+
+Object-level authorization via `security_manager.raise_for_access(...)` applies to data-bearing resources: dashboards, charts, datasets and datasources, queries, database and table access, and query contexts. Other resources (annotations, tags, CSS templates, reports, RLS rules, and similar) rely on the route-level decorator plus DAO `base_filters` for ownership scoping; the absence of `raise_for_access` on these resources is by design, not a finding. Code that omits the per-object gate on a route that returns or mutates a specific data-bearing object is in scope; code that follows the correct pattern for its resource class can still contain injection, SSRF, XSS, or other classes of finding unrelated to authorization, which are evaluated separately.
+
+The full role and capability matrix, in-scope and out-of-scope class lists, and CVE aggregation rules are in [`SECURITY.md`](SECURITY.md). Defer to that document for any specifics.
+
+**Requirements for findings filed by automated tooling**
+
+Automated scanners (LLM-based code scanners, static analyzers, dependency tools) that file findings against this codebase must, in each finding, name:
+
+1. The specific role and capability matrix row in [`SECURITY.md`](SECURITY.md) the finding believes is violated.
+2. The principal the finding assumes the attacker holds (Public, Gamma, sql_lab, Alpha, Admin, Embedded guest token, or a custom role with explicit capability grants).
+
+Findings that cannot identify both should be filed as questions, not vulnerabilities. This requirement exists to ensure every reported issue is testable against the published security model and to keep speculative or pattern-match-only reports out of the triage queue.
 
 ## Key Directories
 
@@ -385,6 +485,7 @@ superset/
 ## Architecture Patterns
 
 ### Security & Features
+- **Security model**: see the top-level [Security and Threat Model](#security-and-threat-model) section and [`SECURITY.md`](SECURITY.md)
 - **RBAC**: Role-based access via Flask-AppBuilder
 - **Feature flags**: Control feature rollouts
 - **Row-level security**: SQL-based data access control
@@ -477,8 +578,8 @@ git add .                        # Pre-commit only checks staged files
 # Quick validation (faster than --all-files)
 pre-commit run                   # Staged files only
 pre-commit run mypy              # Python type checking
-pre-commit run prettier          # Code formatting
-pre-commit run eslint            # Frontend linting
+pre-commit run format            # Code formatting
+pre-commit run oxlint-frontend   # Frontend linting
 ```
 
 **Important pre-commit usage notes:**

@@ -156,7 +156,11 @@ describe('getDetailedComponentWidth', () => {
             child: { id: 'child', meta: { width: 3.5 } },
           },
         }),
-      ).toEqual({ width: 12, occupiedWidth: 7, minimumWidth: 7 });
+      ).toEqual({
+        width: gridColumnCount(),
+        occupiedWidth: 7,
+        minimumWidth: 7,
+      });
     });
 
     test('should always be zero for column components', () => {
@@ -245,7 +249,11 @@ describe('getDetailedComponentWidth', () => {
             child: { id: 'child', meta: { width: 3.5 } },
           },
         }),
-      ).toEqual({ width: 12, occupiedWidth: 7, minimumWidth: 7 });
+      ).toEqual({
+        width: gridColumnCount(),
+        occupiedWidth: 7,
+        minimumWidth: 7,
+      });
     });
   });
 });

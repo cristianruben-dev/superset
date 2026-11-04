@@ -41,6 +41,8 @@ export const FieldHelp = ({
     <HelpTooltip title={label} description={help.text} kind={help.kind}>
       <span
         role="img"
+        // The icon takes the focus so the keyboard opens its tooltip
+        // oxlint-disable-next-line jsx-a11y/no-noninteractive-tabindex
         tabIndex={0}
         aria-label={t('Help')}
         data-test="mibi-field-help"

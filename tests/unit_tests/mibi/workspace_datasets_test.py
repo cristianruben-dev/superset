@@ -37,6 +37,7 @@ from superset.mibi.models import (
 from superset.models.core import Database
 from superset.models.dashboard import Dashboard
 from superset.models.slice import Slice
+from superset.subjects.utils import get_or_create_user_subject
 
 MIGRATION = (
     Path(__file__).parents[3]
@@ -128,10 +129,11 @@ def test_admins_guests_and_the_switch_are_not_filtered(
     assert workspace_datasets.dataset_visibility_filter(SqlaTable.id) is None
 
 
-def test_the_list_filter_keeps_the_datasets_a_user_owns(
-    world: dict[str, Any], session: Session
+def test_the_list_filter_keeps_the_datasets_a_user_edits(
+    mocker: MockerFixture, world: dict[str, Any], session: Session
 ) -> None:
-    world["ajena"].owners = [world["ana"]]
+    mocker.patch("superset.subjects.filters.get_user_id", return_value=world["ana"].id)
+    world["ajena"].editors = [get_or_create_user_subject(world["ana"].id)]
     session.flush()
     query = session.query(SqlaTable)
 
@@ -156,6 +158,32 @@ def test_charts_use_their_workspace_datasets_or_shared_ones(
     # Queries and charts without a dashboard are not checked
     assert validate(world["ajena"].id, "query", [tablero]) is None
     assert validate(world["ajena"].id, "table", []) is None
+
+
+def test_charts_joining_a_dashboard_keep_to_its_workspace_datasets(
+    world: dict[str, Any], session: Session
+) -> None:
+    def loose_chart(dataset: SqlaTable) -> int:
+        chart = Slice(
+            slice_name=f"{dataset.table_name} suelto",
+            viz_type="table",
+            datasource_type="table",
+            datasource_id=dataset.id,
+        )
+        session.add(chart)
+        session.flush()
+        return chart.id
+
+    foreign = workspace_datasets.chart_datasets_of_other_workspaces
+    ventas, ajena, comun = (
+        loose_chart(world[name]) for name in ("ventas", "ajena", "comun")
+    )
+
+    assert foreign([ventas, comun], world["tablero"].id) == []
+    assert foreign([ventas, ajena, comun], world["tablero"].id) == ["ajena"]
+    # A dashboard outside workspaces, saved or not, only takes shared datasets
+    assert foreign([ventas, comun], world["libre"].id) == ["ventas"]
+    assert foreign([ventas, ajena, comun], None) == ["ajena", "ventas"]
 
 
 def test_the_usable_in_dashboard_filter(
@@ -247,8 +275,8 @@ def api_world(
         "superset.daos.dataset.DatasetDAO.find_by_ids",
         side_effect=lambda ids, **kwargs: [d for d in datasets if d.id in ids],
     )
-    mocker.patch.object(security_manager, "raise_for_ownership")
-    mocker.patch.object(security_manager, "is_owner", return_value=True)
+    mocker.patch.object(security_manager, "raise_for_editorship")
+    mocker.patch.object(security_manager, "can_edit_resource", return_value=True)
     return world
 
 

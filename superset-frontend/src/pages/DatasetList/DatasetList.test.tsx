@@ -19,6 +19,7 @@
 import { act, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import rison from 'rison';
+import { FeatureFlag } from '@superset-ui/core';
 import fetchMock from 'fetch-mock';
 import {
   setupMocks,
@@ -29,6 +30,7 @@ import {
   mockExportOnlyUser,
   mockDatasets,
   mockApiError403,
+  mockDatasetListEndpoints,
   API_ENDPOINTS,
   RisonFilter,
 } from './DatasetList.testHelpers';
@@ -41,14 +43,15 @@ beforeEach(() => {
 });
 
 afterEach(async () => {
+  // Restore real timers FIRST so the flush below uses real setTimeout,
+  // preventing a deadlock if a test threw while fake timers were active.
+  jest.useRealTimers();
+
   // Flush pending React state updates within act() to prevent warnings
   // and "document global undefined" errors from async operations
   await act(async () => {
     await new Promise(resolve => setTimeout(resolve, 0));
   });
-
-  // Restore real timers in case a test using fake timers threw early
-  jest.useRealTimers();
 
   // Reset browser history state to prevent query params leaking between tests
   window.history.replaceState({}, '', '/');
@@ -68,13 +71,17 @@ test('shows loading state during initial data fetch', () => {
   // Use fake timers to avoid leaving real timers running after test
   jest.useFakeTimers();
 
-  fetchMock.removeRoutes({ names: [API_ENDPOINTS.DATASETS] });
-  fetchMock.get(
-    API_ENDPOINTS.DATASETS,
-    new Promise(resolve =>
-      setTimeout(() => resolve({ result: [], count: 0 }), 10000),
-    ),
+  const delayedResponse = new Promise(resolve =>
+    setTimeout(() => resolve({ result: [], count: 0 }), 10000),
   );
+  fetchMock.removeRoutes({
+    names: [
+      API_ENDPOINTS.DATASOURCE_COMBINED,
+      API_ENDPOINTS.DATASOURCE_COMBINED,
+    ],
+  });
+  fetchMock.get(API_ENDPOINTS.DATASOURCE_COMBINED, delayedResponse);
+  fetchMock.get(API_ENDPOINTS.DATASOURCE_COMBINED, delayedResponse);
 
   renderDatasetList(mockAdminUser);
 
@@ -87,13 +94,17 @@ test('maintains component structure during loading', () => {
   // Use fake timers to avoid leaving real timers running after test
   jest.useFakeTimers();
 
-  fetchMock.removeRoutes({ names: [API_ENDPOINTS.DATASETS] });
-  fetchMock.get(
-    API_ENDPOINTS.DATASETS,
-    new Promise(resolve =>
-      setTimeout(() => resolve({ result: [], count: 0 }), 10000),
-    ),
+  const delayedResponse = new Promise(resolve =>
+    setTimeout(() => resolve({ result: [], count: 0 }), 10000),
   );
+  fetchMock.removeRoutes({
+    names: [
+      API_ENDPOINTS.DATASOURCE_COMBINED,
+      API_ENDPOINTS.DATASOURCE_COMBINED,
+    ],
+  });
+  fetchMock.get(API_ENDPOINTS.DATASOURCE_COMBINED, delayedResponse);
+  fetchMock.get(API_ENDPOINTS.DATASOURCE_COMBINED, delayedResponse);
 
   renderDatasetList(mockAdminUser);
 
@@ -190,8 +201,8 @@ test('renders Name search filter', async () => {
 test('renders Type filter (Virtual/Physical dropdown)', async () => {
   renderDatasetList(mockAdminUser);
 
-  // Filter dropdowns should be present
-  const filters = await screen.findAllByRole('combobox');
+  // Filter pills should be present (compact pill UI)
+  const filters = await screen.findAllByTestId('compact-filter-pill');
   expect(filters.length).toBeGreaterThan(0);
 });
 
@@ -205,7 +216,6 @@ test('handles datasets with missing fields and renders gracefully', async () => 
       id: '1',
       database_name: 'PostgreSQL',
     },
-    owners: [],
     changed_by_name: 'Unknown',
     changed_by: null,
     changed_on_delta_humanized: 'Unknown',
@@ -214,8 +224,7 @@ test('handles datasets with missing fields and renders gracefully', async () => 
     sql: null,
   };
 
-  fetchMock.removeRoutes({ names: [API_ENDPOINTS.DATASETS] });
-  fetchMock.get(API_ENDPOINTS.DATASETS, {
+  mockDatasetListEndpoints({
     result: [datasetWithMissingFields],
     count: 1,
   });
@@ -226,7 +235,7 @@ test('handles datasets with missing fields and renders gracefully', async () => 
     expect(screen.getByText('Incomplete Dataset')).toBeInTheDocument();
   });
 
-  // Verify empty owners renders without crashing (no FacePile)
+  // Verify empty editors renders without crashing
   const table = screen.getByRole('table');
   expect(table).toBeInTheDocument();
 
@@ -241,8 +250,7 @@ test('handles datasets with missing fields and renders gracefully', async () => 
 });
 
 test('handles empty results (shows empty state)', async () => {
-  fetchMock.removeRoutes({ names: [API_ENDPOINTS.DATASETS] });
-  fetchMock.get(API_ENDPOINTS.DATASETS, { result: [], count: 0 });
+  mockDatasetListEndpoints({ result: [], count: 0 });
 
   renderDatasetList(mockAdminUser);
 
@@ -254,7 +262,9 @@ test('makes correct initial API call on load', async () => {
   renderDatasetList(mockAdminUser);
 
   await waitFor(() => {
-    const calls = fetchMock.callHistory.calls(API_ENDPOINTS.DATASETS);
+    const calls = fetchMock.callHistory.calls(
+      API_ENDPOINTS.DATASOURCE_COMBINED,
+    );
     expect(calls.length).toBeGreaterThan(0);
   });
 });
@@ -263,7 +273,9 @@ test('API call includes correct page size', async () => {
   renderDatasetList(mockAdminUser);
 
   await waitFor(() => {
-    const calls = fetchMock.callHistory.calls(API_ENDPOINTS.DATASETS);
+    const calls = fetchMock.callHistory.calls(
+      API_ENDPOINTS.DATASOURCE_COMBINED,
+    );
     expect(calls.length).toBeGreaterThan(0);
     const { url } = calls[0];
     expect(url).toContain('page_size');
@@ -278,7 +290,7 @@ test('typing in name filter updates input value and triggers API with decoded se
 
   // Record initial API calls
   const initialCallCount = fetchMock.callHistory.calls(
-    API_ENDPOINTS.DATASETS,
+    API_ENDPOINTS.DATASOURCE_COMBINED,
   ).length;
 
   // Type in search box and press Enter to trigger search
@@ -292,7 +304,9 @@ test('typing in name filter updates input value and triggers API with decoded se
   // Wait for API call after Enter key press
   await waitFor(
     () => {
-      const calls = fetchMock.callHistory.calls(API_ENDPOINTS.DATASETS);
+      const calls = fetchMock.callHistory.calls(
+        API_ENDPOINTS.DATASOURCE_COMBINED,
+      );
       expect(calls.length).toBeGreaterThan(initialCallCount);
 
       // Get latest API call
@@ -346,8 +360,7 @@ test('toggling bulk select mode shows checkboxes', async () => {
 }, 30000);
 
 test('handles 500 error on initial load without crashing', async () => {
-  fetchMock.removeRoutes({ names: [API_ENDPOINTS.DATASETS] });
-  fetchMock.get(API_ENDPOINTS.DATASETS, {
+  mockDatasetListEndpoints({
     throws: new Error('Internal Server Error'),
   });
 
@@ -385,8 +398,7 @@ test('handles 403 error on _info endpoint and disables create actions', async ()
 });
 
 test('handles network timeout without crashing', async () => {
-  fetchMock.removeRoutes({ names: [API_ENDPOINTS.DATASETS] });
-  fetchMock.get(API_ENDPOINTS.DATASETS, {
+  mockDatasetListEndpoints({
     throws: new Error('Network timeout'),
   });
 
@@ -414,7 +426,9 @@ test('component requires explicit mocks for all API endpoints', async () => {
   await waitForDatasetsPageReady();
 
   // Verify that critical endpoints were called and had mocks available
-  const newDatasetsCalls = fetchMock.callHistory.calls(API_ENDPOINTS.DATASETS);
+  const newDatasetsCalls = fetchMock.callHistory.calls(
+    API_ENDPOINTS.DATASOURCE_COMBINED,
+  );
   const newInfoCalls = fetchMock.callHistory.calls(API_ENDPOINTS.DATASETS_INFO);
 
   // These should have been called during render
@@ -431,7 +445,8 @@ test('selecting Database filter triggers API call with database relation filter'
 
   await waitForDatasetsPageReady();
 
-  const filtersContainers = screen.getAllByRole('combobox');
+  // Filter pills should be present (compact pill UI replaces comboboxes)
+  const filtersContainers = screen.getAllByTestId('compact-filter-pill');
   expect(filtersContainers.length).toBeGreaterThan(0);
 });
 
@@ -446,8 +461,7 @@ test('renders datasets with certification data', async () => {
     }),
   };
 
-  fetchMock.removeRoutes({ names: [API_ENDPOINTS.DATASETS] });
-  fetchMock.get(API_ENDPOINTS.DATASETS, {
+  mockDatasetListEndpoints({
     result: [certifiedDataset],
     count: 1,
   });
@@ -474,8 +488,7 @@ test('displays datasets with warning_markdown', async () => {
     }),
   };
 
-  fetchMock.removeRoutes({ names: [API_ENDPOINTS.DATASETS] });
-  fetchMock.get(API_ENDPOINTS.DATASETS, {
+  mockDatasetListEndpoints({
     result: [datasetWithWarning],
     count: 1,
   });
@@ -493,24 +506,23 @@ test('displays datasets with warning_markdown', async () => {
   expect(datasetRow).toBeInTheDocument();
 });
 
-test('displays dataset with multiple owners', async () => {
-  const datasetWithOwners = mockDatasets[1]; // Has 2 owners: Jane Smith, Bob Jones
+test('displays dataset with multiple editors', async () => {
+  const datasetWithEditors = mockDatasets[1];
 
-  fetchMock.removeRoutes({ names: [API_ENDPOINTS.DATASETS] });
-  fetchMock.get(API_ENDPOINTS.DATASETS, {
-    result: [datasetWithOwners],
+  mockDatasetListEndpoints({
+    result: [datasetWithEditors],
     count: 1,
   });
 
   renderDatasetList(mockAdminUser);
 
   await waitFor(() => {
-    expect(screen.getByText(datasetWithOwners.table_name)).toBeInTheDocument();
+    expect(screen.getByText(datasetWithEditors.table_name)).toBeInTheDocument();
   });
 
   // Verify row exists with the dataset
   const datasetRow = screen
-    .getByText(datasetWithOwners.table_name)
+    .getByText(datasetWithEditors.table_name)
     .closest('tr');
   expect(datasetRow).toBeInTheDocument();
 });
@@ -518,8 +530,7 @@ test('displays dataset with multiple owners', async () => {
 test('displays ModifiedInfo with humanized date', async () => {
   const datasetWithModified = mockDatasets[0]; // changed_by_name: 'John Doe', changed_on: '1 day ago'
 
-  fetchMock.removeRoutes({ names: [API_ENDPOINTS.DATASETS] });
-  fetchMock.get(API_ENDPOINTS.DATASETS, {
+  mockDatasetListEndpoints({
     result: [datasetWithModified],
     count: 1,
   });
@@ -541,8 +552,7 @@ test('displays ModifiedInfo with humanized date', async () => {
 test('dataset name links to Explore with correct explore_url', async () => {
   const dataset = mockDatasets[0]; // explore_url: '/explore/?datasource=1__table'
 
-  fetchMock.removeRoutes({ names: [API_ENDPOINTS.DATASETS] });
-  fetchMock.get(API_ENDPOINTS.DATASETS, { result: [dataset], count: 1 });
+  mockDatasetListEndpoints({ result: [dataset], count: 1 });
 
   renderDatasetList(mockAdminUser);
 
@@ -555,3 +565,88 @@ test('dataset name links to Explore with correct explore_url', async () => {
   expect(exploreLink).toBeInTheDocument();
   expect(exploreLink).toHaveAttribute('href', dataset.explore_url);
 });
+
+test('shows RLS badge when dataset has rls_filters', async () => {
+  // mockDatasets[5] is 'Restricted Sales' with one rls_filter
+  const dataset = mockDatasets[5];
+
+  mockDatasetListEndpoints({ result: [dataset], count: 1 });
+  renderDatasetList(mockAdminUser);
+
+  await waitFor(() => {
+    expect(screen.getByText(dataset.table_name)).toBeInTheDocument();
+  });
+
+  // RlsBadge renders a lock icon with accessible name when filters are present
+  expect(
+    screen.getByRole('img', { name: /row-level security/i }),
+  ).toBeInTheDocument();
+});
+
+test('does not show RLS badge when dataset has no rls_filters', async () => {
+  // mockDatasets[0] has no rls_filters field
+  const dataset = mockDatasets[0];
+
+  mockDatasetListEndpoints({ result: [dataset], count: 1 });
+  renderDatasetList(mockAdminUser);
+
+  await waitFor(() => {
+    expect(screen.getByText(dataset.table_name)).toBeInTheDocument();
+  });
+
+  // No RLS badge when rls_filters is absent
+  expect(
+    screen.queryByRole('img', { name: /row-level security/i }),
+  ).not.toBeInTheDocument();
+});
+
+test.each([false, true])(
+  'renders dataset type badges with semantic layers enabled=%s',
+  async enabled => {
+    const previousFlags = window.featureFlags;
+    window.featureFlags = {
+      ...previousFlags,
+      [FeatureFlag.SemanticLayers]: enabled,
+    };
+    try {
+      const physical = { ...mockDatasets[0], kind: 'physical' };
+      const virtual = { ...mockDatasets[1], kind: 'virtual' };
+      const semantic = {
+        ...mockDatasets[0],
+        id: 900,
+        table_name: 'Semantic Orders',
+        kind: 'semantic_view',
+      };
+      const result = enabled
+        ? [physical, virtual, semantic]
+        : [physical, virtual];
+      mockDatasetListEndpoints({ result, count: result.length });
+      renderDatasetList(mockAdminUser);
+      const table = await screen.findByRole('table');
+      await waitFor(() =>
+        expect(within(table).getAllByTestId('dataset-type-label')).toHaveLength(
+          result.length,
+        ),
+      );
+      expect(within(table).getByText('Physical')).toBeInTheDocument();
+      expect(within(table).getByText('Virtual')).toBeInTheDocument();
+      if (enabled) {
+        const badge = within(table)
+          .getByText('Semantic View')
+          .closest('[data-test="dataset-type-label"]');
+        expect(badge).toBeInTheDocument();
+        expect(
+          within(badge as HTMLElement).getByRole('img', { name: 'apartment' }),
+        ).toBeInTheDocument();
+        expect(screen.getByText('Datasources')).toBeInTheDocument();
+      } else {
+        expect(
+          within(table).queryByText('Semantic View'),
+        ).not.toBeInTheDocument();
+        expect(screen.getByText('Datasets')).toBeInTheDocument();
+      }
+    } finally {
+      window.featureFlags = previousFlags;
+    }
+  },
+);

@@ -45,6 +45,8 @@ function HeaderIcon({
 }) {
   return (
     <Tooltip title={title} placement="top">
+      {/* The role follows the handler, which the static check cannot see */}
+      {/* oxlint-disable-next-line jsx-a11y/no-static-element-interactions */}
       <span
         role={onClick ? 'button' : 'img'}
         tabIndex={onClick ? 0 : undefined}
@@ -161,7 +163,7 @@ export function HeaderExtras({
         <Tooltip
           title={tooltip.text}
           placement="top"
-          styles={{ body: headerTooltipStyle(tooltip) }}
+          styles={{ container: headerTooltipStyle(tooltip) }}
         >
           <span
             role="img"
@@ -249,7 +251,7 @@ export function ChartActionButton({
   const run = useElementAction(format?.link?.action, enabled);
   const styles = actionButtonStyles(button, format, theme);
   const positioned: CSSProperties = styles.box;
-  const iconOnly = button.iconOnly;
+  const {iconOnly} = button;
   const showText = !iconOnly && button.textShow !== false;
   return (
     <button

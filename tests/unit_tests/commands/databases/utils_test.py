@@ -33,8 +33,12 @@ from superset.commands.database.utils import (
     add_perm,
     add_pvm,
     add_vm,
+    encrypted_extra_secrets_reused,
+    oauth2_endpoint_rebind_unsafe,
     ping,
 )
+from superset.constants import PASSWORD_MASK
+from superset.utils import json
 from tests.conftest import with_config
 
 
@@ -210,3 +214,147 @@ def test_add_pvm_existing(db_session: Session, mocker: MockerFixture):
     assert result == mock_pvm
     sm.find_permission_view_menu.assert_called_once_with("existinf_perm", "existing_vm")
     db_session.add.assert_not_called()
+
+
+_OAUTH2_STORED = json.dumps(
+    {
+        "oauth2_client_info": {
+            "id": "client",
+            "secret": "real-secret",
+            "scope": "read",
+            "authorization_request_uri": "https://idp.example.com/authorize",
+            "token_request_uri": "https://idp.example.com/token",
+        }
+    }
+)
+
+
+def _oauth2_submitted(overrides: dict[str, str] | None = None) -> str:
+    info = json.loads(_OAUTH2_STORED)["oauth2_client_info"]
+    info["secret"] = PASSWORD_MASK
+    info.update(overrides or {})
+    return json.dumps({"oauth2_client_info": info})
+
+
+def test_oauth2_endpoint_rebind_unsafe_masked_secret_new_token_endpoint() -> None:
+    """Repointing token_request_uri while reusing the masked secret is unsafe:
+    the next exchange would post the real secret to the new host."""
+    assert oauth2_endpoint_rebind_unsafe(
+        _OAUTH2_STORED,
+        _oauth2_submitted({"token_request_uri": "https://other.example.org/token"}),
+    )
+
+
+def test_oauth2_endpoint_rebind_unsafe_allows_fresh_secret() -> None:
+    """A freshly supplied secret makes the endpoint change a deliberate one."""
+    assert not oauth2_endpoint_rebind_unsafe(
+        _OAUTH2_STORED,
+        _oauth2_submitted(
+            {
+                "token_request_uri": "https://other.example.org/token",
+                "secret": "new-secret",
+            }
+        ),
+    )
+
+
+def test_oauth2_endpoint_rebind_unsafe_masked_secret_unchanged_endpoints() -> None:
+    """The plain masked round-trip (nothing repointed) stays allowed."""
+    assert not oauth2_endpoint_rebind_unsafe(_OAUTH2_STORED, _oauth2_submitted())
+
+
+def test_oauth2_endpoint_rebind_unsafe_without_stored_client() -> None:
+    """Nothing stored means nothing can be carried over."""
+    assert not oauth2_endpoint_rebind_unsafe(
+        "{}",
+        _oauth2_submitted({"token_request_uri": "https://other.example.org/token"}),
+    )
+
+
+_SECRETS = {"$.oauth2_client_info.secret", "$.embedded_credentials.password"}
+_STORED = json.dumps(
+    {
+        "oauth2_client_info": {"id": "client", "secret": "real-secret"},
+        "embedded_credentials": {"username": "svc", "password": "real-pw"},
+    }
+)
+
+
+@pytest.mark.parametrize(
+    "submitted,expected",
+    [
+        # Left masked: restored verbatim, so reused...
+        (
+            {
+                "oauth2_client_info": {"id": "client", "secret": PASSWORD_MASK},
+                "embedded_credentials": {"username": "svc", "password": "new-pw"},
+            },
+            True,
+        ),
+        # ...even when another field changes in the same save.
+        (
+            {
+                "oauth2_client_info": {
+                    "id": "client",
+                    "secret": "new-secret",
+                    "scope": "session:role:ANALYST",
+                },
+                "embedded_credentials": {"username": "svc", "password": PASSWORD_MASK},
+            },
+            True,
+        ),
+        # Every secret re-entered, even with its stored value: fresh.
+        (
+            {
+                "oauth2_client_info": {"id": "client", "secret": "real-secret"},
+                "embedded_credentials": {"username": "svc", "password": "real-pw"},
+            },
+            False,
+        ),
+        # A dropped path drops the secret rather than carrying it over.
+        ({"oauth2_client_info": {"id": "client"}}, False),
+    ],
+)
+def test_encrypted_extra_secrets_reused_is_judged_per_secret(
+    submitted: dict[str, object], expected: bool
+) -> None:
+    """A stored secret rides along only where the submission leaves it masked."""
+    assert (
+        encrypted_extra_secrets_reused(
+            _SECRETS, _STORED, json.dumps(submitted), submitted=True
+        )
+        is expected
+    )
+
+
+def test_encrypted_extra_secrets_reused_when_the_payload_is_left_out() -> None:
+    """Leaving masked_encrypted_extra out keeps every stored secret attached."""
+    assert encrypted_extra_secrets_reused(_SECRETS, _STORED, None, submitted=False)
+
+
+@pytest.mark.parametrize("secret", [0, False])
+def test_encrypted_extra_secrets_reused_with_falsy_secret(secret: object) -> None:
+    """A falsy stored value is still a secret."""
+    stored = json.dumps({"oauth2_client_info": {"secret": secret}})
+    assert encrypted_extra_secrets_reused(_SECRETS, stored, None, submitted=False)
+    masked = json.dumps({"oauth2_client_info": {"secret": PASSWORD_MASK}})
+    assert encrypted_extra_secrets_reused(_SECRETS, stored, masked, submitted=True)
+
+
+@pytest.mark.parametrize("stored", [None, "", "{}", "[1]", "not json"])
+def test_encrypted_extra_secrets_reused_with_nothing_stored(stored: str | None) -> None:
+    """Nothing stored means nothing can be carried over."""
+    assert not encrypted_extra_secrets_reused(_SECRETS, stored, None, submitted=False)
+
+
+def test_encrypted_extra_secrets_reused_ignores_a_compact_json_mismatch() -> None:
+    """
+    The stored blob's formatting is irrelevant (first edit).
+
+    The dialog stores compact JSON on create; comparing serialized blobs read a
+    still-masked secret as fresh because the re-serialized form differed.
+    """
+    stored = '{"oauth2_client_info":{"id":"client","secret":"real-secret"}}'
+    submitted = '{"oauth2_client_info": {"id": "client", "secret": "XXXXXXXXXX"}}'
+
+    assert encrypted_extra_secrets_reused(_SECRETS, stored, submitted, submitted=True)

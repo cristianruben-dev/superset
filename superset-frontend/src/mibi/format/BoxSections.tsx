@@ -20,11 +20,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import { t } from '@apache-superset/core/translation';
 import { useReportTokens } from 'src/mibi/report/ReportTheme';
 import { Switch } from '@superset-ui/core/components';
-import { BASE_VISUAL_PADDING } from './styles';
 import type { RootState } from 'src/dashboard/types';
 import { CHART_TYPE } from 'src/dashboard/util/componentTypes';
 import { setVisualFormat } from './actions';
-import { mergeVisualFormat } from './styles';
+import { BASE_VISUAL_PADDING, mergeVisualFormat } from './styles';
 import { useSharedVisualFormat } from './useVisualFormat';
 import { ColorField, Field, RangeField, Section, Segments } from './controls';
 import {

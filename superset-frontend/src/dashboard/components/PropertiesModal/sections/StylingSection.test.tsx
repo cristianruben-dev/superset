@@ -16,8 +16,24 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { render, screen, userEvent } from 'spec/helpers/testing-library';
+import {
+  render,
+  screen,
+  userEvent,
+  waitFor,
+} from 'spec/helpers/testing-library';
+import * as resolveCssImportsModule from 'src/dashboard/util/resolveCssImports';
 import StylingSection from './StylingSection';
+
+jest.mock('src/dashboard/util/resolveCssImports', () => ({
+  ...jest.requireActual('src/dashboard/util/resolveCssImports'),
+  resolveCssImports: jest.fn(),
+}));
+
+const mockResolveCssImports =
+  resolveCssImportsModule.resolveCssImports as jest.MockedFunction<
+    typeof resolveCssImportsModule.resolveCssImports
+  >;
 
 // Mock ColorSchemeSelect component
 jest.mock('src/dashboard/components/ColorSchemeSelect', () => ({
@@ -45,6 +61,11 @@ const defaultProps = {
 
 beforeEach(() => {
   jest.clearAllMocks();
+  // clearAllMocks() only clears call history, not implementations set via
+  // mockResolvedValue/mockRejectedValue -- reset this one explicitly so a
+  // value set by an earlier test can't leak into a test that forgets to
+  // set its own.
+  mockResolveCssImports.mockReset();
 });
 
 test('renders color scheme selection', () => {
@@ -131,4 +152,100 @@ test('calls onShowChartTimestampsChange when switch is toggled', async () => {
 
   expect(onShowChartTimestampsChange).toHaveBeenCalled();
   expect(onShowChartTimestampsChange.mock.calls[0][0]).toBe(true);
+});
+
+test('does not show the @import warning for ordinary CSS', () => {
+  render(
+    <StylingSection {...defaultProps} customCss=".header { color: red; }" />,
+  );
+
+  expect(screen.queryByTestId('css-import-warning')).not.toBeInTheDocument();
+});
+
+test('shows a convert button when the CSS contains @import', () => {
+  render(
+    <StylingSection
+      {...defaultProps}
+      customCss="@import url('https://fonts.googleapis.com/css2?family=Inter');"
+    />,
+  );
+
+  expect(screen.getByTestId('css-import-warning')).toBeInTheDocument();
+  expect(screen.getByTestId('convert-css-import-button')).toBeInTheDocument();
+});
+
+test('converting replaces the CSS and reports success', async () => {
+  const onCustomCssChange = jest.fn();
+  mockResolveCssImports.mockResolvedValue({
+    css: "@font-face { font-family: 'Inter'; src: url('x.woff2'); }",
+    resolvedCount: 1,
+    unresolvedUrls: [],
+  });
+
+  render(
+    <StylingSection
+      {...defaultProps}
+      customCss="@import url('https://fonts.googleapis.com/css2?family=Inter');"
+      onCustomCssChange={onCustomCssChange}
+    />,
+  );
+
+  await userEvent.click(screen.getByTestId('convert-css-import-button'));
+
+  await waitFor(() => {
+    expect(onCustomCssChange).toHaveBeenCalledWith(
+      "@font-face { font-family: 'Inter'; src: url('x.woff2'); }",
+    );
+  });
+  expect(screen.getByTestId('css-import-conversion-result')).toHaveTextContent(
+    'Converted 1 @import',
+  );
+});
+
+test('converting reports an unresolved import instead of silently dropping it', async () => {
+  const onCustomCssChange = jest.fn();
+  mockResolveCssImports.mockResolvedValue({
+    css: "@import url('https://no-cors.example.com/x.css');",
+    resolvedCount: 0,
+    unresolvedUrls: ['https://no-cors.example.com/x.css'],
+  });
+
+  render(
+    <StylingSection
+      {...defaultProps}
+      customCss="@import url('https://no-cors.example.com/x.css');"
+      onCustomCssChange={onCustomCssChange}
+    />,
+  );
+
+  await userEvent.click(screen.getByTestId('convert-css-import-button'));
+
+  await waitFor(() => {
+    expect(
+      screen.getByTestId('css-import-conversion-result'),
+    ).toHaveTextContent('no-cors.example.com');
+  });
+  expect(onCustomCssChange).not.toHaveBeenCalled();
+});
+
+test('converting surfaces a warning instead of an unhandled rejection on parse failure', async () => {
+  const onCustomCssChange = jest.fn();
+  mockResolveCssImports.mockRejectedValue(new Error('CssSyntaxError'));
+
+  render(
+    <StylingSection
+      {...defaultProps}
+      customCss="@import url('https://fonts.googleapis.com/css2?family=Inter');"
+      onCustomCssChange={onCustomCssChange}
+    />,
+  );
+
+  await userEvent.click(screen.getByTestId('convert-css-import-button'));
+
+  await waitFor(() => {
+    expect(
+      screen.getByTestId('css-import-conversion-result'),
+    ).toHaveTextContent('Could not parse the CSS');
+  });
+  expect(onCustomCssChange).not.toHaveBeenCalled();
 });

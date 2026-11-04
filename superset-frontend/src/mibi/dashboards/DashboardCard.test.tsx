@@ -29,7 +29,7 @@ import { DashboardPreview, glyphFor } from './DashboardPreview';
 const props = {
   id: 3,
   title: 'Ventas 2025',
-  url: '/superset/dashboard/3/',
+  url: '/dashboard/3/',
   published: true,
   modified: 'Modified 1 hour ago',
 };
@@ -72,7 +72,7 @@ test('shows the layout preview, title, date and status', () => {
   expect(preview.querySelectorAll('.leaf')).toHaveLength(3);
   expect(screen.getByRole('link', { name: 'Ventas 2025' })).toHaveAttribute(
     'href',
-    '/superset/dashboard/3/',
+    '/dashboard/3/',
   );
   expect(screen.getByText('Modified 1 hour ago')).toBeInTheDocument();
   expect(screen.getByText('Published')).toBeInTheDocument();
@@ -80,6 +80,7 @@ test('shows the layout preview, title, date and status', () => {
 
 test('shows the layout preview until the screenshot is ready', async () => {
   jest.spyOn(window.URL, 'createObjectURL').mockReturnValue('blob:thumb');
+  window.URL.revokeObjectURL ??= jest.fn();
   fetchMock.get(
     'glob:*/thumb.png',
     new Response(new Blob(['png'], { type: 'image/png' }), {

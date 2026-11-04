@@ -17,10 +17,10 @@
  * under the License.
  */
 import fetchMock from 'fetch-mock';
-import { renderHook } from '@testing-library/react-hooks';
+import { renderHook } from '@testing-library/react';
 import { useDashboardRowMenu } from './rowMenu';
 
-const row = { id: 7, dashboard_title: 'Ventas', url: '/superset/dashboard/7/' };
+const row = { id: 7, dashboard_title: 'Ventas', url: '/dashboard/7/' };
 
 const options = (permissions: {
   canEdit: boolean;
@@ -38,8 +38,8 @@ const options = (permissions: {
   addDangerToast: jest.fn(),
 });
 
-const keysOf = (items: { key?: unknown }[]) =>
-  items.map(item => item.key).filter(Boolean);
+const keysOf = (items: ({ key?: unknown } | null)[]) =>
+  items.map(item => item?.key).filter(Boolean);
 
 beforeEach(() => {
   fetchMock.get('glob:*/api/v1/workspace/*', { result: [] });
@@ -70,7 +70,7 @@ test('an editor also edits, exports and deletes it', () => {
   expect(keysOf(items)).toEqual(
     expect.arrayContaining(['properties', 'export', 'delete']),
   );
-  const remove = items.find(item => item?.key === 'delete') as {
+  const remove = items.find(item => item?.key === 'delete') as unknown as {
     onClick: () => void;
   };
   remove.onClick();

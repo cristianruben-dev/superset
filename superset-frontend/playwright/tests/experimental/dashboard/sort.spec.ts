@@ -26,7 +26,7 @@ import { getDatabaseByName } from '../../../helpers/api/database';
 import { apiPostVirtualDataset } from '../../../helpers/api/dataset';
 import { apiPut } from '../../../helpers/api/requests';
 import { TIMEOUT } from '../../../utils/constants';
-import { createTestDashboard } from './dashboard-test-helpers';
+import { createTestDashboard } from '../../dashboard/dashboard-test-helpers';
 
 /**
  * Visual sorting E2E tests (AuraData BI "Sort axis").
@@ -64,7 +64,7 @@ async function createSortFixture(
     schema: '',
     table_name: `${name}_data`,
     sql,
-    owners: [],
+    editors: [],
   });
   expect(datasetResponse.ok()).toBe(true);
   const datasetBody = await datasetResponse.json();
@@ -175,7 +175,7 @@ test('an editor sorts a bar chart from its header and viewers see that order', a
   );
 
   // Viewing: no sort option
-  await page.goto(`superset/dashboard/${dashboardId}/`);
+  await page.goto(`dashboard/${dashboardId}/`);
   await expect(page.getByTestId('edit-dashboard-button')).toBeVisible({
     timeout: TIMEOUT.PAGE_LOAD,
   });
@@ -210,7 +210,7 @@ test('an editor undoes the last sort saved', async ({ page, testAssets }) => {
     'test_sort_undo',
   );
 
-  await page.goto(`superset/dashboard/${dashboardId}/`);
+  await page.goto(`dashboard/${dashboardId}/`);
   await page.getByTestId('edit-dashboard-button').click();
   const sortButton = page.getByTestId(`mibi-sort-button-${chartId}`);
   const menu = page.getByTestId(`mibi-sort-menu-${chartId}`);

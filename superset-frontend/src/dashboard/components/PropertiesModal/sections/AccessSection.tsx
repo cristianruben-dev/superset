@@ -22,71 +22,53 @@ import { isFeatureEnabled, FeatureFlag } from '@superset-ui/core';
 import { AsyncSelect } from '@superset-ui/core/components';
 import { type TagType } from 'src/components';
 import { loadTags } from 'src/components/Tag/utils';
-import getOwnerName from 'src/utils/getOwnerName';
-import Owner from 'src/types/Owner';
+import Subject from 'src/types/Subject';
 import { ModalFormField } from 'src/components/Modal';
-import {
-  OwnerSelectLabel,
-  OWNER_TEXT_LABEL_PROP,
-  OWNER_EMAIL_PROP,
-  OWNER_OPTION_FILTER_PROPS,
-} from 'src/features/owners/OwnerSelectLabel';
-import { useAccessOptions } from '../hooks/useAccessOptions';
-import { type OwnerOption } from '../utils';
-
-type Roles = { id: number; name: string }[];
-type Owners = {
-  id: number;
-  full_name?: string;
-  first_name?: string;
-  last_name?: string;
-  email?: string;
-}[];
+import SubjectPicker, {
+  mapSubjectsToPickerValues,
+  type SubjectPickerValue,
+} from 'src/features/subjects/SubjectPicker';
 
 interface AccessSectionProps {
   isLoading: boolean;
-  owners: Owners;
-  roles: Roles;
   tags: TagType[];
-  onChangeOwners: (owners: OwnerOption[], options: OwnerOption[]) => void;
-  onChangeRoles: (roles: { value: number; label: string }[]) => void;
+  editors?: Subject[];
+  viewers?: Subject[];
+  /** False when only the editors of the dashboard may change who edits or views it */
+  canManageSubjects?: boolean;
+  onChangeEditors: (editors: SubjectPickerValue[]) => void;
+  onChangeViewers: (viewers: SubjectPickerValue[]) => void;
   onChangeTags: (tags: { label: string; value: number }[]) => void;
   onClearTags: () => void;
+  renderExtraFields?: {
+    content: React.ReactNode;
+    saveDisabled?: boolean;
+    saveTooltip?: string;
+  };
 }
 
 const AccessSection = ({
   isLoading,
-  owners,
-  roles,
   tags,
-  onChangeOwners,
-  onChangeRoles,
+  editors,
+  viewers,
+  canManageSubjects = true,
+  onChangeEditors,
+  onChangeViewers,
   onChangeTags,
   onClearTags,
+  renderExtraFields,
 }: AccessSectionProps) => {
-  const { loadAccessOptions } = useAccessOptions();
+  const enableViewers = isFeatureEnabled(FeatureFlag.EnableViewers);
 
-  const ownersSelectValue = useMemo(
-    () =>
-      (owners || []).map((owner: Owner & { email?: string }) => ({
-        value: owner.id,
-        label: OwnerSelectLabel({
-          name: getOwnerName(owner),
-          email: owner.email,
-        }),
-        [OWNER_TEXT_LABEL_PROP]: getOwnerName(owner),
-        [OWNER_EMAIL_PROP]: owner.email ?? '',
-      })),
-    [owners],
+  const editorsSelectValue = useMemo(
+    () => mapSubjectsToPickerValues(editors || []),
+    [editors],
   );
 
-  const rolesSelectValue = useMemo(
-    () =>
-      (roles || []).map((role: { id: number; name: string }) => ({
-        value: role.id,
-        label: `${role.name}`,
-      })),
-    [roles],
+  const viewersSelectValue = useMemo(
+    () => mapSubjectsToPickerValues(viewers || []),
+    [viewers],
   );
 
   const tagsAsSelectValues = useMemo(
@@ -101,50 +83,48 @@ const AccessSection = ({
   return (
     <>
       <ModalFormField
-        label={t('Owners')}
-        testId="dashboard-owners-field"
-        helperText={t(
-          'Owners is a list of users who can alter the dashboard. Searchable by name or username.',
-        )}
+        label={t('Editors')}
+        testId="dashboard-editors-field"
+        helperText={
+          canManageSubjects
+            ? t(
+                'Editors is a list of subjects who can alter the dashboard. Searchable by name.',
+              )
+            : t('Only the editors of the dashboard can change who edits it.')
+        }
       >
-        <AsyncSelect
-          data-test="dashboard-owners-select"
+        <SubjectPicker
+          relatedUrl="/api/v1/dashboard/related/editors"
+          dataTest="dashboard-editors-select"
           allowClear
-          ariaLabel={t('Owners')}
-          disabled={isLoading}
-          mode="multiple"
-          onChange={onChangeOwners}
-          options={(input, page, pageSize) =>
-            loadAccessOptions('owners', input, page, pageSize)
-          }
-          value={ownersSelectValue}
-          showSearch
-          placeholder={t('Search owners')}
-          optionFilterProps={OWNER_OPTION_FILTER_PROPS}
+          ariaLabel={t('Editors')}
+          disabled={isLoading || !canManageSubjects}
+          onChange={onChangeEditors}
+          value={editorsSelectValue}
+          placeholder={t('Search editors')}
         />
       </ModalFormField>
-      {isFeatureEnabled(FeatureFlag.DashboardRbac) && (
+      {enableViewers && (
         <ModalFormField
-          label={t('Roles')}
-          testId="dashboard-roles-field"
-          helperText={t(
-            'Roles is a list which defines access to the dashboard. Granting a role access to a dashboard will bypass dataset level checks. If no roles are defined, regular access permissions apply.',
-          )}
-          bottomSpacing={!isFeatureEnabled(FeatureFlag.TaggingSystem)}
+          label={t('Viewers')}
+          testId="dashboard-viewers-field"
+          helperText={
+            canManageSubjects
+              ? t(
+                  'Viewers is a list of subjects who can view the dashboard. If no viewers are defined, the dashboard is accessible to all users with appropriate datasource permissions.',
+                )
+              : t('Only the editors of the dashboard can change who views it.')
+          }
         >
-          <AsyncSelect
-            data-test="dashboard-roles-select"
+          <SubjectPicker
+            relatedUrl="/api/v1/dashboard/related/viewers"
+            dataTest="dashboard-viewers-select"
             allowClear
-            ariaLabel={t('Roles')}
-            disabled={isLoading}
-            mode="multiple"
-            onChange={onChangeRoles}
-            options={(input, page, pageSize) =>
-              loadAccessOptions('roles', input, page, pageSize)
-            }
-            value={rolesSelectValue}
-            showSearch
-            placeholder={t('Search roles')}
+            ariaLabel={t('Viewers')}
+            disabled={isLoading || !canManageSubjects}
+            onChange={onChangeViewers}
+            value={viewersSelectValue}
+            placeholder={t('Search viewers')}
           />
         </ModalFormField>
       )}
@@ -171,6 +151,7 @@ const AccessSection = ({
           />
         </ModalFormField>
       )}
+      {renderExtraFields?.content}
     </>
   );
 };

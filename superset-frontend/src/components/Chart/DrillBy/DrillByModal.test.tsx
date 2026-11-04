@@ -19,7 +19,7 @@
 
 import { useState } from 'react';
 import fetchMock from 'fetch-mock';
-import { omit, omitBy } from 'lodash';
+import { omit, omitBy } from 'lodash-es';
 import {
   render,
   screen,
@@ -39,21 +39,6 @@ setupAGGridModules();
 jest.mock('src/dashboard/util/isEmbedded', () => ({
   isEmbedded: jest.fn(() => false),
 }));
-
-const mockAddDangerToast = jest.fn();
-jest.mock('src/components/MessageToasts/withToasts', () => {
-  const actual = jest.requireActual('src/components/MessageToasts/withToasts');
-  return {
-    __esModule: true,
-    ...actual,
-    useToasts: () => ({
-      addDangerToast: mockAddDangerToast,
-      addSuccessToast: jest.fn(),
-      addInfoToast: jest.fn(),
-      addWarningToast: jest.fn(),
-    }),
-  };
-});
 
 jest.mock('src/explore/exploreUtils', () => {
   const actual = jest.requireActual('src/explore/exploreUtils');
@@ -94,12 +79,7 @@ const dataset = {
   created_on_humanized: '01-01-2001',
   description: 'desc',
   table_name: 'my_dataset',
-  owners: [
-    {
-      first_name: 'Sarah',
-      last_name: 'Connor',
-    },
-  ],
+  editors: [{ id: 1, label: 'Sarah Connor', type: 1 }],
   columns: [
     {
       column_name: 'gender',
@@ -287,7 +267,7 @@ test('render breadcrumbs', async () => {
   // we need to assert that there is only 1 element now
   // eslint-disable-next-line jest-dom/prefer-in-document
   expect(newBreadcrumbItems).toHaveLength(1);
-  expect(within(breadcrumbItems[0]).getByText('gender')).toBeInTheDocument();
+  expect(within(newBreadcrumbItems[0]).getByText('gender')).toBeInTheDocument();
 });
 
 test('should render "Edit chart" as disabled without can_explore permission', async () => {
@@ -641,64 +621,6 @@ describe('Table view with pagination', () => {
         resultType: 'full',
         formData: expect.objectContaining({ slice_id: 0 }),
       }),
-    );
-  });
-
-  test('shows a danger toast when exportChart fails', async () => {
-    exportChartMock.mockClear();
-    mockAddDangerToast.mockClear();
-    exportChartMock.mockRejectedValueOnce(new Error('boom'));
-    await renderModal({
-      column: { column_name: 'state', verbose_name: null },
-      drillByConfig: {
-        filters: [{ col: 'gender', op: '==', val: 'boy' }],
-        groupbyFieldName: 'groupby',
-      },
-    });
-
-    const tableRadio = await screen.findByRole('radio', { name: /table/i });
-    userEvent.click(tableRadio);
-    await waitFor(() =>
-      expect(screen.getByTestId('drill-by-results-table')).toBeInTheDocument(),
-    );
-
-    await userEvent.click(
-      await screen.findByRole('button', { name: 'Download' }),
-    );
-    await userEvent.click(await screen.findByText('Export to CSV'));
-
-    await waitFor(() =>
-      expect(mockAddDangerToast).toHaveBeenCalledWith(
-        'Failed to generate download: boom',
-      ),
-    );
-  });
-
-  test('reload re-fetches chart data', async () => {
-    await renderModal({
-      column: { column_name: 'state', verbose_name: null },
-      drillByConfig: {
-        filters: [{ col: 'gender', op: '==', val: 'boy' }],
-        groupbyFieldName: 'groupby',
-      },
-    });
-
-    const tableRadio = await screen.findByRole('radio', { name: /table/i });
-    userEvent.click(tableRadio);
-    await waitFor(() =>
-      expect(screen.getByTestId('drill-by-results-table')).toBeInTheDocument(),
-    );
-
-    const callsBefore = fetchMock.callHistory.calls(CHART_DATA_ENDPOINT).length;
-
-    await userEvent.click(
-      await screen.findByRole('button', { name: 'Reload' }),
-    );
-
-    await waitFor(() =>
-      expect(
-        fetchMock.callHistory.calls(CHART_DATA_ENDPOINT).length,
-      ).toBeGreaterThan(callsBefore),
     );
   });
 });

@@ -1740,6 +1740,12 @@ body.mibi-presenting .dashboard-content {
   padding: 16px 16px 16px 8px;
 }
 
+/* The page is sized to the screen less its margin, so the room under it that a
+   report keeps for the wallpaper would make the document scroll */
+body.mibi-presenting .dashboard-content > [data-test='grid-container'] {
+  margin-bottom: 0 !important;
+}
+
 body.mibi-presenting-idle,
 body.mibi-presenting-idle * {
   cursor: none !important;
@@ -1774,6 +1780,7 @@ body.mibi-presenting-idle * {
 .mibi-canvas:not(.mibi-mobile) .dashboard-component-tabs,
 .mibi-canvas:not(.mibi-mobile) .dragdroppable-row > .with-popover-menu,
 .mibi-canvas:not(.mibi-mobile) .ant-tabs-content,
+.mibi-canvas:not(.mibi-mobile) .ant-tabs-body,
 .mibi-canvas:not(.mibi-mobile) .grid-content,
 .mibi-canvas:not(.mibi-mobile) .grid-row,
 .mibi-canvas:not(.mibi-mobile) .grid-column,

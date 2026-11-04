@@ -1,0 +1,741 @@
+# Plan: actualizar AuraData BI a Apache Superset 7.0
+
+Fecha: 2026-11-03 · Rama: `claude/upgrade-superset-7-502890`, cortada de `main` local (`7d0f17dfd6`, 153 commits
+sin subir) · Upstream: `upstream/7.0` en `ceef26f901` (7.0.0rc2).
+
+El fork es `upstream/6.1` (`c37118edd0`, entero) más 319 commits propios. La base del merge con 7.0 es
+`bc99b710bd` (master), así que 7.0 trae 4182 commits y el fork aporta 577 desde esa base. Muchos conflictos no son
+del fork: son la deriva entre la rama 6.1 y master.
+
+## Fases
+
+Una sesión por fase, una tras otra. Las suites de tests nunca corren en paralelo.
+
+| Fase | Qué | Listo cuando |
+| ---: | --- | --- |
+| 0 | Preparación y línea base | Este documento con la línea base, commiteado antes del merge |
+| 1 | Merge de `upstream/7.0` | Merge commiteado, sin marcadores de conflicto, bitácora de cada área |
+| 2 | Backend: SQLAlchemy 2.0 y Flask 3, migraciones, `superset/mibi` | `superset` importa, `db upgrade` en una base nueva y en una existente, `pytest tests/unit_tests/mibi/` en verde |
+| 3 | Frontend base: TypeScript 7, oxlint, lockfile regenerado con npm, build | `tsc` y `oxlint` sin errores nuevos, `npm run build` funciona, Jest de `src/mibi` como en la base |
+| 4 | Funciones de 7.0 que pisan las nuestras | Cada choque de la lista «Abiertos para la fase 4» decidido y probado |
+| 5 | Infraestructura | `Dockerfile` (imagen -lean), drivers, informes de Playwright, SSL de MySQL |
+| 6 | Traducciones al español y marca | Cadenas nuevas de 7.0 en `es/messages.po`, ninguna marca de Superset a la vista |
+| 7 | QA completo y PR | QA en el navegador, Playwright experimental, PR contra `main` |
+
+## Línea base (fase 0)
+
+Tomada en la rama antes del merge (`7d0f17dfd6`), una suite tras otra.
+
+- **Montaje:** el worktree no tiene `node_modules`. Se enlazaron los del checkout principal (mismo commit) y se
+  copiaron sus carpetas `lib/` de paquetes y plugins para que `tsc` resuelva las referencias de proyecto. Las
+  dependencias de JavaScript son, por tanto, las de 6.1. Tras el merge se usa el mismo montaje, salvo `lib/`, que se
+  reconstruye.
+- **Ojo con Jest y los enlaces:** el `jest.config.js` del repo resuelve `@superset-ui/*` a través de `node_modules`,
+  que apunta al checkout principal. Así una prueba carga dos copias de `@superset-ui/core` (dos `SupersetClient`) y
+  fallan 23 pruebas que no tienen nada roto. Hay que correr Jest con un config que mapee `@superset-ui/*` a
+  `packages/*/src` y `plugins/*/src` del worktree (guardado en la carpeta de notas de la sesión como
+  `jest.worktree.config.js`).
+- **Jest `src/mibi`** (`jest -c jest.worktree.config.js --max-workers=3 src/mibi`): 53 suites, 404 tests.
+  **402 pasan, 2 fallan**, ambos previos al merge:
+  - `format/editing.test.tsx`: «places a pasted object in its row when it fits, else in a row below», `GRID_ID`
+    indefinido.
+  - `format/columns.test.tsx`: «a legacy layout in 24 columns keeps its shares», espera 7 y recibe 6.
+- **pytest `tests/unit_tests/mibi/`** (en el contenedor, sobre un `git archive` de la rama): **82 pasan, 0 fallan.**
+- **`tsc --noEmit -p .`:** **39 errores**, ninguno en `src/mibi`: 21 en `plugin-chart-ag-grid-table` (`totals`,
+  `UseColDefsProps`), 13 en `DatabaseModal/index.test.tsx` y uno en `Header.test.tsx`, `PropertiesModal`,
+  `dashboardInfo.test.ts`, `VizTypeGallery.tsx` y `ThemeController.ts`. Parte puede venir de las `lib/` copiadas.
+- **oxlint** (`--quiet`): **5 errores**: 3 `no-use-before-define` en `src/mibi/format/useCellMove.ts`, 1 en
+  `playwright/tests/experimental/dashboard/layout-ux.spec.ts` y 1 `escape-case` en `src/mibi/export/export.test.ts`.
+
+## Forma del merge
+
+Simulado con `git merge-tree`: 1199 archivos en conflicto.
+
+| Tipo | Cuántos | Qué son |
+| --- | ---: | --- |
+| modify/delete | 597 | 577 borrados por el fork (o por 6.1) y cambiados en 7.0; 20 borrados por 7.0 y cambiados por el fork |
+| rename/delete | 160 | 7.0 movió archivos que el fork había borrado (docs, plugins legacy renombrados, workflows) |
+| content | 445 | 263 en archivos que el fork tocó; 182 solo deriva 6.1↔master |
+| add/add | 55 | 16 tocados por el fork; 39 solo deriva |
+| rename/rename | 1 | Emparejamiento falso (`dataset_list.test.ts` de Cypress) |
+
+**Criterio general:**
+- «Tocado por el fork» = cambia entre `upstream/6.1` y `main`. Si un archivo en conflicto no cambia ahí, el
+  conflicto es solo deriva entre 6.1 y master: se toma la versión de 7.0.
+- Los borrados del fork se atribuyen al commit que los hizo; si el motivo sigue vigente, siguen borrados.
+- Lo que 7.0 añade dentro de áreas que el fork quitó (archivos nuevos que entran sin conflicto) también se quita,
+  salvo que el código que queda lo importe.
+
+## Bitácora de decisiones
+
+Formato: área · decisión · por qué.
+
+### Fase 0
+
+- **Migraciones: repuntar o fusionar.** La tarea pide apuntar `8bc9e5b95335` a la cabeza de 7.0. Eso deja una
+  cadena, pero una base ya en `d3f9a2b17c64` daría por aplicadas las 41 migraciones nuevas de 7.0. Se consultó a la
+  sesión principal; la decisión queda en la sección de migraciones de la fase 1.
+
+### Fase 1
+
+`git merge --no-ff upstream/7.0` con `merge.renameLimit=100000` y `rerere` activado. Las bitácoras archivo por archivo
+de cada área están en la carpeta de notas de la sesión (`upgrade-7-ledger*.md`); aquí va el resumen por área.
+
+**Áreas que el fork quitó (modify/delete y añadidos limpios de 7.0): siguen fuera.** Cada borrado se atribuyó al commit
+del fork que lo hizo, y su motivo sigue vigente:
+- Docs (`docs/` salvo `plans`, `qa` y `upgrade-7.0`), Helm, `RESOURCES`, compose secundarios (`94f40e495b`,
+  `9d7a285870`): 2 101 archivos nuevos de 7.0 en `docs/` y Helm no entran.
+- Servidor WebSocket en Node (`0b2b012bb8`): fuera también su etapa del `Dockerfile`, el hook `oxfmt-websocket` y
+  `docker/entrypoints/run-websocket.sh`. El módulo Python `superset/websocket/` de 7.0 entra (lo usa el backend).
+- Storybook y stories (`c205048f4f`): fuera todos los `*.stories.tsx` nuevos, el job `test-storybook` y sus scripts.
+- Cypress (`91b0c1b141`): fuera los jobs de Cypress de `superset-e2e.yml`; queda el de Playwright.
+- Workflows de Apache (`97ce37733d`, `eb2b133954`, `2380dd039d`), archivos ASF y RELEASING: fuera los 14 workflows
+  nuevos de 7.0, salvo `enforce-single-migration-head.yml`, que comprueba algo que sí nos importa. En los workflows
+  que el fork conserva se tomó 7.0 y se volvió a quitar lo de Helm (setup-go, helm-docs) y Storybook.
+- Traducciones salvo es/en (`fa605baaa8`): fuera las 8 lenguas nuevas de 7.0 y sus tests.
+- Motores de BD poco usados, Trino y Presto (`87d0739f35`): fuera `datafusion` y `odps` nuevos, sus tests, los
+  `tests/testcontainers/` (7.0 los añade con su workflow, que tampoco entra) y los extras de `pyproject.toml`.
+- Temas guardados y plantillas CSS (`f1a729d78e`), capas de anotación (`660a568a4b`, `abd65f865a`): fuera las
+  herramientas MCP nuevas `theme` y `annotation_layer`, `src/features/themes/utils.ts`, tests de plantillas CSS y de
+  `AnnotationLayerControl`, y `playwright/tests/dashboard/theme.spec.ts`.
+- Lista de gráficos (`238e54616e`), importación v0 (`a84d21f228`), tarjeta flotante de filtros (`89e9d0a995`),
+  TimeTable (`0514bf8c4f`).
+
+**Plugins de gráficos.** 7.0 renombra `legacy-plugin-chart-*` → `plugin-chart-*` y los pasa a la API de datos
+(`superset/viz.py` desaparece); NVD3 desaparece (Bullet pasa a `EchartsBulletChartPlugin`) y map-box pasa a
+`plugin-chart-point-cluster-map` (con la migración `ce6bd21901ab` que convierte los gráficos guardados).
+- Se toman enteros de 7.0 calendar, chord, country-map, world-map, `preset-chart-deckgl` y point-cluster-map, sin
+  stories. El color de marca que el fork puso en deck.gl (`PRIMARY_COLOR` = Azul Aura) se vuelve a aplicar en
+  `preset-chart-deckgl/src/utilities/controls.ts`.
+- Siguen fuera horizon, partition, paired-t-test, parallel-coordinates (7.0 los renombra) y Rose/TimePivot de ECharts
+  (7.0 los reescribe en ECharts): el fork los quitó en `0514bf8c4f`. Fuera de `MainPreset.ts`, `package.json` y
+  `tsconfig.json`. Butterfly (nuevo en 7.0) queda registrado; ver fase 4.
+
+**Deriva 6.1↔master.** 216 conflictos de contenido o add/add en archivos que el fork no cambió desde 6.1 → versión de
+7.0 (41 tests, 52 `superset/`, 71 `src/`, 23 plugins, 14 paquetes, 5 Playwright, 5 workflows y 5 sueltos).
+
+**Raíz y build (resueltos a mano):**
+- `README.md`: el del fork (resumen en español). `AGENTS.md`/`CLAUDE.md`: combinado sin conflicto (sección de
+  seguridad y oxfmt de 7.0). `.gitmodules`: el del fork (sin acciones de Helm). `.gitignore`: 7.0.
+- `.pre-commit-config.yaml`: hooks de 7.0 (oxfmt, stylelint, zizmor); fuera `oxlint-docs`, `feature-flags-sync`
+  (escribe en `docs/`) y `oxfmt-websocket`.
+- `pyproject.toml`: versiones de 7.0 (SQLAlchemy 2.0) para los extras que el fork conserva; se añaden `excel-export`,
+  `mariadb` (alias de mysql) y `sqlite` de 7.0; fuera los extras de motores quitados. `requirements/development.in`:
+  la lista de extras del fork, sin testcontainers. `requirements/development.txt`: el de 7.0 provisionalmente (hay
+  que regenerarlo, fase 2).
+- `Dockerfile`: compilador de traducciones tolerante del fork; target `dev` con la estructura de 7.0 más los drivers
+  de AuraData (`postgres,mssql,databricks,redshift`); sin WebSocket. `docker/mibi/docker-init-prod.sh`: el del fork
+  (git lo emparejó por error con `RELEASING/Dockerfile.make_tarball`).
+- `docker/pythonpath_dev/superset_config.py`: miniaturas del fork y `ENABLE_EXTENSIONS`/`SEMANTIC_LAYERS` de 7.0;
+  `MOBILE_CONSUMPTION_MODE` queda apagado (choca con `mibiMobile`).
+- `superset-frontend/package.json`: versión 7.0.0 y dependencias de 7.0 (React 18, webpack-cli 7, dev-server 6…);
+  fuera Storybook, `concurrently`/`wait-on` (solo los usaba Storybook) y los plugins quitados. `package-lock.json`:
+  el de 7.0 sin tocar, **hay que regenerarlo con npm** (fase 3). `.eslintrc*.js`: borrados como en 7.0 (ESLint →
+  oxlint). `tsconfig.json`, `webpack.config.js`: 7.0 sin los plugins quitados ni los arreglos de Storybook.
+- `scripts/po2json.sh`: 7.0 (oxfmt) pero sin `--fuzzy`, que el fork quitó porque las entradas fuzzy en español eran
+  incorrectas.
+- Playwright: 7.0 sacó `tests/experimental/{dashboard,dataset,chart}` a `tests/`; las pruebas propias del fork
+  (`format*`, `layout-ux`, `present`, `sort`, `export-file` y sus capturas) vuelven a `tests/experimental/dashboard/`,
+  porque dependen de los datos de dev y son opt-in. El cambio del fork a `create-dataset.spec.ts` (los gráficos se
+  crean desde un tablero) se porta al nuevo `tests/dataset/create-dataset.spec.ts`.
+
+**Traducciones.** `messages.pot`, `en` y `es` se combinan por entrada con Babel (no por texto): queda la traducción del
+fork en todo mensaje que ya tenía y se añaden los nuevos de 7.0 (1 162 en el `.pot`, 988 en `es`, con la traducción de
+7.0, que usa «usted» y hay que revisar en la fase 6). `msgfmt -c` da los mismos 8 errores de formato que ya había en
+`main`.
+
+**Conflictos de código por área.** Resueltos archivo por archivo (partiendo de 7.0 y reaplicando a mano lo del fork
+donde 7.0 reescribió el archivo); el detalle, en las bitácoras:
+[backend](upgrade-superset-7/bitacora-backend.md) (63 archivos), [MCP](upgrade-superset-7/bitacora-mcp.md) (34),
+[dashboard](upgrade-superset-7/bitacora-dashboard.md) (52), [gráficos y paquetes](upgrade-superset-7/bitacora-charts.md) (48),
+[resto del frontend](upgrade-superset-7/bitacora-appfe.md) (70).
+- `rerere` estaba activo y traía resoluciones de un intento anterior de la misma actualización: dejó varios archivos
+  sin marcadores pero con errores (código duplicado, imports viejos, iconos vacíos). Se revisaron todos contra `:2:`
+  y `:3:`, no solo los que tenían marcadores.
+- Git emparejó por renombrado archivos sin relación (p. ej. `superset/mibi/__init__.py` con `RELEASING/requirements.txt`,
+  `src/mibi/time.ts` con `superset-websocket`, `mcp_service/database/tool/__init__.py` con `ibmi.py`, con marcadores de
+  8 caracteres): quedan con su contenido real.
+- `superset/viz.py`, `tests/integration_tests/viz_tests.py`, `mcp_service/utils/token_utils.py` (ahora
+  `response_size_utils.py`) y `src/pwa-manifest.json` (ahora `superset/views/pwa_manifest.py`) quedan borrados como en 7.0.
+- Archivos que el fork no tocó pero difieren de 7.0: algunos arreglos que solo están en la rama 6.1 entraron sin
+  conflicto (`ToastPresenter.tsx`, tests de `getExploreUrl`, `urlUtils`, `DatasetList.permissions`,
+  `DrillDetailTableControls`). Se dejan; los tests de `getExploreUrl` con `explore_json` fallarán (7.0 quitó ese endpoint).
+
+**Migraciones.** 7.0 deja su cabeza en `88a01c781622` y el fork en `d3f9a2b17c64`. En lugar de mover
+`8bc9e5b95335` detrás de la cabeza de 7.0, se añade la revisión de merge `f1c7a9e2b305` con
+`down_revision = ("88a01c781622", "d3f9a2b17c64")`: una sola cabeza, y una base que ya está en `d3f9a2b17c64` (la de dev,
+cualquier despliegue) aplica las 41 migraciones de 7.0 en `db upgrade` en vez de darlas por hechas. Ninguna migración
+de 7.0 toca tablas que el fork borró; la de versionado crea `dashboards_version.theme_id` sin clave ajena.
+
+## Estado al cerrar la fase 1
+
+- Merge commiteado sin marcadores (`git grep` con 7 u 8 caracteres) y una sola cabeza de migraciones.
+- No se ejecutaron suites de tests (la máquina se traba con ellas).
+- Backend: `python -m compileall superset` pasa (sin errores de sintaxis). `create_app()` no arranca en el contenedor
+  actual, que tiene las dependencias de 6.1 (SQLAlchemy 1.4.54, Flask 2.3.3): falla en
+  `superset/sql/dialects/dremio.py` con `No module named 'sqlglot.generators'` (sqlglot de 7.0). Es lo esperado hasta la
+  fase 2.
+- Frontend: no se compiló. Hace falta regenerar `package-lock.json` e instalar las dependencias de 7.0 (fase 3); con
+  los `node_modules` de 6.1 el resultado no diría nada.
+- `main` avanzó 2 commits después de cortar esta rama (`4f8736327f`, `4fb893edd9`): mezclar `main` en la rama antes de
+  la fase 7.
+
+### Fase 2
+
+Rama `claude/upgrade-superset-7-backend-680cca` (cortada de `claude/upgrade-superset-7-502890`). Entorno: un venv
+local (`.venv`, Python 3.11, `requirements/development.txt` sin `mysqlclient`, que en el Mac no compila) y un Postgres 17
+desechable en el puerto 5544. El stack de dev (8188) no se tocó.
+
+- **Dependencias** (`43adcf1c2e`). `requirements/development.txt` se recompiló desde el `development.in` del fork con las
+  restricciones de 7.0: mismas versiones (SQLAlchemy 2.0.52, Flask 3.1.3, FAB 5.2.2, sqlglot 30.17), sin los drivers
+  de los motores quitados. `pymssql` sigue fuera, como en `main`: lo instala el `Dockerfile`.
+- **Seguridad** (`591bd8a88b`). En 7.0 `is_editor` también da acceso a datos (rama de gráficos de `raise_for_access`,
+  modo visor promiscuo, emisión de guest tokens). El gancho de workspace sale de `is_editor`, que vuelve a ser el de
+  7.0, y pasa a `can_edit_resource` (editor o contribuidor/admin del workspace; nunca un invitado). Solo lo preguntan
+  los puntos de edición: `raise_for_editorship` (que cubre update, delete, restore, MCP...), añadir un gráfico a un
+  tablero, los `can_edit` del GET del tablero y de Explore, y las comprobaciones de sobrescritura de Explore.
+  - Fallar cerrado: una llamada nueva de upstream a `is_editor` no da nada al rol de workspace; si falta un punto de
+    edición, el contribuidor no podrá editar ahí (un bug, no una fuga).
+  - Borradores: el contribuidor abre los tableros no publicados de su workspace, pero con las mismas reglas de visores
+    y de acceso a datasets que los publicados (solo cambia el «publicado»), no con un `return` temprano.
+  - **Hallazgo:** `compute_subjects` de 7.0 añade a quien actualiza como editor («no lockout»). Un contribuidor que edita
+    quedaría como editor real y con eso tendría acceso a datos. Quien edita solo por el workspace no cambia editores ni
+    visores (`keep_subjects`: se conservan; mandar otra lista es un error 422).
+  - Las herramientas MCP de certificación, editores y visores (`governance_utils`) piden editoría real
+    (`raise_for_editorship(..., workspace_role=False)`).
+  - Quedan con editoría pura (decisión consciente): copiar un tablero (la copia hace al usuario editor de los gráficos
+    clonados, que con el modo promiscuo da datos), sobrescribir en importaciones, `explore/utils.check_access` y el
+    historial de versiones (`versioning/api_helpers.py`, `activity/visibility.py`). Un contribuidor puede restaurar una
+    versión (pasa por `raise_for_editorship`) pero no listar el historial: ver fase 4.
+  - Tests: `tests/unit_tests/mibi/workspace_security_test.py` (11). Un visor y un contribuidor sin acceso al dataset:
+    no son editores, no acceden al gráfico, al dataset, al modo promiscuo ni a la emisión de guest tokens; el
+    contribuidor edita y el visor no; los invitados nunca. Con el gancho de antes dentro de `is_editor` fallan 7.
+- **Owners → editors** (`2f48f12c52`). `WorkspaceDatasetFilter` (filtro base de la API de datasets, rompía todo listado)
+  deja ver a los editores del dataset (usuario, rol o grupo, `sqlatable_editors`); workspaces, fondos e imágenes usan
+  `can_edit_resource`/`raise_for_editorship`; `split-shared-charts` copia editores y visores a los clones.
+- **Soft delete** (`dfd5a7a135`). La regla de un tablero por gráfico solo cuenta tableros vivos (`_live_links` une
+  `dashboard_slices` con `dashboards.deleted_at IS NULL`); restaurar un tablero se rechaza (422) si uno de sus gráficos
+  pasó a otro tablero vivo (`find_charts_blocking_restore` en `RestoreDashboardCommand`). `dataset_count` del workspace
+  cuenta solo datasets vivos. Páginas de workspace, previews y el selector de datasets ya los ocultaba el filtro global
+  de 7.0 (`_add_soft_delete_filter`); `tests/unit_tests/mibi/soft_delete_test.py` lo fija. Las comprobaciones de
+  datasets entre workspaces (`datasets_used_outside`, `datasets_of_other_workspaces`) siguen contando los tableros en
+  la papelera, para que al restaurarlos no rompan la regla.
+- **MCP** (`a1028dc3c3`). `generate_dashboard` y `add_chart_to_existing_dashboard` comprueban también la regla de
+  datasets por workspace (`chart_datasets_of_other_workspaces`). `update_dashboard` no necesita nada: 7.0 solo acepta un
+  layout con exactamente los gráficos del tablero.
+- **SQLAlchemy 2.0 / Flask 3.** El código del fork no tenía APIs quitadas salvo `Query.get` en `split_shared_charts.py`
+  (→ `session.get`). Los tests del fork no emiten avisos de SQLAlchemy desde código del fork. Los tests que crean y
+  cambian vínculos de un tablero en la misma transacción hacen `commit()` entre medias, como upstream: el historial de
+  versiones (Continuum) registra un cambio por vínculo y transacción. `db_engine_specs/__init__.py`: la variable del
+  bucle de drivers nativos del fork chocaba con la de 7.0 (`f5ece5517b`).
+- **Migraciones.** Base nueva → `f1c7a9e2b305`. Copia de dev (`pg_dump`, en `d3f9a2b17c64`, 6 tableros) → 42 pasos (las
+  41 de 7.0 y el merge) hasta `f1c7a9e2b305`; los owners pasan a `dashboard_editors`. `AGENTS.md` (`CLAUDE.md` es un
+  enlace) recoge la regla del merge para futuras versiones (`4db330af29`).
+- **Arranque.** `superset run` del venv contra la copia migrada (puerto 8199): `/health`, login, `/api/v1/workspace/`,
+  sus tableros y datasets, `/api/v1/dataset/` (8), `dataset_usable_in_dashboard`, `/api/v1/dashboard/142`,
+  `/dashboard/142/` y previews responden 200 sin trazas. El contenedor y el volcado se borraron al terminar.
+- **Restaurar versiones** (`44fdbde79f`). Restaurar una versión de un tablero reasigna sus gráficos por el ORM; si uno
+  pasó después a otro tablero vivo, el listener lo para y `RestoreDashboardVersionCommand` lo convierte en un 422 legible.
+- **Ajustes tras correr los tests de 7.0 afectados** (`f91deabbb6`). `raise_for_editorship` pregunta primero `is_editor`
+  (conserva la negativa a invitados de 7.0) y luego el workspace, también sin invitados; `compute_subjects` solo mira el
+  rol de workspace en tableros y gráficos. El test de 7.0 de copiar un tablero espera ya la regla del fork (la copia
+  clona los gráficos).
+- **Prueba en vivo como no admin** (otra copia desechable de dev, borrada al terminar). Un usuario Gamma contribuidor del
+  workspace «Análisis comercial»: ve ese workspace y no el otro; la lista de datasets responde 200 (0 sin permisos de
+  datos). Con Alpha: ve el dataset compartido y el de su workspace, no los de «SESEQ RRHH». En un tablero publicado del
+  workspace: `can_edit` verdadero, cambia el título (versión nueva del historial), cambiar editores da 422 y los editores
+  siguen siendo los mismos.
+  - **Cambio visible frente a 6.1:** un contribuidor sin acceso a los datasets del tablero ya no lo abre (en 6.1 lo abría
+    por `is_owner`); los borradores siguen ocultos en la API a quien no es editor, como en 6.1 (filtro de listas). Ver
+    fase 4.
+- **Tests de 7.0 que tocan lo cambiado** (42 archivos, uno tras otro): 844 pasan en los limpios. Los que fallan no son de
+  esta fase: 13 de `security/manager_test.py` (los del payload de invitados del fork, pendiente 2) y los de
+  `mcp_service/test_mcp_tool_registration.py`/`test_tool_inventory.py` (nombran temas, pendiente 5); los `ERROR` restantes
+  solo eran el fixture `caplog` desactivado con `-p no:logging`.
+- **Comprobaciones.** `pytest tests/unit_tests/mibi/`: **100/100** (82 de antes, 11 de seguridad, 5 de soft delete, 1 de
+  datasets por workspace, 1 de restaurar versiones). Tests MCP de `generate_dashboard`, `add_chart_to_existing_dashboard` y densidad: 89/89.
+  `pre-commit` (mypy, ruff, pylint) sobre los archivos tocados: limpio. No se corrió ninguna suite completa.
+
+### Fase 3
+
+Rama `claude/upgrade-superset-7-frontend-6479f1` (cortada de la del backend). Node 24.22, npm 11.19; el proyecto sigue en
+TypeScript 5.4.5 (no hay TS 7) y oxlint 1.81.
+
+- **Dependencias** (`cb8de603d9`). `npm install --package-lock-only` sobre el `package-lock.json` de 7.0 y `npm ci`:
+  solo quita lo que el fork eliminó (Storybook, `concurrently`, `wait-on`, plugins legacy; 322 paquetes), ninguna versión
+  cambia y solo se añade el `follow-redirects` anidado de `nx`. 7.0 ya trae `react-ace` (que el fork necesita);
+  `use-sync-external-store` (añadido por el fork) no lo importa ningún archivo.
+- **`tsc`.** Se necesita `npm run plugins:build` antes (referencias de proyecto), como en CI. De 50 errores a **0**. Los
+  39 de la línea base ya no están: 21 eran de `plugin-chart-ag-grid-table` (ya no existe), 13 de `DatabaseModal` (variables sin
+  uso: ahora se afirman) y el resto, restos del merge. Arreglos con causa:
+  - Íconos declarados dos veces en `AntdEnhanced.tsx` (rompía todos los Jest que importan `@superset-ui/core/components`).
+  - `Row.tsx`: el efecto que medía la altura de los huecos de soltado quedó huérfano (7.0 lo resuelve con CSS, `height: auto`).
+  - `ConfigModalContent` (import duplicado), `ExploreViewContainer` (`useHistory` doble), `VizTypeGallery` (falta `SupersetTheme`),
+    `Tabs` (clave indefinida), `ControlFormItem`, `ReferenceLinesControl`.
+  - `PropertiesModal/utils.ts` y su test (helpers de owners que 7.0 borró) fuera.
+  - Tooltips de antd 6: `styles.body` → `styles.container` (`HeaderExtras`, `SlicerIcons`).
+  - `SlicerView` y `TooltipPageHost` usan `requestChartDataResolved` (7.0 cambió la firma de `handleChartDataResponse`
+    y `waitForAsyncData`); la segmentación aborta su consulta al desmontar.
+  - Tests: `renderHook` de `@testing-library/react` (react-hooks no está instalado), fuera los 3 tests de tema de
+    `DashboardPage` (el fork no tiene `CrudThemeProvider`) con una prueba de calentamiento para que los tests de título no
+    carguen lo diferido en frío.
+- **oxlint.** De 60 errores a **0** (los 5 de la línea base, resueltos). 7.0 enciende reglas nuevas: `prefer-tag-over-role` da
+  47 avisos en los componentes del fork (radios, grupos, estados e íconos como elementos con rol). Se apagó solo para
+  `src/mibi/**` y dos archivos de paquetes/plugins en `oxlint.json`, con comentario: cambiar a `fieldset`/`output`/`input`/`button`
+  cambia el aspecto por defecto y merece su propia pasada visual. El resto: `lodash` → `lodash-es` (8 archivos), nombres sin
+  uso con `_`, `useCellMove` con `AbortController` en vez de funciones que se refieren entre sí, etiquetas en las celdas vacías
+  de la matriz, y tres avisos de a11y con `oxlint-disable-next-line` justificado (`HeaderExtras`, `FieldHelp`, `MobileLayoutPane`).
+- **Rutas sin `/superset/`** (`7253fc5742`). `REPORT_PATH` y `HOME_URL` (`navigation.ts`), `ExploreGate`, `WorkspacePage`,
+  `DatasetPage`, tests de `src/mibi` y de Playwright. `isReportRoute` excluye `/dashboard/list/` y `/dashboard/new/` (el
+  router de 7.0 los leería como un slug). «Nuevo tablero» de la home hace navegación completa (su GET en el servidor crea el
+  tablero). `isNavItemActive` no marca «Tableros» dentro de un tablero. El backend no emite `/superset/` en ningún sitio
+  (7.0 trae un middleware que redirige los enlaces viejos). Un tablero abre sin barra lateral y con el logo arriba, en el
+  navegador.
+- **Owners → editors** (`b9341d8d13`). `canChangeFields`: admin, editor del gráfico (subjects del usuario) o quien edita el
+  tablero (`dash_edit_perm`, que incluye al contribuidor de workspace). Un editor de tablero que no lo es del gráfico verá el
+  panel y el servidor decidirá al guardar.
+- **Bug real encontrado por un test de 7.0.** El panel de filtros acoplado ignoraba el modo informe (`?standalone=3`): capturas
+  y embebidos lo mostraban. Ahora no se dibuja salvo `show_filters=true` (`53da701f56`). Los tests de 7.0 de ese caso se
+  adaptan a la barra acoplada; el de «separador de columna en un embed» ahora fija que el panel va acoplado.
+- **Jest.** `src/mibi`: 404 tests, 402 pasan y fallan los 2 de la línea base (`editing`: pegar un objeto; `columns`: layout de
+  24 columnas). Tras la primera pasada fallaban 14: el mock de `getChartDataRequest` (ahora `requestChartDataResolved`),
+  `URL.revokeObjectURL` ausente en jsdom y una actualización del store fuera de `act`. Archivos tocados fuera de `src/mibi`
+  (DashboardPage, Row, Tabs, Header, DashboardBuilder, dashboardInfo, ColumnConfigControl, ReferenceLinesControl, VizTypeControl,
+  ConfigModalContent): pasan, salvo el test del distintivo «Destacado» de VizTypeControl, **omitido** (la galería del fork
+  no lo dibuja; fase 4). `DatabaseModal`, `useAutoApply` y `useThumbnail` pasan. No se corrió la suite completa.
+- **Build y navegador.** `npm run build-dev`: 75 s, 1 aviso (`maplibre-gl`). Backend de la fase 2 desde el venv de esa rama con
+  `PYTHONPATH` en este worktree, puerto 8199, contra una copia desechable de dev (Postgres 17 en el 5545, migrada por
+  `db upgrade` a `f1c7a9e2b305`; los datos de las conexiones se apuntaron a `127.0.0.1:5532` solo en la copia). Capturas en
+  la carpeta de notas de la sesión (`fase3-capturas/`). Comprobado como admin: login, home, workspace «Análisis comercial»,
+  tablero en vista (sin barra lateral, logo arriba, filtros, datos), edición (cinta Inicio/Insertar/Diseño/Vista, panes
+  Gráficos/Elementos/Formato/Selección/Marcadores, panel Formato con secciones), menú «Datos» → panel de conjuntos de datos
+  y conexiones, panel «Nuevo visual» con el selector de conjuntos del workspace, editor del gráfico en el panel (arrastrar una
+  columna a Dimensiones con dnd-kit funciona), tablero 147 en ancho de teléfono con su diseño móvil, y la interfaz en español
+  (hay que construir `messages.json` y el `.mo`; ver abajo). Sin trazas en el servidor salvo los 500 de la primera carga, que
+  eran la conexión de datos sin red.
+- **Traducciones.** `npm run build-translation` funciona. El `.mo` se compiló con `pybabel compile -f`: `msgfmt` aborta por
+  el `msgstr` de la línea 4506 (empieza con `\n` sin que el `msgid` lo haga) y por 4 errores de marcadores; se arreglan en la fase 6.
+
+### Fase 4
+
+Rama `claude/upgrade-superset-7-features-15ad24` (cortada de la del frontend). Entorno: el venv de la fase 2, un Postgres 17
+desechable en el 5546 (copia de dev migrada por `db upgrade`), servidor en el 8199, `node_modules` y `lib/` clonados del worktree
+de la fase 3 (`cp -cR`). Usuarios de prueba en la copia: admin, `qa_colaborador` (contribuidor del workspace 6) y `qa_lector` (visor).
+
+- **1. Modo móvil de 7.0:** gana `mibiMobile`. `MOBILE_CONSUMPTION_MODE` queda forzada a apagada en `FeatureFlagManager`
+  (`FORCED_OFF_FLAGS`), sea cual sea la configuración, el entorno o un callback: así los componentes de 7.0 que la leen
+  (`useIsMobile`, `MobileRouteGuard`…) son inertes y no hay forma de encenderla por error. Test: `feature_flags_test.py`.
+- **2. Historial y papelera, en nuestro shell.**
+  - Historial: «Ver historial de versiones» del menú «…» del informe en vista (traducido). En edición el panel se oculta
+    (decisión de 7.0). Un contribuidor ya lo lista (`versioning/api_helpers.py` y `activity/visibility.py` aceptan
+    `edits_as_workspace_member`; los tests de 7.0 siguen en verde porque se pregunta primero `is_editor`).
+  - Papelera: sección «Papelera» de la página del workspace para contribuidores y admins (`GET /api/v1/workspace/<id>/trash/`,
+    `WorkspaceTrash.tsx`), con «Restaurar»; y la página de 7.0 `/archived/` queda en Administración con el nombre «Papelera»
+    (admins; gráficos y conjuntos de datos). El 422 de restaurar ya no da ids: dice qué gráfico está ahora en qué tablero
+    (`describe_conflicts`), y la papelera lo muestra por adelantado (`blocked_by`) y desactiva «Restaurar».
+  - Copiar: un contribuidor copia un tablero del workspace sin hacerse editor: la copia y sus gráficos clonados conservan los
+    editores y visores del original y entran en el workspace del original (`link_copy_to_workspace`); copiar ya cuelga también
+    de `dashboard.can_edit` en el frontend (`canUserSaveAsDashboard`): **sin eso el contribuidor ni veía la cinta en edición**.
+  - Propiedades: editores y visores se muestran deshabilitados, con explicación, a quien edita solo por el workspace.
+  - Borradores: el filtro de acceso de tableros (`DashboardAccessFilter`) deja ver los borradores del workspace a contribuidores
+    y admins, como ya hacía `raise_for_access`; antes la API respondía 404 y el editor no abría. Las reglas de visores y de
+    datasets siguen igual.
+  - Traducción: las ~140 cadenas del historial y la papelera estaban vacías en `es`; se tradujeron (fase 6 revisa el resto).
+- **3. Controles de ECharts de 7.0.** Se conservan las claves guardadas del panel y las de 7.0 se leen como respaldo:
+  - `gridlines` (7.0) frente a `gridlines_hidden`: gana el del panel si alguna vez se usó (`resolveGridlines`); el panel
+    muestra como ocultas las líneas de un gráfico guardado con `gridlines: false` (`legacyValue`) y no dibuja el control de 7.0
+    (`SUPERSEDED_CONTROLS`). Igual con `startAngle` y `special_start_angle` (`resolveStartAngle`, antes de calcular el arco).
+  - `axisTicks`, `label_position`, `tooltipTruncation`, `sweptAngle`, `minMarkerSize`/`maxMarkerSize` tienen sección en
+    `formatCards.ts`.
+  - Etiquetas de barras: la clave `value_label_position` la usan 7.0 (colocación según el espacio) y el panel (posición fija);
+    el panel pisaba la de 7.0 y la de `label_position` explícita (4 tests de 7.0 fallaban desde la fase 3). Ahora los valores que
+    comparten no se pisan en los Timeseries (`barLabelsFitAware`).
+  - Leyenda HTML de Timeseries: se usa mientras la leyenda no tenga formato del panel; con cualquier formato (fuente, color,
+    título, alineación, icono) se queda la de ECharts, que sí lo dibuja (`hasLegendFormat`).
+  - Los patrones (decal) no existen en esta 7.0 (0.0.rc2); los ejes de la cascada ya tenían sección; la serie derivada
+    discontinua del combinado se pinta como en 7.0 y `series_format` sigue ganando por nombre.
+- **4. Table V2:** oculta. `AG_GRID_TABLE_ENABLED` y `TABLE_V2_TIME_COMPARISON_ENABLED` forzadas a apagadas (no se registra el
+  plugin ni migra `table`). Adoptarla exigiría portar formato de tabla, reglas, sparklines y tooltips.
+- **5. Reglas de formato condicional:** los límites mínimo y máximo manuales y el selector de color de 7.0 ya vienen en el control
+  de tabla y matriz que el panel dibuja con `Control`. El control de reglas del fork (umbrales) usa ahora `ColorPickerControl`
+  de 7.0 y conserva los colores guardados.
+- **6.** Mariposa: icono, sección «Lados», nombres de campos, formato del panel (ejes, líneas, leyenda, etiquetas, barras, área)
+  y funciona en el panel lateral (probado). Descripción del gráfico: se queda la ayuda del encabezado (`HeaderExtras`); se
+  quitaron `SliceInfo` y los 6 tests del popover de 7.0. El filtro cruzado por el eje temporal funciona (probado en el
+  navegador). **Sin probar a mano:** «Desglosar por» desde una etiqueta del eje X (el menú contextual abre, pero no lo
+  alcancé en el eje).
+- **7. Contribuidor y tableros: acceso a datos por workspace (decisión del usuario, opción 3).** Implementado en el punto de acceso
+  (`superset/mibi/workspace_grants.py`, enganchado en `raise_for_access`, `DatasourceFilter`, `ChartFilter` y `DashboardAccessFilter`).
+  Reglas: (1) solo datasets que pertenecen a un workspace (`MIBI_WORKSPACE_DATASETS`); uno compartido conserva sus permisos normales;
+  (2) solo contribuidores y administradores del workspace, el visor no gana nada; (3) RLS sigue aplicando; (4) nada fuera del workspace:
+  no miembros, miembros de otro workspace y visores siguen sin consulta, esquema ni listado. Quitar al miembro o mover el dataset
+  revoca al instante (se consulta en cada petición). No cambia: SQL Lab y SQL crudo (403), esquemas/tablas de la base (404), editar
+  el dataset y añadir datasets a un workspace (piden editoría real). Un admin de workspace que no es admin de Superset puede delegar
+  datos añadiendo contribuidores, pero solo de datasets del workspace.
+  **Pruebas:** `tests/unit_tests/mibi/workspace_grants_test.py` (16); suite `tests/unit_tests/mibi` 125 y `tests/unit_tests/security` 561
+  en verde. **A mano (copia 8199, API y navegador):** contribuidor 200 en tablero, dataset, gráfico y datos, con el tablero
+  pintando datos; visor, miembro de otro workspace y sin workspace: 404/403 y sin el dataset en listados. Capturas en `fase4-capturas/`
+  (`grant-contribuidor-dashboard.jpg`, `grant-visor-dashboard-404.jpg`). El visor recibe 404 porque el tablero no se le compartió: el
+  workspace no le da lectura.
+- **Fallos previos corregidos (cierre de la fase 4).**
+  - *Código:* `copy_dashboard` leía `metadata["positions"]` sin más cuando la regla de un tablero por gráfico duplica los
+    gráficos; ahora tolera metadatos sin layout.
+  - *Tests viejos (no se relajó ningún assert de acceso):* `columns` (4 de 24 columnas son 200 px = 6 celdas, no 7);
+    `editing` (`placeComponent` devuelve solo las entradas que cambia y la página mide 60 celdas); `dropOverflowsParent`
+    y `getDetailedComponentWidth` (anchos escritos para 12 celdas, fijan el lienzo a 12); `SliceHeaderControls.subdirectory`
+    («Editar gráfico» abre el panel lateral, nunca una pestaña); `subjects` y `semantic_view_access` (la puerta de workspace
+    del fork consulta la base y `g.user`, que esos mocks no tienen: se apaga `MIBI_WORKSPACE_ACCESS` en esos archivos, tiene
+    tests propios en `tests/unit_tests/mibi`; el tablero extra de un test recibe su propio gráfico por la regla de un
+    tablero por gráfico); importadores v0 de tableros y datasets (el fork los eliminó en `a84d21f228`: se borran sus tests y
+    el del despachador fija que el módulo sigue sin existir y que solo despacha a v1).
+- **8.** Distintivo «Destacado»: se dibuja (arriba a la derecha de la ficha); el test omitido pasa a uno propio. `prefer-tag-over-role`
+  vuelve a estar activo en todo `src/mibi` salvo 20 archivos con motivo (iconos SVG, radios, listbox, progress, grupos/estados/botones
+  que necesitarían reset); `TopBar` y `DrillthroughBar` pasaron a `header`/`output`. Editor del panel lateral: métricas
+  (popover Simple), columnas con dnd-kit y filtros abren y guardan (probado).
+- **Playwright experimental** contra el 8199 (Chromium 1208 enlazado como 1234 en la caché de Playwright, retirado al terminar; el
+  1.62 pide otro y no se descargó): `sort` 2/2, `format` 3/3, `export-file` 1/1, `layout-ux` 15/15, `present` 1/1 (3 corridas).
+  Se arreglaron imports (`dashboard-test-helpers` ahora en `tests/dashboard`), `owners` → `editors`, `testAssets` sin temas y el
+  filtro de errores de consola de `layout-ux` (avisos de antd 6 y de emotion de la compilación de desarrollo).
+  - **Soltar un elemento del panel en el lienzo** (causa: antd 6 envuelve el contenido de las pestañas en `.ant-tabs-body`, con
+    `position: relative` y sin altura; `skin.css` solo ponía `static` a `.ant-tabs-content`, así que la zona de soltado de la
+    página, `position: absolute; inset: 0`, medía 0). Arreglo: `.ant-tabs-body` en esa regla. Sin test unitario posible (es CSS);
+    lo cubre `layout-ux`.
+  - **`present` 4:3** (el documento medía 858 px en una pantalla de 850): el margen inferior de 12 px del contenedor de la página
+    se sumaba al relleno de la presentación. Arreglo en `skin.css` para `body.mibi-presenting`.
+  - **`format-reference`** (referencias de 6.1; ECharts pasó de 5.6 a 6.1). Se revisaron las 7 capturas que fallaban:
+    - Tabla (regresión nuestra, arreglada): 7.0 añade 20 px de relleno a la tabla y le resta 40 px de ancho y alto; en el
+      cuadro del fork (que ya tiene su relleno) la tabla salía cortada. `Styles.tsx` sin relleno y `TableChart.tsx` sin
+      restar. Aceptado de 7.0: el icono de orden (`ColumnHeightOutlined`) y la cabecera en negrita.
+    - Treemap (regresión, arreglada): ECharts 6 centra el treemap en una caja que no llena el gráfico y salía cortado;
+      `left: 0, top: 0`. Aceptado de 7.0: sin huecos ni bordes entre los rectángulos (`BORDER_WIDTH`/`GAP_WIDTH` = 0; un
+      test de 7.0 lo exige).
+    - Anillo (regresión, arreglada): ECharts 6 reserva el espacio de la línea de etiqueta aunque esté oculta y truncaba
+      «Gamma» a «Gam…»; la línea oculta queda con `length: 12, length2: 0`.
+    - Aceptados como cambio de 7.0/ECharts 6 (revisados a ojo): barras y combinado (el área de trazado gana unos 12 px a la
+      izquierda; el eje de fechas del combinado muestra «Jan 2025 … Dec 2025» en vez de «2025, March…»), embudo (más aire
+      bajo la leyenda y etiquetas sin halo blanco) y matriz («Total (Sum)» pasa a «Total», icono de orden de 7.0).
+    - Se regeneraron las 7 referencias (con Chromium 1208); `format-reference` pasa.
+  - «Desglosar por» desde un punto del gráfico: probado, abre el modal con las columnas del dataset («Desglosar por: Evolución
+    mensual de ventas», region). Desde la etiqueta del eje X (clic derecho) 7.0 no ofrece Drill By: solo el clic izquierdo
+    filtra (filtro cruzado) y el derecho abre el menú del área. **Conocido, heredado de 7.0 (no se parcheó):** repetido con un gráfico de líneas
+    por año sobre un conjunto físico (`v_plantilla`, con el filtro de tiempo «No filter» que pone la interfaz), Drill By desde
+    un punto abre el modal y la petición lleva, además del filtro «No filter», el `TEMPORAL_RANGE` del año pulsado
+    (`2023-01-01 : 2024-01-01`), pero la gráfica sigue mostrando todos los años (el servidor no aplica el segundo filtro
+    de tiempo sobre la misma columna) y la miga del valor X sale vacía. El código de Drill By y de
+    `getTemporalXAxisDrillByFilter`, y el del servidor (`_apply_granularity`), son los de 7.0 sin cambios del fork (el diff
+    contra `upstream/7.0` solo toca anotaciones y la UI de Timeseries ajena a Drill By). Hay que subirlo a Apache Superset o
+    esperar a 7.0.x; arreglarlo aquí obligaría a reescribir cómo se combinan los filtros temporales.
+- **Preexistentes que siguen:** Jest `src/mibi` 2 fallos de la línea base; `dropOverflowsParent`/`getDetailedComponentWidth` (4,
+  tests de 12 columnas); `SliceHeaderControls` «subdirectory deployment» (2, «Editar gráfico» abre el panel, no Explore);
+  `tests/unit_tests/subjects/test_creator_group_call_sites.py` (3) y `dashboards/semantic_view_access_test.py` (20, `g.user`).
+  Cadenas de 7.0 como «Deleted %(num)d …» sin espacio («Se ha eliminado%(num)d») y `msgfmt -c` con los mismos 8 errores.
+
+### Fase 5
+
+Rama `claude/upgrade-superset-7-infra-223641` (cortada de la de la fase 4). Entorno: venv propio en el worktree (Python 3.11,
+`requirements/development.txt` sin `mysqlclient`, más los extras de drivers), Postgres 17 y MySQL 8.0 desechables en el 5599 y el
+3399 (borrados al terminar). No se tocó el stack del 8188.
+
+- **Dockerfile.** La fusión ya lo dejó en la forma de 7.0 (Python 3.11.14 trixie, `uv`, node 24, stages `lean` y `superset`,
+  Playwright por `INCLUDE_CHROMIUM`); lo del fork es solo la compilación de traducciones, el target `prod` y los extras del `dev`.
+  El websocket de 7.0 se queda fuera (el fork no tiene `superset-websocket`).
+  - **`prod` parte de `lean`, no de la imagen `superset` completa.** Esa trae solo `postgres`, `mysql` y `fastmcp`, y aquí hacen
+    falta también `mssql`, `databricks`, `duckdb` y `redshift`; añadirlos a la completa es instalar dos veces. `lean` más los
+    seis drivers y `fastmcp` es la imagen mínima que cubre `PREFERRED_DATABASES`. El Chromium no viene de `lean`: lo instala
+    `python-common` con `INCLUDE_CHROMIUM`.
+  - **`docker-compose-prod.yml` ahora construye con `INCLUDE_CHROMIUM=true`** (antes `false`): sin él, los informes y alertas
+    fallan al capturar. Cuesta unos 600 MB; se apaga con `INCLUDE_CHROMIUM=false` si no se usan informes.
+  - El `dev` instala `.[postgres,mssql,databricks,redshift]`; MySQL y DuckDB vienen de `requirements/development.txt`
+    (`mysqlclient==2.2.8`, `duckdb==1.5.5`, `duckdb-engine==0.17.0`). Comparado con una resolución nueva de `development.in`, el
+    conjunto de paquetes es el mismo (solo `docutils`, `tomli`, `mypy-extensions`, `python-discovery` y `stanio` cambian por
+    fecha), así que no se regeneró el archivo.
+- **Drivers con SQLAlchemy 2.0.52 y Flask 3.1.3** (instalados desde los extras de `pyproject.toml`): `psycopg2-binary 2.9.12`
+  (PostgreSQL y Redshift), `pymssql 2.4.6`, `PyMySQL 1.2.3`, `databricks-sql-connector 4.5.0` con `databricks-sqlalchemy 2.0.10`,
+  `sqlalchemy-redshift 1.0.0`, `duckdb 1.5.5` con `duckdb-engine 0.17.0`. Todos importan y `create_engine` resuelve su dialecto;
+  con conexión real: PostgreSQL 17 (psycopg2), MySQL 8.0 (PyMySQL) y DuckDB en memoria (`select 42`). SQL Server, Databricks y
+  Redshift solo hasta el dialecto (no hay contenedor fácil). Las ocho clases de motor del fork cargan con `load_engine_specs()`.
+  **`mysqlclient` no compila en el Mac**, así que su importación y conexión quedan para la imagen.
+- **Celery (fallo real, corregido).** `docker/pythonpath_prod/superset_config.py` y el de dev reemplazaban `CeleryConfig`
+  entero, y con él las tareas de 7.0: la purga de la papelera (`deletion_retention.purge_soft_deleted`), la del historial
+  (`version_history.prune_old_versions`), la exportación a Excel y Slack. Con el soft delete y el historial activos por defecto,
+  la papelera de producción nunca se habría vaciado ni el historial purgado. Ahora heredan `superset.config.CeleryConfig` y solo
+  cambian el broker y el backend de resultados (`tests/unit_tests/mibi/prod_config_test.py`). `pre-commit` excluye
+  `docker/pythonpath_prod` de mypy (dos módulos `superset_config` chocan).
+- **Playwright.** 7.0 quita Selenium: `PLAYWRIGHT_REPORTS_AND_THUMBNAILS`, `WEBDRIVER_TYPE`, `WEBDRIVER_CONFIGURATION` y
+  `SCREENSHOT_*` de Selenium ya no existen. En el fork no queda ninguna referencia salvo la bandera inerte del config de dev
+  (quitada). `WEBDRIVER_BASEURL` sigue igual. Las tarjetas del inicio no usan capturas (`mibi/previews.py`), así que `THUMBNAILS`
+  no hace falta en prod.
+- **SSL de MySQL (7.0, #44723).** El interruptor «SSL» del formulario (`ssl=1`) ahora **exige TLS y falla cerrado**. Probado con
+  MySQL 8.0 (certificado autofirmado) y PyMySQL: sin interruptor la conexión funciona y usa TLS oportunista (`Ssl_cipher` presente);
+  con interruptor se añade `ssl_verify_cert=True` y la conexión **falla** (`CERTIFICATE_VERIFY_FAILED: self-signed certificate`);
+  con `?ssl=1&ssl_ca=<ca.pem>` conecta verificada. El campo «Certificado raíz» del formulario **no** lo usa MySQL: el CA va en el
+  URI o en `extra.engine_params.connect_args`, y la ruta debe existir en la web y en cada worker. Con `mysqlclient` sobre
+  Debian trixie (`default-libmysqlclient-dev` suele ser `libmariadb`; por confirmar en la imagen), `REQUIRED` se sube a `VERIFY_CA` (también falla con certificado autofirmado). Una conexión guardada con el interruptor encendido cambia de comportamiento al
+  actualizar. `tests/unit_tests/db_engine_specs/test_mysql.py` 163/163.
+- **Cambios de 7.0 en config revisados:** el websocket y `GLOBAL_ASYNC_QUERIES_*` salen (el fork no los usa); el MCP se niega a
+  arrancar si `MCP_DEV_USERNAME` y `MCP_AUTH_ENABLED` van juntos (dev pone solo el primero, prod solo el segundo);
+  `ALERT_REPORTS_EXECUTION_BUDGET_SECONDS` existe por defecto; `THUMBNAIL_CACHE_CONFIG` con vigencia de un día en dev.
+  Los informes programados sobre un tablero **sin publicar** ya no se ejecutan si quien los ejecuta (`ALERT_REPORTS_EXECUTORS`) no
+  es editor ni admin del tablero; hay que publicarlo o dar la editoría a ese usuario. Revisar los informes de los tableros en
+  borrador antes de desplegar.
+
+- **Imagen `prod` construida y probada** (`docker build --target prod --build-arg INCLUDE_CHROMIUM=true`, 3,37 GB, borrada al
+  terminar; Postgres 17, Redis y MySQL 8.0 desechables, app en el 8199, todo retirado):
+  - `docker-init-prod.sh` aplica todas las migraciones (con la revisión de merge) en una base nueva y crea el admin; `/health` OK.
+  - Importan `MySQLdb` (mysqlclient con **MariaDB Connector/C 3.4.9**, confirmado), `pymssql`, `psycopg2`, `duckdb` y `playwright`;
+    `create_engine` resuelve los dialectos de mysql, mssql, postgresql, redshift, duckdb y databricks. SQLAlchemy 2.0.52.
+  - Chromium 1248 en `/usr/local/share/playwright-browsers`, legible por el usuario `superset`.
+  - El worker registra `deletion_retention.purge_soft_deleted`, `version_history.prune_old_versions`, `export_dashboard_excel`,
+    `reports.execute` y `reports.scheduler`.
+  - Captura real: `DashboardScreenshot` desde el worker sobre un tablero (`?standalone=3`) como admin devuelve un PNG de
+    1600 × 2400 (30 KB). Probado el motor de capturas, no una ejecución completa de `ReportSchedule` con correo.
+  - **MySQL con mysqlclient en la imagen:** sin interruptor conecta pero **sin TLS** (`Ssl_cipher` vacío); con `?ssl=1` y
+    certificado autofirmado falla (`self-signed certificate in certificate chain`); con `?ssl=1&ssl_ca=...` y un CA correcto
+    falla igualmente si el certificado no corresponde al nombre del host (`Hostname verification failed`), porque con
+    MariaDB Connector/C `REQUIRED` se sube a `VERIFY_CA` y verifica también el host. El interruptor sirve con un servidor cuyo
+    certificado es válido para su nombre; con certificados propios hay que apagarlo y configurar `connect_args` nativos.
+- **Sin verificar:** SQL Server, Databricks y Redshift contra servidores reales; el target `dev` (no se construyó); una
+  ejecución completa de informe con envío de correo.
+
+### Fase 6
+
+Rama `claude/upgrade-superset-7-i18n-009842` (cortada de la de la fase 5). Solo traducciones al español, más cinco
+etiquetas de código (abajo). Catálogo `es`: 7 172 mensajes, 0 `fuzzy`, 9 vacíos a propósito (ejemplos de campos y textos de
+prueba: `https://`, `schema1,schema2`, `markdown`…).
+
+- **Formato del `.po`.** `msgfmt -c` y `pybabel compile` (sin `-f`) dan 0 errores. Los 8 de `msgfmt`: 5 plurales cuyo
+  `msgstr[0]` no llevaba el `%s` del `msgid_plural`, un plural con `%(suggestion)s` que el plural no tiene (entrada con
+  `no-python-format`), tres etiquetas «% of…» que se leían como marcadores, y el `msgstr` de «Defines the value that
+  determines the boundary…» que empezaba con `\n` sin que el `msgid` lo hiciera. Además `pybabel compile` ve otros 3
+  errores que `msgfmt` no ve: Babel ignora `no-python-format` y vuelve a marcar `python-format` al leer, así que las
+  etiquetas «% of column», «% of total», «% calculation»… (y tres frases de ayuda que las citan) no tienen traducción válida
+  mientras el `msgid` lleve `% ` + letra. Arreglo: **un espacio de no separación tras el `%`** en esas 11 cadenas de código
+  (`FormattingPopoverContent`, `constants.ts`, `Sunburst`, `controlPanel` de pivot y de embudo) y su `msgid` en `en`,
+  `es` y `messages.pot`. Se ve igual; Jest de `FormattingPopoverContent` (45) pasa, el normalizador de Testing Library
+  trata el NBSP como espacio. Efecto lateral: el `babel_update.sh` ya no necesita su parche para esas etiquetas.
+- **Cadenas sin traducir.** Las 988 «nuevas de 7.0» eran 1 007 mensajes que el `.po` no tenía antes del merge: **472
+  estaban vacíos** (alertas y reintentos, exportación, archivar/papelera, reglas de color, RLS, extensiones, claves de
+  almacenamiento, comparación de tiempo, temas, vistas semánticas…) y se tradujeron a mano, en 5 bloques. Las otras ~510
+  traían la traducción de 7.0 y se revisaron una a una: había ~45 desalineadas con su `msgid` (p. ej. «Subject» →
+  «asunto del correo», «Light (Carto)» → «Gráfico de líneas», «Access» → «correcto», «Breakpoint Metric», «Cross-filter
+  column», «Page navigation» → «Agregación», «Dark (Carto)» → «Gráfico de radar») y se corrigieron.
+- **`fuzzy`.** Las 160 marcas venían de la fusión de Babel por entrada: 61 eran cadenas que yo acababa de traducir y de
+  las otras 99 había 17 erróneas («Streets (Carto)» → «Gráfico de árbol», «You don't have permission to export data» →
+  «…leer etiquetas», «Subjects» → «asunto del correo», «Map Renderer»…). Corregidas todas y quitada la marca de las 160.
+- **Tuteo.** Eran formales unas 30 («Seleccione», «Haga clic», «Restáurelo», «Su sesión ha finalizado», «Verifique»,
+  «Califique», «¿Está seguro de que desea…?», «pase el siguiente ID»…). Ninguna con «usted». El resto de «su/sus» son
+  terceras personas (del tablero, del área de trabajo).
+- **Terminología.** `Dashboard` → «tablero» en las 176 cadenas del `.po` que decían «panel de control» (la base del fork
+  mezclaba: 144 «panel de control» contra 1 «tablero»; quedan 3 «panel de control» que son el *control panel* de Explore)
+  y 21 «panel(es)» sueltos. Archivar = «mover a la papelera» (coherente con «Papelera» del fork); `Viewers` = «lectores»
+  (como el rol del workspace); `Superset` en textos de usuario = «AuraData BI». Plurales `Deleted %(num)d …`:
+  «Se ha eliminado %(num)d …» con el espacio.
+- **Cadenas del fork de las fases 2 a 5** (historial, papelera, acceso por workspace, ECharts, Butterfly): se extrajo el
+  catálogo con `pybabel extract` sobre el árbol y **todos** los `msgid` están en el `.po` (0 faltan). El `messages.pot`
+  confirmado estaba atrasado 1 368 cadenas (el test `check_pot_drift_test` fallaba desde la fase 1): regenerado con el mismo
+  comando de `babel_update.sh`, pero sin `msgcat --sort-by-msgid` (el `msgcat` 1.0 de Homebrew no lo admite): el diff del
+  `.pot` es grande por orden y ajuste de línea, no por contenido.
+- **Navegador (8199, copia desechable).** Postgres 17 en el 5547 con `pg_dump` de dev, `db upgrade` a `f1c7a9e2b305`, servidor del
+  venv de la fase 5 con el `messages.json` de esta rama y los activos de la fase 4; Playwright con el Chromium en caché.
+  Todo retirado al terminar (contenedor, servidor, activos copiados, enlace a `node_modules`); el 8188 no se tocó.
+  Revisado en español, sin textos en inglés: inicio, lista de tableros, lista de áreas de trabajo y página del área,
+  tablero en vista y menú «…» (con «Ver historial de versiones»), panel de historial, edición con la cinta
+  (Inicio, Insertar, Diseño, Vista, Formato, «Datos y detalles»), panes Gráficos/Elementos/Formato/Selección/Marcadores,
+  panel Formato (nivel Visual con sus secciones), papelera de Administración vacía y con un tablero eliminado. Capturas en
+  la carpeta de notas (`fase6-capturas/`).
+- **Pruebas.** `msgfmt -c` 0; `pybabel compile` 0; `npm run build-translation` ok; `pytest tests/unit_tests/mibi` 127 ok;
+  `pytest tests/unit_tests/translations tests/unit_tests/scripts/translations` 100 ok (con `pybabel` en el `PATH`); Jest de
+  `FormattingPopoverContent.test.tsx` 45 ok. No se corrió la suite completa de Jest ni Playwright.
+- **No verificado / queda.** Los textos de los diálogos de restaurar y eliminar definitivamente de la papelera (están en el
+  `.po`, no se abrieron en el navegador); la cinta con un tablero de varias páginas; las 5 etiquetas con NBSP en el
+  navegador (los activos de la copia son de la fase 4, anteriores al cambio de código); las pantallas de alertas e informes,
+  SQL Lab y bases de datos. Los meses del eje de los gráficos («Jan», «Feb») salen en inglés: los pone ECharts, no el catálogo.
+  `t('DB engine')` dentro de `t('%s Error', …)` no se extrae (Babel no recoge un `t()` anidado), así que «DB engine error»
+  aparece en inglés en los errores de conexión; es de 7.0, sin tocar.
+
+### Fase 7
+
+Rama `claude/upgrade-superset-7-e5234c` (cortada de la de la fase 6). Entorno: venv de la fase 5, Postgres 17 desechable
+(`qa7-pg`, puerto 5551) con un `pg_dump` de la base del 8188 (en `d3f9a2b17c64`), servidor en el 8199 con una config propia sin
+Redis, `node_modules` clonados con `cp -cR` (también los anidados de `plugins/*` y `packages/*`). El 8188 no se tocó.
+
+- **Merge de `main`** (`e4552462af`, 8 commits: barra de menús, fila de comandos de la vista de lectura, barra de estado, menú con
+  clic derecho en las listas, cadenas en español, doc). 7 conflictos, resueltos a mano:
+  - `TableCollection`: se conserva `expandable` y los `components` memorizados de 7.0; `onRowContextMenu` entra por `onRow`.
+  - `ListView`: props de 7.0 (`filtersRef`, `expandable`, `headerContent`, filtros móviles) junto a `rowMenu`, `usePageStatus` y el menú contextual.
+  - `Header` del tablero: los botones de marcadores, presentar y exportar pasan a `ReadingBar`/`ReportMenuBar`; se conserva el
+    `!isEmbedded && !isMobile` de 7.0 en «Editar» y el import de `Icons` (lo usa el botón de filtros móviles).
+  - `HomePage`: el diseño con `PageHeader` de `main`, con la navegación completa a `/dashboard/new/` del port a 7.0.
+  - `DashboardList` (código y test): tabla primero (`main`) con las props móviles de 7.0 y `rowMenu`; los tests siguen el marcado de
+    7.0 (botones en vez de `role=button`, filtro «Editor»); los tests de tarjetas abren la lista con `?viewMode=card`
+    (`renderDashboardListAsCards`), porque `main` dejó de leer `LISTVIEWS_DEFAULT_CARD_VIEW`.
+  - `messages.po`: se conserva el catálogo de la fase 6 y se añaden las cadenas de `main` (tuteo, «tablero»); dos ya existían.
+  - Adaptado a 7.0 sin conflicto: rutas sin `/superset/` en `pageCrumbs`, `ReportMenuBar` y tests; `renderHook` de
+    `@testing-library/react`; tipos de antd 6 en `rowMenu.test`; `url` opcional de idiomas en `AppMenuBar`.
+- **Fallo real hallado a mano: la purga definitiva daba 500.** La política de purga de 7.0 exige nombrar cada tabla que apunta al
+  tablero o conjunto de datos; faltaban `mibi_dashboard_backgrounds`, `mibi_dashboard_images`, `mibi_workspace_dashboards`,
+  `mibi_workspace_datasets` y sobraba la clave a `themes`. Con eso fallaban «Eliminar definitivamente» y el job de retención.
+  Arreglado en `purge_policy.py` (las tablas del fork, `OWNED`) con `tests/unit_tests/mibi/purge_policy_test.py`; probado en el navegador.
+- **Meses de los ejes en español.** No eran de ECharts (7.0 ya carga su locale) sino de d3: `localeTimeFormat.ts` toma los nombres
+  de `Intl` para el idioma de la app salvo que `D3_TIME_FORMAT` los fije. Verificado: «ene, feb… dic».
+- **Cadenas.** 35 cadenas del fork decían «panel» por tablero (exportar, actualizar, incrustar…): corregidas. `messages.pot`
+  regenerado con las cadenas de `main` (el test de deriva pasa). Las etiquetas «% de…» con NBSP están en `messages.json` con su
+  traducción; **no** se abrieron en pantalla.
+- **Informes de tableros sin publicar.** Documentado en `README.md` y `AGENTS.md`; no se amplió ningún permiso. Un borrador lo ven
+  editores, admins y colaboradores/administradores del área, así que solo falla un ejecutor que no sea ninguno de ellos.
+- **Migración sobre datos reales.** `superset db upgrade` sobre la copia del 8188: 42 pasos hasta `f1c7a9e2b305`; 6 tableros, 59
+  gráficos, 8 conjuntos y 6 editores intactos; el 142 abre y se ve (cuatro páginas, gráficos y tablas con datos).
+- **Navegador (8199).** Admin: inicio, tablero 142, edición con cinta y panel Formato, lista de tableros con menú de clic derecho,
+  diálogos de mover a la papelera y de eliminar definitivamente (escribir «BORRAR»), papelera, alertas (modal completo), SQL Lab en
+  el panel, conexiones, presentación, exportar, historial y diseño móvil con vista previa. Colaborador: edita con cinta. Lector: ve el
+  tablero publicado sin «Editar». Externo: 404. Capturas en la carpeta de notas (`fase7-capturas/`).
+- **Conocido, sin tocar.** «Untitled Query N» de SQL Lab sale en inglés (nombre guardado, upstream). El modal de conexión solo
+  ofrece los drivers instalados: en el venv del Mac faltan `pymssql` y `mysqlclient`, la imagen los trae.
+
+### Resumen del upgrade a Superset 7.0
+
+AuraData BI pasa de Superset 6.1 a 7.0 (rc2) en siete fases encadenadas más la fase 0. Una sola cadena de migraciones
+(revisión de merge `f1c7a9e2b305`), SQLAlchemy 2 y Flask 3, editors y viewers en lugar de owners, rutas sin `/superset/`,
+antd 6, oxlint, imagen `prod` con Chromium y Celery heredado, catálogo en español completo y `main` (barra de menús, barra de
+estado, menú de clic derecho) fusionada. Decisiones de seguridad: el contribuidor nunca es editor; el acceso a datos por
+workspace es una concesión estrecha (`workspace_grants.py`). Corregido en la fase 7: purga definitiva (política de purga sin las
+tablas del fork), meses de los ejes en español.
+
+**Suites de la fase 7.** Corridas: `tsc` completo (0 errores), oxlint completo (0), tests específicos de lo tocado (Jest de
+shell, listas, home, tablero; pytest de `tests/unit_tests/mibi`, de purga y de traducciones: 100 ok), migración sobre copia de
+datos reales y QA manual en el navegador. **No corridas, por falta de RAM de la máquina: Jest completo, `pytest tests/unit_tests`
+completo, pruebas de integración y Playwright (normal y experimental).** `pre-commit run --all-files` se interrumpió; dejó
+autofixes de formato (oxfmt, ruff-format), ya commiteados; sus comprobaciones de mypy/pylint no se vieron completas.
+
+**Pendientes.** Drill By en un punto temporal ignora el periodo (heredado de 7.0); «Untitled Query N» de SQL Lab en inglés;
+SQL Server, Databricks y Redshift sin probar contra servidores reales; etiquetas «% de…» con NBSP sin ver en pantalla; informes
+de tableros en borrador: revisar ejecutores antes de desplegar.
+
+## Abiertos tras la fase 3
+
+Para la fase 4 (funciones que chocan), además de la lista de abajo:
+- Distintivo «Destacado» de la galería de gráficos (test omitido) y tooltip de la galería.
+- `prefer-tag-over-role`: pasada visual para pasar los roles a etiquetas nativas.
+- Avisos de antd 6 en la consola, todos de componentes de `superset-ui-core` o 7.0 (`Tooltip.overlayInnerStyle`,
+  `Dropdown.overlayStyle`/`dropdownRender`, `Modal.maskClosable`, `Drawer.width`) y claves sin `key` en `MetadataBar`.
+- Explore: el arrastre de columnas con dnd-kit funciona en el panel; falta probar métricas, filtros y el menú contextual.
+- Cuando el panel de filtros acoplado y el modo informe se combinen con `show_filters=true`, comprobar la captura real de un informe.
+Para la fase 6: «Editar panel de control», «Filtros y controles», «Modified en …», «Borrador» mezclan la traducción de 7.0
+(«panel de control» en vez de «tablero») con la del fork; el `.po` tiene 5 errores de formato (`msgfmt` aborta).
+Para la fase 7: Playwright (las rutas ya no llevan `/superset/`), suite completa de Jest y las pruebas de integración.
+Sin tocar: `package-lock.json` sin `npm audit fix`; 85 avisos de vulnerabilidades heredados de 7.0.
+
+## Abiertos para la fase 2 (backend)
+
+Estado al cerrar la fase 2: hechos 1, 2, 3 (salvo regenerar en el contenedor), 4 y la parte de `update_dashboard` de 7.
+Lo que queda está en «Pendiente del backend» más abajo.
+
+Lista completa en las bitácoras de [backend](upgrade-superset-7/bitacora-backend.md) y [MCP](upgrade-superset-7/bitacora-mcp.md).
+
+1. **Bloqueante: owners → editors/viewers.** 7.0 quita `owners`, `is_owner` y `raise_for_ownership`. Fallan
+   `WorkspaceDatasetFilter` (`mibi/workspace_datasets.py`, filtro base de la API de datasets: **todo listado de datasets
+   falla**), `mibi/workspaces.py`, `mibi/backgrounds.py` y `mibi/split_shared_charts.py`.
+2. **Seguridad.** El gancho de workspace quedó en `SupersetSecurityManager.is_editor`, que 7.0 también usa para dar
+   acceso a datos (`raise_for_access` de gráficos, visor de slices, guest tokens). Un contribuidor de workspace
+   obtendría acceso a datos: llevar el gancho solo a los puntos de edición.
+3. SQLAlchemy 2.0 y Flask 3: instalar las dependencias de 7.0 en el contenedor y regenerar
+   `requirements/development.txt` desde `development.in` (se tomó el de 7.0 provisionalmente).
+4. `db upgrade` en una base nueva y en la de dev (en `d3f9a2b17c64`) por la revisión de merge `f1c7a9e2b305`.
+5. Marca AuraData en `superset/views/pwa_manifest.py` (nombre, descripción en español, `start_url`, colores, icono
+   maskable); rutas sin `/superset/` emitidas por el backend del fork.
+6. Comparación del payload de invitados embebidos: decidir entre la lista de 7.0 y `security/guest_payload.py` del fork
+   (sus 28 tests probablemente fallan). `daos/key_value.py`: unificar `for_update` y `lock`.
+7. MCP: `update_dashboard.py` (nuevo) no valida un dashboard por gráfico; tests de MCP que nombran temas y capas de
+   anotación; las herramientas no colocan `mibiPos`.
+8. Tests de 7.0 que importan motores quitados: `test_cancel_query_validation.py`, `test_grouping_sets_capability.py`,
+   `test_base.py` (impala).
+
+### Cierre de la fase 2
+
+Lo que quedaba del backend, pedido antes de pasar a la fase 3.
+
+- **Payload de invitados embebidos** (`15255003ac`). El diagnóstico anterior estaba al revés: los 13 tests del fork no
+  fallaban porque un invitado pudiera colar cambios, sino porque la comparación de 7.0 **rechazaba como manipulación la
+  carga normal** de esos gráficos embebidos (Gantt `tooltip_metrics`, query B de mixed timeseries, categorías del
+  grafo, deck.gl `spatial`/`tooltip_contents`/`point_radius_fixed`, cartodiagram `selected_chart`, pivot
+  `groupbyRows`, `order_by_cols` y la referencia de columna del box plot). Qué protege cada una:
+  - 7.0 compara contra una lista corta de controles, pero añadió vectores que el fork no tenía: forma y objetivos del
+    `orderby` (solo columnas y métricas visibles), SQL en filtros y `extras`, capas de anotación, tipo de resultado y
+    métrica de series limit.
+  - El fork sabía dónde guarda cada tipo de gráfico sus valores (más controles y valores anidados), y además colapsaba
+    a nombre cualquier adhoc cuyo `sqlExpression` es su label, también en métricas.
+  - Se queda lo más estricto de cada lado: todos los vectores de 7.0 sin tocar; la lista y la descomposición del fork
+    (`superset/security/guest_payload.py`, ahora solo eso) solo amplían dónde se buscan valores guardados, y cada valor
+    pedido tiene que coincidir exactamente con uno. Las métricas se comparan exactas (no se colapsan: un adhoc
+    `revenue`/`revenue` ejecutaría la columna `revenue` como SQL aunque el gráfico solo guarde la métrica `revenue`);
+    las columnas sí colapsan una referencia pura. El `orderby` admite como objetivo cualquier métrica guardada que el
+    gráfico lee (no solo `metrics`/`metric`), con la misma exclusión de columnas ocultas; las columnas de orden siguen
+    como en 7.0. Los tests no se tocaron: `tests/unit_tests/security/`, 561/561.
+- **Marca de la PWA** (`1612de45dd`). `pwa_manifest.py` toma `APP_NAME`, la descripción en español, los colores
+  AuraData y los iconos del fork (con el maskable propio); fuera las capturas de Superset, que no existen aquí.
+- **`key_value`** (`e68cfefaf1`). Solo `lock: RowLock`, como upstream master; la liberación del lock distribuido pasa
+  `RowLock()` (exclusivo) y los permalinks `RowLock(read=True)`.
+- **Tests de 7.0 sobre lo que el fork quitó** (`b8811a38d4`, `2e380ed053`, `d0953ce93e`, `7e333c958a`, `117ffddbfb`).
+  Criterio: si el test prueba una función que ya no existe, fuera; si prueba algo genérico usando un motor o una
+  herramienta quitada, se adapta a uno que exista.
+  - Motores (Trino, Impala, Db2, Exasol, SingleStore, Ocient, CockroachDB, Greenplum, Netezza, RisingWave, TimescaleDB):
+    fuera sus casos; la caché de engines usa Presto y la familia Postgres usa Redshift y Aurora Postgres.
+  - Anotaciones: el test de que las capas nativas piden permiso de lectura pasa a fijar que nunca se sirven.
+  - Temas: el logo enlaza a la lista de tableros (tema del fork) y los tokens del tooltip se comprueban en el tema
+    fusionado que recibe el navegador; fuera el test de la caché del modelo `Theme`.
+  - MCP: fuera las herramientas de temas y anotaciones de los inventarios y de `COMMITTED_WRITE_SPECS`; el test de
+    control de RBAC usa `save_sql_query`.
+  - `/datasource/get/` (quitado por el fork) sale del test de alcance de invitados.
+  - `jinja_context_test.py::test_get_time_filter` falla en el Mac por la zona horaria local y pasa con `TZ=UTC` (como el
+    contenedor): no se toca.
+- **Comprobaciones.** `tests/unit_tests/mibi/` 100/100, `tests/unit_tests/security/` 561/561,
+  `tests/unit_tests/mcp_service/dashboard/` 585/585 y los archivos tocados, cada uno por separado. La recolección de
+  `tests/unit_tests` ya no da errores de importación.
+
+## Pendiente del backend (tras la fase 2)
+
+1. La imagen Docker de dev sigue con dependencias de 6.1: construir la de 7.0 en la fase 5 (preguntar antes) y regenerar
+   allí `requirements/development.txt` con `mysqlclient` compilado.
+2. Copiar un tablero: `remap_metadata_chart_ids` (fork) y `_remap_filter_scopes` (7.0) remapean en parte lo mismo.
+3. `ImportV1DashboardSchema` rechaza `theme_uuid`/`theme_id` de exports antiguos antes del `pop` del importador.
+4. Rutas sin `/superset/` emitidas por el backend del fork (revisar con el frontend en la fase 3).
+5. Las herramientas MCP siguen sin colocar `mibiPos` (lo arregla el frontend al cargar).
+6. No se ha corrido la suite completa de `tests/unit_tests` (ni los de integración): hacerlo cuando la máquina lo permita.
+
+## Abiertos para la fase 3 (frontend)
+
+Detalle en las bitácoras de [dashboard](upgrade-superset-7/bitacora-dashboard.md), [gráficos](upgrade-superset-7/bitacora-charts.md)
+y [resto del frontend](upgrade-superset-7/bitacora-appfe.md).
+
+1. **Regenerar `package-lock.json` con npm** (se tomó el de 7.0 sin tocar), reconstruir las `lib/` de los paquetes,
+   `tsc`, oxlint y build. React 17 → 18, antd 6, TypeScript de 7.0.
+2. **Rutas sin `/superset/`:** `REPORT_PATH`/`isReportRoute` en `src/mibi/shell/navigation.ts` ya no reconoce
+   `/dashboard/<id>/` (los tableros salen con barra lateral) y hay rutas fijas en `ExploreGate.tsx`, `HOME_URL`,
+   `WorkspacePage.tsx` y `DatasetPage.tsx`.
+3. Código del fork que lee `owners` (`ChartFieldsSections.tsx`, `chartFields.ts`).
+4. Explore pasó de react-dnd a dnd-kit: comprobar el arrastre desde el panel Datos/Campos.
+5. Selectores de antd 5 en `skin.css` y `dashboard/styles.ts`.
+6. Portados a mano y sin probar: `TableRenderers.tsx` del pivot (7.0 lo pasó a hooks), `EchartsTimeseries.tsx`,
+   `Timeseries/transformProps.ts`, `SliceAdder`, `DashboardGrid`, `Markdown`, `Vertical`, `PropertiesModal`,
+   `SaveModal`, `ChartRenderer`, `ChartCreation`. Pasar Jest de `src/mibi` y de esos archivos con
+   `jest.worktree.config.js`.
+7. `ControlForm` de 7.0 descarta lo pendiente al desmontar (el fork lo enviaba). `/list_groups/` sigue fuera
+   (lo quitó el fork en `b36833af36` sin decirlo): confirmar.
+
+## Abiertos para la fase 4 (funciones que chocan)
+
+1. Modo móvil de consumo de 7.0 (`MOBILE_CONSUMPTION_MODE`, apagado) frente a `mibiMobile`: incluido pero inerte en
+   varios componentes; decidir si se quita.
+2. Historial de versiones y soft delete (activos por defecto en 7.0): columna nueva en la rejilla, el panel de filtros
+   acoplado no se bloquea al previsualizar y la vista previa hidrata un tema (no hay temas).
+3. ECharts: leyenda HTML de Timeseries (vuelve con Todo/Invertir y sin nuestro formato de leyenda), `gridlines`/`axisTicks`
+   de 7.0 frente a `gridline_*`, etiquetas de barras «Auto», donut con arcos parciales y `showTotal`, Butterfly y Bullet.
+4. Pivot: `showValuesAs` frente al formato de columna. Table V2 sin nuestro formato.
+5. Tooltip de descripción del gráfico (no adoptado, lo cubre `HeaderExtras`), color picker del formato condicional,
+   capas semánticas frente a datasets por workspace en `ChartCreation`.
+6. Soft delete e historial de versiones en la interfaz (de la fase 2): la papelera de 7.0 debe explicar el 422 de
+   restaurar un tablero cuyos gráficos están ya en otro; el contribuidor de un workspace puede restaurar una versión pero
+   no listar el historial (el historial pide editoría real); un contribuidor no puede copiar un tablero del workspace
+   (decisión de seguridad: la copia le haría editor de los gráficos clonados); el formulario de propiedades no debe
+   ofrecer cambiar editores o visores a quien edita solo por el workspace (el backend responde 422); decidir si un
+   contribuidor sin acceso a los datasets debe poder abrir el tablero (6.1 lo permitía) y si ve los borradores.

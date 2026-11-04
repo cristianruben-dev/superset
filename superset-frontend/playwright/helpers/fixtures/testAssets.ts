@@ -22,6 +22,7 @@ import { apiDeleteChart } from '../api/chart';
 import { apiDeleteDashboard } from '../api/dashboard';
 import { apiDeleteDataset } from '../api/dataset';
 import { apiDeleteDatabase } from '../api/database';
+import { apiDeleteSavedQuery } from '../api/savedQuery';
 
 /**
  * Test asset tracker for automatic cleanup after each test.
@@ -32,6 +33,7 @@ export interface TestAssets {
   trackChart(id: number): void;
   trackDataset(id: number): void;
   trackDatabase(id: number): void;
+  trackSavedQuery(id: number): void;
 }
 
 const EXPECTED_CLEANUP_STATUSES = new Set([200, 202, 204, 404]);
@@ -43,15 +45,36 @@ export const test = base.extend<{ testAssets: TestAssets }>({
     const chartIds = new Set<number>();
     const datasetIds = new Set<number>();
     const databaseIds = new Set<number>();
+    const savedQueryIds = new Set<number>();
 
     await use({
       trackDashboard: id => dashboardIds.add(id),
       trackChart: id => chartIds.add(id),
       trackDataset: id => datasetIds.add(id),
       trackDatabase: id => databaseIds.add(id),
+      trackSavedQuery: id => savedQueryIds.add(id),
     });
 
-    // Cleanup order: dashboards → charts → datasets → databases (respects FK dependencies)
+    // Cleanup order: saved queries → dashboards → charts → datasets → databases (respects FK dependencies)
+    // Saved queries have no FK dependents, so they can be cleaned up first
+    await Promise.all(
+      [...savedQueryIds].map(id =>
+        apiDeleteSavedQuery(page, id, { failOnStatusCode: false })
+          .then(response => {
+            if (!EXPECTED_CLEANUP_STATUSES.has(response.status())) {
+              console.warn(
+                `[testAssets] Unexpected status ${response.status()} cleaning up saved query ${id}`,
+              );
+            }
+          })
+          .catch(error => {
+            console.warn(
+              `[testAssets] Failed to cleanup saved query ${id}:`,
+              error,
+            );
+          }),
+      ),
+    );
     // Use failOnStatusCode: false to avoid throwing on 404 (resource already deleted by test)
     // Warn on unexpected status codes (401/403/500) that may indicate leaked state
     await Promise.all(

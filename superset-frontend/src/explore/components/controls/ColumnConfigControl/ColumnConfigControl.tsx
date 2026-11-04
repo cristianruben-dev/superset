@@ -192,10 +192,14 @@ export default function ColumnConfigControl<T extends ColumnConfig>({
           />
         ))}
         {needShowMoreButton && (
-          <div
-            role="button"
-            tabIndex={-1}
+          <button
+            type="button"
             css={{
+              appearance: 'none',
+              border: 'none',
+              background: 'none',
+              font: 'inherit',
+              width: '100%',
               padding: theme.sizeUnit * 2,
               textAlign: 'center',
               cursor: 'pointer',
@@ -216,7 +220,7 @@ export default function ColumnConfigControl<T extends ColumnConfig>({
                 <Icons.DownOutlined /> &nbsp; {t('Show all columns')}
               </>
             )}
-          </div>
+          </button>
         )}
       </div>
     </>

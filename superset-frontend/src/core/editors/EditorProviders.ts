@@ -53,6 +53,10 @@ class EditorProviders {
 
   private syncListeners: Set<() => void> = new Set();
 
+  /**
+   * Stable-reference subscribe function for useSyncExternalStore.
+   * Defined as an arrow property so the reference is bound to this instance at construction.
+   */
   public subscribe = (listener: () => void): (() => void) => {
     this.syncListeners.add(listener);
     return () => this.syncListeners.delete(listener);

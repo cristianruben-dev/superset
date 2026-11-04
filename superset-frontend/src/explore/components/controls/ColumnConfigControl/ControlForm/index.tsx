@@ -21,13 +21,13 @@ import {
   cloneElement,
   FunctionComponentElement,
   useMemo,
-  useRef,
   useEffect,
+  useRef,
 } from 'react';
 import { JsonObject, JsonValue } from '@superset-ui/core';
 import { useTheme } from '@apache-superset/core/theme';
 import { Constants } from '@superset-ui/core/components';
-import { debounce } from 'lodash';
+import { debounce, DebouncedFunc } from 'lodash-es';
 import { ControlFormItemNode } from './ControlFormItem';
 
 export * from './ControlFormItem';
@@ -72,29 +72,25 @@ export default function ControlForm({
   children,
 }: ControlFormProps) {
   const theme = useTheme();
-  const currentValue = useRef(value);
-  const currentOnChange = useRef(onChange);
-  const pending = useRef<JsonObject>({});
-  currentValue.current = value;
-  currentOnChange.current = onChange;
-  const debouncedOnChange = useMemo(() => {
-    const emit = () => {
-      if (!Object.keys(pending.current).length) return;
-      const next = { ...currentValue.current, ...pending.current };
-      currentValue.current = next;
-      pending.current = {};
-      currentOnChange.current(next);
-    };
-    return {
-      0: emit,
-      [Constants.FAST_DEBOUNCE]: debounce(emit, Constants.FAST_DEBOUNCE),
-    } as Record<number, typeof emit | ReturnType<typeof debounce>>;
-  }, []);
+  const latestValue = useRef<JsonObject>(value ?? {});
+  const latestOnChange = useRef(onChange);
+  const debouncedOnChange = useMemo(
+    () => ({}) as Record<number, DebouncedFunc<() => void>>,
+    [],
+  );
+
+  useEffect(() => {
+    latestOnChange.current = onChange;
+  }, [onChange]);
+
+  useEffect(() => {
+    latestValue.current = value ?? {};
+    Object.values(debouncedOnChange).forEach(callback => callback.cancel());
+  }, [value, debouncedOnChange]);
+
   useEffect(
     () => () => {
-      Object.values(debouncedOnChange).forEach(notify => {
-        if ('flush' in notify) notify.flush();
-      });
+      Object.values(debouncedOnChange).forEach(callback => callback.cancel());
     },
     [debouncedOnChange],
   );
@@ -123,14 +119,24 @@ export default function ControlForm({
               if (onItemValueChange) {
                 onItemValueChange(fieldValue);
               }
-              // propagate to the form
+              // Merge into pending edits before any debounce timer can fire.
+              latestValue.current = {
+                ...latestValue.current,
+                [name]: fieldValue,
+              };
+              if (debounceDelay === 0) {
+                Object.values(debouncedOnChange).forEach(callback =>
+                  callback.cancel(),
+                );
+                latestOnChange.current(latestValue.current);
+                return;
+              }
               if (!(debounceDelay in debouncedOnChange)) {
                 debouncedOnChange[debounceDelay] = debounce(
-                  debouncedOnChange[0],
+                  () => latestOnChange.current(latestValue.current),
                   debounceDelay,
                 );
               }
-              pending.current[name] = fieldValue;
               debouncedOnChange[debounceDelay]();
             },
           });

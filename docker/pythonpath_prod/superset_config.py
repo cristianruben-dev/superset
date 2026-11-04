@@ -26,8 +26,9 @@ import logging
 import os
 from urllib.parse import quote
 
-from celery.schedules import crontab
 from flask_caching.backends.rediscache import RedisCache
+
+from superset.config import CeleryConfig as DefaultCeleryConfig
 
 
 def _required(name: str) -> str:
@@ -90,27 +91,16 @@ RESULTS_BACKEND = RedisCache(
 )
 
 
-class CeleryConfig:  # pylint: disable=too-few-public-methods
+class CeleryConfig(DefaultCeleryConfig):  # pylint: disable=too-few-public-methods
+    """Superset's tasks and schedule on Redis.
+
+    Inherits the task modules and the beat schedule of Superset, so a task added by
+    a new release (the trash purge, the version history purge, the Excel export, Slack)
+    is registered here without touching this file.
+    """
+
     broker_url = f"redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_CELERY_DB}"
     result_backend = f"redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_RESULTS_DB}"
-    imports = (
-        "superset.sql_lab",
-        "superset.tasks.scheduler",
-        "superset.tasks.thumbnails",
-        "superset.tasks.cache",
-    )
-    worker_prefetch_multiplier = 1
-    task_acks_late = False
-    beat_schedule = {
-        "reports.scheduler": {
-            "task": "reports.scheduler",
-            "schedule": crontab(minute="*", hour="*"),
-        },
-        "reports.prune_log": {
-            "task": "reports.prune_log",
-            "schedule": crontab(minute=10, hour=0),
-        },
-    }
 
 
 CELERY_CONFIG = CeleryConfig

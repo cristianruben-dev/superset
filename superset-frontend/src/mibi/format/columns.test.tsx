@@ -95,8 +95,9 @@ test('a legacy layout in 24 columns keeps its shares', () => {
   const dense = legacy({ mibiColumns: 24 });
   const next = layoutToCells(dense);
   expect(next.ROOT_ID.meta.mibiColumns).toBeUndefined();
-  // 4 of 24 columns: a sixth of the page
-  expect(next['CHART-a'].meta.width).toBe(7);
+  // 4 of 24 columns on a 1280 px page: 4 * 54 px - 16 px gutter = 200 px,
+  // 6.25 cells of 32 px, rounded down to 6
+  expect(next['CHART-a'].meta.width).toBe(6);
 });
 
 test('margins and gaps of the canvas are dropped', () => {

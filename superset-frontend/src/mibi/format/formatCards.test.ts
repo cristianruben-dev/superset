@@ -140,3 +140,45 @@ test('a control shows in one section only', () => {
   expect(names).toHaveLength(new Set(names).size);
   expect(cards.map(card => card.id)).not.toContain('table_cell');
 });
+
+test('controls of Superset 7.0 get a section, or yield to the one that says the same', () => {
+  const cards = buildFormatCards([
+    section('Chart Options', [
+      'label_position',
+      'tooltipTruncation',
+      'axisTicks',
+      'gridlines',
+      'gridlines_hidden',
+      'startAngle',
+      'sweptAngle',
+      'special_start_angle',
+    ]),
+  ]);
+  const itemsOf = (id: string) =>
+    cards.find(card => card.id === id)?.items.map(item => item.name);
+
+  expect(itemsOf('labels')).toEqual(['label_position']);
+  expect(itemsOf('tooltip')).toEqual(['tooltipTruncation']);
+  expect(itemsOf('gridlines')).toEqual(['axisTicks']);
+  expect(itemsOf('pie-slices')).toEqual(['special_start_angle', 'sweptAngle']);
+  // "Hide gridlines" and "Start angle" of the pane replace the ones of 7.0
+  const shown = cards.flatMap(card => cardControlNames(card));
+  expect(shown).not.toContain('gridlines');
+  expect(shown).not.toContain('startAngle');
+  expect(cards.some(card => card.id.startsWith('other-'))).toBe(false);
+});
+
+test('the sides of a butterfly chart make a section of their own', () => {
+  const cards = buildFormatCards([
+    section('Series settings', [
+      'left_label',
+      'left_color',
+      'right_label',
+      'right_color',
+    ]),
+  ]);
+
+  expect(cards.map(card => [card.id, card.title])).toEqual([
+    ['butterfly-sides', 'Sides'],
+  ]);
+});

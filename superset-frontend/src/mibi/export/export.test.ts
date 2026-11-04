@@ -225,7 +225,7 @@ test('waits for loading charts and their animation, and no longer', async () => 
 test('PDF text keeps what the standard fonts draw and drops the rest', () => {
   expect(pdfText('📊 Resumen de ventas')).toBe('Resumen de ventas');
   expect(pdfText('Año «2026» – €')).toBe('Año «2026» – €');
-  expect(pdfText('3 de noviembre de 2026, 2:15\u202fp.m.')).toBe(
+  expect(pdfText('3 de noviembre de 2026, 2:15\u202Fp.m.')).toBe(
     '3 de noviembre de 2026, 2:15 p.m.',
   );
   expect(pdfText('Países 🌎🇲🇽')).toBe('Países');

@@ -290,9 +290,11 @@ test('the Format pane edits the selected button', () => {
   expect(element.label).toBe('Ver más');
   expect(element.borderWidth).toBe(1);
 
-  dispatcher(store)(
-    setElementConfig('DYNAMIC-btn', { kind: 'button', label: 'Otra' }),
-  );
+  act(() => {
+    dispatcher(store)(
+      setElementConfig('DYNAMIC-btn', { kind: 'button', label: 'Otra' }),
+    );
+  });
   expect(screen.getByTestId('mibi-button-label')).toHaveValue('Otra');
 });
 

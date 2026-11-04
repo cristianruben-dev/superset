@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { renderHook } from '@testing-library/react-hooks';
+import { renderHook } from '@testing-library/react';
 import { AUTO_APPLY_DELAY_MS, useAutoApply } from './useAutoApply';
 
 beforeEach(() => {

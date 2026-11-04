@@ -72,11 +72,14 @@ const d3NumberFormat: ControlFormItemSpec<'Select'> = {
   })),
   defaultValue: D3_FORMAT_OPTIONS[0][0],
   creatable: true,
+  // Keep commas out of token separators because they are valid in D3 number formats.
+  tokenSeparators: ['\r\n', '\n', '\t', ';'],
   minWidth: '14em',
   debounceDelay: 500,
 };
 
 const d3TimeFormat: ControlFormItemSpec<'Select'> = {
+  allowNewOptions: true,
   controlType: 'Select',
   label: t('D3 format'),
   description: D3_TIME_FORMAT_DOCS,
@@ -336,6 +339,13 @@ export const DEFAULT_CONFIG_FORM_LAYOUT: ColumnConfigFormLayout = {
       'columnWidth',
       { name: 'horizontalAlign', override: { defaultValue: 'left' } },
     ],
+  ],
+  [GenericDataType.MultiValue]: [
+    [
+      'columnWidth',
+      { name: 'horizontalAlign', override: { defaultValue: 'left' } },
+    ],
+    ['truncateLongCells'],
   ],
 };
 

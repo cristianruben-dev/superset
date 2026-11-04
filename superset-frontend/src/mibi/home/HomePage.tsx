@@ -16,7 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { useEffect, useMemo, useState, type CSSProperties } from 'react';
+import {
+  useEffect,
+  useMemo,
+  useState,
+  type CSSProperties,
+  type MouseEvent,
+} from 'react';
 import { Link, useHistory } from 'react-router-dom';
 import rison from 'rison';
 import { t, tn } from '@apache-superset/core/translation';
@@ -291,13 +297,29 @@ const EmptyCard = styled.div`
 
 export { relativeTime };
 
+const NEW_DASHBOARD_URL = '/dashboard/new/';
+
+/**
+ * Creating a dashboard is a page of the server (its GET makes the dashboard and
+ * redirects to it). The router would read `new` as a dashboard slug, so the
+ * click leaves it and loads the page.
+ */
+const startDashboard = (event: MouseEvent<HTMLAnchorElement>) => {
+  if (event.button || event.metaKey || event.ctrlKey || event.shiftKey) {
+    return;
+  }
+  event.preventDefault();
+  navigateTo(NEW_DASHBOARD_URL, { assign: true });
+};
+
 /** Quick actions shown at the top of the home page. */
 export function HomeBanner() {
   const actions = [
     {
       key: 'dashboard',
       tone: 'blue' as AuraTone,
-      to: '/dashboard/new/',
+      to: NEW_DASHBOARD_URL,
+      onClick: startDashboard,
       icon: <Icons.DashboardOutlined />,
       title: t('New dashboard'),
       description: t('Start a report and add charts to it'),
@@ -319,6 +341,7 @@ export function HomeBanner() {
         <ActionCard
           key={action.key}
           to={action.to}
+          onClick={action.onClick}
           data-test="home-action"
           style={
             {
@@ -435,7 +458,7 @@ export function HomeContent() {
             buttonStyle="primary"
             buttonSize="small"
             icon={<Icons.PlusOutlined />}
-            onClick={() => navigateTo('/dashboard/new', { assign: true })}
+            onClick={() => navigateTo(NEW_DASHBOARD_URL, { assign: true })}
           >
             {t('New dashboard')}
           </Button>
@@ -515,7 +538,7 @@ export function HomeContent() {
                     : t('There are no dashboards yet.')}
                 </div>
                 {tab === 'recent' && (
-                  <Link to="/dashboard/new/">
+                  <Link to={NEW_DASHBOARD_URL} onClick={startDashboard}>
                     {t('Create your first dashboard')}
                   </Link>
                 )}

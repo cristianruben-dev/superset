@@ -2078,7 +2078,13 @@ FILTER_RULES = [
         "Tiene",
         "Segmentador: relleno por lado",
     ),
-    (r"selection", r"singleSelect|strictSingleSelect", ["ok"], "Tiene", "Segmentador: selección"),
+    (
+        r"selection",
+        r"singleSelect|strictSingleSelect",
+        ["ok"],
+        "Tiene",
+        "Segmentador: selección",
+    ),
     (r"slicerSettings", r"multiselect", ["ok"], "Tiene", "Segmentador: selección"),
     (
         r"value",
@@ -2087,7 +2093,13 @@ FILTER_RULES = [
         "Tiene",
         "Segmentador: valores",
     ),
-    (r"header", r"showRestatement", ["ok"], "Tiene", "Segmentador: resumen de la selección"),
+    (
+        r"header",
+        r"showRestatement",
+        ["ok"],
+        "Tiene",
+        "Segmentador: resumen de la selección",
+    ),
     (
         r"search",
         r"bold|fontFamily|fontSize|italic|paddingUniform",
@@ -2111,9 +2123,27 @@ FILTER_RULES = [
         "Tiene",
         "Segmentador: valores elegidos",
     ),
-    (r"selectionIcon", r"position|size|spacing", ["ok"], "Tiene", "Segmentador: marca de selección"),
-    (r"applyButton", r"backColor|backShow|iconColor", ["ok"], "Tiene", "Segmentador: botón Aplicar"),
-    (r"pendingChangesIcon", r"show", ["ok"], "Tiene", "Segmentador: cambios sin aplicar"),
+    (
+        r"selectionIcon",
+        r"position|size|spacing",
+        ["ok"],
+        "Tiene",
+        "Segmentador: marca de selección",
+    ),
+    (
+        r"applyButton",
+        r"backColor|backShow|iconColor",
+        ["ok"],
+        "Tiene",
+        "Segmentador: botón Aplicar",
+    ),
+    (
+        r"pendingChangesIcon",
+        r"show",
+        ["ok"],
+        "Tiene",
+        "Segmentador: cambios sin aplicar",
+    ),
     (
         r"selectedOnly",
         r"backgroundColor|bold|borderColor|borderWidth|cornerRadius|fontColor|italic"

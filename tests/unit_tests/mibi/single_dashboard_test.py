@@ -115,6 +115,9 @@ def test_orm_allows_moving_chart_in_one_flush(db_session: Session) -> None:
     chart = make_chart(db_session)
     first = make_dashboard(db_session, "A", [chart])
     second = make_dashboard(db_session, "B")
+    # Version history records one change per link and transaction, as each
+    # request is in production
+    db_session.commit()
 
     first.slices.remove(chart)
     second.slices.append(chart)
@@ -206,8 +209,8 @@ def test_update_dashboard_rejects_chart_of_other_dashboard(
     chart = make_chart(db_session)
     make_dashboard(db_session, "A", [chart])
     second = make_dashboard(db_session, "B")
-    mocker.patch.object(security_manager, "raise_for_ownership")
-    mocker.patch.object(UpdateDashboardCommand, "compute_owners", return_value=[])
+    mocker.patch.object(security_manager, "raise_for_editorship")
+    mocker.patch("superset.commands.dashboard.update.compute_subjects")
     mocker.patch.object(DashboardDAO, "find_by_id", return_value=second)
 
     positions = {"CHART-1": {"type": "CHART", "meta": {"chartId": chart.id}}}
@@ -229,14 +232,15 @@ def test_update_dashboard_accepts_its_own_charts_with_text_id(
 
     chart = make_chart(db_session)
     dashboard = make_dashboard(db_session, "A", [chart])
-    mocker.patch.object(security_manager, "raise_for_ownership")
-    mocker.patch.object(UpdateDashboardCommand, "compute_owners", return_value=[])
+    mocker.patch.object(security_manager, "raise_for_editorship")
+    mocker.patch("superset.commands.dashboard.update.compute_subjects")
     mocker.patch.object(DashboardDAO, "find_by_id", return_value=dashboard)
     mocker.patch.object(
         DashboardDAO, "validate_update_slug_uniqueness", return_value=True
     )
 
     positions = {"CHART-1": {"type": "CHART", "meta": {"chartId": chart.id}}}
+    mocker.patch.object(DashboardDAO, "validate_layout_chart_access")
     command = UpdateDashboardCommand(
         str(dashboard.id),  # type: ignore[arg-type]
         {"json_metadata": json.dumps({"positions": positions})},
@@ -247,9 +251,12 @@ def test_update_dashboard_accepts_its_own_charts_with_text_id(
 def test_copy_dashboard_always_duplicates_charts(
     mocker: MockerFixture, db_session: Session
 ) -> None:
+    from superset import security_manager
     from superset.daos.dashboard import DashboardDAO
 
     mocker.patch("superset.daos.dashboard.g", user=None)
+    # Copying a dashboard needs editorship of it
+    mocker.patch.object(security_manager, "is_editor", return_value=True)
     chart = make_chart(db_session)
     original = make_dashboard(db_session, "A", [chart])
     positions = {"CHART-1": {"type": "CHART", "meta": {"chartId": chart.id}}}
@@ -297,3 +304,32 @@ def test_import_rejects_chart_shared_between_dashboards(
 
     with pytest.raises(ChartInMultipleDashboardsError):
         ImportDashboardsCommand._import(configs, overwrite=True)
+
+
+def test_restoring_a_version_with_a_moved_chart_is_refused(
+    mocker: MockerFixture, db_session: Session
+) -> None:
+    """A dashboard version can't bring back a chart that now lives elsewhere."""
+    from superset.commands.dashboard.exceptions import DashboardUpdateFailedError
+    from superset.commands.dashboard.restore_version import (
+        RestoreDashboardVersionCommand,
+    )
+    from superset.commands.version_restore import BaseRestoreVersionCommand
+    from superset.versioning.restore import RestoreResult
+
+    chart = make_chart(db_session)
+    first = make_dashboard(db_session, "A")
+    make_dashboard(db_session, "B", [chart])
+    db_session.commit()
+
+    def reattach(_command: object) -> RestoreResult:
+        # What the restore engine does with a version where the chart was in A
+        first.slices = [chart]
+        return RestoreResult(entity=first, skipped_slice_ids=[])
+
+    mocker.patch.object(BaseRestoreVersionCommand, "_do_restore", reattach)
+    command = RestoreDashboardVersionCommand(first.uuid, first.uuid)
+
+    with pytest.raises(DashboardUpdateFailedError) as excinfo:
+        command._do_restore()  # pylint: disable=protected-access
+    assert '"chart" is now in "B"' in str(excinfo.value)

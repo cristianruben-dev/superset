@@ -125,7 +125,7 @@ export function ReportMenuBar({
       rememberDashboard({
         id: dashboardId,
         title: dashboardTitle,
-        url: `/superset/dashboard/${dashboardId}/`,
+        url: `/dashboard/${dashboardId}/`,
       });
     }
   }, [dashboardId, dashboardTitle]);

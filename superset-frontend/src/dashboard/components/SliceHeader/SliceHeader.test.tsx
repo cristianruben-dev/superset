@@ -20,6 +20,10 @@ import { Router } from 'react-router-dom';
 import { createMemoryHistory } from 'history';
 import { getExtensionsRegistry, VizType } from '@superset-ui/core';
 import { render, screen, userEvent } from 'spec/helpers/testing-library';
+import {
+  enableMobileConsumptionFlag,
+  mockMobileMatchMedia,
+} from 'spec/helpers/mobileTestUtils';
 import { isEmbedded } from 'src/dashboard/util/isEmbedded';
 import { useUiConfig } from 'src/components/UiConfigContext';
 import SliceHeader from '.';
@@ -35,7 +39,7 @@ jest.mock('src/dashboard/components/SliceHeaderControls', () => ({
       data-cached-dttm={props.cachedDttm}
       data-updated-dttm={props.updatedDttm}
       data-superset-can-explore={props.supersetCanExplore}
-      data-superset-can-csv={props.supersetCanCSV}
+      data-superset-can-download={props.supersetCanDownload}
       data-component-id={props.componentId}
       data-dashboard-id={props.dashboardId}
       data-is-full-size={props.isFullSize}
@@ -144,7 +148,7 @@ const createProps = (overrides: any = {}) => ({
   isExpanded: false,
   sliceName: 'Vaccine Candidates per Phase',
   supersetCanExplore: true,
-  supersetCanCSV: true,
+  supersetCanDownload: true,
   slice: {
     slice_id: MOCKED_CHART_ID,
     slice_url: `/explore/?form_data=%7B%22slice_id%22%3A%20${MOCKED_CHART_ID}%7D`,
@@ -170,9 +174,9 @@ const createProps = (overrides: any = {}) => ({
     datasource: '58__table',
     description: '',
     description_markeddown: '',
-    owners: [],
     modified: '<span class="no-wrap">20 hours ago</span>',
     changed_on: 1617143411366,
+    editors: [],
     slice_description: '',
   },
   componentId: 'CHART-aGfmWtliqA',
@@ -204,6 +208,18 @@ test('Should render', () => {
   expect(screen.getByTestId('slice-header')).toBeInTheDocument();
 });
 
+test('Should expose a class hook, not just data-test, for fullscreen styling', () => {
+  const props = createProps();
+  render(<SliceHeader {...props} />, {
+    useRedux: true,
+    useRouter: true,
+    initialState,
+  });
+  // The production build strips data-test attributes, so CSS that targets the
+  // header must hang off a class instead.
+  expect(screen.getByTestId('slice-header')).toHaveClass('slice-header');
+});
+
 test('Should render - default props', () => {
   const props = createProps();
 
@@ -222,7 +238,7 @@ test('Should render - default props', () => {
   delete props.isExpanded;
   delete props.sliceName;
   delete props.supersetCanExplore;
-  delete props.supersetCanCSV;
+  delete props.supersetCanDownload;
 
   render(<SliceHeader {...props} />, {
     useRedux: true,
@@ -250,7 +266,7 @@ test('Should render default props and "call" actions', () => {
   delete props.isExpanded;
   delete props.sliceName;
   delete props.supersetCanExplore;
-  delete props.supersetCanCSV;
+  delete props.supersetCanDownload;
 
   render(<SliceHeader {...props} />, {
     useRedux: true,
@@ -344,6 +360,44 @@ test('Should not render click to edit prompt and run onExploreChart on click if 
 
   userEvent.click(screen.getByText('Vaccine Candidates per Phase'));
   expect(history.location.pathname).toMatch('/superset/dashboard');
+});
+
+// eslint-disable-next-line no-restricted-globals -- TODO: Migrate from describe blocks
+describe('mobile consumption mode', () => {
+  let restoreMatchMedia: () => void;
+  let restoreFlag: () => void;
+
+  beforeEach(() => {
+    restoreMatchMedia = mockMobileMatchMedia();
+    restoreFlag = enableMobileConsumptionFlag();
+  });
+
+  afterEach(() => {
+    restoreMatchMedia();
+    restoreFlag();
+  });
+
+  test('Should not render click to edit prompt or SliceHeaderControls on mobile', () => {
+    const props = createProps();
+    const history = createMemoryHistory({
+      initialEntries: ['/superset/dashboard/1/'],
+    });
+    render(
+      <Router history={history}>
+        <SliceHeader {...props} />
+      </Router>,
+      { useRedux: true, initialState },
+    );
+    userEvent.hover(screen.getByText('Vaccine Candidates per Phase'));
+    expect(
+      screen.queryByText('Click to edit Vaccine Candidates per Phase.'),
+    ).not.toBeInTheDocument();
+
+    userEvent.click(screen.getByText('Vaccine Candidates per Phase'));
+    expect(history.location.pathname).toMatch('/superset/dashboard');
+
+    expect(screen.queryByTestId('SliceHeaderControls')).not.toBeInTheDocument();
+  });
 });
 
 test('Should render "annotationsLoading"', () => {
@@ -444,7 +498,7 @@ test('Correct props to "SliceHeaderControls"', () => {
     'false',
   );
   expect(screen.getByTestId('SliceHeaderControls')).toHaveAttribute(
-    'data-superset-can-csv',
+    'data-superset-can-download',
     'true',
   );
   expect(screen.getByTestId('SliceHeaderControls')).toHaveAttribute(
@@ -500,6 +554,42 @@ test('Correct actions to "SliceHeaderControls"', () => {
   expect(props.handleToggleFullSize).toHaveBeenCalledTimes(0);
   userEvent.click(screen.getByTestId('handleToggleFullSize'));
   expect(props.handleToggleFullSize).toHaveBeenCalledTimes(1);
+});
+
+test('Should hide chart description info icon when description is expanded', () => {
+  const props = createProps({
+    slice: {
+      ...createProps().slice,
+      description: 'Test chart description',
+    },
+    isExpanded: true,
+  });
+  render(<SliceHeader {...props} />, {
+    useRedux: true,
+    useRouter: true,
+    initialState,
+  });
+  expect(
+    screen.queryByTestId('chart-description-info-icon'),
+  ).not.toBeInTheDocument();
+});
+
+test('Should hide chart description info icon when chart has no description', () => {
+  const props = createProps({
+    slice: {
+      ...createProps().slice,
+      description: '',
+    },
+    isExpanded: false,
+  });
+  render(<SliceHeader {...props} />, {
+    useRedux: true,
+    useRouter: true,
+    initialState,
+  });
+  expect(
+    screen.queryByTestId('chart-description-info-icon'),
+  ).not.toBeInTheDocument();
 });
 
 test('Add extension to SliceHeader', () => {
@@ -741,6 +831,123 @@ test('Should show row count warning for table chart with server pagination when 
     useRedux: true,
     useRouter: true,
     initialState: tableWithPaginationState,
+  });
+
+  expect(screen.getByTestId('warning')).toBeInTheDocument();
+
+  mockUseUiConfig.mockRestore();
+});
+
+test('Should show row count warning for non-table chart when row limit is reached', () => {
+  const props = createProps({
+    formData: {
+      ...createProps().formData,
+      viz_type: VizType.Bar,
+      row_limit: 10,
+    },
+    slice: {
+      ...createProps().slice,
+      form_data: {
+        ...createProps().slice.form_data,
+        viz_type: VizType.Bar,
+        row_limit: 10,
+      },
+      viz_type: VizType.Bar,
+    },
+  });
+  const barChartState = {
+    ...initialState,
+    charts: {
+      [props.slice.slice_id]: {
+        id: MOCKED_CHART_ID,
+        chartStatus: 'rendered',
+        queriesResponse: [
+          {
+            sql_rowcount: 10,
+            data: Array(10).fill({}),
+          },
+        ],
+      },
+    },
+  };
+
+  const mockUseUiConfig = useUiConfig as jest.MockedFunction<
+    typeof useUiConfig
+  >;
+  mockUseUiConfig.mockReturnValue({
+    hideTitle: false,
+    hideTab: false,
+    hideNav: false,
+    hideChartControls: false,
+    emitDataMasks: false,
+    showRowLimitWarning: true,
+  });
+
+  render(<SliceHeader {...props} />, {
+    useRedux: true,
+    useRouter: true,
+    initialState: barChartState,
+  });
+
+  expect(screen.getByTestId('warning')).toBeInTheDocument();
+
+  mockUseUiConfig.mockRestore();
+});
+
+test('Should show row count warning for ag-grid table chart with server pagination when limit is reached', () => {
+  const props = createProps({
+    formData: {
+      ...createProps().formData,
+      viz_type: VizType.TableAgGrid,
+      row_limit: 10,
+      server_pagination: true,
+    },
+    slice: {
+      ...createProps().slice,
+      form_data: {
+        ...createProps().slice.form_data,
+        viz_type: VizType.TableAgGrid,
+        row_limit: 10,
+        server_pagination: true,
+      },
+      viz_type: VizType.TableAgGrid,
+    },
+  });
+  const agGridWithPaginationState = {
+    ...initialState,
+    charts: {
+      [props.slice.slice_id]: {
+        id: MOCKED_CHART_ID,
+        chartStatus: 'rendered',
+        queriesResponse: [
+          {
+            sql_rowcount: 10,
+            data: Array(10).fill({}),
+          },
+          {
+            data: [{ rowcount: 50 }],
+          },
+        ],
+      },
+    },
+  };
+
+  const mockUseUiConfig = useUiConfig as jest.MockedFunction<
+    typeof useUiConfig
+  >;
+  mockUseUiConfig.mockReturnValue({
+    hideTitle: false,
+    hideTab: false,
+    hideNav: false,
+    hideChartControls: false,
+    emitDataMasks: false,
+    showRowLimitWarning: true,
+  });
+
+  render(<SliceHeader {...props} />, {
+    useRedux: true,
+    useRouter: true,
+    initialState: agGridWithPaginationState,
   });
 
   expect(screen.getByTestId('warning')).toBeInTheDocument();

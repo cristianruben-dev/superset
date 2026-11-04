@@ -28,7 +28,7 @@ import { isFeatureEnabled } from '@superset-ui/core';
 import {
   mockDashboards,
   mockHandleResourceExport,
-  renderDashboardList,
+  renderDashboardListAsCards,
   setupMocks,
   getLatestDashboardApiCall,
 } from './DashboardList.testHelpers';
@@ -73,7 +73,7 @@ describe('DashboardList Card View Tests', () => {
   afterEach(() => fetchMock.clearHistory().removeRoutes());
 
   test('renders cards instead of table', async () => {
-    renderDashboardList(mockUser);
+    renderDashboardListAsCards(mockUser);
 
     await screen.findByTestId('dashboard-list-view');
 
@@ -82,12 +82,12 @@ describe('DashboardList Card View Tests', () => {
 
     // Verify card view toggle is active
     const cardViewToggle = screen.getByRole('img', { name: 'appstore' });
-    const cardViewButton = cardViewToggle.closest('[role="button"]');
+    const cardViewButton = cardViewToggle.closest('button');
     expect(cardViewButton).toHaveClass('active');
   });
 
   test('switches from card view to list view', async () => {
-    renderDashboardList(mockUser);
+    renderDashboardListAsCards(mockUser);
     await screen.findByTestId('dashboard-list-view');
 
     expect(screen.queryByTestId('listview-table')).not.toBeInTheDocument();
@@ -96,7 +96,7 @@ describe('DashboardList Card View Tests', () => {
     const listViewToggle = screen.getByRole('img', {
       name: 'unordered-list',
     });
-    const listViewButton = listViewToggle.closest('[role="button"]');
+    const listViewButton = listViewToggle.closest('button');
     expect(listViewButton).not.toBeNull();
     fireEvent.click(listViewButton!);
 
@@ -106,7 +106,7 @@ describe('DashboardList Card View Tests', () => {
   });
 
   test('displays dashboard data correctly in cards', async () => {
-    renderDashboardList(mockUser);
+    renderDashboardListAsCards(mockUser);
 
     await screen.findByTestId('dashboard-list-view');
 
@@ -134,7 +134,7 @@ describe('DashboardList Card View Tests', () => {
   });
 
   test('renders sort dropdown in card view', async () => {
-    renderDashboardList(mockUser);
+    renderDashboardListAsCards(mockUser);
     await screen.findByTestId('dashboard-list-view');
 
     await waitFor(() => {
@@ -147,7 +147,7 @@ describe('DashboardList Card View Tests', () => {
   });
 
   test('selecting a sort option triggers new API call', async () => {
-    renderDashboardList(mockUser);
+    renderDashboardListAsCards(mockUser);
     await screen.findByTestId('dashboard-list-view');
 
     await waitFor(() => {
@@ -156,18 +156,16 @@ describe('DashboardList Card View Tests', () => {
       ).toBeInTheDocument();
     });
 
-    // Find the sort select by its testId, then the combobox within it
+    // Find the sort select by its testId, then the pill button within it
     const sortContainer = screen.getByTestId('card-sort-select');
-    const sortCombobox = within(sortContainer).getByRole('combobox');
-    await userEvent.click(sortCombobox);
+    // eslint-disable-next-line testing-library/no-node-access
+    const sortPill = sortContainer.querySelector(
+      '[data-test="compact-filter-pill"]',
+    ) as HTMLElement;
+    await userEvent.click(sortPill);
 
     // Select "Alphabetical" from the dropdown
-    const alphabeticalOption = await waitFor(() =>
-      within(
-        // eslint-disable-next-line testing-library/no-node-access
-        document.querySelector('.rc-virtual-list')!,
-      ).getByText('Alphabetical'),
-    );
+    const alphabeticalOption = await screen.findByText('Alphabetical');
     await userEvent.click(alphabeticalOption);
 
     await waitFor(() => {
@@ -181,7 +179,7 @@ describe('DashboardList Card View Tests', () => {
   });
 
   test('can bulk deselect all dashboards', async () => {
-    renderDashboardList(mockUser);
+    renderDashboardListAsCards(mockUser);
 
     await screen.findByTestId('dashboard-list-view');
     await waitFor(() => {
@@ -242,7 +240,7 @@ describe('DashboardList Card View Tests', () => {
   });
 
   test('can bulk export selected dashboards', async () => {
-    renderDashboardList(mockUser);
+    renderDashboardListAsCards(mockUser);
 
     await screen.findByTestId('dashboard-list-view');
     await waitFor(() => {
@@ -282,7 +280,7 @@ describe('DashboardList Card View Tests', () => {
   });
 
   test('can bulk delete selected dashboards', async () => {
-    renderDashboardList(mockUser);
+    renderDashboardListAsCards(mockUser);
 
     await screen.findByTestId('dashboard-list-view');
     await waitFor(() => {
@@ -342,7 +340,7 @@ describe('DashboardList Card View Tests', () => {
   });
 
   test('exit bulk select by hitting x on bulk select bar', async () => {
-    renderDashboardList(mockUser);
+    renderDashboardListAsCards(mockUser);
 
     await screen.findByTestId('dashboard-list-view');
     await waitFor(() => {
@@ -373,7 +371,7 @@ describe('DashboardList Card View Tests', () => {
   });
 
   test('card click behavior changes in bulk select mode', async () => {
-    renderDashboardList(mockUser);
+    renderDashboardListAsCards(mockUser);
 
     await screen.findByTestId('dashboard-list-view');
     await waitFor(() => {

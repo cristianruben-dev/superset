@@ -28,17 +28,13 @@ import {
   type QueryFormData,
 } from '@superset-ui/core';
 import { Loading, SafeMarkdown } from '@superset-ui/core/components';
-import {
-  getChartDataRequest,
-  handleChartDataResponse,
-} from 'src/components/Chart/chartAction';
+import { requestChartDataResolved } from 'src/components/Chart/chartAction';
 import type { RootState } from 'src/dashboard/types';
 import { DASHBOARD_ROOT_ID } from 'src/dashboard/util/constants';
 import { CHART_TYPE } from 'src/dashboard/util/componentTypes';
 import getFormDataWithExtraFilters from 'src/dashboard/util/charts/getFormDataWithExtraFilters';
 import { getAppliedFilterValues } from 'src/dashboard/util/activeDashboardFilters';
 import { selectChartCustomizationFromRedux } from 'src/dashboard/components/nativeFilters/state';
-import { getQuerySettings } from 'src/explore/exploreUtils';
 import { enforceSharedLabelsColorsArray } from 'src/utils/colorScheme';
 import {
   layoutChartFormat,
@@ -174,17 +170,14 @@ async function fetchChartData(
   formData: QueryFormData,
   signal: AbortSignal,
 ): Promise<QueryData[]> {
-  const { response, json } = await getChartDataRequest({
-    formData,
-    resultFormat: 'json',
-    resultType: 'full',
-    requestParams: { signal, dashboard_id: formData.dashboardId },
-  });
-  const [useLegacyApi] = getQuerySettings(formData);
-  return handleChartDataResponse(
-    response,
-    json as { result: QueryData[] },
-    useLegacyApi,
+  return requestChartDataResolved(
+    {
+      formData,
+      resultFormat: 'json',
+      resultType: 'full',
+      requestParams: { signal, dashboard_id: formData.dashboardId },
+    },
+    signal,
   );
 }
 

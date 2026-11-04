@@ -29,7 +29,6 @@ import {
   getTimeFormatter,
   SMART_DATE_VERBOSE_ID,
   computeMaxFontSize,
-  BRAND_COLOR,
   BinaryQueryObjectFilterClause,
   DTTM_ALIAS,
 } from '@superset-ui/core';
@@ -38,19 +37,10 @@ import Echart from '../components/Echart';
 import { BigNumberVizProps } from './types';
 import { cardTextStyle, kpiStatus, kpiColor } from './cardFormat';
 import { getDisplayFormatter } from '../utils/chartFormatOptions';
+import { PROPORTION } from './constants';
 import { EventHandlers } from '../types';
 
 const defaultNumberFormatter = getNumberFormatter();
-
-const PROPORTION = {
-  // text size: proportion of the chart container sans trendline
-  METRIC_NAME: 0.125,
-  KICKER: 0.1,
-  HEADER: 0.3,
-  SUBHEADER: 0.125,
-  // trendline size: proportion of the whole chart container
-  TRENDLINE: 0.3,
-};
 
 function BigNumberVis({
   className = '',
@@ -60,14 +50,11 @@ function BigNumberVis({
   kickerFontSize = PROPORTION.KICKER,
   metricNameFontSize = PROPORTION.METRIC_NAME,
   showMetricName = true,
-  mainColor = BRAND_COLOR,
   showTimestamp = false,
   showTrendLine = false,
-  startYAxisAtZero = true,
   subheader = '',
   subheaderFontSize = PROPORTION.SUBHEADER,
   subtitleFontSize = PROPORTION.SUBHEADER,
-  timeRangeFixed = false,
   ...props
 }: BigNumberVizProps) {
   const theme = useTheme();
@@ -255,8 +242,10 @@ function BigNumberVis({
       text = format.cardBlankText ?? t('No data');
     } else if (typeof bigNumber === 'number') {
       text = displayFormatter(bigNumber);
+    } else if (typeof bigNumber === 'string') {
+      text = bigNumber;
     } else {
-      // For string/boolean/Date values, convert to number if possible, else show as string
+      // For boolean/Date values, convert to number if possible, else show as string
       const numValue = Number(bigNumber);
       text = Number.isNaN(numValue)
         ? String(bigNumber)
@@ -270,11 +259,8 @@ function BigNumberVis({
     let numberColor;
     if (hasThresholdColorFormatter) {
       colorThresholdFormatters!.forEach(formatter => {
-        const formatterResult = bigNumber
-          ? formatter.getColorFromValue(bigNumber as number)
-          : false;
-        if (formatterResult) {
-          numberColor = formatterResult;
+        if (typeof bigNumber === 'number' && !isNaN(bigNumber)) {
+          numberColor = formatter.getColorFromValue(bigNumber);
         }
       });
     } else {
@@ -295,6 +281,7 @@ function BigNumberVis({
     const handleContextMenu = (e: MouseEvent<HTMLDivElement>) => {
       if (onContextMenu) {
         e.preventDefault();
+        e.stopPropagation();
         onContextMenu(e.nativeEvent.clientX, e.nativeEvent.clientY);
       }
     };

@@ -18,6 +18,13 @@
  */
 
 // Specific modal implementations
+export { ChartPropertiesModal } from './ChartPropertiesModal';
+export { ConfirmDialog } from './ConfirmDialog';
 export { DeleteConfirmationModal } from './DeleteConfirmationModal';
+export { DrillDetailModal } from './DrillDetailModal';
 export { DuplicateDatasetModal } from './DuplicateDatasetModal';
+export { EditDatasetModal } from './EditDatasetModal';
 export { ImportDatasetModal } from './ImportDatasetModal';
+export { NativeFiltersConfigModal } from './NativeFiltersConfigModal';
+export { SaveDatasetModal } from './SaveDatasetModal';
+export { SaveQueryModal } from './SaveQueryModal';

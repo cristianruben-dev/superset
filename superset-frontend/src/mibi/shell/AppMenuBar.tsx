@@ -188,7 +188,9 @@ export function AppMenuBar({
               key: `language-${key}`,
               icon: check(key === navbar.locale),
               label: language.name,
-              onClick: () => navigateTo(language.url, { assign: true }),
+              onClick: () => {
+                if (language.url) navigateTo(language.url, { assign: true });
+              },
             })),
           },
         ]

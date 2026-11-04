@@ -165,17 +165,22 @@ test('places a pasted object in its row when it fits, else in a row below', () =
   expect(fits['ROW-1'].children).toEqual(['DYNAMIC-a', 'NEW', 'DYNAMIC-b']);
   expect(fits.NEW.parents).toEqual(['ROOT_ID', 'GRID_ID', 'ROW-1']);
 
-  const below = placeComponent(
-    layout as Record<string, LayoutItem>,
-    {
-      id: 'BIG',
-      type: 'DYNAMIC',
-      children: [],
-      meta: { width: 6 },
-    } as LayoutItem,
-    'DYNAMIC-a',
-    [],
-  );
+  // The page is 60 cells wide and the row uses 6: 56 more does not fit.
+  // placeComponent returns only the entries it changes.
+  const below = {
+    ...layout,
+    ...placeComponent(
+      layout as Record<string, LayoutItem>,
+      {
+        id: 'BIG',
+        type: 'DYNAMIC',
+        children: [],
+        meta: { width: 56 },
+      } as LayoutItem,
+      'DYNAMIC-a',
+      [],
+    ),
+  } as Record<string, LayoutItem>;
   const row = Object.values(below).find(
     item => item.type === 'ROW' && item.id !== 'ROW-1',
   )!;

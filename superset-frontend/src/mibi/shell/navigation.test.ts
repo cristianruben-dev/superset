@@ -118,12 +118,12 @@ test('matches the current location to a navigation item', () => {
   const [main] = buildNavSections(menu);
   const [home, workspaces, dashboards] = main.items;
 
-  expect(isNavItemActive(home, '/superset/welcome/')).toBe(true);
+  expect(isNavItemActive(home, '/welcome/')).toBe(true);
   expect(isNavItemActive(home, '/dashboard/list/')).toBe(false);
   expect(isNavItemActive(dashboards, '/dashboard/list/')).toBe(true);
   expect(isNavItemActive(workspaces, '/workspace/list/')).toBe(true);
   expect(isNavItemActive(workspaces, '/workspace/3/')).toBe(true);
-  expect(isNavItemActive(dashboards, '/superset/dashboard/1/')).toBe(false);
+  expect(isNavItemActive(dashboards, '/dashboard/1/')).toBe(false);
 });
 
 test('shows workspaces only to users who can see dashboards', () => {
@@ -135,8 +135,9 @@ test('shows workspaces only to users who can see dashboards', () => {
 });
 
 test('recognizes dashboards, which show without the sidebar', () => {
-  expect(isReportRoute('/superset/dashboard/7/')).toBe(true);
-  expect(isReportRoute('/superset/dashboard/sales')).toBe(true);
+  expect(isReportRoute('/dashboard/7/')).toBe(true);
+  expect(isReportRoute('/dashboard/sales')).toBe(true);
   expect(isReportRoute('/dashboard/list/')).toBe(false);
-  expect(isReportRoute('/superset/welcome/')).toBe(false);
+  expect(isReportRoute('/dashboard/new/')).toBe(false);
+  expect(isReportRoute('/welcome/')).toBe(false);
 });

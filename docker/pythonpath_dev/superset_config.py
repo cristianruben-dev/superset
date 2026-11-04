@@ -25,8 +25,9 @@ import os
 import sys
 from datetime import timedelta
 
-from celery.schedules import crontab
 from flask_caching.backends.filesystemcache import FileSystemCache
+
+from superset.config import CeleryConfig as DefaultCeleryConfig
 
 logger = logging.getLogger()
 
@@ -85,27 +86,11 @@ THUMBNAIL_CACHE_CONFIG = {
 }
 
 
-class CeleryConfig:
+class CeleryConfig(DefaultCeleryConfig):
+    # Superset's tasks and beat schedule (reports, trash and version history purge,
+    # Excel export, Slack) on the compose Redis.
     broker_url = f"redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_CELERY_DB}"
-    imports = (
-        "superset.sql_lab",
-        "superset.tasks.scheduler",
-        "superset.tasks.thumbnails",
-        "superset.tasks.cache",
-    )
     result_backend = f"redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_RESULTS_DB}"
-    worker_prefetch_multiplier = 1
-    task_acks_late = False
-    beat_schedule = {
-        "reports.scheduler": {
-            "task": "reports.scheduler",
-            "schedule": crontab(minute="*", hour="*"),
-        },
-        "reports.prune_log": {
-            "task": "reports.prune_log",
-            "schedule": crontab(minute=10, hour=0),
-        },
-    }
 
 
 CELERY_CONFIG = CeleryConfig
@@ -116,11 +101,18 @@ FEATURE_FLAGS = {
     # Dashboard cards show a screenshot taken by the worker's headless Chromium
     # (INCLUDE_CHROMIUM in docker-compose.yml), as the user who views them
     "THUMBNAILS": True,
-    "PLAYWRIGHT_REPORTS_AND_THUMBNAILS": True,
+    "ENABLE_EXTENSIONS": True,
+    # MOBILE_CONSUMPTION_MODE (Superset 7.0) stays off: AuraData BI has its own
+    # mobile layout per page (meta.mibiMobile)
+    "SEMANTIC_LAYERS": True,
 }
+EXTENSIONS_PATH = "/app/docker/extensions"
 ALERT_REPORTS_NOTIFICATION_DRY_RUN = True
 # The worker's headless browser reaches the app through its compose service name
-WEBDRIVER_BASEURL = f"http://superset:8088{os.environ.get('SUPERSET_APP_ROOT', '/')}"
+# ("superset", port 8088). Report paths are root-relative, so urljoin drops the base
+# path; only the scheme, host, and port must be correct here. SUPERSET_APP_ROOT is
+# kept for consumers that concatenate paths directly (e.g. cache warm-up).
+WEBDRIVER_BASEURL = f"http://superset:8088{os.environ.get('SUPERSET_APP_ROOT', '/')}/"
 # The base URL for the email report hyperlinks.
 WEBDRIVER_BASEURL_USER_FRIENDLY = (
     f"http://localhost:8888/{os.environ.get('SUPERSET_APP_ROOT', '/')}/"

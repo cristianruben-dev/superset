@@ -27,7 +27,7 @@ beforeEach(() => window.localStorage.clear());
 const dashboard = (id: number) => ({
   id,
   title: `Dashboard ${id}`,
-  url: `/superset/dashboard/${id}/`,
+  url: `/dashboard/${id}/`,
 });
 
 test('the dashboard opened last goes first, once', () => {

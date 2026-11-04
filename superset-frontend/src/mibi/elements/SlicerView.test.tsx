@@ -29,7 +29,7 @@ import {
   type DataMaskStateWithId,
   type Filter,
 } from '@superset-ui/core';
-import { getChartDataRequest } from 'src/components/Chart/chartAction';
+import { requestChartDataResolved } from 'src/components/Chart/chartAction';
 import { slicerStyle, SlicerView } from './SlicerView';
 
 const dataMaskOf = (store: { getState: () => unknown }, id: string) =>
@@ -37,7 +37,7 @@ const dataMaskOf = (store: { getState: () => unknown }, id: string) =>
 
 jest.mock('src/components/Chart/chartAction', () => ({
   ...jest.requireActual('src/components/Chart/chartAction'),
-  getChartDataRequest: jest.fn(),
+  requestChartDataResolved: jest.fn(),
 }));
 
 const filter = {
@@ -58,10 +58,9 @@ const state = {
 };
 
 const renderSlicer = async (config: object, initial: object = state) => {
-  (getChartDataRequest as jest.Mock).mockResolvedValue({
-    response: { status: 200 },
-    json: { result: [{ data: [{ region: 'North' }, { region: 'South' }] }] },
-  });
+  (requestChartDataResolved as jest.Mock).mockResolvedValue([
+    { data: [{ region: 'North' }, { region: 'South' }] },
+  ]);
   const store = createStore(initial, reducerIndex);
   const view = render(
     <SlicerView filter={filter} config={{ kind: 'filter', ...config }} />,
@@ -224,10 +223,9 @@ test('a filter of one value keeps one whatever the slicer says', async () => {
     ...filter,
     controlValues: { multiSelect: false },
   } as unknown as Filter;
-  (getChartDataRequest as jest.Mock).mockResolvedValue({
-    response: { status: 200 },
-    json: { result: [{ data: [{ region: 'North' }, { region: 'South' }] }] },
-  });
+  (requestChartDataResolved as jest.Mock).mockResolvedValue([
+    { data: [{ region: 'North' }, { region: 'South' }] },
+  ]);
   render(
     <SlicerView
       filter={single}

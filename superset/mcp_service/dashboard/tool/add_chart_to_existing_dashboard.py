@@ -30,19 +30,21 @@ from sqlalchemy.exc import SQLAlchemyError
 from superset_core.mcp.decorators import tool, ToolAnnotations
 
 from superset.commands.exceptions import CommandException
-from superset.extensions import event_logger
+from superset.extensions import event_logger, security_manager
 from superset.mcp_service.dashboard.constants import (
     generate_id,
     GRID_DEFAULT_CHART_WIDTH,
     layout_column_count,
     scaled_width,
 )
+from superset.mcp_service.dashboard.layout_validation import rebuild_parent_chains
 from superset.mcp_service.dashboard.schemas import (
     AddChartToDashboardRequest,
     AddChartToDashboardResponse,
     DashboardInfo,
     serialize_chart_summary,
 )
+from superset.mcp_service.privacy import user_can_view_data_model_metadata
 from superset.mcp_service.utils.url_utils import get_superset_base_url
 from superset.utils import json
 
@@ -149,29 +151,50 @@ def _first_tab_from_groups(
     return None
 
 
+def _collect_available_tab_names(layout: Dict[str, Any]) -> list[str]:
+    """Collect display entries (label + component ID) for all TAB components.
+
+    Always includes the component ID so callers can retry unambiguously even
+    when multiple tabs share the same display name or a label is blank.
+    """
+    entries: list[str] = []
+    for tabs_children in _collect_tabs_groups(layout):
+        for tab_id in tabs_children:
+            tab = layout.get(tab_id)
+            if not tab or tab.get("type") != "TAB":
+                continue
+            text = (tab.get("meta") or {}).get("text", "")
+            entries.append(f"{text} ({tab_id})" if text else tab_id)
+    return entries
+
+
 def _find_tab_insert_target(
     layout: Dict[str, Any], target_tab: str | None = None
 ) -> str | None:
     """
     Detect if the dashboard uses tabs and return the appropriate tab's ID.
 
-    If *target_tab* is provided the function first tries to match it against
-    tab ``meta.text`` (display name) or the raw component ID.  When no match
-    is found (or *target_tab* is ``None``) the first ``TAB`` child is used as
-    a fallback so that new rows are still placed inside the tab structure
-    rather than directly under ``GRID_ID``.
+    When *target_tab* is ``None`` the function returns the first TAB child so
+    that new rows are placed inside the tab structure rather than directly
+    under ``GRID_ID``.
+
+    When *target_tab* is provided the function tries to match it against tab
+    ``meta.text`` (display name) or the raw component ID.  If no match is
+    found ``None`` is returned — the caller is responsible for surfacing an
+    error rather than silently placing the chart in the wrong tab.
 
     Returns:
-        The ID of the matched (or first) TAB component, or ``None`` if the
-        dashboard does not use top-level tabs.
+        The ID of the matched (or first) TAB component, or ``None``.
     """
     groups = _collect_tabs_groups(layout)
 
-    if target_tab:
+    if target_tab is not None:
         for tabs_children in groups:
             matched = _match_tab_in_children(layout, tabs_children, target_tab)
             if matched:
                 return matched
+        # target_tab specified but not found — signal mismatch to the caller.
+        return None
 
     return _first_tab_from_groups(layout, groups)
 
@@ -187,7 +210,10 @@ def _add_chart_to_layout(
     Add chart, column, and row components to the dashboard layout.
 
     Creates the proper ``ROW > COLUMN > CHART`` hierarchy that the
-    frontend expects for rendering.
+    frontend expects for rendering. ``parents`` is left empty on each new
+    node — the caller rebuilds it for the whole layout via
+    ``rebuild_parent_chains`` after this function links the new row into
+    its parent container's ``children``.
 
     Args:
         layout: The mutable layout dict to update.
@@ -206,19 +232,6 @@ def _add_chart_to_layout(
     chart_width = scaled_width(GRID_DEFAULT_CHART_WIDTH, column_count)
     chart_height = 50  # Good height for most chart types
 
-    # Build the parents chain up to the parent container
-    if (parent_component := layout.get(parent_id)) is not None:
-        parent_parents = parent_component.get("parents", [])
-    elif parent_id == "GRID_ID":
-        # Empty layout: GRID_ID will be created by _ensure_layout_structure
-        # with parents=["ROOT_ID"], so mirror that here.
-        parent_parents = ["ROOT_ID"]
-    else:
-        parent_parents = []
-    row_parents = list(parent_parents) + [parent_id]
-    column_parents = row_parents + [row_key]
-    chart_parents = column_parents + [column_key]
-
     # Add chart component
     layout[chart_key] = {
         "children": [],
@@ -230,7 +243,7 @@ def _add_chart_to_layout(
             "uuid": str(chart.uuid) if chart.uuid else f"chart-{chart_id}",
             "width": chart_width,
         },
-        "parents": chart_parents,
+        "parents": [],
         "type": "CHART",
     }
 
@@ -242,7 +255,7 @@ def _add_chart_to_layout(
             "background": "BACKGROUND_TRANSPARENT",
             "width": column_count,
         },
-        "parents": column_parents,
+        "parents": [],
         "type": "COLUMN",
     }
 
@@ -251,7 +264,7 @@ def _add_chart_to_layout(
         "children": [column_key],
         "id": row_key,
         "meta": {"background": "BACKGROUND_TRANSPARENT"},
-        "parents": row_parents,
+        "parents": [],
         "type": "ROW",
     }
 
@@ -318,15 +331,53 @@ def _ensure_layout_structure(
         layout["DASHBOARD_VERSION_KEY"] = "v2"
 
 
+def _resolve_parent_container(
+    layout: Dict[str, Any],
+    dashboard_id: int,
+    target_tab: str | None,
+) -> tuple[str, None] | tuple[None, AddChartToDashboardResponse]:
+    """Return (parent_id, None) on success or (None, error_response) on mismatch.
+
+    When *target_tab* is specified and not found the caller receives a
+    descriptive error listing available tabs rather than a silent fallback.
+    """
+    tab_target = _find_tab_insert_target(layout, target_tab=target_tab)
+
+    if target_tab is not None and tab_target is None:
+        available = _collect_available_tab_names(layout)
+        if available:
+            tab_list = ", ".join(available)
+            return None, AddChartToDashboardResponse(
+                dashboard=None,
+                dashboard_url=None,
+                position=None,
+                error=(
+                    f"Tab '{target_tab}' not found in dashboard {dashboard_id}. "
+                    f"Available tabs: {tab_list}."
+                ),
+            )
+        return None, AddChartToDashboardResponse(
+            dashboard=None,
+            dashboard_url=None,
+            position=None,
+            error=(
+                f"Dashboard {dashboard_id} has no tabs. "
+                "Remove the target_tab parameter to add the chart to "
+                "the default grid layout."
+            ),
+        )
+
+    return (tab_target if tab_target else "GRID_ID", None)
+
+
 def _find_and_authorize_dashboard(
     dashboard_id: int,
 ) -> tuple[Any, AddChartToDashboardResponse | None]:
     """Return (dashboard, None) on success or (None, error_response) on failure.
 
-    Handles both the not-found case and the ownership check so the main tool
+    Handles both the not-found case and the editorship check so the main tool
     function doesn't need two separate branches for these pre-conditions.
     """
-    from superset import security_manager
     from superset.daos.dashboard import DashboardDAO
     from superset.exceptions import SupersetSecurityException
 
@@ -336,11 +387,14 @@ def _find_and_authorize_dashboard(
             dashboard=None,
             dashboard_url=None,
             position=None,
-            error=f"Dashboard with ID {dashboard_id} not found",
+            error=(
+                f"Dashboard with ID {dashboard_id} not found."
+                " Use list_dashboards to get valid dashboard IDs."
+            ),
         )
 
     try:
-        security_manager.raise_for_ownership(dashboard)
+        security_manager.raise_for_editorship(dashboard)
     except SupersetSecurityException:
         return None, AddChartToDashboardResponse(
             dashboard=None,
@@ -366,9 +420,11 @@ def _find_and_authorize_dashboard(
         title="Add chart to dashboard",
         readOnlyHint=False,
         destructiveHint=False,
+        idempotentHint=False,
+        openWorldHint=False,
     ),
 )
-def add_chart_to_existing_dashboard(  # noqa: C901
+def add_chart_to_existing_dashboard(  # noqa: C901 — complexity is structural (layout traversal + multi-step authorization), not accidental
     request: AddChartToDashboardRequest, ctx: Context
 ) -> AddChartToDashboardResponse:
     """
@@ -394,10 +450,24 @@ def add_chart_to_existing_dashboard(  # noqa: C901
                     dashboard=None,
                     dashboard_url=None,
                     position=None,
-                    error=f"Chart with ID {request.chart_id} not found",
+                    error=(
+                        f"Chart with ID {request.chart_id} not found."
+                        " Use list_charts to get valid chart IDs."
+                    ),
                 )
 
-            # Validate dataset access for the chart.
+            if not security_manager.can_access_chart(new_chart):
+                return AddChartToDashboardResponse(
+                    dashboard=None,
+                    dashboard_url=None,
+                    position=None,
+                    permission_denied=True,
+                    error=(
+                        f"You don't have permission to access chart {request.chart_id}."
+                    ),
+                )
+
+            # Validate dataset access as well as chart visibility.
             # check_chart_data_access is the centralized data-level
             # permission check that complements the class-level RBAC
             # enforced by mcp_auth_hook.
@@ -447,6 +517,26 @@ def add_chart_to_existing_dashboard(  # noqa: C901
                     ),
                 )
 
+            # Charts use the datasets of their dashboard's workspace or shared
+            # ones (AuraData BI)
+            from superset.mibi.workspace_datasets import (
+                chart_datasets_of_other_workspaces,
+            )
+
+            if foreign := chart_datasets_of_other_workspaces(
+                [request.chart_id], dashboard.id
+            ):
+                return AddChartToDashboardResponse(
+                    dashboard=None,
+                    dashboard_url=None,
+                    position=None,
+                    error=(
+                        f"Chart {request.chart_id} uses a dataset of another "
+                        f"workspace: {', '.join(foreign)}. A chart can only use the "
+                        "datasets of its dashboard's workspace or shared ones."
+                    ),
+                )
+
         # Calculate layout position
         with event_logger.log_context(action="mcp.add_chart_to_dashboard.layout"):
             # Parse current layout
@@ -458,11 +548,16 @@ def add_chart_to_existing_dashboard(  # noqa: C901
             # Generate a unique ROW ID for the new row
             row_key = _find_next_row_position(current_layout)
 
-            # Detect tabbed dashboards and resolve target_tab by name or ID
-            tab_target = _find_tab_insert_target(
-                current_layout, target_tab=request.target_tab
+            # Detect tabbed dashboards and resolve target_tab by name or ID.
+            parent_id, tab_error = _resolve_parent_container(
+                current_layout, request.dashboard_id, request.target_tab
             )
-            parent_id = tab_target if tab_target else "GRID_ID"
+            if tab_error is not None:
+                return tab_error
+            if parent_id is None:
+                raise RuntimeError(
+                    "unreachable: tab_error is None implies parent_id is str"
+                )
 
             # Add chart, column, and row to layout
             chart_key, column_key, row_key = _add_chart_to_layout(
@@ -471,6 +566,14 @@ def add_chart_to_existing_dashboard(  # noqa: C901
 
             # Ensure proper layout structure
             _ensure_layout_structure(current_layout, row_key, parent_id)
+
+            # The new row/column/chart nodes were added with empty
+            # ``parents`` (see ``_add_chart_to_layout``); rebuild every
+            # reachable component's parents from the actual children edges
+            # so filter-scope derivation sees a correct tree, regardless of
+            # what the stored layout carried beforehand. See
+            # superset.dashboards.filter_scope.get_chart_ids_in_scope.
+            current_layout = rebuild_parent_chains(current_layout)
 
         # Update the dashboard
         with event_logger.log_context(action="mcp.add_chart_to_dashboard.db_write"):
@@ -492,10 +595,10 @@ def add_chart_to_existing_dashboard(  # noqa: C901
 
         # Re-fetch the dashboard with eager-loaded relationships to avoid
         # "Instance is not bound to a Session" errors when serializing
-        # chart .tags and .owners.  The preceding command.run() commit may
+        # chart .tags and .editors.  The preceding command.run() commit may
         # invalidate the session in multi-tenant environments; on failure,
         # return a minimal response using only scalar attributes that are
-        # already loaded — relationship fields (owners, tags, slices) would
+        # already loaded — relationship fields (editors, tags, slices) would
         # trigger lazy-loading on the same dead session.
         from sqlalchemy.orm import subqueryload
 
@@ -508,9 +611,9 @@ def add_chart_to_existing_dashboard(  # noqa: C901
                 DashboardDAO.find_by_id(
                     updated_dashboard.id,
                     query_options=[
-                        subqueryload(Dashboard.slices).subqueryload(Slice.owners),
+                        subqueryload(Dashboard.slices).subqueryload(Slice.editors),
                         subqueryload(Dashboard.slices).subqueryload(Slice.tags),
-                        subqueryload(Dashboard.owners),
+                        subqueryload(Dashboard.editors),
                         subqueryload(Dashboard.tags),
                     ],
                 )
@@ -530,7 +633,7 @@ def add_chart_to_existing_dashboard(  # noqa: C901
                     exc_info=True,
                 )
             dashboard_url = (
-                f"{get_superset_base_url()}/superset/dashboard/{updated_dashboard.id}/"
+                f"{get_superset_base_url()}/dashboard/{updated_dashboard.id}/"
             )
             position_info = {
                 "row": row_key,
@@ -553,9 +656,10 @@ def add_chart_to_existing_dashboard(  # noqa: C901
         # Convert to response format
         from superset.mcp_service.dashboard.schemas import (
             serialize_tag_object,
-            serialize_user_object,
         )
+        from superset.mcp_service.system.schemas import serialize_subject_object
 
+        include_data_model_metadata = user_can_view_data_model_metadata()
         dashboard_info = DashboardInfo(
             id=updated_dashboard.id,
             dashboard_title=updated_dashboard.dashboard_title,
@@ -564,32 +668,33 @@ def add_chart_to_existing_dashboard(  # noqa: C901
             published=updated_dashboard.published,
             created_on=updated_dashboard.created_on,
             changed_on=updated_dashboard.changed_on,
-            created_by=updated_dashboard.created_by_name or None,
-            changed_by=updated_dashboard.changed_by_name or None,
             uuid=str(updated_dashboard.uuid) if updated_dashboard.uuid else None,
-            url=f"{get_superset_base_url()}/superset/dashboard/{updated_dashboard.id}/",
+            url=f"{get_superset_base_url()}/dashboard/{updated_dashboard.id}/",
             chart_count=len(updated_dashboard.slices),
-            owners=[
-                serialize_user_object(owner)
-                for owner in getattr(updated_dashboard, "owners", [])
-                if serialize_user_object(owner) is not None
+            editors=[
+                serialize_subject_object(editor)
+                for editor in getattr(updated_dashboard, "editors", [])
+                if serialize_subject_object(editor) is not None
             ],
             tags=[
                 serialize_tag_object(tag)
                 for tag in getattr(updated_dashboard, "tags", [])
                 if serialize_tag_object(tag) is not None
             ],
-            roles=[],
             charts=[
                 obj
                 for chart in getattr(updated_dashboard, "slices", [])
-                if (obj := serialize_chart_summary(chart)) is not None
+                if (
+                    obj := serialize_chart_summary(
+                        chart,
+                        include_data_model_metadata=include_data_model_metadata,
+                    )
+                )
+                is not None
             ],
         )
 
-        dashboard_url = (
-            f"{get_superset_base_url()}/superset/dashboard/{updated_dashboard.id}/"
-        )
+        dashboard_url = f"{get_superset_base_url()}/dashboard/{updated_dashboard.id}/"
 
         logger.info(
             "Added chart %s to dashboard %s ", request.chart_id, request.dashboard_id

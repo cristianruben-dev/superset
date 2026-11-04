@@ -208,6 +208,31 @@ export async function fetchWorkspaceDashboards(
   return json.result as WorkspaceDashboard[];
 }
 
+/** A deleted dashboard of a workspace, kept in its trash until it is restored. */
+export interface WorkspaceTrashItem {
+  id: number;
+  uuid: string;
+  dashboard_title: string;
+  deleted_at_delta_humanized: string;
+  /** Why it cannot be restored yet: its charts now belong to another dashboard */
+  blocked_by: string | null;
+}
+
+/** The deleted dashboards of a workspace (contributors and admins only). */
+export async function fetchWorkspaceTrash(
+  id: number,
+): Promise<WorkspaceTrashItem[]> {
+  const { json } = await SupersetClient.get({
+    endpoint: `${BASE}${id}/trash/`,
+  });
+  return json.result as WorkspaceTrashItem[];
+}
+
+/** Restore a deleted dashboard; the server refuses it when a chart moved. */
+export async function restoreDashboard(uuid: string): Promise<void> {
+  await SupersetClient.post({ endpoint: `/api/v1/dashboard/${uuid}/restore` });
+}
+
 export async function fetchWorkspaceMembers(
   id: number,
 ): Promise<WorkspaceMember[]> {

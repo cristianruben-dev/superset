@@ -27,7 +27,7 @@ from superset.commands.importers.exceptions import IncorrectVersionError
 
 logger = logging.getLogger(__name__)
 
-# list of different import formats supported
+# list of different import formats supported (AuraData BI removed the v0 format)
 command_versions = [
     v1.ImportDatasetsCommand,
 ]

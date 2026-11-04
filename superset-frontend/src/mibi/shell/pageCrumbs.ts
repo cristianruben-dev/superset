@@ -61,7 +61,7 @@ export function useExtraCrumbs(): Crumb[] {
   return current;
 }
 
-export const HOME_URL = '/superset/welcome/';
+export const HOME_URL = '/welcome/';
 
 /**
  * The trail of a location from the navigation: home, the section title when

@@ -24,6 +24,7 @@ import {
   CategoricalColorNamespace,
   getNumberFormatter,
   AxisType,
+  getColumnLabel,
   getMetricLabel,
   NumberFormatter,
   tooltipHtml,
@@ -141,13 +142,17 @@ export default function transformProps(chartProps: EchartsBubbleChartProps) {
   const xAxisLabel: string = getMetricLabel(x);
   const yAxisLabel: string = getMetricLabel(y);
   const sizeLabel: string = getMetricLabel(size);
+  const entityLabel: string = getColumnLabel(entity);
+  const seriesLabel: string | undefined = bubbleSeries
+    ? getColumnLabel(bubbleSeries)
+    : undefined;
 
   const refs: Refs = {};
 
   data.forEach(datum => {
-    const dataName = bubbleSeries ? datum[bubbleSeries] : datum[entity];
+    const dataName = seriesLabel ? datum[seriesLabel] : datum[entityLabel];
     const name = dataName ? String(dataName) : NULL_STRING;
-    const bubbleSeriesValue = bubbleSeries ? datum[bubbleSeries] : null;
+    const bubbleSeriesValue = seriesLabel ? datum[seriesLabel] : null;
 
     series.push({
       name,
@@ -156,7 +161,7 @@ export default function transformProps(chartProps: EchartsBubbleChartProps) {
           datum[xAxisLabel],
           datum[yAxisLabel],
           datum[sizeLabel],
-          datum[entity],
+          datum[entityLabel],
           bubbleSeriesValue as any,
         ],
       ],
@@ -210,13 +215,16 @@ export default function transformProps(chartProps: EchartsBubbleChartProps) {
   const echartOptions: EChartsCoreOption = {
     series,
     xAxis: {
-      axisLabel: { formatter: xAxisFormatter, rotate: xAxisLabelRotation },
+      axisLabel: {
+        formatter: xAxisFormatter,
+        rotate: xAxisLabelRotation,
+        interval: xAxisLabelInterval,
+      },
       splitLine: {
         lineStyle: {
           type: 'dashed',
         },
       },
-      interval: xAxisLabelInterval,
       scale: true,
       name: bubbleXAxisTitle,
       nameLocation: 'middle',

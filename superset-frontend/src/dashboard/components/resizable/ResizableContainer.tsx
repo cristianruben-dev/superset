@@ -16,7 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { useState, useCallback, useContext, useMemo } from 'react';
+import {
+  useState,
+  useCallback,
+  useContext,
+  useMemo,
+  type ReactNode,
+} from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { ResizeCallback, ResizeStartCallback, Resizable } from 're-resizable';
 import { useCanvasZoom } from 'src/mibi/format/CanvasFrame';
@@ -37,6 +43,8 @@ import type { RootState } from '../../types';
 import { resizeObject } from 'src/mibi/format/actions';
 import { ObjectShiftContext } from 'src/mibi/format/ObjectShift';
 import { posOf } from 'src/mibi/format/positions';
+import { isMobileConsumptionEnabled } from 'src/hooks/useIsMobile';
+import { RESIZE_HANDLE_Z_INDEX } from 'src/dashboard/constants';
 import resizableConfig from '../../util/resizableConfig';
 import { CELL } from 'src/mibi/format/types';
 
@@ -44,7 +52,7 @@ const proxyToInfinity = Number.MAX_VALUE;
 
 export interface ResizableContainerProps {
   id: string;
-  children?: object;
+  children?: ReactNode;
   adjustableWidth?: boolean;
   adjustableHeight?: boolean;
   gutterWidth?: number;
@@ -80,6 +88,7 @@ const HANDLE_CLASSES = {
   bottomLeft: 'resizable-container-handle--bottom-left',
   bottomRight: 'resizable-container-handle--bottom-right',
 };
+
 // @ts-expect-error
 const StyledResizable = styled(Resizable)`
   ${({ theme }) => css`
@@ -116,7 +125,7 @@ const StyledResizable = styled(Resizable)`
 
     .resize-handle {
       opacity: 0;
-      z-index: 10;
+      z-index: ${RESIZE_HANDLE_Z_INDEX};
 
       &--bottom-right {
         position: absolute;
@@ -165,6 +174,21 @@ const StyledResizable = styled(Resizable)`
   & .resizable-container-handle--bottom {
     bottom: 0 !important;
   }
+
+  /* Mobile consumption mode stacks all grid components full-width.
+     !important is required to beat re-resizable's inline width, which is
+     sized for the desktop grid (Markdown, Column, and other non-chart
+     components don't get the JS-level mobile width that ChartHolder
+     computes). */
+  ${({ theme }) =>
+    isMobileConsumptionEnabled() &&
+    css`
+      @media (max-width: ${theme.screenSMMax}px) {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 100% !important;
+      }
+    `}
 `;
 
 export default function ResizableContainer({

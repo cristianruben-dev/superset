@@ -30,7 +30,16 @@ import { useChartCustomizationFromRedux } from '../nativeFilters/state';
 import { toggleNativeFiltersBar } from '../../actions/dashboardState';
 import { usePhoneScreen } from 'src/mibi/format/mobile';
 
-export const useNativeFilters = () => {
+export interface UseNativeFiltersResult {
+  showDashboard: boolean;
+  missingInitialFilters: string[];
+  dashboardFiltersOpen: boolean;
+  toggleDashboardFiltersOpen: (visible?: boolean) => void;
+  nativeFiltersEnabled: boolean;
+  hasFilters: boolean;
+}
+
+export const useNativeFilters = (): UseNativeFiltersResult => {
   const dispatch = useDispatch();
 
   const [isInitialized, setIsInitialized] = useState(false);
@@ -75,7 +84,8 @@ export const useNativeFilters = () => {
     () =>
       requiredFirstFilter
         .filter(({ id }) => dataMask[id]?.filterState?.value === undefined)
-        .map(({ name }) => name),
+        .map(({ name }) => name)
+        .filter((name): name is string => name !== undefined),
     [requiredFirstFilter, dataMask],
   );
 
@@ -128,5 +138,6 @@ export const useNativeFilters = () => {
     dashboardFiltersOpen,
     toggleDashboardFiltersOpen,
     nativeFiltersEnabled,
+    hasFilters: filterValues.length > 0 || chartCustomizations.length > 0,
   };
 };

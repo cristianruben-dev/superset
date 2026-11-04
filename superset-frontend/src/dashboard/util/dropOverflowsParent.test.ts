@@ -20,6 +20,7 @@
 import dropOverflowsParent from 'src/dashboard/util/dropOverflowsParent';
 import type { DropResult } from 'src/dashboard/components/dnd/dragDroppableConfig';
 import { NEW_COMPONENTS_SOURCE_ID } from 'src/dashboard/util/constants';
+import { CELL, syncGridColumnCount } from 'src/mibi/format/columns';
 import {
   CHART_TYPE,
   COLUMN_TYPE,
@@ -27,6 +28,20 @@ import {
   HEADER_TYPE,
   TAB_TYPE,
 } from 'src/dashboard/util/componentTypes';
+
+// The widths below are written for a page 12 cells wide; the grid of a
+// report is as wide as its canvas.
+beforeEach(() => {
+  syncGridColumnCount({
+    ROOT_ID: {
+      meta: { mibiCanvas: { size: { mode: 'custom', width: 12 * CELL } } },
+    },
+  });
+});
+
+afterEach(() => {
+  syncGridColumnCount({});
+});
 
 // Test data uses minimal shapes - cast to satisfy DropResult interface
 const mockDropResult = (

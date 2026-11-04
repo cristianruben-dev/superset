@@ -16,7 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { Preset, VizType } from '@superset-ui/core';
+import {
+  ChartLabel,
+  ChartMetadata,
+  ChartPlugin,
+  Preset,
+  VizType,
+} from '@superset-ui/core';
 import {
   render,
   cleanup,
@@ -38,13 +44,29 @@ import {
   EchartsTimeseriesLineChartPlugin,
 } from '../../../../../plugins/plugin-chart-echarts/src';
 import TableChartPlugin from '../../../../../plugins/plugin-chart-table/src';
-import { MultiChartPlugin } from '../../../../../plugins/legacy-preset-chart-deckgl/src';
+import { MultiChartPlugin } from '../../../../../plugins/preset-chart-deckgl/src';
 import VizTypeControl, { VIZ_TYPE_CONTROL_TEST_ID } from './index';
 
 // Mock scrollIntoView to avoid errors in test environment
 jest.mock('scroll-into-view-if-needed', () => jest.fn());
 
-jest.useFakeTimers();
+jest.useFakeTimers({ advanceTimers: true });
+
+// A minimal plugin carrying a "Featured" label, so tests can assert on the
+// badge that VizTypeGallery overlays on its thumbnail.
+class FeaturedTestChartPlugin extends ChartPlugin {
+  constructor() {
+    super({
+      metadata: new ChartMetadata({
+        name: 'Featured Test Chart',
+        thumbnail: '',
+        label: ChartLabel.Featured,
+        tags: ['Featured'],
+      }),
+      Chart: () => null,
+    });
+  }
+}
 
 class MainPreset extends Preset {
   constructor() {
@@ -52,6 +74,9 @@ class MainPreset extends Preset {
       name: 'Legacy charts',
       plugins: [
         new TableChartPlugin().configure({ key: VizType.Table }),
+        new FeaturedTestChartPlugin().configure({
+          key: 'featured_test_chart',
+        }),
         new BigNumberTotalChartPlugin().configure({
           key: VizType.BigNumberTotal,
         }),
@@ -281,6 +306,46 @@ describe('VizTypeControl', () => {
     expect(
       within(visualizations).queryByText('Area Chart'),
     ).not.toBeInTheDocument();
+  });
+
+  test('draws the Featured badge on the tile of a featured chart only', async () => {
+    // The gallery of the fork draws its own tiles: the badge hangs off the top
+    // right corner of the tile, over its picture
+    await waitForRenderWrapper();
+    userEvent.click(screen.getByRole('tab', { name: 'All charts' }));
+
+    const visualizations = screen.getByTestId(getTestId('viz-row'));
+    const featured = (
+      await within(visualizations).findByText('Featured Test Chart')
+    ).closest('button') as HTMLElement;
+    const badge = within(featured).getByText('FEATURED');
+    const badgeWrapper = badge.parentElement?.parentElement as HTMLElement;
+
+    expect(badgeWrapper).toHaveStyleRule('top', '8px');
+    expect(badgeWrapper).toHaveStyleRule('right', '8px');
+    expect(badgeWrapper).not.toHaveStyleRule('bottom', expect.anything());
+    const plain = within(visualizations)
+      .getByText('Bar Chart')
+      .closest('button') as HTMLElement;
+    expect(within(plain).queryByText('FEATURED')).not.toBeInTheDocument();
+  });
+
+  test('Thumbnail labels expose the full chart name via a title tooltip', async () => {
+    // Labels are clamped to a fixed two-line block so every tile is the same
+    // height; the full (possibly truncated) name must stay discoverable through
+    // the title attribute.
+    await waitForRenderWrapper();
+    userEvent.click(screen.getByRole('tab', { name: 'All charts' }));
+
+    const visualizations = screen.getByTestId(getTestId('viz-row'));
+    const labels = await within(visualizations).findAllByTestId(
+      getTestId('viztype-label'),
+    );
+
+    expect(labels.length).toBeGreaterThan(0);
+    labels.forEach(label => {
+      expect(label).toHaveAttribute('title', label.textContent ?? '');
+    });
   });
 
   test('Submit on viz type double-click', async () => {

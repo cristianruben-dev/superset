@@ -223,12 +223,19 @@ export function WorkspaceAccessModal({
 
   const add = () =>
     person &&
-    run(async () => {
-      const updated = await setWorkspaceMember(workspace.id, person.value, newRole);
-      setPerson(null);
-      setSearchKey(key => key + 1);
-      return updated;
-    }, t('%s was added to the workspace', person.label));
+    run(
+      async () => {
+        const updated = await setWorkspaceMember(
+          workspace.id,
+          person.value,
+          newRole,
+        );
+        setPerson(null);
+        setSearchKey(key => key + 1);
+        return updated;
+      },
+      t('%s was added to the workspace', person.label),
+    );
 
   const lastAdmin = (member: WorkspaceMember) =>
     member.role === 'admin' && adminCount === 1;
@@ -353,7 +360,8 @@ export function WorkspaceAccessModal({
                           disabled={busy || lastAdmin(member)}
                           onClick={() =>
                             run(
-                              () => removeWorkspaceMember(workspace.id, member.id),
+                              () =>
+                                removeWorkspaceMember(workspace.id, member.id),
                               isMe
                                 ? t('You left the workspace')
                                 : t('%s was removed', userName(member)),
@@ -374,7 +382,6 @@ export function WorkspaceAccessModal({
             })}
           </div>
         </div>
-
       </Body>
     </Modal>
   );

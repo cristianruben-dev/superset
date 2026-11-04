@@ -178,6 +178,7 @@ export const CARD_DEFINITIONS: CardDefinition[] = [
       'show_split_line',
       'split_number',
       'show_axis_tick',
+      'axisTicks',
     ],
   },
   {
@@ -249,6 +250,8 @@ export const CARD_DEFINITIONS: CardDefinition[] = [
       'marker_border_match_fill',
       'marker_border_color',
       'max_bubble_size',
+      'minMarkerSize',
+      'maxMarkerSize',
       'series_format',
     ],
     headings: {
@@ -281,6 +284,7 @@ export const CARD_DEFINITIONS: CardDefinition[] = [
       'value_label_format',
       'value_label_units',
       'value_label_decimals',
+      'label_position',
       'value_label_position',
       'value_label_align',
       'value_label_distance',
@@ -303,6 +307,7 @@ export const CARD_DEFINITIONS: CardDefinition[] = [
       'value_label_layout',
     ],
     headings: {
+      label_position: () => t('Layout'),
       value_label_position: () => t('Layout'),
       value_label_hide_value: () => t('Content'),
     },
@@ -342,6 +347,7 @@ export const CARD_DEFINITIONS: CardDefinition[] = [
     toggles: [{ control: 'rich_tooltip' }, { control: 'show_tooltip_labels' }],
     controls: [
       'tooltip_label_type',
+      'tooltipTruncation',
       'tooltipTimeFormat',
       'tooltipValuesFormat',
       'tooltipSizeFormat',
@@ -470,9 +476,14 @@ export const CARD_DEFINITIONS: CardDefinition[] = [
     ],
   },
   {
+    id: 'butterfly-sides',
+    title: () => t('Sides'),
+    controls: ['left_label', 'left_color', 'right_label', 'right_color'],
+  },
+  {
     id: 'pie-slices',
     title: () => t('Slices'),
-    controls: ['special_start_angle'],
+    controls: ['special_start_angle', 'sweptAngle'],
   },
   {
     id: 'pie-center',
@@ -903,6 +914,18 @@ export const CARD_DEFINITIONS: CardDefinition[] = [
   },
 ];
 
+/**
+ * Controls of a chart that the Format pane never draws because one of its own
+ * says the same: the charts read what they saved (`resolveGridlines`,
+ * `resolveStartAngle`), so old charts do not change.
+ */
+export const SUPERSEDED_CONTROLS = [
+  // "Hide gridlines" of the Gridlines section
+  'gridlines',
+  // "Start angle" of the Slices section
+  'startAngle',
+];
+
 export interface FormatCardItem extends CustomControlItem {
   /** Whether the section of the control panel it comes from shows */
   sectionVisibility?: ControlPanelSectionConfig['visibility'];
@@ -955,7 +978,7 @@ export function buildFormatCards(
   });
 
   const cards: FormatCard[] = [];
-  const known = new Set<string>();
+  const known = new Set<string>(SUPERSEDED_CONTROLS);
   let strayValues: FormatCardItem[] = [];
   const placed = new Set<string>();
   const tabular = items.has('table_cell_font');

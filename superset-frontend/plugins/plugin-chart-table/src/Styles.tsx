@@ -21,6 +21,9 @@ import { css, styled } from '@apache-superset/core/theme';
 export default styled.div`
   ${({ theme }) => css`
     /* Base table styles */
+    /* No padding of its own: the card of the visual already has it, and the
+       table needs all the room it can get */
+    padding: 0;
     table {
       width: 100%;
       min-width: auto;
@@ -98,6 +101,11 @@ export default styled.div`
       background-color: ${theme.colorBgLayout};
     }
 
+    .dt-select-page-size .ant-select .ant-select-suffix {
+      color: ${theme.colorTextQuaternary};
+      z-index: 11;
+    }
+
     /* Controls and metrics */
     .dt-controls {
       padding-bottom: 0.65em;
@@ -152,13 +160,20 @@ export default styled.div`
       padding: ${theme.paddingXXS}px 0px;
     }
 
+    .dt-pagination .pagination {
+      margin: 0;
+    }
+
     .dt-pagination .pagination > li {
       display: inline;
       margin: 0 ${theme.marginXXS}px;
     }
 
-    .dt-pagination .pagination > li > a,
+    .dt-pagination .pagination > li > button,
     .dt-pagination .pagination > li > span {
+      appearance: none;
+      border: 1px solid transparent;
+      font: inherit;
       background-color: ${theme.colorBgBase};
       color: ${theme.colorText};
       border-color: ${theme.colorBorderSecondary};
@@ -166,10 +181,10 @@ export default styled.div`
       border-radius: ${theme.borderRadius}px;
     }
 
-    .dt-pagination .pagination > li.active > a,
+    .dt-pagination .pagination > li.active > button,
     .dt-pagination .pagination > li.active > span,
-    .dt-pagination .pagination > li.active > a:focus,
-    .dt-pagination .pagination > li.active > a:hover,
+    .dt-pagination .pagination > li.active > button:focus,
+    .dt-pagination .pagination > li.active > button:hover,
     .dt-pagination .pagination > li.active > span:focus,
     .dt-pagination .pagination > li.active > span:hover {
       background-color: ${theme.colorPrimary};

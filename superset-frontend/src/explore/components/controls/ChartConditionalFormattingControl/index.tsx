@@ -19,16 +19,11 @@
 import { t } from '@apache-superset/core/translation';
 import { useTheme } from '@apache-superset/core/theme';
 import { toCssColor, type ColorInput } from '@superset-ui/core';
-import {
-  Button,
-  ColorPicker,
-  Flex,
-  Select,
-  type ColorValue,
-} from '@superset-ui/core/components';
+import { Button, Flex, Select } from '@superset-ui/core/components';
 import { InputNumber } from '@superset-ui/core/components/Input';
 import { Icons } from '@superset-ui/core/components/Icons';
 import ControlHeader, { ControlHeaderProps } from '../../ControlHeader';
+import ColorPickerControl from '../ColorPickerControl';
 
 export type ChartConditionalOperator =
   | '>'
@@ -207,14 +202,12 @@ export default function ChartConditionalFormattingControl({
               )}
             </Flex>
             <Flex gap="small" align="center">
-              <ColorPicker
-                aria-label={t('Rule color')}
-                size="small"
+              <ColorPickerControl
+                ariaLabel={t('Rule color')}
+                outputFormat="hex"
                 value={toCssColor(rule.color)}
-                onChangeComplete={(color: ColorValue) =>
-                  updateRule(index, {
-                    color: color.toHexString().toLowerCase(),
-                  })
+                onChange={color =>
+                  updateRule(index, { color: String(color).toLowerCase() })
                 }
               />
               {isIconVariant ? (

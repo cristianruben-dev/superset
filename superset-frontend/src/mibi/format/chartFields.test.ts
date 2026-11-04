@@ -17,6 +17,7 @@
  * under the License.
  */
 import { SupersetClient } from '@superset-ui/core';
+import getBootstrapData from 'src/utils/getBootstrapData';
 import {
   canChangeFields,
   clearPendingFields,
@@ -35,6 +36,14 @@ jest.mock('src/explore/exploreUtils', () => ({
     Promise.resolve({ queries: [{ columns: ['b'] }] }),
   ),
 }));
+jest.mock('src/utils/getBootstrapData', () => ({
+  __esModule: true,
+  default: jest.fn(() => ({ common: { user_subjects: [] } })),
+}));
+const mockUserSubjects = (subjects: number[]) =>
+  (getBootstrapData as jest.Mock).mockReturnValue({
+    common: { user_subjects: subjects },
+  });
 jest.mock('src/mibi/dashboard/reloadSavedChart', () => ({
   fetchDashboardSlices: () => ({ type: 'FETCH_SLICES' }),
 }));
@@ -205,7 +214,7 @@ test('a chart lacking a required field goes back instead of saving', async () =>
   expect(state.charts[3].form_data.groupby).toEqual(['a']);
 });
 
-test('only owners and admins change the fields of a chart', () => {
+test('only editors and admins change the fields of a chart', () => {
   const user = { userId: 1, roles: { Gamma: [] } } as never;
   const admin = {
     userId: 2,
@@ -213,8 +222,22 @@ test('only owners and admins change the fields of a chart', () => {
     roles: { Admin: [] },
     permissions: {},
   } as never;
-  expect(canChangeFields(user, [{ id: 1 }])).toBe(true);
+  // The viewer is the subjects 1 (their user) and 5 (one of their roles)
+  mockUserSubjects([1, 5]);
+  expect(canChangeFields(user, [{ id: 5 }])).toBe(true);
   expect(canChangeFields(user, [{ id: 9 }])).toBe(false);
   expect(canChangeFields(admin, [{ id: 9 }])).toBe(true);
   expect(canChangeFields(user, undefined)).toBe(true);
+  // A workspace contributor edits the dashboard without being a chart editor
+  expect(canChangeFields(user, [{ id: 9 }], true)).toBe(true);
+});
+
+test('names the fields of a butterfly chart by their side', () => {
+  const butterfly = { viz_type: 'butterfly' };
+
+  expect(fieldRole(butterfly, 'groupby')).toBe('Category');
+  expect(fieldRole(butterfly, 'left_metric')).toBe('Left values');
+  expect(fieldRole(butterfly, 'right_metric')).toBe('Right values');
+  expect(isFieldWell(butterfly, 'left_metric', 'MetricsControl')).toBe(true);
+  expect(isFieldWell(butterfly, 'order_desc', 'CheckboxControl')).toBe(false);
 });

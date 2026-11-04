@@ -137,5 +137,3 @@ export interface TableChartTransformedProps<D extends DataRecord = DataRecord> {
   /** The first sort saved from the dashboard, drawn as the header's arrow */
   savedSort?: TableSortItem;
 }
-
-export default {};

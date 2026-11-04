@@ -17,7 +17,7 @@
  * under the License.
  */
 import { jsPDF as JsPdf } from 'jspdf';
-import { kebabCase } from 'lodash';
+import { kebabCase } from 'lodash-es';
 import tinycolor from 'tinycolor2';
 import { t } from '@apache-superset/core/translation';
 import type { SupersetTheme } from '@apache-superset/core/theme';

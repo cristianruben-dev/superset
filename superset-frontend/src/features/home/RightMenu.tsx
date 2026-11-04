@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { t } from '@apache-superset/core/translation';
@@ -24,6 +24,7 @@ import {
   getExtensionsRegistry,
   isFeatureEnabled,
   FeatureFlag,
+  CACHE_KEY,
 } from '@superset-ui/core';
 import {
   styled,
@@ -37,9 +38,16 @@ import {
   Icons,
   Typography,
   TelemetryPixel,
+  Drawer,
+  Button,
 } from '@superset-ui/core/components';
 import type { ItemType, MenuItem } from '@superset-ui/core/components/Menu';
-import { ensureAppRoot } from 'src/utils/pathUtils';
+import {
+  ensureAppRoot,
+  navigateTo,
+  stripAppRoot,
+} from 'src/utils/navigationUtils';
+import { useIsMobile } from 'src/hooks/useIsMobile';
 import { isEmbedded } from 'src/dashboard/util/isEmbedded';
 import { findPermission } from 'src/utils/findPermission';
 import {
@@ -82,10 +90,13 @@ const RightMenu = ({
   navbarRight,
   isFrontendRoute,
   environmentTag,
+  menu,
   newLabel,
   settingsLabel,
 }: RightMenuProps) => {
   const theme = useTheme();
+  const isMobile = useIsMobile();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const user = useSelector<any, UserWithPermissionsAndRoles>(
     state => state.user,
   );
@@ -94,6 +105,9 @@ const RightMenu = ({
   );
   const userValues = user || {};
   const { roles } = userValues;
+  const scarfAnalytics = useSelector<any, boolean | undefined>(
+    state => state.common?.conf?.SCARF_ANALYTICS,
+  );
   const canDashboard = findPermission('can_write', 'Dashboard', roles);
   const canChart = findPermission('can_write', 'Chart', roles);
 
@@ -119,7 +133,7 @@ const RightMenu = ({
       : []),
     {
       label: t('Dashboard'),
-      url: '/dashboard/new',
+      url: '/dashboard/new/',
       icon: (
         <Icons.DashboardOutlined data-test={`menu-item-${t('Dashboard')}`} />
       ),
@@ -159,6 +173,14 @@ const RightMenu = ({
     try {
       window.localStorage.removeItem('redux');
       window.sessionStorage.removeItem('login_attempted');
+      // Purge the namespaced Cache API store so cached GET responses are not
+      // retained on the device after the session ends. Best-effort: the
+      // returned promise is not awaited since logout navigates away.
+      if (typeof caches !== 'undefined') {
+        caches.delete(CACHE_KEY).catch(() => {
+          /* best-effort: ignore cache deletion failures */
+        });
+      }
     } catch (error) {
       console.warn('Failed to clear storage on logout:', error);
     }
@@ -213,7 +235,7 @@ const RightMenu = ({
               items.push({
                 key: menu.label,
                 label: isFrontendRoute(menu.url) ? (
-                  <Link to={menu.url || ''}>{menu.label}</Link>
+                  <Link to={stripAppRoot(menu.url || '')}>{menu.label}</Link>
                 ) : (
                   <Typography.Link href={ensureAppRoot(menu.url || '')}>
                     {menu.label}
@@ -229,7 +251,7 @@ const RightMenu = ({
           items.push({
             key: menu.label,
             label: isFrontendRoute(menu.url) ? (
-              <Link to={menu.url || ''}>{menu.label}</Link>
+              <Link to={stripAppRoot(menu.url || '')}>{menu.label}</Link>
             ) : (
               <Typography.Link href={ensureAppRoot(menu.url || '')}>
                 {menu.label}
@@ -264,7 +286,9 @@ const RightMenu = ({
             sectionItems.push({
               key: child.label,
               label: isFrontendRoute(child.url) ? (
-                <Link to={child.url || ''}>{menuItemDisplay}</Link>
+                <Link to={stripAppRoot(child.url || '')}>
+                  {menuItemDisplay}
+                </Link>
               ) : (
                 <Typography.Link
                   href={child.url || ''}
@@ -316,9 +340,7 @@ const RightMenu = ({
           userItems.push({
             key: 'logout',
             label: (
-              <Typography.Link
-                href={ensureAppRoot(navbarRight.user_logout_url)}
-              >
+              <Typography.Link href={navbarRight.user_logout_url}>
                 {t('Logout')}
               </Typography.Link>
             ),
@@ -347,11 +369,11 @@ const RightMenu = ({
               style: { height: 'auto', minHeight: 'auto' },
               label: (
                 <div
-                  css={(theme: SupersetTheme) => css`
-                    font-size: ${theme.fontSizeSM}px;
-                    color: ${theme.colorTextSecondary || theme.colorText};
+                  css={(themeArg: SupersetTheme) => css`
+                    font-size: ${themeArg.fontSizeSM}px;
+                    color: ${themeArg.colorTextSecondary || themeArg.colorText};
                     white-space: pre-wrap;
-                    padding: ${theme.sizeUnit}px ${theme.sizeUnit * 2}px;
+                    padding: ${themeArg.sizeUnit}px ${themeArg.sizeUnit * 2}px;
                   `}
                 >
                   {[
@@ -432,6 +454,64 @@ const RightMenu = ({
     settingsLabel,
   ]);
 
+  // Build mobile menu items - consumption only (no create/admin actions)
+  const mobileMenuItems = useMemo(() => {
+    const items: MenuItem[] = [];
+
+    // Add Dashboards link at top (from main menu)
+    // Match on the FAB-internal `name`, which is stable across locales
+    // (`label` is translated and would break in non-English deployments)
+    const dashboardsMenu = menu?.find(item => item.name === 'Dashboards');
+    if (dashboardsMenu) {
+      const dashboardUrl = dashboardsMenu.url || '/dashboard/list/';
+      items.push({
+        key: 'dashboards',
+        label: isFrontendRoute(dashboardUrl) ? (
+          <Link to={stripAppRoot(dashboardUrl)}>{t('Dashboards')}</Link>
+        ) : (
+          <Typography.Link href={ensureAppRoot(dashboardUrl)}>
+            {t('Dashboards')}
+          </Typography.Link>
+        ),
+        icon: <Icons.DashboardOutlined />,
+      });
+    }
+
+    // Add theme menu (flatten children directly)
+    menuItems.forEach(item => {
+      if (!item || !('key' in item)) return;
+
+      // Only include theme-sub-menu and language picker
+      if (item.key === 'theme-sub-menu' || item.key === 'language-submenu') {
+        items.push({ type: 'divider', key: `divider-before-${item.key}` });
+
+        if ('children' in item && item.children) {
+          // Theme menu already has a nested group, so just add its children directly
+          item.children.forEach(child => {
+            items.push(child);
+          });
+        } else {
+          items.push(item);
+        }
+      }
+
+      // Extract user-related items from settings
+      if (item.key === 'settings' && 'children' in item && item.children) {
+        item.children.forEach(child => {
+          if (!child || !('key' in child)) return;
+
+          // Only include user-section and about-section
+          if (child.key === 'user-section' || child.key === 'about-section') {
+            items.push({ type: 'divider', key: `divider-before-${child.key}` });
+            items.push(child);
+          }
+        });
+      }
+    });
+
+    return items;
+  }, [menu, menuItems, isFrontendRoute]);
+
   return (
     <StyledDiv align={align}>
       {environmentTag?.text &&
@@ -460,46 +540,105 @@ const RightMenu = ({
             </Tag>
           );
         })()}
-      <Menu
-        css={css`
-          display: flex;
-          flex-direction: row;
-          align-items: center;
-          height: 100%;
-          border-bottom: none !important;
-
-          /* Remove the underline from menu items */
-          .ant-menu-item:after,
-          .ant-menu-submenu:after {
-            content: none !important;
-          }
-
-          .submenu-with-caret {
+      {/* Mobile: hamburger menu with drawer */}
+      {isMobile && (
+        <>
+          <Button
+            buttonStyle="link"
+            onClick={() => setMobileMenuOpen(true)}
+            aria-label={t('Menu')}
+          >
+            <Icons.MenuOutlined iconSize="l" />
+          </Button>
+          <Drawer
+            title={null}
+            placement="right"
+            onClose={() => setMobileMenuOpen(false)}
+            open={mobileMenuOpen}
+            width={280}
+            styles={{
+              header: { display: 'none' },
+              body: { padding: 0 },
+            }}
+          >
+            <Menu
+              mode="inline"
+              selectable={false}
+              onClick={info => {
+                // The reused desktop items navigate via anchors that only
+                // span their label text, but the drawer's tap target is the
+                // full menu row — navigate explicitly so row taps work.
+                if (info.key === 'info' && navbarRight.user_info_url) {
+                  navigateTo(navbarRight.user_info_url);
+                  return;
+                }
+                if (info.key === 'logout' && navbarRight.user_logout_url) {
+                  navigateTo(navbarRight.user_logout_url);
+                  return;
+                }
+                setMobileMenuOpen(false);
+              }}
+              items={mobileMenuItems}
+              css={css`
+                border-inline-end: none !important;
+              `}
+            />
+          </Drawer>
+        </>
+      )}
+      {/* Desktop: horizontal menu */}
+      {!isMobile && (
+        <Menu
+          css={css`
+            display: flex;
+            flex-direction: row;
+            align-items: center;
             height: 100%;
-            padding: 0;
-            .ant-menu-submenu-title {
-              align-items: center;
-              display: flex;
-              gap: ${theme.sizeUnit * 2}px;
-              flex-direction: row-reverse;
+            border-bottom: none !important;
+
+            /* Remove the underline from menu items */
+            .ant-menu-item:after,
+            .ant-menu-submenu:after {
+              content: none !important;
+            }
+
+            .submenu-with-caret {
               height: 100%;
-            }
-            &.ant-menu-submenu::after {
-              inset-inline: ${theme.sizeUnit}px;
-            }
-            &.ant-menu-submenu:hover,
-            &.ant-menu-submenu-active {
-              .ant-menu-title-content {
-                color: ${theme.colorPrimary};
+              padding: 0;
+              .ant-menu-submenu-title {
+                align-items: center;
+                display: flex;
+                gap: ${theme.sizeUnit * 2}px;
+                flex-direction: row-reverse;
+                height: 100%;
+              }
+              [data-icon='down'] {
+                color: ${theme.colorIcon};
+                /* sizeXS (an antd token, always computed) rather than
+                   fontSizeXS (a Superset custom token seeded only via
+                   THEME_DEFAULT in config.py) so this stays small in
+                   contexts that construct a theme without that seed, e.g.
+                   Storybook and Jest. Both resolve to the same 8px in the
+                   app's default theme. */
+                font-size: ${theme.sizeXS}px;
+              }
+              &.ant-menu-submenu::after {
+                inset-inline: ${theme.sizeUnit}px;
+              }
+              &.ant-menu-submenu:hover,
+              &.ant-menu-submenu-active {
+                .ant-menu-title-content {
+                  color: ${theme.colorPrimary};
+                }
               }
             }
-          }
-        `}
-        selectable={false}
-        mode="horizontal"
-        disabledOverflow
-        items={menuItems}
-      />
+          `}
+          selectable={false}
+          mode="horizontal"
+          disabledOverflow
+          items={menuItems}
+        />
+      )}
       {navbarRight.documentation_url && (
         <>
           <StyledAnchor
@@ -507,6 +646,7 @@ const RightMenu = ({
             target="_blank"
             rel="noreferrer"
             title={navbarRight.documentation_text || t('Documentation')}
+            aria-label={navbarRight.documentation_text || t('Documentation')}
           >
             {navbarRight.documentation_icon ? (
               <Icons.BookOutlined />
@@ -524,6 +664,7 @@ const RightMenu = ({
             target="_blank"
             rel="noreferrer"
             title={navbarRight.bug_report_text || t('Report a bug')}
+            aria-label={navbarRight.bug_report_text || t('Report a bug')}
           >
             {navbarRight.bug_report_icon ? (
               <i className={navbarRight.bug_report_icon} />
@@ -541,8 +682,12 @@ const RightMenu = ({
       )}
       <TelemetryPixel
         version={navbarRight.version_string}
-        sha={navbarRight.version_sha}
-        build={navbarRight.build_number}
+        // Build details may be redacted to empty/null for non-admins; fall back
+        // to the component's "unknown" defaults instead of emitting empty path
+        // segments in the Scarf pixel URL.
+        sha={navbarRight.version_sha || undefined}
+        build={navbarRight.build_number || undefined}
+        enabled={scarfAnalytics !== false}
       />
     </StyledDiv>
   );

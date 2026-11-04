@@ -54,9 +54,11 @@ export function ThemeVariables() {
           ${Object.entries(themeCssVariables(theme))
             .map(([name, value]) => `${name}: ${value};`)
             .join('\n')}
-          --mb-logo: ${theme.brandLogoUrl
-            ? `url('${ensureStaticPrefix(theme.brandLogoUrl)}')`
-            : 'none'};
+          --mb-logo: ${
+            theme.brandLogoUrl
+              ? `url('${ensureStaticPrefix(theme.brandLogoUrl)}')`
+              : 'none'
+          };
         }
       `}
     />

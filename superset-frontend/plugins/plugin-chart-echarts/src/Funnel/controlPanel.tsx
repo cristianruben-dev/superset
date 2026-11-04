@@ -74,7 +74,7 @@ const config: ControlPanelConfig = {
             name: 'percent_calculation_type',
             config: {
               type: 'SelectControl',
-              label: t('% calculation'),
+              label: t('% calculation'),
               description: t(
                 'Display percents in the label and tooltip as the percent of the total value, from the first step of the funnel, or from the previous step in the funnel.',
               ),

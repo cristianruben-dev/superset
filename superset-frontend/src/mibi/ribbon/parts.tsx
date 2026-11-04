@@ -58,11 +58,13 @@ export const RibbonTab = styled.button<{
     background: transparent;
     font-size: ${theme.fontSize}px;
     font-weight: ${$active ? 600 : 400};
-    color: ${$contextual
-      ? theme.colorPrimary
-      : $active
-        ? theme.colorText
-        : theme.colorTextSecondary};
+    color: ${
+      $contextual
+        ? theme.colorPrimary
+        : $active
+          ? theme.colorText
+          : theme.colorTextSecondary
+    };
     cursor: pointer;
 
     &:hover {

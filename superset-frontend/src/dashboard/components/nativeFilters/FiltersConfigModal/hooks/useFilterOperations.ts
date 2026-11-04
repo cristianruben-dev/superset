@@ -125,7 +125,7 @@ export function useFilterOperations({
   );
 
   const handleRearrangeFilters = useCallback(
-    (dragIndex: number, targetIndex: number, id: string) => {
+    (dragIndex: number, targetIndex: number, _id: string) => {
       const newOrderedIds = [...filterState.orderedIds];
       const [removed] = newOrderedIds.splice(dragIndex, 1);
       newOrderedIds.splice(targetIndex, 0, removed);
@@ -167,11 +167,17 @@ export function useFilterOperations({
         } else if (configItem?.cascadeParentIds) {
           array = [...configItem.cascadeParentIds];
         }
-        dependencyMap.set(key, array);
+        // Drop parent ids that no longer qualify (removed, or its filter
+        // type changed to one that doesn't support cascade dependencies)
+        // as soon as the map is rebuilt, instead of only at save time.
+        dependencyMap.set(
+          key,
+          array.filter(parentId => canBeUsedAsDependency(parentId)),
+        );
       });
     }
     return dependencyMap;
-  }, [filterConfigMap, form]);
+  }, [canBeUsedAsDependency, filterConfigMap, form]);
 
   const getAvailableFilters = useCallback(
     (filterId: string, getItemTitle: (id: string) => string) => {

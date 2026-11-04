@@ -17,42 +17,154 @@
  * under the License.
  */
 import { render, screen, userEvent } from 'spec/helpers/testing-library';
-import { SAVE_TYPE_NEWDASHBOARD } from 'src/dashboard/util/constants';
-import SaveModal from './SaveModal';
+import SaveModal from 'src/dashboard/components/SaveModal';
+import {
+  SAVE_TYPE_OVERWRITE,
+  SAVE_TYPE_NEWDASHBOARD,
+} from 'src/dashboard/util/constants';
 
-const renderModal = (onSave = jest.fn()) =>
-  render(
-    <SaveModal
-      addSuccessToast={jest.fn()}
-      addDangerToast={jest.fn()}
-      dashboardId={1}
-      dashboardTitle="Sales"
-      dashboardInfo={{ metadata: {} }}
-      expandedSlices={{}}
-      layout={{}}
-      saveType={SAVE_TYPE_NEWDASHBOARD}
-      triggerNode={<button type="button">open</button>}
-      customCss=""
-      onSave={onSave}
-      canOverwrite
-      shouldPersistRefreshFrequency={false}
-      refreshFrequency={0}
-      lastModifiedTime={0}
-    />,
+const dashboardTitle = 'Sales Dashboard';
+
+const defaultProps = {
+  addSuccessToast: jest.fn(),
+  addDangerToast: jest.fn(),
+  dashboardId: 1,
+  dashboardTitle,
+  dashboardInfo: {
+    certified_by: '',
+    certification_details: '',
+    editors: [],
+    metadata: { refresh_frequency: 0 },
+  },
+  expandedSlices: {},
+  layout: { ROOT_ID: {} },
+  // SaveModal does not export its SaveType union; the inline cast (rather
+  // than a `const` alias, which TS would narrow back to the literal type at
+  // every use) keeps this assignable to both save types in prop overrides.
+  saveType: SAVE_TYPE_OVERWRITE as
+    | typeof SAVE_TYPE_OVERWRITE
+    | typeof SAVE_TYPE_NEWDASHBOARD,
+  triggerNode: <span>Open save modal</span>,
+  customCss: '',
+  onSave: jest.fn(),
+  canOverwrite: true,
+  shouldPersistRefreshFrequency: false,
+  refreshFrequency: 30,
+  lastModifiedTime: 1700000000,
+};
+
+const setup = (props: Partial<typeof defaultProps> = {}) =>
+  render(<SaveModal {...defaultProps} {...props} />);
+
+const openModal = async (props: Partial<typeof defaultProps> = {}) => {
+  setup(props);
+  await userEvent.click(screen.getByText('Open save modal'));
+  return screen.findByRole('dialog');
+};
+
+beforeEach(() => {
+  jest.clearAllMocks();
+});
+
+test('saving in overwrite mode calls onSave with the overwrite save type', async () => {
+  await openModal();
+
+  await userEvent.click(screen.getByTestId('modal-save-dashboard-button'));
+
+  expect(defaultProps.onSave).toHaveBeenCalledTimes(1);
+  const [data, id, saveType] = defaultProps.onSave.mock.calls[0];
+  expect(saveType).toBe(SAVE_TYPE_OVERWRITE);
+  expect(id).toBe(defaultProps.dashboardId);
+  expect(data.dashboard_title).toBe(dashboardTitle);
+});
+
+test('defaults the new dashboard name to "<title> [copy]"', async () => {
+  await openModal();
+
+  expect(screen.getByPlaceholderText('[dashboard name]')).toHaveValue(
+    `${dashboardTitle} [copy]`,
   );
+});
 
+test('saving in save-as mode without editing the name uses the default copy name', async () => {
+  await openModal({ saveType: SAVE_TYPE_NEWDASHBOARD });
+
+  await userEvent.click(screen.getByTestId('modal-save-dashboard-button'));
+
+  expect(defaultProps.onSave).toHaveBeenCalledTimes(1);
+  const [data, , saveType] = defaultProps.onSave.mock.calls[0];
+  expect(saveType).toBe(SAVE_TYPE_NEWDASHBOARD);
+  expect(data.dashboard_title).toMatch(/\[copy\]$/);
+});
+
+test('editing the new dashboard name switches to save-as and is used in the payload', async () => {
+  await openModal();
+
+  const nameInput = screen.getByPlaceholderText('[dashboard name]');
+  await userEvent.clear(nameInput);
+  await userEvent.type(nameInput, 'Copied Dashboard');
+
+  await userEvent.click(screen.getByTestId('modal-save-dashboard-button'));
+
+  expect(defaultProps.onSave).toHaveBeenCalledTimes(1);
+  const [data, , saveType] = defaultProps.onSave.mock.calls[0];
+  expect(saveType).toBe(SAVE_TYPE_NEWDASHBOARD);
+  expect(data.dashboard_title).toBe('Copied Dashboard');
+});
+
+// AuraData BI: a chart belongs to one dashboard, so save as always copies the
+// charts and there is no checkbox to ask
 test('save as always copies the charts, without asking', async () => {
-  const onSave = jest.fn();
-  renderModal(onSave);
-  userEvent.click(screen.getByText('open'));
+  await openModal({ saveType: SAVE_TYPE_NEWDASHBOARD });
 
-  expect(await screen.findByText('Save as:')).toBeInTheDocument();
   expect(screen.queryByRole('checkbox')).not.toBeInTheDocument();
 
-  userEvent.click(screen.getByRole('button', { name: 'Save' }));
-  expect(onSave).toHaveBeenCalledWith(
-    expect.objectContaining({ duplicate_slices: true }),
-    1,
-    SAVE_TYPE_NEWDASHBOARD,
+  await userEvent.click(screen.getByTestId('modal-save-dashboard-button'));
+
+  const [data, id, saveType] = defaultProps.onSave.mock.calls[0];
+  expect(data.duplicate_slices).toBe(true);
+  expect(id).toBe(defaultProps.dashboardId);
+  expect(saveType).toBe(SAVE_TYPE_NEWDASHBOARD);
+});
+
+test('blocks save and warns when the new dashboard name is empty', async () => {
+  await openModal();
+
+  const nameInput = screen.getByPlaceholderText('[dashboard name]');
+  await userEvent.clear(nameInput);
+
+  await userEvent.click(screen.getByTestId('modal-save-dashboard-button'));
+
+  expect(defaultProps.addDangerToast).toHaveBeenCalledWith(
+    'You must pick a name for the new dashboard',
   );
+  expect(defaultProps.onSave).not.toHaveBeenCalled();
+  expect(screen.getByRole('dialog')).toBeInTheDocument();
+});
+
+test('disables overwrite and saves as a new dashboard when the user cannot overwrite', async () => {
+  await openModal({
+    canOverwrite: false,
+    saveType: SAVE_TYPE_NEWDASHBOARD,
+  });
+
+  expect(
+    screen.getByRole('radio', {
+      name: new RegExp(`Overwrite Dashboard`),
+    }),
+  ).toBeDisabled();
+
+  await userEvent.click(screen.getByTestId('modal-save-dashboard-button'));
+
+  const [, , saveType] = defaultProps.onSave.mock.calls[0];
+  expect(saveType).toBe(SAVE_TYPE_NEWDASHBOARD);
+});
+
+test('cancel closes the modal without calling onSave', async () => {
+  await openModal();
+
+  await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+
+  expect(defaultProps.onSave).not.toHaveBeenCalled();
+  expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
 });

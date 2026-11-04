@@ -927,7 +927,7 @@ export default function DatasetPage() {
                 {related.dashboards.result.map(dashboard => (
                   <Link
                     key={dashboard.id}
-                    to={`/superset/dashboard/${dashboard.slug || dashboard.id}/`}
+                    to={`/dashboard/${dashboard.slug || dashboard.id}/`}
                   >
                     <Icons.DashboardOutlined iconSize="m" />
                     {dashboard.title}

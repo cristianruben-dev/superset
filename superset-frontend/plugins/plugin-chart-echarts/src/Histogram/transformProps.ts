@@ -20,13 +20,14 @@ import type { ComposeOption } from 'echarts/core';
 import type { BarSeriesOption } from 'echarts/charts';
 import type { GridComponentOption } from 'echarts/components';
 import type { CallbackDataParams } from 'echarts/types/src/util/types';
-import { isEmpty } from 'lodash';
+import { isEmpty } from 'lodash-es';
 import {
   CategoricalColorNamespace,
   NumberFormats,
   getColumnLabel,
   getValueFormatter,
   tooltipHtml,
+  tooltipMarker,
 } from '@superset-ui/core';
 import { HistogramChartProps, HistogramTransformedProps } from './types';
 import { LegendOrientation, LegendType, Refs } from '../types';
@@ -79,7 +80,7 @@ export default function transformProps(
   const yAxisFormatter = formatter(yAxisFormat);
 
   const percentFormatter = getPercentFormatter(NumberFormats.PERCENT_2_POINT);
-  const groupbySet = new Set(groupby);
+  const groupbySet = new Set(groupby.map(getColumnLabel));
   const xAxisData: string[] = Object.keys(data[0])
     .filter(key => !groupbySet.has(key))
     .map(key => {
@@ -122,8 +123,11 @@ export default function transformProps(
   const tooltipFormatter = (params: CallbackDataParams[]) => {
     const title = params[0].name;
     const rows = params.map(param => {
-      const { marker, seriesName, value } = param;
-      return [`${marker}${seriesName}`, yAxisFormatter.format(value as number)];
+      const { color, seriesName, value } = param;
+      return [
+        `${tooltipMarker(color)}${seriesName}`,
+        yAxisFormatter.format(value as number),
+      ];
     });
     if (groupby.length > 0) {
       const total = params.reduce(

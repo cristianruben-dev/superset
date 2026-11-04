@@ -134,12 +134,12 @@ export function formatTooltip({
     .toString()
     .replaceAll('<', '&lt;')
     .replaceAll('>', '&gt;');
-  const rows = [[t('% of total'), absolutePercentage]];
+  const rows = [[t('% of total'), absolutePercentage]];
   if (parentNode) {
     const conditionalPercentage = percentFormatter(
       node.value / parentNode.value,
     );
-    rows.push([t('% of parent'), conditionalPercentage]);
+    rows.push([t('% of parent'), conditionalPercentage]);
   }
   rows.push([metricLabel, formattedValue]);
   if (!colorByCategory) {
@@ -186,6 +186,9 @@ export default function transformProps(
     showLabels,
     showLabelsThreshold,
     showTotal,
+    // Default to true so charts saved before this control existed keep
+    // showing null values instead of silently hiding them on upgrade.
+    showNullValues = true,
     sliceId,
   } = formData;
   const {
@@ -251,6 +254,7 @@ export default function transformProps(
     columnLabels,
     metricLabel,
     secondaryMetricLabel,
+    !showNullValues,
   );
   const totalValue = treeData.reduce(
     (result, treeNode) => result + treeNode.value,
@@ -285,8 +289,6 @@ export default function transformProps(
   }
   const labelProps = {
     color: theme.colorText,
-    textBorderColor: theme.colorBgBase,
-    textBorderWidth: 1,
   };
   const traverse = (
     treeNodes: TreeNode[],

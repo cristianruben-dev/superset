@@ -125,7 +125,11 @@ export interface MemberAvatarsProps {
 }
 
 /** The first members as overlapping avatars, and how many more there are. */
-export function MemberAvatars({ members, total, size = 26 }: MemberAvatarsProps) {
+export function MemberAvatars({
+  members,
+  total,
+  size = 26,
+}: MemberAvatarsProps) {
   const shown = members.slice(0, 4);
   const rest = total - shown.length;
   return (

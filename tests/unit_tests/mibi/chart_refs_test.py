@@ -17,6 +17,7 @@
 """Tests for the chart ids a copied dashboard follows (superset/mibi/chart_refs.py)."""
 
 from collections.abc import Iterator
+from typing import Any
 
 import pytest
 from pytest_mock import MockerFixture
@@ -38,7 +39,7 @@ def db_session(session: Session) -> Iterator[Session]:
     session.rollback()
 
 
-def bookmarked_positions(chart_id: int) -> dict:
+def bookmarked_positions(chart_id: int) -> dict[str, Any]:
     return {
         "ROOT_ID": {
             "type": "ROOT",
@@ -80,7 +81,7 @@ def test_remap_bookmark_chart_ids_without_bookmarks() -> None:
 
 
 def test_remap_metadata_chart_ids() -> None:
-    metadata = {
+    metadata: dict[str, Any] = {
         "chart_configuration": {
             "59": {
                 "id": 59,
@@ -114,9 +115,12 @@ def test_remap_metadata_chart_ids() -> None:
 def test_copy_dashboard_points_bookmarks_at_the_copies(
     mocker: MockerFixture, db_session: Session
 ) -> None:
+    from superset import security_manager
     from superset.daos.dashboard import DashboardDAO
 
     mocker.patch("superset.daos.dashboard.g", user=None)
+    # Copying a dashboard needs editorship of it
+    mocker.patch.object(security_manager, "is_editor", return_value=True)
     chart = Slice(slice_name="chart", viz_type="table", datasource_type="table")
     db_session.add(chart)
     db_session.flush()

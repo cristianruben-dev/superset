@@ -27,6 +27,7 @@ import {
 } from 'react-reverse-portal';
 import { FilterBarOrientation } from 'src/dashboard/types';
 import { isChartCustomization, isDefined } from '@superset-ui/core';
+import { ChartCustomizationPlugins } from 'src/constants';
 import { checkIsMissingRequiredValue } from '../utils';
 import FilterValue from './FilterValue';
 import { FilterControlProps } from './types';
@@ -35,6 +36,7 @@ import {
   FilterStyledIcon,
   RequiredFieldIndicator,
   DescriptionToolTip,
+  DeckglLayerVisibilityTooltip,
   useFilterControlDisplay,
 } from './FilterControlShared';
 import FilterEditButton from './FilterEditButton';
@@ -99,8 +101,20 @@ const FilterControl = ({
           {name}
         </FilterControlTitle>
         {isRequired && <RequiredFieldIndicator />}
+        {filter.filterType === 'filter_select' &&
+          filter.controlValues?.multiSelect && (
+            <DescriptionToolTip
+              description={t(
+                'When typing or pasting filter values, commas will separate values into multiple entries. To include a comma within a value, wrap it in double quotes: "San Francisco, CA"',
+              )}
+            />
+          )}
         {filter.description?.trim() && (
           <DescriptionToolTip description={filter.description} />
+        )}
+        {filter.filterType ===
+          ChartCustomizationPlugins.DeckglLayerVisibility && (
+          <DeckglLayerVisibilityTooltip />
         )}
         <FilterEditButton filterId={filter.id} name={name} />
         <FilterStyledIcon data-test="filter-icon">{icon}</FilterStyledIcon>
@@ -130,6 +144,8 @@ const FilterControl = ({
       isRequired,
       filter.description,
       filter.id,
+      filter.filterType,
+      filter.controlValues?.multiSelect,
       icon,
     ],
   );
@@ -194,6 +210,18 @@ const FilterControl = ({
               {isRequired && <RequiredFieldIndicator />}
               {filter.description?.trim() && (
                 <DescriptionToolTip description={filter.description} />
+              )}
+              {filter.filterType === 'filter_select' &&
+                filter.controlValues?.multiSelect && (
+                  <DescriptionToolTip
+                    description={t(
+                      'When typing or pasting filter values, commas will separate values into multiple entries. To include a comma within a value, wrap it in double quotes: "San Francisco, CA"',
+                    )}
+                  />
+                )}
+              {filter.filterType ===
+                ChartCustomizationPlugins.DeckglLayerVisibility && (
+                <DeckglLayerVisibilityTooltip />
               )}
             </>
           }

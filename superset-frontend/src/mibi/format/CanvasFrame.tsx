@@ -126,12 +126,14 @@ const Outer = styled.div<{
       ? css`
           height: 100%;
           overflow: auto;
-          ${$bar &&
-          css`
-            flex: 1;
-            min-height: 0;
-            height: auto;
-          `}
+          ${
+            $bar &&
+            css`
+              flex: 1;
+              min-height: 0;
+              height: auto;
+            `
+          }
           /* A phone gives the page all of its width; the floating zoom bar
              takes room below the page */
           padding: ${$editing ? 28 : 12}px ${$phone ? 0 : 8}px
@@ -151,15 +153,19 @@ const Page = styled.div<{ $decorated: boolean; $fixed: boolean }>`
     flex: none;
     width: 100%;
     box-sizing: border-box;
-    ${$decorated &&
-    css`
-      border-radius: ${theme.borderRadiusLG * 1.5}px;
-    `}
-    ${$fixed &&
-    css`
-      box-shadow: ${theme.boxShadowTertiary};
-      outline: 1px solid ${theme.colorBorderSecondary};
-    `}
+    ${
+      $decorated &&
+      css`
+        border-radius: ${theme.borderRadiusLG * 1.5}px;
+      `
+    }
+    ${
+      $fixed &&
+      css`
+        box-shadow: ${theme.boxShadowTertiary};
+        outline: 1px solid ${theme.colorBorderSecondary};
+      `
+    }
   `}
 `;
 

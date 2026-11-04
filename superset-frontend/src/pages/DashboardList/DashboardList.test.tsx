@@ -16,11 +16,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+// Imported first: loading this before 'spec/helpers/testing-library' or
+// '@superset-ui/core' ensures mockAntdWithDesktopBreakpoint is defined
+// before anything transitively requires (and thus mocks) 'antd'.
+import { mockAntdWithDesktopBreakpoint } from 'spec/helpers/mobileTestUtils';
 import fetchMock from 'fetch-mock';
 import { isFeatureEnabled } from '@superset-ui/core';
+import { mockUserSubjectsBootstrapData } from 'spec/helpers/mockBootstrapData';
 import {
   screen,
-  selectOption,
+  selectPillOption,
   waitFor,
   fireEvent,
 } from 'spec/helpers/testing-library';
@@ -45,6 +50,13 @@ jest.mock('src/utils/export', () => ({
   default: jest.fn(),
 }));
 
+jest.mock('src/utils/getBootstrapData', () =>
+  mockUserSubjectsBootstrapData([1]),
+);
+
+// Mock useBreakpoint to return desktop breakpoints (prevents mobile rendering)
+jest.mock('antd', () => mockAntdWithDesktopBreakpoint());
+
 const mockIsFeatureEnabled = isFeatureEnabled as jest.MockedFunction<
   typeof isFeatureEnabled
 >;
@@ -64,7 +76,7 @@ afterEach(() => {
 /** Dashboards open as a table; the card view has the more-options menus. */
 const showCards = () => {
   const cardViewIcon = screen.getByRole('img', { name: 'appstore' });
-  fireEvent.click(cardViewIcon.closest('[role="button"]')!);
+  fireEvent.click(cardViewIcon.closest('button')!);
 };
 
 test('renders', async () => {
@@ -94,7 +106,7 @@ test('fetches data', async () => {
 
   const calls = fetchMock.callHistory.calls(/dashboard\/\?q/);
   expect(calls[0].url).toMatchInlineSnapshot(
-    `"http://localhost/api/v1/dashboard/?q=(order_column:changed_on_delta_humanized,order_direction:desc,page:0,page_size:25,select_columns:!(id,dashboard_title,published,url,slug,changed_by,changed_by.id,changed_by.first_name,changed_by.last_name,changed_on_delta_humanized,owners,owners.id,owners.first_name,owners.last_name,tags.id,tags.name,tags.type,status,certified_by,certification_details,changed_on))"`,
+    `"http://localhost/api/v1/dashboard/?q=(order_column:changed_on_delta_humanized,order_direction:desc,page:0,page_size:25,select_columns:!(id,dashboard_title,published,url,slug,description,changed_by,changed_by.id,changed_by.first_name,changed_by.last_name,changed_on_delta_humanized,editors.id,editors.label,editors.img,editors.type,tags.id,tags.name,tags.type,status,certified_by,certification_details,changed_on))"`,
   );
 });
 
@@ -116,7 +128,7 @@ test('switches between card and table view', async () => {
 
   // Switch back to table view via the list icon
   const listViewIcon = screen.getByRole('img', { name: 'unordered-list' });
-  const listViewButton = listViewIcon.closest('[role="button"]')!;
+  const listViewButton = listViewIcon.closest('button')!;
   fireEvent.click(listViewButton);
 
   await waitFor(() => {
@@ -190,9 +202,13 @@ test('renders all standard filters', async () => {
   await screen.findByTestId('dashboard-list-view');
 
   // Verify filter labels exist
-  expect(screen.getByText('Owner')).toBeInTheDocument();
-  // The table has a Status column too
-  expect(screen.getByText('Status', { selector: 'label' })).toBeInTheDocument();
+  expect(screen.getByText('Editor')).toBeInTheDocument();
+  // The Status column of the table has the same name as the filter
+  expect(
+    screen
+      .getAllByText('Status')
+      .some(el => !el.classList.contains('ant-table-column-title')),
+  ).toBe(true);
   expect(screen.getByText('Modified by')).toBeInTheDocument();
   expect(screen.getByText('Certified')).toBeInTheDocument();
 });
@@ -207,7 +223,7 @@ test('selecting Status filter encodes published=true in API call', async () => {
     ).toBeInTheDocument();
   });
 
-  await selectOption('Published', 'Status');
+  await selectPillOption('Published', 'Status');
 
   await waitFor(() => {
     const latest = getLatestDashboardApiCall();
@@ -224,15 +240,15 @@ test('selecting Status filter encodes published=true in API call', async () => {
   });
 });
 
-test('selecting Owner filter encodes rel_m_m owner in API call', async () => {
-  // Replace the owners route to return a selectable option
+test('selecting Editor filter encodes rel_m_m editors in API call', async () => {
+  // Replace the editors route to return a selectable option
   fetchMock.removeRoutes({
-    names: [API_ENDPOINTS.DASHBOARD_RELATED_OWNERS, API_ENDPOINTS.CATCH_ALL],
+    names: [API_ENDPOINTS.DASHBOARD_RELATED_EDITORS, API_ENDPOINTS.CATCH_ALL],
   });
   fetchMock.get(
-    API_ENDPOINTS.DASHBOARD_RELATED_OWNERS,
+    API_ENDPOINTS.DASHBOARD_RELATED_EDITORS,
     { result: [{ value: 1, text: 'Admin User' }], count: 1 },
-    { name: API_ENDPOINTS.DASHBOARD_RELATED_OWNERS },
+    { name: API_ENDPOINTS.DASHBOARD_RELATED_EDITORS },
   );
   fetchMock.get(API_ENDPOINTS.CATCH_ALL, (callLog: any) => {
     const reqUrl =
@@ -249,7 +265,7 @@ test('selecting Owner filter encodes rel_m_m owner in API call', async () => {
     ).toBeInTheDocument();
   });
 
-  await selectOption('Admin User', 'Owner');
+  await selectPillOption('Admin User', 'Editor');
 
   await waitFor(() => {
     const latest = getLatestDashboardApiCall();
@@ -257,7 +273,7 @@ test('selecting Owner filter encodes rel_m_m owner in API call', async () => {
     expect(latest!.query!.filters).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          col: 'owners',
+          col: 'editors',
           opr: 'rel_m_m',
           value: 1,
         }),
@@ -294,7 +310,7 @@ test('selecting Modified by filter encodes rel_o_m changed_by in API call', asyn
     ).toBeInTheDocument();
   });
 
-  await selectOption('Admin User', 'Modified by');
+  await selectPillOption('Admin User', 'Modified by');
 
   await waitFor(() => {
     const latest = getLatestDashboardApiCall();

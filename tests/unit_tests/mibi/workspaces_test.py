@@ -151,13 +151,13 @@ def test_dashboards_move_between_workspaces(
     assert client.get(f"/api/v1/workspace/of_dashboard/{a}/").json["result"] is None
 
 
-def test_moving_a_dashboard_needs_ownership(
+def test_moving_a_dashboard_needs_editorship(
     mocker: MockerFixture, client: Any, workspaces: list[Dashboard]
 ) -> None:
     pk = client.post("/api/v1/workspace/", json={"name": "Uno"}).json["result"]["id"]
     mocker.patch.object(
         security_manager,
-        "raise_for_ownership",
+        "raise_for_editorship",
         side_effect=SupersetSecurityException(mocker.MagicMock()),
     )
 
@@ -236,7 +236,7 @@ def test_sniff_image_type(data: bytes, expected: str | None) -> None:
 def test_workspace_dashboards(
     mocker: MockerFixture, client: Any, workspaces: list[Dashboard]
 ) -> None:
-    mocker.patch.object(security_manager, "is_owner", return_value=True)
+    mocker.patch.object(security_manager, "can_edit_resource", return_value=True)
     pk = client.post("/api/v1/workspace/", json={"name": "Uno"}).json["result"]["id"]
     a, b = workspaces
     client.put(f"/api/v1/workspace/{pk}/dashboards/", json={"add": [a.id]})
@@ -337,7 +337,7 @@ def test_roles_decide_what_members_can_do(
         f"/api/v1/workspace/{pk}/members/",
         json={"user_id": carlos.id, "role": "contributor"},
     )
-    mocker.patch.object(security_manager, "raise_for_ownership")
+    mocker.patch.object(security_manager, "raise_for_editorship")
     dashboard = workspaces[0].id
 
     as_user(mocker, bea)
@@ -437,7 +437,7 @@ def test_of_dashboard_hides_foreign_workspaces(
     workspaces: list[Dashboard],
 ) -> None:
     pk = create_as(mocker, client, people["ana"], "Ventas")
-    mocker.patch.object(security_manager, "raise_for_ownership")
+    mocker.patch.object(security_manager, "raise_for_editorship")
     dashboard = workspaces[0].id
     client.put(f"/api/v1/workspace/{pk}/dashboards/", json={"add": [dashboard]})
 

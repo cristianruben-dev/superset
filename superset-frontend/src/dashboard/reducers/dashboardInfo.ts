@@ -24,6 +24,7 @@ import {
 } from '@superset-ui/core';
 import {
   DASHBOARD_INFO_UPDATED,
+  DASHBOARD_SAVE_SUCCEEDED,
   SET_FILTER_BAR_ORIENTATION,
   SET_CROSS_FILTERS_ENABLED,
   DASHBOARD_INFO_FILTERS_CHANGED,
@@ -57,7 +58,7 @@ interface DashboardInfoAction {
   [key: string]: unknown;
 }
 
-interface HydrateDashboardAction {
+export interface HydrateDashboardInfoAction {
   type: typeof HYDRATE_DASHBOARD;
   data: {
     dashboardInfo: DashboardInfo;
@@ -65,16 +66,19 @@ interface HydrateDashboardAction {
   };
 }
 
-type DashboardInfoReducerAction = DashboardInfoAction | HydrateDashboardAction;
+type DashboardInfoReducerAction =
+  | DashboardInfoAction
+  | HydrateDashboardInfoAction;
 
 type DashboardInfoState = Partial<DashboardInfo> & {
   last_modified_time?: number;
+  versionHistoryRevision?: number;
   [key: string]: unknown;
 };
 
 function isHydrateAction(
   action: DashboardInfoReducerAction,
-): action is HydrateDashboardAction {
+): action is HydrateDashboardInfoAction {
   return action.type === HYDRATE_DASHBOARD;
 }
 
@@ -89,7 +93,10 @@ function preserveScopes<T extends ScopedConfigItem>(
   existingConfig: T[] | undefined,
   incomingConfig: T[] | undefined,
 ): T[] {
-  const existingScopesMap = (existingConfig || []).reduce<
+  const truthyExistingConfig = (existingConfig || []).filter(Boolean);
+  const truthyIncomingConfig = (incomingConfig || []).filter(Boolean);
+
+  const existingScopesMap = truthyExistingConfig.reduce<
     Record<string, { chartsInScope?: number[]; tabsInScope?: string[] }>
   >((acc, item) => {
     if (item.chartsInScope != null || item.tabsInScope != null) {
@@ -101,7 +108,7 @@ function preserveScopes<T extends ScopedConfigItem>(
     return acc;
   }, {});
 
-  return (incomingConfig || []).map(item => {
+  return truthyIncomingConfig.map(item => {
     const existingScopes = existingScopesMap[item.id];
     if (item.chartsInScope == null && existingScopes) {
       return {
@@ -119,6 +126,13 @@ export default function dashboardInfoReducer(
   action: DashboardInfoReducerAction,
 ): DashboardInfoState {
   switch (action.type) {
+    case DASHBOARD_SAVE_SUCCEEDED:
+      return (action as DashboardInfoAction).dashboardId === state.id
+        ? {
+            ...state,
+            versionHistoryRevision: (state.versionHistoryRevision ?? 0) + 1,
+          }
+        : state;
     case DASHBOARD_INFO_UPDATED: {
       const dashAction = action as DashboardInfoAction;
       const newInfo = dashAction.newInfo || {};
@@ -184,6 +198,7 @@ export default function dashboardInfoReducer(
           native_filter_configuration: newConfigWithScopes,
         } as DashboardInfo['metadata'],
         last_modified_time: Math.round(new Date().getTime() / 1000),
+        versionHistoryRevision: (state.versionHistoryRevision ?? 0) + 1,
       };
     }
     case HYDRATE_DASHBOARD: {
@@ -289,8 +304,9 @@ export default function dashboardInfoReducer(
         pendingChartCustomizations: {},
       };
     case CLEAR_ALL_CHART_CUSTOMIZATIONS: {
-      const customizationConfig =
-        state.metadata?.chart_customization_config || [];
+      const customizationConfig = (
+        state.metadata?.chart_customization_config || []
+      ).filter(Boolean);
       return {
         ...state,
         metadata: {
@@ -300,6 +316,7 @@ export default function dashboardInfoReducer(
               ...customization,
               targets: customization.targets?.map(target => ({
                 datasetId: target.datasetId,
+                datasourceType: target.datasourceType,
               })),
             }),
           ),

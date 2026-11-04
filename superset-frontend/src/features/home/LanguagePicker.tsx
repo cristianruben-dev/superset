@@ -26,9 +26,9 @@ import { NAVBAR_MENU_POPUP_OFFSET } from './commonMenuData';
 
 export interface Languages {
   [key: string]: {
-    flag: string;
-    url: string;
-    name: string;
+    flag?: string;
+    url?: string;
+    name?: string;
   };
 }
 
@@ -61,9 +61,9 @@ export const useLanguageMenuItems = ({
       key: langKey,
       label: (
         <StyledLabel className="f16">
-          <Typography.Link href={languages[langKey].url}>
-            <i className={`flag ${languages[langKey].flag}`} />
-            {languages[langKey].name}
+          <Typography.Link href={languages[langKey]?.url}>
+            <i className={`flag ${languages[langKey]?.flag ?? 'us'}`} />
+            {languages[langKey]?.name}
             {langKey === locale && (
               <Icons.CheckOutlined className="current-language" iconSize="s" />
             )}
@@ -77,7 +77,7 @@ export const useLanguageMenuItems = ({
       type: 'submenu' as const,
       label: (
         <span className="f16" aria-label={t('Languages')}>
-          <i className={`flag ${languages[locale].flag}`} />
+          <i className={`flag ${languages[locale]?.flag ?? 'us'}`} />
         </span>
       ),
       icon: <Icons.DownOutlined iconSize="xs" />,

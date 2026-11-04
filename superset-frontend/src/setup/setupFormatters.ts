@@ -29,14 +29,23 @@ import {
   createSmartDateVerboseFormatter,
   createSmartDateDetailedFormatter,
   createMemoryFormatter,
+  setCurrencyLocale,
+  createLengthFormatter,
+  createThroughputFormatter,
+  FormatLocaleDefinition,
 } from '@superset-ui/core';
-import { FormatLocaleDefinition } from 'd3-format';
 import { TimeLocaleDefinition } from 'd3-time-format';
+import localeTimeFormat from './localeTimeFormat';
 
 export default function setupFormatters(
   d3NumberFormat: Partial<FormatLocaleDefinition>,
   d3TimeFormat: Partial<TimeLocaleDefinition>,
+  locale: string,
 ) {
+  // Resolve the default currency symbol position (prefix/suffix) according to
+  // the deployment locale's conventions when a chart leaves it unset.
+  setCurrencyLocale(locale);
+
   getNumberFormatterRegistry()
     .setD3Format(d3NumberFormat)
     // Add shims for format strings that are deprecated or common typos.
@@ -73,14 +82,22 @@ export default function setupFormatters(
     .registerValue('$,0', getNumberFormatter('$,.4f'))
     .registerValue('$,0f', getNumberFormatter('$,.4f'))
     .registerValue('$,.f', getNumberFormatter('$,.4f'))
-    .registerValue('DURATION', createDurationFormatter())
+    .registerValue('DURATION', createDurationFormatter({ locale }))
     .registerValue(
       'DURATION_SUB',
-      createDurationFormatter({ formatSubMilliseconds: true }),
+      createDurationFormatter({
+        locale,
+        formatSubMilliseconds: true,
+      }),
     )
     .registerValue(
       'DURATION_COL',
-      createDurationFormatter({ colonNotation: true }),
+      createDurationFormatter({
+        locale,
+        style: 'digital',
+        formatSubMilliseconds: true,
+        fractionalDigits: 1,
+      }),
     )
     .registerValue('MEMORY_DECIMAL', createMemoryFormatter({ binary: false }))
     .registerValue('MEMORY_BINARY', createMemoryFormatter({ binary: true }))
@@ -91,12 +108,27 @@ export default function setupFormatters(
     .registerValue(
       'MEMORY_TRANSFER_RATE_BINARY',
       createMemoryFormatter({ binary: true, transfer: true }),
+    )
+    .registerValue('NETWORK_THROUGHPUT', createThroughputFormatter())
+    .registerValue(
+      'NETWORK_THROUGHPUT_FROM_BYTES',
+      createThroughputFormatter({ fromBytes: true }),
+    )
+    .registerValue('LENGTH', createLengthFormatter({ convertType: 'm => km' }))
+    .registerValue(
+      'LENGTH_CM_KM',
+      createLengthFormatter({ convertType: 'cm => km' }),
+    )
+    .registerValue(
+      'LENGTH_CM_M',
+      createLengthFormatter({ convertType: 'cm => m' }),
     );
 
   const timeFormatterRegistry = getTimeFormatterRegistry();
 
   timeFormatterRegistry
-    .setD3Format(d3TimeFormat)
+    // Month and day names in the language of the app, unless the deployment sets them
+    .setD3Format({ ...localeTimeFormat(locale), ...d3TimeFormat })
     .registerValue(
       SMART_DATE_ID,
       createSmartDateFormatter(timeFormatterRegistry.d3Format),

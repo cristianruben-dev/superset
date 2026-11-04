@@ -74,9 +74,7 @@ const renderShell = (anonymous = false) =>
 beforeEach(() => {
   window.localStorage.clear();
   fetchMock.get('glob:*/api/v1/dashboard/?q=*', {
-    result: [
-      { id: 7, dashboard_title: 'Ventas', url: '/superset/dashboard/7/' },
-    ],
+    result: [{ id: 7, dashboard_title: 'Ventas', url: '/dashboard/7/' }],
   });
 });
 
@@ -129,7 +127,7 @@ test('Ctrl+K opens the search with dashboards and pages', async () => {
 });
 
 test('a dashboard shows without the sidebar, with the logo in the top bar', () => {
-  window.history.pushState({}, '', '/superset/dashboard/7/');
+  window.history.pushState({}, '', '/dashboard/7/');
   const width = window.innerWidth;
   window.innerWidth = 1366;
   try {
@@ -151,7 +149,7 @@ test('a dashboard shows without the sidebar, with the logo in the top bar', () =
 });
 
 test('a dashboard in a small window keeps its header over the page', () => {
-  window.history.pushState({}, '', '/superset/dashboard/7/');
+  window.history.pushState({}, '', '/dashboard/7/');
   const width = window.innerWidth;
   window.innerWidth = 1100;
   try {

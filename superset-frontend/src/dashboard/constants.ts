@@ -45,6 +45,12 @@ export const BUILDER_SIDEPANEL_WIDTH = 374;
 export const BUILDER_SIDEPANEL_RAIL_WIDTH = 32;
 export const OVERWRITE_INSPECT_FIELDS = ['css', 'json_metadata.filter_scopes'];
 export const EMPTY_CONTAINER_Z_INDEX = 10;
+// A grid component's hover menu floats outside the component's own box, so it
+// must paint above the drop targets it overlaps.
+export const HOVER_MENU_Z_INDEX = EMPTY_CONTAINER_Z_INDEX + 1;
+// A hover menu rendered above a column overlaps the bottom edge of whatever
+// sits above it, so resize handles have to win hit testing against it.
+export const RESIZE_HANDLE_Z_INDEX = HOVER_MENU_Z_INDEX + 1;
 
 export const DEFAULT_CROSS_FILTER_SCOPING: NativeFilterScope = {
   rootPath: [DASHBOARD_ROOT_ID],
@@ -53,3 +59,16 @@ export const DEFAULT_CROSS_FILTER_SCOPING: NativeFilterScope = {
 
 export const CHART_WIDTH = 12;
 export const CHART_HEIGHT = 12;
+
+/**
+ * Window events used to coordinate dashboard virtualization when capturing the
+ * dashboard for a client-side export (Download as Image/PDF).
+ *
+ * When DASHBOARD_VIRTUALIZATION is enabled, charts more than a viewport away
+ * are unmounted, so a naive DOM capture records loading spinners instead of the
+ * charts. The export utilities dispatch FORCE_IN_VIEW_EVENT to make every Row
+ * render its content, wait for the charts to finish loading, capture, then
+ * dispatch RESTORE_VIRTUALIZATION_EVENT to re-enable lazy loading.
+ */
+export const FORCE_IN_VIEW_EVENT = 'superset-force-all-in-view';
+export const RESTORE_VIRTUALIZATION_EVENT = 'superset-restore-virtualization';

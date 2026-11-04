@@ -214,6 +214,8 @@ export default function transformProps(
     xTicksLayout,
     xAxisTimeFormat,
     showLegend,
+    showXAxis = true,
+    showYAxis = true,
     yAxisLabel,
     xAxisLabel,
     yAxisFormat,
@@ -471,8 +473,10 @@ export default function transformProps(
     grid: {
       ...defaultGrid,
       top: theme.sizeUnit * 7,
-      bottom: theme.sizeUnit * 7,
-      left: theme.sizeUnit * 5,
+      // Reclaim the axis-oriented padding when an axis is hidden so an
+      // axis-free chart gets a clean, tight layout instead of empty margins.
+      bottom: theme.sizeUnit * (showXAxis ? 7 : 3),
+      left: theme.sizeUnit * (showYAxis ? 5 : 2),
       right: theme.sizeUnit * 7,
     },
     legend: {
@@ -481,6 +485,7 @@ export default function transformProps(
       data: [legendNames.INCREASE, legendNames.DECREASE, legendNames.TOTAL],
     },
     xAxis: {
+      show: showXAxis,
       data: xAxisData,
       type: 'category',
       name: xAxisLabel,
@@ -492,6 +497,7 @@ export default function transformProps(
     },
     yAxis: {
       ...defaultYAxis,
+      show: showYAxis,
       type: 'value',
       nameTextStyle: {
         padding: [0, 0, theme.sizeUnit * 5, 0],

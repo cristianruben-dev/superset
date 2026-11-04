@@ -146,7 +146,7 @@ export function SlicerIcons({
         <Tooltip
           title={tooltip?.text}
           placement="top"
-          styles={{ body: headerTooltipStyle(tooltip ?? {}) }}
+          styles={{ container: headerTooltipStyle(tooltip ?? {}) }}
         >
           <span
             role="img"

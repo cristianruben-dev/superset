@@ -46,7 +46,7 @@ async function expectSturdy(page: Page) {
 }
 
 async function csrf(page: Page) {
-  await page.goto('superset/welcome/');
+  await page.goto('welcome/');
   return page.evaluate(
     async () =>
       (await (await fetch('/api/v1/security/csrf_token/')).json()).result,
@@ -167,7 +167,7 @@ test('a dashboard with extreme titles, tabs and elements stays inside the screen
   });
   expect(saved.ok()).toBe(true);
 
-  await page.goto(`superset/dashboard/${id}/`);
+  await page.goto(`dashboard/${id}/`);
   await expect(page.getByTestId('mibi-button')).toBeVisible({
     timeout: TIMEOUT.PAGE_LOAD,
   });

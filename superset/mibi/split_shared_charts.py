@@ -58,7 +58,8 @@ class SplitResult:
 
 def _clone_chart(chart: Slice) -> Slice:
     clone = chart.clone()
-    clone.owners = list(chart.owners)
+    clone.editors = list(chart.editors)
+    clone.viewers = list(chart.viewers)
     clone.query_context = chart.query_context
     clone.certified_by = chart.certified_by
     clone.certification_details = chart.certification_details
@@ -168,7 +169,7 @@ def split_shared_charts() -> SplitResult:
             to_replace.setdefault(dashboard_id, []).append(chart_id)
 
     for dashboard_id, chart_ids in sorted(to_replace.items()):
-        dashboard = db.session.query(Dashboard).get(dashboard_id)
+        dashboard = db.session.get(Dashboard, dashboard_id)
         mapping: dict[int, int] = {}
         uuids: dict[int, str] = {}
         charts = {chart.id: chart for chart in dashboard.slices}
@@ -181,9 +182,7 @@ def split_shared_charts() -> SplitResult:
             uuids[clone.id] = str(clone.uuid)
 
         dashboard.slices = [
-            db.session.query(Slice).get(mapping[chart.id])
-            if chart.id in mapping
-            else chart
+            db.session.get(Slice, mapping[chart.id]) if chart.id in mapping else chart
             for chart in dashboard.slices
         ]
         if dashboard.position_json:

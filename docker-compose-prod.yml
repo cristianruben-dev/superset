@@ -30,7 +30,9 @@ x-mibi-image: &mibi-image
     context: .
     target: prod
     args:
-      INCLUDE_CHROMIUM: ${INCLUDE_CHROMIUM:-false}
+      # Alerts and reports take their screenshots with Playwright + Chromium
+      # (about 600 MB more); set INCLUDE_CHROMIUM=false only if you use no reports
+      INCLUDE_CHROMIUM: ${INCLUDE_CHROMIUM:-true}
   env_file:
     - path: docker/.env-prod
       required: true

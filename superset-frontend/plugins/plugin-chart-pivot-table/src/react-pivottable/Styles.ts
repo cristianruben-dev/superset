@@ -27,25 +27,27 @@ export const Styles = styled.div<{
   freezeRowHeaders?: boolean;
 }>`
   ${({ theme, isDashboardEditMode, freezeRowHeaders }) => css`
-    ${freezeRowHeaders &&
-    !isDashboardEditMode &&
-    css`
-      table.pvtTable th[data-mibi-level] {
-        position: sticky;
-        z-index: 1;
-        background-color: ${theme.colorBgBase};
-      }
-      table.pvtTable thead th[data-mibi-level] {
-        z-index: 2;
-      }
-      ${FROZEN_LEVELS.map(
-        level => `
+    ${
+      freezeRowHeaders &&
+      !isDashboardEditMode &&
+      css`
+        table.pvtTable th[data-mibi-level] {
+          position: sticky;
+          z-index: 1;
+          background-color: ${theme.colorBgBase};
+        }
+        table.pvtTable thead th[data-mibi-level] {
+          z-index: 2;
+        }
+        ${FROZEN_LEVELS.map(
+          level => `
           table.pvtTable th[data-mibi-level='${level}'] {
             left: var(--mibi-freeze-${level}, 0px);
           }
         `,
-      ).join('')}
-    `}
+        ).join('')}
+      `
+    }
 
     table.pvtTable {
       position: ${isDashboardEditMode ? 'inherit' : 'relative'};
@@ -148,6 +150,10 @@ export const Styles = styled.div<{
       vertical-align: baseline;
     }
 
+    table.pvtTable tbody tr th.pvtRowLabel.pvtRowLabelLast {
+      border-bottom: 1px solid ${theme.colorSplit};
+    }
+
     .pvtTotal,
     .pvtGrandTotal {
       font-weight: ${theme.fontWeightStrong};
@@ -166,7 +172,23 @@ export const Styles = styled.div<{
     }
 
     .toggle {
+      appearance: none;
+      border: none;
+      background: none;
       padding-right: ${theme.sizeUnit}px;
+      font: inherit;
+      cursor: pointer;
+    }
+
+    .sort-icon-btn {
+      display: inline-flex;
+      align-items: center;
+      appearance: none;
+      border: none;
+      background: none;
+      padding: 0;
+      margin: 0;
+      font: inherit;
       cursor: pointer;
     }
 

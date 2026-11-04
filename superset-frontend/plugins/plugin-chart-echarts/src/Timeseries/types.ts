@@ -25,14 +25,17 @@ import {
   QueryFormMetric,
   TimeFormatter,
   TimeGranularity,
+  TooltipTruncationMode,
 } from '@superset-ui/core';
 import {
   BaseChartProps,
   BaseTransformedProps,
   ContextMenuTransformedProps,
   CrossFilterTransformedProps,
+  LabelPositionEnum,
   LegendFormData,
   VisualFormatFormData,
+  LegendOrientation,
   StackType,
   TitleFormData,
 } from '../types';
@@ -52,6 +55,14 @@ export enum EchartsTimeseriesSeriesType {
   End = 'end',
 }
 
+export enum BarValueLabelPosition {
+  Auto = 'auto',
+  InsideEnd = 'insideEnd',
+  OutsideEnd = 'outsideEnd',
+  InsideCenter = 'insideCenter',
+  InsideBase = 'insideBase',
+}
+
 export type EchartsTimeseriesFormData = QueryFormData & {
   annotationLayers: AnnotationLayer[];
   area: boolean;
@@ -67,19 +78,25 @@ export type EchartsTimeseriesFormData = QueryFormData & {
   logAxis: boolean;
   markerEnabled: boolean;
   markerSize: number;
+  maxMarkerSize?: number;
+  minMarkerSize?: number;
   metrics: QueryFormMetric[];
   minorSplitLine: boolean;
   minorTicks: boolean;
+  gridlines: boolean;
+  axisTicks: boolean;
   opacity: number;
   orderDesc: boolean;
   rowLimit: number;
   seriesType: EchartsTimeseriesSeriesType;
+  size?: QueryFormMetric;
   stack: StackType;
   stackDimension: string;
   timeCompare?: string[];
   tooltipTimeFormat?: string;
   showTooltipTotal?: boolean;
   showTooltipPercentage?: boolean;
+  tooltipTruncation?: TooltipTruncationMode;
   truncateXAxis: boolean;
   truncateYAxis: boolean;
   yAxisFormat?: string;
@@ -95,6 +112,17 @@ export type EchartsTimeseriesFormData = QueryFormData & {
   xAxisLabelRotation: number;
   xAxisLabelInterval: number | string;
   showValue: boolean;
+  valueLabelPosition: BarValueLabelPosition;
+  /**
+   * Where the data label sits relative to its data point, applied when
+   * `showValue` is on.
+   *
+   * `'auto'` keeps the orientation-aware default the chart used before this
+   * control existed: `Right` for a horizontal chart, `Top` otherwise. It is
+   * also the value every chart saved before then resolves to, so the default
+   * must stay `'auto'` for those to keep rendering as they did.
+   */
+  labelPosition?: LabelPositionEnum | 'auto';
   onlyTotal: boolean;
   showExtraControls: boolean;
   percentageThreshold: number;
@@ -108,10 +136,45 @@ export interface EchartsTimeseriesChartProps extends BaseChartProps<EchartsTimes
   formData: EchartsTimeseriesFormData;
 }
 
+export type TimeseriesLegendLineType = 'solid' | 'dashed' | 'dotted' | number[];
+
+/** What the legend draws for an item: the icon the ECharts legend would use for the series. */
+export type TimeseriesLegendIcon = { opacity: number } & (
+  | { shape: 'box' }
+  | { shape: 'symbol'; symbol: string }
+  | {
+      shape: 'line';
+      lineType: TimeseriesLegendLineType;
+      lineWidth: number;
+      symbol: string;
+      /** The symbol's own opacity (ECharts uses itemStyle.opacity); 0 hides it. */
+      symbolOpacity: number;
+    }
+);
+
+export type TimeseriesLegendItem = {
+  color: string;
+  icon: TimeseriesLegendIcon;
+  interactive: boolean;
+  name: string;
+  selected: boolean;
+};
+
+export type TimeseriesCustomLegend = {
+  grid: {
+    bottom: number | string;
+    top: number | string;
+  };
+  items: TimeseriesLegendItem[];
+  orientation: LegendOrientation.Top | LegendOrientation.Bottom;
+  showSelectors: boolean;
+};
+
 export type TimeseriesChartTransformedProps =
   BaseTransformedProps<EchartsTimeseriesFormData> &
     ContextMenuTransformedProps &
     CrossFilterTransformedProps & {
+      customLegend?: TimeseriesCustomLegend;
       legendData?: OptionName[];
       isRefreshing?: boolean;
       xValueFormatter: TimeFormatter | StringConstructor;
@@ -119,5 +182,6 @@ export type TimeseriesChartTransformedProps =
         label: string;
         type: AxisType;
       };
+      resolvedTimeGrain?: TimeGranularity;
       onFocusedSeries: (series: string | null) => void;
     };

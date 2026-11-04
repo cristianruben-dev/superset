@@ -44,9 +44,7 @@ export default function ExploreGate({ children }: { children: JSX.Element }) {
     SupersetClient.get({ endpoint: `/api/v1/chart/${Number(sliceId)}` })
       .then(({ json }) => {
         const dashboardId = json?.result?.dashboards?.[0]?.id;
-        setTarget(
-          dashboardId ? `/superset/dashboard/${dashboardId}/` : DASHBOARD_LIST,
-        );
+        setTarget(dashboardId ? `/dashboard/${dashboardId}/` : DASHBOARD_LIST);
       })
       .catch(() => setTarget(DASHBOARD_LIST));
   }, [panel]);

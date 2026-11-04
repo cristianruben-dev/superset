@@ -22,15 +22,14 @@ import {
   Preset,
   VizType,
 } from '@superset-ui/core';
-import CalendarChartPlugin from '@superset-ui/legacy-plugin-chart-calendar';
-import ChordChartPlugin from '@superset-ui/legacy-plugin-chart-chord';
-import CountryMapChartPlugin from '@superset-ui/legacy-plugin-chart-country-map';
-import MapBoxChartPlugin from '@superset-ui/legacy-plugin-chart-map-box';
+import CalendarChartPlugin from '@superset-ui/plugin-chart-calendar';
+import ChordChartPlugin from '@superset-ui/plugin-chart-chord';
+import CountryMapChartPlugin from '@superset-ui/plugin-chart-country-map';
 import TableChartPlugin from '@superset-ui/plugin-chart-table';
 import { WordCloudChartPlugin } from '@superset-ui/plugin-chart-word-cloud';
-import WorldMapChartPlugin from '@superset-ui/legacy-plugin-chart-world-map';
-import { BulletChartPlugin } from '@superset-ui/legacy-preset-chart-nvd3';
-import { DeckGLChartPreset } from '@superset-ui/legacy-preset-chart-deckgl';
+import WorldMapChartPlugin from '@superset-ui/plugin-chart-world-map';
+import { DeckGLChartPreset } from '@superset-ui/preset-chart-deckgl';
+import ScatterMapChartPlugin from '@superset-ui/plugin-chart-point-cluster-map';
 import { CartodiagramPlugin } from '@superset-ui/plugin-chart-cartodiagram';
 import {
   BigNumberChartPlugin,
@@ -59,6 +58,8 @@ import {
   BigNumberPeriodOverPeriodChartPlugin,
   EchartsHeatmapChartPlugin,
   EchartsGanttChartPlugin,
+  EchartsBulletChartPlugin,
+  EchartsButterflyChartPlugin,
 } from '@superset-ui/plugin-chart-echarts';
 import {
   SelectFilterPlugin,
@@ -103,7 +104,7 @@ export default class MainPreset extends Preset {
           key: VizType.BigNumberTotal,
         }),
         new EchartsBoxPlotChartPlugin().configure({ key: VizType.BoxPlot }),
-        new BulletChartPlugin().configure({ key: VizType.Bullet }),
+        new EchartsBulletChartPlugin().configure({ key: VizType.Bullet }),
         new CalendarChartPlugin().configure({ key: VizType.Calendar }),
         new ChordChartPlugin().configure({ key: VizType.Chord }),
         new CountryMapChartPlugin().configure({ key: VizType.CountryMap }),
@@ -117,7 +118,7 @@ export default class MainPreset extends Preset {
         new EchartsMixedTimeseriesChartPlugin().configure({
           key: VizType.MixedTimeseries,
         }),
-        new MapBoxChartPlugin().configure({ key: VizType.MapBox }),
+        new ScatterMapChartPlugin().configure({ key: VizType.PointClusterMap }),
         new EchartsPieChartPlugin().configure({ key: VizType.Pie }),
         new PivotTableChartPluginV2().configure({ key: VizType.PivotTable }),
         new TableChartPlugin().configure({ key: VizType.Table }),
@@ -146,6 +147,9 @@ export default class MainPreset extends Preset {
         }),
         new EchartsWaterfallChartPlugin().configure({
           key: VizType.Waterfall,
+        }),
+        new EchartsButterflyChartPlugin().configure({
+          key: VizType.Butterfly,
         }),
         new EchartsHeatmapChartPlugin().configure({ key: VizType.Heatmap }),
         new EchartsHistogramChartPlugin().configure({ key: VizType.Histogram }),

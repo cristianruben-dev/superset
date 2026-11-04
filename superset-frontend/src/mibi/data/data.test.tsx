@@ -47,13 +47,21 @@ const state = {
   common: { conf: { CSV_EXTENSIONS: ['csv'], ALLOWED_EXTENSIONS: ['csv'] } },
 };
 
-const dataset = (id: number, name: string, database: number, kind = 'physical') => ({
+const dataset = (
+  id: number,
+  name: string,
+  database: number,
+  kind = 'physical',
+) => ({
   id,
   table_name: name,
   kind,
   schema: 'public',
   description: null,
-  database: { id: database, database_name: database === 1 ? 'Ventas' : 'Finanzas' },
+  database: {
+    id: database,
+    database_name: database === 1 ? 'Ventas' : 'Finanzas',
+  },
   changed_on_delta_humanized: '1 hour ago',
 });
 
@@ -64,8 +72,22 @@ afterEach(() => {
 test('lists connections with their dataset count and filters by them', async () => {
   fetchMock.get('glob:*/api/v1/database/?q=*', {
     result: [
-      { id: 1, database_name: 'Ventas', backend: 'postgresql', allow_file_upload: true, expose_in_sqllab: true, changed_on_delta_humanized: '' },
-      { id: 2, database_name: 'Finanzas', backend: 'mysql', allow_file_upload: false, expose_in_sqllab: false, changed_on_delta_humanized: '' },
+      {
+        id: 1,
+        database_name: 'Ventas',
+        backend: 'postgresql',
+        allow_file_upload: true,
+        expose_in_sqllab: true,
+        changed_on_delta_humanized: '',
+      },
+      {
+        id: 2,
+        database_name: 'Finanzas',
+        backend: 'mysql',
+        allow_file_upload: false,
+        expose_in_sqllab: false,
+        changed_on_delta_humanized: '',
+      },
     ],
   });
   fetchMock.get('glob:*/api/v1/dataset/?q=*', {
@@ -76,7 +98,11 @@ test('lists connections with their dataset count and filters by them', async () 
     ],
   });
 
-  render(<DataPage />, { useRedux: true, useRouter: true, initialState: state });
+  render(<DataPage />, {
+    useRedux: true,
+    useRouter: true,
+    initialState: state,
+  });
 
   const cards = await screen.findAllByTestId('data-connection');
   expect(cards).toHaveLength(2);
@@ -122,10 +148,26 @@ const detail = {
   description: 'All orders',
   database: { id: 1, database_name: 'Ventas' },
   columns: [
-    { id: 1, column_name: 'amount', type: 'NUMERIC', is_dttm: false, groupby: true, filterable: true, is_active: true, extra: null },
+    {
+      id: 1,
+      column_name: 'amount',
+      type: 'NUMERIC',
+      is_dttm: false,
+      groupby: true,
+      filterable: true,
+      is_active: true,
+      extra: null,
+    },
   ],
   metrics: [
-    { id: 9, metric_name: 'count', expression: 'COUNT(*)', verbose_name: null, metric_type: 'count', uuid: 'u' },
+    {
+      id: 9,
+      metric_name: 'count',
+      expression: 'COUNT(*)',
+      verbose_name: null,
+      metric_type: 'count',
+      uuid: 'u',
+    },
   ],
   owners: [],
 };
@@ -146,17 +188,25 @@ test('creates a metric and keeps the existing ones', async () => {
 
   renderDataset();
 
-  expect(await screen.findByRole('heading', { name: 'orders' })).toBeInTheDocument();
+  expect(
+    await screen.findByRole('heading', { name: 'orders' }),
+  ).toBeInTheDocument();
   await userEvent.click(screen.getByRole('tab', { name: /Metrics/ }));
   expect(screen.getAllByTestId('dataset-metric')).toHaveLength(1);
 
-  await userEvent.click(screen.getAllByRole('button', { name: /New metric/ })[0]);
+  await userEvent.click(
+    screen.getAllByRole('button', { name: /New metric/ })[0],
+  );
   await userEvent.type(screen.getByLabelText('Name'), 'revenue');
   await userEvent.type(screen.getByLabelText('SQL expression'), 'SUM(amount)');
   await userEvent.click(screen.getByRole('button', { name: 'Create' }));
 
   await waitFor(() =>
-    expect(fetchMock.callHistory.called('glob:*/api/v1/dataset/5', { method: 'PUT' })).toBe(true),
+    expect(
+      fetchMock.callHistory.called('glob:*/api/v1/dataset/5', {
+        method: 'PUT',
+      }),
+    ).toBe(true),
   );
   const body = JSON.parse(
     fetchMock.callHistory.lastCall('glob:*/api/v1/dataset/5', { method: 'PUT' })
@@ -191,7 +241,11 @@ test('deleting a metric sends the others', async () => {
   await userEvent.click(screen.getByLabelText('Delete count'));
 
   await waitFor(() =>
-    expect(fetchMock.callHistory.called('glob:*/api/v1/dataset/5', { method: 'PUT' })).toBe(true),
+    expect(
+      fetchMock.callHistory.called('glob:*/api/v1/dataset/5', {
+        method: 'PUT',
+      }),
+    ).toBe(true),
   );
   const body = JSON.parse(
     fetchMock.callHistory.lastCall('glob:*/api/v1/dataset/5', { method: 'PUT' })

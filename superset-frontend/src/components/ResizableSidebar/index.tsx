@@ -31,7 +31,7 @@ const ResizableWrapper = styled.div<{ $side: 'left' | 'right' }>`
   }
 
   .sidebar-resizer {
-    // @z-index-above-sticky-header (100) + 1 = 101
+    /* @z-index-above-sticky-header (100) + 1 = 101 */
     z-index: 101;
   }
 

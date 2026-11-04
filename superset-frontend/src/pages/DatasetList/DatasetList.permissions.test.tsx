@@ -27,7 +27,7 @@ import {
   mockWriteUser,
   mockExportOnlyUser,
   mockDatasets,
-  API_ENDPOINTS,
+  mockDatasetListEndpoints,
 } from './DatasetList.testHelpers';
 
 // Increase default timeout for tests that involve multiple async operations
@@ -226,8 +226,7 @@ test('action buttons respect user permissions', async () => {
 
   const dataset = mockDatasets[0];
 
-  fetchMock.removeRoutes({ names: [API_ENDPOINTS.DATASETS] });
-  fetchMock.get(API_ENDPOINTS.DATASETS, { result: [dataset], count: 1 });
+  mockDatasetListEndpoints({ result: [dataset], count: 1 });
 
   renderDatasetList(mockAdminUser);
 
@@ -253,8 +252,7 @@ test('read-only user sees no delete or duplicate buttons in row', async () => {
 
   const dataset = mockDatasets[0];
 
-  fetchMock.removeRoutes({ names: [API_ENDPOINTS.DATASETS] });
-  fetchMock.get(API_ENDPOINTS.DATASETS, { result: [dataset], count: 1 });
+  mockDatasetListEndpoints({ result: [dataset], count: 1 });
 
   renderDatasetList(mockReadOnlyUser);
 
@@ -286,11 +284,9 @@ test('write user sees edit, delete, and export actions', async () => {
 
   const dataset = {
     ...mockDatasets[0],
-    owners: [{ id: mockWriteUser.userId, username: 'writeuser' }],
   };
 
-  fetchMock.removeRoutes({ names: [API_ENDPOINTS.DATASETS] });
-  fetchMock.get(API_ENDPOINTS.DATASETS, { result: [dataset], count: 1 });
+  mockDatasetListEndpoints({ result: [dataset], count: 1 });
 
   renderDatasetList(mockWriteUser);
 
@@ -309,7 +305,7 @@ test('write user sees edit, delete, and export actions', async () => {
   const exportButton = within(row!).getByTestId('upload');
   expect(exportButton).toBeInTheDocument();
 
-  // Should have edit button (user is owner)
+  // Should have edit button (user is editor)
   const editButton = within(row!).getByTestId('edit');
   expect(editButton).toBeInTheDocument();
 
@@ -325,8 +321,7 @@ test('export-only user has no Actions column (no write/duplicate permissions)', 
 
   const dataset = mockDatasets[0];
 
-  fetchMock.removeRoutes({ names: [API_ENDPOINTS.DATASETS] });
-  fetchMock.get(API_ENDPOINTS.DATASETS, { result: [dataset], count: 1 });
+  mockDatasetListEndpoints({ result: [dataset], count: 1 });
 
   renderDatasetList(mockExportOnlyUser);
 
@@ -359,8 +354,7 @@ test('user with can_duplicate sees duplicate button only for virtual datasets', 
   const physicalDataset = mockDatasets[0]; // kind: 'physical'
   const virtualDataset = mockDatasets[1]; // kind: 'virtual'
 
-  fetchMock.removeRoutes({ names: [API_ENDPOINTS.DATASETS] });
-  fetchMock.get(API_ENDPOINTS.DATASETS, {
+  mockDatasetListEndpoints({
     result: [physicalDataset, virtualDataset],
     count: 2,
   });

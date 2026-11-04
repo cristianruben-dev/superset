@@ -48,10 +48,12 @@ test('should pass removeToast to the Toast component', async () => {
   await waitFor(() => expect(removeToast).toHaveBeenCalledTimes(1));
 });
 
-test('presenter container does not capture pointer events over its empty area', () => {
-  const { container } = setup();
-  const presenter = container.querySelector('#toast-presenter');
-  // The container spans a tall fixed region; its empty area must let clicks
-  // pass through to underlying controls (e.g. the Explore Save button).
-  expect(presenter).toHaveStyle('pointer-events: none');
+test('presenter caps its height with max-height so it hugs the toasts', () => {
+  // A fixed `height` would make the fixed overlay span the viewport and block
+  // controls underneath it; `max-height` lets it shrink to the toasts while
+  // still scrolling when they overflow.
+  const presenter = setup().container.querySelector('#toast-presenter');
+  expect(presenter).toBeInTheDocument();
+  expect(presenter).toHaveStyleRule('max-height', 'calc(100vh - 100px)');
+  expect(presenter).not.toHaveStyleRule('height', 'calc(100vh - 100px)');
 });

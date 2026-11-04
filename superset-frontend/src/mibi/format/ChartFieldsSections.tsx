@@ -147,7 +147,8 @@ export function ChartFieldsSections({
   const allowed = useSelector((state: RootState) =>
     canChangeFields(
       state.user,
-      (state.sliceEntities?.slices as unknown as Anything)?.[chartId]?.owners,
+      (state.sliceEntities?.slices as unknown as Anything)?.[chartId]?.editors,
+      !!state.dashboardInfo?.dash_edit_perm,
     ),
   );
   const search = useContext(FormatSearchContext);
@@ -203,7 +204,7 @@ export function ChartFieldsSections({
 
   if (!allowed) {
     return (
-      <Hint>{t('Only the owners of this chart can change its fields.')}</Hint>
+      <Hint>{t('Only the editors of this chart can change its fields.')}</Hint>
     );
   }
   if (!built || !formData) {

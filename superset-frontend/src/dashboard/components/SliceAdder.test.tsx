@@ -26,7 +26,11 @@ import {
 import { DatasourceType } from '@superset-ui/core';
 import { sliceEntitiesForDashboard as mockSliceEntities } from 'spec/fixtures/mockSliceEntities';
 import { configureStore } from '@reduxjs/toolkit';
-import SliceAdder, { SliceAdderProps, sortByComparator } from './SliceAdder';
+import SliceAdder, {
+  SliceAdderProps,
+  sortByComparator,
+  SliceListRow,
+} from './SliceAdder';
 
 // Mock the Select component to avoid debounce issues
 jest.mock('@superset-ui/core', () => ({
@@ -46,17 +50,17 @@ jest.mock('@superset-ui/core', () => ({
   ),
 }));
 
-jest.mock('lodash/debounce', () => {
-  const debounced = (fn: Function) => {
+jest.mock('lodash', () => ({
+  ...jest.requireActual('lodash'),
+  debounce: (fn: Function) => {
     const debouncedFn = ((...args: any[]) =>
       fn(...args)) as unknown as Function & {
       cancel: () => void;
     };
     debouncedFn.cancel = () => {};
     return debouncedFn;
-  };
-  return debounced;
-});
+  },
+}));
 
 const mockStore = configureStore({
   reducer: (state = { common: { locale: 'en' } }) => state,
@@ -188,7 +192,7 @@ describe('SliceAdder', () => {
       description: '',
       description_markdown: '',
       modified: '2020-01-01',
-      owners: [],
+      editors: [],
       created_by: { id: 1 }, // Fix: provide required user object instead of null
       cache_timeout: null,
       uuid: '1234',
@@ -257,5 +261,55 @@ describe('SliceAdder', () => {
     const { rerender } = renderSliceAdder();
     rerender(<SliceAdder {...defaultProps} selectedSliceIds={[129]} />);
     expect(screen.getByText('Create new chart')).toBeInTheDocument();
+  });
+
+  // Covers the react-window v2 `rowComponent`/`rowProps` wiring: SliceAdder
+  // hoists its row renderer to module scope (see SliceAdder.tsx) so
+  // react-window doesn't remount every row on each render. This verifies
+  // that hoisted row renders correctly from the flattened rowProps react-window
+  // passes it (index/style plus the custom row props), rather than through
+  // closures over component state.
+  test('SliceListRow renders a chart card for the slice at the given index', () => {
+    const filteredSlices = Object.values(mockSliceEntities.slices);
+    render(
+      <SliceListRow
+        index={0}
+        style={{}}
+        ariaAttributes={{
+          role: 'listitem',
+          'aria-posinset': 1,
+          'aria-setsize': filteredSlices.length,
+        }}
+        filteredSlices={filteredSlices}
+        selectedSliceIdsSet={new Set()}
+        editMode={false}
+      />,
+      { useDnd: true, store: mockStore },
+    );
+    expect(screen.getByTestId('chart-card')).toBeInTheDocument();
+    expect(screen.getByText(filteredSlices[0].slice_name)).toBeInTheDocument();
+  });
+
+  test('SliceListRow renders the slice at the row index passed via rowProps, not index 0', () => {
+    const filteredSlices = Object.values(mockSliceEntities.slices);
+    render(
+      <SliceListRow
+        index={1}
+        style={{}}
+        ariaAttributes={{
+          role: 'listitem',
+          'aria-posinset': 2,
+          'aria-setsize': filteredSlices.length,
+        }}
+        filteredSlices={filteredSlices}
+        selectedSliceIdsSet={new Set()}
+        editMode={false}
+      />,
+      { useDnd: true, store: mockStore },
+    );
+    expect(screen.getByText(filteredSlices[1].slice_name)).toBeInTheDocument();
+    expect(
+      screen.queryByText(filteredSlices[0].slice_name),
+    ).not.toBeInTheDocument();
   });
 });

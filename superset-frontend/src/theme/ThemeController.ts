@@ -27,6 +27,7 @@ import {
   themeObject as supersetThemeObject,
   normalizeThemeConfig,
 } from '@apache-superset/core/theme';
+import { isEqual } from 'lodash-es';
 import type {
   BootstrapThemeData,
   BootstrapThemeDataConfig,
@@ -78,13 +79,29 @@ export class ThemeController {
 
   private darkTheme: AnyThemeConfig | null;
 
+  // Workspace default baseline for setThemeConfig's override check. Separate from
+  // the mutable defaultTheme/darkTheme slots, which setThemeConfig reassigns.
+  private workspaceDefaultTheme: AnyThemeConfig | null;
+
+  private workspaceDarkTheme: AnyThemeConfig | null;
+
+  // The built-in/config fallback default theme captured at construction, used
+  // when the configuration sets no THEME_DEFAULT.
+  private builtInDefaultTheme: AnyThemeConfig | null;
+
   private systemMode: ThemeMode.DARK | ThemeMode.DEFAULT;
 
   private currentMode: ThemeMode;
 
   private onChangeCallbacks: Set<(theme: Theme) => void> = new Set();
 
-  private mediaQuery: MediaQueryList;
+  private mediaQuery: MediaQueryList | undefined;
+
+  private bootstrapDefaultMode: ThemeMode = ThemeMode.DEFAULT;
+
+  // Tracks whether an explicit theme config override has been applied via
+  // setThemeConfig (e.g. from the Embedded SDK).
+  private themeConfigOverride = false;
 
   // Track loaded font URLs to avoid duplicate injections
   private loadedFontUrls: Set<string> = new Set();
@@ -98,7 +115,7 @@ export class ThemeController {
     defaultTheme = (supersetThemeObject.theme as AnyThemeConfig) ?? {},
     onChange = undefined,
     initialMode = undefined,
-  }: ThemeControllerOptions = {}) {
+  }: ThemeControllerOptions & { initialMode?: ThemeMode } = {}) {
     this.storage = storage;
     this.modeStorageKey = modeStorageKey;
     this.initialMode = initialMode;
@@ -107,13 +124,23 @@ export class ThemeController {
     this.globalTheme = themeObject;
 
     // Initialize bootstrap data and themes
-    const { bootstrapDefaultTheme, bootstrapDarkTheme }: BootstrapThemeData =
-      this.loadBootstrapData();
+    const {
+      bootstrapDefaultTheme,
+      bootstrapDarkTheme,
+      bootstrapDefaultMode,
+    }: BootstrapThemeData = this.loadBootstrapData();
+
+    // Capture the built-in/config fallback default theme.
+    this.builtInDefaultTheme = defaultTheme;
 
     // Set themes from bootstrap data
     // These will be the THEME_DEFAULT and THEME_DARK from config
-    this.defaultTheme = bootstrapDefaultTheme || defaultTheme || null;
+    this.defaultTheme =
+      bootstrapDefaultTheme || this.builtInDefaultTheme || null;
     this.darkTheme = bootstrapDarkTheme;
+    this.workspaceDefaultTheme = this.defaultTheme;
+    this.workspaceDarkTheme = this.darkTheme;
+    this.bootstrapDefaultMode = bootstrapDefaultMode;
 
     // Initialize system theme detection
     this.systemMode = ThemeController.getSystemPreferredMode();
@@ -157,6 +184,12 @@ export class ThemeController {
       );
 
     this.onChangeCallbacks.clear();
+
+    // Clean up injected font styles
+    document
+      .querySelectorAll('style[data-superset-fonts]')
+      .forEach(el => el.remove());
+    this.loadedFontUrls.clear();
   }
 
   /**
@@ -190,6 +223,20 @@ export class ThemeController {
   }
 
   /**
+   * Returns the resolved theme mode as 'dark' or 'light'.
+   * Takes into account SYSTEM mode and returns the actual resolved preference.
+   */
+  public getCurrentModeResolved(): 'dark' | 'light' {
+    const activeTheme = this.getThemeForMode(this.currentMode);
+    if (activeTheme) {
+      const normalizedTheme = this.normalizeTheme(activeTheme);
+      return isThemeConfigDark(normalizedTheme) ? 'dark' : 'light';
+    }
+
+    return this.currentMode === ThemeMode.DARK ? 'dark' : 'light';
+  }
+
+  /**
    * Sets new theme.
    * @param theme - The new theme to apply
    * @throws {Error} If the user does not have permission to update the theme
@@ -209,7 +256,7 @@ export class ThemeController {
    * @throws {Error} If the user does not have permission to update the theme mode
    */
   public setThemeMode(mode: ThemeMode): void {
-    this.validateModeUpdatePermission(mode);
+    this.validateModeUpdatePermission();
 
     if (this.currentMode === mode) return;
 
@@ -235,6 +282,14 @@ export class ThemeController {
   }
 
   /**
+   * Checks if an explicit theme config override has been applied via
+   * setThemeConfig (e.g. from the Embedded SDK).
+   */
+  public hasThemeConfigOverride(): boolean {
+    return this.themeConfigOverride;
+  }
+
+  /**
    * Checks if OS preference detection is allowed.
    * Allowed when dark theme is available (including base dark theme)
    */
@@ -249,12 +304,20 @@ export class ThemeController {
    * @param config - The complete theme configuration object
    */
   public setThemeConfig(config: SupersetThemeConfig): void {
+    // An override only when the config differs from the workspace default, so an
+    // auto-forwarded default does not suppress the dashboard theme. Compare against
+    // the retained baseline, not the slots reassigned just below.
+    const isExplicitOverride =
+      !isEqual(config.theme_default, this.workspaceDefaultTheme) ||
+      !isEqual(config.theme_dark || null, this.workspaceDarkTheme);
+
     this.defaultTheme = config.theme_default;
     this.darkTheme = config.theme_dark || null;
+    this.themeConfigOverride = isExplicitOverride;
 
     let newMode: ThemeMode;
     try {
-      this.validateModeUpdatePermission(this.currentMode);
+      this.validateModeUpdatePermission();
       const hasRequiredTheme = this.isValidThemeMode(this.currentMode);
       newMode = hasRequiredTheme
         ? this.currentMode
@@ -378,7 +441,17 @@ export class ThemeController {
       common: { theme = {} as BootstrapThemeDataConfig },
     } = getBootstrapData();
 
-    const { default: defaultTheme, dark: darkTheme } = theme;
+    return this.parseThemeConfig(theme);
+  }
+
+  /**
+   * Parses and validates the resolved theme config slice of the page bootstrap
+   * into the controller's internal theme representation.
+   */
+  private parseThemeConfig(
+    theme: BootstrapThemeDataConfig,
+  ): BootstrapThemeData {
+    const { default: defaultTheme, dark: darkTheme, defaultMode } = theme;
 
     const hasValidDefault: boolean = this.isNonEmptyObject(defaultTheme);
     const hasValidDark: boolean = this.isNonEmptyObject(darkTheme);
@@ -388,9 +461,21 @@ export class ThemeController {
       hasValidDefault && !this.isEmptyTheme(defaultTheme);
     const hasCustomDark = hasValidDark && !this.isEmptyTheme(darkTheme);
 
+    const modeMap: Record<string, ThemeMode> = {
+      default: ThemeMode.DEFAULT,
+      dark: ThemeMode.DARK,
+      system: ThemeMode.SYSTEM,
+    };
+    const bootstrapDefaultMode: ThemeMode =
+      (defaultMode &&
+        Object.hasOwn(modeMap, defaultMode) &&
+        modeMap[defaultMode]) ||
+      ThemeMode.SYSTEM;
+
     return {
       bootstrapDefaultTheme: hasCustomDefault ? defaultTheme : null,
       bootstrapDarkTheme: hasCustomDark ? darkTheme : null,
+      bootstrapDefaultMode,
       hasCustomThemes: hasCustomDefault || hasCustomDark,
     };
   }
@@ -469,8 +554,8 @@ export class ThemeController {
     )
       return this.initialMode;
 
-    // Default to system preference when both themes are available
-    return ThemeMode.SYSTEM;
+    // Fall back to the deployment-configured default mode
+    return this.bootstrapDefaultMode;
   }
 
   /**
@@ -524,10 +609,9 @@ export class ThemeController {
 
   /**
    * Validates permission to update mode.
-   * @param newMode - The new mode to validate
    * @throws {Error} If the user does not have permission to update the theme mode
    */
-  private validateModeUpdatePermission(newMode: ThemeMode): void {
+  private validateModeUpdatePermission(): void {
     // Check if user can set a new theme mode (dark theme must exist)
     if (!this.canSetMode())
       throw new Error(

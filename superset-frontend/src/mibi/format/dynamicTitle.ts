@@ -36,7 +36,7 @@ const labelOf = (state: unknown): string => {
   if (!filterState) return '';
   if (typeof filterState.label === 'string' && filterState.label)
     return filterState.label;
-  const value = filterState.value;
+  const {value} = filterState;
   if (Array.isArray(value)) return value.map(String).join(', ');
   return value === undefined || value === null ? '' : String(value);
 };

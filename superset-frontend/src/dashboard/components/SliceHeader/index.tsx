@@ -26,7 +26,12 @@ import {
   useState,
 } from 'react';
 import { t } from '@apache-superset/core/translation';
-import { getExtensionsRegistry, QueryData } from '@superset-ui/core';
+import {
+  getExtensionsRegistry,
+  JsonObject,
+  QueryData,
+  VizType,
+} from '@superset-ui/core';
 import {
   css,
   styled,
@@ -43,9 +48,10 @@ import { useVisualFormat } from 'src/mibi/format/useVisualFormat';
 import { SortAxisButton } from 'src/mibi/sort/SortAxisButton';
 import { ChartActionButton, HeaderExtras } from 'src/mibi/format/HeaderExtras';
 import SliceHeaderControls from 'src/dashboard/components/SliceHeaderControls';
+import { useIsMobile } from 'src/hooks/useIsMobile';
 import { SliceHeaderControlsProps } from 'src/dashboard/components/SliceHeaderControls/types';
-import FiltersBadge from 'src/dashboard/components/FiltersBadge';
-import CustomizationsBadge from 'src/dashboard/components/CustomizationsBadge';
+import MemoizedFiltersBadge from 'src/dashboard/components/FiltersBadge';
+import MemoizedCustomizationsBadge from 'src/dashboard/components/CustomizationsBadge';
 import { RootState } from 'src/dashboard/types';
 import { getSliceHeaderTooltip } from 'src/dashboard/util/getSliceHeaderTooltip';
 import { DashboardPageIdContext } from 'src/dashboard/containers/DashboardPage';
@@ -62,6 +68,7 @@ type SliceHeaderProps = SliceHeaderControlsProps & {
   filters: object;
   handleToggleFullSize: () => void;
   formData: object;
+  ownState?: JsonObject;
   width: number;
   height: number;
   queriedDttm?: string | null;
@@ -161,7 +168,7 @@ const SliceHeader = forwardRef<HTMLDivElement, SliceHeaderProps>(
       sliceName = '',
       supersetCanExplore = false,
       supersetCanShare = false,
-      supersetCanCSV = false,
+      supersetCanDownload = false,
       exportPivotCSV,
       exportFullCSV,
       exportFullXLSX,
@@ -178,6 +185,7 @@ const SliceHeader = forwardRef<HTMLDivElement, SliceHeaderProps>(
       height,
       exportPivotExcel = () => ({}),
       chartHolderRef,
+      ownState,
     },
     ref,
   ) => {
@@ -219,9 +227,12 @@ const SliceHeader = forwardRef<HTMLDivElement, SliceHeaderProps>(
 
     const rowLimit = Number(formData.row_limit ?? 0);
 
-    const isTableChart = formData.viz_type === 'table';
-    const countFromSecondQuery =
-      isTableChart && secondQueryResponse?.data?.[0]?.rowcount;
+    const isTableChart =
+      formData.viz_type === VizType.Table ||
+      formData.viz_type === VizType.TableAgGrid;
+    const countFromSecondQuery = isTableChart
+      ? secondQueryResponse?.data?.[0]?.rowcount
+      : undefined;
 
     const sqlRowCount =
       countFromSecondQuery != null
@@ -232,7 +243,9 @@ const SliceHeader = forwardRef<HTMLDivElement, SliceHeaderProps>(
               0,
           );
 
-    const canExplore = !editMode && supersetCanExplore;
+    // Consumption-only mobile mode: no explore link, no chart controls
+    const isMobile = useIsMobile();
+    const canExplore = !editMode && supersetCanExplore && !isMobile;
     const showRowLimitWarning =
       shouldShowRowLimitWarning && sqlRowCount >= rowLimit && rowLimit > 0;
 
@@ -279,6 +292,7 @@ const SliceHeader = forwardRef<HTMLDivElement, SliceHeaderProps>(
         data-test="slice-header"
         ref={ref}
         className={cx(
+          'slice-header',
           (titleFormat?.subtitle ||
             (actionButton?.show && actionButton.position !== 'within')) &&
             'mibi-has-subtitle',
@@ -373,11 +387,11 @@ const SliceHeader = forwardRef<HTMLDivElement, SliceHeaderProps>(
                 </Tooltip>
               )}
               {showBadges && !uiConfig.hideChartControls && (
-                <CustomizationsBadge chartId={slice.slice_id} />
+                <MemoizedCustomizationsBadge chartId={slice.slice_id} />
               )}
 
               {showBadges && !uiConfig.hideChartControls && (
-                <FiltersBadge chartId={slice.slice_id} />
+                <MemoizedFiltersBadge chartId={slice.slice_id} />
               )}
 
               {iconsShown && (
@@ -390,7 +404,7 @@ const SliceHeader = forwardRef<HTMLDivElement, SliceHeaderProps>(
                   formData={formData as never}
                   exploreUrl={exploreUrl}
                   canExplore={supersetCanExplore}
-                  canDownload={supersetCanCSV}
+                  canDownload={supersetCanDownload}
                   isFullSize={isFullSize}
                   onToggleFullSize={handleToggleFullSize}
                   hasExitButton={showMenu && !uiConfig.hideChartControls}
@@ -413,7 +427,7 @@ const SliceHeader = forwardRef<HTMLDivElement, SliceHeaderProps>(
                     }
                   />
                 )}
-              {showMenu && !uiConfig.hideChartControls && (
+              {showMenu && !uiConfig.hideChartControls && !isMobile && (
                 <SliceHeaderControls
                   slice={slice}
                   isCached={isCached}
@@ -432,7 +446,7 @@ const SliceHeader = forwardRef<HTMLDivElement, SliceHeaderProps>(
                   exportFullXLSX={exportFullXLSX}
                   supersetCanExplore={supersetCanExplore}
                   supersetCanShare={supersetCanShare}
-                  supersetCanCSV={supersetCanCSV}
+                  supersetCanDownload={supersetCanDownload}
                   componentId={componentId}
                   dashboardId={dashboardId}
                   addSuccessToast={addSuccessToast}
@@ -446,6 +460,7 @@ const SliceHeader = forwardRef<HTMLDivElement, SliceHeaderProps>(
                   crossFiltersEnabled={isCrossFiltersEnabled}
                   exportPivotExcel={exportPivotExcel}
                   chartHolderRef={chartHolderRef}
+                  ownState={ownState}
                 />
               )}
             </>

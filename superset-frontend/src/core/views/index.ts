@@ -24,8 +24,7 @@
  * Extensions register views as side effects at import time.
  */
 
-import React, { ComponentType } from 'react';
-import { useSyncExternalStore } from 'use-sync-external-store/shim';
+import React, { ComponentType, useSyncExternalStore } from 'react';
 import type { views as viewsApi } from '@apache-superset/core';
 import { ErrorBoundary } from 'src/components/ErrorBoundary';
 import ExtensionPlaceholder from 'src/extensions/ExtensionPlaceholder';

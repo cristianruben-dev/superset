@@ -50,7 +50,7 @@ export interface NavSection {
   items: NavItem[];
 }
 
-const HOME_URL = '/superset/welcome/';
+const HOME_URL = '/welcome/';
 const WORKSPACES_URL = '/workspace/list/';
 
 const ICONS: Record<string, NavIconName> = {
@@ -84,11 +84,14 @@ const labels = (): Record<string, string> => ({
   'List Roles': t('Roles'),
 });
 
-const REPORT_PATH = /^\/superset\/dashboard\/[^/]+\/?$/;
+const REPORT_PATH = /^\/dashboard\/([^/]+)\/?$/;
+/** Paths under `/dashboard/` that are pages of their own, not a dashboard. */
+const NOT_A_REPORT = new Set(['list', 'new']);
 
 /** Whether the location is a dashboard, which shows without the sidebar. */
 export function isReportRoute(pathname: string): boolean {
-  return REPORT_PATH.test(pathname);
+  const match = REPORT_PATH.exec(pathname);
+  return !!match && !NOT_A_REPORT.has(match[1]);
 }
 
 const toItem = (entry: MenuObjectChildProps): NavItem | null => {
@@ -188,6 +191,10 @@ export function buildNavSections(menu: MenuObjectProps[]): NavSection[] {
 export function isNavItemActive(item: NavItem, pathname: string): boolean {
   if (item.url === HOME_URL) {
     return pathname === HOME_URL;
+  }
+  // A report is not an entry of the list it belongs to
+  if (isReportRoute(pathname)) {
+    return false;
   }
   const base = item.url.replace(/(list\/?)?$/, '');
   return (

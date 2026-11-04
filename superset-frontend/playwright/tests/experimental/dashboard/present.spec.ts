@@ -25,7 +25,7 @@
 import { test, expect } from '../../../helpers/fixtures/testAssets';
 import { apiPutDashboard } from '../../../helpers/api/dashboard';
 import { TIMEOUT } from '../../../utils/constants';
-import { createTestDashboard } from './dashboard-test-helpers';
+import { createTestDashboard } from '../../dashboard/dashboard-test-helpers';
 
 test('presenting fits a 4:3 page in the screen, full screen', async ({
   page,
@@ -69,7 +69,7 @@ test('presenting fits a 4:3 page in the screen, full screen', async ({
   });
   expect(response.ok()).toBe(true);
 
-  await page.goto(`superset/dashboard/${id}/`);
+  await page.goto(`dashboard/${id}/`);
   const present = page.getByTestId('mibi-present-button');
   await expect(present).toBeVisible({ timeout: TIMEOUT.PAGE_LOAD });
   await present.click();

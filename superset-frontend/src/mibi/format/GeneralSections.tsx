@@ -18,7 +18,7 @@
  */
 import type { ReactNode } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { isEqual } from 'lodash';
+import { isEqual } from 'lodash-es';
 import { t } from '@apache-superset/core/translation';
 import { useReportTokens } from 'src/mibi/report/ReportTheme';
 import { FONT_FAMILY_OPTIONS } from '@superset-ui/core';
