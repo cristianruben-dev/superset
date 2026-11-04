@@ -158,6 +158,28 @@ def edits_as_workspace_member(resource: Any) -> bool:
     )
 
 
+def workspace_editable_dashboard_ids() -> Any | None:
+    """
+    Subquery with the dashboards of the workspaces where the current user is a
+    contributor or admin, or None when workspace access does not apply. The
+    dashboard filters use it to let them see the drafts of their workspace, under
+    the same viewer and dataset rules as the published ones.
+    """
+    if not enabled() or security_manager.is_guest_user():
+        return None
+    user_id = get_user_id()
+    if user_id is None:
+        return None
+    return sa.select(WorkspaceDashboard.dashboard_id).where(
+        WorkspaceDashboard.workspace_id.in_(
+            sa.select(WorkspaceMember.workspace_id).where(
+                WorkspaceMember.user_id == user_id,
+                WorkspaceMember.role.in_(EDITOR_ROLES),
+            )
+        )
+    )
+
+
 def edits_only_through_workspace(resource: Any) -> bool:
     """
     Whether the current user edits a dashboard or chart only through a workspace

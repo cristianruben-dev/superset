@@ -144,7 +144,7 @@ export function WorkspaceTrash({
                 {item.dashboard_title}
               </span>
               <span className="when">
-                {t('Deleted %s', item.deleted_at_delta_humanized)}
+                {t('Deleted: %s', item.deleted_at_delta_humanized)}
               </span>
               {item.blocked_by && (
                 <span className="blocked">

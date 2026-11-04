@@ -231,7 +231,7 @@ def describe_conflicts(
             '"%(chart)s" is now in %(dashboards)s',
             chart=chart_names.get(chart_id) or f"#{chart_id}",
             dashboards=", ".join(
-                f'"{dashboard_titles.get(id_) or f"#{id_}"}"'
+                __('"%(name)s"', name=dashboard_titles.get(id_) or f"#{id_}")
                 for id_ in sorted(dashboard_ids_of_chart)
             ),
         )

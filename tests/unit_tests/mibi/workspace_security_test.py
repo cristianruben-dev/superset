@@ -26,6 +26,7 @@ neither with access to the dataset, get no data access through their role.
 from typing import Any
 
 import pytest
+import sqlalchemy as sa
 from pytest_mock import MockerFixture
 from sqlalchemy.orm.session import Session
 
@@ -322,3 +323,37 @@ def test_contributors_read_the_history_viewers_do_not(
     found["dashboard"] = world["ventas"]
     with pytest.raises(PathEntityResponseError):
         resolve_endpoint_path_entity(api, Dashboard, str(world["ventas"].uuid))
+
+
+def test_contributors_list_the_drafts_of_their_workspace(
+    mocker: MockerFixture, session: Session, world: dict[str, Any]
+) -> None:
+    from flask_appbuilder.models.sqla.interface import SQLAInterface
+
+    from superset.dashboards.filters import DashboardAccessFilter
+
+    # Ana has data access here, so only the draft rule is on trial
+    mocker.patch(
+        "superset.dashboards.filters.semantic_layer_grant_clause",
+        return_value=sa.false(),
+    )
+    mocker.patch(
+        "superset.dashboards.filters.get_dataset_access_filters",
+        return_value=sa.true(),
+    )
+    for name in ("ventas", "finanzas", "ajena"):
+        world[name].published = False
+    session.flush()
+
+    def listed() -> set[str]:
+        access = DashboardAccessFilter("id", SQLAInterface(Dashboard))
+        return {d.dashboard_title for d in access.apply(session.query(Dashboard), None)}
+
+    # A contributor sees the draft of her workspace; a viewer or an outsider
+    # sees no draft
+    assert listed() == {"Finanzas"}
+
+    for name in ("ventas", "finanzas", "ajena"):
+        world[name].published = True
+    session.flush()
+    assert listed() == {"Ventas", "Finanzas"}

@@ -26210,3 +26210,7 @@ msgstr "No se puede restaurar el tablero porque algunos de sus gráficos ahora p
 #, python-format
 msgid "This version can't be restored because some of its charts now belong to another dashboard: %(details)s"
 msgstr "No se puede restaurar esta versión porque algunos de sus gráficos ahora pertenecen a otro tablero: %(details)s"
+
+#, python-format
+msgid "\"%(name)s\""
+msgstr "«%(name)s»"

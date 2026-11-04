@@ -143,6 +143,18 @@ class DashboardAccessFilter(BaseFilter):  # pylint: disable=too-few-public-metho
 
         filters: list[Any] = []
 
+        # AuraData BI: the contributors and admins of a workspace see its drafts,
+        # as ``raise_for_access`` lets them open them; the viewer and dataset
+        # rules below still apply
+        from superset.mibi.workspace_access import workspace_editable_dashboard_ids
+
+        workspace_drafts = workspace_editable_dashboard_ids()
+        published = (
+            or_(Dashboard.published.is_(True), Dashboard.id.in_(workspace_drafts))
+            if workspace_drafts is not None
+            else Dashboard.published.is_(True)
+        )
+
         # (A) Editor query: editors see all their dashboards (published or not)
         if subject_subquery is not None:
             editor_query = (
@@ -165,7 +177,7 @@ class DashboardAccessFilter(BaseFilter):  # pylint: disable=too-few-public-metho
                 )
                 .filter(
                     and_(
-                        Dashboard.published.is_(True),
+                        published,
                         dashboard_viewers.c.subject_id.in_(subject_subquery),
                     )
                 )
@@ -197,7 +209,7 @@ class DashboardAccessFilter(BaseFilter):  # pylint: disable=too-few-public-metho
             .join(SemanticLayer, semantic_view_layer_join(), isouter=True)
             .filter(
                 and_(
-                    Dashboard.published.is_(True),
+                    published,
                     ~dashboard_has_viewers,
                     # A dashboard with no charts has no dataset to check
                     # access against -- ``Slice.id.is_(None)`` here (rather
@@ -231,9 +243,7 @@ class DashboardAccessFilter(BaseFilter):  # pylint: disable=too-few-public-metho
 
         if (workspace_filter := dashboard_visibility_filter(Dashboard.id)) is not None:
             if subject_subquery is not None:
-                workspace_filter = or_(
-                    Dashboard.id.in_(editor_query), workspace_filter
-                )
+                workspace_filter = or_(Dashboard.id.in_(editor_query), workspace_filter)
             query = query.filter(workspace_filter)
 
         return query
