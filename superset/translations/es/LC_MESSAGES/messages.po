@@ -21252,11 +21252,11 @@ msgid "The fields of a chart could not be saved. Try again."
 msgstr "No se pudieron guardar los campos de un gráfico. Inténtalo de nuevo."
 
 msgid ""
-"Fields are saved with the report. Undo does not change them: use the "
-"button below."
+"Fields are saved with the report. Undo takes back each change; the button "
+"below takes back all of them."
 msgstr ""
-"Los campos se guardan con el informe. Deshacer no los cambia: usa el "
-"botón de abajo."
+"Los campos se guardan con el informe. Deshacer quita cada cambio; el botón "
+"de abajo los quita todos."
 
 msgid "Back to the saved fields"
 msgstr "Volver a los campos guardados"
@@ -26571,3 +26571,63 @@ msgstr "No se pudo copiar el enlace"
 
 msgid "Move to workspace"
 msgstr "Mover a un área de trabajo"
+
+msgid "Top padding"
+msgstr "Relleno superior"
+
+msgid "Right padding"
+msgstr "Relleno derecho"
+
+msgid "Bottom padding"
+msgstr "Relleno inferior"
+
+msgid "Left padding"
+msgstr "Relleno izquierdo"
+
+msgid "Individual padding"
+msgstr "Relleno por lado"
+
+msgid "Accent bar"
+msgstr "Barra de acento"
+
+msgid "Show the accent bar"
+msgstr "Mostrar la barra de acento"
+
+msgid "Show on"
+msgstr "Mostrar en"
+
+msgid "Accent bar on"
+msgstr "Barra de acento en"
+
+msgid "Every value"
+msgstr "Todos los valores"
+
+msgid "Accent bar position"
+msgstr "Posición de la barra de acento"
+
+msgid "Text transparency"
+msgstr "Transparencia del texto"
+
+msgid "Remove mark"
+msgstr "Marca para quitar"
+
+msgid "Remove mark position"
+msgstr "Posición de la marca para quitar"
+
+msgid "No mark"
+msgstr "Sin marca"
+
+msgid "Show %s in the chart"
+msgstr "Mostrar %s en el gráfico"
+
+msgid "Drop to add it to this chart"
+msgstr "Suelta para añadirlo a este gráfico"
+
+msgid "This chart uses another table"
+msgstr "Este gráfico usa otra tabla"
+
+msgid "Use this table in the chart"
+msgstr "Usar esta tabla en el gráfico"
+
+msgid "The server refused the fields of a chart: it keeps its saved fields."
+msgstr "El servidor rechazó los campos de un gráfico: conserva los guardados."

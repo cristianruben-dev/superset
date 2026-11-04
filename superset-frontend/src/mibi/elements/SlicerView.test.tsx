@@ -280,3 +280,47 @@ test('the look sets corners and transparency', () => {
     '--mb-s-fill': 'rgba(255, 0, 0, 0.5)',
   });
 });
+
+test('the look sets padding by side, accent bars and chips', () => {
+  expect(
+    slicerStyle({
+      kind: 'filter',
+      itemPaddingSides: [1, 2, 3, 4],
+      itemAccent: {
+        position: 'left',
+        width: 3,
+        color: '#00ff00',
+        on: 'selected',
+      },
+      searchAccent: { position: 'bottom', width: 2, color: '#0000ff' },
+      itemBorder: '#000000',
+      itemBorderOpacity: 25,
+      pillCorners: [4, 4, 0, 0],
+      pillBorderWidth: 1,
+      pillDismissColor: '#ff0000',
+      pillDismissSize: 14,
+    }),
+  ).toEqual({
+    '--mb-s-padding': '1px 2px 3px 4px',
+    '--mb-s-selected-accent': 'inset 3px 0 0 0 rgb(0, 255, 0)',
+    '--mb-s-search-accent': 'inset 0 -2px 0 0 rgb(0, 0, 255)',
+    '--mb-s-border': 'rgba(0, 0, 0, 0.25)',
+    '--mb-s-pill-radius': '4px 4px 0px 0px',
+    '--mb-s-pill-border-width': '1px',
+    '--mb-s-pill-dismiss': '#ff0000',
+    '--mb-s-pill-dismiss-size': '14px',
+  });
+});
+
+test('the remove mark of a chip can move left or hide', async () => {
+  await renderSlicer({
+    variant: 'buttons',
+    showPills: true,
+    pillDismissPosition: 'none',
+  });
+  fireEvent.click(await screen.findByRole('button', { name: 'North' }));
+  const chip = await screen.findByRole('button', {
+    name: 'Remove the value North',
+  });
+  expect(chip).toHaveTextContent(/^North$/);
+});

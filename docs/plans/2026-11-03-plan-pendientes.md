@@ -60,6 +60,7 @@ fecha, conviene hacer A → D → B → C.
   - «Solo números» en el segmentador de texto.
   - **Valores que se muestran:** el editor apaga valores para quitarlos del segmentador, como el filtro de nivel de
     objeto de Power BI. No filtran los gráficos.
+- **Comprobado el 2026-11-04:** el nivel General y las funciones siguen en `main`; nada más que hacer en B.
 - **Falta de B:** la **jerarquía**. Una selección en árbol necesita un OR entre columnas (Norte/Monterrey o
   Sur/Mérida), y los filtros nativos solo hacen AND. Hay dos caminos: un operador nuevo en el backend, o un filtro SQL
   con las comillas de cada dialecto. Decisión tuya.
@@ -113,6 +114,14 @@ La barra inferior y el panel de filtros siguen el concepto del informe de frijol
 pestañas planas, tarjetas de filtro con su resumen y contador en el riel). Fuera: el mapa de InfoMap (fase 11), la
 matriz y segmentadores dentro del tooltip. Sin probar con SESEQ (142). Los
 comentarios siguen sin decidir.
+
+**Estado de las partes (2026-11-04, rama `claude/pending-features-e512b4`):** hecho. Valores, caja de búsqueda y
+de texto, píldoras y marca de selección tienen relleno por lado, esquinas por separado y transparencia de fondo, texto
+y borde (`paddingOf`, `useFields().sides` en `SlicerFormat.tsx`). Los valores y la caja de búsqueda tienen barra de
+acento, dibujada como sombra interior (`accentShadow`); en los valores, en todos o solo en los elegidos. Las píldoras
+tienen borde, ancho, esquinas, relleno y marca para quitar (izquierda, derecha o sin marca; color, transparencia,
+tamaño y espacio). La marca de selección tiene transparencia. Comprobado en el navegador con el tablero 187, sin
+guardar.
 
 ### Fuera por defecto (P3, se decide tras usar B y C)
 
@@ -196,14 +205,22 @@ Detalle en [`estado-formato-powerbi.md`](estado-formato-powerbi.md). Lo que más
   - Algoritmos de treemap.
 - **Fase 4:** fijar encabezados de fila y las dos opciones de accesibilidad.
 
+**Estado de la fase 10 (2026-11-04, rama `claude/pending-features-e512b4`):** hecho. Deshacer recorre los campos,
+Datos lista los conjuntos del espacio y los compartidos, casillas y soltar sobre el gráfico añaden un campo, y un
+gráfico cambia de conjunto de datos. También se arregló que arrastrar desde Datos no hacía nada desde la 7.0 (faltaba
+el contexto de dnd-kit en el tablero).
+
 ## G. Cinta y comodidades de edición (S–M)
 
 De la revisión UX, lo que queda tras la cinta, el panel de Selección, el bloqueo y el menú de página:
 
-- Cortar en el portapapeles de la cinta.
-- Actualizar datos en edición.
-- Exportar desde edición.
-- Selector visible de Lectura / Edición.
+- Cortar en el portapapeles de la cinta. **Hecho** (Inicio › Portapapeles, `useObjectCommands.cut`).
+- Actualizar datos en edición. **Hecho** (Inicio › Datos › Actualizar).
+- Exportar desde edición. **Hecho** (Inicio › Exportar, el mismo diálogo de PDF o PNG).
+- Selector visible de Lectura / Edición. En edición está el menú «Edición ▾»; en la vista de lectura solo el botón
+  «Editar tablero». Propuesta pendiente de tu decisión: añadir un menú «Lectura ▾» junto a ese botón, sin quitarlo.
+
+Comprobado el 2026-11-04 en el tablero 147, en edición y sin guardar.
 - Decidir si hace falta editar el diseño móvil (hoy es automático en `mobile.ts`).
 
 ## H. Mapas (fase 11, L)

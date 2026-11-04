@@ -19,7 +19,14 @@
 import { t } from '@apache-superset/core/translation';
 import { getNumberFormatter } from '@superset-ui/core';
 import tinycolor from 'tinycolor2';
-import type { FilterElement, SlicerSelection, ValueUnits } from './types';
+import { withOpacity } from 'src/mibi/format/styles';
+import type {
+  AccentBar,
+  FilterElement,
+  Sides,
+  SlicerSelection,
+  ValueUnits,
+} from './types';
 
 /** What the rules of a slicer work on, independent of how it is drawn. */
 export type SlicerValue = string | number | boolean | null;
@@ -269,6 +276,40 @@ export function parseBetweenTimeRange(
     end = isoDate(until);
   }
   return [match[1] === 'Min' ? undefined : match[1], end];
+}
+
+/**
+ * The padding of a part of a slicer as CSS: each side when they were set one by
+ * one, else the uniform padding (twice as wide on the sides), else nothing.
+ */
+export function paddingOf(
+  sides: Sides | undefined,
+  uniform: number | undefined,
+): string | undefined {
+  if (sides) return sides.map(side => `${side}px`).join(' ');
+  return uniform === undefined ? undefined : `${uniform}px ${uniform * 2}px`;
+}
+
+const ACCENT_OFFSET = {
+  left: (width: number) => `${width}px 0`,
+  right: (width: number) => `-${width}px 0`,
+  top: (width: number) => `0 ${width}px`,
+  bottom: (width: number) => `0 -${width}px`,
+} as const;
+
+/**
+ * An accent bar as an inset box shadow, so it takes no room and follows the
+ * corners of the box; undefined when the bar has no color or width.
+ */
+export function accentShadow(
+  bar: AccentBar | undefined,
+  fallbackColor: string,
+): string | undefined {
+  if (!bar) return undefined;
+  const width = bar.width ?? 4;
+  if (width <= 0) return undefined;
+  const color = withOpacity(bar.color || fallbackColor, bar.opacity ?? 100);
+  return `inset ${ACCENT_OFFSET[bar.position ?? 'left'](width)} 0 0 ${color}`;
 }
 
 /**

@@ -79,9 +79,17 @@ const Box = styled.div`
         var(--mb-f-text-color, ${theme.colorText})
       );
       font: inherit;
+      font-family: var(--mb-s-search-family, inherit);
+      font-size: var(--mb-s-search-size, inherit);
+      padding: var(
+        --mb-s-search-padding,
+        ${theme.sizeUnit}px ${theme.sizeUnit * 2}px
+      );
+      box-shadow: var(--mb-s-search-accent, none);
     }
     .slicer-fields .ant-input-number {
       width: 100%;
+      box-shadow: var(--mb-s-search-accent, none);
       background: var(
         --mb-s-search-fill,
         var(--mb-f-box-fill, ${theme.colorBgContainer})
@@ -98,6 +106,7 @@ const Box = styled.div`
     .slicer-fields .ant-input-number input {
       border: 0;
       background: transparent;
+      box-shadow: none;
     }
     .slicer-dash {
       flex: none;

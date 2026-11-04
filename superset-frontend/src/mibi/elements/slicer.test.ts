@@ -17,11 +17,13 @@
  * under the License.
  */
 import {
+  accentShadow,
   betweenTimeRange,
   contrastRatio,
   inputFilters,
   inputValues,
   nextSelection,
+  paddingOf,
   parseBetweenTimeRange,
   parseRelativeTimeRange,
   relativeTimeRange,
@@ -150,4 +152,21 @@ test('contrast is measured as the WCAG ratio', () => {
   expect(contrastRatio('#000000', '#ffffff')).toBe(21);
   expect(contrastRatio('#777777', '#888888')).toBeLessThan(4.5);
   expect(contrastRatio('not a color', '#fff')).toBeUndefined();
+});
+
+test('padding takes each side, or the uniform one twice as wide', () => {
+  expect(paddingOf([1, 2, 3, 4], 9)).toBe('1px 2px 3px 4px');
+  expect(paddingOf(undefined, 4)).toBe('4px 8px');
+  expect(paddingOf(undefined, undefined)).toBeUndefined();
+});
+
+test('an accent bar is an inset shadow along its edge', () => {
+  expect(accentShadow(undefined, 'red')).toBeUndefined();
+  expect(accentShadow({ position: 'right', width: 2 }, '#ff0000')).toBe(
+    'inset -2px 0 0 0 rgb(255, 0, 0)',
+  );
+  expect(
+    accentShadow({ position: 'top', color: '#000000', opacity: 50 }, 'red'),
+  ).toBe('inset 0 4px 0 0 rgba(0, 0, 0, 0.5)');
+  expect(accentShadow({ width: 0 }, 'red')).toBeUndefined();
 });

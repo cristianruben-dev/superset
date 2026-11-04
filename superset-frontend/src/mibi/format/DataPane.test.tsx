@@ -18,9 +18,20 @@
  */
 import { render, screen, userEvent } from 'spec/helpers/testing-library';
 import { act } from 'react-dom/test-utils';
+import { SupersetClient } from '@superset-ui/core';
 import { DataPane } from './DataPane';
 import { selectVisual } from './selection';
 import { setPaneCollapsed, usePaneCollapsed } from './panes';
+
+const mockToggle = jest.fn();
+let mockReady = false;
+jest.mock('./ChartFieldsSections', () => ({
+  useChartFieldToggle: () => ({
+    ready: mockReady,
+    uses: (field: { name: string }) => field.name === 'center',
+    toggle: mockToggle,
+  }),
+}));
 
 const datasources = {
   '1__table': {
@@ -47,6 +58,7 @@ const setup = () =>
     useTheme: true,
     initialState: {
       datasources,
+      dashboardInfo: { id: 9 },
       charts: { 3: { id: 3, form_data: { datasource: '2__table' } } },
       dashboardLayout: {
         past: [],
@@ -58,7 +70,32 @@ const setup = () =>
 
 afterEach(() => selectVisual(null));
 
-beforeEach(() => setPaneCollapsed('data', false));
+const asked: string[] = [];
+
+beforeEach(() => {
+  setPaneCollapsed('data', false);
+  asked.length = 0;
+  jest.spyOn(SupersetClient, 'get').mockImplementation((({
+    endpoint,
+  }: {
+    endpoint: string;
+  }) => {
+    asked.push(decodeURIComponent(endpoint));
+    const result = endpoint.includes('?q=')
+      ? [
+          { id: 1, table_name: 'sales' },
+          { id: 5, table_name: 'budget' },
+        ]
+      : {
+          table_name: 'budget',
+          columns: [{ column_name: 'year' }],
+          metrics: [],
+        };
+    return Promise.resolve({ json: { result } });
+  }) as never);
+});
+
+afterEach(() => jest.restoreAllMocks());
 
 test('lists the tables of the report and opens them on demand', () => {
   setup();
@@ -95,4 +132,35 @@ test('only the table of the selected chart can be dragged', () => {
   expect(
     screen.getByText('The selected chart uses another table.'),
   ).toBeInTheDocument();
+});
+
+test('lists the other datasets the charts could use and loads them on demand', async () => {
+  setup();
+  expect(await screen.findByText('budget')).toBeInTheDocument();
+  expect(asked[0]).toContain('opr:dataset_usable_in_dashboard,value:9');
+  expect(screen.queryByText('year')).not.toBeInTheDocument();
+  userEvent.click(screen.getByText('budget'));
+  expect(await screen.findByText('year')).toBeInTheDocument();
+  expect(asked[1]).toBe('/api/v1/dataset/5');
+});
+
+test('the selected chart gets a box per field to add or remove it', () => {
+  mockReady = true;
+  setup();
+  act(() => selectVisual('CHART-1'));
+  const center = screen.getByRole('checkbox', {
+    name: 'Show center in the chart',
+  });
+  expect(center).toBeChecked();
+  userEvent.click(center);
+  expect(mockToggle).toHaveBeenCalledWith(
+    expect.objectContaining({ kind: 'column', name: 'center' }),
+    false,
+  );
+  // Fields of another table have no box
+  userEvent.click(screen.getByText('sales'));
+  expect(
+    screen.queryByRole('checkbox', { name: 'Show region in the chart' }),
+  ).not.toBeInTheDocument();
+  mockReady = false;
 });

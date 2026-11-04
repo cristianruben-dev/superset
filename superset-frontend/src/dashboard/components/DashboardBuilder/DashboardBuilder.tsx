@@ -44,6 +44,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Drawer, EmptyState, Loading } from '@superset-ui/core/components';
 import { ErrorBoundary, BasicErrorAlert } from 'src/components';
 import BuilderComponentPane from 'src/dashboard/components/BuilderComponentPane';
+import { ExploreDndContextProvider } from 'src/explore/components/ExploreContainer/ExploreDndContext';
 import { DataPane, DATA_PANE_WIDTH } from 'src/mibi/format/DataPane';
 import { useMobileEditing } from 'src/mibi/format/mobile';
 import { MobileLayoutPane } from 'src/mibi/format/MobileLayoutPane';
@@ -1095,57 +1096,61 @@ const DashboardBuilder = () => {
                     }
                   }}
                 >
-                  {showDashboard ? (
-                    missingInitialFilters.length > 0 ? (
-                      <div
-                        css={css`
-                          display: flex;
-                          flex-direction: row;
-                          align-items: center;
-                          justify-content: center;
-                          flex: 1;
-                          & div {
-                            width: 500px;
-                          }
-                        `}
-                      >
-                        <BasicErrorAlert
-                          title={t('Unable to load dashboard')}
-                          body={t(
-                            `The following filters have the 'Select first filter value by default'
+                  {/* The Data pane drags fields with dnd-kit, as Explore does: its
+                      fields reach the wells of the Format pane and the charts */}
+                  <ExploreDndContextProvider>
+                    {showDashboard ? (
+                      missingInitialFilters.length > 0 ? (
+                        <div
+                          css={css`
+                            display: flex;
+                            flex-direction: row;
+                            align-items: center;
+                            justify-content: center;
+                            flex: 1;
+                            & div {
+                              width: 500px;
+                            }
+                          `}
+                        >
+                          <BasicErrorAlert
+                            title={t('Unable to load dashboard')}
+                            body={t(
+                              `The following filters have the 'Select first filter value by default'
                     option checked and could not be loaded, which is preventing the dashboard
                     from rendering: %s`,
-                            missingInitialFilters.join(', '),
-                          )}
-                        />
-                      </div>
+                              missingInitialFilters.join(', '),
+                            )}
+                          />
+                        </div>
+                      ) : (
+                        <DashboardContainer topLevelTabs={topLevelTabs} />
+                      )
                     ) : (
-                      <DashboardContainer topLevelTabs={topLevelTabs} />
-                    )
-                  ) : (
-                    <Loading />
-                  )}
-                  {!mobileEditing && (
-                    <ChartEditorPanel
-                      topOffset={barTopOffset}
-                      pageTop={pageTop}
-                    />
-                  )}
-                  {showDataPane && (
-                    <DataPane topOffset={barTopOffset} pageTop={pageTop} />
-                  )}
-                  {editMode && mobileEditing && (
-                    <MobileLayoutPane
-                      topOffset={barTopOffset}
-                      pageTop={pageTop}
-                    />
-                  )}
-                  {editMode && !mobileEditing && (
-                    <BuilderComponentPane
-                      topOffset={barTopOffset}
-                      pageTop={pageTop}
-                    />
-                  )}
+                      <Loading />
+                    )}
+                    {!mobileEditing && (
+                      <ChartEditorPanel
+                        topOffset={barTopOffset}
+                        pageTop={pageTop}
+                      />
+                    )}
+                    {showDataPane && (
+                      <DataPane topOffset={barTopOffset} pageTop={pageTop} />
+                    )}
+                    {editMode && mobileEditing && (
+                      <MobileLayoutPane
+                        topOffset={barTopOffset}
+                        pageTop={pageTop}
+                      />
+                    )}
+                    {editMode && !mobileEditing && (
+                      <BuilderComponentPane
+                        topOffset={barTopOffset}
+                        pageTop={pageTop}
+                      />
+                    )}
+                  </ExploreDndContextProvider>
                 </StyledDashboardContent>
               </DashboardContentWrapper>
             </StyledContent>
