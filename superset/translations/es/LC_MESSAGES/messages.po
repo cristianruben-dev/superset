@@ -4603,56 +4603,56 @@ msgstr "Eliminado"
 #, python-format
 msgid "Deleted %(num)d annotation"
 msgid_plural "Deleted %(num)d annotations"
-msgstr[0] "Se ha eliminado%(num)d anotación"
-msgstr[1] "Se han eliminado%(num)d anotaciones"
+msgstr[0] "Se ha eliminado %(num)d anotación"
+msgstr[1] "Se han eliminado %(num)d anotaciones"
 
 #, python-format
 msgid "Deleted %(num)d annotation layer"
 msgid_plural "Deleted %(num)d annotation layers"
-msgstr[0] "Se ha eliminado%(num)d capa de anotación"
-msgstr[1] "Se han eliminado%(num)d capas de anotación"
+msgstr[0] "Se ha eliminado %(num)d capa de anotaciones"
+msgstr[1] "Se han eliminado %(num)d capas de anotaciones"
 
 #, python-format
 msgid "Deleted %(num)d chart"
 msgid_plural "Deleted %(num)d charts"
-msgstr[0] "Se ha eliminado%(num)d gráfico"
-msgstr[1] "Se han eliminado%(num)d gráficos"
+msgstr[0] "Se ha eliminado %(num)d gráfico"
+msgstr[1] "Se han eliminado %(num)d gráficos"
 
 #, python-format
 msgid "Deleted %(num)d css template"
 msgid_plural "Deleted %(num)d css templates"
-msgstr[0] "Se ha eliminado%(num)d plantilla CSS"
-msgstr[1] "Se han eliminado%(num)d plantillas CSS"
+msgstr[0] "Se ha eliminado %(num)d plantilla CSS"
+msgstr[1] "Se han eliminado %(num)d plantillas CSS"
 
 #, python-format
 msgid "Deleted %(num)d dashboard"
 msgid_plural "Deleted %(num)d dashboards"
-msgstr[0] "Se ha eliminado%(num)d panel de control"
-msgstr[1] "Se han eliminado%(num)d paneles de control"
+msgstr[0] "Se ha eliminado %(num)d tablero"
+msgstr[1] "Se han eliminado %(num)d tableros"
 
 #, python-format
 msgid "Deleted %(num)d dataset"
 msgid_plural "Deleted %(num)d datasets"
-msgstr[0] "Se ha eliminado%(num)d conjunto de datos"
-msgstr[1] "Se han eliminado%(num)d conjuntos de datos"
+msgstr[0] "Se ha eliminado %(num)d conjunto de datos"
+msgstr[1] "Se han eliminado %(num)d conjuntos de datos"
 
 #, python-format
 msgid "Deleted %(num)d report schedule"
 msgid_plural "Deleted %(num)d report schedules"
-msgstr[0] "Se ha eliminado%(num)d programación de informe"
-msgstr[1] "Se han eliminado%(num)d programaciones de informe"
+msgstr[0] "Se ha eliminado %(num)d programación de informe"
+msgstr[1] "Se han eliminado %(num)d programaciones de informes"
 
 #, python-format
 msgid "Deleted %(num)d rules"
 msgid_plural "Deleted %(num)d rules"
-msgstr[0] "Se han eliminado%(num)d reglas"
-msgstr[1] "Se han eliminado%(num)d reglas"
+msgstr[0] "Se ha eliminado %(num)d regla"
+msgstr[1] "Se han eliminado %(num)d reglas"
 
 #, python-format
 msgid "Deleted %(num)d saved query"
 msgid_plural "Deleted %(num)d saved queries"
-msgstr[0] "Se ha eliminado%(num)d consulta guardada"
-msgstr[1] "Se han eliminado%(num)d consultas guardadas"
+msgstr[0] "Se ha eliminado %(num)d consulta guardada"
+msgstr[1] "Se han eliminado %(num)d consultas guardadas"
 
 #, python-format
 msgid "Deleted %(num)d theme"
@@ -4662,7 +4662,7 @@ msgstr[1] "Se han eliminado %(num)d temas"
 
 #, python-format
 msgid "Deleted %s"
-msgstr "Se ha eliminado%s"
+msgstr "Se ha eliminado %s"
 
 #, python-format
 msgid "Deleted group: %s"
@@ -22090,7 +22090,7 @@ msgstr ""
 
 #, python-format
 msgid "%s %s"
-msgstr "%s%s"
+msgstr "%s %s"
 
 #, python-format
 msgid "%s (copy from %s)"
@@ -22180,7 +22180,7 @@ msgstr[1] ""
 
 #, python-format
 msgid "%s semantic view(s) added"
-msgstr "%s vista(s) semántica(s) agregada(s)"
+msgstr "%s vista(s) semántica(s) añadida(s)"
 
 #, python-format
 msgid "%s semantic view(s) failed to add"
@@ -22190,7 +22190,7 @@ msgstr "No se pudieron añadir %s vista(s) semántica(s)"
 # sr_Latn]
 #, python-format
 msgid "%s semantic view(s) failed to add: %s"
-msgstr "Error al agregar %s vista(s) semántica(s): %s"
+msgstr "Error al añadir %s vista(s) semántica(s): %s"
 
 #, python-format
 msgid "%s — click the chart to return"
@@ -22258,7 +22258,7 @@ msgstr[1] "... y %s más"
 
 #, python-format
 msgid "... and %s more records"
-msgstr "... y otros %s"
+msgstr "... y otros %s registros"
 
 #, python-format
 msgid "... and %s other"
@@ -22382,7 +22382,7 @@ msgstr ""
 "AuraData BI."
 
 msgid "Access"
-msgstr "correcto"
+msgstr "Acceso"
 
 #, python-format
 msgid "Add %s view(s)"
@@ -22392,7 +22392,8 @@ msgid "Add Semantic View"
 msgstr "Añadir vista semántica"
 
 msgid "Add colors to cell bars for +/- for all columns"
-msgstr "añade colores a las barras de celdas para +/-"
+msgstr ""
+"Añade colores a las barras de las celdas para +/- en todas las columnas"
 
 msgid ""
 "Add columns to filter by. When typing or pasting filter values, commas "
@@ -22405,7 +22406,7 @@ msgstr ""
 "Francisco, CA\""
 
 msgid "Add numbered column"
-msgstr " para añadir columnas calculadas"
+msgstr "Añadir columna numerada"
 
 msgid "Add service credentials"
 msgstr "Añadir credenciales de servicio"
@@ -22415,25 +22416,25 @@ msgstr "Añadir a favoritos"
 
 #, python-format
 msgid "Added %s '%s'"
-msgstr "Se agregó %s «%s»"
+msgstr "Se añadió %s «%s»"
 
 #, python-format
 msgid "Added '%s' dimension"
-msgstr "Se agregó la dimensión «%s»"
+msgstr "Se añadió la dimensión «%s»"
 
 #, python-format
 msgid "Added a %s"
-msgstr "Se agregó %s"
+msgstr "Se añadió %s"
 
 msgid "Added a dimension"
-msgstr "Se agregó una dimensión"
+msgstr "Se añadió una dimensión"
 
 msgid "Added a filter"
-msgstr "Se agregó un filtro"
+msgstr "Se añadió un filtro"
 
 #, python-format
 msgid "Added filter on '%s'"
-msgstr "Se agregó un filtro en «%s»"
+msgstr "Se añadió un filtro en «%s»"
 
 msgid "Adhoc metric SQL expression is invalid"
 msgstr "La expresión SQL de la métrica ad hoc no es válida"
@@ -22485,7 +22486,7 @@ msgstr ""
 "archivos: %(commands)s"
 
 msgid "Align +/- for all columns"
-msgstr "Mostrar todas las columnas"
+msgstr "Alinear +/- en todas las columnas"
 
 msgid "All changes"
 msgstr "Todos los cambios"
@@ -22521,7 +22522,7 @@ msgstr "Se ha producido un error al recuperar los valores de %s: %s"
 
 #, python-format
 msgid "An error occurred while fetching %s: %s"
-msgstr "Se ha producido un error al recuperar %ss: %s"
+msgstr "Se ha producido un error al recuperar %s: %s"
 
 msgid "An error occurred while fetching available views"
 msgstr "Se ha producido un error al recuperar las vistas disponibles"
@@ -22539,7 +22540,7 @@ msgstr ""
 "del gráfico: %s"
 
 msgid "An error occurred while fetching connections"
-msgstr "Se ha producido un error al recuperar los nombres de las funciones."
+msgstr "Se ha producido un error al recuperar las conexiones"
 
 #, python-format
 msgid "An error occurred while fetching dashboard editor values: %s"
@@ -22730,13 +22731,14 @@ msgstr ""
 
 #, python-format
 msgid "Base layer map style. See MapLibre documentation: %s"
-msgstr "Estilo del mapa de la capa base. Consulta la documentación de Mapbox: %s"
+msgstr ""
+"Estilo del mapa de la capa base. Consulta la documentación de MapLibre: %s"
 
 msgid "Bound unit"
 msgstr "Unidad del límite"
 
 msgid "Breakpoint Metric"
-msgstr "Basado en una métrica"
+msgstr "Métrica de los puntos de corte"
 
 msgid "Butterfly Chart"
 msgstr "Gráfico de mariposa"
@@ -22853,7 +22855,7 @@ msgid "Chart editors"
 msgstr "Editores del gráfico"
 
 msgid "Chart orientation"
-msgstr "Orientación de la gráfica"
+msgstr "Orientación del gráfico"
 
 msgid "Chart renamed"
 msgstr "Se renombró el gráfico"
@@ -23121,7 +23123,7 @@ msgid "Created from version: %s"
 msgstr "Creado desde la versión: %s"
 
 msgid "Cross-filter column"
-msgstr "Alcance del filtro cruzado"
+msgstr "Columna del filtro cruzado"
 
 msgid "Current password"
 msgstr "Contraseña actual"
@@ -23137,7 +23139,8 @@ msgstr ""
 "sentencia SQL."
 
 msgid "Custom SQL fields cannot contain set operations."
-msgstr "Los campos SQL personalizados no pueden contener subconsultas."
+msgstr ""
+"Los campos SQL personalizados no pueden contener operaciones de conjuntos."
 
 msgid "Customize the label for the left series in tooltips and legend"
 msgstr "Texto de la serie izquierda en los tooltips y la leyenda"
@@ -23149,7 +23152,7 @@ msgid "D3 time format for the x-axis labels"
 msgstr "Formato de tiempo D3 de las etiquetas del eje X"
 
 msgid "Dark (Carto)"
-msgstr "Gráfico de radar"
+msgstr "Oscuro (Carto)"
 
 #, python-format
 msgid "Dashboard %(dashboard_id)s not found"
@@ -23264,8 +23267,8 @@ msgstr "Eliminar consulta"
 #, python-format
 msgid "Deleted %(num)d semantic view"
 msgid_plural "Deleted %(num)d semantic views"
-msgstr[0] "Se ha eliminado%(num)d plantilla CSS"
-msgstr[1] "Se han eliminado%(num)d plantillas CSS"
+msgstr[0] "Se ha eliminado %(num)d vista semántica"
+msgstr[1] "Se han eliminado %(num)d vistas semánticas"
 
 #, python-format
 msgid "Deleted %s item(s)"
@@ -23380,7 +23383,7 @@ msgid "Dynamic Section Label"
 msgstr "Etiqueta de sección dinámica"
 
 msgid "Dynamic section description"
-msgstr "Función de agregación dinámica"
+msgstr "Descripción de la sección dinámica"
 
 #, python-format
 msgid "ERROR: %s"
@@ -23393,7 +23396,7 @@ msgid "Edit query"
 msgstr "Editar consulta"
 
 msgid "Editable"
-msgstr "Editar alerta"
+msgstr "Editable"
 
 msgid "Editor"
 msgstr "Editor"
@@ -23462,7 +23465,7 @@ msgstr "Error en la expresión Jinja de la expresión SQL ad hoc: %(msg)s"
 
 #, python-format
 msgid "Error in jinja expression in adhoc column: %(msg)s"
-msgstr "Error en la expresión Jinja en la cláusula WHERE: %(msg)s"
+msgstr "Error en la expresión Jinja de la columna ad hoc: %(msg)s"
 
 #, python-format
 msgid "Error while rendering calculated column expression: %(msg)s"
@@ -23477,7 +23480,7 @@ msgid "Excel export is not configured on this server."
 msgstr "La exportación a Excel no está configurada en este servidor."
 
 msgid "Excluded subjects"
-msgstr "Seleccionar asunto"
+msgstr "Sujetos excluidos"
 
 msgid "Exit edit mode"
 msgstr "Salir del modo de edición"
@@ -23677,10 +23680,10 @@ msgid ""
 "filter will be applied to. For base filters, these are the subjects that "
 "the filter DOES NOT apply to, e.g. Admin if admin should see all data."
 msgstr ""
-"Para los filtros regulares, estos son los roles a los que se aplicará "
-"este filtro. Para los filtros base, estos son los roles a los que el "
-"filtro NO se aplica; por ejemplo, «Admin» si el administrador debe ver "
-"todos los datos."
+"En los filtros normales, son los sujetos (usuarios, roles, grupos) a los "
+"que se aplicará este filtro. En los filtros base, son los sujetos a los "
+"que el filtro NO se aplica; por ejemplo, «Admin» si el administrador debe "
+"ver todos los datos."
 
 msgid "Force disabled"
 msgstr "Forzar desactivado"
@@ -23692,7 +23695,7 @@ msgid "Forecast requires at least 2 data points"
 msgstr "La previsión requiere al menos 2 puntos de datos"
 
 msgid "Format JSON configuration"
-msgstr "Configuración de la columna"
+msgstr "Dar formato a la configuración JSON"
 
 msgid "Formatted Excel attached in email"
 msgstr "Excel con formato adjunto en el correo"
@@ -23814,7 +23817,7 @@ msgstr "Prefijo de la clave"
 # sr_Latn]
 msgid "Keys are shown only once at creation. Store them securely."
 msgstr ""
-"Las claves se muestran solo una vez al crearlas. Guárdelas de forma "
+"Las claves se muestran solo una vez al crearlas. Guárdalas de forma "
 "segura."
 
 msgid "Label Position"
@@ -23887,7 +23890,7 @@ msgid "Lift percent precision"
 msgstr "Precisión del porcentaje de elevación"
 
 msgid "Light (Carto)"
-msgstr "Gráfico de líneas"
+msgstr "Claro (Carto)"
 
 msgid ""
 "Limit which MCP resources and actions this key can access. These scopes "
@@ -23987,7 +23990,7 @@ msgid "Mapbox requires a MAPBOX_API_KEY to be configured on the server."
 msgstr "Mapbox requiere que se configure una MAPBOX_API_KEY en el servidor."
 
 msgid "Match type"
-msgstr "Tipo de datos"
+msgstr "Tipo de coincidencia"
 
 msgid "Max bound"
 msgstr "Límite máximo"
@@ -24002,7 +24005,7 @@ msgid "Maximum Retry Attempts"
 msgstr "Máximo de intentos de reintento"
 
 msgid "Maximum Width"
-msgstr "Anchura mínima"
+msgstr "Anchura máxima"
 
 msgid "Maximum dot size"
 msgstr "Tamaño máximo del punto"
@@ -24011,7 +24014,7 @@ msgid "Maximum number of retry attempts (1–10)"
 msgstr "Número máximo de reintentos (1–10)"
 
 msgid "Maximum width size of the path, in pixels or meters."
-msgstr "El tamaño de la celda cuadrada, en píxeles"
+msgstr "Anchura máxima de la ruta, en píxeles o metros."
 
 msgid "Mean of values over specified period"
 msgstr "Media de los valores durante el periodo especificado"
@@ -24057,7 +24060,7 @@ msgid "Minimum dot size"
 msgstr "Tamaño mínimo del punto"
 
 msgid "Minimum width size of the path, in pixels or meters."
-msgstr "El tamaño de la celda cuadrada, en píxeles"
+msgstr "Anchura mínima de la ruta, en píxeles o metros."
 
 #, python-format
 msgid "Missing %s"
@@ -24143,7 +24146,8 @@ msgid "No history yet"
 msgstr "Aún no hay historial"
 
 msgid "No multilayer deck.gl charts are currently added to this dashboard."
-msgstr "Actualmente no se han añadido filtros a este panel de control."
+msgstr ""
+"Aún no se ha añadido ningún gráfico deck.gl multicapa a este tablero."
 
 #, python-format
 msgid "No rows were returned for this %s"
@@ -24171,7 +24175,7 @@ msgstr ""
 "(nombre del canal, «Ver detalles del canal»; el ID está al final)."
 
 msgid "Not found"
-msgstr "No se ha encontrado ningún gráfico"
+msgstr "No se ha encontrado"
 
 msgid ""
 "Notify all recipients when the report fails after exhausting all retry "
@@ -24236,7 +24240,7 @@ msgstr "Abrir gráfico en nueva pestaña"
 
 # Machine-translated via backfill_po.py (claude-sonnet-4-6) [refs: ja]
 msgid "Open dashboard in new tab"
-msgstr "Abrir panel en nueva pestaña"
+msgstr "Abrir tablero en nueva pestaña"
 
 msgid "Open filters"
 msgstr "Abrir filtros"
@@ -24264,7 +24268,9 @@ msgstr ""
 msgid ""
 "Orientation of the chart. Horizontal places the dimension on the y-axis "
 "and the metric on the x-axis."
-msgstr "Orientación de la gráfica. En horizontal, la dimensión va en el eje Y y la métrica en el eje X."
+msgstr ""
+"Orientación del gráfico. En horizontal, la dimensión va en el eje Y y la "
+"métrica en el eje X."
 
 msgid "Outside End"
 msgstr "Fuera, al final"
@@ -24288,7 +24294,7 @@ msgid "Owner: %(names)s"
 msgstr "Propietario: %(names)s"
 
 msgid "Page navigation"
-msgstr "Agregación"
+msgstr "Navegación por páginas"
 
 msgid "Partition Limit"
 msgstr "Límite de partición"
@@ -24312,7 +24318,7 @@ msgid "Path Color"
 msgstr "Color de la ruta"
 
 msgid "Path Size"
-msgstr "Tamaño del punto"
+msgstr "Tamaño de la ruta"
 
 msgid "Percent change"
 msgstr "Cambio porcentual"
@@ -24432,7 +24438,7 @@ msgid "Recently archived"
 msgstr "Papelera"
 
 msgid "Records"
-msgstr "Registros en bruto"
+msgstr "Registros"
 
 msgid "Recover"
 msgstr "Restaurar"
@@ -24700,7 +24706,7 @@ msgid ""
 "or vendor-specific calls."
 msgstr ""
 "SQL Lab no puede autorizar una sentencia que no pudo analizarse "
-"completamente. Califique las tablas explícitamente y evite el SQL "
+"completamente. Cualifica las tablas de forma explícita y evita el SQL "
 "dinámico dentro de procedimientos almacenados o llamadas específicas del "
 "proveedor."
 
