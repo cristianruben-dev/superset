@@ -15740,7 +15740,7 @@ msgid "Zoom level of the map"
 msgstr "Nivel de «zoom» del mapa"
 
 msgid "[ untitled dashboard ]"
-msgstr "[ untitled dashboard ]"
+msgstr "[ tablero sin título ]"
 
 msgid "[Longitude] and [Latitude] columns must be present in [Group By]"
 msgstr "Las columnas [Longitude] y [Latitude] deben estar presentes en [Group By]"
@@ -15749,7 +15749,7 @@ msgid "[Longitude] and [Latitude] must be set"
 msgstr "Se deben establecer la [Longitude] y la [Latitude]"
 
 msgid "[Missing Dataset]"
-msgstr "[Missing Dataset]"
+msgstr "[Falta el conjunto de datos]"
 
 msgid "[Untitled]"
 msgstr "[Untitled]"
@@ -15758,7 +15758,7 @@ msgid "[asc]"
 msgstr "[asc]"
 
 msgid "[dashboard name]"
-msgstr "[dashboard name]"
+msgstr "[nombre del tablero]"
 
 msgid "[desc]"
 msgstr "[desc]"
