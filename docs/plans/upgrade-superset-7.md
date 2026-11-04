@@ -180,7 +180,68 @@ de 7.0 toca tablas que el fork borró; la de versionado crea `dashboards_version
 - `main` avanzó 2 commits después de cortar esta rama (`4f8736327f`, `4fb893edd9`): mezclar `main` en la rama antes de
   la fase 7.
 
+### Fase 2
+
+Rama `claude/upgrade-superset-7-backend-680cca` (cortada de `claude/upgrade-superset-7-502890`). Entorno: un venv
+local (`.venv`, Python 3.11, `requirements/development.txt` sin `mysqlclient`, que en el Mac no compila) y un Postgres 17
+desechable en el puerto 5544. El stack de dev (8188) no se tocó.
+
+- **Dependencias** (`43adcf1c2e`). `requirements/development.txt` se recompiló desde el `development.in` del fork con las
+  restricciones de 7.0: mismas versiones (SQLAlchemy 2.0.52, Flask 3.1.3, FAB 5.2.2, sqlglot 30.17), sin los drivers
+  de los motores quitados. `pymssql` sigue fuera, como en `main`: lo instala el `Dockerfile`.
+- **Seguridad** (`591bd8a88b`). En 7.0 `is_editor` también da acceso a datos (rama de gráficos de `raise_for_access`,
+  modo visor promiscuo, emisión de guest tokens). El gancho de workspace sale de `is_editor`, que vuelve a ser el de
+  7.0, y pasa a `can_edit_resource` (editor o contribuidor/admin del workspace; nunca un invitado). Solo lo preguntan
+  los puntos de edición: `raise_for_editorship` (que cubre update, delete, restore, MCP...), añadir un gráfico a un
+  tablero, los `can_edit` del GET del tablero y de Explore, y las comprobaciones de sobrescritura de Explore.
+  - Fallar cerrado: una llamada nueva de upstream a `is_editor` no da nada al rol de workspace; si falta un punto de
+    edición, el contribuidor no podrá editar ahí (un bug, no una fuga).
+  - Borradores: el contribuidor abre los tableros no publicados de su workspace, pero con las mismas reglas de visores
+    y de acceso a datasets que los publicados (solo cambia el «publicado»), no con un `return` temprano.
+  - **Hallazgo:** `compute_subjects` de 7.0 añade a quien actualiza como editor («no lockout»). Un contribuidor que edita
+    quedaría como editor real y con eso tendría acceso a datos. Quien edita solo por el workspace no cambia editores ni
+    visores (`keep_subjects`: se conservan; mandar otra lista es un error 422).
+  - Las herramientas MCP de certificación, editores y visores (`governance_utils`) piden editoría real
+    (`raise_for_editorship(..., workspace_role=False)`).
+  - Quedan con editoría pura (decisión consciente): copiar un tablero (la copia hace al usuario editor de los gráficos
+    clonados, que con el modo promiscuo da datos), sobrescribir en importaciones, `explore/utils.check_access` y el
+    historial de versiones (`versioning/api_helpers.py`, `activity/visibility.py`). Un contribuidor puede restaurar una
+    versión (pasa por `raise_for_editorship`) pero no listar el historial: ver fase 4.
+  - Tests: `tests/unit_tests/mibi/workspace_security_test.py` (11). Un visor y un contribuidor sin acceso al dataset:
+    no son editores, no acceden al gráfico, al dataset, al modo promiscuo ni a la emisión de guest tokens; el
+    contribuidor edita y el visor no; los invitados nunca. Con el gancho de antes dentro de `is_editor` fallan 7.
+- **Owners → editors** (`2f48f12c52`). `WorkspaceDatasetFilter` (filtro base de la API de datasets, rompía todo listado)
+  deja ver a los editores del dataset (usuario, rol o grupo, `sqlatable_editors`); workspaces, fondos e imágenes usan
+  `can_edit_resource`/`raise_for_editorship`; `split-shared-charts` copia editores y visores a los clones.
+- **Soft delete** (`dfd5a7a135`). La regla de un tablero por gráfico solo cuenta tableros vivos (`_live_links` une
+  `dashboard_slices` con `dashboards.deleted_at IS NULL`); restaurar un tablero se rechaza (422) si uno de sus gráficos
+  pasó a otro tablero vivo (`find_charts_blocking_restore` en `RestoreDashboardCommand`). `dataset_count` del workspace
+  cuenta solo datasets vivos. Páginas de workspace, previews y el selector de datasets ya los ocultaba el filtro global
+  de 7.0 (`_add_soft_delete_filter`); `tests/unit_tests/mibi/soft_delete_test.py` lo fija. Las comprobaciones de
+  datasets entre workspaces (`datasets_used_outside`, `datasets_of_other_workspaces`) siguen contando los tableros en
+  la papelera, para que al restaurarlos no rompan la regla.
+- **MCP** (`a1028dc3c3`). `generate_dashboard` y `add_chart_to_existing_dashboard` comprueban también la regla de
+  datasets por workspace (`chart_datasets_of_other_workspaces`). `update_dashboard` no necesita nada: 7.0 solo acepta un
+  layout con exactamente los gráficos del tablero.
+- **SQLAlchemy 2.0 / Flask 3.** El código del fork no tenía APIs quitadas salvo `Query.get` en `split_shared_charts.py`
+  (→ `session.get`). Los tests del fork no emiten avisos de SQLAlchemy desde código del fork. Los tests que crean y
+  cambian vínculos de un tablero en la misma transacción hacen `commit()` entre medias, como upstream: el historial de
+  versiones (Continuum) registra un cambio por vínculo y transacción. `db_engine_specs/__init__.py`: la variable del
+  bucle de drivers nativos del fork chocaba con la de 7.0 (`f5ece5517b`).
+- **Migraciones.** Base nueva → `f1c7a9e2b305`. Copia de dev (`pg_dump`, en `d3f9a2b17c64`, 6 tableros) → 42 pasos (las
+  41 de 7.0 y el merge) hasta `f1c7a9e2b305`; los owners pasan a `dashboard_editors`. `AGENTS.md` (`CLAUDE.md` es un
+  enlace) recoge la regla del merge para futuras versiones (`4db330af29`).
+- **Arranque.** `superset run` del venv contra la copia migrada (puerto 8199): `/health`, login, `/api/v1/workspace/`,
+  sus tableros y datasets, `/api/v1/dataset/` (8), `dataset_usable_in_dashboard`, `/api/v1/dashboard/142`,
+  `/dashboard/142/` y previews responden 200 sin trazas. El contenedor y el volcado se borraron al terminar.
+- **Comprobaciones.** `pytest tests/unit_tests/mibi/`: **99/99** (82 de antes, 11 de seguridad, 5 de soft delete, 1 de
+  datasets por workspace). Tests MCP de `generate_dashboard`, `add_chart_to_existing_dashboard` y densidad: 89/89.
+  `pre-commit` (mypy, ruff, pylint) sobre los archivos tocados: limpio. No se corrió ninguna suite completa.
+
 ## Abiertos para la fase 2 (backend)
+
+Estado al cerrar la fase 2: hechos 1, 2, 3 (salvo regenerar en el contenedor), 4 y la parte de `update_dashboard` de 7.
+Lo que queda está en «Pendiente del backend» más abajo.
 
 Lista completa en las bitácoras de [backend](upgrade-superset-7/bitacora-backend.md) y [MCP](upgrade-superset-7/bitacora-mcp.md).
 
@@ -201,6 +262,25 @@ Lista completa en las bitácoras de [backend](upgrade-superset-7/bitacora-backen
    anotación; las herramientas no colocan `mibiPos`.
 8. Tests de 7.0 que importan motores quitados: `test_cancel_query_validation.py`, `test_grouping_sets_capability.py`,
    `test_base.py` (impala).
+
+## Pendiente del backend (tras la fase 2)
+
+No bloquea arrancar ni los tests del fork; conviene cerrarlo antes de la fase 7.
+
+1. `superset/views/pwa_manifest.py` (7.0) sirve «Apache Superset»: ponerle la marca AuraData (nombre, descripción en
+   español, colores, icono).
+2. Payload de invitados embebidos: el código es el de 7.0; `superset/security/guest_payload.py` del fork queda sin usar y
+   sus 28 tests de `tests/unit_tests/security/manager_test.py` sin correr. Decidir si se borra o se amplía la lista de 7.0.
+3. `daos/key_value.py` acepta `for_update` (7.0) y `lock: RowLock` (6.2): unificar en `lock`.
+4. Copiar un tablero: `remap_metadata_chart_ids` (fork) y `_remap_filter_scopes` (7.0) remapean en parte lo mismo.
+5. Tests de 7.0 que importan motores quitados (`test_cancel_query_validation.py`, `test_grouping_sets_capability.py`,
+   `test_base.py` con impala) y tests MCP que nombran temas y capas de anotación (`test_tool_inventory.py`,
+   `test_mcp_tool_registration.py`, `test_rbac_tool_enforcement.py`, `test_result_value_contract.py`...). Sin correr.
+6. `ImportV1DashboardSchema` rechaza `theme_uuid`/`theme_id` de exports antiguos antes del `pop` del importador.
+7. Rutas sin `/superset/` emitidas por el backend del fork (revisar con el frontend en la fase 3).
+8. La imagen Docker de dev sigue con dependencias de 6.1: construir la de 7.0 (fase 5, preguntar antes) y regenerar
+   allí `requirements/development.txt` con `mysqlclient` compilado.
+9. Las herramientas MCP siguen sin colocar `mibiPos` (lo arregla el frontend al cargar).
 
 ## Abiertos para la fase 3 (frontend)
 
@@ -233,3 +313,8 @@ y [resto del frontend](upgrade-superset-7/bitacora-appfe.md).
 4. Pivot: `showValuesAs` frente al formato de columna. Table V2 sin nuestro formato.
 5. Tooltip de descripción del gráfico (no adoptado, lo cubre `HeaderExtras`), color picker del formato condicional,
    capas semánticas frente a datasets por workspace en `ChartCreation`.
+6. Soft delete e historial de versiones en la interfaz (de la fase 2): la papelera de 7.0 debe explicar el 422 de
+   restaurar un tablero cuyos gráficos están ya en otro; el contribuidor de un workspace puede restaurar una versión pero
+   no listar el historial (el historial pide editoría real); un contribuidor no puede copiar un tablero del workspace
+   (decisión de seguridad: la copia le haría editor de los gráficos clonados); el formulario de propiedades no debe
+   ofrecer cambiar editores o visores a quien edita solo por el workspace (el backend responde 422).
