@@ -49,7 +49,7 @@ const Pane = styled.aside<{ $top: number; $pageTop: number }>`
     flex-direction: column;
     gap: ${theme.sizeUnit * 2}px;
     padding: ${theme.sizeUnit * 3}px;
-    background: ${theme.colorBgBase};
+    background: ${theme.colorBgContainer};
     border-left: 1px solid ${theme.colorBorderSecondary};
 
     .pane-title {

@@ -124,7 +124,7 @@ const BuilderComponentPane = ({ topOffset = 0, pageTop = 0 }) => {
           width: ${width}px;
           box-shadow: -${theme.sizeUnit}px 0 ${theme.sizeUnit}px 0
             ${tinycolor(theme.colorBorder).setAlpha(0.1).toRgbString()};
-          background-color: ${theme.colorBgBase};
+          background-color: ${theme.colorBgContainer};
         `}
       >
         <button

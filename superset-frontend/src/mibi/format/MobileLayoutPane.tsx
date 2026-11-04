@@ -55,7 +55,7 @@ const Pane = styled.div`
     inset: 0;
     display: flex;
     flex-direction: column;
-    background-color: ${theme.colorBgBase};
+    background-color: ${theme.colorBgContainer};
     box-shadow: -${theme.sizeUnit}px 0 ${theme.sizeUnit}px 0
       ${theme.colorBorderSecondary};
     header,

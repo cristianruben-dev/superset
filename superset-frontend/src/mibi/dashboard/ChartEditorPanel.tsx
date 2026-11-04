@@ -95,7 +95,7 @@ const Dock = styled.aside<{ $top: number; $pageTop: number }>`
     height: calc(100vh - ${$top + $pageTop}px);
     display: flex;
     flex-direction: column;
-    background: ${theme.colorBgBase};
+    background: ${theme.colorBgContainer};
     border-left: 1px solid ${theme.colorBorderSecondary};
     box-shadow: -${theme.sizeUnit}px 0 ${theme.sizeUnit * 2}px
       ${theme.colorBorderSecondary};
