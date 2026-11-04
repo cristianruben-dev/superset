@@ -249,128 +249,126 @@ export function TitleSections({ id }: { id: string }) {
         </Dependent>
       </Section>
 
-      {
-        <Section off={!titleShown}>
-          <h4>{t('Subtitle')}</h4>
-          <Input
-            value={format.title?.subtitle ?? ''}
-            placeholder={t('Subtitle (optional)')}
-            maxLength={300}
-            aria-label={t('Subtitle')}
-            data-test="mibi-format-subtitle"
-            onChange={event =>
-              updateTitle({ subtitle: event.target.value }, 'subtitle')
-            }
-          />
-          {format.title?.subtitle && (
-            <>
-              <RangeField
-                label={t('Subtitle size')}
-                value={format.title?.subtitleSize ?? 12}
-                min={9}
-                max={20}
-                onChange={subtitleSize =>
-                  updateTitle({ subtitleSize }, 'subtitle-size')
+      <Section off={!titleShown}>
+        <h4>{t('Subtitle')}</h4>
+        <Input
+          value={format.title?.subtitle ?? ''}
+          placeholder={t('Subtitle (optional)')}
+          maxLength={300}
+          aria-label={t('Subtitle')}
+          data-test="mibi-format-subtitle"
+          onChange={event =>
+            updateTitle({ subtitle: event.target.value }, 'subtitle')
+          }
+        />
+        {format.title?.subtitle && (
+          <>
+            <RangeField
+              label={t('Subtitle size')}
+              value={format.title?.subtitleSize ?? 12}
+              min={9}
+              max={20}
+              onChange={subtitleSize =>
+                updateTitle({ subtitleSize }, 'subtitle-size')
+              }
+            />
+            <ColorField
+              label={t('Subtitle color')}
+              value={format.title?.subtitleColor || look.colorTextTertiary}
+              onChange={subtitleColor =>
+                updateTitle({ subtitleColor }, 'subtitle-color')
+              }
+            />
+            <Field label={t('Heading level')} stacked>
+              <Select
+                ariaLabel={t('Subtitle heading level')}
+                value={format.title?.subtitleHeading ?? 0}
+                options={HEADING_CHOICES()}
+                onChange={subtitleHeading =>
+                  updateTitle(
+                    { subtitleHeading: Number(subtitleHeading) || undefined },
+                    'subtitle-heading',
+                  )
                 }
               />
-              <ColorField
-                label={t('Subtitle color')}
-                value={format.title?.subtitleColor || look.colorTextTertiary}
-                onChange={subtitleColor =>
-                  updateTitle({ subtitleColor }, 'subtitle-color')
+            </Field>
+            <Field label={t('Wrap text')}>
+              <Switch
+                size="small"
+                checked={format.title?.subtitleWrap ?? false}
+                aria-label={t('Wrap the subtitle')}
+                onChange={subtitleWrap =>
+                  updateTitle({ subtitleWrap }, 'subtitle-wrap')
                 }
               />
-              <Field label={t('Heading level')} stacked>
-                <Select
-                  ariaLabel={t('Subtitle heading level')}
-                  value={format.title?.subtitleHeading ?? 0}
-                  options={HEADING_CHOICES()}
-                  onChange={subtitleHeading =>
-                    updateTitle(
-                      { subtitleHeading: Number(subtitleHeading) || undefined },
-                      'subtitle-heading',
-                    )
-                  }
-                />
-              </Field>
-              <Field label={t('Wrap text')}>
-                <Switch
-                  size="small"
-                  checked={format.title?.subtitleWrap ?? false}
-                  aria-label={t('Wrap the subtitle')}
-                  onChange={subtitleWrap =>
-                    updateTitle({ subtitleWrap }, 'subtitle-wrap')
-                  }
-                />
-              </Field>
-              <FontFamilyField
-                value={format.title?.subtitleFamily}
-                onChange={subtitleFamily =>
-                  updateTitle({ subtitleFamily }, 'subtitle-family')
+            </Field>
+            <FontFamilyField
+              value={format.title?.subtitleFamily}
+              onChange={subtitleFamily =>
+                updateTitle({ subtitleFamily }, 'subtitle-family')
+              }
+            />
+            <Field label={t('Bold')}>
+              <Switch
+                size="small"
+                checked={format.title?.subtitleBold ?? false}
+                aria-label={t('Bold subtitle')}
+                onChange={subtitleBold =>
+                  updateTitle({ subtitleBold }, 'subtitle-bold')
                 }
               />
-              <Field label={t('Bold')}>
-                <Switch
-                  size="small"
-                  checked={format.title?.subtitleBold ?? false}
-                  aria-label={t('Bold subtitle')}
-                  onChange={subtitleBold =>
-                    updateTitle({ subtitleBold }, 'subtitle-bold')
-                  }
-                />
-              </Field>
-              <Field label={t('Italic')}>
-                <Switch
-                  size="small"
-                  checked={format.title?.subtitleItalic ?? false}
-                  aria-label={t('Italic subtitle')}
-                  onChange={subtitleItalic =>
-                    updateTitle({ subtitleItalic }, 'subtitle-italic')
-                  }
-                />
-              </Field>
-              <Field label={t('Underline')}>
-                <Switch
-                  size="small"
-                  checked={format.title?.subtitleUnderline ?? false}
-                  aria-label={t('Underline subtitle')}
-                  onChange={subtitleUnderline =>
-                    updateTitle({ subtitleUnderline }, 'subtitle-underline')
-                  }
-                />
-              </Field>
-              <Field label={t('Alignment')}>
-                <Segments<TitleAlign>
-                  name={t('Subtitle alignment')}
-                  value={
-                    format.title?.subtitleAlign ?? format.title?.align ?? 'left'
-                  }
-                  onChange={subtitleAlign =>
-                    updateTitle({ subtitleAlign }, 'subtitle-align')
-                  }
-                  options={[
-                    {
-                      value: 'left',
-                      title: t('Left'),
-                      label: <Icons.AlignLeftOutlined iconSize="m" />,
-                    },
-                    {
-                      value: 'center',
-                      title: t('Center'),
-                      label: <Icons.AlignCenterOutlined iconSize="m" />,
-                    },
-                    {
-                      value: 'right',
-                      title: t('Right'),
-                      label: <Icons.AlignRightOutlined iconSize="m" />,
-                    },
-                  ]}
-                />
-              </Field>
-            </>
-          )}
-        </Section>
-      }
+            </Field>
+            <Field label={t('Italic')}>
+              <Switch
+                size="small"
+                checked={format.title?.subtitleItalic ?? false}
+                aria-label={t('Italic subtitle')}
+                onChange={subtitleItalic =>
+                  updateTitle({ subtitleItalic }, 'subtitle-italic')
+                }
+              />
+            </Field>
+            <Field label={t('Underline')}>
+              <Switch
+                size="small"
+                checked={format.title?.subtitleUnderline ?? false}
+                aria-label={t('Underline subtitle')}
+                onChange={subtitleUnderline =>
+                  updateTitle({ subtitleUnderline }, 'subtitle-underline')
+                }
+              />
+            </Field>
+            <Field label={t('Alignment')}>
+              <Segments<TitleAlign>
+                name={t('Subtitle alignment')}
+                value={
+                  format.title?.subtitleAlign ?? format.title?.align ?? 'left'
+                }
+                onChange={subtitleAlign =>
+                  updateTitle({ subtitleAlign }, 'subtitle-align')
+                }
+                options={[
+                  {
+                    value: 'left',
+                    title: t('Left'),
+                    label: <Icons.AlignLeftOutlined iconSize="m" />,
+                  },
+                  {
+                    value: 'center',
+                    title: t('Center'),
+                    label: <Icons.AlignCenterOutlined iconSize="m" />,
+                  },
+                  {
+                    value: 'right',
+                    title: t('Right'),
+                    label: <Icons.AlignRightOutlined iconSize="m" />,
+                  },
+                ]}
+              />
+            </Field>
+          </>
+        )}
+      </Section>
 
       <Section>
         <h4>{t('Divider and spacing')}</h4>
