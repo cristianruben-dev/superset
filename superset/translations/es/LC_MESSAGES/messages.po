@@ -22205,6 +22205,11 @@ msgid ""
 "\n"
 "%(table)s\n"
 msgstr ""
+"*%(name)s*\n"
+"\n"
+"%(description)s\n"
+"\n"
+"%(table)s\n"
 
 #, python-format
 msgid ""
@@ -22216,6 +22221,13 @@ msgid ""
 "\n"
 "Error: %(text)s\n"
 msgstr ""
+"*Informe fallido: se agotaron los reintentos de %(name)s*\n"
+"\n"
+"%(description)s\n"
+"\n"
+"El informe ha fallado tras %(max)s intentos.\n"
+"\n"
+"Error: %(text)s\n"
 
 #, python-format
 msgid ""
@@ -22228,6 +22240,13 @@ msgid ""
 "\n"
 "Error: %(text)s\n"
 msgstr ""
+"*Reintento del informe [%(attempt)s de %(max)s]: %(name)s*\n"
+"\n"
+"%(description)s\n"
+"\n"
+"Intento %(attempt)s de %(max)s  |  Reintentos restantes: %(remaining)s\n"
+"\n"
+"Error: %(text)s\n"
 
 #, python-format
 msgid "... and %s more"
@@ -22746,6 +22765,13 @@ msgid ""
 "Restoring them (POST /api/v1/dataset/<uuid>/restore) keeps the datasets, "
 "but the database still cannot be deleted."
 msgstr ""
+"No se puede eliminar una base de datos cuyos únicos conjuntos de datos "
+"restantes están eliminados de forma lógica. Purga antes cada uno (GET "
+"/api/v1/dataset/<uuid>/purge-impact para obtener su token de impacto y "
+"después POST /api/v1/dataset/<uuid>/purge con {\"confirmed_impact_token\": "
+"<token>}) y luego elimina la base de datos. Restaurarlos (POST "
+"/api/v1/dataset/<uuid>/restore) conserva los conjuntos de datos, pero la "
+"base de datos seguirá sin poder eliminarse."
 
 msgid "Center value should be greater than min bound"
 msgstr "El valor central debe ser mayor que el límite mínimo"
@@ -22854,6 +22880,9 @@ msgid ""
 "'%(layer_name)s') was not found. Please verify that the chart exists and "
 "is accessible."
 msgstr ""
+"No se ha encontrado el gráfico con ID %(chart_id)s (referenciado por la "
+"capa de anotaciones «%(layer_name)s»). Comprueba que el gráfico existe y "
+"que tienes acceso a él."
 
 #, python-format
 msgid ""
@@ -23112,7 +23141,7 @@ msgid "Cross-filter column"
 msgstr "Alcance del filtro cruzado"
 
 msgid "Current password"
-msgstr ""
+msgstr "Contraseña actual"
 
 msgid "Current version"
 msgstr "Versión actual"
@@ -23136,7 +23165,7 @@ msgid "Customize the label for the right series in tooltips and legend"
 msgstr "Texto de la serie derecha en los tooltips y la leyenda"
 
 msgid "D3 time format for the x-axis labels"
-msgstr ""
+msgstr "Formato de tiempo D3 de las etiquetas del eje X"
 
 #, fuzzy
 msgid "Dark (Carto)"
@@ -23150,6 +23179,8 @@ msgid ""
 "Dashboard cannot be restored because its slug is now used by another "
 "active dashboard. Rename one of the dashboards and retry."
 msgstr ""
+"No se puede restaurar el tablero porque otro tablero activo usa ahora su "
+"slug. Cambia el nombre de uno de los tableros e inténtalo de nuevo."
 
 # Machine-translated via backfill_po.py (claude-sonnet-4-6) [refs: ja]
 #, fuzzy
@@ -23194,7 +23225,7 @@ msgstr ""
 "nombre de la tabla antes de restaurar."
 
 msgid "Dataset changed since you opened it"
-msgstr ""
+msgstr "El conjunto de datos ha cambiado desde que lo abriste"
 
 # Machine-translated via backfill_po.py (claude-sonnet-4-6) [refs: ja]
 #, fuzzy
@@ -23211,8 +23242,8 @@ msgstr "Se renombró el conjunto de datos a «%s»"
 #, python-format
 msgid "Dataset used by %s chart updated: %s"
 msgid_plural "Dataset used by %s charts updated: %s"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Se ha actualizado el conjunto de datos usado por %s gráfico: %s"
+msgstr[1] "Se ha actualizado el conjunto de datos usado por %s gráficos: %s"
 
 #, fuzzy
 msgid "Datasource is required"
@@ -23237,12 +23268,15 @@ msgid "Delete Semantic View?"
 msgstr "¿Eliminar la vista semántica?"
 
 msgid "Delete component"
-msgstr ""
+msgstr "Eliminar componente"
 
 msgid ""
 "Delete or move active datasets. To remove archived datasets, open "
 "Recently archived and select Delete permanently."
 msgstr ""
+"Elimina o mueve los conjuntos de datos activos. Para quitar los "
+"archivados, abre «Archivados recientemente» y elige «Eliminar "
+"definitivamente»."
 
 msgid "Delete permanently"
 msgstr "Eliminar definitivamente"
@@ -23252,7 +23286,7 @@ msgid "Delete permanently %(name)s?"
 msgstr "¿Eliminar definitivamente %(name)s?"
 
 msgid "Delete query"
-msgstr ""
+msgstr "Eliminar consulta"
 
 #, fuzzy, python-format
 msgid "Deleted %(num)d semantic view"
@@ -23274,21 +23308,24 @@ msgid ""
 "it contains, and charts built on those views will stop working. The "
 "affected views could not be listed."
 msgstr ""
+"Al eliminar esta capa semántica también se eliminan definitivamente las "
+"vistas semánticas que contiene, y los gráficos creados sobre ellas "
+"dejarán de funcionar. No se han podido listar las vistas afectadas."
 
 msgid "Dependencies"
-msgstr ""
+msgstr "Dependencias"
 
 msgid "Depends on"
-msgstr ""
+msgstr "Depende de"
 
 msgid "Deployment default"
-msgstr ""
+msgstr "Valor predeterminado de la instalación"
 
 msgid "Detach or delete them first."
-msgstr ""
+msgstr "Desvincúlalos o elimínalos antes."
 
 msgid "Details of the dataset certification"
-msgstr ""
+msgstr "Detalles de la certificación del conjunto de datos"
 
 # Machine-translated via backfill_po.py (claude-sonnet-4-6) [refs: de, sr,
 # sr_Latn]
@@ -23329,12 +23366,17 @@ msgid ""
 "Display charts on a map. For using this plugin, users first have to "
 "create any other chart that can then be placed on the map."
 msgstr ""
+"Muestra gráficos sobre un mapa. Para usar este complemento, primero hay "
+"que crear otro gráfico que luego se pueda colocar en el mapa."
 
 msgid ""
 "Display each cell as a percentage of its row, column, or grand total, "
 "instead of its actual value. Totals and subtotals are still computed "
 "correctly first; this only changes how they are displayed."
 msgstr ""
+"Muestra cada celda como porcentaje del total de su fila, de su columna o "
+"general, en lugar de su valor real. Los totales y subtotales se siguen "
+"calculando bien antes; esto solo cambia cómo se muestran."
 
 msgid "Done"
 msgstr "Listo"
@@ -23343,17 +23385,19 @@ msgid "Dot size metric"
 msgstr "Métrica del tamaño del punto"
 
 msgid "Download Excel file"
-msgstr ""
+msgstr "Descargar archivo de Excel"
 
 #, python-format
 msgid "Drag %s folder"
-msgstr ""
+msgstr "Arrastrar la carpeta %s"
 
 msgid "Draw split lines for the main value axis ticks."
 msgstr "Dibuja líneas de división en las marcas principales del eje de valores."
 
 msgid "Drill to detail is not available for this datasource type."
 msgstr ""
+"El detalle de los datos no está disponible para este tipo de origen de "
+"datos."
 
 msgid "Duration in ms (10500 => 0:00:10.5)"
 msgstr "Duración en ms (10500 => 0:00:10.5)"
@@ -23374,10 +23418,10 @@ msgid "ERROR: %s"
 msgstr ""
 
 msgid "Each metric's own"
-msgstr ""
+msgstr "La propia de cada métrica"
 
 msgid "Edit query"
-msgstr ""
+msgstr "Editar consulta"
 
 #, fuzzy
 msgid "Editable"
@@ -23402,45 +23446,51 @@ msgstr ""
 "control. Se pueden buscar por nombre."
 
 msgid "Email recipients"
-msgstr ""
+msgstr "Destinatarios del correo"
 
 msgid ""
 "Embedded authentication failed. The guest token may exceed the request-"
 "header size limit. Reduce the token payload; large inline RLS lists can "
 "be replaced with an entitlements-table lookup."
 msgstr ""
+"Ha fallado la autenticación incrustada. Puede que el token de invitado "
+"supere el tamaño máximo de las cabeceras de la solicitud. Reduce el "
+"contenido del token; las listas de RLS grandes en línea se pueden "
+"sustituir por una consulta a una tabla de permisos."
 
 msgid "Enable Retries"
-msgstr ""
+msgstr "Activar reintentos"
 
 msgid "Enable automatic retries on report failure"
-msgstr ""
+msgstr "Activar los reintentos automáticos cuando falle el informe"
 
 msgid "Encrypted extra field must be a mapping from string keys to values."
 msgstr ""
+"El campo extra cifrado debe ser una correspondencia de claves de texto a "
+"valores."
 
 #, python-format
 msgid "Ends with (ILIKE %x)"
 msgstr "Termina con (ILIKE %x)"
 
 msgid "Enter your current password"
-msgstr ""
+msgstr "Introduce tu contraseña actual"
 
 msgid "Entries per page"
-msgstr ""
+msgstr "Entradas por página"
 
 msgid "Equal Date Sizes"
 msgstr "Tamaños de fecha iguales"
 
 msgid "Error Handling"
-msgstr ""
+msgstr "Gestión de errores"
 
 msgid "Error handling"
-msgstr ""
+msgstr "Gestión de errores"
 
 #, python-format
 msgid "Error in jinja expression in adhoc SQL expression: %(msg)s"
-msgstr ""
+msgstr "Error en la expresión Jinja de la expresión SQL ad hoc: %(msg)s"
 
 #, fuzzy, python-format
 msgid "Error in jinja expression in adhoc column: %(msg)s"
@@ -23448,7 +23498,7 @@ msgstr "Error en la expresión Jinja en la cláusula WHERE: %(msg)s"
 
 #, python-format
 msgid "Error while rendering calculated column expression: %(msg)s"
-msgstr ""
+msgstr "Error al procesar la expresión de la columna calculada: %(msg)s"
 
 # Machine-translated via backfill_po.py (claude-sonnet-4-6) [refs: de, sr,
 # sr_Latn]
@@ -23457,43 +23507,47 @@ msgid "Exact match (IN)"
 msgstr "Coincidencia exacta (IN)"
 
 msgid "Excel export is not configured on this server."
-msgstr ""
+msgstr "La exportación a Excel no está configurada en este servidor."
 
 #, fuzzy
 msgid "Excluded subjects"
 msgstr "Seleccionar asunto"
 
 msgid "Exit edit mode"
-msgstr ""
+msgstr "Salir del modo de edición"
 
 msgid "Expired"
 msgstr "Caducado"
 
 msgid "Export Data to Excel"
-msgstr ""
+msgstr "Exportar datos a Excel"
 
 msgid "Export Images to Excel"
-msgstr ""
+msgstr "Exportar imágenes a Excel"
 
 msgid "Export as PDF"
-msgstr ""
+msgstr "Exportar como PDF"
 
 msgid "Export query"
-msgstr ""
+msgstr "Exportar consulta"
 
 msgid "Export screenshot (png)"
-msgstr ""
+msgstr "Exportar captura de pantalla (png)"
 
 #, python-format
 msgid ""
 "Exporting semantic views is not supported yet — %s semantic-view row(s) "
 "were skipped."
 msgstr ""
+"Aún no se pueden exportar vistas semánticas: se han omitido %s fila(s) de "
+"vistas semánticas."
 
 msgid ""
 "Exporting semantic views is not supported yet. Deselect the semantic-view"
 " rows and try again."
 msgstr ""
+"Aún no se pueden exportar vistas semánticas. Deselecciona las filas de "
+"vistas semánticas e inténtalo de nuevo."
 
 msgid "Expression"
 msgstr "Expresión"
@@ -23503,9 +23557,11 @@ msgid ""
 "Extension '%(extension_id)s' has exceeded its persistent storage quota of"
 " %(quota)d bytes."
 msgstr ""
+"La extensión «%(extension_id)s» ha superado su cuota de almacenamiento "
+"persistente de %(quota)d bytes."
 
 msgid "Extensions are not enabled on this server"
-msgstr ""
+msgstr "Las extensiones no están activadas en este servidor"
 
 #, python-brace-format
 msgid ""
@@ -23513,9 +23569,13 @@ msgid ""
 "\"This is a warning.\" }`. Use the Certification fields below for "
 "certification metadata."
 msgstr ""
+"Datos extra para especificar los metadatos de la tabla, como `{ "
+"\"warning_markdown\": \"Esto es una advertencia.\" }`. Usa los campos de "
+"Certificación de abajo para los metadatos de certificación."
 
 msgid "Extra field must be a mapping from string keys to values."
 msgstr ""
+"El campo extra debe ser una correspondencia de claves de texto a valores."
 
 msgid "Failed to copy API key to clipboard"
 msgstr "No se ha podido copiar la clave API al portapapeles"
@@ -23540,11 +23600,14 @@ msgstr "No se pudo eliminar %(name)s: %(errMsg)s"
 #, python-format
 msgid "Failed to establish an SSH tunnel to the database: %(reason)s"
 msgstr ""
+"No se ha podido establecer un túnel SSH a la base de datos: %(reason)s"
 
 msgid ""
 "Failed to export chart data. Please try again or contact your "
 "administrator."
 msgstr ""
+"No se han podido exportar los datos del gráfico. Inténtalo de nuevo o "
+"ponte en contacto con tu administrador."
 
 msgid "Failed to fetch API keys"
 msgstr "No se han podido recuperar las claves API"
@@ -23554,20 +23617,20 @@ msgid "Failed to load columns for %s %s"
 msgstr "No se han podido cargar las columnas de %s %s"
 
 msgid "Failed to load datasource metadata"
-msgstr ""
+msgstr "No se han podido cargar los metadatos del origen de datos"
 
 #, python-format
 msgid "Failed to load dimensions for semantic view %s"
-msgstr ""
+msgstr "No se han podido cargar las dimensiones de la vista semántica %s"
 
 msgid "Failed to load drill-to-detail rows"
-msgstr ""
+msgstr "No se han podido cargar las filas del detalle de los datos"
 
 msgid "Failed to load results"
-msgstr ""
+msgstr "No se han podido cargar los resultados"
 
 msgid "Failed to load samples"
-msgstr ""
+msgstr "No se han podido cargar las muestras"
 
 msgid "Failed to load version history"
 msgstr "No se pudo cargar el historial de versiones"
@@ -23599,14 +23662,16 @@ msgstr "No se ha podido revocar la clave API"
 
 #, python-format
 msgid "Failed to trigger %(alertType)s \"%(alertName)s\": %(error)s"
-msgstr ""
+msgstr "No se ha podido activar %(alertType)s «%(alertName)s»: %(error)s"
 
 msgid "Failure Notifications"
-msgstr ""
+msgstr "Notificaciones de fallo"
 
 #, python-format
 msgid "Fetch values predicate failed SQL validation: %(msg)s"
 msgstr ""
+"El predicado para obtener valores no ha superado la validación SQL: "
+"%(msg)s"
 
 msgid ""
 "Fill missing periods across the whole time range of the chart instead of "
@@ -23614,12 +23679,16 @@ msgid ""
 "anchored to the selected time range when the data starts late or ends "
 "early."
 msgstr ""
+"Rellena los periodos que faltan en todo el rango de tiempo del gráfico y "
+"no solo entre el primer y el último punto de datos. Es útil para mantener "
+"una serie anclada al rango de tiempo seleccionado cuando los datos "
+"empiezan tarde o terminan pronto."
 
 msgid "Fill the entire time range"
-msgstr ""
+msgstr "Rellenar todo el rango de tiempo"
 
 msgid "Filter by"
-msgstr ""
+msgstr "Filtrar por"
 
 #, fuzzy
 msgid "Filter options"
@@ -23637,7 +23706,7 @@ msgid "Fit data"
 msgstr "Ajustar datos"
 
 msgid "Fix the Extra JSON to edit certification"
-msgstr ""
+msgstr "Corrige el JSON extra para editar la certificación"
 
 #, fuzzy
 msgid ""
@@ -23651,35 +23720,35 @@ msgstr ""
 "todos los datos."
 
 msgid "Force disabled"
-msgstr ""
+msgstr "Forzar desactivado"
 
 msgid "Force enabled"
-msgstr ""
+msgstr "Forzar activado"
 
 msgid "Forecast requires at least 2 data points"
-msgstr ""
+msgstr "La previsión requiere al menos 2 puntos de datos"
 
 #, fuzzy
 msgid "Format JSON configuration"
 msgstr "Configuración de la columna"
 
 msgid "Formatted Excel attached in email"
-msgstr ""
+msgstr "Excel con formato adjunto en el correo"
 
 msgid "Go to Welcome Page"
-msgstr ""
+msgstr "Ir a la página de inicio"
 
 msgid "Grain"
 msgstr "Granularidad"
 
 msgid "Guest"
-msgstr ""
+msgstr "Invitado"
 
 msgid "Guest user cannot access this query"
-msgstr ""
+msgstr "El usuario invitado no puede acceder a esta consulta"
 
 msgid "High color"
-msgstr ""
+msgstr "Color alto"
 
 msgid ""
 "If Presto or Trino, all the queries in SQL Lab are going to be executed "
@@ -23692,12 +23761,21 @@ msgid ""
 " the queries as the currently logged on user via their own OAuth "
 "credentials."
 msgstr ""
+"Con Presto o Trino, todas las consultas de SQL Lab se ejecutarán como el "
+"usuario que ha iniciado sesión, que debe tener permiso para ejecutarlas. "
+"Con Hive y hive.server2.enable.doAs activado, las consultas se ejecutan "
+"como cuenta de servicio, pero suplantando al usuario que ha iniciado "
+"sesión mediante la propiedad hive.server2.proxy.user. Con Databricks, se "
+"usa OAuth2 para autenticarse como el usuario que ha iniciado sesión. Con "
+"Snowflake o Google Sheets, si la base de datos tiene configurada la "
+"autenticación OAuth, las consultas se ejecutan como el usuario que ha "
+"iniciado sesión con sus propias credenciales OAuth."
 
 msgid "If you delete this item, you won't be able to recover it."
 msgstr "Si eliminas este elemento, no podrás recuperarlo."
 
 msgid "If you did not request this, you can ignore this email."
-msgstr ""
+msgstr "Si no lo has solicitado, puedes ignorar este correo."
 
 msgid "Ignore time"
 msgstr "Ignorar tiempo"
@@ -23706,6 +23784,8 @@ msgid ""
 "Impersonate logged in user (Presto, Trino, Drill, Hive, Databricks, "
 "Snowflake and Google Sheets)"
 msgstr ""
+"Suplantar al usuario que ha iniciado sesión (Presto, Trino, Drill, Hive, "
+"Databricks, Snowflake y Google Sheets)"
 
 msgid "Imported"
 msgstr "Importado"
@@ -23717,7 +23797,7 @@ msgid "Include Series"
 msgstr "Incluir series"
 
 msgid "Include a link back to Superset"
-msgstr ""
+msgstr "Incluir un enlace de vuelta a AuraData BI"
 
 msgid "Include series name as an axis"
 msgstr "Incluir el nombre de la serie como eje"
@@ -23732,32 +23812,34 @@ msgid "Inside End"
 msgstr "Dentro, al final"
 
 msgid "Internal"
-msgstr ""
+msgstr "Interno"
 
 #, python-format
 msgid "Invalid ad-hoc metric %(label)s: `expressionType` is missing"
-msgstr ""
+msgstr "Métrica ad hoc %(label)s no válida: falta `expressionType`"
 
 #, python-format
 msgid "Invalid crontab schedule: %(cron_schedule)s never matches a valid date"
 msgstr ""
+"Programación crontab no válida: %(cron_schedule)s nunca coincide con una "
+"fecha válida"
 
 #, python-format
 msgid "Invalid resample rule: %(rule)s"
-msgstr ""
+msgstr "Regla de remuestreo no válida: %(rule)s"
 
 #, python-format
 msgid "Invalid time range boundary for resample: %(value)s"
-msgstr ""
+msgstr "Límite de rango de tiempo no válido para el remuestreo: %(value)s"
 
 msgid "Inverse"
-msgstr ""
+msgstr "Inverso"
 
 msgid "Is empty"
-msgstr ""
+msgstr "Está vacío"
 
 msgid "Is not empty"
-msgstr ""
+msgstr "No está vacío"
 
 #, python-format
 msgid "Item updated: %s"
@@ -23778,7 +23860,7 @@ msgid "Label Position"
 msgstr "Posición de la etiqueta"
 
 msgid "Label must not be empty."
-msgstr ""
+msgstr "La etiqueta no puede estar vacía."
 
 msgid "Last 30 days"
 msgstr "Últimos 30 días"
@@ -23796,6 +23878,8 @@ msgid ""
 "Leave on the deployment default unless you need to force asynchronous "
 "loading on or off for this dashboard."
 msgstr ""
+"Déjalo en el valor predeterminado de la instalación, salvo que necesites "
+"forzar la carga asíncrona, activada o desactivada, en este tablero."
 
 msgid "Left color"
 msgstr "Color izquierdo"
@@ -23810,28 +23894,28 @@ msgid "Left series setting"
 msgstr "Serie izquierda"
 
 msgid "Length equals (=)"
-msgstr ""
+msgstr "Longitud igual a (=)"
 
 msgid "Length greater or equal (>=)"
-msgstr ""
+msgstr "Longitud mayor o igual que (>=)"
 
 msgid "Length greater than (>)"
-msgstr ""
+msgstr "Longitud mayor que (>)"
 
 msgid "Length in cm (12345678cm => 123.46km)"
-msgstr ""
+msgstr "Longitud en cm (12345678cm => 123,46km)"
 
 msgid "Length in cm (12345cm => 123.45m)"
-msgstr ""
+msgstr "Longitud en cm (12345cm => 123,45m)"
 
 msgid "Length in m (12345m => 12.35km)"
-msgstr ""
+msgstr "Longitud en m (12345m => 12,35km)"
 
 msgid "Length less or equal (<=)"
-msgstr ""
+msgstr "Longitud menor o igual que (<=)"
 
 msgid "Length less than (<)"
-msgstr ""
+msgstr "Longitud menor que (<)"
 
 # Machine-translated via backfill_po.py (claude-sonnet-4-6) [refs: de, sr,
 # sr_Latn]
@@ -23851,6 +23935,10 @@ msgid ""
 "do not restrict REST API requests and never grant permissions the user "
 "does not already have. Leave empty for legacy RBAC-only behavior."
 msgstr ""
+"Limita a qué recursos y acciones de MCP puede acceder esta clave. Estos "
+"ámbitos no restringen las solicitudes de la API REST ni conceden nunca "
+"permisos que el usuario no tenga ya. Déjalo vacío para el comportamiento "
+"anterior, basado solo en RBAC."
 
 msgid ""
 "Limits the number of cells that get retrieved. Not applied when non-"
@@ -23858,35 +23946,44 @@ msgid ""
 "present, since totals and subtotals are then computed via a database "
 "rollup query that must see every row to stay correct."
 msgstr ""
+"Limita el número de celdas que se obtienen. No se aplica cuando hay "
+"métricas no aditivas (p. ej. ratios, COUNT_DISTINCT, AVG, percentiles), "
+"porque entonces los totales y subtotales se calculan con una consulta de "
+"agregación en la base de datos que necesita ver todas las filas para ser "
+"correcta."
 
 msgid "Linear"
-msgstr ""
+msgstr "Lineal"
 
 msgid "Link Copied!"
-msgstr ""
+msgstr "¡Enlace copiado!"
 
 msgid ""
 "List every range, marker and marker line in a legend; clicking an entry "
 "toggles it on the chart"
 msgstr ""
+"Lista todos los rangos, marcadores y líneas de marcador en una leyenda; "
+"al hacer clic en una entrada se muestra u oculta en el gráfico"
 
 msgid "Load more"
 msgstr "Cargar más"
 
 msgid "Loading dependent semantic views"
-msgstr ""
+msgstr "Cargando las vistas semánticas dependientes"
 
 #, python-format
 msgid "Loading historical version · %s"
 msgstr "Cargando versión anterior · %s"
 
 msgid "Low color"
-msgstr ""
+msgstr "Color bajo"
 
 msgid ""
 "Lower bound of the color scale. When both start and end are set, the "
 "legend uses this fixed range instead of the automatic data range."
 msgstr ""
+"Límite inferior de la escala de color. Si se definen el inicio y el fin, "
+"la leyenda usa este rango fijo en lugar del rango automático de los datos."
 
 msgid "MCP scopes"
 msgstr ""
