@@ -497,6 +497,62 @@ Rama `claude/upgrade-superset-7-infra-223641` (cortada de la de la fase 4). Ento
 - **Sin verificar:** SQL Server, Databricks y Redshift contra servidores reales; el target `dev` (no se construyó); una
   ejecución completa de informe con envío de correo.
 
+### Fase 6
+
+Rama `claude/upgrade-superset-7-i18n-009842` (cortada de la de la fase 5). Solo traducciones al español, más cinco
+etiquetas de código (abajo). Catálogo `es`: 7 172 mensajes, 0 `fuzzy`, 9 vacíos a propósito (ejemplos de campos y textos de
+prueba: `https://`, `schema1,schema2`, `markdown`…).
+
+- **Formato del `.po`.** `msgfmt -c` y `pybabel compile` (sin `-f`) dan 0 errores. Los 8 de `msgfmt`: 5 plurales cuyo
+  `msgstr[0]` no llevaba el `%s` del `msgid_plural`, un plural con `%(suggestion)s` que el plural no tiene (entrada con
+  `no-python-format`), tres etiquetas «% of…» que se leían como marcadores, y el `msgstr` de «Defines the value that
+  determines the boundary…» que empezaba con `\n` sin que el `msgid` lo hiciera. Además `pybabel compile` ve otros 3
+  errores que `msgfmt` no ve: Babel ignora `no-python-format` y vuelve a marcar `python-format` al leer, así que las
+  etiquetas «% of column», «% of total», «% calculation»… (y tres frases de ayuda que las citan) no tienen traducción válida
+  mientras el `msgid` lleve `% ` + letra. Arreglo: **un espacio de no separación tras el `%`** en esas 11 cadenas de código
+  (`FormattingPopoverContent`, `constants.ts`, `Sunburst`, `controlPanel` de pivot y de embudo) y su `msgid` en `en`,
+  `es` y `messages.pot`. Se ve igual; Jest de `FormattingPopoverContent` (45) pasa, el normalizador de Testing Library
+  trata el NBSP como espacio. Efecto lateral: el `babel_update.sh` ya no necesita su parche para esas etiquetas.
+- **Cadenas sin traducir.** Las 988 «nuevas de 7.0» eran 1 007 mensajes que el `.po` no tenía antes del merge: **472
+  estaban vacíos** (alertas y reintentos, exportación, archivar/papelera, reglas de color, RLS, extensiones, claves de
+  almacenamiento, comparación de tiempo, temas, vistas semánticas…) y se tradujeron a mano, en 5 bloques. Las otras ~510
+  traían la traducción de 7.0 y se revisaron una a una: había ~45 desalineadas con su `msgid` (p. ej. «Subject» →
+  «asunto del correo», «Light (Carto)» → «Gráfico de líneas», «Access» → «correcto», «Breakpoint Metric», «Cross-filter
+  column», «Page navigation» → «Agregación», «Dark (Carto)» → «Gráfico de radar») y se corrigieron.
+- **`fuzzy`.** Las 160 marcas venían de la fusión de Babel por entrada: 61 eran cadenas que yo acababa de traducir y de
+  las otras 99 había 17 erróneas («Streets (Carto)» → «Gráfico de árbol», «You don't have permission to export data» →
+  «…leer etiquetas», «Subjects» → «asunto del correo», «Map Renderer»…). Corregidas todas y quitada la marca de las 160.
+- **Tuteo.** Eran formales unas 30 («Seleccione», «Haga clic», «Restáurelo», «Su sesión ha finalizado», «Verifique»,
+  «Califique», «¿Está seguro de que desea…?», «pase el siguiente ID»…). Ninguna con «usted». El resto de «su/sus» son
+  terceras personas (del tablero, del área de trabajo).
+- **Terminología.** `Dashboard` → «tablero» en las 176 cadenas del `.po` que decían «panel de control» (la base del fork
+  mezclaba: 144 «panel de control» contra 1 «tablero»; quedan 3 «panel de control» que son el *control panel* de Explore)
+  y 21 «panel(es)» sueltos. Archivar = «mover a la papelera» (coherente con «Papelera» del fork); `Viewers` = «lectores»
+  (como el rol del workspace); `Superset` en textos de usuario = «AuraData BI». Plurales `Deleted %(num)d …`:
+  «Se ha eliminado %(num)d …» con el espacio.
+- **Cadenas del fork de las fases 2 a 5** (historial, papelera, acceso por workspace, ECharts, Butterfly): se extrajo el
+  catálogo con `pybabel extract` sobre el árbol y **todos** los `msgid` están en el `.po` (0 faltan). El `messages.pot`
+  confirmado estaba atrasado 1 368 cadenas (el test `check_pot_drift_test` fallaba desde la fase 1): regenerado con el mismo
+  comando de `babel_update.sh`, pero sin `msgcat --sort-by-msgid` (el `msgcat` 1.0 de Homebrew no lo admite): el diff del
+  `.pot` es grande por orden y ajuste de línea, no por contenido.
+- **Navegador (8199, copia desechable).** Postgres 17 en el 5547 con `pg_dump` de dev, `db upgrade` a `f1c7a9e2b305`, servidor del
+  venv de la fase 5 con el `messages.json` de esta rama y los activos de la fase 4; Playwright con el Chromium en caché.
+  Todo retirado al terminar (contenedor, servidor, activos copiados, enlace a `node_modules`); el 8188 no se tocó.
+  Revisado en español, sin textos en inglés: inicio, lista de tableros, lista de áreas de trabajo y página del área,
+  tablero en vista y menú «…» (con «Ver historial de versiones»), panel de historial, edición con la cinta
+  (Inicio, Insertar, Diseño, Vista, Formato, «Datos y detalles»), panes Gráficos/Elementos/Formato/Selección/Marcadores,
+  panel Formato (nivel Visual con sus secciones), papelera de Administración vacía y con un tablero eliminado. Capturas en
+  la carpeta de notas (`fase6-capturas/`).
+- **Pruebas.** `msgfmt -c` 0; `pybabel compile` 0; `npm run build-translation` ok; `pytest tests/unit_tests/mibi` 127 ok;
+  `pytest tests/unit_tests/translations tests/unit_tests/scripts/translations` 100 ok (con `pybabel` en el `PATH`); Jest de
+  `FormattingPopoverContent.test.tsx` 45 ok. No se corrió la suite completa de Jest ni Playwright.
+- **No verificado / queda.** Los textos de los diálogos de restaurar y eliminar definitivamente de la papelera (están en el
+  `.po`, no se abrieron en el navegador); la cinta con un tablero de varias páginas; las 5 etiquetas con NBSP en el
+  navegador (los activos de la copia son de la fase 4, anteriores al cambio de código); las pantallas de alertas e informes,
+  SQL Lab y bases de datos. Los meses del eje de los gráficos («Jan», «Feb») salen en inglés: los pone ECharts, no el catálogo.
+  `t('DB engine')` dentro de `t('%s Error', …)` no se extrae (Babel no recoge un `t()` anidado), así que «DB engine error»
+  aparece en inglés en los errores de conexión; es de 7.0, sin tocar.
+
 ## Abiertos tras la fase 3
 
 Para la fase 4 (funciones que chocan), además de la lista de abajo:
