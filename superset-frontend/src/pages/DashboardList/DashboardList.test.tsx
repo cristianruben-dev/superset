@@ -61,6 +61,12 @@ afterEach(() => {
   mockIsFeatureEnabled.mockReset();
 });
 
+/** Dashboards open as a table; the card view has the more-options menus. */
+const showCards = () => {
+  const cardViewIcon = screen.getByRole('img', { name: 'appstore' });
+  fireEvent.click(cardViewIcon.closest('[role="button"]')!);
+};
+
 test('renders', async () => {
   renderDashboardList(mockAdminUser);
   expect(await screen.findByText('Dashboards')).toBeInTheDocument();
@@ -98,25 +104,23 @@ test('switches between card and table view', async () => {
   // Wait for the list to load
   await screen.findByTestId('dashboard-list-view');
 
-  // Initially in card view (no table)
-  expect(screen.queryByTestId('listview-table')).not.toBeInTheDocument();
+  // AuraData BI: dashboards open as a table
+  expect(await screen.findByTestId('listview-table')).toBeInTheDocument();
 
-  // Switch to table view via the list icon
+  // Switch to card view
+  showCards();
+
+  await waitFor(() => {
+    expect(screen.queryByTestId('listview-table')).not.toBeInTheDocument();
+  });
+
+  // Switch back to table view via the list icon
   const listViewIcon = screen.getByRole('img', { name: 'unordered-list' });
   const listViewButton = listViewIcon.closest('[role="button"]')!;
   fireEvent.click(listViewButton);
 
   await waitFor(() => {
     expect(screen.getByTestId('listview-table')).toBeInTheDocument();
-  });
-
-  // Switch back to card view
-  const cardViewIcon = screen.getByRole('img', { name: 'appstore' });
-  const cardViewButton = cardViewIcon.closest('[role="button"]')!;
-  fireEvent.click(cardViewButton);
-
-  await waitFor(() => {
-    expect(screen.queryByTestId('listview-table')).not.toBeInTheDocument();
   });
 });
 
@@ -125,6 +129,7 @@ test('shows edit modal', async () => {
 
   // Wait for data to load
   await screen.findByText(mockDashboards[0].dashboard_title);
+  showCards();
 
   // Find and click the first more options button
   const moreIcons = await screen.findAllByRole('img', {
@@ -147,6 +152,7 @@ test('shows delete confirmation', async () => {
 
   // Wait for data to load
   await screen.findByText(mockDashboards[0].dashboard_title);
+  showCards();
 
   // Find and click the first more options button
   const moreIcons = await screen.findAllByRole('img', {
@@ -185,7 +191,8 @@ test('renders all standard filters', async () => {
 
   // Verify filter labels exist
   expect(screen.getByText('Owner')).toBeInTheDocument();
-  expect(screen.getByText('Status')).toBeInTheDocument();
+  // The table has a Status column too
+  expect(screen.getByText('Status', { selector: 'label' })).toBeInTheDocument();
   expect(screen.getByText('Modified by')).toBeInTheDocument();
   expect(screen.getByText('Certified')).toBeInTheDocument();
 });

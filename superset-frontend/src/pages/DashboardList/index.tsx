@@ -827,11 +827,8 @@ function DashboardList(props: DashboardListProps) {
                     : isFeatureEnabled(FeatureFlag.Thumbnails)
                 }
                 renderCard={renderCard}
-                defaultViewMode={
-                  isFeatureEnabled(FeatureFlag.ListviewsDefaultCardView)
-                    ? 'card'
-                    : 'table'
-                }
+                // AuraData BI: a dense table first, as the Power BI workspace list
+                defaultViewMode="table"
                 enableBulkTag={enableBulkTag}
                 bulkTagResourceName="dashboard"
               />

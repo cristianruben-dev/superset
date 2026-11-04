@@ -17,7 +17,7 @@
  * under the License.
  */
 import { useEffect, useMemo, useState, type CSSProperties } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useHistory } from 'react-router-dom';
 import rison from 'rison';
 import { t, tn } from '@apache-superset/core/translation';
 import { css, styled } from '@apache-superset/core/theme';
@@ -26,11 +26,14 @@ import {
   isFeatureEnabled,
   SupersetClient,
 } from '@superset-ui/core';
-import { FaveStar, Skeleton } from '@superset-ui/core/components';
+import { Button, FaveStar, Skeleton } from '@superset-ui/core/components';
 import { Icons } from '@superset-ui/core/components/Icons';
 import { useToasts } from 'src/components/MessageToasts/withToasts';
 import { useFavoriteStatus } from 'src/views/CRUD/hooks';
+import { navigateTo } from 'src/utils/navigationUtils';
 import { AURA_TONES, type AuraTone } from '../shell/brand';
+import { CommandGroup, PageHeader } from '../shell/PageHeader';
+import { usePageStatus } from '../shell/pageStatus';
 import { relativeTime } from '../time';
 import { DashboardCard, useDashboardPreviews } from '../dashboards';
 import {
@@ -357,7 +360,10 @@ const fetchDashboards = async (tab: DashboardTab) => {
       ],
     })}`,
   });
-  return json.result as DashboardCardData[];
+  return {
+    dashboards: json.result as DashboardCardData[],
+    count: json.count as number,
+  };
 };
 
 /** Workspaces and the dashboard grid of the home page. */
@@ -367,6 +373,8 @@ export function HomeContent() {
     null,
   );
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
+  const history = useHistory();
+  const [dashboardCount, setDashboardCount] = useState<number | null>(null);
   const dashboardIds = useMemo(
     () => (dashboards || []).map(dashboard => dashboard.id),
     [dashboards],
@@ -388,7 +396,10 @@ export function HomeContent() {
   useEffect(() => {
     setDashboards(null);
     fetchDashboards(tab)
-      .then(setDashboards)
+      .then(({ dashboards: result, count }) => {
+        setDashboards(result);
+        if (tab === 'recent') setDashboardCount(count);
+      })
       .catch(() => setDashboards([]));
   }, [tab]);
 
@@ -400,112 +411,145 @@ export function HomeContent() {
   const startingOut =
     tab === 'recent' && dashboards?.length === 0 && !workspaces.length;
 
+  const figures = [
+    dashboardCount !== null &&
+      tn('%s dashboard', '%s dashboards', dashboardCount, dashboardCount),
+    workspaces.length > 0 &&
+      tn('%s workspace', '%s workspaces', workspaces.length, workspaces.length),
+  ].filter(Boolean);
+  usePageStatus(figures);
+
   return (
-    <Page>
-      {startingOut && <HomeBanner />}
-      {workspaces.length > 0 && (
+    <>
+      <PageHeader title={t('Home')} meta={figures.join(' · ') || undefined}>
+        <CommandGroup label={t('Create')}>
+          <Button
+            buttonStyle="secondary"
+            buttonSize="small"
+            icon={<Icons.AppstoreOutlined />}
+            onClick={() => history.push('/workspace/list/?new=true')}
+          >
+            {t('New workspace')}
+          </Button>
+          <Button
+            buttonStyle="primary"
+            buttonSize="small"
+            icon={<Icons.PlusOutlined />}
+            onClick={() => navigateTo('/dashboard/new', { assign: true })}
+          >
+            {t('New dashboard')}
+          </Button>
+        </CommandGroup>
+      </PageHeader>
+      <Page>
+        {startingOut && <HomeBanner />}
+        {workspaces.length > 0 && (
+          <Section>
+            <SectionHeader>
+              <h2>{t('Workspaces')}</h2>
+              <Link className="see-all" to="/workspace/list/">
+                {t('See all')}
+                <Icons.ArrowRightOutlined iconSize="s" />
+              </Link>
+            </SectionHeader>
+            <WorkspaceStrip>
+              {workspaces.slice(0, 8).map(workspace => (
+                <Link key={workspace.id} to={workspaceUrl(workspace.id)}>
+                  <WorkspaceAvatar workspace={workspace} size="m" />
+                  <span className="text">
+                    <span className="name">{workspace.name}</span>
+                    <span className="count">
+                      {tn(
+                        '%s dashboard',
+                        '%s dashboards',
+                        workspace.dashboard_count,
+                        workspace.dashboard_count,
+                      )}
+                    </span>
+                  </span>
+                </Link>
+              ))}
+            </WorkspaceStrip>
+          </Section>
+        )}
         <Section>
           <SectionHeader>
-            <h2>{t('Workspaces')}</h2>
-            <Link className="see-all" to="/workspace/list/">
+            <h2>{t('Dashboards')}</h2>
+            <Tabs role="tablist">
+              {tabs.map(({ key, label }) => (
+                <button
+                  key={key}
+                  type="button"
+                  role="tab"
+                  aria-selected={tab === key}
+                  onClick={() => setTab(key)}
+                >
+                  {label}
+                </button>
+              ))}
+            </Tabs>
+            <Link className="see-all" to="/dashboard/list/">
               {t('See all')}
               <Icons.ArrowRightOutlined iconSize="s" />
             </Link>
           </SectionHeader>
-          <WorkspaceStrip>
-            {workspaces.slice(0, 8).map(workspace => (
-              <Link key={workspace.id} to={workspaceUrl(workspace.id)}>
-                <WorkspaceAvatar workspace={workspace} size="m" />
-                <span className="text">
-                  <span className="name">{workspace.name}</span>
-                  <span className="count">
-                    {tn(
-                      '%s dashboard',
-                      '%s dashboards',
-                      workspace.dashboard_count,
-                      workspace.dashboard_count,
-                    )}
-                  </span>
-                </span>
-              </Link>
-            ))}
-          </WorkspaceStrip>
-        </Section>
-      )}
-      <Section>
-        <SectionHeader>
-          <h2>{t('Dashboards')}</h2>
-          <Tabs role="tablist">
-            {tabs.map(({ key, label }) => (
-              <button
-                key={key}
-                type="button"
-                role="tab"
-                aria-selected={tab === key}
-                onClick={() => setTab(key)}
-              >
-                {label}
-              </button>
-            ))}
-          </Tabs>
-          <Link className="see-all" to="/dashboard/list/">
-            {t('See all')}
-            <Icons.ArrowRightOutlined iconSize="s" />
-          </Link>
-        </SectionHeader>
-        <Grid>
-          {dashboards === null &&
-            Array.from({ length: 4 }, (_, index) => (
-              <Skeleton.Node
-                key={index}
-                active
-                css={css`
-                  width: 100% !important;
-                  height: 222px !important;
-                  border-radius: 12px;
-                `}
+          <Grid>
+            {dashboards === null &&
+              Array.from({ length: 4 }, (_, index) => (
+                <Skeleton.Node
+                  key={index}
+                  active
+                  css={css`
+                    width: 100% !important;
+                    height: 222px !important;
+                    border-radius: 12px;
+                  `}
+                />
+              ))}
+            {dashboards?.length === 0 && (
+              <EmptyCard>
+                <Icons.DashboardOutlined />
+                <div>
+                  {tab === 'favorite'
+                    ? t('Mark dashboards with a star to find them here.')
+                    : t('There are no dashboards yet.')}
+                </div>
+                {tab === 'recent' && (
+                  <Link to="/dashboard/new/">
+                    {t('Create your first dashboard')}
+                  </Link>
+                )}
+              </EmptyCard>
+            )}
+            {dashboards?.map(dashboard => (
+              <DashboardCard
+                key={dashboard.id}
+                id={dashboard.id}
+                title={dashboard.dashboard_title}
+                url={dashboard.url}
+                published={dashboard.published}
+                modified={t(
+                  'Modified %s',
+                  dashboard.changed_on_delta_humanized,
+                )}
+                preview={previews[dashboard.id]}
+                thumbnailUrl={
+                  isFeatureEnabled(FeatureFlag.Thumbnails)
+                    ? dashboard.thumbnail_url
+                    : null
+                }
+                actions={
+                  <FaveStar
+                    itemId={dashboard.id}
+                    saveFaveStar={saveFavoriteStatus}
+                    isStarred={!!favoriteStatus[dashboard.id]}
+                  />
+                }
               />
             ))}
-          {dashboards?.length === 0 && (
-            <EmptyCard>
-              <Icons.DashboardOutlined />
-              <div>
-                {tab === 'favorite'
-                  ? t('Mark dashboards with a star to find them here.')
-                  : t('There are no dashboards yet.')}
-              </div>
-              {tab === 'recent' && (
-                <Link to="/dashboard/new/">
-                  {t('Create your first dashboard')}
-                </Link>
-              )}
-            </EmptyCard>
-          )}
-          {dashboards?.map(dashboard => (
-            <DashboardCard
-              key={dashboard.id}
-              id={dashboard.id}
-              title={dashboard.dashboard_title}
-              url={dashboard.url}
-              published={dashboard.published}
-              modified={t('Modified %s', dashboard.changed_on_delta_humanized)}
-              preview={previews[dashboard.id]}
-              thumbnailUrl={
-                isFeatureEnabled(FeatureFlag.Thumbnails)
-                  ? dashboard.thumbnail_url
-                  : null
-              }
-              actions={
-                <FaveStar
-                  itemId={dashboard.id}
-                  saveFaveStar={saveFavoriteStatus}
-                  isStarred={!!favoriteStatus[dashboard.id]}
-                />
-              }
-            />
-          ))}
-        </Grid>
-      </Section>
-    </Page>
+          </Grid>
+        </Section>
+      </Page>
+    </>
   );
 }

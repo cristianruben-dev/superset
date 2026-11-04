@@ -26,6 +26,11 @@ import { getUrlParam } from 'src/utils/urlUtils';
 import { isDockMode, isPanelMode } from '../chartEditor';
 import { CommandPalette } from './CommandPalette';
 import { buildNavSections, isReportRoute } from './navigation';
+import { AppMenuBar } from './AppMenuBar';
+import { MENU_BAR_HEIGHT } from './MenuBar';
+import { setMenuBarSlot } from './menuBarSlot';
+import { STATUS_BAR_HEIGHT, StatusBar } from './StatusBar';
+import { ShellCrumbs } from './PageHeader';
 import { Sidebar, SIDEBAR_COLLAPSED_WIDTH, SIDEBAR_WIDTH } from './Sidebar';
 import { ThemeVariables } from './ThemeVariables';
 import { TopBar } from './TopBar';
@@ -50,10 +55,28 @@ const useScreenBelow = (width: number) => {
   return below;
 };
 
-const Main = styled.div<{ $offset: number }>`
-  ${({ theme, $offset }) => css`
+// The window: the menu bar on its first row, then the page
+const Frame = styled.div`
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+`;
+
+const MenuRow = styled.div`
+  position: relative;
+  z-index: 110;
+  flex: none;
+
+  &:empty {
+    display: none;
+  }
+`;
+
+const Main = styled.div<{ $offset: number; $bottom: number }>`
+  ${({ theme, $offset, $bottom }) => css`
     margin-left: ${$offset}px;
-    min-height: 100vh;
+    padding-bottom: ${$bottom}px;
+    flex: 1;
     display: flex;
     flex-direction: column;
 
@@ -144,25 +167,49 @@ export function AppShell({ data, isFrontendRoute, children }: AppShellProps) {
   return (
     <>
       <ThemeVariables />
-      {!report && (
-        <Sidebar
-          sections={sections}
-          collapsed={collapsed}
-          onToggleCollapsed={toggleCollapsed}
-          isFrontendRoute={isFrontendRoute}
-        />
-      )}
-      <Main $offset={report ? 0 : sidebarWidth} data-test="mibi-main">
-        <TopBar
-          data={data}
-          isFrontendRoute={isFrontendRoute}
-          onSearch={() => setSearching(true)}
-          showBrand={report}
-          compactBrand={narrow}
-          reportHeader={report && reportHeaderFits}
-        />
-        {children}
-      </Main>
+      <Frame>
+        {/* The menu bar of the page; a report puts its own here */}
+        <MenuRow ref={setMenuBarSlot} data-test="mibi-menubar-row">
+          {!report && (
+            <AppMenuBar
+              data={data}
+              sections={sections}
+              isFrontendRoute={isFrontendRoute}
+              onSearch={() => setSearching(true)}
+              sidebarCollapsed={collapsed}
+              onToggleSidebar={toggleCollapsed}
+            />
+          )}
+        </MenuRow>
+        {!report && (
+          <Sidebar
+            sections={sections}
+            collapsed={collapsed}
+            onToggleCollapsed={toggleCollapsed}
+            isFrontendRoute={isFrontendRoute}
+            top={MENU_BAR_HEIGHT}
+            bottom={STATUS_BAR_HEIGHT}
+          />
+        )}
+        <Main
+          $offset={report ? 0 : sidebarWidth}
+          $bottom={report ? 0 : STATUS_BAR_HEIGHT}
+          data-test="mibi-main"
+        >
+          <TopBar
+            data={data}
+            isFrontendRoute={isFrontendRoute}
+            onSearch={() => setSearching(true)}
+            showBrand={report}
+            compactBrand={narrow}
+            reportHeader={report && reportHeaderFits}
+          />
+          {!report && <ShellCrumbs sections={sections} pathname={pathname} />}
+          {children}
+        </Main>
+      </Frame>
+      {/* A report has its page bar at the bottom instead */}
+      {!report && <StatusBar locale={data.navbar_right.locale} />}
       <CommandPalette
         show={searching}
         onHide={() => setSearching(false)}

@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { t } from '@apache-superset/core/translation';
+import { t, tn } from '@apache-superset/core/translation';
 import { Alert } from '@apache-superset/core/components';
 import { styled } from '@apache-superset/core/theme';
 import {
@@ -51,6 +51,8 @@ import {
   CardSortSelectOption,
   ViewModeType,
 } from './types';
+import { usePageStatus } from 'src/mibi/shell/pageStatus';
+import getBootstrapData from 'src/utils/getBootstrapData';
 import { ListViewError, useListViewState } from './utils';
 
 const ListViewStyles = styled.div`
@@ -365,6 +367,18 @@ export function ListView<T extends object = any>({
     renderCard: Boolean(renderCard),
     defaultViewMode,
   });
+  // AuraData BI: the figures of the list go to the status bar of the window
+  usePageStatus([
+    !loading &&
+      typeof count === 'number' &&
+      tn(
+        '%s item',
+        '%s items',
+        count,
+        count.toLocaleString(getBootstrapData().common?.locale),
+      ),
+    bulkSelectEnabled && t('%s selected', selectedFlatRows.length),
+  ]);
   const allowBulkTagActions = bulkTagResourceName && enableBulkTag;
   const filterable = Boolean(filters.length);
   if (filterable) {

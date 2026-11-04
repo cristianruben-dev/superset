@@ -34,6 +34,15 @@ jest.mock('src/features/home/RightMenu', () => ({
   ),
 }));
 
+jest.mock('src/theme/ThemeProvider', () => ({
+  useThemeContext: () => ({
+    themeMode: 'default',
+    setThemeMode: jest.fn(),
+    canSetMode: () => true,
+    canDetectOSPreference: () => true,
+  }),
+}));
+
 const data = (anonymous = false) =>
   ({
     menu: [
@@ -163,4 +172,12 @@ test('other pages keep the search box in the top bar', () => {
   expect(screen.getByTestId('mibi-search-trigger')).toHaveTextContent(
     'Search dashboards and pages…',
   );
+});
+
+test('pages out of a report have a menu bar', async () => {
+  renderShell();
+  expect(screen.getByTestId('mibi-app-menubar')).toBeInTheDocument();
+  userEvent.click(screen.getByRole('menuitem', { name: 'View' }));
+  expect(await screen.findByText('Collapse sidebar')).toBeInTheDocument();
+  expect(screen.getByText('Dark')).toBeInTheDocument();
 });
