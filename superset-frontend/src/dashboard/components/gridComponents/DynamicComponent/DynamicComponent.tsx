@@ -16,8 +16,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { maxWidthCells } from 'src/mibi/format/positions';
-import { CELL } from 'src/mibi/format/types';
+import { maxWidthCells } from 'src/auradata/format/positions';
+import { CELL } from 'src/auradata/format/types';
 import { FC, Suspense } from 'react';
 import { t } from '@apache-superset/core/translation';
 import { DashboardComponentMetadata, JsonObject } from '@superset-ui/core';
@@ -26,7 +26,7 @@ import cx from 'classnames';
 import { shallowEqual, useSelector } from 'react-redux';
 import { ResizeCallback, ResizeStartCallback } from 're-resizable';
 import type { ConnectDragSource } from 'react-dnd';
-import { MovableDraggable } from 'src/mibi/format/MovableDraggable';
+import { MovableDraggable } from 'src/auradata/format/MovableDraggable';
 import { COLUMN_TYPE, ROW_TYPE } from '../../../util/componentTypes';
 import WithPopoverMenu from '../../menu/WithPopoverMenu';
 import ResizableContainer from '../../resizable/ResizableContainer';

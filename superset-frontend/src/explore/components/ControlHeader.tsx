@@ -22,8 +22,8 @@ import { t } from '@apache-superset/core/translation';
 import { css, useTheme, SupersetTheme } from '@apache-superset/core/theme';
 import { FormLabel, InfoTooltip, Tooltip } from '@superset-ui/core/components';
 import { Icons } from '@superset-ui/core/components/Icons';
-import { HelpTooltip } from 'src/mibi/help/HelpTooltip';
-import { helpDescriptionFor } from 'src/mibi/help/registry';
+import { HelpTooltip } from 'src/auradata/help/HelpTooltip';
+import { helpDescriptionFor } from 'src/auradata/help/registry';
 
 type ValidationError = string;
 

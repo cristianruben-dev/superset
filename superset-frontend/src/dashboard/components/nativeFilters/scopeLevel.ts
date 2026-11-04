@@ -30,7 +30,7 @@ import {
   ELEMENT_KEY,
   elementKey,
   type FilterElement,
-} from 'src/mibi/elements/types';
+} from 'src/auradata/elements/types';
 import { LayoutItem, RootState } from 'src/dashboard/types';
 import { useDashboardHasTabs, useIsFilterInScope } from './state';
 

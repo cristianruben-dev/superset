@@ -32,8 +32,8 @@ import { t } from '@apache-superset/core/translation';
 
 import { EditableTitle, EmptyState } from '@superset-ui/core/components';
 import { Icons } from '@superset-ui/core/components/Icons';
-import { isHiddenPage } from 'src/mibi/present/dashboardTabs';
-import { PageMenu } from 'src/mibi/report/PageMenu';
+import { isHiddenPage } from 'src/auradata/present/dashboardTabs';
+import { PageMenu } from 'src/auradata/report/PageMenu';
 import { setEditMode, onRefresh } from 'src/dashboard/actions/dashboardState';
 import getChartIdsFromComponent from 'src/dashboard/util/getChartIdsFromComponent';
 import DashboardComponent from 'src/dashboard/containers/DashboardComponent';

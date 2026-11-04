@@ -1,0 +1,2316 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+/*
+ * AuraData BI global skin (navbar, lists, explore, SQL Lab, menus, modals, chart gallery).
+ * Bundled through src/preamble.ts, so it ships with every entry (spa, menu, embedded).
+ *
+ * Rules:
+ * - Colors come from the theme tokens in superset/auradata_config.py. Here only structure,
+ *   spacing, type and translucent borders/shadows, so light/dark and per-dashboard
+ *   themes keep working.
+ * - Stable selectors only: ant-*, data-test and Superset's semantic classes. Never the
+ *   hashed superset-xxxx / css-xxxx classes. Review after rebasing onto a new release.
+ */
+
+:root {
+  --mb-hairline: rgba(120, 120, 135, 0.16);
+  --mb-hairline-strong: rgba(120, 120, 135, 0.26);
+  --mb-hover: rgba(120, 120, 135, 0.08);
+  --mb-active: rgba(120, 120, 135, 0.13);
+  /* Shadows, easing and accents of auradata.mx (card, float and glow) */
+  --mb-shadow-card:
+    0 1px 2px rgba(0, 0, 0, 0.04), 0 8px 24px -12px rgba(0, 0, 0, 0.08);
+  --mb-shadow-pop:
+    0 1px 2px rgba(0, 0, 0, 0.04), 0 24px 48px -16px rgba(15, 23, 42, 0.18);
+  --mb-shadow-glow: 0 8px 32px -8px rgba(37, 99, 235, 0.45);
+  --mb-focus: 0 0 0 3px rgba(37, 99, 235, 0.24);
+  --mb-ease: cubic-bezier(0.32, 0.72, 0, 1);
+  --mb-aura-blue: #2563eb;
+  --mb-aura-violet: #7c3aed;
+  --mb-aura-green: #10b981;
+  --mb-aura-gradient: linear-gradient(
+    100deg,
+    var(--mb-aura-blue) 0%,
+    var(--mb-aura-violet) 55%,
+    var(--mb-aura-green) 100%
+  );
+}
+
+/* ---------------------------------------------------------------- Base */
+
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+table,
+.ant-table,
+.ant-pagination,
+.row-count-label,
+.big_number,
+.header-line {
+  font-variant-numeric: tabular-nums;
+}
+
+::selection {
+  background: rgba(37, 99, 235, 0.18);
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--mb-hairline-strong) transparent;
+}
+
+/* ---------------------------------------------------------------- Navbar */
+
+#main-menu {
+  min-height: 56px;
+  border-bottom: 1px solid var(--mb-hairline);
+  box-shadow: none;
+  position: relative;
+  z-index: 20;
+}
+
+#main-menu > .ant-row {
+  align-items: center;
+  min-height: 56px;
+  padding: 0 20px;
+}
+
+#main-menu > .ant-row > .ant-col,
+#main-menu > .ant-row > .ant-col > span,
+#main-menu > .ant-row > .ant-col > div {
+  display: flex;
+  align-items: center;
+}
+
+#main-menu > .ant-row > .ant-col:last-child,
+#main-menu > .ant-row > .ant-col:last-child > div {
+  justify-content: flex-end;
+}
+
+#main-menu .navbar-brand {
+  display: flex;
+  align-items: center;
+  padding: 0 20px 0 0;
+  margin-right: 8px;
+  border-right: 1px solid var(--mb-hairline);
+}
+
+#main-menu .ant-menu-horizontal {
+  border-bottom: 0;
+  line-height: 32px;
+  background: transparent;
+  align-items: center;
+}
+
+#main-menu .ant-menu-horizontal > .ant-menu-item,
+#main-menu .ant-menu-horizontal > .ant-menu-submenu {
+  height: 32px;
+  line-height: 32px;
+  margin: 0 2px;
+  padding: 0 12px !important;
+  border-radius: 8px;
+  top: 0;
+  font-weight: 500;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+}
+
+#main-menu .ant-menu-horizontal > .ant-menu-item::after,
+#main-menu .ant-menu-horizontal > .ant-menu-submenu::after {
+  display: none !important;
+}
+
+#main-menu .ant-menu-horizontal > .ant-menu-item:hover,
+#main-menu .ant-menu-horizontal > .ant-menu-submenu:hover {
+  background: var(--mb-hover);
+}
+
+#main-menu .ant-menu-horizontal > .ant-menu-item-selected,
+#main-menu .ant-menu-horizontal > .ant-menu-submenu-selected {
+  background: var(--mb-active);
+}
+
+/* Every top bar control centers on the same line, whatever it holds */
+#main-menu .ant-menu-submenu-title {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  padding: 0 !important;
+}
+
+#main-menu .ant-menu-submenu-title .f16 {
+  display: inline-flex;
+  align-items: center;
+}
+
+/* One quiet caret for every top bar dropdown */
+#main-menu .ant-menu-submenu-title .anticon-down {
+  font-size: 10px !important;
+  margin-inline-start: 6px !important;
+  color: var(--mb-text-tertiary);
+}
+
+/* The "New" button is its own pill, without the menu hover behind it */
+#main-menu .ant-menu-horizontal > .mibi-new-dropdown {
+  padding: 0 !important;
+  margin-right: 8px;
+  background: transparent !important;
+}
+
+#main-menu .ant-menu-horizontal > .mibi-user-dropdown {
+  padding: 0 8px 0 4px !important;
+  margin-left: 6px;
+  border-radius: 999px;
+}
+
+#main-menu .ant-tag {
+  margin-right: 12px;
+}
+
+/* ---------------------------------------------------------------- Page header (lists) */
+
+/* Every page shares one gutter, so its content starts at the same place */
+.ant-layout-content > div:has(> .menu) {
+  background: transparent !important;
+  padding: 0 !important;
+  margin-bottom: 0 !important;
+}
+
+.ant-layout-content > div:has(> .superset-list-view) {
+  padding-top: 0 !important;
+}
+
+/* The title row of a list matches PageHeader (src/auradata/shell/PageHeader.tsx):
+   a band of the container color under the breadcrumbs, with compact commands */
+.ant-layout-content > div > .menu {
+  min-height: 56px;
+  padding: 8px var(--mb-space-gutter);
+  border-bottom: 1px solid var(--mb-border-secondary);
+  background: var(--mb-bg-container);
+  align-items: center;
+}
+
+.ant-layout-content > div > .menu .header {
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.012em;
+  line-height: 1.3;
+}
+
+.ant-layout-content > div > .menu .nav-right,
+.ant-layout-content > div > .menu .nav-right-collapse {
+  position: static;
+  float: none;
+  margin-left: auto;
+  gap: 8px;
+}
+
+/* Narrow screens: the commands go under the title, wrapping instead of
+   widening the page (SubMenu calls the row nav-right-collapse there) */
+@media (max-width: 794px) {
+  .ant-layout-content > div > .menu {
+    flex-wrap: wrap;
+    row-gap: 8px;
+  }
+
+  .ant-layout-content > div > .menu .nav-right,
+  .ant-layout-content > div > .menu .nav-right-collapse {
+    flex-wrap: wrap;
+    margin-left: 0;
+    padding: 0;
+  }
+}
+
+.ant-layout-content > div > .menu .nav-right .ant-btn {
+  height: 30px;
+  padding-inline: 12px;
+  font-size: 13px;
+}
+
+/* Dropdown actions in the header ("Upload file to database") look like buttons */
+.ant-layout-content > div > .menu .nav-right .ant-menu-horizontal {
+  line-height: 30px;
+  border: 0;
+  background: transparent;
+}
+
+.ant-layout-content > div > .menu .nav-right .ant-menu-submenu {
+  padding: 0 !important;
+  top: 0;
+}
+
+.ant-layout-content > div > .menu .nav-right .ant-menu-submenu::after {
+  display: none;
+}
+
+.ant-layout-content > div > .menu .nav-right .ant-menu-submenu-title {
+  display: flex;
+  align-items: center;
+  height: 30px;
+  padding: 0 12px !important;
+  border-radius: 8px;
+  background: var(--mb-primary-bg);
+  color: var(--mb-primary);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.ant-layout-content > div > .menu .nav-right .ant-menu-submenu-title .anticon {
+  color: inherit !important;
+  font-size: 10px !important;
+  margin-left: 6px !important;
+}
+
+/* ---------------------------------------------------------------- Buttons & inputs */
+
+.ant-btn {
+  font-weight: 500;
+  border-radius: 8px;
+  box-shadow: none;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    transform 0.05s ease;
+}
+
+.ant-btn:active:not(:disabled) {
+  transform: translateY(0.5px);
+}
+
+.ant-btn-primary:not(:disabled) {
+  box-shadow:
+    0 1px 2px rgba(10, 10, 15, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.16);
+}
+
+.ant-btn-default {
+  border-color: var(--mb-hairline-strong);
+}
+
+/* Validation states (status-error / status-warning) keep Ant's own colored borders */
+.ant-input:not([class*='status-'], .ant-form-item-has-error *),
+.ant-input-affix-wrapper:not([class*='status-'], .ant-form-item-has-error *),
+.ant-select:not([class*='status-'], .ant-form-item-has-error *)
+  .ant-select-selector,
+.ant-picker:not([class*='status-'], .ant-form-item-has-error *),
+.ant-input-number:not([class*='status-'], .ant-form-item-has-error *) {
+  border-color: var(--mb-hairline-strong) !important;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.ant-input:not([class*='status-']):focus,
+.ant-input-affix-wrapper-focused:not([class*='status-']),
+.ant-select-focused:not([class*='status-']) .ant-select-selector,
+.ant-picker-focused:not([class*='status-']),
+.ant-input-number-focused:not([class*='status-']) {
+  box-shadow: var(--mb-focus) !important;
+}
+
+:focus-visible {
+  outline: none;
+  box-shadow: var(--mb-focus);
+}
+
+/* The field's own ring already shows focus: the inner input must not draw a
+   second one, which would grow with the text, and the highlighted option of a
+   dropdown only needs its background */
+.ant-select-selection-search-input:focus-visible,
+.ant-picker-input > input:focus-visible,
+.ant-input-number-input:focus-visible,
+.ant-input-affix-wrapper > input:focus-visible,
+.ant-modal div[tabindex]:not([class]):focus-visible {
+  box-shadow: none !important;
+}
+
+.ant-select-item-option-active {
+  outline: none !important;
+}
+
+.ant-tag {
+  border-radius: 999px;
+  padding-inline: 8px;
+  font-weight: 500;
+}
+
+/* ---------------------------------------------------------------- List views */
+
+.superset-list-view {
+  margin: 0 !important;
+  padding: var(--mb-space-section) var(--mb-space-gutter) var(--mb-space-gutter) !important;
+}
+
+/* Filters on an even grid aligned with the title; the view switch on the right */
+.superset-list-view > .header {
+  align-items: flex-start;
+  gap: var(--mb-space-section);
+  padding: 0 0 var(--mb-space-section);
+}
+
+.superset-list-view > .header > .controls {
+  flex: 1;
+  min-width: 0;
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(176px, 1fr));
+  gap: 12px var(--mb-space-section) !important;
+}
+
+/* "More filters" takes a cell of the grid, level with the fields */
+.superset-list-view > .header > .controls > .more-filters {
+  align-self: end;
+}
+
+.superset-list-view > .header > .controls > * {
+  width: auto !important;
+  min-width: 0;
+}
+
+.superset-list-view > .header > .controls > * > :last-child {
+  width: 100% !important;
+  max-width: 100%;
+}
+
+.superset-list-view > .header > :not(.controls) {
+  order: 2;
+  flex-shrink: 0;
+  display: inline-flex;
+  gap: 2px;
+  margin-top: 20px;
+  padding: 3px;
+  border-radius: 9px;
+  background: var(--mb-fill);
+}
+
+.superset-list-view > .header > :not(.controls) .toggle-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  margin: 0 !important;
+  padding: 0 !important;
+  border-radius: 6px;
+}
+
+/* Card / table view toggle */
+.superset-list-view .toggle-button {
+  color: var(--mb-text-tertiary);
+  transition: background-color 0.15s ease;
+}
+
+.superset-list-view .toggle-button:hover {
+  color: var(--mb-text-secondary);
+}
+
+.superset-list-view .toggle-button.active {
+  background: var(--mb-bg-container) !important;
+  box-shadow: 0 1px 2px rgba(10, 10, 15, 0.1);
+}
+
+.superset-list-view .toggle-button.active svg {
+  color: var(--mb-primary) !important;
+}
+
+.superset-list-view .controls label,
+.superset-list-view .controls .filter-label {
+  font-size: 12px;
+  font-weight: 500;
+  opacity: 0.75;
+}
+
+.superset-list-view .ant-table {
+  background: var(--mb-bg-container);
+  border: 1px solid var(--mb-hairline);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: var(--mb-shadow-card);
+}
+
+.superset-list-view .ant-table-thead > tr > th {
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  opacity: 0.85;
+  padding-top: 8px !important;
+  padding-bottom: 8px !important;
+  border-bottom: 1px solid var(--mb-hairline) !important;
+  background: var(--mb-fill) !important;
+}
+
+/* Lists opened in the side panel of the editor keep their own lighter look */
+body.mibi-panel .ant-layout-content > div > .menu {
+  min-height: 0;
+  padding: var(--mb-space-page-top) var(--mb-space-gutter) 12px;
+  border-bottom: 0;
+  background: transparent;
+}
+
+body.mibi-panel .superset-list-view {
+  padding-top: 0 !important;
+}
+
+body.mibi-panel .superset-list-view .ant-table-thead > tr > th {
+  padding-top: 10px !important;
+  padding-bottom: 10px !important;
+  background: transparent !important;
+}
+
+body.mibi-panel .superset-list-view .ant-table-tbody > tr > td {
+  padding-top: 14px !important;
+  padding-bottom: 14px !important;
+}
+
+/* Figures and dates of a list line up in Geist Mono (TableCollection marks their cells) */
+body:not(.mibi-panel)
+  .superset-list-view
+  .ant-table-tbody
+  > tr
+  > td.mibi-figure {
+  font-family: var(--mb-font-code);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  color: var(--mb-text-secondary);
+}
+
+.superset-list-view .ant-table-thead > tr > th::before {
+  display: none;
+}
+
+.superset-list-view .ant-table-column-sort {
+  background: transparent !important;
+}
+
+.superset-list-view .ant-table-tbody > tr > td {
+  padding-top: 8px !important;
+  padding-bottom: 8px !important;
+  border-bottom: 1px solid var(--mb-hairline) !important;
+}
+
+.superset-list-view .ant-table-tbody > tr:last-child > td {
+  border-bottom: 0 !important;
+}
+
+.superset-list-view .ant-table-tbody > tr:hover > td {
+  background: var(--mb-fill) !important;
+}
+
+.superset-list-view .ant-table-tbody > tr > td a {
+  font-weight: 500;
+}
+
+.superset-list-view .ant-pagination {
+  margin-top: var(--mb-space-section) !important;
+}
+
+/* With a single page only the row count says anything */
+.superset-list-view
+  .ant-pagination:has(
+    .ant-pagination-prev.ant-pagination-disabled
+      + .ant-pagination-item
+      + .ant-pagination-next.ant-pagination-disabled
+  )
+  > li:not(.ant-pagination-total-text) {
+  display: none;
+}
+
+.superset-list-view
+  .ant-pagination:has(
+    .ant-pagination-prev.ant-pagination-disabled
+      + .ant-pagination-item
+      + .ant-pagination-next.ant-pagination-disabled
+  ) {
+  margin-bottom: 0 !important;
+}
+
+.superset-list-view
+  .ant-pagination:has(
+    .ant-pagination-prev.ant-pagination-disabled
+      + .ant-pagination-item
+      + .ant-pagination-next.ant-pagination-disabled
+  )
+  > .ant-pagination-total-text {
+  position: static;
+  color: var(--mb-text-tertiary);
+  font-size: 12px;
+}
+
+/* The log fits the page: long values are cut and open in their tooltip */
+.action-log-view .ant-table table {
+  table-layout: fixed !important;
+  width: 100% !important;
+  min-width: 0 !important;
+}
+
+.action-log-view .ant-table-thead > tr > th,
+.action-log-view .ant-table-tbody > tr > td {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.action-log-view .ant-table-thead > tr > th:nth-child(1) {
+  width: 15%;
+}
+
+.action-log-view .ant-table-thead > tr > th:nth-child(2) {
+  width: 11%;
+}
+
+.action-log-view .ant-table-thead > tr > th:nth-child(3),
+.action-log-view .ant-table-thead > tr > th:nth-child(4) {
+  width: 9%;
+}
+
+.action-log-view .ant-table-thead > tr > th:nth-child(5) {
+  width: 6%;
+}
+
+.action-log-view .ant-table-thead > tr > th:nth-child(6) {
+  width: 19%;
+}
+
+.action-log-view .ant-table-thead > tr > th:nth-child(7) {
+  width: 14%;
+}
+
+.action-log-view .ant-table-thead > tr > th:nth-child(8) {
+  width: 17%;
+}
+
+/* Owners in a table row: a 32px face makes each row taller than its text */
+.superset-list-view .ant-table .ant-avatar {
+  width: 24px;
+  height: 24px;
+  font-size: 11px;
+  line-height: 22px;
+}
+
+.ant-pagination-item,
+.ant-pagination-prev .ant-pagination-item-link,
+.ant-pagination-next .ant-pagination-item-link {
+  border-radius: 8px;
+}
+
+.ant-pagination-item-active {
+  background: var(--mb-primary-bg) !important;
+  border-color: var(--mb-primary-border) !important;
+}
+
+.superset-list-view .row-count-container {
+  color: var(--mb-text-tertiary);
+  font-size: 12px;
+}
+
+/* Empty lists: one calm card instead of an empty table over a white block */
+.superset-list-view .body.empty .ant-table-wrapper {
+  display: none;
+}
+
+.superset-list-view .body.empty [data-test='empty-state'] {
+  padding: var(--mb-space-gutter);
+  border: 1px solid var(--mb-hairline);
+  border-radius: 14px;
+  background: var(--mb-bg-container);
+  box-shadow: var(--mb-shadow-card);
+}
+
+/* The inline height of a large empty state fills a laptop screen */
+.superset-list-view .body.empty .ant-empty-image {
+  height: 80px !important;
+}
+
+/* Card view of lists */
+.superset-list-view .ant-card {
+  border-radius: 14px;
+  border: 1px solid var(--mb-hairline);
+  box-shadow: var(--mb-shadow-card);
+  overflow: hidden;
+  transition:
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+.superset-list-view .ant-card:hover {
+  border-color: var(--mb-primary-border);
+  box-shadow: var(--mb-shadow-pop);
+  transform: translateY(-2px);
+}
+
+/* Chart cards: same type scale as the dashboard cards */
+.superset-list-view .ant-card .ant-card-body {
+  padding: 14px 16px !important;
+}
+
+.superset-list-view .ant-card .ant-card-meta-title {
+  margin-bottom: 6px !important;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.superset-list-view .ant-card .ant-card-meta-description {
+  font-size: 12px;
+  color: var(--mb-text-secondary);
+}
+
+.superset-list-view .ant-card .card-actions {
+  align-self: center !important;
+  gap: 2px;
+}
+
+.superset-list-view .ant-card .card-actions .ant-btn,
+.superset-list-view .ant-card .card-actions .anticon {
+  color: var(--mb-text-tertiary) !important;
+}
+
+.superset-list-view .ant-card .card-actions .ant-btn:hover .anticon {
+  color: var(--mb-text) !important;
+}
+
+.mibi-chart-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  white-space: nowrap;
+}
+
+.mibi-chart-meta > :last-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* "Charts are created from a dashboard": on the page itself, centered */
+[data-test='chart-creation-requires-dashboard'] {
+  justify-content: center !important;
+  background: transparent !important;
+}
+
+/* Empty-state illustrations in the brand color */
+.ant-empty .ant-empty-image svg {
+  color: var(--mb-primary);
+  opacity: 0.6;
+}
+
+/* ---------------------------------------------------------------- Home */
+
+.ant-collapse {
+  border-radius: 12px;
+}
+
+.ant-collapse-header {
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+/* Home sections as stacked cards */
+.ant-layout-content > div > .ant-collapse {
+  margin: 4px 40px 32px;
+  border: 1px solid var(--mb-hairline);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: var(--mb-shadow-card);
+}
+
+.ant-layout-content > div > .ant-collapse > .ant-collapse-item {
+  border-bottom: 1px solid var(--mb-hairline);
+}
+
+.ant-layout-content > div > .ant-collapse > .ant-collapse-item:last-child {
+  border-bottom: 0;
+}
+
+.ant-layout-content
+  > div
+  > .ant-collapse
+  > .ant-collapse-item
+  > .ant-collapse-header {
+  padding: 14px 18px !important;
+  font-size: 14.5px;
+}
+
+/* ---------------------------------------------------------------- Explore (chart editor) */
+
+[data-test='editable-title-input'],
+.header-with-actions .title-panel input {
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.header-with-actions {
+  border-bottom: 1px solid var(--mb-hairline);
+}
+
+.explore-column {
+  border-right: 1px solid var(--mb-hairline);
+}
+
+.explore-column .ant-tabs-nav {
+  margin-bottom: 4px;
+}
+
+.explore-column .ant-tabs-tab {
+  font-weight: 500;
+}
+
+[data-test='collapsible-control-panel-header'] {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+
+[data-test='control-label'] {
+  font-size: 12.5px;
+  font-weight: 500;
+}
+
+.explore-column .ControlHeader {
+  margin-bottom: 6px;
+}
+
+.explore-column [data-test='control-item'] {
+  margin-bottom: 14px;
+}
+
+/* Drop zones for columns / metrics */
+[data-test='dnd-labels-container'] {
+  border-radius: 8px !important;
+  border-color: var(--mb-hairline-strong) !important;
+  padding: 4px !important;
+}
+
+[data-test='dnd-labels-container'] .option-label,
+.metric-option,
+.column-option-label {
+  border-radius: 6px;
+}
+
+/* Field list in the data source panel */
+[data-test='DatasourcePanelDragOption'] {
+  border-radius: 6px;
+  transition: background-color 0.12s ease;
+}
+
+[data-test='DatasourcePanelDragOption']:hover {
+  background: var(--mb-hover);
+}
+
+[data-test='fast-viz-switcher'] > div {
+  border-radius: 8px;
+}
+
+[data-test='run-query-button'] {
+  height: 36px;
+  border-radius: 9px;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+}
+
+.main-explore-content .chart-container,
+.main-explore-content .panel-body {
+  border-radius: 12px;
+}
+
+[data-test='row-count-label'],
+[data-test='last-queried-label'],
+[role='timer'] {
+  border-radius: 999px;
+  font-family: inherit !important;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Chart type gallery: no tags (neither the sidebar section nor the chips under the description) */
+.ant-modal-content:has([data-test='viz-type-control__search-input'])
+  .ant-collapse-ghost
+  > .ant-collapse-item:not(:has([data-test='category'])) {
+  display: none;
+}
+
+.ant-modal-content:has([data-test='viz-type-control__search-input'])
+  .ant-modal-body
+  .ant-tag {
+  display: none;
+}
+
+/* Pages inside the side panel of a dashboard, which has its own margins */
+body.mibi-panel {
+  --mb-space-gutter: 16px;
+  --mb-space-page-top: 12px;
+}
+
+/* Explore inside the side panel of a dashboard: tighter, so the chart keeps room */
+
+/* The chart area asks for 512 px by default, which pushes the chart out of the panel */
+body.mibi-panel .main-explore-content {
+  min-width: 280px;
+  padding: 0 12px;
+}
+
+body.mibi-panel .header-with-actions {
+  height: 52px;
+  padding: 0 16px;
+}
+
+/* A chart lives in one dashboard: who changed it and where it is added are noise here */
+body.mibi-panel .header-with-actions [data-test='metadata-bar'],
+body.mibi-panel .header-with-actions [data-test='fave-unfave-icon'] {
+  display: none;
+}
+
+body.mibi-panel .explore-column {
+  padding: 4px 0;
+}
+
+body.mibi-panel .explore-column .ant-tabs-nav {
+  margin-bottom: 0;
+}
+
+body.mibi-panel
+  .controls-column
+  .ant-collapse
+  > .ant-collapse-item
+  > .ant-collapse-header {
+  padding: 10px 14px !important;
+}
+
+body.mibi-panel .controls-column .ant-collapse-content-box {
+  padding: 4px 14px 8px !important;
+}
+
+/* Controls pad 16 px below themselves on top of this margin: 18 px between them */
+body.mibi-panel .explore-column [data-test='control-item'] {
+  margin-bottom: 12px;
+}
+
+body.mibi-panel .controls-column .Control {
+  padding-bottom: 6px;
+}
+
+/* The chart type picker closes its section: no control spacing below it */
+body.mibi-panel
+  .controls-column
+  [data-test='control-item']:has(> [data-test='viz_type']) {
+  margin-bottom: 0;
+}
+
+/* The dataset and the field search, closer to each other and to the lists */
+body.mibi-panel .data-source-selection .DatasourceControl .data-container {
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+body.mibi-panel .data-source-selection div:has(> .ant-input-affix-wrapper) {
+  padding: 4px 16px 8px;
+}
+
+body.mibi-panel .explore-column .ControlHeader {
+  margin-bottom: 4px;
+}
+
+/* Docked beside the report: the settings take the room, the report is the chart */
+body.mibi-dock .main-explore-content {
+  display: none;
+}
+
+body.mibi-dock .controls-column {
+  /* Beside the 32 px datasource tab, never past the panel's edge */
+  flex: 1 1 0;
+  min-width: 0;
+  width: auto !important;
+  max-width: none !important;
+}
+
+/* The datasource tab floats beside the tabs instead of taking a column */
+body.mibi-dock [data-test='open-datasource-tab'] {
+  position: absolute;
+  top: 6px;
+  left: 0;
+  z-index: 2;
+  height: auto;
+  width: auto;
+}
+
+body.mibi-dock .controls-column .ant-tabs-nav {
+  padding-left: 28px;
+}
+
+/* ---------------------------------------------------------------- SQL Lab */
+
+[data-test='sql-editor-left-bar'] {
+  background: rgba(120, 120, 135, 0.035);
+  border-right: 1px solid var(--mb-hairline);
+  padding: 14px 12px !important;
+}
+
+/* The schema browser starts flush with the top bar and the sidebar */
+.SqlLab .ant-splitter-panel > div:has(> [data-test='sql-editor-left-bar']) {
+  height: 100%;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+[data-test='sql-editor-left-bar'] {
+  height: 100%;
+  padding: 14px 16px !important;
+}
+
+[data-test='sql-editor-left-bar'] .tree-node {
+  border-radius: 6px;
+}
+
+[data-test='sql-editor-left-bar'] .tree-node:hover {
+  background: var(--mb-hover);
+}
+
+.SqlLab .sqllab-body {
+  padding-left: 0;
+}
+
+.SqlEditorTabs .ant-tabs-nav {
+  padding: 8px 12px 0;
+  margin-bottom: 0 !important;
+}
+
+.ant-tabs-card > .ant-tabs-nav .ant-tabs-tab {
+  border-radius: 8px 8px 0 0 !important;
+  font-weight: 500;
+}
+
+.SqlEditor .queryPane {
+  padding: 12px 16px 16px !important;
+}
+
+.SqlEditor .sql-container {
+  border: 1px solid var(--mb-hairline-strong);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: var(--mb-shadow-card);
+}
+
+[data-test='run-query-action'] {
+  border-radius: 8px !important;
+  font-weight: 600;
+  padding-inline: 14px !important;
+}
+
+[data-test='south-pane'] .ant-tabs-tab {
+  font-weight: 500;
+}
+
+.ace_editor,
+.ace_gutter {
+  font-feature-settings: 'calt' 0;
+}
+
+/* ---------------------------------------------------------------- Dashboards (chrome only) */
+
+.dashboard-header,
+[data-test='dashboard-header-container'] {
+  border-bottom: 1px solid var(--mb-hairline);
+}
+
+/* Header: title, favorite, status and metadata, then the actions */
+[data-test='dashboard-header-container'] .header-with-actions {
+  min-height: 64px;
+  padding: 0 24px 0 28px;
+  container-type: inline-size;
+}
+
+/* The actions always fit: the title side gives up its extras first */
+[data-test='dashboard-header-container'] .title-panel {
+  flex: 1 1 auto;
+  overflow: hidden;
+  margin-right: 16px;
+}
+
+[data-test='dashboard-header-container'] .right-button-panel {
+  flex: none;
+}
+
+@container (max-width: 1100px) {
+  [data-test='dashboard-header-container'] [data-test='metadata-bar'] {
+    display: none !important;
+  }
+}
+
+@container (max-width: 860px) {
+  [data-test='dashboard-header-container'] .title-panel a[href^='/workspace/'] {
+    display: none !important;
+  }
+}
+
+/* In the top bar, as the file name of a Power BI report: "New" gives it room */
+[data-test='mibi-topbar']:has([data-test='mibi-topbar-brand']) .mibi-new-label {
+  display: none;
+}
+
+[data-test='mibi-report-slot'] [data-test='dashboard-header-container'] {
+  height: 100%;
+  border-bottom: 0;
+  box-shadow: none !important;
+}
+
+[data-test='mibi-report-slot']
+  [data-test='dashboard-header-container']
+  .header-with-actions {
+  height: 100%;
+  min-height: 0;
+  padding: 0;
+  border-bottom: 0;
+  background: transparent;
+}
+
+[data-test='mibi-report-slot'] .title-panel {
+  margin-right: 12px !important;
+}
+
+/* The title keeps room to be read; the status and refresh give way */
+[data-test='mibi-report-slot'] .title-panel > :first-child {
+  min-width: 160px;
+}
+
+@container (max-width: 620px) {
+  [data-test='mibi-report-slot'] .title-panel .ant-tag,
+  [data-test='mibi-report-slot'] [data-test='refresh-button'] {
+    display: none !important;
+  }
+}
+
+[data-test='dashboard-header-container'] .dynamic-title-input,
+[data-test='dashboard-header-container'] .input-sizer {
+  font-size: 20px !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.02em;
+}
+
+[data-test='dashboard-header-container'] .title-panel .ant-tag {
+  border-radius: 999px;
+  border: 0;
+  padding: 1px 10px;
+  font-size: 12px;
+}
+
+[data-test='dashboard-header-container'] [data-test='metadata-bar'] {
+  border: 0;
+  background: var(--mb-fill);
+  border-radius: 999px;
+  padding: 2px 12px;
+  color: var(--mb-text-secondary);
+}
+
+[data-test='dashboard-header-container']
+  [data-test='metadata-bar']
+  .metadata-icon {
+  font-size: 13px !important;
+}
+
+[data-test='dashboard-header-container'] [data-test='refresh-button'],
+[data-test='dashboard-header-container'] [data-test='fave-unfave-icon'] {
+  color: var(--mb-text-tertiary);
+}
+
+[data-test='dashboard-header-container'] [data-test='edit-dashboard-button'] {
+  height: 34px;
+  padding: 0 16px;
+  border-radius: 10px;
+  font-weight: 600;
+}
+
+[data-test='dashboard-header-container'] [data-test='actions-trigger'] {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border-color: var(--mb-border-secondary);
+}
+
+/* The page floats on the report wallpaper with the same room on every side,
+   as Power BI centers its pages */
+.dashboard-content > [data-test='grid-container'] {
+  margin: 0 12px 12px !important;
+}
+
+/* Visuals as cards */
+.dashboard-component-chart-holder {
+  border-radius: var(--mb-v-radius, 14px) !important;
+  border: 1px solid var(--mb-border-secondary);
+  box-shadow: var(--mb-shadow-card);
+  transition:
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.dashboard-component-chart-holder:hover {
+  border-color: var(--mb-border);
+  box-shadow: var(--mb-shadow-pop);
+}
+
+.dashboard-component-chart-holder .chart-slice [data-test='slice-header'] {
+  min-height: 28px;
+}
+
+.dashboard-component-chart-holder .header-title,
+.dashboard-component-chart-holder .editable-title {
+  font-size: var(--mb-v-title-size, 14px);
+  font-weight: var(--mb-v-title-weight, 600);
+  font-style: var(--mb-v-title-style, normal);
+  font-family: var(--mb-v-title-family, inherit);
+  text-decoration: var(--mb-v-title-decoration, none);
+  letter-spacing: -0.01em;
+  color: var(--mb-v-title-color, var(--mb-text));
+}
+
+.dashboard-component-chart-holder.mibi-title-wrap .header-title,
+.dashboard-component-chart-holder.mibi-title-wrap .header-title * {
+  white-space: normal;
+  text-overflow: clip;
+}
+
+.dashboard-component-chart-holder.mibi-header-gap [data-test='slice-header'] {
+  margin-bottom: var(--mb-v-header-gap) !important;
+}
+
+.dashboard-component-chart-holder.mibi-header-icons .header-controls {
+  border-radius: 4px;
+  border: var(--mb-v-icon-border, 0);
+  background: var(--mb-v-icon-bg, transparent);
+  color: var(--mb-v-icon-color, inherit);
+}
+
+.mibi-header-icon {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px;
+  cursor: default;
+}
+
+.mibi-header-icon[role='button'] {
+  cursor: pointer;
+}
+
+.mibi-action-button {
+  display: inline-flex;
+  flex: none;
+  gap: 4px;
+  max-width: 100%;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.mibi-action-button:disabled {
+  cursor: default;
+}
+
+.mibi-action-button.mibi-action-above {
+  order: -1;
+  flex-basis: 100%;
+}
+
+.mibi-action-button.mibi-action-below {
+  order: 4;
+  flex-basis: 100%;
+}
+
+.dashboard-component-chart-holder.mibi-divider-bleed
+  [data-test='slice-header'].mibi-header-divider {
+  margin-left: calc(var(--mb-v-pad-left, 16px) * -1);
+  margin-right: calc(var(--mb-v-pad-right, 16px) * -1);
+  padding-left: var(--mb-v-pad-left, 16px);
+  padding-right: var(--mb-v-pad-right, 16px);
+}
+
+.dashboard-component-chart-holder.mibi-spacing .header-title {
+  margin-bottom: var(--mb-s-title, 0);
+}
+
+.dashboard-component-chart-holder.mibi-spacing .mibi-subtitle {
+  margin-top: var(--mb-s-above-subtitle, 2px);
+  margin-bottom: var(--mb-s-below-subtitle, 0);
+}
+
+.dashboard-component-chart-holder.mibi-spacing
+  [data-test='slice-header'].mibi-header-divider {
+  padding-bottom: var(--mb-s-above-divider, 8px);
+}
+
+.dashboard-component-chart-holder.mibi-spacing [data-test='slice-header'] {
+  margin-bottom: calc(
+    var(--mb-v-header-gap, 8px) + var(--mb-s-plot, 0px)
+  ) !important;
+}
+
+.dashboard-component-chart-holder.mibi-spacing .header-line {
+  margin-bottom: var(--mb-s-card, 0);
+}
+
+/* The format a report gives to the tooltips of a chart (see applyHostFormat) */
+.echarts-tooltip.mibi-tooltip td:first-child {
+  color: var(--mb-tt-label, inherit) !important;
+  text-decoration: var(--mb-tt-decoration, none);
+}
+
+.echarts-tooltip.mibi-tooltip td:not(:first-child) {
+  color: var(--mb-tt-value, inherit) !important;
+  font-weight: var(--mb-tt-value-weight, inherit) !important;
+  text-decoration: var(--mb-tt-decoration, none);
+}
+
+.dashboard-component-chart-holder.mibi-header-icons .header-controls * {
+  color: inherit;
+}
+
+.dashboard-component-chart-holder .header-title {
+  flex: 1;
+  justify-content: var(--mb-v-title-align, flex-start);
+  text-align: var(--mb-v-title-align, left);
+}
+
+/* A header band: the title sits on a fill that reaches the edges of the card */
+.dashboard-component-chart-holder.mibi-title-band [data-test='slice-header'] {
+  min-height: 32px;
+  padding: 6px 10px;
+  background: var(--mb-v-title-bg);
+  border-radius: var(--mb-v-radius, 5px) var(--mb-v-radius, 5px) 0 0;
+}
+
+/* While editing, the title is a full-width text box: its text follows the alignment */
+.dashboard-component-chart-holder .header-title textarea,
+.dashboard-component-chart-holder .header-title input {
+  text-align: var(--mb-v-title-align, left);
+}
+
+/* Format pane: hidden titles, spacing between visuals and the selection */
+.dashboard-component-chart-holder.mibi-title-hidden .header-title {
+  visibility: hidden;
+}
+
+.dashboard-component-chart-holder.mibi-selected {
+  outline: 2px solid var(--mb-primary);
+  outline-offset: 2px;
+}
+
+/* The chart menu shows up on hover (always on touch screens) */
+@media (hover: hover) {
+  .dashboard-component-chart-holder .header-controls {
+    opacity: 0;
+    transition: opacity 0.15s ease;
+  }
+
+  .dashboard-component-chart-holder:hover .header-controls,
+  .dashboard-component-chart-holder:focus-within .header-controls,
+  .dashboard-component-chart-holder .header-controls:has(.ant-dropdown-open) {
+    opacity: 1;
+  }
+
+  /* Hidden icons still take room, which pulls a centered title off the middle of
+     the card: they float over the corner instead */
+  .dashboard-component-chart-holder.mibi-title-center
+    [data-test='slice-header'] {
+    position: relative;
+  }
+
+  .dashboard-component-chart-holder.mibi-title-center
+    [data-test='slice-header']
+    > .header-controls {
+    position: absolute;
+    top: 0;
+    right: 0;
+  }
+
+  .dashboard-component-chart-holder.mibi-title-center
+    [data-test='slice-header']
+    > .header-title {
+    max-width: 100%;
+  }
+}
+
+.dashboard-component-chart-holder .header-controls .dot {
+  color: var(--mb-text-tertiary);
+}
+
+/* Dashboard tabs (kept at the top) */
+[data-test='dashboard-content-wrapper'] .ant-tabs-top > .ant-tabs-nav {
+  margin-bottom: 16px;
+}
+
+[data-test='dashboard-content-wrapper'] .ant-tabs-top > .ant-tabs-nav::before {
+  border-bottom-color: var(--mb-border-secondary);
+}
+
+[data-test='dashboard-content-wrapper'] .ant-tabs-tab {
+  padding: 12px 4px;
+  font-weight: 500;
+  color: var(--mb-text-secondary);
+  transition: color 0.15s ease;
+}
+
+[data-test='dashboard-content-wrapper'] .ant-tabs-tab:hover {
+  color: var(--mb-text);
+}
+
+[data-test='dashboard-content-wrapper'] .ant-tabs-tab + .ant-tabs-tab {
+  margin-left: 28px;
+}
+
+[data-test='dashboard-content-wrapper'] .ant-tabs-tab-active .ant-tabs-tab-btn {
+  color: var(--mb-primary) !important;
+  font-weight: 600;
+}
+
+[data-test='dashboard-content-wrapper'] .ant-tabs-ink-bar {
+  height: 3px !important;
+  border-radius: 3px 3px 0 0;
+  background: var(--mb-primary);
+}
+
+/* Filter bar */
+[data-test='filter-bar'] {
+  background: var(--mb-bg-container);
+  border-right: 1px solid var(--mb-border-secondary);
+}
+
+[data-test='filter-bar'] .ant-form-item-label > label,
+[data-test='filter-bar'] .filter-name {
+  font-weight: 600;
+  font-size: 12px;
+}
+
+[data-test='filter-bar__apply-button'] {
+  height: 36px;
+  border-radius: 10px;
+  font-weight: 600;
+}
+
+/* Edit mode: the page is the dotted area, the space around it stays plain */
+.dashboard--editing .mibi-canvas:not(.mibi-mobile) {
+  background-color: var(--mb-bg-container);
+  background-image: radial-gradient(var(--mb-border) 1px, transparent 1px);
+  background-size: 18px 18px;
+}
+
+/* The grid replaces the dots when it is on */
+.dashboard--editing .mibi-canvas.mibi-show-grid {
+  background-image: none;
+}
+
+body:has(.dashboard--editing) [data-test='dashboard-header-container'] {
+  box-shadow: inset 0 -2px 0 var(--mb-primary);
+}
+
+/* KPI cards (Big Number) */
+.superset-legacy-chart-big-number .header-line {
+  font-weight: 650;
+  letter-spacing: -0.035em;
+  color: var(--mb-text);
+}
+
+.superset-legacy-chart-big-number .kicker,
+.superset-legacy-chart-big-number .metric-name {
+  color: var(--mb-text-secondary);
+  font-weight: 500;
+}
+
+.superset-legacy-chart-big-number .subheader-line {
+  color: var(--mb-text-secondary);
+  font-weight: 500;
+}
+
+/* Period-over-period change in green or red */
+.superset-legacy-chart-big-number.positive .subheader-line {
+  color: var(--mb-success);
+  font-weight: 600;
+}
+
+.superset-legacy-chart-big-number.negative .subheader-line {
+  color: var(--mb-error);
+  font-weight: 600;
+}
+
+/* Markdown blocks match the cards */
+.dashboard-component-markdown {
+  border-radius: 14px;
+}
+
+/* ---------------------------------------------------------------- Popovers, menus, modals (portals) */
+
+.ant-dropdown .ant-dropdown-menu,
+.ant-menu-submenu-popup .ant-menu,
+.ant-select-dropdown,
+.ant-picker-dropdown .ant-picker-panel-container,
+.ant-popover .ant-popover-inner {
+  border-radius: 12px !important;
+  border: 1px solid var(--mb-hairline);
+  box-shadow: var(--mb-shadow-pop) !important;
+}
+
+/* A list fills its surface, up to its own rounded rows */
+.ant-dropdown .ant-dropdown-menu,
+.ant-menu-submenu-popup .ant-menu,
+.ant-select-dropdown,
+.ant-picker-dropdown .ant-picker-panel-container {
+  padding: 4px !important;
+}
+
+/* Free content needs room; a popover can still ask for its own padding */
+.ant-popover .ant-popover-inner {
+  padding: 12px;
+}
+
+.ant-dropdown-menu-item,
+.ant-menu-submenu-popup .ant-menu-item,
+.ant-select-item {
+  border-radius: 7px !important;
+  margin: 1px 0;
+}
+
+.ant-menu-submenu-popup .ant-menu-item-group-title {
+  padding: 8px 12px 4px !important;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  opacity: 0.6;
+}
+
+/* Same row height and indent for every item of the top bar menus */
+.ant-menu-submenu-popup .ant-menu-vertical .ant-menu-item,
+.ant-menu-submenu-popup .ant-menu-vertical .ant-menu-submenu-title {
+  height: 36px !important;
+  line-height: 36px !important;
+  margin-inline: 0 !important;
+  width: 100% !important;
+  padding-inline: 12px !important;
+}
+
+.ant-menu-submenu-popup .ant-menu-vertical {
+  min-width: 200px;
+}
+
+.ant-menu-submenu-popup .ant-menu-item-group-list .ant-menu-item {
+  padding-inline: 12px !important;
+}
+
+/* Version and SHA: small multi-line block, flush with the other items */
+.ant-menu-submenu-popup .ant-menu-item[data-menu-id$='about-info'] {
+  height: auto !important;
+  line-height: 1.6 !important;
+  padding: 2px 12px 8px !important;
+  cursor: default;
+  background: transparent !important;
+}
+
+.ant-menu-submenu-popup .ant-menu-item[data-menu-id$='about-info'] div {
+  padding: 0 !important;
+  color: var(--mb-text-tertiary) !important;
+}
+
+.ant-modal .ant-modal-content {
+  border-radius: 16px;
+  border: 1px solid var(--mb-hairline);
+  box-shadow: var(--mb-shadow-pop);
+}
+
+/* Title, body and footer share one 24px gutter */
+.ant-modal .ant-modal-header {
+  border-bottom: 0;
+  background: transparent;
+  padding: 20px 56px 4px 24px !important;
+  margin-bottom: 0 !important;
+}
+
+.ant-modal .ant-modal-body {
+  padding-left: 24px;
+  padding-right: 24px;
+}
+
+.ant-modal .ant-modal-footer {
+  padding: 12px 24px 20px !important;
+}
+
+.ant-modal .ant-modal-close {
+  top: 18px;
+  right: 16px;
+}
+
+/* The database modal lays out its own 16px gutter */
+[data-test='database-modal'] .ant-modal-header {
+  padding-left: 16px !important;
+}
+
+/* So do the sections of the alert and report modal */
+[data-test='alert-report-modal'] .ant-modal-header {
+  padding-left: 16px !important;
+}
+
+[data-test='alert-report-modal'] .ant-modal-footer {
+  padding-right: 16px !important;
+}
+
+.ant-modal .ant-modal-title {
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.ant-modal-mask {
+  backdrop-filter: blur(3px);
+}
+
+.ant-tooltip .ant-tooltip-inner {
+  border-radius: 8px;
+  font-size: 12px;
+}
+
+/* ---------------------------------------------------------------- Command palette */
+
+[data-test='mibi-command-palette-modal'] .ant-modal-header {
+  display: none;
+}
+
+[data-test='mibi-command-palette-modal'] .ant-modal-content {
+  padding: 0;
+  overflow: hidden;
+  border-radius: 14px;
+  box-shadow: var(--mb-shadow-pop);
+}
+
+[data-test='mibi-command-palette-modal'] .ant-modal-body {
+  padding: 0 !important;
+}
+
+[data-test='mibi-command-palette-modal'] .ant-modal {
+  top: 12vh;
+}
+
+/* ---------------------------------------------------------------- Login */
+
+[data-test='login-form'] {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  width: auto !important;
+  height: auto !important;
+  overflow: auto;
+  gap: 96px;
+  padding: 88px 48px 32px;
+  box-sizing: border-box;
+  /* The aura of auradata.mx: blue, violet and green light over a quiet grid */
+  background:
+    radial-gradient(
+      620px 420px at 8% 12%,
+      rgba(37, 99, 235, 0.16),
+      transparent 70%
+    ),
+    radial-gradient(
+      560px 420px at 46% 92%,
+      rgba(124, 58, 237, 0.12),
+      transparent 70%
+    ),
+    radial-gradient(
+      520px 380px at 96% 8%,
+      rgba(16, 185, 129, 0.12),
+      transparent 70%
+    ),
+    linear-gradient(rgba(120, 120, 135, 0.08) 1px, transparent 1px) 0 0 / 56px
+      56px,
+    linear-gradient(90deg, rgba(120, 120, 135, 0.08) 1px, transparent 1px) 0 0 /
+      56px 56px,
+    var(--mb-bg-layout);
+}
+
+[data-test='login-form'] > .ant-card {
+  flex-shrink: 0;
+  width: 420px;
+  max-width: 100%;
+  margin-top: 0;
+  border-radius: 20px;
+  border: 1px solid var(--mb-border-secondary);
+  box-shadow: var(--mb-shadow-pop);
+  padding-top: 32px;
+}
+
+[data-test='login-form'] > .ant-card::before {
+  content: '';
+  display: block;
+  height: 30px;
+  background: var(--mb-logo) no-repeat center / contain;
+}
+
+/* Next to the brand panel the logo is already on screen */
+@media (min-width: 960px) {
+  [data-test='login-form'] > .ant-card::before {
+    display: none;
+  }
+}
+
+[data-test='login-form'] .ant-card-head {
+  border-bottom: 0;
+  min-height: 0;
+  padding-top: 12px;
+  text-align: center;
+}
+
+[data-test='login-form'] .ant-card-head-title {
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+[data-test='login-form'] .ant-card-body {
+  padding-top: 4px;
+}
+
+[data-test='login-form'] .ant-card-body > div > .ant-typography {
+  display: block;
+  text-align: center;
+  margin-bottom: 4px;
+}
+
+[data-test='login-form'] .ant-form-item-label label {
+  font-weight: 500;
+}
+
+[data-test='login-form'] .ant-input-affix-wrapper {
+  height: 44px;
+  border-radius: 12px;
+}
+
+/* The brand's primary call to action: an ink pill that glows on hover */
+[data-test='login-form'] [data-test='login-button'] {
+  height: 44px;
+  border-radius: 999px;
+  font-weight: 600;
+  background: var(--mb-text);
+  color: var(--mb-bg-container);
+  transition:
+    box-shadow 0.7s var(--mb-ease),
+    transform 0.7s var(--mb-ease);
+}
+
+[data-test='login-form'] [data-test='login-button']:not(:disabled):hover {
+  background: var(--mb-text);
+  color: var(--mb-bg-container);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    var(--mb-shadow-glow);
+}
+
+/* ---- Presentation mode: the dashboard alone, full screen ---------------- */
+
+body.mibi-presenting [data-test='mibi-sidebar'],
+body.mibi-presenting [data-test='mibi-topbar'],
+body.mibi-presenting [data-test='mibi-menubar-row'],
+body.mibi-presenting [data-test='dashboard-header-wrapper'] {
+  display: none !important;
+}
+
+body.mibi-presenting [data-test='mibi-main'] {
+  margin-left: 0 !important;
+}
+
+/* The page is scaled to the screen; the floating controls go over it and
+   hide when the mouse rests, so no room is kept for them below */
+body.mibi-presenting .dashboard-content {
+  padding: 16px 16px 16px 8px;
+}
+
+/* The page is sized to the screen less its margin, so the room under it that a
+   report keeps for the wallpaper would make the document scroll */
+body.mibi-presenting .dashboard-content > [data-test='grid-container'] {
+  margin-bottom: 0 !important;
+}
+
+body.mibi-presenting-idle,
+body.mibi-presenting-idle * {
+  cursor: none !important;
+}
+
+/* ---- Format pane: grid and page end while editing ---------------------- */
+
+/* Behind the visuals, so the grid shows only in the space between them */
+.mibi-show-grid .grid-content {
+  position: relative;
+  isolation: isolate;
+}
+
+.mibi-grid-guide {
+  display: none;
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.mibi-show-grid .mibi-grid-guide {
+  display: block;
+  bottom: auto;
+  height: 100%;
+}
+
+/* Cell grid: every object has a cell of its own on the page (meta.mibiPos),
+   so rows, columns and the page grid are only containers: they take no room
+   and are not positioned, and objects are placed against the page. */
+.mibi-canvas:not(.mibi-mobile) .dashboard-grid,
+.mibi-canvas:not(.mibi-mobile) .dashboard-component-tabs,
+.mibi-canvas:not(.mibi-mobile) .dragdroppable-row > .with-popover-menu,
+.mibi-canvas:not(.mibi-mobile) .ant-tabs-content,
+.mibi-canvas:not(.mibi-mobile) .ant-tabs-body,
+.mibi-canvas:not(.mibi-mobile) .grid-content,
+.mibi-canvas:not(.mibi-mobile) .grid-row,
+.mibi-canvas:not(.mibi-mobile) .grid-column,
+.mibi-canvas:not(.mibi-mobile)
+  .dragdroppable:not([style*='position: absolute']) {
+  position: static !important;
+}
+
+/* The page tabs sit over the top of the page: its picture shows through. The
+   holder of the page also has the height of the drop zone while editing. */
+.mibi-canvas:not(.mibi-mobile) .dashboard-component-tabs,
+.mibi-canvas:not(.mibi-mobile)
+  .dashboard-component-tabs
+  .ant-tabs-content-holder {
+  background: transparent;
+}
+
+.mibi-canvas:not(.mibi-mobile) .grid-content > div:not(:last-child),
+.mibi-canvas:not(.mibi-mobile) .grid-row > :not(:last-child),
+.mibi-canvas:not(.mibi-mobile) .grid-column > :not(:last-child) {
+  margin: 0 !important;
+}
+
+.mibi-canvas .dragdroppable[style*='position: absolute'] {
+  z-index: 1;
+}
+
+/* There are no places to drop between objects: anywhere on the page is one.
+   The last drop target of the page covers all of it, under the objects, and
+   only listens while something is dragged. */
+.mibi-canvas:not(.mibi-mobile) .grid-row .empty-droptarget,
+.mibi-canvas:not(.mibi-mobile) .grid-column .empty-droptarget,
+.mibi-canvas:not(.mibi-mobile)
+  .grid-content
+  > .empty-droptarget:not(:last-child) {
+  display: none !important;
+}
+
+.mibi-canvas:not(.mibi-mobile) .grid-content > .empty-droptarget:last-child {
+  position: absolute !important;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100% !important;
+  margin: 0 !important;
+  pointer-events: none;
+}
+
+.mibi-dragging
+  .mibi-canvas:not(.mibi-mobile)
+  .grid-content
+  > .empty-droptarget:last-child {
+  pointer-events: auto;
+}
+
+.mibi-canvas .drop-indicator,
+.mibi-canvas .empty-droptarget::before {
+  display: none !important;
+}
+
+/* While editing, the row under the pointer shows which objects it groups */
+.dashboard--editing .mibi-canvas:not(.mibi-mobile) .grid-row:hover {
+  outline: 1px dashed var(--mb-primary-border);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ---- Design elements (image, shape, button, text) ----------------------- */
+
+.mibi-element {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  border-radius: var(--mb-v-radius, 0);
+}
+
+.mibi-element--editing {
+  outline: 1px dashed transparent;
+  outline-offset: 2px;
+}
+
+.mibi-element--editing:hover {
+  outline-color: var(--mb-border);
+}
+
+.mibi-element.mibi-selected {
+  outline: 2px solid var(--mb-primary);
+  outline-offset: 2px;
+}
+
+/* A canvas filter opens its option list inside its own row; lift that row
+   while the list is open so the charts placed below do not cover it. */
+.dragdroppable-row:has(.mibi-element-filter .ant-select-open),
+.dragdroppable-column:has(.mibi-element-filter .ant-select-open) {
+  position: relative;
+  z-index: 10;
+}
+
+.mibi-element-filter {
+  overflow: visible;
+}
+
+/* ---- Hidden and locked objects (edit mode) ------------------------------ */
+
+.mibi-hidden {
+  opacity: 0.45;
+  background-image: repeating-linear-gradient(
+    -45deg,
+    transparent 0 8px,
+    var(--mb-fill) 8px 16px
+  ) !important;
+}
+
+.mibi-locked .resize-handle,
+.mibi-locked [class*='resizable-container-handle'] {
+  display: none;
+}
+
+/* A locked object: no way to grab it */
+.mibi-locked .dashboard-component-chart-holder,
+.mibi-locked .mibi-element {
+  cursor: default;
+}
+
+/* Viewers get no tab for a hidden page; links and drill through still open it */
+.ant-tabs-tab:has(.mibi-page-hidden) {
+  display: none;
+}
+
+/* ---- Chart header: subtitle and divider --------------------------------- */
+
+[data-test='slice-header'].mibi-has-subtitle {
+  flex-wrap: wrap;
+}
+
+/* With a basis of 0 the title would share its line with the subtitle */
+[data-test='slice-header'].mibi-has-subtitle > .header-title {
+  flex: 1 1 auto;
+}
+
+[data-test='slice-header'] .mibi-subtitle {
+  flex-basis: 100%;
+  order: 3;
+  margin-top: 2px;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.4;
+  color: var(--mb-text-tertiary);
+  text-align: var(--mb-v-title-align, left);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+[data-test='slice-header'].mibi-header-divider {
+  padding-bottom: 8px;
+  margin-bottom: 8px !important;
+  border-bottom: 1px solid var(--mb-border-secondary);
+}
+
+.dashboard-component-chart-holder.mibi-title-hidden
+  [data-test='slice-header']
+  .mibi-subtitle {
+  visibility: hidden;
+}
+
+/* ---- Element states: hover fill and hover effects (view mode) ----------- */
+
+.mibi-shape .mibi-shape-fill {
+  fill: var(--mb-shape-fill);
+  transition: fill 0.15s ease;
+}
+
+.mibi-shape:hover .mibi-shape-fill {
+  fill: var(--mb-shape-fill-hover, var(--mb-shape-fill));
+}
+
+.mibi-shape:hover {
+  --mb-shape-bg-hover-on: var(--mb-shape-bg-hover);
+}
+
+.mibi-hoverable {
+  transition:
+    transform 0.18s ease,
+    filter 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.mibi-hoverable[data-hover='lift']:hover {
+  transform: translateY(-3px);
+  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.14));
+}
+
+.mibi-hoverable[data-hover='grow']:hover {
+  transform: scale(1.04);
+}
+
+.mibi-hoverable[data-hover='brighten']:hover {
+  filter: brightness(1.12) saturate(1.1);
+}
+
+/* ---- Mobile layout: the page inside the phone of the editor ------------- */
+
+[data-test='mibi-device-viewport'] .mibi-canvas {
+  border-radius: 0 !important;
+}
+
+/* The phone shows the page as a viewer does: no drop targets of the editor */
+[data-test='mibi-device-viewport'] .empty-droptarget {
+  display: none !important;
+}
+
+/* A phone gives the page of a report the whole width of its screen */
+@media (max-width: 639px) {
+  .dashboard:not(.dashboard--editing) .grid-container {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+}
+
+/* ---- Narrow screens: compact top bar ------------------------------------- */
+
+@media (max-width: 767px) {
+  [data-test='mibi-search-trigger'] {
+    width: 40px !important;
+    min-width: 40px !important;
+    padding: 0 !important;
+    justify-content: center;
+  }
+
+  [data-test='mibi-search-trigger'] .placeholder,
+  [data-test='mibi-search-trigger'] kbd,
+  [data-test='mibi-topbar'] .ant-tag {
+    display: none !important;
+  }
+
+  [data-test='mibi-topbar'] .name,
+  [data-test='mibi-topbar'] .label {
+    display: none;
+  }
+
+  /* Only the user menu stays: theme and language live in it on desktop */
+  [data-test='mibi-topbar']
+    .ant-menu-horizontal
+    > .ant-menu-submenu:not(:last-child) {
+    display: none !important;
+  }
+
+  [data-test='dashboard-header-container'] .header-with-actions {
+    padding: 0 12px !important;
+  }
+
+  [data-test='dashboard-header-container'] [data-test='mibi-present-button'],
+  [data-test='dashboard-header-container'] [data-test='edit-dashboard-button'] {
+    display: none !important;
+  }
+}
+
+/* ---- Hardening for long and unusual text --------------------------------- */
+
+/* Dashboard tabs: one line each, cut with an ellipsis */
+.dashboard-component-tabs .ant-tabs-tab {
+  max-width: 280px;
+}
+
+.dashboard-component-tabs .ant-tabs-tab-btn,
+.dashboard-component-tabs .ant-tabs-tab .editable-title,
+.dashboard-component-tabs .ant-tabs-tab .editable-title input,
+.dashboard-component-tabs .ant-tabs-tab .editable-title textarea {
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+[data-test='dashboard-header-wrapper'],
+.dashboard-component-tabs,
+.dashboard-component-tabs .ant-tabs-nav {
+  min-width: 0;
+  max-width: 100%;
+}
+
+/* Chart titles: at most two lines (the title is nested, so cap the height) */
+.dashboard-component-chart-holder [data-test='slice-header'] > .header-title {
+  max-height: 2.8em;
+  line-height: 1.4;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+}
+
+/* Long words wrap inside text blocks instead of widening the page */
+.dashboard-markdown,
+.dashboard-markdown *,
+.mibi-rich-text,
+.mibi-rich-text *,
+.dashboard-component-chart-holder .slice_description {
+  overflow-wrap: anywhere;
+}
+
+/* Modal titles (they often carry a user's name for something) */
+.ant-modal .ant-modal-title {
+  overflow-wrap: anywhere;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ---------------------------------------------------------------- Help tooltips */
+
+.mibi-help-tooltip {
+  max-width: none;
+}
+
+.mibi-help-tooltip .ant-tooltip-inner {
+  padding: 0;
+  overflow: hidden;
+  border-radius: 14px;
+  border: 1px solid var(--mb-hairline-strong);
+  box-shadow: var(--mb-shadow-pop);
+  font-size: 12px;
+}
+
+.mibi-help-tooltip .ant-tooltip-arrow::before,
+.mibi-help-tooltip .ant-tooltip-arrow::after {
+  box-shadow: none;
+}
+
+/* ---- Moving and resizing objects on the cell grid ------------------------ */
+
+body.mibi-moving,
+body.mibi-moving * {
+  cursor: grabbing !important;
+  user-select: none !important;
+}
+
+.mibi-canvas .dragdroppable.mibi-moving {
+  opacity: 0.9;
+  filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.25));
+}
+
+/* Objects can be picked up from anywhere while editing */
+.dashboard--editing .mibi-canvas .dragdroppable[style*='position: absolute'] {
+  cursor: grab;
+}
+
+/* Objects sit side by side, so neighbors share an edge: the selected one gets it,
+   instead of whichever object comes later in the page */
+.mibi-canvas .dragdroppable:has(.mibi-selected):not(:has(.mibi-keep-layer)) {
+  z-index: 3;
+}
+
+/* Resize handles: easy to hit, and visible on the selected object */
+.mibi-canvas .resizable-container .resize-handle {
+  opacity: 0;
+  transition: opacity 120ms ease;
+}
+
+.mibi-canvas .resizable-container:hover .resize-handle,
+.mibi-canvas .mibi-selected .resize-handle,
+.mibi-canvas .resizable-container--resizing .resize-handle {
+  opacity: 1;
+}
+
+.mibi-canvas .resize-handle--right {
+  width: 6px !important;
+  height: 28px !important;
+  right: -3px !important;
+  border: 0 !important;
+  border-radius: 3px;
+  background: var(--mb-primary);
+}
+
+.mibi-canvas .resize-handle--bottom {
+  width: 28px !important;
+  height: 6px !important;
+  bottom: -3px !important;
+  border: 0 !important;
+  border-radius: 3px;
+  background: var(--mb-primary);
+}
+
+.mibi-canvas .resize-handle--bottom-right {
+  width: 12px !important;
+  height: 12px !important;
+  right: -6px !important;
+  bottom: -6px !important;
+  border: 2px solid var(--mb-primary) !important;
+  border-radius: 3px;
+  background: var(--mb-surface, #fff);
+}
+
+.mibi-canvas .resizable-container [class*='resizable-container-handle--right'] {
+  cursor: ew-resize;
+}
+
+.mibi-canvas
+  .resizable-container
+  [class*='resizable-container-handle--bottom'] {
+  cursor: ns-resize;
+}
+
+/* Corners resize both ways */
+.mibi-canvas .resizable-container .resizable-container-handle--top-left,
+.mibi-canvas .resizable-container .resizable-container-handle--bottom-right {
+  cursor: nwse-resize;
+}
+
+.mibi-canvas .resizable-container .resizable-container-handle--top-right,
+.mibi-canvas .resizable-container .resizable-container-handle--bottom-left {
+  cursor: nesw-resize;
+}
+
+.mibi-size-badge {
+  position: absolute;
+  left: 50%;
+  top: -26px;
+  z-index: 40;
+  transform: translateX(-50%);
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--mb-primary);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.mibi-canvas .resize-handle--left {
+  width: 6px !important;
+  height: 28px !important;
+  left: -3px !important;
+  top: 50%;
+  transform: translate(0, -50%);
+  position: absolute;
+  border: 0 !important;
+  border-radius: 3px;
+  background: var(--mb-primary);
+}
+
+.mibi-canvas .resize-handle--top {
+  width: 28px !important;
+  height: 6px !important;
+  top: -3px !important;
+  left: 50%;
+  transform: translate(-50%, 0);
+  position: absolute;
+  border: 0 !important;
+  border-radius: 3px;
+  background: var(--mb-primary);
+}
+
+.mibi-canvas .resize-handle--top-left,
+.mibi-canvas .resize-handle--top-right,
+.mibi-canvas .resize-handle--bottom-left {
+  position: absolute;
+  width: 12px !important;
+  height: 12px !important;
+  border: 2px solid var(--mb-primary) !important;
+  border-radius: 3px;
+  background: var(--mb-surface, #fff);
+}
+
+.mibi-canvas .resize-handle--top-left {
+  left: -6px !important;
+  top: -6px !important;
+}
+
+.mibi-canvas .resize-handle--top-right {
+  right: -6px !important;
+  top: -6px !important;
+}
+
+.mibi-canvas .resize-handle--bottom-left {
+  left: -6px !important;
+  bottom: -6px !important;
+}
+
+/* KPI cards: the number and its labels take the format of the card. The chart
+   sizes its text to fit, so the chosen values win over it. */
+.dashboard-component-chart-holder.mibi-v-size .header-line {
+  font-size: var(--mb-v-value-size) !important;
+}
+.dashboard-component-chart-holder.mibi-v-color .header-line {
+  color: var(--mb-v-value-color) !important;
+}
+.dashboard-component-chart-holder.mibi-v-weight .header-line {
+  font-weight: var(--mb-v-value-weight) !important;
+}
+.dashboard-component-chart-holder.mibi-v-style .header-line {
+  font-style: var(--mb-v-value-style) !important;
+}
+.dashboard-component-chart-holder.mibi-v-align .text-container {
+  align-items: var(--mb-v-value-items) !important;
+  width: 100%;
+  text-align: var(--mb-v-value-align);
+}
+.dashboard-component-chart-holder.mibi-v-align .header-line {
+  justify-content: var(--mb-v-value-items) !important;
+}
+.dashboard-component-chart-holder.mibi-l-size .metric-name,
+.dashboard-component-chart-holder.mibi-l-size .subtitle-line {
+  font-size: var(--mb-v-label-size) !important;
+}
+.dashboard-component-chart-holder.mibi-l-color .metric-name,
+.dashboard-component-chart-holder.mibi-l-color .subtitle-line {
+  color: var(--mb-v-label-color) !important;
+}
+.dashboard-component-chart-holder.mibi-l-weight .metric-name,
+.dashboard-component-chart-holder.mibi-l-weight .subtitle-line {
+  font-weight: var(--mb-v-label-weight) !important;
+}
+.dashboard-component-chart-holder.mibi-l-style .metric-name,
+.dashboard-component-chart-holder.mibi-l-style .subtitle-line {
+  font-style: var(--mb-v-label-style) !important;
+}
+
+/* ---- Focus mode: a chart over the whole page, whatever the canvas zoom ---- */
+
+[data-test='mibi-canvas-outer'] :has(.mibi-full-size) {
+  transform: none !important;
+  z-index: 3000 !important;
+}
+
+/* The page bar of a report reaches the bottom of the screen, as in Power BI */
+.dashboard-content
+  > [data-test='grid-container']:has([data-test='mibi-page-bar']) {
+  margin-bottom: 0 !important;
+}

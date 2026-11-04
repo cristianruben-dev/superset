@@ -18,7 +18,7 @@
  */
 
 import { act, render, screen } from 'spec/helpers/testing-library';
-import { openFormat } from 'src/mibi/format/selection';
+import { openFormat } from 'src/auradata/format/selection';
 import BuilderComponentPane from '.';
 
 jest.mock('src/dashboard/containers/SliceAdder', () => () => (

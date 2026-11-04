@@ -54,13 +54,13 @@ import {
   DEFAULT_OBJECT_ROWS,
   gridColumnCount,
   syncGridColumnCount,
-} from 'src/mibi/format/columns';
-import { layoutToCells } from 'src/mibi/format/cells';
+} from 'src/auradata/format/columns';
+import { layoutToCells } from 'src/auradata/format/cells';
 import {
   freeCell,
   layoutToPositions,
   POS_KEY,
-} from 'src/mibi/format/positions';
+} from 'src/auradata/format/positions';
 import getLocationHash from 'src/dashboard/util/getLocationHash';
 import newComponentFactory, {
   DashboardEntity,

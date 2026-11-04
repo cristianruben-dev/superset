@@ -27,7 +27,7 @@ import {
   dropCell,
   isPositioned,
   posOf,
-} from 'src/mibi/format/positions';
+} from 'src/auradata/format/positions';
 import type {
   DragDroppableComponent,
   DragItem,

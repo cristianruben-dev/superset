@@ -40,8 +40,8 @@ import {
   DATA_PANEL_URL,
   editChartFromPanel,
   isPanelMode,
-} from 'src/mibi/chartEditor';
-import { linkNewDataset } from 'src/mibi/workspaces/api';
+} from 'src/auradata/chartEditor';
+import { linkNewDataset } from 'src/auradata/workspaces/api';
 import { DatasetObject } from '../types';
 
 interface FooterProps {

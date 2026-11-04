@@ -40,7 +40,7 @@ import {
   ROW_TYPE,
 } from '../../../util/componentTypes';
 import ChartHolder, { CHART_MARGIN } from './ChartHolder';
-import { CELL } from 'src/mibi/format/types';
+import { CELL } from 'src/auradata/format/types';
 
 const DEFAULT_HEADER_HEIGHT = 22;
 

@@ -42,7 +42,7 @@ import {
   mobileComponent,
   useCanvasReadOnly,
   useMobileView,
-} from 'src/mibi/format/mobileLayout';
+} from 'src/auradata/format/mobileLayout';
 
 interface DashboardComponentProps {
   id: string;

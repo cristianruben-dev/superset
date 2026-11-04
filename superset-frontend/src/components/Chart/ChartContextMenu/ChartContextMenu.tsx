@@ -51,7 +51,7 @@ import DrillByModal from 'src/components/Chart/DrillBy/DrillByModal';
 import { useDatasetDrillInfo } from 'src/hooks/apiResources/datasets';
 import { ResourceStatus } from 'src/hooks/apiResources/apiResources';
 import { useDrillDetailMenuItems } from '../useDrillDetailMenuItems';
-import { useDrillthroughMenuItems } from 'src/mibi/report/useDrillthroughMenuItems';
+import { useDrillthroughMenuItems } from 'src/auradata/report/useDrillthroughMenuItems';
 import { getMenuAdjustedY } from '../utils';
 import { DrillBySubmenu } from '../DrillBy/DrillBySubmenu';
 import DrillDetailModal from '../DrillDetail/DrillDetailModal';

@@ -39,7 +39,7 @@ import {
   getLabelsColorMap,
 } from '@superset-ui/core';
 import { useParentSize } from '@visx/responsive';
-import { CanvasFrame } from 'src/mibi/format/CanvasFrame';
+import { CanvasFrame } from 'src/auradata/format/CanvasFrame';
 import Tabs from '@superset-ui/core/components/Tabs';
 import DashboardGrid from 'src/dashboard/containers/DashboardGrid';
 import {

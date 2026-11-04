@@ -2048,7 +2048,7 @@ CARD_RULES = [
     ),
 ]
 FILTER_RULES = [
-    # Slicer options of the canvas filter (mibi/elements/SlicerFormat.tsx)
+    # Slicer options of the canvas filter (auradata/elements/SlicerFormat.tsx)
     (
         r"title",
         r"fontFamily|heading|titleWrap|underline",

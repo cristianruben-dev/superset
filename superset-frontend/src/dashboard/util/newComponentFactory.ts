@@ -20,7 +20,7 @@ import {
   DEFAULT_OBJECT_COLUMNS,
   DEFAULT_OBJECT_ROWS,
   gridColumnCount,
-} from 'src/mibi/format/columns';
+} from 'src/auradata/format/columns';
 import { nanoid } from 'nanoid';
 import { t } from '@apache-superset/core/translation';
 

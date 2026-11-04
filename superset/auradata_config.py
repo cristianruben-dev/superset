@@ -26,7 +26,7 @@ deployment can still override any of these values. Kept in its own module so reb
 the fork onto new Superset releases only touches one line of config.py.
 
 Colors live in the theme tokens; the global stylesheet
-(superset-frontend/src/assets/mibi/skin.css) only handles structure, spacing and type,
+(superset-frontend/src/assets/auradata/skin.css) only handles structure, spacing and type,
 so light/dark mode and per-dashboard themes keep working.
 """
 
@@ -97,7 +97,7 @@ DBS_AVAILABLE_DENYLIST: dict[str, set[str | None]] = {
 
 # The databases shown as cards with their logo when connecting a database, by
 # the engine_name of their engine spec. Their drivers are installed in the
-# Docker images; the logos live in src/mibi/databases/dbImages.ts. SQLite is
+# Docker images; the logos live in src/auradata/databases/dbImages.ts. SQLite is
 # left out: PREVENT_UNSAFE_DB_CONNECTIONS refuses it.
 
 PREFERRED_DATABASES: list[str] = [

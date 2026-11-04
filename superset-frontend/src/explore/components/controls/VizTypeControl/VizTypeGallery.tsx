@@ -48,7 +48,7 @@ import { Icons } from '@superset-ui/core/components/Icons';
 import { nativeFilterGate } from 'src/dashboard/components/nativeFilters/utils';
 import { usePluginContext } from 'src/components';
 import scrollIntoView from 'scroll-into-view-if-needed';
-import { VizTypeIcon } from 'src/mibi/vizIcons/VizTypeIcon';
+import { VizTypeIcon } from 'src/auradata/vizIcons/VizTypeIcon';
 
 interface VizTypeGalleryProps {
   onChange: (vizType: string | null) => void;

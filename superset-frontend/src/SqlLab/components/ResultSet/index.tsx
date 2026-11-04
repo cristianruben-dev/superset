@@ -64,7 +64,7 @@ import {
 } from 'src/SqlLab/components/SaveDatasetModal';
 import { EXPLORE_CHART_DEFAULT, SqlLabRootState } from 'src/SqlLab/types';
 import { mountExploreUrl } from 'src/explore/exploreUtils';
-import { editChartFromPanel } from 'src/mibi/chartEditor';
+import { editChartFromPanel } from 'src/auradata/chartEditor';
 import { postFormData } from 'src/explore/exploreUtils/formData';
 import { addDangerToast } from 'src/components/MessageToasts/actions';
 import { prepareCopyToClipboardTabularData } from 'src/utils/common';

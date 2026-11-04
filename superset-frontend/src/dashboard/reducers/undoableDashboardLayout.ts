@@ -22,7 +22,7 @@ import undoable, {
   ActionCreators as UndoActionCreators,
   StateWithHistory,
 } from 'redux-undo';
-import { syncGridColumnCount } from 'src/mibi/format/columns';
+import { syncGridColumnCount } from 'src/auradata/format/columns';
 import { DASHBOARD_ROOT_ID, UNDO_LIMIT } from '../util/constants';
 import {
   UPDATE_COMPONENTS,

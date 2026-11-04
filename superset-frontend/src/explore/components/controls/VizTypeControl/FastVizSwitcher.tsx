@@ -22,7 +22,7 @@ import { css, SupersetTheme } from '@apache-superset/core/theme';
 import { Flex } from '@superset-ui/core/components';
 import { getChartKey } from 'src/explore/exploreUtils';
 import { ExplorePageState } from 'src/explore/types';
-import { VizTypeIcon } from 'src/mibi/vizIcons/VizTypeIcon';
+import { VizTypeIcon } from 'src/auradata/vizIcons/VizTypeIcon';
 import { FastVizSwitcherProps } from './types';
 import { VizTile } from './VizTile';
 import { FEATURED_CHARTS, CUSTOM_CHART_ICONS } from './constants';

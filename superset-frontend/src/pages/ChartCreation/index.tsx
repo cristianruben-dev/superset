@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { isPanelMode, withPanelParam } from 'src/mibi/chartEditor';
+import { isPanelMode, withPanelParam } from 'src/auradata/chartEditor';
 import { ReactNode, useState, useEffect, useCallback, useMemo } from 'react';
 import rison from 'rison';
 import { t } from '@apache-superset/core/translation';

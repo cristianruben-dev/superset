@@ -16,8 +16,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { maxWidthCells } from 'src/mibi/format/positions';
-import { CELL } from 'src/mibi/format/types';
+import { maxWidthCells } from 'src/auradata/format/positions';
+import { CELL } from 'src/auradata/format/types';
 import {
   useState,
   useMemo,
@@ -35,9 +35,9 @@ import { css, useTheme } from '@apache-superset/core/theme';
 import { LayoutItem, RootState } from 'src/dashboard/types';
 import AnchorLink from 'src/dashboard/components/AnchorLink';
 import Chart from 'src/dashboard/components/gridComponents/Chart';
-import { FieldDropTarget } from 'src/mibi/format/FieldDropTarget';
-import { ObjectActions } from 'src/mibi/format/ObjectActions';
-import { MovableDraggable } from 'src/mibi/format/MovableDraggable';
+import { FieldDropTarget } from 'src/auradata/format/FieldDropTarget';
+import { ObjectActions } from 'src/auradata/format/ObjectActions';
+import { MovableDraggable } from 'src/auradata/format/MovableDraggable';
 import { ConnectDragSource } from 'react-dnd';
 import ResizableContainer from 'src/dashboard/components/resizable/ResizableContainer';
 import getChartAndLabelComponentIdFromPath from 'src/dashboard/util/getChartAndLabelComponentIdFromPath';
@@ -45,26 +45,26 @@ import useFilterFocusHighlightStyles from 'src/dashboard/util/useFilterFocusHigh
 import { AntdThemeProvider } from '@superset-ui/core/components';
 import { COLUMN_TYPE, ROW_TYPE } from 'src/dashboard/util/componentTypes';
 import { t } from '@apache-superset/core/translation';
-import { echartsHostFormat, visualStyle } from 'src/mibi/format/styles';
-import { useChartTooltipPage } from 'src/mibi/report/TooltipPageHost';
-import { InteractionControl } from 'src/mibi/report/InteractionControl';
-import { isInteractionControl } from 'src/mibi/report/interactions';
-import { useHiddenOverride } from 'src/mibi/report/visibility';
-import { useObjectLocked } from 'src/mibi/format/lock';
-import { ObjectBadges } from 'src/mibi/format/ObjectBadges';
-import { useMergedVisualFormat } from 'src/mibi/format/useVisualFormat';
-import { useDynamicTitle } from 'src/mibi/format/dynamicTitle';
-import { useMaxHeightMultiple } from 'src/mibi/format/CanvasFrame';
+import { echartsHostFormat, visualStyle } from 'src/auradata/format/styles';
+import { useChartTooltipPage } from 'src/auradata/report/TooltipPageHost';
+import { InteractionControl } from 'src/auradata/report/InteractionControl';
+import { isInteractionControl } from 'src/auradata/report/interactions';
+import { useHiddenOverride } from 'src/auradata/report/visibility';
+import { useObjectLocked } from 'src/auradata/format/lock';
+import { ObjectBadges } from 'src/auradata/format/ObjectBadges';
+import { useMergedVisualFormat } from 'src/auradata/format/useVisualFormat';
+import { useDynamicTitle } from 'src/auradata/format/dynamicTitle';
+import { useMaxHeightMultiple } from 'src/auradata/format/CanvasFrame';
 import {
   MIN_CHART_COLUMNS,
   MIN_CHART_ROWS,
   minObjectColumns,
-} from 'src/mibi/format/columns';
+} from 'src/auradata/format/columns';
 import {
   openFormat,
   selectVisual,
   useIsVisualSelected,
-} from 'src/mibi/format/selection';
+} from 'src/auradata/format/selection';
 import {
   GRID_MIN_COLUMN_COUNT,
   GRID_MIN_ROW_UNITS,

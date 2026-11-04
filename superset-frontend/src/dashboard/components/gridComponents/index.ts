@@ -36,7 +36,7 @@ import Header from './Header';
 import Row from './Row';
 import Tab from './Tab';
 import Tabs from './Tabs';
-import DynamicOrElement from 'src/mibi/elements/DynamicOrElement';
+import DynamicOrElement from 'src/auradata/elements/DynamicOrElement';
 
 export const componentLookup = {
   [CHART_TYPE]: ChartHolder,

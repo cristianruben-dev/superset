@@ -40,7 +40,7 @@ def generate_id(prefix: str) -> str:
 
 
 # AuraData BI pages are grids of square cells of CELL pixels (see
-# ``superset-frontend/src/mibi/format/columns.ts`` and ``positions.ts``). A layout
+# ``superset-frontend/src/auradata/format/columns.ts`` and ``positions.ts``). A layout
 # in cells is marked on its root, sizes every object in cells and places charts,
 # elements and text boxes at an absolute cell of their page.
 CELL = 32

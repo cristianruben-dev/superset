@@ -42,7 +42,7 @@ import {
   isNavigationHandledByLink,
 } from 'src/views/CRUD/utils';
 import { assetUrl } from 'src/utils/assetUrl';
-import { VizTypeTile } from 'src/mibi/vizIcons/VizTypeIcon';
+import { VizTypeTile } from 'src/auradata/vizIcons/VizTypeIcon';
 import {
   archiveConfirmDescription,
   deleteActionLabel,

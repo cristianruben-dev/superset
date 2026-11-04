@@ -20,7 +20,7 @@
 import {
   clearPendingFields,
   useFollowFieldSteps,
-} from 'src/mibi/format/chartFields';
+} from 'src/auradata/format/chartFields';
 import { useCallback, useEffect, type ReactNode } from 'react';
 import tinycolor from 'tinycolor2';
 import Tabs from '@superset-ui/core/components/Tabs';
@@ -37,8 +37,8 @@ import {
   useBuilderTab,
   usePaneCollapsed,
   type BuilderTab,
-} from 'src/mibi/format/panes';
-import { SelectionPane } from 'src/mibi/format/SelectionPane';
+} from 'src/auradata/format/panes';
+import { SelectionPane } from 'src/auradata/format/SelectionPane';
 import SliceAdder from 'src/dashboard/containers/SliceAdder';
 import dashboardComponents from 'src/visualizations/presets/dashboardComponents';
 import NewDivider from '../gridComponents/new/NewDivider';
@@ -46,11 +46,11 @@ import NewHeader from '../gridComponents/new/NewHeader';
 import NewTabs from '../gridComponents/new/NewTabs';
 import NewMarkdown from '../gridComponents/new/NewMarkdown';
 import NewDynamicComponent from '../gridComponents/new/NewDynamicComponent';
-import { FormatPane } from 'src/mibi/format/FormatPane';
-import { NewElements } from 'src/mibi/elements/NewElements';
-import { BookmarksPane } from 'src/mibi/report/BookmarksPane';
-import { selectVisual, useOnOpenFormat } from 'src/mibi/format/selection';
-import { useObjectShortcuts } from 'src/mibi/format/useObjectCommands';
+import { FormatPane } from 'src/auradata/format/FormatPane';
+import { NewElements } from 'src/auradata/elements/NewElements';
+import { BookmarksPane } from 'src/auradata/report/BookmarksPane';
+import { selectVisual, useOnOpenFormat } from 'src/auradata/format/selection';
+import { useObjectShortcuts } from 'src/auradata/format/useObjectCommands';
 
 const TABS_KEYS = {
   CHARTS: 'CHARTS',

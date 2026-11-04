@@ -63,7 +63,7 @@ import SliceHeader from '../../SliceHeader';
 import MissingChart from '../../MissingChart';
 import UnavailableChart, {
   isUnavailableChartType,
-} from 'src/mibi/dashboard/UnavailableChart';
+} from 'src/auradata/dashboard/UnavailableChart';
 
 import {
   addDangerToast,
@@ -82,8 +82,8 @@ import {
   useChartFormat,
   useRepaintOnChartFormat,
   withChartFormat,
-} from 'src/mibi/format/chartFormat';
-import type { VisualFormat } from 'src/mibi/format/types';
+} from 'src/auradata/format/chartFormat';
+import type { VisualFormat } from 'src/auradata/format/types';
 import { logEvent } from '../../../../logger/actions';
 import {
   getActiveFilters,

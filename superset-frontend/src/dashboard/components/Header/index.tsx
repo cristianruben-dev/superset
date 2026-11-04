@@ -17,7 +17,10 @@
  * under the License.
  */
 /* eslint-env browser */
-import { hasPendingFields, saveChartFields } from 'src/mibi/format/chartFields';
+import {
+  hasPendingFields,
+  saveChartFields,
+} from 'src/auradata/format/chartFields';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import {
@@ -61,12 +64,12 @@ import {
   DeletableReport,
 } from 'src/features/reports/ReportModal/actions';
 import { PageHeaderWithActions } from '@superset-ui/core/components/PageHeaderWithActions';
-import { useReportHeaderSlot } from 'src/mibi/shell/reportHeader';
-import { DashboardWorkspaceChip } from 'src/mibi/workspaces/DashboardWorkspaceChip';
-import { ExportDashboardModal } from 'src/mibi/export/ExportDashboardModal';
-import { ReadingBar } from 'src/mibi/report/ReadingBar';
-import { ReportMenuBar } from 'src/mibi/report/ReportMenuBar';
-import { ModeMenu, Ribbon } from 'src/mibi/ribbon/Ribbon';
+import { useReportHeaderSlot } from 'src/auradata/shell/reportHeader';
+import { DashboardWorkspaceChip } from 'src/auradata/workspaces/DashboardWorkspaceChip';
+import { ExportDashboardModal } from 'src/auradata/export/ExportDashboardModal';
+import { ReadingBar } from 'src/auradata/report/ReadingBar';
+import { ReportMenuBar } from 'src/auradata/report/ReportMenuBar';
+import { ModeMenu, Ribbon } from 'src/auradata/ribbon/Ribbon';
 import { useUnsavedChangesPrompt } from 'src/hooks/useUnsavedChangesPrompt';
 import { selectIsDashboardVersionPreviewActive } from 'src/features/versionHistory/reducer';
 import DashboardEmbedModal from '../EmbeddedModal';

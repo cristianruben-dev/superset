@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import type { CanvasFormat, VisualFormat } from 'src/mibi/format/types';
+import type { CanvasFormat, VisualFormat } from 'src/auradata/format/types';
 import {
   ChartCustomization,
   ChartCustomizationDivider,

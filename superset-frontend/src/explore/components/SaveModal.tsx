@@ -17,7 +17,7 @@
  * under the License.
  */
 /* eslint camelcase: 0 */
-import { isPanelMode, notifyChartSaved } from 'src/mibi/chartEditor';
+import { isPanelMode, notifyChartSaved } from 'src/auradata/chartEditor';
 import {
   ChangeEvent,
   FormEvent,
@@ -52,13 +52,13 @@ import { DatasourceType, isDefined, SupersetClient } from '@superset-ui/core';
 import { css, styled, useTheme } from '@apache-superset/core/theme';
 import { Alert } from '@apache-superset/core/components';
 import { Radio } from '@superset-ui/core/components/Radio';
-import { columnCountOf } from 'src/mibi/format/columns';
-import { layoutToCells } from 'src/mibi/format/cells';
+import { columnCountOf } from 'src/auradata/format/columns';
+import { layoutToCells } from 'src/auradata/format/cells';
 import {
   freeCell,
   layoutToPositions,
   POS_KEY,
-} from 'src/mibi/format/positions';
+} from 'src/auradata/format/positions';
 import { canUserEditDashboard } from 'src/dashboard/util/permissionUtils';
 import { setSaveChartModalVisibility } from 'src/explore/actions/saveModalActions';
 import {

@@ -17,8 +17,8 @@
  * under the License.
  */
 import findParentId from './findParentId';
-import { gridColumnCount } from 'src/mibi/format/columns';
-import { posOf } from 'src/mibi/format/positions';
+import { gridColumnCount } from 'src/auradata/format/columns';
+import { posOf } from 'src/auradata/format/positions';
 import { GRID_MIN_COLUMN_COUNT } from './constants';
 import {
   ROW_TYPE,

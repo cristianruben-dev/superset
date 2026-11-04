@@ -23,7 +23,7 @@ import {
   PartialFilters,
 } from '@superset-ui/core';
 import { omit } from 'lodash-es';
-import { drillthroughChartsInScope } from 'src/mibi/report/drillthroughScope';
+import { drillthroughChartsInScope } from 'src/auradata/report/drillthroughScope';
 import { ActiveFilters, ChartConfiguration } from '../types';
 
 export const getRelevantDataMask = (

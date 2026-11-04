@@ -20,7 +20,7 @@ import { throttle } from 'lodash-es';
 import { DropTargetMonitor } from 'react-dnd';
 import { DASHBOARD_ROOT_TYPE } from 'src/dashboard/util/componentTypes';
 import getDropPosition from 'src/dashboard/util/getDropPosition';
-import { trackDrag } from 'src/mibi/format/positions';
+import { trackDrag } from 'src/auradata/format/positions';
 import type {
   DragDroppableProps,
   DragDroppableComponent,

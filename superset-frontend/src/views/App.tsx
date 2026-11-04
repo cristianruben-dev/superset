@@ -36,7 +36,7 @@ import { Flex, Layout, Loading } from '@superset-ui/core/components';
 import { setupAGGridModules } from '@superset-ui/core/components/ThemedAgGridReact';
 import { ErrorBoundary } from 'src/components';
 import MobileRouteGuard from 'src/components/MobileRouteGuard';
-import { AppShell } from 'src/mibi/shell';
+import { AppShell } from 'src/auradata/shell';
 import getBootstrapData, { applicationRoot } from 'src/utils/getBootstrapData';
 import ToastContainer from 'src/components/MessageToasts/ToastContainer';
 import setupApp from 'src/setup/setupApp';

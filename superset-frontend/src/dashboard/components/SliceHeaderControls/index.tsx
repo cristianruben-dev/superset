@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { openChartEditor } from 'src/mibi/chartEditor';
+import { openChartEditor } from 'src/auradata/chartEditor';
 import {
   MouseEvent,
   Key,

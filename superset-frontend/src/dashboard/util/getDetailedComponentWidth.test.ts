@@ -19,7 +19,7 @@
 import getDetailedComponentWidthOriginal from 'src/dashboard/util/getDetailedComponentWidth';
 import * as types from 'src/dashboard/util/componentTypes';
 import { GRID_MIN_COLUMN_COUNT } from 'src/dashboard/util/constants';
-import { gridColumnCount } from 'src/mibi/format/columns';
+import { gridColumnCount } from 'src/auradata/format/columns';
 
 // Cast to accept partial mock data in tests
 const getDetailedComponentWidth = getDetailedComponentWidthOriginal as (

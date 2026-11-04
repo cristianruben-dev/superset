@@ -190,8 +190,8 @@ jest.mock('../ExploreChartHeader', () => ({
 }));
 
 let mockDockMode = false;
-jest.mock('src/mibi/chartEditor', () => ({
-  ...jest.requireActual('src/mibi/chartEditor'),
+jest.mock('src/auradata/chartEditor', () => ({
+  ...jest.requireActual('src/auradata/chartEditor'),
   isDockMode: () => mockDockMode,
 }));
 

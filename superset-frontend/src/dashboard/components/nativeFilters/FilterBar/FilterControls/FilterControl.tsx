@@ -41,8 +41,8 @@ import {
 } from './FilterControlShared';
 import FilterEditButton from './FilterEditButton';
 import GroupByFilterCard from './GroupByFilterCard';
-import { FilterCard } from 'src/mibi/dashboard/FilterCard';
-import { filterSummary } from 'src/mibi/dashboard/filterSummary';
+import { FilterCard } from 'src/auradata/dashboard/FilterCard';
+import { filterSummary } from 'src/auradata/dashboard/filterSummary';
 
 const FilterControl = ({
   dataMaskSelected,

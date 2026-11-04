@@ -39,7 +39,7 @@ import {
 } from 'src/components/MessageToasts/actions';
 import { useDispatch } from 'react-redux';
 import getBootstrapData from 'src/utils/getBootstrapData';
-import { LoginFooter, LoginLogo } from 'src/mibi/shell/LoginBrand';
+import { LoginFooter, LoginLogo } from 'src/auradata/shell/LoginBrand';
 import { ensureAppRoot } from 'src/utils/navigationUtils';
 
 type OAuthProvider = {

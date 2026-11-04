@@ -54,12 +54,12 @@ import { EmptyState } from '@superset-ui/core/components';
 import { ChartSource } from 'src/types/ChartSource';
 import type { Datasource, ChartStatus } from 'src/explore/types';
 import type { Dispatch } from 'redux';
-import { pointFields } from 'src/mibi/report/drillthroughScope';
+import { pointFields } from 'src/auradata/report/drillthroughScope';
 import {
   MARK_HOVER_EVENT,
   MARK_LEAVE_EVENT,
   type MarkHover,
-} from 'src/mibi/report/markHover';
+} from 'src/auradata/report/markHover';
 import ChartContextMenu, {
   ChartContextMenuRef,
 } from './ChartContextMenu/ChartContextMenu';

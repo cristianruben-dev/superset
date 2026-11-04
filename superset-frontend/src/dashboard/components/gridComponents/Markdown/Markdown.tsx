@@ -16,9 +16,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { maxWidthCells } from 'src/mibi/format/positions';
-import { CELL } from 'src/mibi/format/types';
-import { minObjectColumns } from 'src/mibi/format/columns';
+import { maxWidthCells } from 'src/auradata/format/positions';
+import { CELL } from 'src/auradata/format/types';
+import { minObjectColumns } from 'src/auradata/format/columns';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { ErrorInfo } from 'react';
 import { connect } from 'react-redux';
@@ -34,8 +34,8 @@ import { EditorHost } from 'src/core/editors';
 import { Logger, LOG_ACTIONS_RENDER_CHART } from 'src/logger/LogUtils';
 
 import DeleteComponentButton from 'src/dashboard/components/DeleteComponentButton';
-import { MovableDraggable } from 'src/mibi/format/MovableDraggable';
-import { isObjectLocked } from 'src/mibi/format/lock';
+import { MovableDraggable } from 'src/auradata/format/MovableDraggable';
+import { isObjectLocked } from 'src/auradata/format/lock';
 import HoverMenu from 'src/dashboard/components/menu/HoverMenu';
 import ResizableContainer from 'src/dashboard/components/resizable/ResizableContainer';
 import MarkdownModeDropdown from 'src/dashboard/components/menu/MarkdownModeDropdown';

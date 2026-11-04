@@ -56,7 +56,7 @@ import {
   StyledFormItem,
   StyledSwitchContainer,
 } from './styles';
-import { linkUploadedDataset } from 'src/mibi/workspaces/api';
+import { linkUploadedDataset } from 'src/auradata/workspaces/api';
 import ColumnsPreview from './ColumnsPreview';
 import StyledFormItemWithTip from './StyledFormItemWithTip';
 

@@ -43,10 +43,13 @@ import { isEmbedded } from 'src/dashboard/util/isEmbedded';
 import { Tooltip, EditableTitle, Icons } from '@superset-ui/core/components';
 import { useSelector } from 'react-redux';
 import cx from 'classnames';
-import { openChartEditor } from 'src/mibi/chartEditor';
-import { useVisualFormat } from 'src/mibi/format/useVisualFormat';
-import { SortAxisButton } from 'src/mibi/sort/SortAxisButton';
-import { ChartActionButton, HeaderExtras } from 'src/mibi/format/HeaderExtras';
+import { openChartEditor } from 'src/auradata/chartEditor';
+import { useVisualFormat } from 'src/auradata/format/useVisualFormat';
+import { SortAxisButton } from 'src/auradata/sort/SortAxisButton';
+import {
+  ChartActionButton,
+  HeaderExtras,
+} from 'src/auradata/format/HeaderExtras';
 import SliceHeaderControls from 'src/dashboard/components/SliceHeaderControls';
 import { useIsMobile } from 'src/hooks/useIsMobile';
 import { SliceHeaderControlsProps } from 'src/dashboard/components/SliceHeaderControls/types';

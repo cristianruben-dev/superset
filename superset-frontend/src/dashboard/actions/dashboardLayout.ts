@@ -32,7 +32,7 @@ import findParentId from 'src/dashboard/util/findParentId';
 import isInDifferentFilterScopes from 'src/dashboard/util/isInDifferentFilterScopes';
 import { DropResult } from 'src/dashboard/components/dnd/dragDroppableConfig';
 import { GetState, LayoutItem, RootState } from '../types';
-import { isPositioned, placeAt, posOf } from 'src/mibi/format/positions';
+import { isPositioned, placeAt, posOf } from 'src/auradata/format/positions';
 import { updateLayoutComponents } from './dashboardFilters';
 import { setUnsavedChanges } from './dashboardState';
 

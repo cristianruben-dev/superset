@@ -20,7 +20,7 @@
 import dropOverflowsParent from 'src/dashboard/util/dropOverflowsParent';
 import type { DropResult } from 'src/dashboard/components/dnd/dragDroppableConfig';
 import { NEW_COMPONENTS_SOURCE_ID } from 'src/dashboard/util/constants';
-import { CELL, syncGridColumnCount } from 'src/mibi/format/columns';
+import { CELL, syncGridColumnCount } from 'src/auradata/format/columns';
 import {
   CHART_TYPE,
   COLUMN_TYPE,

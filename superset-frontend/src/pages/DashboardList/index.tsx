@@ -81,12 +81,12 @@ import {
 import { TagTypeEnum } from 'src/components/Tag/TagType';
 import { loadTags } from 'src/components/Tag/utils';
 import DashboardCard from 'src/features/dashboards/DashboardCard';
-import { useDashboardPreviews } from 'src/mibi/dashboards';
+import { useDashboardPreviews } from 'src/auradata/dashboards';
 import { DashboardStatus } from 'src/features/dashboards/types';
 import { UserWithPermissionsAndRoles } from 'src/types/bootstrapTypes';
 import { findPermission } from 'src/utils/findPermission';
 import { navigateTo } from 'src/utils/navigationUtils';
-import { useDashboardRowMenu } from 'src/mibi/dashboards/rowMenu';
+import { useDashboardRowMenu } from 'src/auradata/dashboards/rowMenu';
 import { WIDER_DROPDOWN_WIDTH } from 'src/components/ListView/utils';
 import { isUserEditorOrAdmin } from 'src/dashboard/util/permissionUtils';
 import type { CellProps } from 'react-table';

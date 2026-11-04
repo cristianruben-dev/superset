@@ -17,7 +17,7 @@
  * under the License.
  */
 /* eslint-env browser */
-import { ChartEditorPanel } from 'src/mibi/dashboard/ChartEditorPanel';
+import { ChartEditorPanel } from 'src/auradata/dashboard/ChartEditorPanel';
 import cx from 'classnames';
 import tinycolor from 'tinycolor2';
 import {
@@ -45,10 +45,10 @@ import { Drawer, EmptyState, Loading } from '@superset-ui/core/components';
 import { ErrorBoundary, BasicErrorAlert } from 'src/components';
 import BuilderComponentPane from 'src/dashboard/components/BuilderComponentPane';
 import { ExploreDndContextProvider } from 'src/explore/components/ExploreContainer/ExploreDndContext';
-import { DataPane, DATA_PANE_WIDTH } from 'src/mibi/format/DataPane';
-import { useMobileEditing } from 'src/mibi/format/mobile';
-import { MobileLayoutPane } from 'src/mibi/format/MobileLayoutPane';
-import { useDockWidth, usePaneCollapsed } from 'src/mibi/format/panes';
+import { DataPane, DATA_PANE_WIDTH } from 'src/auradata/format/DataPane';
+import { useMobileEditing } from 'src/auradata/format/mobile';
+import { MobileLayoutPane } from 'src/auradata/format/MobileLayoutPane';
+import { useDockWidth, usePaneCollapsed } from 'src/auradata/format/panes';
 import DashboardHeader from 'src/dashboard/components/Header';
 import HeadlessAutoRefresh from 'src/dashboard/components/Header/HeadlessAutoRefresh';
 import { Icons } from '@superset-ui/core/components/Icons';
@@ -102,17 +102,17 @@ import { getRootLevelTabsComponent, shouldFocusTabs } from './utils';
 import DashboardContainer from './DashboardContainer';
 import { useNativeFilters } from './state';
 import DashboardWrapper from './DashboardWrapper';
-import { ReportTheme, useReportLook } from 'src/mibi/report/ReportTheme';
-import { InTabsDock, TabsDockProvider } from 'src/mibi/report/TabsDock';
+import { ReportTheme, useReportLook } from 'src/auradata/report/ReportTheme';
+import { InTabsDock, TabsDockProvider } from 'src/auradata/report/TabsDock';
 import {
   FilterDockProvider,
   InFilterDock,
   useFilterDockState,
-} from 'src/mibi/report/FilterDock';
-import { PresentationControls } from 'src/mibi/present/PresentationControls';
-import { DrillthroughBar } from 'src/mibi/report/DrillthroughBar';
-import { TooltipPageHost } from 'src/mibi/report/TooltipPageHost';
-import { usePresenting } from 'src/mibi/present/presentation';
+} from 'src/auradata/report/FilterDock';
+import { PresentationControls } from 'src/auradata/present/PresentationControls';
+import { DrillthroughBar } from 'src/auradata/report/DrillthroughBar';
+import { TooltipPageHost } from 'src/auradata/report/TooltipPageHost';
+import { usePresenting } from 'src/auradata/present/presentation';
 
 // Lazy-loaded so deployments with the VersionHistory flag off never pay
 // the bundle cost of the feature's component graph.

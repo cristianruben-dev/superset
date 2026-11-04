@@ -58,7 +58,7 @@ import { addWarningToast } from 'src/components/MessageToasts/actions';
 import {
   isUnavailableChartType,
   unavailableChartTypeName,
-} from 'src/mibi/dashboard/UnavailableChart';
+} from 'src/auradata/dashboard/UnavailableChart';
 
 enum ColorSchemeType {
   CATEGORICAL = 'CATEGORICAL',

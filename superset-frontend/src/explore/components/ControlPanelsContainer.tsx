@@ -82,9 +82,9 @@ import { RunQueryButton } from './RunQueryButton';
 import { CONTROL_SECTIONS_ID, Operators } from '../constants';
 import { Clauses } from './controls/FilterControl/types';
 import StashFormDataContainer from './StashFormDataContainer';
-import { isDockMode } from 'src/mibi/chartEditor';
-import { HelpTooltip } from 'src/mibi/help/HelpTooltip';
-import { helpIllustrationForSection } from 'src/mibi/help/registry';
+import { isDockMode } from 'src/auradata/chartEditor';
+import { HelpTooltip } from 'src/auradata/help/HelpTooltip';
+import { helpIllustrationForSection } from 'src/auradata/help/registry';
 
 const TABS_KEYS = {
   DATA: 'DATA',

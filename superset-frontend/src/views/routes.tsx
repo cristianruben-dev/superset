@@ -25,8 +25,8 @@ import {
   LazyExoticComponent,
 } from 'react';
 import { Redirect } from 'react-router-dom';
-import ExploreGate from 'src/mibi/ExploreGate';
-import { panelOnly } from 'src/mibi/PanelGate';
+import ExploreGate from 'src/auradata/ExploreGate';
+import { panelOnly } from 'src/auradata/PanelGate';
 import { isUserAdmin } from 'src/dashboard/util/permissionUtils';
 import getBootstrapData from 'src/utils/getBootstrapData';
 import { stripAppRoot } from 'src/utils/navigationUtils';
@@ -58,24 +58,26 @@ const ArchivedList = lazy(
 const WorkspaceList = lazy(
   () =>
     import(
-      /* webpackChunkName: "WorkspaceList" */ 'src/mibi/workspaces/WorkspaceListPage'
+      /* webpackChunkName: "WorkspaceList" */ 'src/auradata/workspaces/WorkspaceListPage'
     ),
 );
 
 const WorkspacePage = lazy(
   () =>
     import(
-      /* webpackChunkName: "WorkspacePage" */ 'src/mibi/workspaces/WorkspacePage'
+      /* webpackChunkName: "WorkspacePage" */ 'src/auradata/workspaces/WorkspacePage'
     ),
 );
 
 const DatasetPage = lazy(
   () =>
-    import(/* webpackChunkName: "DatasetPage" */ 'src/mibi/data/DatasetPage'),
+    import(
+      /* webpackChunkName: "DatasetPage" */ 'src/auradata/data/DatasetPage'
+    ),
 );
 
 const DataPage = lazy(
-  () => import(/* webpackChunkName: "DataPage" */ 'src/mibi/data/DataPage'),
+  () => import(/* webpackChunkName: "DataPage" */ 'src/auradata/data/DataPage'),
 );
 
 const DashboardList = lazy(

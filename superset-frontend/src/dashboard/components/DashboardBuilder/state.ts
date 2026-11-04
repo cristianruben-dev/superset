@@ -28,7 +28,7 @@ import {
 } from '../nativeFilters/FilterBar/state';
 import { useChartCustomizationFromRedux } from '../nativeFilters/state';
 import { toggleNativeFiltersBar } from '../../actions/dashboardState';
-import { usePhoneScreen } from 'src/mibi/format/mobile';
+import { usePhoneScreen } from 'src/auradata/format/mobile';
 
 export interface UseNativeFiltersResult {
   showDashboard: boolean;

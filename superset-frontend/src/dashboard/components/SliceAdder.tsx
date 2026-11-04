@@ -17,7 +17,7 @@
  * under the License.
  */
 /* eslint-env browser */
-import { openChartEditor } from 'src/mibi/chartEditor';
+import { openChartEditor } from 'src/auradata/chartEditor';
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import { List, type RowComponentProps } from 'react-window';

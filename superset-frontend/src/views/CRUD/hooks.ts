@@ -44,7 +44,7 @@ import Chart, { Slice } from 'src/types/Chart';
 import copyTextToClipboard from 'src/utils/copy';
 import { getShareableUrl } from 'src/utils/navigationUtils';
 import SupersetText from 'src/utils/textUtils';
-import { databaseImages } from 'src/mibi/databases/dbImages';
+import { databaseImages } from 'src/auradata/databases/dbImages';
 import { DatabaseObject } from 'src/features/databases/types';
 import {
   subscribeRealtime,

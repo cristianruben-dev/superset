@@ -32,7 +32,7 @@ import { t } from '@apache-superset/core/translation';
 import { css } from '@apache-superset/core/theme';
 import { Tooltip } from '@superset-ui/core/components';
 import { GenericLink, usePluginContext } from 'src/components';
-import { VizTypeTile } from 'src/mibi/vizIcons/VizTypeIcon';
+import { VizTypeTile } from 'src/auradata/vizIcons/VizTypeIcon';
 import { Theme } from '@emotion/react';
 
 const TruncatedTextWithTooltip = ({

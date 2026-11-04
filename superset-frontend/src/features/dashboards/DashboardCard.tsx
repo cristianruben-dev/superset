@@ -30,8 +30,8 @@ import { MenuItem } from '@superset-ui/core/components/Menu';
 import { Dashboard } from 'src/views/CRUD/types';
 import { isUserEditorOrAdmin } from 'src/dashboard/util/permissionUtils';
 import type { UserWithPermissionsAndRoles } from 'src/types/bootstrapTypes';
-import { DashboardCard as MibiDashboardCard } from 'src/mibi/dashboards';
-import type { PreviewRows } from 'src/mibi/dashboards';
+import { DashboardCard as AuraDataDashboardCard } from 'src/auradata/dashboards';
+import type { PreviewRows } from 'src/auradata/dashboards';
 
 const menuItemButtonCss = css`
   appearance: none;
@@ -168,7 +168,7 @@ function DashboardCard({
   }
 
   return (
-    <MibiDashboardCard
+    <AuraDataDashboardCard
       id={dashboard.id}
       title={dashboard.dashboard_title}
       url={dashboard.url}

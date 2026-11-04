@@ -27,9 +27,9 @@ import type { LayoutItem } from 'src/dashboard/types';
 import type { DropResult } from 'src/dashboard/components/dnd/dragDroppableConfig';
 import DashboardComponent from '../containers/DashboardComponent';
 import { Droppable } from './dnd/DragDroppable';
-import { CELL } from 'src/mibi/format/types';
-import { gridColumnCount } from 'src/mibi/format/columns';
-import { GridGuide } from 'src/mibi/format/gridGuides';
+import { CELL } from 'src/auradata/format/types';
+import { gridColumnCount } from 'src/auradata/format/columns';
+import { GridGuide } from 'src/auradata/format/gridGuides';
 import { TAB_TYPE } from '../util/componentTypes';
 import { DASHBOARD_GRID_CLASS } from '../util/embeddedLayout';
 

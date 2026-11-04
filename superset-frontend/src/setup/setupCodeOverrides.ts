@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import setupMibi from 'src/mibi/setup';
+import setupAuraData from 'src/auradata/setup';
 
 /**
  * Configuration options for setting up code overrides in different contexts.
@@ -35,6 +35,6 @@ interface CodeOverrideOptions {
  */
 export default function setupCodeOverrides(options: CodeOverrideOptions = {}) {
   if (!options.embedded) {
-    setupMibi();
+    setupAuraData();
   }
 }

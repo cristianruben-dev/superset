@@ -25,7 +25,7 @@ import {
 } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { ResizeCallback, ResizeStartCallback, Resizable } from 're-resizable';
-import { useCanvasZoom } from 'src/mibi/format/CanvasFrame';
+import { useCanvasZoom } from 'src/auradata/format/CanvasFrame';
 import cx from 'classnames';
 import { css, styled } from '@apache-superset/core/theme';
 
@@ -40,13 +40,13 @@ import {
   BottomLeftResizeHandle,
 } from './ResizableHandle';
 import type { RootState } from '../../types';
-import { resizeObject } from 'src/mibi/format/actions';
-import { ObjectShiftContext } from 'src/mibi/format/ObjectShift';
-import { posOf } from 'src/mibi/format/positions';
+import { resizeObject } from 'src/auradata/format/actions';
+import { ObjectShiftContext } from 'src/auradata/format/ObjectShift';
+import { posOf } from 'src/auradata/format/positions';
 import { isMobileConsumptionEnabled } from 'src/hooks/useIsMobile';
 import { RESIZE_HANDLE_Z_INDEX } from 'src/dashboard/constants';
 import resizableConfig from '../../util/resizableConfig';
-import { CELL } from 'src/mibi/format/types';
+import { CELL } from 'src/auradata/format/types';
 
 const proxyToInfinity = Number.MAX_VALUE;
 

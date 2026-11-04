@@ -52,8 +52,8 @@ import {
   ViewModeType,
 } from './types';
 import type { MenuItem } from '@superset-ui/core/components/Menu';
-import { useContextMenu } from 'src/mibi/shell/ContextMenu';
-import { usePageStatus } from 'src/mibi/shell/pageStatus';
+import { useContextMenu } from 'src/auradata/shell/ContextMenu';
+import { usePageStatus } from 'src/auradata/shell/pageStatus';
 import getBootstrapData from 'src/utils/getBootstrapData';
 import { ListViewError, useListViewState } from './utils';
 

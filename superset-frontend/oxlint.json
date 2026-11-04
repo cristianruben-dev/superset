@@ -302,7 +302,7 @@
       }
     },
     {
-      // 7.0 turned `prefer-tag-over-role` on, and it stays on for all of src/mibi
+      // 7.0 turned `prefer-tag-over-role` on, and it stays on for all of src/auradata
       // except the files below. What is left there cannot take the native tag
       // without changing how it looks or works: icons drawn as SVG or spans with
       // `role="img"`, custom radios, listboxes and progress bars (the native
@@ -312,27 +312,27 @@
       "files": [
         "packages/superset-ui-chart-controls/src/components/TabularSparkline.tsx",
         "plugins/plugin-chart-echarts/src/BigNumber/BigNumberViz.tsx",
-        "src/mibi/dashboard/FilterCard.tsx",
-        "src/mibi/data/DataPage.tsx",
-        "src/mibi/elements/ElementFormat.tsx",
-        "src/mibi/elements/SlicerIcons.tsx",
-        "src/mibi/elements/SlicerView.tsx",
-        "src/mibi/export/ExportDashboardModal.tsx",
-        "src/mibi/format/ArrangeSection.tsx",
-        "src/mibi/format/FormatPane.tsx",
-        "src/mibi/format/HeaderExtras.tsx",
-        "src/mibi/format/MobileLayoutEditor.tsx",
-        "src/mibi/format/MobileLayoutPane.tsx",
-        "src/mibi/format/controls.tsx",
-        "src/mibi/help/FieldHelp.tsx",
-        "src/mibi/report/InteractionControl.tsx",
-        "src/mibi/report/ReadingBar.tsx",
-        "src/mibi/ribbon/parts.tsx",
-        "src/mibi/shell/CommandPalette.tsx",
-        "src/mibi/shell/PageHeader.tsx",
-        "src/mibi/shell/StatusBar.tsx",
-        "src/mibi/workspaces/AddDashboardsModal.tsx",
-        "src/mibi/workspaces/WorkspaceModal.tsx"
+        "src/auradata/dashboard/FilterCard.tsx",
+        "src/auradata/data/DataPage.tsx",
+        "src/auradata/elements/ElementFormat.tsx",
+        "src/auradata/elements/SlicerIcons.tsx",
+        "src/auradata/elements/SlicerView.tsx",
+        "src/auradata/export/ExportDashboardModal.tsx",
+        "src/auradata/format/ArrangeSection.tsx",
+        "src/auradata/format/FormatPane.tsx",
+        "src/auradata/format/HeaderExtras.tsx",
+        "src/auradata/format/MobileLayoutEditor.tsx",
+        "src/auradata/format/MobileLayoutPane.tsx",
+        "src/auradata/format/controls.tsx",
+        "src/auradata/help/FieldHelp.tsx",
+        "src/auradata/report/InteractionControl.tsx",
+        "src/auradata/report/ReadingBar.tsx",
+        "src/auradata/ribbon/parts.tsx",
+        "src/auradata/shell/CommandPalette.tsx",
+        "src/auradata/shell/PageHeader.tsx",
+        "src/auradata/shell/StatusBar.tsx",
+        "src/auradata/workspaces/AddDashboardsModal.tsx",
+        "src/auradata/workspaces/WorkspaceModal.tsx"
       ],
       "rules": {
         "jsx-a11y/prefer-tag-over-role": "off"

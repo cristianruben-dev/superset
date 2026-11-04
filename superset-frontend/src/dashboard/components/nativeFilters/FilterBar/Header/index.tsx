@@ -23,7 +23,7 @@ import { memo, FC } from 'react';
 import { Icons } from '@superset-ui/core/components/Icons';
 import { Button } from '@superset-ui/core/components';
 import { getFilterBarTestId } from '../utils';
-import { CrossFiltersSwitch } from 'src/mibi/dashboard/CrossFiltersSwitch';
+import { CrossFiltersSwitch } from 'src/auradata/dashboard/CrossFiltersSwitch';
 import FilterBarSettings from '../FilterBarSettings';
 
 const TitleArea = styled.div`

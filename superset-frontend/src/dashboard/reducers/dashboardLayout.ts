@@ -44,7 +44,7 @@ import {
 } from '../actions/dashboardLayout';
 
 import { HYDRATE_DASHBOARD } from '../actions/hydrate';
-import { placeAt } from 'src/mibi/format/positions';
+import { placeAt } from 'src/auradata/format/positions';
 import { DashboardLayout } from '../types';
 import { DropResult } from '../components/dnd/dragDroppableConfig';
 

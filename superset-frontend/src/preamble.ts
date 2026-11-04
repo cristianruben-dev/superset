@@ -29,7 +29,7 @@ import getBootstrapData, { applicationRoot } from './utils/getBootstrapData';
 import { makeUrl } from './utils/navigationUtils';
 import { DAYJS_LOCALE_MAPPING } from './hooks/useLocale';
 // AuraData BI global skin, shipped with every entry that includes the preamble
-import './assets/mibi/skin.css';
+import './assets/auradata/skin.css';
 
 // Import dayjs plugin types for global TypeScript support
 import 'dayjs/plugin/utc';

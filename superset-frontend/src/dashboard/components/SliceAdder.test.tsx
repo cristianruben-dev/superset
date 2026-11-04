@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { OPEN_CHART_EDITOR } from 'src/mibi/chartEditor';
+import { OPEN_CHART_EDITOR } from 'src/auradata/chartEditor';
 import {
   fireEvent,
   render,

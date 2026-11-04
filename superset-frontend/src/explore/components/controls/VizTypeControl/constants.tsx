@@ -19,7 +19,7 @@
 import { ReactElement } from 'react';
 import { VizType } from '@superset-ui/core';
 import { Icons } from '@superset-ui/core/components/Icons';
-import { VizTypeIcon } from 'src/mibi/vizIcons/VizTypeIcon';
+import { VizTypeIcon } from 'src/auradata/vizIcons/VizTypeIcon';
 import { VizMeta } from './types';
 
 // Custom icons for non-featured charts

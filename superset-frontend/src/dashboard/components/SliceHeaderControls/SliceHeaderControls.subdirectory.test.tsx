@@ -19,7 +19,10 @@
 import { render, screen, userEvent } from 'spec/helpers/testing-library';
 import { VizType } from '@superset-ui/core';
 import mockState from 'spec/fixtures/mockState';
-import { OPEN_CHART_EDITOR, OpenChartEditorDetail } from 'src/mibi/chartEditor';
+import {
+  OPEN_CHART_EDITOR,
+  OpenChartEditorDetail,
+} from 'src/auradata/chartEditor';
 import SliceHeaderControls, { SliceHeaderControlsProps } from '.';
 
 // Subdirectory-specific regressions live here so the existing 676-line
