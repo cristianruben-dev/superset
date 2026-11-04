@@ -30,14 +30,17 @@ from pytest_mock import MockerFixture
 from sqlalchemy.orm.session import Session
 
 from superset import security_manager
+from superset.commands.dashboard.exceptions import DashboardForbiddenError
 from superset.commands.utils import compute_subjects
 from superset.connectors.sqla.models import SqlaTable
+from superset.daos.dashboard import DashboardDAO
 from superset.exceptions import SupersetSecurityException
 from superset.mibi.models import Workspace, WorkspaceDashboard, WorkspaceMember
 from superset.models.core import Database
 from superset.models.dashboard import Dashboard
 from superset.models.slice import Slice
 from superset.subjects.utils import get_or_create_user_subject
+from superset.utils import json
 
 USER_ID_LOOKUPS = (
     "superset.security.manager.get_user_id",
@@ -245,3 +248,77 @@ def test_editing_through_a_workspace_role_keeps_editors(world: dict[str, Any]) -
     exceptions = []
     compute_subjects(finanzas, properties, exceptions)
     assert exceptions == []
+
+
+def test_a_contributor_copies_without_becoming_an_editor(
+    session: Session, world: dict[str, Any]
+) -> None:
+    finanzas = world["finanzas"]
+    bruno = world["bruno_subject"]
+    original_chart = chart_of(finanzas)
+    # The version history records one change per link and transaction
+    session.commit()
+
+    copy = DashboardDAO.copy_dashboard(
+        finanzas,
+        {
+            "dashboard_title": "Finanzas (copia)",
+            "json_metadata": json.dumps(
+                {
+                    "positions": {
+                        "CHART-1": {
+                            "type": "CHART",
+                            "meta": {"chartId": original_chart.id},
+                        }
+                    }
+                }
+            ),
+            "duplicate_slices": True,
+        },
+    )
+    session.flush()
+
+    # The copy and its cloned charts keep the editors of the originals
+    assert copy.editors == [bruno]
+    assert [chart.editors for chart in copy.slices] == [[bruno]]
+    assert copy.slices[0].id != original_chart.id
+    assert not security_manager.is_editor(copy)
+    assert not security_manager.is_editor(copy.slices[0])
+    # ...and sits in the workspace of the original, where Ana edits it
+    assert security_manager.can_edit_resource(copy)
+    assert raises(security_manager.raise_for_access, chart=copy.slices[0])
+
+
+def test_a_viewer_cannot_copy(world: dict[str, Any]) -> None:
+    with pytest.raises(DashboardForbiddenError):
+        DashboardDAO.copy_dashboard(
+            world["ventas"],
+            {"dashboard_title": "x", "json_metadata": json.dumps({"positions": {}})},
+        )
+
+
+def test_contributors_read_the_history_viewers_do_not(
+    mocker: MockerFixture, world: dict[str, Any]
+) -> None:
+    from superset.versioning.api_helpers import (
+        PathEntityResponseError,
+        resolve_endpoint_path_entity,
+    )
+
+    api = mocker.MagicMock()
+    api.response_403.return_value = "403"
+    found = {}
+    mocker.patch(
+        "superset.versioning.api_helpers.VersionDAO.find_active_by_uuid",
+        side_effect=lambda _model, _uuid: found["dashboard"],
+    )
+
+    found["dashboard"] = world["finanzas"]
+    entity, _ = resolve_endpoint_path_entity(
+        api, Dashboard, str(world["finanzas"].uuid)
+    )
+    assert entity is world["finanzas"]
+
+    found["dashboard"] = world["ventas"]
+    with pytest.raises(PathEntityResponseError):
+        resolve_endpoint_path_entity(api, Dashboard, str(world["ventas"].uuid))

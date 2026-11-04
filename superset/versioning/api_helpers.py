@@ -46,6 +46,7 @@ from flask_appbuilder import Model
 
 from superset.daos.version import VersionDAO
 from superset.extensions import db, security_manager
+from superset.mibi.workspace_access import edits_as_workspace_member
 from superset.versioning.etag import set_version_etag_by_uuid
 from superset.versioning.schemas import VersionListItemSchema
 
@@ -392,7 +393,10 @@ def resolve_endpoint_path_entity(
     # callers holding a bypass-loaded row, and ``find_active_by_uuid``
     # just loaded this entity live — re-fetching it would double the
     # entity lookups on the hottest paths in this module.
-    if not security_manager.is_editor(entity):
+    # AuraData BI: a contributor or admin of the workspace holding the
+    # dashboard edits it, so they read its history too (the workspace role
+    # never grants access to data).
+    if not (security_manager.is_editor(entity) or edits_as_workspace_member(entity)):
         raise PathEntityResponseError(api.response_403())
 
     return entity, entity_uuid

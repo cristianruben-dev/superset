@@ -321,7 +321,6 @@ def test_restoring_a_version_with_a_moved_chart_is_refused(
     first = make_dashboard(db_session, "A")
     make_dashboard(db_session, "B", [chart])
     db_session.commit()
-    chart_id = chart.id
 
     def reattach(_command: object) -> RestoreResult:
         # What the restore engine does with a version where the chart was in A
@@ -333,4 +332,4 @@ def test_restoring_a_version_with_a_moved_chart_is_refused(
 
     with pytest.raises(DashboardUpdateFailedError) as excinfo:
         command._do_restore()  # pylint: disable=protected-access
-    assert str(chart_id) in str(excinfo.value)
+    assert '"chart" is now in "B"' in str(excinfo.value)

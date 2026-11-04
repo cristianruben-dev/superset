@@ -35,7 +35,12 @@ from superset import security_manager
 from superset.commands.dashboard.exceptions import DashboardRestoreFailedError
 from superset.commands.dashboard.restore import RestoreDashboardCommand
 from superset.connectors.sqla.models import SqlaTable
-from superset.mibi.models import Workspace, WorkspaceDashboard, WorkspaceDataset
+from superset.mibi.models import (
+    ROLE_VIEWER,
+    Workspace,
+    WorkspaceDashboard,
+    WorkspaceDataset,
+)
 from superset.mibi.single_dashboard import (
     find_charts_blocking_restore,
     find_charts_in_multiple_dashboards,
@@ -121,7 +126,8 @@ def test_restoring_a_dashboard_whose_chart_moved_is_refused(
     }
     with pytest.raises(DashboardRestoreFailedError) as excinfo:
         restore.validate()
-    assert str(world["chart"].id) in str(excinfo.value)
+    # The message names the chart and the dashboard it moved to, not ids
+    assert '"kpi" is now in "Viva"' in str(excinfo.value)
 
 
 def test_workspace_pages_leave_out_deleted_objects(
@@ -161,3 +167,31 @@ def test_dataset_pickers_leave_out_deleted_datasets(
     datasets = usable.apply(session.query(SqlaTable), world["viva"].id)
 
     assert [dataset.table_name for dataset in datasets] == ["vivo"]
+
+
+def test_workspace_trash_lists_deleted_dashboards_and_what_blocks_them(
+    session: Session, client: Any, full_api_access: None, world: dict[str, Any]
+) -> None:
+    pk = world["workspace"].id
+
+    trash = client.get(f"/api/v1/workspace/{pk}/trash/").json["result"]
+    assert [d["dashboard_title"] for d in trash] == ["Borrada"]
+    assert trash[0]["uuid"] == str(world["borrada"].uuid)
+    assert trash[0]["blocked_by"] is None
+
+    # The chart joins a live dashboard while "Borrada" is in the trash
+    world["viva"].slices.append(world["chart"])
+    session.commit()
+
+    trash = client.get(f"/api/v1/workspace/{pk}/trash/").json["result"]
+    assert trash[0]["blocked_by"] == '"kpi" is now in "Viva"'
+
+
+def test_workspace_trash_is_for_contributors(
+    mocker: MockerFixture, client: Any, full_api_access: None, world: dict[str, Any]
+) -> None:
+    pk = world["workspace"].id
+    mocker.patch.object(security_manager, "is_admin", return_value=False)
+    mocker.patch("superset.mibi.workspaces.workspace_role", return_value=ROLE_VIEWER)
+
+    assert client.get(f"/api/v1/workspace/{pk}/trash/").status_code == 403

@@ -33,6 +33,7 @@ from sqlalchemy import or_
 
 from superset import db, security_manager
 from superset.connectors.sqla.models import SqlaTable
+from superset.constants import SKIP_VISIBILITY_FILTER_CLASSES
 from superset.daos.dashboard import DashboardDAO
 from superset.daos.dataset import DatasetDAO
 from superset.exceptions import SupersetSecurityException
@@ -46,6 +47,10 @@ from superset.mibi.models import (
     WorkspaceDataset,
     WorkspaceMember,
 )
+from superset.mibi.single_dashboard import (
+    describe_conflicts,
+    find_charts_blocking_restore,
+)
 from superset.mibi.workspace_access import (
     member_workspace_ids,
     role_rank,
@@ -55,6 +60,8 @@ from superset.mibi.workspace_datasets import (
     datasets_of_other_workspaces,
     datasets_used_outside,
 )
+from superset.models.dashboard import Dashboard
+from superset.models.helpers import format_time_humanized
 from superset.superset_typing import FlaskResponse
 from superset.utils.core import get_user_id
 from superset.views.base import BaseSupersetView
@@ -232,6 +239,7 @@ class WorkspaceRestApi(BaseSupersetApi):
         "get_image": "read",
         "of_dashboard": "read",
         "get_dashboards": "read",
+        "get_trash": "read",
         "get_members": "read",
         "put_member": "write",
         "delete_member": "write",
@@ -563,6 +571,64 @@ class WorkspaceRestApi(BaseSupersetApi):
                     "changed_on_delta_humanized": dashboard.changed_on_humanized,
                     "can_edit": security_manager.can_edit_resource(dashboard),
                     "thumbnail_url": dashboard.thumbnail_url,
+                }
+                for dashboard in dashboards
+            ],
+        )
+
+    @expose("/<int:pk>/trash/", methods=("GET",))
+    @protect()
+    @safe
+    @statsd_metrics
+    def get_trash(self, pk: int) -> Response:
+        """The deleted dashboards of a workspace that the user can restore.
+        ---
+        get:
+          summary: List the deleted dashboards of a workspace
+          description: >-
+            Only contributors and admins of the workspace see its trash. Each
+            dashboard says which of its charts block a restore, because they now
+            belong to another dashboard.
+          parameters:
+          - in: path
+            schema:
+              type: integer
+            name: pk
+          responses:
+            200:
+              description: Deleted dashboards, most recently deleted first
+            403:
+              $ref: '#/components/responses/403'
+            404:
+              $ref: '#/components/responses/404'
+        """
+        workspace, _, error_response = self._find(pk, ROLE_CONTRIBUTOR)
+        if workspace is None:
+            return error_response
+        ids = [link.dashboard_id for link in workspace.dashboards]
+        dashboards = (
+            db.session.query(Dashboard)
+            .execution_options(**{SKIP_VISIBILITY_FILTER_CLASSES: {Dashboard}})
+            .filter(Dashboard.id.in_(ids), Dashboard.deleted_at.isnot(None))
+            .order_by(Dashboard.deleted_at.desc())
+            .all()
+            if ids
+            else []
+        )
+        return self.response(
+            200,
+            result=[
+                {
+                    "id": dashboard.id,
+                    "uuid": str(dashboard.uuid),
+                    "dashboard_title": dashboard.dashboard_title,
+                    "deleted_at_delta_humanized": format_time_humanized(
+                        dashboard.deleted_at
+                    ),
+                    "blocked_by": describe_conflicts(
+                        find_charts_blocking_restore(dashboard.id)
+                    )
+                    or None,
                 }
                 for dashboard in dashboards
             ],

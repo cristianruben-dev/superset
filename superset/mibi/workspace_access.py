@@ -168,10 +168,39 @@ def edits_only_through_workspace(resource: Any) -> bool:
 
     return (
         isinstance(resource, (Dashboard, Slice))
-        and not security_manager.is_admin()
         and not security_manager.is_editor(resource)
+        and not security_manager.is_admin()
         and edits_as_workspace_member(resource)
     )
+
+
+def can_copy_dashboard(dashboard: Any) -> bool:
+    """
+    Whether the current user may copy a dashboard: its editors and the
+    contributors and admins of its workspace. Guests never do.
+    """
+    return security_manager.is_editor(dashboard) or edits_as_workspace_member(dashboard)
+
+
+def link_copy_to_workspace(original: Any, copy: Any) -> None:
+    """
+    Put the copy of a dashboard in the workspace of the original, so its charts
+    keep following the dataset rules of that workspace and its members see it.
+
+    :param original: The dashboard that was copied
+    :param copy: The new dashboard, already flushed so it has an id
+    """
+    if not enabled():
+        return
+    workspace_id = (
+        db.session.query(WorkspaceDashboard.workspace_id)
+        .filter(WorkspaceDashboard.dashboard_id == original.id)
+        .scalar()
+    )
+    if workspace_id is not None:
+        db.session.add(
+            WorkspaceDashboard(workspace_id=workspace_id, dashboard_id=copy.id)
+        )
 
 
 def keep_subjects(

@@ -71,6 +71,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import subqueryload
 
 from superset.extensions import db
+from superset.mibi.workspace_access import edits_as_workspace_member
 from superset.versioning.activity.kinds import (
     chunked_ids,
     load_live_model,
@@ -132,7 +133,10 @@ def resolve_editorship(
                     )
                     resolved.update(
                         {
-                            (api_kind, entity.id): security_manager.is_editor(entity)
+                            (api_kind, entity.id): (
+                                security_manager.is_editor(entity)
+                                or edits_as_workspace_member(entity)
+                            )
                             for entity in entities
                         }
                     )

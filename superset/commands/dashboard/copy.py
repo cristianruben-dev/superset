@@ -26,6 +26,7 @@ from superset.commands.dashboard.exceptions import (
     DashboardInvalidError,
 )
 from superset.daos.dashboard import DashboardDAO
+from superset.mibi.workspace_access import edits_as_workspace_member
 from superset.models.dashboard import Dashboard
 from superset.utils.decorators import on_error, transaction
 
@@ -60,5 +61,8 @@ class CopyDashboardCommand(BaseCommand):
             "json_metadata"
         ):
             raise DashboardInvalidError()
-        if not security_manager.is_editor(self._original_dash):
+        if not (
+            security_manager.is_editor(self._original_dash)
+            or edits_as_workspace_member(self._original_dash)
+        ):
             raise DashboardForbiddenError()

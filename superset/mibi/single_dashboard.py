@@ -193,6 +193,52 @@ def assert_single_dashboard(
         raise ChartInMultipleDashboardsError(conflicts)
 
 
+def describe_conflicts(
+    conflicts: dict[int, set[int]],
+    session: Session | None = None,
+    exclude_dashboard_id: int | None = None,
+) -> str:
+    """
+    Name the charts and dashboards of a conflict for a message to the user.
+
+    :param conflicts: ``{chart_id: {dashboard_id, ...}}``
+    :param session: The session to query with, defaults to ``db.session``
+    :param exclude_dashboard_id: A dashboard to leave out of the lists, the one the
+        charts are being brought back to
+    :returns: ``"Sales" is now in "Overview"; ...``, falling back to ids for rows that
+        can no longer be read
+    """
+    session = session or db.session
+    conflicts = {
+        chart_id: dashboard_ids - {exclude_dashboard_id}
+        for chart_id, dashboard_ids in conflicts.items()
+    }
+    chart_names = dict(
+        session.execute(
+            select(Slice.id, Slice.slice_name).where(Slice.id.in_(conflicts))
+        ).all()
+    )
+    dashboard_ids = {id_ for ids in conflicts.values() for id_ in ids}
+    dashboard_titles = dict(
+        session.execute(
+            select(Dashboard.id, Dashboard.dashboard_title).where(
+                Dashboard.id.in_(dashboard_ids)
+            )
+        ).all()
+    )
+    return "; ".join(
+        __(
+            '"%(chart)s" is now in %(dashboards)s',
+            chart=chart_names.get(chart_id) or f"#{chart_id}",
+            dashboards=", ".join(
+                f'"{dashboard_titles.get(id_) or f"#{id_}"}"'
+                for id_ in sorted(dashboard_ids_of_chart)
+            ),
+        )
+        for chart_id, dashboard_ids_of_chart in sorted(conflicts.items())
+    )
+
+
 def find_charts_blocking_restore(
     dashboard_id: int,
     session: Session | None = None,

@@ -27,7 +27,10 @@ from superset.commands.dashboard.exceptions import (
 )
 from superset.commands.version_restore import BaseRestoreVersionCommand
 from superset.extensions import db
-from superset.mibi.single_dashboard import ChartInMultipleDashboardsError
+from superset.mibi.single_dashboard import (
+    ChartInMultipleDashboardsError,
+    describe_conflicts,
+)
 from superset.models.dashboard import Dashboard
 from superset.versioning.restore import RestoreResult
 
@@ -57,15 +60,19 @@ class RestoreDashboardVersionCommand(BaseRestoreVersionCommand):
         error here instead of an unhandled one.
         """
         result = super()._do_restore()
+        dashboard_id = result.entity.id
         try:
             db.session.flush()
         except ChartInMultipleDashboardsError as ex:
+            # The failed flush leaves the session unusable until it is rolled
+            # back, and the message names the charts and dashboards from it
+            db.session.rollback()
             raise DashboardUpdateFailedError(
                 _(
                     "This version can't be restored because some of its charts now "
-                    "belong to another dashboard: %(chart_ids)s",
-                    chart_ids=", ".join(
-                        str(chart_id) for chart_id in sorted(ex.conflicts)
+                    "belong to another dashboard: %(details)s",
+                    details=describe_conflicts(
+                        ex.conflicts, exclude_dashboard_id=dashboard_id
                     ),
                 )
             ) from ex

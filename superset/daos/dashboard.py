@@ -47,6 +47,11 @@ from superset.mibi.chart_refs import (
     remap_bookmark_chart_ids,
     remap_metadata_chart_ids,
 )
+from superset.mibi.workspace_access import (
+    can_copy_dashboard,
+    edits_only_through_workspace,
+    link_copy_to_workspace,
+)
 from superset.models.core import FavStar, FavStarClassName
 from superset.models.dashboard import (
     Dashboard,
@@ -776,7 +781,7 @@ class DashboardDAO(BaseDAO[Dashboard]):
     def copy_dashboard(
         cls, original_dash: Dashboard, data: dict[str, Any]
     ) -> Dashboard:
-        if not security_manager.is_editor(original_dash):
+        if not can_copy_dashboard(original_dash):
             raise DashboardForbiddenError()
 
         dash = Dashboard()
@@ -785,7 +790,15 @@ class DashboardDAO(BaseDAO[Dashboard]):
         # they would cost two extra queries for each chart in the dashboard.
         creator_editors: list[Any] = []
         creator_viewers: list[Any] = []
-        if getattr(g, "user", None):
+        # AuraData BI: a contributor or admin of the workspace who is not an
+        # editor of the dashboard copies it without becoming an editor of the
+        # copy or its charts, because editorship grants access to data. The
+        # copy keeps the editors and viewers of the original instead.
+        inherit_subjects = edits_only_through_workspace(original_dash)
+        if inherit_subjects:
+            creator_editors = list(original_dash.editors)
+            creator_viewers = list(original_dash.viewers)
+        elif getattr(g, "user", None):
             from superset.subjects.utils import (
                 get_default_viewers_for_new_asset,
                 get_user_subject,
@@ -808,8 +821,12 @@ class DashboardDAO(BaseDAO[Dashboard]):
                 new_slice = slc.clone()
                 # ``Slice.clone()`` carries over no subjects, so both
                 # collections start empty on the new chart.
-                new_slice.editors = list(creator_editors)
-                new_slice.viewers = list(creator_viewers)
+                new_slice.editors = (
+                    list(slc.editors) if inherit_subjects else list(creator_editors)
+                )
+                new_slice.viewers = (
+                    list(slc.viewers) if inherit_subjects else list(creator_viewers)
+                )
                 db.session.add(new_slice)
                 db.session.flush()
                 new_slice.dashboards.append(dash)
@@ -852,6 +869,7 @@ class DashboardDAO(BaseDAO[Dashboard]):
         # test/caller code that queries the DB again incidentally
         # autoflushes too, masking that the plain-copy path never did.
         db.session.flush()
+        link_copy_to_workspace(original_dash, dash)
         return dash
 
     @classmethod
