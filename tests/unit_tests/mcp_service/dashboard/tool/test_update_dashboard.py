@@ -749,3 +749,59 @@ class TestUpdateDashboard:
             match="characters that are removed during normalization",
         ):
             UpdateDashboardRequest(identifier=1, slug="!!!")
+
+
+@patch("superset.daos.dashboard.DashboardDAO.get_by_id_or_slug")
+@patch("superset.extensions.db.session")
+@pytest.mark.asyncio
+async def test_update_rejects_a_chart_of_another_dashboard(
+    mock_session: Mock, mock_get: Mock, mcp_server: object
+) -> None:
+    """A layout cannot bring in a chart the dashboard does not hold, so the
+    tool can never put a chart of another dashboard on this one (AuraData BI:
+    a chart belongs to one dashboard)."""
+    dash = _mock_dashboard(id=42)
+    dash.slices = [Mock(id=10)]
+    mock_get.return_value = dash
+    layout = {
+        "DASHBOARD_VERSION_KEY": "v2",
+        "ROOT_ID": {"id": "ROOT_ID", "type": "ROOT", "children": ["GRID_ID"]},
+        "GRID_ID": {
+            "id": "GRID_ID",
+            "type": "GRID",
+            "parents": ["ROOT_ID"],
+            "children": ["ROW-1"],
+        },
+        "ROW-1": {
+            "id": "ROW-1",
+            "type": "ROW",
+            "meta": {},
+            "parents": ["ROOT_ID", "GRID_ID"],
+            "children": ["CHART-10", "CHART-77"],
+        },
+        "CHART-10": {
+            "id": "CHART-10",
+            "type": "CHART",
+            "parents": ["ROOT_ID", "GRID_ID", "ROW-1"],
+            "meta": {"chartId": 10, "width": 4, "height": 50},
+        },
+        # Chart 77 belongs to another dashboard
+        "CHART-77": {
+            "id": "CHART-77",
+            "type": "CHART",
+            "parents": ["ROOT_ID", "GRID_ID", "ROW-1"],
+            "meta": {"chartId": 77, "width": 4, "height": 50},
+        },
+    }
+
+    async with Client(mcp_server) as client:
+        result = await client.call_tool(
+            "update_dashboard",
+            {"request": {"identifier": 42, "position_json": layout}},
+        )
+
+    payload = json.loads(result.content[0].text)
+    assert payload["error_type"] == "InvalidDashboardLayout"
+    assert "not associated with the dashboard: [77]" in payload["error"]
+    assert dash.position_json is None
+    mock_session.commit.assert_not_called()
