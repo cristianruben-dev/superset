@@ -149,6 +149,11 @@ class DashboardAccessFilter(BaseFilter):  # pylint: disable=too-few-public-metho
         from superset.mibi.workspace_access import workspace_editable_dashboard_ids
 
         workspace_drafts = workspace_editable_dashboard_ids()
+        from superset.mibi.workspace_grants import grant_clause
+
+        workspace_grant = grant_clause(Slice)
+        workspace_grants = [] if workspace_grant is None else [workspace_grant]
+
         published = (
             or_(Dashboard.published.is_(True), Dashboard.id.in_(workspace_drafts))
             if workspace_drafts is not None
@@ -222,6 +227,8 @@ class DashboardAccessFilter(BaseFilter):  # pylint: disable=too-few-public-metho
                         get_dataset_access_filters(
                             Slice,
                             layer_grant_clause,
+                            # AuraData BI: datasets of the user's workspaces
+                            *workspace_grants,
                             include_all=security_manager.can_access_all_datasources(),
                         ),
                     ),

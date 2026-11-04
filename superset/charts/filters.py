@@ -49,6 +49,14 @@ from superset.views.base_api import BaseFavoriteFilter
 from superset.views.filters import BaseDeletedRecencyFilter, BaseDeletedStateFilter
 
 
+def _workspace_clauses(base_model: Any) -> list[Any]:
+    """The grant of the workspaces of the user, as extra access clauses."""
+    from superset.mibi.workspace_grants import grant_clause
+
+    clause = grant_clause(base_model)
+    return [] if clause is None else [clause]
+
+
 class ChartAllTextFilter(BaseFilter):  # pylint: disable=too-few-public-methods
     name = _("All Text")
     arg_name = "chart_all_text"
@@ -189,7 +197,12 @@ class ChartFilter(BaseFilter):  # pylint: disable=too-few-public-methods
                     # unfiltered query for all_datasource_access holders
                     # before this fallback runs (unlike the dashboard
                     # filter, which needs the flag for chart-less rows).
-                    get_dataset_access_filters(Slice, layer_grant_clause),
+                    get_dataset_access_filters(
+                        Slice,
+                        layer_grant_clause,
+                        # AuraData BI: datasets of the user's workspaces
+                        *_workspace_clauses(Slice),
+                    ),
                 )
             )
         )

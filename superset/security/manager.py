@@ -2544,6 +2544,13 @@ class SupersetSecurityManager(  # pylint: disable=too-many-public-methods
             return False
         return self.can_access("datasource_access", layer_perm)
 
+    @staticmethod
+    def _workspace_grants_dataset(datasource: Any) -> bool:
+        """AuraData BI: whether a workspace role gives access to the dataset."""
+        from superset.mibi.workspace_grants import grants_dataset
+
+        return grants_dataset(datasource)
+
     def can_access_datasource(self, datasource: "BaseDatasource") -> bool:
         """
         Return True if the user can access the specified datasource, False otherwise.
@@ -5475,6 +5482,13 @@ class SupersetSecurityManager(  # pylint: disable=too-many-public-methods
                 # rather than the flag silently applying only to the
                 # database+table / query branch above.
                 or (allow_editorship and self.is_editor(datasource))
+                # AuraData BI: the contributors and admins of the workspace of a
+                # dataset query it. Never for raw SQL (``force_dataset_match``).
+                or (
+                    allow_editorship
+                    and not force_dataset_match
+                    and self._workspace_grants_dataset(datasource)
+                )
                 or (
                     # Grant access to the datasource only if dashboard RBAC is enabled
                     # or the user is an embedded guest user with access to the dashboard

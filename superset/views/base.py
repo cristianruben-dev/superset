@@ -893,7 +893,14 @@ class DatasourceFilter(BaseFilter):  # pylint: disable=too-few-public-methods
             models.Database,
             models.Database.id == self.model.database_id,
         )
-        access_filter = get_dataset_access_filters(self.model)
+        # AuraData BI: the datasets of the workspaces where the user is a
+        # contributor or admin
+        from superset.mibi.workspace_grants import grant_clause
+
+        workspace_grant = grant_clause(self.model)
+        access_filter = get_dataset_access_filters(
+            self.model, *([workspace_grant] if workspace_grant is not None else [])
+        )
         # Editors keep sight of their own soft-deleted rows regardless of
         # datasource grants: ``raise_for_access`` counts editorship as
         # datasource access, and the restore audience is editors/admins.
