@@ -833,7 +833,9 @@ class DashboardDAO(BaseDAO[Dashboard]):
                 old_to_new_slice_ids[slc.id] = new_slice.id
 
             # update chartId of layout entities
-            for value in metadata["positions"].values():
+            # A copy made under the single-dashboard rule always duplicates the
+            # charts, whether or not the metadata brings a layout
+            for value in (metadata.get("positions") or {}).values():
                 if isinstance(value, dict) and value.get("meta", {}).get("chartId"):
                     old_id = value["meta"]["chartId"]
                     new_id = old_to_new_slice_ids.get(old_id)

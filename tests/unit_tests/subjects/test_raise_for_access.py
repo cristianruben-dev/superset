@@ -25,6 +25,16 @@ from flask import current_app
 from superset.exceptions import SupersetSecurityException
 
 
+@pytest.fixture(autouse=True)
+def _without_workspace_rules(app_context):
+    """
+    These tests cover the viewer and editor rules of Superset. The workspace gate
+    of AuraData BI has its own tests (tests/unit_tests/mibi) and reads the
+    database, which these mocked dashboards do not have.
+    """
+    current_app.config["MIBI_WORKSPACE_ACCESS"] = False
+
+
 def _make_sm():
     from superset.security.manager import SupersetSecurityManager
 

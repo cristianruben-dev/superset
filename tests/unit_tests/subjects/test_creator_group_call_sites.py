@@ -30,9 +30,20 @@ from typing import Any
 from unittest.mock import MagicMock, patch
 
 import pytest
+from flask import current_app
 
 from superset.subjects.models import Subject
 from superset.subjects.types import SubjectType
+
+
+@pytest.fixture(autouse=True)
+def _without_workspace_rules(app_context):
+    """
+    These tests cover the creator and viewer defaults of Superset. The workspace
+    rules of AuraData BI have their own tests (tests/unit_tests/mibi) and read the
+    database, which these mocked dashboards do not have.
+    """
+    current_app.config["MIBI_WORKSPACE_ACCESS"] = False
 
 
 def _group_subject(id_: int = 11) -> Subject:
@@ -283,8 +294,10 @@ def test_dashboard_copy_dao_attaches_default_viewers(app_context) -> None:
         patch.object(
             dashboard_dao,
             "Dashboard",
-            side_effect=lambda: created.append(MagicMock())  # type: ignore[func-returns-value]
-            or created[-1],
+            side_effect=lambda: (
+                created.append(MagicMock())  # type: ignore[func-returns-value]
+                or created[-1]
+            ),
         ),
         patch("superset.subjects.utils.get_user_subject", return_value=None),
         patch(
@@ -310,6 +323,7 @@ def test_dashboard_copy_dao_attaches_default_viewers_to_cloned_charts(
     source_slice.clone.return_value = clone
     original = MagicMock()
     original.slices = [source_slice]
+    original.params = "{}"
 
     with (
         patch.object(dashboard_dao.security_manager, "is_editor", return_value=True),
@@ -480,6 +494,7 @@ def test_dashboard_copy_dao_resolves_creator_subjects_once(app_context) -> None:
 
     original = MagicMock()
     original.slices = [MagicMock(), MagicMock(), MagicMock()]
+    original.params = "{}"
 
     with (
         patch.object(dashboard_dao.security_manager, "is_editor", return_value=True),
