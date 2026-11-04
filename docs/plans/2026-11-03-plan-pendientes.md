@@ -206,10 +206,13 @@ el contexto de dnd-kit en el tablero).
 
 De la revisión UX, lo que queda tras la cinta, el panel de Selección, el bloqueo y el menú de página:
 
-- Cortar en el portapapeles de la cinta.
-- Actualizar datos en edición.
-- Exportar desde edición.
-- Selector visible de Lectura / Edición.
+- Cortar en el portapapeles de la cinta. **Hecho** (Inicio › Portapapeles, `useObjectCommands.cut`).
+- Actualizar datos en edición. **Hecho** (Inicio › Datos › Actualizar).
+- Exportar desde edición. **Hecho** (Inicio › Exportar, el mismo diálogo de PDF o PNG).
+- Selector visible de Lectura / Edición. En edición está el menú «Edición ▾»; en la vista de lectura solo el botón
+  «Editar tablero». Propuesta pendiente de tu decisión: añadir un menú «Lectura ▾» junto a ese botón, sin quitarlo.
+
+Comprobado el 2026-11-04 en el tablero 147, en edición y sin guardar.
 - Decidir si hace falta editar el diseño móvil (hoy es automático en `mobile.ts`).
 
 ## H. Mapas (fase 11, L)
