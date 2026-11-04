@@ -85,7 +85,7 @@ msgid ""
 "              "
 msgstr ""
 "\n"
-"                Este filtro se heredó del contexto del panel.\n"
+"                Este filtro se heredó del contexto del tablero.\n"
 "                No se guardará al guardar el gráfico.\n"
 "              "
 
@@ -101,7 +101,7 @@ msgstr ""
 "\n"
 "            <p>No se ha podido generar tu informe/alerta debido al "
 "siguiente error: %(text)s</p>\n"
-"            <p>Comprueba si hay errores en tu panel/gráfico.</p>\n"
+"            <p>Comprueba si hay errores en tu tablero/gráfico.</p>\n"
 "            <p><b><a href=\"%(url)s\">%(call_to_action)s</a></b></p>\n"
 "            "
 
@@ -736,7 +736,7 @@ msgid ""
 "A list of domain names that can embed this dashboard. Leaving this field "
 "empty will allow embedding from any domain."
 msgstr ""
-"Una lista de nombres de dominio que pueden incrustarse en este panel. "
+"Una lista de nombres de dominio que pueden incrustarse en este tablero. "
 "Dejar este campo vacío permitirá la incrustación desde cualquier dominio."
 
 msgid "A list of tags that have been applied to this chart."
@@ -1794,7 +1794,7 @@ msgid ""
 "dashboard's individual charts"
 msgstr ""
 "Cualquier paleta de colores seleccionada aquí anulará los colores "
-"aplicados a los gráficos individuales de este panel"
+"aplicados a los gráficos individuales de este tablero"
 
 msgid ""
 "Any dashboards using these themes will be automatically dissociated from "
@@ -1864,7 +1864,7 @@ msgid ""
 "Apply custom CSS to the dashboard. Use class names or element selectors "
 "to target specific components."
 msgstr ""
-"Aplica CSS personalizado al panel. Usa nombres de clase o selectores de "
+"Aplica CSS personalizado al tablero. Usa nombres de clase o selectores de "
 "elementos para elegir componentes concretos."
 
 msgid "Apply filters"
@@ -2922,7 +2922,7 @@ msgid ""
 "Choose from existing dashboard filters and select a value to refine your "
 "report results."
 msgstr ""
-"Elige uno de los filtros del panel y un valor para acotar los resultados "
+"Elige uno de los filtros del tablero y un valor para acotar los resultados "
 "del informe."
 
 msgid "Choose how many X-Axis labels to show"
@@ -2936,7 +2936,7 @@ msgid ""
 "dashboard."
 msgstr ""
 "Elige qué capas ocultar en todos los gráficos de varias capas de deck.gl "
-"de este panel."
+"de este tablero."
 
 msgid "Choose notification method and recipients."
 msgstr "Elige el método de notificación y los destinatarios."
@@ -3416,7 +3416,7 @@ msgid "Configure Time Range: Previous..."
 msgstr "Configurar Rango de Tiempo: Anteriores..."
 
 msgid "Configure automatic dashboard refresh"
-msgstr "Configura la actualización automática del panel"
+msgstr "Configura la actualización automática del tablero"
 
 msgid "Configure caching and performance settings"
 msgstr "Configura la caché y el rendimiento"
@@ -3425,7 +3425,7 @@ msgid "Configure custom time range"
 msgstr "Configurar intervalo de tiempo personalizado"
 
 msgid "Configure dashboard appearance, colors, and custom CSS"
-msgstr "Configura el aspecto del panel, sus colores y el CSS personalizado"
+msgstr "Configura el aspecto del tablero, sus colores y el CSS personalizado"
 
 msgid "Configure filter scopes"
 msgstr "Configurar los alcances de los filtros"
@@ -3437,7 +3437,7 @@ msgid "Configure the chart size for each zoom level"
 msgstr "Configurar el tamaño del gráfico para cada nivel de «zoom»"
 
 msgid "Configure this dashboard to embed it into an external web application."
-msgstr "Configura este panel para incrustarlo en una aplicación web externa."
+msgstr "Configura este tablero para incrustarlo en una aplicación web externa."
 
 msgid "Configure your how you overlay is displayed here."
 msgstr "Configura aquí cómo se muestra tu superposición."
@@ -3986,7 +3986,7 @@ msgid "Dashboard imported"
 msgstr "Tablero importado"
 
 msgid "Dashboard name and URL configuration"
-msgstr "Nombre y dirección URL del panel"
+msgstr "Nombre y dirección URL del tablero"
 
 msgid "Dashboard name is required"
 msgstr "El nombre del tablero es obligatorio"
@@ -7728,7 +7728,7 @@ msgid "Manage"
 msgstr "Gestionar"
 
 msgid "Manage dashboard owners and access permissions"
-msgstr "Gestiona los propietarios del panel y quién puede verlo"
+msgstr "Gestiona los propietarios del tablero y quién puede verlo"
 
 msgid "Manage email report"
 msgstr "Gestionar informe de correo electrónico"
@@ -8380,7 +8380,7 @@ msgid "No databases match your search"
 msgstr "Ninguna base de datos coincide con tu búsqueda"
 
 msgid "No deck.gl multi layer charts found in this dashboard."
-msgstr "Este panel no tiene gráficos de varias capas de deck.gl."
+msgstr "Este tablero no tiene gráficos de varias capas de deck.gl."
 
 msgid "No description available."
 msgstr "No hay ninguna descripción disponible."
@@ -10685,7 +10685,7 @@ msgstr ""
 "en una columna o escribir SQL personalizado para crear una métrica."
 
 msgid "Select a predefined CSS template to apply to your dashboard"
-msgstr "Elige una plantilla CSS para aplicarla al panel"
+msgstr "Elige una plantilla CSS para aplicarla al tablero"
 
 msgid "Select a schema"
 msgstr "Selecciona un esquema"
@@ -11084,13 +11084,13 @@ msgid "Set refresh frequency for current session only."
 msgstr "Frecuencia de actualización solo para esta sesión."
 
 msgid "Set the automatic refresh frequency for this dashboard."
-msgstr "Elige cada cuánto se actualiza este panel."
+msgstr "Elige cada cuánto se actualiza este tablero."
 
 msgid ""
 "Set the automatic refresh frequency for this dashboard. The dashboard "
 "will reload its data at the specified interval."
 msgstr ""
-"Elige cada cuánto se actualiza este panel. El panel volverá a cargar sus "
+"Elige cada cuánto se actualiza este tablero. El tablero volverá a cargar sus "
 "datos en ese intervalo."
 
 msgid "Set up an email report"
@@ -11106,7 +11106,7 @@ msgid ""
 msgstr ""
 "Columna de tiempo predeterminada de este conjunto de datos. Se elige sola"
 " al crear gráficos que necesitan una dimensión de tiempo y se usa en los "
-"filtros de tiempo del panel."
+"filtros de tiempo del tablero."
 
 msgid ""
 "Sets the hierarchy levels of the chart. Each level is\n"
@@ -16723,13 +16723,13 @@ msgid "%s-%s of %s"
 msgstr "%s-%s de %s"
 
 msgid "Empty dashboard"
-msgstr "Panel vacío"
+msgstr "Tablero vacío"
 
 msgid "Cross-filtering"
 msgstr "Filtros cruzados"
 
 msgid "Click a chart to filter the rest of the dashboard"
-msgstr "Haz clic en un gráfico para filtrar el resto del panel"
+msgstr "Haz clic en un gráfico para filtrar el resto del tablero"
 
 msgid "Undo"
 msgstr "Deshacer"
@@ -17217,7 +17217,7 @@ msgid "Creating the file…"
 msgstr "Creando el archivo…"
 
 msgid "Dashboard exported"
-msgstr "Panel exportado"
+msgstr "Tablero exportado"
 
 msgid "Exit presentation (Esc)"
 msgstr "Salir de la presentación (Esc)"
@@ -17229,7 +17229,7 @@ msgid "Exit"
 msgstr "Salir"
 
 msgid "Export dashboard"
-msgstr "Exportar panel"
+msgstr "Exportar tablero"
 
 #, python-format
 msgid "Exported by %s on %s"
@@ -17293,7 +17293,7 @@ msgid "Preparing page %s of %s…"
 msgstr "Preparando la página %s de %s…"
 
 msgid "Preparing the dashboard…"
-msgstr "Preparando el panel…"
+msgstr "Preparando el tablero…"
 
 msgid "Presentation controls"
 msgstr "Controles de la presentación"
@@ -17305,7 +17305,7 @@ msgid "Previous page"
 msgstr "Página anterior"
 
 msgid "The dashboard could not be exported. Try again."
-msgstr "No se pudo exportar el panel. Inténtalo de nuevo."
+msgstr "No se pudo exportar el tablero. Inténtalo de nuevo."
 
 #, python-format
 msgid "This page (%s)"
@@ -17431,7 +17431,7 @@ msgid "Start with a cover: logo, workspace, date, filters and contents"
 msgstr "Empezar con una portada: logo, área de trabajo, fecha, filtros y contenido"
 
 msgid "Pages the size of the dashboard, with a cover"
-msgstr "Páginas del tamaño del panel, con portada"
+msgstr "Páginas del tamaño del tablero, con portada"
 
 msgid "Editing"
 msgstr "Edición"
@@ -17515,7 +17515,7 @@ msgid "Fit and position"
 msgstr "Ajuste y posición"
 
 msgid "Go to a page of the dashboard"
-msgstr "Ir a una página del panel"
+msgstr "Ir a una página del tablero"
 
 msgid "Heading"
 msgstr "Encabezado"
@@ -17665,7 +17665,7 @@ msgid "Colors while pressed"
 msgstr "Colores al pulsar"
 
 msgid "Copied. Paste it here or in another dashboard."
-msgstr "Copiado. Pégalo aquí o en otro panel."
+msgstr "Copiado. Pégalo aquí o en otro tablero."
 
 msgid "Copy (Ctrl+C)"
 msgstr "Copiar (Ctrl+C)"
@@ -17955,7 +17955,7 @@ msgstr "Personalización y estilo"
 
 #, python-format
 msgid "Dashboard updated %s"
-msgstr "Panel actualizado %s"
+msgstr "Tablero actualizado %s"
 
 msgid "Database reference is not allowed on a report"
 msgstr "Un informe no puede hacer referencia a una base de datos"
@@ -18095,7 +18095,7 @@ msgid "Search calculated columns by name"
 msgstr "Buscar columnas calculadas por nombre"
 
 msgid "Search charts by name, owner, or dashboard"
-msgstr "Buscar gráficos por nombre, propietario o panel"
+msgstr "Buscar gráficos por nombre, propietario o tablero"
 
 msgid "Search columns by name"
 msgstr "Buscar columnas por nombre"
@@ -18200,7 +18200,7 @@ msgid ""
 "There was a problem refreshing your dashboard. We'll try again in %s, as "
 "scheduled."
 msgstr ""
-"Hubo un problema al actualizar el panel. Se volverá a intentar en %s, "
+"Hubo un problema al actualizar el tablero. Se volverá a intentar en %s, "
 "como está programado."
 
 msgid "There was an error loading groups."
@@ -18427,7 +18427,7 @@ msgid ""
 "More columns let objects be smaller. It is saved with the dashboard, and "
 "the objects keep their size when it changes."
 msgstr ""
-"Más columnas permiten objetos más pequeños. Se guarda con el panel, y los"
+"Más columnas permiten objetos más pequeños. Se guarda con el tablero, y los"
 " objetos conservan su tamaño al cambiarla."
 
 #, python-format
@@ -18922,7 +18922,7 @@ msgstr ""
 "finos."
 
 msgid "Draws guides on the canvas while you edit. Viewers never see them."
-msgstr "Dibuja guías en el lienzo mientras editas. Quien ve el panel nunca las ve."
+msgstr "Dibuja guías en el lienzo mientras editas. Quien ve el tablero nunca las ve."
 
 msgid "Height of each row of the grid."
 msgstr "Alto de cada fila de la cuadrícula."
@@ -19212,7 +19212,7 @@ msgid ""
 msgstr ""
 "Las segmentaciones del mismo filtro mantienen la misma selección en todas"
 " las páginas. Las páginas que filtra se guardan al momento; las copias en"
-" otras páginas se guardan con el panel."
+" otras páginas se guardan con el tablero."
 
 msgid "Stop editing interactions"
 msgstr "Dejar de editar interacciones"
@@ -22811,7 +22811,7 @@ msgstr "El gráfico «%(chart)s» lo usan alertas o informes: %(names)s."
 # sr_Latn]
 #, python-format
 msgid "Chart %(chart_id)s is not on dashboard %(dashboard_id)s"
-msgstr "El gráfico %(chart_id)s no está en el panel %(dashboard_id)s"
+msgstr "El gráfico %(chart_id)s no está en el tablero %(dashboard_id)s"
 
 #, python-format
 msgid "Chart Editor: %s"
@@ -23142,7 +23142,7 @@ msgstr ""
 
 # Machine-translated via backfill_po.py (claude-sonnet-4-6) [refs: ja]
 msgid "Dashboard could not be restored."
-msgstr "No se pudo restaurar el panel."
+msgstr "No se pudo restaurar el tablero."
 
 msgid "Dashboard renamed"
 msgstr "Se renombró el tablero"
@@ -23300,7 +23300,7 @@ msgid ""
 "back to the geometry column (legacy behavior, often unmatchable)."
 msgstr ""
 "Columna de dimensión emitida como filtro cruzado al hacer clic en un "
-"elemento. Otros gráficos del panel coinciden con esta columna. Si no se "
+"elemento. Otros gráficos del tablero coinciden con esta columna. Si no se "
 "establece, se recurre a la columna de geometría (comportamiento heredado,"
 " a menudo sin coincidencia)."
 
