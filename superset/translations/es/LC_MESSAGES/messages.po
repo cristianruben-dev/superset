@@ -23986,7 +23986,7 @@ msgstr ""
 "la leyenda usa este rango fijo en lugar del rango automático de los datos."
 
 msgid "MCP scopes"
-msgstr ""
+msgstr "Ámbitos de MCP"
 
 # Machine-translated via backfill_po.py (claude-sonnet-4-6) [refs: fr, ru]
 msgid "Manage dashboard editors and access permissions"
@@ -24037,16 +24037,16 @@ msgid "Match type"
 msgstr "Tipo de datos"
 
 msgid "Max bound"
-msgstr ""
+msgstr "Límite máximo"
 
 msgid "Max bound should be greater than min bound"
-msgstr ""
+msgstr "El límite máximo debe ser mayor que el límite mínimo"
 
 msgid "Max bound should be greater than target value"
-msgstr ""
+msgstr "El límite máximo debe ser mayor que el valor objetivo"
 
 msgid "Maximum Retry Attempts"
-msgstr ""
+msgstr "Máximo de intentos de reintento"
 
 #, fuzzy
 msgid "Maximum Width"
@@ -24056,7 +24056,7 @@ msgid "Maximum dot size"
 msgstr "Tamaño máximo del punto"
 
 msgid "Maximum number of retry attempts (1–10)"
-msgstr ""
+msgstr "Número máximo de reintentos (1–10)"
 
 #, fuzzy
 msgid "Maximum width size of the path, in pixels or meters."
@@ -24066,7 +24066,7 @@ msgid "Mean of values over specified period"
 msgstr "Media de los valores durante el periodo especificado"
 
 msgid "Menu"
-msgstr ""
+msgstr "Menú"
 
 msgid "Metric change in value from `since` to `until`"
 msgstr "Cambio de la métrica en el valor de «desde» a «hasta»"
@@ -24088,16 +24088,16 @@ msgid "Metrics (%s)"
 msgstr "Métricas (%s)"
 
 msgid "Mid color"
-msgstr ""
+msgstr "Color medio"
 
 msgid "Min bound"
-msgstr ""
+msgstr "Límite mínimo"
 
 msgid "Min bound should be smaller than max bound"
-msgstr ""
+msgstr "El límite mínimo debe ser menor que el límite máximo"
 
 msgid "Min bound should be smaller than target value"
-msgstr ""
+msgstr "El límite mínimo debe ser menor que el valor objetivo"
 
 #, fuzzy
 msgid "Minimum Width"
@@ -24116,7 +24116,7 @@ msgstr "Falta el %s"
 
 #, python-format
 msgid "Modified %(date)s by %(user)s"
-msgstr ""
+msgstr "Modificado el %(date)s por %(user)s"
 
 msgid "More actions"
 msgstr "Más acciones"
@@ -24140,27 +24140,27 @@ msgstr ""
 "como un gráfico nuevo."
 
 msgid "Must be between 1 and 10"
-msgstr ""
+msgstr "Debe estar entre 1 y 10"
 
 #, python-brace-format
 msgid "Must be one of: {choices}."
-msgstr ""
+msgstr "Debe ser uno de: {choices}."
 
 msgid "Name of the semantic layer"
 msgstr "Nombre de la capa semántica"
 
 msgid "Network throughput in bits/s (1000000 => 1Mbps)"
-msgstr ""
+msgstr "Rendimiento de red en bits/s (1000000 => 1Mbps)"
 
 msgid "Network throughput in bytes/s as bits (1000000 => 8Mbps)"
-msgstr ""
+msgstr "Rendimiento de red en bytes/s expresado en bits (1000000 => 8Mbps)"
 
 #, -ERR:PROP-NOT-FOUND-
 msgid "New Semantic Layer"
 msgstr "Nueva capa semántica"
 
 msgid "New password"
-msgstr ""
+msgstr "Contraseña nueva"
 
 msgid "No actions found"
 msgstr "No se encontraron acciones"
@@ -24174,14 +24174,14 @@ msgstr "La papelera está vacía"
 
 #, python-format
 msgid "No charts or dashboards depend on the selected %s."
-msgstr ""
+msgstr "Ningún gráfico ni tablero depende de los %s seleccionados."
 
 #, python-format
 msgid "No compatible %s found"
 msgstr "No se han encontrado %s compatibles"
 
 msgid "No data found"
-msgstr ""
+msgstr "No se han encontrado datos"
 
 #, fuzzy
 msgid "No filters applied"
@@ -24219,6 +24219,11 @@ msgid ""
 " channel from the dropdown, or copy its id from Slack (channel name, View"
 " channel details, the id is at the bottom)."
 msgstr ""
+"No es un ID de canal de Slack: %(invalid)s. AuraData BI sube los adjuntos "
+"de los informes con files_upload_v2, que acepta el ID del canal y rechaza "
+"su nombre; por eso un nombre se guarda sin error y después nunca se "
+"entrega. Elige el canal en la lista desplegable o copia su ID desde Slack "
+"(nombre del canal, «Ver detalles del canal»; el ID está al final)."
 
 #, fuzzy
 msgid "Not found"
@@ -24228,12 +24233,14 @@ msgid ""
 "Notify all recipients when the report fails after exhausting all retry "
 "attempts."
 msgstr ""
+"Avisa a todos los destinatarios cuando el informe falle tras agotar todos "
+"los reintentos."
 
 msgid "Notify report owners on each retry attempt"
-msgstr ""
+msgstr "Avisar a los propietarios del informe en cada reintento"
 
 msgid "Notify report recipients on each retry attempt"
-msgstr ""
+msgstr "Avisar a los destinatarios del informe en cada reintento"
 
 msgid "Number of decimal places with which to display lift values"
 msgstr "Número de decimales con los que mostrar los valores de elevación"
@@ -24242,17 +24249,17 @@ msgid "Number of decimal places with which to display p-values"
 msgstr "Número de decimales con los que mostrar los valores p"
 
 msgid "Number of periods"
-msgstr ""
+msgstr "Número de periodos"
 
 msgid "Off"
-msgstr ""
+msgstr "Desactivado"
 
 msgid "Older history exists but is beyond what can be shown here."
 msgstr "Hay historial más antiguo, pero no se puede mostrar aquí."
 
 #, python-format
 msgid "One or more parameters are missing: %(missing)s"
-msgstr ""
+msgstr "Faltan uno o más parámetros: %(missing)s"
 
 # Machine-translated via backfill_po.py (claude-sonnet-4-6) [refs: de, sr,
 # sr_Latn]
@@ -24264,13 +24271,15 @@ msgstr ""
 
 #, python-format
 msgid "Only the first %s values are listed."
-msgstr ""
+msgstr "Solo se muestran los primeros %s valores."
 
 #, python-format
 msgid ""
 "Only the first %s values are listed. Type to search all of them, or enter"
 " a value that is not listed."
 msgstr ""
+"Solo se muestran los primeros %s valores. Escribe para buscar entre todos "
+"o introduce un valor que no aparezca en la lista."
 
 msgid "Open as new chart"
 msgstr "Abrir como gráfico nuevo"
@@ -24289,7 +24298,7 @@ msgid "Open dashboard in new tab"
 msgstr "Abrir panel en nueva pestaña"
 
 msgid "Open filters"
-msgstr ""
+msgstr "Abrir filtros"
 
 msgid ""
 "Optional metric used to scale the size of each dot. Dot areas are scaled "
@@ -24304,6 +24313,12 @@ msgid ""
 " For % of column with Column sum, the resolved center must still fall "
 "inside the color range; otherwise the rule uses its single color."
 msgstr ""
+"Opcional. Si se define junto con el color bajo, el color medio y el color "
+"alto de abajo, los colores divergen desde el color medio en este valor: "
+"hacia el color bajo por debajo y hacia el color alto por encima, en lugar "
+"de un único color que se atenúa. Para % de la columna con Suma de la "
+"columna, el centro resultante debe seguir dentro del rango de color; si "
+"no, la regla usa su color único."
 
 msgid ""
 "Orientation of the chart. Horizontal places the dimension on the y-axis "
@@ -24317,15 +24332,19 @@ msgid ""
 "Overrides the highest value used for coloring. Leave blank to use the "
 "highest value in the data."
 msgstr ""
+"Sustituye el valor más alto usado para colorear. Déjalo en blanco para "
+"usar el valor más alto de los datos."
 
 msgid ""
 "Overrides the lowest value used for coloring. Leave blank to use the "
 "lowest value in the data."
 msgstr ""
+"Sustituye el valor más bajo usado para colorear. Déjalo en blanco para "
+"usar el valor más bajo de los datos."
 
 #, python-format
 msgid "Owner: %(names)s"
-msgstr ""
+msgstr "Propietario: %(names)s"
 
 #, fuzzy
 msgid "Page navigation"
@@ -24358,26 +24377,28 @@ msgid "Path Size"
 msgstr "Tamaño del punto"
 
 msgid "Percent change"
-msgstr ""
+msgstr "Cambio porcentual"
 
 msgid "Percent denominator"
-msgstr ""
+msgstr "Denominador del porcentaje"
 
 #, python-format
 msgid "Periods must not exceed %(max)s"
-msgstr ""
+msgstr "Los periodos no pueden superar %(max)s"
 
 msgid "Person or group that has certified this dataset"
-msgstr ""
+msgstr "Persona o grupo que ha certificado este conjunto de datos"
 
 msgid "Pivot table download failed, please refresh and try again."
 msgstr ""
+"Ha fallado la descarga de la tabla dinámica; actualiza la página e "
+"inténtalo de nuevo."
 
 msgid "Pixel height of each series"
 msgstr "Altura en píxeles de cada serie"
 
 msgid "Please provide both time bounds (Since and Until)"
-msgstr ""
+msgstr "Indica los dos límites de tiempo (Desde y Hasta)"
 
 msgid "Please reach out to the Chart Editor for assistance."
 msgid_plural "Please reach out to the Chart Editors for assistance."
@@ -24394,6 +24415,10 @@ msgid ""
 "period (e.g. today so far) against complete prior periods (e.g. all of "
 "yesterday)."
 msgstr ""
+"Dibuja cada serie desplazada en el tiempo en todo su rango, en lugar de "
+"recortarla a la serie principal. Es útil para comparar un periodo actual "
+"incompleto (p. ej. lo que va de hoy) con periodos anteriores completos "
+"(p. ej. todo el día de ayer)."
 
 msgid ""
 "Plots the individual metrics for each row in the data vertically and "
@@ -24419,6 +24444,7 @@ msgstr "Posición de la etiqueta de datos respecto al punto"
 #, python-format
 msgid "Preparing %(count)s charts for export. This may take a moment."
 msgstr ""
+"Preparando %(count)s gráficos para exportar. Puede tardar un momento."
 
 #, python-format
 msgid "Previewing historical version · %s"
@@ -24432,6 +24458,8 @@ msgid ""
 "Print range and marker labels on the chart instead of showing tooltips on"
 " hover"
 msgstr ""
+"Imprime las etiquetas de rangos y marcadores en el gráfico en lugar de "
+"mostrar información emergente al pasar el cursor"
 
 msgid "Properties updated"
 msgstr "Se actualizaron las propiedades"
@@ -24449,7 +24477,7 @@ msgid "Publicly shared sheets only"
 msgstr "Solo hojas compartidas públicamente"
 
 msgid "RBAC only"
-msgstr ""
+msgstr "Solo RBAC"
 
 msgid "Rearranged layout"
 msgstr "Se reorganizó el diseño"
@@ -24459,6 +24487,9 @@ msgid ""
 "legacy Time-series Percent Change chart. Drag the vertical baseline on "
 "the chart to re-index."
 msgstr ""
+"Reescala cada serie a su cambio porcentual desde un punto de referencia, "
+"como el antiguo gráfico de cambio porcentual de series temporales. "
+"Arrastra la línea base vertical del gráfico para reindexar."
 
 msgid "Recently Archived"
 msgstr "Papelera"
@@ -24481,7 +24512,7 @@ msgstr "Restaura este elemento para abrirlo"
 
 #, python-format
 msgid "Referenced columns not available in DataFrame: %(columns)s"
-msgstr ""
+msgstr "Columnas referenciadas que no están en el DataFrame: %(columns)s"
 
 msgid ""
 "Regular filters add where clauses to queries if a user matches a subject "
@@ -24489,6 +24520,11 @@ msgid ""
 "except the subjects defined in the filter, and can be used to define what"
 " users can see if no RLS filters within a filter group apply to them."
 msgstr ""
+"Los filtros normales añaden cláusulas WHERE a las consultas si un usuario "
+"coincide con un sujeto al que hace referencia el filtro. Los filtros base "
+"se aplican a todas las consultas excepto a los sujetos definidos en el "
+"filtro, y sirven para definir lo que pueden ver los usuarios a quienes no "
+"se aplica ningún filtro RLS de un grupo de filtros."
 
 msgid "Related items only"
 msgstr "Solo elementos relacionados"
@@ -24499,19 +24535,19 @@ msgid "Reload SQL Lab"
 msgstr "Recargar SQL Lab"
 
 msgid "Reload the page and try again to continue."
-msgstr ""
+msgstr "Recarga la página e inténtalo de nuevo para continuar."
 
 msgid "Remove dependency"
-msgstr ""
+msgstr "Quitar dependencia"
 
 msgid "Remove from favorites"
-msgstr ""
+msgstr "Quitar de favoritos"
 
 msgid "Remove notification method"
-msgstr ""
+msgstr "Quitar el método de notificación"
 
 msgid "Remove sheet"
-msgstr ""
+msgstr "Quitar hoja"
 
 #, python-format
 msgid "Removed %s '%s'"
@@ -24547,30 +24583,37 @@ msgstr "Gráfico renombrado"
 
 #, python-format
 msgid "Report Failed - All Retries Exhausted: %(name)s"
-msgstr ""
+msgstr "Informe fallido: se agotaron los reintentos de %(name)s"
 
 msgid "Report Recipients"
-msgstr ""
+msgstr "Destinatarios del informe"
 
 #, python-format
 msgid "Report Retry [%(attempt)s of %(max)s]: %(name)s"
-msgstr ""
+msgstr "Reintento del informe [%(attempt)s de %(max)s]: %(name)s"
 
 msgid "Report Schedule execute now failed."
-msgstr ""
+msgstr "Ha fallado la ejecución inmediata de la programación del informe."
 
 msgid "Report Schedule execution failed when generating an Excel file."
 msgstr ""
+"Ha fallado la ejecución de la programación del informe al generar el "
+"archivo de Excel."
 
 msgid ""
 "Report Schedule execution requires a Celery backend to be configured. "
 "Please configure a Celery broker (Redis or RabbitMQ) and worker "
 "processes."
 msgstr ""
+"La ejecución de la programación de informes requiere configurar un "
+"backend de Celery. Configura un broker de Celery (Redis o RabbitMQ) y "
+"procesos worker."
 
 #, python-format
 msgid "Report Schedule executor user %(username)s was not found."
 msgstr ""
+"No se ha encontrado el usuario ejecutor %(username)s de la programación "
+"del informe."
 
 # Machine-translated via backfill_po.py (claude-sonnet-4-6) [refs: ja]
 #, fuzzy
@@ -24578,13 +24621,14 @@ msgid "Report not yet run"
 msgstr "Informe aún no ejecutado"
 
 msgid "Report retrying"
-msgstr ""
+msgstr "Reintentando el informe"
 
 msgid "Report schedule execution started successfully"
 msgstr ""
+"La ejecución de la programación del informe se ha iniciado correctamente"
 
 msgid "Request access"
-msgstr ""
+msgstr "Solicitar acceso"
 
 #, python-format
 msgid ""
@@ -24592,18 +24636,23 @@ msgid ""
 "maximum allowed list payload size of %(max_size)d bytes. Reduce page_size"
 " and try again."
 msgstr ""
+"La página solicitada devolvería %(requested_size)d bytes y superaría el "
+"tamaño máximo permitido para una lista, de %(max_size)d bytes. Reduce "
+"page_size e inténtalo de nuevo."
 
 msgid "Required by"
-msgstr ""
+msgstr "Requerido por"
 
 msgid "Required if your account already has a password"
-msgstr ""
+msgstr "Obligatoria si tu cuenta ya tiene contraseña"
 
 #, python-format
 msgid ""
 "Resample rule would project %(rows)s rows, exceeding the limit of %(max)s"
 " rows"
 msgstr ""
+"La regla de remuestreo generaría %(rows)s filas y superaría el límite de "
+"%(max)s filas"
 
 # Machine-translated via backfill_po.py (claude-sonnet-4-6) [refs: ca, cs, de,
 # fi, fr, it, ja, lv, mi, nl, ru, sk, sl, tr, uk]
@@ -24640,16 +24689,16 @@ msgid ""
 msgstr "Al restaurar se crea una versión nueva. No pierdes tu historial de versiones."
 
 msgid "Retries are not supported for alerts"
-msgstr ""
+msgstr "Las alertas no admiten reintentos"
 
 msgid "Retrying"
-msgstr ""
+msgstr "Reintentando"
 
 #, python-format
 msgid "Reused by 1 other submission"
 msgid_plural "Reused by %s other submissions"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Reutilizado por %s envío más"
+msgstr[1] "Reutilizado por %s envíos más"
 
 msgid "Revoke"
 msgstr "Revocar"
@@ -24682,29 +24731,37 @@ msgid "Rotate category label"
 msgstr "Girar la etiqueta de categoría"
 
 msgid "Row settings"
-msgstr ""
+msgstr "Ajustes de la fila"
 
 msgid "Row-Level Security"
-msgstr ""
+msgstr "Seguridad a nivel de fila"
 
 #, python-format
 msgid "Row-Level Security: %d filter(s) may restrict data based on your role."
 msgstr ""
+"Seguridad a nivel de fila: %d filtro(s) pueden restringir los datos según "
+"tu rol."
 
 #, python-format
 msgid ""
 "Row-level security could not be applied to the virtual dataset query, so "
 "it cannot be run securely: %(msg)s"
 msgstr ""
+"No se ha podido aplicar la seguridad a nivel de fila a la consulta del "
+"conjunto de datos virtual, así que no se puede ejecutar de forma segura: "
+"%(msg)s"
 
 msgid "Run a new query using the \"Update chart\" button or"
-msgstr ""
+msgstr "Ejecuta una consulta nueva con el botón «Actualizar gráfico» o"
 
 msgid ""
 "SQL Lab cannot authorise a script that changes the schema used to resolve"
 " unqualified table names (e.g. USE or search_path changes). Qualify "
 "tables explicitly instead."
 msgstr ""
+"SQL Lab no puede autorizar un script que cambie el esquema usado para "
+"resolver nombres de tabla sin cualificar (p. ej. cambios con USE o "
+"search_path). Cualifica las tablas de forma explícita."
 
 # Machine-translated via backfill_po.py (claude-sonnet-4-6) [refs: de, sr,
 # sr_Latn]
@@ -24723,9 +24780,11 @@ msgid ""
 "SQL WHERE/HAVING expressions are not supported for semantic views. Remove"
 " the SQL clause or use a semantic dimension filter."
 msgstr ""
+"Las expresiones SQL WHERE/HAVING no se admiten en las vistas semánticas. "
+"Quita la cláusula SQL o usa un filtro de dimensión semántica."
 
 msgid "Samples are not available for this datasource type."
-msgstr ""
+msgstr "Las muestras no están disponibles para este tipo de origen de datos."
 
 #, python-format
 msgid "Save as %s"
@@ -24753,25 +24812,25 @@ msgid "Scale factor applied to metric-driven line widths"
 msgstr "Factor de escala aplicado a los anchos de línea basados en métricas"
 
 msgid "Schema not found."
-msgstr ""
+msgstr "No se ha encontrado el esquema."
 
 msgid "Screenshot cache is unavailable"
-msgstr ""
+msgstr "La caché de capturas de pantalla no está disponible"
 
 msgid "Screenshot request is temporarily unavailable"
-msgstr ""
+msgstr "La solicitud de captura de pantalla no está disponible temporalmente"
 
 #, python-format
 msgid "Search %s record"
 msgid_plural "Search %s records"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Buscar en %s registro"
+msgstr[1] "Buscar en %s registros"
 
 msgid "Search Dashboards"
-msgstr ""
+msgstr "Buscar tableros"
 
 msgid "Search a channel by name, or paste a channel ID"
-msgstr ""
+msgstr "Busca un canal por nombre o pega el ID de un canal"
 
 msgid "Search actions"
 msgstr "Buscar acciones"
@@ -24787,22 +24846,24 @@ msgstr "Buscar visualizadores"
 
 msgid "Searches all text fields: Name, Description, Database & Schema"
 msgstr ""
+"Busca en todos los campos de texto: nombre, descripción, base de datos y "
+"esquema"
 
 msgid "Security token error"
-msgstr ""
+msgstr "Error del token de seguridad"
 
 msgid "See "
 msgstr "Ver "
 
 msgid "See all dashboards"
-msgstr ""
+msgstr "Ver todos los tableros"
 
 #, python-format
 msgid "Select %s or type to search %s"
 msgstr "Selecciona %s o escribe para buscar %s"
 
 msgid "Select MCP resource scopes (optional)"
-msgstr ""
+msgstr "Selecciona los ámbitos de recursos de MCP (opcional)"
 
 #, python-format
 msgid "Select a %s"
@@ -24818,13 +24879,13 @@ msgid "Select editors"
 msgstr "Seleccionar editores"
 
 msgid "Select or type BCC recipients"
-msgstr ""
+msgstr "Selecciona o escribe los destinatarios en CCO"
 
 msgid "Select or type CC recipients"
-msgstr ""
+msgstr "Selecciona o escribe los destinatarios en CC"
 
 msgid "Select or type email recipients"
-msgstr ""
+msgstr "Selecciona o escribe los destinatarios del correo"
 
 msgid "Select semantic views"
 msgstr "Selecciona las vistas semánticas"
@@ -24936,15 +24997,19 @@ msgstr "Vistas semánticas"
 
 msgid "Semantic views cannot enforce guest row-level security rules."
 msgstr ""
+"Las vistas semánticas no pueden aplicar reglas de seguridad a nivel de "
+"fila a los invitados."
 
 msgid "Send Failed Reports"
-msgstr ""
+msgstr "Enviar informes fallidos"
 
 msgid "Send as Excel"
-msgstr ""
+msgstr "Enviar como Excel"
 
 msgid "Send the failed report to all recipients after retries are exhausted"
 msgstr ""
+"Enviar el informe fallido a todos los destinatarios cuando se agoten los "
+"reintentos"
 
 msgid "Series Height"
 msgstr "Altura de la serie"
@@ -24959,26 +25024,32 @@ msgstr "Ajustes para series temporales"
 #, python-format
 msgid "Show %s more change"
 msgid_plural "Show %s more changes"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Mostrar %s cambio más"
+msgstr[1] "Mostrar %s cambios más"
 
 msgid "Show Null Values"
-msgstr ""
+msgstr "Mostrar valores nulos"
 
 msgid "Show X axis"
-msgstr ""
+msgstr "Mostrar el eje X"
 
 msgid "Show Y axis"
-msgstr ""
+msgstr "Mostrar el eje Y"
 
 msgid "Show a draggable slider to control the visible range of the Y-axis."
 msgstr ""
+"Muestra un control deslizante arrastrable para controlar el rango visible "
+"del eje Y."
 
 msgid ""
 "Show a summary row of total aggregations: the selected metrics in "
 "aggregate mode, or an aggregation of numeric columns in raw records mode."
 " Note that row limit does not apply to the result."
 msgstr ""
+"Muestra una fila de resumen con los totales agregados: las métricas "
+"seleccionadas en el modo de agregación, o una agregación de las columnas "
+"numéricas en el modo de registros sin procesar. El límite de filas no se "
+"aplica al resultado."
 
 #, fuzzy
 msgid "Show cell bars for all columns"
@@ -24988,29 +25059,35 @@ msgid "Show fewer"
 msgstr "Mostrar menos"
 
 msgid "Show full range for time shift"
-msgstr ""
+msgstr "Mostrar el rango completo del desplazamiento temporal"
 
 msgid ""
 "Show only the N most recent periods, from 1 up to the number of periods "
 "in the data. Leave empty to overlay them all."
 msgstr ""
+"Muestra solo los N periodos más recientes, desde 1 hasta el número de "
+"periodos de los datos. Déjalo vacío para superponerlos todos."
 
 msgid "Show or hide the X axis line, ticks, and labels"
-msgstr ""
+msgstr "Muestra u oculta la línea, las marcas y las etiquetas del eje X"
 
 msgid "Show or hide the Y axis line, ticks, gridlines, and labels"
 msgstr ""
+"Muestra u oculta la línea, las marcas, las líneas de cuadrícula y las "
+"etiquetas del eje Y"
 
 msgid "Show the main ticks on axes."
 msgstr "Muestra las marcas principales de los ejes."
 
 msgid "Show values as"
-msgstr ""
+msgstr "Mostrar valores como"
 
 msgid ""
 "Showcases a metric along with a comparison of value, change, and percent "
 "change for a selected time period."
 msgstr ""
+"Muestra una métrica junto con una comparación del valor, el cambio y el "
+"cambio porcentual de un periodo de tiempo seleccionado."
 
 msgid "Significance Level"
 msgstr "Nivel de significación"
@@ -25022,26 +25099,32 @@ msgid "Size of the dot representing the smallest value of the dot size metric."
 msgstr "Tamaño del punto que representa el valor más pequeño de la métrica del tamaño."
 
 msgid "Solid background"
-msgstr ""
+msgstr "Fondo sólido"
 
 msgid "Some charts did not finish loading. The export may be incomplete."
 msgstr ""
+"Algunos gráficos no han terminado de cargarse. Puede que la exportación "
+"esté incompleta."
 
 msgid ""
 "Some features require a larger screen. Try viewing dashboards for the "
 "best mobile experience."
 msgstr ""
+"Algunas funciones requieren una pantalla más grande. Prueba a ver los "
+"tableros para tener la mejor experiencia en el móvil."
 
 msgid ""
 "Some filters are inherited from physical tables referenced in this "
 "virtual dataset."
 msgstr ""
+"Algunos filtros se heredan de las tablas físicas a las que hace "
+"referencia este conjunto de datos virtual."
 
 msgid "Some layers could not be loaded"
-msgstr ""
+msgstr "No se han podido cargar algunas capas"
 
 msgid "Some tables are not shown. Refine your search."
-msgstr ""
+msgstr "No se muestran algunas tablas. Afina la búsqueda."
 
 msgid ""
 "Someone else, or another one of your browser tabs, saved this dataset "
@@ -25049,6 +25132,10 @@ msgid ""
 "cancelled. Copy your edits, close this dialog, and reopen the dataset to "
 "reapply them."
 msgstr ""
+"Alguien más, u otra de tus pestañas del navegador, guardó este conjunto "
+"de datos después de que lo abrieras. Guardar ahora desharía esos cambios, "
+"así que se ha cancelado. Copia tus ediciones, cierra este cuadro de "
+"diálogo y vuelve a abrir el conjunto de datos para aplicarlas de nuevo."
 
 msgid ""
 "Something went wrong loading the dashboard. Check the dev console for "
