@@ -116,7 +116,7 @@ msgstr ""
 "el GeoJSON"
 
 msgid " a dashboard OR "
-msgstr " un panel de control O "
+msgstr " un tablero O "
 
 msgid " a new one"
 msgstr " uno nuevo"
@@ -746,7 +746,7 @@ msgid "A list of tags that have been applied to this chart."
 msgstr "Una lista de etiquetas que se han aplicado a este gráfico."
 
 msgid "A list of tags that have been applied to this dashboard."
-msgstr "Lista de etiquetas aplicadas a este panel de control."
+msgstr "Lista de etiquetas aplicadas a este tablero."
 
 msgid "A list of users who can alter the chart. Searchable by name or username."
 msgstr ""
@@ -767,16 +767,16 @@ msgid "A metric to use for color"
 msgstr "Una métrica que se puede usar para el color"
 
 msgid "A new chart and dashboard will be created."
-msgstr "Se crearán un nuevo gráfico y un nuevo panel de control."
+msgstr "Se crearán un nuevo gráfico y un nuevo tablero."
 
 msgid "A new chart will be created."
 msgstr "Se creará un nuevo gráfico."
 
 msgid "A new dashboard will be created."
-msgstr "Se creará un nuevo panel de control."
+msgstr "Se creará un nuevo tablero."
 
 msgid "A readable URL for your dashboard"
-msgstr "Una URL legible para tu panel de control"
+msgstr "Una URL legible para tu tablero"
 
 msgid "A reference to the [Time] configuration, taking granularity into account"
 msgstr ""
@@ -900,7 +900,7 @@ msgid "Add CSS template"
 msgstr "Añadir plantilla CSS"
 
 msgid "Add Dashboard"
-msgstr "Añadir panel de control"
+msgstr "Añadir tablero"
 
 msgid "Add Group"
 msgstr "Añadir grupo"
@@ -975,7 +975,7 @@ msgstr ""
 "«Editar fuente de datos»"
 
 msgid "Add certification details for this dashboard"
-msgstr "Añade los detalles de certificación de este panel de control"
+msgstr "Añade los detalles de certificación de este tablero"
 
 msgid "Add color for positive/negative change"
 msgstr "Añadir color para cambio positivo/negativo"
@@ -1025,10 +1025,10 @@ msgid ""
 msgstr ""
 "Añade cláusulas de filtro para controlar la consulta de origen del "
 "filtro,\n"
-"                    pero solo en el contexto de la función autocompletar;"
-" es decir, estas condiciones\n"
-"                    no afectan a cómo se aplica el filtro al panel de "
-"control. Esto es útil\n"
+"                    pero solo en el contexto de la función autocompletar; "
+"es decir, estas condiciones\n"
+"                    no afectan a cómo se aplica el filtro al tablero. "
+"Esto es útil\n"
 "                    cuando quieres mejorar el rendimiento de la consulta "
 "escaneando solo un subconjunto\n"
 "                    de los datos subyacentes o limitar los valores "
@@ -1079,13 +1079,13 @@ msgid "Add the name of the chart"
 msgstr "Añadir el nombre del gráfico"
 
 msgid "Add the name of the dashboard"
-msgstr "Añadir el nombre del panel de control"
+msgstr "Añadir el nombre del tablero"
 
 msgid "Add theme"
 msgstr "Añadir tema"
 
 msgid "Add to dashboard"
-msgstr "Añadir al panel de control"
+msgstr "Añadir al tablero"
 
 msgid "Add to tabs"
 msgstr "Añadir a pestañas"
@@ -1179,7 +1179,7 @@ msgstr "Gráficos afectados"
 
 #, -ERR:PROP-NOT-FOUND-
 msgid "Affected Dashboards"
-msgstr "Paneles de control afectados"
+msgstr "Tableros afectados"
 
 msgid "After"
 msgstr "Después"
@@ -1517,14 +1517,14 @@ msgstr ""
 msgid "An error occurred while fetching dashboard owner values: %s"
 msgstr ""
 "Se ha producido un error al recuperar los valores del propietario del "
-"panel de control: %s"
+"tablero: %s"
 
 msgid "An error occurred while fetching dashboards"
-msgstr "Se ha producido un error al recuperar los paneles de control"
+msgstr "Se ha producido un error al recuperar los tableros"
 
 #, python-format
 msgid "An error occurred while fetching dashboards: %s"
-msgstr "Se ha producido un error al recuperar los paneles de control: %s"
+msgstr "Se ha producido un error al recuperar los tableros: %s"
 
 #, python-format
 msgid "An error occurred while fetching database related data: %s"
@@ -1608,7 +1608,7 @@ msgid "An error occurred while importing %s: %s"
 msgstr "Se produjo un error importando %s: %s"
 
 msgid "An error occurred while loading dashboard information."
-msgstr "Se ha producido un error al cargar la información del panel de control."
+msgstr "Se ha producido un error al cargar la información del tablero."
 
 msgid "An error occurred while loading the SQL"
 msgstr "Se ha producido un error al cargar el SQL"
@@ -1851,7 +1851,7 @@ msgid "Apply Filter"
 msgstr "Aplicar filtro"
 
 msgid "Apply another dashboard filter"
-msgstr "Aplicar otro filtro del panel de control"
+msgstr "Aplicar otro filtro del tablero"
 
 msgid "Apply conditional color formatting to metric"
 msgstr "Aplicar formato de color condicional a la métrica"
@@ -1905,7 +1905,7 @@ msgid "Are you sure you want to delete the selected charts?"
 msgstr "¿Seguro que quieres eliminar los gráficos seleccionados?"
 
 msgid "Are you sure you want to delete the selected dashboards?"
-msgstr "¿Seguro que quieres eliminar los paneles de control seleccionados?"
+msgstr "¿Seguro que quieres eliminar los tableros seleccionados?"
 
 msgid "Are you sure you want to delete the selected datasets?"
 msgstr "¿Seguro que quieres eliminar los conjuntos de datos seleccionados?"
@@ -2679,7 +2679,7 @@ msgid "Changes the sort value of the items in the legend only"
 msgstr "Cambia solo el orden de los elementos de la leyenda"
 
 msgid "Changing one or more of these dashboards is forbidden"
-msgstr "No se permite cambiar uno o más de estos paneles de control"
+msgstr "No se permite cambiar uno o más de estos tableros"
 
 msgid ""
 "Changing the dataset may break the chart if the chart relies on columns "
@@ -2698,7 +2698,7 @@ msgstr ""
 "otras personas."
 
 msgid "Changing this Dashboard is forbidden"
-msgstr "No se permite cambiar este panel de control"
+msgstr "No se permite cambiar este tablero"
 
 msgid "Changing this chart is forbidden"
 msgstr "No se permite cambiar este gráfico"
@@ -2766,7 +2766,7 @@ msgstr "El gráfico [%s] ha sido guardado"
 
 #, python-format
 msgid "Chart [%s] was added to dashboard [%s]"
-msgstr "El gráfico [%s] ha sido añadido al panel de control [%s]"
+msgstr "El gráfico [%s] ha sido añadido al tablero [%s]"
 
 msgid "Chart cache timeout"
 msgstr "Tiempo de espera del caché del gráfico"
@@ -2864,13 +2864,13 @@ msgstr ""
 "del radio del segmento para calcular las proporciones."
 
 msgid "Check out this chart in dashboard:"
-msgstr "Revisa este gráfico en el panel de control:"
+msgstr "Revisa este gráfico en el tablero:"
 
 msgid "Check out this chart: "
 msgstr "Revisa este gráfico: "
 
 msgid "Check out this dashboard: "
-msgstr "Revisa este panel de control: "
+msgstr "Revisa este tablero: "
 
 msgid "Child label position"
 msgstr "Posición de la etiqueta secundaria"
@@ -2885,7 +2885,7 @@ msgid "Choose a chart for displaying on the map"
 msgstr "Elige un gráfico para mostrar en el mapa"
 
 msgid "Choose a chart or dashboard not both"
-msgstr "Elige un gráfico o un panel de control, no las dos cosas"
+msgstr "Elige un gráfico o un tablero, no las dos cosas"
 
 msgid "Choose a database..."
 msgstr "Elige una base de datos..."
@@ -3051,8 +3051,8 @@ msgid ""
 "Click on \"Add or edit filters and controls\" option in Settings to "
 "create new dashboard filters"
 msgstr ""
-"Usa la opción \"Añadir o editar filtros y controles\" de Configuración "
-"para crear filtros del panel de control"
+"Usa la opción \"Añadir o editar filtros y controles\" de Configuración para "
+"crear filtros del tablero"
 
 msgid ""
 "Click on \"Create chart\" button in the control panel on the left to "
@@ -3732,10 +3732,10 @@ msgstr ""
 "conjunto de datos."
 
 msgid "Cross-filtering is not enabled for this dashboard."
-msgstr "El filtro cruzado no está habilitado para este panel de control."
+msgstr "El filtro cruzado no está habilitado para este tablero."
 
 msgid "Cross-filtering is not enabled in this dashboard"
-msgstr "El filtro cruzado no está habilitado en este panel de control"
+msgstr "El filtro cruzado no está habilitado en este tablero"
 
 msgid "Cross-filtering scoping"
 msgstr "Alcance del filtro cruzado"
@@ -3941,75 +3941,72 @@ msgid "Dark mode"
 msgstr "Modo oscuro"
 
 msgid "Dashboard"
-msgstr "Panel de control"
+msgstr "Tablero"
 
 msgid "Dashboard Filter"
-msgstr "Filtro del panel de control"
+msgstr "Filtro del tablero"
 
 msgid "Dashboard Id"
-msgstr "ID del panel de control"
+msgstr "ID del tablero"
 
 #, python-format
 msgid "Dashboard [%s] just got created and chart [%s] was added to it"
-msgstr ""
-"El panel de control [%s] se acaba de crear y se le ha añadido el gráfico "
-"[%s]"
+msgstr "El tablero [%s] se acaba de crear y se le ha añadido el gráfico [%s]"
 
 msgid "Dashboard cannot be copied due to invalid parameters."
-msgstr "El panel de control no se puede copiar debido a parámetros no válidos."
+msgstr "El tablero no se puede copiar debido a parámetros no válidos."
 
 msgid "Dashboard cannot be favorited."
-msgstr "El panel de control no se puede marcar como favorito."
+msgstr "El tablero no se puede marcar como favorito."
 
 msgid "Dashboard cannot be unfavorited."
-msgstr "El panel de control no se puede quitar de los favoritos."
+msgstr "El tablero no se puede quitar de los favoritos."
 
 msgid "Dashboard chart customizations could not be updated."
 msgstr ""
-"No se han podido actualizar las personalizaciones de gráficos del panel "
-"de control."
+"No se han podido actualizar las personalizaciones de gráficos del tablero."
 
 msgid "Dashboard color configuration could not be updated."
-msgstr "No se ha podido actualizar la configuración de color del panel de control."
+msgstr "No se ha podido actualizar la configuración de color del tablero."
 
 msgid "Dashboard could not be deleted."
-msgstr "No se ha podido eliminar el panel de control."
+msgstr "No se ha podido eliminar el tablero."
 
 msgid "Dashboard could not be updated."
-msgstr "No se ha podido actualizar el panel de control."
+msgstr "No se ha podido actualizar el tablero."
 
 msgid "Dashboard does not exist"
-msgstr "El panel de control no existe"
+msgstr "El tablero no existe"
 
 msgid "Dashboard exported as example successfully"
-msgstr "Panel de control exportado como ejemplo correctamente"
+msgstr "Tablero exportado como ejemplo correctamente"
 
 msgid "Dashboard exported successfully"
-msgstr "Panel de control exportado correctamente"
+msgstr "Tablero exportado correctamente"
 
 msgid "Dashboard imported"
-msgstr "Panel de control importado"
+msgstr "Tablero importado"
 
 msgid "Dashboard name and URL configuration"
 msgstr "Nombre y dirección URL del panel"
 
 msgid "Dashboard name is required"
-msgstr "El nombre del panel de control es obligatorio"
+msgstr "El nombre del tablero es obligatorio"
 
 msgid "Dashboard native filters could not be patched."
-msgstr "No se han podido parchear los filtros nativos del panel de control."
+msgstr "No se han podido parchear los filtros nativos del tablero."
 
 msgid "Dashboard parameters are invalid."
-msgstr "Los parámetros del panel de control no son válidos."
+msgstr "Los parámetros del tablero no son válidos."
 
 msgid "Dashboard properties"
-msgstr "Propiedades del panel de control"
+msgstr "Propiedades del tablero"
 
 msgid "Dashboard properties updated"
-msgstr "Propiedades del panel de control actualizadas"
+msgstr "Propiedades del tablero actualizadas"
 
 msgid "Dashboard scheme"
-msgstr "Esquema del panel de control"
+msgstr "Esquema del tablero"
 
 msgid ""
 "Dashboard time range filters apply to temporal columns defined in\n"
@@ -4017,27 +4014,27 @@ msgid ""
 "chart\n"
 "          filters to have this dashboard filter impact those charts."
 msgstr ""
-"Los filtros de intervalo de tiempo del panel de control se aplican a las "
-"columnas temporales definidas en\n"
-"          la sección de filtro de cada gráfico. Añade columnas temporales"
-" a los filtros\n"
-"          del gráfico para que este filtro del panel de control afecte a "
-"esos gráficos."
+"Los filtros de intervalo de tiempo del tablero se aplican a las columnas "
+"temporales definidas en\n"
+"          la sección de filtro de cada gráfico. Añade columnas temporales "
+"a los filtros\n"
+"          del gráfico para que este filtro del tablero afecte a esos "
+"gráficos."
 
 msgid "Dashboard title"
-msgstr "Título del panel de control"
+msgstr "Título del tablero"
 
 msgid "Dashboard usage"
-msgstr "Uso del panel de control"
+msgstr "Uso del tablero"
 
 msgid "Dashboards"
-msgstr "Paneles de control"
+msgstr "Tableros"
 
 msgid "Dashboards could not be created."
-msgstr "No se han podido crear los paneles de control."
+msgstr "No se han podido crear los tableros."
 
 msgid "Dashboards do not exist"
-msgstr "Los paneles de control no existen"
+msgstr "Los tableros no existen"
 
 msgid "Dashed"
 msgstr "Discontinuo"
@@ -4562,7 +4559,7 @@ msgid "Delete annotation"
 msgstr "Eliminar anotación"
 
 msgid "Delete dashboard tab?"
-msgstr "¿Eliminar la pestaña del panel de control?"
+msgstr "¿Eliminar la pestaña del tablero?"
 
 msgid "Delete database"
 msgstr "Eliminar base de datos"
@@ -4753,8 +4750,8 @@ msgid ""
 "Determines whether or not this dashboard is visible in the list of all "
 "dashboards"
 msgstr ""
-"Determina si este panel de control es visible o no en la lista de todos "
-"los paneles de control"
+"Determina si este tablero es visible o no en la lista de todos los "
+"tableros"
 
 msgid "Diamond"
 msgstr "Diamante"
@@ -4995,7 +4992,7 @@ msgid "Draft"
 msgstr "Borrador"
 
 msgid "Drag and drop components and charts to the dashboard"
-msgstr "Arrastrar y soltar componentes y gráficos en el panel de control"
+msgstr "Arrastrar y soltar componentes y gráficos en el tablero"
 
 msgid "Drag and drop components to this tab"
 msgstr "Arrastrar y soltar componentes en esta pestaña"
@@ -5224,7 +5221,7 @@ msgid "Edit CSS template properties"
 msgstr "Editar propiedades de la plantilla CSS"
 
 msgid "Edit Dashboard"
-msgstr "Editar panel de control"
+msgstr "Editar tablero"
 
 msgid "Edit Dataset "
 msgstr "Editar conjunto de datos "
@@ -5270,7 +5267,7 @@ msgstr "Editar propiedades del gráfico"
 
 #, -ERR:PROP-NOT-FOUND-
 msgid "Edit dashboard"
-msgstr "Editar panel de control"
+msgstr "Editar tablero"
 
 msgid "Edit database"
 msgstr "Editar base de datos"
@@ -5307,7 +5304,7 @@ msgstr "Editar parámetros de plantilla"
 
 #, -ERR:PROP-NOT-FOUND-
 msgid "Edit the dashboard"
-msgstr "Editar el panel de control"
+msgstr "Editar el tablero"
 
 msgid "Edit theme properties"
 msgstr "Editar propiedades del tema"
@@ -5371,10 +5368,10 @@ msgstr "Incrustar código"
 
 #, -ERR:PROP-NOT-FOUND-
 msgid "Embed dashboard"
-msgstr "Incrustar panel de control"
+msgstr "Incrustar tablero"
 
 msgid "Embedded dashboard could not be deleted."
-msgstr "El panel de control no pudo ser eliminado."
+msgstr "El tablero no pudo ser eliminado."
 
 msgid "Embedding deactivated."
 msgstr "Incrustación desactivada."
@@ -5832,7 +5829,7 @@ msgid "Export cancelled"
 msgstr "Exportación cancelada"
 
 msgid "Export dashboards?"
-msgstr "¿Exportar paneles de control?"
+msgstr "¿Exportar tableros?"
 
 msgid "Export failed"
 msgstr "La exportación ha fallado"
@@ -6513,9 +6510,7 @@ msgid "Give access to multiple catalogs in a single database connection."
 msgstr "Da acceso a múltiples catálogos en una sola conexión de base de datos."
 
 msgid "Go to the edit mode to configure the dashboard and add charts"
-msgstr ""
-"Ir al modo de edición para configurar el panel de control y añadir "
-"gráficos"
+msgstr "Ir al modo de edición para configurar el tablero y añadir gráficos"
 
 msgid "Gold"
 msgstr "Oro"
@@ -6809,10 +6804,10 @@ msgid "Import charts"
 msgstr "Importar gráficos"
 
 msgid "Import dashboard failed for an unknown reason"
-msgstr "La importación del panel de control ha fallado por una razón desconocida"
+msgstr "La importación del tablero ha fallado por una razón desconocida"
 
 msgid "Import dashboards"
-msgstr "Importar paneles de control"
+msgstr "Importar tableros"
 
 msgid "Import database failed for an unknown reason"
 msgstr "La importación de la base de datos ha fallado por una razón desconocida"
@@ -8188,7 +8183,7 @@ msgid "Must be unique"
 msgstr "Debe ser único"
 
 msgid "Must choose either a chart or a dashboard"
-msgstr "Debes elegir un gráfico o un panel de control"
+msgstr "Debes elegir un gráfico o un tablero"
 
 msgid "Must have a [Group By] column to have 'count' as the [Label]"
 msgstr "Debe haber una columna [Group By] para tener «count» como [Label]"
@@ -8405,7 +8400,7 @@ msgid "No filters"
 msgstr "No hay filtros"
 
 msgid "No filters are currently added to this dashboard."
-msgstr "Actualmente no se han añadido filtros a este panel de control."
+msgstr "Actualmente no se han añadido filtros a este tablero."
 
 msgid "No form settings were maintained"
 msgstr "No se han conservado los ajustes del formulario"
@@ -8550,7 +8545,7 @@ msgid "Not a valid ZIP file"
 msgstr "No es un archivo ZIP válido"
 
 msgid "Not added to any dashboard"
-msgstr "No se ha añadido a ningún panel de control"
+msgstr "No se ha añadido a ningún tablero"
 
 msgid "Not all required fields are complete. Please provide the following:"
 msgstr ""
@@ -8710,7 +8705,7 @@ msgstr "En periodo de gracia"
 
 #, -ERR:PROP-NOT-FOUND-
 msgid "On dashboards"
-msgstr "En los paneles de control"
+msgstr "En los tableros"
 
 msgid ""
 "One or many columns to group by. High cardinality groupings should "
@@ -8988,7 +8983,7 @@ msgstr "Sobrescribir y explorar"
 
 #, python-format
 msgid "Overwrite Dashboard [%s]"
-msgstr "Sobrescribir el panel de control [%s]"
+msgstr "Sobrescribir el tablero [%s]"
 
 msgid "Overwrite existing"
 msgstr "Sobrescribir los existentes"
@@ -9010,15 +9005,15 @@ msgstr "Los propietarios no son válidos"
 
 msgid "Owners is a list of users who can alter the dashboard."
 msgstr ""
-"Los propietarios son una lista de usuarios que pueden modificar el panel "
-"de control."
+"Los propietarios son una lista de usuarios que pueden modificar el "
+"tablero."
 
 msgid ""
 "Owners is a list of users who can alter the dashboard. Searchable by name"
 " or username."
 msgstr ""
-"Los propietarios son una lista de usuarios que pueden modificar el panel "
-"de control. Se pueden buscar por nombre o nombre de usuario."
+"Los propietarios son una lista de usuarios que pueden modificar el "
+"tablero. Se pueden buscar por nombre o nombre de usuario."
 
 msgid "PDF download failed, please refresh and try again."
 msgstr "La descarga del PDF ha fallado; actualiza e inténtalo de nuevo."
@@ -9155,7 +9150,7 @@ msgid "Person or group that has certified this chart."
 msgstr "Persona o grupo que ha certificado este gráfico."
 
 msgid "Person or group that has certified this dashboard."
-msgstr "Persona o grupo que ha certificado este panel de control."
+msgstr "Persona o grupo que ha certificado este tablero."
 
 msgid "Person or group that has certified this metric"
 msgstr "Persona o grupo que ha certificado esta métrica."
@@ -9346,8 +9341,8 @@ msgstr ""
 
 msgid "Please save your dashboard first, then try creating a new email report."
 msgstr ""
-"Guarda primero tu panel de control y, a continuación, intenta crear un "
-"nuevo informe de correo electrónico."
+"Guarda primero tu tablero y, a continuación, intenta crear un nuevo "
+"informe de correo electrónico."
 
 msgid "Please select at least one role or group"
 msgstr "Selecciona al menos un rol o grupo"
@@ -9731,7 +9726,7 @@ msgid "Refetch results"
 msgstr "Volver a obtener resultados"
 
 msgid "Refresh dashboard"
-msgstr "Actualizar panel de control"
+msgstr "Actualizar tablero"
 
 msgid "Refresh frequency"
 msgstr "Frecuencia de actualización"
@@ -10104,20 +10099,20 @@ msgid ""
 "access to a dashboard will bypass dataset level checks. If no roles are "
 "defined, regular access permissions apply."
 msgstr ""
-"La de los roles es una lista que define el acceso al panel de control. "
-"Conceder a un rol acceso a un panel de control omitirá las comprobaciones"
-" a nivel de conjunto de datos. Si no se definen roles, se aplican los "
-"permisos de acceso normales."
+"La de los roles es una lista que define el acceso al tablero. Conceder a "
+"un rol acceso a un tablero omitirá las comprobaciones a nivel de conjunto "
+"de datos. Si no se definen roles, se aplican los permisos de acceso "
+"normales."
 
 msgid ""
 "Roles is a list which defines access to the dashboard. Granting a role "
 "access to a dashboard will bypass dataset level checks.If no roles are "
 "defined, regular access permissions apply."
 msgstr ""
-"La de los roles es una lista que define el acceso al panel de control. "
-"Conceder a un rol acceso a un panel de control omitirá las comprobaciones"
-" a nivel de conjunto de datos. Si no se definen roles, se aplican los "
-"permisos de acceso normales."
+"La de los roles es una lista que define el acceso al tablero. Conceder a "
+"un rol acceso a un tablero omitirá las comprobaciones a nivel de conjunto "
+"de datos. Si no se definen roles, se aplican los permisos de acceso "
+"normales."
 
 msgid "Rolling Function"
 msgstr "Función móvil"
@@ -10365,7 +10360,7 @@ msgid "Save & Explore"
 msgstr "Guardar y explorar"
 
 msgid "Save & go to dashboard"
-msgstr "Guardar e ir al panel de control"
+msgstr "Guardar e ir al tablero"
 
 msgid "Save (Overwrite)"
 msgstr "Guardar (sobrescribir)"
@@ -10395,7 +10390,7 @@ msgid "Save changes to your chart?"
 msgstr "¿Guardar los cambios del gráfico?"
 
 msgid "Save changes to your dashboard?"
-msgstr "¿Guardar los cambios del panel de control?"
+msgstr "¿Guardar los cambios del tablero?"
 
 msgid "Save chart"
 msgstr "Guardar gráfico"
@@ -10404,7 +10399,7 @@ msgid "Save color breakpoint values"
 msgstr "Guardar los rangos de color"
 
 msgid "Save dashboard"
-msgstr "Guardar panel de control"
+msgstr "Guardar tablero"
 
 msgid "Save dataset"
 msgstr "Guardar conjunto de los datos"
@@ -10649,7 +10644,7 @@ msgstr "Selecciona una columna"
 
 #, -ERR:PROP-NOT-FOUND-
 msgid "Select a dashboard"
-msgstr "Selecciona un panel de control"
+msgstr "Selecciona un tablero"
 
 #, -ERR:PROP-NOT-FOUND-
 msgid "Select a database"
@@ -10777,10 +10772,10 @@ msgstr "Seleccionar página actual"
 
 #, -ERR:PROP-NOT-FOUND-
 msgid "Select dashboard"
-msgstr "Selecciona un panel de control"
+msgstr "Selecciona un tablero"
 
 msgid "Select dashboard to use"
-msgstr "Selecciona el panel de control a utilizar"
+msgstr "Selecciona el tablero a utilizar"
 
 #, -ERR:PROP-NOT-FOUND-
 msgid "Select dashboards"
@@ -10936,11 +10931,11 @@ msgid ""
 "dataset or contain the same column name in the dashboard."
 msgstr ""
 "Selecciona los gráficos a los que quieres aplicar filtros cruzados en "
-"este panel de control. Si anulas la selección de un gráfico, se excluirá "
-"del filtrado al aplicar filtros cruzados desde cualquier gráfico del "
-"panel de control. Puedes seleccionar «Todos los gráficos» para aplicar "
-"filtros cruzados a todos los gráficos que utilicen el mismo conjunto de "
-"datos o contengan el mismo nombre de columna en el panel de control."
+"este tablero. Si anulas la selección de un gráfico, se excluirá del "
+"filtrado al aplicar filtros cruzados desde cualquier gráfico del tablero. "
+"Puedes seleccionar «Todos los gráficos» para aplicar filtros cruzados a "
+"todos los gráficos que utilicen el mismo conjunto de datos o contengan el "
+"mismo nombre de columna en el tablero."
 
 msgid ""
 "Select the charts to which you want to apply cross-filters when "
@@ -10951,7 +10946,7 @@ msgstr ""
 "Selecciona los gráficos a los que quieres aplicar filtros cruzados al "
 "interactuar con este gráfico. Puedes seleccionar «Todos los gráficos» "
 "para aplicar filtros a todos los gráficos que utilicen el mismo conjunto "
-"de datos o contengan el mismo nombre de columna en el panel de control."
+"de datos o contengan el mismo nombre de columna en el tablero."
 
 msgid "Select the color used for values that indicate an increase in the chart"
 msgstr "Color de los valores que suben"
@@ -11194,7 +11189,7 @@ msgid "Show CREATE VIEW statement"
 msgstr "Mostrar instrucción CREAR VISTA"
 
 msgid "Show Dashboard"
-msgstr "Mostrar el panel de control"
+msgstr "Mostrar el tablero"
 
 msgid "Show Labels"
 msgstr "Mostrar etiquetas"
@@ -11556,7 +11551,7 @@ msgstr "Lo sentimos, se ha producido un error al guardar esto %s: %s"
 
 #, python-format
 msgid "Sorry, there was an error saving this dashboard: %s"
-msgstr "Lo sentimos, se ha producido un error al guardar este panel de control: %s"
+msgstr "Lo sentimos, se ha producido un error al guardar este tablero: %s"
 
 msgid "Sorry, your browser does not support copying."
 msgstr "Lo sentimos, tu navegador no admite la copia."
@@ -12161,9 +12156,8 @@ msgid ""
 "The CSS for individual dashboards can be altered here, or in the "
 "dashboard view where changes are immediately visible"
 msgstr ""
-"El CSS para paneles de control individuales se puede modificar aquí o en "
-"la vista del panel de control, donde los cambios son inmediatamente "
-"visibles"
+"El CSS para tableros individuales se puede modificar aquí o en la vista "
+"del tablero, donde los cambios son inmediatamente visibles"
 
 msgid ""
 "The CTAS (create table as select) doesn't have a SELECT statement at the "
@@ -12210,8 +12204,8 @@ msgid ""
 " filters list?"
 msgstr ""
 "El eje X no está en la lista de filtros, así que no se podrá usar en los "
-"filtros de rango de tiempo de los paneles de control. ¿Quieres añadirlo a"
-" la lista de filtros?"
+"filtros de rango de tiempo de los tableros. ¿Quieres añadirlo a la lista "
+"de filtros?"
 
 msgid "The annotation has been saved"
 msgstr "La anotación se ha guardado"
@@ -12269,8 +12263,8 @@ msgid ""
 "The color scheme is determined by the related dashboard.\n"
 "        Edit the color scheme in the dashboard properties."
 msgstr ""
-"El esquema de color está determinado por el panel de control asociado.\n"
-"        Edita el esquema de color en las propiedades del panel de control."
+"El esquema de color está determinado por el tablero asociado.\n"
+"        Edita el esquema de color en las propiedades del tablero."
 
 msgid "The color used when a value doesn't match any defined breakpoints."
 msgstr "Color de los valores que no caen en ningún rango."
@@ -12281,7 +12275,7 @@ msgid ""
 "    Check the JSON metadata in the Advanced settings."
 msgstr ""
 "Los colores de este gráfico pueden ser anulados por los colores de "
-"etiqueta personalizados del panel de control asociado.\n"
+"etiqueta personalizados del tablero asociado.\n"
 "    Comprueba los metadatos JSON en los ajustes avanzados."
 
 msgid "The column header label"
@@ -12312,7 +12306,7 @@ msgstr ""
 "en la columna [country]"
 
 msgid "The dashboard has been saved"
-msgstr "El panel de control se ha guardado"
+msgstr "El tablero se ha guardado"
 
 msgid "The data source seems to have been deleted"
 msgstr "Parece que se ha eliminado la fuente de datos"
@@ -12419,11 +12413,11 @@ msgid ""
 "The description can be displayed as widget headers in the dashboard view."
 " Supports markdown."
 msgstr ""
-"La descripción se puede mostrar como encabezados de «widgets» en la vista"
-" del panel de control. Admite notas."
+"La descripción se puede mostrar como encabezados de «widgets» en la vista "
+"del tablero. Admite notas."
 
 msgid "The display name of your dashboard"
-msgstr "Nombre visible del panel de control"
+msgstr "Nombre visible del tablero"
 
 msgid "The distance between cells, in pixels"
 msgstr "La distancia entre celdas, en píxeles"
@@ -12483,7 +12477,7 @@ msgstr ""
 "Los siguientes filtros tienen la opción «Seleccionar el primer valor de "
 "filtro por defecto»\n"
 "                    seleccionada y no se pudieron cargar, lo que impide "
-"que el panel de control\n"
+"que el tablero\n"
 "                    se renderice: %s"
 
 msgid "The font size of the point labels"
@@ -12712,11 +12706,10 @@ msgid ""
 "needed."
 msgstr ""
 "Las contraseñas de las bases de datos que figuran a continuación son "
-"necesarias para importarlas junto con los paneles de control. Recuerda "
-"que las secciones «Seguridad adicional» y «Certificado» de la "
-"configuración de la base de datos no están presentes en los archivos de "
-"exportación y deben añadirse manualmente después de la importación, si "
-"son necesarias."
+"necesarias para importarlas junto con los tableros. Recuerda que las "
+"secciones «Seguridad adicional» y «Certificado» de la configuración de la "
+"base de datos no están presentes en los archivos de exportación y deben "
+"añadirse manualmente después de la importación, si son necesarias."
 
 msgid ""
 "The passwords for the databases below are needed in order to import them "
@@ -13147,13 +13140,13 @@ msgid "There are associated alerts or reports: %(report_names)s"
 msgstr "Hay alertas o informes asociados: %(report_names)s"
 
 msgid "There are no charts added to this dashboard"
-msgstr "No hay gráficos añadidos a este panel de control"
+msgstr "No hay gráficos añadidos a este tablero"
 
 msgid "There are no components added to this tab"
 msgstr "No hay componentes añadidos a esta pestaña"
 
 msgid "There are no filters in this dashboard."
-msgstr "No hay filtros en este panel de control."
+msgstr "No hay filtros en este tablero."
 
 msgid "There are unsaved changes."
 msgstr "Hay cambios sin guardar."
@@ -13225,7 +13218,7 @@ msgid "There was an error loading users."
 msgstr "Se ha producido un error al cargar los usuarios."
 
 msgid "There was an error retrieving dashboard tabs."
-msgstr "Se ha producido un error al obtener las pestañas del panel de control."
+msgstr "Se ha producido un error al obtener las pestañas del tablero."
 
 #, python-format
 msgid "There was an error saving the favorite status: %s"
@@ -13311,7 +13304,7 @@ msgid "There was an issue exporting the selected charts"
 msgstr "No se han podido exportar los gráficos seleccionados"
 
 msgid "There was an issue exporting the selected dashboards"
-msgstr "No se han podido exportar los paneles de control seleccionados"
+msgstr "No se han podido exportar los tableros seleccionados"
 
 msgid "There was an issue exporting the selected datasets"
 msgstr "No se han podido exportar los conjuntos de datos seleccionados"
@@ -13320,15 +13313,14 @@ msgid "There was an issue exporting the selected themes"
 msgstr "No se han podido exportar los temas seleccionados"
 
 msgid "There was an issue favoriting this dashboard."
-msgstr "Ha habido un problema al marcar como favorito este panel de control."
+msgstr "Ha habido un problema al marcar como favorito este tablero."
 
 msgid "There was an issue fetching reports."
 msgstr "No se han podido obtener los informes."
 
 msgid "There was an issue fetching the favorite status of this dashboard."
 msgstr ""
-"Ha habido un problema al recuperar el estado de favorito de este panel de"
-" control."
+"Ha habido un problema al recuperar el estado de favorito de este tablero."
 
 #, python-format
 msgid "There was an issue fetching your chart: %s"
@@ -13363,9 +13355,9 @@ msgid ""
 "and for power users who may want to alter specific parameters."
 msgstr ""
 "Este objeto JSON se genera dinámicamente al hacer clic en el botón "
-"«Guardar o sobrescribir» de la vista del panel de control. Se presenta "
-"aquí como referencia y para los usuarios avanzados que quieran modificar "
-"parámetros específicos."
+"«Guardar o sobrescribir» de la vista del tablero. Se presenta aquí como "
+"referencia y para los usuarios avanzados que quieran modificar parámetros "
+"específicos."
 
 #, python-format
 msgid "This action will permanently delete %s."
@@ -13475,51 +13467,48 @@ msgid ""
 "This dashboard is currently auto refreshing; the next auto refresh will "
 "be in %s."
 msgstr ""
-"Este panel de control se está actualizando automáticamente; la próxima "
+"Este tablero se está actualizando automáticamente; la próxima "
 "actualización automática será dentro de %s."
 
 msgid "This dashboard is managed externally, and can't be edited in Superset"
 msgstr ""
-"Este panel de control se gestiona externamente y no se puede editar en "
-"AuraData BI"
+"Este tablero se gestiona externamente y no se puede editar en AuraData BI"
 
 msgid ""
 "This dashboard is not published which means it will not show up in the "
 "list of dashboards. Favorite it to see it there or access it by using the"
 " URL directly."
 msgstr ""
-"Este panel de control no está publicado, lo que significa que no "
-"aparecerá en la lista de paneles de control. Márcalo como favorito para "
-"verlo ahí o accede a él utilizando la URL directamente."
+"Este tablero no está publicado, lo que significa que no aparecerá en la "
+"lista de tableros. Márcalo como favorito para verlo ahí o accede a él "
+"utilizando la URL directamente."
 
 msgid ""
 "This dashboard is not published, it will not show up in the list of "
 "dashboards. Click here to publish this dashboard."
 msgstr ""
-"Este panel de control no está publicado, por lo que no aparecerá en la "
-"lista de paneles de control. Haz clic aquí para publicar este panel de "
-"control."
+"Este tablero no está publicado, por lo que no aparecerá en la lista de "
+"tableros. Haz clic aquí para publicar este tablero."
 
 msgid "This dashboard is now hidden"
-msgstr "Este panel de control está ahora oculto"
+msgstr "Este tablero está ahora oculto"
 
 msgid "This dashboard is now published"
-msgstr "Este panel de control está ahora publicado"
+msgstr "Este tablero está ahora publicado"
 
 msgid "This dashboard is published. Click to make it a draft."
 msgstr ""
-"Este panel de control está publicado. Haz clic para convertirlo en un "
-"borrador."
+"Este tablero está publicado. Haz clic para convertirlo en un borrador."
 
 msgid ""
 "This dashboard is ready to embed. In your application, pass the following"
 " id to the SDK:"
 msgstr ""
-"Este panel de control está listo para incrustarse. En tu aplicación, pase"
-" el siguiente ID al SDK:"
+"Este tablero está listo para incrustarse. En tu aplicación, pase el "
+"siguiente ID al SDK:"
 
 msgid "This dashboard was saved successfully."
-msgstr "Este panel de control se ha guardado correctamente."
+msgstr "Este tablero se ha guardado correctamente."
 
 msgid ""
 "This database does not allow for DDL/DML, but the query mutates data. "
@@ -13638,10 +13627,9 @@ msgid ""
 "dashboard. It is dynamically generated when adjusting the widgets size "
 "and positions by using drag & drop in the dashboard view"
 msgstr ""
-"Este objeto json describe el posicionamiento de los «widgets» en el panel"
-" de control. Se genera dinámicamente al ajustar el tamaño y las "
-"posiciones de los «widgets» arrastrando y soltando en la vista del panel "
-"de control."
+"Este objeto json describe el posicionamiento de los «widgets» en el "
+"tablero. Se genera dinámicamente al ajustar el tamaño y las posiciones de "
+"los «widgets» arrastrando y soltando en la vista del tablero."
 
 msgid "This markdown component has an error."
 msgstr "Este componente de nota tiene un error."
@@ -13967,7 +13955,7 @@ msgid "To filter on a metric, use Custom SQL tab."
 msgstr "Para filtrar en una métrica, utiliza la pestaña «SQL personalizado»."
 
 msgid "To get a readable URL for your dashboard"
-msgstr "Para obtener una URL legible para tu panel de control"
+msgstr "Para obtener una URL legible para tu tablero"
 
 msgid "To text color"
 msgstr "Color del texto"
@@ -14220,7 +14208,7 @@ msgstr ""
 
 #, -ERR:PROP-NOT-FOUND-
 msgid "Unable to load dashboard"
-msgstr "No se ha podido cargar el panel de control"
+msgstr "No se ha podido cargar el tablero"
 
 msgid ""
 "Unable to migrate query editor state to backend. Superset will retry "
@@ -14253,7 +14241,7 @@ msgid "Unable to read the file, please refresh and try again."
 msgstr "No se ha podido leer el archivo; actualiza la página e inténtalo de nuevo."
 
 msgid "Unable to retrieve dashboard colors"
-msgstr "No se han podido recuperar los colores del panel de control"
+msgstr "No se han podido recuperar los colores del tablero"
 
 msgid "Unable to sync permissions for this database connection."
 msgstr ""
@@ -15100,8 +15088,7 @@ msgid ""
 " impact the load times for your dashboard."
 msgstr ""
 "Al usar esta opción, no se puede establecer el valor predeterminado. El "
-"uso de esta opción puede afectar los tiempos de carga de tu panel de "
-"control."
+"uso de esta opción puede afectar los tiempos de carga de tu tablero."
 
 msgid "Whether the progress bar overlaps when there are multiple groups of data"
 msgstr "Si la barra de progreso se superpone cuando hay varios grupos de datos"
@@ -15471,9 +15458,8 @@ msgid ""
 "might cause you to lose some of your work. Are you sure you want to "
 "overwrite?"
 msgstr ""
-"Estás importando uno o más paneles de control que ya existen. Si los "
-"sobrescribes, podrías perder parte de tu trabajo. ¿Seguro que quieres "
-"sobrescribir?"
+"Estás importando uno o más tableros que ya existen. Si los sobrescribes, "
+"podrías perder parte de tu trabajo. ¿Seguro que quieres sobrescribir?"
 
 msgid ""
 "You are importing one or more databases that already exist. Overwriting "
@@ -15515,8 +15501,8 @@ msgid ""
 "across multiple charts.\n"
 "        The color scheme selection is disabled."
 msgstr ""
-"Está viendo este gráfico en un contexto de panel de control con etiquetas"
-" compartidas en varios gráficos.\n"
+"Está viendo este gráfico en un contexto de tablero con etiquetas "
+"compartidas en varios gráficos.\n"
 "        La selección del esquema de color está deshabilitada."
 
 msgid ""
@@ -15525,10 +15511,10 @@ msgid ""
 "        To edit the color scheme, open this chart outside of the "
 "dashboard."
 msgstr ""
-"Estás viendo este gráfico en el contexto de un panel de control que "
-"afecta directamente a sus colores.\n"
+"Estás viendo este gráfico en el contexto de un tablero que afecta "
+"directamente a sus colores.\n"
 "        Para editar el esquema de color, abre este gráfico fuera del "
-"panel de control."
+"tablero."
 
 msgid "You can"
 msgstr "Puedes"
@@ -15562,8 +15548,8 @@ msgstr ""
 
 msgid "You can preview the list of dashboards in the chart settings dropdown."
 msgstr ""
-"Puedes acceder a una vista previa de la lista de paneles de control desde"
-" el menú desplegable de ajustes del gráfico."
+"Puedes acceder a una vista previa de la lista de tableros desde el menú "
+"desplegable de ajustes del gráfico."
 
 msgid "You can't apply cross-filter on this data point."
 msgstr "No puedes aplicar un filtro cruzado en este punto de datos."
@@ -15572,8 +15558,8 @@ msgid ""
 "You cannot delete the last temporal filter as it's used for time range "
 "filters in dashboards."
 msgstr ""
-"No puedes eliminar el último filtro de tiempo, ya que se utiliza para los"
-" filtros de intervalo de tiempo en los paneles de control."
+"No puedes eliminar el último filtro de tiempo, ya que se utiliza para los "
+"filtros de intervalo de tiempo en los tableros."
 
 msgid "You cannot use 45° tick layout along with the time range filter"
 msgstr ""
@@ -15588,13 +15574,13 @@ msgid "You do not have permission to edit this chart"
 msgstr "No tienes permisos para editar este gráfico"
 
 msgid "You do not have permission to edit this dashboard"
-msgstr "No tienes permiso para editar este panel de control"
+msgstr "No tienes permiso para editar este tablero"
 
 msgid "You do not have permission to read tags"
 msgstr "No tienes permisos para leer etiquetas"
 
 msgid "You do not have permissions to edit this dashboard."
-msgstr "No tienes permisos para editar este panel de control."
+msgstr "No tienes permisos para editar este tablero."
 
 msgid "You do not have sufficient permissions to edit the chart"
 msgstr "No tienes permisos suficientes para editar el gráfico"
@@ -15603,13 +15589,13 @@ msgid "You don't have access to this chart."
 msgstr "No tienes acceso a este gráfico."
 
 msgid "You don't have access to this dashboard."
-msgstr "No tienes acceso a este panel de control."
+msgstr "No tienes acceso a este tablero."
 
 msgid "You don't have access to this dataset."
 msgstr "No tienes acceso a este conjunto de datos."
 
 msgid "You don't have access to this embedded dashboard config."
-msgstr "No tienes acceso a la configuración de este panel de control incrustado."
+msgstr "No tienes acceso a la configuración de este tablero incrustado."
 
 msgid "You don't have permission to modify the value."
 msgstr "No tienes permisos para modificar el valor."
@@ -15622,7 +15608,7 @@ msgid "You don't have the rights to alter this chart"
 msgstr "No tienes los derechos para modificar este gráfico"
 
 msgid "You don't have the rights to alter this dashboard"
-msgstr "No tienes los derechos para modificar este panel de control"
+msgstr "No tienes los derechos para modificar este tablero"
 
 msgid "You don't have the rights to alter this title."
 msgstr "No tienes los derechos para modificar este título."
@@ -15631,7 +15617,7 @@ msgid "You don't have the rights to create a chart"
 msgstr "No tienes los derechos para crear un gráfico"
 
 msgid "You don't have the rights to create a dashboard"
-msgstr "No tienes los derechos para crear un panel de control"
+msgstr "No tienes los derechos para crear un tablero"
 
 msgid "You don't have the rights to download as csv"
 msgstr "No tiene los derechos para descargar como CSV"
@@ -15664,7 +15650,7 @@ msgstr ""
 "modificaciones o editar el acceso."
 
 msgid "You must pick a name for the new dashboard"
-msgstr "Debes elegir un nombre para el nuevo panel de control"
+msgstr "Debes elegir un nombre para el nuevo tablero"
 
 msgid "You must run the query successfully first"
 msgstr "Primero debes ejecutar la consulta correctamente"
@@ -15702,12 +15688,10 @@ msgid "Your chart is ready to go!"
 msgstr "Tu gráfico está listo"
 
 msgid "Your dashboard is near the size limit."
-msgstr "Tu panel de control casi ha alcanzado el límite de tamaño."
+msgstr "Tu tablero casi ha alcanzado el límite de tamaño."
 
 msgid "Your dashboard is too large. Please reduce its size before saving it."
-msgstr ""
-"Tu panel de control es demasiado grande. Reduce su tamaño antes de "
-"guardarlo."
+msgstr "Tu tablero es demasiado grande. Reduce su tamaño antes de guardarlo."
 
 msgid "Your query could not be saved"
 msgstr "Tu consulta no se ha podido guardar"
@@ -15982,10 +15966,10 @@ msgid "cumsum"
 msgstr "cumsum"
 
 msgid "dashboard"
-msgstr "panel de control"
+msgstr "tablero"
 
 msgid "dashboards"
-msgstr "paneles de control"
+msgstr "tableros"
 
 msgid "database"
 msgstr "base de datos"
@@ -16599,22 +16583,22 @@ msgstr "© Atribución de la capa"
 # AuraData BI: charts belong to a single dashboard
 # (superset/mibi/single_dashboard.py)
 msgid "A chart can only belong to one dashboard."
-msgstr "Un gráfico solo puede pertenecer a un panel de control."
+msgstr "Un gráfico solo puede pertenecer a un tablero."
 
 msgid ""
 "This chart already belongs to another dashboard. Charts can't be moved or"
 " shared between dashboards."
 msgstr ""
-"Este gráfico ya pertenece a otro panel de control. Los gráficos no se "
-"pueden mover ni compartir entre paneles de control."
+"Este gráfico ya pertenece a otro tablero. Los gráficos no se pueden mover "
+"ni compartir entre tableros."
 
 #, python-format
 msgid ""
 "Dashboard cannot be restored because some of its charts now belong to "
 "another dashboard: %(chart_ids)s"
 msgstr ""
-"No se puede restaurar el panel de control porque algunos de sus gráficos "
-"ya pertenecen a otro panel de control: %(chart_ids)s"
+"No se puede restaurar el tablero porque algunos de sus gráficos ya "
+"pertenecen a otro tablero: %(chart_ids)s"
 
 #, python-format
 msgid ""
@@ -16622,7 +16606,7 @@ msgid ""
 "another dashboard: %(chart_ids)s"
 msgstr ""
 "No se puede restaurar esta versión porque algunos de sus gráficos ya "
-"pertenecen a otro panel de control: %(chart_ids)s"
+"pertenecen a otro tablero: %(chart_ids)s"
 
 # AuraData BI: a workspace role edits but never changes editors or viewers
 # (superset/mibi/workspace_access.py)
@@ -16634,36 +16618,36 @@ msgid ""
 "A chart can only belong to one dashboard. These charts already belong to "
 "another dashboard: %(chart_ids)s"
 msgstr ""
-"Un gráfico solo puede pertenecer a un panel de control. Estos gráficos ya"
-" pertenecen a otro panel de control: %(chart_ids)s"
+"Un gráfico solo puede pertenecer a un tablero. Estos gráficos ya "
+"pertenecen a otro tablero: %(chart_ids)s"
 
 #, python-format
 msgid ""
 "A chart can only belong to one dashboard. Charts in more than one "
 "dashboard: %(details)s"
 msgstr ""
-"Un gráfico solo puede pertenecer a un panel de control. Gráficos en más "
-"de un panel de control: %(details)s"
+"Un gráfico solo puede pertenecer a un tablero. Gráficos en más de un "
+"tablero: %(details)s"
 
 msgid "Charts are created from a dashboard"
-msgstr "Los gráficos se crean desde un panel de control"
+msgstr "Los gráficos se crean desde un tablero"
 
 msgid ""
 "Open a dashboard, switch to edit mode and use \"Create new chart\". The "
 "chart will belong to that dashboard."
 msgstr ""
-"Abre un panel de control, pasa al modo de edición y usa \"Crear nuevo "
-"gráfico\". El gráfico pertenecerá a ese panel de control."
+"Abre un tablero, pasa al modo de edición y usa \"Crear nuevo gráfico\". El "
+"gráfico pertenecerá a ese tablero."
 
 msgid "Go to dashboards"
-msgstr "Ir a los paneles de control"
+msgstr "Ir a los tableros"
 
 msgid ""
 "Charts you create for this dashboard appear here, ready to drag into the "
 "layout."
 msgstr ""
-"Los gráficos que crees para este panel de control aparecen aquí, listos "
-"para arrastrarlos al diseño."
+"Los gráficos que crees para este tablero aparecen aquí, listos para "
+"arrastrarlos al diseño."
 
 msgid "Administration"
 msgstr "Administración"
@@ -16696,7 +16680,7 @@ msgid "Good evening"
 msgstr "Buenas noches"
 
 msgid "New dashboard"
-msgstr "Nuevo panel de control"
+msgstr "Nuevo tablero"
 
 msgid "Start a report and add charts to it"
 msgstr "Crea un informe y añádele gráficos"
@@ -16732,10 +16716,10 @@ msgid "Mark dashboards with a star to find them here."
 msgstr "Marca paneles con una estrella para encontrarlos aquí."
 
 msgid "There are no dashboards yet."
-msgstr "Todavía no hay paneles de control."
+msgstr "Todavía no hay tableros."
 
 msgid "Create your first dashboard"
-msgstr "Crea tu primer panel de control"
+msgstr "Crea tu primer tablero"
 
 #, python-format
 msgid "%s-%s of %s"
@@ -16777,7 +16761,7 @@ msgstr "%s se ha quitado del área de trabajo"
 
 #, python-format
 msgid "Add dashboards to %s"
-msgstr "Añadir paneles de control a %s"
+msgstr "Añadir tableros a %s"
 
 msgid "Add dashboards"
 msgstr "Añadir paneles"
@@ -16798,7 +16782,7 @@ msgid "Change"
 msgstr "Cambiar"
 
 msgid "Create a dashboard here or bring existing ones."
-msgstr "Crea un panel de control aquí o trae otros que ya tengas."
+msgstr "Crea un tablero aquí o trae otros que ya tengas."
 
 msgid "Create your first workspace"
 msgstr "Crea tu primera área de trabajo"
@@ -16826,10 +16810,10 @@ msgid "For a team, an area or a project"
 msgstr "Para un equipo, un área o un proyecto"
 
 msgid "Group your dashboards by team, area or project."
-msgstr "Organiza tus paneles de control por equipo, área o proyecto."
+msgstr "Organiza tus tableros por equipo, área o proyecto."
 
 msgid "Its dashboards will show up here."
-msgstr "Sus paneles de control aparecerán aquí."
+msgstr "Sus tableros aparecerán aquí."
 
 msgid "More options"
 msgstr "Más opciones"
@@ -16842,7 +16826,7 @@ msgid "New workspace"
 msgstr "Nueva área de trabajo"
 
 msgid "No dashboards found"
-msgstr "No se han encontrado paneles de control"
+msgstr "No se han encontrado tableros"
 
 msgid "No description"
 msgstr "Sin descripción"
@@ -16854,19 +16838,19 @@ msgid "Remove picture"
 msgstr "Quitar foto"
 
 msgid "Search dashboards"
-msgstr "Buscar paneles de control"
+msgstr "Buscar tableros"
 
 msgid "Search workspaces"
 msgstr "Buscar áreas de trabajo"
 
 msgid "The dashboard could not be created"
-msgstr "No se ha podido crear el panel de control"
+msgstr "No se ha podido crear el tablero"
 
 msgid "The dashboard could not be removed"
-msgstr "No se ha podido quitar el panel de control"
+msgstr "No se ha podido quitar el tablero"
 
 msgid "The dashboards could not be added"
-msgstr "No se han podido añadir los paneles de control"
+msgstr "No se han podido añadir los tableros"
 
 msgid "The image is larger than 2 MB"
 msgstr "La imagen ocupa más de 2 MB"
@@ -16881,7 +16865,7 @@ msgid "This workspace does not exist"
 msgstr "Esta área de trabajo no existe"
 
 msgid "This workspace has no dashboards yet"
-msgstr "Esta área de trabajo aún no tiene paneles de control"
+msgstr "Esta área de trabajo aún no tiene tableros"
 
 msgid "Use a PNG, JPEG, GIF or WebP image"
 msgstr "Usa una imagen PNG, JPEG, GIF o WebP"
@@ -16915,16 +16899,16 @@ msgid ""
 "A workspace keeps the dashboards of a team or project together, with its "
 "own name, picture and description."
 msgstr ""
-"Un área de trabajo reúne los paneles de control de un equipo o proyecto, "
-"con su propio nombre, foto y descripción."
+"Un área de trabajo reúne los tableros de un equipo o proyecto, con su "
+"propio nombre, foto y descripción."
 
 #, python-format
 msgid ""
 "The workspace %s will be deleted. Its dashboards are kept and stay "
 "available in the dashboard list."
 msgstr ""
-"Se eliminará el área de trabajo %s. Sus paneles de control se conservan y"
-" siguen disponibles en la lista de paneles."
+"Se eliminará el área de trabajo %s. Sus tableros se conservan y siguen "
+"disponibles en la lista de paneles."
 
 #, python-format
 msgid "%s dashboard"
@@ -17111,7 +17095,7 @@ msgid "No chart uses it yet."
 msgstr "Aún no lo usa ningún gráfico."
 
 msgid "No dashboard uses it yet."
-msgstr "Aún no lo usa ningún panel de control."
+msgstr "Aún no lo usa ningún tablero."
 
 msgid "No datasets match"
 msgstr "Ningún conjunto de datos coincide"
@@ -18514,15 +18498,14 @@ msgid "The selected filter no longer exists"
 msgstr "El filtro elegido ya no existe"
 
 msgid "Choose a dashboard filter in the Format pane"
-msgstr "Elige un filtro del panel de control en el panel Formato"
+msgstr "Elige un filtro del tablero en el panel Formato"
 
 msgid ""
 "Shows a filter of the dashboard on the canvas. Choices made here apply to"
 " the charts right away and also show in the filter bar."
 msgstr ""
-"Muestra un filtro del panel de control en el lienzo. Lo que elijas aquí "
-"se aplica a los gráficos al instante y también se ve en la barra de "
-"filtros."
+"Muestra un filtro del tablero en el lienzo. Lo que elijas aquí se aplica "
+"a los gráficos al instante y también se ve en la barra de filtros."
 
 msgid "Filter to show"
 msgstr "Filtro que se muestra"
@@ -18531,7 +18514,7 @@ msgid "Choose a filter"
 msgstr "Elige un filtro"
 
 msgid "Add a filter to the dashboard first"
-msgstr "Primero añade un filtro al panel de control"
+msgstr "Primero añade un filtro al tablero"
 
 msgid "Also show in the filter bar"
 msgstr "Mostrar también en la barra de filtros"
@@ -19275,7 +19258,7 @@ msgid "Row labels"
 msgstr "Etiquetas de fila"
 
 msgid "Group dashboards and share them with your team"
-msgstr "Agrupa paneles de control y compártelos con tu equipo"
+msgstr "Agrupa tableros y compártelos con tu equipo"
 
 msgid "SQL editor"
 msgstr "Editor SQL"
@@ -19296,37 +19279,37 @@ msgstr "No se pudo compartir el conjunto de datos"
 msgid "Datasets created from the \"Data\" menu of its dashboards show up here."
 msgstr ""
 "Aquí aparecen los conjuntos de datos que crees desde el menú «Datos» de "
-"sus paneles de control."
+"sus tableros."
 
 msgid "Usable in dashboard"
-msgstr "Utilizable en el panel de control"
+msgstr "Utilizable en el tablero"
 
 msgid ""
 "This dataset belongs to another workspace. A chart can only use the "
 "datasets of its dashboard's workspace or shared ones."
 msgstr ""
 "Este conjunto de datos pertenece a otra área de trabajo. Un gráfico solo "
-"puede usar los conjuntos de datos del área de trabajo de su panel de "
-"control o los compartidos."
+"puede usar los conjuntos de datos del área de trabajo de su tablero o los "
+"compartidos."
 
 #, python-format
 msgid ""
 "These dashboards use datasets of another workspace: %(datasets)s. Share "
 "those datasets first."
 msgstr ""
-"Estos paneles de control usan conjuntos de datos de otra área de trabajo:"
-" %(datasets)s. Compártelos primero."
+"Estos tableros usan conjuntos de datos de otra área de trabajo: "
+"%(datasets)s. Compártelos primero."
 
 #, python-format
 msgid "Dashboards outside this workspace use these datasets: %(datasets)s."
 msgstr ""
-"Hay paneles de control fuera de esta área de trabajo que usan estos "
-"conjuntos de datos: %(datasets)s."
+"Hay tableros fuera de esta área de trabajo que usan estos conjuntos de "
+"datos: %(datasets)s."
 
 msgid "The datasets of this dashboard's workspace and the shared ones."
 msgstr ""
-"Los conjuntos de datos del área de trabajo de este panel de control y los"
-" compartidos."
+"Los conjuntos de datos del área de trabajo de este tablero y los "
+"compartidos."
 
 msgid "Header fill"
 msgstr "Relleno del encabezado"
@@ -22546,13 +22529,13 @@ msgstr "Se ha producido un error al recuperar las conexiones"
 msgid "An error occurred while fetching dashboard editor values: %s"
 msgstr ""
 "Se ha producido un error al recuperar los valores de los editores del "
-"panel de control: %s"
+"tablero: %s"
 
 #, python-format
 msgid "An error occurred while fetching dashboard viewer values: %s"
 msgstr ""
 "Se ha producido un error al recuperar los valores de los visualizadores "
-"del panel de control: %s"
+"del tablero: %s"
 
 #, python-format
 msgid "An error occurred while fetching dataset editor values: %s"
@@ -23156,7 +23139,7 @@ msgstr "Oscuro (Carto)"
 
 #, python-format
 msgid "Dashboard %(dashboard_id)s not found"
-msgstr "No se ha encontrado el panel de control %(dashboard_id)s"
+msgstr "No se ha encontrado el tablero %(dashboard_id)s"
 
 msgid ""
 "Dashboard cannot be restored because its slug is now used by another "
@@ -23406,15 +23389,14 @@ msgstr "Editores"
 
 msgid "Editors is a list of subjects who can alter the dashboard."
 msgstr ""
-"Los editores son una lista de sujetos que pueden modificar el panel de "
-"control."
+"Los editores son una lista de sujetos que pueden modificar el tablero."
 
 msgid ""
 "Editors is a list of subjects who can alter the dashboard. Searchable by "
 "name."
 msgstr ""
-"Los editores son una lista de sujetos que pueden modificar el panel de "
-"control. Se pueden buscar por nombre."
+"Los editores son una lista de sujetos que pueden modificar el tablero. Se "
+"pueden buscar por nombre."
 
 msgid "Email recipients"
 msgstr "Destinatarios del correo"
@@ -24768,7 +24750,7 @@ msgid "Search actions"
 msgstr "Buscar acciones"
 
 msgid "Search charts by name, editor, or dashboard"
-msgstr "Buscar gráficos por nombre, editor o panel de control"
+msgstr "Buscar gráficos por nombre, editor o tablero"
 
 msgid "Search editors"
 msgstr "Buscar editores"
@@ -26040,8 +26022,7 @@ msgid ""
 " impact the load times for your dashboard."
 msgstr ""
 "Al usar esta opción, no se puede establecer el valor predeterminado. El "
-"uso de esta opción puede afectar los tiempos de carga de tu panel de "
-"control."
+"uso de esta opción puede afectar los tiempos de carga de tu tablero."
 
 msgid ""
 "Where to place the ellipsis when a tooltip label is too long. Choose Off "
