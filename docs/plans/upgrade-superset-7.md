@@ -234,8 +234,26 @@ desechable en el puerto 5544. El stack de dev (8188) no se tocó.
 - **Arranque.** `superset run` del venv contra la copia migrada (puerto 8199): `/health`, login, `/api/v1/workspace/`,
   sus tableros y datasets, `/api/v1/dataset/` (8), `dataset_usable_in_dashboard`, `/api/v1/dashboard/142`,
   `/dashboard/142/` y previews responden 200 sin trazas. El contenedor y el volcado se borraron al terminar.
-- **Comprobaciones.** `pytest tests/unit_tests/mibi/`: **99/99** (82 de antes, 11 de seguridad, 5 de soft delete, 1 de
-  datasets por workspace). Tests MCP de `generate_dashboard`, `add_chart_to_existing_dashboard` y densidad: 89/89.
+- **Restaurar versiones** (`44fdbde79f`). Restaurar una versión de un tablero reasigna sus gráficos por el ORM; si uno
+  pasó después a otro tablero vivo, el listener lo para y `RestoreDashboardVersionCommand` lo convierte en un 422 legible.
+- **Ajustes tras correr los tests de 7.0 afectados** (`f91deabbb6`). `raise_for_editorship` pregunta primero `is_editor`
+  (conserva la negativa a invitados de 7.0) y luego el workspace, también sin invitados; `compute_subjects` solo mira el
+  rol de workspace en tableros y gráficos. El test de 7.0 de copiar un tablero espera ya la regla del fork (la copia
+  clona los gráficos).
+- **Prueba en vivo como no admin** (otra copia desechable de dev, borrada al terminar). Un usuario Gamma contribuidor del
+  workspace «Análisis comercial»: ve ese workspace y no el otro; la lista de datasets responde 200 (0 sin permisos de
+  datos). Con Alpha: ve el dataset compartido y el de su workspace, no los de «SESEQ RRHH». En un tablero publicado del
+  workspace: `can_edit` verdadero, cambia el título (versión nueva del historial), cambiar editores da 422 y los editores
+  siguen siendo los mismos.
+  - **Cambio visible frente a 6.1:** un contribuidor sin acceso a los datasets del tablero ya no lo abre (en 6.1 lo abría
+    por `is_owner`); los borradores siguen ocultos en la API a quien no es editor, como en 6.1 (filtro de listas). Ver
+    fase 4.
+- **Tests de 7.0 que tocan lo cambiado** (42 archivos, uno tras otro): 844 pasan en los limpios. Los que fallan no son de
+  esta fase: 13 de `security/manager_test.py` (los del payload de invitados del fork, pendiente 2) y los de
+  `mcp_service/test_mcp_tool_registration.py`/`test_tool_inventory.py` (nombran temas, pendiente 5); los `ERROR` restantes
+  solo eran el fixture `caplog` desactivado con `-p no:logging`.
+- **Comprobaciones.** `pytest tests/unit_tests/mibi/`: **100/100** (82 de antes, 11 de seguridad, 5 de soft delete, 1 de
+  datasets por workspace, 1 de restaurar versiones). Tests MCP de `generate_dashboard`, `add_chart_to_existing_dashboard` y densidad: 89/89.
   `pre-commit` (mypy, ruff, pylint) sobre los archivos tocados: limpio. No se corrió ninguna suite completa.
 
 ## Abiertos para la fase 2 (backend)
@@ -269,8 +287,10 @@ No bloquea arrancar ni los tests del fork; conviene cerrarlo antes de la fase 7.
 
 1. `superset/views/pwa_manifest.py` (7.0) sirve «Apache Superset»: ponerle la marca AuraData (nombre, descripción en
    español, colores, icono).
-2. Payload de invitados embebidos: el código es el de 7.0; `superset/security/guest_payload.py` del fork queda sin usar y
-   sus 28 tests de `tests/unit_tests/security/manager_test.py` sin correr. Decidir si se borra o se amplía la lista de 7.0.
+2. **Seguridad, prioritario.** Payload de invitados embebidos: el código es el de 7.0; `superset/security/guest_payload.py`
+   del fork queda sin usar y 13 de sus tests fallan (`test_query_context_modified_*`: mixed timeseries `*_b`, deck.gl,
+   `point_radius_fixed`, cartodiagram, `selected_chart`, pivot `groupbyRows`, `order_by_cols`...). Es decir, un invitado
+   embebido puede cambiar esos controles del payload sin que se detecte. Ampliar la comparación de 7.0 con la del fork.
 3. `daos/key_value.py` acepta `for_update` (7.0) y `lock: RowLock` (6.2): unificar en `lock`.
 4. Copiar un tablero: `remap_metadata_chart_ids` (fork) y `_remap_filter_scopes` (7.0) remapean en parte lo mismo.
 5. Tests de 7.0 que importan motores quitados (`test_cancel_query_validation.py`, `test_grouping_sets_capability.py`,
@@ -317,4 +337,5 @@ y [resto del frontend](upgrade-superset-7/bitacora-appfe.md).
    restaurar un tablero cuyos gráficos están ya en otro; el contribuidor de un workspace puede restaurar una versión pero
    no listar el historial (el historial pide editoría real); un contribuidor no puede copiar un tablero del workspace
    (decisión de seguridad: la copia le haría editor de los gráficos clonados); el formulario de propiedades no debe
-   ofrecer cambiar editores o visores a quien edita solo por el workspace (el backend responde 422).
+   ofrecer cambiar editores o visores a quien edita solo por el workspace (el backend responde 422); decidir si un
+   contribuidor sin acceso a los datasets debe poder abrir el tablero (6.1 lo permitía) y si ve los borradores.
