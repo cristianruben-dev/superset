@@ -30,6 +30,12 @@ logger = logging.getLogger(__name__)
 GLOBAL_ASYNC_QUERIES = "GLOBAL_ASYNC_QUERIES"
 GLOBAL_TASK_FRAMEWORK = "GLOBAL_TASK_FRAMEWORK"
 
+# AuraData BI: flags the product fixes to off whatever the configuration, the
+# environment or a dynamic callback says. A phone shows the optional mobile
+# layout of each page (``meta.mibiMobile``); Superset's consumption-only mobile
+# mode would replace it with its own routes and chrome.
+FORCED_OFF_FLAGS = ("MOBILE_CONSUMPTION_MODE",)
+
 
 class FeatureFlagManager:
     def __init__(self) -> None:
@@ -66,8 +72,11 @@ class FeatureFlagManager:
 
         GAQ implies GTF (see the module note): if GLOBAL_ASYNC_QUERIES resolved on
         but GLOBAL_TASK_FRAMEWORK resolved off, force GTF on. Returns a copy when a
-        rule fires so the source map is never mutated in place.
+        rule fires so the source map is never mutated in place. Flags in
+        ``FORCED_OFF_FLAGS`` always resolve off.
         """
+        if any(flags.get(flag) for flag in FORCED_OFF_FLAGS):
+            flags = {**flags, **dict.fromkeys(FORCED_OFF_FLAGS, False)}
         if flags.get(GLOBAL_ASYNC_QUERIES) and not flags.get(GLOBAL_TASK_FRAMEWORK):
             return {**flags, GLOBAL_TASK_FRAMEWORK: True}
         return flags
@@ -102,6 +111,8 @@ class FeatureFlagManager:
 
     def is_feature_enabled(self, feature: str) -> bool:
         """Utility function for checking whether a feature is turned on"""
+        if feature in FORCED_OFF_FLAGS:
+            return False
         if feature == GLOBAL_TASK_FRAMEWORK:
             # Derived rule: GAQ implies GTF, even under dynamic flag callbacks.
             return self._resolve_flag(GLOBAL_TASK_FRAMEWORK) or self._resolve_flag(
