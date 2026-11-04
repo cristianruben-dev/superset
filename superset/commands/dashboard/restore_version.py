@@ -18,13 +18,18 @@
 
 from __future__ import annotations
 
+from flask_babel import gettext as _
+
 from superset.commands.dashboard.exceptions import (
     DashboardForbiddenError,
     DashboardNotFoundError,
     DashboardUpdateFailedError,
 )
 from superset.commands.version_restore import BaseRestoreVersionCommand
+from superset.extensions import db
+from superset.mibi.single_dashboard import ChartInMultipleDashboardsError
 from superset.models.dashboard import Dashboard
+from superset.versioning.restore import RestoreResult
 
 
 class RestoreDashboardVersionCommand(BaseRestoreVersionCommand):
@@ -43,3 +48,25 @@ class RestoreDashboardVersionCommand(BaseRestoreVersionCommand):
     not_found_exc = DashboardNotFoundError
     forbidden_exc = DashboardForbiddenError
     failed_exc = DashboardUpdateFailedError
+
+    def _do_restore(self) -> RestoreResult:
+        """
+        AuraData BI: a chart belongs to one live dashboard. Restoring a version
+        reattaches the charts the dashboard had then; one that moved to another
+        dashboard since is refused by the ORM safety net, which becomes a readable
+        error here instead of an unhandled one.
+        """
+        result = super()._do_restore()
+        try:
+            db.session.flush()
+        except ChartInMultipleDashboardsError as ex:
+            raise DashboardUpdateFailedError(
+                _(
+                    "This version can't be restored because some of its charts now "
+                    "belong to another dashboard: %(chart_ids)s",
+                    chart_ids=", ".join(
+                        str(chart_id) for chart_id in sorted(ex.conflicts)
+                    ),
+                )
+            ) from ex
+        return result

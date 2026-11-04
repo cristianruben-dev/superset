@@ -16616,6 +16616,14 @@ msgstr ""
 "No se puede restaurar el panel de control porque algunos de sus gráficos "
 "ya pertenecen a otro panel de control: %(chart_ids)s"
 
+#, python-format
+msgid ""
+"This version can't be restored because some of its charts now belong to "
+"another dashboard: %(chart_ids)s"
+msgstr ""
+"No se puede restaurar esta versión porque algunos de sus gráficos ya "
+"pertenecen a otro panel de control: %(chart_ids)s"
+
 # AuraData BI: a workspace role edits but never changes editors or viewers
 # (superset/mibi/workspace_access.py)
 msgid "Only its editors can change who edits or views it."

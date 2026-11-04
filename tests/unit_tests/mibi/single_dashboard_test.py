@@ -304,3 +304,33 @@ def test_import_rejects_chart_shared_between_dashboards(
 
     with pytest.raises(ChartInMultipleDashboardsError):
         ImportDashboardsCommand._import(configs, overwrite=True)
+
+
+def test_restoring_a_version_with_a_moved_chart_is_refused(
+    mocker: MockerFixture, db_session: Session
+) -> None:
+    """A dashboard version can't bring back a chart that now lives elsewhere."""
+    from superset.commands.dashboard.exceptions import DashboardUpdateFailedError
+    from superset.commands.dashboard.restore_version import (
+        RestoreDashboardVersionCommand,
+    )
+    from superset.commands.version_restore import BaseRestoreVersionCommand
+    from superset.versioning.restore import RestoreResult
+
+    chart = make_chart(db_session)
+    first = make_dashboard(db_session, "A")
+    make_dashboard(db_session, "B", [chart])
+    db_session.commit()
+    chart_id = chart.id
+
+    def reattach(_command: object) -> RestoreResult:
+        # What the restore engine does with a version where the chart was in A
+        first.slices = [chart]
+        return RestoreResult(entity=first, skipped_slice_ids=[])
+
+    mocker.patch.object(BaseRestoreVersionCommand, "_do_restore", reattach)
+    command = RestoreDashboardVersionCommand(first.uuid, first.uuid)
+
+    with pytest.raises(DashboardUpdateFailedError) as excinfo:
+        command._do_restore()  # pylint: disable=protected-access
+    assert str(chart_id) in str(excinfo.value)
