@@ -1375,9 +1375,11 @@ class DuplicateDashboardRequest(BaseModel):
         default=False,
         description=(
             "When true, every chart on the source dashboard is deep-copied "
-            "into a new chart object owned by the caller. When false "
-            "(default), the new dashboard references the same charts as the "
-            "source."
+            "into a new chart object owned by the caller. AuraData BI charts "
+            "belong to one dashboard, so while that rule is on "
+            "(MIBI_SINGLE_DASHBOARD_CHARTS) the charts are always copied, "
+            "whatever this says; with the rule off, false (default) makes the "
+            "new dashboard reference the same charts as the source."
         ),
     )
     sanitization_warnings: SkipJsonSchema[List[str]] = Field(

@@ -292,10 +292,12 @@ async def duplicate_dashboard(
     """
     Duplicate an existing dashboard under a new title.
 
-    By default the copy references the same charts as the source.
-    Set duplicate_slices=true to also deep-copy every chart into new
-    chart objects owned by you, so edits to the copies never affect
-    the originals.
+    AuraData BI charts belong to one dashboard, so the copy always gets
+    its own copies of the charts: edits to them never affect the
+    originals. The copy goes into the source's workspace; a contributor
+    or admin of that workspace who is not an editor of the source gets a
+    copy that keeps the source's editors and viewers instead of becoming
+    its editor.
 
     The source dashboard can be identified by numeric ID, UUID, or slug.
     Returns the new dashboard's ID, title, and URL.
