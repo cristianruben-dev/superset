@@ -19,7 +19,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2026-02-06 23:58-0800\n"
 "PO-Revision-Date: 2016-05-02 08:49-0700\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Last-Translator: AuraData\n"
 "Language: es\n"
 "Language-Team: Español; Castellano <>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -207,15 +207,15 @@ msgstr "«%s» es ahora el tema oscuro del sistema"
 msgid "\"%s\" is now the system default theme"
 msgstr "«%s» es ahora el tema predeterminado del sistema"
 
-#, python-format
+#, no-python-format
 msgid "% calculation"
 msgstr "% del cálculo"
 
-#, python-format
+#, no-python-format
 msgid "% of parent"
 msgstr "% del primario"
 
-#, python-format
+#, no-python-format
 msgid "% of total"
 msgstr "% del total"
 
@@ -259,7 +259,7 @@ msgstr ""
 msgid "%(rows)d rows returned"
 msgstr "%(rows)d filas obtenidas"
 
-#, python-format
+#, no-python-format
 msgid "%(suggestion)s instead of \"%(undefinedParameter)s?\""
 msgid_plural ""
 "%(firstSuggestions)s or %(lastSuggestion)s instead of "
@@ -1096,14 +1096,14 @@ msgstr "Añadido"
 #, python-format
 msgid "Added 1 new column to the virtual dataset"
 msgid_plural "Added %s new columns to the virtual dataset"
-msgstr[0] "Se ha añadido 1 nueva columna al conjunto de datos virtual"
+msgstr[0] "Se ha añadido %s nueva columna al conjunto de datos virtual"
 msgstr[1] "Se han añadido %s nuevas columnas al conjunto de datos virtual"
 
 #, python-format
 msgid "Added to 1 dashboard"
 msgid_plural "Added to %s dashboards"
-msgstr[0] "Añadido a 1 panel de control"
-msgstr[1] "Añadido a %s paneles de control"
+msgstr[0] "Añadido a %s tablero"
+msgstr[1] "Añadido a %s tableros"
 
 msgid "Additional Parameters"
 msgstr "Otros parámetros"
@@ -4504,7 +4504,6 @@ msgid ""
 "Defines the value that determines the boundary between different regions "
 "or levels in the data "
 msgstr ""
-"\n"
 "Define el valor que determina el límite entre diferentes regiones o "
 "niveles en los datos "
 
@@ -8116,7 +8115,7 @@ msgstr "Modificado %s"
 #, python-format
 msgid "Modified 1 column in the virtual dataset"
 msgid_plural "Modified %s columns in the virtual dataset"
-msgstr[0] "Se ha modificado 1 columna en el conjunto de datos virtual"
+msgstr[0] "Se ha modificado %s columna en el conjunto de datos virtual"
 msgstr[1] "Se han modificado %s columnas en el conjunto de datos virtual"
 
 msgid "Modified by"
@@ -9834,7 +9833,7 @@ msgstr "Eliminar la vista previa de la tabla"
 #, python-format
 msgid "Removed 1 column from the virtual dataset"
 msgid_plural "Removed %s columns from the virtual dataset"
-msgstr[0] "Se ha eliminado 1 columna del conjunto de datos virtual"
+msgstr[0] "Se ha eliminado %s columna del conjunto de datos virtual"
 msgstr[1] "Se han eliminado %s columnas del conjunto de datos virtual"
 
 msgid "Rename tab"
@@ -17208,7 +17207,7 @@ msgstr[1] "%s métricas"
 #, python-format
 msgid "First %s row"
 msgid_plural "First %s rows"
-msgstr[0] "Primera fila"
+msgstr[0] "Primera %s fila"
 msgstr[1] "Primeras %s filas"
 
 #, python-format
