@@ -14,7 +14,7 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-"""Flags the product fixes to off (Superset's mobile consumption mode)."""
+"""Flags the product fixes to off (mobile consumption mode and Table V2)."""
 
 from flask import Flask
 
@@ -51,3 +51,14 @@ def test_mobile_consumption_mode_is_off_under_dynamic_callbacks() -> None:
 
     assert manager.get_feature_flags()["MOBILE_CONSUMPTION_MODE"] is False
     assert manager.is_feature_enabled("MOBILE_CONSUMPTION_MODE") is False
+
+
+def test_table_v2_stays_hidden() -> None:
+    manager = _manager(
+        {"AG_GRID_TABLE_ENABLED": True, "TABLE_V2_TIME_COMPARISON_ENABLED": True}
+    )
+
+    flags = manager.get_feature_flags()
+    assert flags["AG_GRID_TABLE_ENABLED"] is False
+    assert flags["TABLE_V2_TIME_COMPARISON_ENABLED"] is False
+    assert manager.is_feature_enabled("AG_GRID_TABLE_ENABLED") is False

@@ -31,10 +31,18 @@ GLOBAL_ASYNC_QUERIES = "GLOBAL_ASYNC_QUERIES"
 GLOBAL_TASK_FRAMEWORK = "GLOBAL_TASK_FRAMEWORK"
 
 # AuraData BI: flags the product fixes to off whatever the configuration, the
-# environment or a dynamic callback says. A phone shows the optional mobile
-# layout of each page (``meta.mibiMobile``); Superset's consumption-only mobile
-# mode would replace it with its own routes and chrome.
-FORCED_OFF_FLAGS = ("MOBILE_CONSUMPTION_MODE",)
+# environment or a dynamic callback says.
+# - MOBILE_CONSUMPTION_MODE: a phone shows the optional mobile layout of each
+#   page (``meta.mibiMobile``); Superset's consumption-only mobile mode would
+#   replace it with its own routes and chrome.
+# - AG_GRID_TABLE_ENABLED, TABLE_V2_TIME_COMPARISON_ENABLED: Table V2 has none of
+#   the table format, conditional formatting, sparklines or tooltip pages of the
+#   Format pane, and turning it on would migrate saved tables to it.
+FORCED_OFF_FLAGS = (
+    "MOBILE_CONSUMPTION_MODE",
+    "AG_GRID_TABLE_ENABLED",
+    "TABLE_V2_TIME_COMPARISON_ENABLED",
+)
 
 
 class FeatureFlagManager:
