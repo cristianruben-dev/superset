@@ -290,9 +290,51 @@ export interface FilterElement {
   searchFillOpacity?: number;
   menuFillOpacity?: number;
   pillFillOpacity?: number;
+  /** Transparency of texts, borders and the selection mark, 0 to 100 */
+  itemColorOpacity?: number;
+  itemBorderOpacity?: number;
+  searchColorOpacity?: number;
+  searchBorderOpacity?: number;
+  pillColorOpacity?: number;
+  pillBorderOpacity?: number;
+  iconOpacity?: number;
+  /** Padding of each side: top, right, bottom, left; wins over the uniform one */
+  itemPaddingSides?: Sides;
+  searchPaddingSides?: Sides;
+  pillPaddingSides?: Sides;
+  /** A bar along one edge of the values, of every value or the chosen ones */
+  itemAccent?: AccentBar;
+  /** A bar along one edge of the search box and of the text box */
+  searchAccent?: AccentBar;
+  /** The chosen values as chips: their border, corners and the remove mark */
+  pillBorder?: string;
+  pillBorderWidth?: number;
+  pillCorners?: Corners;
+  pillPadding?: number;
+  pillDismissColor?: string;
+  pillDismissOpacity?: number;
+  pillDismissSize?: number;
+  pillDismissGap?: number;
+  /** Where the remove mark of a chip sits; `none` hides it */
+  pillDismissPosition?: 'left' | 'right' | 'none';
 }
 
 export type Corners = [number, number, number, number];
+
+/** Top, right, bottom and left, in px. */
+export type Sides = [number, number, number, number];
+
+/** A bar along one edge of a box, like Power BI's "Accent bar". */
+export interface AccentBar {
+  position?: 'left' | 'right' | 'top' | 'bottom';
+  /** In px */
+  width?: number;
+  color?: string;
+  /** 0 to 100 */
+  opacity?: number;
+  /** Values only: draw it on every value or on the chosen ones */
+  on?: 'all' | 'selected';
+}
 
 export type SlicerVariant = 'dropdown' | 'list' | 'buttons' | 'input';
 

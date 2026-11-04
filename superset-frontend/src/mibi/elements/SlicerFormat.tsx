@@ -19,7 +19,7 @@
 import { useContext, useMemo, useState, type ReactNode } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { t } from '@apache-superset/core/translation';
-import { useTheme } from '@apache-superset/core/theme';
+import { useReportTokens } from 'src/mibi/report/ReportTheme';
 import {
   FONT_FAMILY_OPTIONS,
   NativeFilterType,
@@ -48,8 +48,10 @@ import { SyncSlicers } from 'src/mibi/report/SyncSlicers';
 import { contrastRatio, slicerText, slicerValueKey } from './slicer';
 import { useFilterRows } from './SlicerView';
 import type {
+  AccentBar,
   Corners,
   FilterElement,
+  Sides,
   SlicerSelection,
   SlicerVariant,
   ValueUnits,
@@ -60,6 +62,9 @@ type Level = 'visual' | 'general';
 
 /** The level stays while going through slicers, as it does for charts. */
 let shownLevel: Level = 'visual';
+
+/** A d3 number format, shown as is in every language. */
+const FORMAT_CODE_EXAMPLE = ',.0f';
 
 const FONT_CHOICES = FONT_FAMILY_OPTIONS.map(([value, label]) => ({
   value,
@@ -143,9 +148,10 @@ function useFields(config: FilterElement, update: Update) {
     key: keyof FilterElement,
     colorKey: keyof FilterElement,
     fallbackColor: string,
+    label = t('Transparency'),
   ) => (
     <RangeField
-      label={t('Transparency')}
+      label={label}
       value={100 - ((config[key] as number | undefined) ?? 100)}
       min={0}
       max={100}
@@ -164,8 +170,8 @@ function useFields(config: FilterElement, update: Update) {
   );
   /** One radius for every corner, or each corner on its own. */
   const corners = (
-    key: 'itemCorners' | 'searchCorners',
-    radiusKey: 'itemRadius' | 'searchRadius',
+    key: 'itemCorners' | 'searchCorners' | 'pillCorners',
+    radiusKey: 'itemRadius' | 'searchRadius' | 'pillRadius',
     fallback: number,
   ) => {
     const own = config[key];
@@ -213,7 +219,145 @@ function useFields(config: FilterElement, update: Update) {
       </>
     );
   };
-  return { toggle, color, range, font, align, opacity, corners };
+  /** One padding for every side, or each side on its own. */
+  const sides = (
+    key: 'itemPaddingSides' | 'searchPaddingSides' | 'pillPaddingSides',
+    uniformKey: 'itemPadding' | 'searchPadding' | 'pillPadding',
+    fallback: number,
+    max: number,
+  ) => {
+    const own = config[key];
+    const base = config[uniformKey] ?? fallback;
+    const names = [
+      t('Top padding'),
+      t('Right padding'),
+      t('Bottom padding'),
+      t('Left padding'),
+    ];
+    return (
+      <>
+        <Field label={t('Individual padding')}>
+          <Switch
+            size="small"
+            checked={!!own}
+            aria-label={t('Individual padding')}
+            data-test={`mibi-slicer-${key}`}
+            onChange={on =>
+              update(
+                {
+                  // Top and bottom take the padding, the sides twice as much
+                  [key]: on
+                    ? ([base, base * 2, base, base * 2] as Sides)
+                    : undefined,
+                },
+                `filter-${key}`,
+              )
+            }
+          />
+        </Field>
+        {own
+          ? names.map((name, index) => (
+              <RangeField
+                key={name}
+                label={name}
+                value={own[index]}
+                min={0}
+                max={max * 2}
+                onChange={value => {
+                  const next = [...own] as Sides;
+                  next[index] = value;
+                  update({ [key]: next }, `filter-${key}`);
+                }}
+              />
+            ))
+          : range(uniformKey, t('Padding'), fallback, 0, max)}
+      </>
+    );
+  };
+  /** A bar along one edge of a box, off until it is shown. */
+  const accent = (
+    key: 'itemAccent' | 'searchAccent',
+    fallbackColor: string,
+    values: boolean,
+  ) => {
+    const bar = config[key];
+    const set = (patch: Partial<AccentBar>) =>
+      update({ [key]: { ...bar, ...patch } }, `filter-${key}`);
+    return (
+      <>
+        <h5>{t('Accent bar')}</h5>
+        <Field label={t('Show the accent bar')}>
+          <Switch
+            size="small"
+            checked={!!bar}
+            aria-label={t('Show the accent bar')}
+            data-test={`mibi-slicer-${key}`}
+            onChange={on =>
+              update(
+                {
+                  [key]: on
+                    ? { position: 'left', width: 4, color: fallbackColor }
+                    : undefined,
+                },
+                `filter-${key}`,
+              )
+            }
+          />
+        </Field>
+        {bar && (
+          <>
+            {values && (
+              <Field label={t('Show on')} stacked>
+                <Segments<'all' | 'selected'>
+                  name={t('Accent bar on')}
+                  value={bar.on ?? 'all'}
+                  onChange={on => set({ on })}
+                  options={[
+                    { value: 'all', label: t('Every value') },
+                    { value: 'selected', label: t('Chosen values') },
+                  ]}
+                />
+              </Field>
+            )}
+            <Field label={t('Position')} stacked>
+              <Segments<NonNullable<AccentBar['position']>>
+                name={t('Accent bar position')}
+                value={bar.position ?? 'left'}
+                onChange={position => set({ position })}
+                options={[
+                  { value: 'left', label: t('Left') },
+                  { value: 'top', label: t('Top') },
+                  { value: 'right', label: t('Right') },
+                  { value: 'bottom', label: t('Bottom') },
+                ]}
+              />
+            </Field>
+            <RangeField
+              label={t('Width')}
+              value={bar.width ?? 4}
+              min={1}
+              max={16}
+              onChange={width => set({ width })}
+            />
+            <ColorField
+              label={t('Color')}
+              value={bar.color || fallbackColor}
+              onChange={value => set({ color: value })}
+            />
+            <RangeField
+              label={t('Transparency')}
+              value={100 - (bar.opacity ?? 100)}
+              min={0}
+              max={100}
+              unit="%"
+              onChange={value => set({ opacity: 100 - value })}
+            />
+          </>
+        )}
+      </>
+    );
+  };
+  return { toggle, color, range, font, align, opacity, corners, sides, accent };
 }
 
 /** A warning when a text color is hard to read on its background. */
@@ -498,7 +642,7 @@ function HeaderSection({
   update: Update;
   drawn: boolean;
 }) {
-  const theme = useTheme();
+  const theme = useReportTokens();
   const { toggle, color, range, font, align } = useFields(config, update);
   return (
     <Section
@@ -540,11 +684,9 @@ function ValuesSection({
   config: FilterElement;
   update: Update;
 }) {
-  const theme = useTheme();
-  const { toggle, color, range, font, align, opacity, corners } = useFields(
-    config,
-    update,
-  );
+  const theme = useReportTokens();
+  const { toggle, color, range, font, align, opacity, corners, sides, accent } =
+    useFields(config, update);
   const buttons = config.variant === 'buttons';
   const itemFill = config.itemFill || theme.colorBgContainer;
   return (
@@ -571,6 +713,12 @@ function ValuesSection({
           />
         </Field>
         {color('itemColor', t('Text color'), theme.colorText)}
+        {opacity(
+          'itemColorOpacity',
+          'itemColor',
+          theme.colorText,
+          t('Text transparency'),
+        )}
         {color('itemFill', t('Background'), theme.colorBgContainer)}
         {opacity('itemFillOpacity', 'itemFill', theme.colorBgContainer)}
         <ContrastHint
@@ -578,10 +726,17 @@ function ValuesSection({
           background={itemFill}
         />
         {color('itemBorder', t('Border color'), theme.colorBorder)}
+        {opacity(
+          'itemBorderOpacity',
+          'itemBorder',
+          theme.colorBorder,
+          t('Border transparency'),
+        )}
         {range('itemBorderWidth', t('Border width'), buttons ? 1 : 0, 0, 8)}
         {corners('itemCorners', 'itemRadius', 6)}
-        {range('itemPadding', t('Padding'), 4, 0, 24)}
+        {sides('itemPaddingSides', 'itemPadding', 4, 24)}
         {range('itemGap', t('Space between values'), 4, 0, 24)}
+        {accent('itemAccent', theme.colorPrimary, true)}
         <h5>{t('Numbers and blanks')}</h5>
         <Field label={t('Display units')} stacked>
           <Select
@@ -609,7 +764,7 @@ function ValuesSection({
         <Field label={t('Format code')} stacked>
           <Input
             aria-label={t('Format code')}
-            placeholder=",.0f"
+            placeholder={FORMAT_CODE_EXAMPLE}
             data-test="mibi-slicer-format-code"
             value={config.valueFormat ?? ''}
             onChange={event =>
@@ -682,8 +837,11 @@ function SearchBoxSection({
   title: string;
   placeholder: boolean;
 }) {
-  const theme = useTheme();
-  const { color, range, font, opacity, corners } = useFields(config, update);
+  const theme = useReportTokens();
+  const { color, range, font, opacity, corners, sides, accent } = useFields(
+    config,
+    update,
+  );
   return (
     <Section collapsedByDefault>
       <h4>{title}</h4>
@@ -704,11 +862,24 @@ function SearchBoxSection({
       {font('searchFamily', t('Search font'))}
       {range('searchSize', t('Size'), 13, 8, 28)}
       {color('searchColor', t('Text color'), theme.colorText)}
+      {opacity(
+        'searchColorOpacity',
+        'searchColor',
+        theme.colorText,
+        t('Text transparency'),
+      )}
       {color('searchFill', t('Background'), theme.colorBgContainer)}
       {opacity('searchFillOpacity', 'searchFill', theme.colorBgContainer)}
       {color('searchBorder', t('Border color'), theme.colorBorder)}
+      {opacity(
+        'searchBorderOpacity',
+        'searchBorder',
+        theme.colorBorder,
+        t('Border transparency'),
+      )}
       {corners('searchCorners', 'searchRadius', 6)}
-      {range('searchPadding', t('Padding'), 4, 0, 16)}
+      {sides('searchPaddingSides', 'searchPadding', 4, 16)}
+      {accent('searchAccent', theme.colorPrimary, false)}
     </Section>
   );
 }
@@ -723,7 +894,7 @@ function DropdownSection({
   update: Update;
   menu: boolean;
 }) {
-  const theme = useTheme();
+  const theme = useReportTokens();
   const { color, range, toggle, opacity } = useFields(config, update);
   return (
     <Section collapsedByDefault>
@@ -759,9 +930,12 @@ function VisualLevel({
   config: FilterElement;
   update: Update;
 }) {
-  const theme = useTheme();
+  const theme = useReportTokens();
   const filters = useFilters();
-  const { color, range, toggle, opacity } = useFields(config, update);
+  const { color, range, toggle, opacity, corners, sides } = useFields(
+    config,
+    update,
+  );
   const options = useMemo(
     () =>
       Object.values(filters)
@@ -848,6 +1022,7 @@ function VisualLevel({
             <>
               {toggle('iconOverlay', t('Over the corner of the value'))}
               {color('iconColor', t('Color'), theme.colorPrimary)}
+              {opacity('iconOpacity', 'iconColor', theme.colorPrimary)}
               {range('iconSize', t('Size'), 14, 8, 32)}
               {range('iconGap', t('Space to the text'), 6, 0, 24)}
               <Field label={t('Position')} stacked>
@@ -889,7 +1064,54 @@ function VisualLevel({
           {color('pillFill', t('Background'), theme.colorFillSecondary)}
           {opacity('pillFillOpacity', 'pillFill', theme.colorFillSecondary)}
           {color('pillColor', t('Text color'), theme.colorText)}
-          {range('pillRadius', t('Corner radius'), 12, 0, 24)}
+          {opacity(
+            'pillColorOpacity',
+            'pillColor',
+            theme.colorText,
+            t('Text transparency'),
+          )}
+          {color('pillBorder', t('Border color'), theme.colorBorder)}
+          {opacity(
+            'pillBorderOpacity',
+            'pillBorder',
+            theme.colorBorder,
+            t('Border transparency'),
+          )}
+          {range('pillBorderWidth', t('Border width'), 0, 0, 8)}
+          {corners('pillCorners', 'pillRadius', 12)}
+          {sides('pillPaddingSides', 'pillPadding', 3, 16)}
+          <h5>{t('Remove mark')}</h5>
+          <Field label={t('Position')} stacked>
+            <Segments<NonNullable<FilterElement['pillDismissPosition']>>
+              name={t('Remove mark position')}
+              testId="mibi-slicer-pill-dismiss"
+              value={config.pillDismissPosition ?? 'right'}
+              onChange={pillDismissPosition =>
+                update({ pillDismissPosition }, 'filter-pill-dismiss')
+              }
+              options={[
+                { value: 'left', label: t('Left') },
+                { value: 'right', label: t('Right') },
+                { value: 'none', label: t('No mark') },
+              ]}
+            />
+          </Field>
+          {config.pillDismissPosition !== 'none' && (
+            <>
+              {color(
+                'pillDismissColor',
+                t('Color'),
+                config.pillColor || theme.colorText,
+              )}
+              {opacity(
+                'pillDismissOpacity',
+                'pillDismissColor',
+                config.pillColor || theme.colorText,
+              )}
+              {range('pillDismissSize', t('Size'), 12, 8, 24)}
+              {range('pillDismissGap', t('Space to the text'), 4, 0, 16)}
+            </>
+          )}
         </Section>
       )}
       {fromList && config.applyButton && (

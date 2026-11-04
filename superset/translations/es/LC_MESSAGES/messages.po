@@ -26568,3 +26568,48 @@ msgstr "No se pudo copiar el enlace"
 
 msgid "Move to workspace"
 msgstr "Mover a un área de trabajo"
+
+msgid "Top padding"
+msgstr "Relleno superior"
+
+msgid "Right padding"
+msgstr "Relleno derecho"
+
+msgid "Bottom padding"
+msgstr "Relleno inferior"
+
+msgid "Left padding"
+msgstr "Relleno izquierdo"
+
+msgid "Individual padding"
+msgstr "Relleno por lado"
+
+msgid "Accent bar"
+msgstr "Barra de acento"
+
+msgid "Show the accent bar"
+msgstr "Mostrar la barra de acento"
+
+msgid "Show on"
+msgstr "Mostrar en"
+
+msgid "Accent bar on"
+msgstr "Barra de acento en"
+
+msgid "Every value"
+msgstr "Todos los valores"
+
+msgid "Accent bar position"
+msgstr "Posición de la barra de acento"
+
+msgid "Text transparency"
+msgstr "Transparencia del texto"
+
+msgid "Remove mark"
+msgstr "Marca para quitar"
+
+msgid "Remove mark position"
+msgstr "Posición de la marca para quitar"
+
+msgid "No mark"
+msgstr "Sin marca"

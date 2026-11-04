@@ -2163,6 +2163,33 @@ FILTER_RULES = [
     ),
     (r"slider", r"show|color", ["ok"], "Tiene", "Segmentador: deslizador del rango"),
     (
+        r"pills",
+        r"backgroundTransparency|borderTransparency|fontTransparency"
+        r"|cornerRadius(TopLeft|TopRight|BottomLeft|BottomRight)|individualCorners"
+        r"|individualPadding|padding(Top|Right|Bottom|Left|Uniform)"
+        r"|dismiss(Color|Gap|Position|Size|Transparency)",
+        ["ok"],
+        "Tiene",
+        "Segmentador: partes de las píldoras",
+    ),
+    (
+        r"search|searchBox|items|value",
+        r"accentBar(Color|Position|Show|Transparency|Width)"
+        r"|backgroundTransparency|borderTransparency|fontTransparency"
+        r"|cornerRadius(TopLeft|TopRight|BottomLeft|BottomRight)|individualCorners"
+        r"|individualPadding|padding(Top|Right|Bottom|Left|Uniform)",
+        ["ok"],
+        "Tiene",
+        "Segmentador: barra de acento, relleno por lado y transparencias",
+    ),
+    (
+        r"selectionIcon",
+        r"transparency",
+        ["ok"],
+        "Tiene",
+        "Segmentador: marca de selección",
+    ),
+    (
         r"inputTextBox|inputText",
         r"placeholder|backColor|borderColor|fontColor|fontFamily|fontSize",
         ["ok"],

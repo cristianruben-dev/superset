@@ -35,9 +35,11 @@ import type { RootState } from 'src/dashboard/types';
 import { updateDataMask } from 'src/dataMask/actions';
 import { getSelectExtraFormData } from 'src/filters/utils';
 import {
+  accentShadow,
   inputFilters,
   inputValues,
   nextSelection,
+  paddingOf,
   selectionMode,
   selectionSummary,
   slicerText,
@@ -85,6 +87,7 @@ const Box = styled.div`
         --mb-s-search-padding,
         ${theme.sizeUnit}px ${theme.sizeUnit * 2}px
       );
+      box-shadow: var(--mb-s-search-accent, none);
     }
 
     .slicer-items {
@@ -119,6 +122,7 @@ const Box = styled.div`
       text-decoration: var(--mb-s-decoration, none);
       text-align: var(--mb-s-align, left);
       justify-content: var(--mb-s-justify, flex-start);
+      box-shadow: var(--mb-s-accent, none);
       cursor: pointer;
 
       &:hover {
@@ -151,6 +155,7 @@ const Box = styled.div`
           --mb-s-selected-padding,
           var(--mb-s-padding, ${theme.sizeUnit}px ${theme.sizeUnit * 2}px)
         );
+        box-shadow: var(--mb-s-selected-accent, var(--mb-s-accent, none));
       }
     }
     .slicer-items.is-mark-overlay .slicer-item {
@@ -210,22 +215,29 @@ const Box = styled.div`
     .slicer-pill {
       display: inline-flex;
       align-items: center;
-      gap: ${theme.sizeUnit}px;
+      gap: var(--mb-s-pill-dismiss-gap, ${theme.sizeUnit}px);
       max-width: 100%;
-      padding: 0 ${theme.sizeUnit * 1.5}px;
-      border: 0;
+      padding: var(--mb-s-pill-padding, 3px 6px);
+      border: var(--mb-s-pill-border-width, 0) solid
+        var(--mb-s-pill-border, ${theme.colorBorder});
       border-radius: var(--mb-s-pill-radius, 999px);
       background: var(--mb-s-pill-fill, ${theme.colorFillSecondary});
       color: var(--mb-s-pill-color, ${theme.colorText});
       font: inherit;
       font-size: ${theme.fontSizeSM}px;
-      line-height: 22px;
+      line-height: 16px;
       cursor: pointer;
 
       span {
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+      }
+      .slicer-pill-dismiss {
+        flex: none;
+        color: var(--mb-s-pill-dismiss, inherit);
+        font-size: var(--mb-s-pill-dismiss-size, inherit);
+        line-height: 1;
       }
       &:focus-visible {
         outline: 2px solid ${theme.colorPrimary};
@@ -380,16 +392,18 @@ export function slicerStyle(config: FilterElement): CSSProperties {
     value === undefined ? undefined : `${value}px`;
   set('--mb-s-family', config.itemFamily);
   set('--mb-s-size', px(config.itemSize));
-  set('--mb-s-color', config.itemColor);
+  set('--mb-s-color', fillOf(config.itemColor, config.itemColorOpacity));
   set('--mb-s-fill', fillOf(config.itemFill, config.itemFillOpacity));
-  set('--mb-s-border', config.itemBorder);
+  set('--mb-s-border', fillOf(config.itemBorder, config.itemBorderOpacity));
   set('--mb-s-border-width', px(config.itemBorderWidth));
   set('--mb-s-radius', cornersOf(config.itemCorners) ?? px(config.itemRadius));
+  set('--mb-s-padding', paddingOf(config.itemPaddingSides, config.itemPadding));
+  const accent = accentShadow(config.itemAccent, 'currentColor');
   set(
-    '--mb-s-padding',
-    config.itemPadding === undefined
-      ? undefined
-      : `${config.itemPadding}px ${config.itemPadding * 2}px`,
+    config.itemAccent?.on === 'selected'
+      ? '--mb-s-selected-accent'
+      : '--mb-s-accent',
+    accent,
   );
   set('--mb-s-gap', px(config.itemGap));
   if (config.itemBold !== undefined)
@@ -419,7 +433,7 @@ export function slicerStyle(config: FilterElement): CSSProperties {
       '--mb-s-selected-decoration',
       config.selectedUnderline ? 'underline' : 'none',
     );
-  set('--mb-s-icon', config.iconColor);
+  set('--mb-s-icon', fillOf(config.iconColor, config.iconOpacity));
   set('--mb-s-icon-size', px(config.iconSize));
   set('--mb-s-icon-gap', px(config.iconGap));
   set('--mb-s-selected-radius', px(config.selectedRadius));
@@ -429,26 +443,53 @@ export function slicerStyle(config: FilterElement): CSSProperties {
       `${config.selectedPadding}px ${config.selectedPadding * 2}px`,
     );
   if (config.itemVAlign) set('--mb-s-valign', V_ALIGN[config.itemVAlign]);
-  if (config.searchPadding !== undefined)
-    set(
-      '--mb-s-search-padding',
-      `${config.searchPadding}px ${config.searchPadding * 2}px`,
-    );
+  set(
+    '--mb-s-search-padding',
+    paddingOf(config.searchPaddingSides, config.searchPadding),
+  );
+  set(
+    '--mb-s-search-accent',
+    accentShadow(config.searchAccent, 'currentColor'),
+  );
   set('--mb-s-search-family', config.searchFamily);
   set('--mb-s-search-size', px(config.searchSize));
-  set('--mb-s-search-color', config.searchColor);
+  set(
+    '--mb-s-search-color',
+    fillOf(config.searchColor, config.searchColorOpacity),
+  );
   set(
     '--mb-s-search-fill',
     fillOf(config.searchFill, config.searchFillOpacity),
   );
-  set('--mb-s-search-border', config.searchBorder);
+  set(
+    '--mb-s-search-border',
+    fillOf(config.searchBorder, config.searchBorderOpacity),
+  );
   set(
     '--mb-s-search-radius',
     cornersOf(config.searchCorners) ?? px(config.searchRadius),
   );
   set('--mb-s-pill-fill', fillOf(config.pillFill, config.pillFillOpacity));
-  set('--mb-s-pill-color', config.pillColor);
-  set('--mb-s-pill-radius', px(config.pillRadius));
+  set('--mb-s-pill-color', fillOf(config.pillColor, config.pillColorOpacity));
+  set(
+    '--mb-s-pill-radius',
+    cornersOf(config.pillCorners) ?? px(config.pillRadius),
+  );
+  set(
+    '--mb-s-pill-border',
+    fillOf(config.pillBorder, config.pillBorderOpacity),
+  );
+  set('--mb-s-pill-border-width', px(config.pillBorderWidth));
+  set(
+    '--mb-s-pill-padding',
+    paddingOf(config.pillPaddingSides, config.pillPadding),
+  );
+  set(
+    '--mb-s-pill-dismiss',
+    fillOf(config.pillDismissColor, config.pillDismissOpacity),
+  );
+  set('--mb-s-pill-dismiss-size', px(config.pillDismissSize));
+  set('--mb-s-pill-dismiss-gap', px(config.pillDismissGap));
   set('--mb-s-apply-fill', config.applyFill);
   set('--mb-s-apply-color', config.applyColor);
   if (config.layout === 'grid')
@@ -597,6 +638,11 @@ export function SlicerView({
   const showMark =
     variant === 'list' ? config.showIcon !== false : !!config.showIcon;
   const markClass = mode === 'single' ? 'slicer-mark is-single' : 'slicer-mark';
+  const dismiss = (
+    <span className="slicer-pill-dismiss" aria-hidden>
+      ×
+    </span>
+  );
 
   return (
     <Box style={slicerStyle(config)} data-test="mibi-slicer">
@@ -619,8 +665,9 @@ export function SlicerView({
               aria-label={t('Remove the value %s', slicerText(value, config))}
               onClick={() => choose(selected.filter(item => item !== value))}
             >
+              {config.pillDismissPosition === 'left' && dismiss}
               <span>{slicerText(value, config)}</span>
-              <span aria-hidden>×</span>
+              {(config.pillDismissPosition ?? 'right') === 'right' && dismiss}
             </button>
           ))}
         </div>
