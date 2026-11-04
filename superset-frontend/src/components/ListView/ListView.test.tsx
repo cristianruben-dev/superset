@@ -16,7 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { render, screen, within, waitFor } from 'spec/helpers/testing-library';
+import {
+  fireEvent,
+  render,
+  screen,
+  within,
+  waitFor,
+} from 'spec/helpers/testing-library';
 import userEvent from '@testing-library/user-event';
 import { QueryParamProvider } from 'use-query-params';
 import { ReactRouter5Adapter } from 'use-query-params/adapters/react-router-5';
@@ -387,4 +393,16 @@ test('offers the filters that do not fit in one row, and folds them back', async
   expect(button).toHaveTextContent('Fewer filters');
   expect(button).toHaveAttribute('aria-expanded', 'true');
   spy.mockRestore();
+});
+
+test('a right click on a row opens the menu of that row', async () => {
+  factory({
+    renderCard: undefined,
+    rowMenu: (row: { name: string }) => [
+      { key: 'open', label: `Open ${row.name}` },
+    ],
+  });
+  const cell = await screen.findByText('data 1');
+  fireEvent.contextMenu(cell);
+  expect(await screen.findByText('Open data 1')).toBeInTheDocument();
 });

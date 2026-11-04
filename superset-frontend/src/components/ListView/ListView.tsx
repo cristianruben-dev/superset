@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { t } from '@apache-superset/core/translation';
+import { t, tn } from '@apache-superset/core/translation';
 import { Alert } from '@apache-superset/core/components';
 import { styled } from '@apache-superset/core/theme';
 import {
@@ -51,6 +51,10 @@ import {
   CardSortSelectOption,
   ViewModeType,
 } from './types';
+import type { MenuItem } from '@superset-ui/core/components/Menu';
+import { useContextMenu } from 'src/mibi/shell/ContextMenu';
+import { usePageStatus } from 'src/mibi/shell/pageStatus';
+import getBootstrapData from 'src/utils/getBootstrapData';
 import { ListViewError, useListViewState } from './utils';
 
 const ListViewStyles = styled.div`
@@ -308,6 +312,8 @@ export interface ListViewProps<T extends object = any> {
   columnsForWrapText?: string[];
   enableBulkTag?: boolean;
   bulkTagResourceName?: string;
+  /** AuraData BI: the menu of a right click on a row of the table */
+  rowMenu?: (row: T) => MenuItem[];
 }
 
 export function ListView<T extends object = any>({
@@ -336,7 +342,9 @@ export function ListView<T extends object = any>({
   bulkTagResourceName,
   addSuccessToast,
   addDangerToast,
+  rowMenu,
 }: ListViewProps<T>) {
+  const contextMenu = useContextMenu();
   const {
     getTableProps,
     getTableBodyProps,
@@ -365,6 +373,18 @@ export function ListView<T extends object = any>({
     renderCard: Boolean(renderCard),
     defaultViewMode,
   });
+  // AuraData BI: the figures of the list go to the status bar of the window
+  usePageStatus([
+    !loading &&
+      typeof count === 'number' &&
+      tn(
+        '%s item',
+        '%s items',
+        count,
+        count.toLocaleString(getBootstrapData().common?.locale),
+      ),
+    bulkSelectEnabled && t('%s selected', selectedFlatRows.length),
+  ]);
   const allowBulkTagActions = bulkTagResourceName && enableBulkTag;
   const filterable = Boolean(filters.length);
   if (filterable) {
@@ -420,6 +440,7 @@ export function ListView<T extends object = any>({
 
   return (
     <ListViewStyles>
+      {contextMenu.menu}
       {allowBulkTagActions && (
         <BulkTagModal
           show={showBulkTagModal}
@@ -611,6 +632,12 @@ export function ListView<T extends object = any>({
                   onPageChange={newPageIndex => {
                     gotoPage(newPageIndex);
                   }}
+                  onRowContextMenu={
+                    rowMenu
+                      ? (record, event) =>
+                          contextMenu.open(event, rowMenu(record as T))
+                      : undefined
+                  }
                 />
               )}
             </>

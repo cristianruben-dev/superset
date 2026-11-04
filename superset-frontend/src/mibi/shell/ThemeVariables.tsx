@@ -35,6 +35,7 @@ export const themeCssVariables = (theme: SupersetTheme) => ({
   '--mb-border-secondary': theme.colorBorderSecondary,
   '--mb-success': theme.colorSuccess,
   '--mb-error': theme.colorError,
+  '--mb-font-code': theme.fontFamilyCode,
   '--mb-space-gutter': `${theme.sizeUnit * 6}px`,
   '--mb-space-page-top': `${theme.sizeUnit * 5}px`,
   '--mb-space-section': `${theme.sizeUnit * 4}px`,

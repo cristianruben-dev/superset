@@ -31,10 +31,8 @@ import { Global } from '@emotion/react';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { LOG_ACTIONS_TOGGLE_EDIT_DASHBOARD } from 'src/logger/LogUtils';
-import { Icons } from '@superset-ui/core/components/Icons';
 import {
   Button,
-  Tooltip,
   DeleteModal,
   UnsavedChangesModal,
 } from '@superset-ui/core/components';
@@ -65,9 +63,8 @@ import { PageHeaderWithActions } from '@superset-ui/core/components/PageHeaderWi
 import { useReportHeaderSlot } from 'src/mibi/shell/reportHeader';
 import { DashboardWorkspaceChip } from 'src/mibi/workspaces/DashboardWorkspaceChip';
 import { ExportDashboardModal } from 'src/mibi/export/ExportDashboardModal';
-import { setPresenting } from 'src/mibi/present/presentation';
-import { BookmarksMenu } from 'src/mibi/report/BookmarksMenu';
-import { ResetFiltersButton } from 'src/mibi/report/ResetFiltersButton';
+import { ReadingBar } from 'src/mibi/report/ReadingBar';
+import { ReportMenuBar } from 'src/mibi/report/ReportMenuBar';
 import { ModeMenu, Ribbon } from 'src/mibi/ribbon/Ribbon';
 import { useUnsavedChangesPrompt } from 'src/hooks/useUnsavedChangesPrompt';
 import DashboardEmbedModal from '../EmbeddedModal';
@@ -169,18 +166,6 @@ const headerContainerStyle = (theme: SupersetTheme) => css`
 
 const editButtonStyle = (theme: SupersetTheme) => css`
   color: ${theme.colorPrimary};
-`;
-
-const iconButtonStyle = (theme: SupersetTheme) => css`
-  width: 32px;
-  min-width: 32px;
-  padding: 0;
-  margin-right: ${theme.sizeUnit * 2}px;
-  color: ${theme.colorTextSecondary};
-
-  &:hover {
-    color: ${theme.colorPrimary};
-  }
 `;
 
 const actionButtonsStyle = (theme: SupersetTheme) => css`
@@ -670,38 +655,6 @@ const Header = (): JSX.Element => {
         ) : (
           <div css={actionButtonsStyle}>
             {NavExtension && <NavExtension />}
-            {!isEmbedded && (
-              <>
-                {/* AuraData BI: bookmarks of the report */}
-                <ResetFiltersButton buttonCss={iconButtonStyle} />
-                <BookmarksMenu buttonCss={iconButtonStyle} />
-                <Tooltip title={t('Present')} placement="bottom">
-                  <Button
-                    buttonStyle="secondary"
-                    onClick={() => setPresenting(true)}
-                    data-test="mibi-present-button"
-                    className="action-button"
-                    css={iconButtonStyle}
-                    aria-label={t('Present')}
-                  >
-                    <Icons.FundProjectionScreenOutlined iconSize="l" />
-                  </Button>
-                </Tooltip>
-                <Tooltip title={t('Export')} placement="bottom">
-                  <Button
-                    buttonStyle="secondary"
-                    onClick={() => setShowingExportModal(true)}
-                    data-test="mibi-export-button"
-                    className="action-button"
-                    css={iconButtonStyle}
-                    aria-label={t('Export')}
-                    disabled={isLoading}
-                  >
-                    <Icons.DownloadOutlined iconSize="l" />
-                  </Button>
-                </Tooltip>
-              </>
-            )}
             {userCanEdit && (
               <Button
                 buttonStyle="secondary"
@@ -812,6 +765,37 @@ const Header = (): JSX.Element => {
             reportHeaderSlot,
           )
         : pageHeader}
+      {/* AuraData BI: the commands of a viewer, in one row under the top bar */}
+      {!editMode && !isEmbedded && (
+        <ReportMenuBar
+          dashboardId={dashboardInfo.id}
+          dashboardTitle={dashboardTitle}
+          isLoading={isLoading}
+          userCanEdit={userCanEdit}
+          userCanShare={userCanShare}
+          userCanCurate={userCanCurate}
+          userCanExport={userCanExport}
+          modified={dashboardInfo.changed_on_delta_humanized}
+          logEvent={boundActionCreators.logEvent}
+          addSuccessToast={boundActionCreators.addSuccessToast}
+          addDangerToast={boundActionCreators.addDangerToast}
+          onRefresh={forceRefresh}
+          onAutoRefresh={showRefreshModal}
+          onEdit={handleEnterEditMode}
+          onExport={() => setShowingExportModal(true)}
+          onEmbed={showEmbedModal}
+          showReportModal={showReportModal}
+          setCurrentReportDeleting={
+            setCurrentReportDeleting as (report: unknown) => void
+          }
+        />
+      )}
+      {!editMode && !isEmbedded && (
+        <ReadingBar
+          onExport={() => setShowingExportModal(true)}
+          exportDisabled={isLoading}
+        />
+      )}
       {/* AuraData BI: the commands of the editor, as the Power BI ribbon */}
       {editMode && userCanSaveAs && (
         <Ribbon

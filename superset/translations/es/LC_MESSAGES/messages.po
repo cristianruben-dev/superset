@@ -21423,3 +21423,94 @@ msgstr "Las imágenes de una fila se describen con el valor de esta columna"
 
 msgid "A screen reader names each row by the value of this column"
 msgstr "Un lector de pantalla nombra cada fila por el valor de esta columna"
+
+msgid "Report commands"
+msgstr "Comandos del informe"
+
+msgid "Full screen"
+msgstr "Pantalla completa"
+
+msgid "Exit full screen"
+msgstr "Salir de pantalla completa"
+
+msgid "PDF or image"
+msgstr "PDF o imagen"
+
+msgid "%s workspace"
+msgid_plural "%s workspaces"
+msgstr[0] "%s área de trabajo"
+msgstr[1] "%s áreas de trabajo"
+
+msgid "Menu bar"
+msgstr "Barra de menús"
+
+msgid "File"
+msgstr "Archivo"
+
+msgid "Profile"
+msgstr "Perfil"
+
+msgid "Search…"
+msgstr "Buscar…"
+
+msgid "AuraData website"
+msgstr "Sitio de AuraData"
+
+msgid "About AuraData BI"
+msgstr "Acerca de AuraData BI"
+
+msgid "SHA"
+msgstr "SHA"
+
+msgid "Build"
+msgstr "Compilación"
+
+msgid "%s shown"
+msgid_plural "%s shown"
+msgstr[0] "%s visible"
+msgstr[1] "%s visibles"
+
+msgid "Role: %s"
+msgstr "Rol: %s"
+
+msgid "Connected"
+msgstr "Conectado"
+
+msgid "No connection"
+msgstr "Sin conexión"
+
+msgid "Last checked at %s"
+msgstr "Última comprobación a las %s"
+
+msgid "Synced %s"
+msgstr "Sincronizado %s"
+
+msgid "Open recent"
+msgstr "Abrir reciente"
+
+msgid "Clear recent list"
+msgstr "Borrar la lista de recientes"
+
+msgid "«%s» moved to %s"
+msgstr "«%s» se movió a %s"
+
+msgid "The dashboard could not be moved"
+msgstr "No se pudo mover el panel de control"
+
+msgid "Copy link"
+msgstr "Copiar enlace"
+
+msgid "Link copied to clipboard"
+msgstr "Enlace copiado al portapapeles"
+
+msgid "The link could not be copied"
+msgstr "No se pudo copiar el enlace"
+
+msgid "Remove from favorites"
+msgstr "Quitar de favoritos"
+
+msgid "Add to favorites"
+msgstr "Añadir a favoritos"
+
+msgid "Move to workspace"
+msgstr "Mover a un área de trabajo"
