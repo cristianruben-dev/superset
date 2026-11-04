@@ -371,12 +371,22 @@ de la fase 3 (`cp -cR`). Usuarios de prueba en la copia: admin, `qa_colaborador`
   vuelve a estar activo en todo `src/mibi` salvo 20 archivos con motivo (iconos SVG, radios, listbox, progress, grupos/estados/botones
   que necesitarían reset); `TopBar` y `DrillthroughBar` pasaron a `header`/`output`. Editor del panel lateral: métricas
   (popover Simple), columnas con dnd-kit y filtros abren y guardan (probado).
-- **Playwright experimental** contra el 8199 (Chromium 1208 enlazado como 1234; el Playwright 1.62 pide otro y no se descargó): `sort` 2/2,
-  `format` 3/3, `export-file` 1/1, `layout-ux` 14/15, `present` falla 1. Se arreglaron imports (`dashboard-test-helpers` ahora en
-  `tests/dashboard`), `owners` → `editors` y `testAssets` sin temas. **Fallos abiertos:** (a) `layout-ux` «an element dragged from the
-  panel lands under the pointer»: arrastrar un elemento del panel al lienzo no suelta (no hay evento `drop`; reproducido a mano en
-  el navegador; es una regresión real, probablemente de los Droppable de la fila/rejilla tras quitar la medición de altura de
-  `Row.tsx` en la fase 3); (b) `present` «presenting fits a 4:3 page»: la página hace scroll. `format-reference` no se corrió.
+- **Playwright experimental** contra el 8199 (Chromium 1208 enlazado como 1234 en la caché de Playwright, retirado al terminar; el
+  1.62 pide otro y no se descargó): `sort` 2/2, `format` 3/3, `export-file` 1/1, `layout-ux` 15/15, `present` 1/1 (3 corridas).
+  Se arreglaron imports (`dashboard-test-helpers` ahora en `tests/dashboard`), `owners` → `editors`, `testAssets` sin temas y el
+  filtro de errores de consola de `layout-ux` (avisos de antd 6 y de emotion de la compilación de desarrollo).
+  - **Soltar un elemento del panel en el lienzo** (causa: antd 6 envuelve el contenido de las pestañas en `.ant-tabs-body`, con
+    `position: relative` y sin altura; `skin.css` solo ponía `static` a `.ant-tabs-content`, así que la zona de soltado de la
+    página, `position: absolute; inset: 0`, medía 0). Arreglo: `.ant-tabs-body` en esa regla. Sin test unitario posible (es CSS);
+    lo cubre `layout-ux`.
+  - **`present` 4:3** (el documento medía 858 px en una pantalla de 850): el margen inferior de 12 px del contenedor de la página
+    se sumaba al relleno de la presentación. Arreglo en `skin.css` para `body.mibi-presenting`.
+  - **`format-reference` falla en 7 de 16 capturas** (barras, combinado, anillo, embudo, matriz, tabla, treemap): las referencias
+    son de 6.1 y 7.0 cambió la maquetación (barras y combinado: el área de trazado se desplaza ~12 px; tabla: más relleno
+    lateral y sale cortada del cuadro, con otro icono de orden). No se regeneraron: la tabla cortada podría ser una regresión real
+    y hay que revisarla antes de aceptar capturas nuevas.
+  - «Desglosar por» desde un punto del gráfico: probado, abre el modal con las columnas del dataset («Desglosar por: Evolución
+    mensual de ventas», region). Desde la etiqueta del eje X no se probó.
 - **Preexistentes que siguen:** Jest `src/mibi` 2 fallos de la línea base; `dropOverflowsParent`/`getDetailedComponentWidth` (4,
   tests de 12 columnas); `SliceHeaderControls` «subdirectory deployment» (2, «Editar gráfico» abre el panel, no Explore);
   `tests/unit_tests/subjects/test_creator_group_call_sites.py` (3) y `dashboards/semantic_view_access_test.py` (20, `g.user`).
