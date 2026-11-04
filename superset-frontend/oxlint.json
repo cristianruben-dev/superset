@@ -302,14 +302,34 @@
       }
     },
     {
-      // 7.0 turned `prefer-tag-over-role` on. The components of AuraData BI draw
-      // radios, groups, statuses and icons as styled elements with their ARIA role,
-      // and a native tag (fieldset, output, input, button) brings its own default
-      // look. Moving them is a visual change that deserves its own pass.
+      // 7.0 turned `prefer-tag-over-role` on, and it stays on for all of src/mibi
+      // except the files below. What is left there cannot take the native tag
+      // without changing how it looks or works: icons drawn as SVG or spans with
+      // `role="img"`, custom radios, listboxes and progress bars (the native
+      // controls bring their own look), and groups, statuses and buttons drawn
+      // as styled elements (fieldset, output and button need a reset of their
+      // default border, display and font). New files get the rule.
       "files": [
-        "src/mibi/**",
         "packages/superset-ui-chart-controls/src/components/TabularSparkline.tsx",
-        "plugins/plugin-chart-echarts/src/BigNumber/BigNumberViz.tsx"
+        "plugins/plugin-chart-echarts/src/BigNumber/BigNumberViz.tsx",
+        "src/mibi/dashboard/FilterCard.tsx",
+        "src/mibi/data/DataPage.tsx",
+        "src/mibi/elements/ElementFormat.tsx",
+        "src/mibi/elements/SlicerIcons.tsx",
+        "src/mibi/elements/SlicerView.tsx",
+        "src/mibi/export/ExportDashboardModal.tsx",
+        "src/mibi/format/ArrangeSection.tsx",
+        "src/mibi/format/FormatPane.tsx",
+        "src/mibi/format/HeaderExtras.tsx",
+        "src/mibi/format/MobileLayoutEditor.tsx",
+        "src/mibi/format/MobileLayoutPane.tsx",
+        "src/mibi/format/controls.tsx",
+        "src/mibi/help/FieldHelp.tsx",
+        "src/mibi/report/InteractionControl.tsx",
+        "src/mibi/ribbon/parts.tsx",
+        "src/mibi/shell/CommandPalette.tsx",
+        "src/mibi/workspaces/AddDashboardsModal.tsx",
+        "src/mibi/workspaces/WorkspaceModal.tsx"
       ],
       "rules": {
         "jsx-a11y/prefer-tag-over-role": "off"

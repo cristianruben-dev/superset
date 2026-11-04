@@ -246,7 +246,7 @@ export function TopBar({
   const anonymous = data.navbar_right.user_is_anonymous;
 
   return (
-    <Bar id="main-menu" role="banner" data-test="mibi-topbar">
+    <Bar id="main-menu" data-test="mibi-topbar">
       {showBrand && (
         <Brand data-test="mibi-topbar-brand">
           <BrandLink compact={compactBrand} />

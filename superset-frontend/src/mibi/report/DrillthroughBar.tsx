@@ -28,7 +28,7 @@ import { activeDrillthrough, leaveDrillthrough } from './drillthrough';
 import { DRILLTHROUGH_ID } from './drillthroughScope';
 import { usePageHistory } from './pageHistory';
 
-const Bar = styled.div`
+const Bar = styled.output`
   ${({ theme }) => css`
     display: flex;
     align-items: center;
@@ -115,7 +115,7 @@ export function DrillthroughBar() {
   if (!drillthrough || !activeTabs?.includes(drillthrough.tabId)) return null;
 
   return (
-    <Bar role="status" data-test="mibi-drillthrough-bar">
+    <Bar data-test="mibi-drillthrough-bar">
       {drillthrough.sourceTabId && (
         <button
           type="button"
