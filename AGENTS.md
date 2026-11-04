@@ -75,8 +75,13 @@ This repository is **AuraData BI**, a fork of Apache Superset 6.1 shaped like Po
   `security_manager.can_edit_resource` (used by `raise_for_editorship` and the edit points) and
   never become editors (`keep_subjects` in `compute_subjects`). A new edit point asks
   `can_edit_resource`; a data-access check keeps `is_editor` (`tests/unit_tests/mibi/workspace_security_test.py`).
+- **Flags fixed by the product** (`FORCED_OFF_FLAGS`, `superset/utils/feature_flag_manager.py`): Superset's mobile consumption mode
+  (`mibiMobile` replaces it) and Table V2 stay off whatever the configuration says.
 - **Soft delete and version history** (on by default since 7.0): a deleted dashboard, chart or
-  dataset keeps its row (`deleted_at`) and links. Fork rules count only live rows: 7.0's ORM
+  dataset keeps its row (`deleted_at`) and links. The trash lives on the workspace page (contributors and admins,
+  `/api/v1/workspace/<id>/trash/`) and in Administration (`/archived/`, "Papelera"); the history opens from the "…" menu of a
+  dashboard. A contributor reads the history, copies dashboards (the copy keeps the original's editors and workspace) and lists
+  the drafts of the workspace, never becoming an editor. Fork rules count only live rows: 7.0's ORM
   visibility filter hides them from ORM queries, but queries over link tables (`dashboard_slices`,
   `mibi_workspace_*`) must join the live rows themselves (`_live_links` in `single_dashboard.py`).
 - **Datasets belong to a workspace** (`MIBI_WORKSPACE_DATASETS`, `superset/mibi/workspace_datasets.py`),

@@ -316,6 +316,72 @@ TypeScript 5.4.5 (no hay TS 7) y oxlint 1.81.
 - **Traducciones.** `npm run build-translation` funciona. El `.mo` se compiló con `pybabel compile -f`: `msgfmt` aborta por
   el `msgstr` de la línea 4506 (empieza con `\n` sin que el `msgid` lo haga) y por 4 errores de marcadores; se arreglan en la fase 6.
 
+### Fase 4
+
+Rama `claude/upgrade-superset-7-features-15ad24` (cortada de la del frontend). Entorno: el venv de la fase 2, un Postgres 17
+desechable en el 5546 (copia de dev migrada por `db upgrade`), servidor en el 8199, `node_modules` y `lib/` clonados del worktree
+de la fase 3 (`cp -cR`). Usuarios de prueba en la copia: admin, `qa_colaborador` (contribuidor del workspace 6) y `qa_lector` (visor).
+
+- **1. Modo móvil de 7.0:** gana `mibiMobile`. `MOBILE_CONSUMPTION_MODE` queda forzada a apagada en `FeatureFlagManager`
+  (`FORCED_OFF_FLAGS`), sea cual sea la configuración, el entorno o un callback: así los componentes de 7.0 que la leen
+  (`useIsMobile`, `MobileRouteGuard`…) son inertes y no hay forma de encenderla por error. Test: `feature_flags_test.py`.
+- **2. Historial y papelera, en nuestro shell.**
+  - Historial: «Ver historial de versiones» del menú «…» del informe en vista (traducido). En edición el panel se oculta
+    (decisión de 7.0). Un contribuidor ya lo lista (`versioning/api_helpers.py` y `activity/visibility.py` aceptan
+    `edits_as_workspace_member`; los tests de 7.0 siguen en verde porque se pregunta primero `is_editor`).
+  - Papelera: sección «Papelera» de la página del workspace para contribuidores y admins (`GET /api/v1/workspace/<id>/trash/`,
+    `WorkspaceTrash.tsx`), con «Restaurar»; y la página de 7.0 `/archived/` queda en Administración con el nombre «Papelera»
+    (admins; gráficos y conjuntos de datos). El 422 de restaurar ya no da ids: dice qué gráfico está ahora en qué tablero
+    (`describe_conflicts`), y la papelera lo muestra por adelantado (`blocked_by`) y desactiva «Restaurar».
+  - Copiar: un contribuidor copia un tablero del workspace sin hacerse editor: la copia y sus gráficos clonados conservan los
+    editores y visores del original y entran en el workspace del original (`link_copy_to_workspace`); copiar ya cuelga también
+    de `dashboard.can_edit` en el frontend (`canUserSaveAsDashboard`): **sin eso el contribuidor ni veía la cinta en edición**.
+  - Propiedades: editores y visores se muestran deshabilitados, con explicación, a quien edita solo por el workspace.
+  - Borradores: el filtro de acceso de tableros (`DashboardAccessFilter`) deja ver los borradores del workspace a contribuidores
+    y admins, como ya hacía `raise_for_access`; antes la API respondía 404 y el editor no abría. Las reglas de visores y de
+    datasets siguen igual.
+  - Traducción: las ~140 cadenas del historial y la papelera estaban vacías en `es`; se tradujeron (fase 6 revisa el resto).
+- **3. Controles de ECharts de 7.0.** Se conservan las claves guardadas del panel y las de 7.0 se leen como respaldo:
+  - `gridlines` (7.0) frente a `gridlines_hidden`: gana el del panel si alguna vez se usó (`resolveGridlines`); el panel
+    muestra como ocultas las líneas de un gráfico guardado con `gridlines: false` (`legacyValue`) y no dibuja el control de 7.0
+    (`SUPERSEDED_CONTROLS`). Igual con `startAngle` y `special_start_angle` (`resolveStartAngle`, antes de calcular el arco).
+  - `axisTicks`, `label_position`, `tooltipTruncation`, `sweptAngle`, `minMarkerSize`/`maxMarkerSize` tienen sección en
+    `formatCards.ts`.
+  - Etiquetas de barras: la clave `value_label_position` la usan 7.0 (colocación según el espacio) y el panel (posición fija);
+    el panel pisaba la de 7.0 y la de `label_position` explícita (4 tests de 7.0 fallaban desde la fase 3). Ahora los valores que
+    comparten no se pisan en los Timeseries (`barLabelsFitAware`).
+  - Leyenda HTML de Timeseries: se usa mientras la leyenda no tenga formato del panel; con cualquier formato (fuente, color,
+    título, alineación, icono) se queda la de ECharts, que sí lo dibuja (`hasLegendFormat`).
+  - Los patrones (decal) no existen en esta 7.0 (0.0.rc2); los ejes de la cascada ya tenían sección; la serie derivada
+    discontinua del combinado se pinta como en 7.0 y `series_format` sigue ganando por nombre.
+- **4. Table V2:** oculta. `AG_GRID_TABLE_ENABLED` y `TABLE_V2_TIME_COMPARISON_ENABLED` forzadas a apagadas (no se registra el
+  plugin ni migra `table`). Adoptarla exigiría portar formato de tabla, reglas, sparklines y tooltips.
+- **5. Reglas de formato condicional:** los límites mínimo y máximo manuales y el selector de color de 7.0 ya vienen en el control
+  de tabla y matriz que el panel dibuja con `Control`. El control de reglas del fork (umbrales) usa ahora `ColorPickerControl`
+  de 7.0 y conserva los colores guardados.
+- **6.** Mariposa: icono, sección «Lados», nombres de campos, formato del panel (ejes, líneas, leyenda, etiquetas, barras, área)
+  y funciona en el panel lateral (probado). Descripción del gráfico: se queda la ayuda del encabezado (`HeaderExtras`); se
+  quitaron `SliceInfo` y los 6 tests del popover de 7.0. El filtro cruzado por el eje temporal funciona (probado en el
+  navegador). **Sin probar a mano:** «Desglosar por» desde una etiqueta del eje X (el menú contextual abre, pero no lo
+  alcancé en el eje).
+- **7. Contribuidor y tableros.** No implementado, queda para decidir (ver informe): abrir un tablero sin acceso a sus datasets
+  expone el esquema de esos datasets por los endpoints del tablero. Un contribuidor ve en el listado los datasets de su
+  workspace (`WorkspaceDatasetFilter`), pero eso no es permiso para consultarlos.
+- **8.** Distintivo «Destacado»: se dibuja (arriba a la derecha de la ficha); el test omitido pasa a uno propio. `prefer-tag-over-role`
+  vuelve a estar activo en todo `src/mibi` salvo 20 archivos con motivo (iconos SVG, radios, listbox, progress, grupos/estados/botones
+  que necesitarían reset); `TopBar` y `DrillthroughBar` pasaron a `header`/`output`. Editor del panel lateral: métricas
+  (popover Simple), columnas con dnd-kit y filtros abren y guardan (probado).
+- **Playwright experimental** contra el 8199 (Chromium 1208 enlazado como 1234; el Playwright 1.62 pide otro y no se descargó): `sort` 2/2,
+  `format` 3/3, `export-file` 1/1, `layout-ux` 14/15, `present` falla 1. Se arreglaron imports (`dashboard-test-helpers` ahora en
+  `tests/dashboard`), `owners` → `editors` y `testAssets` sin temas. **Fallos abiertos:** (a) `layout-ux` «an element dragged from the
+  panel lands under the pointer»: arrastrar un elemento del panel al lienzo no suelta (no hay evento `drop`; reproducido a mano en
+  el navegador; es una regresión real, probablemente de los Droppable de la fila/rejilla tras quitar la medición de altura de
+  `Row.tsx` en la fase 3); (b) `present` «presenting fits a 4:3 page»: la página hace scroll. `format-reference` no se corrió.
+- **Preexistentes que siguen:** Jest `src/mibi` 2 fallos de la línea base; `dropOverflowsParent`/`getDetailedComponentWidth` (4,
+  tests de 12 columnas); `SliceHeaderControls` «subdirectory deployment» (2, «Editar gráfico» abre el panel, no Explore);
+  `tests/unit_tests/subjects/test_creator_group_call_sites.py` (3) y `dashboards/semantic_view_access_test.py` (20, `g.user`).
+  Cadenas de 7.0 como «Deleted %(num)d …» sin espacio («Se ha eliminado%(num)d») y `msgfmt -c` con los mismos 8 errores.
+
 ## Abiertos tras la fase 3
 
 Para la fase 4 (funciones que chocan), además de la lista de abajo:
