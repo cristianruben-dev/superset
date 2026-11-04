@@ -17,7 +17,7 @@
  * under the License.
  */
 import { Fragment, useEffect, useMemo, useState, type ReactNode } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { GenericDataType } from '@apache-superset/core/common';
 import { SupersetClient } from '@superset-ui/core';
 import { css, styled } from '@apache-superset/core/theme';
@@ -29,7 +29,7 @@ import type { RootState } from 'src/dashboard/types';
 import { fetchDataSets } from 'src/mibi/data/api';
 import DatasourcePanelDragOption from 'src/explore/components/DatasourcePanel/DatasourcePanelDragOption';
 import { DndItemType } from 'src/explore/components/DndItemType';
-import type { DataField } from './chartFields';
+import { changeChartDataset, type DataField } from './chartFields';
 import { useChartFieldToggle } from './ChartFieldsSections';
 import { searchable } from './controls';
 import { setPaneCollapsed } from './panes';
@@ -199,6 +199,7 @@ export function DataPane({
     (state: RootState) =>
       state.datasources as unknown as Record<string, Dataset>,
   );
+  const dispatch = useDispatch();
   const dashboardId = useSelector(
     (state: RootState) => state.dashboardInfo?.id,
   );
@@ -354,6 +355,24 @@ export function DataPane({
               {isOpen && !usable && (
                 <div className="dataset-other">
                   {t('The selected chart uses another table.')}
+                  {fieldToggle.ready && selected && selectedChartId && (
+                    <Button
+                      buttonSize="xsmall"
+                      buttonStyle="link"
+                      data-test="mibi-data-pane-use-dataset"
+                      onClick={() =>
+                        dispatch(
+                          changeChartDataset({
+                            id: selected,
+                            chartId: selectedChartId,
+                            datasetKey: key,
+                          }) as never,
+                        )
+                      }
+                    >
+                      {t('Use this table in the chart')}
+                    </Button>
+                  )}
                 </div>
               )}
               {isOpen && !!metrics.length && (

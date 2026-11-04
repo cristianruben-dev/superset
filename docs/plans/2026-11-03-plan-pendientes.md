@@ -197,6 +197,11 @@ Detalle en [`estado-formato-powerbi.md`](estado-formato-powerbi.md). Lo que más
   - Algoritmos de treemap.
 - **Fase 4:** fijar encabezados de fila y las dos opciones de accesibilidad.
 
+**Estado de la fase 10 (2026-11-04, rama `claude/pending-features-e512b4`):** hecho. Deshacer recorre los campos,
+Datos lista los conjuntos del espacio y los compartidos, casillas y soltar sobre el gráfico añaden un campo, y un
+gráfico cambia de conjunto de datos. También se arregló que arrastrar desde Datos no hacía nada desde la 7.0 (faltaba
+el contexto de dnd-kit en el tablero).
+
 ## G. Cinta y comodidades de edición (S–M)
 
 De la revisión UX, lo que queda tras la cinta, el panel de Selección, el bloqueo y el menú de página:

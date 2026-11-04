@@ -35,6 +35,7 @@ import {
   type SubjectRef,
 } from 'src/dashboard/util/permissionUtils';
 import type { UserWithPermissionsAndRoles } from 'src/types/bootstrapTypes';
+import { fetchDatasourceMetadata } from 'src/dashboard/actions/datasources';
 import { fetchDashboardSlices } from 'src/mibi/dashboard/reloadSavedChart';
 import { buildV1ChartDataPayload } from 'src/explore/exploreUtils';
 import type { ChartState } from 'src/explore/types';
@@ -603,6 +604,97 @@ export const revertChartFields =
     dispatch(applyFormData(chartId, entry.saved, 'query'));
   };
 
+type DatasetFields = {
+  columns?: { column_name: string }[];
+  metrics?: { metric_name: string }[];
+};
+
+/**
+ * The values of the wells of a chart that a dataset still has: a column or a
+ * measure by name, an aggregate of one of its columns, or a SQL expression.
+ */
+export function fieldsKeptBy(formData: FormData, dataset: DatasetFields) {
+  const columns = new Set((dataset.columns ?? []).map(c => c.column_name));
+  const metrics = new Set((dataset.metrics ?? []).map(m => m.metric_name));
+  const wells = addWellsOf(formData);
+  const metricWells = new Set(wells?.metric.map(well => well.name) ?? []);
+  const names = new Set([
+    ...Object.keys(rolesOf(formData)),
+    ...(wells ? wellsWithKind(wells).map(well => well.name) : []),
+  ]);
+  const keeps = (value: unknown, metricWell: boolean) => {
+    if (typeof value === 'string')
+      return metricWell ? metrics.has(value) : columns.has(value);
+    const item = value as {
+      column?: { column_name?: string };
+      subject?: string;
+      sqlExpression?: string;
+    } | null;
+    if (!item || typeof item !== 'object') return true;
+    if (item.column?.column_name) return columns.has(item.column.column_name);
+    if (item.subject) return columns.has(item.subject);
+    return true;
+  };
+  const kept: FormData = {};
+  let emptied = false;
+  names.forEach(name => {
+    const current = formData[name];
+    if (current === undefined || current === null) return;
+    const metricWell = metricWells.has(name) || /metric/.test(name);
+    if (Array.isArray(current)) {
+      const next = current.filter(value => keeps(value, metricWell));
+      if (next.length !== current.length) kept[name] = next;
+      if (current.length && !next.length) emptied = true;
+    } else if (!keeps(current, metricWell)) {
+      kept[name] = undefined;
+      emptied = true;
+    }
+  });
+  const filters = formData.adhoc_filters;
+  if (Array.isArray(filters)) {
+    const next = filters.filter(filter => keeps(filter, false));
+    if (next.length !== filters.length) kept.adhoc_filters = next;
+  }
+  return { kept, emptied };
+}
+
+/**
+ * Moves a chart to another dataset of its report, in one undo step: the fields
+ * the new dataset lacks leave its wells and its filters. The chart cannot draw
+ * itself until a well that emptied gets a field again.
+ */
+export const changeChartDataset =
+  ({
+    id,
+    chartId,
+    datasetKey,
+  }: {
+    id: string;
+    chartId: number;
+    datasetKey: string;
+  }) =>
+  async (dispatch: Dispatch, getState: GetState) => {
+    await dispatch(fetchDatasourceMetadata(datasetKey));
+    const dataset = (
+      getState().datasources as unknown as Record<string, DatasetFields>
+    )[datasetKey];
+    const chart = chartOf(getState, chartId);
+    if (!dataset || !chart) return;
+    const formData = (chart as unknown as { form_data: FormData }).form_data;
+    const { kept, emptied } = fieldsKeptBy(formData, dataset);
+    dispatch(
+      recordFieldStep(
+        {
+          id,
+          chartId,
+          after: { datasource: datasetKey, ...kept },
+          invalidAfter: emptied,
+        },
+        'query',
+      ),
+    );
+  };
+
 async function saveChart(chartId: number, changes: FormData) {
   const { json } = await SupersetClient.get({
     endpoint: `/api/v1/chart/${chartId}`,
@@ -618,9 +710,17 @@ async function saveChart(chartId: number, changes: FormData) {
     setDataMask: undefined,
     ownState: undefined,
   });
+  // A chart moved to another dataset tells the server which one
+  const [datasourceId, datasourceType] = String(changes.datasource ?? '').split(
+    '__',
+  );
   await SupersetClient.put({
     endpoint: `/api/v1/chart/${chartId}`,
     jsonPayload: {
+      ...(changes.datasource !== undefined && {
+        datasource_id: Number(datasourceId),
+        datasource_type: datasourceType,
+      }),
       params: JSON.stringify(formData),
       query_context: JSON.stringify(queryContext),
       query_context_generation: true,
@@ -654,7 +754,18 @@ export const saveChartFields =
           await saveChart(chartId, entry.changes);
           pending.delete(chartId);
         } catch (error) {
-          if ((error as { status?: number })?.status === 403) {
+          const status = (error as { status?: number })?.status;
+          if (status === 400 || status === 422) {
+            // The server refuses the fields, as a dataset of another workspace
+            dispatch(revertChartFields(chartId));
+            dispatch(
+              addDangerToast(
+                t(
+                  'The server refused the fields of a chart: it keeps its saved fields.',
+                ),
+              ),
+            );
+          } else if (status === 403) {
             // Trying again cannot help: the chart goes back to what it saved
             dispatch(revertChartFields(chartId));
             dispatch(

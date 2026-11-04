@@ -26622,3 +26622,9 @@ msgstr "Suelta para añadirlo a este gráfico"
 
 msgid "This chart uses another table"
 msgstr "Este gráfico usa otra tabla"
+
+msgid "Use this table in the chart"
+msgstr "Usar esta tabla en el gráfico"
+
+msgid "The server refused the fields of a chart: it keeps its saved fields."
+msgstr "El servidor rechazó los campos de un gráfico: conserva los guardados."

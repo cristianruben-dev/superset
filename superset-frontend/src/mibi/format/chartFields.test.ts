@@ -27,6 +27,7 @@ import {
   canChangeFields,
   clearPendingFields,
   fieldRole,
+  fieldsKeptBy,
   followFieldSteps,
   hasPendingFields,
   isFieldWell,
@@ -364,4 +365,57 @@ test('a field is found and taken out of every well that has it', () => {
   expect(removeFieldChanges(pie, sales)).toEqual([
     { name: 'metric', value: undefined },
   ]);
+});
+
+test('a new dataset keeps only the fields it has', () => {
+  const bars = {
+    viz_type: 'echarts_timeseries_bar',
+    x_axis: 'date',
+    groupby: ['region', 'product'],
+    metrics: ['total', { column: { column_name: 'amount' }, aggregate: 'SUM' }],
+    adhoc_filters: [{ subject: 'region' }, { subject: 'year' }],
+  };
+  const dataset = {
+    columns: [{ column_name: 'region' }, { column_name: 'amount' }],
+    metrics: [],
+  };
+  expect(fieldsKeptBy(bars, dataset)).toEqual({
+    kept: {
+      x_axis: undefined,
+      groupby: ['region'],
+      metrics: [{ column: { column_name: 'amount' }, aggregate: 'SUM' }],
+      adhoc_filters: [{ subject: 'region' }],
+    },
+    emptied: true,
+  });
+});
+
+test('saving a chart moved to another dataset tells the server which', async () => {
+  jest.useRealTimers();
+  jest.spyOn(SupersetClient, 'get').mockResolvedValue({
+    json: { result: { params: '{}' } },
+  } as never);
+  const put = jest
+    .spyOn(SupersetClient, 'put')
+    .mockResolvedValue({ json: {} } as never);
+  const { dispatch } = setup();
+  dispatch(change('5__table', { name: 'datasource' }));
+  await dispatch(saveChartFields());
+  expect(put.mock.calls[0][0].jsonPayload).toMatchObject({
+    datasource_id: 5,
+    datasource_type: 'table',
+  });
+});
+
+test('a dataset the server refuses goes back to the saved fields', async () => {
+  jest.useRealTimers();
+  jest.spyOn(SupersetClient, 'get').mockResolvedValue({
+    json: { result: { params: '{}' } },
+  } as never);
+  jest.spyOn(SupersetClient, 'put').mockRejectedValue({ status: 422 });
+  const { dispatch, state } = setup();
+  dispatch(change('5__table', { name: 'datasource' }));
+  await dispatch(saveChartFields());
+  expect(hasPendingFields(3)).toBe(false);
+  expect(state.charts[3].form_data.datasource).toBeUndefined();
 });
