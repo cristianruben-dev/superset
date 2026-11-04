@@ -268,6 +268,23 @@ def generate_dashboard(  # noqa: C901
                     ),
                 )
 
+            # Charts use the datasets of their dashboard's workspace or shared
+            # ones (AuraData BI); a new dashboard is outside any workspace
+            from superset.mibi.workspace_datasets import (
+                chart_datasets_of_other_workspaces,
+            )
+
+            if foreign := chart_datasets_of_other_workspaces(found_chart_ids, None):
+                return GenerateDashboardResponse(
+                    dashboard=None,
+                    dashboard_url=None,
+                    error=(
+                        "These charts use datasets of a workspace: "
+                        f"{', '.join(foreign)}. A dashboard outside that workspace "
+                        "can only use shared datasets."
+                    ),
+                )
+
             # Validate dataset access as well as chart visibility.
             # check_chart_data_access is the centralized data-level
             # permission check that complements the class-level RBAC

@@ -160,6 +160,32 @@ def test_charts_use_their_workspace_datasets_or_shared_ones(
     assert validate(world["ajena"].id, "table", []) is None
 
 
+def test_charts_joining_a_dashboard_keep_to_its_workspace_datasets(
+    world: dict[str, Any], session: Session
+) -> None:
+    def loose_chart(dataset: SqlaTable) -> int:
+        chart = Slice(
+            slice_name=f"{dataset.table_name} suelto",
+            viz_type="table",
+            datasource_type="table",
+            datasource_id=dataset.id,
+        )
+        session.add(chart)
+        session.flush()
+        return chart.id
+
+    foreign = workspace_datasets.chart_datasets_of_other_workspaces
+    ventas, ajena, comun = (
+        loose_chart(world[name]) for name in ("ventas", "ajena", "comun")
+    )
+
+    assert foreign([ventas, comun], world["tablero"].id) == []
+    assert foreign([ventas, ajena, comun], world["tablero"].id) == ["ajena"]
+    # A dashboard outside workspaces, saved or not, only takes shared datasets
+    assert foreign([ventas, comun], world["libre"].id) == ["ventas"]
+    assert foreign([ventas, ajena, comun], None) == ["ajena", "ventas"]
+
+
 def test_the_usable_in_dashboard_filter(
     world: dict[str, Any], session: Session
 ) -> None:

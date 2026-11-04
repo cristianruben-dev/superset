@@ -517,6 +517,26 @@ def add_chart_to_existing_dashboard(  # noqa: C901 — complexity is structural 
                     ),
                 )
 
+            # Charts use the datasets of their dashboard's workspace or shared
+            # ones (AuraData BI)
+            from superset.mibi.workspace_datasets import (
+                chart_datasets_of_other_workspaces,
+            )
+
+            if foreign := chart_datasets_of_other_workspaces(
+                [request.chart_id], dashboard.id
+            ):
+                return AddChartToDashboardResponse(
+                    dashboard=None,
+                    dashboard_url=None,
+                    position=None,
+                    error=(
+                        f"Chart {request.chart_id} uses a dataset of another "
+                        f"workspace: {', '.join(foreign)}. A chart can only use the "
+                        "datasets of its dashboard's workspace or shared ones."
+                    ),
+                )
+
         # Calculate layout position
         with event_logger.log_context(action="mcp.add_chart_to_dashboard.layout"):
             # Parse current layout

@@ -220,6 +220,46 @@ def datasets_of_other_workspaces(
     return sorted(name for (name,) in rows)
 
 
+def chart_datasets_of_other_workspaces(
+    chart_ids: Iterable[int], dashboard_id: int | None
+) -> list[str]:
+    """
+    The names of the datasets that these charts use and that belong to a
+    workspace other than the dashboard's, so the charts can't join it.
+
+    :param chart_ids: The charts about to join the dashboard
+    :param dashboard_id: The dashboard, or None for one not yet saved (outside
+        any workspace)
+    :returns: The names of the datasets that break the rule
+    """
+    from superset.connectors.sqla.models import SqlaTable
+    from superset.models.slice import Slice
+
+    ids = list(chart_ids)
+    if not enabled() or not ids:
+        return []
+    workspace_id = next(iter(dashboard_workspace_ids([dashboard_id])), None)
+    rows = (
+        db.session.query(SqlaTable.table_name)
+        .join(WorkspaceDataset, WorkspaceDataset.dataset_id == SqlaTable.id)
+        .join(
+            Slice,
+            sa.and_(
+                Slice.datasource_id == SqlaTable.id,
+                Slice.datasource_type == "table",
+            ),
+        )
+        .filter(Slice.id.in_(ids))
+        .filter(
+            WorkspaceDataset.workspace_id != workspace_id
+            if workspace_id is not None
+            else sa.true()
+        )
+        .distinct()
+    )
+    return sorted(name for (name,) in rows)
+
+
 def datasets_used_outside(dataset_ids: Iterable[int], workspace_id: int) -> list[str]:
     """
     The names of these datasets that charts of dashboards outside ``workspace_id``

@@ -94,6 +94,16 @@ def mock_chart_access() -> Iterator[None]:
         yield
 
 
+@pytest.fixture(autouse=True)
+def mock_workspace_datasets() -> Iterator[Mock]:
+    """Charts use shared datasets unless a test says otherwise (AuraData BI)."""
+    with patch(
+        "superset.mibi.workspace_datasets.chart_datasets_of_other_workspaces",
+        return_value=[],
+    ) as foreign:
+        yield foreign
+
+
 def _mock_chart(id: int = 1, slice_name: str = "Test Chart") -> Mock:
     """Create a mock chart object."""
     chart = Mock()
@@ -263,6 +273,39 @@ class TestGenerateDashboard:
         else:
             assert result.structured_content["error"] is None
             mock_session.commit.assert_called()
+
+    @patch("superset.models.dashboard.Dashboard")
+    @patch("superset.daos.dashboard.DashboardDAO.find_by_id")
+    @patch("superset.db.session")
+    @pytest.mark.asyncio
+    async def test_generate_dashboard_rejects_workspace_datasets(
+        self,
+        mock_db_session,
+        mock_find_by_id,
+        mock_dashboard_cls,
+        mock_workspace_datasets,
+        mcp_server,
+    ):
+        """A new dashboard is outside workspaces: its charts use shared datasets."""
+        charts = [_mock_chart(id=1, slice_name="Sales Chart")]
+        _setup_generate_dashboard_mocks(
+            mock_db_session,
+            mock_find_by_id,
+            mock_dashboard_cls,
+            charts,
+            _mock_dashboard(id=10),
+        )
+        mock_workspace_datasets.return_value = ["ventas"]
+
+        async with Client(mcp_server) as client:
+            result = await client.call_tool(
+                "generate_dashboard",
+                {"request": {"chart_ids": [1], "dashboard_title": "Nuevo"}},
+            )
+
+        assert result.structured_content["dashboard"] is None
+        assert "ventas" in result.structured_content["error"]
+        mock_workspace_datasets.assert_called_once_with([1], None)
 
     @patch("superset.models.dashboard.Dashboard")
     @patch("superset.daos.dashboard.DashboardDAO.find_by_id")
