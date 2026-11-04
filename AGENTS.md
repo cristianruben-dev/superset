@@ -70,10 +70,18 @@ This repository is **AuraData BI**, a fork of Apache Superset 6.1 shaped like Po
   wrapped in `panelOnly` (`src/mibi/PanelGate.tsx`) and redirect when opened on their own. A
   dashboard shows without the sidebar, with the logo in the top bar (`isReportRoute`).
 - **Workspaces** group dashboards, with members and roles (viewer, contributor, admin)
-  (`MIBI_WORKSPACE_ACCESS`).
+  (`MIBI_WORKSPACE_ACCESS`). A role never grants data access: Superset counts editorship
+  (`is_editor`) as data access, so contributors and admins edit through
+  `security_manager.can_edit_resource` (used by `raise_for_editorship` and the edit points) and
+  never become editors (`keep_subjects` in `compute_subjects`). A new edit point asks
+  `can_edit_resource`; a data-access check keeps `is_editor` (`tests/unit_tests/mibi/workspace_security_test.py`).
+- **Soft delete and version history** (on by default since 7.0): a deleted dashboard, chart or
+  dataset keeps its row (`deleted_at`) and links. Fork rules count only live rows: 7.0's ORM
+  visibility filter hides them from ORM queries, but queries over link tables (`dashboard_slices`,
+  `mibi_workspace_*`) must join the live rows themselves (`_live_links` in `single_dashboard.py`).
 - **Datasets belong to a workspace** (`MIBI_WORKSPACE_DATASETS`, `superset/mibi/workspace_datasets.py`),
   like Power BI semantic models: a dataset is in one workspace at most, and one without a
-  workspace is shared. Only members (and owners, admins) list a workspace's datasets
+  workspace is shared. Only members (and editors, admins) list a workspace's datasets
   (`WorkspaceDatasetFilter` on the dataset API), and a chart only uses datasets of its
   dashboard's workspace or shared ones (`validate_chart_dataset` in the chart commands). A
   dataset created from a dashboard's side panel joins its workspace (`linkNewDataset`); the
@@ -291,14 +299,19 @@ Formats are stored in `position_json`, so they save, undo and export with the da
 - There are no saved format themes: each dashboard is formatted on its own.
 
 ### Migrations
-Fork migrations form one chain after the upstream head:
+Fork migrations form one chain after the Superset 6.1 head (`4b2a8c9d3e1f`):
 `8bc9e5b95335` (workspaces) → `cce7fe34b50d` (members) → `3a90eb47d506` (backgrounds) →
 `06c8a16b9fe1` (element images) → `b7d41e0c9a23` (format themes) → `e4ec3b61cadb` (drops the
 format themes) → `a91c5d27f3e8` (drops the annotation layers) → `c5f08a1d7e42` (drops the
-themes and CSS templates) → `d3f9a2b17c64` (workspace datasets). `f1c7a9e2b305` merges that chain with the
-Superset 7.0 head (`88a01c781622`). A new fork migration revises the last revision. When merging a new Superset
-release, add another merge revision of the upstream head and the fork head instead of moving `8bc9e5b95335`: a
-database that already ran the fork migrations would otherwise skip the new upstream ones.
+themes and CSS templates) → `d3f9a2b17c64` (workspace datasets). The chain ends in the merge revision
+`f1c7a9e2b305`, whose `down_revision` is the Superset 7.0 head (`88a01c781622`) and the fork head, so there is
+one head and a database at `d3f9a2b17c64` still runs the 41 migrations of 7.0 on `db upgrade`.
+- A new fork migration revises the current head (`f1c7a9e2b305` until the next one).
+- Each new Superset release follows the same rule: add another merge revision of its head and the fork head.
+  Never repoint `8bc9e5b95335` (or any fork revision) to the new upstream head: a database that already ran the
+  fork migrations would skip the new upstream ones.
+- Check both paths on a throwaway database, never the dev one: a new database and a copy at the previous head
+  must both reach the new head.
 
 ### Tests for AuraData BI code
 - Jest tests sit next to the code (`src/mibi/**/*.test.ts(x)`).
