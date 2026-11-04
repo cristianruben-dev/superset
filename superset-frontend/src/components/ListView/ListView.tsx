@@ -51,6 +51,8 @@ import {
   CardSortSelectOption,
   ViewModeType,
 } from './types';
+import type { MenuItem } from '@superset-ui/core/components/Menu';
+import { useContextMenu } from 'src/mibi/shell/ContextMenu';
 import { usePageStatus } from 'src/mibi/shell/pageStatus';
 import getBootstrapData from 'src/utils/getBootstrapData';
 import { ListViewError, useListViewState } from './utils';
@@ -310,6 +312,8 @@ export interface ListViewProps<T extends object = any> {
   columnsForWrapText?: string[];
   enableBulkTag?: boolean;
   bulkTagResourceName?: string;
+  /** AuraData BI: the menu of a right click on a row of the table */
+  rowMenu?: (row: T) => MenuItem[];
 }
 
 export function ListView<T extends object = any>({
@@ -338,7 +342,9 @@ export function ListView<T extends object = any>({
   bulkTagResourceName,
   addSuccessToast,
   addDangerToast,
+  rowMenu,
 }: ListViewProps<T>) {
+  const contextMenu = useContextMenu();
   const {
     getTableProps,
     getTableBodyProps,
@@ -434,6 +440,7 @@ export function ListView<T extends object = any>({
 
   return (
     <ListViewStyles>
+      {contextMenu.menu}
       {allowBulkTagActions && (
         <BulkTagModal
           show={showBulkTagModal}
@@ -625,6 +632,12 @@ export function ListView<T extends object = any>({
                   onPageChange={newPageIndex => {
                     gotoPage(newPageIndex);
                   }}
+                  onRowContextMenu={
+                    rowMenu
+                      ? (record, event) =>
+                          contextMenu.open(event, rowMenu(record as T))
+                      : undefined
+                  }
                 />
               )}
             </>
