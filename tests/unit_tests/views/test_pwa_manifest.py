@@ -53,8 +53,7 @@ def test_build_manifest_under_root_deployment() -> None:
     assert manifest["file_handlers"][0]["action"] == "/file-handler"
     assert manifest["icons"][0]["src"] == "/static/assets/images/pwa/icon-192.png"
     assert (
-        manifest["screenshots"][0]["src"]
-        == "/static/assets/images/pwa/screenshot-wide.png"
+        manifest["icons"][2]["src"] == "/static/assets/images/pwa/icon-maskable-512.png"
     )
 
 
@@ -70,8 +69,8 @@ def test_build_manifest_under_subdir_deployment() -> None:
         manifest["icons"][0]["src"] == "/superset/static/assets/images/pwa/icon-192.png"
     )
     assert (
-        manifest["screenshots"][0]["src"]
-        == "/superset/static/assets/images/pwa/screenshot-wide.png"
+        manifest["icons"][2]["src"]
+        == "/superset/static/assets/images/pwa/icon-maskable-512.png"
     )
 
 
@@ -91,8 +90,8 @@ def test_build_manifest_under_split_static_prefix() -> None:
         == "https://cdn.example.com/static/assets/images/pwa/icon-192.png"
     )
     assert (
-        manifest["screenshots"][0]["src"]
-        == "https://cdn.example.com/static/assets/images/pwa/screenshot-wide.png"
+        manifest["icons"][2]["src"]
+        == "https://cdn.example.com/static/assets/images/pwa/icon-maskable-512.png"
     )
 
 
@@ -155,32 +154,34 @@ def test_build_manifest_field_set_is_closed() -> None:
         "background_color",
         "theme_color",
         "icons",
-        "screenshots",
         "file_handlers",
     }
     # Explicitly: NO `shortcuts` (PLAN line 1668-1669).
     assert "shortcuts" not in manifest
 
 
-def test_build_manifest_icons_cross_product() -> None:
-    """All four icon entries: (192,any), (512,any), (192,maskable), (512,maskable)."""
+def test_build_manifest_icons() -> None:
+    """AuraData BI icons: 192 and 512 for any use, and a padded maskable 512."""
     manifest = _build_manifest(application_root="/", static_assets_prefix="")
-    icons = manifest["icons"]
-    assert len(icons) == 4
-    pairs = {(icon["sizes"], icon["purpose"]) for icon in icons}
-    assert pairs == {
-        ("192x192", "any"),
-        ("512x512", "any"),
-        ("192x192", "maskable"),
-        ("512x512", "maskable"),
+    icons = {
+        (icon["sizes"], icon["purpose"]): icon["src"] for icon in manifest["icons"]
+    }
+    assert icons == {
+        ("192x192", "any"): "/static/assets/images/pwa/icon-192.png",
+        ("512x512", "any"): "/static/assets/images/pwa/icon-512.png",
+        ("512x512", "maskable"): "/static/assets/images/pwa/icon-maskable-512.png",
     }
 
 
-def test_build_manifest_screenshots_form_factors() -> None:
-    """Both PWA form-factor screenshots present."""
-    manifest = _build_manifest(application_root="/", static_assets_prefix="")
-    form_factors = {s["form_factor"] for s in manifest["screenshots"]}
-    assert form_factors == {"wide", "narrow"}
+def test_build_manifest_carries_the_auradata_brand() -> None:
+    """AuraData BI name, Spanish description and brand colors; no Superset name."""
+    manifest = _build_manifest(
+        application_root="/", static_assets_prefix="", app_name="AuraData BI"
+    )
+    assert manifest["name"] == manifest["short_name"] == "AuraData BI"
+    assert manifest["description"] == "Paneles e informes de AuraData BI"
+    assert manifest["theme_color"] == "#2563EB"
+    assert "Superset" not in json.dumps(manifest)
 
 
 def test_build_manifest_file_handlers_accept_map() -> None:
@@ -257,7 +258,7 @@ def test_manifest_body_is_valid_json() -> None:
     response = client.get("/pwa-manifest.json")
     parsed = json.loads(response.data)
     assert isinstance(parsed, dict)
-    assert parsed["name"] == "Apache Superset"
+    assert parsed["name"] == "AuraData BI"
 
 
 def test_manifest_route_under_subdir_config() -> None:
@@ -273,7 +274,7 @@ def test_manifest_route_under_subdir_config() -> None:
 
 
 def test_manifest_route_under_split_prefix_config() -> None:
-    """CDN-hosted static-prefix only applies to icon/screenshot fields."""
+    """CDN-hosted static-prefix only applies to icon fields."""
     app = _make_minimal_app(
         application_root="/superset",
         static_assets_prefix="https://cdn.example.com",

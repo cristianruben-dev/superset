@@ -52,69 +52,57 @@ def _normalize_app_root(application_root: str) -> str:
     return stripped
 
 
-def _build_manifest(application_root: str, static_assets_prefix: str) -> dict[str, Any]:
+#: AuraData BI brand colors: the page background and Azul Aura.
+_BACKGROUND_COLOR = "#F5F5F5"
+_THEME_COLOR = "#2563EB"
+
+
+def _build_manifest(
+    application_root: str,
+    static_assets_prefix: str,
+    app_name: str = "AuraData BI",
+) -> dict[str, Any]:
     """Return the PWA manifest dict for the given prefix configuration.
 
     `start_url`, `scope`, and `file_handlers[].action` are app-root-prefixed
     (and literal-corrected from the legacy `/superset/...` form).
-    `icons[].src` and `screenshots[].src` are static-prefixed (which may be
-    a separate CDN host).
+    `icons[].src` are static-prefixed (which may be a separate CDN host).
+
+    AuraData BI: the app is named after `APP_NAME`, described in Spanish (the
+    product's first language) and drawn with the AuraData icons, whose maskable
+    version is a separate file with the safe-zone padding. Superset's
+    screenshots are not shipped.
     """
     root = _normalize_app_root(application_root)
     static_prefix = static_assets_prefix.rstrip("/")
+    icons = f"{static_prefix}/static/assets/images/pwa"
     return {
-        "name": "Apache Superset",
-        "short_name": "Superset",
-        "description": "Modern data exploration and visualization platform",
+        "name": app_name,
+        "short_name": app_name,
+        "description": f"Paneles e informes de {app_name}",
         "start_url": f"{root}/welcome/",
         "scope": f"{root}/",
         "display": "standalone",
-        "background_color": "#ffffff",
-        "theme_color": "#20a7c9",
+        "background_color": _BACKGROUND_COLOR,
+        "theme_color": _THEME_COLOR,
         "icons": [
             {
-                "src": f"{static_prefix}/static/assets/images/pwa/icon-192.png",
+                "src": f"{icons}/icon-192.png",
                 "sizes": "192x192",
                 "type": "image/png",
                 "purpose": "any",
             },
             {
-                "src": f"{static_prefix}/static/assets/images/pwa/icon-512.png",
+                "src": f"{icons}/icon-512.png",
                 "sizes": "512x512",
                 "type": "image/png",
                 "purpose": "any",
             },
             {
-                "src": f"{static_prefix}/static/assets/images/pwa/icon-192.png",
-                "sizes": "192x192",
-                "type": "image/png",
-                "purpose": "maskable",
-            },
-            {
-                "src": f"{static_prefix}/static/assets/images/pwa/icon-512.png",
+                "src": f"{icons}/icon-maskable-512.png",
                 "sizes": "512x512",
                 "type": "image/png",
                 "purpose": "maskable",
-            },
-        ],
-        "screenshots": [
-            {
-                "src": (
-                    f"{static_prefix}/static/assets/images/pwa/screenshot-wide.png"
-                ),
-                "sizes": "1280x720",
-                "type": "image/png",
-                "form_factor": "wide",
-                "label": "Apache Superset Dashboard",
-            },
-            {
-                "src": (
-                    f"{static_prefix}/static/assets/images/pwa/screenshot-narrow.png"
-                ),
-                "sizes": "540x720",
-                "type": "image/png",
-                "form_factor": "narrow",
-                "label": "Apache Superset Mobile View",
             },
         ],
         "file_handlers": [
@@ -151,7 +139,11 @@ class PwaManifestView(BaseSupersetView):
         static_assets_prefix = (
             current_app.config["STATIC_ASSETS_PREFIX"] or application_root
         )
-        manifest = _build_manifest(application_root, static_assets_prefix)
+        manifest = _build_manifest(
+            application_root,
+            static_assets_prefix,
+            current_app.config.get("APP_NAME") or "AuraData BI",
+        )
         return Response(
             json.dumps(manifest, separators=(",", ":")),
             mimetype=_MANIFEST_MIMETYPE,
