@@ -1216,7 +1216,12 @@ def test_copy_dashboard_accepts_the_source_dashboards_charts(
         mock_g.user = None
         copied_dash = DashboardDAO.copy_dashboard(dashboard, copy_data)
 
-    assert {chart.id for chart in copied_dash.slices} == {chart1.id, chart2.id}
+    # AuraData BI: a chart belongs to one dashboard, so a copy always clones them
+    assert {chart.slice_name for chart in copied_dash.slices} == {
+        chart1.slice_name,
+        chart2.slice_name,
+    }
+    assert not {chart.id for chart in copied_dash.slices} & {chart1.id, chart2.id}
 
 
 def test_update_command_refuses_an_unreadable_layout_chart_before_side_effects(

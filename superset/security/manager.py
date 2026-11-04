@@ -6600,10 +6600,14 @@ class SupersetSecurityManager(  # pylint: disable=too-many-public-methods
                     )
                 )
 
-        if (
-            self.can_edit_resource(orig_resource)
-            if workspace_role
-            else self.is_editor(orig_resource)
+        # AuraData BI: the workspace leg comes after is_editor, which keeps the
+        # guest deny of 7.0, and never applies to a guest either
+        from superset.mibi.workspace_access import edits_as_workspace_member
+
+        if self.is_editor(orig_resource) or (
+            workspace_role
+            and not self.is_guest_user()
+            and edits_as_workspace_member(orig_resource)
         ):
             return
 

@@ -163,8 +163,12 @@ def edits_only_through_workspace(resource: Any) -> bool:
     Whether the current user edits a dashboard or chart only through a workspace
     role, without being an admin or one of its editors.
     """
+    from superset.models.dashboard import Dashboard
+    from superset.models.slice import Slice
+
     return (
-        not security_manager.is_admin()
+        isinstance(resource, (Dashboard, Slice))
+        and not security_manager.is_admin()
         and not security_manager.is_editor(resource)
         and edits_as_workspace_member(resource)
     )
