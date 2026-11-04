@@ -170,8 +170,13 @@ de 7.0 toca tablas que el fork borró; la de versionado crea `dashboards_version
 ## Estado al cerrar la fase 1
 
 - Merge commiteado sin marcadores (`git grep` con 7 u 8 caracteres) y una sola cabeza de migraciones.
-- No se ejecutaron suites de tests (la máquina se traba con ellas). La comprobación de import del backend y de
-  compilación del frontend está en el informe de la sesión.
+- No se ejecutaron suites de tests (la máquina se traba con ellas).
+- Backend: `python -m compileall superset` pasa (sin errores de sintaxis). `create_app()` no arranca en el contenedor
+  actual, que tiene las dependencias de 6.1 (SQLAlchemy 1.4.54, Flask 2.3.3): falla en
+  `superset/sql/dialects/dremio.py` con `No module named 'sqlglot.generators'` (sqlglot de 7.0). Es lo esperado hasta la
+  fase 2.
+- Frontend: no se compiló. Hace falta regenerar `package-lock.json` e instalar las dependencias de 7.0 (fase 3); con
+  los `node_modules` de 6.1 el resultado no diría nada.
 - `main` avanzó 2 commits después de cortar esta rama (`4f8736327f`, `4fb893edd9`): mezclar `main` en la rama antes de
   la fase 7.
 
