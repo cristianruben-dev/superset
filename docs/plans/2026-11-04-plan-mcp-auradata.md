@@ -157,6 +157,24 @@ para que las fases 3–7 se prueben mirando el resultado.
 
 **Listo cuando:** los tests de `tests/unit_tests/mcp_service/dashboard/` pasan, con los nuevos casos.
 
+**Hecho (2026-11-04, rama `fix/mcp-phase-0`):**
+1. `update_dashboard` **no tenía el agujero**. `validate_dashboard_layout` (de `mcp_service`) rechaza un layout que
+   nombre un gráfico que el tablero no tiene, así que no puede traer uno de otro tablero. Queda fijado con un test.
+2. **El bug de tamaño era real** (RED: el gráfico salía de 4 de ancho y sin `mibiPos`).
+   - `constants.py` gana `is_in_cells`, `canvas_cells` y `free_cell`, calcados de `columnCountOf` y `freeCell`.
+   - En un layout en celdas, `add_chart_to_existing_dashboard` pone el gráfico de 12 × 12 celdas en la primera celda
+     libre de su página. El layout viejo sigue como estaba.
+3. `generate_dashboard` sigue escribiendo el layout viejo, que el frontend convierte al abrir. Escribirlo en celdas
+   obliga a decidir qué pasa cuando no entra en la página (`layoutToPositions` agranda el lienzo), así que pasa a la
+   fase 2, con la biblioteca de layout.
+4. Duplicar y restaurar ya respetan las reglas: `DashboardDAO.copy_dashboard` copia siempre los gráficos y deja la
+   copia en el workspace del original, y `RestoreDashboardCommand` usa `find_charts_blocking_restore`. Lo que fallaba
+   era la descripción que lee la IA (decía que la copia comparte los gráficos); ya está corregida.
+5. Se borraron `mcp_service/theme/` y `annotation_layer/`, que solo tenían caché. `screenshot/__init__.py` se queda
+   para las capturas de la fase 2.
+6. Al pasarle el lint a los commits de la cinta apareció un `{ … }` sobrante en `TitleSections.tsx`; ya está
+   arreglado.
+
 ## R. Renombrado de `mibi` a AuraData BI
 
 El `CLAUDE.md` dice hoy: «Internal names keep the `mibi` prefix… saved dashboards and migrations depend on them».
