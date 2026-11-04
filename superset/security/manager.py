@@ -5653,7 +5653,8 @@ class SupersetSecurityManager(  # pylint: disable=too-many-public-methods
 
             # AuraData BI: workspace contributors also open the drafts of their
             # workspace, under the same viewer and datasource rules as published
-            # dashboards: a workspace role never grants access to data.
+            # dashboards (contributors read the workspace's datasets: see
+            # workspace_grants).
             def published_for_user() -> bool:
                 return bool(dashboard.published) or edits_as_workspace_member(dashboard)
 
@@ -6693,8 +6694,8 @@ class SupersetSecurityManager(  # pylint: disable=too-many-public-methods
 
         AuraData BI: an editor of the resource, or a contributor or admin of the
         workspace holding the dashboard (or the chart's dashboard). Only edit
-        points ask this; data access keeps asking ``is_editor``, so a workspace
-        role never grants access to data.
+        points ask this; data access keeps asking ``is_editor`` plus the narrow
+        grant of ``workspace_grants`` for the workspace's own datasets.
 
         :param resource: The dashboard, dataset, chart, etc. resource
         :returns: Whether the current user may edit the resource

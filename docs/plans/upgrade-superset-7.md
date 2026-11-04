@@ -364,9 +364,19 @@ de la fase 3 (`cp -cR`). Usuarios de prueba en la copia: admin, `qa_colaborador`
   quitaron `SliceInfo` y los 6 tests del popover de 7.0. El filtro cruzado por el eje temporal funciona (probado en el
   navegador). **Sin probar a mano:** «Desglosar por» desde una etiqueta del eje X (el menú contextual abre, pero no lo
   alcancé en el eje).
-- **7. Contribuidor y tableros.** No implementado, queda para decidir (ver informe): abrir un tablero sin acceso a sus datasets
-  expone el esquema de esos datasets por los endpoints del tablero. Un contribuidor ve en el listado los datasets de su
-  workspace (`WorkspaceDatasetFilter`), pero eso no es permiso para consultarlos.
+- **7. Contribuidor y tableros: acceso a datos por workspace (decisión del usuario, opción 3).** Implementado en el punto de acceso
+  (`superset/mibi/workspace_grants.py`, enganchado en `raise_for_access`, `DatasourceFilter`, `ChartFilter` y `DashboardAccessFilter`).
+  Reglas: (1) solo datasets que pertenecen a un workspace (`MIBI_WORKSPACE_DATASETS`); uno compartido conserva sus permisos normales;
+  (2) solo contribuidores y administradores del workspace, el visor no gana nada; (3) RLS sigue aplicando; (4) nada fuera del workspace:
+  no miembros, miembros de otro workspace y visores siguen sin consulta, esquema ni listado. Quitar al miembro o mover el dataset
+  revoca al instante (se consulta en cada petición). No cambia: SQL Lab y SQL crudo (403), esquemas/tablas de la base (404), editar
+  el dataset y añadir datasets a un workspace (piden editoría real). Un admin de workspace que no es admin de Superset puede delegar
+  datos añadiendo contribuidores, pero solo de datasets del workspace.
+  **Pruebas:** `tests/unit_tests/mibi/workspace_grants_test.py` (16); suite `tests/unit_tests/mibi` 125 y `tests/unit_tests/security` 561
+  en verde. **A mano (copia 8199, API y navegador):** contribuidor 200 en tablero, dataset, gráfico y datos, con el tablero
+  pintando datos; visor, miembro de otro workspace y sin workspace: 404/403 y sin el dataset en listados. Capturas en `fase4-capturas/`
+  (`grant-contribuidor-dashboard.jpg`, `grant-visor-dashboard-404.jpg`). El visor recibe 404 porque el tablero no se le compartió: el
+  workspace no le da lectura.
 - **8.** Distintivo «Destacado»: se dibuja (arriba a la derecha de la ficha); el test omitido pasa a uno propio. `prefer-tag-over-role`
   vuelve a estar activo en todo `src/mibi` salvo 20 archivos con motivo (iconos SVG, radios, listbox, progress, grupos/estados/botones
   que necesitarían reset); `TopBar` y `DrillthroughBar` pasaron a `header`/`output`. Editor del panel lateral: métricas

@@ -70,11 +70,17 @@ This repository is **AuraData BI**, a fork of Apache Superset 6.1 shaped like Po
   wrapped in `panelOnly` (`src/mibi/PanelGate.tsx`) and redirect when opened on their own. A
   dashboard shows without the sidebar, with the logo in the top bar (`isReportRoute`).
 - **Workspaces** group dashboards, with members and roles (viewer, contributor, admin)
-  (`MIBI_WORKSPACE_ACCESS`). A role never grants data access: Superset counts editorship
+  (`MIBI_WORKSPACE_ACCESS`). A role never makes anyone an editor: Superset counts editorship
   (`is_editor`) as data access, so contributors and admins edit through
   `security_manager.can_edit_resource` (used by `raise_for_editorship` and the edit points) and
   never become editors (`keep_subjects` in `compute_subjects`). A new edit point asks
-  `can_edit_resource`; a data-access check keeps `is_editor` (`tests/unit_tests/mibi/workspace_security_test.py`).
+  `can_edit_resource` (`tests/unit_tests/mibi/workspace_security_test.py`). Data access has one
+  narrow grant (`superset/mibi/workspace_grants.py`): contributors and admins of a workspace read the
+  datasets that belong to it (`raise_for_access`, `DatasourceFilter`, `ChartFilter`,
+  `DashboardAccessFilter`), never viewers, other workspaces or shared datasets. RLS still applies;
+  SQL Lab, database schemas and editing a dataset keep their normal permissions. A new data-access
+  check keeps `is_editor` and adds this grant only where the dataset is the thing read
+  (`tests/unit_tests/mibi/workspace_grants_test.py`).
 - **Flags fixed by the product** (`FORCED_OFF_FLAGS`, `superset/utils/feature_flag_manager.py`): Superset's mobile consumption mode
   (`mibiMobile` replaces it) and Table V2 stay off whatever the configuration says.
 - **Soft delete and version history** (on by default since 7.0): a deleted dashboard, chart or
