@@ -33,7 +33,7 @@ import { getDatabaseByName } from '../../../helpers/api/database';
 import { apiPostVirtualDataset } from '../../../helpers/api/dataset';
 import { apiPut } from '../../../helpers/api/requests';
 import { TIMEOUT } from '../../../utils/constants';
-import { createTestDashboard } from './dashboard-test-helpers';
+import { createTestDashboard } from '../../dashboard/dashboard-test-helpers';
 
 const LONG_TITLE = 'Total revenue by product line and quarter of the year';
 
@@ -46,7 +46,7 @@ async function createReport(page: Page, testAssets: TestAssets) {
     schema: '',
     table_name: `test_export_${Date.now()}`,
     sql: "SELECT 'North' AS region, 5 AS sales UNION ALL SELECT 'South', 3",
-    owners: [],
+    editors: [],
   });
   expect(datasetResponse.ok()).toBe(true);
   const datasetBody = await datasetResponse.json();

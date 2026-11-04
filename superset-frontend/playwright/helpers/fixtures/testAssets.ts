@@ -21,7 +21,6 @@ import { test as base } from '@playwright/test';
 import { apiDeleteChart } from '../api/chart';
 import { apiDeleteDashboard } from '../api/dashboard';
 import { apiDeleteDataset } from '../api/dataset';
-import { apiDeleteTheme } from '../api/theme';
 import { apiDeleteDatabase } from '../api/database';
 import { apiDeleteSavedQuery } from '../api/savedQuery';
 
@@ -33,7 +32,6 @@ export interface TestAssets {
   trackDashboard(id: number): void;
   trackChart(id: number): void;
   trackDataset(id: number): void;
-  trackTheme(id: number): void;
   trackDatabase(id: number): void;
   trackSavedQuery(id: number): void;
 }
@@ -46,7 +44,6 @@ export const test = base.extend<{ testAssets: TestAssets }>({
     const dashboardIds = new Set<number>();
     const chartIds = new Set<number>();
     const datasetIds = new Set<number>();
-    const themeIds = new Set<number>();
     const databaseIds = new Set<number>();
     const savedQueryIds = new Set<number>();
 
@@ -54,12 +51,11 @@ export const test = base.extend<{ testAssets: TestAssets }>({
       trackDashboard: id => dashboardIds.add(id),
       trackChart: id => chartIds.add(id),
       trackDataset: id => datasetIds.add(id),
-      trackTheme: id => themeIds.add(id),
       trackDatabase: id => databaseIds.add(id),
       trackSavedQuery: id => savedQueryIds.add(id),
     });
 
-    // Cleanup order: saved queries → dashboards → charts → datasets → themes → databases (respects FK dependencies)
+    // Cleanup order: saved queries → dashboards → charts → datasets → databases (respects FK dependencies)
     // Saved queries have no FK dependents, so they can be cleaned up first
     await Promise.all(
       [...savedQueryIds].map(id =>
@@ -129,21 +125,6 @@ export const test = base.extend<{ testAssets: TestAssets }>({
               `[testAssets] Failed to cleanup dataset ${id}:`,
               error,
             );
-          }),
-      ),
-    );
-    await Promise.all(
-      [...themeIds].map(id =>
-        apiDeleteTheme(page, id, { failOnStatusCode: false })
-          .then(response => {
-            if (!EXPECTED_CLEANUP_STATUSES.has(response.status())) {
-              console.warn(
-                `[testAssets] Unexpected status ${response.status()} cleaning up theme ${id}`,
-              );
-            }
-          })
-          .catch(error => {
-            console.warn(`[testAssets] Failed to cleanup theme ${id}:`, error);
           }),
       ),
     );

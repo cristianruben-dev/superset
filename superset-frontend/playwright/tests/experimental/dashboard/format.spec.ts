@@ -19,7 +19,7 @@
 
 import { test, expect } from '../../../helpers/fixtures/testAssets';
 import { TIMEOUT } from '../../../utils/constants';
-import { createTestDashboard } from './dashboard-test-helpers';
+import { createTestDashboard } from '../../dashboard/dashboard-test-helpers';
 
 /**
  * Dashboard Format pane E2E tests (AuraData BI).

@@ -21,7 +21,7 @@ import type { Locator, Page } from '@playwright/test';
 import { test, expect } from '../../../helpers/fixtures/testAssets';
 import type { TestAssets } from '../../../helpers/fixtures/testAssets';
 import { apiPutDashboard } from '../../../helpers/api/dashboard';
-import { createTestDashboard } from './dashboard-test-helpers';
+import { createTestDashboard } from '../../dashboard/dashboard-test-helpers';
 
 /**
  * How moving and resizing objects feels on the cell grid (AuraData BI).
@@ -109,6 +109,14 @@ const LAYOUT = {
   'DYNAMIC-c': shape('DYNAMIC-c', 'ROW-1', 2, 10, 10, 4),
 };
 
+/**
+ * Console errors that are not crashes: the service worker of a server without
+ * HTTPS, and the warnings of antd 6 (deprecated props) and emotion (selectors
+ * unsafe for server rendering) that the development build prints.
+ */
+const IGNORED_CONSOLE_ERRORS =
+  /ServiceWorker|service-worker|\[antd: \w+\] `\w+` is deprecated|is potentially unsafe when doing server-side rendering/;
+
 /** Errors the page throws while a test runs: the editor must never crash. */
 const pageErrors = new WeakMap<Page, string[]>();
 
@@ -129,7 +137,7 @@ async function openEditor(page: Page, testAssets: TestAssets) {
   page.on('console', message => {
     if (
       message.type() === 'error' &&
-      !/ServiceWorker|service-worker/.test(message.text())
+      !IGNORED_CONSOLE_ERRORS.test(message.text())
     )
       errors.push(message.text().slice(0, 1500));
   });

@@ -26,7 +26,7 @@ import { getDatabaseByName } from '../../../helpers/api/database';
 import { apiPostVirtualDataset } from '../../../helpers/api/dataset';
 import { apiPut } from '../../../helpers/api/requests';
 import { TIMEOUT } from '../../../utils/constants';
-import { createTestDashboard } from './dashboard-test-helpers';
+import { createTestDashboard } from '../../dashboard/dashboard-test-helpers';
 
 /**
  * Visual sorting E2E tests (AuraData BI "Sort axis").
@@ -64,7 +64,7 @@ async function createSortFixture(
     schema: '',
     table_name: `${name}_data`,
     sql,
-    owners: [],
+    editors: [],
   });
   expect(datasetResponse.ok()).toBe(true);
   const datasetBody = await datasetResponse.json();
