@@ -1802,10 +1802,11 @@ msgstr ""
 msgid ""
 "Any dashboards using these themes will be automatically dissociated from "
 "them."
-msgstr "Los paneles que usen estos temas dejarán de estar asociados a ellos."
+msgstr ""
+"Los tableros que usen estos temas dejarán de estar asociados a ellos."
 
 msgid "Any dashboards using this theme will be automatically dissociated from it."
-msgstr "Los paneles que usen este tema dejarán de estar asociados a él."
+msgstr "Los tableros que usen este tema dejarán de estar asociados a él."
 
 msgid "Any databases that allow connections via SQL Alchemy URIs can be added. "
 msgstr ""
@@ -1892,7 +1893,7 @@ msgstr "¿Seguro que quieres eliminar?"
 
 #, python-format
 msgid "Are you sure you want to delete %s?"
-msgstr "¿Está seguro de que desea eliminar %s?"
+msgstr "¿Seguro que quieres eliminar %s?"
 
 #, python-format
 msgid "Are you sure you want to delete the selected %s?"
@@ -10099,20 +10100,18 @@ msgid ""
 "access to a dashboard will bypass dataset level checks. If no roles are "
 "defined, regular access permissions apply."
 msgstr ""
-"La de los roles es una lista que define el acceso al tablero. Conceder a "
-"un rol acceso a un tablero omitirá las comprobaciones a nivel de conjunto "
-"de datos. Si no se definen roles, se aplican los permisos de acceso "
-"normales."
+"La lista de roles define el acceso al tablero. Conceder a un rol acceso a "
+"un tablero omitirá las comprobaciones a nivel de conjunto de datos. Si no "
+"se definen roles, se aplican los permisos de acceso normales."
 
 msgid ""
 "Roles is a list which defines access to the dashboard. Granting a role "
 "access to a dashboard will bypass dataset level checks.If no roles are "
 "defined, regular access permissions apply."
 msgstr ""
-"La de los roles es una lista que define el acceso al tablero. Conceder a "
-"un rol acceso a un tablero omitirá las comprobaciones a nivel de conjunto "
-"de datos. Si no se definen roles, se aplican los permisos de acceso "
-"normales."
+"La lista de roles define el acceso al tablero. Conceder a un rol acceso a "
+"un tablero omitirá las comprobaciones a nivel de conjunto de datos. Si no "
+"se definen roles, se aplican los permisos de acceso normales."
 
 msgid "Rolling Function"
 msgstr "Función móvil"
@@ -13200,7 +13199,8 @@ msgid "There was an error fetching the favorite status: %s"
 msgstr "Se ha producido un error al recuperar el estado de favorito: %s"
 
 msgid "There was an error fetching the filtered charts and dashboards:"
-msgstr "Se ha producido un error al recuperar los gráficos y paneles filtrados:"
+msgstr ""
+"Se ha producido un error al recuperar los gráficos y tableros filtrados:"
 
 msgid "There was an error loading the catalogs"
 msgstr "Se ha producido un error al cargar los catálogos"
@@ -13268,7 +13268,7 @@ msgid "There was an issue deleting the selected charts: %s"
 msgstr "Ha habido un problema al eliminar los gráficos seleccionados: %s"
 
 msgid "There was an issue deleting the selected dashboards: "
-msgstr "Ha habido un problema al eliminar los paneles seleccionados: "
+msgstr "Ha habido un problema al eliminar los tableros seleccionados: "
 
 #, python-format
 msgid "There was an issue deleting the selected datasets: %s"
@@ -13504,7 +13504,7 @@ msgid ""
 "This dashboard is ready to embed. In your application, pass the following"
 " id to the SDK:"
 msgstr ""
-"Este tablero está listo para incrustarse. En tu aplicación, pase el "
+"Este tablero está listo para incrustarse. En tu aplicación, pasa el "
 "siguiente ID al SDK:"
 
 msgid "This dashboard was saved successfully."
@@ -15501,8 +15501,8 @@ msgid ""
 "across multiple charts.\n"
 "        The color scheme selection is disabled."
 msgstr ""
-"Está viendo este gráfico en un contexto de tablero con etiquetas "
-"compartidas en varios gráficos.\n"
+"Estás viendo este gráfico en un contexto de tablero con etiquetas "
+"compartidas entre varios gráficos.\n"
 "        La selección del esquema de color está deshabilitada."
 
 msgid ""
@@ -16211,8 +16211,8 @@ msgid ""
 "is linked to %s charts that appear on %s dashboards. Are you sure you "
 "want to continue? Deleting the dataset will break those objects."
 msgstr ""
-"esta linkeado a %s gráficos que aparecen en %s tableros. ¿Está segurode "
-"que desea continuar? Eliminar el conjunto de datos romperá esos objetos."
+"está vinculado a %s gráficos que aparecen en %s tableros. ¿Seguro que "
+"quieres continuar? Eliminar el conjunto de datos romperá esos objetos."
 
 msgid "is not"
 msgstr "no es"
@@ -16665,7 +16665,7 @@ msgid "Collapse"
 msgstr "Contraer"
 
 msgid "Search dashboards and pages…"
-msgstr "Buscar paneles y páginas…"
+msgstr "Buscar tableros y páginas…"
 
 msgid "Go to"
 msgstr "Ir a"
@@ -16713,7 +16713,7 @@ msgid "See all"
 msgstr "Ver todos"
 
 msgid "Mark dashboards with a star to find them here."
-msgstr "Marca paneles con una estrella para encontrarlos aquí."
+msgstr "Marca tableros con una estrella para encontrarlos aquí."
 
 msgid "There are no dashboards yet."
 msgstr "Todavía no hay tableros."
@@ -16764,7 +16764,7 @@ msgid "Add dashboards to %s"
 msgstr "Añadir tableros a %s"
 
 msgid "Add dashboards"
-msgstr "Añadir paneles"
+msgstr "Añadir tableros"
 
 msgid "Already here"
 msgstr "Ya está aquí"
@@ -16908,25 +16908,25 @@ msgid ""
 "available in the dashboard list."
 msgstr ""
 "Se eliminará el área de trabajo %s. Sus tableros se conservan y siguen "
-"disponibles en la lista de paneles."
+"disponibles en la lista de tableros."
 
 #, python-format
 msgid "%s dashboard"
 msgid_plural "%s dashboards"
-msgstr[0] "%s panel"
-msgstr[1] "%s paneles"
+msgstr[0] "%s tablero"
+msgstr[1] "%s tableros"
 
 #, python-format
 msgid "Add %s dashboard"
 msgid_plural "Add %s dashboards"
-msgstr[0] "Añadir %s panel"
-msgstr[1] "Añadir %s paneles"
+msgstr[0] "Añadir %s tablero"
+msgstr[1] "Añadir %s tableros"
 
 #, python-format
 msgid "%s dashboard added to %s"
 msgid_plural "%s dashboards added to %s"
-msgstr[0] "%s panel añadido a %s"
-msgstr[1] "%s paneles añadidos a %s"
+msgstr[0] "%s tablero añadido a %s"
+msgstr[1] "%s tableros añadidos a %s"
 
 #, python-format
 msgid "%s was added to the workspace"
@@ -16950,7 +16950,7 @@ msgid "Add people"
 msgstr "Añadir personas"
 
 msgid "Adds, creates and edits dashboards and charts"
-msgstr "Añade, crea y edita paneles y gráficos"
+msgstr "Añade, crea y edita tableros y gráficos"
 
 msgid "Admin"
 msgstr "Administrador"
@@ -16968,7 +16968,7 @@ msgid "Manage access"
 msgstr "Gestionar acceso"
 
 msgid "Manages the workspace, its members and its dashboards"
-msgstr "Gestiona el área de trabajo, sus miembros y sus paneles"
+msgstr "Gestiona el área de trabajo, sus miembros y sus tableros"
 
 msgid "Members"
 msgstr "Miembros"
@@ -16994,7 +16994,7 @@ msgid "Search people"
 msgstr "Buscar personas"
 
 msgid "Sees the workspace and its dashboards"
-msgstr "Ve el área de trabajo y sus paneles"
+msgstr "Ve el área de trabajo y sus tableros"
 
 msgid "The change could not be saved"
 msgstr "No se ha podido guardar el cambio"
@@ -17006,8 +17006,8 @@ msgid ""
 "Dashboards in a workspace are only visible to its members. To see the "
 "data, people also need access to the datasets."
 msgstr ""
-"Los paneles de un área de trabajo solo los ven sus miembros. Para ver los"
-" datos, además necesitan acceso a los conjuntos de datos."
+"Los tableros de un área de trabajo solo los ven sus miembros. Para ver "
+"los datos, además necesitan acceso a los conjuntos de datos."
 
 #, python-format
 msgid "%s member"
@@ -17781,7 +17781,7 @@ msgid "Delete the theme \"%s\"?"
 msgstr "¿Eliminar el tema «%s»?"
 
 msgid "Dashboards keep the style it gave them."
-msgstr "Los paneles conservan el estilo que ya les dio."
+msgstr "Los tableros conservan el estilo que ya les dio."
 
 msgid "Theme name"
 msgstr "Nombre del tema"
@@ -17823,16 +17823,16 @@ msgid ""
 "New dashboards of this workspace start with it. Save themes from the "
 "Format pane of a dashboard."
 msgstr ""
-"Los paneles nuevos de esta área empiezan con él. Los temas se guardan "
-"desde el panel Formato de un panel."
+"Los tableros nuevos de esta área empiezan con él. Los temas se guardan "
+"desde el panel Formato de un tablero."
 
 #, python-format
 msgid "Also apply it to the %s dashboards it has"
-msgstr "Aplicarlo también a sus %s paneles"
+msgstr "Aplicarlo también a sus %s tableros"
 
 #, python-format
 msgid "Theme applied to %s of %s dashboards"
-msgstr "Tema aplicado a %s de %s paneles"
+msgstr "Tema aplicado a %s de %s tableros"
 
 #, python-format
 msgid "%s ENCRYPTED EXTRA"
@@ -19092,10 +19092,10 @@ msgid "Precise decisions."
 msgstr "Decisiones precisas."
 
 msgid "Dashboards and reports to understand your operation and decide with data."
-msgstr "Paneles e informes para entender tu operación y decidir con datos."
+msgstr "Tableros e informes para entender tu operación y decidir con datos."
 
 msgid "Live dashboards"
-msgstr "Paneles en vivo"
+msgstr "Tableros en vivo"
 
 msgid "Shared workspaces"
 msgstr "Espacios de trabajo compartidos"
