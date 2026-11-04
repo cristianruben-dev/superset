@@ -895,7 +895,7 @@ class DatasourceFilter(BaseFilter):  # pylint: disable=too-few-public-methods
         )
         # AuraData BI: the datasets of the workspaces where the user is a
         # contributor or admin
-        from superset.mibi.workspace_grants import grant_clause
+        from superset.auradata.workspace_grants import grant_clause
 
         workspace_grant = grant_clause(self.model)
         access_filter = get_dataset_access_filters(

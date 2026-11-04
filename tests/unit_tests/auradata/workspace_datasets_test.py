@@ -14,7 +14,7 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-"""Tests for superset/mibi/workspace_datasets.py and its API."""
+"""Tests for superset/auradata/workspace_datasets.py and its API."""
 
 import importlib.util
 from pathlib import Path
@@ -26,14 +26,14 @@ from pytest_mock import MockerFixture
 from sqlalchemy.orm.session import Session
 
 from superset import security_manager
-from superset.connectors.sqla.models import SqlaTable
-from superset.mibi import workspace_datasets
-from superset.mibi.models import (
+from superset.auradata import workspace_datasets
+from superset.auradata.models import (
     Workspace,
     WorkspaceDashboard,
     WorkspaceDataset,
     WorkspaceMember,
 )
+from superset.connectors.sqla.models import SqlaTable
 from superset.models.core import Database
 from superset.models.dashboard import Dashboard
 from superset.models.slice import Slice
@@ -78,7 +78,9 @@ def world(mocker: MockerFixture, session: Session) -> dict[str, Any]:
 
     mocker.patch.object(security_manager, "is_admin", return_value=False)
     mocker.patch.object(security_manager, "is_guest_user", return_value=False)
-    mocker.patch("superset.mibi.workspace_datasets.get_user_id", return_value=ana.id)
+    mocker.patch(
+        "superset.auradata.workspace_datasets.get_user_id", return_value=ana.id
+    )
     return {
         "ana": ana,
         "ventas": ventas,
@@ -125,7 +127,7 @@ def test_admins_guests_and_the_switch_are_not_filtered(
     assert workspace_datasets.dataset_visibility_filter(SqlaTable.id) is None
 
     mocker.patch.object(security_manager, "is_admin", return_value=False)
-    mocker.patch("superset.mibi.workspace_datasets.enabled", return_value=False)
+    mocker.patch("superset.auradata.workspace_datasets.enabled", return_value=False)
     assert workspace_datasets.dataset_visibility_filter(SqlaTable.id) is None
 
 

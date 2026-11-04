@@ -51,6 +51,7 @@ from superset import (
     is_feature_enabled,
     security_manager,
 )
+from superset.auradata import single_dashboard
 from superset.commands.chart.exceptions import ChartNotFoundError
 from superset.commands.dashboard.exceptions import DashboardAccessDeniedError
 from superset.commands.dashboard.permalink.get import GetDashboardPermalinkCommand
@@ -67,7 +68,6 @@ from superset.exceptions import (
     SupersetSecurityException,
 )
 from superset.explore.permalink.exceptions import ExplorePermalinkGetFailedError
-from superset.mibi import single_dashboard
 from superset.models.dashboard import Dashboard
 from superset.models.slice import Slice
 from superset.models.user_attributes import UserAttribute

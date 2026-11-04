@@ -14,12 +14,12 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-"""Tests for superset/mibi/previews.py."""
+"""Tests for superset/auradata/previews.py."""
 
 from types import SimpleNamespace
 from typing import Any
 
-from superset.mibi.previews import dashboard_preview, MAX_ROWS
+from superset.auradata.previews import dashboard_preview, MAX_ROWS
 from superset.utils import json
 
 

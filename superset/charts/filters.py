@@ -51,7 +51,7 @@ from superset.views.filters import BaseDeletedRecencyFilter, BaseDeletedStateFil
 
 def _workspace_clauses(base_model: Any) -> list[Any]:
     """The grant of the workspaces of the user, as extra access clauses."""
-    from superset.mibi.workspace_grants import grant_clause
+    from superset.auradata.workspace_grants import grant_clause
 
     clause = grant_clause(base_model)
     return [] if clause is None else [clause]

@@ -14,7 +14,7 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-"""Tests for superset/mibi/workspaces.py."""
+"""Tests for superset/auradata/workspaces.py."""
 
 from io import BytesIO
 from typing import Any
@@ -24,9 +24,9 @@ from pytest_mock import MockerFixture
 from sqlalchemy.orm.session import Session
 
 from superset import security_manager
+from superset.auradata.models import Workspace, WorkspaceDashboard
+from superset.auradata.workspaces import sniff_image_type
 from superset.exceptions import SupersetSecurityException
-from superset.mibi.models import Workspace, WorkspaceDashboard
-from superset.mibi.workspaces import sniff_image_type
 from superset.models.dashboard import Dashboard
 
 PNG = b"\x89PNG\r\n\x1a\n" + b"\x00" * 16
@@ -277,8 +277,8 @@ def as_user(mocker: MockerFixture, user: Any | None) -> None:
     """Act as a regular user (not a Superset admin), or as an admin with None."""
     mocker.patch.object(security_manager, "is_admin", return_value=user is None)
     user_id = user.id if user else None
-    mocker.patch("superset.mibi.workspaces.get_user_id", return_value=user_id)
-    mocker.patch("superset.mibi.workspace_access.get_user_id", return_value=user_id)
+    mocker.patch("superset.auradata.workspaces.get_user_id", return_value=user_id)
+    mocker.patch("superset.auradata.workspace_access.get_user_id", return_value=user_id)
 
 
 def create_as(mocker: MockerFixture, client: Any, user: Any, name: str) -> int:

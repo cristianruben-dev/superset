@@ -21,7 +21,7 @@
 
 /**
  * AuraData brand constants (https://auradata.mx/brand-guidelines). The theme
- * tokens in superset/mibi_config.py hold the interface colors; these are the
+ * tokens in superset/auradata_config.py hold the interface colors; these are the
  * fixed brand accents that do not change with light or dark mode.
  */
 export const AURA_BLUE =

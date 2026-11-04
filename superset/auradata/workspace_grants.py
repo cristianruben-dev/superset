@@ -44,8 +44,8 @@ from typing import Any
 import sqlalchemy as sa
 
 from superset import db, security_manager
-from superset.mibi import workspace_access, workspace_datasets
-from superset.mibi.models import WorkspaceDataset, WorkspaceMember
+from superset.auradata import workspace_access, workspace_datasets
+from superset.auradata.models import WorkspaceDataset, WorkspaceMember
 from superset.utils.core import get_user_id
 
 

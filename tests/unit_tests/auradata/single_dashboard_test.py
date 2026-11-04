@@ -14,7 +14,7 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-"""Tests for the single-dashboard chart rule (superset/mibi/single_dashboard.py)."""
+"""Tests for the single-dashboard chart rule (superset/auradata/single_dashboard.py)."""
 
 import copy
 from collections.abc import Iterator
@@ -38,7 +38,7 @@ from tests.unit_tests.fixtures.assets_configs import (
 @pytest.fixture
 def db_session(session: Session) -> Iterator[Session]:
     """A session with the Superset tables and the ORM safety net installed."""
-    from superset.mibi.single_dashboard import register_listeners
+    from superset.auradata.single_dashboard import register_listeners
 
     Slice.metadata.create_all(session.get_bind())  # pylint: disable=no-member
     register_listeners()
@@ -71,13 +71,13 @@ def make_dashboard(
 
 
 def test_rule_is_enabled_by_default(app_context: None) -> None:
-    from superset.mibi.single_dashboard import is_enabled
+    from superset.auradata.single_dashboard import is_enabled
 
     assert is_enabled()
 
 
 def test_orm_rejects_adding_chart_to_second_dashboard(db_session: Session) -> None:
-    from superset.mibi.single_dashboard import ChartInMultipleDashboardsError
+    from superset.auradata.single_dashboard import ChartInMultipleDashboardsError
 
     chart = make_chart(db_session)
     make_dashboard(db_session, "A", [chart])
@@ -90,7 +90,7 @@ def test_orm_rejects_adding_chart_to_second_dashboard(db_session: Session) -> No
 
 
 def test_orm_rejects_new_dashboard_reusing_chart(db_session: Session) -> None:
-    from superset.mibi.single_dashboard import ChartInMultipleDashboardsError
+    from superset.auradata.single_dashboard import ChartInMultipleDashboardsError
 
     chart = make_chart(db_session)
     make_dashboard(db_session, "A", [chart])
@@ -100,7 +100,7 @@ def test_orm_rejects_new_dashboard_reusing_chart(db_session: Session) -> None:
 
 
 def test_orm_rejects_from_chart_side(db_session: Session) -> None:
-    from superset.mibi.single_dashboard import ChartInMultipleDashboardsError
+    from superset.auradata.single_dashboard import ChartInMultipleDashboardsError
 
     chart = make_chart(db_session)
     make_dashboard(db_session, "A", [chart])
@@ -149,7 +149,7 @@ def test_orm_allows_sharing_when_disabled(
 def test_find_charts_in_multiple_dashboards(
     db_session: Session, rule_disabled: None
 ) -> None:
-    from superset.mibi.single_dashboard import find_charts_in_multiple_dashboards
+    from superset.auradata.single_dashboard import find_charts_in_multiple_dashboards
 
     shared = make_chart(db_session, "shared")
     own = make_chart(db_session, "own")
@@ -161,7 +161,7 @@ def test_find_charts_in_multiple_dashboards(
 
 
 def test_validate_chart_dashboards(db_session: Session) -> None:
-    from superset.mibi.single_dashboard import validate_chart_dashboards
+    from superset.auradata.single_dashboard import validate_chart_dashboards
 
     chart = make_chart(db_session)
     first = make_dashboard(db_session, "A", [chart])
@@ -183,7 +183,7 @@ def test_validate_chart_dashboards(db_session: Session) -> None:
 
 
 def test_validate_dashboard_charts(db_session: Session) -> None:
-    from superset.mibi.single_dashboard import validate_dashboard_charts
+    from superset.auradata.single_dashboard import validate_dashboard_charts
 
     chart = make_chart(db_session)
     first = make_dashboard(db_session, "A", [chart])
@@ -280,8 +280,8 @@ def test_import_rejects_chart_shared_between_dashboards(
     mocker: MockerFixture, db_session: Session
 ) -> None:
     from superset import security_manager
+    from superset.auradata.single_dashboard import ChartInMultipleDashboardsError
     from superset.commands.dashboard.importers.v1 import ImportDashboardsCommand
-    from superset.mibi.single_dashboard import ChartInMultipleDashboardsError
 
     mocker.patch.object(security_manager, "can_access", return_value=True)
     g.user = None

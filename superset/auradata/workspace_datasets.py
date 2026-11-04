@@ -41,8 +41,8 @@ from sqlalchemy.orm import Query
 from sqlalchemy.sql.elements import ColumnElement
 
 from superset import db, security_manager
-from superset.mibi import workspace_access
-from superset.mibi.models import WorkspaceDashboard, WorkspaceDataset
+from superset.auradata import workspace_access
+from superset.auradata.models import WorkspaceDashboard, WorkspaceDataset
 from superset.utils.core import get_user_id
 
 CONFIG_KEY = "MIBI_WORKSPACE_DATASETS"

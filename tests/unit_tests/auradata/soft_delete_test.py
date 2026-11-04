@@ -32,22 +32,22 @@ from pytest_mock import MockerFixture
 from sqlalchemy.orm.session import Session
 
 from superset import security_manager
-from superset.commands.dashboard.exceptions import DashboardRestoreFailedError
-from superset.commands.dashboard.restore import RestoreDashboardCommand
-from superset.connectors.sqla.models import SqlaTable
-from superset.mibi.models import (
+from superset.auradata.models import (
     ROLE_VIEWER,
     Workspace,
     WorkspaceDashboard,
     WorkspaceDataset,
 )
-from superset.mibi.single_dashboard import (
+from superset.auradata.single_dashboard import (
     find_charts_blocking_restore,
     find_charts_in_multiple_dashboards,
     register_listeners,
     validate_dashboard_charts,
 )
-from superset.mibi.workspace_datasets import DatasetUsableInDashboardFilter
+from superset.auradata.workspace_datasets import DatasetUsableInDashboardFilter
+from superset.commands.dashboard.exceptions import DashboardRestoreFailedError
+from superset.commands.dashboard.restore import RestoreDashboardCommand
+from superset.connectors.sqla.models import SqlaTable
 from superset.models.core import Database
 from superset.models.dashboard import Dashboard
 from superset.models.slice import Slice
@@ -153,7 +153,7 @@ def test_previews_leave_out_deleted_dashboards(
     ids = [world["viva"].id, world["borrada"].id]
 
     response = client.get(
-        f"/api/v1/mibi/dashboard_previews/?q={prison.dumps(ids)}"
+        f"/api/v1/auradata/dashboard_previews/?q={prison.dumps(ids)}"
     ).json["result"]
 
     assert [preview["id"] for preview in response] == [world["viva"].id]
@@ -192,6 +192,8 @@ def test_workspace_trash_is_for_contributors(
 ) -> None:
     pk = world["workspace"].id
     mocker.patch.object(security_manager, "is_admin", return_value=False)
-    mocker.patch("superset.mibi.workspaces.workspace_role", return_value=ROLE_VIEWER)
+    mocker.patch(
+        "superset.auradata.workspaces.workspace_role", return_value=ROLE_VIEWER
+    )
 
     assert client.get(f"/api/v1/workspace/{pk}/trash/").status_code == 403

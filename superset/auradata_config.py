@@ -62,7 +62,7 @@ MIBI_SHOW_POWERED_BY = False
 # --- Charts -----------------------------------------------------------------
 # Every chart belongs to at most one dashboard, as in Power BI, instead of being a
 # standalone object that several dashboards reuse.
-# See superset/mibi/single_dashboard.py.
+# See superset/auradata/single_dashboard.py.
 
 MIBI_SINGLE_DASHBOARD_CHARTS = True
 
@@ -74,13 +74,13 @@ SUPERSET_DASHBOARD_POSITION_DATA_LIMIT = 512 * 1024
 # --- Workspaces ---------------------------------------------------------------
 # Dashboards inside a workspace are only for its members (viewers, contributors and
 # admins) and their owners; contributors and admins edit them. With False,
-# workspaces only group dashboards. See superset/mibi/workspace_access.py.
+# workspaces only group dashboards. See superset/auradata/workspace_access.py.
 
 MIBI_WORKSPACE_ACCESS = True
 
 # Datasets belong to one workspace at most, like Power BI semantic models: only its
 # members see them and only its dashboards' charts use them. Datasets without a
-# workspace are shared. See superset/mibi/workspace_datasets.py.
+# workspace are shared. See superset/auradata/workspace_datasets.py.
 
 MIBI_WORKSPACE_DATASETS = True
 

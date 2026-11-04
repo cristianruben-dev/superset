@@ -98,7 +98,7 @@ def mock_chart_access() -> Iterator[None]:
 def mock_workspace_datasets() -> Iterator[Mock]:
     """Charts use shared datasets unless a test says otherwise (AuraData BI)."""
     with patch(
-        "superset.mibi.workspace_datasets.chart_datasets_of_other_workspaces",
+        "superset.auradata.workspace_datasets.chart_datasets_of_other_workspaces",
         return_value=[],
     ) as foreign:
         yield foreign

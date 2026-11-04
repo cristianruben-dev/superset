@@ -14,7 +14,7 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-"""Tests for superset/mibi/workspace_access.py."""
+"""Tests for superset/auradata/workspace_access.py."""
 
 from typing import Any
 
@@ -23,8 +23,8 @@ from pytest_mock import MockerFixture
 from sqlalchemy.orm.session import Session
 
 from superset import security_manager
-from superset.mibi import workspace_access
-from superset.mibi.models import Workspace, WorkspaceDashboard, WorkspaceMember
+from superset.auradata import workspace_access
+from superset.auradata.models import Workspace, WorkspaceDashboard, WorkspaceMember
 from superset.models.dashboard import Dashboard
 from superset.models.slice import Slice
 
@@ -64,7 +64,7 @@ def world(mocker: MockerFixture, session: Session) -> dict[str, Any]:
 
     mocker.patch.object(security_manager, "is_admin", return_value=False)
     mocker.patch.object(security_manager, "is_guest_user", return_value=False)
-    mocker.patch("superset.mibi.workspace_access.get_user_id", return_value=ana.id)
+    mocker.patch("superset.auradata.workspace_access.get_user_id", return_value=ana.id)
     return {
         "ventas": ventas,
         "finanzas": finanzas,
@@ -113,7 +113,7 @@ def test_contributors_edit_dashboards_and_their_charts(
 def test_the_rules_can_be_turned_off(
     mocker: MockerFixture, world: dict[str, Any]
 ) -> None:
-    mocker.patch("superset.mibi.workspace_access.enabled", return_value=False)
+    mocker.patch("superset.auradata.workspace_access.enabled", return_value=False)
 
     assert workspace_access.dashboard_visibility_filter(Dashboard.id) is None
     assert workspace_access.can_see_dashboard(world["otra"].id)

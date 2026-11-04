@@ -18,6 +18,10 @@
 
 from flask_babel import gettext as _
 
+from superset.auradata.single_dashboard import (
+    describe_conflicts,
+    find_charts_blocking_restore,
+)
 from superset.commands.dashboard.exceptions import (
     DashboardForbiddenError,
     DashboardNotFoundError,
@@ -26,10 +30,6 @@ from superset.commands.dashboard.exceptions import (
 )
 from superset.commands.restore import BaseRestoreCommand
 from superset.daos.dashboard import DashboardDAO
-from superset.mibi.single_dashboard import (
-    describe_conflicts,
-    find_charts_blocking_restore,
-)
 from superset.models.dashboard import Dashboard
 
 

@@ -14,7 +14,7 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-"""Tests for superset/mibi/split_shared_charts.py."""
+"""Tests for superset/auradata/split_shared_charts.py."""
 
 from collections.abc import Iterator
 from typing import Any
@@ -30,7 +30,7 @@ from superset.utils import json
 
 @pytest.fixture
 def db_session(session: Session) -> Iterator[Session]:
-    from superset.mibi.single_dashboard import register_listeners
+    from superset.auradata.single_dashboard import register_listeners
 
     Slice.metadata.create_all(session.get_bind())  # pylint: disable=no-member
     register_listeners()
@@ -95,8 +95,8 @@ def make_shared_dashboards(session: Session) -> tuple[Dashboard, Dashboard, Slic
 
 
 def test_split_shared_charts(db_session: Session) -> None:
-    from superset.mibi.single_dashboard import find_charts_in_multiple_dashboards
-    from superset.mibi.split_shared_charts import split_shared_charts
+    from superset.auradata.single_dashboard import find_charts_in_multiple_dashboards
+    from superset.auradata.split_shared_charts import split_shared_charts
 
     first, second, shared = make_shared_dashboards(db_session)
     own_id = next(chart.id for chart in second.slices if chart.id != shared.id)
@@ -138,7 +138,7 @@ def test_split_shared_charts(db_session: Session) -> None:
 
 
 def test_split_shared_charts_is_idempotent(db_session: Session) -> None:
-    from superset.mibi.split_shared_charts import split_shared_charts
+    from superset.auradata.split_shared_charts import split_shared_charts
 
     make_shared_dashboards(db_session)
     assert split_shared_charts().cloned_charts == 1

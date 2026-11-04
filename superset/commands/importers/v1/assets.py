@@ -21,6 +21,7 @@ from marshmallow import Schema
 from marshmallow.exceptions import ValidationError
 
 from superset import db
+from superset.auradata.single_dashboard import assert_single_dashboard
 from superset.charts.schemas import ImportV1ChartSchema
 from superset.commands.base import BaseCommand
 from superset.commands.chart.importers.v1.utils import import_chart
@@ -46,7 +47,6 @@ from superset.dashboards.schemas import ImportV1DashboardSchema
 from superset.databases.schemas import ImportV1DatabaseSchema
 from superset.datasets.schemas import ImportV1DatasetSchema
 from superset.extensions import feature_flag_manager
-from superset.mibi.single_dashboard import assert_single_dashboard
 from superset.migrations.shared.native_filters import migrate_dashboard
 from superset.models.core import Database
 from superset.models.dashboard import Dashboard

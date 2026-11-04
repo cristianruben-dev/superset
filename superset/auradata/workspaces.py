@@ -32,12 +32,7 @@ from marshmallow import fields, pre_load, Schema, validate, ValidationError
 from sqlalchemy import or_
 
 from superset import db, security_manager
-from superset.connectors.sqla.models import SqlaTable
-from superset.constants import SKIP_VISIBILITY_FILTER_CLASSES
-from superset.daos.dashboard import DashboardDAO
-from superset.daos.dataset import DatasetDAO
-from superset.exceptions import SupersetSecurityException
-from superset.mibi.models import (
+from superset.auradata.models import (
     ROLE_ADMIN,
     ROLE_CONTRIBUTOR,
     ROLE_VIEWER,
@@ -47,19 +42,24 @@ from superset.mibi.models import (
     WorkspaceDataset,
     WorkspaceMember,
 )
-from superset.mibi.single_dashboard import (
+from superset.auradata.single_dashboard import (
     describe_conflicts,
     find_charts_blocking_restore,
 )
-from superset.mibi.workspace_access import (
+from superset.auradata.workspace_access import (
     member_workspace_ids,
     role_rank,
     workspace_role,
 )
-from superset.mibi.workspace_datasets import (
+from superset.auradata.workspace_datasets import (
     datasets_of_other_workspaces,
     datasets_used_outside,
 )
+from superset.connectors.sqla.models import SqlaTable
+from superset.constants import SKIP_VISIBILITY_FILTER_CLASSES
+from superset.daos.dashboard import DashboardDAO
+from superset.daos.dataset import DatasetDAO
+from superset.exceptions import SupersetSecurityException
 from superset.models.dashboard import Dashboard
 from superset.models.helpers import format_time_humanized
 from superset.superset_typing import FlaskResponse

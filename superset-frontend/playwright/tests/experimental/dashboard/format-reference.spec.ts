@@ -21,7 +21,7 @@ import { test, expect } from '@playwright/test';
 /**
  * Each chart type as it looks with no format of the report, to catch format
  * work changing charts nobody formatted. Needs the dashboard that
- * scripts/mibi/format_reference.py creates; run with --workers=1.
+ * scripts/auradata/format_reference.py creates; run with --workers=1.
  */
 const TITLE = 'QA referencia de formato';
 
@@ -30,7 +30,7 @@ test('charts without a format keep their look', async ({ page }) => {
   const query = `(filters:!((col:dashboard_title,opr:eq,value:'${TITLE}')))`;
   const response = await page.request.get(`api/v1/dashboard/?q=${query}`);
   const dashboard = (await response.json()).result?.[0];
-  test.skip(!dashboard, 'Run scripts/mibi/format_reference.py first');
+  test.skip(!dashboard, 'Run scripts/auradata/format_reference.py first');
 
   await page.setViewportSize({ width: 1600, height: 1000 });
   await page.goto(`dashboard/${dashboard.id}/`);

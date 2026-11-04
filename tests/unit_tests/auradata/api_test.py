@@ -14,7 +14,7 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-"""Tests for superset/mibi/api.py."""
+"""Tests for superset/auradata/api.py."""
 
 from typing import Any
 
@@ -53,9 +53,8 @@ def test_dashboard_previews(
         return_value=[with_layout, empty],
     )
 
-    response = client.get(
-        f"/api/v1/mibi/dashboard_previews/?q={prison.dumps([with_layout.id, empty.id])}"
-    )
+    ids = prison.dumps([with_layout.id, empty.id])
+    response = client.get(f"/api/v1/auradata/dashboard_previews/?q={ids}")
 
     assert response.status_code == 200
     assert response.json["result"] == [
@@ -68,6 +67,6 @@ def test_dashboard_previews(
 
 
 def test_dashboard_previews_rejects_bad_ids(client: Any, full_api_access: None) -> None:
-    response = client.get("/api/v1/mibi/dashboard_previews/?q=(a:1)")
+    response = client.get("/api/v1/auradata/dashboard_previews/?q=(a:1)")
 
     assert response.status_code == 400

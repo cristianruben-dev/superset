@@ -27,11 +27,11 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
 from superset import db
+from superset.auradata.single_dashboard import assert_single_dashboard
 from superset.commands.importers.exceptions import IncorrectVersionError
 from superset.databases.ssh_tunnel.models import SSHTunnel
 from superset.databases.utils import make_url_safe
 from superset.extensions import feature_flag_manager
-from superset.mibi.single_dashboard import assert_single_dashboard
 from superset.models.core import Database
 from superset.models.dashboard import dashboard_slices
 from superset.models.helpers import SKIP_VISIBILITY_FILTER_CLASSES

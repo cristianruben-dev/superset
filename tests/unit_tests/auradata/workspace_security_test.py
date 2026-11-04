@@ -31,12 +31,12 @@ from pytest_mock import MockerFixture
 from sqlalchemy.orm.session import Session
 
 from superset import security_manager
+from superset.auradata.models import Workspace, WorkspaceDashboard, WorkspaceMember
 from superset.commands.dashboard.exceptions import DashboardForbiddenError
 from superset.commands.utils import compute_subjects
 from superset.connectors.sqla.models import SqlaTable
 from superset.daos.dashboard import DashboardDAO
 from superset.exceptions import SupersetSecurityException
-from superset.mibi.models import Workspace, WorkspaceDashboard, WorkspaceMember
 from superset.models.core import Database
 from superset.models.dashboard import Dashboard
 from superset.models.slice import Slice
@@ -45,7 +45,7 @@ from superset.utils import json
 
 USER_ID_LOOKUPS = (
     "superset.security.manager.get_user_id",
-    "superset.mibi.workspace_access.get_user_id",
+    "superset.auradata.workspace_access.get_user_id",
     "superset.commands.utils.get_user_id",
 )
 

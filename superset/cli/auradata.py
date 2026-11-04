@@ -31,7 +31,7 @@ from superset.extensions import db
 def split_shared_charts(dry_run: bool) -> None:
     """Give every dashboard its own copy of the charts it shares with others"""
     # pylint: disable=import-outside-toplevel
-    from superset.mibi.split_shared_charts import split_shared_charts as split
+    from superset.auradata.split_shared_charts import split_shared_charts as split
 
     result = split()
     if not result.replacements:

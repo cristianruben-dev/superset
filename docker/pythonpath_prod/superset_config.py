@@ -19,7 +19,7 @@ AuraData BI production settings, baked into the `prod` Docker image.
 
 Every value comes from the environment (see docker/.env-prod.example), so the same
 image runs in any deployment. Branding, theme and languages come from
-superset/mibi_config.py and are not repeated here.
+superset/auradata_config.py and are not repeated here.
 """
 
 import logging

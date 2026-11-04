@@ -19,8 +19,8 @@ from typing import Any
 from flask import Response
 from flask_appbuilder.api import expose, protect, rison, safe
 
+from superset.auradata.previews import dashboard_preview
 from superset.daos.dashboard import DashboardDAO
-from superset.mibi.previews import dashboard_preview
 from superset.views.base_api import BaseSupersetApi, statsd_metrics
 
 dashboard_previews_schema = {
@@ -30,10 +30,10 @@ dashboard_previews_schema = {
 }
 
 
-class MibiRestApi(BaseSupersetApi):
+class AuraDataRestApi(BaseSupersetApi):
     """AuraData BI endpoints that Superset's own APIs do not cover."""
 
-    resource_name = "mibi"
+    resource_name = "auradata"
     allow_browser_login = True
     class_permission_name = "Dashboard"
     method_permission_name = {"dashboard_previews": "read"}

@@ -44,9 +44,9 @@ import sqlalchemy as sa
 from flask import Response
 from flask_appbuilder import Model
 
+from superset.auradata.workspace_access import edits_as_workspace_member
 from superset.daos.version import VersionDAO
 from superset.extensions import db, security_manager
-from superset.mibi.workspace_access import edits_as_workspace_member
 from superset.versioning.etag import set_version_etag_by_uuid
 from superset.versioning.schemas import VersionListItemSchema
 

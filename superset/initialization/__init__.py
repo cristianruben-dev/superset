@@ -178,6 +178,13 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
         #
         # pylint: disable=import-outside-toplevel,too-many-locals,too-many-statements
         from superset.advanced_data_type.api import AdvancedDataTypeRestApi
+        from superset.auradata.api import AuraDataRestApi
+        from superset.auradata.backgrounds import (
+            DashboardBackgroundRestApi,
+            DashboardImageRestApi,
+        )
+        from superset.auradata.data_views import DataView
+        from superset.auradata.workspaces import WorkspaceRestApi, WorkspaceView
         from superset.available_domains.api import AvailableDomainsRestApi
         from superset.cachekeys.api import CacheRestApi
         from superset.charts.api import ChartRestApi
@@ -197,13 +204,6 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
         from superset.explore.permalink.api import ExplorePermalinkRestApi
         from superset.extensions.view import ExtensionsView
         from superset.importexport.api import ImportExportRestApi
-        from superset.mibi.api import MibiRestApi
-        from superset.mibi.backgrounds import (
-            DashboardBackgroundRestApi,
-            DashboardImageRestApi,
-        )
-        from superset.mibi.data_views import DataView
-        from superset.mibi.workspaces import WorkspaceRestApi, WorkspaceView
         from superset.queries.api import QueryRestApi
         from superset.queries.saved_queries.api import SavedQueryRestApi
         from superset.reports.api import ReportScheduleRestApi
@@ -276,7 +276,7 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
         appbuilder.add_api(DashboardFilterStateRestApi)
         appbuilder.add_api(DashboardPermalinkRestApi)
         appbuilder.add_api(DashboardRestApi)
-        appbuilder.add_api(MibiRestApi)
+        appbuilder.add_api(AuraDataRestApi)
         appbuilder.add_api(WorkspaceRestApi)
         appbuilder.add_api(DashboardBackgroundRestApi)
         appbuilder.add_api(DashboardImageRestApi)
@@ -1370,7 +1370,7 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
 
     def configure_single_dashboard_charts(self) -> None:
         # pylint: disable=import-outside-toplevel
-        from superset.mibi.single_dashboard import register_listeners
+        from superset.auradata.single_dashboard import register_listeners
 
         register_listeners()
 

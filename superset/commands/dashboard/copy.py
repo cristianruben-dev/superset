@@ -19,6 +19,7 @@ from functools import partial
 from typing import Any
 
 from superset import security_manager
+from superset.auradata.workspace_access import edits_as_workspace_member
 from superset.commands.base import BaseCommand
 from superset.commands.dashboard.exceptions import (
     DashboardCopyError,
@@ -26,7 +27,6 @@ from superset.commands.dashboard.exceptions import (
     DashboardInvalidError,
 )
 from superset.daos.dashboard import DashboardDAO
-from superset.mibi.workspace_access import edits_as_workspace_member
 from superset.models.dashboard import Dashboard
 from superset.utils.decorators import on_error, transaction
 

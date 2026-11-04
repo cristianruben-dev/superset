@@ -36,7 +36,7 @@ def prod_config(monkeypatch: pytest.MonkeyPatch) -> ModuleType:
     monkeypatch.setenv("POSTGRES_USER", "mibi")
     monkeypatch.setenv("POSTGRES_PASSWORD", "pw")
     monkeypatch.setenv("POSTGRES_DB", "mibi")
-    spec = importlib.util.spec_from_file_location("mibi_prod_config", PROD_CONFIG)
+    spec = importlib.util.spec_from_file_location("auradata_prod_config", PROD_CONFIG)
     assert spec is not None
     assert spec.loader is not None
     module = importlib.util.module_from_spec(spec)

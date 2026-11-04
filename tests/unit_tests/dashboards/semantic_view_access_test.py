@@ -56,7 +56,7 @@ TABLE_PERM = "[examples].[birth_names](id:1)"
 def _without_workspace_rules(app_context: None) -> None:
     """
     These tests cover the semantic-layer rules of Superset. The workspace gate of
-    AuraData BI has its own tests (tests/unit_tests/mibi) and reads the database,
+    AuraData BI has its own tests (tests/unit_tests/auradata) and reads the database,
     which these mocked dashboards do not have.
     """
     current_app.config["MIBI_WORKSPACE_ACCESS"] = False

@@ -14,7 +14,7 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-"""Tests for the chart ids a copied dashboard follows (superset/mibi/chart_refs.py)."""
+"""Tests for the chart ids a copied dashboard follows (auradata/chart_refs.py)."""
 
 from collections.abc import Iterator
 from typing import Any
@@ -23,7 +23,7 @@ import pytest
 from pytest_mock import MockerFixture
 from sqlalchemy.orm.session import Session
 
-from superset.mibi.chart_refs import (
+from superset.auradata.chart_refs import (
     remap_bookmark_chart_ids,
     remap_metadata_chart_ids,
 )

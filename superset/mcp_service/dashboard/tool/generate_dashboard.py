@@ -251,7 +251,7 @@ def generate_dashboard(  # noqa: C901
                 )
 
             # Charts can belong to a single dashboard (AuraData BI)
-            from superset.mibi.single_dashboard import (
+            from superset.auradata.single_dashboard import (
                 find_charts_in_other_dashboards,
                 is_enabled,
             )
@@ -270,7 +270,7 @@ def generate_dashboard(  # noqa: C901
 
             # Charts use the datasets of their dashboard's workspace or shared
             # ones (AuraData BI); a new dashboard is outside any workspace
-            from superset.mibi.workspace_datasets import (
+            from superset.auradata.workspace_datasets import (
                 chart_datasets_of_other_workspaces,
             )
 

@@ -61,7 +61,7 @@ from superset.utils import json
 CONFIG_KEY = "MIBI_SINGLE_DASHBOARD_CHARTS"
 
 # session.info key holding the charts whose dashboard links changed in a flush
-_TOUCHED_CHARTS_KEY = "mibi_single_dashboard_touched_charts"
+_TOUCHED_CHARTS_KEY = "auradata_single_dashboard_touched_charts"
 
 
 def is_enabled() -> bool:

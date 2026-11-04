@@ -32,15 +32,7 @@ from pytest_mock import MockerFixture
 from sqlalchemy.orm.session import Session
 
 from superset import security_manager
-from superset.connectors.sqla.models import (
-    RLSFilterSubjects,
-    RLSFilterTables,
-    RowLevelSecurityFilter,
-    SqlaTable,
-)
-from superset.dashboards.filters import DashboardAccessFilter
-from superset.exceptions import SupersetSecurityException
-from superset.mibi.models import (
+from superset.auradata.models import (
     ROLE_ADMIN,
     ROLE_CONTRIBUTOR,
     ROLE_VIEWER,
@@ -49,6 +41,14 @@ from superset.mibi.models import (
     WorkspaceDataset,
     WorkspaceMember,
 )
+from superset.connectors.sqla.models import (
+    RLSFilterSubjects,
+    RLSFilterTables,
+    RowLevelSecurityFilter,
+    SqlaTable,
+)
+from superset.dashboards.filters import DashboardAccessFilter
+from superset.exceptions import SupersetSecurityException
 from superset.models.core import Database
 from superset.models.dashboard import Dashboard
 from superset.models.slice import Slice
@@ -57,8 +57,8 @@ from superset.views.base import DatasourceFilter
 
 USER_ID_LOOKUPS = (
     "superset.security.manager.get_user_id",
-    "superset.mibi.workspace_access.get_user_id",
-    "superset.mibi.workspace_grants.get_user_id",
+    "superset.auradata.workspace_access.get_user_id",
+    "superset.auradata.workspace_grants.get_user_id",
     "superset.dashboards.filters.get_user_id",
 )
 
@@ -353,7 +353,7 @@ def test_adding_a_dataset_to_a_workspace_needs_real_editorship(
     """Otherwise adding it would be a way to give oneself access to it."""
     as_user(world, user)
     world["mocker"].patch(
-        "superset.mibi.workspaces.workspace_role",
+        "superset.auradata.workspaces.workspace_role",
         side_effect=lambda pk: (ROLE_ADMIN if user in ("Ada",) else ROLE_CONTRIBUTOR),
     )
     workspace = world["finanzas_ws"] if user == "Carlos" else world["ventas_ws"]

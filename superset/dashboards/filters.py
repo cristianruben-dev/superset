@@ -146,10 +146,10 @@ class DashboardAccessFilter(BaseFilter):  # pylint: disable=too-few-public-metho
         # AuraData BI: the contributors and admins of a workspace see its drafts,
         # as ``raise_for_access`` lets them open them; the viewer and dataset
         # rules below still apply
-        from superset.mibi.workspace_access import workspace_editable_dashboard_ids
+        from superset.auradata.workspace_access import workspace_editable_dashboard_ids
 
         workspace_drafts = workspace_editable_dashboard_ids()
-        from superset.mibi.workspace_grants import grant_clause
+        from superset.auradata.workspace_grants import grant_clause
 
         workspace_grant = grant_clause(Slice)
         workspace_grants = [] if workspace_grant is None else [workspace_grant]
@@ -246,7 +246,7 @@ class DashboardAccessFilter(BaseFilter):  # pylint: disable=too-few-public-metho
         query = query.filter(or_(*filters)) if filters else query
 
         # AuraData BI: dashboards of a workspace are for its members (and editors)
-        from superset.mibi.workspace_access import dashboard_visibility_filter
+        from superset.auradata.workspace_access import dashboard_visibility_filter
 
         if (workspace_filter := dashboard_visibility_filter(Dashboard.id)) is not None:
             if subject_subquery is not None:

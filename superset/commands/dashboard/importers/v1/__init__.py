@@ -25,6 +25,7 @@ from sqlalchemy.orm import Session  # noqa: F401
 from sqlalchemy.sql import select
 
 from superset import db
+from superset.auradata.single_dashboard import assert_single_dashboard
 from superset.charts.schemas import ImportV1ChartSchema
 from superset.commands.chart.importers.v1.utils import import_chart
 from superset.commands.dashboard.exceptions import DashboardImportError
@@ -45,7 +46,6 @@ from superset.dashboards.schemas import ImportV1DashboardSchema
 from superset.databases.schemas import ImportV1DatabaseSchema
 from superset.datasets.schemas import ImportV1DatasetSchema
 from superset.extensions import feature_flag_manager
-from superset.mibi.single_dashboard import assert_single_dashboard
 from superset.migrations.shared.native_filters import migrate_dashboard
 from superset.models.dashboard import Dashboard, dashboard_slices
 from superset.models.slice import Slice

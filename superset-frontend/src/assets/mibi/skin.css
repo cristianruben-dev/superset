@@ -22,7 +22,7 @@
  * Bundled through src/preamble.ts, so it ships with every entry (spa, menu, embedded).
  *
  * Rules:
- * - Colors come from the theme tokens in superset/mibi_config.py. Here only structure,
+ * - Colors come from the theme tokens in superset/auradata_config.py. Here only structure,
  *   spacing, type and translucent borders/shadows, so light/dark and per-dashboard
  *   themes keep working.
  * - Stable selectors only: ant-*, data-test and Superset's semantic classes. Never the

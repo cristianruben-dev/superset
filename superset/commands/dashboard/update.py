@@ -25,6 +25,7 @@ from flask_appbuilder.models.sqla import Model
 from marshmallow import ValidationError
 
 from superset import db, security_manager
+from superset.auradata.single_dashboard import validate_dashboard_layout
 from superset.commands.base import BaseCommand, UpdateMixin
 from superset.commands.dashboard.exceptions import (
     DashboardChartCustomizationsUpdateFailedError,
@@ -47,7 +48,6 @@ from superset.daos.report import ReportScheduleDAO
 from superset.dashboards.layout import repair_position
 from superset.dashboards.schemas import validate_css
 from superset.exceptions import SupersetSecurityException
-from superset.mibi.single_dashboard import validate_dashboard_layout
 from superset.models.dashboard import Dashboard
 from superset.reports.models import ReportSchedule
 from superset.subjects.types import SubjectType

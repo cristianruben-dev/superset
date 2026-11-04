@@ -40,7 +40,7 @@ from superset.subjects.types import SubjectType
 def _without_workspace_rules(app_context):
     """
     These tests cover the creator and viewer defaults of Superset. The workspace
-    rules of AuraData BI have their own tests (tests/unit_tests/mibi) and read the
+    rules of AuraData BI have their own tests (tests/unit_tests/auradata) and read the
     database, which these mocked dashboards do not have.
     """
     current_app.config["MIBI_WORKSPACE_ACCESS"] = False

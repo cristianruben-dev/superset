@@ -19,13 +19,13 @@ import logging
 from typing import Any
 
 from superset import db, security_manager
+from superset.auradata.chart_refs import remap_bookmark_chart_ids
 from superset.commands.exceptions import ImportFailedError
 from superset.commands.importers.v1.utils import (
     apply_extra_import_fields,
     find_existing_for_import,
 )
 from superset.daos.dashboard import DashboardDAO
-from superset.mibi.chart_refs import remap_bookmark_chart_ids
 from superset.models.dashboard import Dashboard
 from superset.subjects.models import Subject
 from superset.utils import json

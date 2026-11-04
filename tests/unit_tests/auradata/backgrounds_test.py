@@ -14,7 +14,7 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-"""Tests for superset/mibi/backgrounds.py."""
+"""Tests for superset/auradata/backgrounds.py."""
 
 from io import BytesIO
 from typing import Any
@@ -24,8 +24,8 @@ from pytest_mock import MockerFixture
 from sqlalchemy.orm.session import Session
 
 from superset import security_manager
+from superset.auradata.models import DashboardBackground, DashboardImage
 from superset.exceptions import SupersetSecurityException
-from superset.mibi.models import DashboardBackground, DashboardImage
 from superset.models.dashboard import Dashboard
 
 PNG = b"\x89PNG\r\n\x1a\n" + b"\x00" * 16

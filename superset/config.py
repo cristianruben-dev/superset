@@ -3414,7 +3414,7 @@ DISTRIBUTED_LOCK_DEFAULT_TTL = 30
 TASKS_ABORT_CHANNEL_PREFIX = "gtf:abort:"
 
 # AuraData BI fork defaults (branding, theme, languages, palettes)
-from superset.mibi_config import *  # noqa: E402, F403
+from superset.auradata_config import *  # noqa: E402, F403
 
 # -------------------------------------------------------------------
 # *                WARNING:  STOP EDITING  HERE                    *

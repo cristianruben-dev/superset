@@ -371,7 +371,7 @@ def test_sync_theme_logo_href() -> None:
 def test_theme_default_logo_defaults() -> None:
     """
     With the shipped defaults, brandLogoUrl is APP_ICON. AuraData BI's theme
-    (``mibi_config.py``) links the logo to the dashboard list.
+    (``auradata_config.py``) links the logo to the dashboard list.
     """
     from superset import config
 
@@ -391,7 +391,7 @@ def test_theme_defaults_seed_tooltip_component_tokens() -> None:
     from superset import config
     from superset.views.base import _merge_theme_dicts
 
-    # AuraData BI defines its own themes (``mibi_config.py``) without components;
+    # AuraData BI defines its own themes (``auradata_config.py``) without components;
     # the bootstrap data merges them over Superset's built-in ones, which carry the
     # override, so check the merged themes the browser receives.
     expected = {"fontSize": 12, "lineHeight": 1.6}

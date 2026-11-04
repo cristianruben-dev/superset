@@ -25,7 +25,7 @@ https://github.com/microsoft/powerbi-desktop-samples/tree/main/Report%20Theme%20
 The status of each option comes from comparing control names with RULES and
 OURS below: change them there, since this overwrites the output files.
 
-    python scripts/mibi/format_inventory.py schema.json docs/plans/powerbi-format-inventory
+    python scripts/auradata/format_inventory.py schema.json docs/plans/powerbi-format-inventory
 """
 
 import argparse
@@ -2569,7 +2569,7 @@ def write_summary() -> None:
     out = [
         "# Cobertura de Power BI",
         "",
-        "Generado por `scripts/mibi/format_inventory.py`: no lo edites a mano. El estado sale de comparar",
+        "Generado por `scripts/auradata/format_inventory.py`: no lo edites a mano. El estado sale de comparar",
         "nombres de controles, no de probar cada opción.",
         "",
         "| Gráfico | Aplican | Tiene | % | Parcial | Falta | Por decidir | Excluido |",
@@ -2607,7 +2607,7 @@ def write_summary() -> None:
     out = [
         "# Lo que falta de Power BI, por fase",
         "",
-        "Generado por `scripts/mibi/format_inventory.py`: no lo edites a mano. Cada opción sale una vez, con los",
+        "Generado por `scripts/auradata/format_inventory.py`: no lo edites a mano. Cada opción sale una vez, con los",
         "gráficos donde falta. Lo que ya tenemos de cada gráfico está en [`por-grafico/`](por-grafico/).",
         "",
         "| Fase | Qué | Opciones abiertas | P1 | P2 | P3 |",

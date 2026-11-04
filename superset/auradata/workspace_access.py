@@ -43,7 +43,7 @@ from marshmallow import ValidationError
 from sqlalchemy.sql.elements import ColumnElement
 
 from superset import db, security_manager
-from superset.mibi.models import (
+from superset.auradata.models import (
     ROLE_ADMIN,
     ROLE_CONTRIBUTOR,
     ROLES,

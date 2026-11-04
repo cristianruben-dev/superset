@@ -20,7 +20,7 @@
 Creates the reference dashboard of the chart format: one chart of each type over
 synthetic data, in a virtual dataset that needs no table or personal data.
 
-    python scripts/mibi/format_reference.py <database id>
+    python scripts/auradata/format_reference.py <database id>
 """
 
 import json

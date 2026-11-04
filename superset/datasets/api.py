@@ -36,6 +36,10 @@ from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm.exc import MultipleResultsFound
 
 from superset import db, event_logger, is_feature_enabled, security_manager
+from superset.auradata.workspace_datasets import (
+    DatasetUsableInDashboardFilter,
+    WorkspaceDatasetFilter,
+)
 from superset.commands.dataset.create import CreateDatasetCommand
 from superset.commands.dataset.delete import DeleteDatasetCommand
 from superset.commands.dataset.duplicate import DuplicateDatasetCommand
@@ -106,10 +110,6 @@ from superset.exceptions import (
     SupersetTimeoutException,
 )
 from superset.jinja_context import BaseTemplateProcessor, get_template_processor
-from superset.mibi.workspace_datasets import (
-    DatasetUsableInDashboardFilter,
-    WorkspaceDatasetFilter,
-)
 from superset.subjects.filters import FilterRelatedSubjects, subject_type_filter
 from superset.utils import json
 from superset.utils.core import (

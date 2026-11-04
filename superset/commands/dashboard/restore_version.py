@@ -20,6 +20,10 @@ from __future__ import annotations
 
 from flask_babel import gettext as _
 
+from superset.auradata.single_dashboard import (
+    ChartInMultipleDashboardsError,
+    describe_conflicts,
+)
 from superset.commands.dashboard.exceptions import (
     DashboardForbiddenError,
     DashboardNotFoundError,
@@ -27,10 +31,6 @@ from superset.commands.dashboard.exceptions import (
 )
 from superset.commands.version_restore import BaseRestoreVersionCommand
 from superset.extensions import db
-from superset.mibi.single_dashboard import (
-    ChartInMultipleDashboardsError,
-    describe_conflicts,
-)
 from superset.models.dashboard import Dashboard
 from superset.versioning.restore import RestoreResult
 

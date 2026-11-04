@@ -29,6 +29,16 @@ from sqlalchemy import or_, select
 from sqlalchemy.orm import lazyload, Query, selectinload
 
 from superset import security_manager
+from superset.auradata import single_dashboard
+from superset.auradata.chart_refs import (
+    remap_bookmark_chart_ids,
+    remap_metadata_chart_ids,
+)
+from superset.auradata.workspace_access import (
+    can_copy_dashboard,
+    edits_only_through_workspace,
+    link_copy_to_workspace,
+)
 from superset.commands.dashboard.exceptions import (
     DashboardAccessDeniedError,
     DashboardForbiddenError,
@@ -42,16 +52,6 @@ from superset.dashboards.filters import DashboardAccessFilter
 from superset.dashboards.layout import repair_position
 from superset.exceptions import SupersetSecurityException
 from superset.extensions import db
-from superset.mibi import single_dashboard
-from superset.mibi.chart_refs import (
-    remap_bookmark_chart_ids,
-    remap_metadata_chart_ids,
-)
-from superset.mibi.workspace_access import (
-    can_copy_dashboard,
-    edits_only_through_workspace,
-    link_copy_to_workspace,
-)
 from superset.models.core import FavStar, FavStarClassName
 from superset.models.dashboard import (
     Dashboard,

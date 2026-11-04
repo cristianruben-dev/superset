@@ -2547,7 +2547,7 @@ class SupersetSecurityManager(  # pylint: disable=too-many-public-methods
     @staticmethod
     def _workspace_grants_dataset(datasource: Any) -> bool:
         """AuraData BI: whether a workspace role gives access to the dataset."""
-        from superset.mibi.workspace_grants import grants_dataset
+        from superset.auradata.workspace_grants import grants_dataset
 
         return grants_dataset(datasource)
 
@@ -5641,7 +5641,7 @@ class SupersetSecurityManager(  # pylint: disable=too-many-public-methods
                 return
 
             # AuraData BI: a dashboard inside a workspace is for the workspace members
-            from superset.mibi.workspace_access import (
+            from superset.auradata.workspace_access import (
                 can_see_dashboard,
                 edits_as_workspace_member,
             )
@@ -6616,7 +6616,7 @@ class SupersetSecurityManager(  # pylint: disable=too-many-public-methods
 
         # AuraData BI: the workspace leg comes after is_editor, which keeps the
         # guest deny of 7.0, and never applies to a guest either
-        from superset.mibi.workspace_access import edits_as_workspace_member
+        from superset.auradata.workspace_access import edits_as_workspace_member
 
         if self.is_editor(orig_resource) or (
             workspace_role
@@ -6705,7 +6705,7 @@ class SupersetSecurityManager(  # pylint: disable=too-many-public-methods
         if self.is_editor(resource):
             return True
 
-        from superset.mibi.workspace_access import edits_as_workspace_member
+        from superset.auradata.workspace_access import edits_as_workspace_member
 
         return edits_as_workspace_member(resource)
 

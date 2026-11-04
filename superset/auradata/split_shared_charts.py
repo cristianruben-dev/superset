@@ -31,7 +31,7 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from superset import db
-from superset.mibi.single_dashboard import find_charts_in_multiple_dashboards
+from superset.auradata.single_dashboard import find_charts_in_multiple_dashboards
 from superset.models.dashboard import Dashboard
 from superset.models.slice import Slice
 from superset.utils import json

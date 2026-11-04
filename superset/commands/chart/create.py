@@ -24,6 +24,8 @@ from flask_appbuilder.models.sqla import Model
 from marshmallow import ValidationError
 
 from superset import security_manager
+from superset.auradata.single_dashboard import validate_chart_dashboards
+from superset.auradata.workspace_datasets import validate_chart_dataset
 from superset.commands.base import BaseCommand, CreateMixin
 from superset.commands.chart.exceptions import (
     ChartCreateFailedError,
@@ -40,8 +42,6 @@ from superset.commands.utils import get_datasource_by_id, populate_subjects
 from superset.daos.chart import ChartDAO
 from superset.daos.dashboard import DashboardDAO
 from superset.exceptions import SupersetSecurityException
-from superset.mibi.single_dashboard import validate_chart_dashboards
-from superset.mibi.workspace_datasets import validate_chart_dataset
 from superset.utils import json
 from superset.utils.decorators import on_error, transaction
 

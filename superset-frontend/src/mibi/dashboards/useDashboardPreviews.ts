@@ -40,7 +40,7 @@ export function useDashboardPreviews(ids: number[]) {
     }
     let cancelled = false;
     SupersetClient.get({
-      endpoint: `/api/v1/mibi/dashboard_previews/?q=${rison.encode(ids)}`,
+      endpoint: `/api/v1/auradata/dashboard_previews/?q=${rison.encode(ids)}`,
     })
       .then(({ json }) => {
         if (cancelled) {

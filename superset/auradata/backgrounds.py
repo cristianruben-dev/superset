@@ -25,9 +25,9 @@ from flask_appbuilder import expose
 from flask_appbuilder.api import protect, safe
 
 from superset import db, security_manager
+from superset.auradata.models import DashboardBackground, DashboardImage
+from superset.auradata.workspaces import MAX_IMAGE_BYTES, sniff_image_type
 from superset.exceptions import SupersetSecurityException
-from superset.mibi.models import DashboardBackground, DashboardImage
-from superset.mibi.workspaces import MAX_IMAGE_BYTES, sniff_image_type
 from superset.models.dashboard import Dashboard
 from superset.views.base_api import BaseSupersetApi, statsd_metrics
 

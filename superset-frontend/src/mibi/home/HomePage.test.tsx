@@ -37,7 +37,7 @@ const dashboard = (id: number, title: string, published = false) => ({
 });
 
 beforeEach(() => {
-  fetchMock.get('glob:*/api/v1/mibi/dashboard_previews/?q=*', {
+  fetchMock.get('glob:*/api/v1/auradata/dashboard_previews/?q=*', {
     result: [
       { id: 1, rows: [[{ width: 12, height: 50, kind: 'pie' }]] },
       { id: 2, rows: [] },
@@ -99,7 +99,7 @@ test('lists the dashboard cards without recently viewed items', async () => {
   expect(await screen.findByTestId('dashboard-preview')).toBeInTheDocument();
   expect(screen.getByText('Empty dashboard')).toBeInTheDocument();
   expect(
-    fetchMock.callHistory.calls('glob:*/api/v1/mibi/dashboard_previews/?q=*'),
+    fetchMock.callHistory.calls('glob:*/api/v1/auradata/dashboard_previews/?q=*'),
   ).toHaveLength(1);
   expect(await screen.findAllByTestId('fave-unfave-icon')).toHaveLength(2);
 });
