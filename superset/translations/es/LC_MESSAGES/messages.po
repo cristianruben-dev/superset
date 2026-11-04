@@ -22033,19 +22033,19 @@ msgstr ""
 
 #, python-format
 msgid "%(count)s %(label)s"
-msgstr ""
+msgstr "%(count)s %(label)s"
 
 #, python-format
 msgid "%(count)s additional restricted %(label)s"
-msgstr ""
+msgstr "%(count)s %(label)s más con acceso restringido"
 
 #, python-format
 msgid "%(name)s deleted successfully"
-msgstr ""
+msgstr "%(name)s se eliminó definitivamente"
 
 #, python-format
 msgid "%(name)s restored successfully"
-msgstr ""
+msgstr "%(name)s se restauró"
 
 #, python-format
 msgid "%(name)s.%(extension)s"
@@ -22083,7 +22083,7 @@ msgstr "%s%s"
 
 #, python-format
 msgid "%s (copy from %s)"
-msgstr ""
+msgstr "%s (copia de %s)"
 
 #, python-format
 msgid "%s MCP scopes"
@@ -22180,7 +22180,7 @@ msgid "%s — click the chart to return"
 msgstr ""
 
 msgid "(archived)"
-msgstr ""
+msgstr "(en la papelera)"
 
 #, python-format
 msgid ""
@@ -22256,7 +22256,7 @@ msgstr ""
 msgid ""
 "A butterfly chart compares two metrics across categories using horizontal"
 " bars that extend left and right from a central axis."
-msgstr ""
+msgstr "Un gráfico de mariposa compara dos métricas entre categorías con barras horizontales que salen a la izquierda y a la derecha de un eje central."
 
 # Machine-translated via backfill_po.py (claude-sonnet-4-6) [refs: ja]
 #, fuzzy
@@ -22377,25 +22377,25 @@ msgstr ""
 
 #, python-format
 msgid "Added %s '%s'"
-msgstr ""
+msgstr "Se agregó %s «%s»"
 
 #, python-format
 msgid "Added '%s' dimension"
-msgstr ""
+msgstr "Se agregó la dimensión «%s»"
 
 #, python-format
 msgid "Added a %s"
-msgstr ""
+msgstr "Se agregó %s"
 
 msgid "Added a dimension"
-msgstr ""
+msgstr "Se agregó una dimensión"
 
 msgid "Added a filter"
-msgstr ""
+msgstr "Se agregó un filtro"
 
 #, python-format
 msgid "Added filter on '%s'"
-msgstr ""
+msgstr "Se agregó un filtro en «%s»"
 
 msgid "Adhoc metric SQL expression is invalid"
 msgstr ""
@@ -22442,13 +22442,13 @@ msgid "Align +/- for all columns"
 msgstr "Mostrar todas las columnas"
 
 msgid "All changes"
-msgstr ""
+msgstr "Todos los cambios"
 
 msgid "All time"
-msgstr ""
+msgstr "Todo el tiempo"
 
 msgid "Already at this version"
-msgstr ""
+msgstr "Ya estás en esta versión"
 
 msgid "Also overwrite all assets (charts, datasets and databases)"
 msgstr ""
@@ -22580,7 +22580,7 @@ msgstr ""
 msgid ""
 "Angle at which the first slice begins, in degrees. 90° starts at the top,"
 " 0°/360° at the right, 270° at the bottom, and 180° at the left."
-msgstr ""
+msgstr "Ángulo en el que empieza la primera rebanada, en grados. 90° empieza arriba, 0°/360° a la derecha, 270° abajo y 180° a la izquierda."
 
 #, python-format
 msgid "Annotation layer with ID %(layer_id)s was not found"
@@ -22591,10 +22591,10 @@ msgstr ""
 
 #, python-format
 msgid "Applied '%s' metric"
-msgstr ""
+msgstr "Se aplicó la métrica «%s»"
 
 msgid "Applied a metric"
-msgstr ""
+msgstr "Se aplicó una métrica"
 
 msgid "Archive"
 msgstr ""
@@ -22614,7 +22614,7 @@ msgid "Archive selected dashboards?"
 msgstr ""
 
 msgid "Archived"
-msgstr ""
+msgstr "Eliminado"
 
 #, python-format
 msgid "Archived %s item(s)"
@@ -22625,14 +22625,14 @@ msgid "Archived %s item(s); permanently deleted %s semantic view(s)"
 msgstr ""
 
 msgid "Archived by"
-msgstr ""
+msgstr "Eliminado por"
 
 msgid "Archived items must be recovered before they can be opened."
-msgstr ""
+msgstr "Debes restaurar los elementos de la papelera antes de abrirlos."
 
 #, python-format
 msgid "Archived: %s"
-msgstr ""
+msgstr "Eliminado: %s"
 
 msgid ""
 "Archiving or deleting this chart will be blocked while the following "
@@ -22656,7 +22656,7 @@ msgid "Automatically retry sending the report when delivery fails."
 msgstr ""
 
 msgid "Axis ticks"
-msgstr ""
+msgstr "Marcas de los ejes"
 
 msgid "Base layer map style. Accepts a MapLibre-compatible style URL."
 msgstr ""
@@ -22683,7 +22683,7 @@ msgid "Breakpoint Metric"
 msgstr "Basado en una métrica"
 
 msgid "Butterfly Chart"
-msgstr ""
+msgstr "Gráfico de mariposa"
 
 #, python-format
 msgid "Calculated column template error: %(msg)s"
@@ -22707,46 +22707,46 @@ msgstr ""
 
 #, python-format
 msgid "Changed %s '%s'"
-msgstr ""
+msgstr "Se cambió %s «%s»"
 
 #, python-format
 msgid "Changed '%s'"
-msgstr ""
+msgstr "Se cambió «%s»"
 
 #, python-format
 msgid "Changed '%s' dimension"
-msgstr ""
+msgstr "Se cambió la dimensión «%s»"
 
 #, python-format
 msgid "Changed '%s' metric"
-msgstr ""
+msgstr "Se cambió la métrica «%s»"
 
 #, python-format
 msgid "Changed a %s"
-msgstr ""
+msgstr "Se cambió %s"
 
 msgid "Changed a dimension"
-msgstr ""
+msgstr "Se cambió una dimensión"
 
 msgid "Changed a filter"
-msgstr ""
+msgstr "Se cambió un filtro"
 
 msgid "Changed a metric"
-msgstr ""
+msgstr "Se cambió una métrica"
 
 msgid "Changed color palette"
-msgstr ""
+msgstr "Se cambió la paleta de colores"
 
 #, python-format
 msgid "Changed filter on '%s'"
-msgstr ""
+msgstr "Se cambió el filtro en «%s»"
 
 msgid "Changed the time range"
-msgstr ""
+msgstr "Se cambió el rango de tiempo"
 
 #, python-format
 msgid "Changed time range to '%s'"
-msgstr ""
+msgstr "Se cambió el rango de tiempo a «%s»"
 
 msgid "Changing this semantic layer is forbidden"
 msgstr "No se permite cambiar esta capa semántica"
@@ -22788,14 +22788,14 @@ msgid "Chart editors"
 msgstr "Editores del gráfico"
 
 msgid "Chart orientation"
-msgstr ""
+msgstr "Orientación de la gráfica"
 
 msgid "Chart renamed"
-msgstr ""
+msgstr "Se renombró el gráfico"
 
 #, python-format
 msgid "Chart renamed to '%s'"
-msgstr ""
+msgstr "Se renombró el gráfico a «%s»"
 
 #, python-format
 msgid ""
@@ -22818,7 +22818,7 @@ msgid "Check to force date partitions to have the same height"
 msgstr "Marca para forzar que las particiones de fecha tengan la misma altura"
 
 msgid "Checking charts and dashboards that use this dataset…"
-msgstr ""
+msgstr "Revisando los gráficos y tableros que usan este conjunto de datos…"
 
 msgid "Checking for affected charts and dashboards…"
 msgstr ""
@@ -22828,7 +22828,7 @@ msgid "Choose a %s"
 msgstr "Elige un %s"
 
 msgid "Choose where to display values relative to the bars"
-msgstr ""
+msgstr "Elige dónde mostrar los valores respecto a las barras"
 
 #, python-format
 msgid "Clear %s filter"
@@ -22839,16 +22839,16 @@ msgstr ""
 
 #, python-format
 msgid "Cleared '%s'"
-msgstr ""
+msgstr "Se limpió «%s»"
 
 msgid "Cloned"
-msgstr ""
+msgstr "Clonado"
 
 msgid "Close preview"
-msgstr ""
+msgstr "Cerrar vista previa"
 
 msgid "Close version history"
-msgstr ""
+msgstr "Cerrar el historial de versiones"
 
 msgid "Collapse Datasource panel"
 msgstr ""
@@ -22866,10 +22866,10 @@ msgid "Color field must be a hex color (#rrggbb) or 'rgb(r, g, b)'"
 msgstr "El campo de color debe ser un color hexadecimal (#rrggbb) o 'rgb(r, g, b)'"
 
 msgid "Color for bars on the left side of the chart"
-msgstr ""
+msgstr "Color de las barras del lado izquierdo"
 
 msgid "Color for bars on the right side of the chart"
-msgstr ""
+msgstr "Color de las barras del lado derecho"
 
 msgid "Column max"
 msgstr ""
@@ -22986,7 +22986,7 @@ msgstr ""
 
 #, python-format
 msgid "Could not find %s"
-msgstr ""
+msgstr "No se encontró %s"
 
 # Machine-translated via backfill_po.py (claude-sonnet-4-6) [refs: ja]
 #, fuzzy
@@ -23019,7 +23019,7 @@ msgstr ""
 
 #, python-format
 msgid "Created from version: %s"
-msgstr ""
+msgstr "Creado desde la versión: %s"
 
 #, fuzzy
 msgid "Cross-filter column"
@@ -23029,7 +23029,7 @@ msgid "Current password"
 msgstr ""
 
 msgid "Current version"
-msgstr ""
+msgstr "Versión actual"
 
 # Machine-translated via backfill_po.py (claude-sonnet-4-6) [refs: de, sr,
 # sr_Latn]
@@ -23044,10 +23044,10 @@ msgid "Custom SQL fields cannot contain set operations."
 msgstr "Los campos SQL personalizados no pueden contener subconsultas."
 
 msgid "Customize the label for the left series in tooltips and legend"
-msgstr ""
+msgstr "Texto de la serie izquierda en los tooltips y la leyenda"
 
 msgid "Customize the label for the right series in tooltips and legend"
-msgstr ""
+msgstr "Texto de la serie derecha en los tooltips y la leyenda"
 
 msgid "D3 time format for the x-axis labels"
 msgstr ""
@@ -23071,11 +23071,11 @@ msgid "Dashboard could not be restored."
 msgstr "No se pudo restaurar el panel."
 
 msgid "Dashboard renamed"
-msgstr ""
+msgstr "Se renombró el tablero"
 
 #, python-format
 msgid "Dashboard renamed to '%s'"
-msgstr ""
+msgstr "Se renombró el tablero a «%s»"
 
 msgid "Data Connections"
 msgstr "Conexiones de datos"
@@ -23116,11 +23116,11 @@ msgid "Dataset could not be restored."
 msgstr "No se pudo restaurar el conjunto de datos."
 
 msgid "Dataset renamed"
-msgstr ""
+msgstr "Se renombró el conjunto de datos"
 
 #, python-format
 msgid "Dataset renamed to '%s'"
-msgstr ""
+msgstr "Se renombró el conjunto de datos a «%s»"
 
 #, python-format
 msgid "Dataset used by %s chart updated: %s"
@@ -23159,11 +23159,11 @@ msgid ""
 msgstr ""
 
 msgid "Delete permanently"
-msgstr ""
+msgstr "Eliminar definitivamente"
 
 #, python-format
 msgid "Delete permanently %(name)s?"
-msgstr ""
+msgstr "¿Eliminar definitivamente %(name)s?"
 
 msgid "Delete query"
 msgstr ""
@@ -23181,7 +23181,7 @@ msgstr "Se han eliminado %s elemento(s)"
 msgid ""
 "Deleting this dataset is permanent. The affected charts and dashboards "
 "will remain, but they may no longer work."
-msgstr ""
+msgstr "Eliminar este conjunto de datos es definitivo. Los gráficos y tableros afectados se conservan, pero puede que dejen de funcionar."
 
 msgid ""
 "Deleting this semantic layer also permanently deletes any semantic views "
@@ -23233,7 +23233,7 @@ msgstr ""
 " a menudo sin coincidencia)."
 
 msgid "Dimension used for category labels on the vertical axis"
-msgstr ""
+msgstr "Dimensión de las etiquetas de categoría del eje vertical"
 
 #, python-format
 msgid "Dimensions (%s)"
@@ -23254,7 +23254,7 @@ msgid "Done"
 msgstr "Listo"
 
 msgid "Dot size metric"
-msgstr ""
+msgstr "Métrica del tamaño del punto"
 
 msgid "Download Excel file"
 msgstr ""
@@ -23264,7 +23264,7 @@ msgid "Drag %s folder"
 msgstr ""
 
 msgid "Draw split lines for the main value axis ticks."
-msgstr ""
+msgstr "Dibuja líneas de división en las marcas principales del eje de valores."
 
 msgid "Drill to detail is not available for this datasource type."
 msgstr ""
@@ -23438,18 +23438,18 @@ msgid "Failed to create API key"
 msgstr "No se ha podido crear la clave API"
 
 msgid "Failed to create a new chart from this version"
-msgstr ""
+msgstr "No se pudo crear un gráfico nuevo desde esta versión"
 
 msgid "Failed to create a new dashboard from this version"
-msgstr ""
+msgstr "No se pudo crear un tablero nuevo desde esta versión"
 
 #, python-format
 msgid "Failed to delete %(name)s"
-msgstr ""
+msgstr "No se pudo eliminar %(name)s"
 
 #, python-format
 msgid "Failed to delete %(name)s: %(errMsg)s"
-msgstr ""
+msgstr "No se pudo eliminar %(name)s: %(errMsg)s"
 
 #, python-format
 msgid "Failed to establish an SSH tunnel to the database: %(reason)s"
@@ -23484,29 +23484,29 @@ msgid "Failed to load samples"
 msgstr ""
 
 msgid "Failed to load version history"
-msgstr ""
+msgstr "No se pudo cargar el historial de versiones"
 
 msgid "Failed to load version preview"
-msgstr ""
+msgstr "No se pudo cargar la vista previa de la versión"
 
 msgid "Failed to reload the restored version"
-msgstr ""
+msgstr "No se pudo recargar la versión restaurada"
 
 #, python-format
 msgid "Failed to restore %(name)s"
-msgstr ""
+msgstr "No se pudo restaurar %(name)s"
 
 #, python-format
 msgid "Failed to restore %(name)s: %(errMsg)s"
-msgstr ""
+msgstr "No se pudo restaurar %(name)s: %(errMsg)s"
 
 #, python-format
 msgid "Failed to restore %s"
-msgstr ""
+msgstr "No se pudo restaurar %s"
 
 #, python-format
 msgid "Failed to restore %s: %s"
-msgstr ""
+msgstr "No se pudo restaurar %s: %s"
 
 msgid "Failed to revoke API key"
 msgstr "No se ha podido revocar la clave API"
@@ -23540,10 +23540,10 @@ msgid "Filter options"
 msgstr "Ajustes del filtro"
 
 msgid "Filter version history"
-msgstr ""
+msgstr "Filtrar el historial de versiones"
 
 msgid "First tracked save"
-msgstr ""
+msgstr "Primer guardado registrado"
 
 # Machine-translated via backfill_po.py (claude-sonnet-4-6) [refs: lv]
 #, fuzzy
@@ -23608,7 +23608,7 @@ msgid ""
 msgstr ""
 
 msgid "If you delete this item, you won't be able to recover it."
-msgstr ""
+msgstr "Si eliminas este elemento, no podrás recuperarlo."
 
 msgid "If you did not request this, you can ignore this email."
 msgstr ""
@@ -23622,7 +23622,7 @@ msgid ""
 msgstr ""
 
 msgid "Imported"
-msgstr ""
+msgstr "Importado"
 
 msgid "Inactive"
 msgstr "Inactivo"
@@ -23637,13 +23637,13 @@ msgid "Include series name as an axis"
 msgstr "Incluir el nombre de la serie como eje"
 
 msgid "Inside Base"
-msgstr ""
+msgstr "Dentro, en la base"
 
 msgid "Inside Center"
-msgstr ""
+msgstr "Dentro, al centro"
 
 msgid "Inside End"
-msgstr ""
+msgstr "Dentro, al final"
 
 msgid "Internal"
 msgstr ""
@@ -23675,7 +23675,7 @@ msgstr ""
 
 #, python-format
 msgid "Item updated: %s"
-msgstr ""
+msgstr "Elemento actualizado: %s"
 
 msgid "Key Prefix"
 msgstr "Prefijo de la clave"
@@ -23689,19 +23689,19 @@ msgstr ""
 "segura."
 
 msgid "Label Position"
-msgstr ""
+msgstr "Posición de la etiqueta"
 
 msgid "Label must not be empty."
 msgstr ""
 
 msgid "Last 30 days"
-msgstr ""
+msgstr "Últimos 30 días"
 
 msgid "Last 7 days"
-msgstr ""
+msgstr "Últimos 7 días"
 
 msgid "Last 90 days"
-msgstr ""
+msgstr "Últimos 90 días"
 
 msgid "Last Used"
 msgstr "Último uso"
@@ -23712,16 +23712,16 @@ msgid ""
 msgstr ""
 
 msgid "Left color"
-msgstr ""
+msgstr "Color izquierdo"
 
 msgid "Left label"
-msgstr ""
+msgstr "Etiqueta izquierda"
 
 msgid "Left metric"
-msgstr ""
+msgstr "Métrica izquierda"
 
 msgid "Left series setting"
-msgstr ""
+msgstr "Serie izquierda"
 
 msgid "Length equals (=)"
 msgstr ""
@@ -23785,14 +23785,14 @@ msgid ""
 msgstr ""
 
 msgid "Load more"
-msgstr ""
+msgstr "Cargar más"
 
 msgid "Loading dependent semantic views"
 msgstr ""
 
 #, python-format
 msgid "Loading historical version · %s"
-msgstr ""
+msgstr "Cargando versión anterior · %s"
 
 msgid "Low color"
 msgstr ""
@@ -23870,7 +23870,7 @@ msgid "Maximum Width"
 msgstr "Anchura mínima"
 
 msgid "Maximum dot size"
-msgstr ""
+msgstr "Tamaño máximo del punto"
 
 msgid "Maximum number of retry attempts (1–10)"
 msgstr ""
@@ -23889,10 +23889,10 @@ msgid "Metric change in value from `since` to `until`"
 msgstr "Cambio de la métrica en el valor de «desde» a «hasta»"
 
 msgid "Metric displayed on the left side of the butterfly chart"
-msgstr ""
+msgstr "Métrica que se muestra a la izquierda del gráfico de mariposa"
 
 msgid "Metric displayed on the right side of the butterfly chart"
-msgstr ""
+msgstr "Métrica que se muestra a la derecha del gráfico de mariposa"
 
 msgid "Metric factor change from `since` to `until`"
 msgstr "Cambio del factor de la métrica de «desde» a «hasta»"
@@ -23921,7 +23921,7 @@ msgid "Minimum Width"
 msgstr "Anchura mínima"
 
 msgid "Minimum dot size"
-msgstr ""
+msgstr "Tamaño mínimo del punto"
 
 #, fuzzy
 msgid "Minimum width size of the path, in pixels or meters."
@@ -23936,15 +23936,15 @@ msgid "Modified %(date)s by %(user)s"
 msgstr ""
 
 msgid "More actions"
-msgstr ""
+msgstr "Más acciones"
 
 #, python-format
 msgid "Moved %s '%s'"
-msgstr ""
+msgstr "Se movió %s «%s»"
 
 #, python-format
 msgid "Moved a %s"
-msgstr ""
+msgstr "Se movió %s"
 
 # Machine-translated via backfill_po.py (claude-sonnet-4-6) [refs: de, sr,
 # sr_Latn]
@@ -23980,14 +23980,14 @@ msgid "New password"
 msgstr ""
 
 msgid "No actions found"
-msgstr ""
+msgstr "No se encontraron acciones"
 
 #, python-format
 msgid "No affected %(label)s."
-msgstr ""
+msgstr "No hay %(label)s afectados."
 
 msgid "No archived items"
-msgstr ""
+msgstr "La papelera está vacía"
 
 #, python-format
 msgid "No charts or dashboards depend on the selected %s."
@@ -24011,7 +24011,7 @@ msgid "No filters or customizations created yet"
 msgstr "Aún no se han creado filtros ni personalizaciones"
 
 msgid "No history yet"
-msgstr ""
+msgstr "Aún no hay historial"
 
 #, fuzzy
 msgid "No multilayer deck.gl charts are currently added to this dashboard."
@@ -24065,7 +24065,7 @@ msgid "Off"
 msgstr ""
 
 msgid "Older history exists but is beyond what can be shown here."
-msgstr ""
+msgstr "Hay historial más antiguo, pero no se puede mostrar aquí."
 
 #, python-format
 msgid "One or more parameters are missing: %(missing)s"
@@ -24090,10 +24090,10 @@ msgid ""
 msgstr ""
 
 msgid "Open as new chart"
-msgstr ""
+msgstr "Abrir como gráfico nuevo"
 
 msgid "Open as new dashboard"
-msgstr ""
+msgstr "Abrir como tablero nuevo"
 
 # Machine-translated via backfill_po.py (claude-sonnet-4-6) [refs: ja]
 #, fuzzy
@@ -24111,7 +24111,7 @@ msgstr ""
 msgid ""
 "Optional metric used to scale the size of each dot. Dot areas are scaled "
 "linearly between the minimum and maximum dot size."
-msgstr ""
+msgstr "Métrica opcional que escala el tamaño de cada punto. El área de los puntos crece de forma lineal entre el tamaño mínimo y el máximo."
 
 #, python-format
 msgid ""
@@ -24125,10 +24125,10 @@ msgstr ""
 msgid ""
 "Orientation of the chart. Horizontal places the dimension on the y-axis "
 "and the metric on the x-axis."
-msgstr ""
+msgstr "Orientación de la gráfica. En horizontal, la dimensión va en el eje Y y la métrica en el eje X."
 
 msgid "Outside End"
-msgstr ""
+msgstr "Fuera, al final"
 
 msgid ""
 "Overrides the highest value used for coloring. Leave blank to use the "
@@ -24231,7 +24231,7 @@ msgid "Point Radius Units"
 msgstr "Unidades del radio de punto"
 
 msgid "Position of the data label relative to the data point"
-msgstr ""
+msgstr "Posición de la etiqueta de datos respecto al punto"
 
 #, python-format
 msgid "Preparing %(count)s charts for export. This may take a moment."
@@ -24239,11 +24239,11 @@ msgstr ""
 
 #, python-format
 msgid "Previewing historical version · %s"
-msgstr ""
+msgstr "Vista previa de una versión anterior · %s"
 
 #, python-format
 msgid "Previewing historical version · %s · %s"
-msgstr ""
+msgstr "Vista previa de una versión anterior · %s · %s"
 
 msgid ""
 "Print range and marker labels on the chart instead of showing tooltips on"
@@ -24251,7 +24251,7 @@ msgid ""
 msgstr ""
 
 msgid "Properties updated"
-msgstr ""
+msgstr "Se actualizaron las propiedades"
 
 # Machine-translated via backfill_po.py (claude-sonnet-4-6) [refs: de, sr,
 # sr_Latn]
@@ -24269,7 +24269,7 @@ msgid "RBAC only"
 msgstr ""
 
 msgid "Rearranged layout"
-msgstr ""
+msgstr "Se reorganizó el diseño"
 
 msgid ""
 "Rebase each series to its percent change from a baseline point, like the "
@@ -24278,23 +24278,23 @@ msgid ""
 msgstr ""
 
 msgid "Recently Archived"
-msgstr ""
+msgstr "Papelera"
 
 msgid "Recently archived"
-msgstr ""
+msgstr "Papelera"
 
 #, fuzzy
 msgid "Records"
 msgstr "Registros en bruto"
 
 msgid "Recover"
-msgstr ""
+msgstr "Restaurar"
 
 msgid "Recover this item"
-msgstr ""
+msgstr "Restaurar este elemento"
 
 msgid "Recover this item to open it"
-msgstr ""
+msgstr "Restaura este elemento para abrirlo"
 
 #, python-format
 msgid "Referenced columns not available in DataFrame: %(columns)s"
@@ -24308,7 +24308,7 @@ msgid ""
 msgstr ""
 
 msgid "Related items only"
-msgstr ""
+msgstr "Solo elementos relacionados"
 
 # Machine-translated via backfill_po.py (claude-sonnet-4-6) [refs: ja]
 #, fuzzy
@@ -24332,35 +24332,35 @@ msgstr ""
 
 #, python-format
 msgid "Removed %s '%s'"
-msgstr ""
+msgstr "Se quitó %s «%s»"
 
 #, python-format
 msgid "Removed '%s' dimension"
-msgstr ""
+msgstr "Se quitó la dimensión «%s»"
 
 #, python-format
 msgid "Removed '%s' metric"
-msgstr ""
+msgstr "Se quitó la métrica «%s»"
 
 #, python-format
 msgid "Removed a %s"
-msgstr ""
+msgstr "Se quitó %s"
 
 msgid "Removed a dimension"
-msgstr ""
+msgstr "Se quitó una dimensión"
 
 msgid "Removed a filter"
-msgstr ""
+msgstr "Se quitó un filtro"
 
 msgid "Removed a metric"
-msgstr ""
+msgstr "Se quitó una métrica"
 
 #, python-format
 msgid "Removed filter on '%s'"
-msgstr ""
+msgstr "Se quitó el filtro en «%s»"
 
 msgid "Renamed chart"
-msgstr ""
+msgstr "Gráfico renombrado"
 
 #, python-format
 msgid "Report Failed - All Retries Exhausted: %(name)s"
@@ -24431,30 +24431,30 @@ msgstr ""
 "edición"
 
 msgid "Restore this version"
-msgstr ""
+msgstr "Restaurar esta versión"
 
 msgid "Restore this version?"
-msgstr ""
+msgstr "¿Restaurar esta versión?"
 
 #, python-format
 msgid "Restored to '%s' version"
-msgstr ""
+msgstr "Se restauró la versión «%s»"
 
 #, python-format
 msgid "Restored to version %s"
-msgstr ""
+msgstr "Se restauró la versión %s"
 
 msgid "Restored version"
-msgstr ""
+msgstr "Versión restaurada"
 
 #, python-format
 msgid "Restored version · %s"
-msgstr ""
+msgstr "Versión restaurada · %s"
 
 msgid ""
 "Restoring creates a new version. Your existing version history will not "
 "be lost."
-msgstr ""
+msgstr "Al restaurar se crea una versión nueva. No pierdes tu historial de versiones."
 
 msgid "Retries are not supported for alerts"
 msgstr ""
@@ -24484,19 +24484,19 @@ msgid "Revoked"
 msgstr "Revocado"
 
 msgid "Right color"
-msgstr ""
+msgstr "Color derecho"
 
 msgid "Right label"
-msgstr ""
+msgstr "Etiqueta derecha"
 
 msgid "Right metric"
-msgstr ""
+msgstr "Métrica derecha"
 
 msgid "Right series setting"
-msgstr ""
+msgstr "Serie derecha"
 
 msgid "Rotate category label"
-msgstr ""
+msgstr "Girar la etiqueta de categoría"
 
 msgid "Row settings"
 msgstr ""
@@ -24549,10 +24549,10 @@ msgid "Save as %s"
 msgstr "Guardar como %s"
 
 msgid "Save or discard your unsaved changes to preview a version."
-msgstr ""
+msgstr "Guarda o descarta tus cambios sin guardar para ver una versión."
 
 msgid "Save or discard your unsaved changes to restore a version."
-msgstr ""
+msgstr "Guarda o descarta tus cambios sin guardar para restaurar una versión."
 
 # Machine-translated via backfill_po.py (claude-sonnet-4-6) [refs: de, sr,
 # sr_Latn]
@@ -24561,7 +24561,7 @@ msgid "Save this API key securely"
 msgstr "Guardar esta clave API de forma segura"
 
 msgid "Saved changes will appear here"
-msgstr ""
+msgstr "Los cambios guardados aparecerán aquí"
 
 # Machine-translated via backfill_po.py (claude-sonnet-4-6) [refs: de, sr,
 # sr_Latn]
@@ -24591,7 +24591,7 @@ msgid "Search a channel by name, or paste a channel ID"
 msgstr ""
 
 msgid "Search actions"
-msgstr ""
+msgstr "Buscar acciones"
 
 msgid "Search charts by name, editor, or dashboard"
 msgstr "Buscar gráficos por nombre, editor o panel de control"
@@ -24768,7 +24768,7 @@ msgstr "Altura de la serie"
 
 #, python-format
 msgid "Set '%s'"
-msgstr ""
+msgstr "Se definió «%s»"
 
 msgid "Settings for time series"
 msgstr "Ajustes para series temporales"
@@ -24802,7 +24802,7 @@ msgid "Show cell bars for all columns"
 msgstr "Mostrar todas las columnas"
 
 msgid "Show fewer"
-msgstr ""
+msgstr "Mostrar menos"
 
 msgid "Show full range for time shift"
 msgstr ""
@@ -24819,7 +24819,7 @@ msgid "Show or hide the Y axis line, ticks, gridlines, and labels"
 msgstr ""
 
 msgid "Show the main ticks on axes."
-msgstr ""
+msgstr "Muestra las marcas principales de los ejes."
 
 msgid "Show values as"
 msgstr ""
@@ -24833,10 +24833,10 @@ msgid "Significance Level"
 msgstr "Nivel de significación"
 
 msgid "Size of the dot representing the largest value of the dot size metric."
-msgstr ""
+msgstr "Tamaño del punto que representa el valor más grande de la métrica del tamaño."
 
 msgid "Size of the dot representing the smallest value of the dot size metric."
-msgstr ""
+msgstr "Tamaño del punto que representa el valor más pequeño de la métrica del tamaño."
 
 msgid "Solid background"
 msgstr ""
@@ -24967,7 +24967,7 @@ msgid "Swap %s"
 msgstr "Intercambiar %s"
 
 msgid "Sweep angle"
-msgstr ""
+msgstr "Ángulo de barrido"
 
 msgid "TTL must be a positive integer."
 msgstr ""
@@ -25075,7 +25075,7 @@ msgstr ""
 msgid ""
 "The affected charts or dashboards changed. Review the updated impact and "
 "type DELETE again to continue."
-msgstr ""
+msgstr "Los gráficos o tableros afectados cambiaron. Revisa el impacto actualizado y escribe DELETE de nuevo para continuar."
 
 msgid ""
 "The chart data is too large to download. Please try reducing the date "
@@ -25099,7 +25099,7 @@ msgstr ""
 msgid ""
 "The current version could not be identified. Restore is temporarily "
 "unavailable."
-msgstr ""
+msgstr "No se pudo identificar la versión actual. Restaurar no está disponible por ahora."
 
 # Machine-translated via backfill_po.py (claude-sonnet-4-6) [refs: ja]
 #, fuzzy
@@ -25116,7 +25116,7 @@ msgstr ""
 msgid ""
 "The data this version was built on is no longer available, so it cannot "
 "be previewed"
-msgstr ""
+msgstr "Los datos con los que se creó esta versión ya no están disponibles, así que no se puede ver una vista previa"
 
 msgid ""
 "The dataset was changed by another user or browser tab after you opened "
@@ -25126,7 +25126,7 @@ msgstr ""
 msgid ""
 "The deletion impact could not be determined. This dataset cannot be "
 "permanently deleted until the check succeeds."
-msgstr ""
+msgstr "No se pudo calcular el impacto de eliminar. Este conjunto de datos no se puede eliminar definitivamente hasta que la revisión funcione."
 
 msgid "The following charts could not be exported:"
 msgstr ""
@@ -25247,7 +25247,7 @@ msgstr ""
 
 #, python-format
 msgid "There was an issue archiving %s: %s"
-msgstr ""
+msgstr "No se pudo mover %s a la papelera: %s"
 
 #, python-format
 msgid "There was an issue archiving the selected %s"
@@ -25263,7 +25263,7 @@ msgstr ""
 
 #, python-format
 msgid "There was an issue archiving: %s"
-msgstr ""
+msgstr "No se pudo mover a la papelera: %s"
 
 #, python-format
 msgid "There was an issue deleting the selected %s"
@@ -25310,7 +25310,7 @@ msgstr[1] ""
 msgid ""
 "These %(type)s will be moved to Recently Archived in the Settings menu. "
 "You can recover them there."
-msgstr ""
+msgstr "Estos elementos (%(type)s) se moverán a la papelera, en el menú Administración. Puedes restaurarlos allí."
 
 #, python-format
 msgid ""
@@ -25326,7 +25326,7 @@ msgstr[1] ""
 msgid ""
 "This %(type)s will be moved to Recently Archived in the Settings menu. "
 "You can recover it there."
-msgstr ""
+msgstr "Este elemento (%(type)s) se moverá a la papelera, en el menú Administración. Puedes restaurarlo allí."
 
 msgid "This CSS uses @import, which cannot be saved"
 msgstr ""
@@ -25345,13 +25345,13 @@ msgid "This chart is used by alerts or reports: %(names)s."
 msgstr ""
 
 msgid "This chart no longer exists."
-msgstr ""
+msgstr "Este gráfico ya no existe."
 
 msgid "This chart only"
-msgstr ""
+msgstr "Solo este gráfico"
 
 msgid "This chart will be restored to the following version:"
-msgstr ""
+msgstr "Este gráfico se restaurará a la siguiente versión:"
 
 #, python-format
 msgid "This column might be incompatible with current %s"
@@ -25361,10 +25361,10 @@ msgid "This dashboard does not exist"
 msgstr ""
 
 msgid "This dashboard only"
-msgstr ""
+msgstr "Solo este tablero"
 
 msgid "This dashboard will be restored to the following version:"
-msgstr ""
+msgstr "Este tablero se restaurará a la siguiente versión:"
 
 msgid ""
 "This database does not allow creating tables from queries (CTAS). Please "
@@ -25438,7 +25438,7 @@ msgstr ""
 msgid ""
 "This version does not record a visualization type and dataset, so it "
 "cannot be previewed"
-msgstr ""
+msgstr "Esta versión no registra un tipo de visualización ni un conjunto de datos, así que no se puede ver una vista previa"
 
 msgid "This view isn't available on mobile"
 msgstr ""
@@ -25488,7 +25488,7 @@ msgid ""
 "Total angle covered by the chart, in degrees. 360° draws a full circle "
 "and 180° draws a half donut. Partial arcs are automatically re-centered "
 "and scaled to make use of the available space."
-msgstr ""
+msgstr "Ángulo total que cubre la gráfica, en grados. 360° dibuja un círculo completo y 180° una media dona. Los arcos parciales se recentran y escalan solos para aprovechar el espacio."
 
 msgid "Transparent background"
 msgstr ""
@@ -25503,18 +25503,18 @@ msgid "Trigger now"
 msgstr ""
 
 msgid "Truncate Axis"
-msgstr ""
+msgstr "Truncar el eje"
 
 msgid "Truncate labels"
-msgstr ""
+msgstr "Truncar etiquetas"
 
 msgid ""
 "Truncate the metric axis. Can be overridden by specifying a min or max "
 "bound."
-msgstr ""
+msgstr "Trunca el eje de la métrica. Un límite mínimo o máximo lo anula."
 
 msgid "Try a different search term"
-msgstr ""
+msgstr "Prueba con otro término de búsqueda"
 
 msgid "Turn off the logarithmic axis before stacking bars"
 msgstr ""
@@ -25608,7 +25608,7 @@ msgid "Unable to parse the cost estimate returned by the database."
 msgstr ""
 
 msgid "Undid or redid a change"
-msgstr ""
+msgstr "Se deshizo o rehízo un cambio"
 
 #, fuzzy
 msgid "Unexpected HTTP 401 response. Check your credentials."
@@ -25617,7 +25617,7 @@ msgstr ""
 " más información"
 
 msgid "Unknown user"
-msgstr ""
+msgstr "Usuario desconocido"
 
 # Machine-translated via backfill_po.py (claude-sonnet-4-6) [no refs]
 #, fuzzy
@@ -25625,7 +25625,7 @@ msgid "Unsafe link blocked"
 msgstr "Enlace no seguro bloqueado"
 
 msgid "Unsaved dashboard edits"
-msgstr ""
+msgstr "Cambios del tablero sin guardar"
 
 #, python-format
 msgid ""
@@ -25634,13 +25634,13 @@ msgid ""
 msgstr ""
 
 msgid "Untitled chart"
-msgstr ""
+msgstr "Gráfico sin título"
 
 msgid "Untitled dashboard"
-msgstr ""
+msgstr "Tablero sin título"
 
 msgid "Untitled dataset"
-msgstr ""
+msgstr "Conjunto de datos sin título"
 
 msgid ""
 "Upper bound of the color scale. When both start and end are set, the "
@@ -25658,7 +25658,7 @@ msgid "Value exceeds the maximum allowed size of %(max_size)d bytes."
 msgstr ""
 
 msgid "Value label position"
-msgstr ""
+msgstr "Posición de la etiqueta de valor"
 
 #, python-format
 msgid ""
@@ -25677,17 +25677,17 @@ msgid ""
 msgstr ""
 
 msgid "Version history"
-msgstr ""
+msgstr "Historial de versiones"
 
 #, python-format
 msgid "View %(type)s"
-msgstr ""
+msgstr "Ver %(type)s"
 
 msgid "View Dashboards"
 msgstr ""
 
 msgid "View version history"
-msgstr ""
+msgstr "Ver historial de versiones"
 
 msgid "Viewers"
 msgstr "Visualizadores"
@@ -25753,7 +25753,7 @@ msgid ""
 "Where to place the ellipsis when a tooltip label is too long. Choose Off "
 "to always show the full label, or Start when labels share a common "
 "prefix."
-msgstr ""
+msgstr "Dónde poner los puntos suspensivos cuando la etiqueta de un tooltip es muy larga. Elige «No» para mostrarla completa, o «Inicio» si las etiquetas comparten el prefijo."
 
 msgid "Whether to display entries with null values in the hierarchy"
 msgstr ""
@@ -25768,7 +25768,7 @@ msgstr "Si se debe mostrar la línea de tendencia"
 msgid ""
 "Whether to sort tooltip by the selected metric in descending order. On "
 "stacked charts, values are shown in ascending order."
-msgstr ""
+msgstr "Si ordena el tooltip por la métrica elegida, de mayor a menor. En gráficos apilados los valores salen de menor a mayor."
 
 #, fuzzy
 msgid "Width scale multiplier"
@@ -25779,10 +25779,10 @@ msgid "Window must not exceed %(max)s"
 msgstr ""
 
 msgid "X Axis title margin"
-msgstr ""
+msgstr "Margen del título del eje X"
 
 msgid "Y Axis title margin"
-msgstr ""
+msgstr "Margen del título del eje Y"
 
 msgid "Y-axis range slider"
 msgstr ""
@@ -25805,7 +25805,7 @@ msgid "You do not have permission to access this datasource"
 msgstr ""
 
 msgid "You do not have permission to view any archived object types."
-msgstr ""
+msgstr "No tienes permiso para ver ningún tipo de elemento de la papelera."
 
 msgid "You do not have permission to view this chart’s data."
 msgstr ""
@@ -25957,7 +25957,7 @@ msgid "`window` must be between 1 and 10000"
 msgstr "`window` debe estar entre 1 y 10000"
 
 msgid "a dataset"
-msgstr ""
+msgstr "un conjunto de datos"
 
 # Machine-translated via backfill_po.py (claude-sonnet-4-6) [refs: ja]
 #, fuzzy
@@ -26162,3 +26162,51 @@ msgstr[1] ""
 #, fuzzy
 msgid "№"
 msgstr "№"
+
+msgid "Only the editors of the dashboard can change who edits it."
+msgstr "Solo los editores del tablero pueden cambiar quién lo edita."
+
+msgid "Only the editors of the dashboard can change who views it."
+msgstr "Solo los editores del tablero pueden cambiar quién lo ve."
+
+msgid "Trash"
+msgstr "Papelera"
+
+msgid "Restore"
+msgstr "Restaurar"
+
+#, python-format
+msgid "%s was restored"
+msgstr "Se restauró %s"
+
+#, python-format
+msgid "%s could not be restored"
+msgstr "No se pudo restaurar %s"
+
+#, python-format
+msgid "It cannot be restored: %s. Remove those charts from their current dashboard first."
+msgstr "No se puede restaurar: %s. Quita antes esos gráficos del tablero donde están ahora."
+
+msgid "Some of its charts now belong to another dashboard"
+msgstr "Algunos de sus gráficos ahora pertenecen a otro tablero"
+
+msgid "Sides"
+msgstr "Lados"
+
+msgid "Left values"
+msgstr "Valores de la izquierda"
+
+msgid "Right values"
+msgstr "Valores de la derecha"
+
+#, python-format
+msgid "\"%(chart)s\" is now in %(dashboards)s"
+msgstr "«%(chart)s» ahora está en %(dashboards)s"
+
+#, python-format
+msgid "Dashboard cannot be restored because some of its charts now belong to another dashboard: %(details)s"
+msgstr "No se puede restaurar el tablero porque algunos de sus gráficos ahora pertenecen a otro tablero: %(details)s"
+
+#, python-format
+msgid "This version can't be restored because some of its charts now belong to another dashboard: %(details)s"
+msgstr "No se puede restaurar esta versión porque algunos de sus gráficos ahora pertenecen a otro tablero: %(details)s"
