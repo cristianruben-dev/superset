@@ -107,7 +107,9 @@ This repository is **AuraData BI**, a fork of Apache Superset 6.1 shaped like Po
 - Branding, theme tokens, languages and chart palettes live in `superset/mibi_config.py`.
 - **Databases offered:** PostgreSQL, SQL Server (pymssql), MySQL, Databricks, Amazon Redshift and DuckDB, as cards
   with their logo (`PREFERRED_DATABASES` in `mibi_config.py`, logos in `src/mibi/databases/dbImages.ts`). Their drivers
-  are installed in the `dev` and `prod` targets of the `Dockerfile`; a new database needs its driver there too.
+  are installed in the `dev` and `prod` targets of the `Dockerfile` (`prod` is `lean` plus the six drivers and a Playwright Chromium, not the
+  batteries-included `superset` image); a new database needs its driver there too. The dev and prod `CeleryConfig` inherit
+  `superset.config.CeleryConfig`: never replace it, or Superset's own scheduled tasks (trash and history purge) stop running.
 - **The editor has a ribbon, as in Power BI** (`src/mibi/ribbon`): Home, Insert, Design and View,
   plus Format and Data and drill for the selected object. It lives under the top bar in `Header`, and
   commands of the ribbon call the same actions as the panes. A new command goes there, in a named

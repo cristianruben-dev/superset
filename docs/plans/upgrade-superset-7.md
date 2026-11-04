@@ -430,6 +430,55 @@ de la fase 3 (`cp -cR`). Usuarios de prueba en la copia: admin, `qa_colaborador`
   `tests/unit_tests/subjects/test_creator_group_call_sites.py` (3) y `dashboards/semantic_view_access_test.py` (20, `g.user`).
   Cadenas de 7.0 como «Deleted %(num)d …» sin espacio («Se ha eliminado%(num)d») y `msgfmt -c` con los mismos 8 errores.
 
+### Fase 5
+
+Rama `claude/upgrade-superset-7-infra-223641` (cortada de la de la fase 4). Entorno: venv propio en el worktree (Python 3.11,
+`requirements/development.txt` sin `mysqlclient`, más los extras de drivers), Postgres 17 y MySQL 8.0 desechables en el 5599 y el
+3399 (borrados al terminar). No se tocó el stack del 8188.
+
+- **Dockerfile.** La fusión ya lo dejó en la forma de 7.0 (Python 3.11.14 trixie, `uv`, node 24, stages `lean` y `superset`,
+  Playwright por `INCLUDE_CHROMIUM`); lo del fork es solo la compilación de traducciones, el target `prod` y los extras del `dev`.
+  El websocket de 7.0 se queda fuera (el fork no tiene `superset-websocket`).
+  - **`prod` parte de `lean`, no de la imagen `superset` completa.** Esa trae solo `postgres`, `mysql` y `fastmcp`, y aquí hacen
+    falta también `mssql`, `databricks`, `duckdb` y `redshift`; añadirlos a la completa es instalar dos veces. `lean` más los
+    seis drivers y `fastmcp` es la imagen mínima que cubre `PREFERRED_DATABASES`. El Chromium no viene de `lean`: lo instala
+    `python-common` con `INCLUDE_CHROMIUM`.
+  - **`docker-compose-prod.yml` ahora construye con `INCLUDE_CHROMIUM=true`** (antes `false`): sin él, los informes y alertas
+    fallan al capturar. Cuesta unos 600 MB; se apaga con `INCLUDE_CHROMIUM=false` si no se usan informes.
+  - El `dev` instala `.[postgres,mssql,databricks,redshift]`; MySQL y DuckDB vienen de `requirements/development.txt`
+    (`mysqlclient==2.2.8`, `duckdb==1.5.5`, `duckdb-engine==0.17.0`). Comparado con una resolución nueva de `development.in`, el
+    conjunto de paquetes es el mismo (solo `docutils`, `tomli`, `mypy-extensions`, `python-discovery` y `stanio` cambian por
+    fecha), así que no se regeneró el archivo.
+- **Drivers con SQLAlchemy 2.0.52 y Flask 3.1.3** (instalados desde los extras de `pyproject.toml`): `psycopg2-binary 2.9.12`
+  (PostgreSQL y Redshift), `pymssql 2.4.6`, `PyMySQL 1.2.3`, `databricks-sql-connector 4.5.0` con `databricks-sqlalchemy 2.0.10`,
+  `sqlalchemy-redshift 1.0.0`, `duckdb 1.5.5` con `duckdb-engine 0.17.0`. Todos importan y `create_engine` resuelve su dialecto;
+  con conexión real: PostgreSQL 17 (psycopg2), MySQL 8.0 (PyMySQL) y DuckDB en memoria (`select 42`). SQL Server, Databricks y
+  Redshift solo hasta el dialecto (no hay contenedor fácil). Las ocho clases de motor del fork cargan con `load_engine_specs()`.
+  **`mysqlclient` no compila en el Mac**, así que su importación y conexión quedan para la imagen.
+- **Celery (fallo real, corregido).** `docker/pythonpath_prod/superset_config.py` y el de dev reemplazaban `CeleryConfig`
+  entero, y con él las tareas de 7.0: la purga de la papelera (`deletion_retention.purge_soft_deleted`), la del historial
+  (`version_history.prune_old_versions`), la exportación a Excel y Slack. Con el soft delete y el historial activos por defecto,
+  la papelera de producción nunca se habría vaciado ni el historial purgado. Ahora heredan `superset.config.CeleryConfig` y solo
+  cambian el broker y el backend de resultados (`tests/unit_tests/mibi/prod_config_test.py`). `pre-commit` excluye
+  `docker/pythonpath_prod` de mypy (dos módulos `superset_config` chocan).
+- **Playwright.** 7.0 quita Selenium: `PLAYWRIGHT_REPORTS_AND_THUMBNAILS`, `WEBDRIVER_TYPE`, `WEBDRIVER_CONFIGURATION` y
+  `SCREENSHOT_*` de Selenium ya no existen. En el fork no queda ninguna referencia salvo la bandera inerte del config de dev
+  (quitada). `WEBDRIVER_BASEURL` sigue igual. Las tarjetas del inicio no usan capturas (`mibi/previews.py`), así que `THUMBNAILS`
+  no hace falta en prod.
+- **SSL de MySQL (7.0, #44723).** El interruptor «SSL» del formulario (`ssl=1`) ahora **exige TLS y falla cerrado**. Probado con
+  MySQL 8.0 (certificado autofirmado) y PyMySQL: sin interruptor la conexión funciona y usa TLS oportunista (`Ssl_cipher` presente);
+  con interruptor se añade `ssl_verify_cert=True` y la conexión **falla** (`CERTIFICATE_VERIFY_FAILED: self-signed certificate`);
+  con `?ssl=1&ssl_ca=<ca.pem>` conecta verificada. El campo «Certificado raíz» del formulario **no** lo usa MySQL: el CA va en el
+  URI o en `extra.engine_params.connect_args`, y la ruta debe existir en la web y en cada worker. Con `mysqlclient` sobre
+  Debian trixie (`default-libmysqlclient-dev` suele ser `libmariadb`; por confirmar en la imagen), `REQUIRED` se sube a `VERIFY_CA` (también falla con certificado autofirmado). Una conexión guardada con el interruptor encendido cambia de comportamiento al
+  actualizar. `tests/unit_tests/db_engine_specs/test_mysql.py` 163/163.
+- **Cambios de 7.0 en config revisados:** el websocket y `GLOBAL_ASYNC_QUERIES_*` salen (el fork no los usa); el MCP se niega a
+  arrancar si `MCP_DEV_USERNAME` y `MCP_AUTH_ENABLED` van juntos (dev pone solo el primero, prod solo el segundo);
+  `ALERT_REPORTS_EXECUTION_BUDGET_SECONDS` existe por defecto; `THUMBNAIL_CACHE_CONFIG` con vigencia de un día en dev.
+  Los informes programados sobre un tablero **sin publicar** ya no se ejecutan si quien los ejecuta (`ALERT_REPORTS_EXECUTORS`) no
+  es editor ni admin del tablero; hay que publicarlo o dar la editoría a ese usuario. Revisar los informes de los tableros en
+  borrador antes de desplegar.
+
 ## Abiertos tras la fase 3
 
 Para la fase 4 (funciones que chocan), además de la lista de abajo:

@@ -158,6 +158,13 @@ alertas e informes programados y, con `--profile mcp`, el servicio MCP protegido
 con JWT. Pon delante un proxy inverso con HTTPS (nginx, Traefik, Caddy...) que
 apunte al puerto 8088.
 
+La imagen (`target: prod`) parte de la imagen mínima `lean` de Superset 7.0 e instala los
+drivers de las bases que ofrece AuraData BI (PostgreSQL, SQL Server, MySQL, Databricks,
+Amazon Redshift y DuckDB) y un Chromium con Playwright para las capturas de informes y
+alertas (`INCLUDE_CHROMIUM=false` lo omite y ahorra unos 600 MB). Una conexión MySQL con el
+interruptor SSL exige TLS verificado: si el servidor usa un certificado propio, indica la
+CA en el URI (`?ssl=1&ssl_ca=/ruta/ca.pem`) y que esa ruta exista en la web y en los workers.
+
 ## Traer correcciones de Superset
 
 ```bash
