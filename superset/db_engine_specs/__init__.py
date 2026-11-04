@@ -169,17 +169,19 @@ def get_available_engine_specs() -> dict[type[BaseEngineSpec], set[str]]:  # noq
         except NoSuchModuleError:
             continue
 
-    for backend, names in extra_native_drivers.items():
+    for native_backend, names in extra_native_drivers.items():
         for name in names:
             try:
-                dialect = sqlalchemy.dialects.registry.load(f"{backend}.{name}")
+                dialect = sqlalchemy.dialects.registry.load(f"{native_backend}.{name}")
                 dialect.dbapi()
             except (NoSuchModuleError, ModuleNotFoundError):
                 continue
             except Exception as ex:  # pylint: disable=broad-except
-                logger.warning("Unable to load dialect %s.%s: %s", backend, name, ex)
+                logger.warning(
+                    "Unable to load dialect %s.%s: %s", native_backend, name, ex
+                )
                 continue
-            drivers[backend].add(dialect.driver)
+            drivers[native_backend].add(dialect.driver)
 
     # installed 3rd-party dialects
     #
