@@ -134,12 +134,12 @@ export function formatTooltip({
     .toString()
     .replaceAll('<', '&lt;')
     .replaceAll('>', '&gt;');
-  const rows = [[t('% of total'), absolutePercentage]];
+  const rows = [[t('% of total'), absolutePercentage]];
   if (parentNode) {
     const conditionalPercentage = percentFormatter(
       node.value / parentNode.value,
     );
-    rows.push([t('% of parent'), conditionalPercentage]);
+    rows.push([t('% of parent'), conditionalPercentage]);
   }
   rows.push([metricLabel, formattedValue]);
   if (!colorByCategory) {

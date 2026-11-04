@@ -199,9 +199,9 @@ const config: ControlPanelConfig = {
               // requery rather than a client-side-only re-render.
               choices: [
                 [ShowValuesAsEnum.ACTUAL, t('Actual values')],
-                [ShowValuesAsEnum.PERCENT_OF_ROW, t('% of row total')],
-                [ShowValuesAsEnum.PERCENT_OF_COLUMN, t('% of column total')],
-                [ShowValuesAsEnum.PERCENT_OF_TOTAL, t('% of grand total')],
+                [ShowValuesAsEnum.PERCENT_OF_ROW, t('% of row total')],
+                [ShowValuesAsEnum.PERCENT_OF_COLUMN, t('% of column total')],
+                [ShowValuesAsEnum.PERCENT_OF_TOTAL, t('% of grand total')],
               ],
               description: t(
                 'Display each cell as a percentage of its row, column, or ' +

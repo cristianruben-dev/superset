@@ -71,7 +71,7 @@ export const formattingOptions = [
 
 export const boundUnitOptions = [
   { value: BoundUnit.Value, label: t('Value') },
-  { value: BoundUnit.Percent, label: t('% of column') },
+  { value: BoundUnit.Percent, label: t('% of column') },
 ];
 
 export const percentDenominatorOptions = [
