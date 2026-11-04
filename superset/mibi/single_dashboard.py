@@ -31,6 +31,10 @@ It is enforced in two layers:
   chart in two dashboards. Code that writes ``dashboard_slices`` with Core statements
   bypasses the ORM and calls ``assert_single_dashboard`` itself.
 
+Only live dashboards count: a soft-deleted dashboard keeps its chart links so it can
+be restored, and restoring it is refused while one of its charts belongs to another
+live dashboard (``find_charts_blocking_restore``).
+
 A database unique constraint would be stricter, but it needs a migration, and fork
 migrations conflict with the ones every Superset release ships.
 """
@@ -46,6 +50,7 @@ from flask_babel import gettext as __, lazy_gettext as _
 from marshmallow import ValidationError
 from sqlalchemy import event, func, inspect, select
 from sqlalchemy.orm import Session
+from sqlalchemy.sql import Select
 
 from superset import db
 from superset.commands.exceptions import CommandInvalidError
@@ -85,12 +90,20 @@ def _format_conflicts(conflicts: dict[int, set[int]]) -> str:
     )
 
 
+def _live_links(statement: Select) -> Select:
+    """Limit a select over ``dashboard_slices`` to dashboards not soft-deleted."""
+    dashboards = Dashboard.__table__
+    return statement.join(
+        dashboards, dashboards.c.id == dashboard_slices.c.dashboard_id
+    ).where(dashboards.c.deleted_at.is_(None))
+
+
 def get_chart_dashboard_ids(
     chart_ids: Iterable[int],
     session: Session | None = None,
 ) -> dict[int, set[int]]:
     """
-    Map each chart to the dashboards it is attached to.
+    Map each chart to the live dashboards it is attached to.
 
     :param chart_ids: The charts to look up
     :param session: The session to query with, defaults to ``db.session``
@@ -101,9 +114,9 @@ def get_chart_dashboard_ids(
         return {}
 
     rows = (session or db.session).execute(
-        select(dashboard_slices.c.slice_id, dashboard_slices.c.dashboard_id).where(
-            dashboard_slices.c.slice_id.in_(ids)
-        )
+        _live_links(
+            select(dashboard_slices.c.slice_id, dashboard_slices.c.dashboard_id)
+        ).where(dashboard_slices.c.slice_id.in_(ids))
     )
     result: dict[int, set[int]] = defaultdict(set)
     for chart_id, dashboard_id in rows:
@@ -145,7 +158,7 @@ def find_charts_in_multiple_dashboards(
     session = session or db.session
     if chart_ids is None:
         shared = (
-            select(dashboard_slices.c.slice_id)
+            _live_links(select(dashboard_slices.c.slice_id))
             .group_by(dashboard_slices.c.slice_id)
             .having(func.count(func.distinct(dashboard_slices.c.dashboard_id)) > 1)
         )
@@ -178,6 +191,29 @@ def assert_single_dashboard(
         return
     if conflicts := find_charts_in_multiple_dashboards(chart_ids, session):
         raise ChartInMultipleDashboardsError(conflicts)
+
+
+def find_charts_blocking_restore(
+    dashboard_id: int,
+    session: Session | None = None,
+) -> dict[int, set[int]]:
+    """
+    Find the charts of a soft-deleted dashboard that joined another live dashboard
+    while it was deleted, so restoring it would share them.
+
+    :param dashboard_id: The soft-deleted dashboard about to be restored
+    :param session: The session to query with, defaults to ``db.session``
+    :returns: ``{chart_id: {other_dashboard_id, ...}}`` for the conflicting charts
+    """
+    if not is_enabled():
+        return {}
+    session = session or db.session
+    chart_ids = session.scalars(
+        select(dashboard_slices.c.slice_id).where(
+            dashboard_slices.c.dashboard_id == dashboard_id
+        )
+    ).all()
+    return find_charts_in_other_dashboards(chart_ids, dashboard_id, session)
 
 
 def validate_chart_dashboards(

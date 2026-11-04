@@ -16,6 +16,8 @@
 # under the License.
 """Command to restore a soft-deleted dashboard."""
 
+from flask_babel import gettext as _
+
 from superset.commands.dashboard.exceptions import (
     DashboardForbiddenError,
     DashboardNotFoundError,
@@ -24,6 +26,7 @@ from superset.commands.dashboard.exceptions import (
 )
 from superset.commands.restore import BaseRestoreCommand
 from superset.daos.dashboard import DashboardDAO
+from superset.mibi.single_dashboard import find_charts_blocking_restore
 from superset.models.dashboard import Dashboard
 
 
@@ -61,6 +64,17 @@ class RestoreDashboardCommand(BaseRestoreCommand[Dashboard]):
         # opaque IntegrityError).
         if model.slug is not None and self._has_active_slug_twin(model):
             raise DashboardSlugConflictError()
+        # AuraData BI: a chart belongs to one live dashboard
+        if conflicts := find_charts_blocking_restore(model.id):
+            raise DashboardRestoreFailedError(
+                _(
+                    "Dashboard cannot be restored because some of its charts now "
+                    "belong to another dashboard: %(chart_ids)s",
+                    chart_ids=", ".join(
+                        str(chart_id) for chart_id in sorted(conflicts)
+                    ),
+                )
+            )
         return model
 
     @staticmethod

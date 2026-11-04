@@ -22,6 +22,7 @@ from collections.abc import Callable, Sequence
 from datetime import datetime
 from typing import Any
 
+import sqlalchemy as sa
 from flask import request, Response
 from flask_appbuilder import expose
 from flask_appbuilder.api import protect, safe
@@ -31,6 +32,7 @@ from marshmallow import fields, pre_load, Schema, validate, ValidationError
 from sqlalchemy import or_
 
 from superset import db, security_manager
+from superset.connectors.sqla.models import SqlaTable
 from superset.daos.dashboard import DashboardDAO
 from superset.daos.dataset import DatasetDAO
 from superset.exceptions import SupersetSecurityException
@@ -154,6 +156,19 @@ def accessible_dashboard_ids(workspace: Workspace) -> list[int]:
     return sorted(dashboard.id for dashboard in DashboardDAO.find_by_ids(ids))
 
 
+def live_dataset_count(workspace: Workspace) -> int:
+    """How many datasets of the workspace are not soft-deleted."""
+    ids = [link.dataset_id for link in workspace.datasets]
+    if not ids:
+        return 0
+    return (
+        db.session.query(sa.func.count(SqlaTable.id))
+        .filter(SqlaTable.id.in_(ids), SqlaTable.deleted_at.is_(None))
+        .scalar()
+        or 0
+    )
+
+
 def image_url(workspace: Workspace) -> str | None:
     if not workspace.image_type:
         return None
@@ -186,7 +201,7 @@ def serialize(workspace: Workspace, role: str | None = None) -> dict[str, Any]:
         "image_url": image_url(workspace),
         "dashboard_ids": dashboard_ids,
         "dashboard_count": len(dashboard_ids),
-        "dataset_count": len(workspace.datasets),
+        "dataset_count": live_dataset_count(workspace),
         # Stored naive in the server's local time; the offset lets browsers in
         # other time zones compute "updated x minutes ago" correctly
         "changed_on": workspace.changed_on.astimezone().isoformat()
