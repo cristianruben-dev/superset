@@ -34,6 +34,8 @@ interface AccessSectionProps {
   tags: TagType[];
   editors?: Subject[];
   viewers?: Subject[];
+  /** False when only the editors of the dashboard may change who edits or views it */
+  canManageSubjects?: boolean;
   onChangeEditors: (editors: SubjectPickerValue[]) => void;
   onChangeViewers: (viewers: SubjectPickerValue[]) => void;
   onChangeTags: (tags: { label: string; value: number }[]) => void;
@@ -50,6 +52,7 @@ const AccessSection = ({
   tags,
   editors,
   viewers,
+  canManageSubjects = true,
   onChangeEditors,
   onChangeViewers,
   onChangeTags,
@@ -82,16 +85,20 @@ const AccessSection = ({
       <ModalFormField
         label={t('Editors')}
         testId="dashboard-editors-field"
-        helperText={t(
-          'Editors is a list of subjects who can alter the dashboard. Searchable by name.',
-        )}
+        helperText={
+          canManageSubjects
+            ? t(
+                'Editors is a list of subjects who can alter the dashboard. Searchable by name.',
+              )
+            : t('Only the editors of the dashboard can change who edits it.')
+        }
       >
         <SubjectPicker
           relatedUrl="/api/v1/dashboard/related/editors"
           dataTest="dashboard-editors-select"
           allowClear
           ariaLabel={t('Editors')}
-          disabled={isLoading}
+          disabled={isLoading || !canManageSubjects}
           onChange={onChangeEditors}
           value={editorsSelectValue}
           placeholder={t('Search editors')}
@@ -101,16 +108,20 @@ const AccessSection = ({
         <ModalFormField
           label={t('Viewers')}
           testId="dashboard-viewers-field"
-          helperText={t(
-            'Viewers is a list of subjects who can view the dashboard. If no viewers are defined, the dashboard is accessible to all users with appropriate datasource permissions.',
-          )}
+          helperText={
+            canManageSubjects
+              ? t(
+                  'Viewers is a list of subjects who can view the dashboard. If no viewers are defined, the dashboard is accessible to all users with appropriate datasource permissions.',
+                )
+              : t('Only the editors of the dashboard can change who views it.')
+          }
         >
           <SubjectPicker
             relatedUrl="/api/v1/dashboard/related/viewers"
             dataTest="dashboard-viewers-select"
             allowClear
             ariaLabel={t('Viewers')}
-            disabled={isLoading}
+            disabled={isLoading || !canManageSubjects}
             onChange={onChangeViewers}
             value={viewersSelectValue}
             placeholder={t('Search viewers')}

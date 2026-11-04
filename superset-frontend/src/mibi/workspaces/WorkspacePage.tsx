@@ -56,6 +56,7 @@ import { WorkspaceAvatar, workspaceGradient } from './WorkspaceAvatar';
 import { WorkspaceDatasets } from './WorkspaceDatasets';
 import { Grid, Page } from './WorkspaceListPage';
 import { WorkspaceModal } from './WorkspaceModal';
+import { WorkspaceTrash } from './WorkspaceTrash';
 
 const Crumbs = styled.nav`
   ${({ theme }) => css`
@@ -684,6 +685,16 @@ export default function WorkspacePage() {
         canContribute={canContribute}
         onShare={shareDataset}
       />
+
+      {canContribute && (
+        <WorkspaceTrash
+          workspaceId={id}
+          onRestored={() => {
+            fetchWorkspace(id).then(setWorkspace);
+            loadDashboards();
+          }}
+        />
+      )}
 
       <WorkspaceModal
         show={editing}

@@ -49,7 +49,12 @@ import {
   getColorNamespace,
   getFreshLabelsColorMapEntries,
 } from 'src/utils/colorScheme';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import {
+  isUserAdmin,
+  isUserInSubjects,
+} from 'src/dashboard/util/permissionUtils';
+import type { UserWithPermissionsAndRoles } from 'src/types/bootstrapTypes';
 import {
   setColorScheme,
   setDashboardMetadata,
@@ -134,8 +139,15 @@ const PropertiesModal = ({
   const jsonAnnotations = useJsonValidation(jsonMetadata, {
     errorPrefix: 'Invalid JSON metadata',
   });
+  const user = useSelector(
+    (state: { user?: UserWithPermissionsAndRoles }) => state.user,
+  );
   const [editors, setEditors] = useState<Subject[]>([]);
   const [viewers, setViewers] = useState<Subject[]>([]);
+  // Whoever edits only through a workspace role cannot change who edits or
+  // views the dashboard: the server answers 422 when they try
+  const canManageSubjects =
+    isLoading || !user || isUserAdmin(user) || isUserInSubjects(editors);
 
   const extraFields = useMemo(
     () =>
@@ -779,6 +791,7 @@ const PropertiesModal = ({
                   tags={tags}
                   editors={editors}
                   viewers={viewers}
+                  canManageSubjects={canManageSubjects}
                   onChangeEditors={handleOnChangeEditors}
                   onChangeViewers={handleOnChangeViewers}
                   onChangeTags={handleChangeTags}

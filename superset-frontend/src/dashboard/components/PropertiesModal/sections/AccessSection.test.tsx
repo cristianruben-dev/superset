@@ -121,3 +121,30 @@ test('shows editors and viewers helper text when EnableViewers is on', () => {
   expect(screen.getByText(/Editors is a list of subjects/)).toBeInTheDocument();
   expect(screen.getByText(/Viewers is a list of subjects/)).toBeInTheDocument();
 });
+
+test('lets the editors of a dashboard change who edits and views it', () => {
+  mockedIsFeatureEnabled.mockImplementation(
+    (flag: any) => flag === FeatureFlag.EnableViewers,
+  );
+
+  render(<AccessSection {...defaultProps} canManageSubjects />);
+
+  expect(screen.getByRole('combobox', { name: 'Editors' })).toBeEnabled();
+  expect(screen.getByRole('combobox', { name: 'Viewers' })).toBeEnabled();
+});
+
+test('keeps who edits and views it from whoever edits through a workspace', () => {
+  mockedIsFeatureEnabled.mockImplementation(
+    (flag: any) => flag === FeatureFlag.EnableViewers,
+  );
+
+  render(<AccessSection {...defaultProps} canManageSubjects={false} />);
+
+  expect(screen.getByRole('combobox', { name: 'Editors' })).toBeDisabled();
+  expect(screen.getByRole('combobox', { name: 'Viewers' })).toBeDisabled();
+  expect(
+    screen.getByText(
+      'Only the editors of the dashboard can change who edits it.',
+    ),
+  ).toBeInTheDocument();
+});
