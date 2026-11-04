@@ -381,12 +381,26 @@ de la fase 3 (`cp -cR`). Usuarios de prueba en la copia: admin, `qa_colaborador`
     lo cubre `layout-ux`.
   - **`present` 4:3** (el documento medía 858 px en una pantalla de 850): el margen inferior de 12 px del contenedor de la página
     se sumaba al relleno de la presentación. Arreglo en `skin.css` para `body.mibi-presenting`.
-  - **`format-reference` falla en 7 de 16 capturas** (barras, combinado, anillo, embudo, matriz, tabla, treemap): las referencias
-    son de 6.1 y 7.0 cambió la maquetación (barras y combinado: el área de trazado se desplaza ~12 px; tabla: más relleno
-    lateral y sale cortada del cuadro, con otro icono de orden). No se regeneraron: la tabla cortada podría ser una regresión real
-    y hay que revisarla antes de aceptar capturas nuevas.
+  - **`format-reference`** (referencias de 6.1; ECharts pasó de 5.6 a 6.1). Se revisaron las 7 capturas que fallaban:
+    - Tabla (regresión nuestra, arreglada): 7.0 añade 20 px de relleno a la tabla y le resta 40 px de ancho y alto; en el
+      cuadro del fork (que ya tiene su relleno) la tabla salía cortada. `Styles.tsx` sin relleno y `TableChart.tsx` sin
+      restar. Aceptado de 7.0: el icono de orden (`ColumnHeightOutlined`) y la cabecera en negrita.
+    - Treemap (regresión, arreglada): ECharts 6 centra el treemap en una caja que no llena el gráfico y salía cortado;
+      `left: 0, top: 0`. Aceptado de 7.0: sin huecos ni bordes entre los rectángulos (`BORDER_WIDTH`/`GAP_WIDTH` = 0; un
+      test de 7.0 lo exige).
+    - Anillo (regresión, arreglada): ECharts 6 reserva el espacio de la línea de etiqueta aunque esté oculta y truncaba
+      «Gamma» a «Gam…»; la línea oculta queda con `length: 12, length2: 0`.
+    - Aceptados como cambio de 7.0/ECharts 6 (revisados a ojo): barras y combinado (el área de trazado gana unos 12 px a la
+      izquierda; el eje de fechas del combinado muestra «Jan 2025 … Dec 2025» en vez de «2025, March…»), embudo (más aire
+      bajo la leyenda y etiquetas sin halo blanco) y matriz («Total (Sum)» pasa a «Total», icono de orden de 7.0).
+    - Se regeneraron las 7 referencias (con Chromium 1208); `format-reference` pasa.
   - «Desglosar por» desde un punto del gráfico: probado, abre el modal con las columnas del dataset («Desglosar por: Evolución
-    mensual de ventas», region). Desde la etiqueta del eje X no se probó.
+    mensual de ventas», region). Desde la etiqueta del eje X (clic derecho) 7.0 no ofrece Drill By: solo el clic izquierdo
+    filtra (filtro cruzado) y el derecho abre el menú del área. **Abierto:** al hacer Drill By desde un punto de un gráfico de
+    líneas hecho por API sobre un conjunto virtual, la petición lleva el filtro `TEMPORAL_RANGE` del mes pulsado
+    (comprobado en la petición) pero el servidor lo ignora (devuelve todos los meses, aun con `granularity_sqla`) y la
+    miga del valor X sale vacía; el código del servidor es idéntico al de 7.0. Falta comprobarlo con un gráfico hecho desde
+    la interfaz sobre un conjunto físico.
 - **Preexistentes que siguen:** Jest `src/mibi` 2 fallos de la línea base; `dropOverflowsParent`/`getDetailedComponentWidth` (4,
   tests de 12 columnas); `SliceHeaderControls` «subdirectory deployment» (2, «Editar gráfico» abre el panel, no Explore);
   `tests/unit_tests/subjects/test_creator_group_call_sites.py` (3) y `dashboards/semantic_view_access_test.py` (20, `g.user`).

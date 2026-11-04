@@ -21,7 +21,9 @@ import { css, styled } from '@apache-superset/core/theme';
 export default styled.div`
   ${({ theme }) => css`
     /* Base table styles */
-    padding: ${theme.sizeUnit * 5}px;
+    /* No padding of its own: the card of the visual already has it, and the
+       table needs all the room it can get */
+    padding: 0;
     table {
       width: 100%;
       min-width: auto;

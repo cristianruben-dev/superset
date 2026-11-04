@@ -1864,12 +1864,14 @@ export default function TableChart<D extends DataRecord = DataRecord>(
   const tableFormatStyles = tableFormatCss
     ? css`
         ${tableFormatCss}
-        ${minimumTableWidth > 0 &&
-        css`
-          table.table {
-            min-width: ${minimumTableWidth}px;
-          }
-        `}
+        ${
+          minimumTableWidth > 0 &&
+          css`
+            table.table {
+              min-width: ${minimumTableWidth}px;
+            }
+          `
+        }
       `
     : undefined;
 
@@ -1883,8 +1885,8 @@ export default function TableChart<D extends DataRecord = DataRecord>(
         pageSize={pageSize}
         serverPaginationData={serverPaginationData}
         pageSizeOptions={pageSizeOptions}
-        width={Math.max(0, widthFromState - theme.sizeUnit * 10)}
-        height={Math.max(0, heightFromState - theme.sizeUnit * 10)}
+        width={Math.max(0, widthFromState)}
+        height={Math.max(0, heightFromState)}
         serverPagination={serverPagination}
         onServerPaginationChange={handleServerPaginationChange}
         onColumnOrderChange={() => setColumnOrderToggle(!columnOrderToggle)}

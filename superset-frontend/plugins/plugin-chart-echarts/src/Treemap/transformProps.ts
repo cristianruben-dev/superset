@@ -262,6 +262,10 @@ export default function transformProps(
   const series: TreemapSeriesOption[] = [
     {
       type: 'treemap',
+      // ECharts 6 centers a treemap in a box that does not fill the chart unless
+      // told where it starts
+      left: 0,
+      top: 0,
       width: '100%',
       height: '100%',
       nodeClick: undefined,

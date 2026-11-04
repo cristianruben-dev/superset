@@ -573,8 +573,12 @@ export default function transformProps(
         startAngle,
         endAngle: startAngle - sweptAngle,
         avoidLabelOverlap: true,
+        // ECharts 6 keeps the room of a hidden label line and truncates the
+        // label to what is left, so a hidden line keeps only a small gap
         labelLine:
-          labelsOutside && labelLine ? { show: true } : { show: false },
+          labelsOutside && labelLine
+            ? { show: true }
+            : { show: false, length: 12, length2: 0 },
         minShowLabelAngle,
         label: labelsOutside
           ? {
