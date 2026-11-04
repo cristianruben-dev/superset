@@ -35,6 +35,7 @@ import {
   FormatLocaleDefinition,
 } from '@superset-ui/core';
 import { TimeLocaleDefinition } from 'd3-time-format';
+import localeTimeFormat from './localeTimeFormat';
 
 export default function setupFormatters(
   d3NumberFormat: Partial<FormatLocaleDefinition>,
@@ -126,7 +127,8 @@ export default function setupFormatters(
   const timeFormatterRegistry = getTimeFormatterRegistry();
 
   timeFormatterRegistry
-    .setD3Format(d3TimeFormat)
+    // Month and day names in the language of the app, unless the deployment sets them
+    .setD3Format({ ...localeTimeFormat(locale), ...d3TimeFormat })
     .registerValue(
       SMART_DATE_ID,
       createSmartDateFormatter(timeFormatterRegistry.d3Format),
