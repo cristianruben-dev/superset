@@ -90,7 +90,7 @@ export function ShellCrumbs({
   const crumbs: Crumb[] = [...navCrumbs(sections, pathname), ...extra];
   if (!crumbs.length) return null;
   return (
-    <Strip aria-label={t('Breadcrumb')} data-test="mibi-crumbs">
+    <Strip aria-label={t('Breadcrumb')} data-test="auradata-crumbs">
       <ol>
         {crumbs.map((crumb, index) => {
           const last = index === crumbs.length - 1;
@@ -209,7 +209,7 @@ export function PageHeader({
   children?: ReactNode;
 }) {
   return (
-    <Header data-test="mibi-page-header">
+    <Header data-test="auradata-page-header">
       <div className="titles">
         <h1>{title}</h1>
         {meta && <span className="meta">{meta}</span>}

@@ -53,7 +53,7 @@ test('styles the grid from the Format pane and remembers it', () => {
     </>,
     { useRedux: true },
   );
-  const guide = screen.getByTestId('mibi-grid-guide');
+  const guide = screen.getByTestId('auradata-grid-guide');
   expect(guide).toHaveStyle({ backgroundSize: '32px 32px' });
 
   fireEvent.click(screen.getByRole('button', { name: 'Reset grid' }));

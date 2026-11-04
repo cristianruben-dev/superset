@@ -386,7 +386,7 @@ const VerticalFilterBar: FC<VerticalBarProps> = ({
             {activeFilters > 0 && (
               <span
                 className="mibi-filters-count"
-                data-test="mibi-filters-count"
+                data-test="auradata-filters-count"
                 aria-label={t('%s filters applied', activeFilters)}
               >
                 {activeFilters}

@@ -68,7 +68,7 @@ export function newElementMeta(kind: ElementKind) {
 /** Draggers for the AuraData BI design elements in the Layout elements tab. */
 export function NewElements() {
   return (
-    <div data-test="mibi-new-elements">
+    <div data-test="auradata-new-elements">
       <Heading>{t('Design elements')}</Heading>
       {(
         [

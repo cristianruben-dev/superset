@@ -125,7 +125,7 @@ export function Dependent({
     bodyRef.current?.toggleAttribute('inert', off);
   }, [off]);
   return (
-    <DependentBox aria-disabled={off} data-test="mibi-format-dependent">
+    <DependentBox aria-disabled={off} data-test="auradata-format-dependent">
       <div ref={bodyRef} className="dependent-body">
         {children}
       </div>

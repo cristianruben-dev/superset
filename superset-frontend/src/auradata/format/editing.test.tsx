@@ -122,7 +122,7 @@ test('the format painter gives its format to the next object selected', () => {
   render(<FormatPane />, { store });
   act(() => selectVisual('DYNAMIC-a'));
   act(() => copyFormat(layout['DYNAMIC-a'] as LayoutItem));
-  expect(screen.getByTestId('mibi-painter-tip')).toBeInTheDocument();
+  expect(screen.getByTestId('auradata-painter-tip')).toBeInTheDocument();
   act(() => selectVisual('DYNAMIC-b'));
   const { meta } = stateOf(store).dashboardLayout.present['DYNAMIC-b'];
   expect(meta.mibiFormat).toEqual({ radius: 20, shadow: 'strong' });
@@ -131,7 +131,7 @@ test('the format painter gives its format to the next object selected', () => {
     radius: 30,
     normal: { fill: '#ff0000' },
   });
-  expect(screen.queryByTestId('mibi-painter-tip')).not.toBeInTheDocument();
+  expect(screen.queryByTestId('auradata-painter-tip')).not.toBeInTheDocument();
 });
 
 test('pasting a format again works without the painter', () => {

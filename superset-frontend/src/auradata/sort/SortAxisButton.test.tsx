@@ -79,7 +79,7 @@ const renderButton = (formData: object = {}) =>
 
 const openMenu = async () => {
   await userEvent.click(screen.getByRole('button', { name: 'Sort axis' }));
-  return screen.findByTestId(`mibi-sort-menu-${CHART_ID}`);
+  return screen.findByTestId(`auradata-sort-menu-${CHART_ID}`);
 };
 
 /** The menu entries showing a check mark, among some labels. */

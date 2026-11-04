@@ -323,7 +323,7 @@ const TooltipChart = memo(function TooltipChart({
         width,
         height,
       }}
-      data-test="mibi-tooltip-chart"
+      data-test="auradata-tooltip-chart"
     >
       {showTitle && title && (
         <Title
@@ -399,7 +399,7 @@ function TooltipElement({ object }: { object: TooltipObject }) {
         width: object.width * CELL,
         height: object.height * CELL,
       }}
-      data-test="mibi-tooltip-element"
+      data-test="auradata-tooltip-element"
     >
       {content()}
     </Placed>
@@ -447,7 +447,7 @@ function TooltipPageView({
     <Box
       ref={boxRef}
       role="tooltip"
-      data-test="mibi-tooltip-page"
+      data-test="auradata-tooltip-page"
       style={{
         width: page.width * CELL,
         height: page.height * CELL,

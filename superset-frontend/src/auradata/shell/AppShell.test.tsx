@@ -85,8 +85,8 @@ afterEach(() => {
 test('renders the sidebar, the top bar and the page', () => {
   renderShell();
 
-  expect(screen.getByTestId('mibi-sidebar')).toBeInTheDocument();
-  expect(screen.getByTestId('mibi-topbar')).toBeInTheDocument();
+  expect(screen.getByTestId('auradata-sidebar')).toBeInTheDocument();
+  expect(screen.getByTestId('auradata-topbar')).toBeInTheDocument();
   expect(screen.getByText('page content')).toBeInTheDocument();
   expect(screen.getByRole('link', { name: /Dashboards/ })).toHaveAttribute(
     'href',
@@ -98,7 +98,7 @@ test('renders the sidebar, the top bar and the page', () => {
 test('signed-out pages render without the navigation', () => {
   renderShell(true);
 
-  expect(screen.queryByTestId('mibi-sidebar')).not.toBeInTheDocument();
+  expect(screen.queryByTestId('auradata-sidebar')).not.toBeInTheDocument();
   expect(screen.getByText('page content')).toBeInTheDocument();
 });
 
@@ -116,7 +116,9 @@ test('Ctrl+K opens the search with dashboards and pages', async () => {
 
   fireEvent.keyDown(window, { key: 'k', ctrlKey: true });
 
-  expect(await screen.findByTestId('mibi-command-input')).toBeInTheDocument();
+  expect(
+    await screen.findByTestId('auradata-command-input'),
+  ).toBeInTheDocument();
   await waitFor(() =>
     expect(screen.getByRole('option', { name: /Ventas/ })).toBeInTheDocument(),
   );
@@ -133,12 +135,14 @@ test('a dashboard shows without the sidebar, with the logo in the top bar', () =
   try {
     renderShell();
 
-    expect(screen.queryByTestId('mibi-sidebar')).not.toBeInTheDocument();
-    expect(screen.getByTestId('mibi-topbar-brand')).toBeInTheDocument();
-    expect(screen.getByTestId('mibi-main')).toHaveStyle({ marginLeft: '0px' });
+    expect(screen.queryByTestId('auradata-sidebar')).not.toBeInTheDocument();
+    expect(screen.getByTestId('auradata-topbar-brand')).toBeInTheDocument();
+    expect(screen.getByTestId('auradata-main')).toHaveStyle({
+      marginLeft: '0px',
+    });
     expect(screen.getByText('page content')).toBeInTheDocument();
     // The report's title and actions go in the top bar, next to a search icon
-    expect(screen.getByTestId('mibi-report-slot')).toBeInTheDocument();
+    expect(screen.getByTestId('auradata-report-slot')).toBeInTheDocument();
     expect(
       screen.getByRole('button', { name: 'Search dashboards and pages…' }),
     ).toBeInTheDocument();
@@ -155,8 +159,10 @@ test('a dashboard in a small window keeps its header over the page', () => {
   try {
     renderShell();
 
-    expect(screen.queryByTestId('mibi-report-slot')).not.toBeInTheDocument();
-    expect(screen.getByTestId('mibi-topbar-brand')).toBeInTheDocument();
+    expect(
+      screen.queryByTestId('auradata-report-slot'),
+    ).not.toBeInTheDocument();
+    expect(screen.getByTestId('auradata-topbar-brand')).toBeInTheDocument();
   } finally {
     window.innerWidth = width;
     window.history.pushState({}, '', '/');
@@ -166,15 +172,15 @@ test('a dashboard in a small window keeps its header over the page', () => {
 test('other pages keep the search box in the top bar', () => {
   renderShell();
 
-  expect(screen.queryByTestId('mibi-report-slot')).not.toBeInTheDocument();
-  expect(screen.getByTestId('mibi-search-trigger')).toHaveTextContent(
+  expect(screen.queryByTestId('auradata-report-slot')).not.toBeInTheDocument();
+  expect(screen.getByTestId('auradata-search-trigger')).toHaveTextContent(
     'Search dashboards and pages…',
   );
 });
 
 test('pages out of a report have a menu bar', async () => {
   renderShell();
-  expect(screen.getByTestId('mibi-app-menubar')).toBeInTheDocument();
+  expect(screen.getByTestId('auradata-app-menubar')).toBeInTheDocument();
   userEvent.click(screen.getByRole('menuitem', { name: 'View' }));
   expect(await screen.findByText('Collapse sidebar')).toBeInTheDocument();
   expect(screen.getByText('Dark')).toBeInTheDocument();
@@ -186,22 +192,24 @@ test('a phone opens the navigation as a drawer instead of a rail', () => {
   try {
     renderShell();
 
-    expect(screen.queryByTestId('mibi-sidebar')).not.toBeInTheDocument();
-    expect(screen.getByTestId('mibi-main')).toHaveStyle({ marginLeft: '0px' });
+    expect(screen.queryByTestId('auradata-sidebar')).not.toBeInTheDocument();
+    expect(screen.getByTestId('auradata-main')).toHaveStyle({
+      marginLeft: '0px',
+    });
 
     userEvent.click(screen.getByRole('button', { name: 'Open navigation' }));
     // The drawer shows the labelled navigation, without touching the
     // collapsed preference of larger screens
-    expect(screen.getByTestId('mibi-sidebar')).toBeInTheDocument();
+    expect(screen.getByTestId('auradata-sidebar')).toBeInTheDocument();
     expect(screen.getByText('Dashboards')).toBeInTheDocument();
     expect(window.localStorage.getItem('mibi.sidebarCollapsed')).toBeNull();
 
-    userEvent.click(screen.getByTestId('mibi-nav-backdrop'));
-    expect(screen.queryByTestId('mibi-sidebar')).not.toBeInTheDocument();
+    userEvent.click(screen.getByTestId('auradata-nav-backdrop'));
+    expect(screen.queryByTestId('auradata-sidebar')).not.toBeInTheDocument();
 
     userEvent.click(screen.getByRole('button', { name: 'Open navigation' }));
     fireEvent.keyDown(window, { key: 'Escape' });
-    expect(screen.queryByTestId('mibi-sidebar')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('auradata-sidebar')).not.toBeInTheDocument();
   } finally {
     window.innerWidth = width;
   }

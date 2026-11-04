@@ -184,7 +184,7 @@ function ViewerBars({ chrome }: { chrome: ViewerChrome }) {
   return (
     <div
       aria-hidden
-      data-test="mibi-device-viewer-bars"
+      data-test="auradata-device-viewer-bars"
       css={css`
         flex: none;
         height: ${VIEWER_HEADER_HEIGHT}px;
@@ -254,7 +254,7 @@ function ViewerRail({ chrome }: { chrome: ViewerChrome }) {
   return (
     <div
       aria-hidden
-      data-test="mibi-device-viewer-rail"
+      data-test="auradata-device-viewer-rail"
       css={css`
         flex: none;
         width: ${VIEWER_RAIL_WIDTH}px;
@@ -431,8 +431,8 @@ export const DeviceFrame = forwardRef<
   const top = device.homeButton ? HOME_BUTTON_BEZEL : BEZEL;
   const pixels = pixelsOf(device);
   return (
-    <Stage data-test="mibi-device-stage" data-device={device.id}>
-      <div className="mibi-device-caption" data-test="mibi-device-caption">
+    <Stage data-test="auradata-device-stage" data-device={device.id}>
+      <div className="mibi-device-caption" data-test="auradata-device-caption">
         <strong>{device.name}</strong>
         <span className="mibi-device-chip">
           {t('%s × %s pt', device.width, device.height)}
@@ -456,7 +456,7 @@ export const DeviceFrame = forwardRef<
       >
         <Body
           $radius={device.radius}
-          data-test="mibi-device"
+          data-test="auradata-device"
           style={{
             width: frame.width,
             height: frame.height,
@@ -507,7 +507,7 @@ export const DeviceFrame = forwardRef<
             <StatusBar device={device} />
             <Cutout device={device} />
             <Viewport
-              data-test="mibi-device-viewport"
+              data-test="auradata-device-viewport"
               style={{ top: device.safeTop, bottom: device.safeBottom }}
             >
               {viewer && <ViewerBars chrome={viewer} />}
@@ -543,7 +543,7 @@ export const DeviceFrame = forwardRef<
               <>
                 <SafeMark
                   $edge="top"
-                  data-test="mibi-safe-top"
+                  data-test="auradata-safe-top"
                   style={{ top: 0, height: device.safeTop }}
                 >
                   <span>{t('%s pt', device.safeTop)}</span>
@@ -551,7 +551,7 @@ export const DeviceFrame = forwardRef<
                 {device.safeBottom > 0 && (
                   <SafeMark
                     $edge="bottom"
-                    data-test="mibi-safe-bottom"
+                    data-test="auradata-safe-bottom"
                     style={{ bottom: 0, height: device.safeBottom }}
                   >
                     <span>{t('%s pt', device.safeBottom)}</span>

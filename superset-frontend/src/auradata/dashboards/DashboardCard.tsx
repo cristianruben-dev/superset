@@ -237,7 +237,7 @@ export function DashboardCard({
   return (
     <Card
       className={selected ? 'selected' : undefined}
-      data-test="mibi-dashboard-card"
+      data-test="auradata-dashboard-card"
     >
       <Link className="preview" tabIndex={-1} aria-hidden {...linkProps}>
         <span

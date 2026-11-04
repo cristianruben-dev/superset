@@ -59,5 +59,5 @@ test('BuilderComponentPane opens the Format tab when a chart asks for it', () =>
   expect(screen.getByRole('tab', { selected: true })).toHaveTextContent(
     'Format',
   );
-  expect(screen.getByTestId('mibi-format-pane')).toBeInTheDocument();
+  expect(screen.getByTestId('auradata-format-pane')).toBeInTheDocument();
 });

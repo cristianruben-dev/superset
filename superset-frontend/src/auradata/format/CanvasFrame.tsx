@@ -88,7 +88,7 @@ const Row = styled.div<{ $pane: boolean }>`
           flex: 1;
           min-height: 0;
           width: 100%;
-          & > [data-test='mibi-canvas-outer'] {
+          & > [data-test='auradata-canvas-outer'] {
             flex: 1;
             min-width: 0;
           }
@@ -177,9 +177,9 @@ const Sheet = styled.div`
   width: fit-content;
   margin: 0 auto;
   flex: none;
-  &:has([data-test='mibi-filter-dock']:not(:empty)) {
+  &:has([data-test='auradata-filter-dock']:not(:empty)) {
     .mibi-canvas,
-    [data-test='mibi-tabs-dock'] {
+    [data-test='auradata-tabs-dock'] {
       border-top-right-radius: 0;
       border-bottom-right-radius: 0;
     }
@@ -507,7 +507,9 @@ export function CanvasFrame({ children }: { children: ReactNode }) {
     );
     if (header) observer?.observe(header);
     // So does the menu bar of the window, which a report fills once it mounts
-    const menuBar = document.querySelector('[data-test="mibi-menubar-row"]');
+    const menuBar = document.querySelector(
+      '[data-test="auradata-menubar-row"]',
+    );
     if (menuBar) observer?.observe(menuBar);
     return () => {
       window.removeEventListener('resize', measure);
@@ -736,7 +738,7 @@ export function CanvasFrame({ children }: { children: ReactNode }) {
         {!pageBar && <TabsDockTarget style={{ width: '100%' }} />}
         <Page
           ref={pageRef}
-          data-test="mibi-canvas"
+          data-test="auradata-canvas"
           className={cx(
             'mibi-canvas',
             editMode && !previewing && 'mibi-show-grid',
@@ -807,7 +809,7 @@ export function CanvasFrame({ children }: { children: ReactNode }) {
           $bar={pageBar}
           $editing={editMode}
           $phone={phone && !editMode}
-          data-test="mibi-canvas-outer"
+          data-test="auradata-canvas-outer"
         >
           <ReportTheme>
             <Sheet style={size ? undefined : { width: '100%' }}>

@@ -137,7 +137,7 @@ export function SlicerIcons({
               : link.disabledTooltip || t('This action is not available')
           }
           onClick={runLink}
-          testId="mibi-slicer-link"
+          testId="auradata-slicer-link"
         >
           <Icons.LinkOutlined iconSize="m" />
         </IconButton>
@@ -151,7 +151,7 @@ export function SlicerIcons({
           <span
             role="img"
             aria-label={tooltip?.text}
-            data-test="mibi-slicer-help"
+            data-test="auradata-slicer-help"
             className="mibi-slicer-help"
           >
             <Icons.QuestionCircleOutlined iconSize="m" />
@@ -162,7 +162,7 @@ export function SlicerIcons({
         <IconButton
           title={t('Clear selections')}
           onClick={clear}
-          testId="mibi-slicer-clear"
+          testId="auradata-slicer-clear"
         >
           <Icons.ClearOutlined iconSize="m" />
         </IconButton>

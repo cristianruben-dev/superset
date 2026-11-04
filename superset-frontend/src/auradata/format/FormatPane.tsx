@@ -304,7 +304,7 @@ function VisualSection({ id }: { id: string }) {
         <Segments<FormatLevel>
           name={t('Format level')}
           value={level}
-          testId="mibi-format-level"
+          testId="auradata-format-level"
           onChange={setLevel}
           options={[
             ...(chartId !== undefined
@@ -345,7 +345,7 @@ function VisualSection({ id }: { id: string }) {
               size="small"
               checked={format.header?.menu !== false}
               aria-label={t('Chart menu')}
-              data-test="mibi-format-menu"
+              data-test="auradata-format-menu"
               onChange={menu =>
                 update({ header: { ...own.header, menu } }, 'header-menu')
               }
@@ -397,7 +397,7 @@ function VisualSection({ id }: { id: string }) {
             value={String(item?.meta?.mibiAltText ?? '')}
             placeholder={t('Describes the chart for screen readers')}
             aria-label={t('Alt text')}
-            data-test="mibi-format-alt-text"
+            data-test="auradata-format-alt-text"
             onChange={event =>
               dispatch(
                 setComponentMeta(
@@ -414,14 +414,14 @@ function VisualSection({ id }: { id: string }) {
       <div className="actions">
         <Button
           buttonStyle="secondary"
-          data-test="mibi-format-apply-all"
+          data-test="auradata-format-apply-all"
           onClick={() => dispatch(setSharedVisualFormat(format))}
         >
           {t('Apply to all charts')}
         </Button>
         <Button
           buttonStyle="link"
-          data-test="mibi-format-reset-visual"
+          data-test="auradata-format-reset-visual"
           onClick={() => dispatch(setVisualFormat(id, undefined))}
         >
           {t('Reset format')}
@@ -455,7 +455,7 @@ function AreaColorsSection({
     );
   };
   return (
-    <Section data-test={`mibi-format-${area}`}>
+    <Section data-test={`auradata-format-${area}`}>
       <h4>{title}</h4>
       <ColorField
         label={t('Background')}
@@ -475,7 +475,7 @@ function AreaColorsSection({
       {Object.keys(style).length > 0 && (
         <Button
           buttonStyle="link"
-          data-test={`mibi-format-${area}-reset`}
+          data-test={`auradata-format-${area}-reset`}
           onClick={() => update({ [area]: undefined }, `${area}-reset`)}
         >
           {t('Restore colors')}
@@ -560,12 +560,12 @@ function CanvasSection() {
         update={update}
       />
 
-      <Section data-test="mibi-format-canvas-background">
+      <Section data-test="auradata-format-canvas-background">
         <h4>{t('Background')}</h4>
         <Segments<CanvasBackgroundType>
           name={t('Background')}
           value={background.type}
-          testId="mibi-format-canvas-type"
+          testId="auradata-format-canvas-type"
           onChange={type => updateBackground({ type }, 'type')}
           options={[
             { value: 'none', label: t('None') },
@@ -579,7 +579,7 @@ function CanvasSection() {
             label={t('Color')}
             value={background.color || theme.colorBgLayout}
             onChange={color => updateBackground({ color }, 'color')}
-            testId="mibi-format-canvas-color"
+            testId="auradata-format-canvas-color"
           />
         )}
         {background.type === 'gradient' && (
@@ -621,7 +621,7 @@ function CanvasSection() {
                 buttonSize="small"
                 loading={uploading}
                 onClick={() => fileRef.current?.click()}
-                data-test="mibi-format-upload"
+                data-test="auradata-format-upload"
               >
                 <Icons.UploadOutlined iconSize="m" />
                 {background.image ? t('Change') : t('Upload image')}
@@ -640,7 +640,7 @@ function CanvasSection() {
                 type="file"
                 accept="image/png,image/jpeg,image/gif,image/webp"
                 hidden
-                data-test="mibi-format-file"
+                data-test="auradata-format-file"
                 onChange={event => onFile(event.target.files?.[0])}
               />
             </div>
@@ -674,7 +674,7 @@ function CanvasSection() {
           className="full-select"
           ariaLabel={t('Canvas size')}
           value={sizeMode}
-          data-test="mibi-format-size"
+          data-test="auradata-format-size"
           onChange={value => {
             const mode = value as CanvasSizeMode;
             update(
@@ -761,7 +761,7 @@ function CanvasSection() {
       <div className="actions">
         <Button
           buttonStyle="link"
-          data-test="mibi-format-reset-canvas"
+          data-test="auradata-format-reset-canvas"
           onClick={() => dispatch(setCanvasFormat(undefined))}
         >
           {t('Reset canvas')}
@@ -808,14 +808,14 @@ export function FormatPane() {
   useEffect(() => () => setEditingInteractions(false), []);
 
   return (
-    <Pane data-test="mibi-format-pane">
+    <Pane data-test="auradata-format-pane">
       <div className="pane-header">
         {visual && (
           <button
             type="button"
             className="back"
             aria-label={t('Back to the canvas')}
-            data-test="mibi-format-back"
+            data-test="auradata-format-back"
             onClick={() => selectVisual(null)}
           >
             <Icons.LeftOutlined iconSize="s" />
@@ -823,7 +823,7 @@ export function FormatPane() {
         )}
         <div className="crumbs">
           {visual && <span className="crumb-parent">{t('Canvas')}</span>}
-          <span className="crumb-current" data-test="mibi-format-title">
+          <span className="crumb-current" data-test="auradata-format-title">
             {visual
               ? kind
                 ? elementName(kind)
@@ -840,7 +840,11 @@ export function FormatPane() {
         )}
       </div>
       {armed && (
-        <div className="painter-tip" role="status" data-test="mibi-painter-tip">
+        <div
+          className="painter-tip"
+          role="status"
+          data-test="auradata-painter-tip"
+        >
           <Icons.FormatPainterOutlined iconSize="m" />
           {t('Click another object to give it this format. Esc cancels.')}
         </div>
@@ -853,7 +857,7 @@ export function FormatPane() {
           placeholder={t('Search')}
           prefix={<Icons.SearchOutlined iconSize="s" />}
           aria-label={t('Search settings')}
-          data-test="mibi-format-search"
+          data-test="auradata-format-search"
           onChange={event => setQuery(event.target.value)}
         />
       </div>

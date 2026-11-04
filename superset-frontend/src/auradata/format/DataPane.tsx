@@ -224,7 +224,7 @@ export function DataPane({
         <Checkbox
           checked={fieldToggle.uses(field)}
           aria-label={t('Show %s in the chart', name)}
-          data-test="mibi-data-pane-field-box"
+          data-test="auradata-data-pane-field-box"
           onChange={event => fieldToggle.toggle(field, event.target.checked)}
         />
         {option}
@@ -285,13 +285,13 @@ export function DataPane({
   const matches = (text: string) => searchable(text).includes(query);
 
   return (
-    <Pane $top={topOffset} $pageTop={pageTop} data-test="mibi-data-pane">
+    <Pane $top={topOffset} $pageTop={pageTop} data-test="auradata-data-pane">
       <div className="pane-title">
         <span>{t('Data')}</span>
         <Button
           buttonStyle="link"
           aria-label={t('Close')}
-          data-test="mibi-data-pane-close"
+          data-test="auradata-data-pane-close"
           onClick={() => setPaneCollapsed('data', true)}
         >
           <Icons.CloseOutlined iconSize="s" />
@@ -328,7 +328,7 @@ export function DataPane({
           return (
             <section
               key={key}
-              data-test="mibi-data-pane-dataset"
+              data-test="auradata-data-pane-dataset"
               // A drag starts with the pointer down on one of its fields
               onPointerDownCapture={() => {
                 draggedField.dataset = key;
@@ -359,7 +359,7 @@ export function DataPane({
                     <Button
                       buttonSize="xsmall"
                       buttonStyle="link"
-                      data-test="mibi-data-pane-use-dataset"
+                      data-test="auradata-data-pane-use-dataset"
                       onClick={() =>
                         dispatch(
                           changeChartDataset({

@@ -144,7 +144,7 @@ export function GridGuide() {
       ref={setElement}
       className="mibi-grid-guide"
       aria-hidden
-      data-test="mibi-grid-guide"
+      data-test="auradata-grid-guide"
       style={{
         ...gridBackground(settings, settings.color || theme.colorPrimary),
         minHeight: pageBottom || undefined,

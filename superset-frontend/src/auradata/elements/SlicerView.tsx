@@ -514,10 +514,10 @@ export function SlicerHeader({
   pending?: boolean;
 }) {
   return (
-    <Header data-test="mibi-slicer-header">
+    <Header data-test="auradata-slicer-header">
       <span>{name}</span>
       {summary !== undefined && (
-        <span className="slicer-summary" data-test="mibi-slicer-summary">
+        <span className="slicer-summary" data-test="auradata-slicer-summary">
           {summary}
         </span>
       )}
@@ -645,7 +645,7 @@ export function SlicerView({
   );
 
   return (
-    <Box style={slicerStyle(config)} data-test="mibi-slicer">
+    <Box style={slicerStyle(config)} data-test="auradata-slicer">
       {!config.hideLabel && (
         <SlicerHeader
           name={filter.name}
@@ -656,7 +656,7 @@ export function SlicerView({
         />
       )}
       {config.showPills && variant !== 'input' && selected.length > 0 && (
-        <div className="slicer-pills" data-test="mibi-slicer-pills">
+        <div className="slicer-pills" data-test="auradata-slicer-pills">
           {selected.map(value => (
             <button
               type="button"
@@ -675,7 +675,7 @@ export function SlicerView({
       {variant === 'input' ? (
         <input
           className="slicer-input"
-          data-test="mibi-slicer-input"
+          data-test="auradata-slicer-input"
           aria-label={filter.name}
           placeholder={
             config.searchPlaceholder ||
@@ -697,7 +697,7 @@ export function SlicerView({
           {config.showSearch && (
             <input
               className="slicer-search"
-              data-test="mibi-slicer-search"
+              data-test="auradata-slicer-search"
               aria-label={t('Search %s', filter.name)}
               placeholder={placeholder}
               value={search}
@@ -728,7 +728,7 @@ export function SlicerView({
                 type="button"
                 className="slicer-item"
                 aria-pressed={all}
-                data-test="mibi-slicer-all"
+                data-test="auradata-slicer-all"
                 onClick={() => choose(all ? [] : (offered ?? []))}
               >
                 {showMark && <span className="slicer-mark" />}
@@ -742,7 +742,7 @@ export function SlicerView({
                 className="slicer-item"
                 aria-pressed={selected.includes(value)}
                 title={slicerText(value, config)}
-                data-test="mibi-slicer-item"
+                data-test="auradata-slicer-item"
                 onClick={event =>
                   choose(
                     nextSelection(
@@ -763,7 +763,7 @@ export function SlicerView({
             <div className="slicer-apply">
               <button
                 type="button"
-                data-test="mibi-slicer-reset"
+                data-test="auradata-slicer-reset"
                 disabled={!waiting}
                 onClick={() => setPending(undefined)}
               >
@@ -772,7 +772,7 @@ export function SlicerView({
               <button
                 type="button"
                 className="is-primary"
-                data-test="mibi-slicer-apply"
+                data-test="auradata-slicer-apply"
                 disabled={!waiting}
                 onClick={() => apply(selected)}
               >

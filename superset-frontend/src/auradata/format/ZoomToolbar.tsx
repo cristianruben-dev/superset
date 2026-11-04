@@ -125,7 +125,7 @@ export function ZoomToolbar({
     const fit =
       view.mode === 'custom' ? (zoom === 1 ? 'actual' : 'custom') : view.mode;
     return (
-      <Bar data-test="mibi-zoom-toolbar" $docked>
+      <Bar data-test="auradata-zoom-toolbar" $docked>
         <button
           type="button"
           className="mibi-zoom-step"
@@ -155,7 +155,7 @@ export function ZoomToolbar({
         <Select
           className="mibi-zoom-fit"
           ariaLabel={t('Fit')}
-          data-test="mibi-zoom-fit"
+          data-test="auradata-zoom-fit"
           value={fit}
           showSearch={false}
           // The page bar clips what overflows it: the list opens on the page
@@ -180,7 +180,7 @@ export function ZoomToolbar({
   }
 
   return (
-    <Bar data-test="mibi-zoom-toolbar" $docked={docked}>
+    <Bar data-test="auradata-zoom-toolbar" $docked={docked}>
       <Button
         buttonSize="xsmall"
         className="mibi-zoom-fit"

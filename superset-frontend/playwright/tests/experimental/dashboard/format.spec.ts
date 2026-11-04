@@ -46,22 +46,22 @@ test('canvas format is saved with the dashboard and applied when viewing it', as
   await page.goto(`dashboard/${id}/`);
   await page.getByTestId('edit-dashboard-button').click();
   await page.getByRole('tab', { name: /Format|Formato/ }).click();
-  const pane = page.getByTestId('mibi-format-pane');
+  const pane = page.getByTestId('auradata-format-pane');
   await expect(pane).toBeVisible({ timeout: TIMEOUT.PAGE_LOAD });
 
   // Gradient background and a 4:3 page (45 cells of 32 px; 16:9 is the default)
   await page
-    .getByTestId('mibi-format-canvas-type')
+    .getByTestId('auradata-format-canvas-type')
     .getByRole('radio')
     .nth(2)
     .click();
-  await page.getByTestId('mibi-format-size').click();
+  await page.getByTestId('auradata-format-size').click();
   await page
     .locator('.ant-select-item-option')
     .filter({ hasText: '4:3' })
     .click();
 
-  const canvas = page.getByTestId('mibi-canvas');
+  const canvas = page.getByTestId('auradata-canvas');
   await expect(canvas).toHaveCSS('width', '1440px');
 
   await page.getByTestId('header-save-button').click();

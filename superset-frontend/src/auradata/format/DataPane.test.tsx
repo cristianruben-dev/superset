@@ -115,7 +115,7 @@ test('searching opens the tables with a match and hides the others', async () =>
 
 test('closes as a pane the ribbon can bring back', () => {
   setup();
-  userEvent.click(screen.getByTestId('mibi-data-pane-close'));
+  userEvent.click(screen.getByTestId('auradata-data-pane-close'));
   expect(screen.getByText('closed')).toBeInTheDocument();
 });
 

@@ -200,7 +200,7 @@ export function AppShell({ data, isFrontendRoute, children }: AppShellProps) {
       <ThemeVariables />
       <Frame>
         {/* The menu bar of the page; a report puts its own here */}
-        <MenuRow ref={setMenuBarSlot} data-test="mibi-menubar-row">
+        <MenuRow ref={setMenuBarSlot} data-test="auradata-menubar-row">
           {!report && (
             <AppMenuBar
               data={data}
@@ -226,13 +226,13 @@ export function AppShell({ data, isFrontendRoute, children }: AppShellProps) {
           <Backdrop
             $top={MENU_BAR_HEIGHT}
             onClick={closeNav}
-            data-test="mibi-nav-backdrop"
+            data-test="auradata-nav-backdrop"
           />
         )}
         <Main
           $offset={report || phone ? 0 : sidebarWidth}
           $bottom={report ? 0 : STATUS_BAR_HEIGHT}
-          data-test="mibi-main"
+          data-test="auradata-main"
         >
           <TopBar
             data={data}

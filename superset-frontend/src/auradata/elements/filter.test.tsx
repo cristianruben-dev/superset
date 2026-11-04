@@ -156,7 +156,9 @@ test('the Format pane picks the filter and its filter bar visibility', async () 
   const store = makeStore();
   render(<FormatPane />, { store });
   act(() => selectVisual('DYNAMIC-filter'));
-  expect(screen.getByTestId('mibi-format-title')).toHaveTextContent('Filter');
+  expect(screen.getByTestId('auradata-format-title')).toHaveTextContent(
+    'Filter',
+  );
 
   await userEvent.click(
     screen.getByRole('combobox', { name: 'Filter to show' }),

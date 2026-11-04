@@ -168,12 +168,12 @@ export function SpacingSection({ id }: { id: string }) {
     ['cardValue', t('Space between label and value'), 0],
   ];
   return (
-    <Section collapsedByDefault data-test="mibi-format-spacing">
+    <Section collapsedByDefault data-test="auradata-format-spacing">
       <h4>{t('Spacing')}</h4>
       <Toggle
         label={t('Customize spacing')}
         checked={!!spacing.customize}
-        testId="mibi-format-spacing-custom"
+        testId="auradata-format-spacing-custom"
         onChange={customize => set({ customize }, 'customize')}
       />
       {spacing.customize &&
@@ -203,7 +203,7 @@ export function HeaderIconsFields({ id }: { id: string }) {
       <Toggle
         label={t('Show the header icons')}
         checked={header.show !== false}
-        testId="mibi-format-header-show"
+        testId="auradata-format-header-show"
         onChange={show => set({ show }, 'show')}
       />
       <ColorField
@@ -222,7 +222,7 @@ export function HeaderIconsFields({ id }: { id: string }) {
       <Toggle
         label={t('Focus mode icon')}
         checked={!!header.focus}
-        testId="mibi-format-header-focus"
+        testId="auradata-format-header-focus"
         onChange={focus => set({ focus }, 'focus')}
       />
       <Toggle
@@ -268,12 +268,12 @@ export function HeaderTooltipSection({ id }: { id: string }) {
     );
   const on = !!format.header?.tooltipIcon;
   return (
-    <Section collapsedByDefault data-test="mibi-format-header-tooltip">
+    <Section collapsedByDefault data-test="auradata-format-header-tooltip">
       <h4>{t('Header tooltip')}</h4>
       <Toggle
         label={t('Show the tooltip icon')}
         checked={on}
-        testId="mibi-format-header-tooltip-show"
+        testId="auradata-format-header-tooltip-show"
         onChange={tooltipIcon =>
           update(
             { header: { ...own.header, tooltipIcon } },
@@ -288,7 +288,7 @@ export function HeaderTooltipSection({ id }: { id: string }) {
             value={tooltip.text ?? ''}
             placeholder={t('Tooltip text')}
             aria-label={t('Tooltip text')}
-            data-test="mibi-format-header-tooltip-text"
+            data-test="auradata-format-header-tooltip-text"
             onChange={event => set({ text: event.target.value }, 'text')}
           />
           <TextFields
@@ -355,13 +355,13 @@ export function ChartTooltipSection({ id }: { id: string }) {
     <Section
       collapsedByDefault
       off={!shown}
-      data-test="mibi-format-tooltip"
+      data-test="auradata-format-tooltip"
       headExtra={
         <Switch
           size="small"
           checked={shown}
           aria-label={t('Tooltips')}
-          data-test="mibi-format-tooltip-show"
+          data-test="auradata-format-tooltip-show"
           onChange={show => set({ show }, 'show')}
         />
       }
@@ -383,7 +383,7 @@ export function ChartTooltipSection({ id }: { id: string }) {
           <Field label={t('Page')}>
             <Select
               ariaLabel={t('Tooltip page')}
-              data-test="mibi-format-tooltip-page"
+              data-test="auradata-format-tooltip-page"
               value={tooltipPage.page ?? ''}
               onChange={value =>
                 setPage({ page: value ? String(value) : undefined }, 'page')
@@ -438,7 +438,7 @@ export function ChartTooltipSection({ id }: { id: string }) {
             placeholder={t('Sentence, e.g. {series} in {name}: {value}')}
             maxLength={300}
             aria-label={t('Sentence template')}
-            data-test="mibi-format-tooltip-sentence"
+            data-test="auradata-format-tooltip-sentence"
             onChange={event =>
               set({ sentence: event.target.value || undefined }, 'sentence')
             }
@@ -465,13 +465,13 @@ export function ActionSection({ id }: { id: string }) {
       <Section
         collapsedByDefault
         off={!link.show}
-        data-test="mibi-format-action"
+        data-test="auradata-format-action"
         headExtra={
           <Switch
             size="small"
             checked={!!link.show}
             aria-label={t('Action')}
-            data-test="mibi-format-action-show"
+            data-test="auradata-format-action-show"
             onChange={show => set({ show }, 'show')}
           />
         }
@@ -651,13 +651,13 @@ export function ActionButtonSection({ id }: { id: string }) {
     <Section
       collapsedByDefault
       off={!button.show}
-      data-test="mibi-format-action-button"
+      data-test="auradata-format-action-button"
       headExtra={
         <Switch
           size="small"
           checked={!!button.show}
           aria-label={t('Action button')}
-          data-test="mibi-format-action-button-show"
+          data-test="auradata-format-action-button-show"
           onChange={show => set({ show }, 'show')}
         />
       }
@@ -692,7 +692,7 @@ export function ActionButtonSection({ id }: { id: string }) {
           value={button.text ?? ''}
           placeholder={t('Button text')}
           aria-label={t('Button text')}
-          data-test="mibi-format-action-button-text"
+          data-test="auradata-format-action-button-text"
           onChange={event => set({ text: event.target.value }, 'text')}
         />
         <TextFields
@@ -905,24 +905,24 @@ export function ActionButtonSection({ id }: { id: string }) {
 export function PropertiesSection({ id }: { id: string }) {
   const { own, format, update } = useFormat(id);
   return (
-    <Section collapsedByDefault data-test="mibi-format-properties">
+    <Section collapsedByDefault data-test="auradata-format-properties">
       <h4>{t('Properties')}</h4>
       <Toggle
         label={t('Lock aspect')}
         checked={!!format.lockAspect}
-        testId="mibi-format-lock-aspect"
+        testId="auradata-format-lock-aspect"
         onChange={lockAspect => update({ lockAspect }, 'lock-aspect')}
       />
       <Toggle
         label={t('Maintain layer order')}
         checked={!!format.keepLayerOrder}
-        testId="mibi-format-keep-layer"
+        testId="auradata-format-keep-layer"
         onChange={keepLayerOrder => update({ keepLayerOrder }, 'keep-layer')}
       />
       <Toggle
         label={t('High density sampling')}
         checked={!!format.chart?.[SAMPLING_FORMAT_KEY]}
-        testId="mibi-format-sampling"
+        testId="auradata-format-sampling"
         onChange={sampling =>
           update(
             { chart: { ...own.chart, [SAMPLING_FORMAT_KEY]: sampling } },

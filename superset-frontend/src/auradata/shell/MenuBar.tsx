@@ -158,7 +158,7 @@ export function MenuBar({
               onMouseEnter={() => {
                 if (open && open !== menu.key) setOpen(menu.key);
               }}
-              data-test={`mibi-menu-${menu.key}`}
+              data-test={`auradata-menu-${menu.key}`}
             >
               {menu.label}
             </Trigger>

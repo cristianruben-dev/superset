@@ -89,7 +89,9 @@ test('the banner offers the quick actions, without a greeting card', () => {
 test('lists the dashboard cards without recently viewed items', async () => {
   render(<HomeContent />, { useRouter: true, useRedux: true });
 
-  expect(await screen.findAllByTestId('mibi-dashboard-card')).toHaveLength(2);
+  expect(await screen.findAllByTestId('auradata-dashboard-card')).toHaveLength(
+    2,
+  );
   expect(screen.getByText('Published')).toBeInTheDocument();
   expect(screen.queryByText('Recently viewed')).not.toBeInTheDocument();
   expect(
@@ -108,7 +110,7 @@ test('lists the dashboard cards without recently viewed items', async () => {
 
 test('the quick actions only show while there is nothing else', async () => {
   const first = render(<HomeContent />, { useRouter: true, useRedux: true });
-  await screen.findAllByTestId('mibi-dashboard-card');
+  await screen.findAllByTestId('auradata-dashboard-card');
   expect(screen.queryByTestId('home-action')).not.toBeInTheDocument();
   first.unmount();
 
@@ -121,7 +123,7 @@ test('the quick actions only show while there is nothing else', async () => {
 
 test('the favorites tab shows an empty state', async () => {
   render(<HomeContent />, { useRouter: true, useRedux: true });
-  await screen.findAllByTestId('mibi-dashboard-card');
+  await screen.findAllByTestId('auradata-dashboard-card');
 
   userEvent.click(screen.getByRole('tab', { name: 'Favorites' }));
 

@@ -54,7 +54,7 @@ export function ArrangeButton() {
       }}
       content={
         <div
-          data-test="mibi-arrange-panel"
+          data-test="auradata-arrange-panel"
           css={css`
             width: 296px;
             max-height: calc(100vh - 264px);
@@ -71,7 +71,7 @@ export function ArrangeButton() {
           icon={<Icons.AppstoreOutlined iconSize="m" />}
           caret
           pressed={open}
-          data-test="mibi-ribbon-arrange"
+          data-test="auradata-ribbon-arrange"
         />
       </span>
     </Popover>

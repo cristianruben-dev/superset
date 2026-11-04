@@ -149,7 +149,7 @@ async function openEditor(page: Page, testAssets: TestAssets) {
   });
   expect(saved.ok()).toBeTruthy();
   await page.goto(`dashboard/${id}/?edit=true`);
-  await expect(page.getByTestId('mibi-canvas')).toBeVisible({
+  await expect(page.getByTestId('auradata-canvas')).toBeVisible({
     timeout: 90_000,
   });
   await expect(objects(page)).toHaveCount(3);
@@ -165,7 +165,7 @@ const unitOf = (page: Page) =>
 /** Where an object is on the page, in cells. */
 async function cellsOf(page: Page, object: Locator): Promise<Cells> {
   const unit = await unitOf(page);
-  const canvas = (await page.getByTestId('mibi-canvas').boundingBox())!;
+  const canvas = (await page.getByTestId('auradata-canvas').boundingBox())!;
   const box = (await object.boundingBox())!;
   const round = (value: number) => Math.round(value * 100) / 100 + 0; // + 0: no negative zero
   return {
@@ -217,8 +217,8 @@ test('objects are drawn on the cells they are saved at', async ({
     { x: 2, y: 10, w: 10, h: 4 },
   ]);
   // The grid is there and its squares are the cells
-  await expect(page.getByTestId('mibi-grid-guide')).toBeVisible();
-  await expect(page.getByTestId('mibi-grid-guide')).toHaveCSS(
+  await expect(page.getByTestId('auradata-grid-guide')).toBeVisible();
+  await expect(page.getByTestId('auradata-grid-guide')).toHaveCSS(
     'background-size',
     '32px 32px, 32px 32px',
   );
@@ -362,7 +362,7 @@ test('resizing snaps to cells, shows the size and moves nothing else', async ({
   await page.mouse.move(from.x + 3 * unit, from.y + 2 * unit, { steps: 12 });
 
   // While resizing the size shows, in cells, and the object is already that size
-  await expect(page.getByTestId('mibi-size-badge')).toHaveText('11 × 7');
+  await expect(page.getByTestId('auradata-size-badge')).toHaveText('11 × 7');
   await expect
     .poll(async () => {
       const { w, h } = await cellsOf(page, first);
@@ -493,7 +493,7 @@ test('an element dragged from the panel lands under the pointer', async ({
   await expect(source).toBeVisible();
   const from = (await source.boundingBox())!;
   const unit = await unitOf(page);
-  const canvas = (await page.getByTestId('mibi-canvas').boundingBox())!;
+  const canvas = (await page.getByTestId('auradata-canvas').boundingBox())!;
   await page.mouse.move(from.x + from.width / 2, from.y + from.height / 2);
   await page.mouse.down();
   await page.mouse.move(canvas.x + 18 * unit, canvas.y + 14 * unit, {

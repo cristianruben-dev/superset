@@ -129,11 +129,17 @@ test('a layout without sized objects only gets the marker', () => {
 
 test('the grid section only styles the grid', () => {
   render(<GridSection />, { useRedux: true });
-  expect(screen.getByTestId('mibi-format-grid-color')).toBeInTheDocument();
-  expect(screen.getByTestId('mibi-format-grid-opacity')).toBeInTheDocument();
-  expect(screen.queryByTestId('mibi-format-columns')).not.toBeInTheDocument();
-  expect(screen.queryByTestId('mibi-format-show-grid')).not.toBeInTheDocument();
+  expect(screen.getByTestId('auradata-format-grid-color')).toBeInTheDocument();
   expect(
-    screen.queryByTestId('mibi-format-grid-square'),
+    screen.getByTestId('auradata-format-grid-opacity'),
+  ).toBeInTheDocument();
+  expect(
+    screen.queryByTestId('auradata-format-columns'),
+  ).not.toBeInTheDocument();
+  expect(
+    screen.queryByTestId('auradata-format-show-grid'),
+  ).not.toBeInTheDocument();
+  expect(
+    screen.queryByTestId('auradata-format-grid-square'),
   ).not.toBeInTheDocument();
 });

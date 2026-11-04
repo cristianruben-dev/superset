@@ -476,7 +476,7 @@ const Tab = (props: TabProps): ReactElement => {
             <Icons.EyeInvisibleOutlined
               iconSize="s"
               aria-label={t('Hidden page')}
-              data-test="mibi-page-hidden-icon"
+              data-test="auradata-page-hidden-icon"
             />
           )}
           <EditableTitle

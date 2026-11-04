@@ -115,12 +115,12 @@ export function DrillthroughBar() {
   if (!drillthrough || !activeTabs?.includes(drillthrough.tabId)) return null;
 
   return (
-    <Bar data-test="mibi-drillthrough-bar">
+    <Bar data-test="auradata-drillthrough-bar">
       {drillthrough.sourceTabId && (
         <button
           type="button"
           className="back"
-          data-test="mibi-drillthrough-back"
+          data-test="auradata-drillthrough-back"
           onClick={() => dispatch(leaveDrillthrough(true) as never)}
         >
           <Icons.ArrowLeftOutlined iconSize="s" />
@@ -140,7 +140,7 @@ export function DrillthroughBar() {
           type="button"
           className="clear"
           aria-label={t('Clear the drill through')}
-          data-test="mibi-drillthrough-clear"
+          data-test="auradata-drillthrough-clear"
           onClick={() => dispatch(leaveDrillthrough(false) as never)}
         >
           <Icons.CloseOutlined iconSize="s" />

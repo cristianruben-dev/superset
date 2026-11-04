@@ -400,7 +400,7 @@ export function ChartFormatSections({
         key={card.id}
         collapsedByDefault
         off={toggle ? !on : undefined}
-        data-test={`mibi-chart-format-${card.id}`}
+        data-test={`auradata-chart-format-${card.id}`}
         headExtra={
           <>
             {changed && (
@@ -438,7 +438,7 @@ export function ChartFormatSections({
           <Button
             buttonSize="small"
             buttonStyle="link"
-            data-test={`mibi-chart-format-reset-${card.id}`}
+            data-test={`auradata-chart-format-reset-${card.id}`}
             onClick={() =>
               dispatch(resetChartFormat(id, cardControlNames(card)) as never)
             }
@@ -458,7 +458,7 @@ export function ChartFormatSections({
         <Hint>{t('The options of this chart are in its editor.')}</Hint>
         <Button
           buttonStyle="secondary"
-          data-test="mibi-format-chart"
+          data-test="auradata-format-chart"
           onClick={() =>
             openChartEditor({
               url: `/explore/?dashboard_page_id=${dashboardPageId}&slice_id=${chartId}`,

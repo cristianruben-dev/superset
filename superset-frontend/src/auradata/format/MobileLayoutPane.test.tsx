@@ -92,7 +92,7 @@ const boxesOf = (store: ReturnType<typeof storeWith>) =>
 test('the pane adds the visuals of the page to the phone and takes them off', () => {
   const store = storeWith();
   render(<MobileLayoutPane />, { store });
-  expect(screen.getAllByTestId('mibi-mobile-candidate')).toHaveLength(2);
+  expect(screen.getAllByTestId('auradata-mobile-candidate')).toHaveLength(2);
 
   userEvent.click(screen.getByRole('button', { name: /Add Sales/ }));
   expect(boxesOf(store)).toEqual([
@@ -104,7 +104,7 @@ test('the pane adds the visuals of the page to the phone and takes them off', ()
   userEvent.click(screen.getByRole('button', { name: /Remove Sales/ }));
   expect(boxesOf(store)?.map(box => box.id)).toEqual(['CHART-2']);
 
-  userEvent.click(screen.getByTestId('mibi-mobile-clear'));
+  userEvent.click(screen.getByTestId('auradata-mobile-clear'));
   expect(boxesOf(store)).toBeNull();
 });
 
@@ -115,7 +115,7 @@ test('the cross of a box on the phone takes it off the mobile layout', () => {
     store,
   });
   expect(screen.getByRole('group', { name: 'Sales' })).toBeInTheDocument();
-  userEvent.click(screen.getByTestId('mibi-mobile-remove'));
+  userEvent.click(screen.getByTestId('auradata-mobile-remove'));
   expect(boxesOf(store)).toBeNull();
   // The chart itself stays on the canvas
   expect(

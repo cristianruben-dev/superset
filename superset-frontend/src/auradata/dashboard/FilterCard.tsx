@@ -138,7 +138,7 @@ export function FilterCard({
   return (
     <Card
       className={cx('mibi-filter-card', active && 'is-on')}
-      data-test="mibi-filter-card"
+      data-test="auradata-filter-card"
     >
       <Head
         role="button"
@@ -164,7 +164,7 @@ export function FilterCard({
           </h4>
           <span
             className="mibi-filter-card-summary"
-            data-test="mibi-filter-card-summary"
+            data-test="auradata-filter-card-summary"
           >
             {summary}
           </span>

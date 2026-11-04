@@ -368,7 +368,7 @@ export function ChartFieldsSections({
 
   return (
     <>
-      <Section data-test="mibi-chart-fields">
+      <Section data-test="auradata-chart-fields">
         <h4>{t('Fields')}</h4>
         <DirectMetricDropContext.Provider value>
           {fields.map(renderItem)}
@@ -386,7 +386,7 @@ export function ChartFieldsSections({
             <Button
               buttonSize="small"
               buttonStyle="link"
-              data-test="mibi-chart-fields-reset"
+              data-test="auradata-chart-fields-reset"
               onClick={() => dispatch(revertChartFields(chartId, id) as never)}
             >
               {t('Back to the saved fields')}
@@ -396,13 +396,13 @@ export function ChartFieldsSections({
       </Section>
       <ChartFormatSections id={id} chartId={chartId} level="fields" />
       {!!filters.length && (
-        <Section collapsedByDefault data-test="mibi-chart-fields-filters">
+        <Section collapsedByDefault data-test="auradata-chart-fields-filters">
           <h4>{t('Filters on this visual')}</h4>
           {filters.map(renderItem)}
         </Section>
       )}
       {!!others.length && !searching && (
-        <Section collapsedByDefault data-test="mibi-chart-fields-more">
+        <Section collapsedByDefault data-test="auradata-chart-fields-more">
           <h4>{t('More data options')}</h4>
           {others.map(renderItem)}
         </Section>

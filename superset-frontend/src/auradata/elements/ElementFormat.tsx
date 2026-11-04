@@ -172,7 +172,7 @@ export function ActionFields({
       <Select
         ariaLabel={t('On click')}
         value={current.type}
-        data-test="mibi-element-action"
+        data-test="auradata-element-action"
         onChange={value =>
           onChange({ ...current, type: value as ElementAction['type'] })
         }
@@ -269,7 +269,7 @@ function InteractiveFields({
         <Segments<HoverEffect>
           name={t('Effect')}
           value={config.hoverEffect ?? 'none'}
-          testId="mibi-hover-effect"
+          testId="auradata-hover-effect"
           onChange={hoverEffect => update({ hoverEffect }, 'hover-effect')}
           options={[
             { value: 'none', label: t('None') },
@@ -284,7 +284,7 @@ function InteractiveFields({
         placeholder={t('Tooltip (optional)')}
         maxLength={500}
         aria-label={t('Tooltip')}
-        data-test="mibi-element-tooltip"
+        data-test="auradata-element-tooltip"
         onChange={event => update({ tooltip: event.target.value }, 'tooltip')}
       />
     </Section>
@@ -440,7 +440,7 @@ function FillFields({
       <Segments<Fill['type']>
         name={t('Fill')}
         value={current.type}
-        testId="mibi-shape-fill"
+        testId="auradata-shape-fill"
         onChange={type => set({ type }, 'type')}
         options={[
           { value: 'none', label: t('None') },
@@ -521,7 +521,7 @@ function ShapeSection({
               aria-label={shape.label}
               aria-checked={config.shape === shape.value}
               $selected={config.shape === shape.value}
-              data-test={`mibi-shape-option-${shape.value}`}
+              data-test={`auradata-shape-option-${shape.value}`}
               onClick={() => update({ shape: shape.value }, 'shape')}
             >
               <ShapeView
@@ -725,7 +725,7 @@ function ImageSection({
             buttonStyle="secondary"
             buttonSize="small"
             loading={uploading}
-            data-test="mibi-element-upload"
+            data-test="auradata-element-upload"
             onClick={() => fileRef.current?.click()}
           >
             <Icons.UploadOutlined iconSize="m" />
@@ -741,7 +741,7 @@ function ImageSection({
             type="file"
             hidden
             accept="image/png,image/jpeg,image/gif,image/webp"
-            data-test="mibi-element-file"
+            data-test="auradata-element-file"
             onChange={event => onFile(event.target.files?.[0])}
           />
         </Row>
@@ -972,7 +972,7 @@ function ButtonSection({
           value={config.label ?? t('Button')}
           aria-label={t('Label')}
           maxLength={200}
-          data-test="mibi-button-label"
+          data-test="auradata-button-label"
           onChange={event => update({ label: event.target.value }, 'label')}
         />
         <Field label={t('Icon')}>
@@ -1028,7 +1028,7 @@ function ButtonSection({
               key={preset.key}
               buttonStyle="secondary"
               buttonSize="small"
-              data-test={`mibi-button-preset-${preset.key}`}
+              data-test={`auradata-button-preset-${preset.key}`}
               onClick={() => update(preset.patch, `preset-${preset.key}`)}
             >
               {preset.label}
@@ -1161,7 +1161,7 @@ function TextSection({
             'Write on the canvas. Select words and use these buttons to format them.',
           )}
         </Hint>
-        <Toolbar data-test="mibi-text-toolbar">
+        <Toolbar data-test="auradata-text-toolbar">
           {tool(<Icons.BoldOutlined iconSize="m" />, t('Bold'), 'bold')}
           {tool(<Icons.ItalicOutlined iconSize="m" />, t('Italic'), 'italic')}
           {tool(

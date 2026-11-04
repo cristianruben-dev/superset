@@ -72,7 +72,7 @@ export function CrossFiltersSwitch() {
       title={t('Click a chart to filter the rest of the dashboard')}
       placement="right"
     >
-      <Row data-test="mibi-cross-filters-switch">
+      <Row data-test="auradata-cross-filters-switch">
         {t('Cross-filtering')}
         <Switch size="small" checked={enabled} onChange={toggle} />
       </Row>

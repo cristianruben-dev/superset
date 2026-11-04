@@ -151,7 +151,7 @@ export function PageSection() {
   };
 
   return (
-    <Section data-test="mibi-format-page">
+    <Section data-test="auradata-format-page">
       <h4>{t('Page: %s', page.title || t('Untitled'))}</h4>
       <Field label={t('Page background')}>
         <Segments<'none' | 'color' | 'image'>
@@ -185,7 +185,7 @@ export function PageSection() {
             type="file"
             accept="image/png,image/jpeg,image/gif,image/webp"
             hidden
-            data-test="mibi-page-background-file"
+            data-test="auradata-page-background-file"
             onChange={event => onFile(event.target.files?.[0])}
           />
           <Button
@@ -221,7 +221,7 @@ export function PageSection() {
           size="small"
           checked={!!tooltip}
           aria-label={t('Use as tooltip')}
-          data-test="mibi-tooltip-page-toggle"
+          data-test="auradata-tooltip-page-toggle"
           onChange={on =>
             saveTooltip(on ? { ...DEFAULT_TOOLTIP_PAGE } : undefined, 'on')
           }
@@ -235,7 +235,7 @@ export function PageSection() {
             min={4 * CELL}
             max={30 * CELL}
             step={CELL}
-            testId="mibi-tooltip-page-width"
+            testId="auradata-tooltip-page-width"
             onChange={width =>
               saveTooltip(
                 { ...tooltip, width: Math.round(width / CELL) },
@@ -249,7 +249,7 @@ export function PageSection() {
             min={2 * CELL}
             max={24 * CELL}
             step={CELL}
-            testId="mibi-tooltip-page-height"
+            testId="auradata-tooltip-page-height"
             onChange={height =>
               saveTooltip(
                 { ...tooltip, height: Math.round(height / CELL) },
@@ -262,7 +262,7 @@ export function PageSection() {
             ariaLabel={t('Tooltip fields')}
             placeholder={t('Tooltip fields')}
             value={tooltip.columns}
-            data-test="mibi-tooltip-page-columns"
+            data-test="auradata-tooltip-page-columns"
             onChange={value =>
               saveTooltip(
                 { ...tooltip, columns: (value as string[]).map(String) },
@@ -286,7 +286,7 @@ export function PageSection() {
           size="small"
           checked={!!drillthrough}
           aria-label={t('Drill through to this page')}
-          data-test="mibi-drillthrough-toggle"
+          data-test="auradata-drillthrough-toggle"
           onChange={on => save(on ? { columns: [] } : undefined)}
         />
       </Field>
@@ -297,7 +297,7 @@ export function PageSection() {
             ariaLabel={t('Drill through columns')}
             placeholder={t('Choose the columns')}
             value={drillthrough.columns}
-            data-test="mibi-drillthrough-columns"
+            data-test="auradata-drillthrough-columns"
             onChange={value =>
               save({ columns: (value as string[]).map(String) })
             }

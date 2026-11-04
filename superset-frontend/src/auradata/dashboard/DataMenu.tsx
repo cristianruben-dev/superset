@@ -92,7 +92,7 @@ export function DataMenu() {
     <RibbonButton
       label={t('Data')}
       icon={<Icons.DatabaseOutlined iconSize="m" />}
-      data-test="mibi-data-menu"
+      data-test="auradata-data-menu"
       menu={{
         items: entries.map(entry => ({
           key: entry.key,

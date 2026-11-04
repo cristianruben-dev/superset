@@ -146,17 +146,17 @@ test('saves from its button and with Ctrl+S', () => {
 test('shows the object tabs only with an object selected', async () => {
   renderRibbon();
   expect(
-    screen.queryByTestId('mibi-ribbon-tab-format'),
+    screen.queryByTestId('auradata-ribbon-tab-format'),
   ).not.toBeInTheDocument();
 
   selectVisual('CHART-1');
   expect(
-    await screen.findByTestId('mibi-ribbon-tab-format'),
+    await screen.findByTestId('auradata-ribbon-tab-format'),
   ).toBeInTheDocument();
-  expect(screen.getByTestId('mibi-ribbon-tab-data')).toBeInTheDocument();
+  expect(screen.getByTestId('auradata-ribbon-tab-data')).toBeInTheDocument();
 
-  userEvent.click(screen.getByTestId('mibi-ribbon-tab-format'));
-  expect(screen.getByTestId('mibi-ribbon-lock-object')).toBeInTheDocument();
+  userEvent.click(screen.getByTestId('auradata-ribbon-tab-format'));
+  expect(screen.getByTestId('auradata-ribbon-lock-object')).toBeInTheDocument();
 
   selectVisual(null);
   await waitFor(() =>
@@ -167,7 +167,7 @@ test('shows the object tabs only with an object selected', async () => {
 test('pastes a copied format from the clipboard group', async () => {
   renderRibbon();
   selectVisual('CHART-1');
-  const pasteButton = await screen.findByTestId('mibi-ribbon-paste-format');
+  const pasteButton = await screen.findByTestId('auradata-ribbon-paste-format');
   expect(pasteButton).toBeDisabled();
 
   // The format of another chart, copied earlier
@@ -179,62 +179,72 @@ test('pastes a copied format from the clipboard group', async () => {
   } as never);
   cancelFormatPainter();
   await waitFor(() =>
-    expect(screen.getByTestId('mibi-ribbon-paste-format')).toBeEnabled(),
+    expect(screen.getByTestId('auradata-ribbon-paste-format')).toBeEnabled(),
   );
 });
 
 test('folds to its tabs and opens again with one', () => {
   renderRibbon();
-  userEvent.click(screen.getByTestId('mibi-ribbon-fold'));
+  userEvent.click(screen.getByTestId('auradata-ribbon-fold'));
   expect(screen.queryByTestId('header-save-button')).not.toBeInTheDocument();
 
-  userEvent.click(screen.getByTestId('mibi-ribbon-tab-insert'));
-  expect(screen.getByTestId('mibi-ribbon-insert-shape')).toBeInTheDocument();
+  userEvent.click(screen.getByTestId('auradata-ribbon-tab-insert'));
+  expect(
+    screen.getByTestId('auradata-ribbon-insert-shape'),
+  ).toBeInTheDocument();
 });
 
 test('"Lock objects" locks every object while it is on', () => {
   renderRibbon();
   expect(isObjectLocked({})).toBe(false);
-  userEvent.click(screen.getByTestId('mibi-ribbon-tab-view'));
-  userEvent.click(screen.getByTestId('mibi-ribbon-lock'));
+  userEvent.click(screen.getByTestId('auradata-ribbon-tab-view'));
+  userEvent.click(screen.getByTestId('auradata-ribbon-lock'));
   expect(isObjectLocked({})).toBe(true);
 });
 
 test('"Mobile layout" opens the phone view with only its own commands', async () => {
   renderRibbon();
-  userEvent.click(screen.getByTestId('mibi-ribbon-tab-view'));
-  userEvent.click(screen.getByTestId('mibi-ribbon-mobile-layout'));
+  userEvent.click(screen.getByTestId('auradata-ribbon-tab-view'));
+  userEvent.click(screen.getByTestId('auradata-ribbon-mobile-layout'));
   expect(isMobileEditing()).toBe(true);
   await waitFor(() =>
-    expect(screen.getByTestId('mibi-ribbon-tab-mobile')).toBeInTheDocument(),
+    expect(
+      screen.getByTestId('auradata-ribbon-tab-mobile'),
+    ).toBeInTheDocument(),
   );
   expect(
-    screen.queryByTestId('mibi-ribbon-tab-insert'),
+    screen.queryByTestId('auradata-ribbon-tab-insert'),
   ).not.toBeInTheDocument();
   // Saving and undoing stay at hand
   expect(screen.getByTestId('header-save-button')).toBeInTheDocument();
 
   // Preview and arrange modes, the phone and how it shows
-  userEvent.click(screen.getByTestId('mibi-ribbon-mobile-preview'));
+  userEvent.click(screen.getByTestId('auradata-ribbon-mobile-preview'));
   expect(mobileViewSettings().mode).toBe('preview');
-  userEvent.click(screen.getByTestId('mibi-ribbon-mobile-work'));
+  userEvent.click(screen.getByTestId('auradata-ribbon-mobile-work'));
   expect(mobileViewSettings().mode).toBe('work');
-  userEvent.click(screen.getByTestId('mibi-ribbon-mobile-device'));
-  userEvent.click(await screen.findByTestId('mibi-device-option-iphone-se'));
+  userEvent.click(screen.getByTestId('auradata-ribbon-mobile-device'));
+  userEvent.click(
+    await screen.findByTestId('auradata-device-option-iphone-se'),
+  );
   expect(mobileViewSettings().device).toBe('iphone-se');
-  userEvent.click(screen.getByTestId('mibi-ribbon-mobile-safe-area'));
+  userEvent.click(screen.getByTestId('auradata-ribbon-mobile-safe-area'));
   expect(mobileViewSettings().safeArea).toBe(false);
 
-  userEvent.click(screen.getByTestId('mibi-ribbon-mobile-close'));
+  userEvent.click(screen.getByTestId('auradata-ribbon-mobile-close'));
   expect(isMobileEditing()).toBe(false);
   await waitFor(() =>
-    expect(screen.getByTestId('mibi-ribbon-tab-insert')).toBeInTheDocument(),
+    expect(
+      screen.getByTestId('auradata-ribbon-tab-insert'),
+    ).toBeInTheDocument(),
   );
 });
 
 test('the Selection pane lists the page and sets hidden and locked', () => {
   render(<SelectionPane />, { useRedux: true, initialState });
-  expect(screen.getByTestId('mibi-selection-row')).toHaveTextContent('Sales');
+  expect(screen.getByTestId('auradata-selection-row')).toHaveTextContent(
+    'Sales',
+  );
   expect(screen.getByRole('button', { name: 'Lock' })).toBeInTheDocument();
   expect(screen.getByRole('button', { name: 'Hide' })).toBeInTheDocument();
 });
@@ -326,6 +336,6 @@ test('selecting everything keeps grouped objects selected', () => {
 
 test('clicking the open tab does not fold the ribbon', () => {
   renderRibbon();
-  userEvent.click(screen.getByTestId('mibi-ribbon-tab-home'));
+  userEvent.click(screen.getByTestId('auradata-ribbon-tab-home'));
   expect(screen.getByTestId('header-save-button')).toBeInTheDocument();
 });

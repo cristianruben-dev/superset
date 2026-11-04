@@ -70,7 +70,7 @@ test('presenting fits a 4:3 page in the screen, full screen', async ({
   expect(response.ok()).toBe(true);
 
   await page.goto(`dashboard/${id}/`);
-  const present = page.getByTestId('mibi-present-button');
+  const present = page.getByTestId('auradata-present-button');
   await expect(present).toBeVisible({ timeout: TIMEOUT.PAGE_LOAD });
   await present.click();
 
@@ -80,7 +80,7 @@ test('presenting fits a 4:3 page in the screen, full screen', async ({
   const measure = () =>
     page.evaluate(() => {
       const canvas = document
-        .querySelector('[data-test="mibi-canvas"]')!
+        .querySelector('[data-test="auradata-canvas"]')!
         .getBoundingClientRect();
       return {
         top: canvas.top,

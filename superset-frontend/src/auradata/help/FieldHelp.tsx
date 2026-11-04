@@ -45,7 +45,7 @@ export const FieldHelp = ({
         // oxlint-disable-next-line jsx-a11y/no-noninteractive-tabindex
         tabIndex={0}
         aria-label={t('Help')}
-        data-test="mibi-field-help"
+        data-test="auradata-field-help"
         css={css`
           display: inline-flex;
           margin-left: ${theme.sizeUnit * 1.5}px;

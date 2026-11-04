@@ -168,7 +168,7 @@ test('a dashboard with extreme titles, tabs and elements stays inside the screen
   expect(saved.ok()).toBe(true);
 
   await page.goto(`dashboard/${id}/`);
-  await expect(page.getByTestId('mibi-button')).toBeVisible({
+  await expect(page.getByTestId('auradata-button')).toBeVisible({
     timeout: TIMEOUT.PAGE_LOAD,
   });
   await expectSturdy(page);

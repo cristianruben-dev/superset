@@ -39,11 +39,11 @@ const card = (props: Partial<Parameters<typeof FilterCard>[0]> = {}) =>
 test('a card shows its filter folded, with what it selects', () => {
   card();
   expect(screen.getByText('Region')).toBeInTheDocument();
-  expect(screen.getByTestId('mibi-filter-card-summary')).toHaveTextContent(
+  expect(screen.getByTestId('auradata-filter-card-summary')).toHaveTextContent(
     'is North',
   );
   expect(screen.queryByText('control')).not.toBeInTheDocument();
-  expect(screen.getByTestId('mibi-filter-card')).toHaveClass('is-on');
+  expect(screen.getByTestId('auradata-filter-card')).toHaveClass('is-on');
 });
 
 test('the head opens the card and the browser remembers it', () => {
@@ -64,5 +64,5 @@ test('the actions of the head do not fold the card', () => {
 test('a required filter without a value stays open', () => {
   card({ forceOpen: true, active: false });
   expect(screen.getByText('control')).toBeInTheDocument();
-  expect(screen.getByTestId('mibi-filter-card')).not.toHaveClass('is-on');
+  expect(screen.getByTestId('auradata-filter-card')).not.toHaveClass('is-on');
 });

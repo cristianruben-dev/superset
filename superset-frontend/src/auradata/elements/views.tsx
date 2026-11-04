@@ -133,7 +133,7 @@ export function ImageView({
   useEffect(() => setBroken(false), [config.src]);
   if (broken && config.src) {
     return editMode ? (
-      <Placeholder data-test="mibi-image-broken">
+      <Placeholder data-test="auradata-image-broken">
         <Icons.WarningOutlined iconSize="xl" />
         {t('The picture could not be loaded')}
       </Placeholder>
@@ -141,7 +141,7 @@ export function ImageView({
   }
   if (!config.src) {
     return editMode ? (
-      <Placeholder data-test="mibi-image-placeholder">
+      <Placeholder data-test="auradata-image-placeholder">
         <Icons.FileImageOutlined iconSize="xl" />
         {t('Add a picture in the Format pane')}
       </Placeholder>
@@ -165,7 +165,7 @@ export function ImageView({
         <img
           src={config.src}
           alt={config.alt ?? ''}
-          data-test="mibi-image"
+          data-test="auradata-image"
           draggable={false}
           onError={() => setBroken(true)}
           style={{
@@ -319,7 +319,7 @@ export function ShapeView({
         $clickable={!!run}
         className="mibi-hoverable mibi-shape"
         style={{ overflow: 'visible', ...fillVars }}
-        data-test={`mibi-shape-${config.shape}`}
+        data-test={`auradata-shape-${config.shape}`}
         {...activate(run)}
       >
         <div style={wrapper}>{drawing}</div>
@@ -424,7 +424,7 @@ export function NavigatorView({
   }
   return (
     <div
-      data-test="mibi-navigator"
+      data-test="auradata-navigator"
       style={{
         display: 'flex',
         flexDirection: config.direction === 'column' ? 'column' : 'row',
@@ -512,7 +512,7 @@ export function ButtonView({
       <StyledButton
         type="button"
         className="mibi-hoverable"
-        data-test="mibi-button"
+        data-test="auradata-button"
         // Edit mode selects the button instead of running it: let clicks reach
         // the element (a disabled button would swallow them)
         aria-disabled={editMode || undefined}
@@ -647,7 +647,7 @@ export function TextView({
     <div style={{ ...textCss(config.textStyle, theme), height: '100%' }}>
       <RichText
         ref={ref}
-        data-test="mibi-text"
+        data-test="auradata-text"
         className="mibi-rich-text"
         contentEditable={editing}
         suppressContentEditableWarning

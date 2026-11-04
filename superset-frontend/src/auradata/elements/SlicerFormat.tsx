@@ -84,7 +84,7 @@ function useFields(config: FilterElement, update: Update) {
         size="small"
         checked={(config[key] as boolean | undefined) ?? fallback}
         aria-label={label}
-        data-test={`mibi-slicer-${String(key)}`}
+        data-test={`auradata-slicer-${String(key)}`}
         onChange={value => update({ [key]: value }, `filter-${String(key)}`)}
       />
     </Field>
@@ -190,7 +190,7 @@ function useFields(config: FilterElement, update: Update) {
             size="small"
             checked={!!own}
             aria-label={t('Individual corners')}
-            data-test={`mibi-slicer-${key}`}
+            data-test={`auradata-slicer-${key}`}
             onChange={on =>
               update(
                 {
@@ -242,7 +242,7 @@ function useFields(config: FilterElement, update: Update) {
             size="small"
             checked={!!own}
             aria-label={t('Individual padding')}
-            data-test={`mibi-slicer-${key}`}
+            data-test={`auradata-slicer-${key}`}
             onChange={on =>
               update(
                 {
@@ -292,7 +292,7 @@ function useFields(config: FilterElement, update: Update) {
             size="small"
             checked={!!bar}
             aria-label={t('Show the accent bar')}
-            data-test={`mibi-slicer-${key}`}
+            data-test={`auradata-slicer-${key}`}
             onChange={on =>
               update(
                 {
@@ -372,7 +372,7 @@ function ContrastHint({
   const ratio = contrastRatio(text, background);
   if (ratio === undefined || ratio >= 4.5) return null;
   return (
-    <Hint data-test="mibi-slicer-contrast">
+    <Hint data-test="auradata-slicer-contrast">
       {t(
         'Low contrast (%s:1): the text may be hard to read. Aim for 4.5:1 or more.',
         ratio,
@@ -400,7 +400,7 @@ function VisibleValuesSection({
       'filter-hidden-values',
     );
   return (
-    <Section collapsedByDefault data-test="mibi-slicer-visible-values">
+    <Section collapsedByDefault data-test="auradata-slicer-visible-values">
       <h4>{t('Values shown')}</h4>
       <Hint>
         {t(
@@ -427,7 +427,7 @@ function VisibleValuesSection({
               size="small"
               checked={!hidden.has(key)}
               aria-label={t('Show %s', label)}
-              data-test="mibi-slicer-value-shown"
+              data-test="auradata-slicer-value-shown"
               onChange={show => {
                 const next = new Set(hidden);
                 if (show) next.delete(key);
@@ -474,12 +474,12 @@ function SettingsSection({
   const drawn = kind === 'list' && variant !== 'dropdown';
   const fromList = drawn && variant !== 'input';
   return (
-    <Section data-test="mibi-slicer-settings">
+    <Section data-test="auradata-slicer-settings">
       <h4>{t('Slicer settings')}</h4>
       {kind === 'list' && (
         <Segments<SlicerVariant>
           name={t('Slicer type')}
-          testId="mibi-slicer-variant"
+          testId="auradata-slicer-variant"
           value={variant}
           onChange={next => update({ variant: next }, 'filter-variant')}
           options={[
@@ -494,7 +494,7 @@ function SettingsSection({
         <Field label={t('Style')} stacked>
           <Segments<'control' | 'between' | 'slider'>
             name={t('Range style')}
-            testId="mibi-slicer-range-style"
+            testId="auradata-slicer-range-style"
             value={config.rangeStyle ?? 'control'}
             onChange={next =>
               update(
@@ -514,7 +514,7 @@ function SettingsSection({
         <Field label={t('Style')} stacked>
           <Segments<'control' | 'relative' | 'between'>
             name={t('Date style')}
-            testId="mibi-slicer-date-style"
+            testId="auradata-slicer-date-style"
             value={config.dateStyle ?? 'control'}
             onChange={next =>
               update(
@@ -555,7 +555,7 @@ function SettingsSection({
               <Field label={t('Selection')} stacked>
                 <Segments<SlicerSelection | 'filter'>
                   name={t('Selection')}
-                  testId="mibi-slicer-selection"
+                  testId="auradata-slicer-selection"
                   value={config.selection ?? 'filter'}
                   onChange={next =>
                     update(
@@ -593,7 +593,7 @@ function SettingsSection({
           <Field label={t('Order of the values')} stacked>
             <Segments<'query' | 'asc' | 'desc'>
               name={t('Order of the values')}
-              testId="mibi-slicer-sort"
+              testId="auradata-slicer-sort"
               value={config.sortValues ?? 'query'}
               onChange={next =>
                 update(
@@ -619,7 +619,7 @@ function SettingsSection({
         <Field label={t('Match')} stacked>
           <Segments<NonNullable<FilterElement['inputMatch']>>
             name={t('Match')}
-            testId="mibi-slicer-match"
+            testId="auradata-slicer-match"
             value={config.inputMatch ?? 'contains'}
             onChange={inputMatch => update({ inputMatch }, 'filter-match')}
             options={[
@@ -652,7 +652,7 @@ function HeaderSection({
           size="small"
           checked={!config.hideLabel}
           aria-label={t('Show the slicer header')}
-          data-test="mibi-slicer-header-show"
+          data-test="auradata-slicer-header-show"
           onChange={show => update({ hideLabel: !show }, 'filter-label')}
         />
       }
@@ -766,7 +766,7 @@ function ValuesSection({
           <Input
             aria-label={t('Format code')}
             placeholder={FORMAT_CODE_EXAMPLE}
-            data-test="mibi-slicer-format-code"
+            data-test="auradata-slicer-format-code"
             value={config.valueFormat ?? ''}
             onChange={event =>
               update(
@@ -971,7 +971,7 @@ function VisualLevel({
         </Hint>
         <Select
           ariaLabel={t('Filter to show')}
-          data-test="mibi-filter-element-select"
+          data-test="auradata-filter-element-select"
           value={config.filterId}
           placeholder={
             options.length
@@ -1084,7 +1084,7 @@ function VisualLevel({
           <Field label={t('Position')} stacked>
             <Segments<NonNullable<FilterElement['pillDismissPosition']>>
               name={t('Remove mark position')}
-              testId="mibi-slicer-pill-dismiss"
+              testId="auradata-slicer-pill-dismiss"
               value={config.pillDismissPosition ?? 'right'}
               onChange={pillDismissPosition =>
                 update({ pillDismissPosition }, 'filter-pill-dismiss')
@@ -1162,7 +1162,7 @@ function GeneralLevel({ id }: { id: string }) {
           value={altText ?? ''}
           placeholder={t('Describes the slicer for screen readers')}
           aria-label={t('Alt text')}
-          data-test="mibi-slicer-alt-text"
+          data-test="auradata-slicer-alt-text"
           onChange={event =>
             dispatch(
               setComponentMeta(
@@ -1215,7 +1215,7 @@ export function FilterSection({
         <Segments<Level>
           name={t('Format level')}
           value={chosenLevel}
-          testId="mibi-format-level"
+          testId="auradata-format-level"
           onChange={setLevel}
           options={[
             { value: 'visual', label: t('Visual') },

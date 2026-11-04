@@ -209,7 +209,7 @@ function ElementHolder({
         >
           <div
             ref={dragSourceRef}
-            data-test={`mibi-element-${kind}`}
+            data-test={`auradata-element-${kind}`}
             className={cx(
               'dashboard-component',
               'mibi-element',
@@ -240,7 +240,7 @@ function ElementHolder({
                   locked ? undefined : () => deleteComponent(id, parentId)
                 }
                 onFormat={() => openFormat(component.id)}
-                formatTestId="mibi-format-element-button"
+                formatTestId="auradata-format-element-button"
               />
             )}
             {content()}

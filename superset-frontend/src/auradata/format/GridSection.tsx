@@ -37,13 +37,13 @@ export function GridSection() {
   const [grid, update] = useGridSettings();
 
   return (
-    <Section data-test="mibi-format-grid">
+    <Section data-test="auradata-format-grid">
       <h4>{t('Grid')}</h4>
       <ColorField
         label={t('Color')}
         value={grid.color || theme.colorPrimary}
         onChange={color => update({ color })}
-        testId="mibi-format-grid-color"
+        testId="auradata-format-grid-color"
       />
       <RangeField
         label={t('Opacity')}
@@ -52,7 +52,7 @@ export function GridSection() {
         max={100}
         unit="%"
         onChange={opacity => update({ opacity })}
-        testId="mibi-format-grid-opacity"
+        testId="auradata-format-grid-opacity"
       />
       <Hint>
         {t(
@@ -63,7 +63,7 @@ export function GridSection() {
       <Button
         buttonStyle="link"
         onClick={() => update({ ...DEFAULT_GRID, color: undefined })}
-        data-test="mibi-format-grid-reset"
+        data-test="auradata-format-grid-reset"
       >
         {t('Reset grid')}
       </Button>

@@ -197,10 +197,10 @@ test('renders each element', () => {
   );
   expect(screen.getByAltText('Logo')).toHaveStyle({ filter: 'grayscale(1)' });
   expect(
-    screen.getByTestId('mibi-shape-hexagon').querySelector('polygon'),
+    screen.getByTestId('auradata-shape-hexagon').querySelector('polygon'),
   ).toBeTruthy();
   expect(screen.getByText('Hola')).toBeInTheDocument();
-  expect(screen.getByTestId('mibi-text').innerHTML).toBe('<b>Título</b>');
+  expect(screen.getByTestId('auradata-text').innerHTML).toBe('<b>Título</b>');
 });
 
 test('an empty image shows a hint only while editing', () => {
@@ -208,10 +208,10 @@ test('an empty image shows a hint only while editing', () => {
     <ImageView editMode config={{ kind: 'image' }} />,
     { useRedux: true },
   );
-  expect(screen.getByTestId('mibi-image-placeholder')).toBeInTheDocument();
+  expect(screen.getByTestId('auradata-image-placeholder')).toBeInTheDocument();
   rerender(<ImageView editMode={false} config={{ kind: 'image' }} />);
   expect(
-    screen.queryByTestId('mibi-image-placeholder'),
+    screen.queryByTestId('auradata-image-placeholder'),
   ).not.toBeInTheDocument();
 });
 
@@ -226,11 +226,11 @@ test('buttons run their action in view mode, not while editing', () => {
   const { rerender } = render(<ButtonView editMode config={config} />, {
     store,
   });
-  fireEvent.click(screen.getByTestId('mibi-button'));
+  fireEvent.click(screen.getByTestId('auradata-button'));
   expect(stateOf(store).dashboardState.directPathToChild).toBeUndefined();
 
   rerender(<ButtonView editMode={false} config={config} />);
-  fireEvent.click(screen.getByTestId('mibi-button'));
+  fireEvent.click(screen.getByTestId('auradata-button'));
   expect(stateOf(store).dashboardState.directPathToChild).toEqual([
     'ROOT_ID',
     'TABS-1',
@@ -279,12 +279,14 @@ test('the Format pane edits the selected button', () => {
   const store = makeStore();
   render(<FormatPane />, { store });
   act(() => selectVisual('DYNAMIC-btn'));
-  expect(screen.getByTestId('mibi-format-title')).toHaveTextContent('Button');
+  expect(screen.getByTestId('auradata-format-title')).toHaveTextContent(
+    'Button',
+  );
 
-  fireEvent.change(screen.getByTestId('mibi-button-label'), {
+  fireEvent.change(screen.getByTestId('auradata-button-label'), {
     target: { value: 'Ver más' },
   });
-  fireEvent.click(screen.getByTestId('mibi-button-preset-outline'));
+  fireEvent.click(screen.getByTestId('auradata-button-preset-outline'));
   const element = stateOf(store).dashboardLayout.present['DYNAMIC-btn'].meta
     .mibiElement as { label: string; borderWidth: number };
   expect(element.label).toBe('Ver más');
@@ -295,7 +297,7 @@ test('the Format pane edits the selected button', () => {
       setElementConfig('DYNAMIC-btn', { kind: 'button', label: 'Otra' }),
     );
   });
-  expect(screen.getByTestId('mibi-button-label')).toHaveValue('Otra');
+  expect(screen.getByTestId('auradata-button-label')).toHaveValue('Otra');
 });
 
 test('a picture that does not load never shows its alt text', () => {
@@ -307,8 +309,8 @@ test('a picture that does not load never shows its alt text', () => {
   const { rerender } = render(<ImageView editMode config={config} />, {
     useRedux: true,
   });
-  fireEvent.error(screen.getByTestId('mibi-image'));
-  expect(screen.getByTestId('mibi-image-broken')).toBeInTheDocument();
+  fireEvent.error(screen.getByTestId('auradata-image'));
+  expect(screen.getByTestId('auradata-image-broken')).toBeInTheDocument();
   rerender(<ImageView editMode={false} config={config} />);
   expect(screen.queryByAltText(config.alt)).not.toBeInTheDocument();
 });

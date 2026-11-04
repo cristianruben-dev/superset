@@ -169,7 +169,7 @@ export function ReportTheme({
     <ThemeProvider theme={built.theme}>
       <ConfigProvider theme={built.antd}>
         <div
-          data-test="mibi-report-theme"
+          data-test="auradata-report-theme"
           data-appearance={built.dark ? 'dark' : 'light'}
           style={
             {

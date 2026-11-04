@@ -698,7 +698,7 @@ describe('DashboardBuilder', () => {
         dash_edit_perm: true,
       },
     });
-    const filterbar = getByTestId('mibi-filter-dock');
+    const filterbar = getByTestId('auradata-filter-dock');
     // The filter pane has a fixed width, whatever was stored
     expect(filterbar).toHaveStyleRule('width', `${OPEN_FILTER_BAR_WIDTH}px`);
   });
@@ -801,7 +801,7 @@ describe('DashboardBuilder', () => {
       },
     });
 
-    const filterbar = getByTestId('mibi-filter-dock');
+    const filterbar = getByTestId('auradata-filter-dock');
     expect(filterbar).toHaveStyleRule('width', `${CLOSED_FILTER_BAR_WIDTH}px`);
   });
 
@@ -821,7 +821,7 @@ describe('DashboardBuilder', () => {
       },
     });
 
-    const filterbar = getByTestId('mibi-filter-dock');
+    const filterbar = getByTestId('auradata-filter-dock');
     expect(filterbar).toHaveStyleRule('width', `${OPEN_FILTER_BAR_WIDTH}px`);
   });
 
@@ -1321,7 +1321,7 @@ test('the filter pane is docked beside the page in an embed', () => {
   const { getByTestId } = renderForEmbedChecks();
 
   // The report docks the pane beside the page, and the dock draws its edge
-  expect(getByTestId('mibi-filter-dock')).toBeInTheDocument();
+  expect(getByTestId('auradata-filter-dock')).toBeInTheDocument();
   expect(getByTestId('mock-filter-bar')).toBeInTheDocument();
   nativeFiltersSpy.mockRestore();
   (isEmbedded as jest.Mock).mockReturnValue(false);

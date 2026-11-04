@@ -286,7 +286,7 @@ export function Sidebar({
         $collapsed={collapsed}
         aria-current={active ? 'page' : undefined}
         aria-label={collapsed ? item.label : undefined}
-        data-test={`mibi-nav-${item.key}`}
+        data-test={`auradata-nav-${item.key}`}
       >
         <Icon iconSize="l" />
         {!collapsed && <span className="label">{item.label}</span>}
@@ -315,7 +315,7 @@ export function Sidebar({
       $collapsed={collapsed}
       $top={top}
       $bottom={bottom}
-      data-test="mibi-sidebar"
+      data-test="auradata-sidebar"
     >
       {brand}
       <Nav aria-label={t('Main navigation')}>

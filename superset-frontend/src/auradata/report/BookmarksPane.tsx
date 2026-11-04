@@ -176,7 +176,7 @@ function BookmarkCard({
   };
 
   return (
-    <Card $active={active} data-test="mibi-bookmark">
+    <Card $active={active} data-test="auradata-bookmark">
       <div className="row">
         <Input
           className="name"
@@ -191,14 +191,14 @@ function BookmarkCard({
         <Action
           title={t('Show this bookmark')}
           onClick={onApply}
-          testId="mibi-bookmark-apply"
+          testId="auradata-bookmark-apply"
         >
           <Icons.PlayCircleOutlined iconSize="m" />
         </Action>
         <Action
           title={t('Update with the current view')}
           onClick={() => run(updateBookmark(bookmark.id))}
-          testId="mibi-bookmark-update"
+          testId="auradata-bookmark-update"
         >
           <Icons.SyncOutlined iconSize="m" />
         </Action>
@@ -242,7 +242,7 @@ function BookmarkCard({
         <Action
           title={t('Delete')}
           onClick={() => run(deleteBookmark(bookmark.id))}
-          testId="mibi-bookmark-delete"
+          testId="auradata-bookmark-delete"
         >
           <Icons.DeleteOutlined iconSize="s" />
         </Action>
@@ -267,12 +267,12 @@ export function BookmarksPane() {
   };
 
   return (
-    <Pane data-test="mibi-bookmarks-pane">
+    <Pane data-test="auradata-bookmarks-pane">
       <Button
         buttonStyle="primary"
         icon={<Icons.PlusOutlined />}
         onClick={add}
-        data-test="mibi-bookmark-add"
+        data-test="auradata-bookmark-add"
       >
         {t('Add bookmark')}
       </Button>

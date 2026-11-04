@@ -64,7 +64,7 @@ export function BoxSections({ id }: { id: string }) {
 
   return (
     <>
-      <Section data-test="mibi-format-visual-background">
+      <Section data-test="auradata-format-visual-background">
         <h4>{t('Background')}</h4>
         <Field
           label={t('Transparent')}
@@ -98,7 +98,7 @@ export function BoxSections({ id }: { id: string }) {
           }
           disabled={transparent}
           onChange={background => update({ background }, 'background')}
-          testId="mibi-format-visual-color"
+          testId="auradata-format-visual-color"
         />
         <Dependent off={transparent}>
           <RangeField
@@ -143,7 +143,7 @@ export function BoxSections({ id }: { id: string }) {
           min={0}
           max={8}
           onChange={borderWidth => update({ borderWidth }, 'border-width')}
-          testId="mibi-format-border-width"
+          testId="auradata-format-border-width"
         />
         <RangeField
           label={t('Opacity')}
@@ -154,7 +154,7 @@ export function BoxSections({ id }: { id: string }) {
           onChange={borderOpacity =>
             update({ borderOpacity }, 'border-opacity')
           }
-          testId="mibi-format-border-opacity"
+          testId="auradata-format-border-opacity"
         />
         <RangeField
           label={t('Rounded corners')}
@@ -166,7 +166,7 @@ export function BoxSections({ id }: { id: string }) {
           min={0}
           max={32}
           onChange={radius => update({ radius }, 'radius')}
-          testId="mibi-format-radius"
+          testId="auradata-format-radius"
         />
       </Section>
 
@@ -176,7 +176,7 @@ export function BoxSections({ id }: { id: string }) {
           name={t('Shadow')}
           value={format.shadow ?? 'soft'}
           onChange={shadow => update({ shadow }, 'shadow')}
-          testId="mibi-format-shadow"
+          testId="auradata-format-shadow"
           options={[
             { value: 'none', label: t('None') },
             { value: 'soft', label: t('Soft') },
@@ -190,7 +190,7 @@ export function BoxSections({ id }: { id: string }) {
               label={t('Color')}
               value={shadow.color ?? '#000000'}
               onChange={color => updateShadow({ color }, 'color')}
-              testId="mibi-format-shadow-color"
+              testId="auradata-format-shadow-color"
             />
             <RangeField
               label={t('Opacity')}
@@ -244,7 +244,7 @@ export function BoxSections({ id }: { id: string }) {
             size="small"
             checked={!!format.paddingSides}
             aria-label={t('Padding by side')}
-            data-test="mibi-format-padding-sides"
+            data-test="auradata-format-padding-sides"
             onChange={bySide =>
               update(
                 {

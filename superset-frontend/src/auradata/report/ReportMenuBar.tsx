@@ -299,7 +299,7 @@ export function ReportMenuBar({
 
   return createPortal(
     <MenuBar
-      data-test="mibi-report-menubar"
+      data-test="auradata-report-menubar"
       menus={[
         { key: 'file', label: t('File'), items: file },
         { key: 'view', label: t('View'), items: viewMenu },

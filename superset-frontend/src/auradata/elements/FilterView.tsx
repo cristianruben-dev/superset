@@ -55,8 +55,8 @@ const Body = styled.div`
     min-height: 0;
   }
   /* The corner icons keep clear of the header */
-  &.has-icons [data-test='mibi-slicer-header'],
-  &.has-icons [data-test='mibi-element-title'],
+  &.has-icons [data-test='auradata-slicer-header'],
+  &.has-icons [data-test='auradata-element-title'],
   &.has-icons .ant-form-item-label {
     padding-right: 52px;
   }
@@ -206,7 +206,7 @@ export function FilterView({
       !!config.labelAlign;
     return (
       <Body
-        data-test="mibi-filter-control"
+        data-test="auradata-filter-control"
         className={[
           config.hideLabel && 'hide-label',
           hasLabelStyle && 'has-label-style',

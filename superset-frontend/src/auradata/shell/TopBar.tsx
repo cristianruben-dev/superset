@@ -249,19 +249,19 @@ export function TopBar({
   const anonymous = data.navbar_right.user_is_anonymous;
 
   return (
-    <Bar id="main-menu" data-test="mibi-topbar">
+    <Bar id="main-menu" data-test="auradata-topbar">
       {onOpenNav && (
         <SearchIcon
           type="button"
           onClick={onOpenNav}
           aria-label={t('Open navigation')}
-          data-test="mibi-nav-toggle"
+          data-test="auradata-nav-toggle"
         >
           <Icons.MenuOutlined />
         </SearchIcon>
       )}
       {showBrand && (
-        <Brand data-test="mibi-topbar-brand">
+        <Brand data-test="auradata-topbar-brand">
           <BrandLink compact={compactBrand} />
         </Brand>
       )}
@@ -270,7 +270,7 @@ export function TopBar({
           {reportHeader && (
             <ReportSlot
               ref={setReportHeaderSlot}
-              data-test="mibi-report-slot"
+              data-test="auradata-report-slot"
             />
           )}
           <Tooltip title={isMac ? '⌘ K' : 'Ctrl K'} placement="bottom">
@@ -278,7 +278,7 @@ export function TopBar({
               type="button"
               onClick={onSearch}
               aria-label={t('Search dashboards and pages…')}
-              data-test="mibi-search-trigger"
+              data-test="auradata-search-trigger"
             >
               <Icons.SearchOutlined />
             </SearchIcon>
@@ -288,7 +288,7 @@ export function TopBar({
         <SearchTrigger
           type="button"
           onClick={onSearch}
-          data-test="mibi-search-trigger"
+          data-test="auradata-search-trigger"
         >
           <Icons.SearchOutlined />
           <span className="placeholder">

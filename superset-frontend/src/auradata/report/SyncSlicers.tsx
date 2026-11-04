@@ -206,7 +206,7 @@ export function SyncSlicers({
   };
 
   return (
-    <Section data-test="mibi-sync-slicers">
+    <Section data-test="auradata-sync-slicers">
       <h4>{t('Sync slicers')}</h4>
       <Grid>
         <span />

@@ -55,7 +55,7 @@ export function useContextMenu() {
     >
       <span
         aria-hidden
-        data-test="mibi-context-menu-anchor"
+        data-test="auradata-context-menu-anchor"
         style={{
           position: 'fixed',
           left: state.x,

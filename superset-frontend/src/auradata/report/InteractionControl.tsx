@@ -113,7 +113,7 @@ export function InteractionControl({
           $on={mode === 'filter'}
           aria-pressed={mode === 'filter'}
           aria-label={t('Filter')}
-          data-test="mibi-interaction-filter"
+          data-test="auradata-interaction-filter"
           onClick={choose('filter')}
         >
           <Icons.FilterOutlined iconSize="m" />
@@ -125,7 +125,7 @@ export function InteractionControl({
           $on={mode === 'none'}
           aria-pressed={mode === 'none'}
           aria-label={t('None')}
-          data-test="mibi-interaction-none"
+          data-test="auradata-interaction-none"
           onClick={choose('none')}
         >
           <Icons.StopOutlined iconSize="m" />
@@ -184,7 +184,7 @@ export function EditInteractionsToggle({ chartId }: { chartId?: number }) {
         $on={editing}
         aria-pressed={editing}
         aria-label={t('Edit interactions')}
-        data-test="mibi-edit-interactions"
+        data-test="auradata-edit-interactions"
         onClick={() => setEditingInteractions(!editing)}
       >
         <Icons.ApartmentOutlined iconSize="m" />

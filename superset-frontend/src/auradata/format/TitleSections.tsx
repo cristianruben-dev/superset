@@ -124,7 +124,7 @@ export function TitleSections({ id }: { id: string }) {
             size="small"
             checked={titleShown}
             aria-label={t('Show title')}
-            data-test="mibi-format-title-show"
+            data-test="auradata-format-title-show"
             onChange={show => updateTitle({ show }, 'show')}
           />
         </Field>
@@ -191,7 +191,7 @@ export function TitleSections({ id }: { id: string }) {
                 size="small"
                 checked={format.title?.underline ?? false}
                 aria-label={t('Underline title')}
-                data-test="mibi-format-title-underline"
+                data-test="auradata-format-title-underline"
                 onChange={underline => updateTitle({ underline }, 'underline')}
               />
             </Field>
@@ -218,7 +218,7 @@ export function TitleSections({ id }: { id: string }) {
             </Field>
             <FontFamilyField
               value={format.title?.fontFamily}
-              testId="mibi-format-title-family"
+              testId="auradata-format-title-family"
               onChange={fontFamily => updateTitle({ fontFamily }, 'family')}
             />
             <Field label={t('Alignment')}>
@@ -256,7 +256,7 @@ export function TitleSections({ id }: { id: string }) {
           placeholder={t('Subtitle (optional)')}
           maxLength={300}
           aria-label={t('Subtitle')}
-          data-test="mibi-format-subtitle"
+          data-test="auradata-format-subtitle"
           onChange={event =>
             updateTitle({ subtitle: event.target.value }, 'subtitle')
           }
@@ -383,7 +383,7 @@ export function TitleSections({ id }: { id: string }) {
             size="small"
             checked={!!format.title?.divider}
             aria-label={t('Line under the header')}
-            data-test="mibi-format-divider"
+            data-test="auradata-format-divider"
             onChange={divider => updateTitle({ divider }, 'divider')}
           />
         </Field>
@@ -435,7 +435,7 @@ export function TitleSections({ id }: { id: string }) {
           min={0}
           max={40}
           onChange={gap => updateTitle({ gap }, 'gap')}
-          testId="mibi-format-header-gap"
+          testId="auradata-format-header-gap"
         />
       </Section>
     </>

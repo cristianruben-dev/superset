@@ -374,7 +374,7 @@ export function ChartEditorPanel({
             : withPanelParam(editor.url),
         )}
         onLoad={() => setLoading(false)}
-        data-test="mibi-chart-editor-frame"
+        data-test="auradata-chart-editor-frame"
       />
     </Frame>
   );
@@ -385,7 +385,7 @@ export function ChartEditorPanel({
         <Dock
           $top={topOffset}
           $pageTop={pageTop}
-          data-test="mibi-chart-editor-dock"
+          data-test="auradata-chart-editor-dock"
         >
           <div className="dock-header">
             <span>{title}</span>
@@ -394,7 +394,7 @@ export function ChartEditorPanel({
               buttonSize="small"
               aria-label={t('Close')}
               onClick={close}
-              data-test="mibi-chart-editor-close"
+              data-test="auradata-chart-editor-close"
             >
               <Icons.CloseOutlined iconSize="m" />
             </Button>
@@ -439,7 +439,7 @@ export function ChartEditorPanel({
       destroyOnHidden
       // A thin header: the page inside has its own title bar
       styles={{ header: { padding: '10px 16px' }, body: { padding: 0 } }}
-      data-test="mibi-chart-editor"
+      data-test="auradata-chart-editor"
     >
       {frame}
     </Drawer>

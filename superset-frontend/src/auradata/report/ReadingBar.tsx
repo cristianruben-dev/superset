@@ -135,7 +135,7 @@ export function ReadingBar({
     <Bar
       role="toolbar"
       aria-label={t('Report commands')}
-      data-test="mibi-reading-bar"
+      data-test="auradata-reading-bar"
     >
       <CommandGroup label={t('View')}>
         <RibbonButton
@@ -143,7 +143,7 @@ export function ReadingBar({
           label={t('Present')}
           icon={<Icons.FundProjectionScreenOutlined iconSize="m" />}
           onClick={() => setPresenting(true)}
-          data-test="mibi-present-button"
+          data-test="auradata-present-button"
         />
         <RibbonButton
           small
@@ -157,7 +157,7 @@ export function ReadingBar({
           }
           pressed={fullscreen}
           onClick={toggleFullscreen}
-          data-test="mibi-fullscreen-button"
+          data-test="auradata-fullscreen-button"
         />
       </CommandGroup>
       <CommandGroup label={t('Filters')}>
@@ -168,7 +168,7 @@ export function ReadingBar({
           icon={<Icons.Undo iconSize="m" />}
           disabled={!filtersChanged}
           onClick={() => dispatch(resetFilters() as never)}
-          data-test="mibi-reset-filters"
+          data-test="auradata-reset-filters"
         />
         {bookmarks.length > 0 && (
           <RibbonButton
@@ -184,7 +184,7 @@ export function ReadingBar({
               onClick: ({ key }) =>
                 dispatch(applyBookmark(String(key)) as never),
             }}
-            data-test="mibi-bookmarks-button"
+            data-test="auradata-bookmarks-button"
           />
         )}
       </CommandGroup>
@@ -195,7 +195,7 @@ export function ReadingBar({
           icon={<Icons.DownloadOutlined iconSize="m" />}
           disabled={exportDisabled}
           onClick={onExport}
-          data-test="mibi-export-button"
+          data-test="auradata-export-button"
         />
       </CommandGroup>
     </Bar>

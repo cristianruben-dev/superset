@@ -40,7 +40,7 @@ import { objectName } from './objectName';
 import { CELL } from './types';
 
 /** The phone page of the editor, where the mobile pane drops its visuals. */
-export const MOBILE_EDITOR_TEST_ID = 'mibi-mobile-editor';
+export const MOBILE_EDITOR_TEST_ID = 'auradata-mobile-editor';
 
 type Layout = Record<string, LayoutItem>;
 type Dispatch = (action: unknown) => unknown;
@@ -379,12 +379,12 @@ export function MobileLayoutEditor({
       onPointerDown={() => setSelected(null)}
     >
       {foldY !== undefined && (
-        <Fold style={{ top: foldY }} data-test="mibi-mobile-fold">
+        <Fold style={{ top: foldY }} data-test="auradata-mobile-fold">
           <span>{t('End of the first screen')}</span>
         </Fold>
       )}
       {!boxes.length && (
-        <Empty data-test="mibi-mobile-empty">
+        <Empty data-test="auradata-mobile-empty">
           <Icons.MobileOutlined />
           <strong>{t('Drop visuals here')}</strong>
           <span>
@@ -403,7 +403,7 @@ export function MobileLayoutEditor({
             key={box.id}
             role="group"
             aria-label={name}
-            data-test="mibi-mobile-box"
+            data-test="auradata-mobile-box"
             data-id={box.id}
             $selected={selected === box.id}
             $moving={moving}
@@ -431,7 +431,7 @@ export function MobileLayoutEditor({
               className="mibi-mobile-remove"
               aria-label={t('Remove from the mobile layout')}
               title={t('Remove from the mobile layout')}
-              data-test="mibi-mobile-remove"
+              data-test="auradata-mobile-remove"
               onPointerDown={event => event.stopPropagation()}
               onClick={() => remove(box.id)}
             >

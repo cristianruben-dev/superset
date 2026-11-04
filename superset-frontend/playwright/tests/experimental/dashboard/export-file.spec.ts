@@ -173,9 +173,9 @@ async function pdfStreams(path: string) {
 }
 
 async function exportFile(page: Page, format: 'pdf' | 'png', all: boolean) {
-  await page.getByTestId('mibi-export-button').click();
-  const modal = page.getByTestId('mibi-export-modal');
-  await modal.getByTestId(`mibi-export-${format}`).click();
+  await page.getByTestId('auradata-export-button').click();
+  const modal = page.getByTestId('auradata-export-modal');
+  await modal.getByTestId(`auradata-export-${format}`).click();
   if (all) await modal.getByText(/^All pages/).click();
   const download = page.waitForEvent('download', {
     timeout: TIMEOUT.API_RESPONSE * 3,

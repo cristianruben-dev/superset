@@ -126,7 +126,7 @@ export function LineageModal({
       hideFooter
       width={720}
     >
-      <Flow data-test="mibi-lineage">
+      <Flow data-test="auradata-lineage">
         {!sources.length && t('This report has no charts yet')}
         {sources.map(source => (
           <div className="flow" key={source.key}>

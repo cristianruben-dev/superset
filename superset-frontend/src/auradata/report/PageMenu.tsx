@@ -143,7 +143,7 @@ export function PageMenu({
       }}
     >
       {/* The trigger has to be one element */}
-      <span data-test="mibi-page-menu-trigger">{children}</span>
+      <span data-test="auradata-page-menu-trigger">{children}</span>
     </Dropdown>
   );
 }

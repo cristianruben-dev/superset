@@ -259,7 +259,7 @@ export function AppMenuBar({
   return (
     <>
       <MenuBar
-        data-test="mibi-app-menubar"
+        data-test="auradata-app-menubar"
         menus={[
           { key: 'file', label: t('File'), items: file },
           { key: 'view', label: t('View'), items: view },

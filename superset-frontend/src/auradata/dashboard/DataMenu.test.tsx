@@ -37,9 +37,9 @@ test('opens the datasets and SQL Lab in the side panel', async () => {
     ['can_write', 'Dataset'],
     ['can_sqllab', 'Superset'],
   ]);
-  userEvent.click(screen.getByTestId('mibi-data-menu'));
+  userEvent.click(screen.getByTestId('auradata-data-menu'));
   userEvent.click(await screen.findByText('SQL editor'));
-  userEvent.click(screen.getByTestId('mibi-data-menu'));
+  userEvent.click(screen.getByTestId('auradata-data-menu'));
   userEvent.click(await screen.findByText('Datasets'));
 
   expect(opened).toEqual([
@@ -51,7 +51,7 @@ test('opens the datasets and SQL Lab in the side panel', async () => {
 
 test('offers only what the user can do', async () => {
   renderMenu([['can_read', 'Dataset']]);
-  userEvent.click(screen.getByTestId('mibi-data-menu'));
+  userEvent.click(screen.getByTestId('auradata-data-menu'));
 
   expect(await screen.findByText('Datasets')).toBeInTheDocument();
   expect(screen.queryByText('New dataset')).not.toBeInTheDocument();
@@ -61,5 +61,5 @@ test('offers only what the user can do', async () => {
 test('hides the menu without data permissions', () => {
   renderMenu([['can_read', 'Dashboard']]);
 
-  expect(screen.queryByTestId('mibi-data-menu')).not.toBeInTheDocument();
+  expect(screen.queryByTestId('auradata-data-menu')).not.toBeInTheDocument();
 });

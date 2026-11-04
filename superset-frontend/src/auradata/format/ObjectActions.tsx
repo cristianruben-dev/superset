@@ -214,7 +214,7 @@ export function ObjectActions({
     if (!open || !holder || !bar) return undefined;
     let frame = 0;
     const follow = () => {
-      const area = holder.closest('[data-test="mibi-canvas-outer"]');
+      const area = holder.closest('[data-test="auradata-canvas-outer"]');
       const rect = holder.getBoundingClientRect();
       bar.classList.toggle('compact', rect.width < COMPACT_WIDTH);
       const place = placeActions(

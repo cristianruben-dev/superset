@@ -116,7 +116,7 @@ export function FilterDockTarget({ atEdge = false }: { atEdge?: boolean }) {
   const context = useContext(FilterDockContext);
   return (
     <Dock
-      data-test="mibi-filter-dock"
+      data-test="auradata-filter-dock"
       ref={context?.setSlot}
       $width={context?.width ?? 0}
       $edge={atEdge}

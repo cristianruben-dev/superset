@@ -88,11 +88,11 @@ test('offers select all and search when asked', async () => {
     showSelectAll: true,
     showSearch: true,
   });
-  fireEvent.click(await screen.findByTestId('mibi-slicer-all'));
+  fireEvent.click(await screen.findByTestId('auradata-slicer-all'));
   expect(
     await screen.findByRole('button', { name: 'South', pressed: true }),
   ).toBeInTheDocument();
-  fireEvent.change(screen.getByTestId('mibi-slicer-search'), {
+  fireEvent.change(screen.getByTestId('auradata-slicer-search'), {
     target: { value: 'nor' },
   });
   expect(
@@ -102,7 +102,7 @@ test('offers select all and search when asked', async () => {
 
 test('a text slicer filters by what it contains', async () => {
   await renderSlicer({ variant: 'input' });
-  const input = screen.getByTestId('mibi-slicer-input');
+  const input = screen.getByTestId('auradata-slicer-input');
   fireEvent.change(input, { target: { value: 'nor' } });
   fireEvent.keyDown(input, { key: 'Enter' });
   expect(input).toHaveValue('nor');
@@ -166,9 +166,11 @@ test('an Apply button holds the choices until it is pressed', async () => {
     screen.getByRole('img', { name: 'Changes not applied' }),
   ).toBeVisible();
   expect(dataMaskOf(store, filter.id)).toBeUndefined();
-  fireEvent.click(screen.getByTestId('mibi-slicer-apply'));
+  fireEvent.click(screen.getByTestId('auradata-slicer-apply'));
   expect(dataMaskOf(store, filter.id)?.filterState?.value).toEqual(['North']);
-  expect(screen.getByTestId('mibi-slicer-summary')).toHaveTextContent('North');
+  expect(screen.getByTestId('auradata-slicer-summary')).toHaveTextContent(
+    'North',
+  );
   expect(
     screen.queryByRole('img', { name: 'Changes not applied' }),
   ).not.toBeInTheDocument();
@@ -184,14 +186,14 @@ test('the chosen values show as chips that remove them', async () => {
   expect(
     await screen.findByRole('button', { name: 'North', pressed: false }),
   ).toBeInTheDocument();
-  expect(screen.queryByTestId('mibi-slicer-pills')).not.toBeInTheDocument();
+  expect(screen.queryByTestId('auradata-slicer-pills')).not.toBeInTheDocument();
 });
 
 test('values can be sorted', async () => {
   await renderSlicer({ variant: 'list', sortValues: 'desc' });
   await screen.findByRole('button', { name: 'North' });
   expect(
-    screen.getAllByTestId('mibi-slicer-item').map(item => item.textContent),
+    screen.getAllByTestId('auradata-slicer-item').map(item => item.textContent),
   ).toEqual(['South', 'North']);
 });
 
@@ -200,7 +202,7 @@ test('a text slicer of whole values filters by the list', async () => {
     variant: 'input',
     inputMatch: 'exact',
   });
-  const input = screen.getByTestId('mibi-slicer-input');
+  const input = screen.getByTestId('auradata-slicer-input');
   fireEvent.change(input, { target: { value: 'North, South' } });
   fireEvent.keyDown(input, { key: 'Enter' });
   expect(dataMaskOf(store, filter.id).extraFormData).toEqual({
@@ -210,7 +212,7 @@ test('a text slicer of whole values filters by the list', async () => {
 
 test('applying the same text again does not filter again', async () => {
   const { store } = await renderSlicer({ variant: 'input' });
-  const input = screen.getByTestId('mibi-slicer-input');
+  const input = screen.getByTestId('auradata-slicer-input');
   fireEvent.change(input, { target: { value: 'nor' } });
   fireEvent.keyDown(input, { key: 'Enter' });
   const first = dataMaskOf(store, filter.id);
@@ -250,7 +252,7 @@ test('values left out are not listed nor chosen by select all', async () => {
   expect(
     screen.queryByRole('button', { name: 'South' }),
   ).not.toBeInTheDocument();
-  fireEvent.click(screen.getByTestId('mibi-slicer-all'));
+  fireEvent.click(screen.getByTestId('auradata-slicer-all'));
   expect(dataMaskOf(store, filter.id)?.filterState?.value).toEqual(['North']);
 });
 
@@ -259,7 +261,7 @@ test('a numeric text slicer filters by whole numbers', async () => {
     variant: 'input',
     inputNumeric: true,
   });
-  const input = screen.getByTestId('mibi-slicer-input');
+  const input = screen.getByTestId('auradata-slicer-input');
   fireEvent.change(input, { target: { value: '5, abc, 7' } });
   fireEvent.keyDown(input, { key: 'Enter' });
   expect(dataMaskOf(store, filter.id)?.extraFormData).toEqual({

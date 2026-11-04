@@ -72,7 +72,7 @@ export function ElementTitle({
   const text = title.template?.trim() || fallback;
   return (
     <Head
-      data-test="mibi-element-title"
+      data-test="auradata-element-title"
       className={title.divider && title.dividerBleed ? 'is-bleed' : undefined}
       style={{
         background: title.background,
@@ -105,7 +105,7 @@ export function ElementTitle({
           className={
             title.subtitleWrap ? 'element-subtitle is-wrap' : 'element-subtitle'
           }
-          data-test="mibi-element-subtitle"
+          data-test="auradata-element-subtitle"
           role={title.subtitleHeading ? 'heading' : undefined}
           aria-level={title.subtitleHeading}
           style={{

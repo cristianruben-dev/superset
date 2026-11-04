@@ -104,10 +104,10 @@ test('shows the dashboard, the page and goes to the next page', () => {
   setPresenting(true);
   const store = renderControls();
   expect(screen.getByText('Board')).toBeInTheDocument();
-  expect(screen.getByTestId('mibi-presentation-tab')).toHaveTextContent(
+  expect(screen.getByTestId('auradata-presentation-tab')).toHaveTextContent(
     '1 of 2 · Sales',
   );
-  fireEvent.click(screen.getByTestId('mibi-presentation-next'));
+  fireEvent.click(screen.getByTestId('auradata-presentation-next'));
   expect(
     (store.getState() as unknown as RootState).dashboardState.directPathToChild,
   ).toEqual(['ROOT_ID', 'TABS-1', 'TAB-b']);

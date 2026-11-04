@@ -149,7 +149,7 @@ export function StatusBar({ locale }: { locale?: string }) {
         : t('Light');
 
   return (
-    <Bar role="status" aria-live="polite" data-test="mibi-status-bar">
+    <Bar role="status" aria-live="polite" data-test="auradata-status-bar">
       <div className="group">
         <span
           className={`item state ${online ? 'online' : 'offline'}`}

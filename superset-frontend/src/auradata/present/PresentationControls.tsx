@@ -328,7 +328,7 @@ export function PresentationControls() {
       $hidden={idle && !menuOpen}
       role="toolbar"
       aria-label={t('Presentation controls')}
-      data-test="mibi-presentation-controls"
+      data-test="auradata-presentation-controls"
     >
       {hasTabs && (
         <>
@@ -346,7 +346,7 @@ export function PresentationControls() {
               type="button"
               $primary
               aria-label={playing ? t('Pause') : t('Play')}
-              data-test="mibi-presentation-play"
+              data-test="auradata-presentation-play"
               onClick={() => setPlaying(value => !value)}
             >
               {playing ? (
@@ -360,7 +360,7 @@ export function PresentationControls() {
             <RoundButton
               type="button"
               aria-label={t('Next page')}
-              data-test="mibi-presentation-next"
+              data-test="auradata-presentation-next"
               onClick={() => goTo(current + 1)}
             >
               <Icons.RightOutlined iconSize="m" />
@@ -372,7 +372,7 @@ export function PresentationControls() {
       <div className="where">
         <span className="title">{title}</span>
         {hasTabs && (
-          <span className="tab" data-test="mibi-presentation-tab">
+          <span className="tab" data-test="auradata-presentation-tab">
             {t('%s of %s', current + 1, tabs.length)} · {tabs[current].title}
           </span>
         )}
@@ -410,7 +410,7 @@ export function PresentationControls() {
         <RoundButton
           type="button"
           aria-label={t('Exit presentation')}
-          data-test="mibi-presentation-exit"
+          data-test="auradata-presentation-exit"
           onClick={exit}
         >
           <Icons.CloseOutlined iconSize="m" />

@@ -423,7 +423,7 @@ export default function ResizableContainer({
     >
       {children}
       {isResizing && liveSize && (
-        <div className="mibi-size-badge" data-test="mibi-size-badge">
+        <div className="mibi-size-badge" data-test="auradata-size-badge">
           {liveSize[0]} × {liveSize[1]}
         </div>
       )}

@@ -351,7 +351,7 @@ export function MobileLayoutPane({ topOffset = 0, pageTop = 0 }) {
 
   return (
     <div
-      data-test="mibi-mobile-pane"
+      data-test="auradata-mobile-pane"
       css={css`
         position: sticky;
         right: 0;
@@ -387,7 +387,7 @@ export function MobileLayoutPane({ topOffset = 0, pageTop = 0 }) {
               }}
             />
           </div>
-          <p data-test="mibi-mobile-count">
+          <p data-test="auradata-mobile-count">
             {t(
               '%s of %s visuals on the phone',
               boxes.length,
@@ -399,7 +399,7 @@ export function MobileLayoutPane({ topOffset = 0, pageTop = 0 }) {
               buttonStyle="secondary"
               buttonSize="small"
               disabled={boxes.length === candidates.length}
-              data-test="mibi-mobile-add-all"
+              data-test="auradata-mobile-add-all"
               onClick={addAll}
             >
               <Icons.PlusOutlined iconSize="m" />
@@ -409,7 +409,7 @@ export function MobileLayoutPane({ topOffset = 0, pageTop = 0 }) {
               buttonStyle="secondary"
               buttonSize="small"
               disabled={!boxes.length}
-              data-test="mibi-mobile-clear"
+              data-test="auradata-mobile-clear"
               onClick={clear}
             >
               <Icons.ClearOutlined iconSize="m" />
@@ -419,7 +419,7 @@ export function MobileLayoutPane({ topOffset = 0, pageTop = 0 }) {
         </header>
         <div className="body">
           {mode === 'preview' && (
-            <div className="notice" data-test="mibi-mobile-preview-notice">
+            <div className="notice" data-test="auradata-mobile-preview-notice">
               <Icons.EyeOutlined iconSize="m" />
               <span>
                 {boxes.length
@@ -437,7 +437,7 @@ export function MobileLayoutPane({ topOffset = 0, pageTop = 0 }) {
               prefix={<Icons.SearchOutlined iconSize="m" />}
               value={search}
               onChange={event => setSearch(event.target.value)}
-              data-test="mibi-mobile-search"
+              data-test="auradata-mobile-search"
             />
           )}
           {!candidates.length && <p>{t('This page has no visuals yet.')}</p>}
@@ -453,14 +453,14 @@ export function MobileLayoutPane({ topOffset = 0, pageTop = 0 }) {
                     className={
                       selected === box.id ? 'placed selected' : 'placed'
                     }
-                    data-test="mibi-mobile-candidate"
+                    data-test="auradata-mobile-candidate"
                     data-id={box.id}
                     onClick={() => {
                       selectMobileBox(box.id);
                       // Keep the chosen object in sight on the phone
                       document
                         .querySelector(
-                          `[data-test="mibi-mobile-box"][data-id="${box.id}"]`,
+                          `[data-test="auradata-mobile-box"][data-id="${box.id}"]`,
                         )
                         ?.scrollIntoView?.({
                           block: 'nearest',
@@ -482,7 +482,7 @@ export function MobileLayoutPane({ topOffset = 0, pageTop = 0 }) {
                         'Remove %s from the mobile layout',
                         names[box.id],
                       )}
-                      data-test="mibi-mobile-candidate-remove"
+                      data-test="auradata-mobile-candidate-remove"
                       onClick={event => {
                         event.stopPropagation();
                         remove(box.id);
@@ -503,7 +503,7 @@ export function MobileLayoutPane({ topOffset = 0, pageTop = 0 }) {
                   <li
                     key={id}
                     className="draggable"
-                    data-test="mibi-mobile-candidate"
+                    data-test="auradata-mobile-candidate"
                     data-id={id}
                     title={t('Drag onto the phone')}
                     onPointerDown={event => startDrag(event, id, names[id])}
@@ -515,7 +515,7 @@ export function MobileLayoutPane({ topOffset = 0, pageTop = 0 }) {
                       buttonStyle="link"
                       buttonSize="xsmall"
                       aria-label={t('Add %s to the mobile layout', names[id])}
-                      data-test="mibi-mobile-candidate-add"
+                      data-test="auradata-mobile-candidate-add"
                       onClick={() => add(id)}
                     >
                       {t('Add')}
@@ -537,7 +537,7 @@ export function MobileLayoutPane({ topOffset = 0, pageTop = 0 }) {
           <Button
             buttonStyle="primary"
             buttonSize="small"
-            data-test="mibi-mobile-close"
+            data-test="auradata-mobile-close"
             onClick={() => setMobileEditing(false)}
           >
             <Icons.DesktopOutlined iconSize="m" />
@@ -547,7 +547,7 @@ export function MobileLayoutPane({ topOffset = 0, pageTop = 0 }) {
       </Pane>
       {ghost && (
         <div
-          data-test="mibi-mobile-ghost"
+          data-test="auradata-mobile-ghost"
           css={(theme: SupersetTheme) => css`
             position: fixed;
             z-index: 2000;

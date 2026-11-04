@@ -41,7 +41,7 @@ export function SortAxisButton({ chartId }: { chartId: number }) {
     <NoAnimationDropdown
       popupRender={() => (
         <Menu
-          data-test={`mibi-sort-menu-${chartId}`}
+          data-test={`auradata-sort-menu-${chartId}`}
           selectable={false}
           items={items}
           onClick={({ key }) => {
@@ -61,7 +61,7 @@ export function SortAxisButton({ chartId }: { chartId: number }) {
           aria-label={t('Sort axis')}
           aria-haspopup="true"
           disabled={saving}
-          data-test={`mibi-sort-button-${chartId}`}
+          data-test={`auradata-sort-button-${chartId}`}
         >
           {saving ? (
             <Icons.LoadingOutlined iconSize="m" />

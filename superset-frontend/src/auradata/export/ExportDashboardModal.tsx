@@ -298,7 +298,7 @@ export function ExportDashboardModal({
           theme,
           2,
           // Every canvas is a page of fixed size: capture the page
-          '[data-test="mibi-canvas"]',
+          '[data-test="auradata-canvas"]',
         );
         sections.push({
           title: tabs[index]?.title,
@@ -360,7 +360,7 @@ export function ExportDashboardModal({
       onHandledPrimaryAction={run}
       destroyOnHidden
     >
-      <Body data-test="mibi-export-modal">
+      <Body data-test="auradata-export-modal">
         <div className="group">
           <span className="label">{t('Format')}</span>
           <div className="formats" role="radiogroup" aria-label={t('Format')}>
@@ -371,7 +371,7 @@ export function ExportDashboardModal({
               $selected={format === 'pdf'}
               disabled={busy}
               onClick={() => setFormat('pdf')}
-              data-test="mibi-export-pdf"
+              data-test="auradata-export-pdf"
             >
               <span className="icon">
                 <Icons.FilePdfOutlined iconSize="l" />
@@ -390,7 +390,7 @@ export function ExportDashboardModal({
               $selected={format === 'png'}
               disabled={busy}
               onClick={() => setFormat('png')}
-              data-test="mibi-export-png"
+              data-test="auradata-export-png"
             >
               <span className="icon">
                 <Icons.FileImageOutlined iconSize="l" />

@@ -191,7 +191,7 @@ export function RangeSlicerView({
   const upper = value[1] ?? max;
 
   return (
-    <Box style={slicerStyle(config)} data-test="mibi-range-slicer">
+    <Box style={slicerStyle(config)} data-test="auradata-range-slicer">
       {!config.hideLabel && <SlicerHeader name={filter.name} />}
       {rows === undefined && (
         <span className="slicer-hint">{t('Loading...')}</span>
@@ -199,7 +199,7 @@ export function RangeSlicerView({
       <div className="slicer-fields">
         <InputNumber
           aria-label={t('Lowest value')}
-          data-test="mibi-range-slicer-min"
+          data-test="auradata-range-slicer-min"
           value={value[0]}
           placeholder={min === undefined ? undefined : String(min)}
           onChange={next => setValue([next ?? null, value[1]])}
@@ -209,7 +209,7 @@ export function RangeSlicerView({
         <span className="slicer-dash">–</span>
         <InputNumber
           aria-label={t('Highest value')}
-          data-test="mibi-range-slicer-max"
+          data-test="auradata-range-slicer-max"
           value={value[1]}
           placeholder={max === undefined ? undefined : String(max)}
           onChange={next => setValue([value[0], next ?? null])}
@@ -296,14 +296,14 @@ export function DateSlicerView({
     apply(start || end ? betweenTimeRange(start, end) : undefined);
 
   return (
-    <Box style={slicerStyle(config)} data-test="mibi-date-slicer">
+    <Box style={slicerStyle(config)} data-test="auradata-date-slicer">
       {!config.hideLabel && <SlicerHeader name={filter.name} />}
       {config.dateStyle === 'between' ? (
         <div className="slicer-fields">
           <input
             type="date"
             aria-label={t('From')}
-            data-test="mibi-date-slicer-start"
+            data-test="auradata-date-slicer-start"
             value={between[0] ?? ''}
             max={between[1]}
             onChange={event =>
@@ -314,7 +314,7 @@ export function DateSlicerView({
           <input
             type="date"
             aria-label={t('To')}
-            data-test="mibi-date-slicer-end"
+            data-test="auradata-date-slicer-end"
             value={between[1] ?? ''}
             min={between[0]}
             onChange={event =>
@@ -326,7 +326,7 @@ export function DateSlicerView({
         <div className="slicer-fields">
           <select
             aria-label={t('Period')}
-            data-test="mibi-date-slicer-scope"
+            data-test="auradata-date-slicer-scope"
             value={draft.scope}
             onChange={event =>
               applyRelative({
@@ -346,7 +346,7 @@ export function DateSlicerView({
               type="number"
               min={1}
               aria-label={t('How many')}
-              data-test="mibi-date-slicer-count"
+              data-test="auradata-date-slicer-count"
               value={draft.count}
               onChange={event =>
                 setDraft({ ...draft, count: Number(event.target.value) || 1 })
@@ -359,7 +359,7 @@ export function DateSlicerView({
           )}
           <select
             aria-label={t('Unit')}
-            data-test="mibi-date-slicer-unit"
+            data-test="auradata-date-slicer-unit"
             value={draft.unit}
             onChange={event =>
               applyRelative({
@@ -380,7 +380,7 @@ export function DateSlicerView({
         <button
           type="button"
           className="slicer-hint slicer-clear"
-          data-test="mibi-date-slicer-clear"
+          data-test="auradata-date-slicer-clear"
           onClick={() => apply(undefined)}
         >
           {t('Clear')}

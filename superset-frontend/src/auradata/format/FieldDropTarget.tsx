@@ -95,7 +95,7 @@ function ChartFieldZone({ id, chartId }: { id: string; chartId: number }) {
       ref={setNodeRef}
       $over={over}
       $takes={takes}
-      data-test="mibi-field-drop-zone"
+      data-test="auradata-field-drop-zone"
     >
       {over &&
         (takes

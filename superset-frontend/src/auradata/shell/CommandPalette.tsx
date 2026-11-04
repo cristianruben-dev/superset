@@ -250,7 +250,7 @@ export function CommandPalette({
           onKeyDown={onKeyDown}
           placeholder={t('Search dashboards and pages…')}
           aria-label={t('Search')}
-          data-test="mibi-command-input"
+          data-test="auradata-command-input"
         />
       </SearchRow>
       {flat.length ? (

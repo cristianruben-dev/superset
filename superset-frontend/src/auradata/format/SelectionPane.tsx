@@ -169,7 +169,7 @@ export function SelectionPane() {
   };
 
   return (
-    <Pane data-test="mibi-selection-pane">
+    <Pane data-test="auradata-selection-pane">
       <Input
         allowClear
         size="small"
@@ -183,7 +183,7 @@ export function SelectionPane() {
         <Button
           buttonStyle="link"
           buttonSize="xsmall"
-          data-test="mibi-selection-show-all"
+          data-test="auradata-selection-show-all"
           onClick={() => setAllHidden(false)}
         >
           {t('Show all')}
@@ -191,7 +191,7 @@ export function SelectionPane() {
         <Button
           buttonStyle="link"
           buttonSize="xsmall"
-          data-test="mibi-selection-hide-all"
+          data-test="auradata-selection-hide-all"
           onClick={() => setAllHidden(true)}
         >
           {t('Hide all')}
@@ -208,7 +208,7 @@ export function SelectionPane() {
           return (
             <Row
               key={id}
-              data-test="mibi-selection-row"
+              data-test="auradata-selection-row"
               $selected={picked.includes(id)}
               $hidden={hidden}
               onClick={event =>

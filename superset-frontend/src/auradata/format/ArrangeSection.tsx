@@ -371,7 +371,7 @@ export function ArrangeControls({
               type="button"
               className="close"
               aria-label={t('Close')}
-              data-test="mibi-arrange-close"
+              data-test="auradata-arrange-close"
               onClick={onClose}
             >
               <Icons.CloseOutlined iconSize="s" />
@@ -391,7 +391,7 @@ export function ArrangeControls({
             <Button
               buttonStyle="secondary"
               buttonSize="small"
-              data-test="mibi-arrange-select-all"
+              data-test="auradata-arrange-select-all"
               onClick={() => selectAllVisuals(pageObjects(layout, pageId))}
             >
               {t('Select all on this page')}
@@ -407,7 +407,7 @@ export function ArrangeControls({
             title={title}
             aria-label={title}
             disabled={count < 2}
-            data-test={`mibi-arrange-align-${mode}`}
+            data-test={`auradata-arrange-align-${mode}`}
             onClick={() => run(alignObjects(ids, mode))}
           >
             <Glyph bars={ALIGN_GLYPHS[mode]} />
@@ -431,7 +431,7 @@ export function ArrangeControls({
           type="button"
           aria-label={t('Distribute horizontally')}
           disabled={count < 3}
-          data-test="mibi-arrange-distribute-horizontal"
+          data-test="auradata-arrange-distribute-horizontal"
           onClick={() => run(distributeObjects(ids, 'horizontal'))}
         >
           <Glyph bars={DISTRIBUTE_GLYPHS.horizontal} />
@@ -441,7 +441,7 @@ export function ArrangeControls({
           type="button"
           aria-label={t('Distribute vertically')}
           disabled={count < 3}
-          data-test="mibi-arrange-distribute-vertical"
+          data-test="auradata-arrange-distribute-vertical"
           onClick={() => run(distributeObjects(ids, 'vertical'))}
         >
           <Glyph bars={DISTRIBUTE_GLYPHS.vertical} />
@@ -464,7 +464,7 @@ export function ArrangeControls({
         <Tile
           type="button"
           disabled={count < 2 || !primary}
-          data-test="mibi-arrange-same-width"
+          data-test="auradata-arrange-same-width"
           onClick={() => primary && run(matchSize(ids, primary, 'width'))}
         >
           <Glyph bars={SIZE_GLYPHS.width} />
@@ -473,7 +473,7 @@ export function ArrangeControls({
         <Tile
           type="button"
           disabled={count < 2 || !primary}
-          data-test="mibi-arrange-same-height"
+          data-test="auradata-arrange-same-height"
           onClick={() => primary && run(matchSize(ids, primary, 'height'))}
         >
           <Glyph bars={SIZE_GLYPHS.height} />
@@ -484,7 +484,7 @@ export function ArrangeControls({
         <Tile
           type="button"
           disabled={count < 2}
-          data-test="mibi-arrange-group"
+          data-test="auradata-arrange-group"
           onClick={() => dispatch(groupObjects(ids, true) as never)}
         >
           <Icons.GroupOutlined iconSize="m" />
@@ -493,7 +493,7 @@ export function ArrangeControls({
         <Tile
           type="button"
           disabled={!grouped}
-          data-test="mibi-arrange-ungroup"
+          data-test="auradata-arrange-ungroup"
           onClick={() => dispatch(groupObjects(ids, false) as never)}
         >
           <Glyph bars={UNGROUP_GLYPH} />
@@ -514,7 +514,7 @@ export function ArrangeControls({
               key={move}
               type="button"
               disabled={!count}
-              data-test={`mibi-arrange-${move}`}
+              data-test={`auradata-arrange-${move}`}
               onClick={() =>
                 ids.forEach(id =>
                   dispatch(arrangeLayer(pageId, id, move) as never),
@@ -528,7 +528,11 @@ export function ArrangeControls({
         </Group>
       )}
       {result && (
-        <div className="result" role="status" data-test="mibi-arrange-result">
+        <div
+          className="result"
+          role="status"
+          data-test="auradata-arrange-result"
+        >
           {result}
         </div>
       )}
@@ -539,7 +543,7 @@ export function ArrangeControls({
 /** Several objects picked: align, distribute, match size and group them. */
 export function MultiSection() {
   return (
-    <Section data-test="mibi-format-multi">
+    <Section data-test="auradata-format-multi">
       <ArrangeControls />
     </Section>
   );

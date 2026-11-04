@@ -280,7 +280,9 @@ test('a chart shows its own format over the shared style', () => {
 test('formats the canvas and then the selected chart', () => {
   const store = makeStore();
   render(<FormatPane />, { store });
-  expect(screen.getByTestId('mibi-format-title')).toHaveTextContent('Canvas');
+  expect(screen.getByTestId('auradata-format-title')).toHaveTextContent(
+    'Canvas',
+  );
 
   fireEvent.click(screen.getByRole('radio', { name: 'Gradient' }));
   expect(
@@ -289,7 +291,9 @@ test('formats the canvas and then the selected chart', () => {
   ).toBe('gradient');
 
   act(() => selectVisual('CHART-a'));
-  expect(screen.getByTestId('mibi-format-title')).toHaveTextContent('Sales');
+  expect(screen.getByTestId('auradata-format-title')).toHaveTextContent(
+    'Sales',
+  );
 
   fireEvent.click(screen.getByRole('radio', { name: 'General' }));
   fireEvent.click(screen.getByRole('switch', { name: 'Show title' }));
@@ -298,7 +302,7 @@ test('formats the canvas and then the selected chart', () => {
     stateOf(store).dashboardLayout.present['CHART-a'].meta.mibiFormat,
   ).toEqual({ title: { show: false }, shadow: 'strong' });
 
-  fireEvent.click(screen.getByTestId('mibi-format-apply-all'));
+  fireEvent.click(screen.getByTestId('auradata-format-apply-all'));
   expect(
     stateOf(store).dashboardLayout.present.ROOT_ID.meta.mibiCanvas?.visuals
       ?.shadow,
@@ -306,8 +310,10 @@ test('formats the canvas and then the selected chart', () => {
   // The chart keeps showing the style, now shared
   expect(screen.getByRole('radio', { name: 'Strong' })).toBeChecked();
 
-  fireEvent.click(screen.getByTestId('mibi-format-back'));
-  expect(screen.getByTestId('mibi-format-title')).toHaveTextContent('Canvas');
+  fireEvent.click(screen.getByTestId('auradata-format-back'));
+  expect(screen.getByTestId('auradata-format-title')).toHaveTextContent(
+    'Canvas',
+  );
 });
 
 test('frames the grid with the canvas format', () => {
@@ -324,7 +330,7 @@ test('frames the grid with the canvas format', () => {
     </CanvasFrame>,
     { store },
   );
-  const canvas = screen.getByTestId('mibi-canvas');
+  const canvas = screen.getByTestId('auradata-canvas');
   expect(canvas).toHaveTextContent('grid');
   expect(canvas).toHaveStyle({ width: '1440px', minHeight: '1088px' });
   expect(canvas.style.background).toContain('rgb(18, 52, 86)');
@@ -337,7 +343,7 @@ test('a canvas without a size is a 16:9 page', () => {
     </CanvasFrame>,
     { store: makeStore() },
   );
-  expect(screen.getByTestId('mibi-canvas')).toHaveStyle({
+  expect(screen.getByTestId('auradata-canvas')).toHaveStyle({
     width: '1920px',
     minHeight: '1088px',
   });

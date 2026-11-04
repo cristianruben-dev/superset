@@ -99,7 +99,7 @@ test('a relative date slicer writes a time range', async () => {
   expect(dataMaskOf(store, filter.id).extraFormData).toEqual({
     time_range: 'Last 1 year',
   });
-  fireEvent.click(screen.getByTestId('mibi-date-slicer-clear'));
+  fireEvent.click(screen.getByTestId('auradata-date-slicer-clear'));
   expect(dataMaskOf(store, filter.id).extraFormData).toEqual({});
 });
 
@@ -123,15 +123,19 @@ test('an element title only shows once it is turned on', () => {
   const { rerender } = render(
     <ElementTitle format={{ title: { subtitle: 'x' } }} fallback="Region" />,
   );
-  expect(screen.queryByTestId('mibi-element-title')).not.toBeInTheDocument();
+  expect(
+    screen.queryByTestId('auradata-element-title'),
+  ).not.toBeInTheDocument();
   rerender(
     <ElementTitle
       format={{ title: { show: true, subtitle: 'By country' } }}
       fallback="Region"
     />,
   );
-  expect(screen.getByTestId('mibi-element-title')).toHaveTextContent('Region');
-  expect(screen.getByTestId('mibi-element-subtitle')).toHaveTextContent(
+  expect(screen.getByTestId('auradata-element-title')).toHaveTextContent(
+    'Region',
+  );
+  expect(screen.getByTestId('auradata-element-subtitle')).toHaveTextContent(
     'By country',
   );
   rerender(
@@ -140,7 +144,9 @@ test('an element title only shows once it is turned on', () => {
       fallback="Region"
     />,
   );
-  expect(screen.getByTestId('mibi-element-title')).toHaveTextContent('Zona');
+  expect(screen.getByTestId('auradata-element-title')).toHaveTextContent(
+    'Zona',
+  );
 });
 
 test('leaving a range box without a change does not filter again', async () => {

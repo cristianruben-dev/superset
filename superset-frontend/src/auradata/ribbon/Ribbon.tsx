@@ -305,7 +305,7 @@ export function Ribbon({
       icon={<Icons.FormatPainterOutlined iconSize="m" />}
       disabled={!item && !armed}
       pressed={armed}
-      data-test="mibi-ribbon-painter"
+      data-test="auradata-ribbon-painter"
       onClick={() => {
         if (armed) cancelFormatPainter();
         else if (item) {
@@ -323,7 +323,7 @@ export function Ribbon({
       hint={t('Gives the selected object the format copied last')}
       icon={<Icons.HighlightOutlined iconSize="m" />}
       disabled={!canPasteFormat(item)}
-      data-test="mibi-ribbon-paste-format"
+      data-test="auradata-ribbon-paste-format"
       onClick={() => {
         if (!primary) return;
         dispatch(pasteFormat(primary) as never);
@@ -339,19 +339,19 @@ export function Ribbon({
       <RibbonButton
         label={t('New page')}
         icon={<Icons.PlusSquareOutlined iconSize="m" />}
-        data-test="mibi-ribbon-new-page"
+        data-test="auradata-ribbon-new-page"
         onClick={() => dispatch(insertPage() as never)}
       />
       <RibbonButton
         label={t('New visual')}
         icon={<Icons.BarChartOutlined iconSize="m" />}
-        data-test="mibi-ribbon-new-visual"
+        data-test="auradata-ribbon-new-visual"
         onClick={newVisual}
       />
       <RibbonButton
         label={t('Text box')}
         icon={<Icons.FontSizeOutlined iconSize="m" />}
-        data-test="mibi-ribbon-text"
+        data-test="auradata-ribbon-text"
         onClick={() => dispatch(insertElement('text') as never)}
       />
     </RibbonGroup>
@@ -409,7 +409,7 @@ export function Ribbon({
             icon={<Icons.SnippetsOutlined iconSize="m" />}
             disabled={!clipboard}
             onClick={() => paste(primary)}
-            data-test="mibi-paste"
+            data-test="auradata-paste"
           />
           <div className="stack">
             <RibbonButton
@@ -419,7 +419,7 @@ export function Ribbon({
               icon={<Icons.ScissorOutlined iconSize="m" />}
               disabled={!isCopyable(item)}
               onClick={() => primary && cut(primary)}
-              data-test="mibi-cut"
+              data-test="auradata-cut"
             />
             <RibbonButton
               small
@@ -428,7 +428,7 @@ export function Ribbon({
               icon={<Icons.CopyOutlined iconSize="m" />}
               disabled={!isCopyable(item)}
               onClick={() => primary && copy(primary)}
-              data-test="mibi-copy"
+              data-test="auradata-copy"
             />
           </div>
           <div className="stack">
@@ -444,7 +444,7 @@ export function Ribbon({
             hint={t('Runs the queries of all the charts again')}
             icon={<Icons.ReloadOutlined iconSize="m" />}
             onClick={onRefresh}
-            data-test="mibi-ribbon-refresh"
+            data-test="auradata-ribbon-refresh"
           />
           <DataMenu />
           <RibbonButton
@@ -453,14 +453,14 @@ export function Ribbon({
             icon={<Icons.Undo iconSize="m" />}
             disabled={!filtersChanged}
             onClick={() => dispatch(resetFilters() as never)}
-            data-test="mibi-ribbon-reset-filters"
+            data-test="auradata-ribbon-reset-filters"
           />
           <RibbonButton
             label={t('Lineage')}
             hint={t('Where the data of the report comes from')}
             icon={<Icons.PartitionOutlined iconSize="m" />}
             onClick={() => setLineage(true)}
-            data-test="mibi-ribbon-lineage"
+            data-test="auradata-ribbon-lineage"
           />
         </RibbonGroup>
         {canExport && (
@@ -469,7 +469,7 @@ export function Ribbon({
               label={t('Export')}
               icon={<Icons.DownloadOutlined iconSize="m" />}
               onClick={onExport}
-              data-test="mibi-ribbon-export"
+              data-test="auradata-ribbon-export"
             />
           </RibbonGroup>
         )}
@@ -479,13 +479,13 @@ export function Ribbon({
             hint={t('Opens the workspace of the report, with its members')}
             icon={<Icons.TeamOutlined iconSize="m" />}
             onClick={openPermissions}
-            data-test="mibi-ribbon-permissions"
+            data-test="auradata-ribbon-permissions"
           />
           <RibbonButton
             label={t('Properties')}
             icon={<Icons.SettingOutlined iconSize="m" />}
             onClick={onProperties}
-            data-test="mibi-ribbon-properties"
+            data-test="auradata-ribbon-properties"
           />
         </RibbonGroup>
       </>
@@ -531,7 +531,7 @@ export function Ribbon({
               key={kind}
               label={label}
               icon={node}
-              data-test={`mibi-ribbon-insert-${kind}`}
+              data-test={`auradata-ribbon-insert-${kind}`}
               onClick={() => dispatch(insertElement(kind) as never)}
             />
           ))}
@@ -552,7 +552,7 @@ export function Ribbon({
           <RibbonButton
             label={t('Page size')}
             icon={<Icons.ExpandOutlined iconSize="m" />}
-            data-test="mibi-ribbon-page-size"
+            data-test="auradata-ribbon-page-size"
             menu={{
               selectedKeys: [canvas?.size?.mode ?? '16:9'],
               items: [
@@ -590,7 +590,7 @@ export function Ribbon({
             hint={t('Color, gradient or picture of the canvas and its pages')}
             icon={<Icons.BgColorsOutlined iconSize="m" />}
             onClick={() => openFormat(null)}
-            data-test="mibi-ribbon-background"
+            data-test="auradata-ribbon-background"
           />
         </RibbonGroup>
         <RibbonGroup label={t('Filter panel')}>
@@ -617,7 +617,7 @@ export function Ribbon({
                 setCanvasFormat(undefined, `canvas:${Date.now()}`) as never,
               )
             }
-            data-test="mibi-ribbon-reset-canvas"
+            data-test="auradata-ribbon-reset-canvas"
           />
         </RibbonGroup>
       </>
@@ -632,7 +632,7 @@ export function Ribbon({
             icon={<Icons.EditOutlined iconSize="m" />}
             pressed={mobileSettings.mode === 'work'}
             onClick={() => setMobileViewSettings({ mode: 'work' })}
-            data-test="mibi-ribbon-mobile-work"
+            data-test="auradata-ribbon-mobile-work"
           />
           <RibbonButton
             label={t('Preview')}
@@ -643,14 +643,14 @@ export function Ribbon({
               selectMobileBox(null);
               setMobileViewSettings({ mode: 'preview' });
             }}
-            data-test="mibi-ribbon-mobile-preview"
+            data-test="auradata-ribbon-mobile-preview"
           />
         </RibbonGroup>
         <RibbonGroup label={t('Device')}>
           <RibbonButton
             label={mobileDevice.name}
             icon={<Icons.MobileOutlined iconSize="m" />}
-            data-test="mibi-ribbon-mobile-device"
+            data-test="auradata-ribbon-mobile-device"
             menu={{
               selectedKeys: [mobileDevice.id],
               onClick: ({ key }) => setMobileViewSettings({ device: key }),
@@ -658,7 +658,7 @@ export function Ribbon({
                 key: device.id,
                 label: (
                   <span
-                    data-test={`mibi-device-option-${device.id}`}
+                    data-test={`auradata-device-option-${device.id}`}
                     style={{
                       display: 'flex',
                       justifyContent: 'space-between',
@@ -684,7 +684,7 @@ export function Ribbon({
               icon={<Icons.CompressOutlined iconSize="m" />}
               pressed={mobileSettings.fit}
               onClick={() => setMobileViewSettings({ fit: true })}
-              data-test="mibi-ribbon-mobile-fit"
+              data-test="auradata-ribbon-mobile-fit"
             />
             <RibbonButton
               small
@@ -692,7 +692,7 @@ export function Ribbon({
               icon={<Icons.ExpandOutlined iconSize="m" />}
               pressed={!mobileSettings.fit}
               onClick={() => setMobileViewSettings({ fit: false })}
-              data-test="mibi-ribbon-mobile-actual"
+              data-test="auradata-ribbon-mobile-actual"
             />
             <RibbonButton
               small
@@ -705,7 +705,7 @@ export function Ribbon({
               onClick={() =>
                 setMobileViewSettings({ safeArea: !mobileSettings.safeArea })
               }
-              data-test="mibi-ribbon-mobile-safe-area"
+              data-test="auradata-ribbon-mobile-safe-area"
             />
           </div>
         </RibbonGroup>
@@ -715,7 +715,7 @@ export function Ribbon({
             hint={t('Edits the canvas of the report again')}
             icon={<Icons.DesktopOutlined iconSize="m" />}
             onClick={() => setMobileEditing(false)}
-            data-test="mibi-ribbon-mobile-close"
+            data-test="auradata-ribbon-mobile-close"
           />
         </RibbonGroup>
       </>
@@ -733,7 +733,7 @@ export function Ribbon({
             icon={<Icons.MobileOutlined iconSize="m" />}
             pressed={hasMobileLayout}
             onClick={openMobileLayout}
-            data-test="mibi-ribbon-mobile-layout"
+            data-test="auradata-ribbon-mobile-layout"
           />
         </RibbonGroup>
         <RibbonGroup label={t('Scale to fit')}>
@@ -742,14 +742,14 @@ export function Ribbon({
             icon={<Icons.CompressOutlined iconSize="m" />}
             pressed={view.mode === 'fit-page'}
             onClick={() => setCanvasView({ mode: 'fit-page' })}
-            data-test="mibi-ribbon-fit-page"
+            data-test="auradata-ribbon-fit-page"
           />
           <RibbonButton
             label={t('Fit width')}
             icon={<Icons.ColumnWidthOutlined iconSize="m" />}
             pressed={view.mode === 'fit-width'}
             onClick={() => setCanvasView({ mode: 'fit-width' })}
-            data-test="mibi-ribbon-fit-width"
+            data-test="auradata-ribbon-fit-width"
           />
           <RibbonButton
             label={t('Actual size')}
@@ -764,7 +764,7 @@ export function Ribbon({
             icon={<Icons.TableOutlined iconSize="m" />}
             pressed={grid.visible !== false}
             onClick={() => updateGrid({ visible: grid.visible === false })}
-            data-test="mibi-ribbon-gridlines"
+            data-test="auradata-ribbon-gridlines"
           />
           <RibbonButton
             label={t('Lock objects')}
@@ -772,7 +772,7 @@ export function Ribbon({
             icon={<Icons.LockOutlined iconSize="m" />}
             pressed={allLocked}
             onClick={() => setAllLocked(!allLocked)}
-            data-test="mibi-ribbon-lock"
+            data-test="auradata-ribbon-lock"
           />
         </RibbonGroup>
         <RibbonGroup label={t('Show panes')}>
@@ -780,7 +780,7 @@ export function Ribbon({
             label={t('Data')}
             icon={<Icons.DatabaseOutlined iconSize="m" />}
             pressed={!dataPaneFolded}
-            data-test="mibi-ribbon-pane-data"
+            data-test="auradata-ribbon-pane-data"
             onClick={() => {
               setPaneCollapsed('data', !dataPaneFolded);
               if (dataPaneFolded) setPaneCollapsed('builder', false);
@@ -812,7 +812,7 @@ export function Ribbon({
               label={label}
               icon={node}
               pressed={paneTab === key && !paneFolded}
-              data-test={`mibi-ribbon-pane-${key.toLowerCase()}`}
+              data-test={`auradata-ribbon-pane-${key.toLowerCase()}`}
               onClick={() => togglePane(key)}
             />
           ))}
@@ -831,7 +831,7 @@ export function Ribbon({
             disabled={!isChart}
             pressed={editingInteractions}
             onClick={() => setEditingInteractions(!editingInteractions)}
-            data-test="mibi-ribbon-interactions"
+            data-test="auradata-ribbon-interactions"
           />
         </RibbonGroup>
         <RibbonGroup label={t('Arrange')}>
@@ -856,7 +856,7 @@ export function Ribbon({
               icon={<Icons.CopyOutlined iconSize="m" />}
               disabled={!isCopyable(item)}
               onClick={() => primary && duplicate(primary)}
-              data-test="mibi-duplicate"
+              data-test="auradata-duplicate"
             />
           </div>
         </RibbonGroup>
@@ -871,7 +871,7 @@ export function Ribbon({
               )
             }
             pressed={!!item?.meta?.mibiLocked}
-            data-test="mibi-ribbon-lock-object"
+            data-test="auradata-ribbon-lock-object"
             onClick={() =>
               ids.forEach(id =>
                 dispatch(
@@ -896,7 +896,7 @@ export function Ribbon({
               )
             }
             pressed={!!item?.meta?.mibiHidden}
-            data-test="mibi-ribbon-hide-object"
+            data-test="auradata-ribbon-hide-object"
             onClick={() =>
               ids.forEach(id => {
                 clearVisibilityOverride(id);
@@ -927,12 +927,12 @@ export function Ribbon({
             hint={t('Fields and type of the chart, in the side panel')}
             icon={<Icons.EditOutlined iconSize="m" />}
             onClick={editVisual}
-            data-test="mibi-ribbon-edit-visual"
+            data-test="auradata-ribbon-edit-visual"
           />
           <RibbonButton
             label={t('Refresh visual')}
             icon={<Icons.ReloadOutlined iconSize="m" />}
-            data-test="mibi-ribbon-refresh-visual"
+            data-test="auradata-ribbon-refresh-visual"
             onClick={() => {
               const chartId = item?.meta?.chartId as number | undefined;
               if (chartId) {
@@ -978,7 +978,7 @@ export function Ribbon({
         ];
 
   return (
-    <RibbonBar data-test="mibi-ribbon">
+    <RibbonBar data-test="auradata-ribbon">
       <RibbonTabs role="tablist" aria-label={t('Ribbon')}>
         {tabs.map(({ key, label, contextual }) => (
           <RibbonTab
@@ -988,7 +988,7 @@ export function Ribbon({
             aria-selected={tab === key && !folded}
             $active={tab === key && !folded}
             $contextual={contextual}
-            data-test={`mibi-ribbon-tab-${key}`}
+            data-test={`auradata-ribbon-tab-${key}`}
             onClick={() => openTab(key)}
           >
             {label}
@@ -999,7 +999,7 @@ export function Ribbon({
           <Button
             buttonStyle="link"
             buttonSize="xsmall"
-            data-test="mibi-ribbon-unlock-all"
+            data-test="auradata-ribbon-unlock-all"
             onClick={() => setAllLocked(false)}
           >
             <Icons.LockOutlined iconSize="s" />
@@ -1011,7 +1011,7 @@ export function Ribbon({
           buttonSize="xsmall"
           aria-label={folded ? t('Show the ribbon') : t('Hide the ribbon')}
           title={folded ? t('Show the ribbon') : t('Hide the ribbon')}
-          data-test="mibi-ribbon-fold"
+          data-test="auradata-ribbon-fold"
           onClick={() => fold(!folded)}
         >
           {folded ? (
@@ -1064,7 +1064,7 @@ export function ModeMenu({
         <Button
           buttonStyle="secondary"
           buttonSize="small"
-          data-test="mibi-mode-menu"
+          data-test="auradata-mode-menu"
           aria-label={t('Report mode')}
         >
           <Icons.EditOutlined iconSize="m" />

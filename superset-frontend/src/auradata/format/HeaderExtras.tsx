@@ -154,7 +154,7 @@ export function HeaderExtras({
               : link.disabledTooltip || t('This action is not available')
           }
           onClick={runLink}
-          testId="mibi-header-link"
+          testId="auradata-header-link"
         >
           <Icons.LinkOutlined {...iconProps} />
         </HeaderIcon>
@@ -168,7 +168,7 @@ export function HeaderExtras({
           <span
             role="img"
             aria-label={tooltip.text}
-            data-test="mibi-header-tooltip"
+            data-test="auradata-header-tooltip"
             className="mibi-header-icon"
           >
             <Icons.QuestionCircleOutlined {...iconProps} />
@@ -176,14 +176,14 @@ export function HeaderExtras({
         </Tooltip>
       )}
       {header?.info && description && (
-        <HeaderIcon title={description} testId="mibi-header-info">
+        <HeaderIcon title={description} testId="auradata-header-info">
           <Icons.InfoCircleOutlined {...iconProps} />
         </HeaderIcon>
       )}
       {header?.error && failed && (
         <HeaderIcon
           title={t('This chart could not be loaded')}
-          testId="mibi-header-error"
+          testId="auradata-header-error"
         >
           <Icons.CloseCircleOutlined {...iconProps} />
         </HeaderIcon>
@@ -195,7 +195,7 @@ export function HeaderExtras({
           modalRef={resultsRef as never}
           modalTitle={t('Chart Data: %s', sliceName ?? '')}
           triggerNode={
-            <HeaderIcon title={t('See the data')} testId="mibi-header-data">
+            <HeaderIcon title={t('See the data')} testId="auradata-header-data">
               <Icons.TableOutlined {...iconProps} />
             </HeaderIcon>
           }
@@ -215,7 +215,7 @@ export function HeaderExtras({
         <HeaderIcon
           title={t('Copy as an image')}
           onClick={copyImage}
-          testId="mibi-header-copy"
+          testId="auradata-header-copy"
         >
           <Icons.CopyOutlined {...iconProps} />
         </HeaderIcon>
@@ -224,7 +224,7 @@ export function HeaderExtras({
         <HeaderIcon
           title={isFullSize ? t('Exit focus mode') : t('Focus mode')}
           onClick={toggleFocus}
-          testId="mibi-header-focus"
+          testId="auradata-header-focus"
         >
           {isFullSize ? (
             <Icons.FullscreenExitOutlined {...iconProps} />
@@ -257,7 +257,7 @@ export function ChartActionButton({
     <button
       type="button"
       className={`mibi-action-button mibi-action-${button.position ?? 'within'}`}
-      data-test="mibi-chart-action-button"
+      data-test="auradata-chart-action-button"
       disabled={!run}
       style={positioned}
       title={format?.link?.tooltip}

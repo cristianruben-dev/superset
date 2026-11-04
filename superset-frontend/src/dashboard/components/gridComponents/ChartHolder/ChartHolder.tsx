@@ -441,7 +441,7 @@ const ChartHolder = ({
                 id={component.id}
                 onDelete={locked ? undefined : handleDeleteComponent}
                 onFormat={() => openFormat(component.id)}
-                formatTestId="mibi-format-visual-button"
+                formatTestId="auradata-format-visual-button"
                 deleteTestId="dashboard-delete-component-button"
               />
             )}

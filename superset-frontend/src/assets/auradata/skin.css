@@ -1067,17 +1067,17 @@ body.mibi-dock .controls-column .ant-tabs-nav {
 }
 
 /* In the top bar, as the file name of a Power BI report: "New" gives it room */
-[data-test='mibi-topbar']:has([data-test='mibi-topbar-brand']) .mibi-new-label {
+[data-test='auradata-topbar']:has([data-test='auradata-topbar-brand']) .mibi-new-label {
   display: none;
 }
 
-[data-test='mibi-report-slot'] [data-test='dashboard-header-container'] {
+[data-test='auradata-report-slot'] [data-test='dashboard-header-container'] {
   height: 100%;
   border-bottom: 0;
   box-shadow: none !important;
 }
 
-[data-test='mibi-report-slot']
+[data-test='auradata-report-slot']
   [data-test='dashboard-header-container']
   .header-with-actions {
   height: 100%;
@@ -1087,18 +1087,18 @@ body.mibi-dock .controls-column .ant-tabs-nav {
   background: transparent;
 }
 
-[data-test='mibi-report-slot'] .title-panel {
+[data-test='auradata-report-slot'] .title-panel {
   margin-right: 12px !important;
 }
 
 /* The title keeps room to be read; the status and refresh give way */
-[data-test='mibi-report-slot'] .title-panel > :first-child {
+[data-test='auradata-report-slot'] .title-panel > :first-child {
   min-width: 160px;
 }
 
 @container (max-width: 620px) {
-  [data-test='mibi-report-slot'] .title-panel .ant-tag,
-  [data-test='mibi-report-slot'] [data-test='refresh-button'] {
+  [data-test='auradata-report-slot'] .title-panel .ant-tag,
+  [data-test='auradata-report-slot'] [data-test='refresh-button'] {
     display: none !important;
   }
 }
@@ -1589,22 +1589,22 @@ body:has(.dashboard--editing) [data-test='dashboard-header-container'] {
 
 /* ---------------------------------------------------------------- Command palette */
 
-[data-test='mibi-command-palette-modal'] .ant-modal-header {
+[data-test='auradata-command-palette-modal'] .ant-modal-header {
   display: none;
 }
 
-[data-test='mibi-command-palette-modal'] .ant-modal-content {
+[data-test='auradata-command-palette-modal'] .ant-modal-content {
   padding: 0;
   overflow: hidden;
   border-radius: 14px;
   box-shadow: var(--mb-shadow-pop);
 }
 
-[data-test='mibi-command-palette-modal'] .ant-modal-body {
+[data-test='auradata-command-palette-modal'] .ant-modal-body {
   padding: 0 !important;
 }
 
-[data-test='mibi-command-palette-modal'] .ant-modal {
+[data-test='auradata-command-palette-modal'] .ant-modal {
   top: 12vh;
 }
 
@@ -1723,14 +1723,14 @@ body:has(.dashboard--editing) [data-test='dashboard-header-container'] {
 
 /* ---- Presentation mode: the dashboard alone, full screen ---------------- */
 
-body.mibi-presenting [data-test='mibi-sidebar'],
-body.mibi-presenting [data-test='mibi-topbar'],
-body.mibi-presenting [data-test='mibi-menubar-row'],
+body.mibi-presenting [data-test='auradata-sidebar'],
+body.mibi-presenting [data-test='auradata-topbar'],
+body.mibi-presenting [data-test='auradata-menubar-row'],
 body.mibi-presenting [data-test='dashboard-header-wrapper'] {
   display: none !important;
 }
 
-body.mibi-presenting [data-test='mibi-main'] {
+body.mibi-presenting [data-test='auradata-main'] {
   margin-left: 0 !important;
 }
 
@@ -1985,12 +1985,12 @@ body.mibi-presenting-idle * {
 
 /* ---- Mobile layout: the page inside the phone of the editor ------------- */
 
-[data-test='mibi-device-viewport'] .mibi-canvas {
+[data-test='auradata-device-viewport'] .mibi-canvas {
   border-radius: 0 !important;
 }
 
 /* The phone shows the page as a viewer does: no drop targets of the editor */
-[data-test='mibi-device-viewport'] .empty-droptarget {
+[data-test='auradata-device-viewport'] .empty-droptarget {
   display: none !important;
 }
 
@@ -2005,26 +2005,26 @@ body.mibi-presenting-idle * {
 /* ---- Narrow screens: compact top bar ------------------------------------- */
 
 @media (max-width: 767px) {
-  [data-test='mibi-search-trigger'] {
+  [data-test='auradata-search-trigger'] {
     width: 40px !important;
     min-width: 40px !important;
     padding: 0 !important;
     justify-content: center;
   }
 
-  [data-test='mibi-search-trigger'] .placeholder,
-  [data-test='mibi-search-trigger'] kbd,
-  [data-test='mibi-topbar'] .ant-tag {
+  [data-test='auradata-search-trigger'] .placeholder,
+  [data-test='auradata-search-trigger'] kbd,
+  [data-test='auradata-topbar'] .ant-tag {
     display: none !important;
   }
 
-  [data-test='mibi-topbar'] .name,
-  [data-test='mibi-topbar'] .label {
+  [data-test='auradata-topbar'] .name,
+  [data-test='auradata-topbar'] .label {
     display: none;
   }
 
   /* Only the user menu stays: theme and language live in it on desktop */
-  [data-test='mibi-topbar']
+  [data-test='auradata-topbar']
     .ant-menu-horizontal
     > .ant-menu-submenu:not(:last-child) {
     display: none !important;
@@ -2034,7 +2034,7 @@ body.mibi-presenting-idle * {
     padding: 0 12px !important;
   }
 
-  [data-test='dashboard-header-container'] [data-test='mibi-present-button'],
+  [data-test='dashboard-header-container'] [data-test='auradata-present-button'],
   [data-test='dashboard-header-container'] [data-test='edit-dashboard-button'] {
     display: none !important;
   }
@@ -2304,13 +2304,13 @@ body.mibi-moving * {
 
 /* ---- Focus mode: a chart over the whole page, whatever the canvas zoom ---- */
 
-[data-test='mibi-canvas-outer'] :has(.mibi-full-size) {
+[data-test='auradata-canvas-outer'] :has(.mibi-full-size) {
   transform: none !important;
   z-index: 3000 !important;
 }
 
 /* The page bar of a report reaches the bottom of the screen, as in Power BI */
 .dashboard-content
-  > [data-test='grid-container']:has([data-test='mibi-page-bar']) {
+  > [data-test='grid-container']:has([data-test='auradata-page-bar']) {
   margin-bottom: 0 !important;
 }

@@ -179,13 +179,15 @@ test('an editor sorts a bar chart from its header and viewers see that order', a
   await expect(page.getByTestId('edit-dashboard-button')).toBeVisible({
     timeout: TIMEOUT.PAGE_LOAD,
   });
-  await expect(page.getByTestId(`mibi-sort-button-${chartId}`)).toHaveCount(0);
+  await expect(page.getByTestId(`auradata-sort-button-${chartId}`)).toHaveCount(
+    0,
+  );
 
   // Editing: sort by the metric, ascending (the default direction)
   await page.getByTestId('edit-dashboard-button').click();
-  const sortButton = page.getByTestId(`mibi-sort-button-${chartId}`);
+  const sortButton = page.getByTestId(`auradata-sort-button-${chartId}`);
   await sortButton.click();
-  const menu = page.getByTestId(`mibi-sort-menu-${chartId}`);
+  const menu = page.getByTestId(`auradata-sort-menu-${chartId}`);
   const reloaded = nextQueryCategories(page);
   await menu.getByText('sales', { exact: true }).click();
   expect(await reloaded).toEqual(['Chile', 'Peru', 'Brazil']);
@@ -199,7 +201,9 @@ test('an editor sorts a bar chart from its header and viewers see that order', a
   const afterReload = nextQueryCategories(page);
   await page.reload();
   expect(await afterReload).toEqual(['Chile', 'Peru', 'Brazil']);
-  await expect(page.getByTestId(`mibi-sort-button-${chartId}`)).toHaveCount(0);
+  await expect(page.getByTestId(`auradata-sort-button-${chartId}`)).toHaveCount(
+    0,
+  );
 });
 
 test('an editor undoes the last sort saved', async ({ page, testAssets }) => {
@@ -212,8 +216,8 @@ test('an editor undoes the last sort saved', async ({ page, testAssets }) => {
 
   await page.goto(`dashboard/${dashboardId}/`);
   await page.getByTestId('edit-dashboard-button').click();
-  const sortButton = page.getByTestId(`mibi-sort-button-${chartId}`);
-  const menu = page.getByTestId(`mibi-sort-menu-${chartId}`);
+  const sortButton = page.getByTestId(`auradata-sort-button-${chartId}`);
+  const menu = page.getByTestId(`auradata-sort-menu-${chartId}`);
 
   await sortButton.click();
   await menu.getByText(SORT_ASCENDING).click();

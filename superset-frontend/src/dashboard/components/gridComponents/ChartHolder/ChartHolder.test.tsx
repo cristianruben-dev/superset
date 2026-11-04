@@ -450,7 +450,9 @@ describe('ChartHolder', () => {
     expect(holder).toHaveStyle({ backgroundColor: 'transparent' });
     expect(holder.style.getPropertyValue('--mb-v-radius')).toBe('4px');
     expect(holder).toHaveClass('mibi-title-hidden');
-    expect(screen.getByTestId('mibi-format-visual-button')).toBeInTheDocument();
+    expect(
+      screen.getByTestId('auradata-format-visual-button'),
+    ).toBeInTheDocument();
   });
 
   test('shows the style every chart shares under its own format', () => {
@@ -508,7 +510,7 @@ describe('ChartHolder', () => {
     expect(screen.getByTestId('dashboard-component-chart-holder')).toHaveClass(
       'mibi-hidden',
     );
-    expect(screen.getByTestId('mibi-object-badges')).toHaveTextContent(
+    expect(screen.getByTestId('auradata-object-badges')).toHaveTextContent(
       'Hidden',
     );
   });
@@ -525,7 +527,7 @@ describe('ChartHolder', () => {
     expect(
       screen.queryByTestId('dashboard-delete-component-button'),
     ).not.toBeInTheDocument();
-    expect(screen.getByTestId('mibi-object-badges')).toHaveTextContent(
+    expect(screen.getByTestId('auradata-object-badges')).toHaveTextContent(
       'Locked',
     );
   });

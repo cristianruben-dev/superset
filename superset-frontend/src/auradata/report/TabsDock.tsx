@@ -298,7 +298,7 @@ function TabsScrollButtons({ dock }: { dock: HTMLElement | null }) {
           type="button"
           $side="left"
           aria-label={t('Previous tabs')}
-          data-test="mibi-tabs-scroll-left"
+          data-test="auradata-tabs-scroll-left"
           onClick={() => scroll(-1)}
         >
           <Icons.LeftOutlined iconSize="s" />
@@ -309,7 +309,7 @@ function TabsScrollButtons({ dock }: { dock: HTMLElement | null }) {
           type="button"
           $side="right"
           aria-label={t('Next tabs')}
-          data-test="mibi-tabs-scroll-right"
+          data-test="auradata-tabs-scroll-right"
           onClick={() => scroll(1)}
         >
           <Icons.RightOutlined iconSize="s" />
@@ -334,7 +334,7 @@ export function TabsDockTarget({
   const slot = context?.slot ?? null;
   return (
     <Dock
-      data-test="mibi-tabs-dock"
+      data-test="auradata-tabs-dock"
       ref={context?.setSlot}
       style={style}
       $bar={bar}
@@ -366,12 +366,12 @@ const Bar = styled.div`
     /* The zoom gives up its slider, then its fit choice, then the page
        count, before the tabs give up their room */
     @container (max-width: 820px) {
-      [data-test='mibi-zoom-toolbar'] .ant-slider {
+      [data-test='auradata-zoom-toolbar'] .ant-slider {
         display: none;
       }
     }
     @container (max-width: 640px) {
-      [data-test='mibi-zoom-toolbar'] .mibi-zoom-fit,
+      [data-test='auradata-zoom-toolbar'] .mibi-zoom-fit,
       .mibi-page-count {
         display: none;
       }
@@ -456,13 +456,13 @@ export function PageBar({ children }: { children?: ReactNode }) {
     if (page) dispatch(setDirectPathToChild(page.path));
   };
   return (
-    <Bar data-test="mibi-page-bar">
+    <Bar data-test="auradata-page-bar">
       {pages.length > 1 && (
         <Side>
           <Arrow
             type="button"
             aria-label={t('Previous page')}
-            data-test="mibi-page-previous"
+            data-test="auradata-page-previous"
             disabled={index <= 0}
             onClick={() => go(-1)}
           >
@@ -471,7 +471,7 @@ export function PageBar({ children }: { children?: ReactNode }) {
           <Arrow
             type="button"
             aria-label={t('Next page')}
-            data-test="mibi-page-next"
+            data-test="auradata-page-next"
             disabled={index < 0 || index >= pages.length - 1}
             onClick={() => go(1)}
           >
@@ -483,7 +483,7 @@ export function PageBar({ children }: { children?: ReactNode }) {
       {(children || pages.length > 0) && (
         <Side $end>
           {pages.length > 0 && index >= 0 && (
-            <span className="mibi-page-count" data-test="mibi-page-count">
+            <span className="mibi-page-count" data-test="auradata-page-count">
               {t('Page %s of %s', index + 1, pages.length)}
             </span>
           )}

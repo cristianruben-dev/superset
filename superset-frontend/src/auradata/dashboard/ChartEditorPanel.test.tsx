@@ -89,7 +89,7 @@ test('opens Explore in the panel and reloads the chart once it is saved', async 
 
   act(() => openChartEditor({ url: '/explore/?slice_id=3', chartId: 3 }));
 
-  const frame = await screen.findByTestId('mibi-chart-editor-frame');
+  const frame = await screen.findByTestId('auradata-chart-editor-frame');
   expect(frame).toHaveAttribute(
     'src',
     '/explore/?slice_id=3&mibi_panel=1&mibi_dock=1',
@@ -114,7 +114,7 @@ test('opens Explore in the panel and reloads the chart once it is saved', async 
   );
   await waitFor(() =>
     expect(
-      screen.queryByTestId('mibi-chart-editor-frame'),
+      screen.queryByTestId('auradata-chart-editor-frame'),
     ).not.toBeInTheDocument(),
   );
   fetchSlices.mockRestore();
@@ -149,7 +149,7 @@ test('opens SQL Lab wide and turns a saved dataset into a new chart', async () =
 
   act(() => openChartEditor({ url: SQL_PANEL_URL, kind: 'sql' }));
 
-  const frame = await screen.findByTestId('mibi-chart-editor-frame');
+  const frame = await screen.findByTestId('auradata-chart-editor-frame');
   expect(frame).toHaveAttribute('src', '/sqllab/?dashboard_id=7&mibi_panel=1');
   expect(screen.getByText('SQL editor')).toBeInTheDocument();
 
@@ -166,7 +166,7 @@ test('opens SQL Lab wide and turns a saved dataset into a new chart', async () =
   });
 
   await waitFor(() =>
-    expect(screen.getByTestId('mibi-chart-editor-frame')).toHaveAttribute(
+    expect(screen.getByTestId('auradata-chart-editor-frame')).toHaveAttribute(
       'src',
       '/chart/add/?dataset=ventas&dashboard_id=7&mibi_panel=1',
     ),
@@ -201,13 +201,13 @@ test('opening the page it already shows does not leave it loading', async () => 
   });
 
   act(() => openChartEditor({ url: '/explore/?slice_id=3', chartId: 3 }));
-  const frame = await screen.findByTestId('mibi-chart-editor-frame');
+  const frame = await screen.findByTestId('auradata-chart-editor-frame');
   act(() => {
     frame.dispatchEvent(new Event('load'));
   });
   act(() => openChartEditor({ url: '/explore/?slice_id=3', chartId: 3 }));
 
   expect(
-    screen.getByTestId('mibi-chart-editor-dock').querySelector('.loading'),
+    screen.getByTestId('auradata-chart-editor-dock').querySelector('.loading'),
   ).toBeNull();
 });

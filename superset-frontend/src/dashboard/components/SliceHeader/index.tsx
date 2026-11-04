@@ -472,7 +472,7 @@ const SliceHeader = forwardRef<HTMLDivElement, SliceHeaderProps>(
         {titleFormat?.subtitle && (
           <div
             className="mibi-subtitle"
-            data-test="mibi-chart-subtitle"
+            data-test="auradata-chart-subtitle"
             role={titleFormat.subtitleHeading ? 'heading' : undefined}
             aria-level={titleFormat.subtitleHeading}
             style={{

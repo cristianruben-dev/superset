@@ -56,7 +56,7 @@ export function ObjectBadges({
 }) {
   if (!hidden && !meta.mibiLocked) return null;
   return (
-    <Badges data-test="mibi-object-badges">
+    <Badges data-test="auradata-object-badges">
       {hidden && (
         <span>
           <Icons.EyeInvisibleOutlined iconSize="s" />

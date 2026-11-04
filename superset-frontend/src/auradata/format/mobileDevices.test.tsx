@@ -84,18 +84,18 @@ test('the frame names the phone and marks what the safe area leaves out', () => 
     </DeviceFrame>,
     { useTheme: true },
   );
-  expect(screen.getByTestId('mibi-device-caption')).toHaveTextContent(
+  expect(screen.getByTestId('auradata-device-caption')).toHaveTextContent(
     'iPhone 17 Pro',
   );
-  expect(screen.getByTestId('mibi-device-caption')).toHaveTextContent(
+  expect(screen.getByTestId('auradata-device-caption')).toHaveTextContent(
     '1206 × 2622 px',
   );
-  expect(screen.getByTestId('mibi-device-viewport')).toHaveStyle({
+  expect(screen.getByTestId('auradata-device-viewport')).toHaveStyle({
     top: '62px',
     bottom: '34px',
   });
-  expect(screen.getByTestId('mibi-safe-top')).toBeInTheDocument();
-  expect(screen.getByTestId('mibi-safe-bottom')).toBeInTheDocument();
+  expect(screen.getByTestId('auradata-safe-top')).toBeInTheDocument();
+  expect(screen.getByTestId('auradata-safe-bottom')).toBeInTheDocument();
   expect(screen.getByText('page')).toBeInTheDocument();
 });
 
@@ -106,7 +106,7 @@ test('a phone with a home button has no bottom inset to mark', () => {
     </DeviceFrame>,
     { useTheme: true },
   );
-  expect(screen.queryByTestId('mibi-safe-bottom')).not.toBeInTheDocument();
+  expect(screen.queryByTestId('auradata-safe-bottom')).not.toBeInTheDocument();
 });
 
 test('boxes that cover part of another are flagged', () => {
@@ -135,9 +135,9 @@ test('the preview draws the bars and the filter rail a viewer has', () => {
     </DeviceFrame>,
     { useTheme: true },
   );
-  expect(screen.getByTestId('mibi-device-viewer-bars')).toHaveTextContent(
+  expect(screen.getByTestId('auradata-device-viewer-bars')).toHaveTextContent(
     'Ventas',
   );
-  expect(screen.getByTestId('mibi-device-viewer-rail')).toBeInTheDocument();
-  expect(screen.queryByTestId('mibi-safe-top')).not.toBeInTheDocument();
+  expect(screen.getByTestId('auradata-device-viewer-rail')).toBeInTheDocument();
+  expect(screen.queryByTestId('auradata-safe-top')).not.toBeInTheDocument();
 });
