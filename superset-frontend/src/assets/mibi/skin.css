@@ -1684,6 +1684,12 @@ body.mibi-presenting .dashboard-content {
   padding: 16px 16px 16px 8px;
 }
 
+/* The page is sized to the screen less its margin, so the room under it that a
+   report keeps for the wallpaper would make the document scroll */
+body.mibi-presenting .dashboard-content > [data-test='grid-container'] {
+  margin-bottom: 0 !important;
+}
+
 body.mibi-presenting-idle,
 body.mibi-presenting-idle * {
   cursor: none !important;
