@@ -391,7 +391,6 @@ describe('ChartHolder', () => {
     expect(computedWidth).toEqual(expectedWidth);
   });
 
-
   test('should call deleteComponent when deleted', async () => {
     const deleteComponent = jest.fn();
     const store = createMockStore();

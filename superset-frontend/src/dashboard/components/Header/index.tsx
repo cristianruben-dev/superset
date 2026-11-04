@@ -25,11 +25,7 @@ import {
   FeatureFlag,
   getExtensionsRegistry,
 } from '@superset-ui/core';
-import {
-  css,
-  SupersetTheme,
-  useTheme,
-} from '@apache-superset/core/theme';
+import { css, SupersetTheme, useTheme } from '@apache-superset/core/theme';
 import { t } from '@apache-superset/core/translation';
 import { Global } from '@emotion/react';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';

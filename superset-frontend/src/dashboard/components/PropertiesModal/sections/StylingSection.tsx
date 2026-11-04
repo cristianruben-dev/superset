@@ -162,7 +162,9 @@ const StylingSection = ({
             checked={showChartTimestamps}
             onChange={onShowChartTimestampsChange}
           />
-          <span className="switch-label">{t('Show chart query timestamps')}</span>
+          <span className="switch-label">
+            {t('Show chart query timestamps')}
+          </span>
         </div>
         <span className="switch-helper">
           {t(

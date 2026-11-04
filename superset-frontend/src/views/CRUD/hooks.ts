@@ -905,8 +905,7 @@ export const copyQueryLink = (
     });
 };
 
-export const getDatabaseImages = () =>
-  databaseImages(SupersetText.DB_IMAGES);
+export const getDatabaseImages = () => databaseImages(SupersetText.DB_IMAGES);
 
 export const getConnectionAlert = () => SupersetText.DB_CONNECTION_ALERTS;
 export const getDatabaseDocumentationLinks = () =>

@@ -33,61 +33,63 @@ const Bar = styled.div<{ $docked?: boolean }>`
     display: flex;
     align-items: center;
     gap: ${theme.sizeUnit}px;
-    ${$docked
-      ? css`
-          padding: 0;
-          .percent {
-            font-family: ${theme.fontFamilyCode};
-          }
-          .mibi-zoom-step {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: ${theme.sizeUnit * 6}px;
-            height: ${theme.sizeUnit * 6}px;
+    ${
+      $docked
+        ? css`
             padding: 0;
-            border: 0;
-            border-radius: ${theme.borderRadius}px;
-            background: transparent;
-            color: ${theme.colorTextSecondary};
-            font-size: ${theme.fontSizeLG}px;
-            line-height: 1;
-            cursor: pointer;
-            &:hover {
-              color: ${theme.colorText};
-              background: ${theme.colorFillTertiary};
+            .percent {
+              font-family: ${theme.fontFamilyCode};
             }
-          }
-          .ant-slider {
-            margin: 0 ${theme.sizeUnit}px;
-          }
-          /* A compact choice that keeps to the height of the bar */
-          .mibi-zoom-fit {
-            width: ${theme.sizeUnit * 44}px;
-            .ant-select-selector {
-              height: ${theme.sizeUnit * 7}px !important;
-              min-height: 0 !important;
-              padding-block: 0 !important;
-              font-size: ${theme.fontSizeSM}px;
+            .mibi-zoom-step {
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              width: ${theme.sizeUnit * 6}px;
+              height: ${theme.sizeUnit * 6}px;
+              padding: 0;
+              border: 0;
+              border-radius: ${theme.borderRadius}px;
+              background: transparent;
+              color: ${theme.colorTextSecondary};
+              font-size: ${theme.fontSizeLG}px;
+              line-height: 1;
+              cursor: pointer;
+              &:hover {
+                color: ${theme.colorText};
+                background: ${theme.colorFillTertiary};
+              }
             }
-            .ant-select-selection-item,
-            .ant-select-selection-search-input {
-              height: ${theme.sizeUnit * 7 - 2}px !important;
-              line-height: ${theme.sizeUnit * 7 - 2}px !important;
+            .ant-slider {
+              margin: 0 ${theme.sizeUnit}px;
             }
-          }
-        `
-      : css`
-          position: absolute;
-          right: ${theme.sizeUnit * 4}px;
-          bottom: ${theme.sizeUnit * 3}px;
-          z-index: 20;
-          padding: ${theme.sizeUnit}px ${theme.sizeUnit * 2}px;
-          border-radius: ${theme.borderRadiusLG}px;
-          border: 1px solid ${theme.colorBorderSecondary};
-          background: ${theme.colorBgElevated};
-          box-shadow: ${theme.boxShadowSecondary};
-        `}
+            /* A compact choice that keeps to the height of the bar */
+            .mibi-zoom-fit {
+              width: ${theme.sizeUnit * 44}px;
+              .ant-select-selector {
+                height: ${theme.sizeUnit * 7}px !important;
+                min-height: 0 !important;
+                padding-block: 0 !important;
+                font-size: ${theme.fontSizeSM}px;
+              }
+              .ant-select-selection-item,
+              .ant-select-selection-search-input {
+                height: ${theme.sizeUnit * 7 - 2}px !important;
+                line-height: ${theme.sizeUnit * 7 - 2}px !important;
+              }
+            }
+          `
+        : css`
+            position: absolute;
+            right: ${theme.sizeUnit * 4}px;
+            bottom: ${theme.sizeUnit * 3}px;
+            z-index: 20;
+            padding: ${theme.sizeUnit}px ${theme.sizeUnit * 2}px;
+            border-radius: ${theme.borderRadiusLG}px;
+            border: 1px solid ${theme.colorBorderSecondary};
+            background: ${theme.colorBgElevated};
+            box-shadow: ${theme.boxShadowSecondary};
+          `
+    }
     .ant-slider {
       width: ${theme.sizeUnit * 28}px;
       margin: 0 ${theme.sizeUnit}px;

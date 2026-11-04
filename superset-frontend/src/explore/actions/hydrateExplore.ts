@@ -204,11 +204,10 @@ export const hydrateExplore =
         ? findPermission('can_copy_clipboard', 'Superset', user?.roles)
         : findPermission('can_csv', 'Superset', user?.roles),
       can_overwrite:
-        ensureIsArray(slice?.editors).some(
-          (editor: { id: number } | number) =>
-            userSubjects.includes(
-              typeof editor === 'number' ? editor : editor.id,
-            ),
+        ensureIsArray(slice?.editors).some((editor: { id: number } | number) =>
+          userSubjects.includes(
+            typeof editor === 'number' ? editor : editor.id,
+          ),
         ) || slice?.can_edit === true,
       isDatasourceMetaLoading: false,
       isStarred: false,

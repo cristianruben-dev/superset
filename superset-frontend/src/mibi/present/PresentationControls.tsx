@@ -172,9 +172,9 @@ const RoundButton = styled.button<{ $primary?: boolean }>`
     transition: background ${theme.motionDurationMid};
 
     &:hover:not(:disabled) {
-      background: ${$primary
-        ? theme.colorPrimaryHover
-        : theme.colorFillTertiary};
+      background: ${
+        $primary ? theme.colorPrimaryHover : theme.colorFillTertiary
+      };
     }
 
     &:disabled {

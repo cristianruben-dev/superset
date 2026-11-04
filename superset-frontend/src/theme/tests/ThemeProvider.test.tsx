@@ -246,7 +246,6 @@ describe('SupersetThemeProvider', () => {
 
       expect(mockThemeController.resetTheme).toHaveBeenCalled();
     });
-
   });
 
   afterEach(() => {

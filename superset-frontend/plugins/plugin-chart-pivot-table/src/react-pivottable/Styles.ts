@@ -27,25 +27,27 @@ export const Styles = styled.div<{
   freezeRowHeaders?: boolean;
 }>`
   ${({ theme, isDashboardEditMode, freezeRowHeaders }) => css`
-    ${freezeRowHeaders &&
-    !isDashboardEditMode &&
-    css`
-      table.pvtTable th[data-mibi-level] {
-        position: sticky;
-        z-index: 1;
-        background-color: ${theme.colorBgBase};
-      }
-      table.pvtTable thead th[data-mibi-level] {
-        z-index: 2;
-      }
-      ${FROZEN_LEVELS.map(
-        level => `
+    ${
+      freezeRowHeaders &&
+      !isDashboardEditMode &&
+      css`
+        table.pvtTable th[data-mibi-level] {
+          position: sticky;
+          z-index: 1;
+          background-color: ${theme.colorBgBase};
+        }
+        table.pvtTable thead th[data-mibi-level] {
+          z-index: 2;
+        }
+        ${FROZEN_LEVELS.map(
+          level => `
           table.pvtTable th[data-mibi-level='${level}'] {
             left: var(--mibi-freeze-${level}, 0px);
           }
         `,
-      ).join('')}
-    `}
+        ).join('')}
+      `
+    }
 
     table.pvtTable {
       position: ${isDashboardEditMode ? 'inherit' : 'relative'};

@@ -197,7 +197,6 @@ const GroupByFilterCard: FC<GroupByFilterCardProps> = ({
   const datasourceType = customizationItem.targets?.[0]?.datasourceType;
   const [filterTitleRef, , titleElementsTruncated] = useTruncation();
 
-
   const dispatch = useDispatch();
 
   // Legacy persisted targets may carry the id as a number, string, or

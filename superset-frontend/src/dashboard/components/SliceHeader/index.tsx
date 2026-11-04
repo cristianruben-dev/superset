@@ -40,11 +40,7 @@ import {
 } from '@apache-superset/core/theme';
 import { useUiConfig } from 'src/components/UiConfigContext';
 import { isEmbedded } from 'src/dashboard/util/isEmbedded';
-import {
-  Tooltip,
-  EditableTitle,
-  Icons,
-} from '@superset-ui/core/components';
+import { Tooltip, EditableTitle, Icons } from '@superset-ui/core/components';
 import { useSelector } from 'react-redux';
 import cx from 'classnames';
 import { openChartEditor } from 'src/mibi/chartEditor';

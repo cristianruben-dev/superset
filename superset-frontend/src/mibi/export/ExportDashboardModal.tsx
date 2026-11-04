@@ -128,9 +128,9 @@ const FormatCard = styled.button<{ $selected: boolean }>`
       height: 36px;
       border-radius: ${theme.borderRadius}px;
       background: ${$selected ? theme.colorPrimary : theme.colorFillTertiary};
-      color: ${$selected
-        ? theme.colorTextLightSolid
-        : theme.colorTextSecondary};
+      color: ${
+        $selected ? theme.colorTextLightSolid : theme.colorTextSecondary
+      };
     }
 
     .copy {

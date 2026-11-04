@@ -251,7 +251,7 @@ export function ChartActionButton({
   const run = useElementAction(format?.link?.action, enabled);
   const styles = actionButtonStyles(button, format, theme);
   const positioned: CSSProperties = styles.box;
-  const iconOnly = button.iconOnly;
+  const {iconOnly} = button;
   const showText = !iconOnly && button.textShow !== false;
   return (
     <button

@@ -92,119 +92,121 @@ const Dock = styled.div<{ $bar?: boolean }>`
 
     /* As in Power BI: the pages are a bar at the bottom of the report, of
        a fixed size whatever the zoom of the page */
-    ${$bar &&
-    css`
-      flex: 1;
-      min-width: 0;
-      align-self: stretch;
-      border-radius: 0;
-      outline: 0;
-      background: transparent;
-      &:empty {
-        display: block;
-      }
-      .dashboard-component-tabs,
-      .dashboard-component-tabs > div,
-      .ant-tabs,
-      .ant-tabs-nav,
-      .ant-tabs-nav-wrap,
-      .ant-tabs-nav-list {
-        height: 100%;
-      }
-      .dashboard-component-tabs {
-        background: transparent;
-      }
-      .ant-tabs-nav {
-        margin: 0;
-        /* Over the padding Superset sets from the width of the filter bar */
-        padding: 0 !important;
-        min-height: 0;
-        &::before {
-          border: 0;
-        }
-      }
-      .ant-tabs-ink-bar {
-        display: none;
-      }
-      .ant-tabs-nav-list {
-        gap: 0;
-        align-items: stretch;
-      }
-      /* Flat tabs side by side, split by hairlines, as in Power BI */
-      .ant-tabs-nav-list .ant-tabs-tab {
-        position: relative;
-        box-sizing: border-box;
-        /* As tall as the bar, so the name sits in its middle */
-        height: ${theme.sizeUnit * 9 - 1}px;
-        margin: 0 !important;
-        padding: 0 ${theme.sizeUnit * 4}px;
-        border: 0 !important;
-        border-right: 1px solid ${theme.colorSplit} !important;
-        border-radius: 0 !important;
-        background: transparent !important;
-        color: ${theme.colorTextSecondary};
-        font-size: ${theme.fontSizeSM}px;
-        transition:
-          background ${theme.motionDurationMid},
-          color ${theme.motionDurationMid};
-        &:hover {
-          color: ${theme.colorText};
-          background: ${theme.colorFillQuaternary} !important;
-        }
-        &::after {
-          content: '';
-          position: absolute;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          height: 3px;
-          background: transparent;
-          transition: background ${theme.motionDurationMid};
-        }
-      }
-      .ant-tabs-nav-list .ant-tabs-tab.ant-tabs-tab-active {
-        background: ${theme.colorFillQuaternary} !important;
-        .ant-tabs-tab-btn {
-          color: ${theme.colorText};
-          font-weight: ${theme.fontWeightStrong};
-        }
-        &::after {
-          background: ${theme.colorPrimary};
-        }
-      }
-      /* The title being renamed reads as the tab, not as a field */
-      .ant-tabs-tab .editable-title input,
-      .ant-tabs-tab .editable-title textarea {
-        padding: 0;
-        border: 0;
+    ${
+      $bar &&
+      css`
+        flex: 1;
+        min-width: 0;
+        align-self: stretch;
+        border-radius: 0;
         outline: 0;
-        box-shadow: none;
         background: transparent;
-        color: inherit;
-        font: inherit;
-      }
-      .ant-tabs-nav-add {
-        align-self: center;
-        margin: 0 ${theme.sizeUnit * 2}px;
-        min-width: ${theme.sizeUnit * 7}px;
-        height: ${theme.sizeUnit * 7}px;
-        border: 0 !important;
-        border-radius: ${theme.borderRadius}px !important;
-        background: transparent !important;
-        color: ${theme.colorTextSecondary};
-        &:hover {
-          color: ${theme.colorPrimary};
-          background: ${theme.colorPrimaryBg} !important;
+        &:empty {
+          display: block;
         }
-      }
-      .ant-tabs-nav-more {
-        align-self: center;
-      }
-      /* The link to a page is in the share menu; a tab only shows its name */
-      .anchor-link-container {
-        display: none;
-      }
-    `}
+        .dashboard-component-tabs,
+        .dashboard-component-tabs > div,
+        .ant-tabs,
+        .ant-tabs-nav,
+        .ant-tabs-nav-wrap,
+        .ant-tabs-nav-list {
+          height: 100%;
+        }
+        .dashboard-component-tabs {
+          background: transparent;
+        }
+        .ant-tabs-nav {
+          margin: 0;
+          /* Over the padding Superset sets from the width of the filter bar */
+          padding: 0 !important;
+          min-height: 0;
+          &::before {
+            border: 0;
+          }
+        }
+        .ant-tabs-ink-bar {
+          display: none;
+        }
+        .ant-tabs-nav-list {
+          gap: 0;
+          align-items: stretch;
+        }
+        /* Flat tabs side by side, split by hairlines, as in Power BI */
+        .ant-tabs-nav-list .ant-tabs-tab {
+          position: relative;
+          box-sizing: border-box;
+          /* As tall as the bar, so the name sits in its middle */
+          height: ${theme.sizeUnit * 9 - 1}px;
+          margin: 0 !important;
+          padding: 0 ${theme.sizeUnit * 4}px;
+          border: 0 !important;
+          border-right: 1px solid ${theme.colorSplit} !important;
+          border-radius: 0 !important;
+          background: transparent !important;
+          color: ${theme.colorTextSecondary};
+          font-size: ${theme.fontSizeSM}px;
+          transition:
+            background ${theme.motionDurationMid},
+            color ${theme.motionDurationMid};
+          &:hover {
+            color: ${theme.colorText};
+            background: ${theme.colorFillQuaternary} !important;
+          }
+          &::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 3px;
+            background: transparent;
+            transition: background ${theme.motionDurationMid};
+          }
+        }
+        .ant-tabs-nav-list .ant-tabs-tab.ant-tabs-tab-active {
+          background: ${theme.colorFillQuaternary} !important;
+          .ant-tabs-tab-btn {
+            color: ${theme.colorText};
+            font-weight: ${theme.fontWeightStrong};
+          }
+          &::after {
+            background: ${theme.colorPrimary};
+          }
+        }
+        /* The title being renamed reads as the tab, not as a field */
+        .ant-tabs-tab .editable-title input,
+        .ant-tabs-tab .editable-title textarea {
+          padding: 0;
+          border: 0;
+          outline: 0;
+          box-shadow: none;
+          background: transparent;
+          color: inherit;
+          font: inherit;
+        }
+        .ant-tabs-nav-add {
+          align-self: center;
+          margin: 0 ${theme.sizeUnit * 2}px;
+          min-width: ${theme.sizeUnit * 7}px;
+          height: ${theme.sizeUnit * 7}px;
+          border: 0 !important;
+          border-radius: ${theme.borderRadius}px !important;
+          background: transparent !important;
+          color: ${theme.colorTextSecondary};
+          &:hover {
+            color: ${theme.colorPrimary};
+            background: ${theme.colorPrimaryBg} !important;
+          }
+        }
+        .ant-tabs-nav-more {
+          align-self: center;
+        }
+        /* The link to a page is in the share menu; a tab only shows its name */
+        .anchor-link-container {
+          display: none;
+        }
+      `
+    }
 
     .empty-droptarget:before {
       position: absolute;
@@ -385,13 +387,15 @@ const Side = styled.div<{ $end?: boolean }>`
     align-items: center;
     gap: ${theme.sizeUnit * 2}px;
     padding: 0 ${theme.sizeUnit * ($end ? 3 : 1)}px;
-    ${$end
-      ? css`
-          border-left: 1px solid ${theme.colorBorderSecondary};
-        `
-      : css`
-          border-right: 1px solid ${theme.colorBorderSecondary};
-        `}
+    ${
+      $end
+        ? css`
+            border-left: 1px solid ${theme.colorBorderSecondary};
+          `
+        : css`
+            border-right: 1px solid ${theme.colorBorderSecondary};
+          `
+    }
     .mibi-page-count {
       white-space: nowrap;
       font-family: ${theme.fontFamilyCode};

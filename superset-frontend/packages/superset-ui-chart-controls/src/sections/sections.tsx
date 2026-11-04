@@ -93,4 +93,3 @@ export const colorScheme: ControlPanelSectionConfig = {
   label: t('Color Scheme'),
   controlSetRows: [['color_scheme']],
 };
-

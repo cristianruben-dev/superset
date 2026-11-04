@@ -90,19 +90,21 @@ const Dock = styled.div<{ $width: number; $edge?: boolean }>`
     }
     /* A pane of the report at its edge, as tall as the page area, not a
        part of the page */
-    ${$edge &&
-    css`
-      align-self: stretch;
-      min-height: 0;
-      border-radius: 0;
-      outline: 0;
-      box-shadow: none;
-      border-left: 1px solid ${theme.colorBorderSecondary};
-      background: ${theme.colorBgContainer};
-      &:has([data-test='filter-bar'].open) {
+    ${
+      $edge &&
+      css`
+        align-self: stretch;
         min-height: 0;
-      }
-    `}
+        border-radius: 0;
+        outline: 0;
+        box-shadow: none;
+        border-left: 1px solid ${theme.colorBorderSecondary};
+        background: ${theme.colorBgContainer};
+        &:has([data-test='filter-bar'].open) {
+          min-height: 0;
+        }
+      `
+    }
   `}
 `;
 

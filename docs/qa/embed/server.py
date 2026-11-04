@@ -25,6 +25,7 @@ backend would. Development only: never expose it.
     python3 docs/qa/embed/server.py            # http://localhost:8787
     SUPERSET_URL=http://localhost:8188 python3 docs/qa/embed/server.py
 """
+
 from __future__ import annotations
 
 import http.cookiejar

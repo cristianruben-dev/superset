@@ -6,7 +6,7 @@
      :                ^^^|^^^
      :                   `-- used here
  145 | }
- 146 | 
+ 146 |
  147 | /** The three objects, in the order of the layout. */
  148 | const objects = (page: Page) =>
      :       ^^^|^^^

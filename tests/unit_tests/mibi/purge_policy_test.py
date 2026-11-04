@@ -23,7 +23,6 @@ row. The fork adds tables (workspace links, backgrounds, element images) and
 drops the one of themes, so each root must still be covered exactly.
 """
 
-
 import superset.mibi.models  # noqa: F401  registers the tables of the fork
 from superset.commands.deletion_retention.purge_policy import (
     DependencyClassification,

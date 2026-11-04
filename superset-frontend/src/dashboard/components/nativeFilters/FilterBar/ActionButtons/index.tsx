@@ -48,35 +48,39 @@ const ButtonsContainer = styled.div<{ isVertical: boolean }>`
   ${({ theme, isVertical }) => css`
     display: flex;
 
-    ${isVertical
-      ? css`
-          flex-direction: column;
-          align-items: stretch;
-          gap: ${theme.sizeUnit}px;
-          position: sticky;
-          z-index: 100;
-          bottom: 0;
-          padding: ${theme.sizeUnit * 4}px;
-          padding-top: ${theme.sizeUnit * 6}px;
-          background: linear-gradient(
-            ${tinycolor(theme.colorBgLayout).setAlpha(0).toRgbString()},
-            ${theme.colorBgContainer} 20%
-          );
-        `
-      : css`
-          align-items: center;
-          margin-left: auto;
-        `}
+    ${
+      isVertical
+        ? css`
+            flex-direction: column;
+            align-items: stretch;
+            gap: ${theme.sizeUnit}px;
+            position: sticky;
+            z-index: 100;
+            bottom: 0;
+            padding: ${theme.sizeUnit * 4}px;
+            padding-top: ${theme.sizeUnit * 6}px;
+            background: linear-gradient(
+              ${tinycolor(theme.colorBgLayout).setAlpha(0).toRgbString()},
+              ${theme.colorBgContainer} 20%
+            );
+          `
+        : css`
+            align-items: center;
+            margin-left: auto;
+          `
+    }
   `}
 `;
 
 const applyButtonStyle = (theme: SupersetTheme, isVertical: boolean) => css`
-  ${isVertical &&
-  css`
-    width: 100%;
-    height: ${theme.sizeUnit * 9}px;
-    font-weight: ${theme.fontWeightStrong};
-  `}
+  ${
+    isVertical &&
+    css`
+      width: 100%;
+      height: ${theme.sizeUnit * 9}px;
+      font-weight: ${theme.fontWeightStrong};
+    `
+  }
 `;
 
 const clearAllButtonStyle = (theme: SupersetTheme, isVertical: boolean) => css`

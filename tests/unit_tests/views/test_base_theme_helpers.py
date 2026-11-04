@@ -171,7 +171,6 @@ class TestThemeHelpers:
         # New components should be added
         assert result["components"]["Button"]["size"] == "large"
 
-
     def test_process_theme_none(self):
         """Test _process_theme with None theme"""
         result = _process_theme(None, ThemeMode.DEFAULT)
@@ -215,7 +214,6 @@ class TestThemeHelpers:
 class TestGetThemeBootstrapData:
     """Test get_theme_bootstrap_data function with various scenarios"""
 
-
     @patch("superset.views.base.app")
     @patch("superset.views.base.get_config_value")
     def test_ui_admin_disabled(self, mock_get_config, mock_app):
@@ -240,7 +238,6 @@ class TestGetThemeBootstrapData:
         assert result["theme"]["default"]["token"]["colorPrimary"] == "#config1"
         assert result["theme"]["dark"]["token"]["colorPrimary"] == "#config2"
 
-
     @patch("superset.views.base.app")
     @patch("superset.views.base.get_config_value")
     def test_ui_admin_disabled_no_config_themes(self, mock_get_config, mock_app):
@@ -262,7 +259,6 @@ class TestGetThemeBootstrapData:
         assert "enableUiThemeAdministration" not in result["theme"]
         assert result["theme"]["default"] == {}
         assert result["theme"]["dark"] == {}
-
 
     @patch("superset.views.base.app")
     @patch("superset.views.base.get_config_value")
