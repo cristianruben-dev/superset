@@ -192,6 +192,13 @@ No todo pesa igual, así que va en cuatro capas:
 | R3 | Tablas `mibi_workspaces`, `mibi_workspace_dashboards`, `mibi_workspace_members`, `mibi_workspace_datasets`, `mibi_dashboard_backgrounds` | Alto (dato guardado), pero mecánico | Migración Alembic `rename_table` sobre la cabeza del fork (`f1c7a9e2b305`), con `downgrade`; probar base nueva y copia en la cabeza anterior |
 | R4 | Claves del layout `meta.mibi*` (en cada `position_json`), `componentKey` `mibi-*`, paleta `mibi` en `json_metadata`, clases `.mibi-*` que un usuario pudo usar en el `css` de su tablero | Alto | Decidido (2026-11-04): se renombran también. Diseño abajo |
 
+**R1 hecho (2026-11-04):** código en `superset/auradata`, `src/auradata`, ids de test `auradata-*`
+(`10d5eeacf0`…`ff69dc645d`).
+
+**R2 hecho (2026-11-04, rama `refactor/rename-auradata-config`):** `MIBI_*` → `AURADATA_*` en código, tests,
+configuración de producción y `.env-prod.example`, sin leer los nombres viejos; `docker/mibi` → `docker/auradata`,
+anclas del compose y la imagen por defecto `auradata-bi:latest`. Los `.env` locales no usaban ninguna variable `MIBI_*`.
+
 ### R4: renombrar los datos guardados (decidido)
 
 **Qué se guarda con `mibi` y dónde:**
