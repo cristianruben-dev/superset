@@ -23,6 +23,16 @@ import { DataPane } from './DataPane';
 import { selectVisual } from './selection';
 import { setPaneCollapsed, usePaneCollapsed } from './panes';
 
+const mockToggle = jest.fn();
+let mockReady = false;
+jest.mock('./ChartFieldsSections', () => ({
+  useChartFieldToggle: () => ({
+    ready: mockReady,
+    uses: (field: { name: string }) => field.name === 'center',
+    toggle: mockToggle,
+  }),
+}));
+
 const datasources = {
   '1__table': {
     table_name: 'sales',
@@ -132,4 +142,25 @@ test('lists the other datasets the charts could use and loads them on demand', a
   userEvent.click(screen.getByText('budget'));
   expect(await screen.findByText('year')).toBeInTheDocument();
   expect(asked[1]).toBe('/api/v1/dataset/5');
+});
+
+test('the selected chart gets a box per field to add or remove it', () => {
+  mockReady = true;
+  setup();
+  act(() => selectVisual('CHART-1'));
+  const center = screen.getByRole('checkbox', {
+    name: 'Show center in the chart',
+  });
+  expect(center).toBeChecked();
+  userEvent.click(center);
+  expect(mockToggle).toHaveBeenCalledWith(
+    expect.objectContaining({ kind: 'column', name: 'center' }),
+    false,
+  );
+  // Fields of another table have no box
+  userEvent.click(screen.getByText('sales'));
+  expect(
+    screen.queryByRole('checkbox', { name: 'Show region in the chart' }),
+  ).not.toBeInTheDocument();
+  mockReady = false;
 });

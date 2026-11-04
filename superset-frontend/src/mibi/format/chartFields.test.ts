@@ -23,15 +23,18 @@ import reducerIndex from 'spec/helpers/reducerIndex';
 import { DASHBOARD_ROOT_ID } from 'src/dashboard/util/constants';
 import getBootstrapData from 'src/utils/getBootstrapData';
 import {
+  addFieldChange,
   canChangeFields,
   clearPendingFields,
   fieldRole,
   followFieldSteps,
   hasPendingFields,
   isFieldWell,
+  removeFieldChanges,
   revertChartFields,
   saveChartFields,
   setChartFieldValue,
+  usesField,
   wellOrder,
 } from './chartFields';
 
@@ -306,4 +309,59 @@ test('undo and redo move through the field changes', () => {
   dispatch(UndoActionCreators.undo());
   dispatch(followFieldSteps());
   expect(groupby()).toEqual(['c']);
+});
+
+test('a ticked field goes to the well Power BI would choose', () => {
+  const bars = { viz_type: 'echarts_timeseries_bar', metrics: ['m'] };
+  const asMetric = (column: unknown) => ({ sum: column });
+  const region = {
+    kind: 'column' as const,
+    name: 'region',
+    numeric: false,
+    value: { column_name: 'region' },
+  };
+  expect(addFieldChange(bars, region, asMetric)).toEqual({
+    name: 'x_axis',
+    value: 'region',
+  });
+  expect(addFieldChange({ ...bars, x_axis: 'date' }, region, asMetric)).toEqual(
+    { name: 'groupby', value: ['region'] },
+  );
+  const sales = { ...region, name: 'sales', numeric: true };
+  expect(addFieldChange(bars, sales, asMetric)).toEqual({
+    name: 'metrics',
+    value: ['m', { sum: sales.value }],
+  });
+  // A card takes one value: a second one has nowhere to go
+  expect(
+    addFieldChange(
+      { viz_type: 'big_number_total', metric: 'm' },
+      { kind: 'metric', name: 'n' },
+      asMetric,
+    ),
+  ).toBeUndefined();
+});
+
+test('a field is found and taken out of every well that has it', () => {
+  const pie = {
+    viz_type: 'pie',
+    groupby: ['region', 'product'],
+    metric: { column: { column_name: 'sales' }, aggregate: 'SUM' },
+  };
+  const region = {
+    kind: 'column' as const,
+    name: 'region',
+    numeric: false,
+    value: {},
+  };
+  const sales = { ...region, name: 'sales', numeric: true };
+  expect(usesField(pie, region)).toBe(true);
+  expect(usesField(pie, sales)).toBe(true);
+  expect(usesField(pie, { kind: 'metric', name: 'region' })).toBe(false);
+  expect(removeFieldChanges(pie, region)).toEqual([
+    { name: 'groupby', value: ['product'] },
+  ]);
+  expect(removeFieldChanges(pie, sales)).toEqual([
+    { name: 'metric', value: undefined },
+  ]);
 });

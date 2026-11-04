@@ -26613,3 +26613,12 @@ msgstr "Posición de la marca para quitar"
 
 msgid "No mark"
 msgstr "Sin marca"
+
+msgid "Show %s in the chart"
+msgstr "Mostrar %s en el gráfico"
+
+msgid "Drop to add it to this chart"
+msgstr "Suelta para añadirlo a este gráfico"
+
+msgid "This chart uses another table"
+msgstr "Este gráfico usa otra tabla"

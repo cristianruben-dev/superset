@@ -35,6 +35,7 @@ import { css, useTheme } from '@apache-superset/core/theme';
 import { LayoutItem, RootState } from 'src/dashboard/types';
 import AnchorLink from 'src/dashboard/components/AnchorLink';
 import Chart from 'src/dashboard/components/gridComponents/Chart';
+import { FieldDropTarget } from 'src/mibi/format/FieldDropTarget';
 import { ObjectActions } from 'src/mibi/format/ObjectActions';
 import { MovableDraggable } from 'src/mibi/format/MovableDraggable';
 import { ConnectDragSource } from 'react-dnd';
@@ -430,6 +431,9 @@ const ChartHolder = ({
             />
             {editMode && chartId !== undefined && (
               <InteractionControl chartId={chartId} layoutId={component.id} />
+            )}
+            {editMode && chartId !== undefined && (
+              <FieldDropTarget id={component.id} chartId={chartId} />
             )}
             {editMode && <ObjectBadges meta={component.meta} hidden={hidden} />}
             {editMode && (

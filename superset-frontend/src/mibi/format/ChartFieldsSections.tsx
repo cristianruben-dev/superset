@@ -27,6 +27,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { t } from '@apache-superset/core/translation';
 import { DatasourceType, type JsonObject } from '@superset-ui/core';
 import type {
+  ColumnMeta,
   ControlPanelSectionConfig,
   ControlPanelState,
   ControlState,
@@ -35,19 +36,26 @@ import type {
 import { Button } from '@superset-ui/core/components';
 import type { RootState } from 'src/dashboard/types';
 import Control from 'src/explore/components/Control';
-import { DirectMetricDropContext } from 'src/explore/components/controls/DndColumnSelectControl/DndMetricSelect';
+import {
+  createAdhocMetricFromColumn,
+  DirectMetricDropContext,
+} from 'src/explore/components/controls/DndColumnSelectControl/DndMetricSelect';
 import {
   getSectionsToRender,
   isQuerySection,
 } from 'src/explore/controlUtils/getSectionsToRender';
 import { useChartFormat, withChartFormat } from './chartFormat';
 import {
+  addFieldChange,
   canChangeFields,
+  type DataField,
   fieldRole,
   hasPendingFields,
   isFieldWell,
+  removeFieldChanges,
   revertChartFields,
   setChartFieldValue,
+  usesField,
   wellOrder,
 } from './chartFields';
 import {
@@ -114,23 +122,17 @@ function buildFields(
 }
 
 /**
- * What a chart shows, by the role each field plays in it, as the field wells of
- * Power BI. Changing a field asks for the data and waits for the report to be
- * saved (see chartFields.ts); fields come from the Data pane or from each control.
+ * The field controls of a chart with their state, and a setter that checks the
+ * chart can still draw itself before showing a change. Nothing without a chart.
  */
-export function ChartFieldsSections({
-  id,
-  chartId,
-}: {
-  id: string;
-  chartId: number;
-}) {
+export function useChartFieldControls(id?: string, chartId?: number) {
   const dispatch = useDispatch();
-  const chart = useSelector(
-    (state: RootState) =>
-      (state.charts as unknown as Record<number, ChartEntry>)[chartId],
+  const chart = useSelector((state: RootState) =>
+    chartId === undefined
+      ? undefined
+      : (state.charts as unknown as Record<number, ChartEntry>)[chartId],
   );
-  const format = useChartFormat(id);
+  const format = useChartFormat(id ?? '');
   const formData = useMemo(
     () => withChartFormat(chart?.form_data, format) as Anything | undefined,
     [chart?.form_data, format],
@@ -145,13 +147,15 @@ export function ChartFieldsSections({
     (state: RootState) => (state as unknown as Anything).common,
   );
   const allowed = useSelector((state: RootState) =>
-    canChangeFields(
-      state.user,
-      (state.sliceEntities?.slices as unknown as Anything)?.[chartId]?.editors,
-      !!state.dashboardInfo?.dash_edit_perm,
-    ),
+    chartId === undefined
+      ? false
+      : canChangeFields(
+          state.user,
+          (state.sliceEntities?.slices as unknown as Anything)?.[chartId]
+            ?.editors,
+          !!state.dashboardInfo?.dash_edit_perm,
+        ),
   );
-  const search = useContext(FormatSearchContext);
   const vizType = formData?.viz_type as string | undefined;
   const datasourceType = (datasource?.type ??
     DatasourceType.Table) as DatasourceType;
@@ -167,20 +171,27 @@ export function ChartFieldsSections({
           datasource: datasource ?? null,
           common: common ?? {},
         },
-        chart,
+        chart as ChartEntry,
       ),
     [chart, chartId, common, datasource, datasourceType, vizType],
   );
   const built = useMemo(
-    () => (vizType && formData ? build(formData) : null),
-    [build, formData, vizType],
+    () => (chart && vizType && formData ? build(formData) : null),
+    [build, chart, formData, vizType],
   );
 
   const setValue = useCallback(
     (name: string, value: unknown) => {
       const control = built?.state.controls?.[name] as ControlState | undefined;
       // Some controls report their value when they appear: it changes nothing
-      if (!built || !formData || isSameValue(value, control?.value)) return;
+      if (
+        !built ||
+        !formData ||
+        id === undefined ||
+        chartId === undefined ||
+        isSameValue(value, control?.value)
+      )
+        return;
       const next = build({ ...formData, [name]: value });
       const invalid = next.items.some(
         item =>
@@ -200,6 +211,67 @@ export function ChartFieldsSections({
     },
     [build, built, chartId, dispatch, formData, id],
   );
+  return {
+    chart,
+    formData,
+    datasource,
+    datasourceType,
+    allowed,
+    built,
+    setValue,
+  };
+}
+
+/**
+ * Adds or removes a field of the Data pane on a chart, in the well Power BI
+ * would choose, through the same checks as the wells themselves.
+ */
+export function useChartFieldToggle(id?: string, chartId?: number) {
+  const { formData, allowed, built, setValue } = useChartFieldControls(
+    id,
+    chartId,
+  );
+  const ready = !!built && !!formData && allowed;
+  const uses = useCallback(
+    (field: DataField) => ready && usesField(formData as Anything, field),
+    [formData, ready],
+  );
+  const toggle = useCallback(
+    (field: DataField, on: boolean) => {
+      if (!ready || !formData) return false;
+      if (!on) {
+        removeFieldChanges(formData, field).forEach(({ name, value }) =>
+          setValue(name, value),
+        );
+        return true;
+      }
+      const change = addFieldChange(formData, field, column =>
+        createAdhocMetricFromColumn(column as ColumnMeta),
+      );
+      if (change) setValue(change.name, change.value);
+      return !!change;
+    },
+    [formData, ready, setValue],
+  );
+  return { ready, uses, toggle };
+}
+
+/**
+ * What a chart shows, by the role each field plays in it, as the field wells of
+ * Power BI. Changing a field asks for the data and waits for the report to be
+ * saved (see chartFields.ts); fields come from the Data pane or from each control.
+ */
+export function ChartFieldsSections({
+  id,
+  chartId,
+}: {
+  id: string;
+  chartId: number;
+}) {
+  const dispatch = useDispatch();
+  const { chart, formData, datasourceType, allowed, built, setValue } =
+    useChartFieldControls(id, chartId);
+  const search = useContext(FormatSearchContext);
   const actions = useMemo(() => ({ setControlValue: setValue }), [setValue]);
 
   if (!allowed) {

@@ -116,6 +116,174 @@ function rolesOf(formData: FormData): Record<string, () => string> {
   return byChart[String(formData.viz_type)] ?? {};
 }
 
+/** A well and whether it takes one field or a list. */
+type Well = { name: string; single?: boolean };
+type AddWells = { column: Well[]; metric: Well[] };
+
+const XY_WELLS: AddWells = {
+  column: [{ name: 'x_axis', single: true }, { name: 'groupby' }],
+  metric: [{ name: 'metrics' }],
+};
+const CATEGORY_WELLS: AddWells = {
+  column: [{ name: 'groupby' }],
+  metric: [{ name: 'metric', single: true }],
+};
+
+/**
+ * Where a field ticked in the Data pane or dropped on a chart goes, in order,
+ * as Power BI fills the wells of a visual: the first that still takes it.
+ */
+function addWellsOf(formData: FormData): AddWells | undefined {
+  const byChart: Record<string, AddWells> = {
+    echarts_timeseries_bar: XY_WELLS,
+    echarts_timeseries_line: XY_WELLS,
+    echarts_timeseries_smooth: XY_WELLS,
+    echarts_timeseries_step: XY_WELLS,
+    echarts_timeseries_scatter: XY_WELLS,
+    echarts_area: XY_WELLS,
+    mixed_timeseries: {
+      column: [{ name: 'x_axis', single: true }, { name: 'groupby' }],
+      metric: [{ name: 'metrics' }],
+    },
+    pie: CATEGORY_WELLS,
+    funnel: CATEGORY_WELLS,
+    treemap_v2: CATEGORY_WELLS,
+    gauge_chart: CATEGORY_WELLS,
+    waterfall: {
+      column: [{ name: 'x_axis', single: true }, { name: 'groupby' }],
+      metric: [{ name: 'metric', single: true }],
+    },
+    butterfly: {
+      column: [{ name: 'groupby' }],
+      metric: [
+        { name: 'left_metric', single: true },
+        { name: 'right_metric', single: true },
+      ],
+    },
+    big_number_total: {
+      column: [],
+      metric: [{ name: 'metric', single: true }],
+    },
+    big_number: {
+      column: [{ name: 'x_axis', single: true }],
+      metric: [{ name: 'metric', single: true }],
+    },
+    table:
+      formData.query_mode === 'raw'
+        ? { column: [{ name: 'all_columns' }], metric: [] }
+        : { column: [{ name: 'groupby' }], metric: [{ name: 'metrics' }] },
+    pivot_table_v2: {
+      column: [{ name: 'groupbyRows' }, { name: 'groupbyColumns' }],
+      metric: [{ name: 'metrics' }],
+    },
+    bubble_v2: {
+      column: [
+        { name: 'entity', single: true },
+        { name: 'series', single: true },
+      ],
+      metric: [
+        { name: 'x', single: true },
+        { name: 'y', single: true },
+        { name: 'size', single: true },
+      ],
+    },
+  };
+  return byChart[String(formData.viz_type)];
+}
+
+/** A field of the Data pane: a measure of the dataset or one of its columns. */
+export type DataField =
+  | { kind: 'metric'; name: string }
+  | { kind: 'column'; name: string; numeric: boolean; value: unknown };
+
+const isEmpty = (value: unknown) =>
+  value === undefined ||
+  value === null ||
+  value === '' ||
+  (Array.isArray(value) && !value.length);
+
+/**
+ * Whether a value of a well is the field: a name in a well of its own kind, or
+ * a column inside an aggregate of a well of values.
+ */
+function isField(value: unknown, field: DataField, metricWell: boolean) {
+  if (typeof value === 'string')
+    return value === field.name && metricWell === (field.kind === 'metric');
+  if (!value || typeof value !== 'object') return false;
+  const item = value as {
+    column?: { column_name?: string };
+    metric_name?: string;
+  };
+  return field.kind === 'metric'
+    ? item.metric_name === field.name
+    : item.column?.column_name === field.name;
+}
+
+const wellsWithKind = (wells: AddWells) => [
+  ...wells.column.map(well => ({ name: well.name, metricWell: false })),
+  ...wells.metric.map(well => ({ name: well.name, metricWell: true })),
+];
+
+const valuesOf = (value: unknown) => (Array.isArray(value) ? value : [value]);
+
+/** Whether a chart shows a field in any of the wells a field goes to. */
+export function usesField(formData: FormData, field: DataField) {
+  const wells = addWellsOf(formData);
+  if (!wells) return false;
+  return wellsWithKind(wells).some(({ name, metricWell }) =>
+    valuesOf(formData[name]).some(value => isField(value, field, metricWell)),
+  );
+}
+
+/**
+ * The change that adds a field to a chart: a measure, or a number column as its
+ * sum, goes to the values; another column to the axis or the legend. Undefined
+ * when no well takes it.
+ */
+export function addFieldChange(
+  formData: FormData,
+  field: DataField,
+  asMetric: (column: unknown) => unknown,
+): { name: string; value: unknown } | undefined {
+  const wells = addWellsOf(formData);
+  if (!wells) return undefined;
+  const measure = field.kind === 'metric' || field.numeric;
+  const value =
+    field.kind === 'metric'
+      ? field.name
+      : measure
+        ? asMetric(field.value)
+        : field.name;
+  const order = measure ? wells.metric : wells.column;
+  const well = order.find(
+    ({ name, single }) => !single || isEmpty(formData[name]),
+  );
+  if (!well) return undefined;
+  const current = formData[well.name];
+  return {
+    name: well.name,
+    value: well.single
+      ? value
+      : [...(Array.isArray(current) ? current : []), value],
+  };
+}
+
+/** The changes that take a field out of every well of a chart that has it. */
+export function removeFieldChanges(formData: FormData, field: DataField) {
+  const wells = addWellsOf(formData);
+  if (!wells) return [];
+  return wellsWithKind(wells).flatMap(({ name, metricWell }) => {
+    const current = formData[name];
+    if (Array.isArray(current)) {
+      const kept = current.filter(value => !isField(value, field, metricWell));
+      return kept.length === current.length ? [] : [{ name, value: kept }];
+    }
+    return isField(current, field, metricWell)
+      ? [{ name, value: undefined }]
+      : [];
+  });
+}
+
 /** Controls of a chart that take a field, whatever chart it is. */
 const isFieldControl = (type: unknown) =>
   typeof type === 'string' && /^Dnd(?!Filter)/.test(type);

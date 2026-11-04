@@ -16,18 +16,21 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { useEffect, useMemo, useState } from 'react';
+import { Fragment, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { useSelector } from 'react-redux';
+import { GenericDataType } from '@apache-superset/core/common';
 import { SupersetClient } from '@superset-ui/core';
 import { css, styled } from '@apache-superset/core/theme';
 import { t } from '@apache-superset/core/translation';
 import type { ColumnMeta, Metric } from '@superset-ui/chart-controls';
-import { Button, Input } from '@superset-ui/core/components';
+import { Button, Checkbox, Input } from '@superset-ui/core/components';
 import { Icons } from '@superset-ui/core/components/Icons';
 import type { RootState } from 'src/dashboard/types';
 import { fetchDataSets } from 'src/mibi/data/api';
 import DatasourcePanelDragOption from 'src/explore/components/DatasourcePanel/DatasourcePanelDragOption';
 import { DndItemType } from 'src/explore/components/DndItemType';
+import type { DataField } from './chartFields';
+import { useChartFieldToggle } from './ChartFieldsSections';
 import { searchable } from './controls';
 import { setPaneCollapsed } from './panes';
 import { useSelectedVisual } from './selection';
@@ -89,6 +92,17 @@ const Pane = styled.aside<{ $top: number; $pageTop: number }>`
       margin-bottom: ${theme.sizeUnit * 2}px;
     }
 
+    .dataset-field {
+      display: flex;
+      align-items: center;
+      gap: ${theme.sizeUnit}px;
+
+      > :last-child {
+        flex: 1;
+        min-width: 0;
+      }
+    }
+
     .dataset-fields.other {
       opacity: 0.5;
       pointer-events: none;
@@ -148,6 +162,23 @@ function useUsableDatasets(dashboardId: number | undefined) {
   return usable;
 }
 
+/**
+ * The dataset of the field being dragged from the pane, so a chart of another
+ * dataset can refuse it when it is dropped on the canvas.
+ */
+export const draggedField: { dataset?: string } = {};
+
+const metricField = (metric: Metric): DataField => ({
+  kind: 'metric',
+  name: metric.metric_name,
+});
+const columnField = (column: ColumnMeta): DataField => ({
+  kind: 'column',
+  name: column.column_name,
+  numeric: column.type_generic === GenericDataType.Numeric,
+  value: column,
+});
+
 const nameOfMetric = (metric: Metric) =>
   metric.verbose_name || metric.metric_name;
 const nameOfColumn = (column: ColumnMeta) =>
@@ -174,6 +205,32 @@ export function DataPane({
   const usableDatasets = useUsableDatasets(dashboardId);
   const [fetched, setFetched] = useState<Record<string, Dataset | null>>({});
   const selected = useSelectedVisual();
+  const selectedChartId = useSelector((state: RootState) =>
+    selected
+      ? (state.dashboardLayout.present[selected]?.meta?.chartId as
+          | number
+          | undefined)
+      : undefined,
+  );
+  const fieldToggle = useChartFieldToggle(
+    selectedChartId === undefined ? undefined : (selected ?? undefined),
+    selectedChartId,
+  );
+  /** A field with the box that adds it to the selected chart, as Power BI. */
+  const withBox = (field: DataField, name: string, option: ReactNode) =>
+    fieldToggle.ready ? (
+      <div className="dataset-field" key={`${field.kind}:${field.name}`}>
+        <Checkbox
+          checked={fieldToggle.uses(field)}
+          aria-label={t('Show %s in the chart', name)}
+          data-test="mibi-data-pane-field-box"
+          onChange={event => fieldToggle.toggle(field, event.target.checked)}
+        />
+        {option}
+      </div>
+    ) : (
+      <Fragment key={`${field.kind}:${field.name}`}>{option}</Fragment>
+    );
   const selectedDataset = useSelector((state: RootState) => {
     const chartId = selected
       ? state.dashboardLayout.present[selected]?.meta?.chartId
@@ -268,7 +325,14 @@ export function DataPane({
               (key === selectedDataset ||
                 (usedCount === 1 && !!datasources?.[key])));
           return (
-            <section key={key} data-test="mibi-data-pane-dataset">
+            <section
+              key={key}
+              data-test="mibi-data-pane-dataset"
+              // A drag starts with the pointer down on one of its fields
+              onPointerDownCapture={() => {
+                draggedField.dataset = key;
+              }}
+            >
               <button
                 type="button"
                 className="dataset-name"
@@ -300,14 +364,26 @@ export function DataPane({
                       usable ? 'dataset-fields' : 'dataset-fields other'
                     }
                   >
-                    {metrics.map(metric => (
-                      <DatasourcePanelDragOption
-                        key={metric.metric_name}
-                        value={metric}
-                        type={DndItemType.Metric}
-                        showTooltip
-                      />
-                    ))}
+                    {metrics.map(metric =>
+                      usable ? (
+                        withBox(
+                          metricField(metric),
+                          nameOfMetric(metric),
+                          <DatasourcePanelDragOption
+                            value={metric}
+                            type={DndItemType.Metric}
+                            showTooltip
+                          />,
+                        )
+                      ) : (
+                        <DatasourcePanelDragOption
+                          key={metric.metric_name}
+                          value={metric}
+                          type={DndItemType.Metric}
+                          showTooltip
+                        />
+                      ),
+                    )}
                   </div>
                 </>
               )}
@@ -319,14 +395,26 @@ export function DataPane({
                       usable ? 'dataset-fields' : 'dataset-fields other'
                     }
                   >
-                    {columns.map(column => (
-                      <DatasourcePanelDragOption
-                        key={column.column_name}
-                        value={column}
-                        type={DndItemType.Column}
-                        showTooltip
-                      />
-                    ))}
+                    {columns.map(column =>
+                      usable ? (
+                        withBox(
+                          columnField(column),
+                          nameOfColumn(column),
+                          <DatasourcePanelDragOption
+                            value={column}
+                            type={DndItemType.Column}
+                            showTooltip
+                          />,
+                        )
+                      ) : (
+                        <DatasourcePanelDragOption
+                          key={column.column_name}
+                          value={column}
+                          type={DndItemType.Column}
+                          showTooltip
+                        />
+                      ),
+                    )}
                   </div>
                 </>
               )}
