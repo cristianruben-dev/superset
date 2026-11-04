@@ -21296,8 +21296,8 @@ msgstr "Buscar campos"
 msgid "The selected chart uses another table."
 msgstr "El gráfico seleccionado usa otra tabla."
 
-msgid "Only the owners of this chart can change its fields."
-msgstr "Solo los propietarios de este gráfico pueden cambiar sus campos."
+msgid "Only the editors of this chart can change its fields."
+msgstr "Solo los editores de este gráfico pueden cambiar sus campos."
 
 msgid "Language"
 msgstr "Idioma"
