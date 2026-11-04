@@ -308,7 +308,7 @@ def test_contributors_read_the_history_viewers_do_not(
 
     api = mocker.MagicMock()
     api.response_403.return_value = "403"
-    found = {}
+    found: dict[str, object] = {}
     mocker.patch(
         "superset.versioning.api_helpers.VersionDAO.find_active_by_uuid",
         side_effect=lambda _model, _uuid: found["dashboard"],
