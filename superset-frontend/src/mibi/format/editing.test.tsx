@@ -16,13 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import {
-  act,
-  createStore,
-  fireEvent,
-  render,
-  screen,
-} from 'spec/helpers/testing-library';
+import { act, createStore, render, screen } from 'spec/helpers/testing-library';
 import reducerIndex from 'spec/helpers/reducerIndex';
 import type {
   DashboardLayout,
@@ -127,7 +121,7 @@ test('the format painter gives its format to the next object selected', () => {
   const store = makeStore();
   render(<FormatPane />, { store });
   act(() => selectVisual('DYNAMIC-a'));
-  fireEvent.click(screen.getByTestId('mibi-copy-format'));
+  act(() => copyFormat(layout['DYNAMIC-a'] as LayoutItem));
   expect(screen.getByTestId('mibi-painter-tip')).toBeInTheDocument();
   act(() => selectVisual('DYNAMIC-b'));
   const { meta } = stateOf(store).dashboardLayout.present['DYNAMIC-b'];

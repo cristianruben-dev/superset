@@ -32,6 +32,7 @@ import {
 } from 'src/mibi/format/selection';
 import { SelectionPane } from 'src/mibi/format/SelectionPane';
 import { Section, FormatSearchContext } from 'src/mibi/format/controls';
+import { cancelFormatPainter, copyFormat } from 'src/mibi/format/formatPainter';
 import {
   activePageId,
   visibleTabs,
@@ -120,6 +121,7 @@ const renderRibbon = (props: RibbonProps = handlers()) =>
 
 afterEach(() => {
   selectVisual(null);
+  cancelFormatPainter();
   setAllLocked(false);
   setMobileEditing(false);
   setMobileViewSettings({ device: 'iphone-17-pro', safeArea: true });
@@ -156,6 +158,25 @@ test('shows the object tabs only with an object selected', async () => {
   selectVisual(null);
   await waitFor(() =>
     expect(screen.getByTestId('header-save-button')).toBeInTheDocument(),
+  );
+});
+
+test('pastes a copied format from the clipboard group', async () => {
+  renderRibbon();
+  selectVisual('CHART-1');
+  const pasteButton = await screen.findByTestId('mibi-ribbon-paste-format');
+  expect(pasteButton).toBeDisabled();
+
+  // The format of another chart, copied earlier
+  copyFormat({
+    id: 'CHART-9',
+    type: 'CHART',
+    children: [],
+    meta: { mibiFormat: { radius: 12 } },
+  } as never);
+  cancelFormatPainter();
+  await waitFor(() =>
+    expect(screen.getByTestId('mibi-ribbon-paste-format')).toBeEnabled(),
   );
 });
 

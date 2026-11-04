@@ -32,11 +32,7 @@ import {
 } from '@superset-ui/core/components';
 import { Icons } from '@superset-ui/core/components/Icons';
 import { useToasts } from 'src/components/MessageToasts/withToasts';
-import type {
-  LayoutItem,
-  LayoutItemMeta,
-  RootState,
-} from 'src/dashboard/types';
+import type { LayoutItemMeta, RootState } from 'src/dashboard/types';
 import { DASHBOARD_ROOT_ID } from 'src/dashboard/util/constants';
 import { CHART_TYPE } from 'src/dashboard/util/componentTypes';
 import {
@@ -81,10 +77,8 @@ import { EditInteractionsToggle } from 'src/mibi/report/InteractionControl';
 import { setEditingInteractions } from 'src/mibi/report/interactions';
 import { PageSection } from 'src/mibi/report/PageSection';
 import {
-  canPasteFormat,
   cancelFormatPainter,
   copiedFormat,
-  copyFormat,
   isPainterArmed,
   pasteFormat,
   useFormatPainter,
@@ -131,19 +125,6 @@ const Pane = styled.div`
     .format-level {
       padding: ${theme.sizeUnit * 2}px ${theme.sizeUnit * 4}px;
       border-bottom: 1px solid ${theme.colorBorderSecondary};
-    }
-
-    .painter-bar {
-      display: flex;
-      gap: ${theme.sizeUnit * 2}px;
-      padding: ${theme.sizeUnit * 2}px ${theme.sizeUnit * 4}px;
-      border-bottom: 1px solid ${theme.colorBorderSecondary};
-
-      > .ant-btn {
-        flex: 1 1 0;
-        min-width: 0;
-        justify-content: center;
-      }
     }
 
     .painter-tip {
@@ -788,34 +769,6 @@ function CanvasSection() {
  * The Format tab of the dashboard builder: the canvas when nothing is
  * selected, the selected chart otherwise.
  */
-/** Copy format and paste format, for the selected object. */
-function PainterBar({ item }: { item: LayoutItem }) {
-  const dispatch = useDispatch();
-  const { armed } = useFormatPainter();
-  return (
-    <div className="painter-bar">
-      <Button
-        buttonStyle={armed ? 'primary' : 'secondary'}
-        buttonSize="small"
-        data-test="mibi-copy-format"
-        onClick={() => (armed ? cancelFormatPainter() : copyFormat(item))}
-      >
-        <Icons.FormatPainterOutlined iconSize="m" />
-        {armed ? t('Cancel') : t('Copy format')}
-      </Button>
-      <Button
-        buttonStyle="secondary"
-        buttonSize="small"
-        disabled={!canPasteFormat(item)}
-        data-test="mibi-paste-format"
-        onClick={() => dispatch(pasteFormat(item.id))}
-      >
-        {t('Paste format')}
-      </Button>
-    </div>
-  );
-}
-
 export function FormatPane() {
   const selected = useSelectedVisual();
   const many = useSelectedVisuals().length > 1;
@@ -886,7 +839,6 @@ export function FormatPane() {
           {t('Click another object to give it this format. Esc cancels.')}
         </div>
       )}
-      {visual && item && <PainterBar item={item} />}
       <div className="pane-search">
         <Input
           allowClear

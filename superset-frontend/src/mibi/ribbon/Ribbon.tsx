@@ -47,8 +47,10 @@ import {
 import { mobileLayoutOf } from 'src/mibi/format/mobileLayout';
 import { isCopyable, useClipboard } from 'src/mibi/format/clipboard';
 import {
+  canPasteFormat,
   cancelFormatPainter,
   copyFormat,
+  pasteFormat,
   useFormatPainter,
 } from 'src/mibi/format/formatPainter';
 import { useGridSettings } from 'src/mibi/format/gridGuides';
@@ -311,6 +313,22 @@ export function Ribbon({
     />
   );
 
+  const pasteFormatButton = (
+    <RibbonButton
+      small
+      label={t('Paste format')}
+      hint={t('Gives the selected object the format copied last')}
+      icon={<Icons.HighlightOutlined iconSize="m" />}
+      disabled={!canPasteFormat(item)}
+      data-test="mibi-ribbon-paste-format"
+      onClick={() => {
+        if (!primary) return;
+        dispatch(pasteFormat(primary) as never);
+        cancelFormatPainter();
+      }}
+    />
+  );
+
   const arrangeButton = <ArrangeButton />;
 
   const insertGroup = (
@@ -409,7 +427,10 @@ export function Ribbon({
               onClick={() => primary && copy(primary)}
               data-test="mibi-copy"
             />
+          </div>
+          <div className="stack">
             {painterButton}
+            {pasteFormatButton}
           </div>
         </RibbonGroup>
         {insertGroup}
