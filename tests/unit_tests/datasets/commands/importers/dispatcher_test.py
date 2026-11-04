@@ -16,17 +16,23 @@
 # under the License.
 """
 The HTTP-reachable dataset import dispatcher must never fall through to
-the legacy v0 importer, which matches datasets purely by
-(table_name, schema, database) and overrides them without any ownership
-check. Legacy YAML files remain importable via the dedicated
-`legacy_import_datasources` CLI command, which uses the v0 command
-directly.
+the legacy v0 importer, which matched datasets purely by
+(table_name, schema, database) and overrode them without any ownership
+check. The fork removed the v0 format altogether (a84d21f228), so the importer
+module must stay gone and the dispatcher must only list the versioned (v1)
+command.
 """
+
+import importlib
+
+import pytest
 
 
 def test_dataset_import_dispatcher_excludes_v0() -> None:
-    """POST /api/v1/dataset/import/ must not dispatch to the v0 importer."""
-    from superset.commands.dataset.importers import v0
+    """POST /api/v1/dataset/import/ only dispatches to the v1 importer."""
     from superset.commands.dataset.importers.dispatcher import command_versions
+    from superset.commands.dataset.importers.v1 import ImportDatasetsCommand
 
-    assert v0.ImportDatasetsCommand not in command_versions
+    assert command_versions == [ImportDatasetsCommand]
+    with pytest.raises(ModuleNotFoundError):
+        importlib.import_module("superset.commands.dataset.importers.v0")

@@ -377,6 +377,17 @@ de la fase 3 (`cp -cR`). Usuarios de prueba en la copia: admin, `qa_colaborador`
   pintando datos; visor, miembro de otro workspace y sin workspace: 404/403 y sin el dataset en listados. Capturas en `fase4-capturas/`
   (`grant-contribuidor-dashboard.jpg`, `grant-visor-dashboard-404.jpg`). El visor recibe 404 porque el tablero no se le compartió: el
   workspace no le da lectura.
+- **Fallos previos corregidos (cierre de la fase 4).**
+  - *Código:* `copy_dashboard` leía `metadata["positions"]` sin más cuando la regla de un tablero por gráfico duplica los
+    gráficos; ahora tolera metadatos sin layout.
+  - *Tests viejos (no se relajó ningún assert de acceso):* `columns` (4 de 24 columnas son 200 px = 6 celdas, no 7);
+    `editing` (`placeComponent` devuelve solo las entradas que cambia y la página mide 60 celdas); `dropOverflowsParent`
+    y `getDetailedComponentWidth` (anchos escritos para 12 celdas, fijan el lienzo a 12); `SliceHeaderControls.subdirectory`
+    («Editar gráfico» abre el panel lateral, nunca una pestaña); `subjects` y `semantic_view_access` (la puerta de workspace
+    del fork consulta la base y `g.user`, que esos mocks no tienen: se apaga `MIBI_WORKSPACE_ACCESS` en esos archivos, tiene
+    tests propios en `tests/unit_tests/mibi`; el tablero extra de un test recibe su propio gráfico por la regla de un
+    tablero por gráfico); importadores v0 de tableros y datasets (el fork los eliminó en `a84d21f228`: se borran sus tests y
+    el del despachador fija que el módulo sigue sin existir y que solo despacha a v1).
 - **8.** Distintivo «Destacado»: se dibuja (arriba a la derecha de la ficha); el test omitido pasa a uno propio. `prefer-tag-over-role`
   vuelve a estar activo en todo `src/mibi` salvo 20 archivos con motivo (iconos SVG, radios, listbox, progress, grupos/estados/botones
   que necesitarían reset); `TopBar` y `DrillthroughBar` pasaron a `header`/`output`. Editor del panel lateral: métricas
