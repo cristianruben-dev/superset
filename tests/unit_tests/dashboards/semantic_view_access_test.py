@@ -59,7 +59,7 @@ def _without_workspace_rules(app_context: None) -> None:
     AuraData BI has its own tests (tests/unit_tests/auradata) and reads the database,
     which these mocked dashboards do not have.
     """
-    current_app.config["MIBI_WORKSPACE_ACCESS"] = False
+    current_app.config["AURADATA_WORKSPACE_ACCESS"] = False
 
 
 @pytest.fixture

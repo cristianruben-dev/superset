@@ -24,7 +24,7 @@ semantic model, and the charts of that workspace's dashboards use it.
   (``workspace_grants``); viewers gain nothing.
 * A chart can only use a dataset of its dashboard's workspace, or a shared one.
 
-``MIBI_WORKSPACE_DATASETS = False`` turns these rules off.
+``AURADATA_WORKSPACE_DATASETS = False`` turns these rules off.
 """
 
 from __future__ import annotations
@@ -45,7 +45,7 @@ from superset.auradata import workspace_access
 from superset.auradata.models import WorkspaceDashboard, WorkspaceDataset
 from superset.utils.core import get_user_id
 
-CONFIG_KEY = "MIBI_WORKSPACE_DATASETS"
+CONFIG_KEY = "AURADATA_WORKSPACE_DATASETS"
 
 
 def enabled() -> bool:

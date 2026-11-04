@@ -320,8 +320,8 @@ def menu_data(user: User) -> dict[str, Any]:
         },
         "environment_tag": get_environment_tag(),
         "navbar_right": {
-            # the "Powered by" watermark is controlled by MIBI_SHOW_POWERED_BY
-            "show_watermark": app.config.get("MIBI_SHOW_POWERED_BY", False),
+            # the "Powered by" watermark is controlled by AURADATA_SHOW_POWERED_BY
+            "show_watermark": app.config.get("AURADATA_SHOW_POWERED_BY", False),
             "bug_report_url": app.config["BUG_REPORT_URL"],
             "bug_report_icon": app.config["BUG_REPORT_ICON"],
             "bug_report_text": app.config["BUG_REPORT_TEXT"],

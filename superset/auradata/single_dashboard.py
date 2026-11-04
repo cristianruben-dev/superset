@@ -19,7 +19,7 @@ Single-dashboard charts: every chart belongs to at most one dashboard.
 
 Upstream Superset treats charts as standalone objects that any number of dashboards
 can reuse. AuraData BI follows the Power BI model instead, where a visual lives
-inside one report. The rule is controlled by ``MIBI_SINGLE_DASHBOARD_CHARTS``.
+inside one report. The rule is controlled by ``AURADATA_SINGLE_DASHBOARD_CHARTS``.
 
 It is enforced in two layers:
 
@@ -58,7 +58,7 @@ from superset.models.dashboard import Dashboard, dashboard_slices
 from superset.models.slice import Slice
 from superset.utils import json
 
-CONFIG_KEY = "MIBI_SINGLE_DASHBOARD_CHARTS"
+CONFIG_KEY = "AURADATA_SINGLE_DASHBOARD_CHARTS"
 
 # session.info key holding the charts whose dashboard links changed in a flush
 _TOUCHED_CHARTS_KEY = "auradata_single_dashboard_touched_charts"

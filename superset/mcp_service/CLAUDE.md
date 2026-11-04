@@ -39,7 +39,7 @@ Use this exact template at the top of EVERY Python file:
 
 ## AuraData BI: One Dashboard per Chart
 
-In this fork every chart belongs to at most one dashboard (`MIBI_SINGLE_DASHBOARD_CHARTS`,
+In this fork every chart belongs to at most one dashboard (`AURADATA_SINGLE_DASHBOARD_CHARTS`,
 see `superset/auradata/single_dashboard.py`). A tool that creates dashboards or attaches charts
 to one must validate the request with that module, as `dashboard/tool/generate_dashboard.py`
 and `dashboard/tool/add_chart_to_existing_dashboard.py` do, and return its readable error

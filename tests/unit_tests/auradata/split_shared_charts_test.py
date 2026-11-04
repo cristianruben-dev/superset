@@ -68,7 +68,7 @@ def make_metadata(*chart_ids: int) -> dict[str, Any]:
 
 def make_shared_dashboards(session: Session) -> tuple[Dashboard, Dashboard, Slice]:
     """Two dashboards that share a chart, created with the rule switched off."""
-    current_app.config["MIBI_SINGLE_DASHBOARD_CHARTS"] = False
+    current_app.config["AURADATA_SINGLE_DASHBOARD_CHARTS"] = False
     try:
         shared = Slice(slice_name="shared", viz_type="table", datasource_type="table")
         own = Slice(slice_name="own", viz_type="table", datasource_type="table")
@@ -90,7 +90,7 @@ def make_shared_dashboards(session: Session) -> tuple[Dashboard, Dashboard, Slic
         # history records one change per link and transaction
         session.commit()
     finally:
-        current_app.config["MIBI_SINGLE_DASHBOARD_CHARTS"] = True
+        current_app.config["AURADATA_SINGLE_DASHBOARD_CHARTS"] = True
     return first, second, shared
 
 

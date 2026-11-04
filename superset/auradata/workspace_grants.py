@@ -34,7 +34,7 @@ is narrow on purpose:
   (``put_datasets``), so a workspace admin cannot grant access to data that they
   cannot read.
 
-``MIBI_WORKSPACE_ACCESS`` and ``MIBI_WORKSPACE_DATASETS`` turn it off.
+``AURADATA_WORKSPACE_ACCESS`` and ``AURADATA_WORKSPACE_DATASETS`` turn it off.
 """
 
 from __future__ import annotations

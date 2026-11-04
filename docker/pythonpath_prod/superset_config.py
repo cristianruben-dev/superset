@@ -49,7 +49,7 @@ SECRET_KEY = _required("SUPERSET_SECRET_KEY")
 
 # Behind a reverse proxy (nginx, Traefik, a load balancer) that terminates TLS
 ENABLE_PROXY_FIX = True
-SESSION_COOKIE_SECURE = _flag("MIBI_HTTPS", True)
+SESSION_COOKIE_SECURE = _flag("AURADATA_HTTPS", True)
 SESSION_COOKIE_SAMESITE = "Lax"
 
 # --- Metadata database ------------------------------------------------------
@@ -108,12 +108,12 @@ CELERY_CONFIG = CeleryConfig
 # --- Alerts and scheduled reports --------------------------------------------
 
 FEATURE_FLAGS = {"ALERT_REPORTS": True}
-ALERT_REPORTS_NOTIFICATION_DRY_RUN = not _flag("MIBI_SEND_REPORTS", False)
+ALERT_REPORTS_NOTIFICATION_DRY_RUN = not _flag("AURADATA_SEND_REPORTS", False)
 
 # Address the Celery workers use to reach the web app, and the one users see in
 # the links of the emails
 WEBDRIVER_BASEURL = os.getenv("WEBDRIVER_BASEURL", "http://superset:8088/")
-WEBDRIVER_BASEURL_USER_FRIENDLY = os.getenv("MIBI_PUBLIC_URL", WEBDRIVER_BASEURL)
+WEBDRIVER_BASEURL_USER_FRIENDLY = os.getenv("AURADATA_PUBLIC_URL", WEBDRIVER_BASEURL)
 
 SMTP_HOST = os.getenv("SMTP_HOST", "localhost")
 SMTP_PORT = int(os.getenv("SMTP_PORT", "587"))

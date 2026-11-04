@@ -43,7 +43,7 @@ def _without_workspace_rules(app_context):
     rules of AuraData BI have their own tests (tests/unit_tests/auradata) and read the
     database, which these mocked dashboards do not have.
     """
-    current_app.config["MIBI_WORKSPACE_ACCESS"] = False
+    current_app.config["AURADATA_WORKSPACE_ACCESS"] = False
 
 
 def _group_subject(id_: int = 11) -> Subject:

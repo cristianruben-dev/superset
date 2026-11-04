@@ -140,7 +140,7 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     . /app/.venv/bin/activate && /app/docker/pip-install.sh --requires-build-essential -r requirements/translations.txt
 
 COPY superset/translations/ /app/translations_mo/
-COPY docker/mibi/compile_translations.py /app/compile_translations.py
+COPY docker/auradata/compile_translations.py /app/compile_translations.py
 RUN if [ "${BUILD_TRANSLATIONS}" = "true" ]; then \
         for po in /app/translations_mo/*/LC_MESSAGES/messages.po; do \
             lang=$(basename "$(dirname "$(dirname "$po")")"); \
@@ -374,6 +374,6 @@ USER root
 RUN /app/docker/apt-install.sh pkg-config default-libmysqlclient-dev \
     && /app/docker/pip-install.sh --requires-build-essential \
     ".[postgres,mysql,mssql,databricks,duckdb,redshift,fastmcp]"
-COPY --chmod=755 docker/mibi/docker-init-prod.sh /app/docker/mibi/
+COPY --chmod=755 docker/auradata/docker-init-prod.sh /app/docker/auradata/
 COPY docker/pythonpath_prod/superset_config.py /app/pythonpath/
 USER superset

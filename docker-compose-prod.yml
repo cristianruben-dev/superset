@@ -24,8 +24,8 @@
 # Add `--profile mcp` to also start the MCP service for AI agents.
 # Put a reverse proxy with TLS (nginx, Traefik, Caddy...) in front of port 8088.
 
-x-mibi-image: &mibi-image
-  image: ${MIBI_IMAGE:-mibi:latest}
+x-auradata-image: &auradata-image
+  image: ${AURADATA_IMAGE:-auradata-bi:latest}
   build:
     context: .
     target: prod
@@ -40,7 +40,7 @@ x-mibi-image: &mibi-image
   volumes:
     - superset_home:/app/superset_home
 
-x-mibi-depends: &mibi-depends
+x-auradata-depends: &auradata-depends
   db:
     condition: service_healthy
   redis:
@@ -74,8 +74,8 @@ services:
       retries: 5
 
   superset-init:
-    <<: *mibi-image
-    command: ["/app/docker/mibi/docker-init-prod.sh"]
+    <<: *auradata-image
+    command: ["/app/docker/auradata/docker-init-prod.sh"]
     restart: "no"
     depends_on:
       db:
@@ -84,40 +84,40 @@ services:
         condition: service_healthy
 
   superset:
-    <<: *mibi-image
+    <<: *auradata-image
     command: ["/app/docker/entrypoints/run-server.sh"]
     environment:
       SERVER_WORKER_AMOUNT: ${SERVER_WORKER_AMOUNT:-4}
     ports:
-      - "${MIBI_PORT:-8088}:8088"
-    depends_on: *mibi-depends
+      - "${AURADATA_PORT:-8088}:8088"
+    depends_on: *auradata-depends
 
   superset-worker:
-    <<: *mibi-image
+    <<: *auradata-image
     command: ["/app/docker/docker-bootstrap.sh", "worker"]
     healthcheck:
       test: ["CMD-SHELL", "celery -A superset.tasks.celery_app:app inspect ping -d celery@$$HOSTNAME"]
       interval: 30s
       timeout: 10s
       retries: 3
-    depends_on: *mibi-depends
+    depends_on: *auradata-depends
 
   superset-worker-beat:
-    <<: *mibi-image
+    <<: *auradata-image
     command: ["/app/docker/docker-bootstrap.sh", "beat"]
     healthcheck:
       disable: true
-    depends_on: *mibi-depends
+    depends_on: *auradata-depends
 
   superset-mcp:
-    <<: *mibi-image
+    <<: *auradata-image
     profiles: ["mcp"]
     command: ["superset", "mcp", "run", "--host", "0.0.0.0", "--port", "5008"]
     healthcheck:
       disable: true
     ports:
       - "127.0.0.1:${MCP_PORT:-5008}:5008"
-    depends_on: *mibi-depends
+    depends_on: *auradata-depends
 
 volumes:
   superset_home:

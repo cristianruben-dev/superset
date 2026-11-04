@@ -59,7 +59,7 @@ This repository is **AuraData BI**, a fork of Apache Superset 7.0 shaped like Po
   `superset/translations/es/LC_MESSAGES/messages.po` (informal "tú", «» quotes). Rebuild with
   `npm run build-translation` in `superset-frontend/`; `messages.json`/`messages.mo` are
   generated and git-ignored.
-- **One dashboard per chart** (`MIBI_SINGLE_DASHBOARD_CHARTS`, `superset/auradata/single_dashboard.py`).
+- **One dashboard per chart** (`AURADATA_SINGLE_DASHBOARD_CHARTS`, `superset/auradata/single_dashboard.py`).
   Commands, importers and the MCP tools validate it; an ORM listener is the safety net.
   Charts are created and edited from a side panel of their dashboard (`src/auradata/chartEditor.ts`,
   `src/auradata/dashboard/ChartEditorPanel.tsx`); there is no chart list screen.
@@ -70,7 +70,7 @@ This repository is **AuraData BI**, a fork of Apache Superset 7.0 shaped like Po
   wrapped in `panelOnly` (`src/auradata/PanelGate.tsx`) and redirect when opened on their own. A
   dashboard shows without the sidebar, with the logo in the top bar (`isReportRoute`).
 - **Workspaces** group dashboards, with members and roles (viewer, contributor, admin)
-  (`MIBI_WORKSPACE_ACCESS`). A role never makes anyone an editor: Superset counts editorship
+  (`AURADATA_WORKSPACE_ACCESS`). A role never makes anyone an editor: Superset counts editorship
   (`is_editor`) as data access, so contributors and admins edit through
   `security_manager.can_edit_resource` (used by `raise_for_editorship` and the edit points) and
   never become editors (`keep_subjects` in `compute_subjects`). A new edit point asks
@@ -90,7 +90,7 @@ This repository is **AuraData BI**, a fork of Apache Superset 7.0 shaped like Po
   the drafts of the workspace, never becoming an editor. Fork rules count only live rows: 7.0's ORM
   visibility filter hides them from ORM queries, but queries over link tables (`dashboard_slices`,
   `mibi_workspace_*`) must join the live rows themselves (`_live_links` in `single_dashboard.py`).
-- **Datasets belong to a workspace** (`MIBI_WORKSPACE_DATASETS`, `superset/auradata/workspace_datasets.py`),
+- **Datasets belong to a workspace** (`AURADATA_WORKSPACE_DATASETS`, `superset/auradata/workspace_datasets.py`),
   like Power BI semantic models: a dataset is in one workspace at most, and one without a
   workspace is shared. Only members (and editors, admins) list a workspace's datasets
   (`WorkspaceDatasetFilter` on the dataset API), and a chart only uses datasets of its
@@ -138,12 +138,14 @@ This repository is **AuraData BI**, a fork of Apache Superset 7.0 shaped like Po
   `THEME_DARK = None` to force a single look. A dashboard keeps its own `css` field.
 - Code is named `auradata`: modules (`superset/auradata`, `superset/auradata_config.py`, `src/auradata`,
   `src/assets/auradata`), identifiers, `data-test` ids and the `/api/v1/auradata/` API. New code uses
-  `auradata`, never `mibi`. Persisted and deployment names still say `mibi` until their own renames
-  (`docs/plans/2026-11-04-plan-mcp-auradata.md`, phases R2–R4), because saved dashboards, databases and
-  deployments depend on them: `MIBI_*` settings and env vars, `mibi_*` tables, `meta.mibi*` layout keys,
+  `auradata`, never `mibi`. So do settings and env vars (`AURADATA_*`) and the deployment files
+  (`docker/auradata`). Persisted names still say `mibi` until their own renames
+  (`docs/plans/2026-11-04-plan-mcp-auradata.md`, phases R3–R4), because saved dashboards and the database
+  depend on them: `mibi_*` tables, `meta.mibi*` layout keys,
   `mibi-*` component keys, the `mibi` palette id, `.mibi-*` classes, `data-mibi-*` attributes and `--mibi-*`
   variables, `mibi_*` form data keys, `__mibi*` series ids, `localStorage` `mibi.*`, the `mibi-drillthrough`
-  data mask, the `mibi_panel`/`mibi_dock` URL parameters and `docker/mibi`. Never rename these by hand.
+  data mask and the `mibi_panel`/`mibi_dock` URL parameters. Never rename these by hand. AuraData BI has not
+  shipped, so renames need no fallback for old names; the dev database still needs a migration.
 
 ### Where the code lives
 | Area | Backend | Frontend (`superset-frontend/src/`) |

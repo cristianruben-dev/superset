@@ -28,7 +28,7 @@ Membership is the privacy boundary of a workspace, as in Power BI:
   editorship grants data access in Superset, so a workspace role never changes
   who edits or views a dashboard or chart, nor makes the user an editor of it.
 
-``MIBI_WORKSPACE_ACCESS = False`` turns the dashboard rules off; workspaces then
+``AURADATA_WORKSPACE_ACCESS = False`` turns the dashboard rules off; workspaces then
 only group dashboards.
 """
 
@@ -57,7 +57,7 @@ EDITOR_ROLES = (ROLE_CONTRIBUTOR, ROLE_ADMIN)
 
 def enabled() -> bool:
     """Whether workspace membership restricts dashboards."""
-    return bool(current_app.config.get("MIBI_WORKSPACE_ACCESS", True))
+    return bool(current_app.config.get("AURADATA_WORKSPACE_ACCESS", True))
 
 
 def role_rank(role: str | None) -> int:

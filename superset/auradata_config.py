@@ -26,8 +26,8 @@ deployment can still override any of these values. Kept in its own module so reb
 the fork onto new Superset releases only touches one line of config.py.
 
 Colors live in the theme tokens; the global stylesheet
-(superset-frontend/src/assets/auradata/skin.css) only handles structure, spacing and type,
-so light/dark mode and per-dashboard themes keep working.
+(superset-frontend/src/assets/auradata/skin.css) only handles structure, spacing and
+type, so light/dark mode and per-dashboard themes keep working.
 """
 
 from typing import Any
@@ -57,14 +57,14 @@ FAVICONS = [
     },
 ]
 # The navbar's "Powered by Apache Superset" watermark
-MIBI_SHOW_POWERED_BY = False
+AURADATA_SHOW_POWERED_BY = False
 
 # --- Charts -----------------------------------------------------------------
 # Every chart belongs to at most one dashboard, as in Power BI, instead of being a
 # standalone object that several dashboards reuse.
 # See superset/auradata/single_dashboard.py.
 
-MIBI_SINGLE_DASHBOARD_CHARTS = True
+AURADATA_SINGLE_DASHBOARD_CHARTS = True
 
 # A report keeps the format of its charts in its layout, and a formatted chart can
 # take a few KB. The column holds far more than the 64 KB Superset allows.
@@ -76,13 +76,13 @@ SUPERSET_DASHBOARD_POSITION_DATA_LIMIT = 512 * 1024
 # admins) and their owners; contributors and admins edit them. With False,
 # workspaces only group dashboards. See superset/auradata/workspace_access.py.
 
-MIBI_WORKSPACE_ACCESS = True
+AURADATA_WORKSPACE_ACCESS = True
 
 # Datasets belong to one workspace at most, like Power BI semantic models: only its
 # members see them and only its dashboards' charts use them. Datasets without a
 # workspace are shared. See superset/auradata/workspace_datasets.py.
 
-MIBI_WORKSPACE_DATASETS = True
+AURADATA_WORKSPACE_DATASETS = True
 
 # --- Databases --------------------------------------------------------------
 # Presto is not offered, but its engine spec stays: Hive, Spark and Databricks

@@ -48,10 +48,10 @@ def db_session(session: Session) -> Iterator[Session]:
 
 @pytest.fixture
 def rule_disabled() -> Iterator[None]:
-    previous = current_app.config["MIBI_SINGLE_DASHBOARD_CHARTS"]
-    current_app.config["MIBI_SINGLE_DASHBOARD_CHARTS"] = False
+    previous = current_app.config["AURADATA_SINGLE_DASHBOARD_CHARTS"]
+    current_app.config["AURADATA_SINGLE_DASHBOARD_CHARTS"] = False
     yield
-    current_app.config["MIBI_SINGLE_DASHBOARD_CHARTS"] = previous
+    current_app.config["AURADATA_SINGLE_DASHBOARD_CHARTS"] = previous
 
 
 def make_chart(session: Session, name: str = "chart") -> Slice:
