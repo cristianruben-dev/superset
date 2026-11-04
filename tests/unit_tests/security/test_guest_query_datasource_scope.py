@@ -478,7 +478,7 @@ def test_non_guest_query_passed_as_datasource_unchanged(
 @pytest.mark.parametrize(
     "path",
     [
-        pytest.param(f"/datasource/get/query/{QUERY_ID}/", id="get"),
+        # AuraData BI removed the obsolete /datasource/get/ view (a84d21f228)
         pytest.param(
             f"/datasource/external_metadata/query/{QUERY_ID}/", id="external-metadata"
         ),
