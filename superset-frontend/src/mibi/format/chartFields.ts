@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { isEqual } from 'lodash';
+import { isEqual } from 'lodash-es';
 import { SupersetClient } from '@superset-ui/core';
 import { t } from '@apache-superset/core/translation';
 import {
@@ -27,7 +27,11 @@ import {
 import { addDangerToast } from 'src/components/MessageToasts/actions';
 import { setUnsavedChanges } from 'src/dashboard/actions/dashboardState';
 import type { GetState } from 'src/dashboard/types';
-import { isUserAdmin } from 'src/dashboard/util/permissionUtils';
+import {
+  isUserAdmin,
+  isUserInSubjects,
+  type SubjectRef,
+} from 'src/dashboard/util/permissionUtils';
 import type { UserWithPermissionsAndRoles } from 'src/types/bootstrapTypes';
 import { fetchDashboardSlices } from 'src/mibi/dashboard/reloadSavedChart';
 import { buildV1ChartDataPayload } from 'src/explore/exploreUtils';
@@ -129,14 +133,17 @@ export function wellOrder(formData: FormData, name: string) {
 
 /**
  * Whether a viewer may change the fields of a chart: the server asks for the same
- * when saving it. Owners that have not loaded yet leave the decision to the server.
+ * when saving it. Editors that have not loaded yet leave the decision to the server.
+ * Whoever edits the dashboard (including a workspace contributor, who is not one of
+ * the chart's editors) edits its chart, since a chart belongs to one dashboard.
  */
 export function canChangeFields(
   user: UserWithPermissionsAndRoles | undefined,
-  owners: { id?: number }[] | undefined,
+  editors: SubjectRef[] | undefined,
+  canEditDashboard = false,
 ) {
-  if (!owners || !user) return true;
-  return isUserAdmin(user) || owners.some(owner => owner.id === user.userId);
+  if (!editors || !user) return true;
+  return isUserAdmin(user) || canEditDashboard || isUserInSubjects(editors);
 }
 
 type Pending = {
