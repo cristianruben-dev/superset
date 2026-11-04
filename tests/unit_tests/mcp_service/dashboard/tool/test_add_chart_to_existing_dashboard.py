@@ -495,3 +495,127 @@ def test_add_chart_response_error_preserves_application_text() -> None:
         dashboard=None, dashboard_url=None, position=None, error=None
     )
     assert empty_response.error is None
+
+
+def _cells_layout() -> dict[str, object]:
+    """A layout in cells (AuraData BI) with one chart at the top left."""
+    return {
+        "DASHBOARD_VERSION_KEY": "v2",
+        "ROOT_ID": {
+            "type": "ROOT",
+            "id": "ROOT_ID",
+            "children": ["GRID_ID"],
+            "meta": {"mibiCells": True},
+        },
+        "GRID_ID": {
+            "type": "GRID",
+            "id": "GRID_ID",
+            "children": ["ROW-1"],
+            "parents": ["ROOT_ID"],
+        },
+        "ROW-1": {
+            "type": "ROW",
+            "id": "ROW-1",
+            "children": ["CHART-5"],
+            "meta": {},
+            "parents": ["ROOT_ID", "GRID_ID"],
+        },
+        "CHART-5": {
+            "type": "CHART",
+            "id": "CHART-5",
+            "children": [],
+            "meta": {
+                "chartId": 5,
+                "width": 12,
+                "height": 12,
+                "mibiPos": {"x": 0, "y": 0},
+            },
+            "parents": ["ROOT_ID", "GRID_ID", "ROW-1"],
+        },
+    }
+
+
+async def _add_chart_to(position_json: str, mcp_server: object) -> dict:
+    """Add chart 10 to a dashboard holding chart 5; return the stored layout."""
+    from superset.utils import json
+
+    existing_chart = _mock_chart(id=5, slice_name="Existing")
+    new_chart = _mock_chart(id=10, slice_name="New")
+    dashboard = _mock_dashboard(id=1, slices=[existing_chart])
+    dashboard.position_json = position_json
+    updated_dashboard = _mock_dashboard(id=1, slices=[existing_chart, new_chart])
+
+    with (
+        patch("superset.daos.dashboard.DashboardDAO.find_by_id") as find_by_id,
+        patch("superset.security_manager.raise_for_editorship"),
+        patch("superset.db.session.get", return_value=new_chart),
+        patch("superset.commands.dashboard.update.UpdateDashboardCommand") as cmd,
+    ):
+        find_by_id.side_effect = [dashboard, updated_dashboard]
+        cmd.return_value.run.return_value = updated_dashboard
+        async with Client(mcp_server) as client:
+            result = await client.call_tool(
+                "add_chart_to_existing_dashboard",
+                {"request": {"dashboard_id": 1, "chart_id": 10}},
+            )
+        assert result.structured_content["error"] is None
+        _dashboard_id, update_data = cmd.call_args[0]
+    return json.loads(update_data["position_json"])
+
+
+@pytest.mark.asyncio
+async def test_add_to_cells_layout_uses_cells_and_a_free_cell(
+    mcp_server: object,
+) -> None:
+    """On a layout in cells the chart takes the default size in cells and the
+    first free cell of its page, beside the chart already there."""
+    from superset.utils import json
+
+    stored = await _add_chart_to(json.dumps(_cells_layout()), mcp_server)
+
+    meta = stored["CHART-10"]["meta"]
+    assert meta["width"] == 12
+    assert meta["height"] == 12
+    assert meta["mibiPos"] == {"x": 12, "y": 0}
+    column = stored[stored["CHART-10"]["parents"][-1]]
+    assert column["type"] == "COLUMN"
+    assert column["meta"]["width"] == 12
+    # The chart already there keeps its place
+    assert stored["CHART-5"]["meta"]["mibiPos"] == {"x": 0, "y": 0}
+
+
+@pytest.mark.asyncio
+async def test_add_to_full_cells_page_goes_below_the_lowest_object(
+    mcp_server: object,
+) -> None:
+    """With no free room on the page, the chart goes below the lowest object,
+    kept on the page."""
+    from superset.utils import json
+
+    layout = _cells_layout()
+    layout["CHART-5"]["meta"].update(  # type: ignore[index]
+        {"width": 60, "height": 30}
+    )
+
+    stored = await _add_chart_to(json.dumps(layout), mcp_server)
+
+    # 16:9 is 34 cells tall: 30 would leave the page, so it stops at 34 - 12
+    assert stored["CHART-10"]["meta"]["mibiPos"] == {"x": 0, "y": 22}
+
+
+@pytest.mark.asyncio
+async def test_add_to_legacy_layout_keeps_column_units(mcp_server: object) -> None:
+    """A layout from before the cell grid keeps its 12 columns: the frontend
+    converts it on load, so the tool gives no cell to the chart."""
+    from superset.utils import json
+
+    layout = _cells_layout()
+    del layout["ROOT_ID"]["meta"]  # type: ignore[attr-defined]
+    del layout["CHART-5"]["meta"]["mibiPos"]  # type: ignore[index]
+
+    stored = await _add_chart_to(json.dumps(layout), mcp_server)
+
+    meta = stored["CHART-10"]["meta"]
+    assert meta["width"] == 4
+    assert meta["height"] == 50
+    assert "mibiPos" not in meta

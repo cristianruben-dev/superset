@@ -32,9 +32,13 @@ from superset_core.mcp.decorators import tool, ToolAnnotations
 from superset.commands.exceptions import CommandException
 from superset.extensions import event_logger, security_manager
 from superset.mcp_service.dashboard.constants import (
+    DEFAULT_OBJECT_CELLS,
+    free_cell,
     generate_id,
     GRID_DEFAULT_CHART_WIDTH,
+    is_in_cells,
     layout_column_count,
+    POS_KEY,
     scaled_width,
 )
 from superset.mcp_service.dashboard.layout_validation import rebuild_parent_chains
@@ -227,22 +231,31 @@ def _add_chart_to_layout(
     """
     chart_key = f"CHART-{chart_id}"
     column_key = generate_id("COLUMN")
-    # Widths are in the dashboard's own grid density (AuraData BI)
+    chart_meta: Dict[str, Any] = {
+        "chartId": chart_id,
+        "sliceName": chart.slice_name or f"Chart {chart_id}",
+        "uuid": str(chart.uuid) if chart.uuid else f"chart-{chart_id}",
+    }
     column_count = layout_column_count(layout)
-    chart_width = scaled_width(GRID_DEFAULT_CHART_WIDTH, column_count)
-    chart_height = 50  # Good height for most chart types
+    if is_in_cells(layout):
+        # AuraData BI: sizes in cells, on a free cell of the page, never over
+        # another object (as a chart saved from Explore)
+        chart_width = min(DEFAULT_OBJECT_CELLS, column_count)
+        chart_height = DEFAULT_OBJECT_CELLS
+        chart_meta[POS_KEY] = free_cell(layout, parent_id, chart_width, chart_height)
+        column_width = chart_width
+    else:
+        # Widths are in the dashboard's own grid density
+        chart_width = scaled_width(GRID_DEFAULT_CHART_WIDTH, column_count)
+        chart_height = 50  # Good height for most chart types
+        column_width = column_count
+    chart_meta.update({"height": chart_height, "width": chart_width})
 
     # Add chart component
     layout[chart_key] = {
         "children": [],
         "id": chart_key,
-        "meta": {
-            "chartId": chart_id,
-            "height": chart_height,
-            "sliceName": chart.slice_name or f"Chart {chart_id}",
-            "uuid": str(chart.uuid) if chart.uuid else f"chart-{chart_id}",
-            "width": chart_width,
-        },
+        "meta": dict(sorted(chart_meta.items())),
         "parents": [],
         "type": "CHART",
     }
@@ -253,7 +266,7 @@ def _add_chart_to_layout(
         "id": column_key,
         "meta": {
             "background": "BACKGROUND_TRANSPARENT",
-            "width": column_count,
+            "width": column_width,
         },
         "parents": [],
         "type": "COLUMN",

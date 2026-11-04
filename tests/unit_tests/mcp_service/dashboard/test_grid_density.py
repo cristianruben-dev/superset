@@ -21,7 +21,11 @@ from unittest.mock import Mock
 
 import pytest
 
-from superset.mcp_service.dashboard.constants import layout_column_count, scaled_width
+from superset.mcp_service.dashboard.constants import (
+    canvas_cells,
+    layout_column_count,
+    scaled_width,
+)
 from superset.mcp_service.dashboard.tool.add_chart_to_existing_dashboard import (
     _add_chart_to_layout,
 )
@@ -35,6 +39,23 @@ from superset.mcp_service.dashboard.tool.add_chart_to_existing_dashboard import 
         ({"ROOT_ID": {"meta": {"mibiColumns": 48}}}, 48),
         ({"ROOT_ID": {"meta": {"mibiColumns": 7}}}, 12),
         ({"ROOT_ID": "broken"}, 12),
+        # A layout in cells has the columns of its page, in cells
+        ({"ROOT_ID": {"meta": {"mibiCells": True}}}, 60),
+        (
+            {"ROOT_ID": {"meta": {"mibiCells": True, "mibiColumns": 48}}},
+            60,
+        ),
+        (
+            {
+                "ROOT_ID": {
+                    "meta": {
+                        "mibiCells": True,
+                        "mibiCanvas": {"size": {"mode": "4:3"}},
+                    }
+                }
+            },
+            45,
+        ),
     ],
 )
 def test_layout_column_count(layout: dict[str, Any], expected: int) -> None:
@@ -68,3 +89,20 @@ def test_a_chart_added_to_a_48_column_dashboard() -> None:
     )
     assert layout[chart_key]["meta"]["width"] == 16
     assert layout[column_key]["meta"]["width"] == 48
+
+
+@pytest.mark.parametrize(
+    ("size", "expected"),
+    [
+        (None, (60, 34)),
+        ({"mode": "letter"}, (26, 34)),
+        ({"mode": "custom", "width": 1000, "height": 500}, (31, 16)),
+        # Kept between 10 and 128 cells; an empty side takes the 16:9 one
+        ({"mode": "custom", "width": 100, "height": 99999}, (10, 128)),
+        ({"mode": "custom", "width": 0}, (60, 34)),
+    ],
+)
+def test_canvas_cells(size: dict[str, Any] | None, expected: tuple[int, int]) -> None:
+    canvas = {"size": size} if size else {}
+    layout = {"ROOT_ID": {"meta": {"mibiCells": True, "mibiCanvas": canvas}}}
+    assert canvas_cells(layout) == expected
