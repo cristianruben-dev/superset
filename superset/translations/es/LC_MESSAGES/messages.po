@@ -3062,7 +3062,7 @@ msgstr ""
 "izquierda para obtener una vista previa de una visualización o"
 
 msgid "Click the lock to make changes."
-msgstr "Haga clic en el candado para realizar cambios."
+msgstr "Haz clic en el candado para realizar cambios."
 
 msgid "Click the lock to prevent further changes."
 msgstr "Haz clic en el candado para evitar más cambios."
@@ -10703,7 +10703,7 @@ msgid "Select a schema if the database supports this"
 msgstr "Selecciona un esquema si la base de datos lo admite"
 
 msgid "Select a sheet name from the uploaded file"
-msgstr "Seleccione un nombre de hoja del archivo subido"
+msgstr "Selecciona un nombre de hoja del archivo subido"
 
 msgid "Select a tab"
 msgstr "Selecciona una pestaña"
@@ -14890,7 +14890,7 @@ msgstr ""
 "los metadatos no existen."
 
 msgid "Was unable to check your query"
-msgstr "No se ha podido comprobar su consulta"
+msgstr "No se ha podido comprobar tu consulta"
 
 msgid "Waterfall Chart"
 msgstr "Gráfico de cascada"
@@ -22315,7 +22315,7 @@ msgid ""
 "A multiplier applied to the point radius. Use this to uniformly scale all"
 " points."
 msgstr ""
-"Un multiplicador aplicado al radio del punto. Úselo para escalar "
+"Un multiplicador aplicado al radio del punto. Úsalo para escalar "
 "uniformemente todos los puntos."
 
 msgid ""
@@ -22352,8 +22352,8 @@ msgid ""
 " upload to a different table name."
 msgstr ""
 "Un conjunto de datos eliminado temporalmente (uuid %(uuid)s) ya hace "
-"referencia a esta tabla. Restáurelo mediante POST "
-"/api/v1/dataset/%(uuid)s/restore antes de cargar, o cargue con un nombre "
+"referencia a esta tabla. Restáuralo mediante POST "
+"/api/v1/dataset/%(uuid)s/restore antes de cargar, o carga con un nombre "
 "de tabla diferente."
 
 msgid "A timeout occurred while generating an Excel file."
@@ -23197,7 +23197,7 @@ msgid ""
 msgstr ""
 "El conjunto de datos no puede restaurarse porque otro conjunto de datos "
 "activo ya hace referencia a la misma tabla física (misma base de datos, "
-"catálogo, esquema y nombre de tabla). Elimine el duplicado o cambie el "
+"catálogo, esquema y nombre de tabla). Elimina el duplicado o cambia el "
 "nombre de la tabla antes de restaurar."
 
 msgid "Dataset changed since you opened it"
@@ -24842,9 +24842,9 @@ msgid ""
 "UI allow list only and does not add extra conditions to the underlying "
 "queries."
 msgstr ""
-"Seleccione qué granularidades de tiempo están disponibles en el control "
-"de filtro. Esto es solo una lista de permitidos de la interfaz de usuario"
-" y no agrega condiciones adicionales a las consultas subyacentes."
+"Selecciona qué granularidades de tiempo están disponibles en el control "
+"de filtro. Es solo una lista de permitidos de la interfaz y no añade "
+"condiciones adicionales a las consultas subyacentes."
 
 msgid "Semantic"
 msgstr "Semántico"
@@ -25246,10 +25246,11 @@ msgid ""
 "https://superset.apache.org/docs/configuration/async-queries-celery for "
 "configuration details."
 msgstr ""
-"El Global Task Framework no está habilitado. Establezca "
+"El Global Task Framework no está habilitado. Establece "
 "GLOBAL_TASK_FRAMEWORK=True en las opciones de funciones para usar @task. "
-"Consulte https://superset.apache.org/docs/configuration/async-queries-"
-"celery para detalles de configuración."
+"Consulta "
+"https://superset.apache.org/docs/configuration/async-queries-celery para "
+"ver los detalles de configuración."
 
 msgid "The Length filter requires a numeric value."
 msgstr "El filtro de longitud requiere un valor numérico."
@@ -25288,8 +25289,8 @@ msgid ""
 "The chart this report targets was deleted. Restore the chart, or update "
 "the report to point at an active chart."
 msgstr ""
-"El gráfico al que apunta este informe fue eliminado. Restaure el gráfico "
-"o actualice el informe para que apunte a un gráfico activo."
+"El gráfico al que apunta este informe se ha eliminado. Restaura el "
+"gráfico o actualiza el informe para que apunte a un gráfico activo."
 
 msgid "The chat failed to load."
 msgstr "No se ha podido cargar el chat."
@@ -25304,8 +25305,8 @@ msgid ""
 "The dashboard this report targets was deleted. Restore the dashboard, or "
 "update the report to point at an active dashboard."
 msgstr ""
-"El panel al que apunta este informe fue eliminado. Restaure el panel o "
-"actualice el informe para que apunte a un panel activo."
+"El tablero al que apunta este informe se ha eliminado. Restaura el "
+"tablero o actualiza el informe para que apunte a un tablero activo."
 
 msgid "The dashboard you are looking for may have been deleted or moved."
 msgstr "Puede que el tablero que buscas se haya eliminado o movido."
@@ -25650,7 +25651,8 @@ msgstr "Puede que esta métrica sea incompatible con el %s actual"
 
 # Machine-translated via backfill_po.py (claude-sonnet-4-6) [refs: ja]
 msgid "This password is too common; please choose a less guessable one."
-msgstr "Esta contraseña es demasiado común; por favor elija una menos predecible."
+msgstr ""
+"Esta contraseña es demasiado común; elige otra más difícil de adivinar."
 
 msgid "This semantic layer has no dependent semantic views."
 msgstr "Esta capa semántica no tiene vistas semánticas dependientes."
@@ -25795,7 +25797,7 @@ msgstr "Escribe para buscar (termina en)..."
 # Machine-translated via backfill_po.py (claude-sonnet-4-6) [refs: de, sr,
 # sr_Latn]
 msgid "Type to search (starts with)..."
-msgstr "Escriba para buscar (comienza con)..."
+msgstr "Escribe para buscar (empieza por)..."
 
 msgid "Type to search all of them."
 msgstr "Escribe para buscar entre todos."
@@ -25850,8 +25852,8 @@ msgstr ""
 # sr_Latn]
 msgid "Unable to fetch semantic views. Check the layer configuration."
 msgstr ""
-"No se pueden obtener las vistas semánticas. Verifique la configuración de"
-" la capa."
+"No se pueden obtener las vistas semánticas. Comprueba la configuración de "
+"la capa."
 
 #, python-format
 msgid "Unable to generate forecast: %(error)s"
@@ -26182,7 +26184,7 @@ msgstr ""
 
 # Machine-translated via backfill_po.py (claude-sonnet-4-6) [refs: ja, tr]
 msgid "You must change your password before continuing."
-msgstr "Debe cambiar su contraseña antes de continuar."
+msgstr "Debes cambiar tu contraseña antes de continuar."
 
 #, python-format
 msgid "You need access to the following database: %(name)s"
@@ -26231,7 +26233,7 @@ msgstr "Tu exportación de «%(title)s» está lista."
 
 # Machine-translated via backfill_po.py (claude-sonnet-4-6) [refs: ja]
 msgid "Your session has ended. Please sign in again."
-msgstr "Su sesión ha finalizado. Por favor, inicie sesión de nuevo."
+msgstr "Tu sesión ha finalizado. Inicia sesión de nuevo."
 
 #, python-format
 msgid "`bins` must be an integer between 1 and %(max)s"
