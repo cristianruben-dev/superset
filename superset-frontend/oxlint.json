@@ -326,8 +326,11 @@
         "src/mibi/format/controls.tsx",
         "src/mibi/help/FieldHelp.tsx",
         "src/mibi/report/InteractionControl.tsx",
+        "src/mibi/report/ReadingBar.tsx",
         "src/mibi/ribbon/parts.tsx",
         "src/mibi/shell/CommandPalette.tsx",
+        "src/mibi/shell/PageHeader.tsx",
+        "src/mibi/shell/StatusBar.tsx",
         "src/mibi/workspaces/AddDashboardsModal.tsx",
         "src/mibi/workspaces/WorkspaceModal.tsx"
       ],
