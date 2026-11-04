@@ -24,7 +24,7 @@ import {
   type ReactNode,
 } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { isEmpty, isEqual } from 'lodash';
+import { isEmpty, isEqual } from 'lodash-es';
 import { t } from '@apache-superset/core/translation';
 import { css, useTheme } from '@apache-superset/core/theme';
 import {

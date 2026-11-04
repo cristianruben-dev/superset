@@ -31,6 +31,7 @@ import {
   plotAreaFormatSection,
   buildSeriesFormatSection,
 } from './visualFormat';
+
 const control = (
   name: string,
   label: string,

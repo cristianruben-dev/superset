@@ -1017,12 +1017,18 @@ export function TableRenderer(props: TableRendererProps) {
   if (rowExpandDepth !== appliedRowDepth) {
     setAppliedRowDepth(rowExpandDepth);
     setCollapsedRows(
-      collapsedAtDepth(basePivotSettings.rowKeys, rowExpandDepth, rowAttrs.length),
+      collapsedAtDepth(
+        basePivotSettings.rowKeys,
+        rowExpandDepth,
+        rowAttrs.length,
+      ),
     );
   }
   if (colExpandDepth !== appliedColDepth) {
     setAppliedColDepth(colExpandDepth);
-    setCollapsedCols(collapsedAtDepth(colKeys, colExpandDepth, colAttrs.length));
+    setCollapsedCols(
+      collapsedAtDepth(colKeys, colExpandDepth, colAttrs.length),
+    );
   }
 
   // Subtotal levels of the format: the levels of groups that show a subtotal
@@ -1844,6 +1850,7 @@ export function TableRenderer(props: TableRendererProps) {
         <Fragment key={`keyRow-${flatRowKey}`}>
           <tr className="pvtBlankRow" aria-hidden="true">
             <td
+              aria-hidden="true"
               colSpan={
                 settingsRowAttrs.length +
                 colIncrSpan +
@@ -2019,7 +2026,7 @@ export function TableRenderer(props: TableRendererProps) {
             <tr key="total" className="pvtRowTotals">
               {totalRow.props.children}
               {sparklineMetrics.map(metric => (
-                <td key={metric} />
+                <td key={metric} aria-label={metric} />
               ))}
             </tr>
           )}

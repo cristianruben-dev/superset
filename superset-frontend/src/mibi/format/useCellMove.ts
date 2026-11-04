@@ -99,6 +99,9 @@ export function useCellMove(component: LayoutItem, enabled: boolean): CellMove {
       const { clientX, clientY } = event;
       let moved = false;
       let landing: Pos = start;
+      // Aborting removes every listener of this drag at once
+      const listeners = new AbortController();
+      const { signal } = listeners;
 
       const onMove = (move: globalThis.PointerEvent) => {
         const dx = move.clientX - clientX;
@@ -122,10 +125,7 @@ export function useCellMove(component: LayoutItem, enabled: boolean): CellMove {
         setShift({ x: landing.x - start.x, y: landing.y - start.y });
       };
       const end = (commit: boolean) => {
-        window.removeEventListener('pointermove', onMove);
-        window.removeEventListener('pointerup', onUp);
-        window.removeEventListener('pointercancel', onCancel);
-        window.removeEventListener('keydown', onKey);
+        listeners.abort();
         document.body.classList.remove('mibi-moving');
         stop.current = null;
         setShift(null);
@@ -154,10 +154,10 @@ export function useCellMove(component: LayoutItem, enabled: boolean): CellMove {
         if (key.key === 'Escape') end(false);
       };
       stop.current = () => end(false);
-      window.addEventListener('pointermove', onMove);
-      window.addEventListener('pointerup', onUp);
-      window.addEventListener('pointercancel', onCancel);
-      window.addEventListener('keydown', onKey);
+      window.addEventListener('pointermove', onMove, { signal });
+      window.addEventListener('pointerup', onUp, { signal });
+      window.addEventListener('pointercancel', onCancel, { signal });
+      window.addEventListener('keydown', onKey, { signal });
     },
     [component.id, component.meta, dispatch, enabled, zoom],
   );

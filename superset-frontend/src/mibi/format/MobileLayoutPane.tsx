@@ -446,6 +446,8 @@ export function MobileLayoutPane({ topOffset = 0, pageTop = 0 }) {
               <h5>{t('On the phone')}</h5>
               <ul aria-label={t('On the phone')}>
                 {onPhone.map(box => (
+                  // The row is a pointer shortcut; the Place tab has the keyboard path
+                  // oxlint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-noninteractive-element-interactions
                   <li
                     key={box.id}
                     className={

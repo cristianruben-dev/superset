@@ -18,7 +18,7 @@
  */
 import type { AnyAction } from 'redux';
 import type { ThunkDispatch } from 'redux-thunk';
-import { isEqual } from 'lodash';
+import { isEqual } from 'lodash-es';
 import type { DataMask } from '@superset-ui/core';
 import type { GetState, RootState } from 'src/dashboard/types';
 import { updateDataMask } from 'src/dataMask/actions';

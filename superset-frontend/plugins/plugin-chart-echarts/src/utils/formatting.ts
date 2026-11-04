@@ -610,7 +610,7 @@ export function keepBarRadiusOnStackTop<T extends object>(series: T[]): T[] {
       itemStyle.borderRadius !== undefined
     ) {
       if (seenStacks.has(stack)) {
-        const { borderRadius, ...rest } = itemStyle;
+        const { borderRadius: _borderRadius, ...rest } = itemStyle;
         result[i] = { ...item, itemStyle: rest } as T;
       } else {
         seenStacks.add(stack);

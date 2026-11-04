@@ -18,7 +18,7 @@
  */
 import { memo, useCallback, useMemo, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { isEmpty, isEqual } from 'lodash';
+import { isEmpty, isEqual } from 'lodash-es';
 import { DataMask, DataMaskStateWithId, Filter } from '@superset-ui/core';
 import { updateDataMask } from 'src/dataMask/actions';
 import { FilterBarOrientation, RootState } from 'src/dashboard/types';

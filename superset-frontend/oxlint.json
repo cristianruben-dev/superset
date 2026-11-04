@@ -302,6 +302,20 @@
       }
     },
     {
+      // 7.0 turned `prefer-tag-over-role` on. The components of AuraData BI draw
+      // radios, groups, statuses and icons as styled elements with their ARIA role,
+      // and a native tag (fieldset, output, input, button) brings its own default
+      // look. Moving them is a visual change that deserves its own pass.
+      "files": [
+        "src/mibi/**",
+        "packages/superset-ui-chart-controls/src/components/TabularSparkline.tsx",
+        "plugins/plugin-chart-echarts/src/BigNumber/BigNumberViz.tsx"
+      ],
+      "rules": {
+        "jsx-a11y/prefer-tag-over-role": "off"
+      }
+    },
+    {
       // The pivot table intentionally exposes `role="grid"` on its <table>
       // for interactive grid semantics (asserted by tableRenders.test.tsx).
       "files": [
