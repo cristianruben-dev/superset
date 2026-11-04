@@ -31,23 +31,21 @@ under the License.
 ## Qué es
 
 AuraData BI es una plataforma de inteligencia de negocio basada en
-[Apache Superset](https://github.com/apache/superset) 6.1, con su propio diseño y
+[Apache Superset](https://github.com/apache/superset) 7.0, con su propio diseño y
 algunas reglas de producto distintas:
 
-- **Cada gráfico pertenece a un solo panel de control.** Los gráficos se crean y se
-  editan en un panel lateral del propio panel y no se comparten entre paneles (ver
+- **Cada gráfico pertenece a un solo tablero.** Los gráficos se crean y se
+  editan en un panel lateral del propio tablero y no se comparten entre tableros (ver
   `superset/mibi/single_dashboard.py`).
-- **Áreas de trabajo:** agrupan paneles, con imagen, color, miembros y roles
-  (lector, colaborador y administrador).
+- **Áreas de trabajo:** agrupan tableros y conjuntos de datos, con imagen, color, miembros y roles
+  (lector, colaborador y administrador). Los colaboradores y administradores del área leen los datos
+  de los conjuntos del área, y los lectores no.
 - **Panel Formato**, como en Power BI:
   - lienzo con fondo de color, degradado o imagen y siempre con medida fija, como las
     páginas de Power BI (16:9 en Full HD, 4:3, Carta o a medida), escalado a cada pantalla;
     márgenes, separación, cuadrícula (líneas, puntos o columnas) con densidad de 12, 24
     o 48 columnas para objetos más pequeños, y vista para móvil;
   - estilo de cada gráfico: fondo, borde, esquinas, sombra, título, subtítulo e iconos;
-  - **temas**: guardar el diseño de un panel con nombre y aplicarlo a otros con un
-    clic. Hay cuatro de fábrica (Corporativo, Fresco, Vibrante y Minimalista) y cada
-    área de trabajo puede tener el suyo, que heredan sus paneles nuevos;
   - copiar formato, copiar y pegar objetos, ocultar y bloquear.
 - **Formato de cada gráfico en su editor** (pestaña «Personalizar»), también al estilo
   Power BI:
@@ -70,16 +68,18 @@ algunas reglas de producto distintas:
   del filtro. Desde el engranaje de la barra se puede activar **Aplicar filtros al
   instante** para no tener que pulsar «Aplicar».
 - **Modo presentación** y **exportación a PDF o PNG** con portada, una página por
-  pestaña del tamaño del panel y los filtros aplicados.
+  pestaña del tamaño del tablero y los filtros aplicados.
 - **Identidad AuraData** ([guía de marca](https://auradata.mx/brand-guidelines)):
   logotipo Continua, tipografía Outfit con Geist Mono para datos, Azul Aura
   (#2563EB) con acentos violeta y verde, modo claro y oscuro, paletas de gráficos
   (AuraData, Aura suave, Corporativo, Neón, Fresco) y pantalla de carga.
 - **En español por defecto**, con inglés como segundo idioma.
-- **Servicio MCP** para que asistentes de IA consulten y creen paneles.
-- Conexión a PostgreSQL, MySQL/MariaDB, SQL Server, Oracle, Snowflake, BigQuery,
-  Redshift, Athena, Databricks, ClickHouse, DuckDB, Druid, Hive, Spark SQL,
-  Google Sheets, SQLite y Azure Synapse.
+- **Servicio MCP** para que asistentes de IA consulten y creen tableros.
+- Conexión a PostgreSQL, SQL Server, MySQL, Databricks, Amazon Redshift y DuckDB.
+- **Historial de versiones y papelera:** un tablero, gráfico o conjunto de datos eliminado se queda
+  en la papelera del área de trabajo (o en Administración) hasta que se purga; el historial de un
+  tablero se abre desde su menú «…».
+- **Menús de escritorio:** barra de menús, barra de estado y menú con clic derecho en las listas.
 
 La personalización vive en pocos sitios para poder seguir trayendo las correcciones
 de Superset:
@@ -123,7 +123,10 @@ docker compose up -d --build
 - Servicio MCP: http://localhost:5008/mcp (actúa como `admin`, solo en local)
 
 Al arrancar se aplican las migraciones pendientes (`superset db upgrade`), incluidas
-las de AuraData BI: áreas de trabajo, miembros, imágenes de fondo y de elementos, y temas.
+las de AuraData BI: áreas de trabajo, miembros, imágenes de fondo y de elementos, y conjuntos de datos
+por área. Las migraciones de Superset 7.0 y las del fork forman una sola cadena que termina en la revisión
+de fusión `f1c7a9e2b305`; una base de 6.1 con las migraciones del fork (`d3f9a2b17c64`) aplica las 41
+de 7.0 al actualizar.
 
 Pruebas:
 
@@ -132,7 +135,7 @@ cd superset-frontend && npm run test -- src/mibi   # interfaz (Jest)
 pytest tests/unit_tests/mibi/                       # API y reglas
 ```
 
-Si hay datos de antes de la regla de un panel por gráfico, sepáralos con:
+Si hay datos de antes de la regla de un tablero por gráfico, sepáralos con:
 
 ```bash
 docker compose exec superset superset split-shared-charts --dry-run
@@ -166,13 +169,27 @@ interruptor SSL exige TLS verificado: si el servidor usa un certificado propio, 
 CA en el URI (`?ssl=1&ssl_ca=/ruta/ca.pem`) y que esa ruta exista en la web y en los workers; el certificado
 debe ser válido para el nombre del servidor. Sin el interruptor la conexión no usa TLS.
 
+### Informes y alertas de tableros sin publicar
+
+Los informes y alertas se ejecutan como su editor (`ALERT_REPORTS_EXECUTORS`) y en Superset 7.0 ese
+usuario necesita acceso al tablero. Un borrador solo lo ven sus editores, los administradores y los
+colaboradores y administradores de su área de trabajo. Si el editor del informe no es ninguno de
+ellos, el informe de un tablero sin publicar deja de ejecutarse. Soluciones, de más a menos
+recomendable: publicar el tablero; hacer al editor del informe colaborador del área o editor del
+tablero; o añadir un usuario fijo administrador a `ALERT_REPORTS_EXECUTORS`, lo que da a los
+informes derechos de administrador y debe decidirlo quien opera el despliegue. Revisa los informes
+de tableros en borrador antes de actualizar.
+
 ## Traer correcciones de Superset
 
 ```bash
 git remote add upstream https://github.com/apache/superset.git  # una sola vez
-git fetch upstream 6.1
-git merge upstream/6.1
+git fetch upstream 7.0
+git merge upstream/7.0
 ```
+
+Cada versión nueva de Superset añade una revisión de fusión de Alembic con su cabeza y la del
+fork; nunca se mueven las migraciones del fork (ver «Migraciones» en [AGENTS.md](AGENTS.md)).
 
 ## Licencia
 

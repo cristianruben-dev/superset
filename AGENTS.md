@@ -1,6 +1,6 @@
 # LLM Context Guide for AuraData BI (Apache Superset fork)
 
-AuraData BI is a data visualization platform built on Apache Superset 6.1: a Flask/Python backend and a React/TypeScript frontend. See **AuraData BI: What This Fork Changes** below for what differs from upstream.
+AuraData BI is a data visualization platform built on Apache Superset 7.0: a Flask/Python backend and a React/TypeScript frontend. See **AuraData BI: What This Fork Changes** below for what differs from upstream.
 
 ## ⚠️ CRITICAL: Work From `main`, Never From `master`
 
@@ -44,13 +44,13 @@ fix them in a separate branch rather than adding unrelated changes to the
 current pull request.
 
 Common pre-commit failures:
-- **Formatting** - black, oxfmt, eslint will auto-fix
+- **Formatting** - ruff-format, oxfmt will auto-fix
 - **Type errors** - mypy failures need manual fixes
-- **Linting** - ruff, pylint issues need manual fixes
+- **Linting** - ruff, pylint and oxlint issues need manual fixes
 
 ## AuraData BI: What This Fork Changes
 
-This repository is **AuraData BI**, a fork of Apache Superset 6.1 shaped like Power BI. `README.md`
+This repository is **AuraData BI**, a fork of Apache Superset 7.0 shaped like Power BI. `README.md`
 (Spanish) is the human overview. Read this section before touching anything below.
 
 ### Product rules
@@ -324,8 +324,35 @@ Formats are stored in `position_json`, so they save, undo and export with the da
   layout holds moves out of it. Tooltip fields and small multiples stay in the layout. `mibi/format/DataPane.tsx` is the Data pane.
 - There are no saved format themes: each dashboard is formatted on its own.
 
+### Superset 7.0 under the fork
+Things that changed in 7.0 and that the fork code relies on:
+- **Routes have no `/superset/` prefix** (`/dashboard/<id>/`, `/welcome/`, `/explore/`, `/sqllab/`); the backend never
+  emits the old ones (7.0 redirects old links). Use `REPORT_PATH`/`HOME_URL` of `src/mibi/shell/navigation.ts`.
+  `isReportRoute` leaves out `/dashboard/list/` and `/dashboard/new/` (the router would read them as a slug); "New
+  dashboard" is a full navigation, because its GET on the server creates the dashboard.
+- **Editors and viewers replace owners and roles-with-access.** There is no `owners`, `is_owner` or
+  `raise_for_ownership`: use `editors`/`viewers`, `security_manager.is_editor` (which also grants data access) and, for
+  edit points, `can_edit_resource`/`raise_for_editorship` (see Workspaces above). Chart fields read the editors of
+  the chart in the browser (`canChangeFields`).
+- **SQLAlchemy 2.0 and Flask 3**: `session.get`, no `Query.get`; commit between changes of the same dashboard links
+  (version history records one change per link and transaction).
+- **Frontend**: React 18, antd 6 (`styles.container` in tooltips, `.ant-tabs-body`, `Drawer size`), oxlint and oxfmt
+  instead of ESLint, `lodash-es`, `renderHook` from `@testing-library/react`, dnd-kit in Explore. The lockfile is
+  npm's; run `npm run plugins:build` before `tsc`. In a worktree without `node_modules`, clone them (and the nested
+  ones of `plugins/*` and `packages/*`) with `cp -cR` from another checkout of the same lockfile.
+- **Flags the product fixes**: `MOBILE_CONSUMPTION_MODE`, `AG_GRID_TABLE_ENABLED` and `TABLE_V2_TIME_COMPARISON_ENABLED`
+  stay off (`FORCED_OFF_FLAGS`).
+- **Month and day names** of axes and dates follow the language of the app (`src/setup/localeTimeFormat.ts`, from
+  `Intl`) unless `D3_TIME_FORMAT` sets them; ECharts' own locale (`echartsLocale.ts`) is loaded per language too.
+- **Reports and alerts** run as the report's editor (`ALERT_REPORTS_EXECUTORS`) and need access to the dashboard: a
+  draft is visible only to its editors, admins and the contributors and admins of its workspace. A scheduled report
+  of an unpublished dashboard whose executor is none of those stops running in 7.0: publish the dashboard, or make its
+  editor an editor of the dashboard or a contributor of the workspace. `ALERT_REPORTS_EXECUTORS` falls back to a
+  fixed admin only if the operator accepts that report images are taken with admin rights.
+- The prod `CeleryConfig` inherits `superset.config.CeleryConfig`; `prod` is `lean` plus the six drivers and Chromium.
+
 ### Migrations
-Fork migrations form one chain after the Superset 6.1 head (`4b2a8c9d3e1f`):
+Fork migrations form one chain after the Superset 6.1 head (`4b2a8c9d3e1f`; they were written on 6.1 and stay in that order):
 `8bc9e5b95335` (workspaces) → `cce7fe34b50d` (members) → `3a90eb47d506` (backgrounds) →
 `06c8a16b9fe1` (element images) → `b7d41e0c9a23` (format themes) → `e4ec3b61cadb` (drops the
 format themes) → `a91c5d27f3e8` (drops the annotation layers) → `c5f08a1d7e42` (drops the
@@ -552,7 +579,7 @@ git add .                        # Pre-commit only checks staged files
 pre-commit run                   # Staged files only
 pre-commit run mypy              # Python type checking
 pre-commit run format            # Code formatting
-pre-commit run eslint            # Frontend linting
+pre-commit run oxlint-frontend   # Frontend linting
 ```
 
 **Important pre-commit usage notes:**
