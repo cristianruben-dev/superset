@@ -42,16 +42,17 @@ class KeyValueDAO(BaseDAO[KeyValueEntry]):
     def get_entry(
         resource: KeyValueResource,
         key: Key,
-        for_update: bool = False,
         lock: RowLock | None = None,
     ) -> KeyValueEntry | None:
+        """
+        The entry of ``key``, optionally row-locked for the rest of the transaction.
+
+        ``RowLock()`` takes an exclusive lock, so an ownership-checked delete (the
+        distributed-lock release) can't race a concurrent expire+re-acquire;
+        ``RowLock(read=True)`` a shared one (dashboard permalinks).
+        """
         filter_ = get_filter(resource, key)
         query = db.session.query(KeyValueEntry).filter_by(**filter_)
-        if for_update and lock is None:
-            # Row-lock the entry for the rest of the transaction so an
-            # ownership-checked delete (see the distributed-lock release) can't race
-            # a concurrent expire+re-acquire between the read and the delete.
-            lock = RowLock()
         if lock is not None:
             # A locking read also returns the latest committed row under
             # REPEATABLE READ, where a plain SELECT would keep using the
