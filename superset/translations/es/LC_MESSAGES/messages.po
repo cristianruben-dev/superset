@@ -26522,16 +26522,16 @@ msgid "query_context must be valid JSON"
 msgstr "query_context debe ser un JSON válido"
 
 msgid "red — increase / green — decrease"
-msgstr ""
+msgstr "rojo: aumento / verde: descenso"
 
 msgid "row"
-msgstr ""
+msgstr "fila"
 
 msgid "semantic layer"
-msgstr ""
+msgstr "capa semántica"
 
 msgid "send_failed_reports requires retry_on_failure to be enabled"
-msgstr ""
+msgstr "send_failed_reports requiere que retry_on_failure esté activado"
 
 msgid ""
 "series: Treat each series independently; overall: All series use the same"
@@ -26543,24 +26543,28 @@ msgstr ""
 "comparación con el primer punto de datos de cada serie"
 
 msgid "setting"
-msgstr ""
+msgstr "ajuste"
 
 msgid ""
 "show_values_as is not yet supported when marginal_distributions is "
 "enabled."
 msgstr ""
+"show_values_as aún no es compatible cuando marginal_distributions está "
+"activado."
 
 #, python-format
 msgid ""
 "show_values_as is only supported for additive aggregates (sum, count); "
 "got non-additive operator(s) for: %(metrics)s."
 msgstr ""
+"show_values_as solo es compatible con agregados aditivos (suma, "
+"recuento); se han recibido operadores no aditivos para: %(metrics)s."
 
 msgid "tab"
-msgstr ""
+msgstr "pestaña"
 
 msgid "tabs"
-msgstr ""
+msgstr "pestañas"
 
 # Machine-translated via backfill_po.py (claude-sonnet-4-6) [refs: de, sr,
 # sr_Latn]
@@ -26571,8 +26575,8 @@ msgstr "la documentación del gráfico Handlebars"
 #, python-format
 msgid "…and %s more chart"
 msgid_plural "…and %s more charts"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "…y %s gráfico más"
+msgstr[1] "…y %s gráficos más"
 
 # Machine-translated via backfill_po.py (claude-sonnet-4-6) [refs: de, sr,
 # sr_Latn]
