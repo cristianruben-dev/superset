@@ -32,10 +32,14 @@ export const SIDEBAR_COLLAPSED_WIDTH = 68;
 // The Continua symbol alone, for the collapsed rail
 const MARK_URL = '/static/assets/images/auradata/mark.svg';
 
-const Aside = styled.aside<{ $collapsed: boolean }>`
-  ${({ theme, $collapsed }) => css`
+const Aside = styled.aside<{
+  $collapsed: boolean;
+  $top: number;
+  $bottom: number;
+}>`
+  ${({ theme, $collapsed, $top, $bottom }) => css`
     position: fixed;
-    inset: 0 auto 0 0;
+    inset: ${$top}px auto ${$bottom}px 0;
     z-index: 100;
     display: flex;
     flex-direction: column;
@@ -236,6 +240,10 @@ interface SidebarProps {
   collapsed: boolean;
   onToggleCollapsed: () => void;
   isFrontendRoute: (path?: string) => boolean;
+  /** Room left above it, for the menu bar of the window */
+  top?: number;
+  /** Room left under it, for the status bar of the window */
+  bottom?: number;
 }
 
 /** The item whose URL best matches the location (the longest one wins). */
@@ -250,6 +258,8 @@ export function Sidebar({
   collapsed,
   onToggleCollapsed,
   isFrontendRoute,
+  top = 0,
+  bottom = 0,
 }: SidebarProps) {
   const { pathname } = useLocation();
   const activeKey = findActiveKey(sections, pathname);
@@ -301,7 +311,12 @@ export function Sidebar({
   );
 
   return (
-    <Aside $collapsed={collapsed} data-test="mibi-sidebar">
+    <Aside
+      $collapsed={collapsed}
+      $top={top}
+      $bottom={bottom}
+      data-test="mibi-sidebar"
+    >
       {brand}
       <Nav aria-label={t('Main navigation')}>
         {sections.map(section => {

@@ -252,6 +252,7 @@ export const renderDashboardList = (
   user: any,
   props: Record<string, any> = {},
   storeState: Partial<StoreState> = {},
+  initialEntry = '/',
 ) => {
   const defaultStoreState = createDefaultStoreState(user);
   const storeStateWithUser = {
@@ -264,7 +265,7 @@ export const renderDashboardList = (
 
   return render(
     <Provider store={store}>
-      <MemoryRouter>
+      <MemoryRouter initialEntries={[initialEntry]}>
         <QueryParamProvider adapter={ReactRouter5Adapter}>
           <DashboardList user={user} {...props} />
         </QueryParamProvider>
@@ -272,6 +273,16 @@ export const renderDashboardList = (
     </Provider>,
   );
 };
+
+/**
+ * AuraData BI: the list opens as a table; the card tests open it as cards
+ * through the view mode of the address.
+ */
+export const renderDashboardListAsCards = (
+  user: any,
+  props: Record<string, any> = {},
+  storeState: Partial<StoreState> = {},
+) => renderDashboardList(user, props, storeState, '/?viewMode=card');
 
 /**
  * Helper to wait for the DashboardList page to be ready

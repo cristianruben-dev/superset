@@ -201,37 +201,56 @@ table,
   padding-top: 0 !important;
 }
 
+/* The title row of a list matches PageHeader (src/mibi/shell/PageHeader.tsx):
+   a band of the container color under the breadcrumbs, with compact commands */
 .ant-layout-content > div > .menu {
-  min-height: 0;
-  padding: var(--mb-space-page-top) var(--mb-space-gutter) 12px;
-  border-bottom: 0;
-  background: transparent;
+  min-height: 56px;
+  padding: 8px var(--mb-space-gutter);
+  border-bottom: 1px solid var(--mb-border-secondary);
+  background: var(--mb-bg-container);
   align-items: center;
 }
 
 .ant-layout-content > div > .menu .header {
-  font-size: 26px;
+  font-size: 18px;
   font-weight: 600;
-  letter-spacing: -0.024em;
-  line-height: 1.2;
+  letter-spacing: -0.012em;
+  line-height: 1.3;
 }
 
-.ant-layout-content > div > .menu .nav-right {
+.ant-layout-content > div > .menu .nav-right,
+.ant-layout-content > div > .menu .nav-right-collapse {
   position: static;
   float: none;
   margin-left: auto;
   gap: 8px;
 }
 
+/* Narrow screens: the commands go under the title, wrapping instead of
+   widening the page (SubMenu calls the row nav-right-collapse there) */
+@media (max-width: 794px) {
+  .ant-layout-content > div > .menu {
+    flex-wrap: wrap;
+    row-gap: 8px;
+  }
+
+  .ant-layout-content > div > .menu .nav-right,
+  .ant-layout-content > div > .menu .nav-right-collapse {
+    flex-wrap: wrap;
+    margin-left: 0;
+    padding: 0;
+  }
+}
+
 .ant-layout-content > div > .menu .nav-right .ant-btn {
-  height: 34px;
-  padding-inline: 14px;
+  height: 30px;
+  padding-inline: 12px;
   font-size: 13px;
 }
 
 /* Dropdown actions in the header ("Upload file to database") look like buttons */
 .ant-layout-content > div > .menu .nav-right .ant-menu-horizontal {
-  line-height: 34px;
+  line-height: 30px;
   border: 0;
   background: transparent;
 }
@@ -248,8 +267,8 @@ table,
 .ant-layout-content > div > .menu .nav-right .ant-menu-submenu-title {
   display: flex;
   align-items: center;
-  height: 34px;
-  padding: 0 14px !important;
+  height: 30px;
+  padding: 0 12px !important;
   border-radius: 8px;
   background: var(--mb-primary-bg);
   color: var(--mb-primary);
@@ -341,7 +360,7 @@ table,
 
 .superset-list-view {
   margin: 0 !important;
-  padding: 0 var(--mb-space-gutter) var(--mb-space-gutter) !important;
+  padding: var(--mb-space-section) var(--mb-space-gutter) var(--mb-space-gutter) !important;
 }
 
 /* Filters on an even grid aligned with the title; the view switch on the right */
@@ -435,9 +454,45 @@ table,
   font-weight: 500;
   letter-spacing: 0.01em;
   opacity: 0.85;
+  padding-top: 8px !important;
+  padding-bottom: 8px !important;
+  border-bottom: 1px solid var(--mb-hairline) !important;
+  background: var(--mb-fill) !important;
+}
+
+/* Lists opened in the side panel of the editor keep their own lighter look */
+body.mibi-panel .ant-layout-content > div > .menu {
+  min-height: 0;
+  padding: var(--mb-space-page-top) var(--mb-space-gutter) 12px;
+  border-bottom: 0;
+  background: transparent;
+}
+
+body.mibi-panel .superset-list-view {
+  padding-top: 0 !important;
+}
+
+body.mibi-panel .superset-list-view .ant-table-thead > tr > th {
   padding-top: 10px !important;
   padding-bottom: 10px !important;
-  border-bottom: 1px solid var(--mb-hairline) !important;
+  background: transparent !important;
+}
+
+body.mibi-panel .superset-list-view .ant-table-tbody > tr > td {
+  padding-top: 14px !important;
+  padding-bottom: 14px !important;
+}
+
+/* Figures and dates of a list line up in Geist Mono (TableCollection marks their cells) */
+body:not(.mibi-panel)
+  .superset-list-view
+  .ant-table-tbody
+  > tr
+  > td.mibi-figure {
+  font-family: var(--mb-font-code);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  color: var(--mb-text-secondary);
 }
 
 .superset-list-view .ant-table-thead > tr > th::before {
@@ -449,8 +504,8 @@ table,
 }
 
 .superset-list-view .ant-table-tbody > tr > td {
-  padding-top: 14px !important;
-  padding-bottom: 14px !important;
+  padding-top: 8px !important;
+  padding-bottom: 8px !important;
   border-bottom: 1px solid var(--mb-hairline) !important;
 }
 
@@ -1670,6 +1725,7 @@ body:has(.dashboard--editing) [data-test='dashboard-header-container'] {
 
 body.mibi-presenting [data-test='mibi-sidebar'],
 body.mibi-presenting [data-test='mibi-topbar'],
+body.mibi-presenting [data-test='mibi-menubar-row'],
 body.mibi-presenting [data-test='dashboard-header-wrapper'] {
   display: none !important;
 }

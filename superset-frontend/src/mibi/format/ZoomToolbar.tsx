@@ -156,6 +156,8 @@ export function ZoomToolbar({
           data-test="mibi-zoom-fit"
           value={fit}
           showSearch={false}
+          // The page bar clips what overflows it: the list opens on the page
+          getPopupContainer={() => document.body}
           onChange={value => {
             if (value === 'actual') setCanvasView({ mode: 'custom', zoom: 1 });
             else if (value === 'fit-page' || value === 'fit-width') {

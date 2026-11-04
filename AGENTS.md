@@ -119,6 +119,19 @@ This repository is **AuraData BI**, a fork of Apache Superset 6.1 shaped like Po
   portals them there, and keeps them over the page without a top bar (standalone, embedded, phones).
 - **Pages share one margin:** `--mb-space-gutter`, `--mb-space-page-top` and `--mb-space-section` (`ThemeVariables`), tighter in
   the side panel (`body.mibi-panel`). A list shows one row of filters and folds the rest under «Más filtros» (`ListView`).
+- **Pages out of a report share one chrome:** the shell draws the breadcrumbs (`ShellCrumbs`, from the navigation plus
+  `usePageCrumbs`), and each page a title row with its commands in groups (`PageHeader`, `CommandGroup` in
+  `src/mibi/shell/PageHeader.tsx`; the `.menu` header of the lists matches it in `skin.css`). Lists are dense tables with
+  figures and dates in Geist Mono (`mibi-figure` cells, set in `TableCollection`). A report in reading view has a row of
+  commands under the top bar (`src/mibi/report/ReadingBar.tsx`: view, filters, export); the editor keeps the ribbon.
+  The first row of the window, above the top bar and the sidebar, is a desktop-style menu bar (`MenuBar` in
+  `src/mibi/shell/MenuBar.tsx`, the `mibi-menubar-row` slot of `AppShell`, `menuBarSlot.ts`): File, View, Go to and Help
+  on every page (`AppMenuBar`), File, View, Filters, Export and Share on a report (`ReportMenuBar`, the actions of its
+  "⋯" menu, which stays, and hidden on phones and while editing).
+  The last row is a status bar (`StatusBar`: server state, page figures from `usePageStatus`, language, theme; not on
+  reports, which have the page bar). File › Open recent lists the dashboards opened in this browser
+  (`recentDashboards.ts`, kept by `ReportMenuBar`). A ListView takes `rowMenu` for a right click on a row
+  (`useContextMenu`); the dashboard list builds it with `useDashboardRowMenu` (`src/mibi/dashboards/rowMenu.tsx`).
 - **The look is fixed by the product.** There are no saved themes and no CSS templates: no
   theme screen, API or per-dashboard theme, and `ThemeController` only switches between the
   `THEME_DEFAULT` and `THEME_DARK` of the configuration (light, dark, match system). Set

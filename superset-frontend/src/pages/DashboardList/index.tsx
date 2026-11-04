@@ -24,7 +24,7 @@ import {
 } from '@superset-ui/core';
 import { styled, css, useTheme } from '@apache-superset/core/theme';
 import { useSelector } from 'react-redux';
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import rison from 'rison';
 import {
@@ -86,6 +86,7 @@ import { DashboardStatus } from 'src/features/dashboards/types';
 import { UserWithPermissionsAndRoles } from 'src/types/bootstrapTypes';
 import { findPermission } from 'src/utils/findPermission';
 import { navigateTo } from 'src/utils/navigationUtils';
+import { useDashboardRowMenu } from 'src/mibi/dashboards/rowMenu';
 import { WIDER_DROPDOWN_WIDTH } from 'src/components/ListView/utils';
 import { isUserEditorOrAdmin } from 'src/dashboard/util/permissionUtils';
 import type { CellProps } from 'react-table';
@@ -797,6 +798,23 @@ function DashboardList(props: DashboardListProps) {
     },
   ];
 
+  // AuraData BI: the menu of a right click on a row; deleting asks through the
+  // confirmation of the bulk delete, rendered further down
+  const confirmDeleteRef = useRef<(rows: Dashboard[]) => void>();
+  const rowMenu = useDashboardRowMenu<Dashboard>({
+    canEdit,
+    canExport,
+    canDelete,
+    isStarred: id => !!favoriteStatus[id],
+    toggleStar: saveFavoriteStatus,
+    onEdit: openDashboardEditModal,
+    onExport: row => handleBulkDashboardExport([row]),
+    onDelete: row => confirmDeleteRef.current?.([row]),
+    onMoved: refreshData,
+    addSuccessToast,
+    addDangerToast,
+  });
+
   const renderCard = useCallback(
     (dashboard: Dashboard) => (
       <DashboardCard
@@ -905,6 +923,7 @@ function DashboardList(props: DashboardListProps) {
         onConfirm={handleBulkDashboardDelete}
       >
         {confirmDelete => {
+          confirmDeleteRef.current = confirmDelete;
           const enableBulkTag = isFeatureEnabled(FeatureFlag.TaggingSystem);
           const bulkActions: ListViewProps['bulkActions'] = [];
           if (canDelete) {
@@ -980,11 +999,8 @@ function DashboardList(props: DashboardListProps) {
                     : isFeatureEnabled(FeatureFlag.Thumbnails)
                 }
                 renderCard={renderCard}
-                defaultViewMode={
-                  isFeatureEnabled(FeatureFlag.ListviewsDefaultCardView)
-                    ? 'card'
-                    : 'table'
-                }
+                // AuraData BI: a dense table first, as the Power BI workspace list
+                defaultViewMode="table"
                 forceViewMode={isMobile ? 'card' : undefined}
                 enableBulkTag={enableBulkTag}
                 bulkTagResourceName="dashboard"
@@ -993,6 +1009,7 @@ function DashboardList(props: DashboardListProps) {
                   isMobile ? setMobileFiltersOpen : undefined
                 }
                 mobileFiltersDrawerTitle={t('Search Dashboards')}
+                rowMenu={rowMenu}
               />
             </>
           );

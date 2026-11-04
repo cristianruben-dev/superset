@@ -17,7 +17,13 @@
  * under the License.
  */
 import { t } from '@apache-superset/core/translation';
-import { HTMLAttributes, memo, useMemo, useCallback } from 'react';
+import {
+  HTMLAttributes,
+  memo,
+  type MouseEvent,
+  useMemo,
+  useCallback,
+} from 'react';
 import {
   ColumnInstance,
   HeaderGroup,
@@ -64,6 +70,8 @@ export interface TableCollectionProps<T extends object> {
   isPaginationSticky?: boolean;
   showRowCount?: boolean;
   expandable?: Record<string, unknown>;
+  /** AuraData BI: a right click on a row, with the row's data */
+  onRowContextMenu?: (record: T, event: MouseEvent<HTMLElement>) => void;
 }
 
 const StyledTable = styled(Table)<{
@@ -176,6 +184,7 @@ function TableCollection<T extends object>({
   isPaginationSticky = false,
   showRowCount = true,
   expandable,
+  onRowContextMenu,
 }: TableCollectionProps<T>) {
   const mappedColumns = useMemo(
     () => mapColumns<T>(columns, headerGroups, columnsForWrapText),
@@ -354,6 +363,14 @@ function TableCollection<T extends object>({
         getRowClassName as unknown as TableProps<object>['rowClassName']
       }
       expandable={expandable}
+      onRow={
+        onRowContextMenu
+          ? (record: object) => ({
+              onContextMenu: (event: MouseEvent<HTMLElement>) =>
+                onRowContextMenu(record as T, event),
+            })
+          : undefined
+      }
       components={tableComponents}
       onChange={handleTableChange as unknown as TableProps<object>['onChange']}
     />

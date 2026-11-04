@@ -18,10 +18,12 @@
  */
 import { useEffect, useMemo, useState } from 'react';
 import { useHistory } from 'react-router-dom';
-import { t } from '@apache-superset/core/translation';
+import { t, tn } from '@apache-superset/core/translation';
 import { css, styled } from '@apache-superset/core/theme';
 import { Button, Input, Skeleton } from '@superset-ui/core/components';
 import { Icons } from '@superset-ui/core/components/Icons';
+import { CommandGroup, PageHeader } from '../shell/PageHeader';
+import { usePageStatus } from '../shell/pageStatus';
 import { fetchWorkspaces, workspaceUrl, type Workspace } from './api';
 import { WorkspaceCard } from './WorkspaceCard';
 import { WorkspaceModal } from './WorkspaceModal';
@@ -34,43 +36,8 @@ export const Page = styled.div`
   `}
 `;
 
-const Header = styled.header`
-  ${({ theme }) => css`
-    display: flex;
-    align-items: flex-end;
-    flex-wrap: wrap;
-    gap: ${theme.sizeUnit * 4}px;
-    margin-bottom: ${theme.sizeUnit * 4}px;
-
-    .titles {
-      flex: 1;
-      min-width: min(260px, 100%);
-    }
-
-    h1 {
-      margin: 0;
-      font-size: 26px;
-      font-weight: ${theme.fontWeightStrong};
-      letter-spacing: -0.024em;
-      line-height: 1.2;
-      color: ${theme.colorText};
-    }
-
-    p {
-      margin: ${theme.sizeUnit * 1.5}px 0 0;
-      color: ${theme.colorTextSecondary};
-    }
-
-    .tools {
-      display: flex;
-      align-items: center;
-      gap: ${theme.sizeUnit * 2}px;
-    }
-
-    .search {
-      width: 240px;
-    }
-  `}
+const searchCss = css`
+  width: 220px;
 `;
 
 export const Grid = styled.div`
@@ -201,6 +168,12 @@ export default function WorkspaceListPage() {
         (ws.description || '').toLowerCase().includes(query),
     );
   }, [workspaces, search]);
+  usePageStatus([
+    !!workspaces &&
+      tn('%s workspace', '%s workspaces', workspaces.length, workspaces.length),
+    !!search.trim() &&
+      tn('%s shown', '%s shown', visible.length, visible.length),
+  ]);
 
   const modal = (
     <WorkspaceModal
@@ -214,22 +187,76 @@ export default function WorkspaceListPage() {
   );
 
   return (
-    <Page data-test="workspace-list">
-      <Header>
-        <div className="titles">
-          <h1>{t('Workspaces')}</h1>
-          <p>{t('Group your dashboards by team, area or project.')}</p>
-        </div>
+    <>
+      <PageHeader
+        title={t('Workspaces')}
+        meta={
+          workspaces?.length
+            ? tn(
+                '%s workspace',
+                '%s workspaces',
+                workspaces.length,
+                workspaces.length,
+              )
+            : undefined
+        }
+      >
         {!!workspaces?.length && (
-          <div className="tools">
-            <Input
-              className="search"
-              allowClear
-              prefix={<Icons.SearchOutlined iconSize="m" />}
-              placeholder={t('Search workspaces')}
-              value={search}
-              onChange={event => setSearch(event.target.value)}
-            />
+          <>
+            <CommandGroup label={t('Search')}>
+              <Input
+                css={searchCss}
+                size="small"
+                allowClear
+                prefix={<Icons.SearchOutlined iconSize="s" />}
+                placeholder={t('Search workspaces')}
+                value={search}
+                onChange={event => setSearch(event.target.value)}
+              />
+            </CommandGroup>
+            <CommandGroup label={t('Create')}>
+              <Button
+                buttonStyle="primary"
+                buttonSize="small"
+                icon={<Icons.PlusOutlined />}
+                onClick={() => setCreating(true)}
+              >
+                {t('New workspace')}
+              </Button>
+            </CommandGroup>
+          </>
+        )}
+      </PageHeader>
+      <Page data-test="workspace-list">
+        {workspaces === null && (
+          <Grid>
+            {Array.from({ length: 4 }, (_, index) => (
+              <Skeleton.Node
+                key={index}
+                active
+                css={css`
+                  width: 100% !important;
+                  height: 228px !important;
+                  border-radius: 12px;
+                `}
+              />
+            ))}
+          </Grid>
+        )}
+
+        {workspaces?.length === 0 && (
+          <Empty>
+            <div className="art" aria-hidden>
+              <span />
+              <span />
+              <span />
+            </div>
+            <h2>{t('Create your first workspace')}</h2>
+            <p>
+              {t(
+                'A workspace keeps the dashboards of a team or project together, with its own name, picture and description.',
+              )}
+            </p>
             <Button
               buttonStyle="primary"
               icon={<Icons.PlusOutlined />}
@@ -237,66 +264,27 @@ export default function WorkspaceListPage() {
             >
               {t('New workspace')}
             </Button>
-          </div>
+          </Empty>
         )}
-      </Header>
 
-      {workspaces === null && (
-        <Grid>
-          {Array.from({ length: 4 }, (_, index) => (
-            <Skeleton.Node
-              key={index}
-              active
-              css={css`
-                width: 100% !important;
-                height: 228px !important;
-                border-radius: 12px;
-              `}
-            />
-          ))}
-        </Grid>
-      )}
-
-      {workspaces?.length === 0 && (
-        <Empty>
-          <div className="art" aria-hidden>
-            <span />
-            <span />
-            <span />
-          </div>
-          <h2>{t('Create your first workspace')}</h2>
-          <p>
-            {t(
-              'A workspace keeps the dashboards of a team or project together, with its own name, picture and description.',
+        {!!workspaces?.length && (
+          <Grid>
+            {visible.map(workspace => (
+              <WorkspaceCard key={workspace.id} workspace={workspace} />
+            ))}
+            {!search && (
+              <NewCard type="button" onClick={() => setCreating(true)}>
+                <span className="plus">
+                  <Icons.PlusOutlined />
+                </span>
+                {t('New workspace')}
+                <small>{t('For a team, an area or a project')}</small>
+              </NewCard>
             )}
-          </p>
-          <Button
-            buttonStyle="primary"
-            icon={<Icons.PlusOutlined />}
-            onClick={() => setCreating(true)}
-          >
-            {t('New workspace')}
-          </Button>
-        </Empty>
-      )}
-
-      {!!workspaces?.length && (
-        <Grid>
-          {visible.map(workspace => (
-            <WorkspaceCard key={workspace.id} workspace={workspace} />
-          ))}
-          {!search && (
-            <NewCard type="button" onClick={() => setCreating(true)}>
-              <span className="plus">
-                <Icons.PlusOutlined />
-              </span>
-              {t('New workspace')}
-              <small>{t('For a team, an area or a project')}</small>
-            </NewCard>
-          )}
-        </Grid>
-      )}
-      {modal}
-    </Page>
+          </Grid>
+        )}
+        {modal}
+      </Page>
+    </>
   );
 }

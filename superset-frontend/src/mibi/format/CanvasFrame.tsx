@@ -500,6 +500,9 @@ export function CanvasFrame({ children }: { children: ReactNode }) {
       '[data-test="dashboard-header-wrapper"]',
     );
     if (header) observer?.observe(header);
+    // So does the menu bar of the window, which a report fills once it mounts
+    const menuBar = document.querySelector('[data-test="mibi-menubar-row"]');
+    if (menuBar) observer?.observe(menuBar);
     return () => {
       window.removeEventListener('resize', measure);
       observer?.disconnect();

@@ -26,6 +26,7 @@ import {
   mockDashboards,
   setupMocks,
   renderDashboardList,
+  renderDashboardListAsCards,
   waitForDashboardsPageReady,
 } from './DashboardList.testHelpers';
 
@@ -91,7 +92,7 @@ test('can favorite a dashboard', async () => {
     result: 'OK',
   });
 
-  renderDashboardList(mockUser);
+  renderDashboardListAsCards(mockUser);
 
   await waitFor(() => {
     expect(
@@ -153,7 +154,7 @@ test('can unfavorite a dashboard', async () => {
     result: 'OK',
   });
 
-  renderDashboardList(mockUser);
+  renderDashboardListAsCards(mockUser);
 
   await waitFor(() => {
     expect(
@@ -183,7 +184,7 @@ test('can unfavorite a dashboard', async () => {
 });
 
 test('can delete a single dashboard from card menu', async () => {
-  renderDashboardList(mockUser);
+  renderDashboardListAsCards(mockUser);
 
   await waitFor(() => {
     expect(
@@ -282,7 +283,7 @@ test('can edit dashboard title via properties modal', async () => {
     throw new Error(`[fetchMock catch-all] Unmatched GET: ${reqUrl}`);
   });
 
-  renderDashboardList(mockUser);
+  renderDashboardListAsCards(mockUser);
 
   await waitFor(() => {
     expect(
@@ -404,7 +405,7 @@ test('shows a loading state on the + Dashboard button while navigating', async (
     assign: assignMock,
   } as Location);
 
-  renderDashboardList(mockUser);
+  renderDashboardListAsCards(mockUser);
 
   await waitForDashboardsPageReady();
 

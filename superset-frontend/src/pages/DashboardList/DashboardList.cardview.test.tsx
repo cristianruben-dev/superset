@@ -28,7 +28,7 @@ import { isFeatureEnabled } from '@superset-ui/core';
 import {
   mockDashboards,
   mockHandleResourceExport,
-  renderDashboardList,
+  renderDashboardListAsCards,
   setupMocks,
   getLatestDashboardApiCall,
 } from './DashboardList.testHelpers';
@@ -73,7 +73,7 @@ describe('DashboardList Card View Tests', () => {
   afterEach(() => fetchMock.clearHistory().removeRoutes());
 
   test('renders cards instead of table', async () => {
-    renderDashboardList(mockUser);
+    renderDashboardListAsCards(mockUser);
 
     await screen.findByTestId('dashboard-list-view');
 
@@ -87,7 +87,7 @@ describe('DashboardList Card View Tests', () => {
   });
 
   test('switches from card view to list view', async () => {
-    renderDashboardList(mockUser);
+    renderDashboardListAsCards(mockUser);
     await screen.findByTestId('dashboard-list-view');
 
     expect(screen.queryByTestId('listview-table')).not.toBeInTheDocument();
@@ -106,7 +106,7 @@ describe('DashboardList Card View Tests', () => {
   });
 
   test('displays dashboard data correctly in cards', async () => {
-    renderDashboardList(mockUser);
+    renderDashboardListAsCards(mockUser);
 
     await screen.findByTestId('dashboard-list-view');
 
@@ -134,7 +134,7 @@ describe('DashboardList Card View Tests', () => {
   });
 
   test('renders sort dropdown in card view', async () => {
-    renderDashboardList(mockUser);
+    renderDashboardListAsCards(mockUser);
     await screen.findByTestId('dashboard-list-view');
 
     await waitFor(() => {
@@ -147,7 +147,7 @@ describe('DashboardList Card View Tests', () => {
   });
 
   test('selecting a sort option triggers new API call', async () => {
-    renderDashboardList(mockUser);
+    renderDashboardListAsCards(mockUser);
     await screen.findByTestId('dashboard-list-view');
 
     await waitFor(() => {
@@ -179,7 +179,7 @@ describe('DashboardList Card View Tests', () => {
   });
 
   test('can bulk deselect all dashboards', async () => {
-    renderDashboardList(mockUser);
+    renderDashboardListAsCards(mockUser);
 
     await screen.findByTestId('dashboard-list-view');
     await waitFor(() => {
@@ -240,7 +240,7 @@ describe('DashboardList Card View Tests', () => {
   });
 
   test('can bulk export selected dashboards', async () => {
-    renderDashboardList(mockUser);
+    renderDashboardListAsCards(mockUser);
 
     await screen.findByTestId('dashboard-list-view');
     await waitFor(() => {
@@ -280,7 +280,7 @@ describe('DashboardList Card View Tests', () => {
   });
 
   test('can bulk delete selected dashboards', async () => {
-    renderDashboardList(mockUser);
+    renderDashboardListAsCards(mockUser);
 
     await screen.findByTestId('dashboard-list-view');
     await waitFor(() => {
@@ -340,7 +340,7 @@ describe('DashboardList Card View Tests', () => {
   });
 
   test('exit bulk select by hitting x on bulk select bar', async () => {
-    renderDashboardList(mockUser);
+    renderDashboardListAsCards(mockUser);
 
     await screen.findByTestId('dashboard-list-view');
     await waitFor(() => {
@@ -371,7 +371,7 @@ describe('DashboardList Card View Tests', () => {
   });
 
   test('card click behavior changes in bulk select mode', async () => {
-    renderDashboardList(mockUser);
+    renderDashboardListAsCards(mockUser);
 
     await screen.findByTestId('dashboard-list-view');
     await waitFor(() => {

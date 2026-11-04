@@ -37,6 +37,8 @@ import { Icons } from '@superset-ui/core/components/Icons';
 import { useToasts } from 'src/components/MessageToasts/withToasts';
 import { useFavoriteStatus } from 'src/views/CRUD/hooks';
 import { DashboardCard, useDashboardPreviews } from '../dashboards';
+import { usePageCrumbs } from '../shell/pageCrumbs';
+import { usePageStatus } from '../shell/pageStatus';
 import { relativeTime } from '../time';
 import {
   deleteWorkspace,
@@ -50,43 +52,13 @@ import {
   type WorkspaceDataset,
 } from './api';
 import { AddDashboardsModal } from './AddDashboardsModal';
-import { MemberAvatars, RoleBadge } from './roles';
+import { MemberAvatars, RoleBadge, roleLabel } from './roles';
 import { WorkspaceAccessModal } from './WorkspaceAccessModal';
 import { WorkspaceAvatar, workspaceGradient } from './WorkspaceAvatar';
 import { WorkspaceDatasets } from './WorkspaceDatasets';
 import { Grid, Page } from './WorkspaceListPage';
 import { WorkspaceModal } from './WorkspaceModal';
 import { WorkspaceTrash } from './WorkspaceTrash';
-
-const Crumbs = styled.nav`
-  ${({ theme }) => css`
-    display: flex;
-    align-items: center;
-    gap: ${theme.sizeUnit * 1.5}px;
-    margin-bottom: ${theme.sizeUnit * 4}px;
-    font-size: ${theme.fontSizeSM}px;
-    color: ${theme.colorTextTertiary};
-    min-width: 0;
-
-    a {
-      flex: none;
-      color: ${theme.colorTextSecondary};
-      font-weight: 500;
-
-      &:hover {
-        color: ${theme.colorPrimary};
-        text-decoration: none;
-      }
-    }
-
-    .current {
-      min-width: 0;
-      overflow: hidden;
-      white-space: nowrap;
-      text-overflow: ellipsis;
-    }
-  `}
-`;
 
 const Hero = styled.header`
   ${({ theme }) => css`
@@ -215,7 +187,9 @@ const Hero = styled.header`
 
       strong {
         color: ${theme.colorText};
-        font-weight: 600;
+        font-family: ${theme.fontFamilyCode};
+        font-weight: 500;
+        font-variant-numeric: tabular-nums;
       }
     }
 
@@ -330,6 +304,32 @@ export default function WorkspacePage() {
   const [deleting, setDeleting] = useState(false);
   const [managingAccess, setManagingAccess] = useState(false);
   const [creatingDashboard, setCreatingDashboard] = useState(false);
+  usePageCrumbs(workspace ? [{ label: workspace.name }] : []);
+  usePageStatus(
+    workspace
+      ? [
+          tn(
+            '%s dashboard',
+            '%s dashboards',
+            workspace.dashboard_count,
+            workspace.dashboard_count,
+          ),
+          tn(
+            '%s dataset',
+            '%s datasets',
+            workspace.dataset_count,
+            workspace.dataset_count,
+          ),
+          tn(
+            '%s member',
+            '%s members',
+            workspace.member_count,
+            workspace.member_count,
+          ),
+          workspace.role && t('Role: %s', roleLabel(workspace.role)),
+        ]
+      : [],
+  );
 
   const dashboardIds = useMemo(
     () => (dashboards || []).map(dashboard => dashboard.id),
@@ -465,14 +465,6 @@ export default function WorkspacePage() {
 
   return (
     <Page data-test="workspace-page">
-      <Crumbs aria-label={t('Breadcrumb')}>
-        <Link to="/workspace/list/">{t('Workspaces')}</Link>
-        <Icons.RightOutlined iconSize="xs" />
-        <span className="current" title={workspace.name}>
-          {workspace.name}
-        </span>
-      </Crumbs>
-
       <Hero>
         <div
           className={workspace.image_url ? 'cover photo' : 'cover'}

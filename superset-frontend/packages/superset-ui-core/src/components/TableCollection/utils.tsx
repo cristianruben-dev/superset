@@ -83,6 +83,10 @@ function getSortingInfo<T extends object>(
   return { isSorted: false, isSortedDesc: false };
 }
 
+// AuraData BI: cells of figures and dates, which the skin sets in a monospace font
+const FIGURE_COLUMN =
+  /^(dashboard_id|slice_id|changed_on|changed_on_delta_humanized|created_on|dttm|last_eval_dttm|last_login|login_count|fail_login_count|duration_ms|crontab_humanized)$/;
+
 export function mapColumns<T extends object>(
   columns: EnhancedColumnInstance<T>[],
   headerGroups: EnhancedHeaderGroup<T>[],
@@ -123,7 +127,9 @@ export function mapColumns<T extends object>(
         }
         return val as ReactNode;
       },
-      className: column.className,
+      className:
+        column.className ??
+        (FIGURE_COLUMN.test(column.id) ? 'mibi-figure' : undefined),
     };
   });
 }
