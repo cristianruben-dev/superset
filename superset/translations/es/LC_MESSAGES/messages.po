@@ -24977,7 +24977,7 @@ msgstr ""
 "aplica al resultado."
 
 msgid "Show cell bars for all columns"
-msgstr "Mostrar todas las columnas"
+msgstr "Mostrar barras de celdas en todas las columnas"
 
 msgid "Show fewer"
 msgstr "Mostrar menos"
@@ -25121,7 +25121,7 @@ msgstr ""
 "solo lectura."
 
 msgid "Subject"
-msgstr "asunto del correo"
+msgstr "Sujeto"
 
 msgid "Subject list"
 msgstr "Lista de sujetos"
@@ -25133,7 +25133,7 @@ msgid "Subjects"
 msgstr "Sujetos"
 
 msgid "Subjects are invalid"
-msgstr "Los propietarios no son válidos"
+msgstr "Los sujetos no son válidos"
 
 msgid "Success message"
 msgstr "Mensaje de éxito"
@@ -25217,7 +25217,7 @@ msgstr ""
 
 #, python-format
 msgid "The %s"
-msgstr "Recuperado %s"
+msgstr "El %s"
 
 #, python-format
 msgid "The %s linked to this chart may have been deleted."
@@ -25333,7 +25333,10 @@ msgstr ""
 msgid ""
 "The deletion impact could not be determined. This dataset cannot be "
 "permanently deleted until the check succeeds."
-msgstr "No se pudo calcular el impacto de eliminar. Este conjunto de datos no se puede eliminar definitivamente hasta que la revisión funcione."
+msgstr ""
+"No se pudo determinar el impacto de la eliminación. Este conjunto de "
+"datos no se puede eliminar definitivamente hasta que la comprobación se "
+"complete correctamente."
 
 msgid "The following charts could not be exported:"
 msgstr "No se han podido exportar los siguientes gráficos:"
@@ -25515,7 +25518,7 @@ msgstr "Ha habido un problema al duplicar el %s."
 
 #, python-format
 msgid "There was an issue duplicating the selected %s: %s"
-msgstr "Ha habido un problema al eliminar el %s seleccionado: %s"
+msgstr "Ha habido un problema al duplicar el %s seleccionado: %s"
 
 #, python-format
 msgid "There was an issue exporting the %s"
@@ -25523,7 +25526,7 @@ msgstr "Ha habido un problema al exportar el %s"
 
 #, python-format
 msgid "There was an issue exporting the selected %s"
-msgstr "Ha habido un problema al eliminar las plantillas seleccionadas: %s"
+msgstr "Ha habido un problema al exportar los %s seleccionados"
 
 msgid "There was an issue exporting the selected queries"
 msgstr "No se pudieron exportar las consultas seleccionadas"
@@ -25579,7 +25582,9 @@ msgstr ""
 "sesión, que no tiene dirección de correo."
 
 msgid "This chart is managed externally and can't be overwritten in Superset."
-msgstr "Este gráfico se gestiona externamente y no se puede editar en Superset"
+msgstr ""
+"Este gráfico se gestiona externamente y no se puede sobrescribir en "
+"AuraData BI."
 
 #, python-format
 msgid "This chart is used by alerts or reports: %(names)s."
@@ -25723,7 +25728,7 @@ msgid "Time Series Options"
 msgstr "Opciones de la serie temporal"
 
 msgid "Time grain options"
-msgstr "Opciones de la serie temporal"
+msgstr "Opciones de granularidad temporal"
 
 msgid "To request access, contact your Superset administrator."
 msgstr ""
@@ -25753,7 +25758,10 @@ msgid ""
 "Total angle covered by the chart, in degrees. 360° draws a full circle "
 "and 180° draws a half donut. Partial arcs are automatically re-centered "
 "and scaled to make use of the available space."
-msgstr "Ángulo total que cubre la gráfica, en grados. 360° dibuja un círculo completo y 180° una media dona. Los arcos parciales se recentran y escalan solos para aprovechar el espacio."
+msgstr ""
+"Ángulo total que cubre el gráfico, en grados. 360° dibuja un círculo "
+"completo y 180° una media dona. Los arcos parciales se recentran y "
+"escalan solos para aprovechar el espacio."
 
 msgid "Transparent background"
 msgstr "Fondo transparente"
@@ -25809,7 +25817,7 @@ msgid "Type to search all of them."
 msgstr "Escribe para buscar entre todos."
 
 msgid "URL Filters"
-msgstr "Todos los filtros"
+msgstr "Filtros de URL"
 
 msgid "UUID to track the execution status"
 msgstr "UUID para seguir el estado de la ejecución"
@@ -25885,9 +25893,7 @@ msgid "Undid or redid a change"
 msgstr "Se deshizo o rehízo un cambio"
 
 msgid "Unexpected HTTP 401 response. Check your credentials."
-msgstr ""
-"Se ha producido un error inesperado; comprueba tus registros para obtener"
-" más información"
+msgstr "Respuesta HTTP 401 inesperada. Comprueba tus credenciales."
 
 msgid "Unknown user"
 msgstr "Usuario desconocido"
@@ -25985,9 +25991,9 @@ msgid ""
 "are defined, the dashboard is accessible to all users with appropriate "
 "datasource permissions."
 msgstr ""
-"Los espectadores son una lista de sujetos que pueden ver el panel. Si no "
-"se definen espectadores, el panel es accesible para todos los usuarios "
-"con los permisos de fuente de datos adecuados."
+"Los lectores son una lista de sujetos que pueden ver el tablero. Si no se "
+"define ningún lector, el tablero es accesible para todos los usuarios con "
+"los permisos adecuados sobre la fuente de datos."
 
 #, python-format
 msgid "Virtual dataset template error: %(msg)s"
@@ -26050,7 +26056,7 @@ msgid "Whether to display the interactive data table"
 msgstr "Si se debe mostrar la tabla de datos interactiva"
 
 msgid "Whether to display the numbered column"
-msgstr "Si se debe mostrar la línea de tendencia"
+msgstr "Si se debe mostrar la columna numerada"
 
 msgid ""
 "Whether to sort tooltip by the selected metric in descending order. On "
@@ -26061,7 +26067,7 @@ msgstr ""
 "a mayor."
 
 msgid "Width scale multiplier"
-msgstr "Multiplicador"
+msgstr "Multiplicador de escala del ancho"
 
 #, python-format
 msgid "Window must not exceed %(max)s"
@@ -26107,7 +26113,7 @@ msgstr "No tienes acceso a las capas de anotaciones"
 
 # Machine-translated via backfill_po.py (claude-sonnet-4-6) [refs: ja]
 msgid "You don't have access to one or more of the referenced datasources."
-msgstr "No tiene acceso a una o más de las fuentes de datos referenciadas."
+msgstr "No tienes acceso a una o más de las fuentes de datos referenciadas."
 
 msgid "You don't have access to this chart's data"
 msgstr "No tienes acceso a los datos de este gráfico"
@@ -26131,7 +26137,7 @@ msgid "You don't have permission to export data"
 msgstr "No tienes permiso para exportar datos"
 
 msgid "You don't have permission to export images"
-msgstr "No tienes permisos para leer etiquetas"
+msgstr "No tienes permiso para exportar imágenes"
 
 msgid "You don't have permission to view annotation layers."
 msgstr "No tienes permiso para ver las capas de anotaciones."
@@ -26202,7 +26208,7 @@ msgid ""
 "You need access to the following tables: %(tables)s, "
 "'all_database_access' or 'all_datasource_access' permission"
 msgstr ""
-"Necesita acceso a las siguientes tablas: %(tables)s, permiso "
+"Necesitas acceso a las siguientes tablas: %(tables)s, o el permiso "
 "'all_database_access' o 'all_datasource_access'"
 
 #, python-format
@@ -26319,13 +26325,13 @@ msgid "farewell"
 msgstr "adiós"
 
 msgid "for a list of available helpers."
-msgstr "No hay filtros disponibles."
+msgstr "para ver la lista de utilidades disponibles."
 
 msgid "green — increase / red — decrease"
 msgstr "verde: aumento / rojo: descenso"
 
 msgid "greeting"
-msgstr "Conservación de registros"
+msgstr "saludo"
 
 msgid "header"
 msgstr "encabezado"
@@ -26336,7 +26342,7 @@ msgid "hello"
 msgstr "hola"
 
 msgid "locale_key"
-msgstr "Escala logarítmica"
+msgstr "locale_key"
 
 msgid "markdown"
 msgstr ""
