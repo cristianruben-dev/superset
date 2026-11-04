@@ -592,6 +592,25 @@ Redis, `node_modules` clonados con `cp -cR` (también los anidados de `plugins/*
 - **Conocido, sin tocar.** «Untitled Query N» de SQL Lab sale en inglés (nombre guardado, upstream). El modal de conexión solo
   ofrece los drivers instalados: en el venv del Mac faltan `pymssql` y `mysqlclient`, la imagen los trae.
 
+### Resumen del upgrade a Superset 7.0
+
+AuraData BI pasa de Superset 6.1 a 7.0 (rc2) en siete fases encadenadas más la fase 0. Una sola cadena de migraciones
+(revisión de merge `f1c7a9e2b305`), SQLAlchemy 2 y Flask 3, editors y viewers en lugar de owners, rutas sin `/superset/`,
+antd 6, oxlint, imagen `prod` con Chromium y Celery heredado, catálogo en español completo y `main` (barra de menús, barra de
+estado, menú de clic derecho) fusionada. Decisiones de seguridad: el contribuidor nunca es editor; el acceso a datos por
+workspace es una concesión estrecha (`workspace_grants.py`). Corregido en la fase 7: purga definitiva (política de purga sin las
+tablas del fork), meses de los ejes en español.
+
+**Suites de la fase 7.** Corridas: `tsc` completo (0 errores), oxlint completo (0), tests específicos de lo tocado (Jest de
+shell, listas, home, tablero; pytest de `tests/unit_tests/mibi`, de purga y de traducciones: 100 ok), migración sobre copia de
+datos reales y QA manual en el navegador. **No corridas, por falta de RAM de la máquina: Jest completo, `pytest tests/unit_tests`
+completo, pruebas de integración y Playwright (normal y experimental).** `pre-commit run --all-files` se interrumpió; dejó
+autofixes de formato (oxfmt, ruff-format), ya commiteados; sus comprobaciones de mypy/pylint no se vieron completas.
+
+**Pendientes.** Drill By en un punto temporal ignora el periodo (heredado de 7.0); «Untitled Query N» de SQL Lab en inglés;
+SQL Server, Databricks y Redshift sin probar contra servidores reales; etiquetas «% de…» con NBSP sin ver en pantalla; informes
+de tableros en borrador: revisar ejecutores antes de desplegar.
+
 ## Abiertos tras la fase 3
 
 Para la fase 4 (funciones que chocan), además de la lista de abajo:
