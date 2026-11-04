@@ -25,8 +25,9 @@ import os
 import sys
 from datetime import timedelta
 
-from celery.schedules import crontab
 from flask_caching.backends.filesystemcache import FileSystemCache
+
+from superset.config import CeleryConfig as DefaultCeleryConfig
 
 logger = logging.getLogger()
 
@@ -85,36 +86,11 @@ THUMBNAIL_CACHE_CONFIG = {
 }
 
 
-class CeleryConfig:
+class CeleryConfig(DefaultCeleryConfig):
+    # Superset's tasks and beat schedule (reports, trash and version history purge,
+    # Excel export, Slack) on the compose Redis.
     broker_url = f"redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_CELERY_DB}"
-    imports = (
-        "superset.sql_lab",
-        "superset.tasks.deletion_retention",
-        "superset.tasks.scheduler",
-        "superset.tasks.thumbnails",
-        "superset.tasks.cache",
-        "superset.tasks.export_dashboard_excel",
-    )
     result_backend = f"redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_RESULTS_DB}"
-    worker_prefetch_multiplier = 1
-    task_acks_late = False
-    beat_schedule = {
-        "reports.scheduler": {
-            "task": "reports.scheduler",
-            "schedule": crontab(minute="*", hour="*"),
-        },
-        "reports.prune_log": {
-            "task": "reports.prune_log",
-            "schedule": crontab(minute=10, hour=0),
-        },
-        # Gated on the SOFT_DELETE feature flag, which is off by default: the
-        # task is scheduled either way, but purges nothing while the flag is
-        # unset. Enable it in FEATURE_FLAGS below to exercise retention locally.
-        "deletion_retention.purge_soft_deleted": {
-            "task": "deletion_retention.purge_soft_deleted",
-            "schedule": crontab(minute=0, hour=0),
-        },
-    }
 
 
 CELERY_CONFIG = CeleryConfig
@@ -125,7 +101,6 @@ FEATURE_FLAGS = {
     # Dashboard cards show a screenshot taken by the worker's headless Chromium
     # (INCLUDE_CHROMIUM in docker-compose.yml), as the user who views them
     "THUMBNAILS": True,
-    "PLAYWRIGHT_REPORTS_AND_THUMBNAILS": True,
     "ENABLE_EXTENSIONS": True,
     # MOBILE_CONSUMPTION_MODE (Superset 7.0) stays off: AuraData BI has its own
     # mobile layout per page (meta.mibiMobile)
