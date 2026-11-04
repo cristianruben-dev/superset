@@ -19,6 +19,7 @@
 import { render, screen, userEvent } from 'spec/helpers/testing-library';
 import { VizType } from '@superset-ui/core';
 import mockState from 'spec/fixtures/mockState';
+import { OPEN_CHART_EDITOR, OpenChartEditorDetail } from 'src/mibi/chartEditor';
 import SliceHeaderControls, { SliceHeaderControlsProps } from '.';
 
 // Subdirectory-specific regressions live here so the existing 676-line
@@ -128,45 +129,49 @@ const renderControls = (): void => {
   });
 };
 
-describe('SliceHeaderControls — Cmd-click "Edit chart" under subdirectory deployment', () => {
+// AuraData BI edits a chart in the side panel of its dashboard (there is no chart
+// screen), so "Edit chart" asks the dashboard to open the panel with the
+// exploreUrl it was given, whatever the modifier keys, and never opens a tab.
+// eslint-disable-next-line no-restricted-globals -- TODO: Migrate from describe blocks
+describe('SliceHeaderControls — "Edit chart" opens the side panel', () => {
   let openSpy: jest.SpyInstance;
+  let received: OpenChartEditorDetail[];
+  const listener = (event: Event) => {
+    received.push((event as CustomEvent<OpenChartEditorDetail>).detail);
+  };
 
   beforeEach(() => {
     mockApplicationRoot.mockReturnValue('');
     openSpy = jest.spyOn(window, 'open').mockImplementation(() => null);
+    received = [];
+    window.addEventListener(OPEN_CHART_EDITOR, listener);
   });
 
   afterEach(() => {
+    window.removeEventListener(OPEN_CHART_EDITOR, listener);
     openSpy.mockRestore();
   });
 
-  test('opens the unprefixed exploreUrl when application root is empty', async () => {
-    mockApplicationRoot.mockReturnValue('');
-    renderControls();
+  test.each([
+    ['', 'application root is empty'],
+    ['/superset', 'deployed under a subdirectory'],
+  ])(
+    'a Cmd-click with application root "%s" (%s) opens the panel, not a tab',
+    async root => {
+      mockApplicationRoot.mockReturnValue(root);
+      renderControls();
 
-    userEvent.click(screen.getByRole('button', { name: 'More Options' }));
-    const editChart = await screen.findByText('Edit chart');
-    userEvent.click(editChart, { metaKey: true });
+      userEvent.click(screen.getByRole('button', { name: 'More Options' }));
+      const editChart = await screen.findByText('Edit chart');
+      userEvent.click(editChart, { metaKey: true });
 
-    expect(openSpy).toHaveBeenCalledWith(
-      '/explore/?dashboard_page_id=abc&slice_id=371',
-      '_blank',
-      'noopener noreferrer',
-    );
-  });
-
-  test('opens the prefixed exploreUrl when deployed under a subdirectory', async () => {
-    mockApplicationRoot.mockReturnValue('/superset');
-    renderControls();
-
-    userEvent.click(screen.getByRole('button', { name: 'More Options' }));
-    const editChart = await screen.findByText('Edit chart');
-    userEvent.click(editChart, { metaKey: true });
-
-    expect(openSpy).toHaveBeenCalledWith(
-      '/superset/explore/?dashboard_page_id=abc&slice_id=371',
-      '_blank',
-      'noopener noreferrer',
-    );
-  });
+      expect(received).toEqual([
+        {
+          url: '/explore/?dashboard_page_id=abc&slice_id=371',
+          chartId: SLICE_ID,
+        },
+      ]);
+      expect(openSpy).not.toHaveBeenCalled();
+    },
+  );
 });
