@@ -67,3 +67,14 @@ test('edits and removes existing rules', async () => {
   await userEvent.click(screen.getByRole('button', { name: 'Remove rule' }));
   expect(onChange).toHaveBeenLastCalledWith([]);
 });
+
+test('keeps the saved color of a rule in the picker', () => {
+  render(
+    <ChartConditionalFormattingControl
+      label="Rules"
+      value={[{ operator: '>', value: 1, color: '#FF0000' }]}
+    />,
+  );
+  // The picker of Superset 7.0 shows the saved hex as it was stored
+  expect(screen.getByText(/#ff0000/i)).toBeInTheDocument();
+});
