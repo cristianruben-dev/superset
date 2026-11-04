@@ -45,10 +45,15 @@ import { resolveLegendLayout } from '../utils/legendLayout';
 import { convertInteger } from '../utils/convertInteger';
 import {
   applyChartFormat,
+  xAxisFormatOptions,
+  yAxisFormatOptions,
   type ChartFormatOptions,
 } from '../utils/chartFormatOptions';
-import { applyLegendFormatting } from '../utils/formatting';
-import type { FontStyleValue } from '@superset-ui/core';
+import {
+  applyAxisFormatting,
+  applyLegendFormatting,
+} from '../utils/formatting';
+import type { ColorInput, FontStyleValue } from '@superset-ui/core';
 
 type EChartsOption = ComposeOption<BarSeriesOption>;
 
@@ -355,8 +360,52 @@ export default function transformProps(
     series,
   };
 
+  const axisFormat = formData as unknown as ChartFormatOptions;
+  const format = formData as unknown as Record<string, unknown>;
+  const gridlineFormat = {
+    gridlineColor: format.gridlineColor as ColorInput,
+    gridlineWidth: format.gridlineWidth as number | string | null,
+    gridlineStyle: format.gridlineStyle as string | null,
+    hideGridlines: format.gridlinesHidden as boolean | null,
+  };
+  // The pane's "X axis" is the dimension axis, which this chart draws vertically
+  const categoryAxis = applyAxisFormatting(
+    echartOptions.yAxis as Record<string, unknown>,
+    {
+      labelFont: format.xAxisLabelFont as FontStyleValue | null,
+      titleFont: format.xAxisTitleFont as FontStyleValue | null,
+      inverse: format.xAxisInverse as boolean | null,
+      hidden: format.xAxisHidden as boolean | null,
+      ...gridlineFormat,
+      ...xAxisFormatOptions(axisFormat, true),
+    },
+  );
+  const valueFormat = yAxisFormatOptions(axisFormat, { isHorizontal: true });
+  const valueAxis = applyAxisFormatting(
+    echartOptions.xAxis as Record<string, unknown>,
+    {
+      labelFont: format.yAxisLabelFont as FontStyleValue | null,
+      titleFont: format.yAxisTitleFont as FontStyleValue | null,
+      inverse: format.yAxisInverse as boolean | null,
+      hidden: format.yAxisHidden as boolean | null,
+      ...gridlineFormat,
+      ...valueFormat,
+      // Bars on the left carry negative values: labels show them as absolute
+      labelFormatter: valueFormat.labelFormatter
+        ? (value: number) =>
+            (valueFormat.labelFormatter as (value: number) => string)(
+              Math.abs(value),
+            )
+        : undefined,
+    },
+  );
+
   const formattedOptions = applyChartFormat(
-    echartOptions,
+    {
+      ...echartOptions,
+      xAxis: valueAxis,
+      yAxis: categoryAxis,
+    } as EChartsOption,
     formData as unknown as ChartFormatOptions,
     {
       isHorizontal: true,

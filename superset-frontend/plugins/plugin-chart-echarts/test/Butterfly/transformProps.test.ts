@@ -339,3 +339,33 @@ test('maps selectedValues to category indexes', () => {
 
   expect(transformedProps.selectedValues).toEqual({ 1: categoryKeyB });
 });
+
+test('takes the format of the Format pane for gridlines, axes and legend', () => {
+  const transformedProps = transformProps(
+    createChartProps({
+      gridlinesHidden: true,
+      xAxisLabelFont: { fontSize: 18, color: '#ff0000' },
+      legendFont: { fontSize: 20 },
+    }),
+  );
+  const { xAxis, yAxis, legend } = getEchartOptions(transformedProps) as {
+    xAxis?: { splitLine?: { show?: boolean } };
+    yAxis?: { axisLabel?: { fontSize?: number; color?: string } };
+    legend?: { textStyle?: { fontSize?: number } };
+  };
+
+  // The category axis of a horizontal chart is the one the pane calls "X axis"
+  expect(xAxis?.splitLine?.show).toBe(false);
+  expect(yAxis?.axisLabel?.fontSize).toBe(18);
+  expect(yAxis?.axisLabel?.color).toBe('#ff0000');
+  expect(legend?.textStyle?.fontSize).toBe(20);
+});
+
+test('keeps the look of a chart that has no format', () => {
+  const { xAxis } = getEchartOptions(transformProps(createChartProps())) as {
+    xAxis?: { splitLine?: { show?: boolean; lineStyle?: { type?: string } } };
+  };
+
+  expect(xAxis?.splitLine?.lineStyle?.type).toBe('dashed');
+  expect(xAxis?.splitLine?.show).not.toBe(false);
+});

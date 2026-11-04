@@ -380,3 +380,18 @@ test('userHasPermission returns true if user has permission', () => {
     ),
   ).toEqual(true);
 });
+
+test('canUserSaveAsDashboard allows who edits through a workspace role', () => {
+  const dashByWorkspace = {
+    ...dashboard,
+    editors: [{ id: 999, label: 'Other', type: 1 }],
+    can_edit: true,
+  };
+  expect(canUserSaveAsDashboard(dashByWorkspace, outsiderUser)).toEqual(true);
+  expect(
+    canUserSaveAsDashboard(
+      { ...dashByWorkspace, can_edit: false },
+      outsiderUser,
+    ),
+  ).toEqual(false);
+});

@@ -115,4 +115,8 @@ export const canUserSaveAsDashboard = (
 ) =>
   isUserWithPermissionsAndRoles(user) &&
   findPermission('can_write', 'Dashboard', user?.roles) &&
-  (isUserAdmin(user) || isUserDashboardEditor(dashboard));
+  (isUserAdmin(user) ||
+    isUserDashboardEditor(dashboard) ||
+    // Set by the API for the contributors and admins of the workspace, who save
+    // and copy the dashboard without becoming editors of it
+    dashboard.can_edit === true);
