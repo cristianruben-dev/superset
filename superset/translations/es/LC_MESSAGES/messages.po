@@ -16652,6 +16652,9 @@ msgstr "Administración"
 msgid "Main navigation"
 msgstr "Navegación principal"
 
+msgid "Open navigation"
+msgstr "Abrir la navegación"
+
 msgid "Expand sidebar"
 msgstr "Expandir menú lateral"
 

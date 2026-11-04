@@ -226,6 +226,8 @@ interface TopBarProps {
   compactBrand?: boolean;
   /** Leave room for the title and actions of the report. */
   reportHeader?: boolean;
+  /** Opens the navigation, on phones where it is a drawer. */
+  onOpenNav?: () => void;
 }
 
 const isMac =
@@ -239,6 +241,7 @@ export function TopBar({
   showBrand = false,
   compactBrand = false,
   reportHeader = false,
+  onOpenNav,
 }: TopBarProps) {
   const user = useSelector<{ user?: User }, User | undefined>(
     state => state.user,
@@ -247,6 +250,16 @@ export function TopBar({
 
   return (
     <Bar id="main-menu" data-test="mibi-topbar">
+      {onOpenNav && (
+        <SearchIcon
+          type="button"
+          onClick={onOpenNav}
+          aria-label={t('Open navigation')}
+          data-test="mibi-nav-toggle"
+        >
+          <Icons.MenuOutlined />
+        </SearchIcon>
+      )}
       {showBrand && (
         <Brand data-test="mibi-topbar-brand">
           <BrandLink compact={compactBrand} />
