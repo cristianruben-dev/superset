@@ -36,7 +36,7 @@ algunas reglas de producto distintas:
 
 - **Cada gráfico pertenece a un solo tablero.** Los gráficos se crean y se
   editan en un panel lateral del propio tablero y no se comparten entre tableros (ver
-  `superset/mibi/single_dashboard.py`).
+  `superset/auradata/single_dashboard.py`).
 - **Áreas de trabajo:** agrupan tableros y conjuntos de datos, con imagen, color, miembros y roles
   (lector, colaborador y administrador). Los colaboradores y administradores del área leen los datos
   de los conjuntos del área, y los lectores no.
@@ -86,11 +86,11 @@ de Superset:
 
 | Qué | Dónde |
 | --- | --- |
-| Marca, tema, idiomas y paletas | `superset/mibi_config.py` |
+| Marca, tema, idiomas y paletas | `superset/auradata_config.py` |
 | Logotipos e iconos | `superset-frontend/src/assets/images/auradata/` |
-| Estilos globales | `superset-frontend/src/assets/mibi/skin.css` |
-| Pantallas y funciones de AuraData BI | `superset-frontend/src/mibi/` |
-| API, modelos y reglas de AuraData BI | `superset/mibi/` |
+| Estilos globales | `superset-frontend/src/assets/auradata/skin.css` |
+| Pantallas y funciones de AuraData BI | `superset-frontend/src/auradata/` |
+| API, modelos y reglas de AuraData BI | `superset/auradata/` |
 | Migraciones de AuraData BI | `superset/migrations/versions/*_mibi_*.py` |
 | Traducciones al español | `superset/translations/es/LC_MESSAGES/messages.po` |
 | Configuración de producción | `docker/pythonpath_prod/superset_config.py` |
@@ -131,8 +131,8 @@ de 7.0 al actualizar.
 Pruebas:
 
 ```bash
-cd superset-frontend && npm run test -- src/mibi   # interfaz (Jest)
-pytest tests/unit_tests/mibi/                       # API y reglas
+cd superset-frontend && npm run test -- src/auradata  # interfaz (Jest)
+pytest tests/unit_tests/auradata/                     # API y reglas
 ```
 
 Si hay datos de antes de la regla de un tablero por gráfico, sepáralos con:

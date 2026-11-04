@@ -59,28 +59,28 @@ This repository is **AuraData BI**, a fork of Apache Superset 7.0 shaped like Po
   `superset/translations/es/LC_MESSAGES/messages.po` (informal "tú", «» quotes). Rebuild with
   `npm run build-translation` in `superset-frontend/`; `messages.json`/`messages.mo` are
   generated and git-ignored.
-- **One dashboard per chart** (`MIBI_SINGLE_DASHBOARD_CHARTS`, `superset/mibi/single_dashboard.py`).
+- **One dashboard per chart** (`MIBI_SINGLE_DASHBOARD_CHARTS`, `superset/auradata/single_dashboard.py`).
   Commands, importers and the MCP tools validate it; an ORM listener is the safety net.
-  Charts are created and edited from a side panel of their dashboard (`src/mibi/chartEditor.ts`,
-  `src/mibi/dashboard/ChartEditorPanel.tsx`); there is no chart list screen.
+  Charts are created and edited from a side panel of their dashboard (`src/auradata/chartEditor.ts`,
+  `src/auradata/dashboard/ChartEditorPanel.tsx`); there is no chart list screen.
 - **Reports are built from their dashboard.** The sidebar and the "New" menu only hold home,
   workspaces, dashboards and administration (database connections are "Connections" there).
   Datasets, new datasets and SQL Lab open from the "Data" menu of a dashboard in edit mode, in
-  its side panel (`src/mibi/dashboard/DataMenu.tsx`, `ChartEditorPanel.tsx`); their pages are
-  wrapped in `panelOnly` (`src/mibi/PanelGate.tsx`) and redirect when opened on their own. A
+  its side panel (`src/auradata/dashboard/DataMenu.tsx`, `ChartEditorPanel.tsx`); their pages are
+  wrapped in `panelOnly` (`src/auradata/PanelGate.tsx`) and redirect when opened on their own. A
   dashboard shows without the sidebar, with the logo in the top bar (`isReportRoute`).
 - **Workspaces** group dashboards, with members and roles (viewer, contributor, admin)
   (`MIBI_WORKSPACE_ACCESS`). A role never makes anyone an editor: Superset counts editorship
   (`is_editor`) as data access, so contributors and admins edit through
   `security_manager.can_edit_resource` (used by `raise_for_editorship` and the edit points) and
   never become editors (`keep_subjects` in `compute_subjects`). A new edit point asks
-  `can_edit_resource` (`tests/unit_tests/mibi/workspace_security_test.py`). Data access has one
-  narrow grant (`superset/mibi/workspace_grants.py`): contributors and admins of a workspace read the
+  `can_edit_resource` (`tests/unit_tests/auradata/workspace_security_test.py`). Data access has one
+  narrow grant (`superset/auradata/workspace_grants.py`): contributors and admins of a workspace read the
   datasets that belong to it (`raise_for_access`, `DatasourceFilter`, `ChartFilter`,
   `DashboardAccessFilter`), never viewers, other workspaces or shared datasets. RLS still applies;
   SQL Lab, database schemas and editing a dataset keep their normal permissions. A new data-access
   check keeps `is_editor` and adds this grant only where the dataset is the thing read
-  (`tests/unit_tests/mibi/workspace_grants_test.py`).
+  (`tests/unit_tests/auradata/workspace_grants_test.py`).
 - **Flags fixed by the product** (`FORCED_OFF_FLAGS`, `superset/utils/feature_flag_manager.py`): Superset's mobile consumption mode
   (`mibiMobile` replaces it) and Table V2 stay off whatever the configuration says.
 - **Soft delete and version history** (on by default since 7.0): a deleted dashboard, chart or
@@ -90,7 +90,7 @@ This repository is **AuraData BI**, a fork of Apache Superset 7.0 shaped like Po
   the drafts of the workspace, never becoming an editor. Fork rules count only live rows: 7.0's ORM
   visibility filter hides them from ORM queries, but queries over link tables (`dashboard_slices`,
   `mibi_workspace_*`) must join the live rows themselves (`_live_links` in `single_dashboard.py`).
-- **Datasets belong to a workspace** (`MIBI_WORKSPACE_DATASETS`, `superset/mibi/workspace_datasets.py`),
+- **Datasets belong to a workspace** (`MIBI_WORKSPACE_DATASETS`, `superset/auradata/workspace_datasets.py`),
   like Power BI semantic models: a dataset is in one workspace at most, and one without a
   workspace is shared. Only members (and editors, admins) list a workspace's datasets
   (`WorkspaceDatasetFilter` on the dataset API), and a chart only uses datasets of its
@@ -99,67 +99,72 @@ This repository is **AuraData BI**, a fork of Apache Superset 7.0 shaped like Po
   workspace page lists them, and the `dataset_usable_in_dashboard` filter narrows the dataset
   pickers of the panel.
 - **AuraData brand** (https://auradata.mx/brand-guidelines): the product is "AuraData BI", the
-  Continua logo plus a "BI" tag rendered as HTML (`src/mibi/shell/brand.ts`, `ProductTag`), never
+  Continua logo plus a "BI" tag rendered as HTML (`src/auradata/shell/brand.ts`, `ProductTag`), never
   drawn into the logo file. Write the company as "AuraData" (capital A and D). Outfit for text,
   Geist Mono for data and eyebrow labels; Azul Aura `#2563EB`, violet `#7C3AED`, green `#10B981`;
   the 100° blue→violet→green gradient only as a headline accent. Logos and icons live in
   `superset-frontend/src/assets/images/auradata/`.
-- Branding, theme tokens, languages and chart palettes live in `superset/mibi_config.py`.
+- Branding, theme tokens, languages and chart palettes live in `superset/auradata_config.py`.
 - **Databases offered:** PostgreSQL, SQL Server (pymssql), MySQL, Databricks, Amazon Redshift and DuckDB, as cards
-  with their logo (`PREFERRED_DATABASES` in `mibi_config.py`, logos in `src/mibi/databases/dbImages.ts`). Their drivers
+  with their logo (`PREFERRED_DATABASES` in `auradata_config.py`, logos in `src/auradata/databases/dbImages.ts`). Their drivers
   are installed in the `dev` and `prod` targets of the `Dockerfile` (`prod` is `lean` plus the six drivers and a Playwright Chromium, not the
   batteries-included `superset` image); a new database needs its driver there too. The dev and prod `CeleryConfig` inherit
   `superset.config.CeleryConfig`: never replace it, or Superset's own scheduled tasks (trash and history purge) stop running.
-- **The editor has a ribbon, as in Power BI** (`src/mibi/ribbon`): Home, Insert, Design and View,
+- **The editor has a ribbon, as in Power BI** (`src/auradata/ribbon`): Home, Insert, Design and View,
   plus Format and Data and drill for the selected object. It lives under the top bar in `Header`, and
   commands of the ribbon call the same actions as the panes. A new command goes there, in a named
   group; settings stay in the panes (`BuilderComponentPane`: charts, elements, format, selection,
   bookmarks), which `openBuilderTab` opens.
-- **A report's title and actions sit in the top bar** (`useReportHeaderSlot`, `src/mibi/shell/reportHeader.ts`): `Header`
+- **A report's title and actions sit in the top bar** (`useReportHeaderSlot`, `src/auradata/shell/reportHeader.ts`): `Header`
   portals them there, and keeps them over the page without a top bar (standalone, embedded, phones).
 - **Pages share one margin:** `--mb-space-gutter`, `--mb-space-page-top` and `--mb-space-section` (`ThemeVariables`), tighter in
   the side panel (`body.mibi-panel`). A list shows one row of filters and folds the rest under «Más filtros» (`ListView`).
 - **Pages out of a report share one chrome:** the shell draws the breadcrumbs (`ShellCrumbs`, from the navigation plus
   `usePageCrumbs`), and each page a title row with its commands in groups (`PageHeader`, `CommandGroup` in
-  `src/mibi/shell/PageHeader.tsx`; the `.menu` header of the lists matches it in `skin.css`). Lists are dense tables with
+  `src/auradata/shell/PageHeader.tsx`; the `.menu` header of the lists matches it in `skin.css`). Lists are dense tables with
   figures and dates in Geist Mono (`mibi-figure` cells, set in `TableCollection`). A report in reading view has a row of
-  commands under the top bar (`src/mibi/report/ReadingBar.tsx`: view, filters, export); the editor keeps the ribbon.
+  commands under the top bar (`src/auradata/report/ReadingBar.tsx`: view, filters, export); the editor keeps the ribbon.
   The first row of the window, above the top bar and the sidebar, is a desktop-style menu bar (`MenuBar` in
-  `src/mibi/shell/MenuBar.tsx`, the `mibi-menubar-row` slot of `AppShell`, `menuBarSlot.ts`): File, View, Go to and Help
+  `src/auradata/shell/MenuBar.tsx`, the `auradata-menubar-row` slot of `AppShell`, `menuBarSlot.ts`): File, View, Go to and Help
   on every page (`AppMenuBar`), File, View, Filters, Export and Share on a report (`ReportMenuBar`, the actions of its
   "⋯" menu, which stays, and hidden on phones and while editing).
   The last row is a status bar (`StatusBar`: server state, page figures from `usePageStatus`, language, theme; not on
   reports, which have the page bar). File › Open recent lists the dashboards opened in this browser
   (`recentDashboards.ts`, kept by `ReportMenuBar`). A ListView takes `rowMenu` for a right click on a row
-  (`useContextMenu`); the dashboard list builds it with `useDashboardRowMenu` (`src/mibi/dashboards/rowMenu.tsx`).
+  (`useContextMenu`); the dashboard list builds it with `useDashboardRowMenu` (`src/auradata/dashboards/rowMenu.tsx`).
 - **The look is fixed by the product.** There are no saved themes and no CSS templates: no
   theme screen, API or per-dashboard theme, and `ThemeController` only switches between the
   `THEME_DEFAULT` and `THEME_DARK` of the configuration (light, dark, match system). Set
   `THEME_DARK = None` to force a single look. A dashboard keeps its own `css` field.
-- Internal names keep the `mibi` prefix (`src/mibi`, `superset/mibi`, `MIBI_*`, `mibi_*` tables,
-  `meta.mibi*` layout keys, the `mibi` palette id): saved dashboards and migrations depend on
-  them. Rename only what users see.
+- Code is named `auradata`: modules (`superset/auradata`, `superset/auradata_config.py`, `src/auradata`,
+  `src/assets/auradata`), identifiers, `data-test` ids and the `/api/v1/auradata/` API. New code uses
+  `auradata`, never `mibi`. Persisted and deployment names still say `mibi` until their own renames
+  (`docs/plans/2026-11-04-plan-mcp-auradata.md`, phases R2–R4), because saved dashboards, databases and
+  deployments depend on them: `MIBI_*` settings and env vars, `mibi_*` tables, `meta.mibi*` layout keys,
+  `mibi-*` component keys, the `mibi` palette id, `.mibi-*` classes, `data-mibi-*` attributes and `--mibi-*`
+  variables, `mibi_*` form data keys, `__mibi*` series ids, `localStorage` `mibi.*`, the `mibi-drillthrough`
+  data mask, the `mibi_panel`/`mibi_dock` URL parameters and `docker/mibi`. Never rename these by hand.
 
 ### Where the code lives
 | Area | Backend | Frontend (`superset-frontend/src/`) |
 | --- | --- | --- |
-| App shell, home, lists | `superset/mibi/previews.py`, `superset/mibi/api.py` | `mibi/shell`, `mibi/home`, `mibi/dashboards`, `assets/mibi/skin.css` |
-| Workspaces and access | `superset/mibi/workspaces.py`, `workspace_access.py`, `models.py` | `mibi/workspaces` |
-| Data page and datasets | `superset/mibi/data_views.py` | `mibi/data` |
-| Format pane, cell grid | - | `mibi/format` |
+| App shell, home, lists | `superset/auradata/previews.py`, `superset/auradata/api.py` | `auradata/shell`, `auradata/home`, `auradata/dashboards`, `assets/auradata/skin.css` |
+| Workspaces and access | `superset/auradata/workspaces.py`, `workspace_access.py`, `models.py` | `auradata/workspaces` |
+| Data page and datasets | `superset/auradata/data_views.py` | `auradata/data` |
+| Format pane, cell grid | - | `auradata/format` |
 | Chart format controls (labels, legend, axes, series, rules, table) | - | `explore/components/controls/{FontControl,SeriesColorsControl,ChartConditionalFormattingControl}`; sections in `packages/superset-ui-chart-controls/src/sections/visualFormat.tsx`; helpers in `plugins/plugin-chart-echarts/src/utils/formatting.ts` and `plugins/plugin-chart-table/src/utils/tableFormat.ts` |
-| Background and element pictures | `superset/mibi/backgrounds.py` | `mibi/format/actions.ts`, `mibi/elements` |
-| Design elements (image, shape, button, text, canvas filter) | - | `mibi/elements` |
+| Background and element pictures | `superset/auradata/backgrounds.py` | `auradata/format/actions.ts`, `auradata/elements` |
+| Design elements (image, shape, button, text, canvas filter) | - | `auradata/elements` |
 | Filter bar levels (all pages / this page / visuals), instant apply | `dashboards/schemas.py` (`filter_bar_auto_apply`) | `dashboard/components/nativeFilters/scopeLevel.ts`, `FilterBar/` |
-| Presentation mode, PDF/PNG export | - | `mibi/present`, `mibi/export` |
-| Ribbon and lineage | - | `mibi/ribbon` |
-| Selection pane, locked and hidden objects, page menu | - | `mibi/format/SelectionPane.tsx`, `mibi/format/lock.ts`, `mibi/report/PageMenu.tsx`, `mibi/report/pageActions.ts` |
-| Report interactivity (edit interactions, drill through, sync slicers, bookmarks, Back/bookmark buttons, tooltip pages, reset filters) | - | `mibi/report` |
-| Chart type icons | - | `mibi/vizIcons` |
+| Presentation mode, PDF/PNG export | - | `auradata/present`, `auradata/export` |
+| Ribbon and lineage | - | `auradata/ribbon` |
+| Selection pane, locked and hidden objects, page menu | - | `auradata/format/SelectionPane.tsx`, `auradata/format/lock.ts`, `auradata/report/PageMenu.tsx`, `auradata/report/pageActions.ts` |
+| Report interactivity (edit interactions, drill through, sync slicers, bookmarks, Back/bookmark buttons, tooltip pages, reset filters) | - | `auradata/report` |
+| Chart type icons | - | `auradata/vizIcons` |
 
 AuraData BI APIs: `/api/v1/workspace/` (with `<id>/dashboards/` and `<id>/datasets/`),
 `/api/v1/dashboard_background/<dashboard>/`, `/api/v1/dashboard_image/<dashboard>/<image>/`,
-`/api/v1/mibi/dashboard_previews/`. Each new API is registered in `superset/initialization/__init__.py`.
+`/api/v1/auradata/dashboard_previews/`. Each new API is registered in `superset/initialization/__init__.py`.
 
 ### Dashboard formatting lives in the layout
 Formats are stored in `position_json`, so they save, undo and export with the dashboard:
@@ -169,17 +174,17 @@ Formats are stored in `position_json`, so they save, undo and export with the da
   unless the page has a mobile layout (below).
   While editing, the page is a limit: resizing stops at its bottom (`useMaxHeightMultiple`) and a
   change that overflows it fits the visuals back inside (`CanvasFrame`).
-- `ROOT_ID.meta.mibiCanvas`: canvas format (`CanvasFormat` in `src/mibi/format/types.ts`),
+- `ROOT_ID.meta.mibiCanvas`: canvas format (`CanvasFormat` in `src/auradata/format/types.ts`),
   including `visuals`, the style every chart shares (from "Apply to all charts").
 - `CHART-*.meta.mibiFormat`: a chart's own format. It wins over the shared style setting by
   setting; read it with `useVisualFormat`/`mergeVisualFormat`, never `meta.mibiFormat` alone.
 - `CHART-*.meta.mibiFormat.chart`: settings of the chart itself, by form data key, over its saved
-  `form_data` (`withChartFormat` in `src/mibi/format/chartFormat.ts`). A change repaints without a
+  `form_data` (`withChartFormat` in `src/auradata/format/chartFormat.ts`). A change repaints without a
   query, and a key here wins over the same key saved by Explore. A layout can take 512 KB
   (`SUPERSET_DASHBOARD_POSITION_DATA_LIMIT`).
 - The Visual level of the Format pane draws the look controls of each chart's control panel with
-  Explore's `Control` (`mibi/format/ChartFormatSections.tsx`), sorted into the sections of
-  `mibi/format/formatCards.ts`. A new control of a chart shows by itself; give it a section there.
+  Explore's `Control` (`auradata/format/ChartFormatSections.tsx`), sorted into the sections of
+  `auradata/format/formatCards.ts`. A new control of a chart shows by itself; give it a section there.
   A control declared twice, as bars do for each orientation, shows the version whose `visibility` applies. A control
   that reports its value on mount changes nothing: `setValue` ignores a value equal to the current one.
   The editor docked beside a report only has the data tab. Settings tied to one chart
@@ -222,31 +227,31 @@ Formats are stored in `position_json`, so they save, undo and export with the da
   Matrix sparklines use existing column groups, table sparklines require ordered numeric arrays, and
   neither introduces a new query role. Resolve result-dependent choices before control validation,
   and merge pending column edits before sending a debounced update.
-- The General level also covers header icons (`mibi/format/HeaderExtras.tsx`), action button and
+- The General level also covers header icons (`auradata/format/HeaderExtras.tsx`), action button and
   chart link (`format.link`, `format.actionButton`), spacing, and the tooltip and sampling of
   ECharts (`chart.mibi_tooltip`, `chart.mibi_sampling`), which reach the chart through
   `data-mibi-echarts` on the holder (`echartsHostFormat`, `applyHostFormat`).
 - Design elements are `DYNAMIC` components whose `componentKey` starts with `mibi-`, with their
-  settings in `meta.mibiElement` (`src/mibi/elements/types.ts`).
+  settings in `meta.mibiElement` (`src/auradata/elements/types.ts`).
   The canvas filter element (`mibi-filter`) stores `filterId` and `showInFilterBar`; filters
   with `showInFilterBar: false` are left out of the filter bar (`useCanvasOnlyFilterIds`).
-- The canvas is a grid of square cells of `CELL` = 32 px (`src/mibi/format/types.ts`). Its size
+- The canvas is a grid of square cells of `CELL` = 32 px (`src/auradata/format/types.ts`). Its size
   is a whole number of cells, so its width in cells is the number of columns of the layout. Every
   `meta.width` and `meta.height` is in cells, there are no margins or gaps between objects, and the
-  edit-mode grid always draws lines at every cell. Use `src/mibi/format/columns.ts`
+  edit-mode grid always draws lines at every cell. Use `src/auradata/format/columns.ts`
   (`columnCountOf(layout)`, `gridColumnCount()`, `minObjectColumns()`), never `GRID_COLUMN_COUNT`.
   `layoutToCells` (`cells.ts`) converts layouts saved before the cell grid (12/24/48 columns, heights
   in 8 px steps, canvas padding and gap) on load; `ROOT_ID.meta.mibiCells` marks a converted layout.
 - Charts, elements and text boxes sit at an absolute cell of the page: `meta.mibiPos` is `{x, y}` in
   cells from its top-left corner, so moving or resizing one never moves another. Rows stay as
   containers. A drop sets
-  the cell from where the object lands (`src/mibi/format/positions.ts`, `DropResult.cell`, handled
+  the cell from where the object lands (`src/auradata/format/positions.ts`, `DropResult.cell`, handled
   in `handleComponentDrop`); `layoutToPositions` gives a cell to every object without one on load.
   A chart added without a drop (saved from the side panel or Explore, or attached outside edit
   mode) takes the first free cell of its page (`freeCell`), never one over another object.
 - `TAB-*.meta.mibiMobile` (`GRID_ID` for a report of one page) is the optional mobile layout of a page, as in
   Power BI: `{items: [{id, x, y, width, height}]}` in cells of a phone page `MOBILE_COLUMNS` (12) wide, back
-  to front (`src/mibi/format/mobileLayout.ts`). It only places objects the page already has; read it with
+  to front (`src/auradata/format/mobileLayout.ts`). It only places objects the page already has; read it with
   `mobileLayoutOf`, which drops boxes of objects that left the page. A phone (`usePhoneScreen`) shows it when
   the page has one and the canvas otherwise; nothing switches layout on its own. `DashboardComponent` gives
   each object its box (`mobileComponent`) and leaves out the rest. The editor opens it from View → Mobile
@@ -262,12 +267,12 @@ Formats are stored in `position_json`, so they save, undo and export with the da
 - The report is light or dark from the canvas background color (`useReportAppearance`); there are no
   appearance settings.
 - `meta.mibiHidden` hides an object from viewers (faded for editors), `meta.mibiLocked` keeps it from
-  being moved, resized or removed; both are set in the Selection pane (`mibi/format/SelectionPane.tsx`)
+  being moved, resized or removed; both are set in the Selection pane (`auradata/format/SelectionPane.tsx`)
   and the object tabs of the ribbon. "Lock objects" locks the whole report for one editor, in the
-  browser (`mibi/format/lock.ts`). `TAB-*.meta.mibiHiddenPage` hides a page from the tabs and the
+  browser (`auradata/format/lock.ts`). `TAB-*.meta.mibiHiddenPage` hides a page from the tabs and the
   navigators of viewers; links and drill through still open it.
 - `meta.mibiAltText` is the description of a chart for screen readers.
-- Report interactivity (`src/mibi/report`), Power BI style:
+- Report interactivity (`src/auradata/report`), Power BI style:
   - `ROOT_ID.meta.mibiBookmarks`: bookmarks (page, filter and cross-filter selections, visibility).
     Applying one sets a browser-only visibility override (`visibility.ts`) on top of `mibiHidden`.
   - `TAB-*.meta.mibiDrillthrough`: `{columns}` a page accepts for "Drill through". The filter is the
@@ -290,24 +295,24 @@ Formats are stored in `position_json`, so they save, undo and export with the da
     line of a series never replaces the point of it under the pointer (`isLessPrecise`).
   - "Reset filters" (`resetFilters.ts`, reading view and ribbon) sets every native filter and slicer to
     its default, clears cross-filters, leaves a drill through and drops bookmark visibility overrides.
-- A fixed page shows a bar at the bottom, as in Power BI (`PageBar` in `mibi/report/TabsDock.tsx`), of a
+- A fixed page shows a bar at the bottom, as in Power BI (`PageBar` in `auradata/report/TabsDock.tsx`), of a
   fixed size whatever the zoom: previous/next arrows, flat page tabs split by hairlines with the accent
   under the active one, "Page 1 of 3" and the zoom with a fit choice (`ZoomToolbar docked`); narrow bars
   drop the slider, then the fit choice. Presenting and the mobile layout keep the tabs above the page.
 - With the page bar, the vertical filter pane is a pane of the report at its right edge, as tall as the
   page area and out of the page (`FilterDockTarget atEdge` in `CanvasFrame`); the page floats alone and its
   zoom does not count the pane. Presenting keeps the pane beside the page.
-- The vertical filter pane stays beside the page while editing. Each filter is a card (`mibi/dashboard/FilterCard.tsx`):
+- The vertical filter pane stays beside the page while editing. Each filter is a card (`auradata/dashboard/FilterCard.tsx`):
   name and what it selects (`filterSummary`: "is (All)", "is North"), folded until opened (remembered in
   the browser), with the accent on its edge while it selects something; the folded rail counts the
   filters that select something.
-- Write layout changes through `src/mibi/format/actions.ts` (`updateLayout`, `setVisualFormat`,
+- Write layout changes through `src/auradata/format/actions.ts` (`updateLayout`, `setVisualFormat`,
   `setCanvasFormat`, `setSharedVisualFormat`) so edits group into one undo step.
-- A canvas filter of a list of values can draw itself as a dropdown, list, buttons or text box (`mibi/elements/SlicerView.tsx`,
+- A canvas filter of a list of values can draw itself as a dropdown, list, buttons or text box (`auradata/elements/SlicerView.tsx`,
   `meta.mibiElement.variant`). Only the dropdown is the filter plugin; the others ask for its values with `getFormData` and
   write the same data mask. A range filter can draw itself as "Between" boxes or a slider (`rangeStyle`) and a time filter as
   a relative date or two days (`dateStyle`, `RangeSlicerView.tsx`); the rules of selection, sorting, value format and time
-  ranges live in `mibi/elements/slicer.ts`. A slicer's Format pane (`SlicerFormat.tsx`) has a Visual and a General level; the
+  ranges live in `auradata/elements/slicer.ts`. A slicer's Format pane (`SlicerFormat.tsx`) has a Visual and a General level; the
   General level reuses `TitleSections`, `BoxSections` and alt text, and its title is drawn by `ElementTitle`; the title
   text of an element is its own and stays out of "Copy format". A filter that takes one value keeps one whatever the slicer
   says. `hiddenValues` leaves values out of one slicer only (keys from `slicerValueKey`); they still count in the charts.
@@ -318,16 +323,16 @@ Formats are stored in `position_json`, so they save, undo and export with the da
   of the timeseries charts, so they never change the series. Small multiples are Matrixify, opened to the pane without its flag.
 - `DASHBOARD_VIRTUALIZATION` stays off: rows have no height and the page scrolls inside its own container, so row observers
   would unmount every chart on scroll. Playwright hides this kind of bug: `navigator.webdriver` turns virtualization off too.
-- The Fields level of the pane (`mibi/format/ChartFieldsSections.tsx`) draws the query controls of a chart with Explore's
+- The Fields level of the pane (`auradata/format/ChartFieldsSections.tsx`) draws the query controls of a chart with Explore's
   `Control`; `chartFields.ts` names them by role. Fields are chart settings, never layout ones: a change previews through the
   chart's form data and `saveChartFields` writes it to the chart, with a new `query_context`, when the report saves. A key the
-  layout holds moves out of it. Tooltip fields and small multiples stay in the layout. Undo follows them: each field change is a step whose number goes in `ROOT_ID.meta.mibiFieldStep` while its values stay in memory (`followFieldSteps`, mounted by `BuilderComponentPane`), so the layout never holds fields. A field also goes on a chart from its box in the Data pane or dropped on the chart (`FieldDropTarget`), into the well `addFieldChange` picks. «Use this table in the chart» moves a chart to another usable dataset in one undo step (`changeChartDataset`, dropping what `fieldsKeptBy` says the new one lacks); saving sends `datasource_id` and a refusal of the server reverts the chart. The Data pane drags with dnd-kit, as Explore: `DashboardBuilder` wraps the dashboard in `ExploreDndContextProvider`. `mibi/format/DataPane.tsx` is the Data pane.
+  layout holds moves out of it. Tooltip fields and small multiples stay in the layout. Undo follows them: each field change is a step whose number goes in `ROOT_ID.meta.mibiFieldStep` while its values stay in memory (`followFieldSteps`, mounted by `BuilderComponentPane`), so the layout never holds fields. A field also goes on a chart from its box in the Data pane or dropped on the chart (`FieldDropTarget`), into the well `addFieldChange` picks. «Use this table in the chart» moves a chart to another usable dataset in one undo step (`changeChartDataset`, dropping what `fieldsKeptBy` says the new one lacks); saving sends `datasource_id` and a refusal of the server reverts the chart. The Data pane drags with dnd-kit, as Explore: `DashboardBuilder` wraps the dashboard in `ExploreDndContextProvider`. `auradata/format/DataPane.tsx` is the Data pane.
 - There are no saved format themes: each dashboard is formatted on its own.
 
 ### Superset 7.0 under the fork
 Things that changed in 7.0 and that the fork code relies on:
 - **Routes have no `/superset/` prefix** (`/dashboard/<id>/`, `/welcome/`, `/explore/`, `/sqllab/`); the backend never
-  emits the old ones (7.0 redirects old links). Use `REPORT_PATH`/`HOME_URL` of `src/mibi/shell/navigation.ts`.
+  emits the old ones (7.0 redirects old links). Use `REPORT_PATH`/`HOME_URL` of `src/auradata/shell/navigation.ts`.
   `isReportRoute` leaves out `/dashboard/list/` and `/dashboard/new/` (the router would read them as a slug); "New
   dashboard" is a full navigation, because its GET on the server creates the dashboard.
 - **Editors and viewers replace owners and roles-with-access.** There is no `owners`, `is_owner` or
@@ -367,8 +372,8 @@ one head and a database at `d3f9a2b17c64` still runs the 41 migrations of 7.0 on
   must both reach the new head.
 
 ### Tests for AuraData BI code
-- Jest tests sit next to the code (`src/mibi/**/*.test.ts(x)`).
-- Backend: `pytest tests/unit_tests/mibi/`.
+- Jest tests sit next to the code (`src/auradata/**/*.test.ts(x)`).
+- Backend: `pytest tests/unit_tests/auradata/`.
 - Browser: `superset-frontend/playwright/tests/experimental/` (dashboard format, export,
   theme, stress), run with `INCLUDE_EXPERIMENTAL=1`.
 
