@@ -232,6 +232,24 @@ export function getPieLayout({
   };
 }
 
+/**
+ * The angle where the first slice begins. The "Start angle" of the Format pane
+ * (`special_start_angle`) wins when it was set; charts that never set it follow
+ * the start angle of Superset 7.0, so charts saved with either keep their look.
+ */
+export function resolveStartAngle(
+  formatAngle: unknown,
+  chartAngle: number,
+): number {
+  if (formatAngle === undefined || formatAngle === null || formatAngle === '') {
+    return chartAngle;
+  }
+  const angle = Number(formatAngle);
+  return Number.isFinite(angle)
+    ? Math.min(360, Math.max(0, angle))
+    : chartAngle;
+}
+
 export default function transformProps(
   chartProps: EchartsPieChartProps,
 ): PieChartTransformedProps {
@@ -277,7 +295,7 @@ export default function transformProps(
     showLabels,
     showLegend,
     showLabelsThreshold,
-    startAngle,
+    startAngle: chartStartAngle,
     sweptAngle,
     sliceId,
     showTotal,
@@ -293,6 +311,10 @@ export default function transformProps(
     ...DEFAULT_PIE_FORM_DATA,
     ...formData,
   };
+  const startAngle = resolveStartAngle(
+    (formData as { specialStartAngle?: unknown }).specialStartAngle,
+    chartStartAngle,
+  );
   const refs: Refs = {};
   const metricLabel = getMetricLabel(metric);
   const contributionLabel = getContributionLabel(metricLabel);

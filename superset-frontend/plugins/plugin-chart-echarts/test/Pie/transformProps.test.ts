@@ -31,6 +31,7 @@ import transformProps, {
   parseParams,
   getArcBoundingBox,
   getPieLayout,
+  resolveStartAngle,
 } from '../../src/Pie/transformProps';
 import { EchartsPieChartProps, PieChartDataItem } from '../../src/Pie/types';
 import { LegendOrientation, LegendType } from '../../src/types';
@@ -801,4 +802,17 @@ test('applies label and legend format controls to the pie', () => {
   const legend = echartOptions.legend as Record<string, unknown>;
   expect(legend.top).toBe('middle');
   expect(legend.icon).toBe('rect');
+});
+
+test('resolveStartAngle follows the Format pane first, then Superset 7.0', () => {
+  // A chart that never set the angle of the pane takes the one of the chart
+  expect(resolveStartAngle(undefined, 90)).toBe(90);
+  expect(resolveStartAngle(null, 180)).toBe(180);
+  expect(resolveStartAngle('', 180)).toBe(180);
+  // The pane wins once set, kept inside the circle
+  expect(resolveStartAngle(45, 90)).toBe(45);
+  expect(resolveStartAngle('270', 90)).toBe(270);
+  expect(resolveStartAngle(500, 90)).toBe(360);
+  expect(resolveStartAngle(-5, 90)).toBe(0);
+  expect(resolveStartAngle('abc', 90)).toBe(90);
 });

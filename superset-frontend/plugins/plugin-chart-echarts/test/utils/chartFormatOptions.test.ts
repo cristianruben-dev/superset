@@ -21,7 +21,9 @@ import {
   applySecondaryAxis,
   applySeriesFormat,
   getDisplayFormatter,
+  hasLegendFormat,
   mixColors,
+  resolveGridlines,
   secondaryAxisSeries,
   secondaryYAxisFormatOptions,
   xAxisFormatOptions,
@@ -519,4 +521,64 @@ test('label density keeps the label of every step-th point', () => {
   expect(
     (applySeriesFormat(all, { valueLabelDensity: 100 }) as any).data,
   ).toEqual([1, 2]);
+});
+
+test('"Hide gridlines" of the Format pane wins over the 7.0 switch', () => {
+  // Charts saved before either control draw their gridlines
+  expect(resolveGridlines(undefined, undefined)).toBe(true);
+  // Charts saved with the 7.0 switch off keep them hidden
+  expect(resolveGridlines(false, undefined)).toBe(false);
+  expect(resolveGridlines(false, null)).toBe(false);
+  // The Format pane decides once it has been used, either way
+  expect(resolveGridlines(false, false)).toBe(true);
+  expect(resolveGridlines(true, true)).toBe(false);
+});
+
+test('a legend with any format keeps the ECharts legend', () => {
+  expect(hasLegendFormat({})).toBe(false);
+  expect(hasLegendFormat({ legendTitle: '   ' } as never)).toBe(false);
+  expect(hasLegendFormat({ legendFont: {} } as never)).toBe(false);
+  expect(hasLegendFormat({ legendTitle: 'Region' } as never)).toBe(true);
+  expect(hasLegendFormat({ legendMatchColor: true } as never)).toBe(true);
+  expect(hasLegendFormat({ legendFont: { bold: true } } as never)).toBe(true);
+  expect(hasLegendFormat({ legendAlign: 'end' } as never)).toBe(true);
+});
+
+test('a chart that places its own labels keeps the positions both controls share', () => {
+  const series = {
+    name: 'a',
+    type: 'line',
+    label: { show: true, position: 'insideBottom' },
+    data: [1],
+  };
+  // Placed by the chart (Superset 7.0): left alone, so an explicit position holds
+  expect(
+    (
+      applySeriesFormat(
+        series,
+        { valueLabelPosition: 'outsideEnd', barLabelsFitAware: true },
+        false,
+      ) as any
+    ).label.position,
+  ).toBe('insideBottom');
+  // The positions only the Format pane knows still apply
+  expect(
+    (
+      applySeriesFormat(
+        series,
+        { valueLabelPosition: 'above', barLabelsFitAware: true },
+        false,
+      ) as any
+    ).label.position,
+  ).toBe('top');
+  // Charts that do not place them take the Format pane's choice
+  expect(
+    (
+      applySeriesFormat(
+        series,
+        { valueLabelPosition: 'outsideEnd' },
+        false,
+      ) as any
+    ).label.position,
+  ).toBe('top');
 });

@@ -137,6 +137,9 @@ import {
 import { getDefaultTooltip } from '../utils/tooltip';
 import {
   applyChartFormat,
+  resolveGridlines,
+  hasLegendFormat,
+  type ChartFormatOptions,
   applySecondaryAxis,
   applySeriesFormat,
   getDisplayFormatter,
@@ -1139,7 +1142,7 @@ export default function transformProps(
           applyValueLabelStyle(transformedSeries, valueLabelStyle),
           seriesStyleOptions,
         ),
-        formData,
+        { ...formData, barLabelsFitAware: true },
         isHorizontal,
       );
       if (stack === StackControlsValue.Stream) {
@@ -1525,6 +1528,7 @@ export default function transformProps(
     name,
     icon: 'roundRect',
   }));
+  const showGridlines = resolveGridlines(gridlines, gridlinesHidden);
   const isSmallChart = height < TIMESERIES_CONSTANTS.compactChartHeight;
   const usesCompactLayout = height <= TIMESERIES_CONSTANTS.compactChartHeight;
   const isLegendVisible = showLegend && !usesCompactLayout;
@@ -1537,6 +1541,7 @@ export default function transformProps(
   ).map(String);
   const usesCustomLegend =
     isLegendVisible &&
+    !hasLegendFormat(formData as ChartFormatOptions) &&
     legendType === LegendType.Plain &&
     (legendOrientation === LegendOrientation.Top ||
       legendOrientation === LegendOrientation.Bottom);
@@ -1694,7 +1699,7 @@ export default function transformProps(
       ...temporalAxisTickConfig.axisTick,
       show: axisTicks ? 'auto' : false,
     },
-    ...(gridlines ? {} : { splitLine: { show: false } }),
+    ...(showGridlines ? {} : { splitLine: { show: false } }),
     minInterval:
       xAxisType === AxisType.Time && resolvedTimeGrain && !forceMaxInterval
         ? (TIMEGRAIN_TO_TIMESTAMP[
@@ -1738,7 +1743,7 @@ export default function transformProps(
     max: yAxisMax,
     minorTick: { show: isSmallChart ? false : minorTicks },
     minorSplitLine: { show: isSmallChart ? false : minorSplitLine },
-    splitLine: { show: isSmallChart ? false : gridlines },
+    splitLine: { show: isSmallChart ? false : showGridlines },
     axisLabel: {
       show: !isMicroChart,
       showMinLabel: !isMicroChart,

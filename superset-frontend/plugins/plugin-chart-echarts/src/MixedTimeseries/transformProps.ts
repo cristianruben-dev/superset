@@ -127,6 +127,7 @@ import { getMetricDisplayName } from '../utils/metricDisplayName';
 import { mergeCustomEChartOptions } from '../utils/mergeCustomEChartOptions';
 import {
   applyChartFormat,
+  resolveGridlines,
   applySeriesFormat,
   getDisplayFormatter,
   secondaryYAxisFormatOptions,
@@ -347,6 +348,7 @@ export default function transformProps(
     );
 
   const refs: Refs = {};
+  const showGridlines = resolveGridlines(gridlines, gridlinesHidden);
   const colorScale = CategoricalColorNamespace.getScale(colorScheme as string);
 
   let xAxisLabel = getXAxisLabel(
@@ -1018,7 +1020,7 @@ export default function transformProps(
         ...temporalAxisTickConfig.axisTick,
         show: axisTicks ? 'auto' : false,
       },
-      ...(gridlines ? {} : { splitLine: { show: false } }),
+      ...(showGridlines ? {} : { splitLine: { show: false } }),
       minInterval:
         xAxisType === AxisType.Time && resolvedTimeGrain && !forceMaxInterval
           ? (TIMEGRAIN_TO_TIMESTAMP[
@@ -1050,7 +1052,7 @@ export default function transformProps(
         max: yAxisMax,
         minorTick: { show: minorTicks },
         axisTick: { show: axisTicks ? 'auto' : false },
-        splitLine: { show: gridlines },
+        splitLine: { show: showGridlines },
         minorSplitLine: { show: minorSplitLine },
         axisLabel: {
           formatter: getYAxisFormatter(

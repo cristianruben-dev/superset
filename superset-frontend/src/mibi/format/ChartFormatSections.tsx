@@ -89,6 +89,17 @@ export const safely = <T,>(run: () => T, fallback: T): T => {
   }
 };
 
+/**
+ * What a control shows for a chart that never set it but saved the control of
+ * Superset 7.0 that the pane replaced, so the pane says what the chart draws.
+ */
+export function legacyValue(name: string, formData: FormData): unknown {
+  if (name === 'gridlines_hidden')
+    return formData.gridlines === false ? true : undefined;
+  if (name === 'special_start_angle') return formData.startAngle;
+  return undefined;
+}
+
 /** The value of every control of a chart: conditions read each other's. */
 export function seedControls(
   sections: ControlPanelSectionConfig[],
@@ -103,7 +114,10 @@ export function seedControls(
       if (!config) return;
       const fallback =
         typeof config.default === 'function' ? undefined : config.default;
-      controls[name] = { ...config, value: formData[name] ?? fallback };
+      controls[name] = {
+        ...config,
+        value: formData[name] ?? legacyValue(name, formData) ?? fallback,
+      };
     }),
   );
   // The conditions of some controls look at the columns of the dataset

@@ -93,6 +93,12 @@ export type ChartFormatOptions = {
   yAxisSecondaryLabelDecimals?: Numeric;
   // Data labels
   valueLabelPosition?: string | null;
+  /**
+   * The chart already placed its labels with the logic of Superset 7.0 (the
+   * fit-aware `valueLabelPosition` of bars, or an explicit label position), so
+   * the values of `valueLabelPosition` both controls share are left alone.
+   */
+  barLabelsFitAware?: boolean;
   valueLabelTransparency?: Numeric;
   valueLabelMaxWidth?: Numeric;
   valueLabelOverflow?: string | null;
@@ -372,6 +378,15 @@ const LINE_POSITIONS: Record<string, string> = {
   right: 'right',
 };
 
+/** The values of `value_label_position` that the bars of Superset 7.0 understand */
+const FIT_AWARE_BAR_POSITIONS = [
+  'auto',
+  'outsideEnd',
+  'insideEnd',
+  'insideCenter',
+  'insideBase',
+];
+
 const labelPosition = (
   position: string,
   type: unknown,
@@ -389,9 +404,13 @@ function applyLabelFormat(
 ) {
   if (!isRecord(next.label)) return;
   const label: Anything = { ...next.label };
-  const position = format.valueLabelPosition
-    ? labelPosition(format.valueLabelPosition, next.type, isHorizontal)
-    : undefined;
+  const fitAware =
+    format.barLabelsFitAware &&
+    FIT_AWARE_BAR_POSITIONS.includes(String(format.valueLabelPosition));
+  const position =
+    format.valueLabelPosition && !fitAware
+      ? labelPosition(format.valueLabelPosition, next.type, isHorizontal)
+      : undefined;
   if (position) {
     label.position = position;
     // Negative bars ask for their own side: the choice applies to them too
@@ -937,6 +956,43 @@ function applySeriesLabels(
         }
       : series,
   );
+}
+
+/**
+ * Whether a chart draws its gridlines. "Hide gridlines" of the Format pane wins
+ * when it was ever set; a chart that never set it follows the "Gridlines" switch
+ * of Superset 7.0, so charts saved with either keep their look.
+ */
+export function resolveGridlines(
+  gridlines: boolean | undefined,
+  gridlinesHidden: boolean | null | undefined,
+): boolean {
+  if (gridlinesHidden === undefined || gridlinesHidden === null) {
+    return gridlines !== false;
+  }
+  return !gridlinesHidden;
+}
+
+/**
+ * Whether the legend of a chart has any format of the Format pane. The legend
+ * built from HTML (Superset 7.0) cannot take them, so a chart that sets one
+ * keeps the ECharts legend, which draws all of them.
+ */
+export function hasLegendFormat(format: ChartFormatOptions): boolean {
+  const { legendAlign, legendIcon, legendMatchColor, legendTitle } =
+    format as Anything;
+  const { legendFont, legendTitleFont, barBorderOnly } = format as Anything;
+  const isSet = (value: unknown) =>
+    isRecord(value) ? Object.keys(value).length > 0 : Boolean(value);
+  return [
+    legendAlign,
+    legendIcon,
+    legendMatchColor,
+    typeof legendTitle === 'string' ? legendTitle.trim() : legendTitle,
+    legendFont,
+    legendTitleFont,
+    barBorderOnly,
+  ].some(isSet);
 }
 
 function applyLegendExtras(
