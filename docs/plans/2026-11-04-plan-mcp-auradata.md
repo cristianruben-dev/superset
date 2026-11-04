@@ -188,7 +188,7 @@ No todo pesa igual, así que va en cuatro capas:
 | Capa | Qué | Riesgo | Cómo |
 | --- | --- | --- | --- |
 | R1 | Rutas y nombres del código: `superset/mibi` → `superset/auradata`, `src/mibi` → `src/auradata`, `mibi_config.py` → `auradata_config.py`, `MibiRestApi`, funciones, componentes, clases CSS no guardadas, tests, docs | Bajo; ningún dato | `git mv` + reemplazo mecánico, un commit por área (backend, frontend, CSS, docs). Antes: mergear o guardar los cambios abiertos en `main` (hay 14 archivos modificados) para no chocar |
-| R2 | Configuración y entorno: `MIBI_SINGLE_DASHBOARD_CHARTS`, `MIBI_WORKSPACE_*`, `MIBI_SEND_REPORTS`, `MIBI_PUBLIC_URL`, `MIBI_PORT`, `MIBI_HTTPS`, `MIBI_IMAGE`… | Medio: un despliegue con `.env` viejo cambiaría de comportamiento | Nombre nuevo `AURADATA_*`; durante una versión se lee también el viejo con un aviso en el log. Actualizar `docker/.env-prod.example`, compose, `Dockerfile`, README |
+| R2 | Configuración y entorno: `MIBI_SINGLE_DASHBOARD_CHARTS`, `MIBI_WORKSPACE_*`, `MIBI_SEND_REPORTS`, `MIBI_PUBLIC_URL`, `MIBI_PORT`, `MIBI_HTTPS`, `MIBI_IMAGE`… | Bajo: el producto no ha salido, no hay despliegues con `.env` viejos | Nombre nuevo `AURADATA_*`, sin leer el viejo (decidido 2026-11-04). Actualizar `docker/.env-prod.example`, compose, `Dockerfile`, README y el `.env` local de desarrollo |
 | R3 | Tablas `mibi_workspaces`, `mibi_workspace_dashboards`, `mibi_workspace_members`, `mibi_workspace_datasets`, `mibi_dashboard_backgrounds` | Alto (dato guardado), pero mecánico | Migración Alembic `rename_table` sobre la cabeza del fork (`f1c7a9e2b305`), con `downgrade`; probar base nueva y copia en la cabeza anterior |
 | R4 | Claves del layout `meta.mibi*` (en cada `position_json`), `componentKey` `mibi-*`, paleta `mibi` en `json_metadata`, clases `.mibi-*` que un usuario pudo usar en el `css` de su tablero | Alto | Decidido (2026-11-04): se renombran también. Diseño abajo |
 
@@ -204,32 +204,23 @@ No todo pesa igual, así que va en cuatro capas:
 | Marcadores (dentro de `mibiBookmarks`) | el data mask `mibi-drillthrough` |
 | `dashboards_version`, `slices_version` | las mismas claves en las versiones guardadas (historial de 7.0) |
 | `key_value` (enlaces permanentes) | estado del tablero con data masks `mibi-drillthrough` |
-| ZIP exportados antes del cambio | `position_json` con claves viejas |
 | `localStorage` de cada navegador | `mibi.clipboard`, `mibi.grid`, `mibi.mobileView`, `mibi.sidebarCollapsed`… |
 
-**Cómo:**
-1. **Un único traductor de claves**, en Python (`superset/auradata/layout/legacy.py`) y en TS
-   (`src/auradata/format/legacy.ts`), con la misma tabla `mibiX → auradataX`, `mibi-* → auradata-*` y paleta
-   `mibi → auradata`. Los dos pasan los mismos fixtures.
-2. **Migración de datos** (Alembic, sobre la cabeza del fork), que traduce `position_json`, `json_metadata` y
-   `css` de `dashboards` y de `dashboards_version`/`slices_version`. Así el historial restaura claves nuevas. Por
-   lotes, con `downgrade` que hace la traducción inversa.
-3. **El traductor se queda solo en las puertas de entrada,** no repartido por el código:
-   - importación de ZIP;
-   - lectura de enlaces permanentes;
-   - carga en el frontend de un layout que aún tenga claves viejas, como red de seguridad.
-   - El resto del código solo conoce `auradata*`. Un test falla si aparece una clave `mibi` fuera del traductor.
-4. **El CSS del usuario:** la migración reescribe `.mibi-` → `.auradata-` en `css`. Un tablero importado más tarde
-   pasa por el mismo traductor.
-5. **`localStorage`:** al arrancar se leen las claves viejas una vez, se copian a `auradata.*` y se borran.
-6. **El orden importa.** R4 va después de R1, que renombra las rutas, y en el mismo despliegue que el frontend que
-   lee las claves nuevas. Un frontend viejo con datos migrados perdería el formato.
-7. **Pruebas,** en una base desechable y nunca en la de desarrollo:
-   - base nueva;
-   - copia en la cabeza anterior con tableros reales (formato, segmentadores, marcadores, diseño móvil, páginas
-     tooltip);
-   - `upgrade` → abrir en el navegador sin cambios → `downgrade` → `upgrade`;
-   - restaurar una versión de antes, importar un ZIP viejo, abrir un enlace permanente viejo.
+**Cómo (simplificado el 2026-11-04: el producto no ha salido).** No hay despliegues, ZIP exportados ni enlaces
+permanentes de terceros que cuidar, así que no hace falta un traductor permanente ni un lector doble:
+1. **El código pasa a `auradata*` de una vez:** claves del layout, `componentKey`, paleta, clases CSS,
+   `mibi-drillthrough` y claves de `localStorage`. Las preferencias del navegador (rejilla, portapapeles, barra
+   lateral) se reinician una vez; no se migran.
+2. **Una sola migración de datos** (Alembic, sobre la cabeza del fork), para que la base de desarrollo conserve sus
+   tableros (142, 147…). Traduce `position_json`, `json_metadata` y `css` de `dashboards`, de
+   `dashboards_version`/`slices_version` y de los enlaces de `key_value`. Va por lotes y tiene `downgrade`.
+3. **Un test de guardia:** falla si vuelve a aparecer una clave `mibi` en el código.
+4. **El orden importa.** R4 va después de R1 y junto al frontend que lee las claves nuevas: el build viejo con datos
+   migrados perdería el formato.
+5. **Pruebas,** en una base desechable copiada de la de desarrollo, nunca en la propia:
+   - `upgrade` → abrir el tablero 147 sin cambios (formato, segmentadores, marcadores, diseño móvil, páginas
+     tooltip) → `downgrade` → `upgrade`;
+   - restaurar una versión de antes.
 
 **Tamaño:** L. Riesgo item 1 (datos guardados): commit propio y verificación independiente.
 
@@ -369,7 +360,7 @@ Cada fase deja su parte. Al final se ordena en:
 
 ## Riesgo
 
-- Item 3 (contratos): R2 cambia variables de entorno de despliegue.
+- R2 cambia variables de entorno, pero sin despliegues todavía no es un riesgo de contrato.
 - Item 1 (datos): R3 y R4 cambian datos guardados.
 - Item 2 (seguridad): fases 1, 8 y 10 tocan permisos, credenciales y quién ejecuta los informes.
 
