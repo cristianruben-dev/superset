@@ -16,15 +16,12 @@
 
 import pytest
 
+from superset.db_engine_specs.aurora import AuroraPostgresEngineSpec
 from superset.db_engine_specs.base import BaseEngineSpec
-from superset.db_engine_specs.cockroachdb import CockroachDbEngineSpec
-from superset.db_engine_specs.greenplum import GreenplumEngineSpec
-from superset.db_engine_specs.netezza import NetezzaEngineSpec
 from superset.db_engine_specs.postgres import PostgresEngineSpec
-from superset.db_engine_specs.risingwave import RisingWaveDbEngineSpec
+from superset.db_engine_specs.redshift import RedshiftEngineSpec
 from superset.db_engine_specs.snowflake import SnowflakeEngineSpec
 from superset.db_engine_specs.sqlite import SqliteEngineSpec
-from superset.db_engine_specs.timescaledb import TimescaleDBEngineSpec
 from superset.exceptions import QueryClauseValidationException
 from superset.sql.dialects.postgres import normalize_date_trunc_units
 from superset.sql.metric_normalization import (
@@ -167,12 +164,11 @@ def test_non_postgres_engine_uses_normalizer_without_source_preservation() -> No
 
 @pytest.mark.parametrize(
     "engine, db_engine_spec",
+    # AuraData BI removed CockroachDB, Greenplum, Netezza, RisingWave and
+    # TimescaleDB (87d0739f35); the Postgres-family specs it keeps stand in
     [
-        ("cockroachdb", CockroachDbEngineSpec),
-        ("greenplum", GreenplumEngineSpec),
-        ("netezza", NetezzaEngineSpec),
-        ("risingwave", RisingWaveDbEngineSpec),
-        ("timescaledb", TimescaleDBEngineSpec),
+        ("redshift", RedshiftEngineSpec),
+        ("postgresql", AuroraPostgresEngineSpec),
     ],
 )
 def test_postgres_family_engines_preserve_normalized_source(
@@ -235,21 +231,3 @@ def test_normalize_custom_metric_does_not_swallow_unrelated_value_error(
         normalize_custom_metric(
             "DATE_TRUNC('QUARTER', created_at)", "postgresql", PostgresEngineSpec
         )
-
-
-def test_greenplum_fallback_parses_under_postgres_dialect() -> None:
-    """The greenplum sanitize_clause fallback now resolves to the Postgres dialect.
-
-    The ``*/``-bearing line comment forces the fallback branch, where
-    ``sanitize_clause(expr, "greenplum")`` builds its statement — previously under
-    the generic base dialect, now under Postgres via the SQLGLOT_DIALECTS mapping.
-    A Postgres ``::`` cast in the clause must survive rather than fail to parse.
-    """
-    normalized_metric = normalize_custom_metric(
-        "SUM(created_at::timestamp) -- note */",
-        "greenplum",
-        GreenplumEngineSpec,
-    )
-
-    assert "created_at" in normalized_metric.expression
-    assert not normalized_metric.may_preserve_source

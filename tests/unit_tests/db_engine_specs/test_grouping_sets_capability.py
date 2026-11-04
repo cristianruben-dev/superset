@@ -30,7 +30,6 @@ from superset.db_engine_specs.presto import PrestoBaseEngineSpec, PrestoEngineSp
 from superset.db_engine_specs.snowflake import SnowflakeEngineSpec
 from superset.db_engine_specs.spark import SparkEngineSpec
 from superset.db_engine_specs.sqlite import SqliteEngineSpec
-from superset.db_engine_specs.trino import TrinoEngineSpec
 
 
 def test_base_default_is_false() -> None:
@@ -47,7 +46,7 @@ def test_supporting_engines_opt_in() -> None:
     assert BigQueryEngineSpec.supports_grouping_sets is True
     assert SnowflakeEngineSpec.supports_grouping_sets is True
     assert PrestoEngineSpec.supports_grouping_sets is True
-    assert TrinoEngineSpec.supports_grouping_sets is True
+    # AuraData BI removed the Trino engine spec (87d0739f35)
 
 
 def test_hive_family_explicitly_opts_out() -> None:
