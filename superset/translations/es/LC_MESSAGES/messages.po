@@ -3691,9 +3691,10 @@ msgstr "Crear conjunto de datos"
 
 msgid "Create matrix columns by placing charts side-by-side"
 msgstr ""
+"Crea las columnas de la matriz colocando los gráficos uno junto a otro"
 
 msgid "Create matrix rows by stacking charts vertically"
-msgstr ""
+msgstr "Crea las filas de la matriz apilando los gráficos en vertical"
 
 msgid "Create new chart"
 msgstr "Crear nuevo gráfico"
@@ -5426,7 +5427,7 @@ msgid "Enable graph roaming"
 msgstr "Habilitar itinerancia de gráficos"
 
 msgid "Enable horizontal layout (columns)"
-msgstr ""
+msgstr "Activar la disposición horizontal (columnas)"
 
 msgid "Enable icon JavaScript mode"
 msgstr "Activar el modo JavaScript para iconos"
@@ -5455,7 +5456,7 @@ msgstr ""
 "experimental)"
 
 msgid "Enable vertical layout (rows)"
-msgstr ""
+msgstr "Activar la disposición vertical (filas)"
 
 msgid "Enables custom icon configuration via JavaScript"
 msgstr "Permite configurar los iconos con JavaScript"
@@ -5972,7 +5973,7 @@ msgid "Failed to execute %(query)s"
 msgstr "No se ha podido ejecutar %(query)s"
 
 msgid "Failed to fetch user info:"
-msgstr ""
+msgstr "No se ha podido obtener la información del usuario:"
 
 msgid "Failed to generate chart edit URL"
 msgstr "No se ha podido generar la URL de edición del gráfico"
@@ -13580,10 +13581,10 @@ msgid "This folder is currently empty"
 msgstr "Esta carpeta está vacía"
 
 msgid "This folder only accepts columns"
-msgstr ""
+msgstr "Esta carpeta solo admite columnas"
 
 msgid "This folder only accepts metrics"
-msgstr ""
+msgstr "Esta carpeta solo admite métricas"
 
 msgid "This functionality is disabled in your environment for security reasons."
 msgstr ""
@@ -13960,7 +13961,7 @@ msgstr ""
 "tecla ⇧ Mayús. mientras haces clic en el encabezado de la columna."
 
 msgid "To entire row"
-msgstr ""
+msgstr "A toda la fila"
 
 msgid "To filter on a metric, use Custom SQL tab."
 msgstr "Para filtrar en una métrica, utiliza la pestaña «SQL personalizado»."
@@ -14692,7 +14693,7 @@ msgid "Vertical (Left)"
 msgstr "Vertical (izquierda)"
 
 msgid "Vertical layout (rows)"
-msgstr ""
+msgstr "Disposición vertical (filas)"
 
 msgid "View"
 msgstr "Vista"
@@ -21996,6 +21997,12 @@ msgid ""
 "                <p><b><a href=\"%(url)s\">%(call_to_action)s</a></b></p>\n"
 "                "
 msgstr ""
+"\n"
+"                <p>No se ha podido generar tu informe o alerta por el "
+"siguiente error: %(text)s</p>\n"
+"                <p>Revisa si hay errores en tu tablero o gráfico.</p>\n"
+"                <p><b><a href=\"%(url)s\">%(call_to_action)s</a></b></p>\n"
+"                "
 
 #, python-format
 msgid ""
@@ -22005,30 +22012,35 @@ msgid ""
 "            <p>Please check your dashboard/chart for errors.</p>\n"
 "            "
 msgstr ""
+"\n"
+"            <p>No se ha podido generar tu informe o alerta por el "
+"siguiente error: %(text)s</p>\n"
+"            <p>Revisa si hay errores en tu tablero o gráfico.</p>\n"
+"            "
 
 #, python-format
 msgid "% of"
-msgstr ""
+msgstr "% de"
 
 #, python-format
 msgid "% of column"
-msgstr ""
+msgstr "% de la columna"
 
 #, python-format
 msgid "% of column total"
-msgstr ""
+msgstr "% del total de la columna"
 
 #, python-format
 msgid "% of grand total"
-msgstr ""
+msgstr "% del total general"
 
 #, python-format
 msgid "% of row total"
-msgstr ""
+msgstr "% del total de la fila"
 
 #, python-format
 msgid "%(alertType)s \"%(alertName)s\" triggered successfully"
-msgstr ""
+msgstr "%(alertType)s «%(alertName)s» activada correctamente"
 
 #, python-format
 msgid "%(count)s %(label)s"
@@ -22053,20 +22065,20 @@ msgstr ""
 #, python-format
 msgid "%(num)d hour"
 msgid_plural "%(num)d hours"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%(num)d hora"
+msgstr[1] "%(num)d horas"
 
 #, python-format
 msgid "%(num)d minute"
 msgid_plural "%(num)d minutes"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%(num)d minuto"
+msgstr[1] "%(num)d minutos"
 
 #, python-format
 msgid "%(num)d second"
 msgid_plural "%(num)d seconds"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%(num)d segundo"
+msgstr[1] "%(num)d segundos"
 
 #, python-format
 msgid ""
@@ -22086,7 +22098,7 @@ msgstr "%s (copia de %s)"
 
 #, python-format
 msgid "%s MCP scopes"
-msgstr ""
+msgstr "%s ámbitos de MCP"
 
 #, python-format
 msgid "%s Physical"
@@ -22107,44 +22119,44 @@ msgstr "%s virtuales"
 #, python-format
 msgid "%s additional restricted chart"
 msgid_plural "%s additional restricted charts"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%s gráfico restringido adicional"
+msgstr[1] "%s gráficos restringidos adicionales"
 
 #, python-format
 msgid "%s additional restricted dashboard"
 msgid_plural "%s additional restricted dashboards"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%s tablero restringido adicional"
+msgstr[1] "%s tableros restringidos adicionales"
 
 #, python-format
 msgid "%s affected chart"
 msgid_plural "%s affected charts"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%s gráfico afectado"
+msgstr[1] "%s gráficos afectados"
 
 #, python-format
 msgid "%s chart updated"
 msgid_plural "%s charts updated"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%s gráfico actualizado"
+msgstr[1] "%s gráficos actualizados"
 
 #, python-format
 msgid "%s dashboard updated"
 msgid_plural "%s dashboards updated"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%s tablero actualizado"
+msgstr[1] "%s tableros actualizados"
 
 #, python-format
 msgid "%s dataset updated"
 msgid_plural "%s datasets updated"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%s conjunto de datos actualizado"
+msgstr[1] "%s conjuntos de datos actualizados"
 
 #, python-format
 msgid "%s field"
 msgid_plural "%s fields"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%s campo"
+msgstr[1] "%s campos"
 
 #, python-format
 msgid "%s imported"
@@ -22158,7 +22170,11 @@ msgid_plural ""
 "%s of the selected items are semantic views, which cannot be archived: "
 "they will be deleted permanently and cannot be recovered."
 msgstr[0] ""
+"%s de los elementos seleccionados es una vista semántica, que no se puede "
+"archivar: se eliminará de forma definitiva y no se podrá recuperar."
 msgstr[1] ""
+"%s de los elementos seleccionados son vistas semánticas, que no se pueden "
+"archivar: se eliminarán de forma definitiva y no se podrán recuperar."
 
 #, python-format
 msgid "%s semantic view(s) added"
@@ -22176,7 +22192,7 @@ msgstr "Error al agregar %s vista(s) semántica(s): %s"
 
 #, python-format
 msgid "%s — click the chart to return"
-msgstr ""
+msgstr "%s: haz clic en el gráfico para volver"
 
 msgid "(archived)"
 msgstr "(en la papelera)"
@@ -22216,8 +22232,8 @@ msgstr ""
 #, python-format
 msgid "... and %s more"
 msgid_plural "... and %s more"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "... y %s más"
+msgstr[1] "... y %s más"
 
 #, python-format
 msgid "... and %s more records"
@@ -22226,8 +22242,8 @@ msgstr "... y otros %s"
 #, python-format
 msgid "... and %s other"
 msgid_plural "... and %s others"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "... y %s otro"
+msgstr[1] "... y %s otros"
 
 msgid "1 week starting Monday (freq=W-MON)"
 msgstr "1 semana con comienzo el lunes (frec. = W-MON)"
@@ -22245,12 +22261,14 @@ msgid ""
 "@import is blocked to prevent a dashboard from loading arbitrary remote "
 "CSS. Convert it to inline CSS to keep using it."
 msgstr ""
+"@import está bloqueado para evitar que un tablero cargue CSS remoto "
+"arbitrario. Conviértelo a CSS en línea para seguir usándolo."
 
 msgid "A Slack channel is required for Slack recipients"
-msgstr ""
+msgstr "Los destinatarios de Slack necesitan un canal de Slack"
 
 msgid "A TTL is required for ephemeral state."
-msgstr ""
+msgstr "El estado efímero necesita un TTL."
 
 msgid ""
 "A butterfly chart compares two metrics across categories using horizontal"
@@ -22289,9 +22307,13 @@ msgid ""
 " rather than its radius or sweep angle. Click a wedge to expand its time "
 "period into a full pie."
 msgstr ""
+"Un gráfico de coordenadas polares en el que el círculo se divide en "
+"sectores de igual ángulo y el valor de cada sector se representa por su "
+"área, no por su radio ni por su ángulo. Haz clic en un sector para "
+"expandir su periodo de tiempo a un gráfico circular completo."
 
 msgid "A rule with this name already exists."
-msgstr ""
+msgstr "Ya existe una regla con este nombre."
 
 # Machine-translated via backfill_po.py (claude-sonnet-4-6) [refs: ja]
 #, fuzzy, python-format
@@ -22318,7 +22340,7 @@ msgstr ""
 "de tabla diferente."
 
 msgid "A timeout occurred while generating an Excel file."
-msgstr ""
+msgstr "Se agotó el tiempo al generar el archivo de Excel."
 
 msgid "API Key Created"
 msgstr "Clave API creada"
@@ -22363,16 +22385,20 @@ msgid ""
 "will separate values into multiple entries. To include a comma within a "
 "value, wrap it in double quotes: \"San Francisco, CA\""
 msgstr ""
+"Añade las columnas por las que filtrar. Al escribir o pegar valores de "
+"filtro, las comas separan los valores en varias entradas. Para incluir "
+"una coma dentro de un valor, enciérralo entre comillas dobles: \"San "
+"Francisco, CA\""
 
 #, fuzzy
 msgid "Add numbered column"
 msgstr " para añadir columnas calculadas"
 
 msgid "Add service credentials"
-msgstr ""
+msgstr "Añadir credenciales de servicio"
 
 msgid "Add to favorites"
-msgstr ""
+msgstr "Añadir a favoritos"
 
 #, python-format
 msgid "Added %s '%s'"
@@ -22397,16 +22423,16 @@ msgid "Added filter on '%s'"
 msgstr "Se agregó un filtro en «%s»"
 
 msgid "Adhoc metric SQL expression is invalid"
-msgstr ""
+msgstr "La expresión SQL de la métrica ad hoc no es válida"
 
 msgid "Adhoc metric aggregate is invalid"
-msgstr ""
+msgstr "El agregado de la métrica ad hoc no es válido"
 
 msgid "Affected Datasets"
-msgstr ""
+msgstr "Conjuntos de datos afectados"
 
 msgid "Affected semantic views"
-msgstr ""
+msgstr "Vistas semánticas afectadas"
 
 msgid "Aggregate Mean"
 msgstr "Media agregada"
@@ -22422,19 +22448,28 @@ msgid ""
 " sums the counted column instead, which fails outright on a non-numeric "
 "column."
 msgstr ""
+"Agregación que se usa en la fila de resumen. De forma predeterminada cada "
+"métrica conserva su propia agregación; Suma y Promedio la sustituyen solo "
+"en la fila de resumen. La sustitución se aplica a las métricas simples "
+"(una métrica creada con SQL personalizado conserva siempre su "
+"agregación). Al sustituir un recuento o un recuento distinto, se suma la "
+"columna contada, lo que falla si la columna no es numérica."
 
 msgid "Alert query failed the authorization check"
 msgstr ""
+"La consulta de la alerta no ha superado la comprobación de autorización"
 
 msgid "Alert query must be a single statement"
-msgstr ""
+msgstr "La consulta de la alerta debe ser una única sentencia"
 
 msgid "Alert query must be read-only"
-msgstr ""
+msgstr "La consulta de la alerta debe ser de solo lectura"
 
 #, python-format
 msgid "Alert query must not contain the file-transfer command(s): %(commands)s"
 msgstr ""
+"La consulta de la alerta no debe contener comandos de transferencia de "
+"archivos: %(commands)s"
 
 #, fuzzy
 msgid "Align +/- for all columns"
@@ -22451,6 +22486,8 @@ msgstr "Ya estás en esta versión"
 
 msgid "Also overwrite all assets (charts, datasets and databases)"
 msgstr ""
+"Sobrescribir también todos los recursos (gráficos, conjuntos de datos y "
+"bases de datos)"
 
 msgid "An error occurred while adding semantic views"
 msgstr "Se ha producido un error al añadir las vistas semánticas"
@@ -22518,6 +22555,8 @@ msgstr "Se ha producido un error al recuperar los valores de editores: %s"
 #, python-format
 msgid "An error occurred while fetching row level security subject values: %s"
 msgstr ""
+"Se ha producido un error al obtener los valores del sujeto de la "
+"seguridad a nivel de fila: %s"
 
 msgid "An error occurred while fetching semantic layer types"
 msgstr "Se ha producido un error al recuperar los tipos de capa semántica"
@@ -22527,13 +22566,13 @@ msgstr "Se ha producido un error al recuperar las capas semánticas"
 
 #, python-format
 msgid "An error occurred while fetching task types: %s"
-msgstr ""
+msgstr "Se ha producido un error al obtener los tipos de tarea: %s"
 
 msgid "An error occurred while fetching the configuration schema"
 msgstr "Se ha producido un error al recuperar el esquema de configuración"
 
 msgid "An error occurred while fetching the data."
-msgstr ""
+msgstr "Se ha producido un error al obtener los datos."
 
 msgid "An error occurred while fetching the runtime schema"
 msgstr "Se ha producido un error al recuperar el esquema de ejecución"
@@ -22548,6 +22587,8 @@ msgid ""
 "An error occurred while generating the file. Please try again, or contact"
 " your administrator if the problem persists."
 msgstr ""
+"Se ha producido un error al generar el archivo. Inténtalo de nuevo o "
+"ponte en contacto con tu administrador si el problema continúa."
 
 # Machine-translated via backfill_po.py (claude-sonnet-4-6) [refs: ja]
 #, fuzzy
@@ -22563,18 +22604,19 @@ msgstr "Se ha producido un error al actualizar el esquema de configuración"
 
 msgid "An error occurred while refreshing the runtime schema"
 msgstr ""
+"Se ha producido un error al actualizar el esquema en tiempo de ejecución"
 
 msgid "An error occurred while saving the semantic view"
 msgstr "Se ha producido un error al guardar la vista semántica"
 
 msgid "An error occurred while triggering the report"
-msgstr ""
+msgstr "Se ha producido un error al ejecutar el informe"
 
 msgid "An error occurred while updating the semantic layer"
 msgstr "Se ha producido un error al actualizar la capa semántica"
 
 msgid "An export for this dashboard is already in progress."
-msgstr ""
+msgstr "Ya hay una exportación de este tablero en curso."
 
 msgid ""
 "Angle at which the first slice begins, in degrees. 90° starts at the top,"
@@ -22583,10 +22625,12 @@ msgstr "Ángulo en el que empieza la primera rebanada, en grados. 90° empieza a
 
 #, python-format
 msgid "Annotation layer with ID %(layer_id)s was not found"
-msgstr ""
+msgstr "No se ha encontrado la capa de anotaciones con ID %(layer_id)s"
 
 msgid "Another save is in progress for this dataset. Retry the same request."
 msgstr ""
+"Hay otro guardado en curso para este conjunto de datos. Repite la misma "
+"solicitud."
 
 #, python-format
 msgid "Applied '%s' metric"
@@ -22596,32 +22640,34 @@ msgid "Applied a metric"
 msgstr "Se aplicó una métrica"
 
 msgid "Archive"
-msgstr ""
+msgstr "Archivar"
 
 #, python-format
 msgid "Archive %(name)s?"
-msgstr ""
+msgstr "¿Archivar %(name)s?"
 
 #, python-format
 msgid "Archive selected %s?"
-msgstr ""
+msgstr "¿Archivar los %s seleccionados?"
 
 msgid "Archive selected charts?"
-msgstr ""
+msgstr "¿Archivar los gráficos seleccionados?"
 
 msgid "Archive selected dashboards?"
-msgstr ""
+msgstr "¿Archivar los tableros seleccionados?"
 
 msgid "Archived"
 msgstr "Eliminado"
 
 #, python-format
 msgid "Archived %s item(s)"
-msgstr ""
+msgstr "Se han archivado %s elemento(s)"
 
 #, python-format
 msgid "Archived %s item(s); permanently deleted %s semantic view(s)"
 msgstr ""
+"Se han archivado %s elemento(s); se han eliminado definitivamente %s "
+"vista(s) semántica(s)"
 
 msgid "Archived by"
 msgstr "Eliminado por"
@@ -22637,9 +22683,11 @@ msgid ""
 "Archiving or deleting this chart will be blocked while the following "
 "alerts or reports use it. Detach or delete them first."
 msgstr ""
+"No se podrá archivar ni eliminar este gráfico mientras lo usen las "
+"siguientes alertas o informes. Desvincúlalos o elimínalos antes."
 
 msgid "Are you sure you want to delete the selected queries?"
-msgstr ""
+msgstr "¿Seguro que quieres eliminar las consultas seleccionadas?"
 
 msgid ""
 "Are you sure you want to revoke this API key? This action cannot be "
@@ -22649,10 +22697,11 @@ msgstr ""
 "deshacer."
 
 msgid "Associated alerts and reports"
-msgstr ""
+msgstr "Alertas e informes asociados"
 
 msgid "Automatically retry sending the report when delivery fails."
 msgstr ""
+"Reintenta automáticamente el envío del informe cuando falla la entrega."
 
 msgid "Axis ticks"
 msgstr "Marcas de los ejes"
@@ -22675,7 +22724,7 @@ msgid "Base layer map style. See MapLibre documentation: %s"
 msgstr "Estilo del mapa de la capa base. Consulta la documentación de Mapbox: %s"
 
 msgid "Bound unit"
-msgstr ""
+msgstr "Unidad del límite"
 
 #, fuzzy
 msgid "Breakpoint Metric"
@@ -22686,7 +22735,7 @@ msgstr "Gráfico de mariposa"
 
 #, python-format
 msgid "Calculated column template error: %(msg)s"
-msgstr ""
+msgstr "Error en la plantilla de la columna calculada: %(msg)s"
 
 #, python-brace-format
 msgid ""
@@ -22699,10 +22748,10 @@ msgid ""
 msgstr ""
 
 msgid "Center value should be greater than min bound"
-msgstr ""
+msgstr "El valor central debe ser mayor que el límite mínimo"
 
 msgid "Center value should be smaller than max bound"
-msgstr ""
+msgstr "El valor central debe ser menor que el límite máximo"
 
 #, python-format
 msgid "Changed %s '%s'"
@@ -22758,10 +22807,13 @@ msgid ""
 "dataset, which may break any existing charts and dashboard filters that "
 "reference the current column names."
 msgstr ""
+"Cambiar este ajuste puede modificar las mayúsculas y minúsculas de todas "
+"las columnas de este conjunto de datos, lo que puede romper los gráficos "
+"y los filtros de tablero que hagan referencia a los nombres actuales."
 
 #, python-format
 msgid "Chart \"%(chart)s\" is used by alerts or reports: %(names)s."
-msgstr ""
+msgstr "El gráfico «%(chart)s» lo usan alertas o informes: %(names)s."
 
 # Machine-translated via backfill_po.py (claude-sonnet-4-6) [refs: de, sr,
 # sr_Latn]
@@ -22781,7 +22833,7 @@ msgid "Chart could not be restored."
 msgstr "No se pudo restaurar el gráfico."
 
 msgid "Chart description"
-msgstr ""
+msgstr "Descripción del gráfico"
 
 msgid "Chart editors"
 msgstr "Editores del gráfico"
@@ -22811,7 +22863,11 @@ msgid_plural ""
 "Charts built on the %s selected semantic views are not checked and will "
 "break if they are deleted."
 msgstr[0] ""
+"Los gráficos creados sobre %s vista semántica seleccionada no se "
+"comprueban y dejarán de funcionar si se elimina."
 msgstr[1] ""
+"Los gráficos creados sobre las %s vistas semánticas seleccionadas no se "
+"comprueban y dejarán de funcionar si se eliminan."
 
 msgid "Check to force date partitions to have the same height"
 msgstr "Marca para forzar que las particiones de fecha tengan la misma altura"
@@ -22820,7 +22876,7 @@ msgid "Checking charts and dashboards that use this dataset…"
 msgstr "Revisando los gráficos y tableros que usan este conjunto de datos…"
 
 msgid "Checking for affected charts and dashboards…"
-msgstr ""
+msgstr "Comprobando los gráficos y tableros afectados…"
 
 #, python-format
 msgid "Choose a %s"
@@ -22834,7 +22890,7 @@ msgid "Clear %s filter"
 msgstr "Borrar el filtro %s"
 
 msgid "Clear search"
-msgstr ""
+msgstr "Borrar la búsqueda"
 
 #, python-format
 msgid "Cleared '%s'"
@@ -22850,13 +22906,13 @@ msgid "Close version history"
 msgstr "Cerrar el historial de versiones"
 
 msgid "Collapse Datasource panel"
-msgstr ""
+msgstr "Contraer el panel del origen de datos"
 
 msgid "Color Range End"
-msgstr ""
+msgstr "Fin del rango de color"
 
 msgid "Color Range Start"
-msgstr ""
+msgstr "Inicio del rango de color"
 
 # Machine-translated via backfill_po.py (claude-sonnet-4-6) [refs: de, sr,
 # sr_Latn]
@@ -22871,33 +22927,42 @@ msgid "Color for bars on the right side of the chart"
 msgstr "Color de las barras del lado derecho"
 
 msgid "Column max"
-msgstr ""
+msgstr "Máximo de la columna"
 
 msgid "Column settings"
-msgstr ""
+msgstr "Ajustes de la columna"
 
 msgid "Column sum"
-msgstr ""
+msgstr "Suma de la columna"
 
 msgid ""
 "Comma-separated numeric thresholds to shade as background ranges, e.g. "
 "100,200,300"
 msgstr ""
+"Umbrales numéricos separados por comas que se sombrean como rangos de "
+"fondo, p. ej. 100,200,300"
 
 msgid "Comma-separated numeric values to mark with triangles, e.g. 150,250"
 msgstr ""
+"Valores numéricos separados por comas que se marcan con triángulos, p. "
+"ej. 150,250"
 
 msgid "Comma-separated numeric values to mark with vertical lines, e.g. 250"
 msgstr ""
+"Valores numéricos separados por comas que se marcan con líneas "
+"verticales, p. ej. 250"
 
 msgid "Comma-separated text labels, one per marker line value"
 msgstr ""
+"Etiquetas de texto separadas por comas, una por cada valor de línea de "
+"marcador"
 
 msgid "Comma-separated text labels, one per marker value"
 msgstr ""
+"Etiquetas de texto separadas por comas, una por cada valor de marcador"
 
 msgid "Comma-separated text labels, one per range value"
-msgstr ""
+msgstr "Etiquetas de texto separadas por comas, una por cada valor de rango"
 
 # Machine-translated via backfill_po.py (claude-sonnet-4-6) [refs: ja]
 #, fuzzy
@@ -22928,6 +22993,9 @@ msgid ""
 "overlaying them on a shared time axis. The current period is drawn boldly"
 " while prior periods fade with age."
 msgstr ""
+"Compara el periodo actual con periodos anteriores equivalentes "
+"superponiéndolos en un eje de tiempo común. El periodo actual se dibuja "
+"en grueso y los anteriores se desvanecen cuanto más antiguos son."
 
 #, python-format
 msgid "Configure %s"
@@ -22935,15 +23003,16 @@ msgstr "Configurar %s"
 
 msgid "Configure retry behavior on delivery failure."
 msgstr ""
+"Configura el comportamiento de los reintentos cuando falla la entrega."
 
 msgid "Connection looks good!"
-msgstr ""
+msgstr "¡La conexión parece correcta!"
 
 msgid "Contains all"
-msgstr ""
+msgstr "Contiene todos"
 
 msgid "Contains any"
-msgstr ""
+msgstr "Contiene alguno"
 
 # Machine-translated via backfill_po.py (claude-sonnet-4-6) [refs: de, sr,
 # sr_Latn]
@@ -22953,15 +23022,19 @@ msgstr "Contiene texto (ILIKE %x%)"
 
 msgid "Control whether this dashboard loads chart data asynchronously"
 msgstr ""
+"Controla si este tablero carga los datos de los gráficos de forma "
+"asíncrona"
 
 msgid "Convert @import to inline CSS"
-msgstr ""
+msgstr "Convertir @import a CSS en línea"
 
 #, python-format
 msgid ""
 "Converted %s @import rule(s) to inline CSS. Review the result before "
 "saving."
 msgstr ""
+"Se han convertido %s regla(s) @import a CSS en línea. Revisa el resultado "
+"antes de guardar."
 
 # Machine-translated via backfill_po.py (claude-sonnet-4-6) [refs: lv]
 #, fuzzy
@@ -22969,19 +23042,23 @@ msgid "Copy query"
 msgstr "Copiar consulta"
 
 msgid "Copy query URL"
-msgstr ""
+msgstr "Copiar la URL de la consulta"
 
 #, python-format
 msgid ""
 "Could not automatically fetch: %s. This is often blocked by the remote "
 "server (CORS); copy its contents in manually instead."
 msgstr ""
+"No se ha podido obtener automáticamente: %s. El servidor remoto suele "
+"bloquearlo (CORS); copia su contenido manualmente."
 
 #, python-format
 msgid ""
 "Could not check which charts and dashboards depend on the selected %s. "
 "Deleting them may break charts and dashboards."
 msgstr ""
+"No se ha podido comprobar qué gráficos y tableros dependen de los %s "
+"seleccionados. Eliminarlos puede romper gráficos y tableros."
 
 #, python-format
 msgid "Could not find %s"
@@ -22996,17 +23073,25 @@ msgid ""
 "Could not load metadata for this configuration; showing the default form."
 " See the server logs for details."
 msgstr ""
+"No se han podido cargar los metadatos de esta configuración; se muestra "
+"el formulario predeterminado. Consulta los registros del servidor para "
+"más detalles."
 
 msgid ""
 "Could not parse the CSS to convert @import rules. Check for syntax errors"
 " and try again."
 msgstr ""
+"No se ha podido analizar el CSS para convertir las reglas @import. "
+"Comprueba si hay errores de sintaxis e inténtalo de nuevo."
 
 msgid ""
 "Could not resolve the user to impersonate on the database connection. The"
 " query was not run, because running it would have connected as the wrong "
 "user."
 msgstr ""
+"No se ha podido determinar el usuario que se debe suplantar en la "
+"conexión a la base de datos. La consulta no se ha ejecutado porque se "
+"habría conectado con un usuario equivocado."
 
 msgid "Create API Key"
 msgstr "Crear clave API"
@@ -23015,6 +23100,8 @@ msgid ""
 "Create a new tag and assign it to existing entities like charts or "
 "dashboards"
 msgstr ""
+"Crea una etiqueta nueva y asígnala a entidades existentes, como gráficos "
+"o tableros"
 
 #, python-format
 msgid "Created from version: %s"
