@@ -29,7 +29,7 @@ import {
   type DataMaskStateWithId,
   type Filter,
 } from '@superset-ui/core';
-import { getChartDataRequest } from 'src/components/Chart/chartAction';
+import { requestChartDataResolved } from 'src/components/Chart/chartAction';
 import { ElementTitle } from './ElementTitle';
 import { DateSlicerView, RangeSlicerView } from './RangeSlicerView';
 
@@ -38,7 +38,7 @@ const dataMaskOf = (store: { getState: () => unknown }, id: string) =>
 
 jest.mock('src/components/Chart/chartAction', () => ({
   ...jest.requireActual('src/components/Chart/chartAction'),
-  getChartDataRequest: jest.fn(),
+  requestChartDataResolved: jest.fn(),
 }));
 
 const filterOf = (id: string, filterType: string) =>
@@ -66,10 +66,9 @@ const renderWithStore = async (node: JSX.Element) => {
 };
 
 test('a range slicer filters between the two values typed', async () => {
-  (getChartDataRequest as jest.Mock).mockResolvedValue({
-    response: { status: 200 },
-    json: { result: [{ data: [{ min: 0, max: 100 }] }] },
-  });
+  (requestChartDataResolved as jest.Mock).mockResolvedValue([
+    { data: [{ min: 0, max: 100 }] },
+  ]);
   const filter = filterOf('NATIVE_FILTER-R', 'filter_range');
   const { store } = await renderWithStore(
     <RangeSlicerView
@@ -145,10 +144,9 @@ test('an element title only shows once it is turned on', () => {
 });
 
 test('leaving a range box without a change does not filter again', async () => {
-  (getChartDataRequest as jest.Mock).mockResolvedValue({
-    response: { status: 200 },
-    json: { result: [{ data: [{ min: 0, max: 100 }] }] },
-  });
+  (requestChartDataResolved as jest.Mock).mockResolvedValue([
+    { data: [{ min: 0, max: 100 }] },
+  ]);
   const filter = filterOf('NATIVE_FILTER-R2', 'filter_range');
   const { store } = await renderWithStore(
     <RangeSlicerView

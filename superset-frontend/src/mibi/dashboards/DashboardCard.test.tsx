@@ -80,6 +80,7 @@ test('shows the layout preview, title, date and status', () => {
 
 test('shows the layout preview until the screenshot is ready', async () => {
   jest.spyOn(window.URL, 'createObjectURL').mockReturnValue('blob:thumb');
+  window.URL.revokeObjectURL ??= jest.fn();
   fetchMock.get(
     'glob:*/thumb.png',
     new Response(new Blob(['png'], { type: 'image/png' }), {
