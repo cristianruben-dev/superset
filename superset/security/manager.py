@@ -84,6 +84,14 @@ from superset.exceptions import (
     DatasetInvalidPermissionEvaluationException,
     SupersetSecurityException,
 )
+from superset.security.guest_payload import (
+    collapse_column_reference,
+    decompose_stored_value,
+    EMBEDDED_CHART_PARAM,
+    embedded_chart_params,
+    STORED_COLUMN_PARAMS,
+    STORED_METRIC_PARAMS,
+)
 from superset.security.guest_token import (
     DEFAULT_GUEST_TOKEN_REVOCATION_VERSION,
     get_current_guest_token_revocation_version,
@@ -789,7 +797,10 @@ def _payload_value_identity(value: Any, *, is_metric: bool) -> str:
     """
     if is_metric:
         return freeze_value(value)
-    return freeze_value(_denormalize_base_axis_column(value))
+    # AuraData BI: an adhoc column that only names a physical column (its
+    # ``sqlExpression`` is its own label, as box plot sends its temporal column)
+    # also stands for that column. It still has to match a stored column.
+    return freeze_value(collapse_column_reference(_denormalize_base_axis_column(value)))
 
 
 def _datasource_matches(
@@ -1107,17 +1118,18 @@ def _collect_sortable_identifiers(
             column_config,
             is_metric=False,
         )
-    _add_visible_sort_targets(
-        allowed,
-        params.get("metrics"),
-        column_config,
-        is_metric=True,
-    )
-    # Legacy charts store a single metric under the singular ``metric`` key.
-    if params.get("metric") is not None:
+    # AuraData BI: every control that stores a metric the chart reads, not only
+    # ``metrics`` and the legacy singular ``metric``: the second query of mixed
+    # timeseries sorts by ``metrics_b``, deck.gl by a ``point_radius_fixed``
+    # metric, and so on. Hidden table columns stay excluded.
+    for key in _STORED_METRIC_PARAMS:
         _add_visible_sort_targets(
             allowed,
-            [params["metric"]],
+            [
+                part
+                for item in _ensure_list(params.get(key))
+                for part in decompose_stored_value(key, item)
+            ],
             column_config,
             is_metric=True,
         )
@@ -1574,54 +1586,41 @@ def _sql_filters_modified(
     return False
 
 
-#: Chart params keys that hold the metrics a chart renders. Different chart
-#: types store their metrics under control-specific keys (``metric`` for
-#: big number, ``x``/``y``/``size`` for bubble, and so on); a guest requesting
-#: the exact stored value reads nothing beyond what the chart already shows.
-_STORED_METRIC_PARAMS = (
-    "metrics",
-    "metric",
-    "percent_metrics",
-    "secondary_metric",
-    "series_limit_metric",
-    "timeseries_limit_metric",
-    "x",
-    "y",
-    "size",
-)
-
-#: Chart params keys that hold the columns/group-bys a chart renders, across
-#: the control names chart types use for them (``entity``/``series`` for
-#: bubble and world map, ``granularity_sqla`` for the temporal axis, etc.).
-_STORED_COLUMN_PARAMS = (
-    "columns",
-    "groupby",
-    "all_columns",
-    "entity",
-    "series",
-    "series_columns",
-    "x_axis",
-    "granularity_sqla",
-)
+#: Chart params keys that hold the metrics and the columns/group-bys a chart
+#: renders. Each chart type stores them under its own control names (``metric``
+#: for big number, ``x``/``y``/``size`` for bubble, ``tooltip_metrics`` for Gantt,
+#: ``metrics_b`` for the second query of mixed timeseries, ``spatial`` for
+#: deck.gl...); a guest requesting the exact stored value reads nothing beyond
+#: what the chart already shows. AuraData BI: the lists and the decomposition of
+#: nested values live in ``superset.security.guest_payload``.
+_STORED_METRIC_PARAMS = STORED_METRIC_PARAMS
+_STORED_COLUMN_PARAMS = STORED_COLUMN_PARAMS
 
 
-def _stored_param_values(params: dict[str, Any], keys: tuple[str, ...]) -> set[str]:
+def _stored_param_values(
+    params: dict[str, Any], keys: tuple[str, ...], *, is_metric: bool = False
+) -> set[str]:
     """
-    Frozen values stored under any of the given chart params keys.
+    Comparison identities of the values stored under any of the given chart
+    params keys.
 
     Scalar-valued controls (``metric``, ``entity``, ...) contribute their single
-    value; list-valued controls contribute each element. Matching stays exact
-    (via ``freeze_value``) — no label or expression equivalence is applied.
+    value; list-valued controls contribute each element, and nested values
+    (spatial configurations, deck.gl tooltips, fixed-or-metric controls,
+    ``order_by_cols`` pairs) the names they point at. A chart nested in
+    ``selected_chart`` is descended into, since its own metrics and columns are
+    what get queried. Matching stays exact (``_payload_value_identity``).
     """
     values: set[str] = set()
     for key in keys:
-        value = params.get(key)
-        if value is None or value == "":
-            continue
-        items = value if isinstance(value, (list, tuple)) else [value]
-        values.update(
-            freeze_value(item) for item in items if item is not None and item != ""
-        )
+        for item in _ensure_list(params.get(key)):
+            values.update(
+                _payload_value_identity(part, is_metric=is_metric)
+                for part in decompose_stored_value(key, item)
+                if part is not None and part != ""
+            )
+    if nested := embedded_chart_params(params.get(EMBEDDED_CHART_PARAM)):
+        values |= _stored_param_values(nested, keys, is_metric=is_metric)
     return values
 
 
@@ -1686,7 +1685,7 @@ def _columns_metrics_modified(
         # set already includes the temporal ``x_axis``; stored raw params never
         # carry the synthesized ``BASE_AXIS`` shape, so exact matching is right.
         stored_values = _stored_param_values(
-            stored_chart.params_dict, stored_params_keys
+            stored_chart.params_dict, stored_params_keys, is_metric=is_metric
         )
         if not requested_values.issubset(stored_values):
             return True
