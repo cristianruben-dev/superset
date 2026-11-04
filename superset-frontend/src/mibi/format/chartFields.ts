@@ -16,6 +16,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { isEqual } from 'lodash-es';
 import { SupersetClient } from '@superset-ui/core';
 import { t } from '@apache-superset/core/translation';
@@ -26,7 +28,7 @@ import {
 } from 'src/components/Chart/chartAction';
 import { addDangerToast } from 'src/components/MessageToasts/actions';
 import { setUnsavedChanges } from 'src/dashboard/actions/dashboardState';
-import type { GetState } from 'src/dashboard/types';
+import type { GetState, LayoutItem, RootState } from 'src/dashboard/types';
 import {
   isUserAdmin,
   isUserInSubjects,
@@ -36,7 +38,8 @@ import type { UserWithPermissionsAndRoles } from 'src/types/bootstrapTypes';
 import { fetchDashboardSlices } from 'src/mibi/dashboard/reloadSavedChart';
 import { buildV1ChartDataPayload } from 'src/explore/exploreUtils';
 import type { ChartState } from 'src/explore/types';
-import { resetChartFormat } from './chartFormatActions';
+import { DASHBOARD_ROOT_ID } from 'src/dashboard/util/constants';
+import { updateLayout } from './actions';
 import type { VisualFormat } from './types';
 
 type Dispatch = (action: unknown) => unknown;
@@ -173,6 +176,8 @@ export const hasPendingFields = (chartId?: number) =>
 /** Forgets the changes waiting, as leaving the editor without saving does. */
 export function clearPendingFields() {
   pending.clear();
+  steps.clear();
+  shownStep = 0;
 }
 
 const chartOf = (getState: GetState, chartId: number) =>
@@ -203,26 +208,48 @@ const applyFormData =
     }
   };
 
+/** Where a field step is counted: the root of the layout, so undo moves it. */
+const FIELD_STEP_KEY = 'mibiFieldStep';
+
 /**
- * Changes a field of a chart: it shows at once and waits for the report to be
- * saved. A value the layout also holds moves here, or the layout would hide it.
+ * One change of the fields of a chart, as undo and redo need it: the values of
+ * the keys it changed before and after, and whether the chart could draw itself.
  */
-export const setChartFieldValue =
-  ({
-    id,
-    chartId,
-    name,
-    value,
-    ask,
-    invalid,
-  }: {
-    id: string;
-    chartId: number;
-    name: string;
-    value: unknown;
-    ask: 'query' | 'render';
-    invalid: boolean;
-  }) =>
+type FieldStep = {
+  id: string;
+  chartId: number;
+  before: FormData;
+  after: FormData;
+  invalidBefore: boolean;
+  invalidAfter: boolean;
+};
+
+/**
+ * Field changes by step. The layout only holds the number of the last step, so
+ * undoing the layout moves through these and fields never live in the layout.
+ */
+const steps = new Map<number, FieldStep>();
+/** The step the charts show; undo and redo move the layout away from it. */
+let shownStep = 0;
+
+const stepOf = (getState: GetState) =>
+  Number(
+    getState().dashboardLayout.present[DASHBOARD_ROOT_ID]?.meta?.[
+      FIELD_STEP_KEY
+    ] ?? 0,
+  );
+
+/**
+ * Shows some field values on a chart and keeps them waiting for the report to
+ * be saved, without recording anything for undo.
+ */
+const applyFieldValues =
+  (
+    chartId: number,
+    values: FormData,
+    ask: 'query' | 'render',
+    invalid: boolean,
+  ) =>
   (dispatch: Dispatch, getState: GetState) => {
     const chart = chartOf(getState, chartId);
     if (!chart) return;
@@ -233,36 +260,180 @@ export const setChartFieldValue =
       invalid,
     };
     const changes = { ...entry.changes };
-    if (isEqual(value, entry.saved[name])) delete changes[name];
-    else changes[name] = value;
+    Object.entries(values).forEach(([name, value]) => {
+      if (isEqual(value, entry.saved[name])) delete changes[name];
+      else changes[name] = value;
+    });
     if (Object.keys(changes).length) {
       pending.set(chartId, { ...entry, changes, invalid });
     } else {
       pending.delete(chartId);
     }
-    const own = getState().dashboardLayout.present[id]?.meta?.mibiFormat as
-      | VisualFormat
-      | undefined;
-    if (own?.chart && name in own.chart) {
-      dispatch(resetChartFormat(id, [name]));
-    }
     dispatch(
-      applyFormData(
-        chartId,
-        { ...current, [name]: value },
-        invalid ? 'none' : ask,
-      ),
+      applyFormData(chartId, { ...current, ...values }, invalid ? 'none' : ask),
     );
     dispatch(setUnsavedChanges(true));
   };
 
-/** Puts the fields of a chart back as they were saved. */
-export const revertChartFields = (chartId: number) => (dispatch: Dispatch) => {
-  const entry = pending.get(chartId);
-  if (!entry) return;
-  pending.delete(chartId);
-  dispatch(applyFormData(chartId, entry.saved, 'query'));
-};
+/**
+ * Records a change of the fields of a chart as one undo step and shows it. The
+ * layout gets the number of the step and, in the same write, loses the keys its
+ * format held for those fields, so one undo puts both back.
+ */
+const recordFieldStep =
+  (
+    step: Omit<FieldStep, 'before' | 'invalidBefore'>,
+    ask: 'query' | 'render',
+  ) =>
+  (dispatch: Dispatch, getState: GetState) => {
+    const chart = chartOf(getState, step.chartId);
+    if (!chart) return;
+    const current = (chart as unknown as { form_data: FormData }).form_data;
+    const before = Object.fromEntries(
+      Object.keys(step.after).map(name => [name, current[name]]),
+    );
+    const number = Math.max(stepOf(getState), shownStep) + 1;
+    // A change after undoing drops the steps that could be redone
+    [...steps.keys()]
+      .filter(key => key >= number)
+      .forEach(key => steps.delete(key));
+    steps.set(number, {
+      ...step,
+      before,
+      invalidBefore: pending.get(step.chartId)?.invalid ?? false,
+    });
+    shownStep = number;
+
+    const layout = getState().dashboardLayout.present;
+    const root = layout[DASHBOARD_ROOT_ID];
+    if (!root) {
+      // A layout that has not loaded has no history to undo
+      dispatch(
+        applyFieldValues(step.chartId, step.after, ask, step.invalidAfter),
+      );
+      return;
+    }
+    const next: Record<string, LayoutItem> = {
+      [DASHBOARD_ROOT_ID]: {
+        ...root,
+        meta: { ...root.meta, [FIELD_STEP_KEY]: number },
+      },
+    };
+    const item = layout[step.id];
+    const own = item?.meta?.mibiFormat as VisualFormat | undefined;
+    const moved = Object.keys(step.after).filter(
+      name => own?.chart && name in own.chart,
+    );
+    if (item && own?.chart && moved.length) {
+      const ownChart = { ...own.chart };
+      moved.forEach(name => delete ownChart[name]);
+      next[step.id] = {
+        ...item,
+        meta: { ...item.meta, mibiFormat: { ...own, chart: ownChart } },
+      };
+    }
+    dispatch(updateLayout(next, `fields:${number}`) as never);
+    dispatch(
+      applyFieldValues(step.chartId, step.after, ask, step.invalidAfter),
+    );
+  };
+
+/**
+ * Follows undo and redo of the layout: when its field step moves, the charts
+ * get the field values of the steps it went back or forward through.
+ */
+export const followFieldSteps =
+  () => (dispatch: Dispatch, getState: GetState) => {
+    const target = stepOf(getState);
+    if (target === shownStep) return;
+    if (target < shownStep) {
+      for (let number = shownStep; number > target; number -= 1) {
+        const step = steps.get(number);
+        if (step)
+          dispatch(
+            applyFieldValues(
+              step.chartId,
+              step.before,
+              'query',
+              step.invalidBefore,
+            ),
+          );
+      }
+    } else {
+      for (let number = shownStep + 1; number <= target; number += 1) {
+        const step = steps.get(number);
+        if (step)
+          dispatch(
+            applyFieldValues(
+              step.chartId,
+              step.after,
+              'query',
+              step.invalidAfter,
+            ),
+          );
+      }
+    }
+    shownStep = target;
+  };
+
+/** Keeps the charts in step with undo and redo while the report is edited. */
+export function useFollowFieldSteps() {
+  const dispatch = useDispatch();
+  const step = useSelector(
+    (state: RootState) =>
+      state.dashboardLayout.present[DASHBOARD_ROOT_ID]?.meta?.[FIELD_STEP_KEY],
+  );
+  useEffect(() => {
+    dispatch(followFieldSteps() as never);
+  }, [dispatch, step]);
+}
+
+/**
+ * Changes a field of a chart: it shows at once, waits for the report to be
+ * saved and undoes as one step. A value the layout also holds moves here, or the
+ * layout would hide it.
+ */
+export const setChartFieldValue = ({
+  id,
+  chartId,
+  name,
+  value,
+  ask,
+  invalid,
+}: {
+  id: string;
+  chartId: number;
+  name: string;
+  value: unknown;
+  ask: 'query' | 'render';
+  invalid: boolean;
+}) =>
+  recordFieldStep(
+    { id, chartId, after: { [name]: value }, invalidAfter: invalid },
+    ask,
+  );
+
+/** Puts the fields of a chart back as they were saved, as one undo step. */
+export const revertChartFields =
+  (chartId: number, id?: string) => (dispatch: Dispatch) => {
+    const entry = pending.get(chartId);
+    if (!entry) return;
+    const saved = Object.fromEntries(
+      Object.keys(entry.changes).map(name => [name, entry.saved[name]]),
+    );
+    if (id) {
+      dispatch(
+        recordFieldStep(
+          { id, chartId, after: saved, invalidAfter: false },
+          'query',
+        ),
+      );
+      return;
+    }
+    // A save the server refused: the chart goes back and nothing is undone
+    pending.delete(chartId);
+    dispatch(applyFormData(chartId, entry.saved, 'query'));
+  };
 
 async function saveChart(chartId: number, changes: FormData) {
   const { json } = await SupersetClient.get({

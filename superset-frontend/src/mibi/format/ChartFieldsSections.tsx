@@ -308,14 +308,14 @@ export function ChartFieldsSections({
           <>
             <Hint>
               {t(
-                'Fields are saved with the report. Undo does not change them: use the button below.',
+                'Fields are saved with the report. Undo takes back each change; the button below takes back all of them.',
               )}
             </Hint>
             <Button
               buttonSize="small"
               buttonStyle="link"
               data-test="mibi-chart-fields-reset"
-              onClick={() => dispatch(revertChartFields(chartId) as never)}
+              onClick={() => dispatch(revertChartFields(chartId, id) as never)}
             >
               {t('Back to the saved fields')}
             </Button>

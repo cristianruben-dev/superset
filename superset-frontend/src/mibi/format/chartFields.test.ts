@@ -16,12 +16,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import { ActionCreators as UndoActionCreators } from 'redux-undo';
 import { SupersetClient } from '@superset-ui/core';
+import { createStore } from 'spec/helpers/testing-library';
+import reducerIndex from 'spec/helpers/reducerIndex';
+import { DASHBOARD_ROOT_ID } from 'src/dashboard/util/constants';
 import getBootstrapData from 'src/utils/getBootstrapData';
 import {
   canChangeFields,
   clearPendingFields,
   fieldRole,
+  followFieldSteps,
   hasPendingFields,
   isFieldWell,
   revertChartFields,
@@ -240,4 +245,65 @@ test('names the fields of a butterfly chart by their side', () => {
   expect(fieldRole(butterfly, 'right_metric')).toBe('Right values');
   expect(isFieldWell(butterfly, 'left_metric', 'MetricsControl')).toBe(true);
   expect(isFieldWell(butterfly, 'order_desc', 'CheckboxControl')).toBe(false);
+});
+
+test('undo and redo move through the field changes', () => {
+  const store = createStore(
+    {
+      charts: {
+        3: { id: 3, form_data: { viz_type: 'pie', groupby: ['a'] } },
+      },
+      dashboardState: { hasUnsavedChanges: false },
+      dashboardLayout: {
+        past: [],
+        future: [],
+        present: {
+          [DASHBOARD_ROOT_ID]: {
+            id: DASHBOARD_ROOT_ID,
+            type: 'ROOT',
+            meta: {},
+          },
+          'CHART-1': {
+            id: 'CHART-1',
+            type: 'CHART',
+            meta: { chartId: 3, mibiFormat: { chart: { groupby: ['x'] } } },
+          },
+        },
+      },
+    },
+    reducerIndex,
+  );
+  const dispatch = store.dispatch as (action: unknown) => unknown;
+  const groupby = () => (store.getState() as any).charts[3].form_data.groupby;
+  const own = () =>
+    (store.getState() as any).dashboardLayout.present['CHART-1'].meta.mibiFormat
+      .chart;
+  dispatch(change(['b']));
+  dispatch(change(['c']));
+  expect(groupby()).toEqual(['c']);
+  expect(own()).toEqual({});
+
+  dispatch(UndoActionCreators.undo());
+  dispatch(followFieldSteps());
+  expect(groupby()).toEqual(['b']);
+
+  dispatch(UndoActionCreators.undo());
+  dispatch(followFieldSteps());
+  expect(groupby()).toEqual(['a']);
+  // The format key the first change moved out comes back with it
+  expect(own()).toEqual({ groupby: ['x'] });
+  expect(hasPendingFields(3)).toBe(false);
+
+  dispatch(UndoActionCreators.redo());
+  dispatch(UndoActionCreators.redo());
+  dispatch(followFieldSteps());
+  expect(groupby()).toEqual(['c']);
+  expect(hasPendingFields(3)).toBe(true);
+
+  // Going back to the saved fields is one more step, which undo takes back
+  dispatch(revertChartFields(3, 'CHART-1'));
+  expect(groupby()).toEqual(['a']);
+  dispatch(UndoActionCreators.undo());
+  dispatch(followFieldSteps());
+  expect(groupby()).toEqual(['c']);
 });

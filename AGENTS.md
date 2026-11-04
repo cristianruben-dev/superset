@@ -321,7 +321,7 @@ Formats are stored in `position_json`, so they save, undo and export with the da
 - The Fields level of the pane (`mibi/format/ChartFieldsSections.tsx`) draws the query controls of a chart with Explore's
   `Control`; `chartFields.ts` names them by role. Fields are chart settings, never layout ones: a change previews through the
   chart's form data and `saveChartFields` writes it to the chart, with a new `query_context`, when the report saves. A key the
-  layout holds moves out of it. Tooltip fields and small multiples stay in the layout. `mibi/format/DataPane.tsx` is the Data pane.
+  layout holds moves out of it. Tooltip fields and small multiples stay in the layout. Undo follows them: each field change is a step whose number goes in `ROOT_ID.meta.mibiFieldStep` while its values stay in memory (`followFieldSteps`, mounted by `BuilderComponentPane`), so the layout never holds fields. `mibi/format/DataPane.tsx` is the Data pane.
 - There are no saved format themes: each dashboard is formatted on its own.
 
 ### Superset 7.0 under the fork

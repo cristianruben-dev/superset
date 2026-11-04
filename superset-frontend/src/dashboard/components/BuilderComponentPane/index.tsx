@@ -17,7 +17,10 @@
  * under the License.
  */
 /* eslint-env browser */
-import { clearPendingFields } from 'src/mibi/format/chartFields';
+import {
+  clearPendingFields,
+  useFollowFieldSteps,
+} from 'src/mibi/format/chartFields';
 import { useCallback, useEffect, type ReactNode } from 'react';
 import tinycolor from 'tinycolor2';
 import Tabs from '@superset-ui/core/components/Tabs';
@@ -101,6 +104,7 @@ const BuilderComponentPane = ({ topOffset = 0, pageTop = 0 }) => {
     [],
   );
   useObjectShortcuts();
+  useFollowFieldSteps();
 
   return (
     <div
