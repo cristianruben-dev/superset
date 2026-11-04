@@ -16,17 +16,22 @@
 # under the License.
 """
 The HTTP-reachable dashboard import dispatcher must never fall through to
-the legacy v0 importer, which instantiates models from attacker-controlled
-JSON pre-validation and overrides remote_id-matched charts/dashboards
-without any ownership check. Legacy JSON files remain importable via the
-dedicated `legacy_import_dashboards` CLI command, which uses the v0
-command directly.
+the legacy v0 importer, which instantiated models from attacker-controlled
+JSON pre-validation. The fork removed the v0 format altogether (a84d21f228),
+so the importer module must stay gone and the dispatcher must only list the
+versioned (v1) command.
 """
+
+import importlib
+
+import pytest
 
 
 def test_dashboard_import_dispatcher_excludes_v0() -> None:
-    """POST /api/v1/dashboard/import/ must not dispatch to the v0 importer."""
-    from superset.commands.dashboard.importers import v0
+    """POST /api/v1/dashboard/import/ only dispatches to the v1 importer."""
     from superset.commands.dashboard.importers.dispatcher import command_versions
+    from superset.commands.dashboard.importers.v1 import ImportDashboardsCommand
 
-    assert v0.ImportDashboardsCommand not in command_versions
+    assert command_versions == [ImportDashboardsCommand]
+    with pytest.raises(ModuleNotFoundError):
+        importlib.import_module("superset.commands.dashboard.importers.v0")

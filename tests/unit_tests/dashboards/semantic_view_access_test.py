@@ -40,6 +40,7 @@ from typing import cast, Iterator, TYPE_CHECKING
 from unittest.mock import MagicMock, patch
 
 import pytest
+from flask import current_app
 from sqlalchemy.orm.session import Session
 
 if TYPE_CHECKING:
@@ -49,6 +50,16 @@ if TYPE_CHECKING:
 VIEW_PERM = "[test_layer].[test_view](id:1)"
 VIEW2_PERM = "[test_layer].[test_view_2](id:2)"
 TABLE_PERM = "[examples].[birth_names](id:1)"
+
+
+@pytest.fixture(autouse=True)
+def _without_workspace_rules(app_context: None) -> None:
+    """
+    These tests cover the semantic-layer rules of Superset. The workspace gate of
+    AuraData BI has its own tests (tests/unit_tests/mibi) and reads the database,
+    which these mocked dashboards do not have.
+    """
+    current_app.config["MIBI_WORKSPACE_ACCESS"] = False
 
 
 @pytest.fixture
@@ -494,12 +505,22 @@ def test_gate_denies_unpublished_dashboard_despite_datasource_grant(
     # pylint: disable=import-outside-toplevel
     from superset.exceptions import SupersetSecurityException
     from superset.models.dashboard import Dashboard
+    from superset.models.slice import Slice
 
+    # A chart belongs to one dashboard, so this one gets a chart of its own on
+    # the same table
+    own_slice = Slice(
+        slice_name="unpublished table chart",
+        datasource_id=access_fixtures.table.id,
+        datasource_type="table",
+        datasource_name="birth_names",
+        viz_type="table",
+    )
     unpublished_regular: Dashboard = Dashboard(
         dashboard_title="unpublished regular",
         slug="unpublished-regular",
         published=False,
-        slices=[access_fixtures.table_slice],
+        slices=[own_slice],
     )
     access_fixtures.session.add(unpublished_regular)
     access_fixtures.session.flush()
