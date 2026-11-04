@@ -308,7 +308,9 @@ describe('VizTypeControl', () => {
     ).not.toBeInTheDocument();
   });
 
-  test('anchors the Featured badge to the bottom-right of the thumbnail image', async () => {
+  // The gallery of the fork draws its own tiles, without the Featured badge of
+  // 7.0 (phase 4 decides whether to adopt it)
+  test.skip('anchors the Featured badge to the bottom-right of the thumbnail image', async () => {
     // The badge is positioned relative to the thumbnail image only (not the
     // whole tile), so it must hang off the image's bottom-right corner
     // rather than its top edge.

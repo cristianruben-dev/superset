@@ -908,10 +908,7 @@ describe('DashboardBuilder', () => {
     });
     try {
       const { getByTestId } = setup();
-      expect(getByTestId('dashboard-filters-panel')).not.toHaveStyleRule(
-        'display',
-        'none',
-      );
+      expect(getByTestId('mock-filter-bar')).toBeInTheDocument();
     } finally {
       window.history.replaceState({}, '', originalHref);
     }
@@ -929,11 +926,9 @@ describe('DashboardBuilder', () => {
       hasFilters: true,
     });
     try {
-      const { getByTestId } = setup();
-      expect(getByTestId('dashboard-filters-panel')).toHaveStyleRule(
-        'display',
-        'none',
-      );
+      // The report has its pane docked beside the page: hidden is not drawn
+      const { queryByTestId } = setup();
+      expect(queryByTestId('mock-filter-bar')).not.toBeInTheDocument();
     } finally {
       window.history.replaceState({}, '', originalHref);
     }
@@ -956,10 +951,7 @@ describe('DashboardBuilder', () => {
     });
     try {
       const { getByTestId } = setup();
-      expect(getByTestId('dashboard-filters-panel')).not.toHaveStyleRule(
-        'display',
-        'none',
-      );
+      expect(getByTestId('mock-filter-bar')).toBeInTheDocument();
     } finally {
       window.history.replaceState({}, '', originalHref);
     }
@@ -977,11 +969,9 @@ describe('DashboardBuilder', () => {
       hasFilters: true,
     });
     try {
-      const { getByTestId } = setup();
-      expect(getByTestId('dashboard-filters-panel')).toHaveStyleRule(
-        'display',
-        'none',
-      );
+      // The report has its pane docked beside the page: hidden is not drawn
+      const { queryByTestId } = setup();
+      expect(queryByTestId('mock-filter-bar')).not.toBeInTheDocument();
     } finally {
       window.history.replaceState({}, '', originalHref);
     }
@@ -1313,7 +1303,7 @@ test('does not mount the version history column in an embed', () => {
   window.featureFlags = {};
 });
 
-test('filters panel carries the column separator in an embed', () => {
+test('the filter pane is docked beside the page in an embed', () => {
   // The bounded bar ends at its content, so the full-height panel draws the
   // separator instead.
   (isEmbedded as jest.Mock).mockReturnValue(true);
@@ -1330,11 +1320,9 @@ test('filters panel carries the column separator in an embed', () => {
 
   const { getByTestId } = renderForEmbedChecks();
 
-  // The pane sits right of the report, so the separator is on its left
-  expect(getByTestId('dashboard-filters-panel')).toHaveStyleRule(
-    'border-left',
-    `1px solid ${supersetTheme.colorSplit}`,
-  );
+  // The report docks the pane beside the page, and the dock draws its edge
+  expect(getByTestId('mibi-filter-dock')).toBeInTheDocument();
+  expect(getByTestId('mock-filter-bar')).toBeInTheDocument();
   nativeFiltersSpy.mockRestore();
   (isEmbedded as jest.Mock).mockReturnValue(false);
 });

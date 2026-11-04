@@ -167,6 +167,33 @@ beforeEach(() => {
   });
 });
 
+test('renders the dashboard builder once the dashboard has loaded', async () => {
+  // Also loads the lazy parts of the page, so the tests that follow start warm
+  render(
+    <Suspense fallback="loading">
+      <DashboardPage idOrSlug="1" />
+    </Suspense>,
+    {
+      useRedux: true,
+      useRouter: true,
+      initialState: {
+        dashboardInfo: { id: 1, metadata: {} },
+        dashboardState: { sliceIds: [] },
+        nativeFilters: { filters: {} },
+        dataMask: {},
+      },
+    },
+  );
+
+  await waitFor(
+    () => expect(screen.queryByText('loading')).not.toBeInTheDocument(),
+    { timeout: 10000 },
+  );
+  expect(
+    document.querySelector('[data-testid="dashboard-builder"]'),
+  ).toBeTruthy();
+});
+
 test('document.title tracks the live Redux dashboard title after a rename, not the stale API value', async () => {
   // Renaming a dashboard updates the live title in Redux
   // (dashboardLayout HEADER meta.text) and persists via an in-SPA save with

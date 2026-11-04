@@ -886,6 +886,8 @@ const DashboardBuilder = () => {
         ? adjustedWidth
         : CLOSED_FILTER_BAR_WIDTH;
       if (filterDocked) {
+        // Report mode (screenshots, embeds) has no filter pane unless asked for
+        if (hideFilterBar) return null;
         return (
           <InFilterDock width={filterBarWidth}>
             <ErrorBoundary>
@@ -935,16 +937,16 @@ const DashboardBuilder = () => {
                 {...(isVersionPreviewActive ? { inert: '' } : {})}
               >
                 <ReportTheme area="filterBar">
-                <FilterBar
-                  orientation={FilterBarOrientation.Vertical}
-                  verticalConfig={{
-                    filtersOpen: dashboardFiltersOpen,
-                    toggleFiltersBar: toggleDashboardFiltersOpen,
-                    width: filterBarWidth,
-                    height: filterBarHeight,
-                    offset: filterBarOffset,
-                  }}
-                />
+                  <FilterBar
+                    orientation={FilterBarOrientation.Vertical}
+                    verticalConfig={{
+                      filtersOpen: dashboardFiltersOpen,
+                      toggleFiltersBar: toggleDashboardFiltersOpen,
+                      width: filterBarWidth,
+                      height: filterBarHeight,
+                      offset: filterBarOffset,
+                    }}
+                  />
                 </ReportTheme>
               </div>
             </ErrorBoundary>
@@ -1149,19 +1151,18 @@ const DashboardBuilder = () => {
             </StyledContent>
             {/* Guests have no version history to show; keep its viewport-sized
                 host out of embedded documents so it cannot affect iframe sizing. */}
-            {isFeatureEnabled(FeatureFlag.VersionHistory) &&
-              !isEmbedded() && (
-                <VersionHistoryColumn
-                  data-test="dashboard-version-history-column"
-                  hidden={editMode}
-                  topOffset={barTopOffset}
-                  bottomOffset={barBottomOffset}
-                >
-                  <Suspense fallback={null}>
-                    <DashboardVersionHistory />
-                  </Suspense>
-                </VersionHistoryColumn>
-              )}
+            {isFeatureEnabled(FeatureFlag.VersionHistory) && !isEmbedded() && (
+              <VersionHistoryColumn
+                data-test="dashboard-version-history-column"
+                hidden={editMode}
+                topOffset={barTopOffset}
+                bottomOffset={barBottomOffset}
+              >
+                <Suspense fallback={null}>
+                  <DashboardVersionHistory />
+                </Suspense>
+              </VersionHistoryColumn>
+            )}
             {dashboardIsSaving && (
               <Loading
                 css={css`
