@@ -256,6 +256,80 @@ desechable en el puerto 5544. El stack de dev (8188) no se tocó.
   datasets por workspace, 1 de restaurar versiones). Tests MCP de `generate_dashboard`, `add_chart_to_existing_dashboard` y densidad: 89/89.
   `pre-commit` (mypy, ruff, pylint) sobre los archivos tocados: limpio. No se corrió ninguna suite completa.
 
+### Fase 3
+
+Rama `claude/upgrade-superset-7-frontend-6479f1` (cortada de la del backend). Node 24.22, npm 11.19; el proyecto sigue en
+TypeScript 5.4.5 (no hay TS 7) y oxlint 1.81.
+
+- **Dependencias** (`cb8de603d9`). `npm install --package-lock-only` sobre el `package-lock.json` de 7.0 y `npm ci`:
+  solo quita lo que el fork eliminó (Storybook, `concurrently`, `wait-on`, plugins legacy; 322 paquetes), ninguna versión
+  cambia y solo se añade el `follow-redirects` anidado de `nx`. 7.0 ya trae `react-ace` (que el fork necesita);
+  `use-sync-external-store` (añadido por el fork) no lo importa ningún archivo.
+- **`tsc`.** Se necesita `npm run plugins:build` antes (referencias de proyecto), como en CI. De 50 errores a **0**. Los
+  39 de la línea base ya no están: 21 eran de `plugin-chart-ag-grid-table` (ya no existe), 13 de `DatabaseModal` (variables sin
+  uso: ahora se afirman) y el resto, restos del merge. Arreglos con causa:
+  - Íconos declarados dos veces en `AntdEnhanced.tsx` (rompía todos los Jest que importan `@superset-ui/core/components`).
+  - `Row.tsx`: el efecto que medía la altura de los huecos de soltado quedó huérfano (7.0 lo resuelve con CSS, `height: auto`).
+  - `ConfigModalContent` (import duplicado), `ExploreViewContainer` (`useHistory` doble), `VizTypeGallery` (falta `SupersetTheme`),
+    `Tabs` (clave indefinida), `ControlFormItem`, `ReferenceLinesControl`.
+  - `PropertiesModal/utils.ts` y su test (helpers de owners que 7.0 borró) fuera.
+  - Tooltips de antd 6: `styles.body` → `styles.container` (`HeaderExtras`, `SlicerIcons`).
+  - `SlicerView` y `TooltipPageHost` usan `requestChartDataResolved` (7.0 cambió la firma de `handleChartDataResponse`
+    y `waitForAsyncData`); la segmentación aborta su consulta al desmontar.
+  - Tests: `renderHook` de `@testing-library/react` (react-hooks no está instalado), fuera los 3 tests de tema de
+    `DashboardPage` (el fork no tiene `CrudThemeProvider`) con una prueba de calentamiento para que los tests de título no
+    carguen lo diferido en frío.
+- **oxlint.** De 60 errores a **0** (los 5 de la línea base, resueltos). 7.0 enciende reglas nuevas: `prefer-tag-over-role` da
+  47 avisos en los componentes del fork (radios, grupos, estados e íconos como elementos con rol). Se apagó solo para
+  `src/mibi/**` y dos archivos de paquetes/plugins en `oxlint.json`, con comentario: cambiar a `fieldset`/`output`/`input`/`button`
+  cambia el aspecto por defecto y merece su propia pasada visual. El resto: `lodash` → `lodash-es` (8 archivos), nombres sin
+  uso con `_`, `useCellMove` con `AbortController` en vez de funciones que se refieren entre sí, etiquetas en las celdas vacías
+  de la matriz, y tres avisos de a11y con `oxlint-disable-next-line` justificado (`HeaderExtras`, `FieldHelp`, `MobileLayoutPane`).
+- **Rutas sin `/superset/`** (`7253fc5742`). `REPORT_PATH` y `HOME_URL` (`navigation.ts`), `ExploreGate`, `WorkspacePage`,
+  `DatasetPage`, tests de `src/mibi` y de Playwright. `isReportRoute` excluye `/dashboard/list/` y `/dashboard/new/` (el
+  router de 7.0 los leería como un slug). «Nuevo tablero» de la home hace navegación completa (su GET en el servidor crea el
+  tablero). `isNavItemActive` no marca «Tableros» dentro de un tablero. El backend no emite `/superset/` en ningún sitio
+  (7.0 trae un middleware que redirige los enlaces viejos). Un tablero abre sin barra lateral y con el logo arriba, en el
+  navegador.
+- **Owners → editors** (`b9341d8d13`). `canChangeFields`: admin, editor del gráfico (subjects del usuario) o quien edita el
+  tablero (`dash_edit_perm`, que incluye al contribuidor de workspace). Un editor de tablero que no lo es del gráfico verá el
+  panel y el servidor decidirá al guardar.
+- **Bug real encontrado por un test de 7.0.** El panel de filtros acoplado ignoraba el modo informe (`?standalone=3`): capturas
+  y embebidos lo mostraban. Ahora no se dibuja salvo `show_filters=true` (`53da701f56`). Los tests de 7.0 de ese caso se
+  adaptan a la barra acoplada; el de «separador de columna en un embed» ahora fija que el panel va acoplado.
+- **Jest.** `src/mibi`: 404 tests, 402 pasan y fallan los 2 de la línea base (`editing`: pegar un objeto; `columns`: layout de
+  24 columnas). Tras la primera pasada fallaban 14: el mock de `getChartDataRequest` (ahora `requestChartDataResolved`),
+  `URL.revokeObjectURL` ausente en jsdom y una actualización del store fuera de `act`. Archivos tocados fuera de `src/mibi`
+  (DashboardPage, Row, Tabs, Header, DashboardBuilder, dashboardInfo, ColumnConfigControl, ReferenceLinesControl, VizTypeControl,
+  ConfigModalContent): pasan, salvo el test del distintivo «Destacado» de VizTypeControl, **omitido** (la galería del fork
+  no lo dibuja; fase 4). `DatabaseModal`, `useAutoApply` y `useThumbnail` pasan. No se corrió la suite completa.
+- **Build y navegador.** `npm run build-dev`: 75 s, 1 aviso (`maplibre-gl`). Backend de la fase 2 desde el venv de esa rama con
+  `PYTHONPATH` en este worktree, puerto 8199, contra una copia desechable de dev (Postgres 17 en el 5545, migrada por
+  `db upgrade` a `f1c7a9e2b305`; los datos de las conexiones se apuntaron a `127.0.0.1:5532` solo en la copia). Capturas en
+  la carpeta de notas de la sesión (`fase3-capturas/`). Comprobado como admin: login, home, workspace «Análisis comercial»,
+  tablero en vista (sin barra lateral, logo arriba, filtros, datos), edición (cinta Inicio/Insertar/Diseño/Vista, panes
+  Gráficos/Elementos/Formato/Selección/Marcadores, panel Formato con secciones), menú «Datos» → panel de conjuntos de datos
+  y conexiones, panel «Nuevo visual» con el selector de conjuntos del workspace, editor del gráfico en el panel (arrastrar una
+  columna a Dimensiones con dnd-kit funciona), tablero 147 en ancho de teléfono con su diseño móvil, y la interfaz en español
+  (hay que construir `messages.json` y el `.mo`; ver abajo). Sin trazas en el servidor salvo los 500 de la primera carga, que
+  eran la conexión de datos sin red.
+- **Traducciones.** `npm run build-translation` funciona. El `.mo` se compiló con `pybabel compile -f`: `msgfmt` aborta por
+  el `msgstr` de la línea 4506 (empieza con `\n` sin que el `msgid` lo haga) y por 4 errores de marcadores; se arreglan en la fase 6.
+
+## Abiertos tras la fase 3
+
+Para la fase 4 (funciones que chocan), además de la lista de abajo:
+- Distintivo «Destacado» de la galería de gráficos (test omitido) y tooltip de la galería.
+- `prefer-tag-over-role`: pasada visual para pasar los roles a etiquetas nativas.
+- Avisos de antd 6 en la consola, todos de componentes de `superset-ui-core` o 7.0 (`Tooltip.overlayInnerStyle`,
+  `Dropdown.overlayStyle`/`dropdownRender`, `Modal.maskClosable`, `Drawer.width`) y claves sin `key` en `MetadataBar`.
+- Explore: el arrastre de columnas con dnd-kit funciona en el panel; falta probar métricas, filtros y el menú contextual.
+- Cuando el panel de filtros acoplado y el modo informe se combinen con `show_filters=true`, comprobar la captura real de un informe.
+Para la fase 6: «Editar panel de control», «Filtros y controles», «Modified en …», «Borrador» mezclan la traducción de 7.0
+(«panel de control» en vez de «tablero») con la del fork; el `.po` tiene 5 errores de formato (`msgfmt` aborta).
+Para la fase 7: Playwright (las rutas ya no llevan `/superset/`), suite completa de Jest y las pruebas de integración.
+Sin tocar: `package-lock.json` sin `npm audit fix`; 85 avisos de vulnerabilidades heredados de 7.0.
+
 ## Abiertos para la fase 2 (backend)
 
 Estado al cerrar la fase 2: hechos 1, 2, 3 (salvo regenerar en el contenedor), 4 y la parte de `update_dashboard` de 7.
