@@ -33,6 +33,7 @@ import csv
 import json
 import os
 import re
+from typing import Any, Callable
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument("schema", help="reportThemeSchema-*.json from Microsoft")
@@ -45,13 +46,13 @@ schema = json.load(open(args.schema))
 D = schema["definitions"]
 
 
-def deref(n):
+def deref(n: Any) -> Any:
     while isinstance(n, dict) and "$ref" in n:
         n = D[n["$ref"].split("/")[-1]]
     return n
 
 
-def typ(p):
+def typ(p: dict[str, Any]) -> str:
     if "$ref" in p:
         return p["$ref"].split("/")[-1]
     for k in ("oneOf", "anyOf"):
@@ -74,8 +75,8 @@ def typ(p):
     return t + r
 
 
-def walk(d):
-    o = {}
+def walk(d: Any) -> dict[str, dict[str, Any]]:
+    o: dict[str, dict[str, Any]] = {}
     d = deref(d)
     for part in d.get("allOf", []):
         for c, v in walk(part).items():
@@ -83,7 +84,7 @@ def walk(d):
     for c, v in d.get("properties", {}).items():
         items = v.get("items", {}) if v.get("type") == "array" else v
         items = deref(items)
-        props = {}
+        props: dict[str, Any] = {}
         for it in items.get("allOf", []) + [items]:
             it = deref(it)
             for k, pv in it.get("properties", {}).items():
@@ -119,7 +120,7 @@ PANELS = {
 AXES = "x_axis_label_font x_axis_title_font x_axis_inverse y_axis_label_font y_axis_title_font y_axis_inverse x_axis_hidden y_axis_hidden gridlines_hidden gridline_color gridline_width gridline_style".split()
 
 
-def controls(key):
+def controls(key: str) -> set[str]:
     t = open(os.path.join(FE, PANELS[key])).read()
     S = set(re.findall(r"name:\s*['\"](\w+)['\"]", t)) | set(
         re.findall(r"^\s*\[?['\"](\w+)['\"]\]?,?$", t, re.M)
@@ -2278,7 +2279,7 @@ PRI = {
 }
 
 
-def prio(c, p=""):
+def prio(c: str, p: str = "") -> int:
     if (
         c == "visualHeader"
         and p.startswith("show")
@@ -2360,15 +2361,15 @@ SEC = {
 GEN = set(common) - {"*"}
 
 
-def typ_short(t):
+def typ_short(t: str) -> str:
     return re.sub(r"\s+", " ", t)[:140]
 
 
-rows = []
-summary = {}
+rows: list[dict[str, Any]] = []
+summary: dict[str, Any] = {}
 
 
-def status(v, c, p):
+def status(v: str, c: str, p: str) -> tuple[str, str]:
     o = V2O[v]
     if o == "MAP":
         return "Por decidir", "Comparar con deck.gl y country_map: otro modelo de capas"
@@ -2379,7 +2380,7 @@ def status(v, c, p):
         rules = FILTER_RULES + [
             x for x in RULES if x[2] is None or x[2] == [F] or x[0] == "general"
         ]
-    S = set() if o in (None, "FILTER") else OURS[o]
+    S: set[str] = set() if o is None or o == "FILTER" else OURS[o]
     for cr, pr, ctrl, st, note in rules:
         if re.fullmatch(cr, c) and re.fullmatch(pr, p):
             if ctrl is None or ctrl == ["none"]:
@@ -2399,11 +2400,12 @@ def status(v, c, p):
 for v, o in V2O.items():
     d = R["visual-" + v]
     path = os.path.join(OUT, "por-grafico", v + ".md")
-    cnt = {}
-    lines = []
+    cnt: dict[str, int] = {}
+    lines: list[str] = []
     cards = sorted(
         [c for c in d if c != "*"], key=lambda c: (c in GEN, prio(c), SEC.get(c, c))
     )
+    sel: Callable[[str], bool]
     for tabname, sel in (
         ("Visual", lambda c: c not in GEN),
         ("General", lambda c: c in GEN),
@@ -2413,7 +2415,7 @@ for v, o in V2O.items():
             continue
         lines.append(f"\n## {tabname}\n")
         for c in cs:
-            rs = []
+            rs: list[Any] = []
             for p, m in sorted(d[c].items()):
                 st, note = status(v, c, p)
                 t = m["title"] or p
@@ -2520,7 +2522,7 @@ PHASE_NAME = {
 }
 
 
-def phase_of(row):
+def phase_of(row: dict[str, Any]) -> int:
     """The phase of the plan an option of the inventory belongs to."""
     chart_phase = CHART_PHASE[row["grafico"]]
     # A chart still to build or to decide takes all its options with it
@@ -2531,9 +2533,9 @@ def phase_of(row):
     return 2 if row["pestana"] == "General" else chart_phase
 
 
-def write_summary():
+def write_summary() -> None:
     """Writes the coverage by chart and the list of what is left, by phase."""
-    charts = {}
+    charts: dict[str, dict[str, int]] = {}
     for row in rows:
         counts = charts.setdefault(row["grafico_es"], {})
         counts[row["estado"]] = counts.get(row["estado"], 0) + 1
@@ -2559,7 +2561,7 @@ def write_summary():
     with open(os.path.join(OUT, "cobertura.md"), "w") as f:
         f.write("\n".join(out) + "\n")
 
-    pending = {}
+    pending: dict[int, dict[tuple[str, str], Any]] = {}
     for row in rows:
         if row["estado"] not in ("Falta", "Parcial", "Por decidir"):
             continue
@@ -2596,7 +2598,7 @@ def write_summary():
         )
     for phase in sorted(pending):
         out += ["", f"## Fase {phase}: {PHASE_NAME[phase]}"]
-        sections = {}
+        sections: dict[str, list[tuple[str, Any]]] = {}
         for (section, prop), item in pending[phase].items():
             sections.setdefault(section, []).append((prop, item))
         for section in sorted(sections):
@@ -2620,7 +2622,7 @@ def write_summary():
 
 write_summary()
 
-total = {}
+total: dict[str, int] = {}
 for row in rows:
     total[row["estado"]] = total.get(row["estado"], 0) + 1
 print(len(rows), total)

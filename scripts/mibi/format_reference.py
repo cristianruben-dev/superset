@@ -27,12 +27,20 @@ import json
 import sys
 import urllib.error
 import urllib.request
+from typing import Any
 
 BASE = "http://localhost:8188"
 DB = int(sys.argv[1])
 
 
-def call(method, path, body=None, token=None, csrf=None, cookie=None):
+def call(
+    method: str,
+    path: str,
+    body: Any = None,
+    token: str | None = None,
+    csrf: str | None = None,
+    cookie: str | None = None,
+) -> tuple[Any, str | None]:
     req = urllib.request.Request(
         BASE + path,
         method=method,
@@ -50,7 +58,7 @@ def call(method, path, body=None, token=None, csrf=None, cookie=None):
         with urllib.request.urlopen(req, timeout=30) as res:
             return json.load(res), res.headers.get("Set-Cookie")
     except urllib.error.HTTPError as err:
-        raise SystemExit(f"{method} {path}: {err.code} {err.read()[:500]}")
+        raise SystemExit(f"{method} {path}: {err.code} {err.read()[:500]!r}")
 
 
 tok = call(
@@ -61,7 +69,7 @@ tok = call(
 csrf_res, ck = call("GET", "/api/v1/security/csrf_token/", token=tok)
 csrf = csrf_res["result"]
 cookie = ck.split(";")[0] if ck else None
-auth = {"token": tok, "csrf": csrf, "cookie": cookie}
+auth: dict[str, Any] = {"token": tok, "csrf": csrf, "cookie": cookie}
 
 rows = []
 for m in range(1, 13):
@@ -89,7 +97,7 @@ dataset = call(
 )[0]["id"]
 
 
-def metric(col, agg="SUM"):
+def metric(col: str, agg: str = "SUM") -> dict[str, Any]:
     return {
         "expressionType": "SIMPLE",
         "aggregate": agg,
@@ -115,7 +123,7 @@ category = {
     "show_legend": True,
     "row_limit": 1000,
 }
-CHARTS = [
+CHARTS: list[tuple[str, str, dict[str, Any]]] = [
     ("QA barras", "echarts_timeseries_bar", category),
     ("QA líneas", "echarts_timeseries_line", time_series),
     ("QA área", "echarts_area", time_series),
@@ -199,7 +207,7 @@ dash = call(
     **auth,
 )[0]["id"]
 
-layout = {
+layout: dict[str, Any] = {
     "DASHBOARD_VERSION_KEY": "v2",
     "ROOT_ID": {
         "id": "ROOT_ID",
@@ -220,8 +228,8 @@ layout = {
     },
 }
 COLS, W, H = 5, 12, 11
-row_id = None
-ids = []
+row_id = ""
+ids: list[int] = []
 for i, (name, viz, params) in enumerate(CHARTS):
     form = {"viz_type": viz, "datasource": f"{dataset}__table", **params}
     chart = call(
