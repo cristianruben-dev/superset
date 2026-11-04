@@ -16,14 +16,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
+import { SupersetClient } from '@superset-ui/core';
 import { css, styled } from '@apache-superset/core/theme';
 import { t } from '@apache-superset/core/translation';
 import type { ColumnMeta, Metric } from '@superset-ui/chart-controls';
 import { Button, Input } from '@superset-ui/core/components';
 import { Icons } from '@superset-ui/core/components/Icons';
 import type { RootState } from 'src/dashboard/types';
+import { fetchDataSets } from 'src/mibi/data/api';
 import DatasourcePanelDragOption from 'src/explore/components/DatasourcePanel/DatasourcePanelDragOption';
 import { DndItemType } from 'src/explore/components/DndItemType';
 import { searchable } from './controls';
@@ -107,6 +109,45 @@ type Dataset = {
   metrics?: Metric[];
 };
 
+/** The key of a dataset in the `datasources` of the dashboard state. */
+const datasetKey = (id: number) => `${id}__table`;
+
+/** Fields of a dataset no chart of the report uses yet, loaded when opened. */
+async function fetchDatasetFields(key: string): Promise<Dataset> {
+  const { json } = await SupersetClient.get({
+    endpoint: `/api/v1/dataset/${parseInt(key, 10)}`,
+  });
+  const { table_name: tableName, columns, metrics } = json.result as Dataset;
+  return { table_name: tableName, columns, metrics };
+}
+
+/**
+ * The datasets the charts of a dashboard can use, by key and name: those of its
+ * workspace and the shared ones, as the server decides.
+ */
+function useUsableDatasets(dashboardId: number | undefined) {
+  const [usable, setUsable] = useState<Record<string, string>>({});
+  useEffect(() => {
+    if (dashboardId === undefined) return undefined;
+    let current = true;
+    fetchDataSets(dashboardId)
+      .then(list => {
+        if (current)
+          setUsable(
+            Object.fromEntries(
+              list.map(dataset => [datasetKey(dataset.id), dataset.table_name]),
+            ),
+          );
+      })
+      // Without the list the pane keeps the datasets the charts already use
+      .catch(() => undefined);
+    return () => {
+      current = false;
+    };
+  }, [dashboardId]);
+  return usable;
+}
+
 const nameOfMetric = (metric: Metric) =>
   metric.verbose_name || metric.metric_name;
 const nameOfColumn = (column: ColumnMeta) =>
@@ -127,6 +168,11 @@ export function DataPane({
     (state: RootState) =>
       state.datasources as unknown as Record<string, Dataset>,
   );
+  const dashboardId = useSelector(
+    (state: RootState) => state.dashboardInfo?.id,
+  );
+  const usableDatasets = useUsableDatasets(dashboardId);
+  const [fetched, setFetched] = useState<Record<string, Dataset | null>>({});
   const selected = useSelectedVisual();
   const selectedDataset = useSelector((state: RootState) => {
     const chartId = selected
@@ -146,13 +192,38 @@ export function DataPane({
   const [search, setSearch] = useState('');
   const [toggled, setToggled] = useState<Record<string, boolean>>({});
   const query = searchable(search.trim());
-  const keys = useMemo(
-    () =>
-      Object.keys(datasources ?? {}).sort((a, b) =>
-        a === selectedDataset ? -1 : b === selectedDataset ? 1 : 0,
-      ),
-    [datasources, selectedDataset],
-  );
+  // The datasets the charts use first, then the others they could use
+  const keys = useMemo(() => {
+    const used = Object.keys(datasources ?? {});
+    const others = Object.keys(usableDatasets)
+      .filter(key => !used.includes(key))
+      .sort((a, b) => usableDatasets[a].localeCompare(usableDatasets[b]));
+    return [...used, ...others].sort((a, b) =>
+      a === selectedDataset ? -1 : b === selectedDataset ? 1 : 0,
+    );
+  }, [datasources, selectedDataset, usableDatasets]);
+  const usedCount = Object.keys(datasources ?? {}).length;
+  const datasetOf = (key: string): Dataset =>
+    datasources?.[key] ??
+    fetched[key] ?? {
+      table_name: usableDatasets[key],
+      columns: [],
+      metrics: [],
+    };
+  const open = (key: string) => {
+    setToggled(current => ({ ...current, [key]: true }));
+    if (datasources?.[key] || key in fetched) return;
+    setFetched(current => ({ ...current, [key]: null }));
+    fetchDatasetFields(key)
+      .then(dataset => setFetched(current => ({ ...current, [key]: dataset })))
+      .catch(() =>
+        setFetched(current => {
+          const next = { ...current };
+          delete next[key];
+          return next;
+        }),
+      );
+  };
   const matches = (text: string) => searchable(text).includes(query);
 
   return (
@@ -177,40 +248,51 @@ export function DataPane({
       />
       <div className="pane-list">
         {keys.map(key => {
-          const dataset = datasources[key];
+          const dataset = datasetOf(key);
+          const loading = !datasources?.[key] && fetched[key] === null;
+          const name =
+            dataset.datasource_name || dataset.table_name || dataset.name || '';
           const metrics = (dataset.metrics ?? []).filter(metric =>
             matches(nameOfMetric(metric)),
           );
           const columns = (dataset.columns ?? []).filter(column =>
             matches(nameOfColumn(column)),
           );
-          if (query && !metrics.length && !columns.length) return null;
+          if (query && !metrics.length && !columns.length && !matches(name))
+            return null;
           // A chart only takes fields of its own dataset
           const usable = !selectedDataset || key === selectedDataset;
-          const open =
+          const isOpen =
             !!query ||
-            (toggled[key] ?? (key === selectedDataset || keys.length === 1));
+            (toggled[key] ??
+              (key === selectedDataset ||
+                (usedCount === 1 && !!datasources?.[key])));
           return (
             <section key={key} data-test="mibi-data-pane-dataset">
               <button
                 type="button"
                 className="dataset-name"
-                aria-expanded={open}
-                onClick={() => setToggled({ ...toggled, [key]: !open })}
+                aria-expanded={isOpen}
+                onClick={() =>
+                  isOpen ? setToggled({ ...toggled, [key]: false }) : open(key)
+                }
               >
-                {open ? (
+                {isOpen ? (
                   <Icons.DownOutlined iconSize="xs" />
                 ) : (
                   <Icons.RightOutlined iconSize="xs" />
                 )}
-                {dataset.datasource_name || dataset.table_name || dataset.name}
+                {name}
               </button>
-              {open && !usable && (
+              {isOpen && loading && (
+                <div className="dataset-other">{t('Loading...')}</div>
+              )}
+              {isOpen && !usable && (
                 <div className="dataset-other">
                   {t('The selected chart uses another table.')}
                 </div>
               )}
-              {open && !!metrics.length && (
+              {isOpen && !!metrics.length && (
                 <>
                   <div className="dataset-group">{t('Measures')}</div>
                   <div
@@ -229,7 +311,7 @@ export function DataPane({
                   </div>
                 </>
               )}
-              {open && !!columns.length && (
+              {isOpen && !!columns.length && (
                 <>
                   <div className="dataset-group">{t('Columns')}</div>
                   <div
