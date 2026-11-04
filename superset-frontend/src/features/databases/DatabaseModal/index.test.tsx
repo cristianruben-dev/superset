@@ -390,6 +390,21 @@ describe('DatabaseModal', () => {
       });
 
       const modal = screen.getByRole('dialog');
+      [
+        closeButton,
+        step1Header,
+        step1Helper,
+        selectDbHeader,
+        preferredDbTextPostgreSQL,
+        preferredDbTextPresto,
+        preferredDbTextMySQL,
+        preferredDbTextSQLite,
+        supportedDbsHeader,
+        selectorLabel,
+        selectorPlaceholder,
+        selectorArrow,
+        modal,
+      ].forEach(element => expect(element).toBeInTheDocument());
       // nothing to confirm while choosing the database, so no footer
       expect(
         document.querySelector('.ant-modal-footer'),

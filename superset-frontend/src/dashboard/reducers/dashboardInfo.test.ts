@@ -16,10 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import {
-  DASHBOARD_INFO_UPDATED,
-  dashboardInfoChanged,
-} from '../actions/dashboardInfo';
+import { dashboardInfoChanged } from '../actions/dashboardInfo';
 import { CLEAR_ALL_CHART_CUSTOMIZATIONS } from '../actions/chartCustomizationActions';
 import type { DashboardInfo } from '../types';
 import dashboardInfoReducer from './dashboardInfo';

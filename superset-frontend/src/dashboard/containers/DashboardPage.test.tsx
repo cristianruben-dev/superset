@@ -31,8 +31,7 @@ import {
   useDashboardCharts,
   useDashboardDatasets,
 } from 'src/hooks/apiResources';
-import { SupersetApiError, SupersetClient } from '@superset-ui/core';
-import CrudThemeProvider from 'src/components/CrudThemeProvider';
+import { SupersetApiError } from '@superset-ui/core';
 import { hydrateDashboard } from 'src/dashboard/actions/hydrate';
 import {
   clearDashboardHistory,
@@ -42,16 +41,10 @@ import { DASHBOARD_HEADER_ID } from 'src/dashboard/util/constants';
 import { getUrlParam } from 'src/utils/urlUtils';
 import DashboardPage from './DashboardPage';
 
-const mockTheme = {
-  id: 42,
-  theme_name: 'Branded',
-  json_data: '{"token":{"colorPrimary":"#1677ff"}}',
-};
-
 const mockDashboard = {
   id: 1,
   slug: null,
-  url: '/superset/dashboard/1/',
+  url: '/dashboard/1/',
   dashboard_title: 'Test Dashboard',
   thumbnail_url: null,
   published: true,
@@ -63,7 +56,6 @@ const mockDashboard = {
   changed_on: '2024-01-01T00:00:00',
   charts: [],
   editors: [],
-  theme: mockTheme,
 };
 
 jest.mock('src/hooks/apiResources', () => ({
@@ -90,13 +82,6 @@ jest.mock('src/dashboard/actions/datasources', () => ({
 jest.mock('src/dashboard/actions/dashboardState', () => ({
   ...jest.requireActual('src/dashboard/actions/dashboardState'),
   setDatasetsStatus: jest.fn(() => ({ type: 'MOCK_SET_DATASETS_STATUS' })),
-}));
-
-jest.mock('src/components/CrudThemeProvider', () => ({
-  __esModule: true,
-  default: jest.fn(({ children }: { children: ReactNode }) => (
-    <div>{children}</div>
-  )),
 }));
 
 jest.mock('src/dashboard/components/DashboardBuilder/DashboardBuilder', () => ({
@@ -153,7 +138,6 @@ jest.mock('src/dashboard/contexts/AutoRefreshContext', () => ({
 const mockUseDashboard = useDashboard as jest.Mock;
 const mockUseDashboardCharts = useDashboardCharts as jest.Mock;
 const mockUseDashboardDatasets = useDashboardDatasets as jest.Mock;
-const MockCrudThemeProvider = CrudThemeProvider as unknown as jest.Mock;
 
 afterEach(() => {
   jest.restoreAllMocks();
@@ -181,76 +165,6 @@ beforeEach(() => {
     error: null,
     status: 'complete',
   });
-});
-
-test('passes full theme object from dashboard API response to CrudThemeProvider', async () => {
-  const clientGetSpy = jest.spyOn(SupersetClient, 'get');
-
-  render(
-    <Suspense fallback="loading">
-      <DashboardPage idOrSlug="1" />
-    </Suspense>,
-    {
-      useRedux: true,
-      useRouter: true,
-      initialState: {
-        dashboardInfo: { id: 1, metadata: {} },
-        dashboardState: { sliceIds: [] },
-        nativeFilters: { filters: {} },
-        dataMask: {},
-      },
-    },
-  );
-
-  await waitFor(() => {
-    expect(screen.queryByText('loading')).not.toBeInTheDocument();
-  });
-
-  expect(MockCrudThemeProvider).toHaveBeenCalledWith(
-    expect.objectContaining({ theme: mockTheme }),
-    expect.anything(),
-  );
-
-  // Regression guard: theme data comes from the dashboard API response,
-  // not a separate /api/v1/theme/:id fetch (which would 403 for non-admin users)
-  const themeCalls = clientGetSpy.mock.calls.filter(([{ endpoint }]) =>
-    endpoint?.startsWith('/api/v1/theme/'),
-  );
-  expect(themeCalls).toHaveLength(0);
-});
-
-test('uses theme from Redux dashboardInfo when it differs from API response (Properties modal update)', async () => {
-  const reduxTheme = {
-    id: 99,
-    theme_name: 'Updated Theme',
-    json_data: '{"token":{"colorPrimary":"#ff0000"}}',
-  };
-
-  render(
-    <Suspense fallback="loading">
-      <DashboardPage idOrSlug="1" />
-    </Suspense>,
-    {
-      useRedux: true,
-      useRouter: true,
-      initialState: {
-        dashboardInfo: { id: 1, metadata: {}, theme: reduxTheme },
-        dashboardState: { sliceIds: [] },
-        nativeFilters: { filters: {} },
-        dataMask: {},
-      },
-    },
-  );
-
-  await waitFor(() => {
-    expect(screen.queryByText('loading')).not.toBeInTheDocument();
-  });
-
-  // Redux theme should take priority over API response theme
-  expect(MockCrudThemeProvider).toHaveBeenCalledWith(
-    expect.objectContaining({ theme: reduxTheme }),
-    expect.anything(),
-  );
 });
 
 test('document.title tracks the live Redux dashboard title after a rename, not the stale API value', async () => {
@@ -419,35 +333,6 @@ test('document.title falls back to the API dashboard_title before the layout is 
   await waitFor(() => {
     expect(document.title).toBe('Test Dashboard');
   });
-});
-
-test('passes null theme when Redux dashboardInfo.theme is explicitly null (theme removed)', async () => {
-  render(
-    <Suspense fallback="loading">
-      <DashboardPage idOrSlug="1" />
-    </Suspense>,
-    {
-      useRedux: true,
-      useRouter: true,
-      initialState: {
-        dashboardInfo: { id: 1, metadata: {}, theme: null },
-        dashboardState: { sliceIds: [] },
-        nativeFilters: { filters: {} },
-        dataMask: {},
-      },
-    },
-  );
-
-  await waitFor(() => {
-    expect(screen.queryByText('loading')).not.toBeInTheDocument();
-  });
-
-  // When theme is explicitly null in Redux (removed via Properties modal),
-  // CrudThemeProvider should receive null
-  expect(MockCrudThemeProvider).toHaveBeenCalledWith(
-    expect.objectContaining({ theme: null }),
-    expect.anything(),
-  );
 });
 
 test('copies currentState to filterState for legacy native_filters URL params', async () => {

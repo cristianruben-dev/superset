@@ -736,7 +736,7 @@ describe('plugin-chart-table', () => {
 });
 
 test('a sort metric without "Sort descending" saved sorts descending, as the control shows', () => {
-  const { queries } = buildQuery({
+  const { queries } = buildQueryUncached({
     ...basicFormData,
     query_mode: QueryMode.Aggregate,
     groupby: ['col1'],
@@ -747,7 +747,7 @@ test('a sort metric without "Sort descending" saved sorts descending, as the con
 });
 
 test('"Sort descending" off sorts the sort metric ascending', () => {
-  const { queries } = buildQuery({
+  const { queries } = buildQueryUncached({
     ...basicFormData,
     query_mode: QueryMode.Aggregate,
     groupby: ['col1'],
@@ -759,7 +759,7 @@ test('"Sort descending" off sorts the sort metric ascending', () => {
 });
 
 test('the sort saved from the dashboard orders an aggregated table', () => {
-  const { queries } = buildQuery({
+  const { queries } = buildQueryUncached({
     ...basicFormData,
     query_mode: QueryMode.Aggregate,
     groupby: ['col1'],
@@ -777,7 +777,7 @@ test('the sort saved from the dashboard orders an aggregated table', () => {
 });
 
 test('the sort saved from the dashboard orders raw records', () => {
-  const { queries } = buildQuery({
+  const { queries } = buildQueryUncached({
     ...basicFormData,
     query_mode: QueryMode.Raw,
     all_columns: ['col1', 'col2'],
@@ -787,7 +787,7 @@ test('the sort saved from the dashboard orders raw records', () => {
 });
 
 test('a saved sort on a field the table no longer has is ignored', () => {
-  const { queries } = buildQuery({
+  const { queries } = buildQueryUncached({
     ...basicFormData,
     query_mode: QueryMode.Aggregate,
     groupby: ['col1'],
@@ -798,7 +798,7 @@ test('a saved sort on a field the table no longer has is ignored', () => {
 });
 
 test('a header sort on a paginated table wins over the saved sort', () => {
-  const { queries } = buildQuery(
+  const { queries } = buildQueryUncached(
     {
       ...basicFormData,
       query_mode: QueryMode.Aggregate,
