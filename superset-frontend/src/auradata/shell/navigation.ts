@@ -33,7 +33,8 @@ export type NavIconName =
   | 'SafetyOutlined'
   | 'BellOutlined'
   | 'AppstoreOutlined'
-  | 'ApiOutlined';
+  | 'ApiOutlined'
+  | 'CommentOutlined';
 
 export interface NavItem {
   key: string;
