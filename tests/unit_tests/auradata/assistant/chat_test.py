@@ -24,6 +24,7 @@ the Superset admin of the world, so a call that lost its user would see everythi
 
 import ast
 import asyncio
+import threading
 from decimal import Decimal
 from pathlib import Path
 from types import SimpleNamespace
@@ -1014,6 +1015,42 @@ def test_an_image_result_becomes_an_image_block() -> None:
         "type": "image",
         "source": {"type": "base64", "media_type": "image/png", "data": "AAAA"},
     }
+
+
+def test_a_silent_model_keeps_the_stream_open(
+    client: Any, world: dict[str, Any], mocker: MockerFixture
+) -> None:
+    login(world, "Ana")
+    fake = use_model(mocker, reply(text("Listo")))
+    mocker.patch.object(agent, "KEEP_ALIVE_SECONDS", 0.01)
+    answer = fake._answer
+    release = threading.Event()
+
+    def slow_answer(request: Any) -> Any:
+        release.wait(0.2)
+        return answer(request)
+
+    fake.client._client._transport.handler = slow_answer
+
+    response = client.post(
+        URL,
+        json={"message": "Hola", "context": {"dashboard_id": world["dashboard"].id}},
+    )
+    body = response.get_data(as_text=True)
+
+    assert ": keep-alive\n\n" in body
+    assert "event: done" in body
+
+
+def test_a_failed_call_still_arrives_through_the_waiting_side(
+    client: Any, world: dict[str, Any], mocker: MockerFixture
+) -> None:
+    login(world, "Ana")
+    use_model(mocker, (429, "rate_limit_error"))
+
+    response = ask(client, world["dashboard"])
+
+    assert payloads(response, "error")[0]["code"] == "rate_limited"
 
 
 def test_any_user_reads_the_models_and_never_the_key(

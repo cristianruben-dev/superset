@@ -43,7 +43,11 @@ from flask_babel import gettext as _
 from marshmallow import fields, Schema, validate, ValidationError
 
 from superset import security_manager
-from superset.auradata.assistant.agent import build_client, run_conversation
+from superset.auradata.assistant.agent import (
+    build_client,
+    KEEP_ALIVE,
+    run_conversation,
+)
 from superset.auradata.assistant.conversations import (
     conversation_json,
     conversation_messages,
@@ -128,6 +132,11 @@ class AssistantChatSchema(Schema):
 
 def _sse(event: str, data: dict[str, Any]) -> str:
     return f"event: {event}\ndata: {json.dumps(data)}\n\n"
+
+
+def _keep_alive() -> str:
+    """A comment of the SSE format: proxies count it, and readers skip it."""
+    return ": keep-alive\n\n"
 
 
 def _open_dashboard(dashboard_id: int | None) -> Dashboard | None:
@@ -319,7 +328,8 @@ class AssistantRestApi(BaseSupersetApi):
           summary: Send a message to the AI assistant
           description: >-
             Answers with server-sent events: conversation, model_changed, text,
-            tool_start, tool_end, refusal, error and done.
+            tool_start, tool_end, refusal, error and done. Comment lines only keep
+            the connection open.
           requestBody:
             required: true
             content:
@@ -431,7 +441,7 @@ class AssistantRestApi(BaseSupersetApi):
                 for event, payload in run_conversation(
                     client, model, system, toolbox, log, history
                 ):
-                    yield _sse(event, payload)
+                    yield _keep_alive() if event == KEEP_ALIVE else _sse(event, payload)
             except ConversationBusyError:
                 yield _sse(
                     "error",

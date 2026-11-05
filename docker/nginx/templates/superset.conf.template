@@ -30,6 +30,18 @@ server {
         proxy_set_header Host $host;
     }
 
+    # The answers of the AI assistant stream, and a tool can run for minutes in silence
+    location ~ /api/v1/auradata/assistant/$ {
+        proxy_pass http://superset_app;
+        proxy_set_header Host $http_host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_http_version 1.1;
+        proxy_buffering off;
+        proxy_read_timeout 300;
+    }
+
     location ${SUPERSET_APP_ROOT} {
         proxy_pass http://superset_app;
         proxy_set_header Host $http_host;

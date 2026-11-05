@@ -31,6 +31,8 @@ and these tools write as the user.
 from __future__ import annotations
 
 import logging
+import queue
+import threading
 from collections.abc import Iterator
 from decimal import Decimal
 from typing import Any
@@ -57,6 +59,10 @@ MAX_OUTPUT_TOKENS = 64_000
 # Calls to the API for one message of the user
 MAX_MODEL_CALLS = 25
 INTERRUPTED = "The tool did not run: the request ended first."
+# Seconds without a byte before the stream says it is alive: under the 60 of a proxy
+KEEP_ALIVE_SECONDS = 15.0
+# An event with no meaning for the panel: it only keeps the connection open
+KEEP_ALIVE = "keep_alive"
 
 Event = tuple[str, dict[str, Any]]
 
@@ -158,13 +164,55 @@ def error_event(ex: Exception) -> Event:
     return "error", {"code": code, "message": message}
 
 
-def _call_model(client: Any, params: dict[str, Any]) -> Iterator[Event | Any]:
-    """Text as it arrives, as events, and the final message last."""
+def _stream_model(client: Any, params: dict[str, Any]) -> Iterator[Event | Any]:
     with client.beta.messages.stream(**params) as stream:
         for event in stream:
             if event.type == "text":
                 yield "text", {"text": event.text}
         yield stream.get_final_message()
+
+
+def _call_model(client: Any, params: dict[str, Any]) -> Iterator[Event | Any]:
+    """
+    Text as it arrives, as events, and the final message last.
+
+    While the model thinks nothing arrives: the thinking is not displayed and the SDK
+    drops the pings. So the call waits in a thread of its own, and this side yields
+    ``KEEP_ALIVE`` when the wait gets long. That thread only runs the HTTP call of the
+    SDK: the session, ``g`` and the tools stay in the thread of the request.
+    """
+    items: queue.Queue[tuple[str, Any]] = queue.Queue()
+    leaving = threading.Event()
+
+    def pump() -> None:
+        stream = _stream_model(client, params)
+        try:
+            for item in stream:
+                items.put(("item", item))
+                if leaving.is_set():
+                    break
+            items.put(("end", None))
+        except Exception as ex:  # pylint: disable=broad-except
+            items.put(("failed", ex))
+        finally:
+            stream.close()
+
+    threading.Thread(target=pump, daemon=True, name="assistant-model").start()
+    try:
+        while True:
+            try:
+                kind, value = items.get(timeout=KEEP_ALIVE_SECONDS)
+            except queue.Empty:
+                yield KEEP_ALIVE, {}
+                continue
+            if kind == "end":
+                return
+            if kind == "failed":
+                raise value
+            yield value
+    finally:
+        # The browser left: nobody reads what the model is still writing
+        leaving.set()
 
 
 def _turn_of(message: Any) -> AssistantTurn:
