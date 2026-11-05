@@ -59,7 +59,9 @@ Comprueba que:
 - un clic en el segmentador filtra las barras a una región;
 - el marcador, aplicado desde otra página, vuelve a su página y a su filtro.
 
-Cierra antes cualquier pestaña con un tablero abierto: el servidor de desarrollo atiende una petición a la vez.
+La prueba corre sin ventana (`headless`), así que basta con el navegador `chromium-headless-shell` de la
+versión de Playwright instalada (`node_modules/.bin/playwright install chromium-headless-shell`). Cierra antes
+cualquier pestaña con un tablero abierto: el servidor de desarrollo atiende una petición a la vez.
 
 ### Resultado de referencia
 
@@ -146,5 +148,8 @@ Anota en cada corrida la fecha, el commit, el cliente y el resultado (bien, con 
 
 ## Lo que la evaluación ya enseñó
 
+- El editor añade el título del tablero como componente `HEADER_ID` al abrirlo y lo guarda; el MCP no lo
+  escribía, así que el primer guardado desde el editor cambiaba el layout. Desde `99b36e708d` el MCP lo guarda
+  igual (`with_dashboard_header`), y la prueba de ida y vuelta lo vigila.
 - Un segmentador `variant: "buttons"` apila los botones en columna si no se le pide la fila
   (`settings: {"layout": "horizontal"}`): en una caja baja quedan cortados. El escenario lo pide.
