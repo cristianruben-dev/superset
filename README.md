@@ -78,6 +78,9 @@ algunas reglas de producto distintas:
   trabajo, conjuntos de datos e informes completos (páginas, gráficos, formato, segmentadores,
   marcadores, obtener detalles, diseño móvil), mirarlos con una captura, exportarlos y compartirlos.
   Se conecta con una clave personal creada en «Conectar IA» y actúa como su dueño, con sus mismos permisos.
+- **Un asistente de IA dentro de la aplicación:** «Pregúntale a tus datos» en la lectura y un copiloto en el editor, con
+  Claude de Anthropic. Actúa con los permisos de quien pregunta, pide confirmación antes de lo delicado, se puede deshacer y
+  tiene topes de gasto. Viene apagado, y lo que consulta viaja a Anthropic.
 - Conexión a PostgreSQL, SQL Server, MySQL, Databricks, Amazon Redshift y DuckDB.
 - **Historial de versiones y papelera:** un tablero, gráfico o conjunto de datos eliminado se queda
   en la papelera del área de trabajo (o en Administración) hasta que se purga; el historial de un
@@ -104,6 +107,7 @@ de Superset:
 | --- | --- |
 | Usuarios | [Manual de AuraData BI](docs/auradata/manual/README.md), pantalla por pantalla |
 | Conectar una IA | [docs/auradata/mcp/conectar.md](docs/auradata/mcp/conectar.md) |
+| Administrar el asistente de IA | [docs/auradata/asistente/administracion.md](docs/auradata/asistente/administracion.md) y su [evaluación](docs/auradata/asistente/evaluacion.md) |
 | Herramientas del MCP | [docs/auradata/mcp/referencia.md](docs/auradata/mcp/referencia.md) (generada) y la [lista de evaluación](docs/auradata/mcp/evaluacion.md) |
 | Desarrolladores | [docs/auradata/arquitectura.md](docs/auradata/arquitectura.md) |
 | Asistentes de IA que trabajan en el código | [AGENTS.md](AGENTS.md) (`CLAUDE.md` apunta al mismo archivo) |
