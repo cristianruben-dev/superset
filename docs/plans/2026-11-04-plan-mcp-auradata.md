@@ -199,6 +199,22 @@ No todo pesa igual, así que va en cuatro capas:
 configuración de producción y `.env-prod.example`, sin leer los nombres viejos; `docker/mibi` → `docker/auradata`,
 anclas del compose y la imagen por defecto `auradata-bi:latest`. Los `.env` locales no usaban ninguna variable `MIBI_*`.
 
+**R3 y R4 hechos (2026-11-04, rama `refactor/rename-auradata-data`):** todo nombre guardado pasa a `auradata`: tablas
+`auradata_*` (con sus constraints, índices y secuencias en PostgreSQL), claves `meta.auradata*`, `componentKey`
+`auradata-*`, paleta `auradata`, claves de form data `auradata_*`, data mask `auradata-drillthrough`, clases
+`.auradata-*`, atributos `data-auradata-*`, variables `--auradata-*`, ids `__auradata*`, parámetros
+`auradata_panel`/`auradata_dock` y claves `localStorage` `auradata.*` (las preferencias se reinician una vez). También
+los restos de R2: `POSTGRES_DB/USER`, el remitente por defecto y los prefijos de caché de producción.
+- Migración `a7e3c91d4b60` (sobre `f1c7a9e2b305`): renombra las tablas y reescribe `dashboards`, `slices`,
+  `dashboards_version`, `slices_version` y los enlaces permanentes de `key_value` por lotes, con expresiones ancladas en
+  la comilla JSON (o el selector CSS), sin reformatear el JSON ni tocar palabras como «Namibia». Usa SQL Core, no el
+  ORM, para no saltarse las filas en la papelera ni crear versiones.
+- Probada en una copia de la base de desarrollo: `upgrade` deja 0 claves viejas; `downgrade` devuelve las columnas
+  reescritas byte a byte (md5 por tabla) y los mismos nombres de esquema; un enlace permanente sintético va y vuelve.
+- Guardia: `tests/unit_tests/auradata/naming_guard_test.py` falla si el prefijo viejo vuelve al código.
+- Se quitó el test de `workspace_datasets_test.py` que ejecutaba la migración histórica `d3f9a2b17c64`: escribe en las
+  tablas `mibi_*`, que el esquema actual ya no tiene.
+
 ### R4: renombrar los datos guardados (decidido)
 
 **Qué se guarda con `mibi` y dónde:**
