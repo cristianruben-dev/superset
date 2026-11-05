@@ -142,6 +142,25 @@ MCP_SERVICE_URL = os.getenv("MCP_SERVICE_URL") or (
     f"http://localhost:{os.getenv('MCP_HOST_PORT', '5008')}/mcp"
 )
 
+# AI assistant. Set ANTHROPIC_API_KEY in docker/.env-local, which git ignores. The key
+# stays on the server. AURADATA_ASSISTANT_* are the defaults: what an admin picks in
+# Administration › AI assistant wins over them.
+_assistant_models = os.getenv("AURADATA_ASSISTANT_ALLOWED_MODELS", "")
+_assistant_budget = os.getenv("AURADATA_ASSISTANT_MONTHLY_BUDGET_USD", "")
+ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY") or None
+AURADATA_ASSISTANT_ENABLED = os.getenv(
+    "AURADATA_ASSISTANT_ENABLED", "false"
+).lower() in ("1", "true", "yes")
+AURADATA_ASSISTANT_DEFAULT_MODEL = (
+    os.getenv("AURADATA_ASSISTANT_DEFAULT_MODEL") or "claude-sonnet-5-5"
+)
+AURADATA_ASSISTANT_ALLOWED_MODELS = [
+    model.strip() for model in _assistant_models.split(",") if model.strip()
+] or None
+AURADATA_ASSISTANT_MONTHLY_BUDGET_USD = (
+    float(_assistant_budget) if _assistant_budget else None
+)
+
 # User the MCP service acts as when it takes no credential. With API keys on (the
 # default) the MCP service refuses any request without a key, so this only applies
 # after setting MCP_API_KEY_ENABLED=false in docker/.env-local. Local development only.

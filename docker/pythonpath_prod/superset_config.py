@@ -148,6 +148,23 @@ MCP_JWT_SECRET = os.getenv("MCP_JWT_SECRET") or None
 MCP_AUTH_ENABLED = MCP_JWT_SECRET is not None
 MCP_JWT_ALGORITHM = "HS256"
 MCP_JWT_ISSUER = os.getenv("MCP_JWT_ISSUER") or None
+
+# --- AI assistant -------------------------------------------------------------
+# The key stays on the server. AURADATA_ASSISTANT_* are the defaults: what an admin
+# picks in Administration › AI assistant wins over them.
+_assistant_models = os.getenv("AURADATA_ASSISTANT_ALLOWED_MODELS", "")
+_assistant_budget = os.getenv("AURADATA_ASSISTANT_MONTHLY_BUDGET_USD", "")
+ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY") or None
+AURADATA_ASSISTANT_ENABLED = _flag("AURADATA_ASSISTANT_ENABLED", False)
+AURADATA_ASSISTANT_DEFAULT_MODEL = (
+    os.getenv("AURADATA_ASSISTANT_DEFAULT_MODEL") or "claude-sonnet-5-5"
+)
+AURADATA_ASSISTANT_ALLOWED_MODELS = [
+    model.strip() for model in _assistant_models.split(",") if model.strip()
+] or None
+AURADATA_ASSISTANT_MONTHLY_BUDGET_USD = (
+    float(_assistant_budget) if _assistant_budget else None
+)
 MCP_JWT_AUDIENCE = os.getenv("MCP_JWT_AUDIENCE") or None
 
 # --- Logging ------------------------------------------------------------------

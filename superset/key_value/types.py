@@ -88,6 +88,9 @@ class SharedKey(StrEnum):
     # Read live each run by deletion_retention.purge_soft_deleted; falls back to
     # SOFT_DELETE_RETENTION_DAYS when unset. 0 disables the purge.
     SOFT_DELETE_RETENTION_DAYS = "soft_delete_retention_days"
+    # What the admin chose for the AI assistant, as a JSON object. Keys it lacks take
+    # their configuration value (superset.auradata.assistant.settings).
+    AURADATA_ASSISTANT_SETTINGS = "auradata_assistant_settings"  # noqa: S105
 
 
 class KeyValueCodec(ABC):

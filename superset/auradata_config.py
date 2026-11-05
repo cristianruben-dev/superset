@@ -30,6 +30,7 @@ Colors live in the theme tokens; the global stylesheet
 type, so light/dark mode and per-dashboard themes keep working.
 """
 
+import os
 from typing import Any
 
 from superset.themes.types import Theme
@@ -286,3 +287,16 @@ EXTRA_CATEGORICAL_COLOR_SCHEMES: list[dict[str, Any]] = [
         ],
     },
 ]
+
+# --- AI assistant -----------------------------------------------------------
+# Static defaults: what the admin picks in Administration wins over them. The key
+# stays on the server, and the data a user asks about travels to Anthropic, so the
+# assistant starts off.
+
+ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY") or None
+AURADATA_ASSISTANT_ENABLED = False
+AURADATA_ASSISTANT_DEFAULT_MODEL = "claude-sonnet-5-5"
+# None offers the current model of each family
+AURADATA_ASSISTANT_ALLOWED_MODELS: list[str] | None = None
+# None sets no limit
+AURADATA_ASSISTANT_MONTHLY_BUDGET_USD: float | None = None
