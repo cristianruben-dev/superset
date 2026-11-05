@@ -125,6 +125,16 @@ def test_the_default_model_must_be_allowed(store: dict) -> None:
     assert SharedKey.AURADATA_ASSISTANT_SETTINGS not in store
 
 
+def test_without_a_list_the_default_must_be_a_current_model(store: dict) -> None:
+    with pytest.raises(AssistantSettingsError) as raised:
+        save_assistant_settings(
+            {"default_model": "claude-opus-4-8"},
+            catalog("claude-sonnet-5-5", "claude-opus-4-8"),
+        )
+
+    assert list(raised.value.messages) == ["default_model"]
+
+
 def test_an_empty_allowed_list_is_refused(store: dict) -> None:
     with pytest.raises(AssistantSettingsError) as raised:
         save_assistant_settings(

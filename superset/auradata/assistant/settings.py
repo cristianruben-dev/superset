@@ -98,18 +98,28 @@ def offered_models(
     catalog: Catalog,
 ) -> list[CatalogModel]:
     """The models of the catalog that users may pick."""
-    if settings.allowed_models is None:
-        return [
-            model for model in catalog.models if model.spec.status == STATUS_CURRENT
-        ]
-    allowed = set(settings.allowed_models)
+    allowed = (
+        _current_model_ids(catalog)
+        if settings.allowed_models is None
+        else set(settings.allowed_models)
+    )
     return [model for model in catalog.models if model.id in allowed]
 
 
-def _validate(values: dict[str, Any], valid_ids: set[str]) -> None:
+def _current_model_ids(catalog: Catalog) -> set[str]:
+    """The models offered when the admin has not narrowed the list."""
+    return {model.id for model in catalog.models if model.spec.status == STATUS_CURRENT}
+
+
+def _validate(
+    values: dict[str, Any],
+    valid_ids: set[str],
+    catalog: Catalog,
+) -> None:
     """Refuse settings that would leave the assistant with no model to use."""
     allowed = values["allowed_models"]
     default = values["default_model"]
+    offered = _current_model_ids(catalog) if allowed is None else set(allowed)
     errors: dict[str, list[str]] = {}
     if allowed is not None:
         if not allowed:
@@ -122,7 +132,7 @@ def _validate(values: dict[str, Any], valid_ids: set[str]) -> None:
         errors["default_model"] = [
             _("Unknown model: %(model)s", model=default),
         ]
-    elif allowed and default not in allowed:
+    elif offered and default not in offered:
         errors["default_model"] = [_("The default model must be an allowed model.")]
     if errors:
         raise AssistantSettingsError(errors)
@@ -143,6 +153,6 @@ def save_assistant_settings(
     valid_ids.update(current.allowed_models or ())
     valid_ids.add(current.default_model)
     merged = {**asdict(current), **values}
-    _validate(merged, valid_ids)
+    _validate(merged, valid_ids, catalog)
     upsert_shared_value(SharedKey.AURADATA_ASSISTANT_SETTINGS, merged)
     return _settings_from(merged)
