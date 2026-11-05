@@ -47,6 +47,7 @@ async def get_version_diff(request: VersionRef, ctx: Context) -> GetVersionDiffR
     from superset.mcp_service.history.utils import (
         entity_versions,
         error_response,
+        field_changes,
         find_version,
         history_entity,
         HistoryError,
@@ -74,6 +75,6 @@ async def get_version_diff(request: VersionRef, ctx: Context) -> GetVersionDiffR
             version=version_item(version),
             changes=[
                 VersionChange.model_validate(change)
-                for change in version.get("changes") or []
+                for change in field_changes(version.get("changes") or [])
             ],
         )

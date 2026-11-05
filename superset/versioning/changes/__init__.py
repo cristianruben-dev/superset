@@ -55,6 +55,7 @@ from superset.versioning.changes.listener import (
     register_change_record_listener,
 )
 from superset.versioning.changes.shadow_queries import shadow_rows_valid_at
+from superset.versioning.changes.state import acting_model, AGENT_KIND
 from superset.versioning.changes.table import (
     ENTITY_KIND_BY_CLASS_NAME,
     version_changes_table,
@@ -67,6 +68,8 @@ __all__ = [
     "ACTION_KIND_RESTORE",
     "ACTION_KINDS",
     "ACTION_META_KEY",
+    "acting_model",
+    "AGENT_KIND",
     "build_action_headline",
     "OPERATION_ANNOUNCE",
     "ENTITY_KIND_BY_CLASS_NAME",

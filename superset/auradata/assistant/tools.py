@@ -27,7 +27,10 @@ grants, one dashboard per chart, row level security, version history).
 Tools that delete, overwrite, publish, share, schedule, restore or move are offered in
 edit mode, but ``ToolBox.call`` refuses them unless the person approved that exact call
 on screen (``superset.auradata.assistant.agent``). That refusal holds whatever the loop
-above it does. ``call`` is also the one place every tool passes through.
+above it does. ``call`` is also the one place every tool passes through, so it is where
+the assistant leaves its mark: the saves of a call say which model made them
+(``acting_model``), and each call is a row of the action log, because the MCP service
+that writes those rows for an outside AI does not run here.
 
 The FastMCP middleware does not run in the web process, so this module caps the size
 of results and hides internal errors, as the size guard and the error handler do on
@@ -38,13 +41,18 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import time
 from collections.abc import Sequence
 from dataclasses import dataclass
 from typing import Any
 
 from flask import current_app, g
 
+from superset.auradata.action_log import ASSISTANT_TOOL_CALL
+from superset.extensions import event_logger
 from superset.security.api_key_scopes import METHOD_PERMISSION_SCOPE_ACTION
+from superset.utils.core import get_user_id
+from superset.versioning.changes import acting_model
 
 logger = logging.getLogger(__name__)
 
@@ -212,10 +220,20 @@ def _safe_error_text(content: list[Any]) -> str:
 class ToolBox:
     """The tools one user has in one mode, for the length of one request."""
 
-    def __init__(self, username: str, mode: str) -> None:
+    def __init__(
+        self,
+        username: str,
+        mode: str,
+        model: str | None = None,
+        dashboard_id: int | None = None,
+    ) -> None:
         from superset.mcp_service.auth import InProcessPrincipal
 
         self._mode = mode
+        self._model = model
+        self._dashboard_id = dashboard_id
+        # Known once the conversation exists, after the tools are built
+        self.conversation_id: str | None = None
         self._principal = InProcessPrincipal(
             username, READ_SCOPES if mode == MODE_READ else None
         )
@@ -305,19 +323,54 @@ class ToolBox:
         from superset.mcp_service.auth import run_as
 
         previous_user = g.get("user")
+        user_id = get_user_id()
+        started = time.monotonic()
         try:
-            with run_as(self._principal):
+            with run_as(self._principal), acting_model(self._model):
                 result = asyncio.run(self._call_tool(name, arguments))
         except Exception:  # pylint: disable=broad-except
             logger.exception("Assistant tool %s failed", name)
+            self._log_call(name, arguments, user_id, started, success=False)
             return _error("The tool failed. Try again or ask for something else.")
         finally:
             # The tool leaves in g.user its own copy, bound to its own session
             g.user = previous_user
+        self._log_call(name, arguments, user_id, started, not result.is_error)
         if result.is_error:
             return _error(_safe_error_text(result.content))
         blocks = [_block_of(item) for item in result.content]
         return ToolOutcome(blocks or [_text_block("")])
+
+    def _log_call(
+        self,
+        name: str,
+        arguments: dict[str, Any],
+        user_id: int | None,
+        started: float,
+        success: bool,
+    ) -> None:
+        """One row of the action log for a call. It never gets in the way of a tool."""
+        from superset.mcp_service.middleware import _sanitize_params
+
+        try:
+            event_logger.log(
+                user_id=user_id,
+                action=ASSISTANT_TOOL_CALL,
+                dashboard_id=self._dashboard_id,
+                duration_ms=int((time.monotonic() - started) * 1000),
+                slice_id=None,
+                referrer=None,
+                curated_payload={
+                    "tool": name,
+                    "model": self._model,
+                    "mode": self._mode,
+                    "conversation_id": self.conversation_id,
+                    "params": _sanitize_params(arguments),
+                    "success": success,
+                },
+            )
+        except Exception:  # pylint: disable=broad-except
+            logger.warning("The call to %s stayed out of the action log", name)
 
     @staticmethod
     async def _call_tool(name: str, arguments: dict[str, Any]) -> Any:

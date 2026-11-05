@@ -204,6 +204,9 @@ ACTIVITY_CHANGE_KINDS: tuple[str, ...] = (
     # whose record's ``to_value`` carries the restored-to
     # ``version_uuid`` / ``version_number``.
     "__meta__",
+    # Says an AI agent made the save: ``to_value`` names its model
+    # (superset.versioning.changes.AGENT_KIND).
+    "__agent__",
 )
 
 #: Allowed values for ``ActivityRecordSchema.operation`` — the per-record

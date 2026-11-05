@@ -67,6 +67,7 @@ from superset.versioning.api_helpers import (
     PathEntityResponseError,
     resolve_endpoint_path_entity,
 )
+from superset.versioning.changes import AGENT_KIND
 
 _DEFAULT_PAGE_SIZE: int = 25
 _MAX_PAGE_SIZE: int = 200
@@ -77,6 +78,9 @@ _VALID_INCLUDE_VALUES: frozenset[str] = frozenset({"self", "related", "all"})
 # the (already-capped) materialized record set, so this is a cheap-DoS guard,
 # not a correctness limit.
 _MAX_Q_LENGTH: int = 1024
+
+# The value of ``by`` that keeps only the saves an AI agent made.
+BY_ASSISTANT = "assistant"
 
 
 class ActivityParamsError(ValueError):
@@ -107,6 +111,10 @@ def parse_activity_query_params(args: Any) -> dict[str, Any]:
         if len(q) > _MAX_Q_LENGTH:
             raise ActivityParamsError(f"'q' must be at most {_MAX_Q_LENGTH} characters")
         params["q"] = q
+    if args.get("by"):
+        if args["by"] != BY_ASSISTANT:
+            raise ActivityParamsError(f"Invalid 'by' value: {args['by']!r}")
+        params["by"] = BY_ASSISTANT
     return params
 
 
@@ -223,6 +231,24 @@ def _record_matches(record: dict[str, Any], q: str) -> bool:
     return any(needle in h.lower() for h in haystacks)
 
 
+def _saves_by_agent(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """The records of the saves that carry the mark of an AI agent."""
+    marked = {r["transaction_id"] for r in records if r.get("kind") == AGENT_KIND}
+    return [r for r in records if r["transaction_id"] in marked]
+
+
+def _search(records: list[dict[str, Any]], q: str) -> list[dict[str, Any]]:
+    """The matches of ``q``, plus the agent mark of the saves they belong to."""
+    found = {id(r) for r in records if _record_matches(r, q)}
+    saves = {r["transaction_id"] for r in records if id(r) in found}
+    return [
+        r
+        for r in records
+        if id(r) in found
+        or (r.get("kind") == AGENT_KIND and r["transaction_id"] in saves)
+    ]
+
+
 def get_activity(
     model_cls: type[Model],
     entity_uuid: UUID,
@@ -231,6 +257,7 @@ def get_activity(
     until: datetime | None = None,
     include: str = "all",
     q: str | None = None,
+    by: str | None = None,
     page: int = 0,
     page_size: int = _DEFAULT_PAGE_SIZE,
     resolved_entity: Any | None = None,
@@ -312,8 +339,10 @@ def get_activity(
     # count so pagination paginates the MATCHES — the full record set
     # is already materialized in Python (the documented design),
     # so the filter adds no extra query.
+    if by == BY_ASSISTANT:
+        records = _saves_by_agent(records)
     if q:
-        records = [r for r in records if _record_matches(r, q)]
+        records = _search(records, q)
 
     total = len(records)
     bounded_size = max(1, min(page_size, _MAX_PAGE_SIZE))

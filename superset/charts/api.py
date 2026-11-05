@@ -1929,6 +1929,12 @@ class ChartRestApi(SoftDeleteApiMixin, BaseSupersetModelRestApi):
           - in: query
             schema:
               type: string
+              enum: [assistant]
+            name: by
+            description: Keep only the saves the AI assistant made
+          - in: query
+            schema:
+              type: string
             name: q
             description: >-
               Case-insensitive search over the full history (summary,

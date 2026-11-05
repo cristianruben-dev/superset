@@ -89,6 +89,9 @@ class VersionItem(BaseModel):
     changed_by: VersionAuthor | None = None
     change_count: int = 0
     change_kinds: list[str] = Field(default_factory=list)
+    assistant_model: str | None = Field(
+        None, description="The model, when the in-app AI assistant made this save"
+    )
 
 
 class ListVersionsResponse(HistoryOutcome):

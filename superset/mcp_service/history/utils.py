@@ -36,6 +36,7 @@ from superset.mcp_service.history.schemas import (
     VersionAuthor,
     VersionItem,
 )
+from superset.versioning.changes import AGENT_KIND
 
 R = TypeVar("R", bound=HistoryOutcome)
 
@@ -213,11 +214,29 @@ def find_version(
     )
 
 
+def field_changes(changes: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """What a save changed, without the mark of who made it."""
+    return [change for change in changes if change.get("kind") != AGENT_KIND]
+
+
+def _assistant_model(changes: list[dict[str, Any]]) -> str | None:
+    """The model of the AI assistant that made a save, if it did."""
+    return next(
+        (
+            change["to_value"].get("assistant_model")
+            for change in changes
+            if change.get("kind") == AGENT_KIND
+        ),
+        None,
+    )
+
+
 def version_item(version: dict[str, Any]) -> VersionItem:
     """A version without its changes, with a summary of them."""
     changed_by = version.get("changed_by")
     issued_at = version.get("issued_at")
     changes = version.get("changes") or []
+    made = field_changes(changes)
     return VersionItem(
         version_uuid=str(version["version_uuid"]),
         version_number=version["version_number"],
@@ -234,8 +253,9 @@ def version_item(version: dict[str, Any]) -> VersionItem:
         )
         if changed_by
         else None,
-        change_count=len(changes),
-        change_kinds=sorted({str(c.get("kind")) for c in changes if c.get("kind")}),
+        change_count=len(made),
+        change_kinds=sorted({str(c.get("kind")) for c in made if c.get("kind")}),
+        assistant_model=_assistant_model(changes),
     )
 
 

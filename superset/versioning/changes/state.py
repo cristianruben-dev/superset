@@ -37,6 +37,9 @@ lives here too — it's the tail of the per-entity compute pipeline.
 from __future__ import annotations
 
 import logging
+from collections.abc import Iterator
+from contextlib import contextmanager
+from contextvars import ContextVar
 from datetime import date, datetime
 from decimal import Decimal
 from typing import Any
@@ -62,6 +65,40 @@ from superset.versioning.diff import (
 from superset.versioning.utils import read_row_outside_flush
 
 logger = logging.getLogger(__name__)
+
+#: ``kind`` of the record that says an AI agent made a save, not the person alone.
+#: One goes on each entity of the transaction, first, and carries the model in
+#: ``to_value``. ``action_kind`` cannot hold it: it has one short value per
+#: transaction, and a restore made by an agent still has to read as a restore.
+AGENT_KIND = "__agent__"
+
+_acting_model: ContextVar[str | None] = ContextVar("acting_model", default=None)
+
+
+@contextmanager
+def acting_model(model: str | None) -> Iterator[None]:
+    """
+    Mark every save of this block as made by the agent running ``model``.
+
+    A context variable, because the tools of the assistant commit on a session of
+    their own, in a task of their own, and ``session.info`` would not reach them.
+    """
+    token = _acting_model.set(model)
+    try:
+        yield
+    finally:
+        _acting_model.reset(token)
+
+
+def agent_record(model: str) -> ChangeRecord:
+    """The record that marks a save as made by an agent."""
+    return ChangeRecord(
+        kind=AGENT_KIND,
+        operation="announce",
+        path=[AGENT_KIND],
+        from_value=None,
+        to_value={"assistant_model": model},
+    )
 
 
 # Per-model-class cache of the scalar-field set. Populated lazily on
@@ -229,7 +266,10 @@ def bulk_insert_records(
                 )
         # Bound a single save's output: collapse field-level record explosions
         # and truncate over-large values before they hit version_changes.
-        for seq, r in enumerate(cap_records(records)):
+        capped = cap_records(records)
+        if capped and (model := _acting_model.get()) is not None:
+            capped = [agent_record(model), *capped]
+        for seq, r in enumerate(capped):
             rows.append(
                 {
                     "transaction_id": transaction_id,

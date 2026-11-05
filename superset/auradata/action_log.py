@@ -23,7 +23,9 @@ action log keeps only what changes data or takes data out, plus the two page
 views the "Recent" section of the home page is built from.
 
 The MCP service writes its own records (`mcp_tool_call` and friends) straight
-to the logger, outside this filter, so what an AI does stays in the log.
+to the logger, outside this filter, so what an AI does stays in the log. The
+in-app assistant runs the same tools without that service, so it writes one
+`assistant_tool_call` per call, which this filter keeps by name.
 """
 
 from __future__ import annotations
@@ -32,6 +34,9 @@ from typing import Any
 
 # Action name the browser uses to send its events in a batch.
 CLIENT_ACTION = "log"
+
+# One tool call of the in-app assistant. Its JSON names the tool and the model.
+ASSISTANT_TOOL_CALL = "assistant_tool_call"
 
 # Browser events that are kept. `mount_dashboard` and `mount_explorer` feed the
 # "Recent" section of the home page.
@@ -116,6 +121,8 @@ def select_records(action: str, records: list[dict[str, Any]]) -> list[dict[str,
     dropped whole. Actions outside the Superset API naming (`Class.method`)
     and the browser batch, such as internal steps, are dropped.
     """
+    if action == ASSISTANT_TOOL_CALL:
+        return records
     if action == CLIENT_ACTION:
         return [
             record
