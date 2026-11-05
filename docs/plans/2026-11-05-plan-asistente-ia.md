@@ -118,6 +118,17 @@ Tamaños: **S** (un día o menos), **M** (unos días), **L** (una semana o más)
 **Listo cuando:** una pregunta por la API devuelve en streaming una respuesta que usó herramientas reales del MCP, con
 el modelo elegido, y queda guardada con su costo.
 
+> **Hecho (2026-11-05), con pruebas sobre un cliente falso.** Falta la prueba real con la clave de Anthropic. Decisiones:
+> - **Bucle propio en vez del *tool runner*:** cada respuesta se guarda con su costo antes de la siguiente, y una respuesta
+>   rechazada o cortada nunca ejecuta herramientas.
+> - **Identidad:** en el proceso web `MCP_DEV_USERNAME` se lee antes que `g.user`, así que las llamadas van dentro de
+>   `run_as`, que tiene prioridad sobre todo y falla cerrado. El modo lectura lleva además el alcance `superset:read`.
+> - **Confirmaciones:** las herramientas destructivas y las de compartir no se ofrecen en ningún modo hasta la fase 3.
+> - **Modo fijo por conversación:** una conversación guarda referencias a herramientas, y otro modo ofrece otras.
+> - El modo edición exige poder editar el tablero; la clave `sst_` no entra al chat, que gasta la clave del servidor.
+> - Las herramientas de captura abren la app en un navegador. Con `flask run --without-threads` esa visita tendría que
+>   esperar a que termine la misma petición, así que pueden bloquearse (sin probar); gunicorn atiende varias a la vez.
+
 ## 2. «Pregúntale a tus datos» (L)
 
 1. **Panel en modo lectura** (`src/auradata/assistant/`): un botón en la barra de lectura (`ReadingBar`) abre un panel

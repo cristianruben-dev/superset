@@ -96,6 +96,16 @@ This repository is **AuraData BI**, a fork of Apache Superset 7.0 shaped like Po
   one `SharedKey` of the key-value store (no table), on the `AURADATA_ASSISTANT_*` config. Administration › AI assistant
   (`/assistant/settings/`, `/api/v1/auradata_assistant/settings/`) is admin only. `ANTHROPIC_API_KEY` stays on the server:
   no response carries it. `anthropic` is imported only where the client is built, so a process without it still starts.
+  The chat is `POST /api/v1/auradata/assistant/` (SSE, `api.py`), for browser sessions only. `agent.py` is the loop, written
+  out instead of using the SDK's tool runner because each response is stored with its cost before the next, and a refused
+  or cut response never runs tools. `tools.py` builds `ToolBox`, the exact tools of a user in a mode and the only gate for
+  a tool name; each call runs the real tool in an in-memory MCP session under `run_as`, because the web config may set
+  `MCP_DEV_USERNAME`, which user resolution reads before `g.user`. Read mode also carries the `superset:read` scope, so
+  the tool wrapper refuses writes by itself. Tools that need an on-screen confirmation (destructive or sharing) are not
+  offered in any mode until phase 3. A conversation belongs to one user, dashboard and mode, and only grows
+  (`conversations.py`, tables `auradata_assistant_conversations` and `auradata_assistant_messages`): `content` is sent
+  back unchanged, except the blocks the API says to omit before a `fallback` block, and refused turns stay for their cost
+  but are not sent. What a tool returns never enters the system prompt (`prompt.py`).
 - **The MCP drives the whole product** (`superset/mcp_service/`, its own `CLAUDE.md`): workspaces, report pages and
   objects, visuals, format, elements and slicers, interactivity, mobile layout, capture and export, sharing,
   scheduled reports, trash and history, the data model, and `auradata://` guidance with Spanish prompts. Tools write
@@ -189,7 +199,7 @@ This repository is **AuraData BI**, a fork of Apache Superset 7.0 shaped like Po
 
 AuraData BI APIs: `/api/v1/workspace/` (with `<id>/dashboards/` and `<id>/datasets/`),
 `/api/v1/dashboard_background/<dashboard>/`, `/api/v1/dashboard_image/<dashboard>/<image>/`,
-`/api/v1/auradata/dashboard_previews/`, `/api/v1/auradata_assistant/settings/`. Each new API is registered in `superset/initialization/__init__.py`.
+`/api/v1/auradata/dashboard_previews/`, `/api/v1/auradata_assistant/settings/`, `/api/v1/auradata/assistant/`. Each new API is registered in `superset/initialization/__init__.py`.
 
 ### Dashboard formatting lives in the layout
 Formats are stored in `position_json`, so they save, undo and export with the dashboard:
@@ -390,7 +400,8 @@ themes and CSS templates) → `d3f9a2b17c64` (workspace datasets). The chain end
 `f1c7a9e2b305`, whose `down_revision` is the Superset 7.0 head (`88a01c781622`) and the fork head, so there is
 one head and a database at `d3f9a2b17c64` still runs the 41 migrations of 7.0 on `db upgrade`. After the merge comes
 `a7e3c91d4b60` (renames the persisted `mibi` names to `auradata`).
-- A new fork migration revises the current head (`a7e3c91d4b60` until the next one).
+After it comes `c6a1f4e09b27` (conversations of the assistant).
+- A new fork migration revises the current head (`c6a1f4e09b27` until the next one).
 - Each new Superset release follows the same rule: add another merge revision of its head and the fork head.
   Never repoint `8bc9e5b95335` (or any fork revision) to the new upstream head: a database that already ran the
   fork migrations would skip the new upstream ones.
