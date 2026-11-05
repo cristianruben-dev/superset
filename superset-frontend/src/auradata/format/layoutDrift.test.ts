@@ -41,6 +41,12 @@ import {
   withOwnFormat,
 } from './chartFormatSettings';
 import { formatOf, pastedMeta } from './formatPainter';
+import { getFilterScopeLevel } from 'src/dashboard/components/nativeFilters/scopeLevel';
+import {
+  crossFilterScope,
+  interactionMode,
+} from 'src/auradata/report/interactions';
+import { tooltipPageOf } from 'src/auradata/report/tooltipPages';
 
 const REPO = join(__dirname, '..', '..', '..', '..');
 const FIXTURES = join(REPO, 'tests', 'fixtures', 'auradata', 'layouts');
@@ -67,6 +73,11 @@ const FUNCTIONS: Record<string, Fn> = {
   mobileSizeOf: ((item: LayoutItem | null) =>
     mobileSizeOf(item ?? undefined)) as Fn,
   pageObjects: pageObjects as Fn,
+  getFilterScopeLevel: getFilterScopeLevel as Fn,
+  crossFilterScope: crossFilterScope as Fn,
+  interactionMode: interactionMode as Fn,
+  tooltipPageOf: ((meta: Record<string, unknown> | null) =>
+    tooltipPageOf(meta ?? undefined)) as Fn,
   topLevelTabs: ((layout: DashboardLayout) =>
     topLevelTabs(layout).map(({ id, title, hidden }) => ({
       id,

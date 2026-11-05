@@ -1,0 +1,112 @@
+{
+  "fn": "crossFilterScope",
+  "cases": [
+    {
+      "name": "no metadata",
+      "args": [
+        null,
+        5
+      ],
+      "expected": {
+        "rootPath": [
+          "ROOT_ID"
+        ],
+        "excluded": []
+      }
+    },
+    {
+      "name": "own scope",
+      "args": [
+        {
+          "chart_configuration": {
+            "5": {
+              "id": 5,
+              "crossFilters": {
+                "scope": {
+                  "rootPath": [
+                    "ROOT_ID"
+                  ],
+                  "excluded": [
+                    7
+                  ]
+                }
+              }
+            }
+          }
+        },
+        5
+      ],
+      "expected": {
+        "rootPath": [
+          "ROOT_ID"
+        ],
+        "excluded": [
+          7
+        ]
+      }
+    },
+    {
+      "name": "global pointer takes the global scope",
+      "args": [
+        {
+          "chart_configuration": {
+            "5": {
+              "id": 5,
+              "crossFilters": {
+                "scope": "global"
+              }
+            }
+          },
+          "global_chart_configuration": {
+            "scope": {
+              "rootPath": [
+                "TAB-1"
+              ],
+              "excluded": [
+                2
+              ]
+            }
+          }
+        },
+        5
+      ],
+      "expected": {
+        "rootPath": [
+          "TAB-1"
+        ],
+        "excluded": [
+          2
+        ]
+      }
+    },
+    {
+      "name": "another chart's setting",
+      "args": [
+        {
+          "chart_configuration": {
+            "6": {
+              "id": 6,
+              "crossFilters": {
+                "scope": {
+                  "rootPath": [
+                    "ROOT_ID"
+                  ],
+                  "excluded": [
+                    7
+                  ]
+                }
+              }
+            }
+          }
+        },
+        5
+      ],
+      "expected": {
+        "rootPath": [
+          "ROOT_ID"
+        ],
+        "excluded": []
+      }
+    }
+  ]
+}

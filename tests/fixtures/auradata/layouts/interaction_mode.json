@@ -1,0 +1,59 @@
+{
+  "fn": "interactionMode",
+  "cases": [
+    {
+      "name": "filters by default",
+      "args": [
+        {},
+        5,
+        7
+      ],
+      "expected": "filter"
+    },
+    {
+      "name": "none when excluded",
+      "args": [
+        {
+          "chart_configuration": {
+            "5": {
+              "id": 5,
+              "crossFilters": {
+                "scope": {
+                  "rootPath": [
+                    "ROOT_ID"
+                  ],
+                  "excluded": [
+                    7
+                  ]
+                }
+              }
+            }
+          }
+        },
+        5,
+        7
+      ],
+      "expected": "none"
+    },
+    {
+      "name": "global exclusion",
+      "args": [
+        {
+          "global_chart_configuration": {
+            "scope": {
+              "rootPath": [
+                "ROOT_ID"
+              ],
+              "excluded": [
+                7
+              ]
+            }
+          }
+        },
+        5,
+        7
+      ],
+      "expected": "none"
+    }
+  ]
+}

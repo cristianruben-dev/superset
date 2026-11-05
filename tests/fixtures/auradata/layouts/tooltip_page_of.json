@@ -1,0 +1,74 @@
+{
+  "fn": "tooltipPageOf",
+  "cases": [
+    {
+      "name": "not a tooltip",
+      "args": [
+        {
+          "text": "Ventas"
+        }
+      ],
+      "expected": null
+    },
+    {
+      "name": "no meta",
+      "args": [
+        null
+      ],
+      "expected": null
+    },
+    {
+      "name": "empty setting takes defaults",
+      "args": [
+        {
+          "auradataTooltipPage": {}
+        }
+      ],
+      "expected": {
+        "width": 10,
+        "height": 8,
+        "columns": []
+      }
+    },
+    {
+      "name": "size rounded and bounded",
+      "args": [
+        {
+          "auradataTooltipPage": {
+            "width": 12.5,
+            "height": 1,
+            "columns": [
+              "region",
+              3
+            ]
+          }
+        }
+      ],
+      "expected": {
+        "width": 13,
+        "height": 2,
+        "columns": [
+          "region",
+          "3"
+        ]
+      }
+    },
+    {
+      "name": "too large",
+      "args": [
+        {
+          "auradataTooltipPage": {
+            "width": 99,
+            "height": "8",
+            "columns": "region"
+          }
+        }
+      ],
+      "expected": {
+        "width": 60,
+        "height": 8,
+        "columns": []
+      }
+    }
+  ]
+}

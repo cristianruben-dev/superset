@@ -1,0 +1,142 @@
+{
+  "fn": "getFilterScopeLevel",
+  "cases": [
+    {
+      "name": "explicit level wins",
+      "args": [
+        {
+          "scopeLevel": "visual",
+          "scope": {
+            "rootPath": [
+              "TAB-1"
+            ],
+            "excluded": []
+          }
+        }
+      ],
+      "expected": "visual"
+    },
+    {
+      "name": "unknown explicit level is derived",
+      "args": [
+        {
+          "scopeLevel": "auto",
+          "scope": {
+            "rootPath": [
+              "TAB-1"
+            ],
+            "excluded": []
+          }
+        }
+      ],
+      "expected": "page"
+    },
+    {
+      "name": "no scope is the report",
+      "args": [
+        {}
+      ],
+      "expected": "report"
+    },
+    {
+      "name": "rooted at pages",
+      "args": [
+        {
+          "scope": {
+            "rootPath": [
+              "TAB-1",
+              "TAB-2"
+            ],
+            "excluded": [
+              3
+            ]
+          }
+        }
+      ],
+      "expected": "page"
+    },
+    {
+      "name": "whole report",
+      "args": [
+        {
+          "scope": {
+            "rootPath": [
+              "ROOT_ID"
+            ],
+            "excluded": []
+          }
+        }
+      ],
+      "expected": "report"
+    },
+    {
+      "name": "few charts in scope",
+      "args": [
+        {
+          "scope": {
+            "rootPath": [
+              "ROOT_ID"
+            ],
+            "excluded": [
+              1,
+              2,
+              3
+            ]
+          },
+          "chartsInScope": [
+            4
+          ]
+        }
+      ],
+      "expected": "visual"
+    },
+    {
+      "name": "most charts in scope",
+      "args": [
+        {
+          "scope": {
+            "rootPath": [
+              "ROOT_ID"
+            ],
+            "excluded": [
+              1
+            ]
+          },
+          "chartsInScope": [
+            2,
+            3
+          ]
+        }
+      ],
+      "expected": "report"
+    },
+    {
+      "name": "excluded without charts in scope",
+      "args": [
+        {
+          "scope": {
+            "rootPath": [
+              "ROOT_ID"
+            ],
+            "excluded": [
+              1
+            ]
+          }
+        }
+      ],
+      "expected": "report"
+    },
+    {
+      "name": "empty root path",
+      "args": [
+        {
+          "scope": {
+            "rootPath": [],
+            "excluded": []
+          }
+        }
+      ],
+      "expected": "report"
+    }
+  ]
+}

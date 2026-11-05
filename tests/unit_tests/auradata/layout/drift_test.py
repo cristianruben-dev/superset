@@ -48,6 +48,12 @@ from superset.auradata.layout import (
     top_tabs_id,
     with_own_format,
 )
+from superset.auradata.layout.interactivity import (
+    cross_filter_scope,
+    filter_scope_level,
+    interaction_mode,
+    tooltip_page_of,
+)
 from superset.utils import json
 
 FIXTURES = Path(__file__).parents[3] / "fixtures" / "auradata" / "layouts"
@@ -90,6 +96,10 @@ FUNCTIONS: dict[str, Callable[..., Any]] = {
     "mobileSizeOf": mobile_size_of,
     "pageObjects": page_objects,
     "topLevelTabs": _top_level_tabs,
+    "getFilterScopeLevel": filter_scope_level,
+    "crossFilterScope": cross_filter_scope,
+    "interactionMode": interaction_mode,
+    "tooltipPageOf": tooltip_page_of,
 }
 
 
