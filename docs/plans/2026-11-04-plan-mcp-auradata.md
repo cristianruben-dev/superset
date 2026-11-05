@@ -474,10 +474,17 @@ históricas. El `CLAUDE.md` del proyecto y el de `mcp_service` reescriben su reg
    - En el navegador, en lectura, el título calcula `rgb(124, 58, 237)`. En modo edición, Guardar y Deshacer siguen
      deshabilitados.
    - El historial tiene una versión por `create_visual`, con su gráfico y su fila.
-6. Pendiente:
-   - El color del título se comprobó como admin en modo lectura (el mismo enlace que ve un viewer), no con un
-     usuario viewer.
-   - La regla de `auradataFormat.chart` no se comprobó en vivo; la cubren tests.
+   - Como visor real: `qa_lector` se añadió como viewer del workspace 6 y el 219 se publicó solo para la prueba. Una
+     captura con el Chromium del servidor (autenticado como ese usuario, sin contraseña) muestra el título violeta.
+     Después se quitó al visor y el 219 volvió a borrador.
+6. `f1b23ee235`: `update_chart` ya no deshace el panel Formato.
+   - Una config reescribe las claves de aspecto con sus valores por defecto. Antes, si los params viejos no tenían
+     una de esas claves, la regla la quitaba del layout aunque `format_visual` la hubiera puesto a propósito.
+   - Las claves de aspecto (las del catálogo) se quedan en el layout y se avisa con `formatted`. Las de datos (campos,
+     filtros, orden) siguen pasando al gráfico.
+   - En vivo, `show_legend: false` de `format_visual` sobrevivió a un `update_chart` del 311.
+   - `create_visual` con solo `x` o solo `y` toma el otro eje de la celda libre.
+7. Pendiente:
    - `set_visual_fields` solo conoce los pozos de los tipos de `rolesOf`. Los demás tipos se cambian con `update_chart`.
    - Las opciones dinámicas (`color_scheme`) siguen sin validarse.
    - No se corrieron `pre-commit` ni mypy: solo ruff, oxlint y oxfmt sobre los archivos tocados.
