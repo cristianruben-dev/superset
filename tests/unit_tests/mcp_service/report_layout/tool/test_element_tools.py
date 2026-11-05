@@ -337,6 +337,33 @@ async def test_add_slicer_writes_the_filter_and_its_element(
 
 
 @pytest.mark.asyncio
+async def test_buttons_stack_unless_their_layout_says_a_row(
+    world: dict[str, Any],
+) -> None:
+    from superset.mcp_service.app import mcp
+
+    # The editor draws buttons in a column by default, and the tool says how
+    # to put them in a row
+    (tool,) = [t for t in await mcp.list_tools() if t.name == "add_slicer"]
+    assert '{"layout": "horizontal"}' in (tool.description or "")
+    stacked = ok(
+        await as_editor(world, "add_slicer", **slicer_request(world, variant="buttons"))
+    )
+    row = ok(
+        await as_editor(
+            world,
+            "add_slicer",
+            **slicer_request(
+                world, variant="buttons", settings={"layout": "horizontal"}
+            ),
+        )
+    )
+    data = layout(world)
+    assert "layout" not in data[stacked["object"]]["meta"]["auradataElement"]
+    assert data[row["object"]]["meta"]["auradataElement"]["layout"] == "horizontal"
+
+
+@pytest.mark.asyncio
 async def test_slicer_of_a_page_and_of_a_range(world: dict[str, Any]) -> None:
     session = world["session"]
     session.add(TableColumn(column_name="importe", type="FLOAT", table=world["ventas"]))

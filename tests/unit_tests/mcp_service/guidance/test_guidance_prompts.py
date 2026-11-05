@@ -101,6 +101,8 @@ async def test_report_prompt_uses_its_arguments() -> None:
     assert "generate_dashboard" in text
     assert "create_visual" in text
     assert "get_dashboard_screenshot" in text
+    # Buttons stack in a column unless their layout says a row
+    assert '"settings": {"layout": "horizontal"}' in text
 
 
 @pytest.mark.asyncio

@@ -158,7 +158,10 @@ async def informe_desde_dataset(
 7. Segmentadores: `add_slicer(request={{"dashboard": <id>, "page": <página>,
    "name": "<Nombre>", "filter_type": "list", "dataset_id": <id>, "column":
    "<columna>", "x": 35, "y": 1, "width": 11, "height": 2}})`; uno de fechas
-   con `filter_type: "time"`. Con varias páginas, `sync_slicer` los comparte.
+   con `filter_type: "time"`. Unos botones (`"variant": "buttons"`) se apilan
+   en columna salvo `"settings": {{"layout": "horizontal"}}`: en una franja
+   de 2 celdas de alto, ponlos en fila. Con varias páginas, `sync_slicer` los
+   comparte.
 8. Formato: `get_format_options(request={{"viz_type": "<viz_type>", "level":
    "visual"}})` y `format_visual` para lo que cambie; `set_shared_visual_format`
    para un estilo común (borde, radio, sombra) en todos los gráficos.
@@ -222,7 +225,8 @@ antes de seguir.
    "text"`), formas o imágenes de fondo si las hay (`add_element` con `kind:
    "shape"`), tarjetas, gráficos con `create_visual` en sus celdas, y
    segmentadores con `add_slicer` (lista desplegable, botones o fecha, según
-   la captura: campo `variant`).
+   la captura: campo `variant`; botones en fila con `"settings": {{"layout":
+   "horizontal"}}`).
 7. Aspecto: si la captura tiene un color de fondo o de cabecera propio, usa
    `set_canvas_format` y `format_visual`/`format_element` (consulta las claves
    con `get_format_options`). Respeta los colores de las series de la captura

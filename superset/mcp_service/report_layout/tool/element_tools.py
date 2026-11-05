@@ -373,7 +373,10 @@ async def add_slicer(request: AddSlicerRequest, ctx: Context) -> ElementResponse
     slicers as between boxes or a slider; time slicers as a relative date or
     two days. Options: single, multi or ctrl selection, an Apply button, sort,
     hidden values, show_in_filter_bar and a default value. scope "page"
-    filters only this page's charts; "report" (default) every chart.
+    filters only this page's charts; "report" (default) every chart. Values of
+    a list, buttons included, stack in a column as in the editor: pass
+    settings {"layout": "horizontal"} for a row of buttons, or "grid" with
+    "columns".
     """
 
     def change() -> ElementResponse:
