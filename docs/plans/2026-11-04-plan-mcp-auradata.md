@@ -79,9 +79,9 @@ Una fila por cada regla de «AuraData BI: What This Fork Changes» del `CLAUDE.m
 | 6 | Concesión de datos por workspace | Parcial (lecturas de Superset) | `list_datasets`/`query_dataset` sin `WorkspaceDatasetFilter` ni la concesión | Mismos filtros que la API REST, con test | 1 |
 | 7 | Flags fijados por el producto | n/a | Nada que exponer | — | — |
 | 8 | Papelera e historial de versiones | `restore_chart`, `restore_dashboard`; hecho en fase 9 | No lista papelera ni versiones ni restaura una versión | `list_trash` (workspace y global), `list_versions`, `get_version_diff`, `restore_version` | 9 |
-| 9 | Datasets por workspace | Validación al crear tablero | Crear un dataset dentro de un workspace, moverlo, compartirlo | `create_dataset(workspace_id)`, `move_dataset_to_workspace`, filtro `dataset_usable_in_dashboard` | 1 |
+| 9 | Datasets por workspace | Validación al crear tablero; `create_dataset(workspace_id)` hecho en fase 8 | Crear un dataset dentro de un workspace, moverlo, compartirlo | `create_dataset(workspace_id)`, `move_dataset_to_workspace`, filtro `dataset_usable_in_dashboard` | 1 |
 | 10 | Marca AuraData | n/a | La IA no conoce paleta ni tipografía | Recurso `auradata://brand` y prompt de diseño | 11 |
-| 11 | Bases de datos ofrecidas (6 motores) | `list/get_database` | No puede crear conexiones | `test_connection`, `create_database` (solo admin; ver Decisiones) | 8 |
+| 11 | Bases de datos ofrecidas (6 motores) | `list/get_database`; `test_database_connection` hecho en fase 8 | Las conexiones se crean en la web (decisión 2) | `test_database_connection`; sin `create_database` | 8 |
 | 12 | Cinta (Inicio, Insertar, Diseño, Vista) | n/a | Es interfaz; sus comandos son acciones que sí hay que cubrir | Cubiertas por las fases 2–7 | — |
 | 13 | Título y acciones en la barra superior, márgenes, crumbs, barra de menús, barra de estado | n/a | Interfaz pura | — | — |
 | 14 | Aspecto fijo (claro/oscuro), `css` propio del tablero | `update_dashboard` toca `css`? sin comprobar | Editar el `css` del tablero | `set_dashboard_css` (con aviso de clases internas) | 3 |
@@ -283,7 +283,7 @@ históricas. El `CLAUDE.md` del proyecto y el de `mcp_service` reescriben su reg
    `get_dashboard_datasets` queda igual que la API REST: lista los datasets de un tablero visible, y el workspace ya
    oculta el tablero a quien no es miembro (fijado con un test).
 7. Pendiente:
-   - la imagen del workspace y `create_dataset(workspace_id)`;
+   - la imagen del workspace (`create_dataset(workspace_id)` quedó hecho en la fase 8);
    - decidir si la web debe pedir editoría real para certificar, como el MCP. Leído en el código, sin probar: el
      PUT de tablero no tiene chequeo propio para `certified_by`, así que un contributor podría certificar.
 
@@ -695,7 +695,7 @@ históricas. El `CLAUDE.md` del proyecto y el de `mcp_service` reescriben su reg
 
 ## 8. Conexiones y modelo de datos (M)
 
-- `test_connection` y `create_database` para los seis motores de `PREFERRED_DATABASES`, solo admin.
+- ~~`test_connection` y `create_database`~~: por la decisión 2 solo `test_database_connection`, solo admin.
 - Columnas calculadas y métricas del dataset (ampliar `update_dataset_metric`), dataset virtual desde SQL dentro
   de un workspace.
 
@@ -721,10 +721,10 @@ históricas. El `CLAUDE.md` del proyecto y el de `mcp_service` reescriben su reg
    `fase8_ventas_modelo` (id 64) en «Análisis comercial» con la columna `tamano` y la métrica `ventas_total`; un
    tipeo (`ventaz`) devolvió el error de Postgres con la pista; `query_dataset` agrupa por la columna nueva; la API
    ofrece el dataset al tablero 219 de ese workspace y no al 218; el panel del editor de gráficos del 219 lo muestra.
+   `c3dffd5faa`: el error de una expresión ya no dice «Database connection error» (lo ponía `_compile_chart`) y la
+   prueba lleva `WHERE 1 = 0`, así que una métrica no recorre una tabla grande.
 5. Pendiente:
    - en dev, las URLs del MCP dicen `localhost:8888` (`docker/pythonpath_dev/superset_config.py`), no el 8188;
-   - el chequeo de compilación etiqueta un error de SQL como «Database connection error», heredado de
-     `_compile_chart`;
    - una métrica no puede usar una columna calculada por su nombre (Superset no la expande; también fallaría en un
      gráfico).
 
