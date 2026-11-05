@@ -26484,6 +26484,14 @@ msgid "This version can't be restored because some of its charts now belong to a
 msgstr "No se puede restaurar esta versión porque algunos de sus gráficos ahora pertenecen a otro tablero: %(details)s"
 
 #, python-format
+msgid "This version can't be restored because some of its charts use datasets of another workspace: %(datasets)s"
+msgstr "No se puede restaurar esta versión porque algunos de sus gráficos usan conjuntos de datos de otra área de trabajo: %(datasets)s"
+
+#, python-format
+msgid "This version can't be restored: %(reason)s"
+msgstr "No se puede restaurar esta versión: %(reason)s"
+
+#, python-format
 msgid "\"%(name)s\""
 msgstr "«%(name)s»"
 

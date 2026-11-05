@@ -19,11 +19,13 @@
 from __future__ import annotations
 
 from flask_babel import gettext as _
+from sqlalchemy import select
 
 from superset.auradata.single_dashboard import (
     ChartInMultipleDashboardsError,
     describe_conflicts,
 )
+from superset.auradata.workspace_datasets import chart_datasets_of_other_workspaces
 from superset.commands.dashboard.exceptions import (
     DashboardForbiddenError,
     DashboardNotFoundError,
@@ -31,7 +33,7 @@ from superset.commands.dashboard.exceptions import (
 )
 from superset.commands.version_restore import BaseRestoreVersionCommand
 from superset.extensions import db
-from superset.models.dashboard import Dashboard
+from superset.models.dashboard import Dashboard, dashboard_slices
 from superset.versioning.restore import RestoreResult
 
 
@@ -59,6 +61,7 @@ class RestoreDashboardVersionCommand(BaseRestoreVersionCommand):
         dashboard since is refused by the ORM safety net, which becomes a readable
         error here instead of an unhandled one.
         """
+        charts_before = self._chart_ids()
         result = super()._do_restore()
         dashboard_id = result.entity.id
         try:
@@ -76,4 +79,28 @@ class RestoreDashboardVersionCommand(BaseRestoreVersionCommand):
                     ),
                 )
             ) from ex
+        # AuraData BI: the charts it brings back must use datasets of the
+        # dashboard's workspace or shared ones, as when they are added to it
+        added = set(self._chart_ids()) - set(charts_before)
+        if added and (
+            foreign := chart_datasets_of_other_workspaces(added, dashboard_id)
+        ):
+            db.session.rollback()
+            raise DashboardUpdateFailedError(
+                _(
+                    "This version can't be restored because some of its charts use "
+                    "datasets of another workspace: %(datasets)s",
+                    datasets=", ".join(foreign),
+                )
+            )
         return result
+
+    def _chart_ids(self) -> list[int]:
+        """The charts the dashboard holds, in the database or the session."""
+        return list(
+            db.session.scalars(
+                select(dashboard_slices.c.slice_id)
+                .join(Dashboard, Dashboard.id == dashboard_slices.c.dashboard_id)
+                .where(Dashboard.uuid == self._uuid)
+            )
+        )
