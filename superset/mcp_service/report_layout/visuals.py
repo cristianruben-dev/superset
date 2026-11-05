@@ -265,9 +265,17 @@ class Unmasked:
 
     moved: list[str] = field(default_factory=list)
     masked: list[str] = field(default_factory=list)
+    formatted: list[str] = field(default_factory=list)
 
     def warnings(self) -> list[str]:
         notes = []
+        if self.formatted:
+            notes.append(
+                "The report's format of this chart (format_visual) still sets "
+                + ", ".join(self.formatted)
+                + ", so the report keeps showing that value; change it with "
+                "format_visual."
+            )
         if self.moved:
             notes.append(
                 "These settings were held by the report's layout and hid the "
@@ -284,11 +292,17 @@ class Unmasked:
         return notes
 
 
-def unmask(report: Report, chart_id: int, changed: list[str]) -> Unmasked:
+def unmask(
+    report: Report,
+    chart_id: int,
+    changed: list[str],
+    keep: frozenset[str] = frozenset(),
+) -> Unmasked:
     """
     Takes the changed keys out of the own format of every object of the chart
     (``recordFieldStep`` does the same), and names those the shared format of
     the report still sets: removing them there would restyle every chart.
+    Keys in ``keep`` stay in the own format and are named instead.
     """
     result = Unmasked()
     for item in report.layout.values():
@@ -302,7 +316,12 @@ def unmask(report: Report, chart_id: int, changed: list[str]) -> Unmasked:
         chart = own.get("chart") if isinstance(own, dict) else None
         if not isinstance(chart, dict):
             continue
-        hit = [name for name in changed if name in chart]
+        result.formatted += [
+            name
+            for name in changed
+            if name in chart and name in keep and name not in result.formatted
+        ]
+        hit = [name for name in changed if name in chart and name not in keep]
         if hit:
             item["meta"][keys.VISUAL_FORMAT_KEY] = {
                 **own,
@@ -364,14 +383,22 @@ def write_chart(
 def unmask_for_chart(chart: Any, changed: list[str]) -> list[str]:
     """
     After a chart was changed outside a report tool (``update_chart``): move the
-    changed keys out of its dashboard's layout, or say why they still hide it.
-    Returns the warnings to report.
+    changed data keys (fields, filters, sort) out of its dashboard's layout,
+    and say which keys still hide the change. Look settings of the format
+    catalog stay in the layout: a chart spec rewrites them with defaults the
+    user did not ask for. Returns the warnings to report.
     """
     from superset import security_manager
+    from superset.auradata import catalog
 
     if not changed:
         return []
+    # A chart spec rewrites the look settings with its defaults: the ones the
+    # Format pane set in the layout stay, and the user is told
     dashboards = list(getattr(chart, "dashboards", None) or [])
+    if not dashboards:
+        return []
+    look = frozenset(catalog.controls_of(chart.viz_type or ""))
     notes: list[str] = []
     for dashboard in dashboards:
         try:
@@ -379,7 +406,7 @@ def unmask_for_chart(chart: Any, changed: list[str]) -> list[str]:
         except LayoutEditError:
             # A dashboard without a layout holds no settings
             continue
-        result = unmask(report, chart.id, changed)
+        result = unmask(report, chart.id, changed, look)
         if result.moved and not security_manager.can_edit_resource(dashboard):
             notes.append(
                 f"Dashboard {dashboard.id} holds "

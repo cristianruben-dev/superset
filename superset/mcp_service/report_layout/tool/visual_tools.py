@@ -295,11 +295,13 @@ def _place_chart(
     append_in_new_row(report, page_id, component_id)
     set_box(report, component_id, None, width, height)
     meta = report.layout[component_id]["meta"]
-    if request.x is None and request.y is None:
-        meta.pop(keys.POS_KEY, None)
-        cell = free_cell(report.layout, page_id, meta["width"], meta["height"])
-    else:
-        cell = {"x": request.x or 0, "y": request.y or 0}
+    meta.pop(keys.POS_KEY, None)
+    cell = free_cell(report.layout, page_id, meta["width"], meta["height"])
+    # A given coordinate wins; the other one comes from the free cell
+    if request.x is not None:
+        cell = {**cell, "x": request.x}
+    if request.y is not None:
+        cell = {**cell, "y": request.y}
     set_box(report, component_id, cell)
     refuse_overlaps(report, page_id, [component_id], request.allow_overlap)
     return component_id

@@ -595,3 +595,36 @@ async def test_update_chart_says_when_the_layout_still_hides_it(
         "old"
     )
     assert any("can't edit" in w for w in result["warnings"])
+
+
+def test_a_chart_spec_never_undoes_the_format_pane() -> None:
+    """update_chart rewrites look settings with defaults: those the Format pane
+    set stay in the layout and are named, while data keys move to the chart."""
+    from unittest.mock import Mock
+
+    from superset.mcp_service.report_layout.editing import Report
+    from superset.mcp_service.report_layout.visuals import unmask
+
+    report = Report(
+        Mock(),
+        {
+            "CHART-1": {
+                "type": "CHART",
+                "meta": {
+                    "chartId": 7,
+                    "auradataFormat": {
+                        "chart": {"show_legend": False, "groupby": ["old"]}
+                    },
+                },
+            }
+        },
+    )
+
+    result = unmask(report, 7, ["groupby", "show_legend"], frozenset({"show_legend"}))
+
+    assert report.layout["CHART-1"]["meta"]["auradataFormat"]["chart"] == {
+        "show_legend": False
+    }
+    assert result.moved == ["groupby"]
+    assert result.formatted == ["show_legend"]
+    assert any("format_visual" in w for w in result.warnings())
