@@ -1,0 +1,63 @@
+{
+  "fn": "mobileSizeOf",
+  "cases": [
+    {
+      "name": "wide chart",
+      "args": [
+        {
+          "type": "CHART",
+          "meta": {
+            "width": 30,
+            "height": 10
+          }
+        }
+      ],
+      "expected": {
+        "width": 12,
+        "height": 4
+      }
+    },
+    {
+      "name": "half cell",
+      "args": [
+        {
+          "type": "CHART",
+          "meta": {
+            "width": 24,
+            "height": 5
+          }
+        }
+      ],
+      "expected": {
+        "width": 12,
+        "height": 3
+      }
+    },
+    {
+      "name": "tall element",
+      "args": [
+        {
+          "type": "DYNAMIC",
+          "meta": {
+            "width": 4,
+            "height": 20
+          }
+        }
+      ],
+      "expected": {
+        "width": 12,
+        "height": 12
+      }
+    },
+    {
+      "name": "nothing",
+      "args": [
+        null
+      ],
+      "expected": {
+        "width": 12,
+        "height": 12
+      }
+    }
+  ]
+}

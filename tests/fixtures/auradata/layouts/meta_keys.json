@@ -1,0 +1,28 @@
+{
+  "layout_meta": [
+    "auradataAltText",
+    "auradataBookmarks",
+    "auradataCanvas",
+    "auradataCells",
+    "auradataColumns",
+    "auradataDrillthrough",
+    "auradataElement",
+    "auradataFieldStep",
+    "auradataFormat",
+    "auradataGroup",
+    "auradataHidden",
+    "auradataHiddenPage",
+    "auradataLocked",
+    "auradataMobile",
+    "auradataOffset",
+    "auradataPageBackground",
+    "auradataPos",
+    "auradataTooltipPage",
+    "auradataZ"
+  ],
+  "not_layout_meta": {
+    "auradataSortBy": "Form data of ECharts category sorting (plugin-chart-echarts), not a layout key",
+    "auradataSortAsc": "Form data of ECharts category sorting (plugin-chart-echarts), not a layout key"
+  },
+  "element_kinds": ["button", "filter", "image", "navigator", "shape", "text"]
+}

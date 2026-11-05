@@ -1,0 +1,145 @@
+{
+  "fn": "canvasSize",
+  "cases": [
+    {
+      "name": "no canvas",
+      "args": [
+        null
+      ],
+      "expected": {
+        "width": 1920,
+        "height": 1088
+      }
+    },
+    {
+      "name": "empty",
+      "args": [
+        {}
+      ],
+      "expected": {
+        "width": 1920,
+        "height": 1088
+      }
+    },
+    {
+      "name": "4:3",
+      "args": [
+        {
+          "size": {
+            "mode": "4:3"
+          }
+        }
+      ],
+      "expected": {
+        "width": 1440,
+        "height": 1088
+      }
+    },
+    {
+      "name": "letter",
+      "args": [
+        {
+          "size": {
+            "mode": "letter"
+          }
+        }
+      ],
+      "expected": {
+        "width": 832,
+        "height": 1088
+      }
+    },
+    {
+      "name": "unknown mode",
+      "args": [
+        {
+          "size": {
+            "mode": "auto"
+          }
+        }
+      ],
+      "expected": {
+        "width": 1920,
+        "height": 1088
+      }
+    },
+    {
+      "name": "custom rounds to cells",
+      "args": [
+        {
+          "size": {
+            "mode": "custom",
+            "width": 1000,
+            "height": 720
+          }
+        }
+      ],
+      "expected": {
+        "width": 992,
+        "height": 736
+      }
+    },
+    {
+      "name": "custom half cell rounds up",
+      "args": [
+        {
+          "size": {
+            "mode": "custom",
+            "width": 1008,
+            "height": 1104
+          }
+        }
+      ],
+      "expected": {
+        "width": 1024,
+        "height": 1120
+      }
+    },
+    {
+      "name": "custom too small",
+      "args": [
+        {
+          "size": {
+            "mode": "custom",
+            "width": 100,
+            "height": 100
+          }
+        }
+      ],
+      "expected": {
+        "width": 320,
+        "height": 320
+      }
+    },
+    {
+      "name": "custom too large",
+      "args": [
+        {
+          "size": {
+            "mode": "custom",
+            "width": 99999,
+            "height": 5000
+          }
+        }
+      ],
+      "expected": {
+        "width": 4096,
+        "height": 4096
+      }
+    },
+    {
+      "name": "custom without size",
+      "args": [
+        {
+          "size": {
+            "mode": "custom"
+          }
+        }
+      ],
+      "expected": {
+        "width": 1920,
+        "height": 1088
+      }
+    }
+  ]
+}

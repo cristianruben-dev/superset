@@ -1,0 +1,87 @@
+{
+  "fn": "mergeVisualFormat",
+  "cases": [
+    {
+      "name": "no shared",
+      "args": [
+        null,
+        {
+          "background": "#fff"
+        }
+      ],
+      "expected": {
+        "background": "#fff"
+      }
+    },
+    {
+      "name": "no own",
+      "args": [
+        {
+          "radius": 4
+        },
+        null
+      ],
+      "expected": {
+        "radius": 4
+      }
+    },
+    {
+      "name": "own wins by setting",
+      "args": [
+        {
+          "radius": 4,
+          "background": "#eee",
+          "title": {
+            "show": true,
+            "size": 14
+          },
+          "header": {
+            "menu": false
+          },
+          "chart": {
+            "show_legend": false
+          }
+        },
+        {
+          "background": "#fff",
+          "title": {
+            "size": 18
+          },
+          "chart": {
+            "x_axis_title": "Mes"
+          }
+        }
+      ],
+      "expected": {
+        "radius": 4,
+        "background": "#fff",
+        "title": {
+          "show": true,
+          "size": 18
+        },
+        "header": {
+          "menu": false
+        },
+        "chart": {
+          "show_legend": false,
+          "x_axis_title": "Mes"
+        }
+      }
+    },
+    {
+      "name": "empty nested",
+      "args": [
+        {
+          "title": {}
+        },
+        {
+          "radius": 2
+        }
+      ],
+      "expected": {
+        "title": {},
+        "radius": 2
+      }
+    }
+  ]
+}

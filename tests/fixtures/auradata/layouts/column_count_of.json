@@ -1,0 +1,60 @@
+{
+  "fn": "columnCountOf",
+  "cases": [
+    {
+      "name": "empty layout",
+      "args": [
+        {}
+      ],
+      "expected": 60
+    },
+    {
+      "name": "4:3",
+      "args": [
+        {
+          "ROOT_ID": {
+            "meta": {
+              "auradataCanvas": {
+                "size": {
+                  "mode": "4:3"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "expected": 45
+    },
+    {
+      "name": "custom",
+      "args": [
+        {
+          "ROOT_ID": {
+            "meta": {
+              "auradataCanvas": {
+                "size": {
+                  "mode": "custom",
+                  "width": 2000
+                }
+              }
+            }
+          }
+        }
+      ],
+      "expected": 63
+    },
+    {
+      "name": "legacy count is ignored",
+      "args": [
+        {
+          "ROOT_ID": {
+            "meta": {
+              "auradataColumns": 48
+            }
+          }
+        }
+      ],
+      "expected": 60
+    }
+  ]
+}
