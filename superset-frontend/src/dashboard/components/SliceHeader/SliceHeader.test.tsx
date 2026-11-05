@@ -293,6 +293,20 @@ test('Should render title', () => {
   expect(screen.getByText('Vaccine Candidates per Phase')).toBeInTheDocument();
 });
 
+test('The title link takes the color of its header, not the link color', () => {
+  const props = createProps();
+  render(<SliceHeader {...props} />, {
+    useRedux: true,
+    useRouter: true,
+    initialState,
+  });
+  const link = screen.getByText('Vaccine Candidates per Phase').closest('a');
+  expect(link).not.toBeNull();
+  // The Format pane colors .header-title; the link must inherit it
+  expect(link).toHaveStyleRule('color', 'inherit');
+  expect(link).toHaveStyleRule('color', 'inherit', { target: ':hover' });
+});
+
 test('Should render click to edit prompt and run onExploreChart on click', async () => {
   const props = createProps();
   const history = createMemoryHistory({

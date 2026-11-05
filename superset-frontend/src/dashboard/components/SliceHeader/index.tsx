@@ -32,12 +32,7 @@ import {
   QueryData,
   VizType,
 } from '@superset-ui/core';
-import {
-  css,
-  styled,
-  SupersetTheme,
-  useTheme,
-} from '@apache-superset/core/theme';
+import { css, styled, useTheme } from '@apache-superset/core/theme';
 import { useUiConfig } from 'src/components/UiConfigContext';
 import { isEmbedded } from 'src/dashboard/util/isEmbedded';
 import { Tooltip, EditableTitle, Icons } from '@superset-ui/core/components';
@@ -87,6 +82,22 @@ const CrossFilterIcon = styled(Icons.ApartmentOutlined)`
     color: ${theme.colorPrimary};
     line-height: 1.8;
   `}
+`;
+
+/**
+ * The chart title as a link. It inherits the color of its header, so the title
+ * color of the Format pane (``--mb-v-title-color`` on .header-title) shows in
+ * reading view too, not the theme's link color.
+ */
+const TitleLink = styled.a`
+  color: inherit;
+  text-decoration: none;
+  display: inline-block;
+
+  &:hover {
+    color: inherit;
+    text-decoration: underline;
+  }
 `;
 
 const ChartHeaderStyles = styled.div`
@@ -270,24 +281,16 @@ const SliceHeader = forwardRef<HTMLDivElement, SliceHeaderProps>(
     const exploreUrl = `/explore/?dashboard_page_id=${dashboardPageId}&slice_id=${slice.slice_id}`;
 
     const renderExploreLink = (title: string) => (
-      <a
+      <TitleLink
         href={exploreUrl}
         onClick={event => {
           // AuraData BI: edit the chart in the side panel, never on its own page
           event.preventDefault();
           openChartEditor({ url: exploreUrl, chartId: slice.slice_id });
         }}
-        css={(theme: SupersetTheme) => css`
-          color: ${theme.colorText};
-          text-decoration: none;
-          :hover {
-            text-decoration: underline;
-          }
-          display: inline-block;
-        `}
       >
         {title}
-      </a>
+      </TitleLink>
     );
 
     return (
