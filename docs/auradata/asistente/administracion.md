@@ -187,8 +187,8 @@ una respuesta larga con los workers `gthread`.
 ## Qué proceso necesita qué
 
 El bucle corre solo en el proceso web, que necesita los paquetes `anthropic` y `fastmcp`. Las imágenes `dev` y `prod` traen los
-dos. Sin ellos, la pantalla avisa que falta el SDK y el chat responde 503. Todos los servicios salen de la misma imagen, así
-que al reconstruirla todos quedan con el SDK.
+dos. Sin ellos, la pantalla avisa que falta el SDK y el chat responde 503. Todos los servicios se construyen del mismo
+`Dockerfile`, así que al reconstruir todos quedan con el SDK.
 
 Si instalaste `anthropic` a mano en un contenedor, lo pierdes al recrearlo. La solución es reconstruir.
 
