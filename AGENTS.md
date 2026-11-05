@@ -363,8 +363,9 @@ Fork migrations form one chain after the Superset 6.1 head (`4b2a8c9d3e1f`; they
 format themes) → `a91c5d27f3e8` (drops the annotation layers) → `c5f08a1d7e42` (drops the
 themes and CSS templates) → `d3f9a2b17c64` (workspace datasets). The chain ends in the merge revision
 `f1c7a9e2b305`, whose `down_revision` is the Superset 7.0 head (`88a01c781622`) and the fork head, so there is
-one head and a database at `d3f9a2b17c64` still runs the 41 migrations of 7.0 on `db upgrade`.
-- A new fork migration revises the current head (`f1c7a9e2b305` until the next one).
+one head and a database at `d3f9a2b17c64` still runs the 41 migrations of 7.0 on `db upgrade`. After the merge comes
+`a7e3c91d4b60` (renames the persisted `mibi` names to `auradata`).
+- A new fork migration revises the current head (`a7e3c91d4b60` until the next one).
 - Each new Superset release follows the same rule: add another merge revision of its head and the fork head.
   Never repoint `8bc9e5b95335` (or any fork revision) to the new upstream head: a database that already ran the
   fork migrations would skip the new upstream ones.
