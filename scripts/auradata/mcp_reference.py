@@ -27,6 +27,9 @@ the container and copy it out:
     docker exec -i superset-superset-1 python - --output /tmp/referencia.md \
         < scripts/auradata/mcp_reference.py
     docker cp superset-superset-1:/tmp/referencia.md docs/auradata/mcp/referencia.md
+
+Without docs/, the staleness test of the reference skips itself there; it runs
+wherever the whole repository is checked out.
 """
 
 import argparse

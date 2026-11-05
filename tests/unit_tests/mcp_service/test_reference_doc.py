@@ -19,6 +19,8 @@
 
 from pathlib import Path
 
+import pytest
+
 from superset.mcp_service.reference import REFERENCE_FILE, render_reference
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -28,6 +30,10 @@ REGENERATE = (
 )
 
 
+@pytest.mark.skipif(
+    not (REPO_ROOT / "docs").is_dir(),
+    reason="docs/ is not in this checkout (the dev container does not mount it)",
+)
 def test_the_reference_is_up_to_date() -> None:
     path = REPO_ROOT / REFERENCE_FILE
     assert path.is_file(), f"{REFERENCE_FILE} is missing. {REGENERATE}"

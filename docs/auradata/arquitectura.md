@@ -144,7 +144,8 @@ docker exec -i superset-superset-1 python - --output /tmp/referencia.md < script
 docker cp superset-superset-1:/tmp/referencia.md docs/auradata/mcp/referencia.md
 ```
 
-Para correr `test_reference_doc.py` en ese contenedor, copia antes el archivo a `/app/docs/auradata/mcp/`.
+En ese contenedor, sin `docs/`, `test_reference_doc.py` se salta la comparación; la hace donde está el repositorio
+entero (CI, o un entorno con el repositorio montado).
 
 ## 4. El historial de versiones
 
@@ -169,7 +170,7 @@ pinta el panel de historial.
 El portátil de desarrollo no aguanta corridas pesadas. La rutina de cada cambio es ligera; lo pesado se corre de
 noche.
 
-**Durante el día**, con el stack levantado (app en 8188, MCP en 5108):
+**Durante el día**, con el stack levantado (app y MCP; en compose, 8088 y 5008 por defecto):
 
 - pytest **de un archivo cada vez**, en el contenedor (no hay venv en el host), y leyendo el resultado antes de
   seguir:
