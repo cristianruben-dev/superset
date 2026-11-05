@@ -45,6 +45,34 @@ to one must validate the request with that module, as `dashboard/tool/generate_d
 and `dashboard/tool/add_chart_to_existing_dashboard.py` do, and return its readable error
 instead of failing on the ORM safety net.
 
+## AuraData BI: Workspaces and Permissions
+
+Workspaces group dashboards and datasets, with members as viewer, contributor or admin
+(`superset/auradata/workspace_access.py`). The MCP must let a user do exactly what the web
+lets them do, no more:
+
+- **Workspace tools** (`workspace/tool/`) call the operations of `superset/auradata/workspaces.py`
+  (`find_workspace`, `move_dashboards`, `move_datasets`, `set_member`...), the same ones the
+  `WorkspaceRestApi` handlers use. They raise `WorkspaceError` subclasses (404, 403, 400, 422);
+  `workspace/utils.py:error_response` turns them into `error_type` NotFound, Forbidden,
+  InvalidRequest or Conflict. Never re-implement a workspace rule in a tool.
+- **Editing.** Contributors and admins of a workspace edit its dashboards and charts without
+  becoming their editors. A tool that writes a dashboard or chart checks
+  `security_manager.raise_for_editorship(resource)` (or `can_edit_resource`), directly or through
+  the command it runs; `class_permission_name` is only FAB's route permission and is never
+  enough. Keep `workspace_role=False` for who edits or views a resource and certification
+  (`dashboard/tool/governance_utils.py`): those need real editorship.
+- **Data.** Never use `is_editor` as a data check. Dataset reads apply `WorkspaceDatasetFilter`
+  on top of `DatasetDAO`'s `DatasourceFilter`, like the REST dataset API: `list_datasets` binds it
+  as a custom filter, and `get_dataset_info`/`query_dataset` treat a hidden dataset as not found
+  (`dataset/dataset_utils.py:visible_in_workspaces`). The workspace grant
+  (`superset/auradata/workspace_grants.py`) is part of `DatasourceFilter` and `raise_for_access`:
+  contributors and admins read their workspace's datasets, viewers gain nothing.
+- **Tests** run on a real in-memory database with every role: viewer, contributor, workspace
+  admin, a member of another workspace and a Superset admin
+  (`tests/unit_tests/mcp_service/workspace/world.py`). Tools that run work in a thread need the
+  `shared_engine()` session engine.
+
 ## Architecture Overview
 
 The MCP service provides programmatic access to Superset via the Model Context Protocol, allowing AI assistants to interact with dashboards, charts, datasets, databases, SQL Lab, and instance metadata.

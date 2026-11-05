@@ -260,6 +260,23 @@ históricas. El `CLAUDE.md` del proyecto y el de `mcp_service` reescriben su reg
   `workspace_grants.py`. Probarlo con un viewer, que no lee datasets del workspace.
 - **Listo cuando:** un contributor hace por MCP lo mismo que en la web, y un viewer no hace más.
 
+**Hecho (2026-11-04, rama `feat/mcp-workspaces`):**
+1. `84a5f69362`: la lógica de `WorkspaceRestApi` sale de sus handlers a funciones de `superset/auradata/workspaces.py`
+   (`find_workspace`, `move_dashboards`, `move_datasets`, `set_member`, `remove_member`, `member_candidates`...),
+   que lanzan errores con su código HTTP. La API REST y el MCP usan las mismas.
+2. `5f5bde014b`: módulo `mcp_service/workspace/` con las 12 herramientas de la fila 4 (sin la imagen del workspace),
+   etiquetadas `workspace`. Mover un tablero o un dataset a `null` lo saca de su workspace (dataset compartido).
+   Tests de permisos con base real: viewer, contributor, admin del workspace, otro workspace y admin global.
+3. `4638655f8b`: **las escrituras de tablero y gráfico ya respetaban el rol de workspace** (todas pasan por
+   `raise_for_editorship`, que incluye el rol). No hizo falta cambiar código: quedan fijadas con tests (editar,
+   añadir y quitar gráficos, filtros nativos, copiar, borrar), y que el contributor no pasa a ser editor.
+   Certificar, dueños y roles siguen pidiendo editoría real (decisión de `591bd8a88b`).
+4. `74a1143244`: **el agujero de datos era real**. Un usuario con permisos de datos que no es miembro veía los
+   datasets de un workspace en `list_datasets`, `get_dataset_info` y `query_dataset`. Ahora aplican
+   `WorkspaceDatasetFilter` como la API REST. `list_datasets` gana `usable_in_dashboard` (fila 9).
+5. Pendiente: la imagen del workspace, `create_dataset(workspace_id)`; y decidir si la web debe pedir editoría real
+   para certificar, como el MCP (hoy un contributor puede certificar desde la web).
+
 ## 2. Biblioteca de layout y estructura del informe (L)
 
 1. `superset/auradata/layout/`:
