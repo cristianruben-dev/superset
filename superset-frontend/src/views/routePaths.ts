@@ -46,6 +46,7 @@ export const RoutePaths = {
   SQLLAB: '/sqllab/',
   USER_INFO: '/user_info/',
   CONNECT_AI: '/connect-ai/',
+  ASSISTANT_SETTINGS: '/assistant/settings/',
   ACTION_LOG: '/actionlog/list',
   REGISTRATIONS: '/registrations/',
   ALL_ENTITIES: '/all_entities/',

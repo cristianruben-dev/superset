@@ -77,6 +77,16 @@ test('groups the menu into primary, admin and extra sections', () => {
   });
 });
 
+test('offers the assistant settings in administration only when asked to', () => {
+  const urls = (options?: { assistantSettings: boolean }) =>
+    buildNavSections(menu, options)
+      .find(section => section.key === 'admin')
+      ?.items.map(item => item.url);
+
+  expect(urls()).not.toContain('/assistant/settings/');
+  expect(urls({ assistantSettings: true })).toContain('/assistant/settings/');
+});
+
 test('leaves datasets and SQL Lab to the dashboard side panel', () => {
   const urls = buildNavSections(menu).flatMap(section =>
     section.items.map(item => item.url),

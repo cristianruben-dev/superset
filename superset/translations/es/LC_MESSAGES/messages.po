@@ -26778,3 +26778,90 @@ msgstr "No se pudo copiar al portapapeles"
 
 msgid "Only editors and workspace admins can certify."
 msgstr "Solo los editores y los administradores del área de trabajo pueden certificar."
+
+msgid "AI assistant"
+msgstr "Asistente de IA"
+
+msgid "The server has no Anthropic key. Set ANTHROPIC_API_KEY in its configuration."
+msgstr "El servidor no tiene clave de Anthropic. Configura ANTHROPIC_API_KEY en el servidor."
+
+msgid "The Anthropic SDK is not installed on this server."
+msgstr "El SDK de Anthropic no está instalado en este servidor."
+
+msgid "Anthropic rejected the key of this server. Check ANTHROPIC_API_KEY."
+msgstr "Anthropic rechazó la clave de este servidor. Revisa ANTHROPIC_API_KEY."
+
+msgid "Anthropic could not be reached from this server."
+msgstr "No se pudo contactar a Anthropic desde este servidor."
+
+msgid "Anthropic did not return its list of models."
+msgstr "Anthropic no devolvió su lista de modelos."
+
+msgid "The settings were saved."
+msgstr "Se guardaron los ajustes."
+
+msgid "The settings could not be saved."
+msgstr "No se pudieron guardar los ajustes."
+
+msgid "The settings could not be loaded."
+msgstr "No se pudieron cargar los ajustes."
+
+msgid "Models"
+msgstr "Modelos"
+
+msgid "Refresh list"
+msgstr "Actualizar lista"
+
+msgid "The data you query is sent to Anthropic"
+msgstr "Los datos que consultes se envían a Anthropic"
+
+msgid "The assistant sees what each user sees, data rows included. What they ask and the data it reads travel to the Anthropic API."
+msgstr "El asistente ve lo que ve cada usuario, incluidas las filas de datos. Lo que pregunta y los datos que lee viajan a la API de Anthropic."
+
+msgid "Availability"
+msgstr "Disponibilidad"
+
+msgid "While it is off, nobody can open the assistant. The key of Anthropic stays on the server."
+msgstr "Mientras esté apagado, nadie puede abrir el asistente. La clave de Anthropic se queda en el servidor."
+
+msgid "Turn on the assistant"
+msgstr "Encender el asistente"
+
+msgid "This list is the one built into AuraData BI and may be out of date."
+msgstr "Esta es la lista incluida en AuraData BI y puede estar desactualizada."
+
+msgid "Choose the models users can pick. Prices are in dollars per million tokens, input / output."
+msgstr "Elige los modelos que pueden usar los usuarios. Los precios van en dólares por millón de tokens, entrada / salida."
+
+msgid "AuraData BI does not know this model yet: it runs with cautious settings and this price is an upper estimate."
+msgstr "AuraData BI todavía no conoce este modelo: funciona con ajustes prudentes y este precio es una estimación alta."
+
+msgid "Default model"
+msgstr "Modelo por defecto"
+
+msgid "Monthly budget"
+msgstr "Tope mensual"
+
+msgid "The most the assistant may spend in a month, in dollars. Leave it empty for no limit."
+msgstr "Lo máximo que puede gastar el asistente en un mes, en dólares. Déjalo vacío para no poner límite."
+
+msgid "Monthly budget (USD)"
+msgstr "Tope mensual (USD)"
+
+msgid "Choose at least one model."
+msgstr "Elige al menos un modelo."
+
+msgid "Unknown models: %(models)s"
+msgstr "Modelos desconocidos: %(models)s"
+
+msgid "Unknown model: %(model)s"
+msgstr "Modelo desconocido: %(model)s"
+
+msgid "The default model must be an allowed model."
+msgstr "El modelo por defecto debe ser uno de los permitidos."
+
+#, python-format
+msgid "%s model offered"
+msgid_plural "%s models offered"
+msgstr[0] "%s modelo ofrecido"
+msgstr[1] "%s modelos ofrecidos"

@@ -16,7 +16,6 @@
 # under the License.
 """The admin API of the assistant: who gets in and what it answers."""
 
-from collections.abc import Iterator
 from typing import Any
 
 import pytest
@@ -70,13 +69,13 @@ def not_admin(mocker: MockerFixture) -> None:
 
 
 @pytest.fixture
-def store(mocker: MockerFixture) -> Iterator[dict[SharedKey, Any]]:
+def store(mocker: MockerFixture) -> dict[SharedKey, Any]:
     values: dict[SharedKey, Any] = {}
     mocker.patch.object(settings_module, "get_shared_value", side_effect=values.get)
     mocker.patch.object(
         settings_module, "upsert_shared_value", side_effect=values.__setitem__
     )
-    yield values
+    return values
 
 
 def test_a_non_admin_cannot_read_the_settings(

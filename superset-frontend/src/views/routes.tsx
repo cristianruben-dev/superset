@@ -178,6 +178,12 @@ const ConnectAiPage = lazy(
       /* webpackChunkName: "ConnectAiPage" */ 'src/auradata/connectAi/ConnectAiPage'
     ),
 );
+const AssistantSettingsPage = lazy(
+  () =>
+    import(
+      /* webpackChunkName: "AssistantSettingsPage" */ 'src/auradata/assistant/AssistantSettingsPage'
+    ),
+);
 const ActionLogList: LazyExoticComponent<any> = lazy(
   () => import(/* webpackChunkName: "ActionLogList" */ 'src/pages/ActionLog'),
 );
@@ -322,6 +328,7 @@ if (isAdmin) {
   routes.push(
     { path: RoutePaths.ROLES, Component: RolesList },
     { path: RoutePaths.USERS, Component: UsersList },
+    { path: RoutePaths.ASSISTANT_SETTINGS, Component: AssistantSettingsPage },
   );
 
   if (isFeatureEnabled(FeatureFlag.EnableExtensions)) {

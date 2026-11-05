@@ -22,7 +22,9 @@ import { FeatureFlag, isFeatureEnabled } from '@superset-ui/core';
 import { css, styled } from '@apache-superset/core/theme';
 import { useUiConfig } from 'src/components/UiConfigContext';
 import { URL_PARAMS } from 'src/constants';
+import { isUserAdmin } from 'src/dashboard/util/permissionUtils';
 import type { MenuData } from 'src/types/bootstrapTypes';
+import getBootstrapData from 'src/utils/getBootstrapData';
 import { getUrlParam } from 'src/utils/urlUtils';
 import { isDockMode, isPanelMode } from '../chartEditor';
 import { usePhoneScreen } from '../format/mobile';
@@ -140,6 +142,7 @@ export function AppShell({ data, isFrontendRoute, children }: AppShellProps) {
     () =>
       buildNavSections(data.menu, {
         connectAi: isFeatureEnabled(FeatureFlag.FabApiKeyEnabled),
+        assistantSettings: isUserAdmin(getBootstrapData()?.user),
       }),
     [data.menu],
   );

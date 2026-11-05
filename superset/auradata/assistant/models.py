@@ -307,7 +307,7 @@ class Catalog:
     fetched_at: datetime | None = None
 
 
-class _CatalogUnavailable(Exception):
+class _CatalogUnavailableError(Exception):
     """The live list cannot be read, with the reason to show the admin."""
 
     def __init__(self, problem: str) -> None:
@@ -380,11 +380,11 @@ def _build_client() -> Any:
     """A client with the key of the configuration, never ambient credentials."""
     api_key = current_app.config.get("ANTHROPIC_API_KEY")
     if not api_key:
-        raise _CatalogUnavailable(PROBLEM_NO_API_KEY)
+        raise _CatalogUnavailableError(PROBLEM_NO_API_KEY)
     try:
         import anthropic  # pylint: disable=import-outside-toplevel
     except ImportError as ex:
-        raise _CatalogUnavailable(PROBLEM_SDK_MISSING) from ex
+        raise _CatalogUnavailableError(PROBLEM_SDK_MISSING) from ex
     return anthropic.Anthropic(
         api_key=api_key,
         timeout=LIST_TIMEOUT_SECONDS,
@@ -393,7 +393,7 @@ def _build_client() -> Any:
 
 
 def _fetch_models() -> tuple[CatalogModel, ...]:
-    """The live list of models, or ``_CatalogUnavailable`` saying why not."""
+    """The live list of models, or ``_CatalogUnavailableError`` saying why not."""
     client = _build_client()
     import anthropic  # pylint: disable=import-outside-toplevel
 
@@ -401,15 +401,15 @@ def _fetch_models() -> tuple[CatalogModel, ...]:
         entries = [entry for entry in client.models.list() if entry.id]
     except (anthropic.AuthenticationError, anthropic.PermissionDeniedError) as ex:
         logger.warning("Anthropic rejected the API key: %s", type(ex).__name__)
-        raise _CatalogUnavailable(PROBLEM_REJECTED_KEY) from ex
+        raise _CatalogUnavailableError(PROBLEM_REJECTED_KEY) from ex
     except anthropic.APIConnectionError as ex:
         logger.warning("Anthropic could not be reached: %s", type(ex).__name__)
-        raise _CatalogUnavailable(PROBLEM_UNREACHABLE) from ex
+        raise _CatalogUnavailableError(PROBLEM_UNREACHABLE) from ex
     except anthropic.APIStatusError as ex:
         logger.warning("The Models API failed with status %s", ex.status_code)
-        raise _CatalogUnavailable(PROBLEM_UNAVAILABLE) from ex
+        raise _CatalogUnavailableError(PROBLEM_UNAVAILABLE) from ex
     if not entries:
-        raise _CatalogUnavailable(PROBLEM_UNAVAILABLE)
+        raise _CatalogUnavailableError(PROBLEM_UNAVAILABLE)
     return tuple(sorted(map(_to_catalog_model, entries), key=_sort_key))
 
 
@@ -442,7 +442,7 @@ def get_catalog(refresh: bool = False) -> Catalog:
             fetched_at=datetime.now(timezone.utc),
         )
         ttl = LIVE_TTL_SECONDS
-    except _CatalogUnavailable as ex:
+    except _CatalogUnavailableError as ex:
         catalog = Catalog(
             models=_table_models(),
             source=SOURCE_TABLE,

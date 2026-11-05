@@ -54,6 +54,7 @@ export interface NavSection {
 const HOME_URL = '/welcome/';
 const WORKSPACES_URL = '/workspace/list/';
 const CONNECT_AI_URL = '/connect-ai/';
+const ASSISTANT_SETTINGS_URL = '/assistant/settings/';
 
 const ICONS: Record<string, NavIconName> = {
   Dashboards: 'DashboardOutlined',
@@ -124,7 +125,10 @@ const menuItems = (menu: MenuObjectProps): NavItem[] => {
  */
 export function buildNavSections(
   menu: MenuObjectProps[],
-  { connectAi = false }: { connectAi?: boolean } = {},
+  {
+    connectAi = false,
+    assistantSettings = false,
+  }: { connectAi?: boolean; assistantSettings?: boolean } = {},
 ): NavSection[] {
   const byName = new Map(
     menu.filter(Boolean).map(item => [item.name || item.label, item]),
@@ -179,6 +183,14 @@ export function buildNavSections(
       label: t('Connect AI'),
       url: CONNECT_AI_URL,
       icon: 'ApiOutlined',
+    });
+  }
+  if (assistantSettings && admin) {
+    admin.items.push({
+      key: 'AssistantSettings',
+      label: t('AI assistant'),
+      url: ASSISTANT_SETTINGS_URL,
+      icon: 'CommentOutlined',
     });
   }
 
