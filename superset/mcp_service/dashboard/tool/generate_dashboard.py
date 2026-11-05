@@ -49,6 +49,7 @@ from superset.mcp_service.dashboard.schemas import (
     serialize_tag_object,
 )
 from superset.mcp_service.privacy import user_can_view_data_model_metadata
+from superset.mcp_service.report_layout.editing import with_dashboard_header
 from superset.mcp_service.system.schemas import serialize_subject_object
 from superset.mcp_service.utils.response_utils import humanize_timestamp
 from superset.mcp_service.utils.url_utils import get_superset_base_url
@@ -441,7 +442,9 @@ def generate_dashboard(  # noqa: C901
                 dashboard = Dashboard()
                 dashboard.dashboard_title = dashboard_title
                 dashboard.json_metadata = json_metadata
-                dashboard.position_json = json.dumps(layout)
+                dashboard.position_json = json.dumps(
+                    with_dashboard_header(layout, dashboard_title)
+                )
                 dashboard.published = request.published
 
                 if request.description:

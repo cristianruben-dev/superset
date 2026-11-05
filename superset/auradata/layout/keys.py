@@ -25,6 +25,7 @@ pytest test keep both sides on that list.
 # Component ids and types of the Superset layout
 ROOT_ID = "ROOT_ID"
 GRID_ID = "GRID_ID"
+HEADER_ID = "HEADER_ID"
 VERSION_KEY = "DASHBOARD_VERSION_KEY"
 
 ROOT_TYPE = "ROOT"

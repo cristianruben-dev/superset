@@ -119,6 +119,21 @@ async def test_a_second_page_makes_the_first_from_the_report(
 
 
 @pytest.mark.asyncio
+async def test_a_write_saves_the_title_header_the_editor_adds(
+    world: dict[str, Any],
+) -> None:
+    # The editor adds the dashboard title as the HEADER_ID component on load
+    # and saves it; the MCP saves the same, so opening the report changes nothing
+    assert "HEADER_ID" not in layout(world)
+    ok(await as_editor(world, "add_page", name="Detalle"))
+    assert layout(world)["HEADER_ID"] == {
+        "id": "HEADER_ID",
+        "type": "HEADER",
+        "meta": {"text": world["dashboard"].dashboard_title},
+    }
+
+
+@pytest.mark.asyncio
 async def test_pages_rename_reorder_hide_and_delete(world: dict[str, Any]) -> None:
     ok(await as_editor(world, "add_page", name="Detalle"))
     ok(await as_editor(world, "add_page", name="Notas", position=1))

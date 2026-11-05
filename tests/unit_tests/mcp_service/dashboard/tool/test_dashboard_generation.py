@@ -533,6 +533,12 @@ class TestGenerateDashboard:
             assert "GRID_ID" in position_json
             assert "DASHBOARD_VERSION_KEY" in position_json
             assert position_json["DASHBOARD_VERSION_KEY"] == "v2"
+            # The title is saved as the header component, as the editor saves it
+            assert position_json["HEADER_ID"] == {
+                "id": "HEADER_ID",
+                "type": "HEADER",
+                "meta": {"text": "Multi Chart Dashboard"},
+            }
 
             assert position_json["ROOT_ID"]["children"] == ["GRID_ID"]
 

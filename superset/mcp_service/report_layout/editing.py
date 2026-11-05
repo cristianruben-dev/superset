@@ -103,6 +103,22 @@ def find_dashboard(identifier: int | str) -> Any:
         ) from ex
 
 
+def with_dashboard_header(layout: dict[str, Any], title: str | None) -> dict[str, Any]:
+    """
+    The layout with the dashboard's title as its header component, the way the
+    editor adds it on load and saves it, so what the MCP saves is what the
+    editor would save.
+    """
+    return {
+        **layout,
+        keys.HEADER_ID: {
+            "id": keys.HEADER_ID,
+            "type": keys.HEADER_TYPE,
+            "meta": {"text": title or ""},
+        },
+    }
+
+
 def load_layout(dashboard: Any) -> dict[str, Any]:
     """The layout of a dashboard as the editor opens it: in cells, placed."""
     try:
@@ -154,7 +170,11 @@ def save_report(
     if slices is None and not fields and report.layout == report.original:
         return False
     data: dict[str, Any] = {
-        "position_json": json.dumps(rebuild_parent_chains(report.layout))
+        "position_json": json.dumps(
+            with_dashboard_header(
+                rebuild_parent_chains(report.layout), report.dashboard.dashboard_title
+            )
+        )
     }
     if slices is not None:
         data["slices"] = slices
