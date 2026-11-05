@@ -57,7 +57,9 @@ from superset.auradata.assistant.models import (
 from superset.auradata.assistant.settings import AssistantSettings
 from superset.auradata.assistant.tools import (
     _block_of,
+    EMPTY_RESULT,
     FIXED_TOOLS,
+    MAX_IMAGE_BASE64_CHARS,
     MAX_RESULT_CHARS,
     MODE_EDIT,
     MODE_READ,
@@ -964,6 +966,36 @@ def test_a_stored_turn_keeps_its_blocks_exactly(world: dict[str, Any]) -> None:
     log.add_turn(AssistantTurn(blocks, SONNET, "end_turn", TokenUsage(), Decimal(0)))
 
     assert history_of(conversation)[0]["content"] == blocks
+
+
+def test_an_empty_message_is_refused_and_nothing_is_stored(
+    client: Any, world: dict[str, Any], mocker: MockerFixture
+) -> None:
+    """A stored empty block would make the API refuse the conversation for good."""
+    login(world, "Ana")
+    fake = use_model(mocker)
+
+    assert ask(client, world["dashboard"], message="  \n ").status_code == 400
+    assert fake.requests == []
+    assert world["session"].query(AssistantMessage).count() == 0
+
+
+@pytest.mark.parametrize("empty", ["", "   "])
+def test_an_empty_tool_result_is_never_an_empty_block(empty: str) -> None:
+    assert _block_of(SimpleNamespace(type="text", text=empty)) == {
+        "type": "text",
+        "text": EMPTY_RESULT,
+    }
+
+
+@pytest.mark.parametrize(
+    ("data", "mime_type"),
+    [("A" * (MAX_IMAGE_BASE64_CHARS + 1), "image/png"), ("AAAA", "image/svg+xml")],
+)
+def test_an_image_the_api_refuses_becomes_a_note(data: str, mime_type: str) -> None:
+    item = SimpleNamespace(type="image", data=data, mimeType=mime_type)
+
+    assert _block_of(item)["type"] == "text"
 
 
 def test_a_long_result_is_cut_and_says_so() -> None:

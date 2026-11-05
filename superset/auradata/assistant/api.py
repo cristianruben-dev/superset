@@ -334,6 +334,9 @@ class AssistantRestApi(BaseSupersetApi):
             data = AssistantChatSchema().load(request.json)
         except ValidationError as ex:
             return self.response_400(message=ex.messages)
+        question = data["message"].strip()
+        if not question:
+            return self.response_400(message="The message is empty")
         context = data["context"]
         if len(json.dumps(context)) > MAX_CONTEXT_CHARS:
             return self.response_400(message="The context is too long")
@@ -372,14 +375,14 @@ class AssistantRestApi(BaseSupersetApi):
         previous_model = conversation.model if conversation else model.id
         if conversation is None:
             conversation = create_conversation(
-                user_id, dashboard.id, mode, model.id, data["message"]
+                user_id, dashboard.id, mode, model.id, question
             )
         conversation.model = model.id
         history = history_of(conversation)
         log = ConversationLog(conversation, user_id)
         message = [
             context_block(context),
-            {"type": "text", "text": data["message"]},
+            {"type": "text", "text": question},
         ]
         try:
             log.add_user_message(message)

@@ -69,11 +69,21 @@ FIXED_TOOLS = (
     "get_visual_screenshot",
 )
 
-# About the service itself, not about the user's reports
-HIDDEN_TOOLS = frozenset({"generate_bug_report", "health_check"})
+# About the service itself, or a file for a person that the model cannot hand over
+HIDDEN_TOOLS = frozenset(
+    {
+        "export_dashboard_image",
+        "export_dashboard_pdf",
+        "generate_bug_report",
+        "health_check",
+    }
+)
 
 MAX_RESULT_CHARS = 100_000
-MAX_IMAGE_BASE64_CHARS = 7_000_000
+# The limits of an image on the API, in base64 where it is smaller on some platforms
+MAX_IMAGE_BASE64_CHARS = 5_000_000
+IMAGE_TYPES = frozenset({"image/gif", "image/jpeg", "image/png", "image/webp"})
+EMPTY_RESULT = "The tool returned nothing."
 
 
 @dataclass(frozen=True)
@@ -84,8 +94,16 @@ class ToolOutcome:
     is_error: bool = False
 
 
+def _text_block(text: str) -> dict[str, Any]:
+    """
+    A text block the API takes: it refuses empty ones, and a conversation that stored
+    one would fail on every later request.
+    """
+    return {"type": "text", "text": text if text.strip() else EMPTY_RESULT}
+
+
 def _error(text: str) -> ToolOutcome:
-    return ToolOutcome([{"type": "text", "text": text}], is_error=True)
+    return ToolOutcome([_text_block(text)], is_error=True)
 
 
 def _is_read_tool(tool: Any) -> bool:
@@ -141,8 +159,10 @@ def _definition(tool: Any, deferred: bool) -> dict[str, Any]:
 def _block_of(item: Any) -> dict[str, Any]:
     """One MCP content item as a block of ``tool_result``."""
     if getattr(item, "type", None) == "image":
+        if item.mimeType not in IMAGE_TYPES:
+            return _text_block("The tool returned an image of an unsupported type.")
         if len(item.data) > MAX_IMAGE_BASE64_CHARS:
-            return {"type": "text", "text": "The image is too large to show."}
+            return _text_block("The image is too large to show.")
         return {
             "type": "image",
             "source": {
@@ -158,13 +178,11 @@ def _block_of(item: Any) -> dict[str, Any]:
             "text": "The tool returned content that cannot be read.",
         }
     if len(text) > MAX_RESULT_CHARS:
-        kept = text[:MAX_RESULT_CHARS]
-        return {
-            "type": "text",
-            "text": f"{kept}\n\n[Cut at {MAX_RESULT_CHARS} characters of {len(text)}: "
-            "ask for less, with filters or a smaller page.]",
-        }
-    return {"type": "text", "text": text}
+        return _text_block(
+            f"{text[:MAX_RESULT_CHARS]}\n\n[Cut at {MAX_RESULT_CHARS} characters of "
+            f"{len(text)}: ask for less, with filters or a smaller page.]"
+        )
+    return _text_block(text)
 
 
 def _safe_error_text(content: list[Any]) -> str:
@@ -260,7 +278,7 @@ class ToolBox:
         if result.is_error:
             return _error(_safe_error_text(result.content))
         blocks = [_block_of(item) for item in result.content]
-        return ToolOutcome(blocks or [{"type": "text", "text": "Done."}])
+        return ToolOutcome(blocks or [_text_block("")])
 
     @staticmethod
     async def _call_tool(name: str, arguments: dict[str, Any]) -> Any:
