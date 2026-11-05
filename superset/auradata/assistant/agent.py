@@ -22,6 +22,11 @@ step here has a rule of its own: every response is stored as it came, with the c
 that call, before the next one; a refused or cut response never runs its tools; and
 every tool call goes through ``ToolBox``, the only gate for a tool name.
 
+A response with a call that needs the approval of the person stops the loop: none of
+its tools run, the turn is stored as pending, and ``resume_after_decisions`` picks it up
+once the person has decided on each of those calls. Only a stored decision approves a
+call. What the model writes and what tools return have no way to.
+
 Tool inputs are not streamed eagerly: with that option the API stops checking them,
 and these tools write as the user.
 
@@ -32,6 +37,7 @@ from __future__ import annotations
 
 import logging
 import queue
+import socket
 import threading
 from collections.abc import Iterator
 from decimal import Decimal
@@ -42,9 +48,17 @@ from flask_babel import gettext as _
 
 from superset.auradata.assistant.conversations import (
     AssistantTurn,
+    confirmation_json,
     content_to_send,
+    ConversationBusyError,
     ConversationLog,
+    HELD_BACK,
+    history_of,
+    PendingTurn,
+    REJECTED,
+    STOP_INTERRUPTED,
     STOP_REFUSAL,
+    tool_uses_of,
 )
 from superset.auradata.assistant.figures import figure_of
 from superset.auradata.assistant.models import (
@@ -53,6 +67,7 @@ from superset.auradata.assistant.models import (
     TokenUsage,
 )
 from superset.auradata.assistant.tools import ToolBox
+from superset.auradata.models import AssistantConversation
 
 logger = logging.getLogger(__name__)
 
@@ -165,55 +180,87 @@ def error_event(ex: Exception) -> Event:
     return "error", {"code": code, "message": message}
 
 
-def _stream_model(client: Any, params: dict[str, Any]) -> Iterator[Event | Any]:
-    with client.beta.messages.stream(**params) as stream:
-        for event in stream:
-            if event.type == "text":
-                yield "text", {"text": event.text}
-        yield stream.get_final_message()
-
-
-def _call_model(client: Any, params: dict[str, Any]) -> Iterator[Event | Any]:
+class ModelCall:
     """
-    Text as it arrives, as events, and the final message last.
+    One call to the model, read from a thread of its own.
 
     While the model thinks nothing arrives: the thinking is not displayed and the SDK
-    drops the pings. So the call waits in a thread of its own, and this side yields
+    drops the pings. So the call waits in that thread, and ``events`` yields
     ``KEEP_ALIVE`` when the wait gets long. That thread only runs the HTTP call of the
     SDK: the session, ``g`` and the tools stay in the thread of the request.
     """
-    items: queue.Queue[tuple[str, Any]] = queue.Queue()
-    leaving = threading.Event()
 
-    def pump() -> None:
-        stream = _stream_model(client, params)
+    def __init__(self, client: Any, params: dict[str, Any]) -> None:
+        self._client = client
+        self._params = params
+        self._items: queue.Queue[tuple[str, Any]] = queue.Queue()
+        self._stream: Any = None
+        self._leaving = threading.Event()
+
+    def _read(self) -> None:
         try:
-            for item in stream:
-                items.put(("item", item))
-                if leaving.is_set():
-                    break
-            items.put(("end", None))
+            with self._client.beta.messages.stream(**self._params) as stream:
+                self._stream = stream
+                if self._leaving.is_set():
+                    return
+                for event in stream:
+                    if event.type == "text":
+                        self._items.put(("item", ("text", {"text": event.text})))
+                self._items.put(("item", stream.get_final_message()))
+            self._items.put(("end", None))
         except Exception as ex:  # pylint: disable=broad-except
-            items.put(("failed", ex))
-        finally:
-            stream.close()
+            self._items.put(("failed", ex))
 
-    threading.Thread(target=pump, daemon=True, name="assistant-model").start()
-    try:
-        while True:
-            try:
-                kind, value = items.get(timeout=KEEP_ALIVE_SECONDS)
-            except queue.Empty:
-                yield KEEP_ALIVE, {}
-                continue
-            if kind == "end":
-                return
-            if kind == "failed":
-                raise value
-            yield value
-    finally:
-        # The browser left: nobody reads what the model is still writing
-        leaving.set()
+    def events(self) -> Iterator[Event | Any]:
+        """Text as it arrives, as events, and the final message last."""
+        threading.Thread(target=self._read, daemon=True, name="assistant-model").start()
+        try:
+            while True:
+                try:
+                    kind, value = self._items.get(timeout=KEEP_ALIVE_SECONDS)
+                except queue.Empty:
+                    yield KEEP_ALIVE, {}
+                    continue
+                if kind == "end":
+                    return
+                if kind == "failed":
+                    raise value
+                yield value
+        finally:
+            # The browser left: stop the model instead of waiting for its next event
+            self._leaving.set()
+            self._hang_up()
+
+    def _hang_up(self) -> None:
+        """
+        End the request from this side. Closing a socket does not wake a thread
+        blocked reading it, so the connection is shut down first when it can be
+        reached. Past that the read ends with its next byte or its timeout.
+        """
+        stream = self._stream
+        if stream is None:
+            return
+        try:
+            network = stream.response.extensions.get("network_stream")
+            sock = network.get_extra_info("socket") if network else None
+            if sock is not None:
+                sock.shutdown(socket.SHUT_RDWR)
+        except (AttributeError, OSError):
+            logger.debug("The connection to the model was already closed")
+        try:
+            stream.close()
+        except Exception:  # pylint: disable=broad-except
+            logger.debug("Closing the stream of the model failed", exc_info=True)
+
+    def partial_message(self) -> Any | None:
+        """What the API said before the call stopped, if it said anything."""
+        stream = self._stream
+        if stream is None:
+            return None
+        try:
+            return stream.current_message_snapshot
+        except (AssertionError, AttributeError):
+            return None
 
 
 def _turn_of(message: Any) -> AssistantTurn:
@@ -226,6 +273,18 @@ def _turn_of(message: Any) -> AssistantTurn:
         usage=usage,
         cost_usd=cost,
     )
+
+
+def _store_what_it_cost(call: ModelCall, log: ConversationLog) -> None:
+    """A call cut short was still paid for. Its output is not kept: it is not whole."""
+    message = call.partial_message()
+    if message is None:
+        return
+    usage, cost = cost_of_message(message.model, message.usage)
+    try:
+        log.add_turn(AssistantTurn([], message.model, STOP_INTERRUPTED, usage, cost))
+    except ConversationBusyError:
+        logger.warning("The cost of a call that stopped was not stored")
 
 
 def _result_block(tool_use_id: str, outcome: Any) -> dict[str, Any]:
@@ -248,20 +307,54 @@ def _error_result(tool_use_id: str, text: str) -> dict[str, Any]:
     }
 
 
+def _why_not_run(block: dict[str, Any], decisions: dict[str, bool]) -> str | None:
+    """A call left out by the person: a rejected one, and the rest of its step."""
+    if decisions.get(block["id"]) is False:
+        return REJECTED
+    if block["id"] not in decisions and False in decisions.values():
+        return HELD_BACK
+    return None
+
+
 def _run_tools(
     tool_uses: list[dict[str, Any]],
     toolbox: ToolBox,
     results: list[dict[str, Any]],
+    decisions: dict[str, bool] | None = None,
 ) -> Iterator[Event]:
+    """
+    Run the calls of a turn in order. ``decisions`` are the stored decisions of the
+    person: the only thing that approves a call.
+    """
+    decisions = decisions or {}
     for block in tool_uses:
         yield "tool_start", {"id": block["id"], "name": block["name"]}
-        outcome = toolbox.call(block["name"], block.get("input"))
+        reason = _why_not_run(block, decisions)
+        if reason is not None:
+            results.append(_error_result(block["id"], reason))
+            yield (
+                "tool_end",
+                {
+                    "id": block["id"],
+                    "name": block["name"],
+                    "is_error": True,
+                    "rejected": decisions.get(block["id"]) is False,
+                },
+            )
+            continue
+        outcome = toolbox.call(
+            block["name"],
+            block.get("input"),
+            approved=decisions.get(block["id"]) is True,
+        )
         result = _result_block(block["id"], outcome)
         results.append(result)
         payload = {
             "id": block["id"],
             "name": block["name"],
             "is_error": outcome.is_error,
+            "changed": not outcome.is_error
+            and toolbox.changes_something(block["name"]),
         }
         figure = figure_of(block, result)
         if figure is not None:
@@ -318,10 +411,10 @@ def run_conversation(  # noqa: C901
     context_tokens = 0
 
     for _call in range(MAX_MODEL_CALLS):
-        params = request_params(model, system, tools, history)
+        call = ModelCall(client, request_params(model, system, tools, history))
+        message = None
         try:
-            message = None
-            for item in _call_model(client, params):
+            for item in call.events():
                 if isinstance(item, tuple):
                     yield item
                 else:
@@ -329,6 +422,9 @@ def run_conversation(  # noqa: C901
         except anthropic.APIError as ex:
             yield error_event(ex)
             return
+        finally:
+            if message is None:
+                _store_what_it_cost(call, log)
 
         turn = _turn_of(message)
         total_usage += turn.usage
@@ -348,11 +444,21 @@ def run_conversation(  # noqa: C901
             )
             break
 
-        tool_uses = [
-            block
-            for block in content_to_send(turn.content)
-            if block["type"] == "tool_use"
+        tool_uses = tool_uses_of(turn.content)
+        awaiting = [
+            {"id": block["id"], "title": toolbox.title(block["name"])}
+            for block in tool_uses
+            if toolbox.needs_confirmation(block["name"])
         ]
+        if stop_reason == "tool_use" and awaiting:
+            # Nothing of this turn runs yet: the calls of one turn answer together
+            log.add_turn(turn, awaiting=awaiting)
+            titles = {call["id"]: call["title"] for call in awaiting}
+            for block in tool_uses:
+                if block["id"] in titles:
+                    yield "confirm", confirmation_json(block, titles[block["id"]])
+            break
+
         if stop_reason == "tool_use" and tool_uses:
             results: list[dict[str, Any]] = []
             try:
@@ -398,3 +504,23 @@ def run_conversation(  # noqa: C901
         )
 
     yield _done(model, total_usage, total_cost, stop_reason, context_tokens)
+
+
+def resume_after_decisions(  # pylint: disable=too-many-arguments
+    client: Any,
+    model: CatalogModel,
+    system: str,
+    toolbox: ToolBox,
+    log: ConversationLog,
+    conversation: AssistantConversation,
+    pending: PendingTurn,
+) -> Iterator[Event]:
+    """Run a turn the person has decided on, as stored, and let the model go on."""
+    results: list[dict[str, Any]] = []
+    try:
+        yield from _run_tools(pending.calls, toolbox, results, pending.decisions)
+    finally:
+        log.add_results(_with_missing_results(pending.calls, results))
+    yield from run_conversation(
+        client, model, system, toolbox, log, history_of(conversation)
+    )

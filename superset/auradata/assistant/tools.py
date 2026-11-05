@@ -24,6 +24,11 @@ session held in memory, under ``run_as``: the wrapper of the tool checks permiss
 for that user and the tool applies the fork rules (``can_edit_resource``, workspace
 grants, one dashboard per chart, row level security, version history).
 
+Tools that delete, overwrite, publish, share, schedule, restore or move are offered in
+edit mode, but ``ToolBox.call`` refuses them unless the person approved that exact call
+on screen (``superset.auradata.assistant.agent``). That refusal holds whatever the loop
+above it does. ``call`` is also the one place every tool passes through.
+
 The FastMCP middleware does not run in the web process, so this module caps the size
 of results and hides internal errors, as the size guard and the error handler do on
 the MCP server.
@@ -53,6 +58,16 @@ READ_SCOPES = frozenset({"superset:read"})
 
 TOOL_SEARCH_NAME = "tool_search_tool_bm25"
 TOOL_SEARCH = {"type": "tool_search_tool_bm25_20251119", "name": TOOL_SEARCH_NAME}
+
+# Marked as harmless by their annotations, but they replace a report's content or move
+# it where other people see it, so a person approves them as well
+CONFIRM_TOOLS = frozenset(
+    {
+        "move_dashboard_to_workspace",
+        "move_dataset_to_workspace",
+        "restore_version",
+    }
+)
 
 # Loaded on every request, in this order: report structure, datasets, queries and
 # captures. The others wait behind the search tool. Their schemas are small; those
@@ -126,21 +141,21 @@ def _is_read_tool(tool: Any) -> bool:
 def _needs_confirmation(tool: Any) -> bool:
     """
     A tool that must be confirmed on screen before it runs: deleting, overwriting,
-    publishing, sharing or scheduling. There is no such screen yet, so these are not
-    offered in any mode.
+    publishing, sharing, scheduling, restoring or moving.
     """
     if _is_read_tool(tool):
         return False
     annotations = tool.annotations
     return (
-        annotations is None
+        tool.name in CONFIRM_TOOLS
+        or annotations is None
         or annotations.destructiveHint is not False
         or "sharing" in tool.tags
     )
 
 
 def _allowed_in_mode(tool: Any, mode: str) -> bool:
-    if tool.name in HIDDEN_TOOLS or _needs_confirmation(tool):
+    if tool.name in HIDDEN_TOOLS:
         return False
     return mode == MODE_EDIT or _is_read_tool(tool)
 
@@ -255,11 +270,35 @@ class ToolBox:
         ]
         return [TOOL_SEARCH, *fixed, *deferred]
 
-    def call(self, name: str, arguments: Any) -> ToolOutcome:
-        """Run a tool the model asked for, as the user. Failures become a result."""
+    def needs_confirmation(self, name: str) -> bool:
+        """Whether this tool waits for a decision of the person before it runs."""
+        tool = self._tools.get(name)
+        return tool is not None and _needs_confirmation(tool)
+
+    def changes_something(self, name: str) -> bool:
+        """Whether a successful call to this tool may have changed a report."""
+        tool = self._tools.get(name)
+        return tool is not None and not _is_read_tool(tool)
+
+    def title(self, name: str) -> str:
+        """The name of a tool for a person."""
+        tool = self._tools.get(name)
+        annotations = tool.annotations if tool is not None else None
+        return (annotations.title if annotations else None) or name
+
+    def call(self, name: str, arguments: Any, *, approved: bool = False) -> ToolOutcome:
+        """
+        Run a tool the model asked for, as the user. Failures become a result.
+
+        ``approved`` says the person approved this very call. Only the code that
+        reads their stored decision passes it; nothing the model says can set it.
+        """
         if name not in self._tools:
             logger.warning("Assistant refused a tool it does not offer: %r", name)
             return _error(f"The tool {name!r} is not available here.")
+        if self.needs_confirmation(name) and not approved:
+            logger.warning("Assistant refused an unapproved call to %r", name)
+            return _error(f"The tool {name!r} needs the approval of the user.")
         if not isinstance(arguments, dict):
             return _error("The input of a tool must be an object.")
 

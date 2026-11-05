@@ -27000,3 +27000,24 @@ msgstr "Preguntar"
 
 msgid "Ask your data"
 msgstr "Pregúntale a tus datos"
+
+msgid "This conversation needs a model that can search for tools."
+msgstr "Esta conversación necesita un modelo que pueda buscar herramientas."
+
+msgid "This action is no longer waiting for a decision."
+msgstr "Esta acción ya no espera una decisión."
+
+msgid "Answer the pending action before undoing."
+msgstr "Responde la acción pendiente antes de deshacer."
+
+msgid "This version of the report no longer exists."
+msgstr "Esta versión del informe ya no existe."
+
+msgid "You can't restore this report."
+msgstr "No puedes restaurar este informe."
+
+msgid "There is nothing of the assistant to undo."
+msgstr "No hay nada del asistente que deshacer."
+
+msgid "The report changed after the assistant's turn. Go back from its version history instead."
+msgstr "El informe cambió después del turno del asistente. Vuelve atrás desde su historial de versiones."

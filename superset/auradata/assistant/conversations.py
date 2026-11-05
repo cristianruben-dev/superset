@@ -21,6 +21,12 @@ They are append-only and private: every read goes through ``find_conversation``,
 answers None for a conversation of someone else, so it looks like one that does not
 exist. A turn of the assistant and the results of its tools are written in one
 transaction, because the API refuses a history with a tool call and no result.
+
+A call that needs the approval of the person is the one exception, on purpose: its turn
+is stored without results and with an ``awaiting`` record, and that is the whole pending
+state. The arguments that run later are the stored ones, so nothing a request says can
+change them. Rows of the role ``record`` hold what the app itself must remember
+(decisions and the versions around a turn). They are never sent to the model.
 """
 
 from __future__ import annotations
@@ -43,6 +49,21 @@ from superset.utils import json
 
 TITLE_LENGTH = 80
 STOP_REFUSAL = "refusal"
+# A response the person left in the middle: kept for what it cost, and never sent
+STOP_INTERRUPTED = "interrupted"
+_NOT_SENT = {STOP_REFUSAL, STOP_INTERRUPTED}
+
+ROLE_RECORD = "record"
+RECORD_AWAITING = "awaiting"
+RECORD_DECISION = "decision"
+RECORD_TURN_START = "turn_start"
+RECORD_TURN_END = "turn_end"
+RECORD_UNDONE = "undone"
+
+# Why a call did not run, for the model. Each one answers its tool_use
+REJECTED = "The user rejected this action. It did not run. Do not retry it."
+HELD_BACK = "Not run: the user rejected another action of this same step."
+MOVED_ON = "Not run: the user wrote a new message instead of deciding on it."
 
 # What stays of a declined model's output, along with its finished server tool calls
 _KEPT_BEFORE_FALLBACK = {"text", "fallback"}
@@ -61,6 +82,23 @@ class AssistantTurn:
     stop_reason: str | None
     usage: TokenUsage
     cost_usd: Decimal
+
+
+@dataclass(frozen=True)
+class PendingTurn:
+    """
+    A stored turn whose tools wait for decisions of the person. Nothing of it has
+    run: ``calls`` holds every tool call of the turn, as the model made them.
+    """
+
+    calls: list[dict[str, Any]]
+    # The calls a person must decide on, by id, with the title of their tool
+    titles: dict[str, str]
+    decisions: dict[str, bool]
+
+    @property
+    def undecided(self) -> list[str]:
+        return [call for call in self.titles if call not in self.decisions]
 
 
 def workspace_id_of(dashboard_id: int) -> int | None:
@@ -123,6 +161,99 @@ def _messages_of(conversation: AssistantConversation) -> list[AssistantMessage]:
     )
 
 
+def _blocks(message: AssistantMessage) -> list[dict[str, Any]]:
+    return json.loads(message.content)
+
+
+def _holds_results(message: AssistantMessage) -> bool:
+    return message.role == "user" and any(
+        block["type"] == "tool_result" for block in _blocks(message)
+    )
+
+
+def _is_awaiting(message: AssistantMessage) -> bool:
+    return message.role == ROLE_RECORD and any(
+        block["type"] == RECORD_AWAITING for block in _blocks(message)
+    )
+
+
+def tool_uses_of(blocks: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """The tool calls of a stored turn that count, in order."""
+    return [block for block in content_to_send(blocks) if block["type"] == "tool_use"]
+
+
+def pending_turn(conversation: AssistantConversation) -> PendingTurn | None:
+    """
+    The turn waiting for decisions, read from what is stored. A turn stops waiting
+    when a row holds its results, so a decision can only ever apply once.
+    """
+    rows = _messages_of(conversation)
+    awaiting = next(
+        (index for index in reversed(range(len(rows))) if _is_awaiting(rows[index])),
+        None,
+    )
+    if awaiting is None:
+        return None
+    later = rows[awaiting + 1 :]
+    if any(_holds_results(row) for row in later):
+        return None
+    decisions = {
+        block["tool_use_id"]: block["approved"]
+        for row in later
+        if row.role == ROLE_RECORD
+        for block in _blocks(row)
+        if block["type"] == RECORD_DECISION
+    }
+    return PendingTurn(
+        calls=tool_uses_of(_blocks(rows[awaiting - 1])),
+        titles={
+            call["id"]: call["title"]
+            for block in _blocks(rows[awaiting])
+            for call in block["calls"]
+        },
+        decisions=decisions,
+    )
+
+
+def pending_json(pending: PendingTurn | None) -> list[dict[str, Any]]:
+    """The cards the person still has to answer."""
+    if pending is None:
+        return []
+    return [
+        confirmation_json(call, pending.titles[call["id"]])
+        for call in pending.calls
+        if call["id"] in pending.undecided
+    ]
+
+
+def confirmation_json(call: dict[str, Any], title: str) -> dict[str, Any]:
+    return {
+        "id": call["id"],
+        "name": call["name"],
+        "title": title,
+        "input": call.get("input") or {},
+    }
+
+
+def records_of(conversation: AssistantConversation) -> list[dict[str, Any]]:
+    """What the app recorded in a conversation, oldest first."""
+    return [
+        block
+        for row in _messages_of(conversation)
+        if row.role == ROLE_RECORD
+        for block in _blocks(row)
+    ]
+
+
+def rejected_calls(conversation: AssistantConversation) -> list[str]:
+    """The calls the person rejected, by id."""
+    return [
+        block["tool_use_id"]
+        for block in records_of(conversation)
+        if block["type"] == RECORD_DECISION and not block["approved"]
+    ]
+
+
 def message_json(message: AssistantMessage) -> dict[str, Any]:
     return {
         "id": str(message.id),
@@ -149,7 +280,11 @@ def conversation_json(conversation: AssistantConversation) -> dict[str, Any]:
 
 
 def conversation_messages(conversation: AssistantConversation) -> list[dict[str, Any]]:
-    return [message_json(message) for message in _messages_of(conversation)]
+    return [
+        message_json(message)
+        for message in _messages_of(conversation)
+        if message.role != ROLE_RECORD
+    ]
 
 
 def context_tokens_of(conversation: AssistantConversation) -> int:
@@ -201,6 +336,7 @@ def history_of(conversation: AssistantConversation) -> list[dict[str, Any]]:
     """
     The ``messages`` of the next request. A refused turn is kept for its cost but not
     sent: the API says to discard refused output, and consecutive user turns are valid.
+    A response the person left in the middle is not sent either: it has no content.
     """
     return [
         {
@@ -208,7 +344,33 @@ def history_of(conversation: AssistantConversation) -> list[dict[str, Any]]:
             "content": content_to_send(json.loads(message.content)),
         }
         for message in _messages_of(conversation)
-        if message.stop_reason != STOP_REFUSAL
+        if message.role != ROLE_RECORD and message.stop_reason not in _NOT_SENT
+    ]
+
+
+def uses_tool_search(history: list[dict[str, Any]]) -> bool:
+    """Whether a history holds tools found by searching, which need that search."""
+    return any(
+        block.get("type") == "tool_search_tool_result"
+        or (
+            block.get("type") == "server_tool_use"
+            and "tool_search" in block.get("name", "")
+        )
+        for message in history
+        for block in message["content"]
+    )
+
+
+def not_run_results(pending: PendingTurn) -> list[dict[str, Any]]:
+    """Answers for a turn the person left behind: none of its calls ran."""
+    return [
+        {
+            "type": "tool_result",
+            "tool_use_id": call["id"],
+            "content": [{"type": "text", "text": MOVED_ON}],
+            "is_error": True,
+        }
+        for call in pending.calls
     ]
 
 
@@ -248,16 +410,62 @@ class ConversationLog:
             db.session.rollback()
             raise ConversationBusyError from ex
 
-    def add_user_message(self, content: list[dict[str, Any]]) -> None:
+    def add_user_message(
+        self,
+        content: list[dict[str, Any]],
+        turn_start: dict[str, Any] | None = None,
+    ) -> None:
+        """Store a message, and in the same commit the versions the turn starts at."""
+        if turn_start is not None:
+            self._row(
+                ROLE_RECORD, [{"type": RECORD_TURN_START, "versions": turn_start}]
+            )
         self._row("user", content)
+        self._commit()
+
+    def add_results(self, tool_results: list[dict[str, Any]]) -> None:
+        """Answer a turn that waited for decisions."""
+        self._row("user", tool_results)
+        self._commit()
+
+    def add_decision(self, tool_use_id: str, approved: bool) -> None:
+        """
+        What the person decided on a call. The position is unique, so of two requests
+        that race for the same decision only one gets here, before any tool runs.
+        """
+        self._row(
+            ROLE_RECORD,
+            [
+                {
+                    "type": RECORD_DECISION,
+                    "tool_use_id": tool_use_id,
+                    "approved": approved,
+                }
+            ],
+        )
+        self._commit()
+
+    def add_turn_end(self, versions: dict[str, Any]) -> None:
+        self._row(ROLE_RECORD, [{"type": RECORD_TURN_END, "versions": versions}])
+        self._commit()
+
+    def add_undone(self, versions: dict[str, Any], note: dict[str, Any]) -> None:
+        """An undo, and in the same commit a note that tells the model."""
+        self._row(ROLE_RECORD, [{"type": RECORD_UNDONE, "versions": versions}])
+        self._row("user", [note])
         self._commit()
 
     def add_turn(
         self,
         turn: AssistantTurn,
         tool_results: list[dict[str, Any]] | None = None,
+        awaiting: list[dict[str, str]] | None = None,
     ) -> None:
-        """Store a response of the API and, in the same commit, its tool results."""
+        """
+        Store a response of the API and, in the same commit, its tool results or, if
+        some of its calls need a decision (``awaiting``, their id and title), the
+        record that makes the turn pending.
+        """
         row = self._row("assistant", turn.content)
         row.model = turn.model
         row.stop_reason = turn.stop_reason
@@ -274,4 +482,6 @@ class ConversationLog:
         row.cost_usd = turn.cost_usd
         if tool_results:
             self._row("user", tool_results)
+        if awaiting:
+            self._row(ROLE_RECORD, [{"type": RECORD_AWAITING, "calls": awaiting}])
         self._commit()
