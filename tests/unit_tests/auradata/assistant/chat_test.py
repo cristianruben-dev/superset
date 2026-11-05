@@ -1016,6 +1016,76 @@ def test_an_image_result_becomes_an_image_block() -> None:
     }
 
 
+def test_any_user_reads_the_models_and_never_the_key(
+    client: Any, world: dict[str, Any]
+) -> None:
+    login(world, "Ana")
+
+    response = client.get(f"{URL}models/")
+
+    assert response.status_code == 200
+    assert "test-key" not in response.text
+    result = response.json["result"]
+    assert result["available"] is True
+    by_id = {model["id"]: model for model in result["models"]}
+    assert set(by_id[SONNET]) == {
+        "id",
+        "name",
+        "family",
+        "price",
+        "default",
+        "tool_search",
+        "max_input_tokens",
+    }
+    assert by_id[SONNET]["default"] is True
+    assert by_id[SONNET]["price"] == "balanced"
+    assert by_id[HAIKU]["default"] is False
+    assert by_id[HAIKU]["price"] == "economy"
+    # A model the table does not know is priced as the most expensive
+    assert by_id[UNKNOWN]["price"] == "top"
+
+
+@pytest.mark.parametrize(
+    "config",
+    [{"AURADATA_ASSISTANT_ENABLED": False}, {"ANTHROPIC_API_KEY": ""}],
+)
+def test_the_models_say_when_the_assistant_cannot_answer(
+    client: Any,
+    world: dict[str, Any],
+    mocker: MockerFixture,
+    config: dict[str, Any],
+) -> None:
+    login(world, "Ana")
+    mocker.patch.dict(current_app.config, config)
+
+    result = client.get(f"{URL}models/").json["result"]
+
+    assert result == {"available": False, "models": []}
+    api_module.get_catalog.assert_not_called()
+
+
+def test_turning_it_off_in_the_settings_hides_the_models(
+    client: Any, world: dict[str, Any], mocker: MockerFixture
+) -> None:
+    login(world, "Ana")
+    api_module.get_assistant_settings.return_value = AssistantSettings(
+        False, SONNET, None, None
+    )
+
+    assert client.get(f"{URL}models/").json["result"]["available"] is False
+
+
+def test_an_api_key_cannot_read_the_models(
+    client: Any, world: dict[str, Any], mocker: MockerFixture
+) -> None:
+    login(world, "Ana")
+    mocker.patch.object(
+        security_manager, "extract_api_key_from_request", return_value="sst_x"
+    )
+
+    assert client.get(f"{URL}models/").status_code == 403
+
+
 def test_every_message_of_the_chat_has_its_spanish_translation() -> None:
     """Product rule: Spanish first. A missing entry would reach users in English."""
     sources = [agent.__file__, api_module.__file__]

@@ -54,7 +54,12 @@ from superset.auradata.assistant.conversations import (
     history_of,
     list_conversations,
 )
-from superset.auradata.assistant.models import Catalog, CatalogModel, get_catalog
+from superset.auradata.assistant.models import (
+    Catalog,
+    CatalogModel,
+    get_catalog,
+    relative_price,
+)
 from superset.auradata.assistant.prompt import context_block, system_prompt
 from superset.auradata.assistant.settings import (
     AssistantSettings,
@@ -183,6 +188,27 @@ def _settings_json(settings: AssistantSettings, catalog: Catalog) -> dict[str, A
     }
 
 
+def _offered_model_json(model: CatalogModel, default_model: str) -> dict[str, Any]:
+    """A model as a user chooses it: what it is called and how it compares."""
+    return {
+        "id": model.id,
+        "name": model.display_name,
+        "family": model.spec.family,
+        "price": relative_price(model.spec.price),
+        "default": model.id == default_model,
+        "tool_search": model.spec.tool_search,
+        "max_input_tokens": model.max_input_tokens,
+    }
+
+
+def _is_available(settings: AssistantSettings) -> bool:
+    return bool(
+        current_app.config["AURADATA_ASSISTANT_ENABLED"]
+        and settings.enabled
+        and has_api_key()
+    )
+
+
 class AssistantAdminRestApi(BaseSupersetApi):
     """Settings of the assistant, for administrators."""
 
@@ -276,6 +302,7 @@ class AssistantRestApi(BaseSupersetApi):
     class_permission_name = "Dashboard"
     method_permission_name = {
         "chat": "read",
+        "models": "read",
         "conversations": "read",
         "conversation": "read",
     }
@@ -431,6 +458,40 @@ class AssistantRestApi(BaseSupersetApi):
             stream_with_context(events()),
             mimetype="text/event-stream",
             headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
+        )
+
+    @expose("/models/", methods=("GET",))
+    @protect()
+    @safe
+    @statsd_metrics
+    def models(self) -> Response:
+        """Whether the assistant answers here, and the models a user can pick.
+        ---
+        get:
+          summary: Models of the AI assistant a user can pick
+          responses:
+            200:
+              description: Whether it is available, and its models
+            401:
+              $ref: '#/components/responses/401'
+            403:
+              $ref: '#/components/responses/403'
+        """
+        if not _session_user_only():
+            return self.response_403()
+        settings = get_assistant_settings()
+        if not _is_available(settings):
+            return self.response(200, result={"available": False, "models": []})
+        offered = offered_models(settings, get_catalog())
+        return self.response(
+            200,
+            result={
+                "available": bool(offered),
+                "models": [
+                    _offered_model_json(model, settings.default_model)
+                    for model in offered
+                ],
+            },
         )
 
     @expose("/conversations/", methods=("GET",))

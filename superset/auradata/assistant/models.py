@@ -75,6 +75,13 @@ PROBLEM_REJECTED_KEY = "rejected_key"  # noqa: S105
 PROBLEM_UNREACHABLE = "unreachable"  # noqa: S105
 PROBLEM_UNAVAILABLE = "unavailable"  # noqa: S105
 
+PRICE_ECONOMY = "economy"
+PRICE_BALANCED = "balanced"
+PRICE_TOP = "top"
+# Dollars per million input tokens where the next relative price starts
+BALANCED_FROM = 2.0
+TOP_FROM = 4.0
+
 FAMILIES = ("haiku", "sonnet", "opus", "fable", "mythos")
 
 LIST_TIMEOUT_SECONDS = 10.0
@@ -152,6 +159,15 @@ class TokenUsage:
             self.output_tokens + other.output_tokens,
             self.cache_read_input_tokens + other.cache_read_input_tokens,
             self.cache_creation_input_tokens + other.cache_creation_input_tokens,
+        )
+
+    @property
+    def context_tokens(self) -> int:
+        """Everything the model read in this call, cached or not."""
+        return (
+            self.input_tokens
+            + self.cache_read_input_tokens
+            + self.cache_creation_input_tokens
         )
 
 
@@ -357,6 +373,13 @@ def family_of(model_id: str) -> str:
 def spec_of(model_id: str) -> ModelSpec | None:
     """The table row of a model id, also when it comes with a date suffix."""
     return MODEL_TABLE.get(_DATE_SUFFIX.sub("", model_id))
+
+
+def relative_price(price: ModelPrice) -> str:
+    """Where a model sits for someone choosing one: by what its input costs."""
+    if price.input < BALANCED_FROM:
+        return PRICE_ECONOMY
+    return PRICE_BALANCED if price.input < TOP_FROM else PRICE_TOP
 
 
 def cost_of_tokens(price: ModelPrice, usage: TokenUsage) -> Decimal:
