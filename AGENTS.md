@@ -135,6 +135,28 @@ This repository is **AuraData BI**, a fork of Apache Superset 7.0 shaped like Po
   dashboard version has no chart content. It refuses (409) when the report changed after the turn, and each undo uncovers
   the turn before. A dataset the turn changed, a chart it created (left out of the report) and a chart it deleted stay as
   they are.
+- **Who may use it** (`governance.py`, read on the server in chat, decide and undo; the panel only reflects it): the global
+  switches of `AssistantSettings` (`enabled`, `edit_enabled`) and, per workspace, `WorkspaceAssistantSettings`, which can
+  only narrow them. A dashboard without a workspace follows the global ones. The admins of a workspace and the platform's
+  change them (`/api/v1/auradata_assistant/workspace/<id>/`, «AI assistant» in the menu of the workspace page), never a
+  contributor. A workspace and a person each have one key-value entry (`KeyValueResource.AURADATA_ASSISTANT`), so saving one
+  never overwrites another, and no table is needed. The workspace is read at each request, because dashboards move.
+- **Spending** (`spending.py`, the only place for the month, the rounding and the limits): a month is a calendar month of
+  the clock of `created_on`, from its first instant up to and excluding the next; amounts are `Decimal` to the millionth, the
+  precision of the column. `budget_level` warns at 80% and stops at 100%, exactly; `None` sets no limit and `0` stops from the
+  start. The check runs before a new turn (429, `reason: budget`): a turn under way finishes, so `decide` never stops for a
+  limit, and `undo` costs nothing. A person using the panel only learns a level (`budget` in `models/` and `done`), never an
+  amount. Figures in dollars: Administration › AI assistant › Usage (`/api/v1/auradata_assistant/usage/`, admins) and the
+  month of one workspace for its admins.
+- **Privacy notice** (`PrivacyNotice.tsx`, `accept_privacy`): until a person accepts, per user on the server, chat and decide
+  answer 403 (`reason: privacy`) and nothing reaches Anthropic. A change to what the notice says raises
+  `PRIVACY_NOTICE_VERSION`, and everyone is asked again.
+- **The mark of the AI:** the MCP middleware does not run in the web process, so `ToolBox.call` writes one
+  `assistant_tool_call` per call to the action log (`action_log.py` keeps it; the page names the model and has a «Done by»
+  filter). A save made inside a tool carries a `__agent__` record first on each entity (`acting_model` in
+  `versioning/changes/state.py`, a context variable because the tool commits on a session of its own). `action_kind` stays
+  as it was, so a restore by the assistant still reads as a restore. History: `by=assistant` in `/activity/`, a line on the
+  save, and `assistant_model` in `list_versions`.
 - **«Ask your data»** (`src/auradata/assistant/`): the panel of the reading view, read only, opened from `ReadingBar` (a
   floating button on phones, which have no bar) and only when `GET /api/v1/auradata/assistant/models/` says `available`.
   `client.ts` reads the SSE body of a `fetch` with the CSRF token of `SupersetClient`, which does not stream; `transcript.ts`
@@ -239,8 +261,8 @@ This repository is **AuraData BI**, a fork of Apache Superset 7.0 shaped like Po
 
 AuraData BI APIs: `/api/v1/workspace/` (with `<id>/dashboards/` and `<id>/datasets/`),
 `/api/v1/dashboard_background/<dashboard>/`, `/api/v1/dashboard_image/<dashboard>/<image>/`,
-`/api/v1/auradata/dashboard_previews/`, `/api/v1/auradata_assistant/settings/`, `/api/v1/auradata/assistant/` (with `models/`
-and `conversations/`). Each new API is registered in `superset/initialization/__init__.py`.
+`/api/v1/auradata/dashboard_previews/`, `/api/v1/auradata_assistant/` (`settings/`, `usage/`, `workspace/<id>/`),
+`/api/v1/auradata/assistant/` (with `models/`, `privacy/` and `conversations/`). Each new API is registered in `superset/initialization/__init__.py`.
 
 ### Dashboard formatting lives in the layout
 Formats are stored in `position_json`, so they save, undo and export with the dashboard:

@@ -212,6 +212,20 @@ con el de arriba» funciona, se ve en el editor y se deshace con un clic.
 4. **Uso en Administración:** gasto por mes, modelo, workspace y usuario, a partir de la contabilidad de la fase 1.
 5. **Aviso de privacidad:** la primera vez que alguien abre el panel, se le dice qué se envía a Anthropic.
 
+> **Notas de lo construido (2026-11-05):**
+>
+> - **Sin migración.** La marca va en `version_changes`, y los ajustes de cada workspace y la aceptación de cada persona, en
+>   una entrada propia del almacén clave-valor.
+> - **La marca es un registro `__agent__` por entidad,** no `action_kind`: esa columna guarda un solo valor corto por
+>   transacción y una restauración hecha por el asistente debe seguir leyéndose como restauración. El modelo llega al guardado
+>   por una variable de contexto, porque la herramienta confirma en una sesión propia.
+> - **Un turno en marcha termina:** `decide` no mira los topes, solo los interruptores. Un modelo que sigue llamando
+>   herramientas tras pasar el tope gasta hasta que acaba ese turno.
+> - **Un workspace solo puede restringir.** Lo apagado por la plataforma se ve apagado en su ventana.
+> - **Quien usa el panel ve el nivel, nunca el monto.** El gasto en dólares es de los admins, y el de un workspace, también de
+>   los suyos.
+> - **El mes es el del reloj del servidor** que escribe `created_on` (UTC en las imágenes).
+
 ## 5. Evaluación (M)
 
 1. Los encargos E1 a E8 adaptados al panel, más 6 a 8 preguntas de datos con respuesta conocida, sobre el dataset de
