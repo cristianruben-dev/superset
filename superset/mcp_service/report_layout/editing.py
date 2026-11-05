@@ -133,10 +133,15 @@ def open_report(identifier: int | str, edit: bool = False) -> Report:
     return Report(dashboard, load_layout(dashboard))
 
 
-def save_report(report: Report, slices: list[Any] | None = None) -> bool:
+def save_report(
+    report: Report,
+    slices: list[Any] | None = None,
+    fields: dict[str, Any] | None = None,
+) -> bool:
     """
-    Save the layout through the dashboard update command; nothing is saved
-    (and False returned) when the change left the layout as it was.
+    Save the layout, and any other dashboard ``fields`` (its ``css``), through
+    the dashboard update command; nothing is saved (and False returned) when
+    the change left the layout as it was and no field was given.
     """
     from superset.commands.dashboard.exceptions import (
         DashboardForbiddenError,
@@ -146,13 +151,15 @@ def save_report(report: Report, slices: list[Any] | None = None) -> bool:
     )
     from superset.commands.dashboard.update import UpdateDashboardCommand
 
-    if slices is None and report.layout == report.original:
+    if slices is None and not fields and report.layout == report.original:
         return False
     data: dict[str, Any] = {
         "position_json": json.dumps(rebuild_parent_chains(report.layout))
     }
     if slices is not None:
         data["slices"] = slices
+    if fields:
+        data.update(fields)
     try:
         UpdateDashboardCommand(report.dashboard.id, data).run()
     except DashboardForbiddenError as ex:

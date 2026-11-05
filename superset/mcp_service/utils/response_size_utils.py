@@ -469,6 +469,13 @@ COMMITTED_WRITE_SPECS: Dict[str, CommittedWriteSpec] = {
     "resize_object": _spec("dashboard", "dashboard_id"),
     "set_object_state": _spec("dashboard", "dashboard_id"),
     "set_page_hidden": _spec("dashboard", "dashboard_id"),
+    "copy_format": _spec("dashboard", "dashboard_id"),
+    "format_visual": _spec("dashboard", "dashboard_id"),
+    "set_canvas_format": _spec("dashboard", "dashboard_id"),
+    "set_dashboard_css": _spec("dashboard", "dashboard_id"),
+    "set_shared_visual_format": _spec("dashboard", "dashboard_id"),
+    "upload_dashboard_background": _spec("dashboard", "dashboard_id"),
+    "upload_dashboard_image": _spec("dashboard", "dashboard_id"),
 }
 
 COMMITTED_WRITE_TOOLS = frozenset(COMMITTED_WRITE_SPECS)

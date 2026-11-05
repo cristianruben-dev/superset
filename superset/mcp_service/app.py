@@ -167,6 +167,17 @@ Pages have a fixed size in cells; writes keep objects inside the page and never
 on top of another unless allow_overlap is set. Read the structure first and use
 its page and object ids.
 
+Report Format (AuraData BI):
+- get_format_options: Format settings of a chart type by level (Visual, General, Analytics)
+- format_visual: Format one object with a patch of one level; returns the resolved format
+- set_canvas_format: Page size, background and the colors of the filter pane and page bar
+- set_shared_visual_format: The style every chart shares ("Apply to all charts")
+- copy_format: Copy the format of one object to others, keeping what is their own
+- set_dashboard_css: The report's own CSS
+- upload_dashboard_background / upload_dashboard_image: Pictures from base64 (never an address)
+Read the keys with get_format_options before formatting; the format lives in the
+layout, so it saves, undoes and exports with the dashboard.
+
 Tag Management:
 - list_tags: List tags with advanced filters (1-based pagination)
 - get_tag_info: Get detailed tag information by ID
@@ -851,17 +862,25 @@ from superset.mcp_service.report_layout.tool import (  # noqa: F401, E402
     add_page,
     align_objects,
     bring_to_front,
+    copy_format,
     delete_page,
     distribute_objects,
     duplicate_page,
+    format_visual,
+    get_format_options,
     get_report_structure,
     move_object,
     place_object,
     rename_page,
     reorder_pages,
     resize_object,
+    set_canvas_format,
+    set_dashboard_css,
     set_object_state,
     set_page_hidden,
+    set_shared_visual_format,
+    upload_dashboard_background,
+    upload_dashboard_image,
 )
 from superset.mcp_service.rls.tool import (  # noqa: F401, E402
     get_rls_filter_info,
