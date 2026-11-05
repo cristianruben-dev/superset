@@ -64,6 +64,7 @@ from superset.auradata.layout.mobile import (
     mobile_layout_of,
     mobile_page_rows,
     mobile_size_of,
+    propose_mobile_layout,
 )
 from superset.auradata.layout.pages import (
     descendants,
@@ -118,6 +119,7 @@ __all__ = [
     "mobile_layout_of",
     "mobile_page_rows",
     "mobile_size_of",
+    "propose_mobile_layout",
     "own_chart_format",
     "own_format",
     "page_ids",

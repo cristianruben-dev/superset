@@ -625,6 +625,327 @@
         "TAB-3"
       ],
       "expected": null
+    },
+    {
+      "name": "a layout generate_mobile_layout proposes",
+      "args": [
+        {
+          "DASHBOARD_VERSION_KEY": "v2",
+          "ROOT_ID": {
+            "type": "ROOT",
+            "id": "ROOT_ID",
+            "children": [
+              "TABS-1"
+            ],
+            "meta": {
+              "auradataCells": true
+            }
+          },
+          "GRID_ID": {
+            "type": "GRID",
+            "id": "GRID_ID",
+            "children": []
+          },
+          "TABS-1": {
+            "type": "TABS",
+            "id": "TABS-1",
+            "children": [
+              "TAB-1"
+            ]
+          },
+          "TAB-1": {
+            "type": "TAB",
+            "id": "TAB-1",
+            "children": [
+              "ROW-1"
+            ],
+            "meta": {
+              "text": "Resumen",
+              "auradataMobile": {
+                "items": [
+                  {
+                    "id": "TITLE",
+                    "x": 0,
+                    "y": 0,
+                    "width": 12,
+                    "height": 2
+                  },
+                  {
+                    "id": "CARD-1",
+                    "x": 0,
+                    "y": 2,
+                    "width": 6,
+                    "height": 3
+                  },
+                  {
+                    "id": "CARD-2",
+                    "x": 6,
+                    "y": 2,
+                    "width": 6,
+                    "height": 3
+                  },
+                  {
+                    "id": "SLICER",
+                    "x": 0,
+                    "y": 5,
+                    "width": 12,
+                    "height": 4
+                  },
+                  {
+                    "id": "BAR",
+                    "x": 0,
+                    "y": 9,
+                    "width": 12,
+                    "height": 8
+                  },
+                  {
+                    "id": "NOTE",
+                    "x": 0,
+                    "y": 17,
+                    "width": 12,
+                    "height": 2
+                  },
+                  {
+                    "id": "LINE",
+                    "x": 0,
+                    "y": 19,
+                    "width": 12,
+                    "height": 8
+                  }
+                ]
+              }
+            }
+          },
+          "ROW-1": {
+            "type": "ROW",
+            "id": "ROW-1",
+            "children": [
+              "LINE",
+              "HIDDEN",
+              "NOTE",
+              "SLICER",
+              "CARD-2",
+              "CARD-1",
+              "BAR",
+              "TITLE"
+            ],
+            "meta": {}
+          },
+          "TITLE": {
+            "type": "MARKDOWN",
+            "id": "TITLE",
+            "children": [],
+            "parents": [
+              "ROOT_ID",
+              "TABS-1",
+              "TAB-1",
+              "ROW-1"
+            ],
+            "meta": {
+              "width": 60,
+              "height": 2,
+              "auradataPos": {
+                "x": 0,
+                "y": 0
+              },
+              "code": "# Ventas"
+            }
+          },
+          "BAR": {
+            "type": "CHART",
+            "id": "BAR",
+            "children": [],
+            "parents": [
+              "ROOT_ID",
+              "TABS-1",
+              "TAB-1",
+              "ROW-1"
+            ],
+            "meta": {
+              "width": 30,
+              "height": 12,
+              "auradataPos": {
+                "x": 0,
+                "y": 2
+              },
+              "chartId": 1
+            }
+          },
+          "CARD-1": {
+            "type": "CHART",
+            "id": "CARD-1",
+            "children": [],
+            "parents": [
+              "ROOT_ID",
+              "TABS-1",
+              "TAB-1",
+              "ROW-1"
+            ],
+            "meta": {
+              "width": 10,
+              "height": 5,
+              "auradataPos": {
+                "x": 30,
+                "y": 2
+              },
+              "chartId": 2
+            }
+          },
+          "CARD-2": {
+            "type": "CHART",
+            "id": "CARD-2",
+            "children": [],
+            "parents": [
+              "ROOT_ID",
+              "TABS-1",
+              "TAB-1",
+              "ROW-1"
+            ],
+            "meta": {
+              "width": 10,
+              "height": 5,
+              "auradataPos": {
+                "x": 40,
+                "y": 2
+              },
+              "chartId": 3
+            }
+          },
+          "SLICER": {
+            "type": "DYNAMIC",
+            "id": "SLICER",
+            "children": [],
+            "parents": [
+              "ROOT_ID",
+              "TABS-1",
+              "TAB-1",
+              "ROW-1"
+            ],
+            "meta": {
+              "width": 10,
+              "height": 3,
+              "auradataPos": {
+                "x": 50,
+                "y": 2
+              },
+              "componentKey": "auradata-filter"
+            }
+          },
+          "NOTE": {
+            "type": "MARKDOWN",
+            "id": "NOTE",
+            "children": [],
+            "parents": [
+              "ROOT_ID",
+              "TABS-1",
+              "TAB-1",
+              "ROW-1"
+            ],
+            "meta": {
+              "width": 20,
+              "height": 4,
+              "auradataPos": {
+                "x": 0,
+                "y": 14
+              },
+              "code": "Notas"
+            }
+          },
+          "HIDDEN": {
+            "type": "CHART",
+            "id": "HIDDEN",
+            "children": [],
+            "parents": [
+              "ROOT_ID",
+              "TABS-1",
+              "TAB-1",
+              "ROW-1"
+            ],
+            "meta": {
+              "width": 30,
+              "height": 4,
+              "auradataPos": {
+                "x": 30,
+                "y": 14
+              },
+              "chartId": 4,
+              "auradataHidden": true
+            }
+          },
+          "LINE": {
+            "type": "CHART",
+            "id": "LINE",
+            "children": [],
+            "parents": [
+              "ROOT_ID",
+              "TABS-1",
+              "TAB-1",
+              "ROW-1"
+            ],
+            "meta": {
+              "width": 60,
+              "height": 12,
+              "auradataPos": {
+                "x": 0,
+                "y": 18
+              },
+              "chartId": 5
+            }
+          }
+        },
+        "TAB-1"
+      ],
+      "expected": [
+        {
+          "id": "TITLE",
+          "x": 0,
+          "y": 0,
+          "width": 12,
+          "height": 2
+        },
+        {
+          "id": "CARD-1",
+          "x": 0,
+          "y": 2,
+          "width": 6,
+          "height": 3
+        },
+        {
+          "id": "CARD-2",
+          "x": 6,
+          "y": 2,
+          "width": 6,
+          "height": 3
+        },
+        {
+          "id": "SLICER",
+          "x": 0,
+          "y": 5,
+          "width": 12,
+          "height": 4
+        },
+        {
+          "id": "BAR",
+          "x": 0,
+          "y": 9,
+          "width": 12,
+          "height": 8
+        },
+        {
+          "id": "NOTE",
+          "x": 0,
+          "y": 17,
+          "width": 12,
+          "height": 2
+        },
+        {
+          "id": "LINE",
+          "x": 0,
+          "y": 19,
+          "width": 12,
+          "height": 8
+        }
+      ]
     }
   ]
 }
