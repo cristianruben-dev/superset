@@ -26,6 +26,7 @@ from marshmallow import ValidationError
 
 from superset import db, security_manager
 from superset.auradata.single_dashboard import validate_dashboard_layout
+from superset.auradata.workspace_access import certification_errors
 from superset.commands.base import BaseCommand, UpdateMixin
 from superset.commands.dashboard.exceptions import (
     DashboardChartCustomizationsUpdateFailedError,
@@ -150,6 +151,8 @@ class UpdateDashboardCommand(UpdateMixin, BaseCommand):
             exceptions.append(DashboardSlugExistsValidationError())
 
         compute_subjects(self._model, self._properties, exceptions)
+        # AuraData BI: a workspace contributor edits but does not certify
+        exceptions.extend(certification_errors(self._model, self._properties))
 
         # validate tags
         try:

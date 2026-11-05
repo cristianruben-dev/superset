@@ -26775,3 +26775,6 @@ msgstr "Copiado al portapapeles"
 
 msgid "Could not copy to the clipboard"
 msgstr "No se pudo copiar al portapapeles"
+
+msgid "Only editors and workspace admins can certify."
+msgstr "Solo los editores y los administradores del área de trabajo pueden certificar."

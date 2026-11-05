@@ -114,6 +114,21 @@ fetchMock.get('glob:*/api/v1/dashboard/26', {
   },
 });
 
+const testUser = (userId: number, username: string, role: string) => ({
+  userId,
+  username,
+  firstName: username,
+  lastName: 'T',
+  isActive: true,
+  isAnonymous: false,
+  permissions: {},
+  roles: { [role]: [] },
+});
+
+const ADMIN_USER = testUser(1, 'admin', 'Admin');
+
+const CONTRIBUTOR_USER = testUser(2, 'ana', 'Gamma');
+
 const createProps = () => ({
   certified_by: 'John Doe',
   certification_details: 'Sample certification',
@@ -538,8 +553,11 @@ describe('PropertiesModal', () => {
         json_metadata: mockedJsonMetadata,
       },
     };
+    // AuraData BI: only editors and workspace admins send the stamp; this user
+    // is an admin
     render(<PropertiesModal {...propsWithDashboardInfo} />, {
       useRedux: true,
+      initialState: { user: ADMIN_USER },
     });
     await screen.findByTestId('dashboard-edit-properties-form');
 
@@ -564,6 +582,35 @@ describe('PropertiesModal', () => {
     const putBody = JSON.parse(putRequest.body as string);
     expect(putBody.certified_by).toBe('John Doe');
     expect(putBody.certification_details).toBe('Sample certification');
+  });
+
+  test('a workspace contributor saves without touching the certification', async () => {
+    fetchMock.get(
+      'glob:*/api/v1/workspace/of_dashboard/26/',
+      { result: { id: 3, name: 'Ventas', role: 'contributor' } },
+      { name: 'of-dashboard-contributor' },
+    );
+    const put = jest.spyOn(SupersetCore.SupersetClient, 'put');
+    put.mockResolvedValue({ json: { result: {} } } as any);
+    mockedIsFeatureEnabled.mockReturnValue(false);
+    const props = createProps();
+    render(
+      <PropertiesModal
+        {...props}
+        dashboardInfo={{ ...dashboardInfo, json_metadata: mockedJsonMetadata }}
+      />,
+      { useRedux: true, initialState: { user: CONTRIBUTOR_USER } },
+    );
+    await screen.findByTestId('dashboard-edit-properties-form');
+
+    await userEvent.click(screen.getByRole('button', { name: 'Save' }));
+
+    await waitFor(() => expect(put).toHaveBeenCalled());
+    const putBody = JSON.parse(put.mock.calls[0][0].body as string);
+    expect(putBody).not.toHaveProperty('certified_by');
+    expect(putBody).not.toHaveProperty('certification_details');
+    fetchMock.removeRoute('of-dashboard-contributor');
+    put.mockRestore();
   });
 
   test('submitting with onlyApply:true', async () => {

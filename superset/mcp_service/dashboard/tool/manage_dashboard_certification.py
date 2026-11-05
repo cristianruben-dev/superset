@@ -83,7 +83,7 @@ def manage_dashboard_certification(
     ctx.info(f"Managing dashboard certification: identifier={request.identifier}")
 
     dashboard, auth_error = find_and_authorize_dashboard(
-        request.identifier, ManageDashboardCertificationResponse
+        request.identifier, ManageDashboardCertificationResponse, certify=True
     )
     if auth_error is not None:
         return auth_error

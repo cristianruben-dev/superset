@@ -27,6 +27,7 @@ from fastmcp.client.client import CallToolResult
 from superset.utils import json
 
 DAO_GET: str = "superset.daos.dashboard.DashboardDAO.get_by_id_or_slug"
+CAN_CERTIFY: str = "superset.auradata.workspace_access.can_certify"
 
 
 def _mock_dashboard(
@@ -369,9 +370,12 @@ class TestManageDashboardCertification:
         dash = _mock_dashboard()
         mock_get.return_value = dash
 
-        with patch(
-            "superset.security_manager.raise_for_editorship",
-            side_effect=SupersetSecurityException(Mock(message="forbidden")),
+        with (
+            patch(
+                "superset.security_manager.raise_for_editorship",
+                side_effect=SupersetSecurityException(Mock(message="forbidden")),
+            ),
+            patch(CAN_CERTIFY, return_value=False),
         ):
             async with Client(mcp_server) as client:
                 result = await client.call_tool(
@@ -382,6 +386,60 @@ class TestManageDashboardCertification:
         payload = json.loads(result.content[0].text)
         assert payload.get("permission_denied") is True
         assert dash.certified_by is None
+
+    @patch(DAO_GET)
+    @patch("superset.extensions.db.session")
+    @pytest.mark.asyncio
+    async def test_workspace_contributor_cannot_certify(
+        self, mock_session: Mock, mock_get: Mock, mcp_server: object
+    ) -> None:
+        """AuraData BI: a contributor edits the dashboard but does not certify."""
+        dash = _mock_dashboard()
+        mock_get.return_value = dash
+
+        with patch(CAN_CERTIFY, return_value=False):
+            async with Client(mcp_server) as client:
+                result = await client.call_tool(
+                    "manage_dashboard_certification",
+                    {"request": {"identifier": 42, "certified_by": "Team"}},
+                )
+
+        payload = json.loads(result.content[0].text)
+        assert payload.get("permission_denied") is True
+        assert "Only editors and workspace admins" in payload["error"]
+        assert dash.certified_by is None
+        mock_session.commit.assert_not_called()
+
+    @patch(DAO_GET)
+    @patch("superset.extensions.db.session")
+    @pytest.mark.asyncio
+    async def test_workspace_admin_certifies_without_editorship(
+        self, mock_session: Mock, mock_get: Mock, mcp_server: object
+    ) -> None:
+        """AuraData BI: a workspace admin certifies a dashboard it does not edit
+        as an editor, through the same rule as the web (``can_certify``)."""
+        from superset.exceptions import SupersetSecurityException
+
+        dash = _mock_dashboard()
+        mock_get.return_value = dash
+
+        with (
+            patch(
+                "superset.security_manager.raise_for_editorship",
+                side_effect=SupersetSecurityException(Mock(message="forbidden")),
+            ),
+            patch(CAN_CERTIFY, return_value=True),
+        ):
+            async with Client(mcp_server) as client:
+                result = await client.call_tool(
+                    "manage_dashboard_certification",
+                    {"request": {"identifier": 42, "certified_by": "Team"}},
+                )
+
+        payload = json.loads(result.content[0].text)
+        assert payload.get("permission_denied") is not True
+        assert payload["changed_fields"] == ["certified_by"]
+        assert dash.certified_by == "Team"
 
     @pytest.mark.asyncio
     async def test_xss_certified_by_is_sanitized(self, mcp_server: object) -> None:

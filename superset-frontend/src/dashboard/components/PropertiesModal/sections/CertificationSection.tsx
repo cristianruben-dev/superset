@@ -22,16 +22,28 @@ import { ModalFormField } from 'src/components/Modal';
 
 interface CertificationSectionProps {
   isLoading: boolean;
+  /**
+   * AuraData BI: whether the user may set or clear the stamp (editors and
+   * workspace admins, not workspace contributors).
+   */
+  canCertify?: boolean;
 }
 
-const CertificationSection = ({ isLoading }: CertificationSectionProps) => (
+const CertificationSection = ({
+  isLoading,
+  canCertify = true,
+}: CertificationSectionProps) => (
   <>
     <ModalFormField
       label={t('Certified by')}
-      helperText={t('Person or group that has certified this dashboard.')}
+      helperText={
+        canCertify
+          ? t('Person or group that has certified this dashboard.')
+          : t('Only editors and workspace admins can certify.')
+      }
     >
       <FormItem name="certifiedBy" noStyle>
-        <Input type="text" disabled={isLoading} />
+        <Input type="text" disabled={isLoading || !canCertify} />
       </FormItem>
     </ModalFormField>
     <ModalFormField
@@ -42,7 +54,7 @@ const CertificationSection = ({ isLoading }: CertificationSectionProps) => (
       bottomSpacing={false}
     >
       <FormItem name="certificationDetails" noStyle>
-        <Input type="text" disabled={isLoading} />
+        <Input type="text" disabled={isLoading || !canCertify} />
       </FormItem>
     </ModalFormField>
   </>

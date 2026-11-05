@@ -80,7 +80,10 @@ This repository is **AuraData BI**, a fork of Apache Superset 7.0 shaped like Po
   `DashboardAccessFilter`), never viewers, other workspaces or shared datasets. RLS still applies;
   SQL Lab, database schemas and editing a dataset keep their normal permissions. A new data-access
   check keeps `is_editor` and adds this grant only where the dataset is the thing read
-  (`tests/unit_tests/auradata/workspace_grants_test.py`).
+  (`tests/unit_tests/auradata/workspace_grants_test.py`). Certifying a dashboard or chart (`certified_by`,
+  `certification_details`) is for its editors and the admins of its workspace, never contributors: `can_certify` and
+  `certification_errors` in `workspace_access.py`, used by the update commands and the MCP certification tool
+  (`tests/unit_tests/auradata/certification_test.py`).
 - **AIs connect with personal API keys** (`sst_…`, «Conectar IA» at `/connect-ai/`, `src/auradata/connectAi`): every
   role manages its own keys (`ApiKey` is not admin-only), a key acts as its owner with every fork rule, and its scopes
   only narrow MCP tools (`tests/unit_tests/mcp_service/test_api_key_scope_coverage.py` makes a new tool declare a

@@ -34,7 +34,11 @@ def mcp_server() -> object:
 def mock_auth() -> Iterator[Mock]:
     """Mock authentication for all tests in this directory."""
     with patch("superset.mcp_service.auth.get_user_from_request") as mock_get_user:
-        with patch("superset.security_manager.raise_for_editorship"):
+        with (
+            patch("superset.security_manager.raise_for_editorship"),
+            # AuraData BI: certifying asks can_certify instead of editorship
+            patch("superset.auradata.workspace_access.can_certify", return_value=True),
+        ):
             mock_user: Mock = Mock()
             mock_user.id = 1
             mock_user.username = "admin"

@@ -50,6 +50,8 @@ ResponseT = TypeVar("ResponseT", bound=DashboardMutationErrorFields)
 def find_and_authorize_dashboard(
     identifier: int | str,
     response_cls: type[ResponseT],
+    *,
+    certify: bool = False,
 ) -> tuple["Dashboard | None", ResponseT | None]:
     """Return (dashboard, None) on success or (None, error_response) on failure.
 
@@ -91,9 +93,38 @@ def find_and_authorize_dashboard(
             error=f"Dashboard not found: {identifier!r}",
         )
 
+    if certify:
+        # AuraData BI: editors and workspace admins certify, as in the web
+        # (``certification_errors`` in the dashboard and chart commands); a
+        # workspace contributor only edits the content.
+        from superset.auradata.workspace_access import can_certify
+
+        try:
+            allowed = can_certify(dashboard)
+        except SQLAlchemyError:
+            logger.exception(
+                "Database error checking certification rights for dashboard %r",
+                identifier,
+            )
+            return None, response_cls(
+                error=(
+                    "Failed to verify dashboard certification permission due to "
+                    "a database error."
+                ),
+            )
+        if allowed:
+            return dashboard, None
+        return None, response_cls(
+            permission_denied=True,
+            error=(
+                "Only editors and workspace admins can certify dashboard "
+                f"'{dashboard.dashboard_title}' (ID: {dashboard.id})."
+            ),
+        )
+
     try:
-        # AuraData BI: certifying a dashboard and managing who edits or views it
-        # need real editorship; a workspace role only edits its content.
+        # AuraData BI: managing who edits or views a dashboard needs real
+        # editorship; a workspace role only edits its content.
         security_manager.raise_for_editorship(dashboard, workspace_role=False)
     except SupersetSecurityException:
         return None, response_cls(

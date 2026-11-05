@@ -25,6 +25,7 @@ from marshmallow import ValidationError
 
 from superset import security_manager
 from superset.auradata.single_dashboard import validate_chart_dashboards
+from superset.auradata.workspace_access import certification_errors
 from superset.auradata.workspace_datasets import validate_chart_dataset
 from superset.commands.base import BaseCommand, UpdateMixin
 from superset.commands.chart.exceptions import (
@@ -185,6 +186,8 @@ class UpdateChartCommand(UpdateMixin, BaseCommand):
             except ValidationError as ex:
                 exceptions.append(ex)
             raise_if_managed_externally(self._model, ChartForbiddenError)
+            # AuraData BI: a workspace contributor edits but does not certify
+            exceptions.extend(certification_errors(self._model, self._properties))
         else:
             # ``raise_for_access`` admits a guest for every chart on the dashboard
             # its token embeds, but a guest holds no write capability (see the

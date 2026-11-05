@@ -27,6 +27,8 @@ Membership is the privacy boundary of a workspace, as in Power BI:
   (``SupersetSecurityManager.can_edit_resource``), but are not their editors:
   editorship grants data access in Superset, so a workspace role never changes
   who edits or views a dashboard or chart, nor makes the user an editor of it.
+* Only editors and workspace admins certify a dashboard or chart
+  (``can_certify``); contributors do not.
 
 ``AURADATA_WORKSPACE_ACCESS = False`` turns the dashboard rules off; workspaces then
 only group dashboards.
@@ -121,10 +123,15 @@ def can_see_dashboard(dashboard_id: int) -> bool:
     return link is None or workspace_role(link) is not None
 
 
-def edits_as_workspace_member(resource: Any) -> bool:
+def edits_as_workspace_member(
+    resource: Any, roles: tuple[str, ...] = EDITOR_ROLES
+) -> bool:
     """
     Whether the current user edits a dashboard or chart through a workspace role.
     Charts follow the dashboard they belong to.
+
+    :param resource: The dashboard or chart
+    :param roles: The workspace roles that count (contributor and admin)
     """
     from superset.models.dashboard import Dashboard, dashboard_slices
     from superset.models.slice import Slice
@@ -137,7 +144,7 @@ def edits_as_workspace_member(resource: Any) -> bool:
 
     editable_workspaces = sa.select(WorkspaceMember.workspace_id).where(
         WorkspaceMember.user_id == user_id,
-        WorkspaceMember.role.in_(EDITOR_ROLES),
+        WorkspaceMember.role.in_(roles),
     )
     if isinstance(resource, Dashboard):
         dashboard_ids: Any = sa.select(sa.literal(resource.id))
@@ -156,6 +163,46 @@ def edits_as_workspace_member(resource: Any) -> bool:
         .first()
         is not None
     )
+
+
+def can_certify(resource: Any) -> bool:
+    """
+    Whether the current user may set or clear the certified stamp of a dashboard
+    or chart: its editors (and Superset admins) and the admins of its workspace.
+    A contributor edits the report but does not certify it. Guests never do.
+    """
+    if security_manager.is_guest_user():
+        return False
+    return security_manager.is_editor(resource) or edits_as_workspace_member(
+        resource, roles=(ROLE_ADMIN,)
+    )
+
+
+#: The fields of the certified stamp of dashboards and charts.
+CERTIFICATION_FIELDS = ("certified_by", "certification_details")
+
+
+def certification_errors(
+    resource: Any, properties: dict[str, Any]
+) -> list[ValidationError]:
+    """
+    An error for each certification field an update changes without the right
+    to certify. A field sent back unchanged is not a change ("" and None are the
+    same empty stamp), as the properties dialog sends the whole object.
+
+    :param resource: The dashboard or chart being updated
+    :param properties: The update payload
+    """
+    changed = [
+        field
+        for field in CERTIFICATION_FIELDS
+        if field in properties
+        and (properties[field] or None) != (getattr(resource, field, None) or None)
+    ]
+    if not changed or can_certify(resource):
+        return []
+    message = __("Only editors and workspace admins can certify.")
+    return [ValidationError([message], field_name=field) for field in changed]
 
 
 def workspace_editable_dashboard_ids() -> Any | None:

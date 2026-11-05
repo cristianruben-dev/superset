@@ -66,6 +66,7 @@ import {
 import { areObjectsEqual } from 'src/reduxUtils';
 import { AsyncModeOverride } from 'src/utils/asyncMode';
 import { StandardModal, useModalValidation } from 'src/components/Modal';
+import { fetchDashboardWorkspace } from 'src/auradata/workspaces/api';
 import { validateRefreshFrequency } from '../RefreshFrequency';
 import {
   BasicInfoSection,
@@ -148,6 +149,20 @@ const PropertiesModal = ({
   // views the dashboard: the server answers 422 when they try
   const canManageSubjects =
     isLoading || !user || isUserAdmin(user) || isUserInSubjects(editors);
+  // AuraData BI: editors and the admins of the dashboard's workspace certify;
+  // a contributor edits the dashboard but its certification stays as it is
+  const [workspaceRole, setWorkspaceRole] = useState<string | null>(null);
+  useEffect(() => {
+    if (!show || !dashboardId) return undefined;
+    let current = true;
+    fetchDashboardWorkspace(dashboardId)
+      .then(workspace => current && setWorkspaceRole(workspace?.role ?? null))
+      .catch(() => current && setWorkspaceRole(null));
+    return () => {
+      current = false;
+    };
+  }, [show, dashboardId]);
+  const canCertify = canManageSubjects || workspaceRole === 'admin';
 
   const extraFields = useMemo(
     () =>
@@ -470,9 +485,11 @@ const PropertiesModal = ({
         slug: slug || null,
         json_metadata: currentJsonMetadata || null,
         editors: mapSubjectValuesToIds(editors || []),
-        certified_by: certifiedBy || null,
-        certification_details:
-          certifiedBy && certificationDetails ? certificationDetails : null,
+        ...(canCertify && {
+          certified_by: certifiedBy || null,
+          certification_details:
+            certifiedBy && certificationDetails ? certificationDetails : null,
+        }),
         css: customCss || null,
         ...morePutProps,
       };
@@ -876,7 +893,12 @@ const PropertiesModal = ({
                   testId="certification-section"
                 />
               ),
-              children: <CertificationSection isLoading={isLoading} />,
+              children: (
+                <CertificationSection
+                  isLoading={isLoading}
+                  canCertify={canCertify}
+                />
+              ),
             },
             {
               key: 'advanced',
