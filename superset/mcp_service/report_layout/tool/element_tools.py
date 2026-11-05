@@ -73,6 +73,9 @@ from superset.mcp_service.report_layout.slicers import (
     slicer_summary,
 )
 
+# Slicer settings tied to its native filter, which update_slicer keeps in step
+_FILTER_OPTIONS = frozenset({"selection", "sortValues", "hiddenValues"})
+
 _WRITE: dict[str, Any] = {
     "tags": ["mutate", "layout", "elements"],
     "class_permission_name": "Dashboard",
@@ -445,6 +448,11 @@ async def format_slicer(request: FormatSlicerRequest, ctx: Context) -> ElementRe
             raise LayoutEditError(f"{component_id} is not a slicer.")
         meta = meta_of(report, component_id)
         if request.level == "visual":
+            if filter_options := sorted(_FILTER_OPTIONS & set(request.patch)):
+                raise LayoutEditError(
+                    f"{', '.join(filter_options)}: options of the filter; set them "
+                    "with update_slicer (selection, sort, hidden_values)."
+                )
             current = dict(meta.get(keys.ELEMENT_KEY) or {"kind": "filter"})
             element = patched_settings(report, "filter", current, request.patch)
             if element.get("filterId"):

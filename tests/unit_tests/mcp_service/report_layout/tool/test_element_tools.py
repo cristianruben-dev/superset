@@ -118,6 +118,43 @@ async def test_editors_and_workspace_editors_add_and_change(
     assert refused["permission_denied"] is True
 
 
+CHANGES = [
+    ("update_element", "shape", {"settings": {"radius": 4}}),
+    ("format_element", "shape", {"patch": {"radius": 8}}),
+    ("remove_element", "shape", {}),
+    ("update_slicer", "slicer", {"variant": "list"}),
+    ("format_slicer", "slicer", {"level": "general", "patch": {"radius": 2}}),
+]
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("name", NOT_EDITORS)
+@pytest.mark.parametrize(("tool", "target", "request_"), CHANGES)
+async def test_viewers_and_strangers_cannot_change_elements(
+    world: dict[str, Any],
+    name: str,
+    tool: str,
+    target: str,
+    request_: dict[str, Any],
+) -> None:
+    objects = {
+        "shape": ok(await as_editor(world, "add_element", kind="shape"))["object"],
+        "slicer": ok(await as_editor(world, "add_slicer", **slicer_request(world)))[
+            "object"
+        ],
+    }
+    before, filters_before = layout(world), filters(world)
+    as_user(world, name)
+    result = await call(
+        tool,
+        {"dashboard": world["dashboard"].id, "object": objects[target], **request_},
+    )
+    assert result["error_type"] == ("Forbidden" if name == "Vera" else "NotFound")
+    assert result["permission_denied"] is (name == "Vera")
+    assert layout(world) == before
+    assert filters(world) == filters_before
+
+
 @pytest.mark.asyncio
 async def test_add_element_writes_a_dynamic_component_at_a_free_cell(
     world: dict[str, Any],
@@ -441,6 +478,15 @@ async def test_update_and_format_slicer(world: dict[str, Any]) -> None:
         world, "format_slicer", object=slicer, level="visual", patch={"filterId": "x"}
     )
     assert wrong["error_type"] == "InvalidFormat"
+    # Options tied to the filter go through update_slicer
+    tied = await as_editor(
+        world,
+        "format_slicer",
+        object=slicer,
+        level="visual",
+        patch={"selection": "single"},
+    )
+    assert "update_slicer" in tied["error"]
     corners = await as_editor(
         world,
         "format_slicer",
