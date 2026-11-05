@@ -107,6 +107,9 @@ its `keys` module.
   in `json_metadata`. A metadata write sends the whole current metadata (`metadata_fields`), as the frontend
   does: the update command resets derived color settings that are missing. A chart's tooltip only points at a
   tooltip page (`ReportRefs.tooltip_pages`).
+- **Mobile layout** (`report_layout/mobile.py`): boxes of a page's own objects in a 12 cell phone page, fitted
+  with `fit_box` and proposed by `propose_mobile_layout`; a proposal must come back unchanged from
+  `mobile_layout_of`. Look at it with `get_dashboard_screenshot(device='phone')`.
 
 ## Architecture Overview
 

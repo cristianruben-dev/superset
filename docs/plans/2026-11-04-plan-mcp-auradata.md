@@ -634,6 +634,65 @@ históricas. El `CLAUDE.md` del proyecto y el de `mcp_service` reescriben su reg
   segmentadores arriba).
 - `set_mobile_layout` para ajustarlo, `clear_mobile_layout`. Captura con el marco de teléfono.
 
+**Hecho (2026-11-05, rama `feat/mcp-mobile`):**
+1. `27f280603b` y `488888d3b9`: `propose_mobile_layout` en `superset/auradata/layout/mobile.py`.
+   - Solo existe en Python: el editor no tiene diseño automático.
+   - Orden: los textos que están por encima de todo (el título) encabezan; luego tarjetas y segmentadores; después
+     los gráficos en orden de lectura (de arriba abajo, de izquierda a derecha). Un texto o forma va delante de lo
+     que lo seguía en el lienzo. Los objetos ocultos se quedan fuera, con aviso.
+   - Tamaños: gráficos a todo el ancho, de 8 a 12 celdas de alto. Las tarjetas pequeñas (un tercio del lienzo o
+     menos) van de dos en dos, de 4 a 6 celdas. El resto conserva su forma del lienzo.
+   - Un caso del fixture compartido `mobile_layout_of.json` prueba que `mobileLayoutOf` (Jest) lee la propuesta
+     sin cambios.
+2. `3fcb851a10`: `generate_mobile_layout` (sin `apply` solo propone; `apply=true` escribe y pide poder editar),
+   `set_mobile_layout` y `clear_mobile_layout` (`report_layout/mobile.py`, `tool/mobile_tools.py`).
+   - Las cajas se validan contra los objetos de la página (sirve el id del gráfico) y no se repiten. Se ajustan a 12
+     columnas con aviso, como `fitBox`; más de 12 de ancho lo rechaza el esquema.
+   - Las páginas tooltip no tienen diseño móvil.
+   - Tests con base real: editor, contributor y admin del workspace escriben; viewer (Forbidden) y otro workspace
+     (NotFound) no cambian nada.
+3. `0b6bc7347b`: `get_dashboard_screenshot(device='phone')`. Navegador de 393 pt de ancho, con alto para toda la
+   página tal como la ve un teléfono: su diseño móvil, o el lienzo escalado al ancho. Devuelve `mobile_layout`.
+4. Pendientes de la fase 6:
+   - `804993fe31`: `FilterBarSettings` y la barra leen `filter_bar_auto_apply` con `isFilterBarAutoApply` (al
+     instante salvo que el tablero lo apague).
+   - `d836171bde`: `generate_dashboard` crea los informes con `cross_filters_enabled: true`. Es lo que hace el
+     editor: «Nuevo tablero» no guarda metadata, y el frontend lee su ausencia como encendido.
+   - `736f5ab570`: historial de versiones. **La causa estaba en `superset/versioning/diff.py`, no en el MCP:**
+     también se perdían los guardados del editor.
+     - `chart_configuration` estaba entre las claves excluidas. Ahora se compara solo el alcance (`kind`
+       `interaction`), sin `chartsInScope` ni los gráficos que siguen el alcance del tablero.
+     - `ROOT_ID` y `GRID_ID` se ignoraban enteros, y con ellos el formato del lienzo, los marcadores y el diseño
+       móvil de un informe de una página. Ahora sus claves de `meta` son registros `report`, uno por ajuste. Las
+       claves `auradata*` de una `TAB` también.
+     - Los `DYNAMIC` (elementos y segmentadores) no tenían tipo y no salían. Ahora salen como «elemento de diseño».
+     - El panel los nombra («Se cambiaron los marcadores», «Se cambió el diseño móvil»...), con su traducción.
+     - `generate_dashboard` escribe la metadata con la forma que deja `set_dash_metadata`, así la primera escritura
+       de metadata ya no registra `expand_all_slices` ni `filter_scopes`.
+5. Chequeo en vivo (MCP en 5108, tablero nuevo 222 «Fase 7 diseño móvil» del workspace 6, gráficos 319–322 sobre
+   `ventas_demo`):
+   - Todo se hizo por herramientas: `generate_dashboard`, tarjetas reducidas a 10 × 5, un texto de título, un
+     segmentador de región y `generate_mobile_layout(apply=true)`.
+   - La captura de teléfono muestra título, segmentador, las dos tarjetas lado a lado y las dos barras.
+   - El navegador a 393 × 852 lo dibuja igual. Única diferencia: el visor real resta el riel de filtros, que la
+     captura (`standalone`) no muestra.
+   - En el 222 recién generado, «Filtros cruzados» está encendido y «Aplicar filtros al instante» marcado, sin la
+     clave en la metadata.
+   - El historial muestra el diseño móvil, los elementos, la interacción y el marcador.
+   - Un guardado del editor (cambio de título) no registró ningún `report` ni `interaction` fantasma.
+6. Pendiente:
+   - La captura de teléfono no dibuja el riel de filtros cerrado que ve un visor de teléfono, así que es unos píxeles
+     más ancha.
+   - El historial de un ajuste de página `TAB` no dice qué página cambió: el texto es genérico.
+   - El primer guardado del editor sobre un informe hecho por MCP registra `native_filter_configuration`,
+     `default_filters` y `chart_customization_config`, que el frontend normaliza. Es anterior a esta rama.
+   - `test_dashboard_schemas.py::test_generate_dashboard_request_chart_ids_is_bounded` ya fallaba antes de esta
+     rama: espera que `chart_ids=[]` falle, y la fase 4 lo permite (un informe vacío para `create_visual`).
+   - No se corrieron `pre-commit` ni mypy: solo ruff, oxlint y oxfmt sobre los archivos tocados.
+   - **Para las sesiones siguientes:** el `ruff format` del contenedor, sobre archivos recién editados en el host,
+     puede leer una copia vieja del montaje y truncarlos. Formatear por stdin, o comprobar antes con md5 que el
+     contenedor ve el mismo archivo.
+
 ## 8. Conexiones y modelo de datos (M)
 
 - `test_connection` y `create_database` para los seis motores de `PREFERRED_DATABASES`, solo admin.
