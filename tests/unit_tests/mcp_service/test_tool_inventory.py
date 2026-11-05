@@ -33,7 +33,7 @@ from superset.utils import json
 # at test time: they must catch schema growth. Large chart tools retain their
 # explicit delivery budgets, well below the sizes produced by reference inlining.
 TOOL_BUDGETS = {
-    "add_chart_to_existing_dashboard": 1_500,
+    "add_chart_to_existing_dashboard": 1_700,
     "add_page": 1_200,
     "align_objects": 1_300,
     "bring_to_front": 1_200,

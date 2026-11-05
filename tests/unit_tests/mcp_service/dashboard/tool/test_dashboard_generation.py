@@ -1315,10 +1315,11 @@ class TestAddChartToExistingDashboard:
             chart_data = layout["CHART-30"]
             assert chart_data["type"] == "CHART"
             chart_parents = chart_data["parents"]
-            column_key = chart_parents[-1]
-            assert column_key.startswith("COLUMN-")
-            assert column_key in layout
-            assert layout[column_key]["type"] == "COLUMN"
+            # ROW > CHART, as the editor writes a chart placed on a cell
+            row_key = chart_parents[-1]
+            assert layout[row_key]["type"] == "ROW"
+            assert layout[row_key]["children"] == ["CHART-30"]
+            assert "auradataPos" in chart_data["meta"]
 
     @patch("superset.commands.dashboard.update.UpdateDashboardCommand")
     @patch("superset.daos.dashboard.DashboardDAO.find_by_id")
@@ -1496,12 +1497,7 @@ class TestAddChartToExistingDashboard:
             assert row_data["type"] == "ROW"
             assert len(row_data["children"]) == 1
 
-            column_key = row_data["children"][0]
-            assert column_key.startswith("COLUMN-")
-            assert column_key in layout
-            column_data = layout[column_key]
-            assert column_data["type"] == "COLUMN"
-            assert "CHART-15" in column_data["children"]
+            assert row_data["children"] == ["CHART-15"]
 
             # Verify ROOT_ID is in parents chain even for empty layouts
             chart_parents = layout["CHART-15"]["parents"]
@@ -1602,9 +1598,7 @@ class TestAddChartToExistingDashboard:
 
             row_data = layout[row_key]
             assert row_data["type"] == "ROW"
-            column_key = row_data["children"][0]
-            assert layout[column_key]["type"] == "COLUMN"
-            assert "CHART-25" in layout[column_key]["children"]
+            assert row_data["children"] == ["CHART-25"]
 
             chart_parents = layout["CHART-25"]["parents"]
             assert "TABS-abc123" in chart_parents
@@ -2167,30 +2161,31 @@ class TestLayoutHelpers:
         }
         assert _collect_available_tab_names(layout) == []
 
-    def test_add_chart_to_layout_creates_column(self):
-        """Test that _add_chart_to_layout creates ROW > COLUMN > CHART."""
+    def test_add_chart_to_layout_creates_row_and_chart(self):
+        """_add_chart_to_layout writes ROW > CHART, the chart at a free cell."""
         layout = {
+            "ROOT_ID": {
+                "children": ["GRID_ID"],
+                "type": "ROOT",
+                "meta": {"auradataCells": True},
+            },
             "GRID_ID": {"children": [], "parents": ["ROOT_ID"], "type": "GRID"},
         }
         chart = Mock()
         chart.slice_name = "Test Chart"
         chart.uuid = "test-uuid"
 
-        chart_key, column_key, row_key = _add_chart_to_layout(
+        chart_key, row_key = _add_chart_to_layout(
             layout, chart, 42, "ROW-test123", "GRID_ID"
         )
 
         assert chart_key == "CHART-42"
-        assert column_key.startswith("COLUMN-")
         assert row_key == "ROW-test123"
-
         assert layout[row_key]["type"] == "ROW"
-        assert layout[row_key]["children"] == [column_key]
-        assert layout[column_key]["type"] == "COLUMN"
-        assert layout[column_key]["children"] == [chart_key]
-        assert layout[column_key]["meta"]["width"] == 12
+        assert layout[row_key]["children"] == [chart_key]
         assert layout[chart_key]["type"] == "CHART"
-        assert layout[chart_key]["meta"]["width"] == 4
+        assert layout[chart_key]["meta"]["width"] == 12
+        assert layout[chart_key]["meta"]["auradataPos"] == {"x": 0, "y": 0}
         assert layout[chart_key]["meta"]["chartId"] == 42
 
     def test_ensure_layout_structure_creates_missing(self):

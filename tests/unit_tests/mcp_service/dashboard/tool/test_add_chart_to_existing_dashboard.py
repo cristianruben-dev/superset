@@ -577,11 +577,29 @@ async def test_add_to_cells_layout_uses_cells_and_a_free_cell(
     assert meta["width"] == 12
     assert meta["height"] == 12
     assert meta["auradataPos"] == {"x": 12, "y": 0}
-    column = stored[stored["CHART-10"]["parents"][-1]]
-    assert column["type"] == "COLUMN"
-    assert column["meta"]["width"] == 12
+    # ROW > CHART, as the editor writes it: a COLUMN would stretch the chart
+    row = stored[stored["CHART-10"]["parents"][-1]]
+    assert row["type"] == "ROW"
+    assert row["children"] == ["CHART-10"]
+    assert not any(
+        item.get("type") == "COLUMN"
+        for item in stored.values()
+        if isinstance(item, dict)
+    )
     # The chart already there keeps its place
     assert stored["CHART-5"]["meta"]["auradataPos"] == {"x": 0, "y": 0}
+
+
+@pytest.mark.asyncio
+async def test_added_chart_loads_unchanged_in_the_editor(mcp_server: object) -> None:
+    """The stored layout is what the editor would save: loading it (cells,
+    then positions) changes nothing, so opening the report converts nothing."""
+    from superset.auradata.layout import layout_to_cells, layout_to_positions
+    from superset.utils import json
+
+    stored = await _add_chart_to(json.dumps(_cells_layout()), mcp_server)
+
+    assert layout_to_positions(layout_to_cells(stored)) == stored
 
 
 @pytest.mark.asyncio
@@ -604,9 +622,11 @@ async def test_add_to_full_cells_page_goes_below_the_lowest_object(
 
 
 @pytest.mark.asyncio
-async def test_add_to_legacy_layout_keeps_column_units(mcp_server: object) -> None:
-    """A layout from before the cell grid keeps its 12 columns: the frontend
-    converts it on load, so the tool gives no cell to the chart."""
+async def test_add_to_legacy_layout_converts_it_to_cells(mcp_server: object) -> None:
+    """A layout from before the cell grid is converted as the editor converts it
+    on load, so the new chart gets cells and a free cell and the stored layout
+    loads unchanged."""
+    from superset.auradata.layout import layout_to_cells, layout_to_positions
     from superset.utils import json
 
     layout = _cells_layout()
@@ -615,7 +635,19 @@ async def test_add_to_legacy_layout_keeps_column_units(mcp_server: object) -> No
 
     stored = await _add_chart_to(json.dumps(layout), mcp_server)
 
+    assert stored["ROOT_ID"]["meta"]["auradataCells"] is True
     meta = stored["CHART-10"]["meta"]
-    assert meta["width"] == 4
-    assert meta["height"] == 50
-    assert "auradataPos" not in meta
+    assert (meta["width"], meta["height"]) == (12, 12)
+    assert "auradataPos" in meta
+    assert "auradataPos" in stored["CHART-5"]["meta"]
+    assert layout_to_positions(layout_to_cells(stored)) == stored
+
+
+@pytest.mark.asyncio
+async def test_add_to_empty_layout_creates_a_page(mcp_server: object) -> None:
+    """A dashboard without a layout gets a root, a grid and the chart on it."""
+    stored = await _add_chart_to("", mcp_server)
+
+    assert stored["ROOT_ID"]["children"] == ["GRID_ID"]
+    assert stored["CHART-10"]["meta"]["auradataPos"] == {"x": 0, "y": 0}
+    assert stored["CHART-10"]["parents"][:2] == ["ROOT_ID", "GRID_ID"]

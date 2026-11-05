@@ -29,17 +29,15 @@ from fastmcp import Context
 from sqlalchemy.exc import SQLAlchemyError
 from superset_core.mcp.decorators import tool, ToolAnnotations
 
+from superset.auradata.layout import keys, layout_to_cells, layout_to_positions
 from superset.commands.exceptions import CommandException
 from superset.extensions import event_logger, security_manager
 from superset.mcp_service.dashboard.constants import (
     DEFAULT_OBJECT_CELLS,
     free_cell,
     generate_id,
-    GRID_DEFAULT_CHART_WIDTH,
-    is_in_cells,
     layout_column_count,
     POS_KEY,
-    scaled_width,
 )
 from superset.mcp_service.dashboard.layout_validation import rebuild_parent_chains
 from superset.mcp_service.dashboard.schemas import (
@@ -211,47 +209,40 @@ def _add_chart_to_layout(
     parent_id: str,
 ) -> tuple[str, str, str]:
     """
-    Add chart, column, and row components to the dashboard layout.
+    Add a chart, in a row of its own, to a layout in cells.
 
-    Creates the proper ``ROW > COLUMN > CHART`` hierarchy that the
-    frontend expects for rendering. ``parents`` is left empty on each new
-    node — the caller rebuilds it for the whole layout via
-    ``rebuild_parent_chains`` after this function links the new row into
-    its parent container's ``children``.
+    Writes what the report editor writes for a chart saved on a dashboard
+    (``SaveModal.tsx``, ``hydrate.ts``): ``ROW > CHART``, the chart sized in
+    cells and placed at the first free cell of its page (``auradataPos``),
+    never over another object. Rows are only containers: a COLUMN would
+    stretch the chart to its own width whatever its cell box. ``parents`` is
+    left empty on each new node; the caller rebuilds it for the whole layout
+    via ``rebuild_parent_chains`` after linking the row into its parent.
 
     Args:
-        layout: The mutable layout dict to update.
+        layout: The mutable layout dict to update, already in cells.
         chart: The chart ORM object.
         chart_id: The chart's integer ID.
         row_key: The pre-generated ROW component ID.
         parent_id: The parent container ID (GRID_ID or a TAB ID).
 
     Returns:
-        Tuple of ``(chart_key, column_key, row_key)``.
+        Tuple of ``(chart_key, row_key)``.
     """
     chart_key = f"CHART-{chart_id}"
-    column_key = generate_id("COLUMN")
+    while chart_key in layout:
+        chart_key = generate_id("CHART")
+    chart_width = min(DEFAULT_OBJECT_CELLS, layout_column_count(layout))
+    chart_height = DEFAULT_OBJECT_CELLS
     chart_meta: Dict[str, Any] = {
         "chartId": chart_id,
         "sliceName": chart.slice_name or f"Chart {chart_id}",
         "uuid": str(chart.uuid) if chart.uuid else f"chart-{chart_id}",
+        "width": chart_width,
+        "height": chart_height,
+        POS_KEY: free_cell(layout, parent_id, chart_width, chart_height),
     }
-    column_count = layout_column_count(layout)
-    if is_in_cells(layout):
-        # AuraData BI: sizes in cells, on a free cell of the page, never over
-        # another object (as a chart saved from Explore)
-        chart_width = min(DEFAULT_OBJECT_CELLS, column_count)
-        chart_height = DEFAULT_OBJECT_CELLS
-        chart_meta[POS_KEY] = free_cell(layout, parent_id, chart_width, chart_height)
-        column_width = chart_width
-    else:
-        # Widths are in the dashboard's own grid density
-        chart_width = scaled_width(GRID_DEFAULT_CHART_WIDTH, column_count)
-        chart_height = 50  # Good height for most chart types
-        column_width = column_count
-    chart_meta.update({"height": chart_height, "width": chart_width})
 
-    # Add chart component
     layout[chart_key] = {
         "children": [],
         "id": chart_key,
@@ -259,29 +250,44 @@ def _add_chart_to_layout(
         "parents": [],
         "type": "CHART",
     }
-
-    # Add column wrapper (ROW > COLUMN > CHART)
-    layout[column_key] = {
-        "children": [chart_key],
-        "id": column_key,
-        "meta": {
-            "background": "BACKGROUND_TRANSPARENT",
-            "width": column_width,
-        },
-        "parents": [],
-        "type": "COLUMN",
-    }
-
-    # Create row containing the column
     layout[row_key] = {
-        "children": [column_key],
+        "children": [chart_key],
         "id": row_key,
         "meta": {"background": "BACKGROUND_TRANSPARENT"},
         "parents": [],
         "type": "ROW",
     }
+    return chart_key, row_key
 
-    return chart_key, column_key, row_key
+
+def _layout_in_cells(position_json: str | None) -> Dict[str, Any]:
+    """
+    The layout of a dashboard as the report editor opens it: with a root and a
+    grid, in cells and with every object placed, so adding a chart writes a
+    layout the editor loads unchanged.
+    """
+    try:
+        layout = json.loads(position_json or "{}")
+    except (json.JSONDecodeError, TypeError):
+        layout = {}
+    if not isinstance(layout, dict):
+        layout = {}
+    if keys.ROOT_ID not in layout:
+        layout = {
+            "DASHBOARD_VERSION_KEY": "v2",
+            keys.ROOT_ID: {
+                "children": [keys.GRID_ID],
+                "id": keys.ROOT_ID,
+                "type": "ROOT",
+            },
+            keys.GRID_ID: {
+                "children": [],
+                "id": keys.GRID_ID,
+                "parents": [keys.ROOT_ID],
+                "type": "GRID",
+            },
+        }
+    return layout_to_positions(layout_to_cells(layout))
 
 
 def _ensure_layout_structure(
@@ -441,7 +447,9 @@ def add_chart_to_existing_dashboard(  # noqa: C901 — complexity is structural 
     request: AddChartToDashboardRequest, ctx: Context
 ) -> AddChartToDashboardResponse:
     """
-    Add chart to existing dashboard. Auto-positions in 2-column grid.
+    Add chart to existing dashboard. The chart takes 12 x 12 cells at the
+    first free cell of its page (of ``target_tab``, or the first page); move
+    or resize it later with place_object and the other layout tools.
     Returns updated dashboard info.
     """
     try:
@@ -552,11 +560,8 @@ def add_chart_to_existing_dashboard(  # noqa: C901 — complexity is structural 
 
         # Calculate layout position
         with event_logger.log_context(action="mcp.add_chart_to_dashboard.layout"):
-            # Parse current layout
-            try:
-                current_layout = json.loads(dashboard.position_json or "{}")
-            except (json.JSONDecodeError, TypeError):
-                current_layout = {}
+            # The layout as the editor opens it: in cells, every object placed
+            current_layout = _layout_in_cells(dashboard.position_json)
 
             # Generate a unique ROW ID for the new row
             row_key = _find_next_row_position(current_layout)
@@ -572,8 +577,8 @@ def add_chart_to_existing_dashboard(  # noqa: C901 — complexity is structural 
                     "unreachable: tab_error is None implies parent_id is str"
                 )
 
-            # Add chart, column, and row to layout
-            chart_key, column_key, row_key = _add_chart_to_layout(
+            # Add the chart, in a row of its own, at a free cell of its page
+            chart_key, row_key = _add_chart_to_layout(
                 current_layout, new_chart, request.chart_id, row_key, parent_id
             )
 
