@@ -94,6 +94,10 @@ its `keys` module.
   control panels; never edit it by hand. Validate patches with `superset/auradata/layout/format_patch.py`
   and share formats with `sharable_format`/`own_format`/`with_own_format`. Pictures arrive as base64 only
   (`superset/auradata/backgrounds.py`); never fetch a URL on the server.
+- **Design elements and slicers** (`report_layout/elements.py`, `slicers.py`) are checked against the element
+  descriptors of the catalog (`superset/auradata/layout/elements.py`, generated from `elementSpec.ts`); a new
+  slicer saves its native filter and its `auradata-filter` element in one transaction (`save_with_filter`). Chart
+  settings of `json` controls never load a picture of another site (`format_patch.foreign_addresses`).
 - **Charts of a report** are created with their place (`create_visual`) and changed on the chart itself
   (`report_layout/visuals.py`: `write_chart`). A chart write moves the keys it changes out of the
   object's `meta.auradataFormat.chart` and warns about keys the shared format still sets; never leave a

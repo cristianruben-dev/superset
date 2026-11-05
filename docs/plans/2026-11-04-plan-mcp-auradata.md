@@ -496,6 +496,68 @@ históricas. El `CLAUDE.md` del proyecto y el de `mcp_service` reescriben su reg
   selección única o con Ctrl, Aplicar, orden, valores ocultos y `showInFilterBar`. `format_slicer` cubre sus niveles
   Visual y General.
 
+**Hecho (2026-11-05, rama `feat/mcp-elements`):**
+1. `a5f0c5f034`: los elementos en el catálogo de formato.
+   - `elementSpec.ts` describe con `Described<T>` los ajustes de cada tipo de elemento (imagen, forma, botón, texto,
+     navegador y segmentador, con sus ~110 ajustes) y el catálogo los lleva junto a `ELEMENT_DEFAULTS`. Python no copia
+     ni los ajustes ni los valores por defecto: los lee del catálogo.
+   - Los descriptores ganan listas (`array`, con `length`), mapas (`map`) e imágenes del sitio (`format: image`).
+   - `superset/auradata/layout/elements.py`: `new_element_meta` (lo que dan `newElementMeta` y `newComponentFactory`),
+     `check_element_patch` y `slicer_value_key` (el `String()` de JavaScript: `true`, `2`, `\u0000blank`).
+   - El HTML de un texto no puede cargar imágenes de otro sitio (`url()`, `image-set()`, escapes) ni enlazar fuera de
+     http(s), mailto o una ruta. `elements_test.py` compara las claves de cada interfaz de `types.ts` con el catálogo.
+   - `backgrounds.py` comparte `delete_element_image` con la API REST.
+2. `a5624283dc`: siete herramientas (las unidades 1 y 2 comparten `element_tools.py`).
+   - `add_element`, `update_element`, `format_element` (caja General) y `remove_element` (destructiva).
+     - Los elementos son `DYNAMIC` en una fila propia, en una celda libre o la pedida, sin pisar a otros.
+     - Un botón nombra la página por id, nombre o posición (`action: {type: page, page}` → `tabId`). Se rechaza en
+       un informe de una sola página. El marcador tiene que existir.
+     - La imagen llega en base64. Al reemplazarla se borra la anterior.
+   - `add_slicer` crea el filtro nativo y el elemento `auradata-filter` en una transacción
+     (`UpdateDashboardNativeFiltersCommand` y `UpdateDashboardCommand`). Si falla el guardado, no queda ninguno.
+     - Tipos: lista (`filter_select`), rango (`filter_range`, nuevo en los constructores de `manage_native_filters`,
+       que se vuelven públicos) y fecha (`filter_time`).
+     - Opciones: variante, estilo de rango o de fecha (cada uno solo para su tipo de filtro, como `FilterView`),
+       selección `single`/`multi`/`ctrl` (`multiSelect` del filtro), Aplicar, orden (`sortValues` y `sortAscending`),
+       valores ocultos, `showInFilterBar` y valor por defecto (`defaultDataMask`, gemelos de `getSelectExtraFormData`
+       y `getRangeExtraFormData`).
+     - `scope: page` filtra solo los gráficos de la página (`rootPath: [TAB-…]`); por defecto, todo el informe.
+     - El dataset debe poder leerse y ser del workspace del tablero o compartido (`validate_chart_dataset`).
+   - `update_slicer` (nombre, opciones, valor por defecto o `clear_default`) y `format_slicer` (Visual: ajustes del
+     segmentador; General: su caja).
+   - `get_format_options` acepta `element=<tipo>` y devuelve sus ajustes y sus valores por defecto.
+   - Tests con base real: editor, contributor y admin del workspace escriben; viewer y otro workspace no. Registradas
+     en `app.py`, inventario, registro, `COMMITTED_WRITE_SPECS` y exclusiones de caché.
+3. `efd7ad1320`: seguridad pendiente de la fase 3. Todo valor de un control `json`, a cualquier profundidad, y cada
+   literal de cadena del código de `echart_options` (con sus escapes y plantillas resueltos) no puede ser una dirección
+   de otro sitio: ni `graphic[].style.image`, ni `symbol: 'image://…'`, ni rellenos de patrón o fondos de texto
+   enriquecido. Se aplica en `format_visual` y en `set_shared_visual_format`. Un texto que solo menciona una dirección
+   pasa.
+4. `9f2909b53d`: forma de los controles `json` (`jsonShapes.ts` → `json_shapes` del catálogo): fuentes, colores
+   de series, formato por serie, líneas de referencia y límites. `get_format_options` las da con un nivel o una
+   sección. Sin filtro, la respuesta de `mixed_timeseries` pasaba de 50 KB.
+5. Chequeo en vivo (MCP en 5108, tablero nuevo 220 en «Análisis comercial», gráficos 313 y 314 sobre `ventas_demo`):
+   - Todo por herramientas: título (texto), logo (imagen en base64), botón «Ver detalle» a la página «Detalle», un
+     segmentador de botones de `categoria` (selección única, alcance de página) y uno de fecha (dos días).
+   - `get_dashboard_screenshot` los muestra todos en su sitio.
+   - En el navegador:
+     - Clic en «Oficina»: la barra queda solo con Oficina y la línea baja de escala.
+     - Fechas del 1/3 al 30/6/2025: la línea se recorta a marzo–junio y la barra cambia de escala. El panel cuenta
+       2 filtros.
+     - El botón abre la página 2 de 2.
+     - En modo edición, Guardar y Deshacer siguen deshabilitados.
+   - El historial del 220 tiene 9 versiones: la creación, 2 gráficos, la página, 3 elementos y 2 segmentadores. Cada
+     `add_slicer` (filtro y layout) deja una sola versión.
+6. Pendiente:
+   - No hay `tsc` sobre `elementSpec.ts` ni `jsonShapes.ts` (Jest no comprueba tipos). La deriva de claves la cubre
+     `elements_test.py`.
+   - Las formas de los controles `json` se describen, pero no se validan.
+   - Las líneas de referencia y el formato por serie no tienen tipo exportado en el plugin: su descriptor está escrito
+     a mano.
+   - No hay segmentador de jerarquía (tampoco en el editor) ni filtro de columna de tiempo o de grano.
+   - Un segmentador de fecha filtra por el `time_range` del gráfico; un gráfico sin columna temporal lo ignora.
+   - No se corrieron `pre-commit` ni mypy: solo ruff, oxlint y oxfmt sobre los archivos tocados.
+
 ## 6. Interactividad (L)
 
 - Filtros nativos con niveles (todas las páginas, esta página, visuales) y `filter_bar_auto_apply`.
