@@ -107,7 +107,8 @@ Anthropic. El runner se niega si la persona llega al tablero 142, y ninguna tare
 
 ## Correr la batería
 
-Sin gasto, sobre el cliente falso. Necesita las tablas del asistente, o sea el paso 1 de abajo:
+Sin gasto, sobre el cliente falso: no llama a la API ni necesita clave. Sí necesita los pasos 1 y 2 de abajo, y escribe de
+verdad: copia informes y guarda conversaciones con costos simulados. Su informe lo dice en la primera línea.
 
 ```bash
 docker exec -i superset-superset-1 sh -c 'cd /app && python - --dry-run' < scripts/auradata/assistant_eval.py

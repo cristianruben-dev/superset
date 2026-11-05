@@ -98,6 +98,8 @@ def battery_for(
         {**task, "dashboard": {"id": world["dashboard"].id}} for task in tasks
     ]
     mocker.patch.object(runner, "load_battery", return_value=built)
+    # The world has its own catalog and key, and this would outlive the test
+    mocker.patch.object(runner, "_work_offline")
     mocker.patch.object(
         runner, "session_login", return_value=lambda name: login(world, name.title())
     )
@@ -110,6 +112,24 @@ def run_main(tmp_path: Path, *args: str) -> tuple[int, list[str]]:
         ["--out", str(tmp_path), *args], current_app._get_current_object(), said.append
     )
     return code, said
+
+
+def test_a_dry_run_never_asks_the_api_for_its_catalog(
+    mocker: MockerFixture,
+) -> None:
+    """Without this, the catalog would call Anthropic with a key that is not one."""
+    from superset.auradata.assistant import models as models_module
+
+    fetch = mocker.patch.object(models_module, "_fetch_models")
+    app = mocker.MagicMock(config={})
+    mocker.patch.object(runner.api_module, "get_catalog")
+
+    runner._work_offline(app)
+    catalog = runner.api_module.get_catalog()
+
+    fetch.assert_not_called()
+    assert "claude-sonnet-5-5" in {model.id for model in catalog.models}
+    assert app.config["AURADATA_ASSISTANT_ENABLED"] is True
 
 
 def test_the_battery_has_the_tasks_of_the_plan(battery: dict[str, Any]) -> None:

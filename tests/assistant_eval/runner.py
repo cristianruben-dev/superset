@@ -55,8 +55,11 @@ from sqlalchemy import inspect
 from superset import db, security_manager
 from superset.auradata.assistant import api as api_module
 from superset.auradata.assistant.models import (
+    _table_models,
+    Catalog,
     cost_of_message,
     cost_of_tokens,
+    SOURCE_TABLE,
     spec_of,
     TokenUsage,
 )
@@ -941,6 +944,16 @@ def real_client(_task: dict[str, Any], _model: str) -> Any:
     return build_client()
 
 
+def _work_offline(app: Flask) -> None:
+    """
+    A dry run needs the assistant on, with a key it never uses and the catalog of the
+    table, because the live one would call the API. It lasts as long as this process.
+    """
+    app.config["ANTHROPIC_API_KEY"] = "dry-run"  # noqa: S105
+    app.config["AURADATA_ASSISTANT_ENABLED"] = True
+    api_module.get_catalog = lambda: Catalog(_table_models(), SOURCE_TABLE)
+
+
 def parse_args(argv: list[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Evaluate the AI assistant.")
     parser.add_argument("--models", nargs="+", default=list(DEFAULT_MODELS))
@@ -981,6 +994,11 @@ def _execute(args: argparse.Namespace, app: Flask, say: Callable[[str], None]) -
     )
     if args.dry_run:
         limit = Decimal(1)
+        if not inspect(db.engine).has_table(CONVERSATION_TABLE):
+            raise RefusedError(
+                f"{CONVERSATION_TABLE} is missing: run `superset db upgrade` first"
+            )
+        _work_offline(app)
     else:
         if not args.accepted or args.limit_usd is None:
             say(
