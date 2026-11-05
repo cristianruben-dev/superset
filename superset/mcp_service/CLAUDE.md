@@ -180,6 +180,19 @@ The `@tool` and `@prompt` decorators are defined as stubs in the `superset-core`
   one dashboard per chart and the workspace dataset rule. A tool that serves several kinds also
   checks the route permission of each kind (`history/utils.py:route_allowed`).
 
+## AuraData BI: Export, Reports and Sharing
+
+- **Export** (`screenshot/export.py`): pages at the size of their canvas, hidden and tooltip pages left out
+  unless named, as the web export does. Read everything from the database before the captures: each runs in
+  its own thread and app context and leaves the session's rows detached.
+- **Reports and alerts** (`report/tool/manage_reports.py`) run the reports REST commands with
+  `creation_method=alerts_reports`, so recipients are exactly the ones given. A report runs as its editor
+  (`ALERT_REPORTS_EXECUTORS`): `report/scheduling.py:check_executor` resolves the executor as the worker will
+  and checks it opens the dashboard before saving. Responses say whether notifications are a dry run.
+- **Sharing**: `publish_dashboard` runs `UpdateDashboardCommand`; `share_dashboard` creates a page permalink
+  (`dashboard/permalink.py:create_page_permalink`) and points at the governance and workspace tools to add
+  people instead of re-implementing them.
+
 ## Critical Convention: Tool, Prompt, and Resource Registration
 
 **IMPORTANT**: When creating new MCP tools, prompts, or resources, you MUST add their imports to `app.py` for auto-registration. Do NOT add them to `server.py` - that approach doesn't work properly.

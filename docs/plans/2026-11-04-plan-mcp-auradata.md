@@ -757,6 +757,47 @@ históricas. El `CLAUDE.md` del proyecto y el de `mcp_service` reescriben su reg
   borrador.
 - `publish_dashboard`, `share_dashboard` (editores, visores, miembros del workspace).
 
+**Hecho (2026-11-05, rama `feat/mcp-share`):**
+1. `1393d43ab1`: `restore_dataset` (lo que quedaba de la fase 9), como `restore_dashboard`: editores del dataset y
+   admins; un contributor o viewer del workspace recibe Forbidden (los roles no editan datasets) y otro workspace
+   NotFound, sin el nombre. Un gemelo activo de la misma tabla da Conflict. `list_trash` lo da como `restore_tool`.
+2. `50d11d620e`: `create_report`, `create_alert`, `update_report`, `delete_report` (`report/tool/manage_reports.py`)
+   con los comandos y esquemas del API REST (`creation_method=alerts_reports`, así los destinatarios son los dados).
+   - Regla de 7.0 antes de guardar (`report/scheduling.py`): `get_executor` sobre lo que guardará el comando (el
+     llamante crea, modifica y queda de editor) y `raise_for_access(dashboard)` como ese usuario. Si no abre el
+     borrador: error `ExecutorCannotOpenDashboard` que sugiere `publish_dashboard` o hacerlo editor o contributor.
+   - Cada respuesta dice `dry_run` (`ALERT_REPORTS_NOTIFICATION_DRY_RUN`, que en prod sigue a `AURADATA_SEND_REPORTS`)
+     y avisa si el tablero es un borrador. Destinatarios: lista de emails obligatoria, nunca se inventan.
+   - Un informe creado desde el menú del tablero no cambia de destinatarios (Superset siempre lo manda a quien lo crea).
+3. `5668488a8a`: `publish_dashboard` (con `UpdateDashboardCommand`: editores, contributors y admins del workspace;
+   al volver a borrador avisa de los informes cuyo ejecutor deja de abrirlo) y `share_dashboard`: el enlace (un
+   permalink a la página si se pide una), quién lo abre, editores, visores, el workspace si eres miembro y las
+   herramientas para sumar gente (`set_workspace_member`, `manage_dashboard_owners`, `manage_dashboard_roles`).
+   - No había herramienta que creara permalinks (solo lectores): `create_page_permalink` (`dashboard/permalink.py`) la
+     comparten `share_dashboard` y las capturas.
+4. `585024ec1e`: `export_dashboard_image` (PNG) y `export_dashboard_pdf` (`screenshot/export.py`): cada página al
+   tamaño de su lienzo, en orden, sin las ocultas ni las tooltip salvo que se nombren; el PNG apila las páginas, el
+   PDF tiene una página de su tamaño por página (96 px por pulgada). Máximo 10 páginas y 20 MB.
+   - Captura el elemento `.auradata-canvas` con una ventana 72 px más ancha que la página (margen y riel de
+     filtros: «ajustar al ancho» queda en escala 1) y reescala la imagen al tamaño exacto por si no hay riel.
+   - Lo que viene de la base se lee antes de las capturas: el hilo de cada captura deja las filas sueltas.
+5. Tests con base real, uno por uno: `test_restore_dataset` (10), `test_manage_reports` (22), `test_sharing_tools`
+   (14), `test_exports` (13), más registro, inventario, caché, middleware, capturas, servidor, config e historial.
+6. Chequeo en vivo (MCP en 5108, tablero nuevo 224 «Fase 10 compartir», copia del 222, workspace 6, con «Página 1»,
+   «Detalle» y «Oculta» oculta):
+   - PNG de todas las páginas: 1920 × 2208 (dos páginas de 1920 × 1088), sin «Oculta». PDF: 2 páginas de 1440 × 816 pt.
+   - `create_report` en borrador, pausado, PDF de «Detalle» al email registrado del admin: ejecutor admin, dry run
+     (confirmado también en el worker), aviso de borrador. Sale en `/report/list/` de la web.
+   - `publish_dashboard` y `share_dashboard(page="Detalle")`: el permalink abre «Detalle».
+   - Dataset desechable 63: borrado por REST → `list_trash` con `restore_tool: restore_dataset` → restaurado.
+7. Pendiente:
+   - `share_dashboard` no suma personas: apunta a las herramientas de gobierno y de workspace.
+   - Informes solo de tableros y solo por email (sin Slack ni webhooks); los de un gráfico se cambian en la web.
+   - La exportación no pone la cabecera de la web (logo, filtros, autor) ni aplica un estado de filtros.
+   - Las URLs devueltas usan la base configurada (`localhost:8888`), no el puerto del stack (8188), como el resto.
+   - No se corrieron `pre-commit` ni mypy: solo ruff (check y format) sobre los archivos tocados.
+   - Quedan el tablero 224 (publicado), el informe 1 (pausado) y el dataset 63.
+
 ## 11. Prompts, recursos y estilo (M)
 
 - Recursos:
