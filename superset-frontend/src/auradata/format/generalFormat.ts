@@ -38,31 +38,41 @@ export type FieldSpec =
       type: 'string';
       /**
        * color: a CSS color; url: http(s), mailto or a path of this site;
-       * page and bookmark: an id of the report
+       * page and bookmark: an id of the report; image: a picture of this
+       * site or a raster data address
        */
-      format?: 'color' | 'url' | 'page' | 'bookmark';
+      format?: 'color' | 'url' | 'page' | 'bookmark' | 'image';
     }
   | { type: 'enum'; values: readonly (string | number)[] }
-  | { type: 'object'; fields: Record<string, FieldSpec> };
+  | { type: 'object'; fields: Record<string, FieldSpec> }
+  /** A list of values; `length` when it always has that many */
+  | { type: 'array'; items: FieldSpec; length?: number }
+  /** An object keyed by names of the chart (series, categories) */
+  | { type: 'map'; values: FieldSpec; keys?: string };
 
 type Leaf = Exclude<FieldSpec, { type: 'object' }>;
 
 /** Every key of a settings type, described: a missing key fails to compile. */
-type Described<T> = {
-  [K in keyof Required<T>]: NonNullable<T[K]> extends object
-    ? { type: 'object'; fields: Described<NonNullable<T[K]>> }
-    : Leaf;
+export type Described<T> = {
+  [K in keyof Required<T>]: NonNullable<T[K]> extends readonly unknown[]
+    ? { type: 'array'; items: FieldSpec; length?: number }
+    : NonNullable<T[K]> extends object
+      ? { type: 'object'; fields: Described<NonNullable<T[K]>> }
+      : Leaf;
 };
 
-const bool = { type: 'boolean' } as const;
-const text = { type: 'string' } as const;
-const color = { type: 'string', format: 'color' } as const;
-const num = { type: 'number' } as const;
-const percent = { type: 'number', min: 0, max: 100 } as const;
-const px = { type: 'number', min: 0 } as const;
+export const bool = { type: 'boolean' } as const;
+export const text = { type: 'string' } as const;
+export const color = { type: 'string', format: 'color' } as const;
+export const num = { type: 'number' } as const;
+export const percent = { type: 'number', min: 0, max: 100 } as const;
+export const px = { type: 'number', min: 0 } as const;
 const fontFamily = text;
-const fontSize = { type: 'number', min: 1 } as const;
-const align = { type: 'enum', values: ['left', 'center', 'right'] } as const;
+export const fontSize = { type: 'number', min: 1 } as const;
+export const align = {
+  type: 'enum',
+  values: ['left', 'center', 'right'],
+} as const;
 
 const sides = {
   type: 'object',
@@ -101,7 +111,7 @@ const headerTooltip: Described<HeaderTooltipFormat> = {
   opacity: percent,
 };
 
-const action: Described<ElementAction> = {
+export const action: Described<ElementAction> = {
   type: {
     type: 'enum',
     values: ['none', 'page', 'url', 'reset-filters', 'top', 'bookmark', 'back'],

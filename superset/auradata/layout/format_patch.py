@@ -215,6 +215,11 @@ def _string_problem(spec: dict[str, Any], value: Any, refs: ReportRefs) -> str |
         return f"no page {value!r}; pages: {sorted(refs.pages)}"
     if fmt == "bookmark" and value and value not in refs.bookmarks:
         return f"no bookmark {value!r}"
+    if fmt == "image" and value and not is_site_image(value):
+        return (
+            "must be a picture of this site (a path starting with /) or a "
+            "data:image address; upload it first"
+        )
     return None
 
 
@@ -244,10 +249,39 @@ def _check_field(
             problems.append(f"{path}: must be an object")
             return value
         return _check_object(path, spec["fields"], value, refs, problems)
+    if kind == "array":
+        return _check_array(path, spec, value, refs, problems)
+    if kind == "map":
+        if not isinstance(value, dict):
+            problems.append(f"{path}: must be an object keyed by name")
+            return value
+        return {
+            name: _check_field(f"{path}.{name}", spec["values"], item, refs, problems)
+            for name, item in value.items()
+        }
     problem = _scalar_problem(spec, value, refs)
     if problem:
         problems.append(f"{path}: {problem}")
     return value
+
+
+def _check_array(
+    path: str,
+    spec: dict[str, Any],
+    value: Any,
+    refs: ReportRefs,
+    problems: list[str],
+) -> Any:
+    if not isinstance(value, list):
+        problems.append(f"{path}: must be a list")
+        return value
+    if "length" in spec and len(value) != spec["length"]:
+        problems.append(f"{path}: must hold {spec['length']} values")
+        return value
+    return [
+        _check_field(f"{path}[{index}]", spec["items"], item, refs, problems)
+        for index, item in enumerate(value)
+    ]
 
 
 def _check_object(
@@ -265,6 +299,18 @@ def _check_object(
             problems.append(f"{where}: unknown setting; known: {sorted(fields)}")
             continue
         clean[key] = _check_field(where, spec, item, refs, problems)
+    return clean
+
+
+def check_settings(
+    fields: dict[str, Any], patch: dict[str, Any], refs: ReportRefs | None = None
+) -> dict[str, Any]:
+    """A patch of settings described by ``fields`` (a catalog descriptor),
+    checked; a ``None`` value resets the setting."""
+    problems: list[str] = []
+    clean = _check_object("", fields, patch, refs or ReportRefs(), problems)
+    if problems:
+        raise FormatPatchError(problems)
     return clean
 
 

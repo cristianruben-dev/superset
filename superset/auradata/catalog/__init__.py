@@ -86,3 +86,18 @@ def general_spec() -> dict[str, Any]:
 def general_chart_spec() -> dict[str, Any]:
     """Chart settings of the General level (ECharts tooltip and sampling)."""
     return load_catalog()["general_chart_settings"]
+
+
+def element_kinds() -> list[str]:
+    """The kinds of design element the catalog describes."""
+    return sorted(load_catalog()["elements"])
+
+
+def element_spec(kind: str) -> dict[str, Any]:
+    """What the settings of a kind of element hold (``meta.auradataElement``)."""
+    return load_catalog()["elements"][kind]["settings"]
+
+
+def element_defaults(kind: str) -> dict[str, Any]:
+    """Size in cells, box format and settings of a new element of a kind."""
+    return load_catalog()["elements"][kind]["defaults"]

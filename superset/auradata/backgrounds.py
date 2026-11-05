@@ -103,6 +103,22 @@ def store_element_image(
     return image.id, dashboard_image_url(image)
 
 
+def delete_element_image(dashboard_id: int, image_id: int) -> bool:
+    """Deletes a picture of an image element of a dashboard; False when the
+    dashboard has no such picture. The caller checks that the user may edit
+    the dashboard."""
+    deleted = (
+        db.session.query(DashboardImage)
+        .filter(
+            DashboardImage.id == image_id,
+            DashboardImage.dashboard_id == dashboard_id,
+        )
+        .delete()
+    )
+    db.session.commit()  # pylint: disable=consider-using-transaction
+    return bool(deleted)
+
+
 def read_upload(api: BaseSupersetApi) -> tuple[bytes, str] | Response:
     """The uploaded ``image`` and its media type, or the error to return."""
     upload = request.files.get("image")
@@ -367,12 +383,6 @@ class DashboardImageRestApi(BaseSupersetApi):
         dashboard, error_response = find_dashboard(self, pk, edit=True)
         if dashboard is None:
             return error_response
-        deleted = (
-            db.session.query(DashboardImage)
-            .filter(DashboardImage.id == image_id, DashboardImage.dashboard_id == pk)
-            .delete()
-        )
-        db.session.commit()  # pylint: disable=consider-using-transaction
-        if not deleted:
+        if not delete_element_image(pk, image_id):
             return self.response_404()
         return self.response(200, message="OK")

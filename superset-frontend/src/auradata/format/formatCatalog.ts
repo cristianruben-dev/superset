@@ -26,6 +26,7 @@ import {
   SUPERSEDED_CONTROLS,
   type FormatCardItem,
 } from './formatCards';
+import { elementCatalog } from '../elements/elementSpec';
 import { GENERAL_CHART_SETTINGS, GENERAL_FORMAT } from './generalFormat';
 
 /**
@@ -89,6 +90,8 @@ export interface FormatCatalog {
   superseded_controls: string[];
   general: Json;
   general_chart_settings: Json;
+  /** Per kind of design element: its settings and the defaults of a new one */
+  elements: Json;
   charts: Record<string, { sections: CatalogSection[] }>;
 }
 
@@ -216,6 +219,7 @@ export function buildFormatCatalog(vizTypes: string[]): FormatCatalog {
     superseded_controls: [...SUPERSEDED_CONTROLS].sort(),
     general: GENERAL_FORMAT as unknown as Json,
     general_chart_settings: GENERAL_CHART_SETTINGS as unknown as Json,
+    elements: elementCatalog() as unknown as Json,
     charts,
   };
 }
