@@ -184,6 +184,24 @@ def _done(report: Report, changed: list[str], **extra: Any) -> FormatResponse:
     )
 
 
+def _option_sections(
+    viz_type: str, request: GetFormatOptionsRequest
+) -> list[dict[str, Any]]:
+    """The sections of a chart type the request asks for; descriptions only
+    with one section, so the answer stays small."""
+    sections = []
+    for section in catalog.sections_of(viz_type, request.level):
+        if request.section and section["id"] != request.section:
+            continue
+        controls = section["controls"]
+        if not (request.descriptions and request.section):
+            controls = [
+                {k: v for k, v in c.items() if k != "description"} for c in controls
+            ]
+        sections.append({**section, "controls": controls})
+    return sections
+
+
 @tool(
     tags=["discovery", "layout", "format"],
     class_permission_name="Dashboard",
@@ -230,15 +248,9 @@ async def get_format_options(
                 error_type="NotFound",
                 chart_types=catalog.chart_types(),
             )
-        for section in catalog.sections_of(viz_type, request.level):
-            if request.section and section["id"] != request.section:
-                continue
-            controls = section["controls"]
-            if not request.descriptions:
-                controls = [
-                    {k: v for k, v in c.items() if k != "description"} for c in controls
-                ]
-            sections.append({**section, "controls": controls})
+        sections = _option_sections(viz_type, request)
+    if request.descriptions and not request.section:
+        notes.append("Descriptions come with one section: pass section too.")
     general = None
     if request.level in (None, "general"):
         general = {
@@ -529,6 +541,7 @@ async def copy_format(request: CopyFormatRequest, ctx: Context) -> FormatRespons
 
 
 _CSS_IMPORT = re.compile(r"@import", re.IGNORECASE)
+_CSS_IMAGE_SET = re.compile(r"image-set\s*\(", re.IGNORECASE)
 _CSS_URL = re.compile(r"url\(\s*(['\"]?)(.*?)\1\s*\)", re.IGNORECASE | re.DOTALL)
 
 
@@ -537,6 +550,11 @@ def _check_css(css: str) -> list[str]:
     problems = []
     if _CSS_IMPORT.search(css):
         problems.append("css: @import is not allowed")
+    # Escapes could spell @import or url( past the checks below
+    if "\\" in css:
+        problems.append("css: backslash escapes are not allowed")
+    if _CSS_IMAGE_SET.search(css):
+        problems.append("css: image-set() is not allowed; use url() of this site")
     for _, address in _CSS_URL.findall(css):
         if not is_site_image(address):
             problems.append(f"css: url({address[:60]}) must be a picture of this site")

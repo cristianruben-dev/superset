@@ -120,6 +120,24 @@ async def test_format_options_of_a_chart(world: dict[str, Any]) -> None:
     assert {"analytics-reference", "analytics-trend", "analytics-tooltip"} <= ids
     assert bar["general"] is None
 
+    # Descriptions come with one section, so the answer stays small
+    described = ok(
+        await call(
+            "get_format_options",
+            {"viz_type": "mixed_timeseries", "descriptions": True},
+        )
+    )
+    assert not any(
+        "description" in c for s in described["sections"] for c in s["controls"]
+    )
+    legend = ok(
+        await call(
+            "get_format_options",
+            {"viz_type": "mixed_timeseries", "section": "legend", "descriptions": True},
+        )
+    )
+    assert any("description" in c for c in legend["sections"][0]["controls"])
+
     unknown = await call("get_format_options", {"viz_type": "nope"})
     assert unknown["error_type"] == "NotFound"
 
@@ -338,6 +356,9 @@ async def test_set_dashboard_css(world: dict[str, Any]) -> None:
     for css in [
         "@import url(https://evil.example/x.css);",
         ".x { background: url('https://evil.example/x.png'); }",
+        "@\\69mport 'https://evil.example/x.css';",
+        ".x { background: \\75rl(https://evil.example/x.png); }",
+        '.x { background: image-set("https://evil.example/x.png" 1x); }',
     ]:
         refused = await as_editor(world, "set_dashboard_css", css=css)
         assert refused["error_type"] == "InvalidFormat"

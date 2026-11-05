@@ -51,7 +51,9 @@ class GetFormatOptionsRequest(_Request):
     object: ObjectRef | None = Field(None, description=_OBJECT)
     level: FormatLevel | None = Field(None, description="One level; all by default")
     section: str | None = Field(None, description="Only this section id")
-    descriptions: bool = Field(False, description="Include control descriptions")
+    descriptions: bool = Field(
+        False, description="Include control descriptions (with section)"
+    )
 
 
 class FormatOptionsResponse(BaseModel):
