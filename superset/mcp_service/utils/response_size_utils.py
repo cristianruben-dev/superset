@@ -429,8 +429,10 @@ COMMITTED_WRITE_SPECS: Dict[str, CommittedWriteSpec] = {
     "add_chart_to_existing_dashboard": _spec("dashboard", "dashboard"),
     "create_dataset": _spec("dataset"),
     "create_virtual_dataset": _spec("dataset"),
+    "create_workspace": _spec("workspace", "workspace", reports_success=True),
     "delete_chart": _spec("chart", reports_success=True),
     "delete_dashboard": _spec("dashboard", reports_success=True),
+    "delete_workspace": _spec("workspace", reports_success=True),
     "duplicate_dashboard": _spec("dashboard", "dashboard"),
     "generate_chart": _spec("chart", "chart", reports_success=True),
     "generate_dashboard": _spec("dashboard", "dashboard"),
@@ -438,13 +440,22 @@ COMMITTED_WRITE_SPECS: Dict[str, CommittedWriteSpec] = {
     "manage_dashboard_owners": _spec("dashboard"),
     "manage_dashboard_roles": _spec("dashboard"),
     "manage_native_filters": _spec("dashboard"),
+    "move_dashboard_to_workspace": _spec(
+        "dashboard", "workspace", reports_success=True
+    ),
+    "move_dataset_to_workspace": _spec("dataset", "workspace", reports_success=True),
     "remove_chart_from_dashboard": _spec("dashboard", "dashboard"),
+    "remove_workspace_member": _spec("workspace member", reports_success=True),
     "restore_chart": _spec("chart", reports_success=True),
     "restore_dashboard": _spec("dashboard", reports_success=True),
     "save_sql_query": _spec("saved query"),
+    "set_workspace_member": _spec(
+        "workspace member", "member", "workspace", reports_success=True
+    ),
     "update_chart": _spec("chart", "chart", reports_success=True),
     "update_dashboard": _spec("dashboard", "dashboard"),
     "update_dataset_metric": _spec("dataset", "metric"),
+    "update_workspace": _spec("workspace", "workspace", reports_success=True),
 }
 
 COMMITTED_WRITE_TOOLS = frozenset(COMMITTED_WRITE_SPECS)

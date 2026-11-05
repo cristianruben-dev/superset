@@ -140,6 +140,22 @@ Dashboard Management:
 - manage_dashboard_roles: Add/remove dashboard access roles by explicit operation (requires write access; only affects access when ENABLE_VIEWERS is enabled)
 - manage_dashboard_certification: Set or clear a dashboard's certified_by/certification_details badge (requires write access)
 
+Workspaces (AuraData BI):
+- list_workspaces: List the workspaces you belong to, with your role (viewer, contributor, admin)
+- get_workspace: Get a workspace with its dashboards and datasets
+- create_workspace: Create a workspace; you become its admin
+- update_workspace: Rename a workspace or change its description or color (workspace admins)
+- delete_workspace: Delete a workspace, keeping its dashboards and datasets (workspace admins; destructive)
+- list_workspace_members: List the members of a workspace and their roles
+- set_workspace_member: Add a member or change their role (workspace admins)
+- remove_workspace_member: Remove a member, or leave a workspace yourself
+- list_member_candidates: Find users to add to a workspace (workspace admins)
+- move_dashboard_to_workspace: Move a dashboard into a workspace or out of any (contributors)
+- move_dataset_to_workspace: Move a dataset into a workspace or make it shared (contributors and dataset editors)
+- get_workspace_of_dashboard: Get the workspace a dashboard lives in
+Contributors and admins of a workspace edit its dashboards and charts and read
+its datasets without becoming their editors; viewers only read.
+
 Tag Management:
 - list_tags: List tags with advanced filters (1-based pagination)
 - get_tag_info: Get detailed tag information by ID
@@ -865,6 +881,20 @@ from superset.mcp_service.task.tool import (  # noqa: F401, E402
 from superset.mcp_service.user.tool import (  # noqa: F401, E402
     get_user_info,
     list_users,
+)
+from superset.mcp_service.workspace.tool import (  # noqa: F401, E402
+    create_workspace,
+    delete_workspace,
+    get_workspace,
+    get_workspace_of_dashboard,
+    list_member_candidates,
+    list_workspace_members,
+    list_workspaces,
+    move_dashboard_to_workspace,
+    move_dataset_to_workspace,
+    remove_workspace_member,
+    set_workspace_member,
+    update_workspace,
 )
 
 #: Tool names exempt from the mcp_auth_hook protection check. Adding a tool
