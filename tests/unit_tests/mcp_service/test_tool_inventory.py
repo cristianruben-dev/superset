@@ -62,6 +62,7 @@ TOOL_BUDGETS = {
     "get_instance_info": 900,
     "get_query_info": 1_100,
     "get_report_info": 1_400,
+    "get_report_structure": 1_200,
     "get_rls_filter_info": 1_000,
     "get_role_info": 900,
     "get_saved_query_info": 1_200,

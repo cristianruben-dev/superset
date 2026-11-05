@@ -156,6 +156,9 @@ Workspaces (AuraData BI):
 Contributors and admins of a workspace edit its dashboards and charts and read
 its datasets without becoming their editors; viewers only read.
 
+Report Structure (AuraData BI):
+- get_report_structure: Pages, objects with their cell boxes, formats, filters, bookmarks
+
 Tag Management:
 - list_tags: List tags with advanced filters (1-based pagination)
 - get_tag_info: Get detailed tag information by ID
@@ -835,6 +838,9 @@ from superset.mcp_service.query.tool import (  # noqa: F401, E402
 from superset.mcp_service.report.tool import (  # noqa: F401, E402
     get_report_info,
     list_reports,
+)
+from superset.mcp_service.report_layout.tool import (  # noqa: F401, E402
+    get_report_structure,
 )
 from superset.mcp_service.rls.tool import (  # noqa: F401, E402
     get_rls_filter_info,

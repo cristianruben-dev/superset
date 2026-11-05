@@ -65,6 +65,7 @@ EXPECTED_TOOL_OUTPUT_FIELDS = {
     "get_instance_info": "instance_summary",
     "get_query_info": "executed_sql",
     "get_report_info": "crontab",
+    "get_report_structure": "pages",
     "get_rls_filter_info": "clause",
     "get_role_info": "permissions",
     "get_saved_query_info": "label",
