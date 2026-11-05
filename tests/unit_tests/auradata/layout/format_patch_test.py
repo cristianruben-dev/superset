@@ -171,6 +171,12 @@ def test_to_rgba() -> None:
         "{ graphic: { style: { image: '\\x68ttps://e.com/a.png' } } }",
         "{ graphic: { style: { image: `htt${''}ps://e.com/a.png` } } }",
         "{ graphic: { style: { image: 'data:text/html,<b>x</b>' } } }",
+        # Tooltip formatters are HTML: pictures in them load too
+        "{ tooltip: { formatter: '{b}<br/><img src=\"https://e.com/t.png\">' } }",
+        '{ tooltip: { formatter: \'<span style="background:url(//e.com/t.png)">'
+        "{c}</span>' } }",
+        "{ tooltip: { formatter: "
+        "'<img srcset=\"/a.png 1x, https://e.com/b.png 2x\">' } }",
     ],
 )
 def test_option_code_loads_no_picture_of_another_site(options: str) -> None:
@@ -183,8 +189,10 @@ def test_json_settings_load_no_picture_of_another_site() -> None:
 
     nested = {"graphic": [{"style": {"image": "image://http://e.com/a.png"}}]}
     assert foreign_addresses(nested) == ["http://e.com/a.png"]
-    # Text that only mentions an address loads nothing
+    # Text that only mentions an address loads nothing, nor does a link
     assert foreign_addresses({"label": "See https://e.com"}) == []
+    assert foreign_addresses('<b>{b}</b><a href="https://e.com">x</a>') == []
+    assert foreign_addresses('<img src="/static/x.png">{c}') == []
     assert foreign_addresses({"a": "Total: 5", "b": "/static/x.png"}) == []
     png = "data:image/png;base64,iVBORw0KGgo="
     assert foreign_addresses([{"image": png}, "image:///static/x.png"]) == []

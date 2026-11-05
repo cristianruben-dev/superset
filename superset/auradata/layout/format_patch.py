@@ -33,6 +33,7 @@ from __future__ import annotations
 import math
 import re
 from dataclasses import dataclass, field
+from html.parser import HTMLParser
 from typing import Any
 
 from superset.auradata import catalog
@@ -193,14 +194,55 @@ def _foreign_address(value: str) -> str | None:
     return None
 
 
+_CSS_URL = re.compile(r"url\(\s*(['\"]?)(.*?)\1\s*\)", re.IGNORECASE | re.DOTALL)
+# Attributes of HTML that load what they name
+_LOADING_ATTRIBUTES = ("src", "poster", "background", "data")
+
+
+class _HtmlLoads(HTMLParser):
+    """Collects what a piece of HTML (a tooltip formatter) would load."""
+
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=True)
+        self.addresses: list[str] = []
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        for name, value in attrs:
+            value = (value or "").strip()
+            if name in _LOADING_ATTRIBUTES and value:
+                self.addresses.append(value)
+            elif name == "srcset":
+                self.addresses += [
+                    part.split()[0] for part in value.split(",") if part.strip()
+                ]
+            elif name == "style":
+                self.addresses += [url for _, url in _CSS_URL.findall(value)]
+
+
+def _html_addresses(text: str) -> list[str]:
+    """Addresses of other sites that HTML in a string would load."""
+    if "<" not in text:
+        return []
+    parser = _HtmlLoads()
+    parser.feed(text)
+    parser.close()
+    return [
+        address[:80]
+        for address in parser.addresses
+        if (_ADDRESS.match(address) or address.lower().startswith(_IMAGE_PREFIX))
+        and not is_site_image(address)
+    ]
+
+
 def foreign_addresses(value: Any) -> list[str]:
     """
     Addresses of other sites anywhere in a chart setting: every string at any
     depth (``graphic[].style.image``, ``symbol: 'image://...'``, pattern fills,
-    rich text backgrounds), and every string literal of option code such as
-    ``echart_options``. A picture must be a path of this site or a raster
-    data address, so a viewer's browser never fetches one from another host
-    and exports of the report keep working.
+    rich text backgrounds, pictures in the HTML of a tooltip formatter), and
+    every string literal of option code such as ``echart_options``. A picture
+    must be a path of this site or a raster data address, so a viewer's
+    browser never fetches one from another host and exports of the report
+    keep working.
     """
     found: list[str] = []
     if isinstance(value, dict):
@@ -210,9 +252,11 @@ def foreign_addresses(value: Any) -> list[str]:
         for item in value:
             found += foreign_addresses(item)
     elif isinstance(value, str):
-        for text in (value, *_js_literals(value)):
+        code = value.lstrip().startswith(("{", "["))
+        for text in (value, *(_js_literals(value) if code else [])):
             if address := _foreign_address(text):
                 found.append(address)
+            found += _html_addresses(text)
     return found
 
 
