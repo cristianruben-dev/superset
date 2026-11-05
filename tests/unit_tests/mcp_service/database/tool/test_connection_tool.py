@@ -154,8 +154,12 @@ async def test_database_reads_never_return_credentials(world: dict[str, Any]) ->
     info = await call("get_database_info", {"identifier": world["secret"].id})
     assert info["database_name"] == "secreta", info
     assert info["extra"]["engine_params"]["connect_args"]["password"] == SECRET_MASK
-    listed = await call("list_databases", {"page_size": 50})
-    assert "secreta" in json.dumps(listed)
+    listed = await call(
+        "list_databases",
+        {"page_size": 50, "select_columns": ["id", "database_name", "extra"]},
+    )
+    secreta = next(d for d in listed["databases"] if d["database_name"] == "secreta")
+    assert secreta["extra"]["engine_params"]["connect_args"]["password"] == SECRET_MASK
     for result in (info, listed):
         text = json.dumps(result)
         assert not any(secret in text for secret in SECRETS)

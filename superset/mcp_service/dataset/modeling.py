@@ -196,11 +196,18 @@ def check_expression(dataset: Any, expression: str, kind: str) -> None:
             ],
         }
     form_data["row_limit"] = 1
+    # A false condition: the database still checks the expression but reads no rows
+    form_data["adhoc_filters"] = [
+        {"expressionType": "SQL", "clause": "WHERE", "sqlExpression": "1 = 0"}
+    ]
     result = _compile_chart(form_data, dataset.id)
     if not result.success:
+        # The compile check calls some SQL errors connection errors; here the
+        # expression is what failed
+        reason = (result.error or "").removeprefix("Database connection error: ")
         raise ModelingError(
             f"The expression does not run on this dataset, so nothing was saved: "
-            f"{result.error}",
+            f"{reason}",
             "InvalidExpression",
         )
 

@@ -271,6 +271,7 @@ async def test_expressions_run_before_they_are_saved(
     )
     assert typo["error_type"] == "InvalidExpression", typo
     assert "totl" in typo["error"]
+    assert "connection error" not in typo["error"]
     bad_metric = await call(
         "add_metric",
         {"dataset_id": pedidos, "metric_name": "suma", "expression": "SUM(totl)"},
