@@ -303,6 +303,57 @@ históricas. El `CLAUDE.md` del proyecto y el de `mcp_service` reescriben su reg
 - **Listo cuando:** la IA arma un informe de tres páginas con gráficos existentes, lo mira y queda igual que si se
   hubiera hecho a mano. Test: abrirlo en el navegador no cambia su layout (no hay conversión al cargar).
 
+**Hecho (2026-11-04, rama `feat/mcp-layout`):**
+1. `6fad64ebdf`: biblioteca `superset/auradata/layout/`.
+   - Modelos pydantic del lienzo, formatos, elementos, marcadores, páginas tooltip y diseño móvil. Solo leen y
+     validan: las escrituras siguen como dicts para no perder claves.
+   - `keys.py` con todas las claves `meta.auradata*`.
+   - Las funciones de `columns.ts`, `cells.ts`, `positions.ts`, `mobileLayout.ts`, `arrange.ts` y `mergeVisualFormat`,
+     con el redondeo y la coerción de JavaScript (`Math.round(12.5)` es 13; en Python, `round` da 12).
+   - Los helpers de la fase 0 salen de `mcp_service/dashboard/constants.py`, que solo los reexporta.
+2. `993c1d66c6`: guardia contra la deriva.
+   - Fixtures en `tests/fixtures/auradata/layouts/`. Jest (`layoutDrift.test.ts`) los rellena con
+     `UPDATE_LAYOUT_FIXTURES=1` y es la fuente de verdad; pytest (`drift_test.py`) debe dar lo mismo.
+   - `meta_keys.json`: Jest falla si el frontend usa una clave del layout o un tipo de elemento que no está en la
+     lista, y pytest si Python no la conoce.
+3. `fe15596e2b`: `get_report_structure`. Devuelve:
+   - el tamaño de página en celdas;
+   - las páginas (ocultas y tooltip incluidas);
+   - los objetos con tipo, título, caja, capa, estado y formato resuelto;
+   - los filtros nativos y los marcadores.
+4. `c3e2b5b22f`: herramientas de escritura.
+   - Páginas: `add_page`, `rename_page`, `reorder_pages`, `duplicate_page` (clona sus gráficos con
+     `CreateChartCommand`), `delete_page` (suelta sus gráficos del tablero, sin borrarlos) y `set_page_hidden`.
+   - Objetos: `place_object`, `move_object`, `resize_object`, `align_objects`, `distribute_objects`,
+     `bring_to_front` y `set_object_state`.
+   - Cada escritura pide `can_edit_resource` y guarda por `UpdateDashboardCommand`, así que queda en el historial.
+   - Los objetos se quedan dentro de la página (se ajustan, con aviso) y no se pisan salvo `allow_overlap`. Los
+     bloqueados no se mueven.
+   - Tests con base real: editor, contributor y admin del workspace escriben; viewer y otro workspace no.
+5. `52d3f537ae`: `generate_dashboard` escribe en celdas con `auradataPos`.
+   - Dos gráficos de 30 × 12 por fila, en `ROW > CHART`, como el editor.
+   - Si no caben, la página crece como en `layoutToPositions`, hasta 128 filas; lo que sobra va a páginas nuevas.
+   - Un fixture prueba que Jest y Python lo cargan sin cambios.
+6. `799aac8ca7` y `76ff502a58`: `get_dashboard_screenshot(dashboard, page)` y `get_visual_screenshot`.
+   - Usan `DashboardScreenshot` y su Playwright, en un hilo propio (el API síncrono no corre dentro del bucle del MCP).
+   - Devuelven la imagen como contenido MCP: JPEG de 1600 px como máximo.
+   - Están fuera del guardián de tamaño de respuesta.
+7. Chequeo en vivo (MCP en 5108, tablero de prueba 217):
+   - Se armó por herramientas: 5 gráficos, tres páginas (una oculta), objetos movidos y redimensionados, texto
+     alternativo y nuevo orden de páginas.
+   - Las capturas de página y de visual salen bien.
+   - Abierto en modo edición, Guardar y Deshacer siguen deshabilitados y `position_json` no cambia: no hay
+     conversión al cargar.
+8. Pendiente:
+   - **Frontend:** un permalink con `activeTabs` (sin `anchor`) mueve la barra de páginas pero deja en pantalla la
+     primera página. Las capturas usan `anchor` y no les afecta; otros enlaces permanentes sí.
+   - `generate_dashboard` no recibe workspace: no puede crear un informe con datasets de un workspace (rechaza
+     los gráficos). Va con `create_visual` en la fase 4.
+   - `get_visual_screenshot` solo sirve para gráficos; los elementos de diseño no tienen una clase con su id.
+   - Los nombres por defecto («Página N», «(copia)») van en español fijo, no según el idioma del usuario (fase 11).
+   - No se corrió `pre-commit` completo ni mypy (no hay venv en el host): solo ruff, oxlint y oxfmt sobre los
+     archivos tocados.
+
 ## 3. Formato (L)
 
 1. **Catálogo de formato generado.** Un script del frontend exporta, por tipo de gráfico, los controles que dibuja
