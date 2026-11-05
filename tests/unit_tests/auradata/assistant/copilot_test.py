@@ -23,6 +23,7 @@ only the model fake, and counts what reaches the tools with a spy on ``_call_too
 
 import asyncio
 import threading
+from pathlib import Path
 from typing import Any
 from uuid import UUID, uuid4
 
@@ -31,6 +32,7 @@ import httpx2
 import pytest
 from pytest_mock import MockerFixture
 
+import superset
 from superset import security_manager
 from superset.auradata import models as auradata_models
 from superset.auradata.assistant import agent, undo as undo_module
@@ -171,6 +173,26 @@ def test_every_destructive_or_sharing_tool_needs_a_card(
         annotations = tools[name].annotations
         if annotations.destructiveHint or "sharing" in tools[name].tags:
             assert box.needs_confirmation(name), name
+
+
+def test_every_card_has_its_title_for_a_person(
+    world: dict[str, Any],  # noqa: F811
+) -> None:
+    """The titles of the tools are in English: the panel names each one in Spanish."""
+    login(world, "Ada")
+    box = ToolBox("ada", MODE_EDIT)
+    titles = (
+        Path(superset.__file__).parents[1]
+        / "superset-frontend/src/auradata/assistant/confirmations.ts"
+    ).read_text()
+
+    missing = {
+        name
+        for name in box.names
+        if box.needs_confirmation(name) and f"{name}:" not in titles
+    }
+
+    assert missing == set()
 
 
 def test_the_toolbox_refuses_an_unapproved_call_by_itself(
