@@ -840,8 +840,33 @@ Cada fase deja su parte. Al final se ordena en:
    `MCP_API_KEY_ENABLED`), que el MCP acepta. Se encienden y AuraData añade una pantalla «Conectar IA» en español
    (crear, elegir permisos, copiar la configuración del cliente, revocar). La clave actúa como su dueño y sus permisos
    solo restringen. OAuth (el «Añadir conector» de claude.ai) queda para después. Bloque A, antes de la fase 8.
+   **Hecho (2026-11-05, rama `feat/connect-ai`, commits `84417027d9` y `a372ff6db4`):**
+   - Claves encendidas en dev y prod (`FAB_API_KEY_ENABLED`, flag del front, `MCP_API_KEY_ENABLED`); en prod el JWT
+     sigue como alternativa. `MCP_SERVICE_URL` es la dirección que muestra la página.
+   - **Corrección al plan:** con las claves encendidas el MCP rechaza (401) toda petición sin clave, así que
+     `MCP_DEV_USERNAME` ya no es un respaldo: solo vale con `MCP_API_KEY_ENABLED=false`. Un cliente local que llamaba
+     al 5108 sin cabecera deja de funcionar hasta que use una clave.
+   - Superset hacía `ApiKey` solo-admin: se abrió a todos los roles (cada uno ve y revoca solo sus claves, y el
+     servidor rechaza scopes que superen sus permisos). Hace falta `superset init` para repartir el permiso.
+   - Scopes: no había huecos. Las herramientas de `workspace` y `report_layout` declaran `Dashboard`/`Chart`, que están
+     mapeados, y las que cambian algo exigen `write` por su etiqueta `mutate`. Un test recorre el registro y lo fija
+     para cualquier herramienta nueva (con tres excepciones documentadas, más estrictas o de caché).
+   - Página «Conectar IA» (`/connect-ai/`, menú Archivo, menú de usuario y Administración): explica que la IA actúa
+     como tú, crea claves (por defecto de solo lectura, solo con los scopes que el usuario puede dar), las lista y
+     revoca, y da la configuración de Claude Code y Claude Desktop (vía `mcp-remote`) con la clave recién creada.
+   - Chequeo en vivo con un usuario de prueba Gamma, contributor de «Análisis comercial»: la clave actúa como él (solo
+     ve su workspace), una clave de solo lectura no puede llamar `update_workspace`, sin clave hay 401 y, revocada, 401.
+   - Pendiente: los scopes solo limitan el MCP; la misma clave usada contra la API REST actúa con todos los permisos
+     del usuario (comportamiento de Superset, avisado en la página).
 5. **Certificar (decidido 2026-11-05):** solo los editores reales y los admins del workspace ponen o quitan el sello
    de certificado, en la web y en el MCP. Un contributor no. Va con el bloque A.
+   **Hecho (2026-11-05, commit `18b4601981`):** `can_certify` y `certification_errors` en `workspace_access.py`. Los
+   comandos de actualización de tableros y gráficos rechazan (422, con el error en el campo) un cambio del sello de
+   un contributor y aceptan que reenvíe el sello sin cambios, como hace el diálogo de propiedades. El MCP
+   `manage_dashboard_certification` usa la misma regla: antes pedía editoría real y dejaba fuera a los admins del
+   workspace. El diálogo deja el sello de solo lectura para quien no puede certificar y no lo envía. Los datasets ya
+   eran solo de sus editores (ningún rol de workspace los edita). Probado en vivo por la API web y por MCP.
+   Pendiente: el diálogo de propiedades del gráfico (Explore) no bloquea los campos; el servidor sí rechaza el cambio.
 6. **Papelera global (decidido 2026-11-05):** queda como está: cada uno ve lo que puede editar, los admins todo,
    igual que la papelera de Administración.
 
