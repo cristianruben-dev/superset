@@ -271,6 +271,7 @@ Chart Management:
 - update_chart_preview: Update cached chart preview without saving (requires write access)
 - delete_chart: Delete a chart by ID/UUID (requires editor rights — owner or Admin; destructive; soft-deletes to trash when the SOFT_DELETE feature flag is on, permanent otherwise)
 - restore_chart: Restore a soft-deleted chart from trash by ID/UUID (requires editor rights — owner or Admin; only applies to charts trashed under the SOFT_DELETE feature flag)
+- restore_dataset: Restore a soft-deleted dataset from trash by ID/UUID (dataset editors and Admins)
 
 SQL Lab Integration:
 - execute_sql: Execute SQL queries and get results (requires database_id and SQL access)
@@ -888,6 +889,7 @@ from superset.mcp_service.dataset.tool import (  # noqa: F401, E402
     get_dataset_info,
     list_datasets,
     query_dataset,
+    restore_dataset,
     update_dataset_metric,
 )
 from superset.mcp_service.explore.tool import (  # noqa: F401, E402

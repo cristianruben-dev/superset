@@ -118,6 +118,7 @@ TOOL_BUDGETS = {
     "resize_object": 1_400,
     "restore_chart": 1_100,
     "restore_dashboard": 1_000,
+    "restore_dataset": 1_100,
     "save_sql_query": 1_600,
     "set_object_state": 1_400,
     "copy_format": 1_300,

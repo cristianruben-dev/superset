@@ -59,9 +59,7 @@ class TrashItem(BaseModel):
     blocked_by: str | None = Field(
         None, description="Why it can't be restored (charts now elsewhere)"
     )
-    restore_tool: str | None = Field(
-        None, description="Tool that restores it; None: restore it in the web"
-    )
+    restore_tool: str | None = Field(None, description="Tool that restores it")
 
 
 class ListTrashResponse(HistoryOutcome):

@@ -50,7 +50,7 @@ PERMISSION_CLASSES: dict[str, str] = {
 RESTORE_TOOLS: dict[str, str | None] = {
     "dashboard": "restore_dashboard",
     "chart": "restore_chart",
-    "dataset": None,
+    "dataset": "restore_dataset",
 }
 
 

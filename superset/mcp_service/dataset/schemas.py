@@ -1010,3 +1010,39 @@ def serialize_dataset_object(dataset: Any) -> DatasetInfo | None:
         metrics=metrics,
         is_favorite=getattr(dataset, "is_favorite", None),
     )
+
+
+class RestoreDatasetRequest(BaseModel):
+    """Request schema for restore_dataset."""
+
+    identifier: int | str = Field(
+        ...,
+        description="Dataset identifier - numeric ID or UUID string.",
+    )
+
+    @field_validator("identifier", mode="before")
+    @classmethod
+    def reject_bool_identifier(cls, value: object) -> object:
+        """bool is a subclass of int, so identifier=true would coerce to
+        dataset ID 1 and target the wrong object; reject it outright."""
+        if isinstance(value, bool):
+            raise ValueError("identifier must be an integer ID or UUID string")
+        return value
+
+
+class RestoreDatasetResponse(BaseModel):
+    """Result of a restore_dataset operation."""
+
+    success: bool = Field(description="Whether the dataset was restored from trash")
+    restored_id: int | None = Field(None, description="ID of the restored dataset")
+    restored_name: str | None = Field(None, description="Name of the restored dataset")
+    message: str | None = Field(None, description="Human-readable outcome message")
+    error: str | None = Field(None, description="Error message if the restore failed")
+    error_type: str | None = Field(None, description="Type of error if failed")
+    permission_denied: bool = Field(
+        False,
+        description=(
+            "True when the caller lacks permission to restore the dataset (do "
+            "not retry; ask the user)."
+        ),
+    )

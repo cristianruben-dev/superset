@@ -394,6 +394,7 @@ MCP_CACHE_CONFIG: dict[str, Any] = {
         "resize_object",
         "restore_chart",
         "restore_dashboard",
+        "restore_dataset",
         "save_sql_query",
         "set_canvas_format",
         "set_dashboard_css",
