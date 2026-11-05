@@ -32,7 +32,8 @@ export type NavIconName =
   | 'ProfileOutlined'
   | 'SafetyOutlined'
   | 'BellOutlined'
-  | 'AppstoreOutlined';
+  | 'AppstoreOutlined'
+  | 'ApiOutlined';
 
 export interface NavItem {
   key: string;
@@ -52,6 +53,7 @@ export interface NavSection {
 
 const HOME_URL = '/welcome/';
 const WORKSPACES_URL = '/workspace/list/';
+const CONNECT_AI_URL = '/connect-ai/';
 
 const ICONS: Record<string, NavIconName> = {
   Dashboards: 'DashboardOutlined',
@@ -120,7 +122,10 @@ const menuItems = (menu: MenuObjectProps): NavItem[] => {
  * Group the backend menu into the sidebar sections. Only the menus the user can
  * access reach the frontend, so permissions are already applied.
  */
-export function buildNavSections(menu: MenuObjectProps[]): NavSection[] {
+export function buildNavSections(
+  menu: MenuObjectProps[],
+  { connectAi = false }: { connectAi?: boolean } = {},
+): NavSection[] {
   const byName = new Map(
     menu.filter(Boolean).map(item => [item.name || item.label, item]),
   );
@@ -165,6 +170,17 @@ export function buildNavSections(menu: MenuObjectProps[]): NavSection[] {
       ],
     })),
   ];
+  // «Connect AI» is every user's own page (File menu, user menu); administrators
+  // also find it next to the rest of the setup
+  const admin = sections.find(section => section.key === 'admin');
+  if (connectAi && admin?.items.length) {
+    admin.items.push({
+      key: 'ConnectAI',
+      label: t('Connect AI'),
+      url: CONNECT_AI_URL,
+      icon: 'ApiOutlined',
+    });
+  }
 
   // Menus this layout does not know about still show up, at the end
   const known = new Set([

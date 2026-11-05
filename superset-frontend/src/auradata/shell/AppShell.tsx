@@ -18,6 +18,7 @@
  */
 import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
+import { FeatureFlag, isFeatureEnabled } from '@superset-ui/core';
 import { css, styled } from '@apache-superset/core/theme';
 import { useUiConfig } from 'src/components/UiConfigContext';
 import { URL_PARAMS } from 'src/constants';
@@ -135,7 +136,13 @@ export function AppShell({ data, isFrontendRoute, children }: AppShellProps) {
   const collapsed = preferCollapsed || narrow;
   const sidebarWidth = collapsed ? SIDEBAR_COLLAPSED_WIDTH : SIDEBAR_WIDTH;
   const [searching, setSearching] = useState(false);
-  const sections = useMemo(() => buildNavSections(data.menu), [data.menu]);
+  const sections = useMemo(
+    () =>
+      buildNavSections(data.menu, {
+        connectAi: isFeatureEnabled(FeatureFlag.FabApiKeyEnabled),
+      }),
+    [data.menu],
+  );
   // Signed-out pages (login, register) and standalone or embedded views go alone
   const hidden =
     isPanelMode() ||

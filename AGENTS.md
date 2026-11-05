@@ -81,6 +81,12 @@ This repository is **AuraData BI**, a fork of Apache Superset 7.0 shaped like Po
   SQL Lab, database schemas and editing a dataset keep their normal permissions. A new data-access
   check keeps `is_editor` and adds this grant only where the dataset is the thing read
   (`tests/unit_tests/auradata/workspace_grants_test.py`).
+- **AIs connect with personal API keys** (`sst_…`, «Conectar IA» at `/connect-ai/`, `src/auradata/connectAi`): every
+  role manages its own keys (`ApiKey` is not admin-only), a key acts as its owner with every fork rule, and its scopes
+  only narrow MCP tools (`tests/unit_tests/mcp_service/test_api_key_scope_coverage.py` makes a new tool declare a
+  mapped resource, and a mutating one a write scope). With `MCP_API_KEY_ENABLED` on, the MCP refuses requests without
+  a key, so dev's `MCP_DEV_USERNAME` only applies with `MCP_API_KEY_ENABLED=false`. `MCP_SERVICE_URL` is the address
+  the page shows; a JWT (`MCP_JWT_SECRET`) stays as an alternative in prod.
 - **Flags fixed by the product** (`FORCED_OFF_FLAGS`, `superset/utils/feature_flag_manager.py`): Superset's mobile consumption mode
   (`auradataMobile` replaces it) and Table V2 stay off whatever the configuration says.
 - **Soft delete and version history** (on by default since 7.0): a deleted dashboard, chart or

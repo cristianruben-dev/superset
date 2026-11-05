@@ -26672,3 +26672,106 @@ msgstr "Se cambió la configuración del informe"
 
 msgid "Changed visual interactions"
 msgstr "Se cambiaron las interacciones de los objetos visuales"
+
+msgid "Connect AI"
+msgstr "Conectar IA"
+
+msgid "%s active key"
+msgid_plural "%s active keys"
+msgstr[0] "%s clave activa"
+msgstr[1] "%s claves activas"
+
+msgid "Keys"
+msgstr "Claves"
+
+msgid "New key"
+msgstr "Nueva clave"
+
+msgid "Your AI works as you"
+msgstr "Tu IA trabaja como tú"
+
+msgid ""
+"An AI assistant such as Claude can build and change your reports through "
+"the MCP service of AuraData BI. It signs in with a personal key that you "
+"create here."
+msgstr ""
+"Un asistente de IA como Claude puede crear y cambiar tus informes a través "
+"del servicio MCP de AuraData BI. Entra con una clave personal que creas "
+"aquí."
+
+msgid ""
+"It sees and changes only what you can: your workspaces, your roles and your "
+"data access apply to it too."
+msgstr ""
+"Ve y cambia solo lo que tú puedes: tus áreas de trabajo, tus roles y tu "
+"acceso a los datos también se le aplican."
+
+msgid ""
+"The permissions of a key only narrow that. A read-only key can look at "
+"reports but not change them."
+msgstr ""
+"Los permisos de una clave solo lo restringen. Una clave de solo lectura "
+"puede ver los informes, pero no cambiarlos."
+
+msgid ""
+"Treat a key like your password: whoever holds it acts as you. The "
+"permissions limit what the AI does through MCP, not the other uses of the "
+"key. Revoke it when you no longer use it."
+msgstr ""
+"Trata la clave como tu contraseña: quien la tenga actúa como tú. Los "
+"permisos limitan lo que la IA hace por MCP, no los demás usos de la clave. "
+"Revócala cuando ya no la uses."
+
+msgid "API keys are turned off"
+msgstr "Las claves API están desactivadas"
+
+msgid ""
+"An administrator turns them on with FAB_API_KEY_ENABLED and "
+"MCP_API_KEY_ENABLED in the configuration."
+msgstr ""
+"Un administrador las activa con FAB_API_KEY_ENABLED y MCP_API_KEY_ENABLED "
+"en la configuración."
+
+msgid "Connect a client"
+msgstr "Conectar un cliente"
+
+msgid "MCP address"
+msgstr "Dirección del MCP"
+
+msgid ""
+"Create a key, then replace %s with it. The configuration with your key also "
+"shows when you create one."
+msgstr ""
+"Crea una clave y ponla en lugar de «%s». Al crearla también verás la "
+"configuración con ella."
+
+msgid "Your keys"
+msgstr "Tus claves"
+
+msgid "Claude Code"
+msgstr "Claude Code"
+
+msgid "Run this command in a terminal:"
+msgstr "Ejecuta este comando en una terminal:"
+
+msgid "Claude Code command"
+msgstr "Comando de Claude Code"
+
+msgid "Claude Desktop"
+msgstr "Claude Desktop"
+
+msgid ""
+"Add this to claude_desktop_config.json (Settings › Developer › Edit config) "
+"and restart Claude Desktop. It needs Node.js."
+msgstr ""
+"Añade esto a claude_desktop_config.json (Ajustes › Desarrollador › Editar "
+"configuración) y reinicia Claude Desktop. Necesita Node.js."
+
+msgid "Claude Desktop configuration"
+msgstr "Configuración de Claude Desktop"
+
+msgid "Copied to clipboard"
+msgstr "Copiado al portapapeles"
+
+msgid "Could not copy to the clipboard"
+msgstr "No se pudo copiar al portapapeles"

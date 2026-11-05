@@ -28,7 +28,10 @@ import {
   Tooltip,
 } from '@superset-ui/core/components';
 import { useToasts } from 'src/components/MessageToasts/withToasts';
-import { ApiKeyCreateModal } from './ApiKeyCreateModal';
+import {
+  ApiKeyCreateModal,
+  type ApiKeyCreateModalProps,
+} from './ApiKeyCreateModal';
 
 export interface ApiKey {
   uuid: string;
@@ -42,12 +45,36 @@ export interface ApiKey {
   scopes: string | null;
 }
 
-export function ApiKeyList() {
+interface ApiKeyListProps {
+  /** Leave out the intro and the create button, for a page that has its own. */
+  hideToolbar?: boolean;
+  /** Whether the create dialog is open, when the page opens it. */
+  creating?: boolean;
+  onCreatingChange?: (creating: boolean) => void;
+  onKeysChange?: (keys: ApiKey[]) => void;
+  createModalProps?: Pick<
+    ApiKeyCreateModalProps,
+    'scopeOptions' | 'initialScopes' | 'createdKeyExtra'
+  >;
+}
+
+export function ApiKeyList({
+  hideToolbar = false,
+  creating,
+  onCreatingChange,
+  onKeysChange,
+  createModalProps,
+}: ApiKeyListProps = {}) {
   const theme = useTheme();
   const { addDangerToast, addSuccessToast } = useToasts();
   const [apiKeys, setApiKeys] = useState<ApiKey[]>([]);
   const [loading, setLoading] = useState(false);
-  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [ownCreating, setOwnCreating] = useState(false);
+  const showCreateModal = creating ?? ownCreating;
+  const setShowCreateModal = (open: boolean) => {
+    setOwnCreating(open);
+    onCreatingChange?.(open);
+  };
   const fetchCounterRef = useRef(0);
 
   async function fetchApiKeys() {
@@ -60,7 +87,9 @@ export function ApiKeyList() {
       });
       // Only apply results if this is still the most recent request
       if (thisRequest === fetchCounterRef.current) {
-        setApiKeys(response.json.result || []);
+        const keys = response.json.result || [];
+        setApiKeys(keys);
+        onKeysChange?.(keys);
       }
     } catch (error) {
       if (thisRequest === fetchCounterRef.current) {
@@ -198,34 +227,36 @@ export function ApiKeyList() {
 
   return (
     <div>
-      <div
-        css={css`
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: ${theme.sizeUnit * 4}px;
-        `}
-      >
-        <div>
-          <p
-            css={css`
-              margin-bottom: ${theme.sizeUnit * 2}px;
-            `}
-          >
-            {t('API keys allow scoped programmatic access to Superset.')}
-          </p>
-          <p
-            css={css`
-              margin-bottom: 0;
-            `}
-          >
-            {t('Keys are shown only once at creation. Store them securely.')}
-          </p>
+      {!hideToolbar && (
+        <div
+          css={css`
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: ${theme.sizeUnit * 4}px;
+          `}
+        >
+          <div>
+            <p
+              css={css`
+                margin-bottom: ${theme.sizeUnit * 2}px;
+              `}
+            >
+              {t('API keys allow scoped programmatic access to Superset.')}
+            </p>
+            <p
+              css={css`
+                margin-bottom: 0;
+              `}
+            >
+              {t('Keys are shown only once at creation. Store them securely.')}
+            </p>
+          </div>
+          <Button type="primary" onClick={() => setShowCreateModal(true)}>
+            {t('Create API Key')}
+          </Button>
         </div>
-        <Button type="primary" onClick={() => setShowCreateModal(true)}>
-          {t('Create API Key')}
-        </Button>
-      </div>
+      )}
       <Table
         columns={columns}
         data={apiKeys}
@@ -242,6 +273,7 @@ export function ApiKeyList() {
           onSuccess={() => {
             fetchApiKeys();
           }}
+          {...createModalProps}
         />
       )}
     </div>

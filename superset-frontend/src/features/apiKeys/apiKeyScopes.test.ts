@@ -16,9 +16,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import type { UserRoles } from 'src/types/bootstrapTypes';
 import {
   API_KEY_SCOPE_OPTIONS,
   getApiKeyScopesHelpText,
+  grantableApiKeyScopeOptions,
+  readApiKeyScopes,
   serializeApiKeyScopes,
 } from './apiKeyScopes';
 
@@ -47,4 +50,40 @@ test('explains that scopes apply to MCP rather than REST APIs', () => {
   expect(getApiKeyScopesHelpText()).toContain(
     'do not restrict REST API requests',
   );
+});
+
+test('offers only the scopes the user may grant', () => {
+  const roles: UserRoles = {
+    Gamma: [
+      ['can_read', 'Dashboard'],
+      ['can_write', 'Dashboard'],
+      ['can_read', 'Chart'],
+      ['can_read', 'Dataset'],
+    ],
+  };
+
+  expect(
+    grantableApiKeyScopeOptions(roles).map(option => option.value),
+  ).toEqual([
+    'superset:chart:read',
+    'superset:dashboard:read',
+    'superset:dashboard:write',
+    'superset:dataset:read',
+  ]);
+  expect(readApiKeyScopes(grantableApiKeyScopeOptions(roles))).toEqual([
+    'superset:chart:read',
+    'superset:dashboard:read',
+    'superset:dataset:read',
+  ]);
+});
+
+test('counts any method of an action as a grant, as the server does', () => {
+  const roles: UserRoles = {
+    sql: [['can_execute_sql_query', 'SQLLab']],
+  };
+
+  expect(
+    grantableApiKeyScopeOptions(roles).map(option => option.value),
+  ).toEqual(['superset:sqllab:write']);
+  expect(grantableApiKeyScopeOptions(undefined)).toEqual([]);
 });

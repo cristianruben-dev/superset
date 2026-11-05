@@ -172,6 +172,12 @@ const UsersList: LazyExoticComponent<any> = lazy(
 const UserInfo = lazy(
   () => import(/* webpackChunkName: "UserInfo" */ 'src/pages/UserInfo'),
 );
+const ConnectAiPage = lazy(
+  () =>
+    import(
+      /* webpackChunkName: "ConnectAiPage" */ 'src/auradata/connectAi/ConnectAiPage'
+    ),
+);
 const ActionLogList: LazyExoticComponent<any> = lazy(
   () => import(/* webpackChunkName: "ActionLogList" */ 'src/pages/ActionLog'),
 );
@@ -286,6 +292,11 @@ export const routes: Routes = [
   { path: RoutePaths.TASKS, Component: TaskList },
   { path: RoutePaths.SQLLAB, Component: panelOnly(SqlLab, SQL_FALLBACK) },
   { path: RoutePaths.USER_INFO, Component: UserInfo, mobileSupported: true },
+  {
+    path: RoutePaths.CONNECT_AI,
+    Component: ConnectAiPage,
+    mobileSupported: true,
+  },
   { path: RoutePaths.ACTION_LOG, Component: ActionLogList },
 ];
 

@@ -141,3 +141,26 @@ test('recognizes dashboards, which show without the sidebar', () => {
   expect(isReportRoute('/dashboard/new/')).toBe(false);
   expect(isReportRoute('/welcome/')).toBe(false);
 });
+
+test('offers «Connect AI» under administration when API keys are on', () => {
+  const [, admin] = buildNavSections(menu, { connectAi: true });
+
+  expect(admin.items.at(-1)).toMatchObject({
+    key: 'ConnectAI',
+    label: 'Connect AI',
+    url: '/connect-ai/',
+    icon: 'ApiOutlined',
+  });
+  expect(buildNavSections(menu)[1].items.map(item => item.key)).not.toContain(
+    'ConnectAI',
+  );
+});
+
+test('does not open an administration section just for «Connect AI»', () => {
+  const sections = buildNavSections(
+    [{ name: 'Dashboards', label: 'Dashboards', url: '/dashboard/list/' }],
+    { connectAi: true },
+  );
+
+  expect(sections.map(section => section.key)).toEqual(['main']);
+});

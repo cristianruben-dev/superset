@@ -19,6 +19,7 @@
 import { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
+import { FeatureFlag, isFeatureEnabled } from '@superset-ui/core';
 import { t } from '@apache-superset/core/translation';
 import { ThemeMode } from '@apache-superset/core/theme';
 import { Modal } from '@superset-ui/core/components';
@@ -124,6 +125,16 @@ export function AppMenuBar({
             icon: <Icons.UserOutlined iconSize="m" />,
             label: t('Profile'),
             onClick: () => go(navbar.user_info_url),
+          },
+        ]
+      : []),
+    ...(isFeatureEnabled(FeatureFlag.FabApiKeyEnabled)
+      ? [
+          {
+            key: 'connect-ai',
+            icon: <Icons.ApiOutlined iconSize="m" />,
+            label: t('Connect AI'),
+            onClick: () => go('/connect-ai/'),
           },
         ]
       : []),

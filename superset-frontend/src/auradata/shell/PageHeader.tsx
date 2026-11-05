@@ -87,7 +87,13 @@ export function ShellCrumbs({
   pathname: string;
 }) {
   const extra = useExtraCrumbs();
-  const crumbs: Crumb[] = [...navCrumbs(sections, pathname), ...extra];
+  const nav = navCrumbs(sections, pathname);
+  // A page that names itself is also a navigation entry for some users
+  const last = nav[nav.length - 1]?.label;
+  const crumbs: Crumb[] = [
+    ...nav,
+    ...extra.filter((crumb, index) => index > 0 || crumb.label !== last),
+  ];
   if (!crumbs.length) return null;
   return (
     <Strip aria-label={t('Breadcrumb')} data-test="auradata-crumbs">

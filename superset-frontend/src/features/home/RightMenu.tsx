@@ -333,6 +333,17 @@ const RightMenu = ({
             ),
           });
         }
+        // AuraData BI: the user's API keys for an AI client
+        if (isFeatureEnabled(FeatureFlag.FabApiKeyEnabled)) {
+          userItems.push({
+            key: 'connect-ai',
+            label: (
+              <Typography.Link href={ensureAppRoot('/connect-ai/')}>
+                {t('Connect AI')}
+              </Typography.Link>
+            ),
+          });
+        }
         const showLogout =
           !isEmbedded() ||
           !isFeatureEnabled(FeatureFlag.DisableEmbeddedSupersetLogout);
@@ -572,6 +583,10 @@ const RightMenu = ({
                 // full menu row — navigate explicitly so row taps work.
                 if (info.key === 'info' && navbarRight.user_info_url) {
                   navigateTo(navbarRight.user_info_url);
+                  return;
+                }
+                if (info.key === 'connect-ai') {
+                  navigateTo('/connect-ai/');
                   return;
                 }
                 if (info.key === 'logout' && navbarRight.user_logout_url) {

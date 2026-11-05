@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { useEffect, useRef, useState } from 'react';
+import { type ReactNode, useEffect, useRef, useState } from 'react';
 import { SupersetClient } from '@superset-ui/core';
 import { t } from '@apache-superset/core/translation';
 import { css, useTheme } from '@apache-superset/core/theme';
@@ -37,10 +37,16 @@ import {
   serializeApiKeyScopes,
 } from './apiKeyScopes';
 
-interface ApiKeyCreateModalProps {
+export interface ApiKeyCreateModalProps {
   show: boolean;
   onHide: () => void;
   onSuccess: () => void;
+  /** Scopes to offer; every supported scope when left out. */
+  scopeOptions?: { label: string; value: string }[];
+  /** Scopes selected when the form opens. */
+  initialScopes?: string[];
+  /** Shown under the new key, the only time it can be read. */
+  createdKeyExtra?: (key: string) => ReactNode;
 }
 
 interface FormValues {
@@ -52,6 +58,9 @@ export function ApiKeyCreateModal({
   show,
   onHide,
   onSuccess,
+  scopeOptions = API_KEY_SCOPE_OPTIONS,
+  initialScopes,
+  createdKeyExtra,
 }: ApiKeyCreateModalProps) {
   const theme = useTheme();
   const { addDangerToast, addSuccessToast } = useToasts();
@@ -159,6 +168,7 @@ export function ApiKeyCreateModal({
             {copied ? t('Copied!') : t('Copy')}
           </Button>
         </div>
+        {createdKeyExtra?.(createdKey)}
       </Modal>
     );
   }
@@ -171,6 +181,7 @@ export function ApiKeyCreateModal({
       onSave={() => {}}
       formSubmitHandler={handleFormSubmit}
       requiredFields={['name']}
+      initialValues={initialScopes ? { scopes: initialScopes } : undefined}
     >
       <FormItem
         name="name"
@@ -192,7 +203,7 @@ export function ApiKeyCreateModal({
           mode="multiple"
           allowClear
           showSearch
-          options={API_KEY_SCOPE_OPTIONS}
+          options={scopeOptions}
           placeholder={t('Select MCP resource scopes (optional)')}
           data-test="api-key-scopes-select"
           getPopupContainer={(trigger: HTMLElement) =>
