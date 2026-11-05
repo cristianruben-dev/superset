@@ -112,6 +112,11 @@ async def capture(url: str, element: str, window: tuple[int, int]) -> Picture:
     Playwright's sync API refuses to run inside the server's event loop, so the
     browser works in a thread with its own app context.
     """
+    return shrink(await capture_raw(url, element, window))
+
+
+async def capture_raw(url: str, element: str, window: tuple[int, int]) -> bytes:
+    """The PNG Playwright takes of one element, at full size."""
     from flask import current_app, g
 
     app = current_app._get_current_object()  # pylint: disable=protected-access
@@ -121,7 +126,7 @@ async def capture(url: str, element: str, window: tuple[int, int]) -> Picture:
 
 def _capture(
     app: Any, user_id: int, url: str, element: str, window: tuple[int, int]
-) -> Picture:
+) -> bytes:
     with app.app_context():
         from flask import g
 
@@ -129,11 +134,16 @@ def _capture(
 
         user = security_manager.get_user_by_id(user_id)
         g.user = user
-        return take_picture(url, element, window, user)
+        return take_raw(url, element, window, user)
 
 
 def take_picture(url: str, element: str, window: tuple[int, int], user: Any) -> Picture:
     """Takes the picture of one element of a page, as the user."""
+    return shrink(take_raw(url, element, window, user))
+
+
+def take_raw(url: str, element: str, window: tuple[int, int], user: Any) -> bytes:
+    """The PNG of one element of a page, as the user, at full size."""
     from superset.utils.screenshots import DashboardScreenshot
 
     screenshot = DashboardScreenshot(url, None, window_size=window, thumb_size=window)
@@ -150,4 +160,4 @@ def take_picture(url: str, element: str, window: tuple[int, int], user: Any) -> 
             "The screenshot came back empty; try again in a moment.",
             "ScreenshotFailed",
         )
-    return shrink(image)
+    return image

@@ -16,9 +16,18 @@
 # under the License.
 """Report screenshot tools."""
 
+from superset.mcp_service.screenshot.tool.export_tools import (
+    export_dashboard_image,
+    export_dashboard_pdf,
+)
 from superset.mcp_service.screenshot.tool.screenshot_tools import (
     get_dashboard_screenshot,
     get_visual_screenshot,
 )
 
-__all__ = ["get_dashboard_screenshot", "get_visual_screenshot"]
+__all__ = [
+    "export_dashboard_image",
+    "export_dashboard_pdf",
+    "get_dashboard_screenshot",
+    "get_visual_screenshot",
+]

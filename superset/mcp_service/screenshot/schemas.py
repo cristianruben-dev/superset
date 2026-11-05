@@ -60,3 +60,43 @@ class ScreenshotResponse(BaseModel):
     mime_type: str | None = None
     error: str | None = None
     error_type: str | None = None
+
+
+class ExportDashboardRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    dashboard: int | str = Field(description="Dashboard id, uuid or slug")
+    page: int | str | None = Field(
+        None,
+        description="Page id, name or position from 1 (a hidden page too); "
+        "the first visible page by default",
+    )
+    all_pages: bool = Field(
+        False,
+        description="Every page viewers see, in order (hidden and tooltip pages "
+        "left out); not with page",
+    )
+
+
+class ExportedPage(BaseModel):
+    id: str
+    name: str
+
+
+class ExportResponse(BaseModel):
+    """What the file holds; the file itself comes as image or resource content."""
+
+    dashboard_id: int | None = None
+    format: str | None = None
+    pages: list[ExportedPage] = Field(default_factory=list)
+    skipped_pages: list[ExportedPage] = Field(
+        default_factory=list,
+        description="Visible pages over the limit of one export: export them by page",
+    )
+    file_name: str | None = None
+    mime_type: str | None = None
+    size_bytes: int | None = None
+    width: int | None = Field(None, description="Page width in pixels")
+    height: int | None = Field(None, description="Page height in pixels")
+    error: str | None = None
+    error_type: str | None = None

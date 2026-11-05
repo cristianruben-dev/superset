@@ -221,7 +221,8 @@ Trash and Version History (AuraData BI):
 - get_version_diff: The changes one version made, as the web's history shows them
 - restore_version: Go back to a version (a new version; editors and contributors)
 
-Sharing (AuraData BI):
+Export and Sharing (AuraData BI):
+- export_dashboard_image / export_dashboard_pdf: A page or every visible page, as a PNG or a PDF
 - publish_dashboard: Publish a report, or turn it back into a draft
 - share_dashboard: The link to send (a permalink to a page), who opens it, how to add people
 
@@ -983,6 +984,8 @@ from superset.mcp_service.saved_query.tool import (  # noqa: F401, E402
     list_saved_queries,
 )
 from superset.mcp_service.screenshot.tool import (  # noqa: F401, E402
+    export_dashboard_image,
+    export_dashboard_pdf,
     get_dashboard_screenshot,
     get_visual_screenshot,
 )

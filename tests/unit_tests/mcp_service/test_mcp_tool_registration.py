@@ -125,6 +125,8 @@ EXPECTED_TOOL_OUTPUT_FIELDS = {
     "update_report": "executor",
     "publish_dashboard": "published",
     "share_dashboard": "link",
+    "export_dashboard_image": "pages",
+    "export_dashboard_pdf": "pages",
     "restore_version": "restored_version_number",
     "list_trash": "items",
     "list_versions": "versions",

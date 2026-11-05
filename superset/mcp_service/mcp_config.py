@@ -447,6 +447,8 @@ MCP_CACHE_CONFIG: dict[str, Any] = {
         "get_filter_defaults",
         "list_bookmarks",
         "get_dashboard_screenshot",
+        "export_dashboard_image",
+        "export_dashboard_pdf",
         "get_report_structure",
         "get_visual_fields",
         "get_visual_screenshot",
@@ -506,6 +508,8 @@ MCP_RESPONSE_SIZE_CONFIG: dict[str, Any] = {
         "search_tools",  # Returns tool schemas for discovery (intentionally large)
         "get_dashboard_screenshot",  # Returns a picture (JPEG, at most 1600 px)
         "get_visual_screenshot",  # Returns a picture (JPEG, at most 1600 px)
+        "export_dashboard_image",  # Returns the PNG (at most 20 MB)
+        "export_dashboard_pdf",  # Returns the PDF (at most 20 MB)
     ],
 }
 
