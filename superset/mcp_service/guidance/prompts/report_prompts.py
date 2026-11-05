@@ -133,7 +133,7 @@ async def informe_desde_dataset(
    dataset, usa `add_metric` y `set_column_properties` (una métrica no puede
    usar una columna calculada por su nombre: escribe la expresión completa).
    `query_dataset` te deja ver los datos antes de graficar.
-3. Plan: propone en dos o tres líneas las páginas (por ejemplo «Resumen» y
+3. Plan: propón en dos o tres líneas las páginas (por ejemplo «Resumen» y
    «Detalle») y qué responde cada visual. Si el usuario no pidió otra cosa,
    sigue sin esperar.
 4. Informe vacío: `generate_dashboard(request={{"chart_ids": [],
