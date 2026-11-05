@@ -71,7 +71,7 @@ Una fila por cada regla de «AuraData BI: What This Fork Changes» del `CLAUDE.m
 
 | # | Función del producto | Hoy | Hueco | Herramientas propuestas | Fase |
 | ---: | --- | --- | --- | --- | :---: |
-| 1 | Español primero | Descripciones y errores en inglés | Los textos que crea la IA (títulos, etiquetas) no saben el idioma del usuario | `get_instance_info` devuelve idioma y convenciones; prompt de estilo | 11 |
+| 1 | Español primero | Descripciones en inglés; hecho en fase 11: regla de idioma en instrucciones, recursos y prompts | Los textos que crea la IA (títulos, etiquetas) no saben el idioma del usuario | `get_instance_info` devuelve idioma y convenciones; prompt de estilo | 11 |
 | 2 | Un tablero por gráfico | En crear y añadir | `update_dashboard` | Validar en `update_dashboard`, `duplicate_dashboard` y `restore_*` | 0 |
 | 3 | Informes desde su tablero (sin lista de gráficos) | `list_charts` y `generate_chart` sueltos | Un gráfico sin tablero es un huérfano en este producto | `create_visual` (gráfico + lugar en la página en un paso); `generate_chart` exige o sugiere tablero | 4 |
 | 4 | Workspaces, miembros y roles | Nada | Todo | `list/get/create/update/delete_workspace`, `list/set/remove_workspace_member`, `list_member_candidates`, `move_dashboard_to_workspace`, `get_workspace_of_dashboard`, imagen del workspace | 1 |
@@ -80,7 +80,7 @@ Una fila por cada regla de «AuraData BI: What This Fork Changes» del `CLAUDE.m
 | 7 | Flags fijados por el producto | n/a | Nada que exponer | — | — |
 | 8 | Papelera e historial de versiones | `restore_chart`, `restore_dashboard`; hecho en fase 9 | No lista papelera ni versiones ni restaura una versión | `list_trash` (workspace y global), `list_versions`, `get_version_diff`, `restore_version` | 9 |
 | 9 | Datasets por workspace | Validación al crear tablero; `create_dataset(workspace_id)` hecho en fase 8 | Crear un dataset dentro de un workspace, moverlo, compartirlo | `create_dataset(workspace_id)`, `move_dataset_to_workspace`, filtro `dataset_usable_in_dashboard` | 1 |
-| 10 | Marca AuraData | n/a | La IA no conoce paleta ni tipografía | Recurso `auradata://brand` y prompt de diseño | 11 |
+| 10 | Marca AuraData | Hecho en fase 11 (`auradata://brand`) | La IA no conoce paleta ni tipografía | Recurso `auradata://brand` y prompt de diseño | 11 |
 | 11 | Bases de datos ofrecidas (6 motores) | `list/get_database`; `test_database_connection` hecho en fase 8 | Las conexiones se crean en la web (decisión 2) | `test_database_connection`; sin `create_database` | 8 |
 | 12 | Cinta (Inicio, Insertar, Diseño, Vista) | n/a | Es interfaz; sus comandos son acciones que sí hay que cubrir | Cubiertas por las fases 2–7 | — |
 | 13 | Título y acciones en la barra superior, márgenes, crumbs, barra de menús, barra de estado | n/a | Interfaz pura | — | — |
@@ -836,6 +836,46 @@ históricas. El `CLAUDE.md` del proyecto y el de `mcp_service` reescriben su reg
 - Prompts guiados: «informe desde un dataset», «replicar un informe de Power BI desde una captura», «revisar y
   pulir un informe», «diseño móvil de este informe».
 - Idioma: los textos que crea la IA siguen el idioma del usuario (español por defecto, «tú», comillas «»).
+
+**Hecho (2026-11-05, rama `feat/mcp-guidance`):**
+1. `3fda89d330`: `test_mcp_e2e_smoke.py` pasa. La lista vacía no venía de las claves de API: el middleware de
+   visibilidad importa su propio `get_user_from_request`, el test solo parcheaba el de `auth`, y en el contenedor la
+   config de dev (en el `PYTHONPATH`) pone `MCP_DEV_USERNAME=admin`, que no existe en la base del test: falla cerrado
+   y oculta todo. El test parchea los dos; el nombre esperado es «AuraData BI MCP Service». No era un bug del código.
+2. `bea1560888`: en dev, los enlaces salen del puerto publicado. Compose pasa `SUPERSET_PORT` y `MCP_PORT` como
+   `SUPERSET_HOST_PORT` y `MCP_HOST_PORT` (app, MCP y worker); `SUPERSET_PUBLIC_URL` y `MCP_SERVICE_URL` siguen
+   mandando si se ponen en `docker/.env-local`. Sin variables queda `localhost:8088` (el puerto por defecto de compose).
+3. `9bffdc0c4d`: `add_calculated_column`, `add_metric` y `update_dataset_metric` dicen que una métrica no usa una
+   columna calculada por su nombre: hay que escribir la expresión.
+4. `d066d431ec`: recursos `auradata://brand`, `auradata://report-conventions` y `auradata://format-catalog`
+   (`superset/mcp_service/guidance/`). Paletas, fuentes, idioma (`BABEL_DEFAULT_LOCALE`), tamaños de página y catálogo
+   salen de la config, la biblioteca de layout y `format_catalog.json`. Las convenciones traen una página tipo de
+   60 × 34 con margen de 1 celda y 2 entre objetos (4 tarjetas de 13, 2 gráficos de 28), probada sin solapes.
+5. `d2d203d398`: prompts `informe_desde_dataset`, `replicar_informe_power_bi`, `revisar_informe` y `diseno_movil`, en
+   español, con argumento `idioma`. Repiten las reglas clave en el texto (muchos clientes no leen recursos solos) y un
+   test comprueba que solo nombran herramientas que existen.
+6. `129587b457`: `DEFAULT_INSTRUCTIONS` reescrito (de ~530 a ~240 líneas): a quién representa la IA (el dueño de la
+   clave), contraseñas fuera del chat, idioma, modelo del producto, flujo recomendado de 13 pasos (una herramienta
+   por línea, para que el filtro de herramientas desactivadas no borre pasos enteros), herramientas por grupo,
+   recursos y prompts. `get_instance_info` no cambió: el idioma llega por las instrucciones, los recursos y los prompts.
+7. Chequeo en vivo (clave de admin, revocada al final; MCP recreado con `SUPERSET_PORT=8188 MCP_PORT=5108`):
+   - `initialize` devuelve las instrucciones nuevas con «AuraData BI»; `resources/read` de marca y convenciones y
+     `prompts/get` de `informe_desde_dataset` responden. Las URLs de las herramientas dicen `localhost:8188`.
+   - Se siguió el prompt a mano sobre `ventas_demo` (dataset 42, workspace 6): métricas `ventas_total`,
+     `pedidos_total` y `ticket_promedio` y etiquetas en español; informe nuevo **225 «Ventas 2025 (fase 11)»** con
+     título, 2 segmentadores, 3 tarjetas, línea mensual, barras por región y tabla de detalle. La captura se ve como
+     un informe correcto; tras ordenar las barras y quitar las barras de celda de la tabla queda limpio.
+   - `a3dc106b50`: lo que hubo que cambiar al seguirlo quedó en el prompt: nombrar páginas por nombre o índice,
+     `search_tools`/`call_tool` (el servidor solo lista 4 herramientas por el transform de búsqueda), anchos de 3
+     tarjetas y `set_visual_sort`.
+8. Pendiente:
+   - **Bug de fase 2:** en un informe de una página, `get_report_structure` da la página `GRID_ID` («Page 1», en
+     inglés) pero `rename_page` no acepta ese id (convierte a pestañas y busca `TAB-…`); con el índice (`1`) funciona.
+   - La app y el worker no se recrearon: hasta hacerlo con `SUPERSET_PORT=8188 MCP_PORT=5108` sus enlaces no
+     dicen 8188 (8888 mientras no recarguen la config, 8088 después).
+   - El prompt de Power BI desde captura no se probó con una imagen real (necesita un cliente que adjunte imágenes).
+   - No se corrieron `pre-commit` ni mypy: solo ruff (check y format) sobre los archivos tocados.
+   - Quedan el informe 225 y las métricas y etiquetas nuevas del dataset 42.
 
 ## 12. Evaluación de punta a punta (M)
 
