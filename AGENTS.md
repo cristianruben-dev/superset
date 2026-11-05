@@ -93,7 +93,8 @@ This repository is **AuraData BI**, a fork of Apache Superset 7.0 shaped like Po
 - **The in-app AI assistant** (`superset/auradata/assistant/`, plan in `docs/plans/2026-11-05-plan-asistente-ia.md`):
   `models.py` is the catalog (live list from the Models API, plus `MODEL_TABLE`, by exact id, with what the API does not
   say); code reads a `ModelSpec` and never asks which model it is. `settings.py` overlays the admin's choices, kept under
-  one `SharedKey` of the key-value store (no table), on the `AURADATA_ASSISTANT_*` config. Administration › AI assistant
+  one `SharedKey` of the key-value store (no table), on the `AURADATA_ASSISTANT_*` config; `AURADATA_ASSISTANT_ENABLED` is
+  a hard gate too, so the admin's switch does nothing while it is off. Administration › AI assistant
   (`/assistant/settings/`, `/api/v1/auradata_assistant/settings/`) is admin only. `ANTHROPIC_API_KEY` stays on the server:
   no response carries it. `anthropic` is imported only where the client is built, so a process without it still starts.
   The chat is `POST /api/v1/auradata/assistant/` (SSE, `api.py`), for browser sessions only. `agent.py` is the loop, written
@@ -173,7 +174,8 @@ This repository is **AuraData BI**, a fork of Apache Superset 7.0 shaped like Po
   layouts through the Python layout library (`superset/auradata/layout/`) and the same commands as the web. A tool
   change regenerates `docs/auradata/mcp/referencia.md` (`scripts/auradata/mcp_reference.py`;
   `tests/unit_tests/mcp_service/test_reference_doc.py` fails when it is stale).
-- **Docs** live in `docs/auradata/`: `manual/` (users, Spanish, with screenshots), `mcp/conectar.md` (connecting an AI),
+- **Docs** live in `docs/auradata/`: `manual/` (users, Spanish, with screenshots), `asistente/` (`administracion.md` for
+  operators, `evaluacion.md`), `mcp/conectar.md` (connecting an AI),
   `mcp/referencia.md` (generated), `mcp/evaluacion.md` (end to end checks) and `arquitectura.md` (developers).
 - **Flags fixed by the product** (`FORCED_OFF_FLAGS`, `superset/utils/feature_flag_manager.py`): Superset's mobile consumption mode
   (`auradataMobile` replaces it) and Table V2 stay off whatever the configuration says.
