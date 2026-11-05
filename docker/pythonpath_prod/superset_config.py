@@ -128,10 +128,20 @@ SMTP_MAIL_FROM = os.getenv("SMTP_MAIL_FROM", "auradata@example.com")
 EMAIL_REPORTS_SUBJECT_PREFIX = "[AuraData BI] "
 
 # --- MCP service --------------------------------------------------------------
-# AI agents authenticate with a JWT signed with MCP_JWT_SECRET; its "sub" claim is
-# the AuraData BI username the agent acts as. Without a secret the MCP service refuses
-# every request.
+# AI agents authenticate with a personal API key (sst_...), created by each user on
+# the «Conectar IA» page (/connect-ai/) and sent as "Authorization: Bearer sst_...":
+# the agent acts as the key's owner, and the key's scopes only narrow that. A JWT
+# signed with MCP_JWT_SECRET (its "sub" claim is the username) stays as an
+# alternative. Without a secret the MCP service takes API keys only; with
+# MCP_API_KEY_ENABLED=false and no secret it refuses every request.
 
+FAB_API_KEY_ENABLED = True
+FEATURE_FLAGS["FAB_API_KEY_ENABLED"] = True
+MCP_API_KEY_ENABLED = _flag("MCP_API_KEY_ENABLED", True)
+MCP_API_KEY_CREATE_URL = "/connect-ai/"
+# Public address of the MCP service that AI clients call (shown on «Conectar IA»),
+# e.g. https://bi.example.com/mcp behind the same proxy as the app.
+MCP_SERVICE_URL = os.getenv("MCP_SERVICE_URL") or None
 MCP_JWT_SECRET = os.getenv("MCP_JWT_SECRET") or None
 MCP_AUTH_ENABLED = MCP_JWT_SECRET is not None
 MCP_JWT_ALGORITHM = "HS256"

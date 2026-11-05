@@ -2068,8 +2068,9 @@ class SupersetSecurityManager(  # pylint: disable=too-many-public-methods
         "ViewMenu",
         "User",
         "Subject",
-        # FAB registers ApiKeyApi when FAB_API_KEY_ENABLED=True
-        "ApiKey",
+        # AuraData BI: "ApiKey" (FAB's ApiKeyApi) is left out on purpose. Every
+        # user creates personal keys for their AI on «Conectar IA», and the API
+        # only lists, shows or revokes the caller's own keys.
     } | USER_MODEL_VIEWS
 
     ALPHA_ONLY_VIEW_MENUS = {

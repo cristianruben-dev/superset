@@ -79,9 +79,14 @@ def _enable_api_keys(app: SupersetApp) -> Generator[None, None, None]:
 @pytest.fixture
 def _disable_api_keys(app: SupersetApp) -> Generator[None, None, None]:
     app.config["FAB_API_KEY_ENABLED"] = False
+    # A deployment config (the dev stack's) may set MCP_API_KEY_ENABLED, which
+    # wins over FAB_API_KEY_ENABLED: clear it so this fixture really disables.
+    old_mcp = app.config.pop("MCP_API_KEY_ENABLED", None)
     old_dev = app.config.pop("MCP_DEV_USERNAME", None)
     yield
     app.config.pop("FAB_API_KEY_ENABLED", None)
+    if old_mcp is not None:
+        app.config["MCP_API_KEY_ENABLED"] = old_mcp
     if old_dev is not None:
         app.config["MCP_DEV_USERNAME"] = old_dev
 
@@ -137,6 +142,33 @@ def test_valid_api_key_returns_user(app: SupersetApp, mock_user: MagicMock) -> N
     assert access_token.token == "", (
         "Raw API key should be redacted after successful validation"
     )
+
+
+@pytest.mark.usefixtures("_enable_api_keys")
+def test_valid_api_key_wins_over_dev_username(
+    app: SupersetApp, mock_user: MagicMock
+) -> None:
+    """With MCP_DEV_USERNAME set (AuraData BI dev stack), a request carrying a
+    valid API key acts as the key's owner, never as the dev user."""
+    mock_sm = MagicMock()
+    mock_sm.validate_api_key.return_value = mock_user
+    app.config["MCP_DEV_USERNAME"] = "admin"
+    try:
+        with _mock_sm_ctx(app, mock_sm):
+            with (
+                _patch_access_token(_passthrough_access_token("sst_owner")),
+                patch(
+                    "superset.mcp_service.auth.load_user_with_relationships",
+                    side_effect=lambda username=None, **_: (
+                        mock_user if username is None else MagicMock(username=username)
+                    ),
+                ),
+            ):
+                result = get_user_from_request()
+    finally:
+        app.config.pop("MCP_DEV_USERNAME", None)
+
+    assert result.username == "api_key_user"
 
 
 # -- Invalid API key -> PermissionError (does not silently fall back) --

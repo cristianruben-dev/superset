@@ -119,8 +119,23 @@ WEBDRIVER_BASEURL_USER_FRIENDLY = (
 )
 SQLLAB_CTAS_NO_LIMIT = True
 
-# User the MCP service (superset-mcp in docker-compose.yml) acts as when an AI
-# agent connects without a JWT. Local development only.
+# Personal API keys (sst_...): each user creates them on the «Conectar IA» page
+# (/connect-ai/) and an AI agent sends one as "Authorization: Bearer sst_..." to act
+# as that user; the key's scopes only narrow what the user may do. The feature flag
+# shows the keys in the web app; MCP_API_KEY_ENABLED accepts them on the MCP service.
+_api_keys = os.getenv("MCP_API_KEY_ENABLED", "true").lower() in ("1", "true", "yes")
+FAB_API_KEY_ENABLED = True
+FEATURE_FLAGS["FAB_API_KEY_ENABLED"] = True
+MCP_API_KEY_ENABLED = _api_keys
+MCP_API_KEY_CREATE_URL = "/connect-ai/"
+# Address an AI client connects to, shown on the «Conectar IA» page. The compose file
+# publishes the MCP port on the host as MCP_PORT (5008 unless overridden), which the
+# app container cannot see: set MCP_SERVICE_URL when it differs.
+MCP_SERVICE_URL = os.getenv("MCP_SERVICE_URL") or "http://localhost:5008/mcp"
+
+# User the MCP service acts as when it takes no credential. With API keys on (the
+# default) the MCP service refuses any request without a key, so this only applies
+# after setting MCP_API_KEY_ENABLED=false in docker/.env-local. Local development only.
 MCP_DEV_USERNAME = os.getenv("MCP_DEV_USERNAME", "admin")
 
 log_level_text = os.getenv("SUPERSET_LOG_LEVEL", "INFO")

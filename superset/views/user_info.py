@@ -32,3 +32,10 @@ class UserInfoView(BaseSupersetView):
     @permission_name("read")
     def list(self) -> FlaskResponse:
         return super().render_app_template()
+
+    @expose("/connect-ai/")
+    @has_access
+    @permission_name("read")
+    def connect_ai(self) -> FlaskResponse:
+        """AuraData BI: «Conectar IA», the user's API keys for an AI client."""
+        return super().render_app_template()

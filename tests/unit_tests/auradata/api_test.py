@@ -70,3 +70,51 @@ def test_dashboard_previews_rejects_bad_ids(client: Any, full_api_access: None) 
     response = client.get("/api/v1/auradata/dashboard_previews/?q=(a:1)")
 
     assert response.status_code == 400
+
+
+def test_mcp_connection_uses_configured_url(
+    app: Any, client: Any, full_api_access: None
+) -> None:
+    app.config["MCP_SERVICE_URL"] = "https://bi.example.com/mcp/"
+    app.config["MCP_API_KEY_ENABLED"] = True
+    try:
+        response = client.get("/api/v1/auradata/mcp_connection/")
+    finally:
+        app.config.pop("MCP_SERVICE_URL", None)
+        app.config.pop("MCP_API_KEY_ENABLED", None)
+
+    assert response.status_code == 200
+    assert response.json["result"] == {
+        "url": "https://bi.example.com/mcp",
+        "api_keys_enabled": True,
+    }
+
+
+def test_mcp_connection_adds_the_mcp_path(
+    app: Any, client: Any, full_api_access: None
+) -> None:
+    app.config["MCP_SERVICE_URL"] = "http://localhost:5008"
+    app.config["MCP_API_KEY_ENABLED"] = False
+    try:
+        response = client.get("/api/v1/auradata/mcp_connection/")
+    finally:
+        app.config.pop("MCP_SERVICE_URL", None)
+        app.config.pop("MCP_API_KEY_ENABLED", None)
+
+    assert response.json["result"] == {
+        "url": "http://localhost:5008/mcp",
+        "api_keys_enabled": False,
+    }
+
+
+def test_mcp_connection_without_a_configured_url(
+    app: Any, client: Any, full_api_access: None
+) -> None:
+    previous = app.config.pop("MCP_SERVICE_URL", None)
+    try:
+        response = client.get("/api/v1/auradata/mcp_connection/")
+    finally:
+        if previous is not None:
+            app.config["MCP_SERVICE_URL"] = previous
+
+    assert response.json["result"]["url"] is None
