@@ -83,7 +83,7 @@ import Horizontal from './Horizontal';
 import Vertical from './Vertical';
 import { useChartCustomizationConfiguration } from '../state';
 import { useFilterBarSections } from '../scopeLevel';
-import { useAutoApply } from './useAutoApply';
+import { isFilterBarAutoApply, useAutoApply } from './useAutoApply';
 
 // FilterBar is just being hidden as it must still
 // render fully due to encapsulated logics
@@ -214,10 +214,8 @@ const FilterBar: FC<FiltersBarProps> = ({
     UserWithPermissionsAndRoles
   >(state => state.user);
 
-  const autoApply = useSelector<RootState, boolean>(
-    // Instant unless a dashboard explicitly opts out
-    ({ dashboardInfo }) =>
-      dashboardInfo.metadata?.filter_bar_auto_apply !== false,
+  const autoApply = useSelector<RootState, boolean>(({ dashboardInfo }) =>
+    isFilterBarAutoApply(dashboardInfo.metadata),
   );
   // Filters listed in the bar for the active tab are the ones Apply and
   // Clear all act on; report filters are listed on every tab.

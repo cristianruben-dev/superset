@@ -280,20 +280,33 @@ test('On failed request, restore previous selection', async () => {
   });
 });
 
-test('Popover shows apply filters instantly off by default', async () => {
+test('Popover shows apply filters instantly on by default, as the filter bar applies them', async () => {
   await setup();
+  await userEvent.click(screen.getByRole('button', { name: 'setting' }));
+  expect(
+    screen.getByRole('checkbox', { name: 'Apply filters instantly' }),
+  ).toBeChecked();
+});
+
+test('Popover shows apply filters instantly off when the dashboard opts out', async () => {
+  await setup({
+    metadata: {
+      ...initialState.dashboardInfo.metadata,
+      filter_bar_auto_apply: false,
+    },
+  });
   await userEvent.click(screen.getByRole('button', { name: 'setting' }));
   expect(
     screen.getByRole('checkbox', { name: 'Apply filters instantly' }),
   ).not.toBeChecked();
 });
 
-test('Can turn on apply filters instantly', async () => {
+test('Can turn off apply filters instantly', async () => {
   fetchMock.put('glob:*/api/v1/dashboard/1', {
     result: {
       json_metadata: JSON.stringify({
         ...initialState.dashboardInfo.metadata,
-        filter_bar_auto_apply: true,
+        filter_bar_auto_apply: false,
       }),
     },
   });
@@ -312,10 +325,10 @@ test('Can turn on apply filters instantly', async () => {
     fetchMock.callHistory.calls('glob:*/api/v1/dashboard/1')[0].options
       .body as string,
   );
-  expect(JSON.parse(body.json_metadata).filter_bar_auto_apply).toBe(true);
+  expect(JSON.parse(body.json_metadata).filter_bar_auto_apply).toBe(false);
 
   await userEvent.click(screen.getByLabelText('setting'));
   expect(
     screen.getByRole('checkbox', { name: 'Apply filters instantly' }),
-  ).toBeChecked();
+  ).not.toBeChecked();
 });

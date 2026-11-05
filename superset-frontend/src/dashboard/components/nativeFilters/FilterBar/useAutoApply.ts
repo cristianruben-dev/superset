@@ -22,6 +22,14 @@ import { useEffect } from 'react';
 export const AUTO_APPLY_DELAY_MS = 300;
 
 /**
+ * Whether a dashboard applies its filters as soon as they change: unless it
+ * opts out, so a dashboard without the setting applies them at once.
+ */
+export const isFilterBarAutoApply = (
+  metadata: { filter_bar_auto_apply?: boolean } | undefined,
+): boolean => metadata?.filter_bar_auto_apply !== false;
+
+/**
  * Applies pending filter bar selections on its own, shortly after they
  * change, when the dashboard applies filters instantly. Nothing happens
  * until the bar is initialized or while there is nothing valid to apply.

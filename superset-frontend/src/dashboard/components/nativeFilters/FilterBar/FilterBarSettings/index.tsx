@@ -36,6 +36,7 @@ import { useFilters } from 'src/dashboard/components/nativeFilters/FilterBar/sta
 import { useFilterConfigModal } from 'src/dashboard/components/nativeFilters/FilterBar/FilterConfigurationLink/useFilterConfigModal';
 import { useCrossFiltersScopingModal } from '../CrossFilters/ScopingModal/useCrossFiltersScopingModal';
 import MemoizedFilterConfigurationLink from '../FilterConfigurationLink';
+import { isFilterBarAutoApply } from '../useAutoApply';
 
 type SelectedKey = FilterBarOrientation | string | number;
 
@@ -80,8 +81,8 @@ const FilterBarSettings = () => {
   const canEdit = useSelector<RootState, boolean>(
     ({ dashboardInfo }) => dashboardInfo.dash_edit_perm,
   );
-  const autoApply = useSelector<RootState, boolean>(
-    ({ dashboardInfo }) => !!dashboardInfo.metadata?.filter_bar_auto_apply,
+  const autoApply = useSelector<RootState, boolean>(({ dashboardInfo }) =>
+    isFilterBarAutoApply(dashboardInfo.metadata),
   );
   const filters = useFilters();
   const filterValues = useMemo(() => Object.values(filters), [filters]);
