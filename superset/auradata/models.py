@@ -18,16 +18,23 @@
 
 from __future__ import annotations
 
+import uuid
+from datetime import datetime
+
 import sqlalchemy as sa
 from flask_appbuilder import Model
 from sqlalchemy.orm import deferred, relationship
+from sqlalchemy_utils import UUIDType
 
 from superset.models.helpers import AuditMixinNullable, UUIDMixin
+from superset.utils.core import MediumText
 
 WORKSPACES_TABLE = "auradata_workspaces"
 WORKSPACE_DASHBOARDS_TABLE = "auradata_workspace_dashboards"
 WORKSPACE_MEMBERS_TABLE = "auradata_workspace_members"
 WORKSPACE_DATASETS_TABLE = "auradata_workspace_datasets"
+ASSISTANT_CONVERSATIONS_TABLE = "auradata_assistant_conversations"
+ASSISTANT_MESSAGES_TABLE = "auradata_assistant_messages"
 
 # Workspace roles, from the least to the most rights
 ROLE_VIEWER = "viewer"
@@ -181,3 +188,98 @@ class DashboardImage(Model):
     image = deferred(sa.Column(sa.LargeBinary, nullable=False))
     image_type = sa.Column(sa.String(50), nullable=False)
     created_on = sa.Column(sa.DateTime, nullable=False)
+
+
+class AssistantConversation(Model):
+    """
+    A conversation with the AI assistant, of one user over one dashboard.
+
+    Its mode never changes: a conversation holds references to the tools it found,
+    and another mode offers other tools. Deleting the user or the dashboard leaves
+    the row without an owner, unreadable, so what it cost still counts.
+    """
+
+    __tablename__ = ASSISTANT_CONVERSATIONS_TABLE
+
+    id = sa.Column(UUIDType(binary=True), primary_key=True, default=uuid.uuid4)
+    user_id = sa.Column(
+        sa.Integer,
+        sa.ForeignKey("ab_user.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+    )
+    dashboard_id = sa.Column(
+        sa.Integer,
+        sa.ForeignKey("dashboards.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+    )
+    mode = sa.Column(sa.String(16), nullable=False)
+    model = sa.Column(sa.String(128), nullable=False)
+    title = sa.Column(sa.String(250), nullable=False)
+    created_on = sa.Column(sa.DateTime, nullable=False, default=datetime.now)
+    changed_on = sa.Column(
+        sa.DateTime, nullable=False, default=datetime.now, onupdate=datetime.now
+    )
+
+    messages = relationship(
+        "AssistantMessage",
+        back_populates="conversation",
+        order_by="AssistantMessage.seq",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+    )
+
+
+class AssistantMessage(Model):
+    """
+    One message of a conversation, as the API received or returned it. Rows are only
+    ever added: ``content`` is sent back unchanged on later turns, because editing a
+    turn invalidates the thinking stored after it.
+
+    Assistant messages carry what they cost, with the user and the workspace of that
+    moment, so spending adds up by user and by workspace without walking back to a
+    dashboard that may have moved.
+    """
+
+    __tablename__ = ASSISTANT_MESSAGES_TABLE
+    __table_args__ = (
+        sa.UniqueConstraint(
+            "conversation_id", "seq", name="uq_auradata_assistant_messages_seq"
+        ),
+    )
+
+    id = sa.Column(UUIDType(binary=True), primary_key=True, default=uuid.uuid4)
+    conversation_id = sa.Column(
+        UUIDType(binary=True),
+        sa.ForeignKey(f"{ASSISTANT_CONVERSATIONS_TABLE}.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    seq = sa.Column(sa.Integer, nullable=False)
+    role = sa.Column(sa.String(16), nullable=False)
+    # JSON list of the content blocks
+    content = sa.Column(MediumText(), nullable=False)
+    stop_reason = sa.Column(sa.String(32), nullable=True)
+    model = sa.Column(sa.String(128), nullable=True)
+    user_id = sa.Column(
+        sa.Integer,
+        sa.ForeignKey("ab_user.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+    )
+    workspace_id = sa.Column(
+        sa.Integer,
+        sa.ForeignKey(f"{WORKSPACES_TABLE}.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+    )
+    input_tokens = sa.Column(sa.Integer, nullable=False, default=0)
+    output_tokens = sa.Column(sa.Integer, nullable=False, default=0)
+    cache_read_input_tokens = sa.Column(sa.Integer, nullable=False, default=0)
+    cache_creation_input_tokens = sa.Column(sa.Integer, nullable=False, default=0)
+    cost_usd = sa.Column(sa.Numeric(14, 6), nullable=False, default=0)
+    created_on = sa.Column(
+        sa.DateTime, nullable=False, default=datetime.now, index=True
+    )
+
+    conversation = relationship("AssistantConversation", back_populates="messages")
