@@ -156,8 +156,15 @@ Workspaces (AuraData BI):
 Contributors and admins of a workspace edit its dashboards and charts and read
 its datasets without becoming their editors; viewers only read.
 
-Report Structure (AuraData BI):
+Report Pages and Layout (AuraData BI):
 - get_report_structure: Pages, objects with their cell boxes, formats, filters, bookmarks
+- add_page / rename_page / reorder_pages / duplicate_page / delete_page / set_page_hidden
+- place_object / move_object / resize_object: Put an object on a cell of a page (cells of 32 px)
+- align_objects / distribute_objects / bring_to_front: Arrange objects of a page
+- set_object_state: Hide, lock or describe (alt text) an object
+Pages have a fixed size in cells; writes keep objects inside the page and never
+on top of another unless allow_overlap is set. Read the structure first and use
+its page and object ids.
 
 Tag Management:
 - list_tags: List tags with advanced filters (1-based pagination)
@@ -840,7 +847,20 @@ from superset.mcp_service.report.tool import (  # noqa: F401, E402
     list_reports,
 )
 from superset.mcp_service.report_layout.tool import (  # noqa: F401, E402
+    add_page,
+    align_objects,
+    bring_to_front,
+    delete_page,
+    distribute_objects,
+    duplicate_page,
     get_report_structure,
+    move_object,
+    place_object,
+    rename_page,
+    reorder_pages,
+    resize_object,
+    set_object_state,
+    set_page_hidden,
 )
 from superset.mcp_service.rls.tool import (  # noqa: F401, E402
     get_rls_filter_info,

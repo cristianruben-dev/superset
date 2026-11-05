@@ -73,6 +73,23 @@ lets them do, no more:
   (`tests/unit_tests/mcp_service/workspace/world.py`). Tools that run work in a thread need the
   `shared_engine()` session engine.
 
+## AuraData BI: Report Layout
+
+The report model (cell grid, positions, formats, elements, pages, mobile layout) has a
+Python twin in `superset/auradata/layout/`, kept equal to the frontend by shared fixtures
+(`tests/fixtures/auradata/layouts`, run by Jest and pytest) and a contract test over the
+layout meta keys. Never write `meta.auradata*` keys by hand in a tool: use the library and
+its `keys` module.
+
+- **Read** with `report_layout/editing.py:load_layout`, which converts the layout as the
+  editor does on load (`layout_to_cells`, then `layout_to_positions`).
+- **Write** through `open_report(..., edit=True)` (`can_edit_resource`) and `save_report`,
+  which saves via `UpdateDashboardCommand` so the version history records it. Keep objects
+  inside the page (`set_box`) and off the others (`refuse_overlaps`) unless the request
+  allows overlap; locked objects never move.
+- A page change that drops charts passes the remaining `slices`; copying a page clones its
+  charts with `CreateChartCommand` (one dashboard per chart).
+
 ## Architecture Overview
 
 The MCP service provides programmatic access to Superset via the Model Context Protocol, allowing AI assistants to interact with dashboards, charts, datasets, databases, SQL Lab, and instance metadata.

@@ -19,7 +19,37 @@
 from superset.mcp_service.report_layout.tool.get_report_structure import (
     get_report_structure,
 )
+from superset.mcp_service.report_layout.tool.object_tools import (
+    align_objects,
+    bring_to_front,
+    distribute_objects,
+    move_object,
+    place_object,
+    resize_object,
+    set_object_state,
+)
+from superset.mcp_service.report_layout.tool.page_tools import (
+    add_page,
+    delete_page,
+    duplicate_page,
+    rename_page,
+    reorder_pages,
+    set_page_hidden,
+)
 
 __all__ = [
+    "add_page",
+    "align_objects",
+    "bring_to_front",
+    "delete_page",
+    "distribute_objects",
+    "duplicate_page",
     "get_report_structure",
+    "move_object",
+    "place_object",
+    "rename_page",
+    "reorder_pages",
+    "resize_object",
+    "set_object_state",
+    "set_page_hidden",
 ]

@@ -456,6 +456,19 @@ COMMITTED_WRITE_SPECS: Dict[str, CommittedWriteSpec] = {
     "update_dashboard": _spec("dashboard", "dashboard"),
     "update_dataset_metric": _spec("dataset", "metric"),
     "update_workspace": _spec("workspace", "workspace", reports_success=True),
+    "add_page": _spec("dashboard", "dashboard_id"),
+    "align_objects": _spec("dashboard", "dashboard_id"),
+    "bring_to_front": _spec("dashboard", "dashboard_id"),
+    "delete_page": _spec("dashboard", "dashboard_id"),
+    "distribute_objects": _spec("dashboard", "dashboard_id"),
+    "duplicate_page": _spec("dashboard", "dashboard_id"),
+    "move_object": _spec("dashboard", "dashboard_id"),
+    "place_object": _spec("dashboard", "dashboard_id"),
+    "rename_page": _spec("dashboard", "dashboard_id"),
+    "reorder_pages": _spec("dashboard", "dashboard_id"),
+    "resize_object": _spec("dashboard", "dashboard_id"),
+    "set_object_state": _spec("dashboard", "dashboard_id"),
+    "set_page_hidden": _spec("dashboard", "dashboard_id"),
 }
 
 COMMITTED_WRITE_TOOLS = frozenset(COMMITTED_WRITE_SPECS)
