@@ -102,6 +102,11 @@ its `keys` module.
   (`report_layout/visuals.py`: `write_chart`). A chart write moves the keys it changes out of the
   object's `meta.auradataFormat.chart` and warns about keys the shared format still sets; never leave a
   change hidden by the layout. Clear the `query_context` (Python cannot rebuild the frontend's one).
+- **Interactivity** (`report_layout/interactivity.py`): bookmarks, drill through and tooltip pages live in the
+  layout; filter levels in the native filter (`scopeLevel`, `scope`); interactions and `filter_bar_auto_apply`
+  in `json_metadata`. A metadata write sends the whole current metadata (`metadata_fields`), as the frontend
+  does: the update command resets derived color settings that are missing. A chart's tooltip only points at a
+  tooltip page (`ReportRefs.tooltip_pages`).
 
 ## Architecture Overview
 

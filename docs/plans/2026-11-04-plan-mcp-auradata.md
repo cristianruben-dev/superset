@@ -570,6 +570,64 @@ históricas. El `CLAUDE.md` del proyecto y el de `mcp_service` reescriben su reg
 - Marcadores, drill through, editar interacciones, sincronizar segmentadores, páginas tooltip y valores por defecto
   de los filtros (filas 28–35).
 
+**Hecho (2026-11-05, rama `feat/mcp-interactivity`):**
+1. `bca1d2154c`: gemelos en Python (`superset/auradata/layout/interactivity.py`) de `getFilterScopeLevel`,
+   `crossFilterScope`, `interactionMode` y `tooltipPageOf`, con fixtures compartidos Jest/pytest
+   (`filter_scope_level`, `cross_filter_scope`, `interaction_mode`, `tooltip_page_of`), más lectores de marcadores,
+   páginas de drill through y páginas tooltip.
+2. `a1f6c4312a`: herramientas (las siete unidades comparten `report_layout/interactivity.py` y
+   `interactivity_tools.py`):
+   - **Niveles de filtro:** `manage_native_filters` acepta `scope_level` (report, page, visual, auto) y `scope_pages`
+     (por id, nombre o posición). Páginas sin nivel dan un filtro de página, o de informe si son todas, como
+     «Sincronizar segmentadores». `auto` quita `scopeLevel`. `set_filter_bar_auto_apply` escribe un booleano explícito.
+   - **Marcadores:** `list/create/update/delete_bookmark`. Un marcador nuevo guarda todos los filtros nativos con su
+     valor por defecto y los pedidos encima (`default_data_mask`), y la visibilidad de cada gráfico y elemento (la suya,
+     con `hidden`/`shown` encima), como `captureView`. Sin filtros cruzados: al aplicarlo, se limpian. Id como
+     `nanoid(10)`. Borrar avisa de los botones y enlaces que iban a él. El botón a un marcador ya lo cubría
+     `add_element` (probado).
+   - **Drill through:** `set_drillthrough_page` / `clear_drillthrough_page`, solo páginas de primer nivel y columnas
+     de los datasets de los gráficos del informe.
+   - **Interacciones:** `set_visual_interactions` escribe `chart_configuration` como `setInteraction` (alcance propio,
+     el global o el de todo el tablero; `chartsInScope` con `get_chart_ids_in_scope`). Avisa si los filtros cruzados
+     están apagados.
+   - **Sincronizar:** `sync_slicer` (`filter_pages`, `visible_pages`) guarda el alcance del filtro y las copias del
+     segmentador juntos (`save_with_filter`). La copia va a su misma celda, o a la primera libre.
+   - **Páginas tooltip:** `make_tooltip_page` (ancho 4–30 y alto 2–24 celdas, como el panel; avisa de los objetos que
+     se cortan) y `set_visual_tooltip` (default, auto o una página tooltip). `format_visual` y los elementos ya no
+     pueden apuntar el tooltip a una página que no sea tooltip (`ReportRefs.tooltip_pages`).
+   - **Lectura:** `get_filter_defaults` (lo que trae «Restablecer filtros», como `savedDataMasks`) y
+     `get_report_structure` con el nivel de cada filtro, `filter_bar_auto_apply`, las interacciones en «ninguna»,
+     el tooltip de cada gráfico y los filtros y objetos ocultos de cada marcador.
+   - Las escrituras de `json_metadata` mandan el metadata completo, como `saveFilterBarAutoApply`: el comando de
+     actualización vacía los colores derivados que faltan.
+   - Todas piden `can_edit_resource` y guardan por `UpdateDashboardCommand`. Tests con base real: editor, contributor
+     y admin del workspace escriben; viewer (Forbidden) y otro workspace (NotFound) no cambian nada.
+   - Registradas en `app.py`, inventario, registro, `COMMITTED_WRITE_SPECS` y exclusiones de caché.
+3. Chequeo en vivo (MCP en 5108, tablero nuevo 221 en «Análisis comercial», gráficos 315–318 sobre `ventas_demo`):
+   - Todo por herramientas: tres páginas (Resumen, Detalle, Tooltip región), segmentador de botones de `region`
+     sincronizado en Resumen y Detalle, marcador «Solo Norte» (Norte, oculta la torta) y un botón a él, Detalle como
+     página de drill through por `region`, «Tooltip región» como página tooltip de la barra, y la barra sin filtrar la
+     torta.
+   - En el navegador:
+     - El botón aplica el marcador: queda Norte, la torta se oculta y el panel cuenta 1 filtro.
+     - La copia del segmentador en Detalle filtra la tabla y comparte la selección con la de Resumen.
+     - «Restablecer filtros» devuelve todo: sin selección y con la torta visible.
+     - Clic en la barra «Norte»: la torta no cambia y la tabla de Detalle sí se filtra.
+     - Clic derecho › Obtener detalles › Detalle abre la página 2 con «region: Norte» y la tabla filtrada.
+     - Al pasar sobre la barra «Centro» flota la página tooltip con «Ventas 7.72M».
+     - La página tooltip no sale en las pestañas («Página 1 de 2»). En edición, Guardar y Deshacer siguen deshabilitados.
+   - El historial tiene una versión por escritura (17).
+4. Pendiente:
+   - **Frontend:** `FilterBar/index.tsx` lee `filter_bar_auto_apply !== false` (al instante por defecto) y
+     `FilterBarSettings` lee `!!` (apagado por defecto): sin la clave, el interruptor dice lo contrario de lo que pasa.
+   - Los marcadores por MCP no guardan filtros cruzados: su forma depende de cada gráfico (`selectedValues` por serie).
+   - `generate_dashboard` crea los tableros con `cross_filters_enabled: false`; para que las interacciones sirvan hay
+     que encenderlos con `update_dashboard`.
+   - El historial no muestra el cambio de `chart_configuration` ni el de los marcadores (`ROOT_ID`): sale vacío o con
+     `expand_all_slices`/`filter_scopes`, que el comando normaliza al guardar el metadata.
+   - No se corrieron `pre-commit` ni mypy: solo ruff, oxlint y oxfmt sobre los archivos tocados. No hizo falta
+     `npm run build` (sin cambios de frontend en tiempo de ejecución).
+
 ## 7. Diseño móvil (M)
 
 - `generate_mobile_layout(page)`: propone un diseño de 12 columnas apilando por importancia (tarjetas y
