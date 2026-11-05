@@ -181,6 +181,7 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
         from superset.auradata.api import AuraDataRestApi
         from superset.auradata.assistant.api import (
             AssistantAdminRestApi,
+            AssistantRestApi,
             AssistantSettingsView,
         )
         from superset.auradata.backgrounds import (
@@ -282,6 +283,7 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
         appbuilder.add_api(DashboardRestApi)
         appbuilder.add_api(AuraDataRestApi)
         appbuilder.add_api(AssistantAdminRestApi)
+        appbuilder.add_api(AssistantRestApi)
         appbuilder.add_api(WorkspaceRestApi)
         appbuilder.add_api(DashboardBackgroundRestApi)
         appbuilder.add_api(DashboardImageRestApi)

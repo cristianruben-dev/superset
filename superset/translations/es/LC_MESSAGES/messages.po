@@ -26865,3 +26865,48 @@ msgid "%s model offered"
 msgid_plural "%s models offered"
 msgstr[0] "%s modelo ofrecido"
 msgstr[1] "%s modelos ofrecidos"
+
+msgid "The AI assistant is turned off."
+msgstr "El asistente de IA está apagado."
+
+msgid "The AI assistant has no API key."
+msgstr "El asistente de IA no tiene una clave de API."
+
+msgid "This model is not available."
+msgstr "Este modelo no está disponible."
+
+msgid "This conversation belongs to another report or mode."
+msgstr "Esta conversación pertenece a otro informe o a otro modo."
+
+msgid "The AI assistant is not installed."
+msgstr "El asistente de IA no está instalado en este servidor."
+
+msgid "This conversation is answering another message."
+msgstr "Esta conversación está respondiendo otro mensaje."
+
+msgid "The AI service failed. Start a new conversation if this repeats."
+msgstr "El servicio de IA falló. Si se repite, empieza una conversación nueva."
+
+msgid "The AI service has too many requests. Wait a moment and retry."
+msgstr "El servicio de IA tiene demasiadas peticiones. Espera un momento y vuelve a intentarlo."
+
+msgid "The AI service has run out of credit. Tell your administrator."
+msgstr "El servicio de IA se quedó sin saldo. Avisa a tu administrador."
+
+msgid "The AI service is overloaded. Wait a moment and retry."
+msgstr "El servicio de IA está saturado. Espera un momento y vuelve a intentarlo."
+
+msgid "The AI service rejected the server's key. Tell your administrator."
+msgstr "El servicio de IA rechazó la clave del servidor. Avisa a tu administrador."
+
+msgid "The AI service cannot be reached. Try again later."
+msgstr "No se puede conectar con el servicio de IA. Inténtalo más tarde."
+
+msgid "The AI declined to answer this. Try asking in another way."
+msgstr "La IA no quiso responder a esto. Prueba a preguntarlo de otra manera."
+
+msgid "The answer was too long and was cut. Ask for less."
+msgstr "La respuesta era demasiado larga y se cortó. Pide menos."
+
+msgid "This took too many steps. Ask for something smaller."
+msgstr "Esto necesitó demasiados pasos. Pide algo más acotado."

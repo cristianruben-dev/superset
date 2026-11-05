@@ -15,26 +15,47 @@
 # specific language governing permissions and limitations
 # under the License.
 """
-Administration of the AI assistant: the API and the page that uses it.
+The API of the AI assistant and the administration page.
 
-Both are for admins only. They ride on the ``Dashboard`` read permission, which every
-admin holds and which needs no permission sync, and ``security_manager.is_admin()``
-is the check that decides: a non admin gets a 403 whatever else their role grants.
-The key of Anthropic is never part of a response: only ``has_api_key`` is.
+Administration is for admins only. It rides on the ``Dashboard`` read permission, which
+every admin holds and which needs no permission sync, and
+``security_manager.is_admin()`` is the check that decides: a non admin gets a 403
+whatever else their role grants. The key of Anthropic is never part of a response:
+only ``has_api_key`` is.
+
+The chat rides on the same permission, held by anyone who can open a dashboard, and
+takes only a browser session: it spends the server's key, and an API key must not reach
+it. The user comes from that session and from nowhere in the request.
 """
 
 from __future__ import annotations
 
+import logging
+from collections.abc import Iterator
 from typing import Any
+from uuid import UUID
 
-from flask import abort, request, Response
+from flask import abort, current_app, g, request, Response, stream_with_context
 from flask_appbuilder import expose
 from flask_appbuilder.api import protect, safe
 from flask_appbuilder.security.decorators import has_access, permission_name
+from flask_babel import gettext as _
 from marshmallow import fields, Schema, validate, ValidationError
 
 from superset import security_manager
+from superset.auradata.assistant.agent import build_client, run_conversation
+from superset.auradata.assistant.conversations import (
+    conversation_json,
+    conversation_messages,
+    ConversationBusyError,
+    ConversationLog,
+    create_conversation,
+    find_conversation,
+    history_of,
+    list_conversations,
+)
 from superset.auradata.assistant.models import Catalog, CatalogModel, get_catalog
+from superset.auradata.assistant.prompt import context_block, system_prompt
 from superset.auradata.assistant.settings import (
     AssistantSettings,
     AssistantSettingsError,
@@ -43,9 +64,24 @@ from superset.auradata.assistant.settings import (
     offered_models,
     save_assistant_settings,
 )
+from superset.auradata.assistant.tools import MODE_EDIT, MODE_READ, MODES, ToolBox
+from superset.commands.dashboard.exceptions import (
+    DashboardAccessDeniedError,
+    DashboardNotFoundError,
+)
+from superset.daos.dashboard import DashboardDAO
+from superset.exceptions import SupersetSecurityException
+from superset.models.dashboard import Dashboard
 from superset.superset_typing import FlaskResponse
+from superset.utils import json
+from superset.utils.core import get_user_id
 from superset.views.base import BaseSupersetView
 from superset.views.base_api import BaseSupersetApi, statsd_metrics
+
+logger = logging.getLogger(__name__)
+
+MAX_MESSAGE_CHARS = 20_000
+MAX_CONTEXT_CHARS = 8_000
 
 
 class AssistantSettingsSchema(Schema):
@@ -61,6 +97,54 @@ class AssistantSettingsSchema(Schema):
         allow_none=True,
         allow_nan=False,
         validate=validate.Range(min=0),
+    )
+
+
+class AssistantContextSchema(Schema):
+    """Where the user is. All of it reaches the AI, as data."""
+
+    dashboard_id = fields.Integer(required=True)
+    page = fields.String(validate=validate.Length(max=250))
+    selection = fields.List(fields.String(validate=validate.Length(max=250)))
+    filters = fields.Dict()
+
+
+class AssistantChatSchema(Schema):
+    """A message for the assistant."""
+
+    message = fields.String(
+        required=True, validate=validate.Length(min=1, max=MAX_MESSAGE_CHARS)
+    )
+    conversation_id = fields.UUID(load_default=None)
+    model = fields.String(load_default=None, validate=validate.Length(max=128))
+    mode = fields.String(load_default=MODE_READ, validate=validate.OneOf(MODES))
+    context = fields.Nested(AssistantContextSchema, required=True)
+
+
+def _sse(event: str, data: dict[str, Any]) -> str:
+    return f"event: {event}\ndata: {json.dumps(data)}\n\n"
+
+
+def _open_dashboard(dashboard_id: int | None) -> Dashboard | None:
+    """The dashboard if this user can open it. None hides whether it exists."""
+    if dashboard_id is None:
+        return None
+    try:
+        return DashboardDAO.get_by_id_or_slug(dashboard_id)
+    except (
+        DashboardNotFoundError,
+        DashboardAccessDeniedError,
+        SupersetSecurityException,
+    ):
+        return None
+
+
+def _session_user_only() -> bool:
+    """A real user in a browser session, not a key, a guest or an anonymous visitor."""
+    return (
+        get_user_id() is not None
+        and not security_manager.is_guest_user()
+        and security_manager.extract_api_key_from_request() is None
     )
 
 
@@ -181,6 +265,251 @@ class AssistantAdminRestApi(BaseSupersetApi):
         except AssistantSettingsError as ex:
             return self.response_422(message=ex.messages)
         return self.response(200, result=_settings_json(settings, catalog))
+
+
+class AssistantRestApi(BaseSupersetApi):
+    """Talk to the assistant, as the user of the session."""
+
+    resource_name = "auradata_assistant_chat"
+    route_base = "/api/v1/auradata/assistant"
+    allow_browser_login = True
+    class_permission_name = "Dashboard"
+    method_permission_name = {
+        "chat": "read",
+        "conversations": "read",
+        "conversation": "read",
+    }
+    openapi_spec_tag = "AuraData BI"
+
+    @expose("/", methods=("POST",))
+    @protect()
+    @safe
+    @statsd_metrics
+    def chat(self) -> Response:  # noqa: C901
+        """Send a message and stream the answer.
+        ---
+        post:
+          summary: Send a message to the AI assistant
+          description: >-
+            Answers with server-sent events: conversation, model_changed, text,
+            tool_start, tool_end, refusal, error and done.
+          requestBody:
+            required: true
+            content:
+              application/json:
+                schema:
+                  type: object
+          responses:
+            200:
+              description: The stream of the answer
+              content:
+                text/event-stream:
+                  schema:
+                    type: string
+            400:
+              $ref: '#/components/responses/400'
+            401:
+              $ref: '#/components/responses/401'
+            403:
+              $ref: '#/components/responses/403'
+            404:
+              $ref: '#/components/responses/404'
+            409:
+              description: Another request is writing to this conversation
+            422:
+              $ref: '#/components/responses/422'
+            503:
+              description: The assistant cannot run on this server
+        """
+        if not _session_user_only():
+            return self.response_403()
+        settings = get_assistant_settings()
+        if not (current_app.config["AURADATA_ASSISTANT_ENABLED"] and settings.enabled):
+            return self.response(403, message=_("The AI assistant is turned off."))
+        if not has_api_key():
+            return self.response(503, message=_("The AI assistant has no API key."))
+        if not request.is_json:
+            return self.response_400(message="Request is not JSON")
+        try:
+            data = AssistantChatSchema().load(request.json)
+        except ValidationError as ex:
+            return self.response_400(message=ex.messages)
+        context = data["context"]
+        if len(json.dumps(context)) > MAX_CONTEXT_CHARS:
+            return self.response_400(message="The context is too long")
+
+        offered = offered_models(settings, get_catalog())
+        model_id = data["model"] or settings.default_model
+        model = next((item for item in offered if item.id == model_id), None)
+        if model is None:
+            return self.response_422(message=_("This model is not available."))
+
+        dashboard = _open_dashboard(context["dashboard_id"])
+        if dashboard is None:
+            return self.response_404()
+        user_id = get_user_id()
+        conversation = None
+        mode = data["mode"]
+        if data["conversation_id"] is not None:
+            conversation = find_conversation(data["conversation_id"], user_id)
+            if conversation is None:
+                return self.response_404()
+            if conversation.dashboard_id != dashboard.id or conversation.mode != mode:
+                return self.response_422(
+                    message=_("This conversation belongs to another report or mode.")
+                )
+        if mode == MODE_EDIT and not security_manager.can_edit_resource(dashboard):
+            return self.response_403()
+
+        try:
+            client = build_client()
+            toolbox = ToolBox(g.user.username, mode)
+            system = system_prompt(mode, toolbox.unavailable, model.spec.tool_search)
+        except ImportError:
+            logger.warning("The assistant needs the anthropic and fastmcp packages")
+            return self.response(503, message=_("The AI assistant is not installed."))
+
+        previous_model = conversation.model if conversation else model.id
+        if conversation is None:
+            conversation = create_conversation(
+                user_id, dashboard.id, mode, model.id, data["message"]
+            )
+        conversation.model = model.id
+        history = history_of(conversation)
+        log = ConversationLog(conversation, user_id)
+        message = [
+            context_block(context),
+            {"type": "text", "text": data["message"]},
+        ]
+        try:
+            log.add_user_message(message)
+        except ConversationBusyError:
+            return self.response(
+                409, message=_("This conversation is answering another message.")
+            )
+        history.append({"role": "user", "content": message})
+
+        def events() -> Iterator[str]:
+            yield _sse(
+                "conversation",
+                {"id": str(conversation.id), "mode": mode, "model": model.id},
+            )
+            if previous_model != model.id:
+                # Prompt caches belong to one model: this turn starts them again
+                yield _sse("model_changed", {"from": previous_model, "to": model.id})
+            try:
+                for event, payload in run_conversation(
+                    client, model, system, toolbox, log, history
+                ):
+                    yield _sse(event, payload)
+            except ConversationBusyError:
+                yield _sse(
+                    "error",
+                    {
+                        "code": "busy",
+                        "message": _("This conversation is answering another message."),
+                    },
+                )
+            except Exception:  # pylint: disable=broad-except
+                # The stream is open: a status code can no longer say this
+                logger.exception("The assistant failed in the middle of a stream")
+                yield _sse(
+                    "error",
+                    {
+                        "code": "failed",
+                        "message": _(
+                            "The AI service failed. "
+                            "Start a new conversation if this repeats."
+                        ),
+                    },
+                )
+
+        return Response(
+            stream_with_context(events()),
+            mimetype="text/event-stream",
+            headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
+        )
+
+    @expose("/conversations/", methods=("GET",))
+    @protect()
+    @safe
+    @statsd_metrics
+    def conversations(self) -> Response:
+        """The user's conversations over a dashboard.
+        ---
+        get:
+          summary: Conversations of the current user over a dashboard
+          parameters:
+          - in: query
+            name: dashboard_id
+            required: true
+            schema:
+              type: integer
+          responses:
+            200:
+              description: The conversations, the latest first
+            400:
+              $ref: '#/components/responses/400'
+            401:
+              $ref: '#/components/responses/401'
+            403:
+              $ref: '#/components/responses/403'
+            404:
+              $ref: '#/components/responses/404'
+        """
+        if not _session_user_only():
+            return self.response_403()
+        dashboard_id = request.args.get("dashboard_id", type=int)
+        if dashboard_id is None:
+            return self.response_400(message="dashboard_id is required")
+        if _open_dashboard(dashboard_id) is None:
+            return self.response_404()
+        return self.response(
+            200,
+            result=[
+                conversation_json(item)
+                for item in list_conversations(get_user_id(), dashboard_id)
+            ],
+        )
+
+    @expose("/conversations/<uuid:conversation_id>/", methods=("GET",))
+    @protect()
+    @safe
+    @statsd_metrics
+    def conversation(self, conversation_id: UUID) -> Response:
+        """One of the user's conversations with its messages.
+        ---
+        get:
+          summary: A conversation of the current user with its messages
+          parameters:
+          - in: path
+            name: conversation_id
+            required: true
+            schema:
+              type: string
+              format: uuid
+          responses:
+            200:
+              description: The conversation
+            401:
+              $ref: '#/components/responses/401'
+            403:
+              $ref: '#/components/responses/403'
+            404:
+              $ref: '#/components/responses/404'
+        """
+        if not _session_user_only():
+            return self.response_403()
+        conversation = find_conversation(conversation_id, get_user_id())
+        if conversation is None or _open_dashboard(conversation.dashboard_id) is None:
+            return self.response_404()
+        return self.response(
+            200,
+            result={
+                **conversation_json(conversation),
+                "messages": conversation_messages(conversation),
+            },
+        )
 
 
 class AssistantSettingsView(BaseSupersetView):
