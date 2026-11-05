@@ -209,6 +209,17 @@ The `@tool` and `@prompt` decorators are defined as stubs in the `superset-core`
   deletes what is left out). Only dataset editors and admins model a dataset; workspace roles never do.
   A new expression runs once through the chart compile check before it is saved.
 
+## AuraData BI: Guidance for the AI
+
+- `DEFAULT_INSTRUCTIONS` (`app.py`) explains the product model, who the AI acts as, the language rule
+  and the report workflow, and lists tools by group; each tool's description carries the detail. Keep one
+  tool per workflow line: a disabled tool drops every line that names it.
+- `guidance/content.py` holds the brand, report conventions and format catalog summary once, reading
+  palettes, fonts, language, page sizes and the catalog from config and the layout library. The
+  `auradata://brand`, `auradata://report-conventions` and `auradata://format-catalog` resources serve it;
+  the prompts in `guidance/prompts/` repeat the key rules inline, in Spanish, and only name real tools
+  (`tests/unit_tests/mcp_service/guidance/test_guidance_prompts.py` checks it).
+
 ## Critical Convention: Tool, Prompt, and Resource Registration
 
 **IMPORTANT**: When creating new MCP tools, prompts, or resources, you MUST add their imports to `app.py` for auto-registration. Do NOT add them to `server.py` - that approach doesn't work properly.
