@@ -937,6 +937,57 @@ Cada fase deja su parte. Al final se ordena en:
 | `CLAUDE.md` y `mcp_service/CLAUDE.md` | Agentes | Inglés | Reglas nuevas: herramientas semánticas, permisos, nombres AuraData |
 | `README.md` | Todos | Español | Resumen y enlaces |
 
+**Hecho (2026-11-05, rama `docs/auradata`):**
+1. Restos de la fase 12:
+   - `084cca847b`: `rename_page` funciona en un informe de una página. Acepta `GRID_ID` y el nombre que lista
+     `get_report_structure`. Ese nombre pasa a ser «Página N», el que pone el editor; antes era «Page N», en inglés.
+     La página se resuelve antes de crear las pestañas, y el diseño móvil se mueve con ella.
+   - `49b98a2208`: el editor apila los botones de un segmentador en columna (`layout` por defecto `vertical`).
+     Así que no se cambió el valor por defecto: `add_slicer` y los prompts `informe_desde_dataset` y
+     `replicar_informe_power_bi` dicen que se pase `settings: {"layout": "horizontal"}`.
+   - `1a1d0d9d46`: los botones del segmentador salían en Arial porque un `<button>` no hereda la fuente. Ahora
+     `button`/`select` de los segmentadores usan `font-family: inherit`. Comprobado en el navegador sobre el
+     informe 228: Outfit.
+2. `70fabfec95`: `docs/auradata/mcp/referencia.md`, generado desde el registro por `superset/mcp_service/reference.py`
+   (`scripts/auradata/mcp_reference.py`). Incluye las 146 herramientas, con:
+   - grupo por módulo, etiquetas, permiso, scope de la clave y si cambia datos;
+   - la descripción tal cual, los parámetros de `request` y un ejemplo con los campos obligatorios.
+
+   También están los 6 prompts y los 9 recursos. `test_reference_doc.py` falla si el archivo queda viejo: se
+   comprobó a mano que falla al cambiarlo. El registro del test y el de dev dan lo mismo.
+3. `727731a810`: `mcp/conectar.md`, con:
+   - cómo crear la clave y elegir sus ámbitos;
+   - los comandos de Claude Code y de Claude Desktop (`mcp-remote`), copiados de `clientConfig.ts`;
+   - qué hace la IA y qué no;
+   - cómo revocar, ejemplos y problemas comunes.
+4. `29a8f3722e`: `arquitectura.md`. Cubre:
+   - la biblioteca de layout y su guardia de deriva;
+   - el catálogo de formato;
+   - el MCP y cómo se añade una herramienta (lista completa);
+   - el historial de versiones;
+   - la rutina de pruebas ligeras.
+5. `e435582e29`: `docs/auradata/manual/`, índice y 9 capítulos, con 14 capturas jpg de 800 × 500 (472 KB en total).
+   - Se tomaron con el usuario de prueba `qa_ia`, colaborador de «Análisis comercial», sobre los informes 225 y 228.
+     Ese usuario no ve el tablero 142.
+   - Ninguna captura muestra una clave.
+6. `ddb9f06db1` y `1fee6eae96`:
+   - el `README.md` tiene una sección «Documentación»;
+   - `AGENTS.md` dice que el MCP cubre todo el producto y dónde están los documentos;
+   - `mcp_service/CLAUDE.md` explica los grupos, las claves y cómo regenerar la referencia.
+7. `8cc98cb17d`: fallaba `test_tool_inventory.py` en `main`. `9bffdc0c4d`, de la fase 11, dejó `create_virtual_dataset`
+   en 3910 bytes, por encima de su tope de 3900. El tope pasó a 4000, según la regla del propio archivo.
+8. Pendiente:
+   - Los tableros 147 y 187 no responden a la API, así que no se usaron.
+   - El manual no tiene captura de la papelera: solo aparece con algo dentro, y no se borró nada para la foto.
+   - No se corrieron `pre-commit`, mypy ni la suite. Se corrieron:
+     - ruff sobre los archivos tocados, y oxlint y oxfmt sobre los del frontend;
+     - pytest, archivo por archivo: `test_report_layout_tools.py` (77), `test_get_report_structure.py`,
+       `test_interactivity_tools.py`, `test_element_tools.py`, `test_guidance_prompts.py`,
+       `test_tool_inventory.py`, `test_mcp_tool_registration.py` y `test_reference_doc.py`;
+     - Jest de `SlicerView.test.tsx` y `RangeSlicerView.test.tsx`.
+   - En el contenedor quedó una copia de la referencia en `/app/docs/` para correr el test. El contenedor no
+     monta `docs/`.
+
 ## Decisiones
 
 1. ~~R4: claves guardadas.~~ **Decidido (2026-11-04): se renombran también**, con el diseño de «R4: renombrar
