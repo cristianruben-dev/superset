@@ -256,6 +256,15 @@ con el de arriba» funciona, se ve en el editor y se deshace con un clic.
 - **Administración:** cómo poner la clave de Anthropic, elegir modelos, poner topes y leer el uso.
 - **Arquitectura:** el bucle, el catálogo de modelos y cómo agregar un modelo nuevo de Anthropic.
 
+> **Hecho (2026-11-05), leyendo el código.** Capítulo 10 del manual, `docs/auradata/asistente/administracion.md` y la sección 6
+> de `docs/auradata/arquitectura.md`. Sin capturas: ninguna pantalla se ha visto en un navegador y ningún modelo real se ha
+> llamado, y los documentos lo dicen. Donde el plan y el código difieren, manda el código:
+> - **Encender pide dos cosas:** `AURADATA_ASSISTANT_ENABLED` y el interruptor de la pantalla.
+> - **Guardar la pantalla fija la lista de modelos:** uno nuevo hay que marcarlo.
+> - **El bucle usa solo parte de la tabla de modelos:** `thinking_off`, `thinking_always_on`, `thinking_off_max_effort` y
+>   `forced_tool_choice` están anotados y nadie los lee (principio 3).
+> - **32 herramientas piden tarjeta, no 29:** la nota de la fase 5 es anterior a `540f29ab1a`.
+
 ## Riesgo
 
 - **Seguridad:** el asistente actúa como el usuario y nunca puede más que él (principio 2). La inyección de órdenes
