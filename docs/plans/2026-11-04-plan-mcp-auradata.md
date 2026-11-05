@@ -883,6 +883,47 @@ históricas. El `CLAUDE.md` del proyecto y el de `mcp_service` reescriben su reg
 - Una batería de encargos («arma el informe de ventas del workspace Demo») que se repite tras cada fase, con
   captura de referencia.
 
+**Hecho (2026-11-05, rama `test/mcp-e2e`):**
+1. `09b6db82cf`: `scripts/auradata/mcp_scenario.py`, escenario por HTTP con una clave personal (`AURADATA_MCP_KEY`),
+   solo stdlib de Python 3.9. Arma en «Análisis comercial» un informe de dos páginas («Resumen», «Detalle»):
+   - dataset virtual con datos generados y dos métricas;
+   - lienzo, título, tarjeta, líneas, barras y tabla;
+   - formato visual y general, segmentador de región en botones, marcador «Solo Norte», «Detalle» como página de
+     obtener detalles y diseño móvil de cada página;
+   - capturas de las dos páginas y del teléfono, y publicación.
+
+   Deja las capturas y `summary.json` en `tmp/mcp-scenario/<fecha>/` (ignorado). Se detiene en el primer paso que
+   falla, con la herramienta, la petición y el error. Las tres corridas completaron los 26 pasos.
+2. `a3272ce4a9`: `docs/auradata/mcp/evaluacion.md`, la lista que se repite tras cada cambio del MCP: la parte
+   automática (escenario y prueba) y 8 encargos con las herramientas esperadas y qué es un buen resultado. Las
+   capturas de referencia están en `docs/auradata/mcp/evaluacion/`.
+3. `99b36e708d`: **la deriva que encontró la prueba.** El editor añade el título como componente `HEADER_ID` al
+   cargar y lo guarda; el MCP no lo escribía, así que el primer guardado desde el editor cambiaba el layout.
+   `with_dashboard_header` (`report_layout/editing.py`) lo pone en `save_report` y en `generate_dashboard`, con
+   test en cada uno. Nada más difería: celdas, posiciones, formatos, elementos, marcadores y diseño móvil salen
+   iguales.
+4. `b99871ac58`: `playwright/tests/experimental/mcp/report-roundtrip.spec.ts`, que lee el `summary.json`
+   (`AURADATA_SCENARIO_SUMMARY`):
+   - en edición, lo que guardaría el editor (su store Redux, hallado por la fibra raíz de React) es igual al
+     `position_json` guardado y no hay cambios sin guardar;
+   - cada página dibuja sus gráficos (`chartStatus: rendered`, sin alerta) sin errores de consola;
+   - un clic en «Norte» deja una sola barra, y el marcador, aplicado desde «Detalle», vuelve a «Resumen» con el
+     filtro.
+
+   Corre sin ventana y sin `navigator.webdriver`. Pasó contra el informe 228 (2 de 2, 16 s).
+5. Pendiente:
+   - Un segmentador de botones se apila en columna salvo `settings.layout: "horizontal"`. No es un bug, pero ni
+     `add_slicer` ni el prompt `informe_desde_dataset` lo dicen: conviene una línea en la descripción.
+   - Los botones del segmentador parecen usar la fuente del sistema, no Outfit, en la captura del servidor. Falta
+     mirarlo en el navegador.
+   - Sigue abierto el bug de fase 2 (`rename_page` con `GRID_ID`): el escenario renombra por índice.
+   - Los encargos de la batería (E1–E8) no se corrieron con un cliente de IA: son la lista para la próxima vez.
+   - Playwright 1.62.1 necesita el navegador `chromium-headless-shell` 1234, descargado con permiso. El resto de
+     la suite local corre con ventana y pediría el Chromium completo.
+   - No se corrieron `pre-commit`, mypy ni la suite: solo ruff, oxlint y oxfmt sobre lo tocado, y pytest de
+     `test_report_layout_tools.py` (74), `test_dashboard_generation.py` (72) y `drift_test.py` (106).
+   - Quedan los informes 226, 227 y 228 y sus datasets `escenario_mcp_*`. La clave `phase12-e2e` está revocada.
+
 ## D. Documentación (continua)
 
 Cada fase deja su parte. Al final se ordena en:
