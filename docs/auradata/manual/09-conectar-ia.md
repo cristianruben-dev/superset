@@ -19,3 +19,17 @@ Lo importante:
 
 La guía completa, con la configuración de cada cliente y ejemplos de encargos, está en
 [mcp/conectar.md](../mcp/conectar.md).
+
+## ¿Asistente o Conectar IA?
+
+AuraData BI tiene dos caminos para trabajar con una IA, y no se mezclan.
+
+| | [Asistente de IA](10-asistente-de-ia.md) | Conectar IA (este capítulo) |
+| --- | --- | --- |
+| Dónde la usas | En un panel dentro de la aplicación, con tu sesión | En tu propio cliente, como Claude Code o Claude Desktop |
+| Qué necesitas | Que un administrador lo encienda | Una clave personal `sst_…` y tu propio cliente de IA |
+| Quién paga | La clave de Anthropic del servidor, con topes de gasto | Tu propia cuenta de IA |
+| Qué la frena | Tarjetas de confirmación y **Deshacer lo del asistente** | Los permisos de tu clave y lo que pregunte tu cliente |
+
+En los dos casos la IA actúa como tú, con tus mismos permisos, y sus cambios quedan en el historial. Una clave `sst_…` no
+sirve para el chat del panel.
