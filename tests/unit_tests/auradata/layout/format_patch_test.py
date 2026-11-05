@@ -154,3 +154,51 @@ def test_to_rgba() -> None:
     assert to_rgba({"r": 1, "g": 2, "b": 3}) == {"r": 1, "g": 2, "b": 3, "a": 1}
     assert to_rgba({"r": 300, "g": 2, "b": 3}) is None
     assert to_rgba("blue") is None
+
+
+@pytest.mark.parametrize(
+    "options",
+    [
+        # graphic[].style.image, as JavaScript object code
+        "{ graphic: [{ type: 'image', style: { image: 'https://e.com/a.png' } }] }",
+        # A symbol drawn from a picture
+        '{ series: [{ symbol: "image://https://e.com/pin.png" }] }',
+        # Pattern fills and rich text backgrounds
+        "{ color: [{ image: '//e.com/p.png', repeat: 'repeat' }] }",
+        "{ title: { textStyle: { rich: { a: { backgroundColor: "
+        "{ image: `https://e.com/${x}b.png` } } } } } }",
+        # Escapes and template parts spell the address past a plain search
+        "{ graphic: { style: { image: '\\x68ttps://e.com/a.png' } } }",
+        "{ graphic: { style: { image: `htt${''}ps://e.com/a.png` } } }",
+        "{ graphic: { style: { image: 'data:text/html,<b>x</b>' } } }",
+    ],
+)
+def test_option_code_loads_no_picture_of_another_site(options: str) -> None:
+    with pytest.raises(FormatPatchError, match="another site"):
+        check_chart_patch(BAR, None, {"echart_options": options})
+
+
+def test_json_settings_load_no_picture_of_another_site() -> None:
+    from superset.auradata.layout.format_patch import foreign_addresses
+
+    nested = {"graphic": [{"style": {"image": "image://http://e.com/a.png"}}]}
+    assert foreign_addresses(nested) == ["http://e.com/a.png"]
+    # Text that only mentions an address loads nothing
+    assert foreign_addresses({"label": "See https://e.com"}) == []
+    assert foreign_addresses({"a": "Total: 5", "b": "/static/x.png"}) == []
+    png = "data:image/png;base64,iVBORw0KGgo="
+    assert foreign_addresses([{"image": png}, "image:///static/x.png"]) == []
+
+
+def test_site_pictures_pass_in_option_code() -> None:
+    clean = check_chart_patch(
+        BAR,
+        None,
+        {
+            "echart_options": (
+                "{ graphic: [{ type: 'image', style: { image: '/static/logo.png' "
+                "} }], title: { text: 'Ventas: https://auradata.mx' } }"
+            )
+        },
+    )
+    assert "logo.png" in clean["echart_options"]

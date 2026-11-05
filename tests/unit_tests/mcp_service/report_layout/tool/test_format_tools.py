@@ -399,3 +399,17 @@ async def test_uploads_only_take_pictures(world: dict[str, Any]) -> None:
     )
     assert not_image["error_type"] == "InvalidRequest"
     assert layout(world) == before
+
+
+@pytest.mark.asyncio
+async def test_option_code_with_a_picture_of_another_site_is_refused(
+    world: dict[str, Any],
+) -> None:
+    before = layout(world)
+    code = "{ graphic: [{ type: 'image', style: { image: 'https://e.com/t.png' } }] }"
+    result = await as_editor(
+        world, "set_shared_visual_format", patch={"chart": {"echart_options": code}}
+    )
+    assert result["error_type"] == "InvalidFormat"
+    assert "another site" in result["error"]
+    assert layout(world) == before

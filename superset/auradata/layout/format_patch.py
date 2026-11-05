@@ -132,6 +132,99 @@ def _check_images(key: str, value: Any) -> str | None:
     return None
 
 
+# An address a chart could load: a scheme with //, a protocol relative one,
+# a data or blob address; ECharts takes pictures as "image://<address>" too
+_ADDRESS = re.compile(r"^(?:[a-z][a-z0-9+.-]*:)?//|^(?:data|blob):", re.IGNORECASE)
+_IMAGE_PREFIX = "image://"
+# String literals of JavaScript object code (echart_options)
+_JS_STRING = re.compile(
+    r"'(?:[^'\\\n]|\\.)*'|\"(?:[^\"\\\n]|\\.)*\"|`(?:[^`\\]|\\.)*`", re.DOTALL
+)
+_JS_ESCAPE = re.compile(
+    r"\\(?:x([0-9a-fA-F]{2})|u\{([0-9a-fA-F]+)\}|u([0-9a-fA-F]{4})|(.))", re.DOTALL
+)
+_JS_SIMPLE_ESCAPES = {
+    "n": "\n",
+    "t": "\t",
+    "r": "\r",
+    "b": "\b",
+    "f": "\f",
+    "v": "\v",
+    "0": "\0",
+}
+
+
+def _js_unescape(text: str) -> str:
+    """The value of a JavaScript string literal's body, escapes decoded."""
+
+    def decode(match: re.Match[str]) -> str:
+        hex2, braced, hex4, other = match.groups()
+        code = hex2 or braced or hex4
+        if code:
+            try:
+                return chr(int(code, 16))
+            except (ValueError, OverflowError):
+                return ""
+        return _JS_SIMPLE_ESCAPES.get(other, other)
+
+    return _JS_ESCAPE.sub(decode, text)
+
+
+def _js_literals(text: str) -> list[str]:
+    """The strings a piece of JavaScript object code holds; template literals
+    keep their text, as the options parser does (``${}`` parts dropped)."""
+    values = []
+    for literal in _JS_STRING.findall(text):
+        body = literal[1:-1]
+        if literal[0] == "`":
+            body = re.sub(r"\$\{[^}]*\}", "", body)
+        values.append(_js_unescape(body))
+    return values
+
+
+def _foreign_address(value: str) -> str | None:
+    """The address a string would make a chart load from another site, or
+    None; the twin of ``sameOriginImage`` for values the server checks."""
+    text = value.strip()
+    if text.lower().startswith(_IMAGE_PREFIX):
+        text = text[len(_IMAGE_PREFIX) :].strip()
+    if _ADDRESS.match(text) and not is_site_image(text):
+        return text[:80]
+    return None
+
+
+def foreign_addresses(value: Any) -> list[str]:
+    """
+    Addresses of other sites anywhere in a chart setting: every string at any
+    depth (``graphic[].style.image``, ``symbol: 'image://...'``, pattern fills,
+    rich text backgrounds), and every string literal of option code such as
+    ``echart_options``. A picture must be a path of this site or a raster
+    data address, so a viewer's browser never fetches one from another host
+    and exports of the report keep working.
+    """
+    found: list[str] = []
+    if isinstance(value, dict):
+        for key, item in value.items():
+            found += foreign_addresses(key) + foreign_addresses(item)
+    elif isinstance(value, list):
+        for item in value:
+            found += foreign_addresses(item)
+    elif isinstance(value, str):
+        for text in (value, *_js_literals(value)):
+            if address := _foreign_address(text):
+                found.append(address)
+    return found
+
+
+def _check_addresses(value: Any) -> str | None:
+    if found := foreign_addresses(value):
+        return (
+            f"loads {found[0]!r} from another site; pictures must be a path of "
+            "this site (upload them first) or a data:image address"
+        )
+    return None
+
+
 def _choice_problem(
     kind: str, value: Any, choices: list[Any], free_form: bool | None
 ) -> str | None:
@@ -166,7 +259,7 @@ def check_chart_value(control: dict[str, Any], value: Any) -> tuple[Any, str | N
         problem = _choice_problem(kind, value, choices, control.get("free_form"))
         if problem:
             return value, problem
-    return value, _check_images(control["key"], value)
+    return value, _check_images(control["key"], value) or _check_addresses(value)
 
 
 def check_chart_patch(
