@@ -122,15 +122,16 @@ This repository is **AuraData BI**, a fork of Apache Superset 7.0 shaped like Po
   stored without results plus an `awaiting` record (role `record`, never sent to the model), and that is the whole pending
   state (`pending_turn`), with no table of its own. `POST .../conversations/<id>/decide/` takes only `tool_use_id` and
   `approved`: what runs is the stored call, for the owner of the conversation, who is checked again (`can_edit_resource`)
-  at that moment. The decision is written first: the unique `seq` lets one of two racing requests through before any tool
-  runs, and once results are stored the call stops being pending, so a decision works once. `ToolBox.call` refuses these
+  at that moment. The decision is written first, on a position read before anything else (`ConversationLog` is built right
+  after `find_conversation`): the unique `seq` lets one of two racing requests through before any tool runs, and once results are stored the call stops being pending, so a decision works once. `ToolBox.call` refuses these
   tools without `approved=True`, which only `_run_tools` passes, from a stored decision. Text of the model or of a tool
   cannot approve anything; a person who writes instead of deciding moves on, and the calls get a "not run" result. Each
   call gets a `tool_result`, a rejected one too, and a rejection holds back the plain calls of its step. A new tool that
   matters to a person gets a Spanish title in `confirmations.ts` (`copilot_test.py` checks it). Calls run through
   `ToolBox.call`, which is the place to mark what the assistant did.
-- **Undo** (`undo.py`, `POST .../conversations/<id>/undo/`): `turn_start` and `turn_end` records hold the versions of the
-  dashboard and its charts around a turn; undoing runs the restore commands as the person, charts included, because a
+- **Undo** (`undo.py`, `POST .../conversations/<id>/undo/`): `turn_start` (right before the first change, so what anyone saved
+  while the model thought or a card waited stays) and `turn_end` records hold the versions of the dashboard and its charts
+  around a turn; undoing runs the restore commands as the person, charts included, because a
   dashboard version has no chart content. It refuses (409) when the report changed after the turn, and each undo uncovers
   the turn before. A dataset the turn changed, a chart it created (left out of the report) and a chart it deleted stay as
   they are.

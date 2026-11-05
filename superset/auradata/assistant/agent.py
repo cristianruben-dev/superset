@@ -328,8 +328,15 @@ def _run_tools(
     """
     decisions = decisions or {}
     for block in tool_uses:
-        yield "tool_start", {"id": block["id"], "name": block["name"]}
         reason = _why_not_run(block, decisions)
+        yield (
+            "tool_start",
+            {
+                "id": block["id"],
+                "name": block["name"],
+                "changes": reason is None and toolbox.changes_something(block["name"]),
+            },
+        )
         if reason is not None:
             results.append(_error_result(block["id"], reason))
             yield (

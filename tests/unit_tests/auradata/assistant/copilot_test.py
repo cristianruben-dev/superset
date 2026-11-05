@@ -35,19 +35,21 @@ from pytest_mock import MockerFixture
 import superset
 from superset import security_manager
 from superset.auradata import models as auradata_models
-from superset.auradata.assistant import agent, undo as undo_module
+from superset.auradata.assistant import agent, api as api_module, undo as undo_module
 from superset.auradata.assistant.conversations import (
     ConversationBusyError,
     ConversationLog,
     create_conversation,
     find_conversation,
     history_of,
+    MOVED_ON,
     pending_turn,
     REJECTED,
 )
 from superset.auradata.assistant.tools import CONFIRM_TOOLS, MODE_EDIT, ToolBox
 from superset.auradata.models import AssistantMessage, WorkspaceMember
 from superset.mcp_service.app import mcp
+from superset.models.slice import Slice
 from superset.utils import json
 from tests.unit_tests.auradata.assistant.chat_test import (  # noqa: F401
     ask,
@@ -386,6 +388,59 @@ def test_two_racing_decisions_run_the_call_once(
 
     assert decide(client, conversation_id).status_code == 409
     assert run.call_count == 0
+
+
+def racing_decision(mocker: MockerFixture, world: dict[str, Any], id_: str) -> None:  # noqa: F811
+    """Another request decides right after this one read what is pending."""
+    real = api_module.pending_turn
+    raced = []
+
+    def read_then_race(conversation: Any) -> Any:
+        found = real(conversation)
+        if not raced:
+            raced.append(True)
+            log = ConversationLog(conversation, world["users"]["Ana"].id)
+            log.add_decision(id_, True)
+        return found
+
+    mocker.patch.object(api_module, "pending_turn", side_effect=read_then_race)
+
+
+def test_a_decision_that_lands_between_read_and_write_stops_this_one(
+    client: Any,
+    world: dict[str, Any],  # noqa: F811
+    mocker: MockerFixture,
+) -> None:
+    login(world, "Ana")
+    add_page(world)
+    use_model(mocker, asks_to_delete(world), reply(text("Listo")))
+    conversation_id = conversation_id_of(ask_in_editor(client, world))
+    racing_decision(mocker, world, "toolu_1")
+    run = spy_on_tools(mocker)
+
+    response = decide(client, conversation_id)
+
+    assert response.status_code == 409
+    assert run.call_count == 0
+
+
+def test_a_message_that_loses_to_a_decision_writes_no_false_result(
+    client: Any,
+    world: dict[str, Any],  # noqa: F811
+    mocker: MockerFixture,
+) -> None:
+    """Saying a call did not run while its decision is running it would be a lie."""
+    login(world, "Ana")
+    add_page(world)
+    use_model(mocker, asks_to_delete(world), reply(text("Listo")))
+    conversation_id = conversation_id_of(ask_in_editor(client, world))
+    racing_decision(mocker, world, "toolu_1")
+
+    response = ask_in_editor(client, world, conversation_id=conversation_id)
+
+    assert response.status_code == 409
+    rows = world["session"].query(AssistantMessage).all()
+    assert not any(MOVED_ON in row.content for row in rows)
 
 
 def test_a_rejected_call_changes_nothing_and_gets_its_result(
@@ -919,7 +974,9 @@ class Versions:
         mocker.patch.object(
             undo_module,
             "current_live_version_uuid",
-            side_effect=lambda _model, _id, item_uuid: UUID(self.live[item_uuid]),
+            side_effect=lambda _model, _id, item_uuid: UUID(
+                self.live.setdefault(item_uuid, VERSION_A)
+            ),
         )
         for name, command in (
             ("dashboard", undo_module.RestoreDashboardVersionCommand),
@@ -1103,6 +1160,133 @@ def test_each_undo_uncovers_the_turn_before(
         ("dashboard", dashboard_uuid, UUID(VERSION_B)),
         ("dashboard", dashboard_uuid, UUID(VERSION_A)),
     ]
+
+
+def test_undo_keeps_what_was_saved_while_a_card_waited(
+    client: Any,
+    world: dict[str, Any],  # noqa: F811
+    mocker: MockerFixture,
+) -> None:
+    login(world, "Ana")
+    add_page(world)
+    versions = Versions(mocker, world)
+    dashboard_uuid = world["dashboard"].uuid
+    use_model(mocker, asks_to_delete(world), reply(text("Listo")))
+    conversation_id = conversation_id_of(ask_in_editor(client, world))
+    versions.live[dashboard_uuid] = VERSION_B
+    run = ToolBox._call_tool
+
+    async def change(name: str, arguments: dict[str, Any]) -> Any:
+        versions.live[dashboard_uuid] = VERSION_C
+        return await run(name, arguments)
+
+    mocker.patch.object(ToolBox, "_call_tool", side_effect=change)
+    decide(client, conversation_id)
+
+    assert undo(client, conversation_id).status_code == 200
+
+    assert versions.restored == [("dashboard", dashboard_uuid, UUID(VERSION_B))]
+
+
+def test_a_turn_stopped_by_a_card_undoes_as_one_turn(
+    client: Any,
+    world: dict[str, Any],  # noqa: F811
+    mocker: MockerFixture,
+) -> None:
+    login(world, "Ana")
+    add_page(world)
+    versions = Versions(mocker, world)
+    dashboard_uuid = world["dashboard"].uuid
+    use_model(
+        mocker,
+        reply(
+            tool_use(
+                "add_page",
+                {"request": {"dashboard": world["dashboard"].id, "name": "Otra"}},
+                "toolu_add",
+            ),
+            stop_reason="tool_use",
+        ),
+        asks_to_delete(world),
+        reply(text("Listo")),
+    )
+    run = ToolBox._call_tool
+    steps = iter((VERSION_B, VERSION_C))
+
+    async def change(name: str, arguments: dict[str, Any]) -> Any:
+        versions.live[dashboard_uuid] = next(steps)
+        return await run(name, arguments)
+
+    mocker.patch.object(ToolBox, "_call_tool", side_effect=change)
+    conversation_id = conversation_id_of(ask_in_editor(client, world))
+    decide(client, conversation_id)
+
+    result = undo(client, conversation_id).json["result"]
+
+    assert versions.restored == [("dashboard", dashboard_uuid, UUID(VERSION_A))]
+    assert result["can_undo"] is False
+
+
+def test_a_tool_that_writes_nothing_to_the_report_leaves_nothing_to_undo(
+    client: Any,
+    world: dict[str, Any],  # noqa: F811
+    mocker: MockerFixture,
+) -> None:
+    login(world, "Ana")
+    Versions(mocker, world)
+    use_model(
+        mocker,
+        reply(
+            tool_use(
+                "add_page",
+                {"request": {"dashboard": world["dashboard"].id, "name": "Otra"}},
+            ),
+            stop_reason="tool_use",
+        ),
+        reply(text("Listo")),
+    )
+    mocker.patch.object(ToolBox, "changes_something", return_value=True)
+
+    response = ask_in_editor(client, world)
+
+    assert payloads(response, "done")[0]["can_undo"] is False
+
+
+def test_undo_goes_back_over_a_turn_that_added_a_chart(
+    client: Any,
+    world: dict[str, Any],  # noqa: F811
+    mocker: MockerFixture,
+) -> None:
+    """The plan's own case: the new chart leaves the report and stays undeleted."""
+    login(world, "Ana")
+    versions = Versions(mocker, world)
+    session = world["session"]
+    dashboard = world["dashboard"]
+    new_chart = Slice(
+        slice_name="Nuevo",
+        datasource_id=world["chart"].datasource_id,
+        datasource_type="table",
+        viz_type="table",
+        params="{}",
+    )
+    session.add(new_chart)
+    session.commit()
+    use_model(mocker, changing_turn(world, versions), reply(text("Listo")))
+    change = versions.call  # type: ignore[attr-defined]
+
+    async def add_chart(name: str, arguments: dict[str, Any]) -> Any:
+        dashboard.slices.append(new_chart)
+        session.commit()
+        return await change(name, arguments)
+
+    mocker.patch.object(ToolBox, "_call_tool", side_effect=add_chart)
+    conversation_id = conversation_id_of(ask_in_editor(client, world))
+
+    response = undo(client, conversation_id)
+
+    assert response.status_code == 200
+    assert response.json["result"]["skipped_charts"] == 0
+    assert versions.restored == [("dashboard", dashboard.uuid, UUID(VERSION_A))]
 
 
 def test_undo_waits_for_a_pending_call(

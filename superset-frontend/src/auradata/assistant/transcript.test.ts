@@ -209,3 +209,14 @@ test('a rejected call says so, live and when read later', () => {
   expect(answer.tools[0].rejected).toBe(true);
   expect(stored.tools[0].rejected).toBe(true);
 });
+
+test('an answer stopped in the middle says so when read later', () => {
+  const [, stopped] = transcriptOf(
+    stored([
+      row('user', [{ type: 'text', text: 'Hola' }]),
+      row('assistant', [], 'interrupted'),
+    ]),
+  );
+
+  expect(stopped.stopped).toBe(true);
+});

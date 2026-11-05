@@ -410,16 +410,7 @@ class ConversationLog:
             db.session.rollback()
             raise ConversationBusyError from ex
 
-    def add_user_message(
-        self,
-        content: list[dict[str, Any]],
-        turn_start: dict[str, Any] | None = None,
-    ) -> None:
-        """Store a message, and in the same commit the versions the turn starts at."""
-        if turn_start is not None:
-            self._row(
-                ROLE_RECORD, [{"type": RECORD_TURN_START, "versions": turn_start}]
-            )
+    def add_user_message(self, content: list[dict[str, Any]]) -> None:
         self._row("user", content)
         self._commit()
 
@@ -442,6 +433,14 @@ class ConversationLog:
                     "approved": approved,
                 }
             ],
+        )
+        self._commit()
+
+    def add_turn_start(self, versions: dict[str, Any], continues: bool) -> None:
+        """The versions right before a turn's first change."""
+        self._row(
+            ROLE_RECORD,
+            [{"type": RECORD_TURN_START, "versions": versions, "continues": continues}],
         )
         self._commit()
 

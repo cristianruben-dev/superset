@@ -18,8 +18,8 @@
 Undoing a turn of the assistant.
 
 Every tool saves a version of what it changes, so a turn spans several. The
-conversation records which version the dashboard and each of its charts were at when
-the turn started and when it ended, and undoing brings back the first set through the
+conversation records which version the dashboard and each of its charts were at before
+its first change and when it ended, and undoing brings back the first set through the
 restore commands of the version history: a dashboard version does not carry the content
 of its charts, so each chart that changed is restored as well.
 
@@ -102,18 +102,23 @@ def report_versions(dashboard_id: int) -> Versions | None:
 
 def undoable_turn(records: list[dict[str, Any]]) -> ChangingTurn | None:
     """
-    The turn an undo goes back over. Turns that changed nothing do not count. Each
-    undo uncovers the turn before it, unless someone else worked in between.
+    The turn an undo goes back over. Turns that changed nothing do not count, as tools
+    that write nothing to the report. A turn stopped by a card goes on after the
+    decision as the same turn, unless someone worked in between: then an undo stops
+    there and keeps that work. Each undo uncovers the turn before it, under that same
+    condition.
     """
     turns: list[ChangingTurn] = []
     started: Versions | None = None
     for record in records:
         if record["type"] == RECORD_TURN_START:
             started = record["versions"]
+            if record.get("continues") and turns and turns[-1].after == started:
+                started = turns[-1].before
         elif record["type"] == RECORD_TURN_END and started is not None:
             if turns and turns[-1].before is started:
                 turns[-1].after = record["versions"]
-            else:
+            elif record["versions"] != started:
                 turns.append(ChangingTurn(started, record["versions"]))
         elif record["type"] == RECORD_UNDONE and turns:
             undone = turns.pop()

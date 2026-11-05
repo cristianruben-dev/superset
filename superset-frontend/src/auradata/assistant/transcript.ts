@@ -86,6 +86,7 @@ export function transcriptOf(stored: StoredConversation): ChatMessage[] {
       answer.problem = t('The AI declined to answer this.');
       return;
     }
+    if (row.stop_reason === 'interrupted') answer.stopped = true;
     const current = answer;
     row.content.forEach(block => {
       if (block.type === 'text' && block.text) {

@@ -284,13 +284,18 @@ def _turn_stream(
     dashboard_id: int,
     mode: str,
     turn: Iterator[tuple[str, dict[str, Any]]],
+    continues: bool = False,
 ) -> Iterator[str]:
     """
-    The events of a turn, as server-sent events. In edit mode a turn that changed
-    something records where it ended, even when the browser left first, so it can be
-    undone, and ``done`` says so.
+    The events of a turn, as server-sent events. A turn that changes something records
+    the versions right before its first change and where it ended, even when the
+    browser left first, so it can be undone, and ``done`` says so. The first record
+    waits for that change: what anyone saved while the model thought, or while a card
+    waited, is not part of the turn and an undo keeps it. ``continues`` says this
+    stream goes on with a turn stopped by a card.
     """
     changed = False
+    started = False
 
     def end_turn() -> None:
         nonlocal changed
@@ -304,6 +309,12 @@ def _turn_stream(
             if event == KEEP_ALIVE:
                 yield _keep_alive()
                 continue
+            if event == "tool_start" and payload.get("changes") and not started:
+                # The tool has not run: this generator waits at that yield
+                started = True
+                versions = report_versions(dashboard_id)
+                if versions is not None:
+                    log.add_turn_start(versions, continues)
             changed = changed or (event == "tool_end" and payload.get("changed", False))
             if event == "done":
                 end_turn()
@@ -506,11 +517,14 @@ class AssistantRestApi(BaseSupersetApi):
             return self.response_404()
         user_id = get_user_id()
         conversation = None
+        log = None
         mode = data["mode"]
         if data["conversation_id"] is not None:
             conversation = find_conversation(data["conversation_id"], user_id)
             if conversation is None:
                 return self.response_404()
+            # Before anything is read: what lands after this makes the write collide
+            log = ConversationLog(conversation, user_id)
             if conversation.dashboard_id != dashboard.id or conversation.mode != mode:
                 return self.response_422(
                     message=_("This conversation belongs to another report or mode.")
@@ -537,7 +551,7 @@ class AssistantRestApi(BaseSupersetApi):
             )
         conversation.model = model.id
         dashboard_id = dashboard.id
-        log = ConversationLog(conversation, user_id)
+        log = log or ConversationLog(conversation, user_id)
         # A person who writes instead of deciding has moved on: those calls never run,
         # and their answers go first, as the API asks of a user turn
         message = [
@@ -546,10 +560,7 @@ class AssistantRestApi(BaseSupersetApi):
             {"type": "text", "text": question},
         ]
         try:
-            log.add_user_message(
-                message,
-                report_versions(dashboard_id) if mode == MODE_EDIT else None,
-            )
+            log.add_user_message(message)
         except ConversationBusyError:
             return self.response(
                 409, message=_("This conversation is answering another message.")
@@ -674,6 +685,9 @@ class AssistantRestApi(BaseSupersetApi):
         conversation = find_conversation(conversation_id, user_id)
         if conversation is None:
             return self.response_404()
+        # Before anything is read: a decision that lands after this collides with
+        # this one, however long the checks below take
+        log = ConversationLog(conversation, user_id)
         dashboard = _open_dashboard(conversation.dashboard_id)
         if dashboard is None:
             return self.response_404()
@@ -700,13 +714,14 @@ class AssistantRestApi(BaseSupersetApi):
 
         conversation.model = model.id
         dashboard_id = dashboard.id
-        log = ConversationLog(conversation, user_id)
         try:
             # Stored before anything runs: of two racing requests one stops here
             log.add_decision(tool_use_id, data["approved"])
         except ConversationBusyError:
             return self._busy()
         decided = pending_turn(conversation)
+        if decided is None:
+            return self._busy()
 
         def turn() -> Iterator[tuple[str, dict[str, Any]]]:
             if decided.undecided:
@@ -724,7 +739,9 @@ class AssistantRestApi(BaseSupersetApi):
             )
 
         return _event_stream(
-            _turn_stream(conversation, log, dashboard_id, MODE_EDIT, turn())
+            _turn_stream(
+                conversation, log, dashboard_id, MODE_EDIT, turn(), continues=True
+            )
         )
 
     @expose("/conversations/<uuid:conversation_id>/undo/", methods=("POST",))
@@ -762,6 +779,7 @@ class AssistantRestApi(BaseSupersetApi):
         conversation = find_conversation(conversation_id, get_user_id())
         if conversation is None:
             return self.response_404()
+        log = ConversationLog(conversation, get_user_id())
         dashboard = _open_dashboard(conversation.dashboard_id)
         if dashboard is None:
             return self.response_404()
@@ -777,7 +795,7 @@ class AssistantRestApi(BaseSupersetApi):
             skipped = undo_last_turn(
                 conversation,
                 dashboard.id,
-                ConversationLog(conversation, get_user_id()),
+                log,
                 context_block({"note": UNDONE_NOTE}),
             )
         except UndoConflictError as ex:
