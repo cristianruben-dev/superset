@@ -27021,3 +27021,129 @@ msgstr "No hay nada del asistente que deshacer."
 
 msgid "The report changed after the assistant's turn. Go back from its version history instead."
 msgstr "El informe cambió después del turno del asistente. Vuelve atrás desde su historial de versiones."
+
+msgid "Delete a chart"
+msgstr "Borrar un gráfico"
+
+msgid "Change a chart"
+msgstr "Cambiar un gráfico"
+
+msgid "Delete this report"
+msgstr "Borrar este informe"
+
+msgid "Change who edits this report"
+msgstr "Cambiar quién edita este informe"
+
+msgid "Change who can see this report"
+msgstr "Cambiar quién puede ver este informe"
+
+msgid "Change the filters of this report"
+msgstr "Cambiar los filtros de este informe"
+
+msgid "Remove a chart from this report"
+msgstr "Quitar un gráfico de este informe"
+
+msgid "Change this report"
+msgstr "Cambiar este informe"
+
+msgid "Change a calculated column"
+msgstr "Cambiar una columna calculada"
+
+msgid "Delete a calculated column"
+msgstr "Borrar una columna calculada"
+
+msgid "Delete a metric"
+msgstr "Borrar una métrica"
+
+msgid "Change a metric"
+msgstr "Cambiar una métrica"
+
+msgid "Go back to an earlier version"
+msgstr "Volver a una versión anterior"
+
+msgid "Schedule a report"
+msgstr "Programar un envío del informe"
+
+msgid "Schedule an alert"
+msgstr "Programar una alerta"
+
+msgid "Change a scheduled report"
+msgstr "Cambiar un envío programado"
+
+msgid "Delete a scheduled report"
+msgstr "Borrar un envío programado"
+
+msgid "Remove an element"
+msgstr "Quitar un elemento"
+
+msgid "Delete a bookmark"
+msgstr "Borrar un marcador"
+
+msgid "Delete the mobile layout"
+msgstr "Borrar el diseño móvil"
+
+msgid "Delete a page"
+msgstr "Borrar una página"
+
+msgid "Publish this report"
+msgstr "Publicar este informe"
+
+msgid "Share this report"
+msgstr "Compartir este informe"
+
+msgid "Run a SQL statement"
+msgstr "Ejecutar una sentencia SQL"
+
+msgid "Delete a workspace"
+msgstr "Borrar un workspace"
+
+msgid "Remove a member of a workspace"
+msgstr "Quitar a un miembro de un workspace"
+
+msgid "Change a member of a workspace"
+msgstr "Cambiar a un miembro de un workspace"
+
+msgid "Move this report to another workspace"
+msgstr "Mover este informe a otro workspace"
+
+msgid "Move a dataset to another workspace"
+msgstr "Mover un dataset a otro workspace"
+
+msgid "Approve"
+msgstr "Aprobar"
+
+msgid "Reject"
+msgstr "Rechazar"
+
+msgid "rejected"
+msgstr "rechazado"
+
+msgid "This could not be undone."
+msgstr "No se pudo deshacer."
+
+msgid "Ask for changes to this report. The assistant knows the page and what you have selected, and it asks you before it deletes, publishes, shares or schedules anything."
+msgstr "Pide cambios en este informe. El asistente conoce la página y lo que tienes seleccionado, y te pregunta antes de borrar, publicar, compartir o programar algo."
+
+msgid "The assistant works on the saved report. Save your changes or discard them first."
+msgstr "El asistente trabaja sobre el informe guardado. Guarda o descarta tus cambios primero."
+
+msgid "The report could not be reloaded. Refresh the page."
+msgstr "No se pudo recargar el informe. Actualiza la página."
+
+msgid "Done, except for %s charts that no longer exist."
+msgstr "Listo, salvo %s gráficos que ya no existen."
+
+msgid "The assistant’s changes were undone."
+msgstr "Se deshicieron los cambios del asistente."
+
+msgid "Undo the assistant’s changes"
+msgstr "Deshacer lo del asistente"
+
+msgid "If you write, the actions above are dropped"
+msgstr "Si escribes, se descartan las acciones de arriba"
+
+msgid "Ask the assistant to change this report"
+msgstr "Pídele al asistente que cambie este informe"
+
+msgid "The assistant changed the saved report while you were editing. Discard your changes to see it."
+msgstr "El asistente cambió el informe guardado mientras editabas. Descarta tus cambios para verlo."

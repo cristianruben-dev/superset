@@ -17,7 +17,7 @@
  * under the License.
  */
 import { SupersetClient } from '@superset-ui/core';
-import { askAssistant, AssistantError } from './client';
+import { askAssistant, AssistantError, decideCall, undoTurn } from './client';
 import type { AssistantEvent } from './types';
 
 const QUESTION = {
@@ -144,4 +144,37 @@ test('a refusal without a body has a message of its own', async () => {
   });
 
   await expect(ask()).rejects.toThrow('The assistant could not answer');
+});
+
+test('a decision names the call and goes to its conversation', async () => {
+  fetchMock.mockResolvedValue(
+    stream('event: done\ndata: {"context_tokens": 1}\n\n'),
+  );
+  const events: unknown[] = [];
+
+  await decideCall(
+    'c1',
+    { tool_use_id: 'toolu_1', approved: true, model: 'm' },
+    event => events.push(event),
+    new AbortController().signal,
+  );
+
+  const [url, init] = fetchMock.mock.calls[0];
+  expect(String(url)).toContain('/conversations/c1/decide/');
+  expect(JSON.parse(init.body)).toEqual({
+    tool_use_id: 'toolu_1',
+    approved: true,
+    model: 'm',
+  });
+  expect(events).toHaveLength(1);
+});
+
+test('a refused undo brings the reason of the server', async () => {
+  jest.spyOn(SupersetClient, 'post').mockRejectedValue(
+    new Response(JSON.stringify({ message: 'Cambió después' }), {
+      status: 409,
+    }),
+  );
+
+  await expect(undoTurn('c1')).rejects.toThrow('Cambió después');
 });

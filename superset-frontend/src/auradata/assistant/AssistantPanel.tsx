@@ -24,7 +24,8 @@ import {
   useRef,
   useState,
 } from 'react';
-import { useSelector, useStore } from 'react-redux';
+import { useDispatch, useSelector, useStore } from 'react-redux';
+import { useHistory } from 'react-router-dom';
 import { t } from '@apache-superset/core/translation';
 import { css, styled } from '@apache-superset/core/theme';
 import { Alert } from '@apache-superset/core/components';
@@ -36,15 +37,22 @@ import {
   Select,
 } from '@superset-ui/core/components';
 import { Icons } from '@superset-ui/core/components/Icons';
+import { useToasts } from 'src/components/MessageToasts/withToasts';
 import type { RootState } from 'src/dashboard/types';
+import { hasPendingFields } from '../format/chartFields';
 import { usePhoneScreen } from '../format/mobile';
+import { selectedVisuals } from '../format/selection';
 import { AssistantFigure } from './AssistantFigure';
 import { AssistantMarkdown } from './AssistantMarkdown';
-import { fetchConversations } from './client';
-import { pageContext } from './context';
+import { AssistantError, fetchConversations } from './client';
+import { ConfirmationCard } from './ConfirmationCard';
+import { confirmationTitle } from './confirmations';
+import { editorContext, pageContext } from './context';
+import { reloadReport, saveReport } from './editorActions';
 import { isLongConversation } from './transcript';
 import type {
   ChatMessage,
+  ChatMode,
   Conversation,
   ModelPrice,
   OfferedModel,
@@ -72,7 +80,7 @@ const toolLabel = (name: string) =>
     get_chart_data: t('Reading a chart'),
     get_dashboard_screenshot: t('Looking at the report'),
     get_visual_screenshot: t('Looking at a chart'),
-  })[name] ?? t('Using %s', name);
+  })[name] ?? confirmationTitle({ name, title: t('Using %s', name) });
 
 /** Whether a model can go on with a conversation of another model. */
 const canContinue = (model: OfferedModel, current?: OfferedModel) =>
@@ -187,6 +195,7 @@ function ToolSteps({ tools }: { tools: ToolStep[] }) {
           data-test="auradata-assistant-step"
         >
           {step.running ? `${label}…` : label}
+          {step.rejected && ` (${t('rejected')})`}
         </li>
       ))}
     </Steps>
@@ -224,21 +233,33 @@ function Answer({
 }
 
 /**
- * «Ask your data»: a side panel of the report, read only, that takes the whole screen
- * of a phone. The model answers on the server, which decides what it can reach.
+ * The conversation with the assistant: «Ask your data» in reading, and the copilot of
+ * the editor. The model answers on the server, which decides what it can reach. In the
+ * editor it acts on the saved report, so the panel asks to save or discard first, and
+ * shows what it did when it ends.
  */
-export function AssistantPanel({
-  open,
-  onClose,
+export function AssistantChat({
+  mode,
   models,
+  active,
 }: {
-  open: boolean;
-  onClose: () => void;
+  mode: ChatMode;
   models: OfferedModel[];
+  active: boolean;
 }) {
   const store = useStore<RootState>();
+  const dispatch = useDispatch();
+  const history = useHistory();
+  const { addDangerToast, addSuccessToast, addWarningToast } = useToasts();
   const dashboardId = useSelector((state: RootState) => state.dashboardInfo.id);
-  const phone = usePhoneScreen();
+  const unsaved = useSelector(
+    (state: RootState) => !!state.dashboardState.hasUnsavedChanges,
+  );
+  const saving = useSelector(
+    (state: RootState) => !!state.dashboardState.dashboardIsSaving,
+  );
+  const editing = mode === 'edit';
+  const blocked = editing && (unsaved || hasPendingFields());
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [draft, setDraft] = useState('');
   const fallbackModel =
@@ -247,13 +268,42 @@ export function AssistantPanel({
 
   const loadConversations = useCallback(() => {
     fetchConversations(dashboardId).then(
-      // Conversations of the editor belong to the editor: their mode is fixed
-      list => setConversations(list.filter(item => item.mode === 'read')),
+      // A conversation keeps its mode: each side lists its own
+      list => setConversations(list.filter(item => item.mode === mode)),
       () => setConversations([]),
     );
-  }, [dashboardId]);
+  }, [dashboardId, mode]);
 
-  const chat = useAssistantChat(loadConversations);
+  const reload = useCallback(
+    () =>
+      (
+        dispatch(reloadReport(history) as never) as unknown as Promise<void>
+      ).catch(() =>
+        addDangerToast(
+          t('The report could not be reloaded. Refresh the page.'),
+        ),
+      ),
+    [addDangerToast, dispatch, history],
+  );
+
+  // Work done on the canvas during an answer is not thrown away to show that answer
+  const afterChange = useCallback(() => {
+    if (store.getState().dashboardState.hasUnsavedChanges) {
+      addWarningToast(
+        t(
+          'The assistant changed the saved report while you were editing. Discard your changes to see it.',
+        ),
+      );
+    } else {
+      reload();
+    }
+  }, [addWarningToast, reload, store]);
+
+  const chat = useAssistantChat(
+    mode,
+    loadConversations,
+    editing ? afterChange : undefined,
+  );
   const { stop, reset } = chat;
   const current = models.find(item => item.id === chat.conversationModel);
   const model = chosenModel ?? current?.id ?? fallbackModel;
@@ -264,9 +314,9 @@ export function AssistantPanel({
   );
 
   useEffect(() => {
-    if (open) loadConversations();
+    if (active) loadConversations();
     else stop();
-  }, [open, loadConversations, stop]);
+  }, [active, loadConversations, stop]);
 
   const end = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -297,11 +347,42 @@ export function AssistantPanel({
     chat.open(id);
   };
 
+  const contextNow = () =>
+    editing
+      ? editorContext(store.getState(), dashboardId, selectedVisuals())
+      : pageContext(store.getState(), dashboardId);
+
   const submit = () => {
     const message = draft.trim();
-    if (!message || chat.busy || !model) return;
+    if (!message || chat.busy || !model || blocked) return;
     setDraft('');
-    chat.send(message, model, pageContext(store.getState(), dashboardId));
+    chat.send(message, model, contextNow());
+  };
+
+  const decide = (id: string, approved: boolean) => {
+    if (model) chat.decide(id, approved, model);
+  };
+
+  const undo = async () => {
+    try {
+      const result = await chat.undo();
+      if (result?.skipped_charts) {
+        addWarningToast(
+          t(
+            'Done, except for %s charts that no longer exist.',
+            result.skipped_charts,
+          ),
+        );
+      } else {
+        addSuccessToast(t('The assistant’s changes were undone.'));
+      }
+    } catch (error) {
+      addDangerToast(
+        error instanceof AssistantError
+          ? error.message
+          : t('This could not be undone.'),
+      );
+    }
   };
 
   const onKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
@@ -311,6 +392,206 @@ export function AssistantPanel({
     }
   };
 
+  return (
+    <Column>
+      <Controls>
+        <Select
+          ariaLabel={t('Model')}
+          value={model}
+          options={modelOptions}
+          onChange={value => setChosenModel(String(value))}
+          disabled={chat.busy}
+          showSearch={false}
+          data-test="auradata-assistant-model"
+        />
+        <Button
+          buttonStyle="secondary"
+          onClick={startNew}
+          disabled={chat.busy || !chat.messages.length}
+          data-test="auradata-assistant-new"
+        >
+          {t('New conversation')}
+        </Button>
+        {conversations.length > 0 && (
+          <History>
+            <Select
+              ariaLabel={t('Conversations of this report')}
+              placeholder={t('Conversations of this report')}
+              value={chat.conversationId ?? undefined}
+              options={conversations.map(item => ({
+                value: item.id,
+                label: item.title,
+              }))}
+              onChange={value => openConversation(String(value))}
+              disabled={chat.busy}
+              showSearch={false}
+              data-test="auradata-assistant-history"
+            />
+          </History>
+        )}
+      </Controls>
+
+      <Messages aria-live="polite" data-test="auradata-assistant-messages">
+        {chat.messages.length === 0 && (
+          <Hint>
+            {editing
+              ? t(
+                  'Ask for changes to this report. The assistant knows the page and what you have selected, and it asks you before it deletes, publishes, shares or schedules anything.',
+                )
+              : t(
+                  'Ask about this report. The assistant answers about the page and filters on your screen, and it cannot change anything.',
+                )}
+          </Hint>
+        )}
+        {chat.messages.map((message, index) =>
+          message.role === 'user' ? (
+            <Bubble key={message.id} fromUser>
+              {message.text}
+            </Bubble>
+          ) : (
+            <Answer
+              key={message.id}
+              message={message}
+              dashboardId={dashboardId}
+              writing={chat.busy && index === chat.messages.length - 1}
+            />
+          ),
+        )}
+        {chat.confirmations.map(confirmation => (
+          <ConfirmationCard
+            key={confirmation.id}
+            confirmation={confirmation}
+            disabled={chat.busy || blocked}
+            onDecide={approved => decide(confirmation.id, approved)}
+          />
+        ))}
+        <div ref={end} />
+      </Messages>
+
+      {blocked && (
+        <Alert
+          type="warning"
+          showIcon
+          message={t(
+            'The assistant works on the saved report. Save your changes or discard them first.',
+          )}
+          action={
+            <>
+              <Button
+                buttonSize="small"
+                buttonStyle="secondary"
+                onClick={reload}
+                disabled={saving}
+                data-test="auradata-assistant-discard"
+              >
+                {t('Discard')}
+              </Button>
+              <Button
+                buttonSize="small"
+                onClick={() => dispatch(saveReport() as never)}
+                disabled={saving}
+                data-test="auradata-assistant-save"
+              >
+                {t('Save')}
+              </Button>
+            </>
+          }
+          data-test="auradata-assistant-unsaved"
+        />
+      )}
+      {editing && chat.canUndo && !chat.busy && (
+        <Button
+          buttonStyle="secondary"
+          onClick={undo}
+          disabled={blocked}
+          icon={<Icons.Undo iconSize="m" />}
+          data-test="auradata-assistant-undo"
+        >
+          {t('Undo the assistant’s changes')}
+        </Button>
+      )}
+
+      {chat.cacheLost && (
+        <Alert
+          type="info"
+          showIcon
+          message={t(
+            'You changed the model, so it reads this conversation from scratch: this answer takes longer and costs more than usual.',
+          )}
+          data-test="auradata-assistant-model-changed"
+        />
+      )}
+      {long && (
+        <Alert
+          type="warning"
+          showIcon
+          message={t(
+            'This conversation is getting too long for the model. Start a new one to keep going.',
+          )}
+          action={
+            <Button buttonSize="small" onClick={startNew}>
+              {t('New conversation')}
+            </Button>
+          }
+          data-test="auradata-assistant-long"
+        />
+      )}
+
+      <Composer
+        onSubmit={event => {
+          event.preventDefault();
+          submit();
+        }}
+      >
+        <Input.TextArea
+          aria-label={t('Your question')}
+          placeholder={
+            chat.confirmations.length
+              ? t('If you write, the actions above are dropped')
+              : t('Your question')
+          }
+          value={draft}
+          onChange={event => setDraft(event.target.value)}
+          onKeyDown={onKeyDown}
+          autoSize={{ minRows: 1, maxRows: 5 }}
+          data-test="auradata-assistant-input"
+        />
+        {chat.busy ? (
+          <Button
+            buttonStyle="secondary"
+            onClick={stop}
+            icon={<Icons.StopOutlined iconSize="m" />}
+            data-test="auradata-assistant-stop"
+          >
+            {t('Stop')}
+          </Button>
+        ) : (
+          <Button
+            buttonStyle="primary"
+            htmlType="submit"
+            disabled={!draft.trim() || blocked}
+            data-test="auradata-assistant-send"
+          >
+            {t('Send')}
+          </Button>
+        )}
+      </Composer>
+      <Hint>{t('What you ask, and the data it reads, go to Anthropic.')}</Hint>
+    </Column>
+  );
+}
+
+/** «Ask your data»: a side panel of the report, the whole screen on a phone. */
+export function AssistantPanel({
+  open,
+  onClose,
+  models,
+}: {
+  open: boolean;
+  onClose: () => void;
+  models: OfferedModel[];
+}) {
+  const phone = usePhoneScreen();
   return (
     <Drawer
       open={open}
@@ -322,134 +603,7 @@ export function AssistantPanel({
       styles={{ body: { padding: 0 } }}
       data-test="auradata-assistant-panel"
     >
-      <Column>
-        <Controls>
-          <Select
-            ariaLabel={t('Model')}
-            value={model}
-            options={modelOptions}
-            onChange={value => setChosenModel(String(value))}
-            disabled={chat.busy}
-            showSearch={false}
-            data-test="auradata-assistant-model"
-          />
-          <Button
-            buttonStyle="secondary"
-            onClick={startNew}
-            disabled={chat.busy || !chat.messages.length}
-            data-test="auradata-assistant-new"
-          >
-            {t('New conversation')}
-          </Button>
-          {conversations.length > 0 && (
-            <History>
-              <Select
-                ariaLabel={t('Conversations of this report')}
-                placeholder={t('Conversations of this report')}
-                value={chat.conversationId ?? undefined}
-                options={conversations.map(item => ({
-                  value: item.id,
-                  label: item.title,
-                }))}
-                onChange={value => openConversation(String(value))}
-                disabled={chat.busy}
-                showSearch={false}
-                data-test="auradata-assistant-history"
-              />
-            </History>
-          )}
-        </Controls>
-
-        <Messages aria-live="polite" data-test="auradata-assistant-messages">
-          {chat.messages.length === 0 && (
-            <Hint>
-              {t(
-                'Ask about this report. The assistant answers about the page and filters on your screen, and it cannot change anything.',
-              )}
-            </Hint>
-          )}
-          {chat.messages.map((message, index) =>
-            message.role === 'user' ? (
-              <Bubble key={message.id} fromUser>
-                {message.text}
-              </Bubble>
-            ) : (
-              <Answer
-                key={message.id}
-                message={message}
-                dashboardId={dashboardId}
-                writing={chat.busy && index === chat.messages.length - 1}
-              />
-            ),
-          )}
-          <div ref={end} />
-        </Messages>
-
-        {chat.cacheLost && (
-          <Alert
-            type="info"
-            showIcon
-            message={t(
-              'You changed the model, so it reads this conversation from scratch: this answer takes longer and costs more than usual.',
-            )}
-            data-test="auradata-assistant-model-changed"
-          />
-        )}
-        {long && (
-          <Alert
-            type="warning"
-            showIcon
-            message={t(
-              'This conversation is getting too long for the model. Start a new one to keep going.',
-            )}
-            action={
-              <Button buttonSize="small" onClick={startNew}>
-                {t('New conversation')}
-              </Button>
-            }
-            data-test="auradata-assistant-long"
-          />
-        )}
-
-        <Composer
-          onSubmit={event => {
-            event.preventDefault();
-            submit();
-          }}
-        >
-          <Input.TextArea
-            aria-label={t('Your question')}
-            placeholder={t('Your question')}
-            value={draft}
-            onChange={event => setDraft(event.target.value)}
-            onKeyDown={onKeyDown}
-            autoSize={{ minRows: 1, maxRows: 5 }}
-            data-test="auradata-assistant-input"
-          />
-          {chat.busy ? (
-            <Button
-              buttonStyle="secondary"
-              onClick={stop}
-              icon={<Icons.StopOutlined iconSize="m" />}
-              data-test="auradata-assistant-stop"
-            >
-              {t('Stop')}
-            </Button>
-          ) : (
-            <Button
-              buttonStyle="primary"
-              htmlType="submit"
-              disabled={!draft.trim()}
-              data-test="auradata-assistant-send"
-            >
-              {t('Send')}
-            </Button>
-          )}
-        </Composer>
-        <Hint>
-          {t('What you ask, and the data it reads, go to Anthropic.')}
-        </Hint>
-      </Column>
+      <AssistantChat mode="read" models={models} active={open} />
     </Drawer>
   );
 }

@@ -16,15 +16,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { SupersetClient } from '@superset-ui/core';
+import { getClientErrorObject, SupersetClient } from '@superset-ui/core';
 import { t } from '@apache-superset/core/translation';
 import { sseParser } from './sse';
 import type {
   AssistantContext,
   AssistantEvent,
   AssistantModels,
+  ChatMode,
   Conversation,
   StoredConversation,
+  UndoResult,
 } from './types';
 
 const CHAT_URL = '/api/v1/auradata/assistant/';
@@ -51,19 +53,27 @@ export interface AssistantQuestion {
   message: string;
   conversation_id: string | null;
   model: string;
-  mode: 'read';
+  mode: ChatMode;
   context: AssistantContext;
+}
+
+/** An answer to the card of a call. The call itself stays as the server stored it. */
+export interface AssistantDecision {
+  tool_use_id: string;
+  approved: boolean;
+  model: string;
 }
 
 /** The server refused the message, or the stream ended before its answer. */
 export class AssistantError extends Error {}
 
 async function post(
-  question: AssistantQuestion,
+  endpoint: string,
+  body: AssistantQuestion | AssistantDecision,
   signal: AbortSignal,
 ): Promise<Response> {
   const token = await SupersetClient.getCSRFToken();
-  return fetch(SupersetClient.getUrl({ endpoint: CHAT_URL }), {
+  return fetch(SupersetClient.getUrl({ endpoint }), {
     method: 'POST',
     credentials: 'same-origin',
     headers: {
@@ -71,7 +81,7 @@ async function post(
       'Content-Type': 'application/json',
       'X-CSRFToken': token ?? '',
     },
-    body: JSON.stringify(question),
+    body: JSON.stringify(body),
     signal,
   });
 }
@@ -88,19 +98,20 @@ async function refusalOf(response: Response): Promise<string> {
 }
 
 /**
- * Sends a question and hands over each event as it arrives. `SupersetClient` waits
+ * Sends a request and hands over each event as it arrives. `SupersetClient` waits
  * for whole responses, so this reads the body of a `fetch` with the same token. A
  * token that went stale gets one new try. It rejects when the answer never came.
  */
-export async function askAssistant(
-  question: AssistantQuestion,
+async function streamAnswer(
+  endpoint: string,
+  body: AssistantQuestion | AssistantDecision,
   onEvent: (event: AssistantEvent) => void,
   signal: AbortSignal,
 ): Promise<void> {
-  let response = await post(question, signal);
+  let response = await post(endpoint, body, signal);
   if (response.status === 400) {
     await SupersetClient.reAuthenticate();
-    response = await post(question, signal);
+    response = await post(endpoint, body, signal);
   }
   if (!response.ok || !response.body) {
     throw new AssistantError(await refusalOf(response));
@@ -124,5 +135,42 @@ export async function askAssistant(
   }
   if (!finished) {
     throw new AssistantError(t('The answer was cut off. Try again.'));
+  }
+}
+
+export const askAssistant = (
+  question: AssistantQuestion,
+  onEvent: (event: AssistantEvent) => void,
+  signal: AbortSignal,
+): Promise<void> => streamAnswer(CHAT_URL, question, onEvent, signal);
+
+/** Approves or rejects a pending call, and reads what the assistant does next. */
+export const decideCall = (
+  conversationId: string,
+  decision: AssistantDecision,
+  onEvent: (event: AssistantEvent) => void,
+  signal: AbortSignal,
+): Promise<void> =>
+  streamAnswer(
+    `${CHAT_URL}conversations/${conversationId}/decide/`,
+    decision,
+    onEvent,
+    signal,
+  );
+
+/** Goes back to before the last turn that changed the report. */
+export async function undoTurn(conversationId: string): Promise<UndoResult> {
+  try {
+    const { json } = await SupersetClient.post({
+      endpoint: `${CHAT_URL}conversations/${conversationId}/undo/`,
+    });
+    return json.result;
+  } catch (response) {
+    const { message, error } = await getClientErrorObject(
+      response as Parameters<typeof getClientErrorObject>[0],
+    );
+    throw new AssistantError(
+      message ?? error ?? t('This could not be undone.'),
+    );
   }
 }

@@ -50,26 +50,46 @@ export const DASHBOARD_GET_COLUMNS = [
   'uuid',
 ];
 
-export const useDashboard = (idOrSlug: string | number) => {
-  const q = rison.encode({ columns: DASHBOARD_GET_COLUMNS });
-  return useTransformedResource(
-    useApiV1Resource<Dashboard>(`/api/v1/dashboard/${idOrSlug}?q=${q}`),
-    dashboard => ({
-      ...dashboard,
-      // TODO: load these at the API level
-      metadata:
-        (dashboard.json_metadata && JSON.parse(dashboard.json_metadata)) || {},
-      position_data:
-        dashboard.position_json && JSON.parse(dashboard.position_json),
-      editors: dashboard.editors || [],
-      viewers: dashboard.viewers || [],
-    }),
+/** The address of a dashboard with the fields the page needs. */
+export const dashboardEndpoint = (idOrSlug: string | number) =>
+  `/api/v1/dashboard/${idOrSlug}?q=${rison.encode({
+    columns: DASHBOARD_GET_COLUMNS,
+  })}`;
+
+/** A dashboard of the API as the page hydrates it. */
+export const dashboardFromApi = (dashboard: Dashboard) => ({
+  ...dashboard,
+  // TODO: load these at the API level
+  metadata:
+    (dashboard.json_metadata && JSON.parse(dashboard.json_metadata)) || {},
+  position_data: dashboard.position_json && JSON.parse(dashboard.position_json),
+  editors: dashboard.editors || [],
+  viewers: dashboard.viewers || [],
+});
+
+export const useDashboard = (idOrSlug: string | number) =>
+  useTransformedResource(
+    useApiV1Resource<Dashboard>(dashboardEndpoint(idOrSlug)),
+    dashboardFromApi,
   );
-};
 
 // gets the chart definitions for a dashboard
 export const useDashboardCharts = (idOrSlug: string | number) =>
   useApiV1Resource<Chart[]>(`/api/v1/dashboard/${idOrSlug}/charts`);
+
+/** The datasets of a dashboard with the currency formats their metrics use. */
+export const datasetsFromApi = (datasets: Datasource[]) =>
+  datasets.map(dataset => ({
+    ...dataset,
+    currencyFormats: Object.fromEntries(
+      (dataset.metrics ?? [])
+        .filter(metric => !!metric.currency)
+        .map((metric): [string, Currency] => [
+          metric.metric_name,
+          metric.currency!,
+        ]),
+    ),
+  }));
 
 // gets the datasets for a dashboard
 // important: this endpoint only returns the fields in the dataset
@@ -77,18 +97,7 @@ export const useDashboardCharts = (idOrSlug: string | number) =>
 export const useDashboardDatasets = (idOrSlug: string | number) =>
   useTransformedResource(
     useApiV1Resource<Datasource[]>(`/api/v1/dashboard/${idOrSlug}/datasets`),
-    datasets =>
-      datasets.map(dataset => ({
-        ...dataset,
-        currencyFormats: Object.fromEntries(
-          (dataset.metrics ?? [])
-            .filter(metric => !!metric.currency)
-            .map((metric): [string, Currency] => [
-              metric.metric_name,
-              metric.currency!,
-            ]),
-        ),
-      })),
+    datasetsFromApi,
   );
 
 export const useEmbeddedDashboard = (idOrSlug: string | number) =>

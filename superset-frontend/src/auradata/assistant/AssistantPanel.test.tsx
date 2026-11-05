@@ -16,20 +16,27 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import reducerIndex from 'spec/helpers/reducerIndex';
 import {
   act,
+  createStore,
   render,
   screen,
+  selectOption,
   userEvent,
   waitFor,
 } from 'spec/helpers/testing-library';
-import { AssistantPanel } from './AssistantPanel';
+import { setUnsavedChanges } from 'src/dashboard/actions/dashboardState';
+import { AssistantChat, AssistantPanel } from './AssistantPanel';
 import {
   askAssistant,
   AssistantError,
+  decideCall,
   fetchConversation,
   fetchConversations,
+  undoTurn,
 } from './client';
+import { reloadReport, saveReport } from './editorActions';
 import type { AssistantEvent, Figure, OfferedModel } from './types';
 
 jest.unmock('react-markdown');
@@ -37,8 +44,15 @@ jest.unmock('react-markdown');
 jest.mock('./client', () => ({
   ...jest.requireActual('./client'),
   askAssistant: jest.fn(),
+  decideCall: jest.fn(),
   fetchConversation: jest.fn(),
   fetchConversations: jest.fn(),
+  undoTurn: jest.fn(),
+}));
+
+jest.mock('./editorActions', () => ({
+  reloadReport: jest.fn(() => () => Promise.resolve()),
+  saveReport: jest.fn(() => () => undefined),
 }));
 
 jest.mock('src/components/Chart/chartAction', () => ({
@@ -46,6 +60,8 @@ jest.mock('src/components/Chart/chartAction', () => ({
 }));
 
 const ask = askAssistant as jest.Mock;
+const decide = decideCall as jest.Mock;
+const undo = undoTurn as jest.Mock;
 const conversations = fetchConversations as jest.Mock;
 const conversation = fetchConversation as jest.Mock;
 
@@ -138,6 +154,10 @@ const heldStream = () => {
 
 beforeEach(() => {
   ask.mockReset();
+  decide.mockReset().mockResolvedValue(undefined);
+  undo.mockReset();
+  (reloadReport as jest.Mock).mockClear();
+  (saveReport as jest.Mock).mockClear();
   conversation.mockReset();
   conversations.mockReset().mockResolvedValue([]);
 });
@@ -312,4 +332,242 @@ test('the model selector marks the price and the default', async () => {
     await screen.findAllByText('Claude Sonnet 5.5 · Balanced · default'),
   ).not.toHaveLength(0);
   expect(screen.getByText('Claude Haiku 5.5 · Economical')).toBeInTheDocument();
+});
+
+const editorState = (unsaved = false) => ({
+  ...initialState,
+  dashboardState: {
+    ...initialState.dashboardState,
+    hasUnsavedChanges: unsaved,
+  },
+});
+
+const setupEditor = (unsaved = false) =>
+  render(<AssistantChat mode="edit" models={[SONNET]} active />, {
+    useRedux: true,
+    initialState: editorState(unsaved),
+  });
+
+const CONFIRMATION = {
+  id: 'toolu_1',
+  name: 'delete_page',
+  title: 'Delete page',
+  input: { request: { page: '<b>Ventas</b>' } },
+};
+
+const askAndGetCard = async () => {
+  setupEditor();
+  const stream = heldStream();
+  await sendQuestion('Borra la página');
+  stream.emit({
+    event: 'conversation',
+    data: { id: 'c1', model: SONNET.id, mode: 'edit' },
+  });
+  stream.emit({ event: 'confirm', data: CONFIRMATION });
+  stream.emit({
+    event: 'done',
+    data: { context_tokens: 10, can_undo: false },
+  });
+  await stream.end();
+};
+
+test('the editor sends the page, the selection and the edit mode', async () => {
+  setupEditor();
+  ask.mockResolvedValue(undefined);
+
+  await sendQuestion('Ponle borde a este gráfico');
+
+  await waitFor(() => expect(ask).toHaveBeenCalled());
+  const [question] = ask.mock.calls[0];
+  expect(question.mode).toBe('edit');
+  expect(question.context.page_id).toBeDefined();
+});
+
+test('a card shows the call as plain text and runs nothing by itself', async () => {
+  await askAndGetCard();
+
+  const card = await screen.findByTestId('auradata-assistant-confirmation');
+  expect(card).toHaveTextContent('Delete a page');
+  expect(
+    screen.getByTestId('auradata-assistant-confirmation-details'),
+  ).toHaveTextContent('<b>Ventas</b>');
+  expect(card.querySelector('b')).toBeNull();
+  expect(decide).not.toHaveBeenCalled();
+});
+
+test('approving sends the id of the call and nothing about what it does', async () => {
+  await askAndGetCard();
+
+  await userEvent.click(
+    await screen.findByTestId('auradata-assistant-approve'),
+  );
+
+  await waitFor(() => expect(decide).toHaveBeenCalled());
+  expect(decide.mock.calls[0].slice(0, 2)).toEqual([
+    'c1',
+    { tool_use_id: 'toolu_1', approved: true, model: SONNET.id },
+  ]);
+  expect(
+    screen.queryByTestId('auradata-assistant-confirmation'),
+  ).not.toBeInTheDocument();
+});
+
+test('rejecting says so to the server', async () => {
+  await askAndGetCard();
+
+  await userEvent.click(await screen.findByTestId('auradata-assistant-reject'));
+
+  await waitFor(() => expect(decide).toHaveBeenCalled());
+  expect(decide.mock.calls[0][1].approved).toBe(false);
+});
+
+test('a card of a stored conversation comes back', async () => {
+  conversations.mockResolvedValue([
+    { id: 'c1', mode: 'edit', title: 'Del editor', model: SONNET.id },
+  ]);
+  conversation.mockResolvedValue({
+    id: 'c1',
+    mode: 'edit',
+    model: SONNET.id,
+    title: 'Del editor',
+    messages: [],
+    figures: {},
+    context_tokens: 0,
+    pending: [CONFIRMATION],
+    rejected: [],
+    can_undo: false,
+  });
+  setupEditor();
+
+  await selectOption('Del editor', 'Conversations of this report');
+
+  expect(
+    await screen.findByTestId('auradata-assistant-confirmation'),
+  ).toBeInTheDocument();
+});
+
+test('with unsaved changes it asks to save or discard and sends nothing', async () => {
+  setupEditor(true);
+
+  expect(screen.getByTestId('auradata-assistant-unsaved')).toBeInTheDocument();
+  await sendQuestion('Hazlo');
+  expect(ask).not.toHaveBeenCalled();
+
+  await userEvent.click(screen.getByTestId('auradata-assistant-save'));
+  expect(saveReport).toHaveBeenCalled();
+  await userEvent.click(screen.getByTestId('auradata-assistant-discard'));
+  expect(reloadReport).toHaveBeenCalled();
+});
+
+test('a card waits for the changes to be saved too', async () => {
+  conversations.mockResolvedValue([
+    { id: 'c1', mode: 'edit', title: 'Del editor', model: SONNET.id },
+  ]);
+  conversation.mockResolvedValue({
+    id: 'c1',
+    mode: 'edit',
+    model: SONNET.id,
+    title: 'Del editor',
+    messages: [],
+    figures: {},
+    context_tokens: 0,
+    pending: [CONFIRMATION],
+    rejected: [],
+    can_undo: false,
+  });
+  setupEditor(true);
+
+  await selectOption('Del editor', 'Conversations of this report');
+
+  expect(
+    await screen.findByTestId('auradata-assistant-approve'),
+  ).toBeDisabled();
+});
+
+test('the editor reloads when an answer changed the report, and offers undo', async () => {
+  setupEditor();
+  const stream = heldStream();
+  await sendQuestion('Agrega una página');
+  stream.emit({
+    event: 'conversation',
+    data: { id: 'c1', model: SONNET.id, mode: 'edit' },
+  });
+  stream.emit({ event: 'tool_start', data: { id: 't', name: 'add_page' } });
+  stream.emit({
+    event: 'tool_end',
+    data: { id: 't', name: 'add_page', is_error: false, changed: true },
+  });
+  stream.emit({ event: 'done', data: { context_tokens: 10, can_undo: true } });
+  expect(reloadReport).not.toHaveBeenCalled();
+  await stream.end();
+
+  await waitFor(() => expect(reloadReport).toHaveBeenCalledTimes(1));
+
+  undo.mockResolvedValue({ skipped_charts: 0, can_undo: false });
+  await userEvent.click(screen.getByTestId('auradata-assistant-undo'));
+
+  await waitFor(() => expect(undo).toHaveBeenCalledWith('c1'));
+  await waitFor(() => expect(reloadReport).toHaveBeenCalledTimes(2));
+  expect(
+    screen.queryByTestId('auradata-assistant-undo'),
+  ).not.toBeInTheDocument();
+});
+
+test('changes made on the canvas during an answer are not thrown away', async () => {
+  const store = createStore(editorState(), reducerIndex);
+  render(<AssistantChat mode="edit" models={[SONNET]} active />, { store });
+  const stream = heldStream();
+  await sendQuestion('Agrega una página');
+  stream.emit({
+    event: 'tool_end',
+    data: { id: 't', name: 'add_page', is_error: false, changed: true },
+  });
+  act(() => {
+    store.dispatch(setUnsavedChanges(true));
+  });
+  await stream.end();
+
+  await waitFor(() => expect(ask).toHaveBeenCalled());
+  expect(reloadReport).not.toHaveBeenCalled();
+  expect(
+    await screen.findByTestId('auradata-assistant-unsaved'),
+  ).toBeInTheDocument();
+});
+
+test('an answer that changed nothing does not reload the editor', async () => {
+  setupEditor();
+  const stream = heldStream();
+  await sendQuestion('¿Qué hay aquí?');
+  stream.emit({ event: 'text', data: { text: 'Un gráfico' } });
+  stream.emit({ event: 'done', data: { context_tokens: 10 } });
+  await stream.end();
+
+  await waitFor(() => expect(ask).toHaveBeenCalled());
+  expect(reloadReport).not.toHaveBeenCalled();
+});
+
+test('a refused undo shows why', async () => {
+  conversations.mockResolvedValue([
+    { id: 'c1', mode: 'edit', title: 'Del editor', model: SONNET.id },
+  ]);
+  conversation.mockResolvedValue({
+    id: 'c1',
+    mode: 'edit',
+    model: SONNET.id,
+    title: 'Del editor',
+    messages: [],
+    figures: {},
+    context_tokens: 0,
+    pending: [],
+    rejected: [],
+    can_undo: true,
+  });
+  undo.mockRejectedValue(new AssistantError('Cambió después'));
+  setupEditor();
+  await selectOption('Del editor', 'Conversations of this report');
+
+  await userEvent.click(await screen.findByTestId('auradata-assistant-undo'));
+
+  await waitFor(() => expect(undo).toHaveBeenCalled());
+  expect(reloadReport).not.toHaveBeenCalled();
 });

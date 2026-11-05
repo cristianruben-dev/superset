@@ -17,14 +17,21 @@
  * under the License.
  */
 import type { DataMaskStateWithId } from '@superset-ui/core';
-import type { RootState } from 'src/dashboard/types';
-import type { AssistantContext } from './types';
+import type { LayoutItem, RootState } from 'src/dashboard/types';
+import { mergeVisualFormat } from '../format/styles';
+import type { CanvasFormat, VisualFormat } from '../format/types';
+import { activePageId } from '../present/dashboardTabs';
+import type { AssistantContext, SelectedObject } from './types';
 
 /** The server refuses more than 8000 characters. */
 export const MAX_CONTEXT_CHARS = 7000;
 const MAX_PAGE_CHARS = 250;
 const MAX_VALUES = 20;
 const MAX_VALUE_CHARS = 200;
+/** Selected objects take this much of the context; the filters get the rest. */
+const MAX_SELECTION_CHARS = 2500;
+const MAX_FORMAT_CHARS = 1000;
+const MAX_SELECTED = 20;
 
 const shortValue = (value: unknown): unknown =>
   typeof value === 'string' ? value.slice(0, MAX_VALUE_CHARS) : value;
@@ -89,6 +96,7 @@ function filtersOf({ nativeFilters, dataMask }: ContextState) {
 export function pageContext(
   state: ContextState,
   dashboardId: number,
+  room: number = MAX_CONTEXT_CHARS,
 ): AssistantContext {
   const page = pageOf(state);
   const context: AssistantContext = {
@@ -100,9 +108,7 @@ export function pageContext(
   let omitted = 0;
   entries.forEach(([name, value]) => {
     const next = { ...kept, [name]: value };
-    if (
-      JSON.stringify({ ...context, filters: next }).length > MAX_CONTEXT_CHARS
-    ) {
+    if (JSON.stringify({ ...context, filters: next }).length > room) {
       omitted += 1;
     } else {
       kept[name] = value;
@@ -110,4 +116,70 @@ export function pageContext(
   });
   if (omitted) kept.omitted_filters = omitted;
   return entries.length ? { ...context, filters: kept } : context;
+}
+
+/** An object as the assistant reads it. A format too long to fit stays out. */
+function objectOf(
+  id: string,
+  item: LayoutItem,
+  shared: VisualFormat | undefined,
+): SelectedObject {
+  const { meta, type } = item;
+  const format =
+    meta.chartId !== undefined
+      ? mergeVisualFormat(shared, meta.auradataFormat as VisualFormat)
+      : (meta.auradataElement ?? meta.auradataFormat);
+  const name = meta.sliceNameOverride || meta.sliceName || meta.text;
+  return {
+    id,
+    type,
+    ...(meta.chartId !== undefined && { chart_id: meta.chartId as number }),
+    ...(name && { name: String(name).slice(0, MAX_PAGE_CHARS) }),
+    ...(format &&
+      JSON.stringify(format).length <= MAX_FORMAT_CHARS && {
+        format: format as Record<string, unknown>,
+      }),
+  };
+}
+
+/** The objects picked on the canvas, the one the Format pane edits last. */
+function selectionOf(
+  { dashboardLayout }: ContextState,
+  selected: string[],
+): SelectedObject[] {
+  const layout = dashboardLayout.present;
+  const canvas = layout.ROOT_ID?.meta?.auradataCanvas as
+    | CanvasFormat
+    | undefined;
+  const objects: SelectedObject[] = [];
+  selected.slice(-MAX_SELECTED).forEach(id => {
+    if (!layout[id]) return;
+    const next = [...objects, objectOf(id, layout[id], canvas?.visuals)];
+    if (JSON.stringify(next).length <= MAX_SELECTION_CHARS) {
+      objects.push(next[next.length - 1]);
+    }
+  });
+  return objects;
+}
+
+/**
+ * What the editor shows, on top of `pageContext`: the page and the selected objects,
+ * so "this chart" means something. It only informs the model: the server never acts
+ * on any of it.
+ */
+export function editorContext(
+  state: ContextState,
+  dashboardId: number,
+  selected: string[],
+): AssistantContext {
+  const selection = selectionOf(state, selected);
+  const room = MAX_CONTEXT_CHARS - JSON.stringify(selection).length;
+  return {
+    ...pageContext(state, dashboardId, room),
+    page_id: activePageId(
+      state.dashboardLayout.present,
+      state.dashboardState.activeTabs,
+    ),
+    ...(selection.length > 0 && { selection }),
+  };
 }

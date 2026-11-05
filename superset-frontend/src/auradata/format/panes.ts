@@ -68,7 +68,8 @@ export type BuilderTab =
   | 'LAYOUT_ELEMENTS'
   | 'FORMAT'
   | 'SELECTION'
-  | 'BOOKMARKS';
+  | 'BOOKMARKS'
+  | 'ASSISTANT';
 
 const TAB_EVENT = 'auradata:builder-tab';
 let builderTab: BuilderTab = 'CHARTS';
@@ -78,6 +79,8 @@ export function setBuilderTab(tab: BuilderTab) {
   builderTab = tab;
   window.dispatchEvent(new CustomEvent(TAB_EVENT));
 }
+
+export const getBuilderTab = () => builderTab;
 
 /** Shows a tab of the editor pane, unfolding it. */
 export function openBuilderTab(tab: BuilderTab) {

@@ -331,6 +331,17 @@ export function onSave(lastModifiedTime: number): OnSaveAction {
   return { type: ON_SAVE, lastModifiedTime };
 }
 
+export const KEEP_EDITING_ON_SAVE = 'KEEP_EDITING_ON_SAVE';
+
+interface KeepEditingOnSaveAction {
+  type: typeof KEEP_EDITING_ON_SAVE;
+}
+
+/** AuraData BI: the next save stays in the editor, as the assistant needs. */
+export function keepEditingOnSave(): KeepEditingOnSaveAction {
+  return { type: KEEP_EDITING_ON_SAVE };
+}
+
 export const SET_REFRESH_FREQUENCY = 'SET_REFRESH_FREQUENCY';
 
 interface SetRefreshFrequencyAction {

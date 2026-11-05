@@ -70,6 +70,7 @@ import { ExportDashboardModal } from 'src/auradata/export/ExportDashboardModal';
 import { ReadingBar } from 'src/auradata/report/ReadingBar';
 import { ReportMenuBar } from 'src/auradata/report/ReportMenuBar';
 import { ModeMenu, Ribbon } from 'src/auradata/ribbon/Ribbon';
+import { setReportSave } from 'src/auradata/assistant/editorActions';
 import { useUnsavedChangesPrompt } from 'src/hooks/useUnsavedChangesPrompt';
 import { selectIsDashboardVersionPreviewActive } from 'src/features/versionHistory/reducer';
 import DashboardEmbedModal from '../EmbeddedModal';
@@ -478,6 +479,12 @@ const Header = ({ onOpenMobileFilters }: HeaderComponentProps): JSX.Element => {
     slug,
     dashboardInfo.description,
   ]);
+
+  // AuraData BI: the panel of the assistant asks to save before it acts
+  useEffect(() => {
+    setReportSave(overwriteDashboard);
+    return () => setReportSave(null);
+  }, [overwriteDashboard]);
 
   const {
     showModal: showUnsavedChangesModal,

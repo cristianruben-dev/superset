@@ -18,6 +18,7 @@
  */
 import { useContext, useEffect, useRef, useState, type ReactNode } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useAssistantModels } from '../assistant/useAssistant';
 import { t } from '@apache-superset/core/translation';
 import { Button, Dropdown, Modal } from '@superset-ui/core/components';
 import { Icons } from '@superset-ui/core/components/Icons';
@@ -189,6 +190,7 @@ export function Ribbon({
     (state: RootState) => state.dashboardState.activeTabs,
   );
   const dashboardId = useSelector((state: RootState) => state.dashboardInfo.id);
+  const assistantModels = useAssistantModels();
   const dashboardPageId = useContext(DashboardPageIdContext);
 
   const primary = useSelectedVisual();
@@ -470,6 +472,18 @@ export function Ribbon({
               icon={<Icons.DownloadOutlined iconSize="m" />}
               onClick={onExport}
               data-test="auradata-ribbon-export"
+            />
+          </RibbonGroup>
+        )}
+        {assistantModels.length > 0 && (
+          <RibbonGroup label={t('Assistant')}>
+            <RibbonButton
+              label={t('Assistant')}
+              hint={t('Ask the assistant to change this report')}
+              icon={<Icons.CommentOutlined iconSize="m" />}
+              pressed={paneTab === 'ASSISTANT' && !paneFolded}
+              onClick={() => togglePane('ASSISTANT')}
+              data-test="auradata-ribbon-assistant"
             />
           </RibbonGroup>
         )}

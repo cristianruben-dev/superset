@@ -172,3 +172,40 @@ test('a conversation is long near what the model can read', () => {
   expect(isLongConversation(800, 1000)).toBe(true);
   expect(isLongConversation(170_000, null)).toBe(true);
 });
+
+test('a rejected call says so, live and when read later', () => {
+  const answer = withEvent(
+    withEvent(
+      { id: 'a', role: 'assistant', text: '', tools: [] },
+      { event: 'tool_start', data: { id: 't', name: 'delete_page' } },
+    ),
+    {
+      event: 'tool_end',
+      data: { id: 't', name: 'delete_page', is_error: true, rejected: true },
+    },
+  );
+  const [stored] = transcriptOf({
+    id: 'c',
+    dashboard_id: 1,
+    mode: 'edit',
+    model: 'm',
+    title: 't',
+    changed_on: '',
+    context_tokens: 0,
+    figures: {},
+    pending: [],
+    can_undo: false,
+    rejected: ['t'],
+    messages: [
+      {
+        id: 'r',
+        role: 'assistant',
+        stop_reason: 'tool_use',
+        content: [{ type: 'tool_use', id: 't', name: 'delete_page' }],
+      },
+    ],
+  });
+
+  expect(answer.tools[0].rejected).toBe(true);
+  expect(stored.tools[0].rejected).toBe(true);
+});

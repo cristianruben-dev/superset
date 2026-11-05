@@ -49,6 +49,8 @@ import NewDynamicComponent from '../gridComponents/new/NewDynamicComponent';
 import { FormatPane } from 'src/auradata/format/FormatPane';
 import { NewElements } from 'src/auradata/elements/NewElements';
 import { BookmarksPane } from 'src/auradata/report/BookmarksPane';
+import { AssistantChat } from 'src/auradata/assistant/AssistantPanel';
+import { useAssistantModels } from 'src/auradata/assistant/useAssistant';
 import { selectVisual, useOnOpenFormat } from 'src/auradata/format/selection';
 import { useObjectShortcuts } from 'src/auradata/format/useObjectCommands';
 
@@ -58,9 +60,10 @@ const TABS_KEYS = {
   FORMAT: 'FORMAT',
   SELECTION: 'SELECTION',
   BOOKMARKS: 'BOOKMARKS',
+  ASSISTANT: 'ASSISTANT',
 } as const;
 
-/** The label of a pane tab: an icon over a short name, so five fit side by side. */
+/** The label of a pane tab: an icon over a short name, so six fit side by side. */
 const paneLabel = (icon: ReactNode, label: string) => (
   <span
     css={css`
@@ -85,6 +88,7 @@ const BuilderComponentPane = ({ topOffset = 0, pageTop = 0 }) => {
   const occupied = topOffset + pageTop;
   const activeKey = useBuilderTab();
   const collapsed = usePaneCollapsed('builder');
+  const assistantModels = useAssistantModels();
   const width = collapsed
     ? BUILDER_SIDEPANEL_RAIL_WIDTH
     : BUILDER_SIDEPANEL_WIDTH;
@@ -172,7 +176,7 @@ const BuilderComponentPane = ({ topOffset = 0, pageTop = 0 }) => {
             id="tabs"
             activeKey={activeKey}
             onChange={key => setBuilderTab(key as BuilderTab)}
-            // AuraData BI: five tabs fit side by side
+            // AuraData BI: six tabs fit side by side
             tabBarGutter={4}
             css={css`
               line-height: inherit;
@@ -281,6 +285,30 @@ const BuilderComponentPane = ({ topOffset = 0, pageTop = 0 }) => {
                   </div>
                 ),
               },
+              ...(assistantModels.length
+                ? [
+                    {
+                      key: TABS_KEYS.ASSISTANT,
+                      label: paneLabel(
+                        <Icons.CommentOutlined iconSize="m" />,
+                        t('Assistant'),
+                      ),
+                      children: (
+                        <div
+                          css={css`
+                            height: calc(100vh - ${occupied + 77}px);
+                          `}
+                        >
+                          <AssistantChat
+                            mode="edit"
+                            models={assistantModels}
+                            active
+                          />
+                        </div>
+                      ),
+                    },
+                  ]
+                : []),
             ]}
           />
         </div>

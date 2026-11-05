@@ -46,7 +46,15 @@ import {
   mobileViewSettings,
   setMobileViewSettings,
 } from 'src/auradata/format/mobileDevices';
+import { getBuilderTab, setBuilderTab } from 'src/auradata/format/panes';
+import { useAssistantModels } from 'src/auradata/assistant/useAssistant';
 import { Ribbon, type RibbonProps } from './Ribbon';
+
+jest.mock('src/auradata/assistant/useAssistant', () => ({
+  useAssistantModels: jest.fn(() => []),
+}));
+
+const useModels = useAssistantModels as jest.Mock;
 
 const layout = {
   [DASHBOARD_ROOT_ID]: {
@@ -338,4 +346,24 @@ test('clicking the open tab does not fold the ribbon', () => {
   renderRibbon();
   userEvent.click(screen.getByTestId('auradata-ribbon-tab-home'));
   expect(screen.getByTestId('header-save-button')).toBeInTheDocument();
+});
+
+test('Home opens the assistant from a group of its own when it answers', async () => {
+  useModels.mockReturnValue([{ id: 'claude-sonnet-5-5' }]);
+  setBuilderTab('CHARTS');
+  renderRibbon();
+
+  userEvent.click(screen.getByTestId('auradata-ribbon-assistant'));
+
+  expect(getBuilderTab()).toBe('ASSISTANT');
+  useModels.mockReturnValue([]);
+});
+
+test('without the assistant Home does not offer it', () => {
+  useModels.mockReturnValue([]);
+  renderRibbon();
+
+  expect(
+    screen.queryByTestId('auradata-ribbon-assistant'),
+  ).not.toBeInTheDocument();
 });

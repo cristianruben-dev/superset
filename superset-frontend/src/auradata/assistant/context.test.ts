@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { MAX_CONTEXT_CHARS, pageContext } from './context';
+import { editorContext, MAX_CONTEXT_CHARS, pageContext } from './context';
 
 type State = Parameters<typeof pageContext>[0];
 
@@ -108,4 +108,84 @@ test('always stays under what the server accepts, and says what it left out', ()
   );
   expect(context.filters?.omitted_filters).toBeGreaterThan(0);
   expect(context.filters?.['Filtro 0']).toBeDefined();
+});
+
+const CHART = 'CHART-1';
+
+const withChart = (meta: Record<string, unknown>, canvas = {}) =>
+  state({
+    dashboardLayout: {
+      present: {
+        ROOT_ID: { meta: { auradataCanvas: canvas } },
+        [CHART]: {
+          id: CHART,
+          type: 'CHART',
+          meta: { chartId: 8, sliceName: 'Ventas', ...meta },
+        },
+      },
+    },
+  });
+
+test('the editor says which object is selected, with the format it shows', () => {
+  const context = editorContext(
+    withChart(
+      { auradataFormat: { border: { show: true } } },
+      { visuals: { shadow: true } },
+    ),
+    3,
+    [CHART],
+  );
+
+  expect(context.selection).toEqual([
+    {
+      id: CHART,
+      type: 'CHART',
+      chart_id: 8,
+      name: 'Ventas',
+      format: { shadow: true, border: { show: true } },
+    },
+  ]);
+  expect(context.page_id).toBeDefined();
+});
+
+test('an object that left the page is not selected', () => {
+  const context = editorContext(withChart({}), 3, ['CHART-gone']);
+
+  expect(context.selection).toBeUndefined();
+});
+
+test('a format too long to send stays out, and the object stays in', () => {
+  const context = editorContext(
+    withChart({ auradataFormat: { note: 'x'.repeat(5000) } }),
+    3,
+    [CHART],
+  );
+
+  expect(context.selection?.[0].id).toBe(CHART);
+  expect(context.selection?.[0].format).toBeUndefined();
+});
+
+test('filters leave room for the selection under what the server accepts', () => {
+  const huge = Array.from({ length: 1000 }, () => 'x'.repeat(500));
+  const filteredState = filtered(50, huge);
+  const context = editorContext(
+    {
+      ...filteredState,
+      dashboardLayout: {
+        present: {
+          ...filteredState.dashboardLayout.present,
+          [CHART]: {
+            id: CHART,
+            type: 'CHART',
+            meta: { chartId: 8, sliceName: 'n'.repeat(240) },
+          },
+        },
+      },
+    } as typeof filteredState,
+    3,
+    [CHART],
+  );
+
+  expect(context.selection).toHaveLength(1);
+  expect(JSON.stringify(context).length).toBeLessThanOrEqual(MAX_CONTEXT_CHARS);
 });

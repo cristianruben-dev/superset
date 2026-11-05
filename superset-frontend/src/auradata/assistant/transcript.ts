@@ -99,6 +99,7 @@ export function transcriptOf(stored: StoredConversation): ChatMessage[] {
           name: block.name ?? '',
           running: false,
           failed: false,
+          rejected: stored.rejected?.includes(block.id),
         };
         steps.set(block.id, step);
         current.tools.push(step);
@@ -146,7 +147,12 @@ export function withEvent(
         figure: data.figure ?? answer.figure,
         tools: answer.tools.map(step =>
           step.id === data.id
-            ? { ...step, running: false, failed: data.is_error }
+            ? {
+                ...step,
+                running: false,
+                failed: data.is_error,
+                rejected: data.rejected,
+              }
             : step,
         ),
       };

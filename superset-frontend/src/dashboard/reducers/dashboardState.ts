@@ -46,6 +46,7 @@ import {
   SET_OVERRIDE_CONFIRM,
   SAVE_DASHBOARD_STARTED,
   SAVE_DASHBOARD_FINISHED,
+  KEEP_EDITING_ON_SAVE,
   SET_DASHBOARD_LABELS_COLORMAP_SYNCABLE,
   SET_DASHBOARD_LABELS_COLORMAP_SYNCED,
   SET_DASHBOARD_SHARED_LABELS_COLORS_SYNCABLE,
@@ -284,14 +285,18 @@ export default function dashboardStateReducer(
       return {
         ...state,
         dashboardIsSaving: false,
+        keepEditingOnSave: false,
       };
+    },
+    [KEEP_EDITING_ON_SAVE](): DashboardStateShape {
+      return { ...state, keepEditingOnSave: true };
     },
     [ON_SAVE](): DashboardStateShape {
       return {
         ...state,
         hasUnsavedChanges: false,
         maxUndoHistoryExceeded: false,
-        editMode: false,
+        editMode: !!state.keepEditingOnSave && !!state.editMode,
         updatedColorScheme: false,
         // server-side returns last_modified_time for latest change
         lastModifiedTime: action.lastModifiedTime,

@@ -16,6 +16,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+/** What a conversation can do: answer about a report, or change it too. */
+export type ChatMode = 'read' | 'edit';
+
 /** The relative price of a model, for someone choosing one. */
 export type ModelPrice = 'economy' | 'balanced' | 'top';
 
@@ -63,14 +66,33 @@ export interface Figure {
 export interface AssistantContext {
   dashboard_id: number;
   page?: string;
+  page_id?: string;
+  selection?: SelectedObject[];
   filters?: Record<string, unknown>;
+}
+
+/** An object the user has selected in the editor, for the assistant to read. */
+export interface SelectedObject {
+  id: string;
+  type?: string;
+  chart_id?: number;
+  name?: string;
+  format?: Record<string, unknown>;
+}
+
+/** A call that waits for the approval of the person. */
+export interface Confirmation {
+  id: string;
+  name: string;
+  title: string;
+  input: Record<string, unknown>;
 }
 
 /** A conversation as the list gives it. */
 export interface Conversation {
   id: string;
   dashboard_id: number;
-  mode: 'read' | 'edit';
+  mode: ChatMode;
   model: string;
   title: string;
   changed_on: string;
@@ -99,6 +121,15 @@ export interface StoredConversation extends Conversation {
   messages: StoredMessage[];
   figures: Record<string, Figure>;
   context_tokens: number;
+  pending: Confirmation[];
+  rejected: string[];
+  can_undo: boolean;
+}
+
+/** Answer of the undo of a conversation. */
+export interface UndoResult {
+  skipped_charts: number;
+  can_undo: boolean;
 }
 
 /** A tool the assistant used for a message. */
@@ -107,6 +138,8 @@ export interface ToolStep {
   name: string;
   running: boolean;
   failed: boolean;
+  /** The person said no on its card. */
+  rejected?: boolean;
 }
 
 /** A message of the panel. */
@@ -132,8 +165,19 @@ export type AssistantEvent =
   | { event: 'tool_start'; data: { id: string; name: string } }
   | {
       event: 'tool_end';
-      data: { id: string; name: string; is_error: boolean; figure?: Figure };
+      data: {
+        id: string;
+        name: string;
+        is_error: boolean;
+        figure?: Figure;
+        changed?: boolean;
+        rejected?: boolean;
+      };
     }
+  | { event: 'confirm'; data: Confirmation }
   | { event: 'refusal'; data: { message: string } }
   | { event: 'error'; data: { code: string; message: string } }
-  | { event: 'done'; data: { model: string; context_tokens: number } };
+  | {
+      event: 'done';
+      data: { model?: string; context_tokens: number; can_undo?: boolean };
+    };

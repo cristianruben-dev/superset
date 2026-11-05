@@ -125,6 +125,7 @@ export type DashboardState = {
   isFiltersRefreshing: boolean;
   hasUnsavedChanges: boolean;
   dashboardIsSaving: boolean;
+  keepEditingOnSave?: boolean;
   lastModifiedTime?: number;
   colorScheme: string;
   sliceIds: number[];
