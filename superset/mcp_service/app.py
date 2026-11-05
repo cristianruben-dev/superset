@@ -162,6 +162,7 @@ Report Pages and Layout (AuraData BI):
 - place_object / move_object / resize_object: Put an object on a cell of a page (cells of 32 px)
 - align_objects / distribute_objects / bring_to_front: Arrange objects of a page
 - set_object_state: Hide, lock or describe (alt text) an object
+- get_dashboard_screenshot / get_visual_screenshot: Look at a page or a chart as viewers see it
 Pages have a fixed size in cells; writes keep objects inside the page and never
 on top of another unless allow_overlap is set. Read the structure first and use
 its page and object ids.
@@ -873,6 +874,10 @@ from superset.mcp_service.role.tool import (  # noqa: F401, E402
 from superset.mcp_service.saved_query.tool import (  # noqa: F401, E402
     get_saved_query_info,
     list_saved_queries,
+)
+from superset.mcp_service.screenshot.tool import (  # noqa: F401, E402
+    get_dashboard_screenshot,
+    get_visual_screenshot,
 )
 from superset.mcp_service.semantic_layer.tool import (  # noqa: F401, E402
     get_compatible_dimensions,

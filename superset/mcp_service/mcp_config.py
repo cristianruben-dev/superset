@@ -435,6 +435,8 @@ MCP_RESPONSE_SIZE_CONFIG: dict[str, Any] = {
         "generate_explore_link",  # Returns URLs
         "open_sql_lab_with_context",  # Returns URLs
         "search_tools",  # Returns tool schemas for discovery (intentionally large)
+        "get_dashboard_screenshot",  # Returns a picture (JPEG, at most 1600 px)
+        "get_visual_screenshot",  # Returns a picture (JPEG, at most 1600 px)
     ],
 }
 
