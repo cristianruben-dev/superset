@@ -120,7 +120,9 @@ docker compose up -d --build
 
 - Aplicación: http://localhost:8088 (usuario `admin`, contraseña `admin`)
 - Frontend con recarga en caliente: http://localhost:9000
-- Servicio MCP: http://localhost:5008/mcp (actúa como `admin`, solo en local)
+- Servicio MCP: http://localhost:5008/mcp. Pide una clave personal: créala en «Conectar IA»
+  (http://localhost:8088/connect-ai/) y envíala como `Authorization: Bearer sst_…`; la IA actúa como tú.
+  Con `MCP_API_KEY_ENABLED=false` en `docker/.env-local` vuelve a aceptar peticiones sin clave como `admin`.
 
 Al arrancar se aplican las migraciones pendientes (`superset db upgrade`), incluidas
 las de AuraData BI: áreas de trabajo, miembros, imágenes de fondo y de elementos, y conjuntos de datos
@@ -157,9 +159,10 @@ docker compose exec superset superset split-shared-charts
    ```
 
 Levanta PostgreSQL, Redis, la aplicación (gunicorn), los workers de Celery para
-alertas e informes programados y, con `--profile mcp`, el servicio MCP protegido
-con JWT. Pon delante un proxy inverso con HTTPS (nginx, Traefik, Caddy...) que
-apunte al puerto 8088.
+alertas e informes programados y, con `--profile mcp`, el servicio MCP, al que cada
+usuario conecta su IA con una clave personal de «Conectar IA» (o con un JWT firmado con
+`MCP_JWT_SECRET`). Pon delante un proxy inverso con HTTPS (nginx, Traefik, Caddy...) que
+apunte al puerto 8088 y, si publicas el MCP, indica su dirección en `MCP_SERVICE_URL`.
 
 La imagen (`target: prod`) parte de la imagen mínima `lean` de Superset 7.0 e instala los
 drivers de las bases que ofrece AuraData BI (PostgreSQL, SQL Server, MySQL, Databricks,

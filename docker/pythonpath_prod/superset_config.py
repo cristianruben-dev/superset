@@ -140,7 +140,9 @@ FEATURE_FLAGS["FAB_API_KEY_ENABLED"] = True
 MCP_API_KEY_ENABLED = _flag("MCP_API_KEY_ENABLED", True)
 MCP_API_KEY_CREATE_URL = "/connect-ai/"
 # Public address of the MCP service that AI clients call (shown on «Conectar IA»),
-# e.g. https://bi.example.com/mcp behind the same proxy as the app.
+# e.g. https://bi.example.com/mcp. Set it whenever the MCP is published: without
+# it the page offers the app's address plus /mcp, which only works when the
+# reverse proxy routes /mcp to the MCP service.
 MCP_SERVICE_URL = os.getenv("MCP_SERVICE_URL") or None
 MCP_JWT_SECRET = os.getenv("MCP_JWT_SECRET") or None
 MCP_AUTH_ENABLED = MCP_JWT_SECRET is not None

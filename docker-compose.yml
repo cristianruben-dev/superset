@@ -134,8 +134,9 @@ services:
     volumes: *superset-volumes
 
   # MCP service: lets AI agents (e.g. Claude) work with charts, dashboards and
-  # datasets. It acts as MCP_DEV_USERNAME (see docker/pythonpath_dev), so the port
-  # is only published on localhost.
+  # datasets. An agent sends a personal API key from «Conectar IA» and acts as its
+  # owner; with MCP_API_KEY_ENABLED=false it acts as MCP_DEV_USERNAME instead (see
+  # docker/pythonpath_dev), so the port is only published on localhost.
   superset-mcp:
     env_file:
       - path: docker/.env # default
