@@ -502,6 +502,10 @@ COMMITTED_WRITE_SPECS: Dict[str, CommittedWriteSpec] = {
     "generate_mobile_layout": _spec("dashboard", "dashboard_id"),
     "set_mobile_layout": _spec("dashboard", "dashboard_id"),
     "restore_version": _spec("version", reports_success=True),
+    "create_alert": _spec("alert", "report", "executor", reports_success=True),
+    "create_report": _spec("report", "report", "executor", reports_success=True),
+    "delete_report": _spec("report", "deleted_id", reports_success=True),
+    "update_report": _spec("report", "report", "executor", reports_success=True),
 }
 
 COMMITTED_WRITE_TOOLS = frozenset(COMMITTED_WRITE_SPECS)

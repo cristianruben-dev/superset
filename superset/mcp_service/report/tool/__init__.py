@@ -17,8 +17,18 @@
 
 from .get_report_info import get_report_info
 from .list_reports import list_reports
+from .manage_reports import (
+    create_alert,
+    create_report,
+    delete_report,
+    update_report,
+)
 
 __all__ = [
+    "create_alert",
+    "create_report",
+    "delete_report",
+    "update_report",
     "list_reports",
     "get_report_info",
 ]
