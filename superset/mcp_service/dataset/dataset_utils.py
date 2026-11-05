@@ -22,8 +22,8 @@ from typing import Any
 from superset.mcp_service.utils import _is_uuid
 
 
-def visible_in_workspaces(dataset_id: int) -> bool:
-    """Whether the workspace rules let the current user see a dataset.
+def workspace_filtered(query: Any) -> Any:
+    """Apply ``WorkspaceDatasetFilter`` to a query over ``SqlaTable``.
 
     AuraData BI: the datasets of a workspace are for its members, its editors
     and admins, as in the REST dataset API, which adds ``WorkspaceDatasetFilter``
@@ -33,10 +33,19 @@ def visible_in_workspaces(dataset_id: int) -> bool:
     from flask_appbuilder.models.sqla.interface import SQLAInterface
 
     from superset import db
+    from superset.auradata.workspace_datasets import WorkspaceDatasetFilter
+    from superset.connectors.sqla.models import SqlaTable
+
+    datamodel = SQLAInterface(SqlaTable, db.session)
+    return WorkspaceDatasetFilter("id", datamodel).apply(query, None)
+
+
+def visible_in_workspaces(dataset_id: int) -> bool:
+    """Whether the workspace rules let the current user see a dataset."""
+    from superset import db
     from superset.auradata.workspace_datasets import (
         dataset_visibility_filter,
         dataset_workspace_id,
-        WorkspaceDatasetFilter,
     )
     from superset.connectors.sqla.models import SqlaTable
 
@@ -46,9 +55,18 @@ def visible_in_workspaces(dataset_id: int) -> bool:
     if dataset_workspace_id(dataset_id) is None:
         return True
     query = db.session.query(SqlaTable.id).filter(SqlaTable.id == dataset_id)
-    datamodel = SQLAInterface(SqlaTable, db.session)
-    query = WorkspaceDatasetFilter("id", datamodel).apply(query, None)
-    return query.first() is not None
+    return workspace_filtered(query).first() is not None
+
+
+def find_visible_dataset(dataset_id: int, **kwargs: Any) -> Any | None:
+    """``DatasetDAO.find_by_id``, with a dataset hidden by the workspace rules as
+    not found."""
+    from superset.daos.dataset import DatasetDAO
+
+    dataset = DatasetDAO.find_by_id(dataset_id, **kwargs)
+    if dataset is None or not visible_in_workspaces(dataset.id):
+        return None
+    return dataset
 
 
 def resolve_dataset(

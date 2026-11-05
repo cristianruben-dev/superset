@@ -171,3 +171,99 @@ async def test_usable_in_dashboard_narrows_to_its_workspace_and_shared(
         "ventas",
     ]
     assert [d["table_name"] for d in outside["datasets"]] == ["compartido"]
+
+
+async def metric_names(name: str, world: dict[str, Any], **request: Any) -> list[str]:
+    as_user(world, name)
+    result = await call("list_metrics", {"page_size": 100, **request})
+    return sorted(
+        metric["name"]
+        for metric in result.get("metrics", [])
+        if metric.get("dataset_name") == "ventas"
+    )
+
+
+async def compatible(name: str, world: dict[str, Any], tool: str) -> bool:
+    """Whether the tool found "ventas" (a hidden dataset reads as not found)."""
+    as_user(world, name)
+    result = await call(
+        tool,
+        {"dataset_id": world["ventas"].id, "selected_dimensions": ["region"]},
+    )
+    return result.get("error_type") != "NotFound"
+
+
+async def explored(name: str, world: dict[str, Any]) -> bool:
+    """Whether generate_explore_link got past the dataset lookup."""
+    as_user(world, name)
+    result = await call(
+        "generate_explore_link",
+        {
+            "dataset_id": world["ventas"].id,
+            "config": {"chart_type": "table", "columns": [{"name": "region"}]},
+        },
+    )
+    error = result.get("error") or {}
+    return error.get("error_type") != "dataset_not_found"
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("name", ["Carlos", "Dani"])
+async def test_list_metrics_of_a_dataset_hides_another_workspace(
+    world: dict[str, Any], name: str
+) -> None:
+    assert await metric_names(name, world, dataset_id=world["ventas"].id) == []
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("name", ["Carlos", "Dani"])
+async def test_list_metrics_of_all_datasets_hides_another_workspace(
+    world: dict[str, Any], name: str
+) -> None:
+    assert await metric_names(name, world) == []
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("name", ["Carlos", "Dani"])
+@pytest.mark.parametrize(
+    "tool", ["get_compatible_metrics", "get_compatible_dimensions"]
+)
+async def test_compatible_fields_hide_another_workspace(
+    world: dict[str, Any], name: str, tool: str
+) -> None:
+    assert not await compatible(name, world, tool)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("name", ["Carlos", "Dani"])
+async def test_explore_link_hides_another_workspace(
+    world: dict[str, Any], name: str
+) -> None:
+    assert not await explored(name, world)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("name", ["Vera", "Ana"])
+async def test_semantic_readers_show_members_their_workspace(
+    world: dict[str, Any], name: str
+) -> None:
+    assert await metric_names(name, world, dataset_id=world["ventas"].id) == ["total"]
+    assert await metric_names(name, world) == ["total"]
+    assert await compatible(name, world, "get_compatible_metrics")
+    assert await compatible(name, world, "get_compatible_dimensions")
+    assert await explored(name, world)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(("name", "visible"), [("Vera", True), ("Carlos", False)])
+async def test_dashboard_datasets_follow_the_dashboard(
+    world: dict[str, Any], name: str, visible: bool
+) -> None:
+    """
+    As in the REST API, a dashboard lists the datasets of its charts to whoever
+    sees the dashboard; the workspace hides the dashboard from non-members.
+    """
+    as_user(world, name)
+    result = await call("get_dashboard_datasets", {"identifier": world["dashboard"].id})
+    names = [dataset.get("table_name") for dataset in result.get("datasets", [])]
+    assert (names == ["ventas"]) is visible, result

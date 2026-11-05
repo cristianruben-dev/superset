@@ -27,7 +27,6 @@ import logging
 from fastmcp import Context
 from superset_core.mcp.decorators import tool, ToolAnnotations
 
-from superset.daos.dataset import DatasetDAO
 from superset.extensions import event_logger
 from superset.mcp_service.auth import has_dataset_access
 from superset.mcp_service.chart.chart_helpers import extract_form_data_key_from_url
@@ -42,6 +41,7 @@ from superset.mcp_service.chart.schemas import (
 )
 from superset.mcp_service.chart.validation.dataset_validator import DatasetValidator
 from superset.mcp_service.common.error_schemas import ChartGenerationError
+from superset.mcp_service.dataset.dataset_utils import find_visible_dataset
 from superset.mcp_service.explore.schemas import GenerateExploreLinkResponse
 from superset.mcp_service.utils.url_utils import (
     extract_permalink_key_from_url,
@@ -122,6 +122,7 @@ async def generate_explore_link(
 
     try:
         await ctx.report_progress(1, 4, "Validating dataset exists")
+        # AuraData BI: a dataset hidden by the workspace rules reads as not found
         with event_logger.log_context(action="mcp.generate_explore_link.dataset_check"):
             dataset = None
             if isinstance(request.dataset_id, int) or (
@@ -132,9 +133,9 @@ async def generate_explore_link(
                     if isinstance(request.dataset_id, str)
                     else request.dataset_id
                 )
-                dataset = DatasetDAO.find_by_id(dataset_id_int)
+                dataset = find_visible_dataset(dataset_id_int)
             else:
-                dataset = DatasetDAO.find_by_id(request.dataset_id, id_column="uuid")
+                dataset = find_visible_dataset(request.dataset_id, id_column="uuid")
 
             if not dataset:
                 await ctx.warning(

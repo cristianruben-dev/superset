@@ -120,13 +120,16 @@ async def get_compatible_dimensions(
             from sqlalchemy.orm import subqueryload
 
             from superset.connectors.sqla.models import SqlaTable
-            from superset.daos.dataset import DatasetDAO
+            from superset.mcp_service.dataset.dataset_utils import (
+                find_visible_dataset,
+            )
 
             dataset_id: int = request.dataset_id
             with event_logger.log_context(
                 action="mcp.get_compatible_dimensions.builtin"
             ):
-                dataset: SqlaTable | None = DatasetDAO.find_by_id(
+                # AuraData BI: hidden by the workspace rules reads as not found
+                dataset: SqlaTable | None = find_visible_dataset(
                     dataset_id,
                     query_options=[
                         subqueryload(SqlaTable.columns),

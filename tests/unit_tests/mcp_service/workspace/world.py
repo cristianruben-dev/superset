@@ -43,7 +43,7 @@ from superset.auradata.models import (
     WorkspaceDataset,
     WorkspaceMember,
 )
-from superset.connectors.sqla.models import SqlaTable, TableColumn
+from superset.connectors.sqla.models import SqlaTable, SqlMetric, TableColumn
 from superset.models.core import Database
 from superset.models.dashboard import Dashboard
 from superset.models.slice import Slice
@@ -88,6 +88,7 @@ def build_world(
         table_name="ventas",
         database=database,
         columns=[TableColumn(column_name="region", type="VARCHAR")],
+        metrics=[SqlMetric(metric_name="total", expression="COUNT(*)")],
     )
     compartido = SqlaTable(table_name="compartido", database=database)
     session.add_all([*users.values(), database, ventas, compartido])

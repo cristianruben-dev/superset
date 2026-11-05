@@ -31,6 +31,10 @@ from superset.daos.dataset import DatasetDAO
 from superset.daos.semantic_layer import SemanticViewDAO
 from superset.exceptions import SupersetSecurityException
 from superset.extensions import db, event_logger
+from superset.mcp_service.dataset.dataset_utils import (
+    visible_in_workspaces,
+    workspace_filtered,
+)
 from superset.mcp_service.privacy import (
     DATA_MODEL_METADATA_ERROR_TYPE,
     requires_data_model_metadata_access,
@@ -91,6 +95,9 @@ def _collect_builtin_metrics(request: ListMetricsRequest) -> list[MetricInfo]:
                     subqueryload(SqlaTable.metrics),
                 ],
             )
+            # AuraData BI: a dataset hidden by the workspace rules has no metrics
+            if dataset is not None and not visible_in_workspaces(dataset.id):
+                dataset = None
             datasets: list[SqlaTable] = [dataset] if dataset else []
         else:
             from sqlalchemy.orm import subqueryload
@@ -103,7 +110,7 @@ def _collect_builtin_metrics(request: ListMetricsRequest) -> list[MetricInfo]:
                 subqueryload(SqlaTable.columns),
                 subqueryload(SqlaTable.metrics),
             )
-            datasets = DatasetDAO._apply_base_filter(query).all()
+            datasets = DatasetDAO._apply_base_filter(workspace_filtered(query)).all()
 
     results: list[MetricInfo] = []
     for dataset in datasets:
