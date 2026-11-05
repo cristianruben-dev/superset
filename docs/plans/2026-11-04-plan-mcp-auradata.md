@@ -376,6 +376,46 @@ históricas. El `CLAUDE.md` del proyecto y el de `mcp_service` reescriben su reg
    descargue (SSRF). `set_dashboard_css`.
 - **Listo cuando:** un informe de ejemplo replicado de SESEQ se formatea solo por MCP, comparado por captura.
 
+**Hecho (2026-11-05, rama `feat/mcp-format`):**
+1. `55705c6bd8`: catálogo de formato generado.
+   - `formatCatalog.test.ts` registra los 29 tipos de gráfico del editor y escribe
+     `superset/auradata/catalog/format_catalog.json` con `UPDATE_FORMAT_CATALOG=1`; sin él, falla si el JSON quedó atrás.
+   - Usa las mismas `lookSections` y `buildFormatCards` del panel. Por control: clave, componente, tipo de valor,
+     opciones, rango, por defecto, sección, nivel, `own` y lo que depende del gráfico (`dynamic`).
+   - El nivel General sale de `generalFormat.ts`, un descriptor tipado de `VisualFormat`: si falta una clave, no compila.
+2. `e4a943a1dd`: la biblioteca de layout valida y comparte formatos.
+   - `sharableFormat`, `ownFormat`, `withOwnFormat` y el pintor (`formatOf`, `pastedMeta`, ahora función pura) en Python,
+     con fixtures compartidos Jest/pytest.
+   - `format_patch.py` valida contra el catálogo. Los colores llegan como CSS o `{r, g, b, a}` (convierte `#hex`).
+     Los enlaces solo pueden ser http(s), mailto o una ruta del sitio, y las imágenes solo del propio sitio o
+     `data:image` raster.
+3. `3b863622e0`: `backgrounds.py` comparte `check_image`, `store_background` y `store_element_image` con la API REST.
+4. `280708af3d`: ocho herramientas.
+   - `get_format_options` y `format_visual`. Por nivel: Visual y Analítica escriben en `auradataFormat.chart`;
+     General, en `auradataFormat`, más `auradata_tooltip`/`auradata_sampling`.
+   - `set_canvas_format`: si la página se achica, encaja los objetos.
+   - `set_shared_visual_format` (`reset_charts` como el panel), `copy_format` y `set_dashboard_css` (sin `@import` ni
+     `url()` de otros sitios).
+   - `upload_dashboard_background` y `upload_dashboard_image`: solo base64, nunca una URL.
+   - Todas piden `can_edit_resource`, guardan por `UpdateDashboardCommand` y quedan fuera de la caché. Tienen tests de
+     permisos: viewer y otro workspace no escriben; editor, contributor y admin sí.
+   - Las unidades 2–5 van en un solo commit porque comparten `format_tools.py`.
+5. Chequeo en vivo (MCP en 5108, tablero nuevo 218 en «SESEQ RRHH», gráficos 308 y 309): se aplicaron por herramientas
+   el fondo del lienzo, el título, el fondo, el radio y la sombra del 308, y sus etiquetas y color de serie. Luego, «aplicar
+   a todos». La captura muestra etiquetas, color violeta en los dos gráficos, tarjetas blancas redondeadas y el subtítulo
+   solo en el 308. Un parche inválido (`show_value: "sí"`) se rechaza sin escribir. Los gráficos huérfanos 306 y 307
+   de un primer intento están en la papelera.
+6. Pendiente:
+   - **Frontend:** en modo lectura el título de un gráfico es un `<a>` con el color del tema, que ignora
+     `--mb-v-title-color`. El color guardado es correcto (`.header-title` calcula `#2563EB`), pero se ve negro.
+   - 671 controles son de tipo `json` (fuentes, `series_colors`, `series_format`, líneas de referencia, small
+     multiples): el catálogo no describe su forma y la IA la tiene que adivinar. Falta un descriptor por componente.
+   - Las opciones dinámicas (`color_scheme`, columnas) no se validan.
+   - El estilo propio de los elementos (imagen, forma, botón) va con la fase 5: aquí solo se formatea su caja General.
+   - `generate_dashboard` sigue sin workspace: el tablero 218 se creó por REST y se movió con
+     `move_dashboard_to_workspace`.
+   - En vivo no se revisó el historial de versiones; se guarda por `UpdateDashboardCommand`, igual que en la fase 2.
+
 ## 4. Visuales dentro del informe (M)
 
 - `create_visual(dashboard, page, chart spec, place)`: crea el gráfico, lo ata al tablero y lo coloca, todo en una
