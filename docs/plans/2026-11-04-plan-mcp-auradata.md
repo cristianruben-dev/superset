@@ -382,7 +382,8 @@ históricas. El `CLAUDE.md` del proyecto y el de `mcp_service` reescriben su reg
      `superset/auradata/catalog/format_catalog.json` con `UPDATE_FORMAT_CATALOG=1`; sin él, falla si el JSON quedó atrás.
    - Usa las mismas `lookSections` y `buildFormatCards` del panel. Por control: clave, componente, tipo de valor,
      opciones, rango, por defecto, sección, nivel, `own` y lo que depende del gráfico (`dynamic`).
-   - El nivel General sale de `generalFormat.ts`, un descriptor tipado de `VisualFormat`: si falta una clave, no compila.
+   - El nivel General sale de `generalFormat.ts`, un descriptor tipado de `VisualFormat` (`Described<T>` exige cada
+     clave; no se corrió `tsc` sobre él, Jest no comprueba tipos).
 2. `e4a943a1dd`: la biblioteca de layout valida y comparte formatos.
    - `sharableFormat`, `ownFormat`, `withOwnFormat` y el pintor (`formatOf`, `pastedMeta`, ahora función pura) en Python,
      con fixtures compartidos Jest/pytest.
@@ -400,12 +401,24 @@ históricas. El `CLAUDE.md` del proyecto y el de `mcp_service` reescriben su reg
    - Todas piden `can_edit_resource`, guardan por `UpdateDashboardCommand` y quedan fuera de la caché. Tienen tests de
      permisos: viewer y otro workspace no escriben; editor, contributor y admin sí.
    - Las unidades 2–5 van en un solo commit porque comparten `format_tools.py`.
-5. Chequeo en vivo (MCP en 5108, tablero nuevo 218 en «SESEQ RRHH», gráficos 308 y 309): se aplicaron por herramientas
+5. `467cff110e`: `set_dashboard_css` rechaza también escapes con barra invertida e `image-set()`, y
+   `get_format_options` da descripciones solo con `section`: sin filtros, `mixed_timeseries` con descripciones medía
+   61 KB, por encima del límite de 50 KB; sin ellas mide 43 KB.
+6. Chequeo en vivo (MCP en 5108, tablero nuevo 218 en «SESEQ RRHH», gráficos 308 y 309): se aplicaron por herramientas
    el fondo del lienzo, el título, el fondo, el radio y la sombra del 308, y sus etiquetas y color de serie. Luego, «aplicar
    a todos». La captura muestra etiquetas, color violeta en los dos gráficos, tarjetas blancas redondeadas y el subtítulo
    solo en el 308. Un parche inválido (`show_value: "sí"`) se rechaza sin escribir. Los gráficos huérfanos 306 y 307
    de un primer intento están en la papelera.
-6. Pendiente:
+   - El fondo lavanda del lienzo se ve cuando la página pasa a 30 filas (las tarjetas cubrían las 26).
+   - El historial de versiones (`/api/v1/dashboard/<uuid>/versions/`) tiene una versión por cada escritura, con el
+     diff de `auradataFormat`. Los cambios del lienzo (`ROOT_ID`) generan versión, pero con `changes` vacío.
+   - **No se cumple aún el «Listo cuando»** de la fase: no se replicó un informe de SESEQ comparado por captura.
+7. Pendiente:
+   - **`add_chart_to_existing_dashboard`** escribe `ROW > COLUMN (ancho 40) > CHART`. La columna estira el gráfico a
+     todo el ancho, aunque su caja guardada sea de 13 o 20 celdas (el 218 lo muestra). Es de la fase 2 o la 4.
+   - `echart_options` y otros controles `json` pueden llevar direcciones de imagen (`graphic[].style.image`) que
+     nadie revisa.
+   - El título no se pintó azul en la captura; el tamaño y la negrita sí.
    - **Frontend:** en modo lectura el título de un gráfico es un `<a>` con el color del tema, que ignora
      `--mb-v-title-color`. El color guardado es correcto (`.header-title` calcula `#2563EB`), pero se ve negro.
    - 671 controles son de tipo `json` (fuentes, `series_colors`, `series_format`, líneas de referencia, small
