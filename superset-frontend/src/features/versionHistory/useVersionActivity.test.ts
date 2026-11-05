@@ -177,6 +177,7 @@ test('changing the search term refetches from page 0 with q', async () => {
     page: 0,
     pageSize: PAGE_SIZE,
     q: '',
+    onlyAssistant: false,
   });
 
   rerender({ q: 'revenue' });
@@ -187,6 +188,7 @@ test('changing the search term refetches from page 0 with q', async () => {
       page: 0,
       pageSize: PAGE_SIZE,
       q: 'revenue',
+      onlyAssistant: false,
     }),
   );
 });
@@ -421,4 +423,18 @@ test('clearing the uuid ignores an in-flight response', async () => {
 
   expect(result.current.records).toEqual([]);
   expect(result.current.count).toBe(0);
+});
+
+test('the filter of the assistant reaches every page it asks for', async () => {
+  mockedFetchActivity.mockResolvedValue({ count: 0, result: [] });
+
+  renderHook(() => useVersionActivity('chart', 'uuid', 'all', '', true));
+
+  await waitFor(() =>
+    expect(mockedFetchActivity).toHaveBeenCalledWith(
+      'chart',
+      'uuid',
+      expect.objectContaining({ include: 'all', onlyAssistant: true }),
+    ),
+  );
 });

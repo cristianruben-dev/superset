@@ -461,3 +461,21 @@ test('buildTimeline leaves a save of a person without a tag', () => {
 
   expect(group.assistantModel).toBeUndefined();
 });
+
+test('buildTimeline keeps the mark from speaking for a related row and tags it', () => {
+  const related = { source: 'related' as const, transaction_id: 30 };
+  const mark = record({
+    ...related,
+    kind: '__agent__',
+    operation: 'announce',
+    summary: 'Chart updated: My chart',
+    to_value: { assistant_model: 'claude-sonnet-5-5' },
+  });
+  const change = record({ ...related, summary: 'Metric added: My chart' });
+
+  const [entry] = buildTimeline([mark, change]) as RelatedEntry[];
+
+  expect(entry.record.summary).toBe('Metric added: My chart');
+  expect(entry.assistantModel).toBe('claude-sonnet-5-5');
+  expect(entry.records).toEqual([change, mark]);
+});

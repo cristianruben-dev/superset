@@ -343,6 +343,7 @@ export default function VersionHistoryPanel({
               }
               record={entry.record}
               rollupEntityNames={entry.rollupEntityNames}
+              assistantModel={entry.assistantModel}
               onOpen={onOpenRelated}
             />
           ),

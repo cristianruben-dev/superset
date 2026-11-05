@@ -108,15 +108,23 @@ export interface RelatedUpdateRowProps {
   record: ActivityRecord;
   /** Entity names when several same-kind entities rolled into this row. */
   rollupEntityNames?: string[];
+  /** The model, when the AI assistant made this save. */
+  assistantModel?: string;
   onOpen?: (record: ActivityRecord) => void;
 }
 
 export default function RelatedUpdateRow({
   record,
   rollupEntityNames,
+  assistantModel,
   onOpen,
 }: RelatedUpdateRowProps) {
   const Icon = ENTITY_ICON[record.entity_kind] ?? Icons.FileOutlined;
+  const assistantLine = assistantModel && (
+    <Meta data-test="version-assistant-mark">
+      {t('Done by the assistant (%s)', assistantModel)}
+    </Meta>
+  );
 
   if (rollupEntityNames && rollupEntityNames.length > 1) {
     // No single target to link to; a tooltip lists the rolled-up names.
@@ -150,6 +158,7 @@ export default function RelatedUpdateRow({
             {formatAuthor(record.changed_by)} ·{' '}
             {formatVersionDateTimeShort(record.issued_at)}
           </Meta>
+          {assistantLine}
         </Content>
       </Row>
     );
@@ -240,6 +249,7 @@ export default function RelatedUpdateRow({
           {formatAuthor(record.changed_by)} ·{' '}
           {formatVersionDateTimeShort(record.issued_at)}
         </Meta>
+        {assistantLine}
       </Content>
     </Row>
   );

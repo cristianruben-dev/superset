@@ -169,6 +169,7 @@ export function useVersionActivity(
           page: pageToLoad,
           pageSize: PAGE_SIZE,
           q,
+          onlyAssistant,
         });
         if (fetchId !== fetchIdRef.current) {
           return;
@@ -228,6 +229,7 @@ export function useVersionActivity(
           page: nextPage,
           pageSize: PAGE_SIZE,
           q,
+          onlyAssistant,
         });
         if (fetchId !== fetchIdRef.current) {
           return;

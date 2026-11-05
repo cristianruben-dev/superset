@@ -177,6 +177,9 @@ function isLayoutScaffolding(record: ActivityRecord): boolean {
   return LAYOUT_SCAFFOLDING_KINDS.has(record.kind);
 }
 
+/** The record that says an AI assistant made a save (AGENT_KIND on the server). */
+const AGENT_KIND = '__agent__';
+
 /**
  * Build the timeline from a flat newest-first activity stream:
  * `source='self'` records are grouped into one save container per
@@ -188,6 +191,7 @@ function isLayoutScaffolding(record: ActivityRecord): boolean {
 export function buildTimeline(records: ActivityRecord[]): TimelineEntry[] {
   const groupsByTransaction = new Map<number, SaveGroup>();
   const relatedByKey = new Map<string, RelatedEntry>();
+  const relatedMarks = new Map<string, ActivityRecord>();
   const entries: TimelineEntry[] = [];
 
   records.forEach(record => {
@@ -239,6 +243,9 @@ export function buildTimeline(records: ActivityRecord[]): TimelineEntry[] {
       group.versionUuid = group.versionUuid ?? record.version_uuid;
       group.changedBy = group.changedBy ?? record.changed_by;
       group.actionKind = group.actionKind ?? record.action_kind;
+    } else if (record.kind === AGENT_KIND) {
+      // It says who, not what: it never speaks for the row
+      relatedMarks.set(relatedEntryKey(record), record);
     } else {
       const key = relatedEntryKey(record);
       const existing = relatedByKey.get(key);
@@ -265,6 +272,16 @@ export function buildTimeline(records: ActivityRecord[]): TimelineEntry[] {
               : current.issued_at,
         };
       }
+    }
+  });
+
+  relatedMarks.forEach((mark, key) => {
+    const entry = relatedByKey.get(key);
+    if (entry) {
+      entry.records.push(mark);
+      entry.assistantModel = (
+        mark.to_value as { assistant_model?: string } | null
+      )?.assistant_model;
     }
   });
 

@@ -193,6 +193,8 @@ export interface RelatedEntry {
   type: 'related';
   record: ActivityRecord;
   records: ActivityRecord[];
+  /** The model, when the AI assistant made this save. */
+  assistantModel?: string;
   /**
    * Present when one transaction touched several distinct entities of
    * the same kind and they rolled up into this single row; holds one
