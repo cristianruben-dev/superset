@@ -334,7 +334,7 @@ históricas. El `CLAUDE.md` del proyecto y el de `mcp_service` reescriben su reg
    - Dos gráficos de 30 × 12 por fila, en `ROW > CHART`, como el editor.
    - Si no caben, la página crece como en `layoutToPositions`, hasta 128 filas; lo que sobra va a páginas nuevas.
    - Un fixture prueba que Jest y Python lo cargan sin cambios.
-6. `799aac8ca7` y `76ff502a58`: `get_dashboard_screenshot(dashboard, page)` y `get_visual_screenshot`.
+6. `799aac8ca7` y `76ff502a58` (más la exclusión de caché en un commit posterior): `get_dashboard_screenshot(dashboard, page)` y `get_visual_screenshot`.
    - Usan `DashboardScreenshot` y su Playwright, en un hilo propio (el API síncrono no corre dentro del bucle del MCP).
    - Devuelven la imagen como contenido MCP: JPEG de 1600 px como máximo.
    - Están fuera del guardián de tamaño de respuesta.
@@ -342,8 +342,10 @@ históricas. El `CLAUDE.md` del proyecto y el de `mcp_service` reescriben su reg
    - Se armó por herramientas: 5 gráficos, tres páginas (una oculta), objetos movidos y redimensionados, texto
      alternativo y nuevo orden de páginas.
    - Las capturas de página y de visual salen bien.
-   - Abierto en modo edición, Guardar y Deshacer siguen deshabilitados y `position_json` no cambia: no hay
-     conversión al cargar.
+   - Abierto en modo edición, Guardar y Deshacer siguen deshabilitados y `position_json` no cambia.
+   - La prueba que lo demuestra es un fixture: el `position_json` guardado del 217 se carga en Jest y en pytest sin
+     ninguna conversión (`load_layout.json`, con el resultado esperado escrito a mano).
+   - Gráficos de prueba: 301–305 en el 217; los huérfanos 296–300 de un primer intento quedaron borrados (papelera).
 8. Pendiente:
    - **Frontend:** un permalink con `activeTabs` (sin `anchor`) mueve la barra de páginas pero deja en pantalla la
      primera página. Las capturas usan `anchor` y no les afecta; otros enlaces permanentes sí.
@@ -351,6 +353,10 @@ históricas. El `CLAUDE.md` del proyecto y el de `mcp_service` reescriben su reg
      los gráficos). Va con `create_visual` en la fase 4.
    - `get_visual_screenshot` solo sirve para gráficos; los elementos de diseño no tienen una clase con su id.
    - Los nombres por defecto («Página N», «(copia)») van en español fijo, no según el idioma del usuario (fase 11).
+   - Al revisar los registros apareció que las escrituras de workspace de la fase 1 se podían cachear (con la caché
+     activada); quedan excluidas junto a las de esta fase.
+   - `test_mcp_e2e_smoke.py` ya fallaba antes de esta rama: espera «Superset MCP Service» (ahora «AuraData BI MCP
+     Service») y su lista de herramientas por ASGI sale vacía. Comprobado quitando las herramientas nuevas.
    - No se corrió `pre-commit` completo ni mypy (no hay venv en el host): solo ruff, oxlint y oxfmt sobre los
      archivos tocados.
 
