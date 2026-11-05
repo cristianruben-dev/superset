@@ -27,6 +27,7 @@ from pytest_mock import MockerFixture
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm.session import Session
 
+from superset import security_manager
 from superset.models.dashboard import Dashboard
 from superset.models.slice import Slice
 from superset.utils import json
@@ -303,3 +304,66 @@ async def test_certifying_needs_real_editorship(
 
     assert result["permission_denied"] is True
     assert fresh(world, Dashboard, pk).certified_by is None
+
+
+@pytest.fixture
+def no_data_world(mocker: MockerFixture, session: Session) -> dict[str, Any]:
+    """Nobody has data permissions: only the workspace grant reads "ventas"."""
+    world = build_world(session, mocker, data_access=False)
+    mocker.patch.object(
+        security_manager,
+        "can_access",
+        side_effect=lambda permission, view: view in ("Dataset", "Dashboard", "Chart"),
+    )
+    return world
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    ("name", "allowed"),
+    [("Ana", True), ("Ada", True), ("Vera", False), ("Dani", False)],
+)
+async def test_edits_need_no_data_permissions_beyond_the_workspace(
+    no_data_world: dict[str, Any], name: str, allowed: bool
+) -> None:
+    """A contributor whose only data access is the workspace grant edits too."""
+    world = no_data_world
+    dashboard_id = world["dashboard"].id
+    chart_id = world["chart"].id
+    extra = new_chart(world)
+    as_user(world, name)
+
+    results = {
+        "update_dashboard": await call(
+            "update_dashboard", {"identifier": dashboard_id, "dashboard_title": "Q4"}
+        ),
+        "update_chart": await call(
+            "update_chart",
+            {"identifier": chart_id, "chart_name": "kpi Q4", "generate_preview": False},
+        ),
+        "add_chart": await call(
+            "add_chart_to_existing_dashboard",
+            {"dashboard_id": dashboard_id, "chart_id": extra.id},
+        ),
+        "native_filters": await call(
+            "manage_native_filters",
+            {
+                "dashboard_id": dashboard_id,
+                "add": [
+                    {
+                        "filter_type": "filter_select",
+                        "name": "Región",
+                        "dataset_id": world["ventas"].id,
+                        "column": "region",
+                    }
+                ],
+            },
+        ),
+        "remove_chart": await call(
+            "remove_chart_from_dashboard",
+            {"dashboard_id": dashboard_id, "chart_id": chart_id},
+        ),
+    }
+
+    outcomes = {tool: result.get("error") is None for tool, result in results.items()}
+    assert outcomes == dict.fromkeys(results, allowed), results
