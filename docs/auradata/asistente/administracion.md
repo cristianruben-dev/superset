@@ -138,8 +138,9 @@ También muestra **Gastado este mes**, en dólares, a los administradores del á
 - **El aviso:** hasta que cada persona lo acepta, el chat y las decisiones responden 403 y nada llega a Anthropic. Se guarda
   por persona. Cambiar su texto obliga a subir `PRIVACY_NOTICE_VERSION`, y todos lo aceptan de nuevo.
 - **Qué se guarda aquí:** las conversaciones completas, con los resultados de las herramientas y sus filas de datos, quedan en
-  la base de metadatos (`auradata_assistant_messages`). Ninguna pantalla ni API las borra, y nada las purga. Cuéntalo en
-  tu política de retención.
+  la base de metadatos (`auradata_assistant_messages`). Ninguna pantalla ni API las borra, y ninguna tarea las purga. **Borrar el
+  informe o la persona tampoco:** esa referencia queda vacía, la conversación deja de abrirse en la aplicación y su contenido
+  sigue en la base. Cuéntalo en tu política de retención.
 - **Quién lee qué:** en la aplicación, cada conversación es de su dueño. Quien tenga acceso a la base de metadatos las puede
   leer. **Uso** no muestra contenido. El registro de acciones guarda cada herramienta con sus parámetros.
 
@@ -214,5 +215,5 @@ Si instalaste `anthropic` a mano en un contenedor, lo pierdes al recrearlo. La s
 | Aviso de que falta el SDK, o chat con 503 | Imagen vieja | Reconstruye |
 | Sale en lectura y no en edición | **Dejar que cambie informes** apagado, global o en el área | Enciéndelo |
 | Mensaje de que se acabó el crédito | Sin saldo en Anthropic | Recarga en la consola de Anthropic |
-| La respuesta se corta a los 60 s | Falta el bloque del proxy | Mira [tiempos del proxy](#tiempos-del-proxy) |
+| La respuesta se corta a los 60 s | Falta el bloque del proxy o, en producción, puede ser el timeout de gunicorn (sin probar) | Mira [tiempos del proxy](#tiempos-del-proxy) |
 | El tope cortó el mes | Llegó al 100% | Súbelo o espera al mes siguiente |

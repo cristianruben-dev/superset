@@ -298,7 +298,8 @@ es de una persona, un tablero y un modo: otra combinación responde 422, y la de
 - **Sin tablas para lo pendiente.** `pending_turn` lo deduce de lo guardado: un turno deja de esperar cuando una fila trae sus
   resultados, así que una decisión vale una sola vez.
 - **Sin compactar ni borrar.** Una conversación larga llega al límite del modelo, y el panel avisa al 80%. No hay ruta para
-  borrarlas.
+  borrarlas. Las claves a `dashboards` y `ab_user` son `SET NULL`: al borrar el tablero o la persona, las filas se quedan, con su
+  costo y su contenido, y ya no se abren en la aplicación.
 - **Costos.** Solo las filas `assistant` tienen costo. `spending.py` es el único sitio del mes, el redondeo y los topes.
 
 Deshacer se apoya en `turn_start`, escrito justo antes del primer cambio, y `turn_end`. Lo guardado mientras el modelo pensaba
