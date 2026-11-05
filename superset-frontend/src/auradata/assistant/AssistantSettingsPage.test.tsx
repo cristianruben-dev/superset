@@ -57,6 +57,7 @@ const unknown = {
 
 const settings = {
   enabled: false,
+  edit_enabled: true,
   default_model: 'claude-sonnet-5-5',
   allowed_models: null,
   monthly_budget_usd: null,
@@ -145,6 +146,7 @@ test('starts from the offered models and saves the changes', async () => {
   );
   const [call] = fetchMock.callHistory.calls(SETTINGS, { method: 'PUT' });
   expect(JSON.parse(call.options.body as string)).toEqual({
+    edit_enabled: true,
     enabled: true,
     default_model: 'claude-sonnet-5-5',
     allowed_models: ['claude-haiku-5-5', 'claude-sonnet-5-5', 'claude-new'],
@@ -215,4 +217,44 @@ test('tells when the settings cannot be loaded', async () => {
   expect(
     await screen.findByText('The settings could not be loaded.'),
   ).toBeInTheDocument();
+});
+
+test('the copilot has a switch of its own', async () => {
+  fetchMock.get(SETTINGS, { result: settings });
+  fetchMock.put(SETTINGS, { result: { ...settings, edit_enabled: false } });
+
+  await renderPage();
+  await userEvent.click(
+    screen.getByRole('switch', { name: 'Let it change reports' }),
+  );
+  await userEvent.click(saveButton());
+
+  await waitFor(() =>
+    expect(
+      JSON.parse(
+        fetchMock.callHistory.lastCall(SETTINGS, { method: 'PUT' })?.options
+          ?.body as string,
+      ).edit_enabled,
+    ).toBe(false),
+  );
+});
+
+test('the usage is a tab of the page', async () => {
+  fetchMock.get(SETTINGS, { result: settings });
+  fetchMock.get('glob:*/api/v1/auradata_assistant/usage/', {
+    result: {
+      month: '2026-11',
+      total_usd: 1,
+      monthly_budget_usd: null,
+      months: [],
+      by_model: [],
+      by_workspace: [],
+      by_user: [],
+    },
+  });
+
+  await renderPage();
+  await userEvent.click(screen.getByRole('tab', { name: 'Usage' }));
+
+  expect(await screen.findByTestId('assistant-usage')).toBeInTheDocument();
 });

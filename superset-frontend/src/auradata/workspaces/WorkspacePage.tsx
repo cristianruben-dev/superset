@@ -57,6 +57,7 @@ import { WorkspaceAccessModal } from './WorkspaceAccessModal';
 import { WorkspaceAvatar, workspaceGradient } from './WorkspaceAvatar';
 import { WorkspaceDatasets } from './WorkspaceDatasets';
 import { Grid, Page } from './WorkspaceListPage';
+import { WorkspaceAssistantModal } from './WorkspaceAssistantModal';
 import { WorkspaceModal } from './WorkspaceModal';
 import { WorkspaceTrash } from './WorkspaceTrash';
 
@@ -303,7 +304,9 @@ export default function WorkspacePage() {
   const [adding, setAdding] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [managingAccess, setManagingAccess] = useState(false);
+  const [managingAssistant, setManagingAssistant] = useState(false);
   const [creatingDashboard, setCreatingDashboard] = useState(false);
+  const hideAssistant = useCallback(() => setManagingAssistant(false), []);
   usePageCrumbs(workspace ? [{ label: workspace.name }] : []);
   usePageStatus(
     workspace
@@ -545,6 +548,12 @@ export default function WorkspacePage() {
                       label: t('Edit workspace'),
                       onClick: () => setEditing(true),
                     },
+                    {
+                      key: 'assistant',
+                      icon: <Icons.CommentOutlined />,
+                      label: t('AI assistant'),
+                      onClick: () => setManagingAssistant(true),
+                    },
                     { type: 'divider' },
                     {
                       key: 'delete',
@@ -688,6 +697,11 @@ export default function WorkspacePage() {
         />
       )}
 
+      <WorkspaceAssistantModal
+        workspaceId={workspace.id}
+        show={managingAssistant}
+        onHide={hideAssistant}
+      />
       <WorkspaceModal
         show={editing}
         workspace={workspace}

@@ -29,10 +29,12 @@ import {
   Switch,
 } from '@superset-ui/core/components';
 import { Icons } from '@superset-ui/core/components/Icons';
+import Tabs from '@superset-ui/core/components/Tabs';
 import { useToasts } from 'src/components/MessageToasts/withToasts';
 import { CommandGroup, PageHeader } from '../shell/PageHeader';
 import { usePageCrumbs } from '../shell/pageCrumbs';
 import { usePageStatus } from '../shell/pageStatus';
+import { AssistantUsage } from './AssistantUsage';
 
 const SETTINGS_URL = '/api/v1/auradata_assistant/settings/';
 
@@ -58,6 +60,7 @@ type ModelsProblem =
 /** Answer of the settings API. */
 interface AssistantSettings {
   enabled: boolean;
+  edit_enabled: boolean;
   default_model: string;
   allowed_models: string[] | null;
   monthly_budget_usd: number | null;
@@ -70,6 +73,7 @@ interface AssistantSettings {
 /** What the admin is changing before saving it. */
 interface Draft {
   enabled: boolean;
+  editEnabled: boolean;
   defaultModel: string;
   allowed: string[];
   budget: number | null;
@@ -77,6 +81,7 @@ interface Draft {
 
 const draftOf = (settings: AssistantSettings): Draft => ({
   enabled: settings.enabled,
+  editEnabled: settings.edit_enabled,
   defaultModel: settings.default_model,
   allowed:
     settings.allowed_models ??
@@ -86,6 +91,7 @@ const draftOf = (settings: AssistantSettings): Draft => ({
 
 const sameDraft = (a: Draft, b: Draft) =>
   a.enabled === b.enabled &&
+  a.editEnabled === b.editEnabled &&
   a.defaultModel === b.defaultModel &&
   a.budget === b.budget &&
   [...a.allowed].sort().join() === [...b.allowed].sort().join();
@@ -204,6 +210,7 @@ export default function AssistantSettingsPage() {
       endpoint: SETTINGS_URL,
       jsonPayload: {
         enabled: draft.enabled,
+        edit_enabled: draft.editEnabled,
         default_model: draft.defaultModel,
         allowed_models: draft.allowed,
         monthly_budget_usd: draft.budget,
@@ -280,127 +287,163 @@ export default function AssistantSettingsPage() {
           </Button>
         </CommandGroup>
       </PageHeader>
-      <Page data-test="assistant-settings">
-        {failed && (
-          <Alert
-            type="error"
-            showIcon
-            title={t('The settings could not be loaded.')}
-          />
-        )}
-        {settings && draft && (
-          <>
-            <Alert
-              type="info"
-              showIcon
-              closable={false}
-              data-test="assistant-privacy-notice"
-              title={t('The data you query is sent to Anthropic')}
-              description={t(
-                'The assistant sees what each user sees, data rows included. What they ask and the data it reads travel to the Anthropic API.',
-              )}
-            />
-
-            <Section>
-              <h2>{t('Availability')}</h2>
-              <p>
-                {t(
-                  'While it is off, nobody can open the assistant. The key of Anthropic stays on the server.',
+      <Tabs
+        defaultActiveKey="settings"
+        items={[
+          {
+            key: 'settings',
+            label: t('Settings'),
+            children: (
+              <Page data-test="assistant-settings">
+                {failed && (
+                  <Alert
+                    type="error"
+                    showIcon
+                    title={t('The settings could not be loaded.')}
+                  />
                 )}
-              </p>
-              <Setting>
-                <span>
-                  <Switch
-                    aria-label={t('Turn on the assistant')}
-                    checked={draft.enabled}
-                    onChange={enabled => setDraft({ ...draft, enabled })}
-                  />{' '}
-                  {t('Turn on the assistant')}
-                </span>
-              </Setting>
-            </Section>
+                {settings && draft && (
+                  <>
+                    <Alert
+                      type="info"
+                      showIcon
+                      closable={false}
+                      data-test="assistant-privacy-notice"
+                      title={t('The data you query is sent to Anthropic')}
+                      description={t(
+                        'The assistant sees what each user sees, data rows included. What they ask and the data it reads travel to the Anthropic API.',
+                      )}
+                    />
 
-            <Section>
-              <h2>{t('Models')}</h2>
-              {settings.models_problem && (
-                <Alert
-                  type="warning"
-                  showIcon
-                  closable={false}
-                  data-test="assistant-models-problem"
-                  title={t(
-                    'This list is the one built into AuraData BI and may be out of date.',
-                  )}
-                  description={problemMessage(settings.models_problem)}
-                />
-              )}
-              <p>
-                {t(
-                  'Choose the models users can pick. Prices are in dollars per million tokens, input / output.',
-                )}
-              </p>
-              <div>
-                {settings.models.map(model => (
-                  <ModelRow key={model.id}>
-                    <Checkbox
-                      checked={draft.allowed.includes(model.id)}
-                      onChange={event =>
-                        toggleModel(model.id, event.target.checked)
-                      }
-                    >
-                      {model.display_name}
-                    </Checkbox>
-                    <span className="price">
-                      {money(model.input_price)} / {money(model.output_price)}
-                    </span>
-                    {!model.known && (
-                      <span className="note">
+                    <Section>
+                      <h2>{t('Availability')}</h2>
+                      <p>
                         {t(
-                          'AuraData BI does not know this model yet: it runs with cautious settings and this price is an upper estimate.',
+                          'While it is off, nobody can open the assistant. The key of Anthropic stays on the server.',
                         )}
-                      </span>
-                    )}
-                  </ModelRow>
-                ))}
-              </div>
-              <Setting>
-                {t('Default model')}
-                <Select
-                  ariaLabel={t('Default model')}
-                  value={draft.defaultModel || undefined}
-                  options={defaultOptions}
-                  onChange={value =>
-                    setDraft({ ...draft, defaultModel: String(value) })
-                  }
-                />
-              </Setting>
-            </Section>
+                      </p>
+                      <Setting>
+                        <span>
+                          <Switch
+                            aria-label={t('Turn on the assistant')}
+                            checked={draft.enabled}
+                            onChange={enabled =>
+                              setDraft({ ...draft, enabled })
+                            }
+                          />{' '}
+                          {t('Turn on the assistant')}
+                        </span>
+                      </Setting>
+                      <Setting>
+                        <span>
+                          <Switch
+                            aria-label={t('Let it change reports')}
+                            checked={draft.editEnabled}
+                            onChange={editEnabled =>
+                              setDraft({ ...draft, editEnabled })
+                            }
+                          />{' '}
+                          {t('Let it change reports')}
+                        </span>
+                      </Setting>
+                      <p>
+                        {t(
+                          'Without this, the assistant only answers questions. A workspace can turn off the assistant or this option for itself, never turn them on.',
+                        )}
+                      </p>
+                    </Section>
 
-            <Section>
-              <h2>{t('Monthly budget')}</h2>
-              <p>
-                {t(
-                  'The most the assistant may spend in a month, in dollars. Leave it empty for no limit.',
+                    <Section>
+                      <h2>{t('Models')}</h2>
+                      {settings.models_problem && (
+                        <Alert
+                          type="warning"
+                          showIcon
+                          closable={false}
+                          data-test="assistant-models-problem"
+                          title={t(
+                            'This list is the one built into AuraData BI and may be out of date.',
+                          )}
+                          description={problemMessage(settings.models_problem)}
+                        />
+                      )}
+                      <p>
+                        {t(
+                          'Choose the models users can pick. Prices are in dollars per million tokens, input / output.',
+                        )}
+                      </p>
+                      <div>
+                        {settings.models.map(model => (
+                          <ModelRow key={model.id}>
+                            <Checkbox
+                              checked={draft.allowed.includes(model.id)}
+                              onChange={event =>
+                                toggleModel(model.id, event.target.checked)
+                              }
+                            >
+                              {model.display_name}
+                            </Checkbox>
+                            <span className="price">
+                              {money(model.input_price)} /{' '}
+                              {money(model.output_price)}
+                            </span>
+                            {!model.known && (
+                              <span className="note">
+                                {t(
+                                  'AuraData BI does not know this model yet: it runs with cautious settings and this price is an upper estimate.',
+                                )}
+                              </span>
+                            )}
+                          </ModelRow>
+                        ))}
+                      </div>
+                      <Setting>
+                        {t('Default model')}
+                        <Select
+                          ariaLabel={t('Default model')}
+                          value={draft.defaultModel || undefined}
+                          options={defaultOptions}
+                          onChange={value =>
+                            setDraft({ ...draft, defaultModel: String(value) })
+                          }
+                        />
+                      </Setting>
+                    </Section>
+
+                    <Section>
+                      <h2>{t('Monthly budget')}</h2>
+                      <p>
+                        {t(
+                          'The most the assistant may spend in a month, in dollars. People get a notice at 80% and it stops at 100%, once the answer under way ends. Leave it empty for no limit. A workspace can set its own limit too.',
+                        )}
+                      </p>
+                      <Setting>
+                        {t('Monthly budget (USD)')}
+                        <InputNumber
+                          aria-label={t('Monthly budget (USD)')}
+                          min={0}
+                          value={draft.budget}
+                          onChange={value =>
+                            setDraft({
+                              ...draft,
+                              budget: value === null ? null : Number(value),
+                            })
+                          }
+                        />
+                      </Setting>
+                    </Section>
+                  </>
                 )}
-              </p>
-              <Setting>
-                {t('Monthly budget (USD)')}
-                <InputNumber
-                  aria-label={t('Monthly budget (USD)')}
-                  min={0}
-                  value={draft.budget}
-                  onChange={value =>
-                    setDraft({
-                      ...draft,
-                      budget: value === null ? null : Number(value),
-                    })
-                  }
-                />
-              </Setting>
-            </Section>
-          </>
-        )}
-      </Page>
+              </Page>
+            ),
+          },
+          {
+            key: 'usage',
+            label: t('Usage'),
+            children: <AssistantUsage />,
+          },
+        ]}
+      />
     </>
   );
 }
