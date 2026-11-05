@@ -78,7 +78,7 @@ Una fila por cada regla de «AuraData BI: What This Fork Changes» del `CLAUDE.m
 | 5 | Permisos de contributor sin ser editor | Las herramientas de gobierno piden editoría real | Un contributor no puede editar por MCP lo que sí edita en la web | Toda escritura de tablero o gráfico usa `can_edit_resource` | 1 |
 | 6 | Concesión de datos por workspace | Parcial (lecturas de Superset) | `list_datasets`/`query_dataset` sin `WorkspaceDatasetFilter` ni la concesión | Mismos filtros que la API REST, con test | 1 |
 | 7 | Flags fijados por el producto | n/a | Nada que exponer | — | — |
-| 8 | Papelera e historial de versiones | `restore_chart`, `restore_dashboard` | No lista papelera ni versiones ni restaura una versión | `list_trash` (workspace y global), `list_versions`, `get_version_diff`, `restore_version` | 9 |
+| 8 | Papelera e historial de versiones | `restore_chart`, `restore_dashboard`; hecho en fase 9 | No lista papelera ni versiones ni restaura una versión | `list_trash` (workspace y global), `list_versions`, `get_version_diff`, `restore_version` | 9 |
 | 9 | Datasets por workspace | Validación al crear tablero | Crear un dataset dentro de un workspace, moverlo, compartirlo | `create_dataset(workspace_id)`, `move_dataset_to_workspace`, filtro `dataset_usable_in_dashboard` | 1 |
 | 10 | Marca AuraData | n/a | La IA no conoce paleta ni tipografía | Recurso `auradata://brand` y prompt de diseño | 11 |
 | 11 | Bases de datos ofrecidas (6 motores) | `list/get_database` | No puede crear conexiones | `test_connection`, `create_database` (solo admin; ver Decisiones) | 8 |
@@ -704,6 +704,46 @@ históricas. El `CLAUDE.md` del proyecto y el de `mcp_service` reescriben su reg
 - `list_trash` (por workspace para contributors y admins; global en Administración).
 - `list_versions`, `get_version_diff`, `restore_version` sobre `/api/v1/dashboard/<uuid>/versions/` y sus
   equivalentes de gráfico y dataset.
+
+**Hecho (2026-11-05, rama `feat/mcp-history`):**
+1. `b6a1676f2a`: `test_generate_dashboard_request_chart_ids_is_bounded` sigue el contrato de la fase 4: `chart_ids`
+   puede ir vacío o faltar; el tope de 250 se sigue probando.
+2. `6e71a00209`: las reglas salen de los manejadores REST para que el MCP use las mismas.
+   - `workspace_trash` y `restore_blockers` (`superset/auradata/workspaces.py`) los usa `GET /workspace/<id>/trash/`.
+   - `find_history_entity` (`superset/versioning/api_helpers.py`) es la puerta de `/versions/` y `/activity/`:
+     invitado rechazado antes de buscar, entidad viva, editor o contributor/admin del workspace.
+3. `7226a24615`: restaurar una versión respeta los datasets por workspace (antes no lo hacía, tampoco en la web).
+   - Un gráfico no vuelve a un dataset de otro workspace (`validate_chart_dataset`).
+   - Un tablero no recupera gráficos que usan datasets de otro workspace (`chart_datasets_of_other_workspaces`, solo
+     sobre los gráficos que vuelven). Un tablero por gráfico ya lo cuidaba el comando. Mensajes con su traducción.
+4. `539891114b`: `superset/mcp_service/history/`.
+   - `list_trash`: con `workspace_id`, la papelera de la página del workspace (contributors y admins; viewer
+     Forbidden, otro workspace NotFound). Sin él, la de Administración: los filtros `*_deleted_state=only` de las
+     listas REST sobre el filtro de acceso de cada DAO (y `WorkspaceDatasetFilter` en datasets). Admin ve todo; los
+     demás, lo que editan. Cada elemento dice `blocked_by` y con qué herramienta se restaura.
+   - `list_versions` (más nuevas primero, sin los cambios: solo cuántos y de qué tipo), `get_version_diff` (los
+     registros de cambio de una versión, los que pinta el panel) y `restore_version` (corre el comando de cada
+     entidad, el mismo que el endpoint REST).
+   - Una herramienta sirve tres tipos: además del permiso de la herramienta, cada llamada pide el permiso de ruta
+     del tipo (`can_read`/`can_write` de Dashboard, Chart o Dataset) con `check_tool_permission`.
+   - Un contributor lee y restaura el historial de tableros y gráficos de su workspace, como en la web
+     (`dash_edit_perm` sale de `can_edit_resource`); el de un dataset no (sigue los permisos normales).
+   - Tests con base real (`test_history_tools.py`, 32): editor, contributor, admin del workspace, viewer, otro
+     workspace y admin. Las filas de versión vienen de Continuum, que la base en memoria no corre: el historial y
+     el motor de restauración son fijos, los permisos y los comandos reales.
+5. Chequeo en vivo (MCP en 5108, tablero nuevo 223 «Fase 9 historial» del workspace 6):
+   - `update_dashboard` (título) y `add_page` («Detalle») dieron las versiones 1 y 2; `get_version_diff` de cada una
+     devolvió el cambio de título y las pestañas añadidas.
+   - `restore_version(version_number=0)` creó la versión 3. El panel del navegador la muestra como «Se restauró la
+     versión 0», actual, con «Se quitó pestaña «Detalle»», «Se quitó pestaña «Página 1»» y el título renombrado:
+     lo mismo que `get_version_diff` de la 3.
+   - `delete_dashboard` → `list_trash(workspace_id=6)` y la global lo listan → `restore_dashboard` → la papelera
+     queda vacía. `GET /api/v1/workspace/6/trash/` y `/versions/` siguen respondiendo igual.
+6. Pendiente:
+   - No hay `restore_dataset`: `list_trash` lista los datasets borrados con `restore_tool` nulo (se restauran en la
+     web).
+   - `get_version_diff` devuelve lo que cambió una versión; no compara dos versiones cualesquiera.
+   - No se corrieron `pre-commit` ni mypy: solo ruff (check y format) sobre los archivos tocados.
 
 ## 10. Captura, exportación, envío y compartir (M)
 

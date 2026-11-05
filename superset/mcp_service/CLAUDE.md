@@ -167,6 +167,19 @@ The `@tool` and `@prompt` decorators are defined as stubs in the `superset-core`
 3. Tool/prompt/resource imports at the bottom of `app.py` trigger registration
 4. `server.py` adds middleware and starts the transport
 
+## AuraData BI: Trash and Version History
+
+`history/` serves the trash and the version history with the rules of the web:
+
+- **Trash**: a workspace's trash is `workspace_trash` (contributors and admins, as
+  `GET /workspace/<id>/trash/`); the whole trash applies the `*DeletedStateFilter` of the REST
+  lists on top of each DAO's access filter, inside `skip_visibility_filter` so deleted rows stay
+  hidden afterwards.
+- **History**: every read goes through `versioning/api_helpers.py:find_history_entity`, the gate of
+  the `/versions/` endpoints, and restoring runs the entity's `Restore*VersionCommand`, which keeps
+  one dashboard per chart and the workspace dataset rule. A tool that serves several kinds also
+  checks the route permission of each kind (`history/utils.py:route_allowed`).
+
 ## Critical Convention: Tool, Prompt, and Resource Registration
 
 **IMPORTANT**: When creating new MCP tools, prompts, or resources, you MUST add their imports to `app.py` for auto-registration. Do NOT add them to `server.py` - that approach doesn't work properly.
