@@ -863,26 +863,30 @@ def _remove_tool_quietly(tool_name: str, reason: str) -> None:
         pass
 
 
-def _apply_config_guards(flask_app: Any) -> set[str]:
-    """Remove tools whose backing features are administratively disabled.
-
-    Returns the set of tool names that were removed so that callers can exclude
-    them from generated instructions.
+def feature_disabled_tools() -> set[str]:
+    """Names of the tools whose backing features are administratively disabled.
 
     - Task tools: mirrors TaskRestApi conditional registration which checks
       the GLOBAL_TASK_FRAMEWORK feature flag via feature_flag_manager so that
       all Superset enablement paths (DEFAULT_FEATURE_FLAGS, GET_FEATURE_FLAGS_FUNC,
       IS_FEATURE_ENABLED_FUNC, etc.) are respected.
     """
-    removed: set[str] = set()
-
     from superset.extensions import feature_flag_manager  # noqa: PLC0415
 
     if not feature_flag_manager.is_feature_enabled("GLOBAL_TASK_FRAMEWORK"):
-        for tool_name in ("list_tasks", "get_task_info"):
-            _remove_tool_quietly(tool_name, "GLOBAL_TASK_FRAMEWORK not enabled")
-            removed.add(tool_name)
+        return {"list_tasks", "get_task_info"}
+    return set()
 
+
+def _apply_config_guards(flask_app: Any) -> set[str]:
+    """Remove tools whose backing features are administratively disabled.
+
+    Returns the set of tool names that were removed so that callers can exclude
+    them from generated instructions.
+    """
+    removed = feature_disabled_tools()
+    for tool_name in removed:
+        _remove_tool_quietly(tool_name, "feature not enabled")
     return removed
 
 
