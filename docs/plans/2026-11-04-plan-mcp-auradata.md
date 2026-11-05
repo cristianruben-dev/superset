@@ -526,13 +526,19 @@ históricas. El `CLAUDE.md` del proyecto y el de `mcp_service` reescriben su reg
    - `update_slicer` (nombre, opciones, valor por defecto o `clear_default`) y `format_slicer` (Visual: ajustes del
      segmentador; General: su caja).
    - `get_format_options` acepta `element=<tipo>` y devuelve sus ajustes y sus valores por defecto.
-   - Tests con base real: editor, contributor y admin del workspace escriben; viewer y otro workspace no. Registradas
-     en `app.py`, inventario, registro, `COMMITTED_WRITE_SPECS` y exclusiones de caché.
+   - Tests con base real: editor, contributor y admin del workspace escriben; viewer y otro workspace no, en las siete
+     herramientas (`2a1b5f2daf` añade los rechazos de las cinco que cambian un elemento). Registradas en `app.py`,
+     inventario, registro, `COMMITTED_WRITE_SPECS` y exclusiones de caché.
+   - `2a1b5f2daf`: `format_slicer` rechaza `selection`, `sortValues` y `hiddenValues`, que `update_slicer` mantiene
+     al día con el filtro nativo.
 3. `efd7ad1320`: seguridad pendiente de la fase 3. Todo valor de un control `json`, a cualquier profundidad, y cada
    literal de cadena del código de `echart_options` (con sus escapes y plantillas resueltos) no puede ser una dirección
    de otro sitio: ni `graphic[].style.image`, ni `symbol: 'image://…'`, ni rellenos de patrón o fondos de texto
    enriquecido. Se aplica en `format_visual` y en `set_shared_visual_format`. Un texto que solo menciona una dirección
    pasa.
+   - `848afdc80b`: el `formatter` de un tooltip es HTML que ECharts escribe con `innerHTML`, y el sanitizador del
+     tooltip deja pasar `<img>`. Las cadenas con marcado se leen como HTML (`src`, `srcset`, `poster`, `background` y
+     `url()` en `style`). Los literales solo se leen del código de objeto, así que un enlace en HTML simple pasa.
 4. `9f2909b53d`: forma de los controles `json` (`jsonShapes.ts` → `json_shapes` del catálogo): fuentes, colores
    de series, formato por serie, líneas de referencia y límites. `get_format_options` las da con un nivel o una
    sección. Sin filtro, la respuesta de `mixed_timeseries` pasaba de 50 KB.
