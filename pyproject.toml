@@ -36,6 +36,8 @@ classifiers = [
 dependencies = [
     # no bounds for apache-superset-core until we have a stable version
     "apache-superset-core",
+    # official SDK for the in-app assistant; 2.x sends API version 2026-10-21
+    "anthropic>=2.6.0, <3",
     "backoff>=1.8.0",
     # cachetools is used directly by ``superset.db_engine_specs.aws_iam`` (TTLCache).
     # It used to be installed transitively via ``google-auth`` (<2.53), but
