@@ -22,8 +22,8 @@ import { useEffect, useState } from 'react';
 /** Panes of the dashboard editor that fold into a rail, as in Power BI. */
 export type PaneName = 'builder' | 'data';
 
-const KEY = 'mibi.panes';
-const EVENT = 'mibi:panes';
+const KEY = 'auradata.panes';
+const EVENT = 'auradata:panes';
 
 function read(): Record<PaneName, boolean> {
   try {
@@ -70,7 +70,7 @@ export type BuilderTab =
   | 'SELECTION'
   | 'BOOKMARKS';
 
-const TAB_EVENT = 'mibi:builder-tab';
+const TAB_EVENT = 'auradata:builder-tab';
 let builderTab: BuilderTab = 'CHARTS';
 
 export function setBuilderTab(tab: BuilderTab) {
@@ -99,7 +99,7 @@ export function useBuilderTab(): BuilderTab {
 /** Width of the editor docked beside the report; 0 while it is closed. */
 let dockWidth = 0;
 
-export const DOCK_EVENT = 'mibi:dock';
+export const DOCK_EVENT = 'auradata:dock';
 
 export function setDockWidth(value: number) {
   if (dockWidth === value) return;

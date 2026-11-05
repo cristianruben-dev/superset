@@ -76,10 +76,10 @@ const layout = {
     children: [],
     parents: ['ROOT_ID', 'TABS-1', 'TAB-a', 'ROW-1'],
     meta: {
-      componentKey: 'mibi-button',
+      componentKey: 'auradata-button',
       width: 3,
       height: 7,
-      mibiElement: { ...ELEMENT_DEFAULTS.button.element, label: 'Ir' },
+      auradataElement: { ...ELEMENT_DEFAULTS.button.element, label: 'Ir' },
     },
   },
 } as unknown as DashboardLayout;
@@ -116,7 +116,7 @@ const SCRIPT_SCHEME = ['java', 'script:'].join('');
 
 test('recognises AuraData BI elements by their component key', () => {
   expect(elementKind(elementKey('shape'))).toBe('shape');
-  expect(elementKind('mibi-unknown')).toBeNull();
+  expect(elementKind('auradata-unknown')).toBeNull();
   expect(elementKind('some-plugin')).toBeNull();
   expect(elementKind(undefined)).toBeNull();
 });
@@ -254,7 +254,7 @@ test('new elements dropped on the grid get a row and keep their width', () => {
       dragging: {
         id: 'NEW_AURADATA_SHAPE',
         type: 'DYNAMIC',
-        meta: { componentKey: 'mibi-shape', width: 3, height: 20 },
+        meta: { componentKey: 'auradata-shape', width: 3, height: 20 },
       },
       position: 'DROP_TOP',
     },
@@ -272,7 +272,10 @@ test('new elements dropped on the grid get a row and keep their width', () => {
   const row = created.find(entity => entity.type === 'ROW');
   const shape = created.find(entity => entity.type === 'DYNAMIC');
   expect(row?.children).toEqual([shape?.id]);
-  expect(shape?.meta).toMatchObject({ componentKey: 'mibi-shape', width: 3 });
+  expect(shape?.meta).toMatchObject({
+    componentKey: 'auradata-shape',
+    width: 3,
+  });
 });
 
 test('the Format pane edits the selected button', () => {
@@ -288,7 +291,7 @@ test('the Format pane edits the selected button', () => {
   });
   fireEvent.click(screen.getByTestId('auradata-button-preset-outline'));
   const element = stateOf(store).dashboardLayout.present['DYNAMIC-btn'].meta
-    .mibiElement as { label: string; borderWidth: number };
+    .auradataElement as { label: string; borderWidth: number };
   expect(element.label).toBe('Ver más');
   expect(element.borderWidth).toBe(1);
 

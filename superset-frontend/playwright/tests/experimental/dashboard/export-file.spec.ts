@@ -96,7 +96,7 @@ async function createReport(page: Page, testAssets: TestAssets) {
       type: 'ROOT',
       id: 'ROOT_ID',
       children: ['TABS-x'],
-      meta: { mibiCells: true },
+      meta: { auradataCells: true },
     },
     'TABS-x': {
       type: 'TABS',
@@ -124,7 +124,7 @@ async function createReport(page: Page, testAssets: TestAssets) {
         width: 8,
         height: 10,
         sliceName: LONG_TITLE,
-        mibiPos: { x: 1, y: 1 },
+        auradataPos: { x: 1, y: 1 },
       },
     },
     'ROW-b': {
@@ -143,7 +143,7 @@ async function createReport(page: Page, testAssets: TestAssets) {
         width: 10,
         height: 4,
         code: 'Countries',
-        mibiPos: { x: 1, y: 1 },
+        auradataPos: { x: 1, y: 1 },
       },
     },
   };

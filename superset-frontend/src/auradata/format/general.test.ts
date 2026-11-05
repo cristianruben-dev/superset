@@ -33,7 +33,7 @@ test('the opacity of the tooltip goes into its background, with readable text', 
   expect(
     JSON.parse(
       echartsHostFormat({
-        chart: { mibi_tooltip: { background: '#000000', opacity: 50 } },
+        chart: { auradata_tooltip: { background: '#000000', opacity: 50 } },
       }) as string,
     ),
   ).toEqual({
@@ -52,7 +52,7 @@ test('spacing only applies when customized', () => {
     { title: { spacing: { customize: true, belowTitle: 9 } } },
     supersetTheme,
   );
-  expect(on.className).toBe('mibi-spacing');
+  expect(on.className).toBe('auradata-spacing');
   expect(on.style).toMatchObject({ '--mb-s-title': '9px' });
 });
 
@@ -64,7 +64,7 @@ test('a divider that reaches the edges knows the padding of the card', () => {
     },
     supersetTheme,
   );
-  expect(className).toBe('mibi-divider-bleed');
+  expect(className).toBe('auradata-divider-bleed');
   expect(style).toMatchObject({
     '--mb-v-pad-left': '5px',
     '--mb-v-pad-right': '7px',
@@ -76,7 +76,7 @@ test('icons take their border and opacity', () => {
     { header: { iconBorder: '#000000', iconOpacity: 50 } },
     supersetTheme,
   );
-  expect(className).toBe('mibi-header-icons');
+  expect(className).toBe('auradata-header-icons');
   expect(style).toMatchObject({
     '--mb-v-icon-border': '1px solid rgba(0, 0, 0, 0.5)',
   });
@@ -84,7 +84,7 @@ test('icons take their border and opacity', () => {
 
 test('keeping the layer order is a class of the holder', () => {
   expect(visualStyle({ keepLayerOrder: true }, supersetTheme).className).toBe(
-    'mibi-keep-layer',
+    'auradata-keep-layer',
   );
 });
 

@@ -31,18 +31,18 @@ export const Styles = styled.div<{
       freezeRowHeaders &&
       !isDashboardEditMode &&
       css`
-        table.pvtTable th[data-mibi-level] {
+        table.pvtTable th[data-auradata-level] {
           position: sticky;
           z-index: 1;
           background-color: ${theme.colorBgBase};
         }
-        table.pvtTable thead th[data-mibi-level] {
+        table.pvtTable thead th[data-auradata-level] {
           z-index: 2;
         }
         ${FROZEN_LEVELS.map(
           level => `
-          table.pvtTable th[data-mibi-level='${level}'] {
-            left: var(--mibi-freeze-${level}, 0px);
+          table.pvtTable th[data-auradata-level='${level}'] {
+            left: var(--auradata-freeze-${level}, 0px);
           }
         `,
         ).join('')}

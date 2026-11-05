@@ -195,10 +195,10 @@ function Echart(
     const div = divRef.current;
     const handler = eventHandlersRef.current?.contextmenu;
     const pointer = params?.event?.event as MouseEvent | undefined;
-    if (!div?.closest('[data-mibi-tooltip-page]') || !handler || !pointer) {
+    if (!div?.closest('[data-auradata-tooltip-page]') || !handler || !pointer) {
       return;
     }
-    div.dataset.mibiProbe = 'true';
+    div.dataset.auradataProbe = 'true';
     let result: unknown;
     try {
       result = handler({
@@ -216,13 +216,13 @@ function Echart(
       });
     } finally {
       Promise.resolve(result).finally(() => {
-        delete div.dataset.mibiProbe;
+        delete div.dataset.auradataProbe;
       });
     }
   }, []);
   const onMarkOut = useCallback(() => {
-    if (divRef.current?.closest('[data-mibi-tooltip-page]')) {
-      window.dispatchEvent(new CustomEvent('mibi:mark-leave'));
+    if (divRef.current?.closest('[data-auradata-tooltip-page]')) {
+      window.dispatchEvent(new CustomEvent('auradata:mark-leave'));
     }
   }, []);
 
@@ -428,8 +428,8 @@ function Echart(
       divRef.current?.classList.remove(ECHARTS_RENDER_FINISHED_CLASS);
       // AuraData BI: what the report around the chart asks of it
       const hostFormat = divRef.current?.closest<HTMLElement>(
-        '[data-mibi-echarts]',
-      )?.dataset.mibiEcharts;
+        '[data-auradata-echarts]',
+      )?.dataset.auradataEcharts;
       chartRef.current?.setOption(
         applyHostFormat(themedEchartOptions, hostFormat),
         {

@@ -97,7 +97,7 @@ function captureView(
   const visibility: Record<string, boolean> = {};
   objectIds(layout).forEach(id => {
     visibility[id] =
-      visibilityOverride(dashboardId, id) ?? !!layout[id]?.meta?.mibiHidden;
+      visibilityOverride(dashboardId, id) ?? !!layout[id]?.meta?.auradataHidden;
   });
   return { page, filters, visibility };
 }

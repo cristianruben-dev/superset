@@ -62,8 +62,8 @@ export function MovableDraggable({
         component={component}
         className={cx(
           className,
-          move.moving && 'mibi-moving',
-          locked && !!props.editMode && 'mibi-locked',
+          move.moving && 'auradata-moving',
+          locked && !!props.editMode && 'auradata-locked',
         )}
         style={{
           ...posStyle((component as LayoutItem).meta),

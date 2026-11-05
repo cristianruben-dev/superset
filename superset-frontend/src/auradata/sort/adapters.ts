@@ -64,7 +64,7 @@ const categoryAxisAdapter: SortAdapter = {
 };
 
 /**
- * Pie and funnel charts: `mibi_sort_by` and `mibi_sort_asc`. Their categories
+ * Pie and funnel charts: `auradata_sort_by` and `auradata_sort_asc`. Their categories
  * read in data order (clockwise from the top, or top down), so ascending is
  * stored as is. A chart without its own sort shows the "Sort by metric" one.
  */
@@ -85,8 +85,11 @@ const categoryAdapter: SortAdapter = {
       : null;
   },
   current: formData => {
-    if (formData.mibi_sort_by) {
-      return { by: formData.mibi_sort_by, ascending: !!formData.mibi_sort_asc };
+    if (formData.auradata_sort_by) {
+      return {
+        by: formData.auradata_sort_by,
+        ascending: !!formData.auradata_sort_asc,
+      };
     }
     // The chart editor checks "Sort by metric" by default
     return formData.metric && formData.sort_by_metric !== false
@@ -94,8 +97,8 @@ const categoryAdapter: SortAdapter = {
       : undefined;
   },
   toFormData: ({ by, ascending }) => ({
-    mibi_sort_by: by,
-    mibi_sort_asc: ascending,
+    auradata_sort_by: by,
+    auradata_sort_asc: ascending,
   }),
 };
 
@@ -109,7 +112,7 @@ const metricLabels = (formData: QueryFormData) =>
   ensureIsArray(formData.metrics as QueryFormMetric[]).map(getMetricLabel);
 
 /**
- * Tables: `mibi_table_sort`, which sorts the query by a column or a metric.
+ * Tables: `auradata_table_sort`, which sorts the query by a column or a metric.
  * Viewers can still re-sort what they see by clicking a header.
  */
 const tableAdapter: SortAdapter = {
@@ -132,7 +135,7 @@ const tableAdapter: SortAdapter = {
       : null;
   },
   current: formData => {
-    const [saved] = ensureIsArray(formData.mibi_table_sort);
+    const [saved] = ensureIsArray(formData.auradata_table_sort);
     if (saved?.key) return { by: saved.key, ascending: !saved.desc };
     if (isRawTable(formData)) return undefined;
     // Without a sort of its own, a table sorts by its "Sort by" metric, or
@@ -148,7 +151,7 @@ const tableAdapter: SortAdapter = {
     return first ? { by: first, ascending: false } : undefined;
   },
   toFormData: ({ by, ascending }) => ({
-    mibi_table_sort: [{ key: by, desc: !ascending }],
+    auradata_table_sort: [{ key: by, desc: !ascending }],
   }),
 };
 

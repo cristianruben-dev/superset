@@ -24,9 +24,9 @@ import { TABS_TYPE } from 'src/dashboard/util/componentTypes';
 import type { DashboardLayout } from 'src/dashboard/types';
 
 /** A page viewers do not see in the tabs; links and drill through still open it. */
-export const HIDDEN_PAGE_KEY = 'mibiHiddenPage';
+export const HIDDEN_PAGE_KEY = 'auradataHiddenPage';
 /** Same key as `TOOLTIP_PAGE_KEY` in `src/auradata/report/types`. */
-const TOOLTIP_PAGE_KEY = 'mibiTooltipPage';
+const TOOLTIP_PAGE_KEY = 'auradataTooltipPage';
 
 /** Whether viewers miss a page in the tabs: hidden, or a tooltip page. */
 export const isHiddenPage = (meta: Record<string, unknown> | undefined) =>

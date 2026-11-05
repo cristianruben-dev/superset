@@ -467,7 +467,7 @@ const StyledDashboardContent = styled.div<{
       }
 
       /* this is the ParentSize wrapper */
-      & > div:first-of-type:not(.mibi-viewport) {
+      & > div:first-of-type:not(.auradata-viewport) {
         height: 100% !important;
       }
     }

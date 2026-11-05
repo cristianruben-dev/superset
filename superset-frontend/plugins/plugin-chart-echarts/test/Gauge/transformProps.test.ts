@@ -304,7 +304,7 @@ test('a gauge draws its target from a field', () => {
   );
   const target = (
     result.echartOptions as { series: { id?: string; data: unknown[] }[] }
-  ).series.find(series => series.id === '__mibi_gauge_target');
+  ).series.find(series => series.id === '__auradata_gauge_target');
   expect(target?.data).toEqual([{ value: 75 }]);
 });
 

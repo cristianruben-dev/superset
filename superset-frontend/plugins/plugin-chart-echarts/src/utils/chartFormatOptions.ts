@@ -213,7 +213,7 @@ export function getDisplayFormatter(
   if (percent) return getNumberFormatter(`,${digits}%`);
   const number = getNumberFormatter(`,${digits}f`);
   return new NumberFormatter({
-    id: `mibi-units-${units ?? 'none'}${digits}`,
+    id: `auradata-units-${units ?? 'none'}${digits}`,
     formatFunc: (value: number) => {
       const [, divisor, suffix] = scaleOf(units ?? 'none', value);
       return `${number(value / divisor)}${suffix}`;
@@ -332,7 +332,7 @@ export function applySecondaryAxis<T extends object>(
             ...series,
             yAxisIndex: 1,
             ...(series.stack !== undefined && {
-              stack: `${series.stack}__mibi_secondary`,
+              stack: `${series.stack}__auradata_secondary`,
             }),
           }
         : series,
@@ -868,8 +868,8 @@ function totalLabelSeries(
       const isLine = members[0].type === 'line';
       const outside = sign === -1 ? ['bottom', 'left'] : ['top', 'right'];
       return {
-        id: `__mibi_total_${stack}_${sign}`,
-        name: `__mibi_total_${stack}_${sign}`,
+        id: `__auradata_total_${stack}_${sign}`,
+        name: `__auradata_total_${stack}_${sign}`,
         type: members[0].type,
         stack,
         stackStrategy: 'samesign',
@@ -932,7 +932,7 @@ function applySeriesLabels(
   const background = toCssColor(format.seriesLabelBackground);
   const textStyle = getEchartsTextStyle(format.seriesLabelFont);
   return list.map(series =>
-    series.type === 'line' && !String(series.id).startsWith('__mibi')
+    series.type === 'line' && !String(series.id).startsWith('__auradata')
       ? {
           ...series,
           endLabel: {
@@ -1040,7 +1040,7 @@ function applyLegendExtras(
     list: [
       ...list,
       {
-        id: '__mibi_legend_title',
+        id: '__auradata_legend_title',
         name: title,
         type: list[0]?.type ?? 'line',
         data: [],

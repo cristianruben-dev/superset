@@ -81,7 +81,7 @@ function ChartFieldZone({ id, chartId }: { id: string; chartId: number }) {
   const takes =
     ready && (!draggedField.dataset || draggedField.dataset === dataset);
   const { setNodeRef, isOver: over } = useDroppable({
-    id: `mibi-field-drop-${id}`,
+    id: `auradata-field-drop-${id}`,
     data: {
       accept: FIELD_TYPES,
       canDrop: () => takes,

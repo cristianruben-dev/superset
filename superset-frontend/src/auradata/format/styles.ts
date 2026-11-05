@@ -243,29 +243,29 @@ export function visualStyle(
     style: style as CSSProperties,
     className:
       [
-        title?.show === false && 'mibi-title-hidden',
-        title?.background && 'mibi-title-band',
-        title?.wrap && 'mibi-title-wrap',
-        title?.gap !== undefined && 'mibi-header-gap',
+        title?.show === false && 'auradata-title-hidden',
+        title?.background && 'auradata-title-band',
+        title?.wrap && 'auradata-title-wrap',
+        title?.gap !== undefined && 'auradata-header-gap',
         (header?.iconColor ||
           header?.iconBackground ||
           header?.iconBorder ||
           header?.iconOpacity !== undefined) &&
-          'mibi-header-icons',
-        title?.dividerBleed && 'mibi-divider-bleed',
-        title?.spacing?.customize && 'mibi-spacing',
-        format.keepLayerOrder && 'mibi-keep-layer',
-        value?.size && 'mibi-v-size',
-        value?.color && 'mibi-v-color',
-        value?.bold !== undefined && 'mibi-v-weight',
-        value?.italic !== undefined && 'mibi-v-style',
-        value?.align && 'mibi-v-align',
-        label?.size && 'mibi-l-size',
-        label?.color && 'mibi-l-color',
-        label?.bold !== undefined && 'mibi-l-weight',
-        label?.italic !== undefined && 'mibi-l-style',
+          'auradata-header-icons',
+        title?.dividerBleed && 'auradata-divider-bleed',
+        title?.spacing?.customize && 'auradata-spacing',
+        format.keepLayerOrder && 'auradata-keep-layer',
+        value?.size && 'auradata-v-size',
+        value?.color && 'auradata-v-color',
+        value?.bold !== undefined && 'auradata-v-weight',
+        value?.italic !== undefined && 'auradata-v-style',
+        value?.align && 'auradata-v-align',
+        label?.size && 'auradata-l-size',
+        label?.color && 'auradata-l-color',
+        label?.bold !== undefined && 'auradata-l-weight',
+        label?.italic !== undefined && 'auradata-l-style',
         // A centered title spans the whole card: see the header icons in skin.css
-        title?.align === 'center' && 'mibi-title-center',
+        title?.align === 'center' && 'auradata-title-center',
       ]
         .filter(Boolean)
         .join(' ') || undefined,

@@ -1145,7 +1145,7 @@ function GeneralLevel({ id }: { id: string }) {
   const dispatch = useDispatch();
   const altText = useSelector(
     (state: RootState) =>
-      state.dashboardLayout.present[id]?.meta?.mibiAltText as
+      state.dashboardLayout.present[id]?.meta?.auradataAltText as
         | string
         | undefined,
   );
@@ -1167,7 +1167,7 @@ function GeneralLevel({ id }: { id: string }) {
             dispatch(
               setComponentMeta(
                 id,
-                'mibiAltText',
+                'auradataAltText',
                 event.target.value || undefined,
                 `visual:${id}:alt-text`,
               ),

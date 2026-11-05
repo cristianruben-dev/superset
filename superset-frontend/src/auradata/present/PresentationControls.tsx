@@ -30,7 +30,7 @@ import { DASHBOARD_HEADER_ID } from 'src/dashboard/util/constants';
 import { activeTabIndex, visibleTabs } from './dashboardTabs';
 import { setPresenting } from './presentation';
 
-const INTERVAL_KEY = 'mibi.presentInterval';
+const INTERVAL_KEY = 'auradata.presentInterval';
 const IDLE_MS = 2500;
 export const INTERVALS = [10, 30, 60, 120, 300];
 const DEFAULT_INTERVAL = 30;
@@ -134,10 +134,10 @@ const Bar = styled.div<{ $hidden: boolean }>`
       bottom: 0;
       height: 2px;
       background: ${theme.colorPrimary};
-      animation: mibi-present-progress linear forwards;
+      animation: auradata-present-progress linear forwards;
     }
 
-    @keyframes mibi-present-progress {
+    @keyframes auradata-present-progress {
       from {
         width: 0;
       }
@@ -308,8 +308,11 @@ export function PresentationControls() {
   }, [current, exit, goTo, tabs.length, wake]);
 
   useEffect(() => {
-    document.body.classList.toggle('mibi-presenting-idle', idle && !menuOpen);
-    return () => document.body.classList.remove('mibi-presenting-idle');
+    document.body.classList.toggle(
+      'auradata-presenting-idle',
+      idle && !menuOpen,
+    );
+    return () => document.body.classList.remove('auradata-presenting-idle');
   }, [idle, menuOpen]);
 
   const changeInterval = (value: number) => {

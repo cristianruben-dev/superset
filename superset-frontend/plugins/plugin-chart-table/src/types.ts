@@ -68,7 +68,7 @@ export type TableChartFormData = QueryFormData & {
   all_columns?: QueryFormMetric[] | null;
   order_desc?: boolean;
   /** Mi BI: the sort an editor saved from the dashboard */
-  mibi_table_sort?: TableSortItem[] | null;
+  auradata_table_sort?: TableSortItem[] | null;
   show_cell_bars?: boolean;
   table_timestamp_format?: string;
   time_grain_sqla?: TimeGranularity;

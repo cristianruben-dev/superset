@@ -46,9 +46,11 @@ export const setChartFormatValue =
   (dispatch: AppDispatch, getState: GetState) => {
     const state = getState();
     const layout = state.dashboardLayout.present;
-    const own = (layout[id]?.meta?.mibiFormat ?? {}) as VisualFormat;
+    const own = (layout[id]?.meta?.auradataFormat ?? {}) as VisualFormat;
     const shared = (
-      layout[DASHBOARD_ROOT_ID]?.meta?.mibiCanvas as CanvasFormat | undefined
+      layout[DASHBOARD_ROOT_ID]?.meta?.auradataCanvas as
+        | CanvasFormat
+        | undefined
     )?.visuals?.chart;
     const saved = (
       state.charts as unknown as Record<
@@ -70,7 +72,7 @@ export const setChartFormatValue =
 export const resetChartFormat =
   (id: string, names: string[]) =>
   (dispatch: AppDispatch, getState: GetState) => {
-    const own = (getState().dashboardLayout.present[id]?.meta?.mibiFormat ??
+    const own = (getState().dashboardLayout.present[id]?.meta?.auradataFormat ??
       {}) as VisualFormat;
     const chart = { ...own.chart };
     names.forEach(name => delete chart[name]);

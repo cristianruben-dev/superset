@@ -249,6 +249,6 @@ test('only text that fits in one line on screen is kept to one line', () => {
   Range.prototype.getClientRects = original;
 
   expect(marked).toEqual([label]);
-  expect(label.hasAttribute('data-mibi-one-line')).toBe(true);
-  expect(title.hasAttribute('data-mibi-one-line')).toBe(false);
+  expect(label.hasAttribute('data-auradata-one-line')).toBe(true);
+  expect(title.hasAttribute('data-auradata-one-line')).toBe(false);
 });

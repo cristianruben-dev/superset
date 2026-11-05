@@ -26,7 +26,7 @@ import type { RootState } from 'src/dashboard/types';
  * is gone after a reload, as the report opens in its saved state.
  */
 
-const EVENT = 'mibi:visibility';
+const EVENT = 'auradata:visibility';
 let dashboardId: number | null = null;
 let overrides: Record<string, boolean> = {};
 

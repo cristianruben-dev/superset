@@ -214,7 +214,11 @@ describe('legend sorting', () => {
 
 test('a funnel sorted ascending by its metric is drawn smallest first', () => {
   const sortedProps = new ChartProps({
-    formData: { ...formData, mibi_sort_by: 'sum__num', mibi_sort_asc: true },
+    formData: {
+      ...formData,
+      auradata_sort_by: 'sum__num',
+      auradata_sort_asc: true,
+    },
     width: 800,
     height: 600,
     queriesData,
@@ -230,7 +234,7 @@ test('a funnel sorted ascending by its metric is drawn smallest first', () => {
 
 test('a funnel sorted by a dimension keeps the query order', () => {
   const sortedProps = new ChartProps({
-    formData: { ...formData, mibi_sort_by: 'foo' },
+    formData: { ...formData, auradata_sort_by: 'foo' },
     width: 800,
     height: 600,
     queriesData,

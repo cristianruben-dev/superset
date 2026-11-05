@@ -227,7 +227,7 @@ export function ChartFormatSections({
   const format = useChartFormat(id);
   const ownVisual = useSelector(
     (state: RootState) =>
-      state.dashboardLayout.present[id]?.meta?.mibiFormat as
+      state.dashboardLayout.present[id]?.meta?.auradataFormat as
         | VisualFormat
         | undefined,
   );

@@ -40,7 +40,7 @@ const Bar = styled.div`
     color: var(--mb-v-icon-color, ${theme.colorTextSecondary});
 
     button,
-    .mibi-slicer-help {
+    .auradata-slicer-help {
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -128,7 +128,7 @@ export function SlicerIcons({
     );
 
   return (
-    <Bar className="mibi-slicer-icons">
+    <Bar className="auradata-slicer-icons">
       {link?.show && (
         <IconButton
           title={
@@ -152,7 +152,7 @@ export function SlicerIcons({
             role="img"
             aria-label={tooltip?.text}
             data-test="auradata-slicer-help"
-            className="mibi-slicer-help"
+            className="auradata-slicer-help"
           >
             <Icons.QuestionCircleOutlined iconSize="m" />
           </span>

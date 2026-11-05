@@ -36,7 +36,7 @@ import { Sidebar, SIDEBAR_COLLAPSED_WIDTH, SIDEBAR_WIDTH } from './Sidebar';
 import { ThemeVariables } from './ThemeVariables';
 import { TopBar } from './TopBar';
 
-const COLLAPSED_KEY = 'mibi.sidebarCollapsed';
+const COLLAPSED_KEY = 'auradata.sidebarCollapsed';
 // Narrower screens (phones, small tablets) always get the collapsed sidebar
 const NARROW_SCREEN = 768;
 // Below this, the top bar has no room for the title and actions of a report
@@ -171,8 +171,8 @@ export function AppShell({ data, isFrontendRoute, children }: AppShellProps) {
 
   useEffect(() => {
     // Lets the skin compact pages shown inside the chart editor panel
-    document.body.classList.toggle('mibi-panel', isPanelMode());
-    document.body.classList.toggle('mibi-dock', isDockMode());
+    document.body.classList.toggle('auradata-panel', isPanelMode());
+    document.body.classList.toggle('auradata-dock', isDockMode());
   }, []);
 
   useEffect(() => {

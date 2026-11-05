@@ -160,8 +160,8 @@ export interface MobileViewSettings {
   safeArea: boolean;
 }
 
-const KEY = 'mibi.mobileView';
-const EVENT = 'mibi:mobile-view';
+const KEY = 'auradata.mobileView';
+const EVENT = 'auradata:mobile-view';
 const DEFAULT_SETTINGS: MobileViewSettings = {
   mode: 'work',
   device: DEFAULT_MOBILE_DEVICE,

@@ -289,7 +289,7 @@ function scatterExtras(options: Node, list: Node[], format: Format) {
         };
       };
       list.push({
-        id: `__mibi_shading_${upper}`,
+        id: `__auradata_shading_${upper}`,
         type: 'custom',
         coordinateSystem: 'cartesian2d',
         // A point the chart already has, so the axes keep their range
@@ -734,7 +734,7 @@ export function applySpecialChartFormat<T extends object>(
         ? [
             {
               type: 'image',
-              id: '__mibi_center_image',
+              id: '__auradata_center_image',
               left: base.left ?? 'center',
               top: base.top ?? 'middle',
               z: 9,
@@ -762,7 +762,7 @@ export function applySpecialChartFormat<T extends object>(
     const base = list[0];
     list.push({
       type: 'gauge',
-      id: '__mibi_gauge_target',
+      id: '__auradata_gauge_target',
       min: base.min,
       max: base.max,
       startAngle: base.startAngle,
@@ -831,7 +831,7 @@ export function applySpecialChartFormat<T extends object>(
     };
     list.push({
       type: 'custom',
-      id: '__mibi_waterfall_connectors',
+      id: '__auradata_waterfall_connectors',
       coordinateSystem: 'cartesian2d',
       data,
       renderItem,

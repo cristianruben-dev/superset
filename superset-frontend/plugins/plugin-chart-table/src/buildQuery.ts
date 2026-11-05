@@ -218,7 +218,7 @@ export const buildQuery: BuildQuery<TableChartFormData> = (
 
     // The sort an editor saved from the dashboard wins over the default one
     const savedSort = tableSortOrderby(
-      formData.mibi_table_sort,
+      formData.auradata_table_sort,
       metrics,
       columns,
     );

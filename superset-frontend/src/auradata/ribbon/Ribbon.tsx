@@ -103,7 +103,7 @@ type RibbonTabKey =
   | 'data'
   | 'mobile';
 
-const FOLDED_KEY = 'mibi.ribbonFolded';
+const FOLDED_KEY = 'auradata.ribbonFolded';
 
 const readFolded = () => {
   try {
@@ -196,7 +196,7 @@ export function Ribbon({
   const item = primary ? layout[primary] : undefined;
   const isChart = item?.type === CHART_TYPE;
   const pageId = activePageId(layout, activeTabs);
-  const canvas = layout[DASHBOARD_ROOT_ID]?.meta?.mibiCanvas as
+  const canvas = layout[DASHBOARD_ROOT_ID]?.meta?.auradataCanvas as
     | CanvasFormat
     | undefined;
 
@@ -862,23 +862,23 @@ export function Ribbon({
         </RibbonGroup>
         <RibbonGroup label={t('Object')}>
           <RibbonButton
-            label={item?.meta?.mibiLocked ? t('Unlock') : t('Lock')}
+            label={item?.meta?.auradataLocked ? t('Unlock') : t('Lock')}
             icon={
-              item?.meta?.mibiLocked ? (
+              item?.meta?.auradataLocked ? (
                 <Icons.UnlockOutlined iconSize="m" />
               ) : (
                 <Icons.LockOutlined iconSize="m" />
               )
             }
-            pressed={!!item?.meta?.mibiLocked}
+            pressed={!!item?.meta?.auradataLocked}
             data-test="auradata-ribbon-lock-object"
             onClick={() =>
               ids.forEach(id =>
                 dispatch(
                   setComponentMeta(
                     id,
-                    'mibiLocked',
-                    item?.meta?.mibiLocked ? undefined : true,
+                    'auradataLocked',
+                    item?.meta?.auradataLocked ? undefined : true,
                     `lock:${id}:${Date.now()}`,
                   ) as never,
                 ),
@@ -886,16 +886,16 @@ export function Ribbon({
             }
           />
           <RibbonButton
-            label={item?.meta?.mibiHidden ? t('Show') : t('Hide')}
+            label={item?.meta?.auradataHidden ? t('Show') : t('Hide')}
             hint={t('A hidden object stays on the page, only for editors')}
             icon={
-              item?.meta?.mibiHidden ? (
+              item?.meta?.auradataHidden ? (
                 <Icons.EyeOutlined iconSize="m" />
               ) : (
                 <Icons.EyeInvisibleOutlined iconSize="m" />
               )
             }
-            pressed={!!item?.meta?.mibiHidden}
+            pressed={!!item?.meta?.auradataHidden}
             data-test="auradata-ribbon-hide-object"
             onClick={() =>
               ids.forEach(id => {
@@ -903,8 +903,8 @@ export function Ribbon({
                 dispatch(
                   setComponentMeta(
                     id,
-                    'mibiHidden',
-                    item?.meta?.mibiHidden ? undefined : true,
+                    'auradataHidden',
+                    item?.meta?.auradataHidden ? undefined : true,
                     `hide:${id}:${Date.now()}`,
                   ) as never,
                 );

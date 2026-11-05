@@ -50,7 +50,7 @@ const Body = styled.div`
   height: 100%;
   overflow: visible;
 
-  .mibi-slicer-body {
+  .auradata-slicer-body {
     flex: 1;
     min-height: 0;
   }
@@ -220,7 +220,7 @@ export function FilterView({
       >
         <SlicerIcons filterId={filter.id} config={config} format={format} />
         <ElementTitle format={format} fallback={filter.name} />
-        <div className="mibi-slicer-body">{control}</div>
+        <div className="auradata-slicer-body">{control}</div>
       </Body>
     );
   }

@@ -411,7 +411,7 @@ const RightMenu = ({
       items.push({
         key: 'new-dropdown',
         label: newLabel ?? <Icons.PlusOutlined data-test="new-dropdown-icon" />,
-        className: newLabel ? 'mibi-new-dropdown' : 'submenu-with-caret',
+        className: newLabel ? 'auradata-new-dropdown' : 'submenu-with-caret',
         icon: newLabel ? undefined : <Icons.DownOutlined iconSize="xs" />,
         children: buildNewDropdownItems(),
         popupOffset: NAVBAR_MENU_POPUP_OFFSET,
@@ -431,7 +431,9 @@ const RightMenu = ({
       label: settingsLabel ?? t('Settings'),
       icon: settingsLabel ? undefined : <Icons.DownOutlined iconSize="xs" />,
       children: buildSettingsMenuItems(),
-      className: settingsLabel ? 'mibi-user-dropdown' : 'submenu-with-caret',
+      className: settingsLabel
+        ? 'auradata-user-dropdown'
+        : 'submenu-with-caret',
       popupOffset: NAVBAR_MENU_POPUP_OFFSET,
     });
 

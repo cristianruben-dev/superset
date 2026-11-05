@@ -845,7 +845,7 @@ const transformProps = (
     slice_id,
     columnLabelToNameMap,
     tableFormat: getTableFormat(formData),
-    savedSort: ensureIsArray(formData.mibi_table_sort)[0],
+    savedSort: ensureIsArray(formData.auradata_table_sort)[0],
   };
 };
 

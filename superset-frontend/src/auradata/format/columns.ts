@@ -37,9 +37,9 @@ import {
 export { CELL };
 
 /** Layout root meta key marking a layout whose sizes are in cells. */
-export const CELLS_KEY = 'mibiCells';
+export const CELLS_KEY = 'auradataCells';
 /** Layout root meta key that held the column count before the cell grid. */
-export const LEGACY_COLUMN_COUNT_KEY = 'mibiColumns';
+export const LEGACY_COLUMN_COUNT_KEY = 'auradataColumns';
 
 type LayoutLike = Record<
   string,

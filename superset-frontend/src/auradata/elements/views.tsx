@@ -161,7 +161,11 @@ export function ImageView({
     .join(' ');
   return (
     <Interactive config={config} editMode={editMode}>
-      <Fill $clickable={!!run} className="mibi-hoverable" {...activate(run)}>
+      <Fill
+        $clickable={!!run}
+        className="auradata-hoverable"
+        {...activate(run)}
+      >
         <img
           src={config.src}
           alt={config.alt ?? ''}
@@ -212,7 +216,7 @@ export function ShapeView({
   const fill = config.fill ?? { type: 'solid' };
   const strokeWidth = config.stroke?.width ?? 0;
   const strokeColor = config.stroke?.color || theme.colorPrimary;
-  const gradientId = `mibi-shape-${id}`;
+  const gradientId = `auradata-shape-${id}`;
   const fillColor = colorWithOpacity(
     fill.color || theme.colorPrimary,
     fill.opacity ?? 100,
@@ -279,7 +283,7 @@ export function ShapeView({
       const points =
         config.shape === 'star' ? starPoints() : POLYGONS[config.shape];
       body = (
-        <polygon className="mibi-shape-fill" points={points} {...stroke} />
+        <polygon className="auradata-shape-fill" points={points} {...stroke} />
       );
     }
     drawing = (
@@ -317,7 +321,7 @@ export function ShapeView({
     <Interactive config={config} editMode={editMode}>
       <Fill
         $clickable={!!run}
-        className="mibi-hoverable mibi-shape"
+        className="auradata-hoverable auradata-shape"
         style={{ overflow: 'visible', ...fillVars }}
         data-test={`auradata-shape-${config.shape}`}
         {...activate(run)}
@@ -511,7 +515,7 @@ export function ButtonView({
     <Interactive config={config} editMode={editMode}>
       <StyledButton
         type="button"
-        className="mibi-hoverable"
+        className="auradata-hoverable"
         data-test="auradata-button"
         // Edit mode selects the button instead of running it: let clicks reach
         // the element (a disabled button would swallow them)
@@ -648,7 +652,7 @@ export function TextView({
       <RichText
         ref={ref}
         data-test="auradata-text"
-        className="mibi-rich-text"
+        className="auradata-rich-text"
         contentEditable={editing}
         suppressContentEditableWarning
         data-placeholder={editMode ? t('Write here…') : ''}

@@ -298,8 +298,8 @@ const SliceHeader = forwardRef<HTMLDivElement, SliceHeaderProps>(
           'slice-header',
           (titleFormat?.subtitle ||
             (actionButton?.show && actionButton.position !== 'within')) &&
-            'mibi-has-subtitle',
-          titleFormat?.divider && 'mibi-header-divider',
+            'auradata-has-subtitle',
+          titleFormat?.divider && 'auradata-header-divider',
         )}
         style={
           titleFormat?.divider
@@ -471,7 +471,7 @@ const SliceHeader = forwardRef<HTMLDivElement, SliceHeaderProps>(
         </div>
         {titleFormat?.subtitle && (
           <div
-            className="mibi-subtitle"
+            className="auradata-subtitle"
             data-test="auradata-chart-subtitle"
             role={titleFormat.subtitleHeading ? 'heading' : undefined}
             aria-level={titleFormat.subtitleHeading}

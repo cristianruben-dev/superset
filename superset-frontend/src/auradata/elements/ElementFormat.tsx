@@ -1117,7 +1117,7 @@ const command =
     document.execCommand(name, false, value);
     // Saving happens in the text element's input handler
     document
-      .querySelector('.mibi-selected .mibi-rich-text')
+      .querySelector('.auradata-selected .auradata-rich-text')
       ?.dispatchEvent(new Event('input', { bubbles: true }));
   };
 

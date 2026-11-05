@@ -1327,7 +1327,7 @@ test('frozen row headers stay at the widths of the levels before them', () => {
   const rectSpy = jest
     .spyOn(HTMLElement.prototype, 'getBoundingClientRect')
     .mockImplementation(function mockRect(this: HTMLElement) {
-      return { width: widths[this.dataset.mibiHead ?? ''] ?? 0 } as DOMRect;
+      return { width: widths[this.dataset.auradataHead ?? ''] ?? 0 } as DOMRect;
     });
   const props = buildDefaultProps({
     tableOptions: { tableFormat: { table_freeze_row_headers: true } },
@@ -1335,20 +1335,20 @@ test('frozen row headers stay at the widths of the levels before them', () => {
   renderWithTheme(<TableRenderer {...props} />);
 
   const table = screen.getByRole('grid');
-  expect(table.style.getPropertyValue('--mibi-freeze-0')).toBe('0px');
-  expect(table.style.getPropertyValue('--mibi-freeze-1')).toBe('120px');
+  expect(table.style.getPropertyValue('--auradata-freeze-0')).toBe('0px');
+  expect(table.style.getPropertyValue('--auradata-freeze-1')).toBe('120px');
   rectSpy.mockRestore();
 });
 
 test('a value cell under a tooltip page tells the report while the probe is on', () => {
   const probes: (string | undefined)[] = [];
   const onContextMenu = jest.fn((e: { currentTarget: HTMLElement }) => {
-    probes.push(e.currentTarget.dataset.mibiProbe);
+    probes.push(e.currentTarget.dataset.auradataProbe);
   });
   const onLeave = jest.fn();
-  window.addEventListener('mibi:mark-leave', onLeave);
+  window.addEventListener('auradata:mark-leave', onLeave);
   const { container } = renderWithTheme(
-    <div data-mibi-tooltip-page="TAB-1">
+    <div data-auradata-tooltip-page="TAB-1">
       <TableRenderer {...buildDefaultProps({ onContextMenu })} />
     </div>,
   );
@@ -1360,10 +1360,10 @@ test('a value cell under a tooltip page tells the report while the probe is on',
   expect(colKey).toEqual(['circle']);
   expect(rowKey).toEqual(['blue']);
   expect(probes).toEqual(['true']);
-  expect(cell.dataset.mibiProbe).toBeUndefined();
+  expect(cell.dataset.auradataProbe).toBeUndefined();
   fireEvent.mouseLeave(cell);
   expect(onLeave).toHaveBeenCalledTimes(1);
-  window.removeEventListener('mibi:mark-leave', onLeave);
+  window.removeEventListener('auradata:mark-leave', onLeave);
 });
 
 test('a value cell outside a tooltip page does nothing on hover', () => {

@@ -265,14 +265,13 @@ const TooltipChart = memo(function TooltipChart({
   const shared = useSelector(
     (state: RootState) =>
       (
-        state.dashboardLayout.present[DASHBOARD_ROOT_ID]?.meta?.mibiCanvas as
-          | CanvasFormat
-          | undefined
+        state.dashboardLayout.present[DASHBOARD_ROOT_ID]?.meta
+          ?.auradataCanvas as CanvasFormat | undefined
       )?.visuals,
   );
   const format = mergeVisualFormat(
     shared,
-    meta?.mibiFormat as VisualFormat | undefined,
+    meta?.auradataFormat as VisualFormat | undefined,
   );
   const key = formData ? tooltipQueryKey(chartId, formData) : '';
   const [result, setResult] = useState<{
@@ -367,7 +366,10 @@ function TooltipElement({ object }: { object: TooltipObject }) {
   const kind = object.kind ?? 'shape';
   const config = (meta?.[ELEMENT_KEY] ??
     ELEMENT_DEFAULTS[kind].element) as ElementConfig;
-  const box = visualStyle(meta?.mibiFormat as VisualFormat | undefined, theme);
+  const box = visualStyle(
+    meta?.auradataFormat as VisualFormat | undefined,
+    theme,
+  );
   const content = () => {
     switch (config.kind) {
       case 'image':
@@ -391,7 +393,11 @@ function TooltipElement({ object }: { object: TooltipObject }) {
   };
   return (
     <Placed
-      className={cx('mibi-element', `mibi-element-${kind}`, box.className)}
+      className={cx(
+        'auradata-element',
+        `auradata-element-${kind}`,
+        box.className,
+      )}
       style={{
         ...box.style,
         left: object.x * CELL,
@@ -433,7 +439,7 @@ function TooltipPageView({
   useEffect(onSize, [page?.width, page?.height, onSize]);
 
   if (!page) return null;
-  const canvas = layout[DASHBOARD_ROOT_ID]?.meta?.mibiCanvas as
+  const canvas = layout[DASHBOARD_ROOT_ID]?.meta?.auradataCanvas as
     | CanvasFormat
     | undefined;
   const pageBackground = layout[hover.pageId]?.meta?.[PAGE_BACKGROUND_KEY] as

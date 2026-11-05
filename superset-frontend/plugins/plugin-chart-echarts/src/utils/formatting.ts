@@ -692,7 +692,7 @@ export function applyHostFormat<T extends Record<string, any>>(
       ...options.tooltip,
       ...(tooltip.show === false && { show: false }),
       ...(tooltip.background && { backgroundColor: tooltip.background }),
-      className: `${options.tooltip?.className ?? ''} mibi-tooltip`.trim(),
+      className: `${options.tooltip?.className ?? ''} auradata-tooltip`.trim(),
       textStyle: {
         ...options.tooltip?.textStyle,
         ...(tooltip.textColor && { color: tooltip.textColor }),

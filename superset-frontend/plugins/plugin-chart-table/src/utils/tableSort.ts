@@ -27,7 +27,7 @@ import {
 
 /**
  * The sort an editor saves on a table from the dashboard (Mi BI "Sort axis",
- * `mibi_table_sort`): columns or metrics by label, in order. It sorts the
+ * `auradata_table_sort`): columns or metrics by label, in order. It sorts the
  * query, so it decides which rows the row limit keeps, and viewers can still
  * re-sort the rows they see by clicking a header.
  */

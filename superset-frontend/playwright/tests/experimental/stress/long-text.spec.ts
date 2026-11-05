@@ -134,16 +134,16 @@ test('a dashboard with extreme titles, tabs and elements stays inside the screen
       meta: { background: 'BACKGROUND_TRANSPARENT' },
     },
     'DYNAMIC-text': element('DYNAMIC-text', {
-      componentKey: 'mibi-text',
+      componentKey: 'auradata-text',
       width: 4,
       height: 20,
-      mibiElement: { kind: 'text', html: `<h1>${LONG_WORD}</h1>${HTML}` },
+      auradataElement: { kind: 'text', html: `<h1>${LONG_WORD}</h1>${HTML}` },
     }),
     'DYNAMIC-button': element('DYNAMIC-button', {
-      componentKey: 'mibi-button',
+      componentKey: 'auradata-button',
       width: 4,
       height: 7,
-      mibiElement: {
+      auradataElement: {
         kind: 'button',
         label: LONG_WORD,
         iconPosition: 'only',
@@ -152,10 +152,10 @@ test('a dashboard with extreme titles, tabs and elements stays inside the screen
       },
     }),
     'DYNAMIC-shape': element('DYNAMIC-shape', {
-      componentKey: 'mibi-shape',
+      componentKey: 'auradata-shape',
       width: 4,
       height: 20,
-      mibiElement: {
+      auradataElement: {
         kind: 'shape',
         shape: 'star',
         text: `${LONG_WORD} ${WORLD}`,

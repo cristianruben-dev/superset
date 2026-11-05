@@ -491,20 +491,20 @@ export function TableRenderer(props: TableRendererProps) {
   const hoverCell = useCallback(
     (e: MouseEvent<HTMLElement>, colKey?: string[], rowKey?: string[]) => {
       const cell = e.currentTarget;
-      if (!cell.closest('[data-mibi-tooltip-page]')) return;
-      cell.dataset.mibiProbe = 'true';
+      if (!cell.closest('[data-auradata-tooltip-page]')) return;
+      cell.dataset.auradataProbe = 'true';
       try {
         onContextMenu(e, colKey, rowKey);
       } finally {
-        delete cell.dataset.mibiProbe;
+        delete cell.dataset.auradataProbe;
       }
     },
     [onContextMenu],
   );
 
   const leaveCell = useCallback((e: MouseEvent<HTMLElement>) => {
-    if (e.currentTarget.closest('[data-mibi-tooltip-page]')) {
-      window.dispatchEvent(new CustomEvent('mibi:mark-leave'));
+    if (e.currentTarget.closest('[data-auradata-tooltip-page]')) {
+      window.dispatchEvent(new CustomEvent('auradata:mark-leave'));
     }
   }, []);
 
@@ -519,10 +519,10 @@ export function TableRenderer(props: TableRendererProps) {
     if (!table || !freezeRowHeaders) return;
     let left = 0;
     table
-      .querySelectorAll<HTMLElement>('thead th[data-mibi-head]')
+      .querySelectorAll<HTMLElement>('thead th[data-auradata-head]')
       .forEach(head => {
         table.style.setProperty(
-          `--mibi-freeze-${head.dataset.mibiHead}`,
+          `--auradata-freeze-${head.dataset.auradataHead}`,
           `${left}px`,
         );
         left += head.getBoundingClientRect().width;
@@ -1173,7 +1173,7 @@ export function TableRenderer(props: TableRendererProps) {
             colSpan={settingsRowAttrs.length}
             rowSpan={settingsColAttrs.length}
             aria-hidden="true"
-            data-mibi-level={0}
+            data-auradata-level={0}
           />
         ) : null;
 
@@ -1194,7 +1194,7 @@ export function TableRenderer(props: TableRendererProps) {
         <th
           key="label"
           className="pvtAxisLabel"
-          data-mibi-level={settingsRowAttrs.length}
+          data-auradata-level={settingsRowAttrs.length}
         >
           {displayHeaderCell(
             needToggle,
@@ -1447,8 +1447,8 @@ export function TableRenderer(props: TableRendererProps) {
               <th
                 className="pvtAxisLabel"
                 key={`rowAttr-${i}`}
-                data-mibi-level={i}
-                data-mibi-head={i}
+                data-auradata-level={i}
+                data-auradata-head={i}
               >
                 {displayHeaderCell(
                   needLabelToggle,
@@ -1464,8 +1464,8 @@ export function TableRenderer(props: TableRendererProps) {
           <th
             className="pvtTotalLabel"
             key="padding"
-            data-mibi-level={settingsRowAttrs.length}
-            data-mibi-head={settingsRowAttrs.length}
+            data-auradata-level={settingsRowAttrs.length}
+            data-auradata-head={settingsRowAttrs.length}
             onClick={clickHeaderHandler(
               pivotData,
               [],
@@ -1588,7 +1588,7 @@ export function TableRenderer(props: TableRendererProps) {
               key={`rowKeyLabel-${i}`}
               className={cellClassName}
               style={rowHeaderStyle}
-              data-mibi-level={i}
+              data-auradata-level={i}
               rowSpan={rowSpan}
               colSpan={colSpan}
               onClick={clickHeaderHandler(
@@ -1628,7 +1628,7 @@ export function TableRenderer(props: TableRendererProps) {
           <th
             className="pvtRowLabel pvtSubtotalLabel"
             key="rowKeyBuffer"
-            data-mibi-level={rowKey.length}
+            data-auradata-level={rowKey.length}
             colSpan={settingsRowAttrs.length - rowKey.length + colIncrSpan}
             rowSpan={1}
             onClick={clickHeaderHandler(
@@ -1776,7 +1776,7 @@ export function TableRenderer(props: TableRendererProps) {
         <th
           key="stepped"
           className="pvtRowLabel"
-          data-mibi-level={0}
+          data-auradata-level={0}
           colSpan={settingsRowAttrs.length + colIncrSpan}
           style={{
             ...getTableColumnStyle(steppedConfig, 'header'),
@@ -1903,7 +1903,7 @@ export function TableRenderer(props: TableRendererProps) {
         <th
           key="label"
           className="pvtTotalLabel pvtRowTotalLabel"
-          data-mibi-level={0}
+          data-auradata-level={0}
           colSpan={
             settingsRowAttrs.length + Math.min(settingsColAttrs.length, 1)
           }

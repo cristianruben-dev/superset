@@ -238,7 +238,7 @@ export function CommandPalette({
       hideFooter
       closable={false}
       width={600}
-      name="mibi-command-palette"
+      name="auradata-command-palette"
       destroyOnHidden
     >
       <SearchRow>

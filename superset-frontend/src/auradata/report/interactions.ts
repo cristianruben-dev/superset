@@ -44,7 +44,7 @@ export type InteractionMode = 'filter' | 'none';
 
 type AppDispatch = ThunkDispatch<RootState, undefined, AnyAction>;
 
-const EVENT = 'mibi:edit-interactions';
+const EVENT = 'auradata:edit-interactions';
 let editing = false;
 
 /**
@@ -71,7 +71,7 @@ export function useEditingInteractions(): boolean {
 }
 
 /** Marks the interaction controls, so clicking them keeps the selection. */
-export const INTERACTION_CONTROL = 'data-mibi-interaction';
+export const INTERACTION_CONTROL = 'data-auradata-interaction';
 
 export const isInteractionControl = (target: EventTarget | null) =>
   target instanceof Element && !!target.closest(`[${INTERACTION_CONTROL}]`);

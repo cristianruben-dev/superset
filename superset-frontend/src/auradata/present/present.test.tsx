@@ -82,9 +82,9 @@ test('finds the active tab and falls back to the first', () => {
 test('marks the page while presenting', () => {
   setPresenting(true);
   expect(isPresenting()).toBe(true);
-  expect(document.body).toHaveClass('mibi-presenting');
+  expect(document.body).toHaveClass('auradata-presenting');
   setPresenting(false);
-  expect(document.body).not.toHaveClass('mibi-presenting');
+  expect(document.body).not.toHaveClass('auradata-presenting');
 });
 
 const renderControls = () => {

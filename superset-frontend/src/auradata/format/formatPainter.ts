@@ -54,7 +54,7 @@ export interface CopiedFormat {
   style?: Partial<ElementConfig>;
 }
 
-const EVENT = 'mibi:format-painter';
+const EVENT = 'auradata:format-painter';
 let copied: CopiedFormat | null = null;
 let armed = false;
 

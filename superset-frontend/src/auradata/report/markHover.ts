@@ -19,8 +19,8 @@
 import type { DrillthroughField } from './drillthroughScope';
 
 /** Sent by a chart when the pointer enters a mark, and when it leaves. */
-export const MARK_HOVER_EVENT = 'mibi:mark-hover';
-export const MARK_LEAVE_EVENT = 'mibi:mark-leave';
+export const MARK_HOVER_EVENT = 'auradata:mark-hover';
+export const MARK_LEAVE_EVENT = 'auradata:mark-leave';
 
 export interface MarkHover {
   chartId: number;

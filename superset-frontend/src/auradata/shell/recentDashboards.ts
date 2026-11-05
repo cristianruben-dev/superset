@@ -27,9 +27,9 @@ export interface RecentDashboard {
   openedAt: number;
 }
 
-const KEY = 'mibi.recentDashboards';
+const KEY = 'auradata.recentDashboards';
 const LIMIT = 8;
-const CHANGE_EVENT = 'mibi:recent-dashboards';
+const CHANGE_EVENT = 'auradata:recent-dashboards';
 
 /** The dashboards opened in this browser, newest first. */
 export function readRecentDashboards(): RecentDashboard[] {

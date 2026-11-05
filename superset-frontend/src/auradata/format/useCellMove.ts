@@ -89,7 +89,7 @@ export function useCellMove(component: LayoutItem, enabled: boolean): CellMove {
       if ((event.target as HTMLElement).closest(KEEPS_ITS_CLICK)) return;
 
       const page = (event.currentTarget as HTMLElement).closest<HTMLElement>(
-        '.mibi-canvas',
+        '.auradata-canvas',
       );
       const width = Number(component.meta.width) || 1;
       const height = Number(component.meta.height) || 1;
@@ -109,7 +109,7 @@ export function useCellMove(component: LayoutItem, enabled: boolean): CellMove {
         if (!moved && Math.hypot(dx, dy) < DRAG_THRESHOLD) return;
         if (!moved) {
           moved = true;
-          document.body.classList.add('mibi-moving');
+          document.body.classList.add('auradata-moving');
           // Dragging an object picks it, with its group
           if (!selectedVisuals().includes(component.id)) {
             selectVisual(
@@ -126,7 +126,7 @@ export function useCellMove(component: LayoutItem, enabled: boolean): CellMove {
       };
       const end = (commit: boolean) => {
         listeners.abort();
-        document.body.classList.remove('mibi-moving');
+        document.body.classList.remove('auradata-moving');
         stop.current = null;
         setShift(null);
         if (

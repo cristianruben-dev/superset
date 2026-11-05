@@ -35,10 +35,10 @@ import {
 } from './saveChartSort';
 import type { VisualSort } from './types';
 
-export const SORT_ASCENDING_KEY = 'mibi-sort-ascending';
-export const SORT_DESCENDING_KEY = 'mibi-sort-descending';
-export const SORT_UNDO_KEY = 'mibi-sort-undo';
-const SORT_BY_PREFIX = 'mibi-sort-by:';
+export const SORT_ASCENDING_KEY = 'auradata-sort-ascending';
+export const SORT_DESCENDING_KEY = 'auradata-sort-descending';
+export const SORT_UNDO_KEY = 'auradata-sort-undo';
+const SORT_BY_PREFIX = 'auradata-sort-by:';
 
 const checkIcon = (checked: boolean) => (
   <Icons.CheckOutlined
@@ -132,7 +132,7 @@ export function useVisualSortMenuItems(chartId: number) {
     { type: 'divider' },
     {
       type: 'group',
-      key: 'mibi-sort-by',
+      key: 'auradata-sort-by',
       label: t('Sort by'),
       children: options.map(option => ({
         key: `${SORT_BY_PREFIX}${option.value}`,

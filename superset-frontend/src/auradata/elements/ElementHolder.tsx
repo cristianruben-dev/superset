@@ -112,12 +112,12 @@ function ElementHolder({
   );
   // A bookmark may show or hide the element for this visit
   const hiddenOverride = useHiddenOverride(component.id);
-  const hidden = hiddenOverride ?? !!component.meta.mibiHidden;
+  const hidden = hiddenOverride ?? !!component.meta.auradataHidden;
   const locked = useObjectLocked(component.meta);
-  const altText = component.meta.mibiAltText as string | undefined;
+  const altText = component.meta.auradataAltText as string | undefined;
   const box = useMemo(
-    () => visualStyle(component.meta.mibiFormat, theme),
-    [component.meta.mibiFormat, theme],
+    () => visualStyle(component.meta.auradataFormat, theme),
+    [component.meta.auradataFormat, theme],
   );
   // Re-render when the page changes, for buttons that open a page
   useSelector((state: RootState) => state.dashboardState.activeTabs);
@@ -150,7 +150,7 @@ function ElementHolder({
           <FilterView
             config={config}
             editMode={editMode}
-            format={component.meta.mibiFormat}
+            format={component.meta.auradataFormat}
           />
         );
       case 'navigator':
@@ -212,12 +212,12 @@ function ElementHolder({
             data-test={`auradata-element-${kind}`}
             className={cx(
               'dashboard-component',
-              'mibi-element',
-              `mibi-element-${kind}`,
+              'auradata-element',
+              `auradata-element-${kind}`,
               box.className,
-              selected && 'mibi-selected',
-              editMode && 'mibi-element--editing',
-              editMode && hidden && 'mibi-hidden',
+              selected && 'auradata-selected',
+              editMode && 'auradata-element--editing',
+              editMode && hidden && 'auradata-hidden',
             )}
             style={box.style}
             role={altText ? 'group' : undefined}

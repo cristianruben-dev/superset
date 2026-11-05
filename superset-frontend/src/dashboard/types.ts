@@ -289,15 +289,15 @@ export type LayoutItemMeta = {
   /** Background style value for columns and rows */
   background?: string;
   /** Format of a visual, set in the Format pane */
-  mibiFormat?: VisualFormat;
+  auradataFormat?: VisualFormat;
   /** Format of the canvas, kept on the root component */
-  mibiCanvas?: CanvasFormat;
+  auradataCanvas?: CanvasFormat;
   /** Hidden from viewers; shown faded in edit mode */
-  mibiHidden?: boolean;
+  auradataHidden?: boolean;
   /** Cannot be moved, resized or removed in edit mode */
-  mibiLocked?: boolean;
+  auradataLocked?: boolean;
   /** Description of a chart for screen readers */
-  mibiAltText?: string;
+  auradataAltText?: string;
   /** Allow additional meta properties used by different component types */
   [key: string]: unknown;
 };

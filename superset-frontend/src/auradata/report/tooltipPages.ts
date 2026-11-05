@@ -163,7 +163,11 @@ export function tooltipObjects(
         item.type === CHART_TYPE ||
         item.type === MARKDOWN_TYPE ||
         (!!kind && TOOLTIP_ELEMENTS.includes(kind));
-      if (!drawn || !item.parents?.includes(tabId) || item.meta?.mibiHidden) {
+      if (
+        !drawn ||
+        !item.parents?.includes(tabId) ||
+        item.meta?.auradataHidden
+      ) {
         return [];
       }
       const pos = posOf(item.meta);
@@ -179,7 +183,7 @@ export function tooltipObjects(
           y: pos.y,
           width: Math.max(1, Number(item.meta.width) || 1),
           height: Math.max(1, Number(item.meta.height) || 1),
-          z: Number(item.meta.mibiZ) || 0,
+          z: Number(item.meta.auradataZ) || 0,
         },
       ];
     })

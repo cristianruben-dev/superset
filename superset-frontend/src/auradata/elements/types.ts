@@ -20,9 +20,9 @@ import type { VisualFormat } from 'src/auradata/format/types';
 
 /**
  * Design elements a dashboard author places on the canvas next to the charts.
- * They are DYNAMIC layout components whose componentKey starts with "mibi-";
+ * They are DYNAMIC layout components whose componentKey starts with "auradata-";
  * their settings live in the component meta (ELEMENT_KEY), the box around
- * them in the same mibiFormat charts use.
+ * them in the same auradataFormat charts use.
  */
 
 export type ElementKind =
@@ -33,8 +33,8 @@ export type ElementKind =
   | 'filter'
   | 'navigator';
 
-export const ELEMENT_PREFIX = 'mibi-';
-export const ELEMENT_KEY = 'mibiElement';
+export const ELEMENT_PREFIX = 'auradata-';
+export const ELEMENT_KEY = 'auradataElement';
 
 export const elementKey = (kind: ElementKind) => `${ELEMENT_PREFIX}${kind}`;
 

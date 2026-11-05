@@ -55,7 +55,7 @@ const Bar = styled.div`
     border-radius: ${theme.borderRadiusLG}px;
     box-shadow: ${theme.boxShadowSecondary};
 
-    body.mibi-moving & {
+    body.auradata-moving & {
       display: none;
     }
 
@@ -184,7 +184,7 @@ export function ObjectActions({
 
   useEffect(() => {
     const element = anchorRef.current?.closest(
-      '.dashboard-component-chart-holder, .mibi-element',
+      '.dashboard-component-chart-holder, .auradata-element',
     );
     if (!element) return undefined;
     holderRef.current = element;
@@ -246,7 +246,7 @@ export function ObjectActions({
       {createPortal(
         <Bar
           ref={barRef}
-          className="mibi-object-actions"
+          className="auradata-object-actions"
           style={{ visibility: 'hidden' }}
           onPointerEnter={() => {
             window.clearTimeout(leaveTimer.current);

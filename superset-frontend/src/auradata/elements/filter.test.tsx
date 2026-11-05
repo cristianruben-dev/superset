@@ -80,7 +80,7 @@ const makeLayout = (element: Record<string, unknown>) =>
         componentKey: elementKey('filter'),
         width: 3,
         height: 11,
-        mibiElement: { ...ELEMENT_DEFAULTS.filter.element, ...element },
+        auradataElement: { ...ELEMENT_DEFAULTS.filter.element, ...element },
       },
     },
   }) as unknown as DashboardLayout;
@@ -103,12 +103,12 @@ const makeStore = (element: Record<string, unknown> = {}) =>
 const elementOf = (store: ReturnType<typeof makeStore>) =>
   (store.getState() as unknown as RootState).dashboardLayout.present[
     'DYNAMIC-filter'
-  ].meta.mibiElement as { filterId?: string; showInFilterBar?: boolean };
+  ].meta.auradataElement as { filterId?: string; showInFilterBar?: boolean };
 
 afterEach(() => selectVisual(null));
 
 test('recognises the filter element', () => {
-  expect(elementKind('mibi-filter')).toBe('filter');
+  expect(elementKind('auradata-filter')).toBe('filter');
   expect(ELEMENT_DEFAULTS.filter.element).toEqual({
     kind: 'filter',
     showInFilterBar: true,

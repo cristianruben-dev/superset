@@ -136,14 +136,14 @@ const Box = styled.div<{
     cursor: move;
     touch-action: none;
     transition: border-color 0.15s;
-    &:not(:hover) .mibi-mobile-label {
+    &:not(:hover) .auradata-mobile-label {
       opacity: ${$selected ? 1 : 0.75};
     }
-    &:not(:hover) .mibi-mobile-remove,
-    &:not(:hover) .mibi-mobile-resize {
+    &:not(:hover) .auradata-mobile-remove,
+    &:not(:hover) .auradata-mobile-resize {
       display: ${$selected ? 'flex' : 'none'};
     }
-    .mibi-mobile-size {
+    .auradata-mobile-size {
       position: absolute;
       right: 6px;
       bottom: 6px;
@@ -155,7 +155,7 @@ const Box = styled.div<{
       background: ${theme.colorText};
       font-family: 'Geist Mono', ${theme.fontFamilyCode};
     }
-    .mibi-mobile-label {
+    .auradata-mobile-label {
       position: absolute;
       top: 0;
       left: 0;
@@ -170,7 +170,7 @@ const Box = styled.div<{
       background: ${$overlaps ? theme.colorWarning : theme.colorPrimary};
       border-bottom-right-radius: ${theme.borderRadius}px;
     }
-    .mibi-mobile-remove {
+    .auradata-mobile-remove {
       position: absolute;
       top: 0;
       right: 0;
@@ -186,7 +186,7 @@ const Box = styled.div<{
       border-bottom-left-radius: ${theme.borderRadius}px;
       cursor: pointer;
     }
-    .mibi-mobile-resize {
+    .auradata-mobile-resize {
       position: absolute;
       right: -6px;
       bottom: -6px;
@@ -423,12 +423,12 @@ export function MobileLayoutEditor({
             onPointerMove={onPointerMove}
             onPointerUp={onPointerUp}
           >
-            <span className="mibi-mobile-label" title={name}>
+            <span className="auradata-mobile-label" title={name}>
               {name}
             </span>
             <button
               type="button"
-              className="mibi-mobile-remove"
+              className="auradata-mobile-remove"
               aria-label={t('Remove from the mobile layout')}
               title={t('Remove from the mobile layout')}
               data-test="auradata-mobile-remove"
@@ -438,12 +438,12 @@ export function MobileLayoutEditor({
               <Icons.CloseOutlined iconSize="s" />
             </button>
             <span
-              className="mibi-mobile-resize"
+              className="auradata-mobile-resize"
               aria-hidden
               onPointerDown={event => start(event, stored, 'resize')}
             />
             {(moving || selected === box.id) && (
-              <span className="mibi-mobile-size" aria-hidden>
+              <span className="auradata-mobile-size" aria-hidden>
                 {gesture?.kind === 'move' && moving
                   ? `${box.x}, ${box.y}`
                   : `${box.width} × ${box.height}`}

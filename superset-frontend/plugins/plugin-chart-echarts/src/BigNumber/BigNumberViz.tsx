@@ -350,7 +350,7 @@ function BigNumberVis({
               : getNumberFormatter('+.1%')(delta / Math.abs(props.goalValue));
       return (
         <div
-          className="mibi-kpi-goal"
+          className="auradata-kpi-goal"
           style={{
             fontSize: Math.max(10, Math.min(16, maxHeight / 2)),
             color: statusColor,

@@ -43,7 +43,7 @@ export function usePhoneScreen(): boolean {
   return value;
 }
 
-const SELECTION_EVENT = 'mibi:mobile-selection';
+const SELECTION_EVENT = 'auradata:mobile-selection';
 let selectedBox: string | null = null;
 
 /** Chooses the object of the mobile layout the editor works on. */
@@ -63,7 +63,7 @@ export function useSelectedMobileBox(): string | null {
   return value;
 }
 
-const EDITING_EVENT = 'mibi:mobile-editing';
+const EDITING_EVENT = 'auradata:mobile-editing';
 let editing = false;
 
 /** Whether the editor shows the mobile layout of the page instead of its canvas. */

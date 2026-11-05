@@ -46,7 +46,7 @@ export function filterSummary(
   return t('is %s', String(value));
 }
 
-const OPEN_KEY = 'mibi:filter-card-open';
+const OPEN_KEY = 'auradata:filter-card-open';
 
 function readOpen(): Record<string, boolean> {
   try {

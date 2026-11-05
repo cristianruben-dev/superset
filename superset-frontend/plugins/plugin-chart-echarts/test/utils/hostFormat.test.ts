@@ -44,7 +44,7 @@ test('gives the tooltip the look the report asks for', () => {
   ) as Record<string, any>;
   expect(tooltip.trigger).toBe('axis');
   expect(tooltip.backgroundColor).toBe('rgba(0, 0, 0, 0.5)');
-  expect(tooltip.className).toBe('echarts-tooltip mibi-tooltip');
+  expect(tooltip.className).toBe('echarts-tooltip auradata-tooltip');
   expect(tooltip.textStyle).toEqual({ fontSize: 18, fontWeight: 'bold' });
   expect(tooltip.extraCssText).toBe(
     '--mb-tt-label:#111111;--mb-tt-value:#222222;--mb-tt-value-weight:700',

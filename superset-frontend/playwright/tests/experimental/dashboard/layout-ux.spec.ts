@@ -56,12 +56,12 @@ const shape = (
   children: [],
   parents: ['ROOT_ID', 'GRID_ID', row],
   meta: {
-    componentKey: 'mibi-shape',
+    componentKey: 'auradata-shape',
     width: w,
     height: h,
-    mibiPos: { x, y },
-    mibiFormat: { background: 'transparent', borderWidth: 0, padding: 0 },
-    mibiElement: {
+    auradataPos: { x, y },
+    auradataFormat: { background: 'transparent', borderWidth: 0, padding: 0 },
+    auradataElement: {
       kind: 'shape',
       shape: 'rectangle',
       fill: { type: 'solid', opacity: 100 },
@@ -85,8 +85,8 @@ const LAYOUT = {
     type: 'ROOT',
     children: ['GRID_ID'],
     meta: {
-      mibiCells: true,
-      mibiCanvas: {
+      auradataCells: true,
+      auradataCanvas: {
         size: { mode: 'custom', width: COLUMNS * CELL, height: ROWS * CELL },
       },
     },
@@ -126,7 +126,7 @@ test.afterEach(({ page }) => {
 
 /** The three objects, in the order of the layout. */
 const objects = (page: Page) =>
-  page.locator('.mibi-canvas .dragdroppable[style*="position: absolute"]');
+  page.locator('.auradata-canvas .dragdroppable[style*="position: absolute"]');
 
 async function openEditor(page: Page, testAssets: TestAssets) {
   const errors: string[] = [];
@@ -158,7 +158,7 @@ async function openEditor(page: Page, testAssets: TestAssets) {
 /** Screen pixels of one cell: the page is zoomed to fit its space. */
 const unitOf = (page: Page) =>
   page.evaluate(() => {
-    const canvas = document.querySelector<HTMLElement>('.mibi-canvas')!;
+    const canvas = document.querySelector<HTMLElement>('.auradata-canvas')!;
     return (canvas.getBoundingClientRect().width / canvas.offsetWidth) * 32;
   });
 
@@ -408,7 +408,7 @@ test('the controls inside an object keep working', async ({
   const first = objects(page).nth(0);
   await first.hover();
   // The menu over an object is a button: pressing it must not start a move
-  const menu = page.locator('.mibi-object-actions:visible button').first();
+  const menu = page.locator('.auradata-object-actions:visible button').first();
   if (await menu.count()) {
     const box = (await menu.boundingBox())!;
     await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);

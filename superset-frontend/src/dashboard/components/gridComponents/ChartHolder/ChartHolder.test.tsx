@@ -437,7 +437,7 @@ describe('ChartHolder', () => {
         ...defaultProps.component,
         meta: {
           ...defaultProps.component.meta,
-          mibiFormat: {
+          auradataFormat: {
             background: 'transparent',
             radius: 4,
             title: { show: false },
@@ -449,7 +449,7 @@ describe('ChartHolder', () => {
     const holder = screen.getByTestId('dashboard-component-chart-holder');
     expect(holder).toHaveStyle({ backgroundColor: 'transparent' });
     expect(holder.style.getPropertyValue('--mb-v-radius')).toBe('4px');
-    expect(holder).toHaveClass('mibi-title-hidden');
+    expect(holder).toHaveClass('auradata-title-hidden');
     expect(
       screen.getByTestId('auradata-format-visual-button'),
     ).toBeInTheDocument();
@@ -465,7 +465,9 @@ describe('ChartHolder', () => {
             id: 'ROOT_ID',
             type: 'ROOT',
             children: [],
-            meta: { mibiCanvas: { visuals: { radius: 2, shadow: 'none' } } },
+            meta: {
+              auradataCanvas: { visuals: { radius: 2, shadow: 'none' } },
+            },
           },
         },
       },
@@ -475,7 +477,7 @@ describe('ChartHolder', () => {
       fullSizeChartId: null,
       component: {
         ...defaultProps.component,
-        meta: { ...defaultProps.component.meta, mibiFormat: { radius: 9 } },
+        meta: { ...defaultProps.component.meta, auradataFormat: { radius: 9 } },
       },
     });
 
@@ -487,7 +489,7 @@ describe('ChartHolder', () => {
   test('hides a hidden chart from viewers and fades it for editors', () => {
     const component = {
       ...defaultProps.component,
-      meta: { ...defaultProps.component.meta, mibiHidden: true },
+      meta: { ...defaultProps.component.meta, auradataHidden: true },
     };
     const { rerender } = renderWrapper(createMockStore(), {
       editMode: false,
@@ -508,7 +510,7 @@ describe('ChartHolder', () => {
       />,
     );
     expect(screen.getByTestId('dashboard-component-chart-holder')).toHaveClass(
-      'mibi-hidden',
+      'auradata-hidden',
     );
     expect(screen.getByTestId('auradata-object-badges')).toHaveTextContent(
       'Hidden',
@@ -521,7 +523,7 @@ describe('ChartHolder', () => {
       fullSizeChartId: null,
       component: {
         ...defaultProps.component,
-        meta: { ...defaultProps.component.meta, mibiLocked: true },
+        meta: { ...defaultProps.component.meta, auradataLocked: true },
       },
     });
     expect(

@@ -41,7 +41,7 @@ export const HelpCard = ({ title, description, kind }: HelpCardProps) => {
         max-width: calc(100vw - ${theme.sizeUnit * 8}px);
         color: ${theme.colorText};
         text-align: left;
-        @keyframes mibi-help-pulse {
+        @keyframes auradata-help-pulse {
           0%,
           100% {
             opacity: 1;
@@ -51,7 +51,7 @@ export const HelpCard = ({ title, description, kind }: HelpCardProps) => {
           }
         }
         .hl {
-          animation: mibi-help-pulse 2.4s ease-in-out infinite;
+          animation: auradata-help-pulse 2.4s ease-in-out infinite;
         }
         @media (prefers-reduced-motion: reduce) {
           .hl {
@@ -134,7 +134,7 @@ export const HelpTooltip = ({
       placement={placement}
       mouseEnterDelay={0.12}
       color={theme.colorBgElevated}
-      classNames={{ root: 'mibi-help-tooltip' }}
+      classNames={{ root: 'auradata-help-tooltip' }}
       title={
         <HelpCard
           title={title}

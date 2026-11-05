@@ -18,7 +18,7 @@
  */
 import { useEffect, useState } from 'react';
 
-const EVENT = 'mibi:presentation';
+const EVENT = 'auradata:presentation';
 let presenting = false;
 
 /** Whether a dashboard is being presented full screen. */
@@ -28,7 +28,7 @@ export const isPresenting = () => presenting;
 export function setPresenting(value: boolean) {
   if (presenting === value) return;
   presenting = value;
-  document.body.classList.toggle('mibi-presenting', value);
+  document.body.classList.toggle('auradata-presenting', value);
   window.dispatchEvent(new CustomEvent(EVENT, { detail: value }));
 }
 

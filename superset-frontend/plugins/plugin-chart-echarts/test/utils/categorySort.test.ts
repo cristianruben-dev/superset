@@ -60,8 +60,8 @@ test('a sort by the metric follows its direction', () => {
     categoryOrderby(
       formData({
         metric: sqlMetric,
-        mibi_sort_by: 'Sales',
-        mibi_sort_asc: true,
+        auradata_sort_by: 'Sales',
+        auradata_sort_asc: true,
       }),
     ),
   ).toEqual([[sqlMetric, true]]);
@@ -69,18 +69,25 @@ test('a sort by the metric follows its direction', () => {
 
 test('a sort by a dimension orders by that column', () => {
   expect(
-    categoryOrderby(formData({ mibi_sort_by: 'region', sort_by_metric: true })),
+    categoryOrderby(
+      formData({ auradata_sort_by: 'region', sort_by_metric: true }),
+    ),
   ).toEqual([['region', false]]);
 });
 
 test('a sort by a field the chart no longer has falls back', () => {
   expect(
-    categoryOrderby(formData({ mibi_sort_by: 'city', sort_by_metric: true })),
+    categoryOrderby(
+      formData({ auradata_sort_by: 'city', sort_by_metric: true }),
+    ),
   ).toEqual([['count', false]]);
 });
 
 test('pie and funnel queries use the sort', () => {
-  const sorted = formData({ mibi_sort_by: 'count', mibi_sort_asc: true });
+  const sorted = formData({
+    auradata_sort_by: 'count',
+    auradata_sort_asc: true,
+  });
   expect(PieBuildQuery(sorted).queries[0].orderby).toEqual([['count', true]]);
   expect(
     FunnelBuildQuery({ ...sorted, viz_type: 'funnel' }).queries[0].orderby,
@@ -90,13 +97,13 @@ test('pie and funnel queries use the sort', () => {
 test('a funnel sorted by the metric is drawn by value', () => {
   expect(
     funnelSort(
-      { metric: 'count', mibiSortBy: 'count', mibiSortAsc: true },
+      { metric: 'count', auradataSortBy: 'count', auradataSortAsc: true },
       'descending',
     ),
   ).toBe('ascending');
   expect(
     funnelSort(
-      { metric: 'count', mibiSortBy: 'count', mibiSortAsc: false },
+      { metric: 'count', auradataSortBy: 'count', auradataSortAsc: false },
       'none',
     ),
   ).toBe('descending');
@@ -104,7 +111,7 @@ test('a funnel sorted by the metric is drawn by value', () => {
 
 test('a funnel sorted by a dimension keeps the query order', () => {
   expect(
-    funnelSort({ metric: 'count', mibiSortBy: 'country' }, 'descending'),
+    funnelSort({ metric: 'count', auradataSortBy: 'country' }, 'descending'),
   ).toBe('none');
 });
 

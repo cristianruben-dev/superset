@@ -36,7 +36,7 @@ export function ArrangeButton() {
   useEffect(() => {
     const onPointerDown = (event: PointerEvent) => {
       onCanvas.current = !!(event.target as Element | null)?.closest?.(
-        '.mibi-canvas',
+        '.auradata-canvas',
       );
     };
     window.addEventListener('pointerdown', onPointerDown, true);

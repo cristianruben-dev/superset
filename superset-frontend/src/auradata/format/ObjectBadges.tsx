@@ -54,7 +54,7 @@ export function ObjectBadges({
   meta: LayoutItemMeta;
   hidden: boolean;
 }) {
-  if (!hidden && !meta.mibiLocked) return null;
+  if (!hidden && !meta.auradataLocked) return null;
   return (
     <Badges data-test="auradata-object-badges">
       {hidden && (
@@ -63,7 +63,7 @@ export function ObjectBadges({
           {t('Hidden')}
         </span>
       )}
-      {meta.mibiLocked && (
+      {meta.auradataLocked && (
         <span>
           <Icons.LockOutlined iconSize="s" />
           {t('Locked')}

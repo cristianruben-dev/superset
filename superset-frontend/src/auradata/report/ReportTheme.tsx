@@ -78,9 +78,8 @@ export function reportThemeConfig(
 export const useReportAppearance = (): ReportAppearance =>
   useSelector((state: RootState) => {
     const background = (
-      state.dashboardLayout?.present?.[DASHBOARD_ROOT_ID]?.meta?.mibiCanvas as
-        | CanvasFormat
-        | undefined
+      state.dashboardLayout?.present?.[DASHBOARD_ROOT_ID]?.meta
+        ?.auradataCanvas as CanvasFormat | undefined
     )?.background;
     const color =
       background?.type === 'color' || background?.type === 'gradient'
@@ -101,7 +100,7 @@ const useAreaStyle = (area: ReportArea): AreaStyle | undefined =>
       ? undefined
       : (
           state.dashboardLayout?.present?.[DASHBOARD_ROOT_ID]?.meta
-            ?.mibiCanvas as CanvasFormat | undefined
+            ?.auradataCanvas as CanvasFormat | undefined
         )?.[area],
   );
 

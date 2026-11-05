@@ -485,7 +485,7 @@ export const forceMaxInterval = {
 export const categorySortControls: ControlSetRow[] = [
   [
     {
-      name: 'mibi_sort_by',
+      name: 'auradata_sort_by',
       config: {
         type: 'SelectControl',
         label: t('Sort by'),
@@ -510,14 +510,14 @@ export const categorySortControls: ControlSetRow[] = [
   ],
   [
     {
-      name: 'mibi_sort_asc',
+      name: 'auradata_sort_asc',
       config: {
         type: 'CheckboxControl',
         label: t('Sort ascending'),
         default: false,
         description: t('Order the categories from the smallest to the largest'),
         visibility: ({ controls }: ControlPanelsContainerProps) =>
-          Boolean(controls?.mibi_sort_by?.value),
+          Boolean(controls?.auradata_sort_by?.value),
       },
     },
   ],

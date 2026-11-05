@@ -47,7 +47,7 @@ export function BoxSections({ id }: { id: string }) {
   const item = useSelector(
     (state: RootState) => state.dashboardLayout.present[id],
   );
-  const own: VisualFormat = item?.meta?.mibiFormat ?? {};
+  const own: VisualFormat = item?.meta?.auradataFormat ?? {};
   // Charts show the style every chart shares under their own
   const shared = useSharedVisualFormat();
   const format: VisualFormat =

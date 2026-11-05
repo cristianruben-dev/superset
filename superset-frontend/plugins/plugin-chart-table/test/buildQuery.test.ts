@@ -765,7 +765,7 @@ test('the sort saved from the dashboard orders an aggregated table', () => {
     groupby: ['col1'],
     metrics: ['aaa', 'bbb'],
     timeseries_limit_metric: 'aaa',
-    mibi_table_sort: [
+    auradata_table_sort: [
       { key: 'col1', desc: false },
       { key: 'bbb', desc: true },
     ],
@@ -781,7 +781,7 @@ test('the sort saved from the dashboard orders raw records', () => {
     ...basicFormData,
     query_mode: QueryMode.Raw,
     all_columns: ['col1', 'col2'],
-    mibi_table_sort: [{ key: 'col2', desc: true }],
+    auradata_table_sort: [{ key: 'col2', desc: true }],
   });
   expect(queries[0].orderby).toEqual([['col2', false]]);
 });
@@ -792,7 +792,7 @@ test('a saved sort on a field the table no longer has is ignored', () => {
     query_mode: QueryMode.Aggregate,
     groupby: ['col1'],
     metrics: ['aaa'],
-    mibi_table_sort: [{ key: 'gone', desc: true }],
+    auradata_table_sort: [{ key: 'gone', desc: true }],
   });
   expect(queries[0].orderby).toEqual([['aaa', false]]);
 });
@@ -805,7 +805,7 @@ test('a header sort on a paginated table wins over the saved sort', () => {
       groupby: ['col1'],
       metrics: ['aaa'],
       server_pagination: true,
-      mibi_table_sort: [{ key: 'col1', desc: false }],
+      auradata_table_sort: [{ key: 'col1', desc: false }],
     },
     { ownState: { sortBy: [{ key: 'aaa', desc: false }] } },
   );

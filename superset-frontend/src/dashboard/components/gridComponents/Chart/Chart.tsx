@@ -486,7 +486,7 @@ const Chart = (props: ChartProps) => {
     JSON.stringify(
       (
         state.dashboardLayout?.present?.[props.componentId]?.meta
-          ?.mibiFormat as VisualFormat | undefined
+          ?.auradataFormat as VisualFormat | undefined
       )?.title,
     ),
   );

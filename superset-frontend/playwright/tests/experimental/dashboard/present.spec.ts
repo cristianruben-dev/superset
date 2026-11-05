@@ -41,7 +41,7 @@ test('presenting fits a 4:3 page in the screen, full screen', async ({
       type: 'ROOT',
       id: 'ROOT_ID',
       children: ['GRID_ID'],
-      meta: { mibiCells: true, mibiCanvas: { size: { mode: '4:3' } } },
+      meta: { auradataCells: true, auradataCanvas: { size: { mode: '4:3' } } },
     },
     GRID_ID: {
       type: 'GRID',
@@ -61,7 +61,7 @@ test('presenting fits a 4:3 page in the screen, full screen', async ({
       id: 'MARKDOWN-present',
       children: [],
       parents: ['ROOT_ID', 'GRID_ID', 'ROW-present'],
-      meta: { width: 12, height: 6, code: 'Q4', mibiPos: { x: 1, y: 1 } },
+      meta: { width: 12, height: 6, code: 'Q4', auradataPos: { x: 1, y: 1 } },
     },
   };
   const response = await apiPutDashboard(page, id, {

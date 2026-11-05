@@ -20,13 +20,13 @@ import { useEffect, useState } from 'react';
 import type { LayoutItemMeta } from 'src/dashboard/types';
 
 /**
- * Locking objects: one object keeps `meta.mibiLocked` in the report, and "Lock
+ * Locking objects: one object keeps `meta.auradataLocked` in the report, and "Lock
  * objects" in the View ribbon locks the whole page for this editor, a
  * preference kept in the browser. A locked object cannot be moved, resized or
  * removed.
  */
-const KEY = 'mibi.lockAll';
-const EVENT = 'mibi:lock-all';
+const KEY = 'auradata.lockAll';
+const EVENT = 'auradata:lock-all';
 
 function read(): boolean {
   try {
@@ -62,8 +62,8 @@ export function useAllLocked(): boolean {
 }
 
 export const isObjectLocked = (meta: LayoutItemMeta | undefined) =>
-  allLocked || !!meta?.mibiLocked;
+  allLocked || !!meta?.auradataLocked;
 
 export function useObjectLocked(meta: LayoutItemMeta | undefined): boolean {
-  return useAllLocked() || !!meta?.mibiLocked;
+  return useAllLocked() || !!meta?.auradataLocked;
 }

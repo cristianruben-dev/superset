@@ -103,7 +103,8 @@ export type AnalyticsOptions = {
   tooltipMetrics?: QueryFormMetric[] | null;
 };
 
-const isInternal = (series: Anything) => String(series.id).startsWith('__mibi');
+const isInternal = (series: Anything) =>
+  String(series.id).startsWith('__auradata');
 
 const pointOf = (point: unknown): unknown[] | undefined => {
   if (Array.isArray(point)) return point;
@@ -188,8 +189,8 @@ function shadeSeries(
   const across = onValueAxis === isHorizontal;
   const after = line.shade === 'after';
   return {
-    id: `__mibi_reference_shade_${index}`,
-    name: `__mibi_reference_shade_${index}`,
+    id: `__auradata_reference_shade_${index}`,
+    name: `__auradata_reference_shade_${index}`,
     type: 'custom',
     coordinateSystem: 'cartesian2d',
     data: [anchor],
@@ -302,8 +303,10 @@ function referenceSeries(
   });
   return [
     ...shades,
-    ...(behind.length ? [carrier('__mibi_reference_behind', behind, 1)] : []),
-    ...(front.length ? [carrier('__mibi_reference_front', front, 10)] : []),
+    ...(behind.length
+      ? [carrier('__auradata_reference_behind', behind, 1)]
+      : []),
+    ...(front.length ? [carrier('__auradata_reference_front', front, 10)] : []),
   ];
 }
 
@@ -368,8 +371,8 @@ function trendSeries(
         : undefined;
     return [
       {
-        id: `__mibi_trend_${index}`,
-        name: `__mibi_trend_${index}`,
+        id: `__auradata_trend_${index}`,
+        name: `__auradata_trend_${index}`,
         type: 'line',
         silent: true,
         tooltip: { show: false },

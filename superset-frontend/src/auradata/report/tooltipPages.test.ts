@@ -52,31 +52,41 @@ const layout = () =>
     'TAB-main': item('TAB-main', 'TAB', [], { text: 'Main' }),
     'TAB-tip': item('TAB-tip', 'TAB', [], {
       text: 'By region',
-      mibiTooltipPage: { width: 10, height: 8, columns: ['region'] },
+      auradataTooltipPage: { width: 10, height: 8, columns: ['region'] },
     }),
     'TAB-tip2': item('TAB-tip2', 'TAB', [], {
       text: 'By region and year',
-      mibiTooltipPage: { width: 12, height: 6, columns: ['region', 'year'] },
+      auradataTooltipPage: {
+        width: 12,
+        height: 6,
+        columns: ['region', 'year'],
+      },
     }),
     'CHART-in': item(
       'CHART-in',
       'CHART',
       [],
-      { chartId: 7, width: 4, height: 3, mibiPos: { x: 1, y: 1 }, mibiZ: 2 },
+      {
+        chartId: 7,
+        width: 4,
+        height: 3,
+        auradataPos: { x: 1, y: 1 },
+        auradataZ: 2,
+      },
       ['ROOT_ID', 'TABS-1', 'TAB-tip', 'ROW-1'],
     ),
     'MARKDOWN-in': item(
       'MARKDOWN-in',
       'MARKDOWN',
       [],
-      { width: 4, height: 2, mibiPos: { x: 0, y: 0 } },
+      { width: 4, height: 2, auradataPos: { x: 0, y: 0 } },
       ['ROOT_ID', 'TABS-1', 'TAB-tip', 'ROW-1'],
     ),
     'CHART-out': item(
       'CHART-out',
       'CHART',
       [],
-      { chartId: 8, width: 4, height: 3, mibiPos: { x: 12, y: 0 } },
+      { chartId: 8, width: 4, height: 3, auradataPos: { x: 12, y: 0 } },
       ['ROOT_ID', 'TABS-1', 'TAB-tip', 'ROW-1'],
     ),
     'DYNAMIC-shape': item(
@@ -84,10 +94,10 @@ const layout = () =>
       'DYNAMIC',
       [],
       {
-        componentKey: 'mibi-shape',
+        componentKey: 'auradata-shape',
         width: 2,
         height: 1,
-        mibiPos: { x: 6, y: 0 },
+        auradataPos: { x: 6, y: 0 },
       },
       ['ROOT_ID', 'TABS-1', 'TAB-tip', 'ROW-1'],
     ),
@@ -96,10 +106,10 @@ const layout = () =>
       'DYNAMIC',
       [],
       {
-        componentKey: 'mibi-filter',
+        componentKey: 'auradata-filter',
         width: 2,
         height: 1,
-        mibiPos: { x: 8, y: 0 },
+        auradataPos: { x: 8, y: 0 },
       },
       ['ROOT_ID', 'TABS-1', 'TAB-tip', 'ROW-1'],
     ),
@@ -111,8 +121,8 @@ const layout = () =>
         chartId: 9,
         width: 2,
         height: 2,
-        mibiPos: { x: 0, y: 4 },
-        mibiHidden: true,
+        auradataPos: { x: 0, y: 4 },
+        auradataHidden: true,
       },
       ['ROOT_ID', 'TABS-1', 'TAB-tip', 'ROW-1'],
     ),
@@ -120,13 +130,13 @@ const layout = () =>
 
 test('a tooltip page reads its size and fields, with defaults', () => {
   expect(tooltipPageOf({})).toBeUndefined();
-  expect(tooltipPageOf({ mibiTooltipPage: {} })).toEqual({
+  expect(tooltipPageOf({ auradataTooltipPage: {} })).toEqual({
     width: 10,
     height: 8,
     columns: [],
   });
   expect(
-    tooltipPageOf({ mibiTooltipPage: { width: 500, height: 0.4 } }),
+    tooltipPageOf({ auradataTooltipPage: { width: 500, height: 0.4 } }),
   ).toMatchObject({ width: 60, height: 2 });
 });
 

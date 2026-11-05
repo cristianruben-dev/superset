@@ -60,11 +60,11 @@ const layout = {
     children: [],
     parents: ['ROOT_ID', 'GRID_ID', 'ROW-1'],
     meta: {
-      componentKey: 'mibi-button',
+      componentKey: 'auradata-button',
       width: 3,
       height: 7,
-      mibiFormat: { radius: 20, shadow: 'strong' },
-      mibiElement: {
+      auradataFormat: { radius: 20, shadow: 'strong' },
+      auradataElement: {
         kind: 'button',
         label: 'Ir',
         action: { type: 'top' },
@@ -79,10 +79,10 @@ const layout = {
     children: [],
     parents: ['ROOT_ID', 'GRID_ID', 'ROW-1'],
     meta: {
-      componentKey: 'mibi-button',
+      componentKey: 'auradata-button',
       width: 6,
       height: 7,
-      mibiElement: { kind: 'button', label: 'Otro', radius: 4 },
+      auradataElement: { kind: 'button', label: 'Otro', radius: 4 },
     },
   },
 } as unknown as DashboardLayout;
@@ -125,8 +125,8 @@ test('the format painter gives its format to the next object selected', () => {
   expect(screen.getByTestId('auradata-painter-tip')).toBeInTheDocument();
   act(() => selectVisual('DYNAMIC-b'));
   const { meta } = stateOf(store).dashboardLayout.present['DYNAMIC-b'];
-  expect(meta.mibiFormat).toEqual({ radius: 20, shadow: 'strong' });
-  expect(meta.mibiElement).toMatchObject({
+  expect(meta.auradataFormat).toEqual({ radius: 20, shadow: 'strong' });
+  expect(meta.auradataElement).toMatchObject({
     label: 'Otro',
     radius: 30,
     normal: { fill: '#ff0000' },
@@ -140,7 +140,7 @@ test('pasting a format again works without the painter', () => {
   cancelFormatPainter();
   dispatcher(store)(pasteFormat('DYNAMIC-b'));
   expect(
-    stateOf(store).dashboardLayout.present['DYNAMIC-b'].meta.mibiFormat,
+    stateOf(store).dashboardLayout.present['DYNAMIC-b'].meta.auradataFormat,
   ).toEqual({ radius: 20, shadow: 'strong' });
 });
 
@@ -192,7 +192,7 @@ test('copies and pastes a design element as a new object', async () => {
   const copies = Object.values(present).filter(
     item =>
       item.type === 'DYNAMIC' &&
-      (item.meta.mibiElement as { label: string }).label === 'Ir',
+      (item.meta.auradataElement as { label: string }).label === 'Ir',
   );
   expect(copies).toHaveLength(2);
   const copy = copies.find(item => item.id !== 'DYNAMIC-a')!;

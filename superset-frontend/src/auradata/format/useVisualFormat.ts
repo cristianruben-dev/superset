@@ -25,9 +25,8 @@ import type { CanvasFormat, VisualFormat } from './types';
 
 const selectShared = (state: RootState) =>
   (
-    state.dashboardLayout?.present?.[DASHBOARD_ROOT_ID]?.meta?.mibiCanvas as
-      | CanvasFormat
-      | undefined
+    state.dashboardLayout?.present?.[DASHBOARD_ROOT_ID]?.meta
+      ?.auradataCanvas as CanvasFormat | undefined
   )?.visuals;
 
 /** The style every chart of the dashboard shares, if any. */
@@ -47,7 +46,7 @@ export function useVisualFormat(
 ): VisualFormat | undefined {
   const own = useSelector((state: RootState) =>
     componentId
-      ? (state.dashboardLayout?.present?.[componentId]?.meta?.mibiFormat as
+      ? (state.dashboardLayout?.present?.[componentId]?.meta?.auradataFormat as
           | VisualFormat
           | undefined)
       : undefined,

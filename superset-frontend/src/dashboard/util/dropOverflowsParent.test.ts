@@ -34,7 +34,7 @@ import {
 beforeEach(() => {
   syncGridColumnCount({
     ROOT_ID: {
-      meta: { mibiCanvas: { size: { mode: 'custom', width: 12 * CELL } } },
+      meta: { auradataCanvas: { size: { mode: 'custom', width: 12 * CELL } } },
     },
   });
 });

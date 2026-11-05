@@ -47,15 +47,15 @@ const CellContainer = styled.div`
   display: flex;
   flex-direction: column;
   border: var(
-    --mibi-mx-cell-border,
+    --auradata-mx-cell-border,
     1px solid ${({ theme }) => theme.colorBorder}
   );
   border-radius: var(
-    --mibi-mx-cell-radius,
+    --auradata-mx-cell-radius,
     ${({ theme }) => theme.borderRadius}px
   );
   background-color: var(
-    --mibi-mx-cell-bg,
+    --auradata-mx-cell-bg,
     ${({ theme }) => theme.colorBgContainer}
   );
   overflow: hidden;

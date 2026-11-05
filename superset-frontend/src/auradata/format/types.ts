@@ -100,8 +100,8 @@ export interface ChartTooltipFormat {
 }
 
 /** Settings a report passes to the ECharts of its charts. */
-export const TOOLTIP_FORMAT_KEY = 'mibi_tooltip';
-export const SAMPLING_FORMAT_KEY = 'mibi_sampling';
+export const TOOLTIP_FORMAT_KEY = 'auradata_tooltip';
+export const SAMPLING_FORMAT_KEY = 'auradata_sampling';
 
 export type EffectPosition =
   | 'top-left'
@@ -319,8 +319,8 @@ export interface CanvasFormat {
 }
 
 /** Layout meta keys holding the formats. */
-export const VISUAL_FORMAT_KEY = 'mibiFormat';
-export const CANVAS_FORMAT_KEY = 'mibiCanvas';
+export const VISUAL_FORMAT_KEY = 'auradataFormat';
+export const CANVAS_FORMAT_KEY = 'auradataCanvas';
 
 /**
  * Side of a grid cell, in pixels. The canvas is a grid of square cells: its

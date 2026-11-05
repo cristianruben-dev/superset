@@ -90,7 +90,7 @@ export function TitleSections({ id }: { id: string }) {
   // Design elements have no title until one is turned on; charts and text
   // boxes show theirs and take the style every chart shares
   const forChart = !elementKind(item?.meta?.componentKey);
-  const own: VisualFormat = item?.meta?.mibiFormat ?? {};
+  const own: VisualFormat = item?.meta?.auradataFormat ?? {};
   // Charts show the style every chart shares under their own
   const shared = useSharedVisualFormat();
   const format: VisualFormat =

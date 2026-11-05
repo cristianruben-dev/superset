@@ -307,7 +307,7 @@ export function TopBar({
           newLabel={
             <NewButton>
               <Icons.PlusOutlined iconSize="m" />
-              <span className="label mibi-new-label">{t('New')}</span>
+              <span className="label auradata-new-label">{t('New')}</span>
             </NewButton>
           }
           settingsLabel={

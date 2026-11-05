@@ -22,12 +22,12 @@
  * the chart is saved, and the data pages ask it to build a chart from a dataset.
  */
 
-export const PANEL_PARAM = 'mibi_panel';
-export const OPEN_CHART_EDITOR = 'mibi:open-chart-editor';
-export const DOCK_PARAM = 'mibi_dock';
-export const CHART_SAVED = 'mibi:chart-saved';
-export const CHART_FORM_DATA = 'mibi:chart-form-data';
-export const EDIT_CHART_FROM_PANEL = 'mibi:edit-chart-from-panel';
+export const PANEL_PARAM = 'auradata_panel';
+export const OPEN_CHART_EDITOR = 'auradata:open-chart-editor';
+export const DOCK_PARAM = 'auradata_dock';
+export const CHART_SAVED = 'auradata:chart-saved';
+export const CHART_FORM_DATA = 'auradata:chart-form-data';
+export const EDIT_CHART_FROM_PANEL = 'auradata:edit-chart-from-panel';
 
 /** What the side panel shows. */
 export type PanelKind = 'chart' | 'data' | 'sql';

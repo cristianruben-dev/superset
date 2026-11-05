@@ -172,13 +172,13 @@ table,
 }
 
 /* The "New" button is its own pill, without the menu hover behind it */
-#main-menu .ant-menu-horizontal > .mibi-new-dropdown {
+#main-menu .ant-menu-horizontal > .auradata-new-dropdown {
   padding: 0 !important;
   margin-right: 8px;
   background: transparent !important;
 }
 
-#main-menu .ant-menu-horizontal > .mibi-user-dropdown {
+#main-menu .ant-menu-horizontal > .auradata-user-dropdown {
   padding: 0 8px 0 4px !important;
   margin-left: 6px;
   border-radius: 999px;
@@ -461,34 +461,34 @@ table,
 }
 
 /* Lists opened in the side panel of the editor keep their own lighter look */
-body.mibi-panel .ant-layout-content > div > .menu {
+body.auradata-panel .ant-layout-content > div > .menu {
   min-height: 0;
   padding: var(--mb-space-page-top) var(--mb-space-gutter) 12px;
   border-bottom: 0;
   background: transparent;
 }
 
-body.mibi-panel .superset-list-view {
+body.auradata-panel .superset-list-view {
   padding-top: 0 !important;
 }
 
-body.mibi-panel .superset-list-view .ant-table-thead > tr > th {
+body.auradata-panel .superset-list-view .ant-table-thead > tr > th {
   padding-top: 10px !important;
   padding-bottom: 10px !important;
   background: transparent !important;
 }
 
-body.mibi-panel .superset-list-view .ant-table-tbody > tr > td {
+body.auradata-panel .superset-list-view .ant-table-tbody > tr > td {
   padding-top: 14px !important;
   padding-bottom: 14px !important;
 }
 
 /* Figures and dates of a list line up in Geist Mono (TableCollection marks their cells) */
-body:not(.mibi-panel)
+body:not(.auradata-panel)
   .superset-list-view
   .ant-table-tbody
   > tr
-  > td.mibi-figure {
+  > td.auradata-figure {
   font-family: var(--mb-font-code);
   font-size: 12px;
   font-variant-numeric: tabular-nums;
@@ -690,7 +690,7 @@ body:not(.mibi-panel)
   color: var(--mb-text) !important;
 }
 
-.mibi-chart-meta {
+.auradata-chart-meta {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -698,7 +698,7 @@ body:not(.mibi-panel)
   white-space: nowrap;
 }
 
-.mibi-chart-meta > :last-child {
+.auradata-chart-meta > :last-child {
   overflow: hidden;
   text-overflow: ellipsis;
 }
@@ -860,7 +860,7 @@ body:not(.mibi-panel)
 }
 
 /* Pages inside the side panel of a dashboard, which has its own margins */
-body.mibi-panel {
+body.auradata-panel {
   --mb-space-gutter: 16px;
   --mb-space-page-top: 12px;
 }
@@ -868,31 +868,31 @@ body.mibi-panel {
 /* Explore inside the side panel of a dashboard: tighter, so the chart keeps room */
 
 /* The chart area asks for 512 px by default, which pushes the chart out of the panel */
-body.mibi-panel .main-explore-content {
+body.auradata-panel .main-explore-content {
   min-width: 280px;
   padding: 0 12px;
 }
 
-body.mibi-panel .header-with-actions {
+body.auradata-panel .header-with-actions {
   height: 52px;
   padding: 0 16px;
 }
 
 /* A chart lives in one dashboard: who changed it and where it is added are noise here */
-body.mibi-panel .header-with-actions [data-test='metadata-bar'],
-body.mibi-panel .header-with-actions [data-test='fave-unfave-icon'] {
+body.auradata-panel .header-with-actions [data-test='metadata-bar'],
+body.auradata-panel .header-with-actions [data-test='fave-unfave-icon'] {
   display: none;
 }
 
-body.mibi-panel .explore-column {
+body.auradata-panel .explore-column {
   padding: 4px 0;
 }
 
-body.mibi-panel .explore-column .ant-tabs-nav {
+body.auradata-panel .explore-column .ant-tabs-nav {
   margin-bottom: 0;
 }
 
-body.mibi-panel
+body.auradata-panel
   .controls-column
   .ant-collapse
   > .ant-collapse-item
@@ -900,46 +900,46 @@ body.mibi-panel
   padding: 10px 14px !important;
 }
 
-body.mibi-panel .controls-column .ant-collapse-content-box {
+body.auradata-panel .controls-column .ant-collapse-content-box {
   padding: 4px 14px 8px !important;
 }
 
 /* Controls pad 16 px below themselves on top of this margin: 18 px between them */
-body.mibi-panel .explore-column [data-test='control-item'] {
+body.auradata-panel .explore-column [data-test='control-item'] {
   margin-bottom: 12px;
 }
 
-body.mibi-panel .controls-column .Control {
+body.auradata-panel .controls-column .Control {
   padding-bottom: 6px;
 }
 
 /* The chart type picker closes its section: no control spacing below it */
-body.mibi-panel
+body.auradata-panel
   .controls-column
   [data-test='control-item']:has(> [data-test='viz_type']) {
   margin-bottom: 0;
 }
 
 /* The dataset and the field search, closer to each other and to the lists */
-body.mibi-panel .data-source-selection .DatasourceControl .data-container {
+body.auradata-panel .data-source-selection .DatasourceControl .data-container {
   padding-top: 8px;
   padding-bottom: 8px;
 }
 
-body.mibi-panel .data-source-selection div:has(> .ant-input-affix-wrapper) {
+body.auradata-panel .data-source-selection div:has(> .ant-input-affix-wrapper) {
   padding: 4px 16px 8px;
 }
 
-body.mibi-panel .explore-column .ControlHeader {
+body.auradata-panel .explore-column .ControlHeader {
   margin-bottom: 4px;
 }
 
 /* Docked beside the report: the settings take the room, the report is the chart */
-body.mibi-dock .main-explore-content {
+body.auradata-dock .main-explore-content {
   display: none;
 }
 
-body.mibi-dock .controls-column {
+body.auradata-dock .controls-column {
   /* Beside the 32 px datasource tab, never past the panel's edge */
   flex: 1 1 0;
   min-width: 0;
@@ -948,7 +948,7 @@ body.mibi-dock .controls-column {
 }
 
 /* The datasource tab floats beside the tabs instead of taking a column */
-body.mibi-dock [data-test='open-datasource-tab'] {
+body.auradata-dock [data-test='open-datasource-tab'] {
   position: absolute;
   top: 6px;
   left: 0;
@@ -957,7 +957,7 @@ body.mibi-dock [data-test='open-datasource-tab'] {
   width: auto;
 }
 
-body.mibi-dock .controls-column .ant-tabs-nav {
+body.auradata-dock .controls-column .ant-tabs-nav {
   padding-left: 28px;
 }
 
@@ -1067,7 +1067,8 @@ body.mibi-dock .controls-column .ant-tabs-nav {
 }
 
 /* In the top bar, as the file name of a Power BI report: "New" gives it room */
-[data-test='auradata-topbar']:has([data-test='auradata-topbar-brand']) .mibi-new-label {
+[data-test='auradata-topbar']:has([data-test='auradata-topbar-brand'])
+  .auradata-new-label {
   display: none;
 }
 
@@ -1186,35 +1187,36 @@ body.mibi-dock .controls-column .ant-tabs-nav {
   color: var(--mb-v-title-color, var(--mb-text));
 }
 
-.dashboard-component-chart-holder.mibi-title-wrap .header-title,
-.dashboard-component-chart-holder.mibi-title-wrap .header-title * {
+.dashboard-component-chart-holder.auradata-title-wrap .header-title,
+.dashboard-component-chart-holder.auradata-title-wrap .header-title * {
   white-space: normal;
   text-overflow: clip;
 }
 
-.dashboard-component-chart-holder.mibi-header-gap [data-test='slice-header'] {
+.dashboard-component-chart-holder.auradata-header-gap
+  [data-test='slice-header'] {
   margin-bottom: var(--mb-v-header-gap) !important;
 }
 
-.dashboard-component-chart-holder.mibi-header-icons .header-controls {
+.dashboard-component-chart-holder.auradata-header-icons .header-controls {
   border-radius: 4px;
   border: var(--mb-v-icon-border, 0);
   background: var(--mb-v-icon-bg, transparent);
   color: var(--mb-v-icon-color, inherit);
 }
 
-.mibi-header-icon {
+.auradata-header-icon {
   display: inline-flex;
   align-items: center;
   padding: 2px;
   cursor: default;
 }
 
-.mibi-header-icon[role='button'] {
+.auradata-header-icon[role='button'] {
   cursor: pointer;
 }
 
-.mibi-action-button {
+.auradata-action-button {
   display: inline-flex;
   flex: none;
   gap: 4px;
@@ -1223,65 +1225,65 @@ body.mibi-dock .controls-column .ant-tabs-nav {
   cursor: pointer;
 }
 
-.mibi-action-button:disabled {
+.auradata-action-button:disabled {
   cursor: default;
 }
 
-.mibi-action-button.mibi-action-above {
+.auradata-action-button.auradata-action-above {
   order: -1;
   flex-basis: 100%;
 }
 
-.mibi-action-button.mibi-action-below {
+.auradata-action-button.auradata-action-below {
   order: 4;
   flex-basis: 100%;
 }
 
-.dashboard-component-chart-holder.mibi-divider-bleed
-  [data-test='slice-header'].mibi-header-divider {
+.dashboard-component-chart-holder.auradata-divider-bleed
+  [data-test='slice-header'].auradata-header-divider {
   margin-left: calc(var(--mb-v-pad-left, 16px) * -1);
   margin-right: calc(var(--mb-v-pad-right, 16px) * -1);
   padding-left: var(--mb-v-pad-left, 16px);
   padding-right: var(--mb-v-pad-right, 16px);
 }
 
-.dashboard-component-chart-holder.mibi-spacing .header-title {
+.dashboard-component-chart-holder.auradata-spacing .header-title {
   margin-bottom: var(--mb-s-title, 0);
 }
 
-.dashboard-component-chart-holder.mibi-spacing .mibi-subtitle {
+.dashboard-component-chart-holder.auradata-spacing .auradata-subtitle {
   margin-top: var(--mb-s-above-subtitle, 2px);
   margin-bottom: var(--mb-s-below-subtitle, 0);
 }
 
-.dashboard-component-chart-holder.mibi-spacing
-  [data-test='slice-header'].mibi-header-divider {
+.dashboard-component-chart-holder.auradata-spacing
+  [data-test='slice-header'].auradata-header-divider {
   padding-bottom: var(--mb-s-above-divider, 8px);
 }
 
-.dashboard-component-chart-holder.mibi-spacing [data-test='slice-header'] {
+.dashboard-component-chart-holder.auradata-spacing [data-test='slice-header'] {
   margin-bottom: calc(
     var(--mb-v-header-gap, 8px) + var(--mb-s-plot, 0px)
   ) !important;
 }
 
-.dashboard-component-chart-holder.mibi-spacing .header-line {
+.dashboard-component-chart-holder.auradata-spacing .header-line {
   margin-bottom: var(--mb-s-card, 0);
 }
 
 /* The format a report gives to the tooltips of a chart (see applyHostFormat) */
-.echarts-tooltip.mibi-tooltip td:first-child {
+.echarts-tooltip.auradata-tooltip td:first-child {
   color: var(--mb-tt-label, inherit) !important;
   text-decoration: var(--mb-tt-decoration, none);
 }
 
-.echarts-tooltip.mibi-tooltip td:not(:first-child) {
+.echarts-tooltip.auradata-tooltip td:not(:first-child) {
   color: var(--mb-tt-value, inherit) !important;
   font-weight: var(--mb-tt-value-weight, inherit) !important;
   text-decoration: var(--mb-tt-decoration, none);
 }
 
-.dashboard-component-chart-holder.mibi-header-icons .header-controls * {
+.dashboard-component-chart-holder.auradata-header-icons .header-controls * {
   color: inherit;
 }
 
@@ -1292,7 +1294,8 @@ body.mibi-dock .controls-column .ant-tabs-nav {
 }
 
 /* A header band: the title sits on a fill that reaches the edges of the card */
-.dashboard-component-chart-holder.mibi-title-band [data-test='slice-header'] {
+.dashboard-component-chart-holder.auradata-title-band
+  [data-test='slice-header'] {
   min-height: 32px;
   padding: 6px 10px;
   background: var(--mb-v-title-bg);
@@ -1306,11 +1309,11 @@ body.mibi-dock .controls-column .ant-tabs-nav {
 }
 
 /* Format pane: hidden titles, spacing between visuals and the selection */
-.dashboard-component-chart-holder.mibi-title-hidden .header-title {
+.dashboard-component-chart-holder.auradata-title-hidden .header-title {
   visibility: hidden;
 }
 
-.dashboard-component-chart-holder.mibi-selected {
+.dashboard-component-chart-holder.auradata-selected {
   outline: 2px solid var(--mb-primary);
   outline-offset: 2px;
 }
@@ -1330,12 +1333,12 @@ body.mibi-dock .controls-column .ant-tabs-nav {
 
   /* Hidden icons still take room, which pulls a centered title off the middle of
      the card: they float over the corner instead */
-  .dashboard-component-chart-holder.mibi-title-center
+  .dashboard-component-chart-holder.auradata-title-center
     [data-test='slice-header'] {
     position: relative;
   }
 
-  .dashboard-component-chart-holder.mibi-title-center
+  .dashboard-component-chart-holder.auradata-title-center
     [data-test='slice-header']
     > .header-controls {
     position: absolute;
@@ -1343,7 +1346,7 @@ body.mibi-dock .controls-column .ant-tabs-nav {
     right: 0;
   }
 
-  .dashboard-component-chart-holder.mibi-title-center
+  .dashboard-component-chart-holder.auradata-title-center
     [data-test='slice-header']
     > .header-title {
     max-width: 100%;
@@ -1408,14 +1411,14 @@ body.mibi-dock .controls-column .ant-tabs-nav {
 }
 
 /* Edit mode: the page is the dotted area, the space around it stays plain */
-.dashboard--editing .mibi-canvas:not(.mibi-mobile) {
+.dashboard--editing .auradata-canvas:not(.auradata-mobile) {
   background-color: var(--mb-bg-container);
   background-image: radial-gradient(var(--mb-border) 1px, transparent 1px);
   background-size: 18px 18px;
 }
 
 /* The grid replaces the dots when it is on */
-.dashboard--editing .mibi-canvas.mibi-show-grid {
+.dashboard--editing .auradata-canvas.auradata-show-grid {
   background-image: none;
 }
 
@@ -1723,43 +1726,43 @@ body:has(.dashboard--editing) [data-test='dashboard-header-container'] {
 
 /* ---- Presentation mode: the dashboard alone, full screen ---------------- */
 
-body.mibi-presenting [data-test='auradata-sidebar'],
-body.mibi-presenting [data-test='auradata-topbar'],
-body.mibi-presenting [data-test='auradata-menubar-row'],
-body.mibi-presenting [data-test='dashboard-header-wrapper'] {
+body.auradata-presenting [data-test='auradata-sidebar'],
+body.auradata-presenting [data-test='auradata-topbar'],
+body.auradata-presenting [data-test='auradata-menubar-row'],
+body.auradata-presenting [data-test='dashboard-header-wrapper'] {
   display: none !important;
 }
 
-body.mibi-presenting [data-test='auradata-main'] {
+body.auradata-presenting [data-test='auradata-main'] {
   margin-left: 0 !important;
 }
 
 /* The page is scaled to the screen; the floating controls go over it and
    hide when the mouse rests, so no room is kept for them below */
-body.mibi-presenting .dashboard-content {
+body.auradata-presenting .dashboard-content {
   padding: 16px 16px 16px 8px;
 }
 
 /* The page is sized to the screen less its margin, so the room under it that a
    report keeps for the wallpaper would make the document scroll */
-body.mibi-presenting .dashboard-content > [data-test='grid-container'] {
+body.auradata-presenting .dashboard-content > [data-test='grid-container'] {
   margin-bottom: 0 !important;
 }
 
-body.mibi-presenting-idle,
-body.mibi-presenting-idle * {
+body.auradata-presenting-idle,
+body.auradata-presenting-idle * {
   cursor: none !important;
 }
 
 /* ---- Format pane: grid and page end while editing ---------------------- */
 
 /* Behind the visuals, so the grid shows only in the space between them */
-.mibi-show-grid .grid-content {
+.auradata-show-grid .grid-content {
   position: relative;
   isolation: isolate;
 }
 
-.mibi-grid-guide {
+.auradata-grid-guide {
   display: none;
   position: absolute;
   inset: 0;
@@ -1767,59 +1770,61 @@ body.mibi-presenting-idle * {
   pointer-events: none;
 }
 
-.mibi-show-grid .mibi-grid-guide {
+.auradata-show-grid .auradata-grid-guide {
   display: block;
   bottom: auto;
   height: 100%;
 }
 
-/* Cell grid: every object has a cell of its own on the page (meta.mibiPos),
+/* Cell grid: every object has a cell of its own on the page (meta.auradataPos),
    so rows, columns and the page grid are only containers: they take no room
    and are not positioned, and objects are placed against the page. */
-.mibi-canvas:not(.mibi-mobile) .dashboard-grid,
-.mibi-canvas:not(.mibi-mobile) .dashboard-component-tabs,
-.mibi-canvas:not(.mibi-mobile) .dragdroppable-row > .with-popover-menu,
-.mibi-canvas:not(.mibi-mobile) .ant-tabs-content,
-.mibi-canvas:not(.mibi-mobile) .ant-tabs-body,
-.mibi-canvas:not(.mibi-mobile) .grid-content,
-.mibi-canvas:not(.mibi-mobile) .grid-row,
-.mibi-canvas:not(.mibi-mobile) .grid-column,
-.mibi-canvas:not(.mibi-mobile)
+.auradata-canvas:not(.auradata-mobile) .dashboard-grid,
+.auradata-canvas:not(.auradata-mobile) .dashboard-component-tabs,
+.auradata-canvas:not(.auradata-mobile) .dragdroppable-row > .with-popover-menu,
+.auradata-canvas:not(.auradata-mobile) .ant-tabs-content,
+.auradata-canvas:not(.auradata-mobile) .ant-tabs-body,
+.auradata-canvas:not(.auradata-mobile) .grid-content,
+.auradata-canvas:not(.auradata-mobile) .grid-row,
+.auradata-canvas:not(.auradata-mobile) .grid-column,
+.auradata-canvas:not(.auradata-mobile)
   .dragdroppable:not([style*='position: absolute']) {
   position: static !important;
 }
 
 /* The page tabs sit over the top of the page: its picture shows through. The
    holder of the page also has the height of the drop zone while editing. */
-.mibi-canvas:not(.mibi-mobile) .dashboard-component-tabs,
-.mibi-canvas:not(.mibi-mobile)
+.auradata-canvas:not(.auradata-mobile) .dashboard-component-tabs,
+.auradata-canvas:not(.auradata-mobile)
   .dashboard-component-tabs
   .ant-tabs-content-holder {
   background: transparent;
 }
 
-.mibi-canvas:not(.mibi-mobile) .grid-content > div:not(:last-child),
-.mibi-canvas:not(.mibi-mobile) .grid-row > :not(:last-child),
-.mibi-canvas:not(.mibi-mobile) .grid-column > :not(:last-child) {
+.auradata-canvas:not(.auradata-mobile) .grid-content > div:not(:last-child),
+.auradata-canvas:not(.auradata-mobile) .grid-row > :not(:last-child),
+.auradata-canvas:not(.auradata-mobile) .grid-column > :not(:last-child) {
   margin: 0 !important;
 }
 
-.mibi-canvas .dragdroppable[style*='position: absolute'] {
+.auradata-canvas .dragdroppable[style*='position: absolute'] {
   z-index: 1;
 }
 
 /* There are no places to drop between objects: anywhere on the page is one.
    The last drop target of the page covers all of it, under the objects, and
    only listens while something is dragged. */
-.mibi-canvas:not(.mibi-mobile) .grid-row .empty-droptarget,
-.mibi-canvas:not(.mibi-mobile) .grid-column .empty-droptarget,
-.mibi-canvas:not(.mibi-mobile)
+.auradata-canvas:not(.auradata-mobile) .grid-row .empty-droptarget,
+.auradata-canvas:not(.auradata-mobile) .grid-column .empty-droptarget,
+.auradata-canvas:not(.auradata-mobile)
   .grid-content
   > .empty-droptarget:not(:last-child) {
   display: none !important;
 }
 
-.mibi-canvas:not(.mibi-mobile) .grid-content > .empty-droptarget:last-child {
+.auradata-canvas:not(.auradata-mobile)
+  .grid-content
+  > .empty-droptarget:last-child {
   position: absolute !important;
   inset: 0;
   z-index: 0;
@@ -1829,20 +1834,20 @@ body.mibi-presenting-idle * {
   pointer-events: none;
 }
 
-.mibi-dragging
-  .mibi-canvas:not(.mibi-mobile)
+.auradata-dragging
+  .auradata-canvas:not(.auradata-mobile)
   .grid-content
   > .empty-droptarget:last-child {
   pointer-events: auto;
 }
 
-.mibi-canvas .drop-indicator,
-.mibi-canvas .empty-droptarget::before {
+.auradata-canvas .drop-indicator,
+.auradata-canvas .empty-droptarget::before {
   display: none !important;
 }
 
 /* While editing, the row under the pointer shows which objects it groups */
-.dashboard--editing .mibi-canvas:not(.mibi-mobile) .grid-row:hover {
+.dashboard--editing .auradata-canvas:not(.auradata-mobile) .grid-row:hover {
   outline: 1px dashed var(--mb-primary-border);
   outline-offset: 2px;
   border-radius: 4px;
@@ -1850,7 +1855,7 @@ body.mibi-presenting-idle * {
 
 /* ---- Design elements (image, shape, button, text) ----------------------- */
 
-.mibi-element {
+.auradata-element {
   position: relative;
   width: 100%;
   height: 100%;
@@ -1858,35 +1863,35 @@ body.mibi-presenting-idle * {
   border-radius: var(--mb-v-radius, 0);
 }
 
-.mibi-element--editing {
+.auradata-element--editing {
   outline: 1px dashed transparent;
   outline-offset: 2px;
 }
 
-.mibi-element--editing:hover {
+.auradata-element--editing:hover {
   outline-color: var(--mb-border);
 }
 
-.mibi-element.mibi-selected {
+.auradata-element.auradata-selected {
   outline: 2px solid var(--mb-primary);
   outline-offset: 2px;
 }
 
 /* A canvas filter opens its option list inside its own row; lift that row
    while the list is open so the charts placed below do not cover it. */
-.dragdroppable-row:has(.mibi-element-filter .ant-select-open),
-.dragdroppable-column:has(.mibi-element-filter .ant-select-open) {
+.dragdroppable-row:has(.auradata-element-filter .ant-select-open),
+.dragdroppable-column:has(.auradata-element-filter .ant-select-open) {
   position: relative;
   z-index: 10;
 }
 
-.mibi-element-filter {
+.auradata-element-filter {
   overflow: visible;
 }
 
 /* ---- Hidden and locked objects (edit mode) ------------------------------ */
 
-.mibi-hidden {
+.auradata-hidden {
   opacity: 0.45;
   background-image: repeating-linear-gradient(
     -45deg,
@@ -1895,34 +1900,34 @@ body.mibi-presenting-idle * {
   ) !important;
 }
 
-.mibi-locked .resize-handle,
-.mibi-locked [class*='resizable-container-handle'] {
+.auradata-locked .resize-handle,
+.auradata-locked [class*='resizable-container-handle'] {
   display: none;
 }
 
 /* A locked object: no way to grab it */
-.mibi-locked .dashboard-component-chart-holder,
-.mibi-locked .mibi-element {
+.auradata-locked .dashboard-component-chart-holder,
+.auradata-locked .auradata-element {
   cursor: default;
 }
 
 /* Viewers get no tab for a hidden page; links and drill through still open it */
-.ant-tabs-tab:has(.mibi-page-hidden) {
+.ant-tabs-tab:has(.auradata-page-hidden) {
   display: none;
 }
 
 /* ---- Chart header: subtitle and divider --------------------------------- */
 
-[data-test='slice-header'].mibi-has-subtitle {
+[data-test='slice-header'].auradata-has-subtitle {
   flex-wrap: wrap;
 }
 
 /* With a basis of 0 the title would share its line with the subtitle */
-[data-test='slice-header'].mibi-has-subtitle > .header-title {
+[data-test='slice-header'].auradata-has-subtitle > .header-title {
   flex: 1 1 auto;
 }
 
-[data-test='slice-header'] .mibi-subtitle {
+[data-test='slice-header'] .auradata-subtitle {
   flex-basis: 100%;
   order: 3;
   margin-top: 2px;
@@ -1936,56 +1941,56 @@ body.mibi-presenting-idle * {
   text-overflow: ellipsis;
 }
 
-[data-test='slice-header'].mibi-header-divider {
+[data-test='slice-header'].auradata-header-divider {
   padding-bottom: 8px;
   margin-bottom: 8px !important;
   border-bottom: 1px solid var(--mb-border-secondary);
 }
 
-.dashboard-component-chart-holder.mibi-title-hidden
+.dashboard-component-chart-holder.auradata-title-hidden
   [data-test='slice-header']
-  .mibi-subtitle {
+  .auradata-subtitle {
   visibility: hidden;
 }
 
 /* ---- Element states: hover fill and hover effects (view mode) ----------- */
 
-.mibi-shape .mibi-shape-fill {
+.auradata-shape .auradata-shape-fill {
   fill: var(--mb-shape-fill);
   transition: fill 0.15s ease;
 }
 
-.mibi-shape:hover .mibi-shape-fill {
+.auradata-shape:hover .auradata-shape-fill {
   fill: var(--mb-shape-fill-hover, var(--mb-shape-fill));
 }
 
-.mibi-shape:hover {
+.auradata-shape:hover {
   --mb-shape-bg-hover-on: var(--mb-shape-bg-hover);
 }
 
-.mibi-hoverable {
+.auradata-hoverable {
   transition:
     transform 0.18s ease,
     filter 0.18s ease,
     box-shadow 0.18s ease;
 }
 
-.mibi-hoverable[data-hover='lift']:hover {
+.auradata-hoverable[data-hover='lift']:hover {
   transform: translateY(-3px);
   filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.14));
 }
 
-.mibi-hoverable[data-hover='grow']:hover {
+.auradata-hoverable[data-hover='grow']:hover {
   transform: scale(1.04);
 }
 
-.mibi-hoverable[data-hover='brighten']:hover {
+.auradata-hoverable[data-hover='brighten']:hover {
   filter: brightness(1.12) saturate(1.1);
 }
 
 /* ---- Mobile layout: the page inside the phone of the editor ------------- */
 
-[data-test='auradata-device-viewport'] .mibi-canvas {
+[data-test='auradata-device-viewport'] .auradata-canvas {
   border-radius: 0 !important;
 }
 
@@ -2034,7 +2039,8 @@ body.mibi-presenting-idle * {
     padding: 0 12px !important;
   }
 
-  [data-test='dashboard-header-container'] [data-test='auradata-present-button'],
+  [data-test='dashboard-header-container']
+    [data-test='auradata-present-button'],
   [data-test='dashboard-header-container'] [data-test='edit-dashboard-button'] {
     display: none !important;
   }
@@ -2076,8 +2082,8 @@ body.mibi-presenting-idle * {
 /* Long words wrap inside text blocks instead of widening the page */
 .dashboard-markdown,
 .dashboard-markdown *,
-.mibi-rich-text,
-.mibi-rich-text *,
+.auradata-rich-text,
+.auradata-rich-text *,
 .dashboard-component-chart-holder .slice_description {
   overflow-wrap: anywhere;
 }
@@ -2093,11 +2099,11 @@ body.mibi-presenting-idle * {
 
 /* ---------------------------------------------------------------- Help tooltips */
 
-.mibi-help-tooltip {
+.auradata-help-tooltip {
   max-width: none;
 }
 
-.mibi-help-tooltip .ant-tooltip-inner {
+.auradata-help-tooltip .ant-tooltip-inner {
   padding: 0;
   overflow: hidden;
   border-radius: 14px;
@@ -2106,48 +2112,51 @@ body.mibi-presenting-idle * {
   font-size: 12px;
 }
 
-.mibi-help-tooltip .ant-tooltip-arrow::before,
-.mibi-help-tooltip .ant-tooltip-arrow::after {
+.auradata-help-tooltip .ant-tooltip-arrow::before,
+.auradata-help-tooltip .ant-tooltip-arrow::after {
   box-shadow: none;
 }
 
 /* ---- Moving and resizing objects on the cell grid ------------------------ */
 
-body.mibi-moving,
-body.mibi-moving * {
+body.auradata-moving,
+body.auradata-moving * {
   cursor: grabbing !important;
   user-select: none !important;
 }
 
-.mibi-canvas .dragdroppable.mibi-moving {
+.auradata-canvas .dragdroppable.auradata-moving {
   opacity: 0.9;
   filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.25));
 }
 
 /* Objects can be picked up from anywhere while editing */
-.dashboard--editing .mibi-canvas .dragdroppable[style*='position: absolute'] {
+.dashboard--editing
+  .auradata-canvas
+  .dragdroppable[style*='position: absolute'] {
   cursor: grab;
 }
 
 /* Objects sit side by side, so neighbors share an edge: the selected one gets it,
    instead of whichever object comes later in the page */
-.mibi-canvas .dragdroppable:has(.mibi-selected):not(:has(.mibi-keep-layer)) {
+.auradata-canvas
+  .dragdroppable:has(.auradata-selected):not(:has(.auradata-keep-layer)) {
   z-index: 3;
 }
 
 /* Resize handles: easy to hit, and visible on the selected object */
-.mibi-canvas .resizable-container .resize-handle {
+.auradata-canvas .resizable-container .resize-handle {
   opacity: 0;
   transition: opacity 120ms ease;
 }
 
-.mibi-canvas .resizable-container:hover .resize-handle,
-.mibi-canvas .mibi-selected .resize-handle,
-.mibi-canvas .resizable-container--resizing .resize-handle {
+.auradata-canvas .resizable-container:hover .resize-handle,
+.auradata-canvas .auradata-selected .resize-handle,
+.auradata-canvas .resizable-container--resizing .resize-handle {
   opacity: 1;
 }
 
-.mibi-canvas .resize-handle--right {
+.auradata-canvas .resize-handle--right {
   width: 6px !important;
   height: 28px !important;
   right: -3px !important;
@@ -2156,7 +2165,7 @@ body.mibi-moving * {
   background: var(--mb-primary);
 }
 
-.mibi-canvas .resize-handle--bottom {
+.auradata-canvas .resize-handle--bottom {
   width: 28px !important;
   height: 6px !important;
   bottom: -3px !important;
@@ -2165,7 +2174,7 @@ body.mibi-moving * {
   background: var(--mb-primary);
 }
 
-.mibi-canvas .resize-handle--bottom-right {
+.auradata-canvas .resize-handle--bottom-right {
   width: 12px !important;
   height: 12px !important;
   right: -6px !important;
@@ -2175,28 +2184,32 @@ body.mibi-moving * {
   background: var(--mb-surface, #fff);
 }
 
-.mibi-canvas .resizable-container [class*='resizable-container-handle--right'] {
+.auradata-canvas
+  .resizable-container
+  [class*='resizable-container-handle--right'] {
   cursor: ew-resize;
 }
 
-.mibi-canvas
+.auradata-canvas
   .resizable-container
   [class*='resizable-container-handle--bottom'] {
   cursor: ns-resize;
 }
 
 /* Corners resize both ways */
-.mibi-canvas .resizable-container .resizable-container-handle--top-left,
-.mibi-canvas .resizable-container .resizable-container-handle--bottom-right {
+.auradata-canvas .resizable-container .resizable-container-handle--top-left,
+.auradata-canvas
+  .resizable-container
+  .resizable-container-handle--bottom-right {
   cursor: nwse-resize;
 }
 
-.mibi-canvas .resizable-container .resizable-container-handle--top-right,
-.mibi-canvas .resizable-container .resizable-container-handle--bottom-left {
+.auradata-canvas .resizable-container .resizable-container-handle--top-right,
+.auradata-canvas .resizable-container .resizable-container-handle--bottom-left {
   cursor: nesw-resize;
 }
 
-.mibi-size-badge {
+.auradata-size-badge {
   position: absolute;
   left: 50%;
   top: -26px;
@@ -2213,7 +2226,7 @@ body.mibi-moving * {
   pointer-events: none;
 }
 
-.mibi-canvas .resize-handle--left {
+.auradata-canvas .resize-handle--left {
   width: 6px !important;
   height: 28px !important;
   left: -3px !important;
@@ -2225,7 +2238,7 @@ body.mibi-moving * {
   background: var(--mb-primary);
 }
 
-.mibi-canvas .resize-handle--top {
+.auradata-canvas .resize-handle--top {
   width: 28px !important;
   height: 6px !important;
   top: -3px !important;
@@ -2237,9 +2250,9 @@ body.mibi-moving * {
   background: var(--mb-primary);
 }
 
-.mibi-canvas .resize-handle--top-left,
-.mibi-canvas .resize-handle--top-right,
-.mibi-canvas .resize-handle--bottom-left {
+.auradata-canvas .resize-handle--top-left,
+.auradata-canvas .resize-handle--top-right,
+.auradata-canvas .resize-handle--bottom-left {
   position: absolute;
   width: 12px !important;
   height: 12px !important;
@@ -2248,63 +2261,63 @@ body.mibi-moving * {
   background: var(--mb-surface, #fff);
 }
 
-.mibi-canvas .resize-handle--top-left {
+.auradata-canvas .resize-handle--top-left {
   left: -6px !important;
   top: -6px !important;
 }
 
-.mibi-canvas .resize-handle--top-right {
+.auradata-canvas .resize-handle--top-right {
   right: -6px !important;
   top: -6px !important;
 }
 
-.mibi-canvas .resize-handle--bottom-left {
+.auradata-canvas .resize-handle--bottom-left {
   left: -6px !important;
   bottom: -6px !important;
 }
 
 /* KPI cards: the number and its labels take the format of the card. The chart
    sizes its text to fit, so the chosen values win over it. */
-.dashboard-component-chart-holder.mibi-v-size .header-line {
+.dashboard-component-chart-holder.auradata-v-size .header-line {
   font-size: var(--mb-v-value-size) !important;
 }
-.dashboard-component-chart-holder.mibi-v-color .header-line {
+.dashboard-component-chart-holder.auradata-v-color .header-line {
   color: var(--mb-v-value-color) !important;
 }
-.dashboard-component-chart-holder.mibi-v-weight .header-line {
+.dashboard-component-chart-holder.auradata-v-weight .header-line {
   font-weight: var(--mb-v-value-weight) !important;
 }
-.dashboard-component-chart-holder.mibi-v-style .header-line {
+.dashboard-component-chart-holder.auradata-v-style .header-line {
   font-style: var(--mb-v-value-style) !important;
 }
-.dashboard-component-chart-holder.mibi-v-align .text-container {
+.dashboard-component-chart-holder.auradata-v-align .text-container {
   align-items: var(--mb-v-value-items) !important;
   width: 100%;
   text-align: var(--mb-v-value-align);
 }
-.dashboard-component-chart-holder.mibi-v-align .header-line {
+.dashboard-component-chart-holder.auradata-v-align .header-line {
   justify-content: var(--mb-v-value-items) !important;
 }
-.dashboard-component-chart-holder.mibi-l-size .metric-name,
-.dashboard-component-chart-holder.mibi-l-size .subtitle-line {
+.dashboard-component-chart-holder.auradata-l-size .metric-name,
+.dashboard-component-chart-holder.auradata-l-size .subtitle-line {
   font-size: var(--mb-v-label-size) !important;
 }
-.dashboard-component-chart-holder.mibi-l-color .metric-name,
-.dashboard-component-chart-holder.mibi-l-color .subtitle-line {
+.dashboard-component-chart-holder.auradata-l-color .metric-name,
+.dashboard-component-chart-holder.auradata-l-color .subtitle-line {
   color: var(--mb-v-label-color) !important;
 }
-.dashboard-component-chart-holder.mibi-l-weight .metric-name,
-.dashboard-component-chart-holder.mibi-l-weight .subtitle-line {
+.dashboard-component-chart-holder.auradata-l-weight .metric-name,
+.dashboard-component-chart-holder.auradata-l-weight .subtitle-line {
   font-weight: var(--mb-v-label-weight) !important;
 }
-.dashboard-component-chart-holder.mibi-l-style .metric-name,
-.dashboard-component-chart-holder.mibi-l-style .subtitle-line {
+.dashboard-component-chart-holder.auradata-l-style .metric-name,
+.dashboard-component-chart-holder.auradata-l-style .subtitle-line {
   font-style: var(--mb-v-label-style) !important;
 }
 
 /* ---- Focus mode: a chart over the whole page, whatever the canvas zoom ---- */
 
-[data-test='auradata-canvas-outer'] :has(.mibi-full-size) {
+[data-test='auradata-canvas-outer'] :has(.auradata-full-size) {
   transform: none !important;
   z-index: 3000 !important;
 }

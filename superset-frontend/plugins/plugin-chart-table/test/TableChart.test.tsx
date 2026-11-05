@@ -3394,7 +3394,7 @@ test('the header shows the sort saved from the dashboard until a viewer sorts', 
     ...testData.basic,
     rawFormData: {
       ...testData.basic.rawFormData,
-      mibi_table_sort: [{ key: 'sum__num', desc: false }],
+      auradata_table_sort: [{ key: 'sum__num', desc: false }],
     },
   });
   expect(props.savedSort).toEqual({ key: 'sum__num', desc: false });

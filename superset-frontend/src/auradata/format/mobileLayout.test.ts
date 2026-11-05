@@ -57,18 +57,18 @@ const report = (mobile?: unknown): Record<string, LayoutItem> => ({
   'CHART-a': item('CHART-a', 'CHART', [], {
     width: 24,
     height: 12,
-    mibiPos: { x: 4, y: 2 },
+    auradataPos: { x: 4, y: 2 },
   }),
   'MARKDOWN-a': item('MARKDOWN-a', 'MARKDOWN', [], {
     width: 10,
     height: 4,
-    mibiPos: { x: 30, y: 2 },
+    auradataPos: { x: 30, y: 2 },
   }),
   'HEADER-a': item('HEADER-a', 'HEADER'),
   'CHART-b': item('CHART-b', 'CHART', [], {
     width: 12,
     height: 8,
-    mibiPos: { x: 0, y: 0 },
+    auradataPos: { x: 0, y: 0 },
   }),
 });
 
@@ -177,8 +177,8 @@ test('the mobile view places the objects of the phone and hides the rest', () =>
   expect(mobileComponent(layout['CHART-a'], view)?.meta).toMatchObject({
     width: 12,
     height: 6,
-    mibiPos: { x: 0, y: 3 },
-    mibiZ: 1,
+    auradataPos: { x: 0, y: 3 },
+    auradataZ: 1,
   });
   expect(mobileComponent(layout['MARKDOWN-a'], view)).toBeNull();
   expect(mobileComponent(layout['HEADER-a'], view)).toBeNull();

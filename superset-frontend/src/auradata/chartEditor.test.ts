@@ -28,12 +28,12 @@ import {
 } from './chartEditor';
 
 test('adds the panel parameter to URLs', () => {
-  expect(withPanelParam('/chart/add')).toBe('/chart/add?mibi_panel=1');
+  expect(withPanelParam('/chart/add')).toBe('/chart/add?auradata_panel=1');
   expect(withPanelParam('/explore/?slice_id=3')).toBe(
-    '/explore/?slice_id=3&mibi_panel=1',
+    '/explore/?slice_id=3&auradata_panel=1',
   );
   expect(withPanelParam('/explore/?slice_id=3#tab')).toBe(
-    '/explore/?slice_id=3&mibi_panel=1#tab',
+    '/explore/?slice_id=3&auradata_panel=1#tab',
   );
 });
 
@@ -43,7 +43,7 @@ test('recognizes chart saved messages only', () => {
   ).toBe(true);
   expect(isChartSavedMessage({ type: CHART_SAVED, chartId: '3' })).toBe(false);
   expect(isChartSavedMessage({ type: 'other', chartId: 3 })).toBe(false);
-  expect(isChartSavedMessage('mibi:chart-saved')).toBe(false);
+  expect(isChartSavedMessage('auradata:chart-saved')).toBe(false);
   expect(isChartSavedMessage(null)).toBe(false);
 });
 

@@ -31,11 +31,11 @@ const slicer = (id: string, filterId: string, title: string) => ({
   children: [],
   parents: ['ROOT_ID', 'GRID_ID', 'ROW-1'],
   meta: {
-    componentKey: 'mibi-filter',
+    componentKey: 'auradata-filter',
     width: 8,
     height: 4,
-    mibiElement: { kind: 'filter', filterId, variant: 'list' },
-    mibiFormat: { title: { show: true, template: title } },
+    auradataElement: { kind: 'filter', filterId, variant: 'list' },
+    auradataFormat: { title: { show: true, template: title } },
   },
 });
 
@@ -59,13 +59,13 @@ const layout = {
     ...slicer('DYNAMIC-a', 'NATIVE_FILTER-a', 'Zonas'),
     meta: {
       ...slicer('DYNAMIC-a', 'NATIVE_FILTER-a', 'Zonas').meta,
-      mibiElement: {
+      auradataElement: {
         kind: 'filter',
         filterId: 'NATIVE_FILTER-a',
         variant: 'buttons',
         itemFill: '#ff0000',
       },
-      mibiFormat: {
+      auradataFormat: {
         radius: 4,
         title: { show: true, template: 'Zonas', size: 20 },
       },
@@ -87,13 +87,13 @@ test('a slicer takes the look of another but keeps its filter and title', () => 
   );
   const { meta } = (store.getState() as unknown as RootState).dashboardLayout
     .present['DYNAMIC-b'];
-  expect(meta.mibiElement).toEqual({
+  expect(meta.auradataElement).toEqual({
     kind: 'filter',
     filterId: 'NATIVE_FILTER-b',
     variant: 'buttons',
     itemFill: '#ff0000',
   });
-  expect(meta.mibiFormat).toEqual({
+  expect(meta.auradataFormat).toEqual({
     radius: 4,
     title: { show: true, template: 'Productos', size: 20 },
   });

@@ -93,7 +93,7 @@ const layout = {
       sliceName: 'Sales',
       width: 4,
       height: 4,
-      mibiPos: { x: 0, y: 0 },
+      auradataPos: { x: 0, y: 0 },
     },
   },
 };
@@ -175,7 +175,7 @@ test('pastes a copied format from the clipboard group', async () => {
     id: 'CHART-9',
     type: 'CHART',
     children: [],
-    meta: { mibiFormat: { radius: 12 } },
+    meta: { auradataFormat: { radius: 12 } },
   } as never);
   cancelFormatPainter();
   await waitFor(() =>

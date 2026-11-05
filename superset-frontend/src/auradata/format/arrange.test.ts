@@ -30,7 +30,7 @@ const object = (
     id,
     type: 'CHART',
     children: [],
-    meta: { width: 4, height: 4, mibiPos: { x, y }, ...meta },
+    meta: { width: 4, height: 4, auradataPos: { x, y }, ...meta },
   }) as unknown as LayoutItem;
 
 const stateOf = (items: LayoutItem[]) =>
@@ -64,7 +64,7 @@ test('a locked object stays and is counted apart', () => {
   const dispatch = jest.fn();
   const result = alignObjects(['A', 'B'], 'left')(
     dispatch,
-    stateOf([object('A', 0, 0), object('B', 8, 0, { mibiLocked: true })]),
+    stateOf([object('A', 0, 0), object('B', 8, 0, { auradataLocked: true })]),
   );
   expect(result).toEqual({ changed: 0, locked: 1 });
   expect(dispatch).not.toHaveBeenCalled();

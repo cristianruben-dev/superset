@@ -273,7 +273,7 @@ function VisualSection({ id }: { id: string }) {
   const item = useSelector(
     (state: RootState) => state.dashboardLayout.present[id],
   );
-  const own: VisualFormat = item?.meta?.mibiFormat ?? {};
+  const own: VisualFormat = item?.meta?.auradataFormat ?? {};
   const shared = useSharedVisualFormat();
   const format: VisualFormat = mergeVisualFormat(shared, own) ?? {};
   const update = (patch: Partial<VisualFormat>, setting: string) =>
@@ -394,7 +394,7 @@ function VisualSection({ id }: { id: string }) {
           <h4>{t('Alt text')}</h4>
           <Input.TextArea
             rows={2}
-            value={String(item?.meta?.mibiAltText ?? '')}
+            value={String(item?.meta?.auradataAltText ?? '')}
             placeholder={t('Describes the chart for screen readers')}
             aria-label={t('Alt text')}
             data-test="auradata-format-alt-text"
@@ -402,7 +402,7 @@ function VisualSection({ id }: { id: string }) {
               dispatch(
                 setComponentMeta(
                   id,
-                  'mibiAltText',
+                  'auradataAltText',
                   event.target.value || undefined,
                 ),
               )
@@ -495,7 +495,7 @@ function CanvasSection() {
   const canvas: CanvasFormat =
     useSelector(
       (state: RootState) =>
-        state.dashboardLayout.present[DASHBOARD_ROOT_ID]?.meta?.mibiCanvas,
+        state.dashboardLayout.present[DASHBOARD_ROOT_ID]?.meta?.auradataCanvas,
     ) ?? {};
   const background = canvas.background ?? { type: 'none' as const };
   const update = (patch: Partial<CanvasFormat>, setting: string) =>

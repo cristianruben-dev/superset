@@ -102,7 +102,11 @@ export const resizeObject =
         {
           [id]: {
             ...item,
-            meta: { ...item.meta, ...size, mibiPos: { x: cell.x, y: cell.y } },
+            meta: {
+              ...item.meta,
+              ...size,
+              auradataPos: { x: cell.x, y: cell.y },
+            },
           },
         },
         `resize:${id}:${Date.now()}`,

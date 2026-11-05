@@ -72,9 +72,9 @@ test('the view settings are kept for the next visit', () => {
     device: 'iphone-se',
     mode: 'preview',
   });
-  expect(JSON.parse(window.localStorage.getItem('mibi.mobileView')!)).toEqual(
-    expect.objectContaining({ device: 'iphone-se' }),
-  );
+  expect(
+    JSON.parse(window.localStorage.getItem('auradata.mobileView')!),
+  ).toEqual(expect.objectContaining({ device: 'iphone-se' }));
 });
 
 test('the frame names the phone and marks what the safe area leaves out', () => {

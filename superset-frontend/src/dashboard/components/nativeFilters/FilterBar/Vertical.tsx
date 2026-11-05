@@ -130,7 +130,7 @@ const CollapsedBar = styled.button<{ offset: number }>`
       border-left: 1px solid ${theme.colorBorderSecondary};
       gap: ${theme.sizeUnit * 2}px;
     }
-    .mibi-filters-label {
+    .auradata-filters-label {
       writing-mode: vertical-rl;
       font-size: ${theme.fontSizeSM}px;
       font-weight: ${theme.fontWeightStrong};
@@ -139,7 +139,7 @@ const CollapsedBar = styled.button<{ offset: number }>`
       cursor: pointer;
       user-select: none;
     }
-    .mibi-filters-count {
+    .auradata-filters-count {
       min-width: 18px;
       height: 18px;
       padding: 0 5px;
@@ -382,10 +382,10 @@ const VerticalFilterBar: FC<VerticalBarProps> = ({
               iconColor={theme.colorTextTertiary}
               iconSize="l"
             />
-            <span className="mibi-filters-label">{t('Filters')}</span>
+            <span className="auradata-filters-label">{t('Filters')}</span>
             {activeFilters > 0 && (
               <span
-                className="mibi-filters-count"
+                className="auradata-filters-count"
                 data-test="auradata-filters-count"
                 aria-label={t('%s filters applied', activeFilters)}
               >

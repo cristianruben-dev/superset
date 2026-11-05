@@ -129,7 +129,7 @@ export function mapColumns<T extends object>(
       },
       className:
         column.className ??
-        (FIGURE_COLUMN.test(column.id) ? 'mibi-figure' : undefined),
+        (FIGURE_COLUMN.test(column.id) ? 'auradata-figure' : undefined),
     };
   });
 }

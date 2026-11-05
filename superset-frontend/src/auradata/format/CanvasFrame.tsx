@@ -178,7 +178,7 @@ const Sheet = styled.div`
   margin: 0 auto;
   flex: none;
   &:has([data-test='auradata-filter-dock']:not(:empty)) {
-    .mibi-canvas,
+    .auradata-canvas,
     [data-test='auradata-tabs-dock'] {
       border-top-right-radius: 0;
       border-bottom-right-radius: 0;
@@ -187,7 +187,7 @@ const Sheet = styled.div`
 `;
 
 const CanvasZoomContext = createContext(1);
-const FIT_PAGE_EVENT = 'mibi:fit-page';
+const FIT_PAGE_EVENT = 'auradata:fit-page';
 
 /** Shrinks or grows the visuals on screen so they fill the page height. */
 export const fitObjectsToPage = () =>
@@ -245,7 +245,7 @@ export function CanvasFrame({ children }: { children: ReactNode }) {
   const theme = look?.theme ?? appTheme;
   const baseCanvas = useSelector(
     (state: RootState) =>
-      state.dashboardLayout?.present?.[DASHBOARD_ROOT_ID]?.meta?.mibiCanvas,
+      state.dashboardLayout?.present?.[DASHBOARD_ROOT_ID]?.meta?.auradataCanvas,
   );
   // A page can have a background of its own
   const pageBackground = useSelector((state: RootState) => {
@@ -437,8 +437,8 @@ export function CanvasFrame({ children }: { children: ReactNode }) {
   // listen while something is being dragged
   useEffect(() => {
     if (!editMode) return undefined;
-    const start = () => document.body.classList.add('mibi-dragging');
-    const end = () => document.body.classList.remove('mibi-dragging');
+    const start = () => document.body.classList.add('auradata-dragging');
+    const end = () => document.body.classList.remove('auradata-dragging');
     document.addEventListener('dragstart', start);
     document.addEventListener('dragend', end);
     document.addEventListener('drop', end);
@@ -740,9 +740,9 @@ export function CanvasFrame({ children }: { children: ReactNode }) {
           ref={pageRef}
           data-test="auradata-canvas"
           className={cx(
-            'mibi-canvas',
-            editMode && !previewing && 'mibi-show-grid',
-            showMobile && 'mibi-phone-page',
+            'auradata-canvas',
+            editMode && !previewing && 'auradata-show-grid',
+            showMobile && 'auradata-phone-page',
           )}
           $decorated={hasCanvasFormat(canvas)}
           $fixed={!!size && !mobileEditing}
@@ -754,7 +754,7 @@ export function CanvasFrame({ children }: { children: ReactNode }) {
                   const target = event.target as Element;
                   if (
                     !target.closest?.(
-                      '.dashboard-component-chart-holder, .mibi-element',
+                      '.dashboard-component-chart-holder, .auradata-element',
                     )
                   ) {
                     selectVisual(null);
@@ -799,7 +799,7 @@ export function CanvasFrame({ children }: { children: ReactNode }) {
     <Wrap
       ref={wrapRef}
       $bar={pageBar}
-      className="mibi-viewport"
+      className="auradata-viewport"
       style={scroll && viewportHeight ? { height: viewportHeight } : undefined}
     >
       <Row $pane={paneAtEdge}>

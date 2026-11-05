@@ -141,7 +141,7 @@ const ChartHolder = ({
   const chartHolderRef = useRef<HTMLDivElement | null>(null);
 
   const focusHighlightStyles = useFilterFocusHighlightStyles(chartId ?? 0);
-  const visualFormat = useMergedVisualFormat(component.meta.mibiFormat);
+  const visualFormat = useMergedVisualFormat(component.meta.auradataFormat);
   // AuraData BI: the report page its marks show as tooltip
   const tooltipPage = useChartTooltipPage(chartId, visualFormat);
   // A title with tokens shows the value or the selections it names
@@ -164,9 +164,9 @@ const ChartHolder = ({
   );
   // A bookmark may show or hide the chart for this visit
   const hiddenOverride = useHiddenOverride(component.id);
-  const hidden = hiddenOverride ?? !!component.meta.mibiHidden;
+  const hidden = hiddenOverride ?? !!component.meta.auradataHidden;
   const locked = useObjectLocked(component.meta);
-  const altText = component.meta.mibiAltText as string | undefined;
+  const altText = component.meta.auradataAltText as string | undefined;
   const holderStyle = useMemo(
     () =>
       isFullSize
@@ -350,8 +350,8 @@ const ChartHolder = ({
           role={altText ? 'group' : undefined}
           aria-label={altText || undefined}
           style={holderStyle}
-          data-mibi-echarts={echartsHostFormat(visualFormat, !!tooltipPage)}
-          data-mibi-tooltip-page={tooltipPage}
+          data-auradata-echarts={echartsHostFormat(visualFormat, !!tooltipPage)}
+          data-auradata-tooltip-page={tooltipPage}
           css={isFullSize ? fullSizeStyle : undefined}
           onClickCapture={
             editMode
@@ -370,9 +370,9 @@ const ChartHolder = ({
             'dashboard-component',
             'dashboard-component-chart-holder',
             !isFullSize && formatted.className,
-            isFullSize && 'mibi-full-size',
-            isSelected && 'mibi-selected',
-            editMode && hidden && 'mibi-hidden',
+            isFullSize && 'auradata-full-size',
+            isSelected && 'auradata-selected',
+            editMode && hidden && 'auradata-hidden',
             // The following class is added to support custom dashboard styling via the CSS editor
             `dashboard-chart-id-${chartId}`,
             outlinedComponentId ? 'fade-in' : 'fade-out',

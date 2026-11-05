@@ -60,7 +60,7 @@ function useFormat(id: string) {
   const item = useSelector(
     (state: RootState) => state.dashboardLayout.present[id],
   );
-  const own: VisualFormat = item?.meta?.mibiFormat ?? {};
+  const own: VisualFormat = item?.meta?.auradataFormat ?? {};
   const shared = useSharedVisualFormat();
   const format: VisualFormat = mergeVisualFormat(shared, own) ?? {};
   const update = (patch: Partial<VisualFormat>, setting: string) =>

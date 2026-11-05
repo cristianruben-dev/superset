@@ -62,11 +62,13 @@ export function layoutChartFormat(
   layout: DashboardLayout | undefined,
   componentId: string,
 ): ChartFormat | undefined {
-  const own = layout?.[componentId]?.meta?.mibiFormat as
+  const own = layout?.[componentId]?.meta?.auradataFormat as
     | VisualFormat
     | undefined;
   const shared = (
-    layout?.[DASHBOARD_ROOT_ID]?.meta?.mibiCanvas as CanvasFormat | undefined
+    layout?.[DASHBOARD_ROOT_ID]?.meta?.auradataCanvas as
+      | CanvasFormat
+      | undefined
   )?.visuals;
   const legacy = legacyCardFormat(mergeVisualFormat(shared, own));
   return own?.chart || shared?.chart || Object.keys(legacy).length

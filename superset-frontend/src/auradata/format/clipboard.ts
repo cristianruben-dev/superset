@@ -51,8 +51,8 @@ import { selectVisual } from './selection';
 
 type AppDispatch = ThunkDispatch<RootState, undefined, AnyAction>;
 
-const STORAGE_KEY = 'mibi.clipboard';
-const EVENT = 'mibi:clipboard';
+const STORAGE_KEY = 'auradata.clipboard';
+const EVENT = 'auradata:clipboard';
 
 /** A copied chart or design element, kept across dashboards of this browser. */
 export interface CopiedObject {
@@ -243,8 +243,8 @@ export const pasteObject =
     const dashboardId = dashboardInfo.id;
     // A pasted object is visible and free to move
     const meta = { ...copied.meta };
-    delete meta.mibiHidden;
-    delete meta.mibiLocked;
+    delete meta.auradataHidden;
+    delete meta.auradataLocked;
     delete meta[GROUP_KEY];
     delete meta[Z_KEY];
     // Cells keep their size; an object wider than the canvas is trimmed

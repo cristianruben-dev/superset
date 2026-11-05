@@ -28,8 +28,8 @@ import {
 
 /**
  * Sort of the categories of a pie or a funnel: by the metric or by one of the
- * dimensions, ascending or descending (`mibi_sort_by`, `mibi_sort_asc`).
- * Without `mibi_sort_by`, the "Sort by metric" setting applies as before.
+ * dimensions, ascending or descending (`auradata_sort_by`, `auradata_sort_asc`).
+ * Without `auradata_sort_by`, the "Sort by metric" setting applies as before.
  */
 
 /** Labels the categories can be sorted by: the metric, then the dimensions. */
@@ -47,15 +47,20 @@ export function categorySortChoices(
 export function categoryOrderby(
   formData: QueryFormData,
 ): QueryFormOrderBy[] | undefined {
-  const { metric, groupby, sort_by_metric, mibi_sort_by, mibi_sort_asc } =
-    formData;
-  if (mibi_sort_by) {
-    const ascending = !!mibi_sort_asc;
-    if (metric && mibi_sort_by === getMetricLabel(metric)) {
+  const {
+    metric,
+    groupby,
+    sort_by_metric,
+    auradata_sort_by,
+    auradata_sort_asc,
+  } = formData;
+  if (auradata_sort_by) {
+    const ascending = !!auradata_sort_asc;
+    if (metric && auradata_sort_by === getMetricLabel(metric)) {
       return [[metric, ascending]];
     }
     const column = ensureIsArray(groupby as QueryFormColumn[]).find(
-      col => getColumnLabel(col) === mibi_sort_by,
+      col => getColumnLabel(col) === auradata_sort_by,
     );
     if (column !== undefined) return [[column, ascending]];
   }
@@ -68,15 +73,15 @@ export function categoryOrderby(
  */
 export function funnelSort(
   formData: Pick<QueryFormData, 'metric'> & {
-    mibiSortBy?: string | null;
-    mibiSortAsc?: boolean;
+    auradataSortBy?: string | null;
+    auradataSortAsc?: boolean;
   },
   fallback: 'descending' | 'ascending' | 'none' | undefined,
 ): 'descending' | 'ascending' | 'none' | undefined {
-  const { metric, mibiSortBy, mibiSortAsc } = formData;
-  if (!mibiSortBy) return fallback;
-  if (metric && mibiSortBy === getMetricLabel(metric)) {
-    return mibiSortAsc ? 'ascending' : 'descending';
+  const { metric, auradataSortBy, auradataSortAsc } = formData;
+  if (!auradataSortBy) return fallback;
+  if (metric && auradataSortBy === getMetricLabel(metric)) {
+    return auradataSortAsc ? 'ascending' : 'descending';
   }
   return 'none';
 }

@@ -27,7 +27,7 @@ export interface DrillthroughPage {
   columns: string[];
 }
 
-export const DRILLTHROUGH_PAGE_KEY = 'mibiDrillthrough';
+export const DRILLTHROUGH_PAGE_KEY = 'auradataDrillthrough';
 
 /** What a bookmark brings back when applied. */
 export interface BookmarkOptions {
@@ -59,10 +59,10 @@ export interface Bookmark {
 }
 
 /** On the layout root: the bookmarks of the report, in order. */
-export const BOOKMARKS_KEY = 'mibiBookmarks';
+export const BOOKMARKS_KEY = 'auradataBookmarks';
 
 /** Background a page sets for itself; without one the page takes the canvas's. */
-export const PAGE_BACKGROUND_KEY = 'mibiPageBackground';
+export const PAGE_BACKGROUND_KEY = 'auradataPageBackground';
 
 /**
  * On a top level tab: the page is a tooltip, as in Power BI. It is hidden
@@ -76,7 +76,7 @@ export interface TooltipPage {
   columns: string[];
 }
 
-export const TOOLTIP_PAGE_KEY = 'mibiTooltipPage';
+export const TOOLTIP_PAGE_KEY = 'auradataTooltipPage';
 
 /** 320 × 256 px, close to the 320 × 240 of Power BI on the cell grid. */
 export const DEFAULT_TOOLTIP_PAGE: TooltipPage = {

@@ -468,7 +468,7 @@ const Tab = (props: TabProps): ReactElement => {
           className={classNames(
             'dragdroppable-tab',
             // Viewers get no tab for a hidden page (see skin.css)
-            hiddenPage && !editMode && 'mibi-page-hidden',
+            hiddenPage && !editMode && 'auradata-page-hidden',
           )}
           ref={dragSourceRef}
         >

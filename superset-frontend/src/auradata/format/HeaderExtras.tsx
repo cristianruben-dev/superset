@@ -52,7 +52,7 @@ function HeaderIcon({
         tabIndex={onClick ? 0 : undefined}
         aria-label={typeof title === 'string' ? title : undefined}
         data-test={testId}
-        className="mibi-header-icon"
+        className="auradata-header-icon"
         onClick={onClick}
         onKeyDown={event => {
           if (onClick && (event.key === 'Enter' || event.key === ' ')) {
@@ -169,7 +169,7 @@ export function HeaderExtras({
             role="img"
             aria-label={tooltip.text}
             data-test="auradata-header-tooltip"
-            className="mibi-header-icon"
+            className="auradata-header-icon"
           >
             <Icons.QuestionCircleOutlined {...iconProps} />
           </span>
@@ -256,7 +256,7 @@ export function ChartActionButton({
   return (
     <button
       type="button"
-      className={`mibi-action-button mibi-action-${button.position ?? 'within'}`}
+      className={`auradata-action-button auradata-action-${button.position ?? 'within'}`}
       data-test="auradata-chart-action-button"
       disabled={!run}
       style={positioned}

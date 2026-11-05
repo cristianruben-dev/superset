@@ -160,7 +160,9 @@ export function SelectionPane() {
     group = `hide:${id}:${Date.now()}`,
   ) => {
     clearVisibilityOverride(id);
-    dispatch(setComponentMeta(id, 'mibiHidden', hidden || undefined, group));
+    dispatch(
+      setComponentMeta(id, 'auradataHidden', hidden || undefined, group),
+    );
   };
   // One undo step for the whole page
   const setAllHidden = (hidden: boolean) => {
@@ -203,8 +205,8 @@ export function SelectionPane() {
         )}
         {shown.map(id => {
           const { meta } = layout[id];
-          const hidden = !!meta?.mibiHidden;
-          const locked = !!meta?.mibiLocked;
+          const hidden = !!meta?.auradataHidden;
+          const locked = !!meta?.auradataLocked;
           return (
             <Row
               key={id}
@@ -250,7 +252,7 @@ export function SelectionPane() {
                   dispatch(
                     setComponentMeta(
                       id,
-                      'mibiLocked',
+                      'auradataLocked',
                       locked ? undefined : true,
                       `lock:${id}:${Date.now()}`,
                     ),

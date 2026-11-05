@@ -48,7 +48,7 @@ test('keeps the last eight dashboards', () => {
 });
 
 test('a broken list reads as empty and can be cleared', () => {
-  window.localStorage.setItem('mibi.recentDashboards', '{not json');
+  window.localStorage.setItem('auradata.recentDashboards', '{not json');
   expect(readRecentDashboards()).toEqual([]);
   rememberDashboard(dashboard(1));
   clearRecentDashboards();

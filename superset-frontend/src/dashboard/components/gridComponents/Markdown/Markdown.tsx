@@ -382,7 +382,7 @@ function Markdown({
   );
 
   // AuraData BI: hidden from viewers, shown faded to editors (after the hooks)
-  const hidden = !!component.meta.mibiHidden;
+  const hidden = !!component.meta.auradataHidden;
   if (hidden && !editMode) return null;
 
   return (
@@ -409,7 +409,7 @@ function Markdown({
             className={cx(
               'dashboard-markdown',
               isEditing && 'dashboard-markdown--editing',
-              editMode && hidden && 'mibi-hidden',
+              editMode && hidden && 'auradata-hidden',
             )}
             id={component.id}
           >

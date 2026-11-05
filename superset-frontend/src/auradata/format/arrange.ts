@@ -31,8 +31,8 @@ export type AlignMode =
   | 'middle'
   | 'bottom';
 
-export const GROUP_KEY = 'mibiGroup';
-export const Z_KEY = 'mibiZ';
+export const GROUP_KEY = 'auradataGroup';
+export const Z_KEY = 'auradataZ';
 
 type Layout = Record<string, LayoutItem>;
 type Dispatch = (action: unknown) => unknown;

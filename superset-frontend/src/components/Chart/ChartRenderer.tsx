@@ -354,8 +354,8 @@ function ChartRendererComponent({
   const tooltipPageId = useCallback(
     (): string | null | undefined =>
       wrapperRef.current
-        ?.closest<HTMLElement>('[data-mibi-tooltip-page]')
-        ?.getAttribute('data-mibi-tooltip-page'),
+        ?.closest<HTMLElement>('[data-auradata-tooltip-page]')
+        ?.getAttribute('data-auradata-tooltip-page'),
     [],
   );
 
@@ -373,7 +373,7 @@ function ChartRendererComponent({
   const handleOnContextMenu = useCallback(
     (offsetX: number, offsetY: number, filters?: ContextMenuFilters): void => {
       // AuraData BI: a hover over a mark of a chart with a tooltip page
-      if (wrapperRef.current?.querySelector('[data-mibi-probe]')) {
+      if (wrapperRef.current?.querySelector('[data-auradata-probe]')) {
         const pageId = tooltipPageId();
         const fields = pointFields(filters?.drillToDetail);
         if (pageId && fields.length) {

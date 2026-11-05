@@ -19,8 +19,8 @@
 
 import { useEffect, useState } from 'react';
 
-const EVENT = 'mibi:format-selection';
-const OPEN_EVENT = 'mibi:format-open';
+const EVENT = 'auradata:format-selection';
+const OPEN_EVENT = 'auradata:format-open';
 
 /** The object the Format pane edits: the last one picked. */
 let selected: string | null = null;

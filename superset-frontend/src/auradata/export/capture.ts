@@ -227,7 +227,7 @@ function embeddedWebFonts(): Promise<string> {
   return fontCss;
 }
 
-const ONE_LINE = 'data-mibi-one-line';
+const ONE_LINE = 'data-auradata-one-line';
 
 /**
  * Marks the elements whose text fits in one line on screen. Text measures

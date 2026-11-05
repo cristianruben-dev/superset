@@ -52,13 +52,15 @@ test('the columns of a layout are the width of its canvas in cells', () => {
   expect(
     columnCountOf({
       ROOT_ID: {
-        meta: { mibiCanvas: { size: { mode: 'custom', width: 10 * CELL } } },
+        meta: {
+          auradataCanvas: { size: { mode: 'custom', width: 10 * CELL } },
+        },
       },
     }),
   ).toBe(10);
   expect(
     columnCountOf({
-      ROOT_ID: { meta: { mibiCanvas: { size: { mode: '4:3' } } } },
+      ROOT_ID: { meta: { auradataCanvas: { size: { mode: '4:3' } } } },
     }),
   ).toBe(45);
 });
@@ -66,7 +68,7 @@ test('the columns of a layout are the width of its canvas in cells', () => {
 test('the columns follow the layout being edited', () => {
   syncGridColumnCount({
     ROOT_ID: {
-      meta: { mibiCanvas: { size: { mode: 'custom', width: 20 * CELL } } },
+      meta: { auradataCanvas: { size: { mode: 'custom', width: 20 * CELL } } },
     },
   });
   expect(gridColumnCount()).toBe(20);
@@ -81,7 +83,7 @@ test('a legacy layout is converted to cells, keeping what it showed', () => {
   expect(next['CHART-a'].meta.height).toBe(13);
   expect(next['CHART-d'].meta.width).toBe(40);
   expect(next['CHART-d'].meta.height).toBe(6);
-  expect(next.ROOT_ID.meta.mibiCanvas).toEqual({
+  expect(next.ROOT_ID.meta.auradataCanvas).toEqual({
     size: { mode: 'custom', width: 1280, height: 736 },
   });
   const row = ['CHART-a', 'CHART-b', 'CHART-c'].reduce(
@@ -92,9 +94,9 @@ test('a legacy layout is converted to cells, keeping what it showed', () => {
 });
 
 test('a legacy layout in 24 columns keeps its shares', () => {
-  const dense = legacy({ mibiColumns: 24 });
+  const dense = legacy({ auradataColumns: 24 });
   const next = layoutToCells(dense);
-  expect(next.ROOT_ID.meta.mibiColumns).toBeUndefined();
+  expect(next.ROOT_ID.meta.auradataColumns).toBeUndefined();
   // 4 of 24 columns on a 1280 px page: 4 * 54 px - 16 px gutter = 200 px,
   // 6.25 cells of 32 px, rounded down to 6
   expect(next['CHART-a'].meta.width).toBe(6);
@@ -103,10 +105,10 @@ test('a legacy layout in 24 columns keeps its shares', () => {
 test('margins and gaps of the canvas are dropped', () => {
   const next = layoutToCells(
     legacy({
-      mibiCanvas: { padding: 16, gap: 8, background: { type: 'none' } },
+      auradataCanvas: { padding: 16, gap: 8, background: { type: 'none' } },
     }),
   );
-  expect(next.ROOT_ID.meta.mibiCanvas).toEqual({
+  expect(next.ROOT_ID.meta.auradataCanvas).toEqual({
     background: { type: 'none' },
     size: { mode: 'custom', width: 1280, height: 736 },
   });
@@ -124,7 +126,7 @@ test('a layout without sized objects only gets the marker', () => {
   } as unknown as DashboardLayout;
   const next = layoutToCells(empty);
   expect(next.ROOT_ID.meta[CELLS_KEY]).toBe(true);
-  expect(next.ROOT_ID.meta.mibiCanvas).toBeUndefined();
+  expect(next.ROOT_ID.meta.auradataCanvas).toBeUndefined();
 });
 
 test('the grid section only styles the grid', () => {

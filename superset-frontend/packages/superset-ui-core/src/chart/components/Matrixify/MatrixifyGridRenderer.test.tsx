@@ -431,18 +431,18 @@ test('the grid of small multiples takes its gap, borders and headers', () => {
       matrixify_header_align: 'left',
     }),
   ).toEqual({
-    '--mibi-mx-gap': '4px',
-    '--mibi-mx-cell-border': '2px solid #ff0000',
-    '--mibi-mx-header-border': '2px solid #ff0000',
-    '--mibi-mx-header-size': '16px',
-    '--mibi-mx-header-weight': '400',
-    '--mibi-mx-header-color': '#123456',
-    '--mibi-mx-header-bg': '#eeeeee',
-    '--mibi-mx-header-align': 'left',
-    '--mibi-mx-header-justify': 'flex-start',
+    '--auradata-mx-gap': '4px',
+    '--auradata-mx-cell-border': '2px solid #ff0000',
+    '--auradata-mx-header-border': '2px solid #ff0000',
+    '--auradata-mx-header-size': '16px',
+    '--auradata-mx-header-weight': '400',
+    '--auradata-mx-header-color': '#123456',
+    '--auradata-mx-header-bg': '#eeeeee',
+    '--auradata-mx-header-align': 'left',
+    '--auradata-mx-header-justify': 'flex-start',
   });
   expect(matrixifyGridStyle({ matrixify_cell_border_show: false })).toEqual({
-    '--mibi-mx-cell-border': 'none',
-    '--mibi-mx-header-border': 'none',
+    '--auradata-mx-cell-border': 'none',
+    '--auradata-mx-header-border': 'none',
   });
 });

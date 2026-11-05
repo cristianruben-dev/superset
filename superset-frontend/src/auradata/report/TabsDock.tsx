@@ -66,7 +66,7 @@ const Dock = styled.div<{ $bar?: boolean }>`
     background: ${theme.colorBgContainer};
 
     /* Joined to the page below */
-    &:not(:empty) + .mibi-canvas {
+    &:not(:empty) + .auradata-canvas {
       border-top-left-radius: 0;
       border-top-right-radius: 0;
     }
@@ -371,8 +371,8 @@ const Bar = styled.div`
       }
     }
     @container (max-width: 640px) {
-      [data-test='auradata-zoom-toolbar'] .mibi-zoom-fit,
-      .mibi-page-count {
+      [data-test='auradata-zoom-toolbar'] .auradata-zoom-fit,
+      .auradata-page-count {
         display: none;
       }
     }
@@ -396,7 +396,7 @@ const Side = styled.div<{ $end?: boolean }>`
             border-right: 1px solid ${theme.colorBorderSecondary};
           `
     }
-    .mibi-page-count {
+    .auradata-page-count {
       white-space: nowrap;
       font-family: ${theme.fontFamilyCode};
       font-size: ${theme.fontSizeSM - 1}px;
@@ -483,7 +483,10 @@ export function PageBar({ children }: { children?: ReactNode }) {
       {(children || pages.length > 0) && (
         <Side $end>
           {pages.length > 0 && index >= 0 && (
-            <span className="mibi-page-count" data-test="auradata-page-count">
+            <span
+              className="auradata-page-count"
+              data-test="auradata-page-count"
+            >
               {t('Page %s of %s', index + 1, pages.length)}
             </span>
           )}

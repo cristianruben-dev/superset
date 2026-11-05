@@ -55,11 +55,11 @@ const Head = styled.div`
       outline: 2px solid ${theme.colorPrimary};
       outline-offset: -2px;
     }
-    .mibi-filter-card-text {
+    .auradata-filter-card-text {
       flex: 1;
       min-width: 0;
     }
-    .mibi-filter-card-name {
+    .auradata-filter-card-name {
       display: flex;
       align-items: center;
       gap: ${theme.sizeUnit}px;
@@ -69,7 +69,7 @@ const Head = styled.div`
       color: ${theme.colorText};
       overflow-wrap: anywhere;
     }
-    .mibi-filter-card-summary {
+    .auradata-filter-card-summary {
       display: block;
       margin-top: 2px;
       font-size: ${theme.fontSizeSM}px;
@@ -78,17 +78,17 @@ const Head = styled.div`
       overflow: hidden;
       text-overflow: ellipsis;
     }
-    .mibi-filter-card-actions {
+    .auradata-filter-card-actions {
       display: flex;
       align-items: center;
       gap: 2px;
       color: ${theme.colorTextSecondary};
     }
-    .mibi-filter-card-chevron {
+    .auradata-filter-card-chevron {
       display: flex;
       transition: transform ${theme.motionDurationMid};
     }
-    &[aria-expanded='true'] .mibi-filter-card-chevron {
+    &[aria-expanded='true'] .auradata-filter-card-chevron {
       transform: rotate(180deg);
     }
   `}
@@ -137,7 +137,7 @@ export function FilterCard({
   };
   return (
     <Card
-      className={cx('mibi-filter-card', active && 'is-on')}
+      className={cx('auradata-filter-card', active && 'is-on')}
       data-test="auradata-filter-card"
     >
       <Head
@@ -153,9 +153,9 @@ export function FilterCard({
           }
         }}
       >
-        <div className="mibi-filter-card-text">
+        <div className="auradata-filter-card-text">
           <h4
-            className="mibi-filter-card-name"
+            className="auradata-filter-card-name"
             id={`filter-name-${id}`}
             data-test="filter-control-name"
           >
@@ -163,7 +163,7 @@ export function FilterCard({
             {extra}
           </h4>
           <span
-            className="mibi-filter-card-summary"
+            className="auradata-filter-card-summary"
             data-test="auradata-filter-card-summary"
           >
             {summary}
@@ -171,13 +171,13 @@ export function FilterCard({
         </div>
         {/* Clicks on the actions do not fold the card */}
         <div
-          className="mibi-filter-card-actions"
+          className="auradata-filter-card-actions"
           onClick={event => event.stopPropagation()}
           role="presentation"
         >
           {actions}
         </div>
-        <span className="mibi-filter-card-chevron" aria-hidden>
+        <span className="auradata-filter-card-chevron" aria-hidden>
           <Icons.DownOutlined iconSize="s" />
         </span>
       </Head>

@@ -19,7 +19,7 @@
 /**
  * Free placement on the cell grid. Every chart, element and text box has an
  * absolute position on the page, in cells from its top-left corner
- * (``meta.mibiPos``), so moving or resizing one never moves another. The rows
+ * (``meta.auradataPos``), so moving or resizing one never moves another. The rows
  * of the layout stay as containers. A phone shows the same page, scaled, unless
  * the page has a mobile layout of its own (see mobileLayout.ts).
  */
@@ -42,9 +42,9 @@ import { columnCountOf, gridColumnCount } from './columns';
 import { canvasSize } from './styles';
 import { CANVAS_FORMAT_KEY, CELL, type CanvasFormat } from './types';
 
-export const POS_KEY = 'mibiPos';
+export const POS_KEY = 'auradataPos';
 /** Key of the empty cells the row-based layout used before absolute positions. */
-const LEGACY_OFFSET_KEY = 'mibiOffset';
+const LEGACY_OFFSET_KEY = 'auradataOffset';
 
 export interface Pos {
   x: number;
@@ -70,7 +70,7 @@ export function posOf(meta: Meta): Pos | undefined {
 export function posStyle(meta: Meta): CSSProperties | undefined {
   const pos = posOf(meta);
   if (!pos) return undefined;
-  const z = Number(meta?.mibiZ);
+  const z = Number(meta?.auradataZ);
   return {
     position: 'absolute',
     left: pos.x * CELL,
@@ -104,8 +104,8 @@ export const clearDragTrack = () => {
 };
 
 const pageOf = (element: HTMLElement | null | undefined) =>
-  element?.closest<HTMLElement>('.mibi-canvas') ??
-  document.querySelector<HTMLElement>('.mibi-canvas');
+  element?.closest<HTMLElement>('.auradata-canvas') ??
+  document.querySelector<HTMLElement>('.auradata-canvas');
 
 /**
  * The cell where the dragged object's top-left corner lands, from the left

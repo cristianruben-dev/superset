@@ -378,7 +378,7 @@ const applyFormData =
   };
 
 /** Where a field step is counted: the root of the layout, so undo moves it. */
-const FIELD_STEP_KEY = 'mibiFieldStep';
+const FIELD_STEP_KEY = 'auradataFieldStep';
 
 /**
  * One change of the fields of a chart, as undo and redo need it: the values of
@@ -489,7 +489,7 @@ const recordFieldStep =
       },
     };
     const item = layout[step.id];
-    const own = item?.meta?.mibiFormat as VisualFormat | undefined;
+    const own = item?.meta?.auradataFormat as VisualFormat | undefined;
     const moved = Object.keys(step.after).filter(
       name => own?.chart && name in own.chart,
     );
@@ -498,7 +498,7 @@ const recordFieldStep =
       moved.forEach(name => delete ownChart[name]);
       next[step.id] = {
         ...item,
-        meta: { ...item.meta, mibiFormat: { ...own, chart: ownChart } },
+        meta: { ...item.meta, auradataFormat: { ...own, chart: ownChart } },
       };
     }
     dispatch(updateLayout(next, `fields:${number}`) as never);

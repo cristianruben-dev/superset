@@ -270,7 +270,7 @@ test('undo and redo move through the field changes', () => {
           'CHART-1': {
             id: 'CHART-1',
             type: 'CHART',
-            meta: { chartId: 3, mibiFormat: { chart: { groupby: ['x'] } } },
+            meta: { chartId: 3, auradataFormat: { chart: { groupby: ['x'] } } },
           },
         },
       },
@@ -280,8 +280,8 @@ test('undo and redo move through the field changes', () => {
   const dispatch = store.dispatch as (action: unknown) => unknown;
   const groupby = () => (store.getState() as any).charts[3].form_data.groupby;
   const own = () =>
-    (store.getState() as any).dashboardLayout.present['CHART-1'].meta.mibiFormat
-      .chart;
+    (store.getState() as any).dashboardLayout.present['CHART-1'].meta
+      .auradataFormat.chart;
   dispatch(change(['b']));
   dispatch(change(['c']));
   expect(groupby()).toEqual(['c']);

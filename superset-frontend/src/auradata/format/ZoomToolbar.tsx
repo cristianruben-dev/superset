@@ -40,7 +40,7 @@ const Bar = styled.div<{ $docked?: boolean }>`
             .percent {
               font-family: ${theme.fontFamilyCode};
             }
-            .mibi-zoom-step {
+            .auradata-zoom-step {
               display: flex;
               align-items: center;
               justify-content: center;
@@ -63,7 +63,7 @@ const Bar = styled.div<{ $docked?: boolean }>`
               margin: 0 ${theme.sizeUnit}px;
             }
             /* A compact choice that keeps to the height of the bar */
-            .mibi-zoom-fit {
+            .auradata-zoom-fit {
               width: ${theme.sizeUnit * 44}px;
               .ant-select-selector {
                 height: ${theme.sizeUnit * 7}px !important;
@@ -128,7 +128,7 @@ export function ZoomToolbar({
       <Bar data-test="auradata-zoom-toolbar" $docked>
         <button
           type="button"
-          className="mibi-zoom-step"
+          className="auradata-zoom-step"
           aria-label={t('Zoom out')}
           onClick={() => step(-1)}
         >
@@ -145,7 +145,7 @@ export function ZoomToolbar({
         />
         <button
           type="button"
-          className="mibi-zoom-step"
+          className="auradata-zoom-step"
           aria-label={t('Zoom in')}
           onClick={() => step(1)}
         >
@@ -153,7 +153,7 @@ export function ZoomToolbar({
         </button>
         <span className="percent">{Math.round(zoom * 100)}%</span>
         <Select
-          className="mibi-zoom-fit"
+          className="auradata-zoom-fit"
           ariaLabel={t('Fit')}
           data-test="auradata-zoom-fit"
           value={fit}
@@ -183,7 +183,7 @@ export function ZoomToolbar({
     <Bar data-test="auradata-zoom-toolbar" $docked={docked}>
       <Button
         buttonSize="xsmall"
-        className="mibi-zoom-fit"
+        className="auradata-zoom-fit"
         buttonStyle={view.mode === 'fit-page' ? 'primary' : 'tertiary'}
         onClick={() => setCanvasView({ mode: 'fit-page' })}
       >
@@ -191,7 +191,7 @@ export function ZoomToolbar({
       </Button>
       <Button
         buttonSize="xsmall"
-        className="mibi-zoom-fit"
+        className="auradata-zoom-fit"
         buttonStyle={view.mode === 'fit-width' ? 'primary' : 'tertiary'}
         onClick={() => setCanvasView({ mode: 'fit-width' })}
       >
@@ -200,7 +200,7 @@ export function ZoomToolbar({
       <Button
         buttonSize="xsmall"
         buttonStyle="tertiary"
-        className="mibi-zoom-actual"
+        className="auradata-zoom-actual"
         onClick={() => setCanvasView({ mode: 'custom', zoom: 1 })}
       >
         100%

@@ -20,7 +20,7 @@
 /**
  * The mobile layout of a page, as in Power BI: a phone sized page where the
  * author places and sizes some of the visuals the page already has. It is kept
- * in the page itself (``TAB-*.meta.mibiMobile``, or the grid of a report of one
+ * in the page itself (``TAB-*.meta.auradataMobile``, or the grid of a report of one
  * page), in cells of a phone grid ``MOBILE_COLUMNS`` wide, so it saves, undoes
  * and exports with the report. A page without one shows its canvas on phones.
  */
@@ -41,7 +41,7 @@ import {
 import { isPositioned } from './positions';
 import { CELL } from './types';
 
-export const MOBILE_LAYOUT_KEY = 'mibiMobile';
+export const MOBILE_LAYOUT_KEY = 'auradataMobile';
 
 /** Width of the phone page in cells: 384 px, the width of most phones. */
 export const MOBILE_COLUMNS = 12;
@@ -61,7 +61,7 @@ export interface MobileBox {
   height: number;
 }
 
-/** What ``meta.mibiMobile`` holds: the boxes, from back to front. */
+/** What ``meta.auradataMobile`` holds: the boxes, from back to front. */
 export interface MobileLayout {
   items: MobileBox[];
 }
@@ -286,8 +286,8 @@ export function mobileComponent(
         ...component.meta,
         width: box.width,
         height: box.height,
-        mibiPos: { x: box.x, y: box.y },
-        mibiZ: box.z,
+        auradataPos: { x: box.x, y: box.y },
+        auradataZ: box.z,
       } as LayoutItem['meta'],
     };
   }

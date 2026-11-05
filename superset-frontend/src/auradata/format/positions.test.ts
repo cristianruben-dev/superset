@@ -35,7 +35,7 @@ const item = (
 
 const flow = () =>
   ({
-    ROOT_ID: item('ROOT_ID', 'ROOT', ['GRID_ID'], { mibiCells: true }),
+    ROOT_ID: item('ROOT_ID', 'ROOT', ['GRID_ID'], { auradataCells: true }),
     GRID_ID: item('GRID_ID', 'GRID', ['ROW-1', 'ROW-2']),
     'ROW-1': item('ROW-1', 'ROW', ['CHART-a', 'CHART-b']),
     'CHART-a': item('CHART-a', 'CHART', [], { width: 10, height: 8 }),
@@ -47,7 +47,7 @@ const flow = () =>
 test('an object without a cell has no position style', () => {
   expect(posOf({})).toBeUndefined();
   expect(posStyle({})).toBeUndefined();
-  expect(posStyle({ mibiPos: { x: 2, y: 1 } })).toEqual({
+  expect(posStyle({ auradataPos: { x: 2, y: 1 } })).toEqual({
     position: 'absolute',
     left: 64,
     top: 32,
@@ -74,7 +74,7 @@ test('the page grows to hold what is below its bottom', () => {
     meta: { width: 20, height: 40 },
   } as never;
   const next = layoutToPositions(layout);
-  expect(next.ROOT_ID.meta.mibiCanvas).toEqual({
+  expect(next.ROOT_ID.meta.auradataCanvas).toEqual({
     size: { mode: 'custom', width: 1920, height: 48 * 32 },
   });
 });

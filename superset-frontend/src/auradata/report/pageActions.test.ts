@@ -65,7 +65,7 @@ test('the mobile layout of a report of one page goes to its first page', () => {
               chartId: 1,
               width: 24,
               height: 12,
-              mibiPos: { x: 0, y: 0 },
+              auradataPos: { x: 0, y: 0 },
             },
           },
         },

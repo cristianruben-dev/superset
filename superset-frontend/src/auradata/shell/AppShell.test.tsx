@@ -108,7 +108,7 @@ test('collapses the sidebar and remembers it', () => {
   userEvent.click(screen.getByRole('button', { name: 'Collapse sidebar' }));
 
   expect(screen.queryByText('Dashboards')).not.toBeInTheDocument();
-  expect(window.localStorage.getItem('mibi.sidebarCollapsed')).toBe('true');
+  expect(window.localStorage.getItem('auradata.sidebarCollapsed')).toBe('true');
 });
 
 test('Ctrl+K opens the search with dashboards and pages', async () => {
@@ -202,7 +202,7 @@ test('a phone opens the navigation as a drawer instead of a rail', () => {
     // collapsed preference of larger screens
     expect(screen.getByTestId('auradata-sidebar')).toBeInTheDocument();
     expect(screen.getByText('Dashboards')).toBeInTheDocument();
-    expect(window.localStorage.getItem('mibi.sidebarCollapsed')).toBeNull();
+    expect(window.localStorage.getItem('auradata.sidebarCollapsed')).toBeNull();
 
     userEvent.click(screen.getByTestId('auradata-nav-backdrop'));
     expect(screen.queryByTestId('auradata-sidebar')).not.toBeInTheDocument();

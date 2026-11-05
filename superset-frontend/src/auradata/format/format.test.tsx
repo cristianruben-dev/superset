@@ -120,7 +120,7 @@ test('turns a visual format into the card style', () => {
     '--mb-v-title-size': '18px',
     '--mb-v-title-align': 'center',
   });
-  expect(className).toBe('mibi-title-hidden mibi-title-center');
+  expect(className).toBe('auradata-title-hidden auradata-title-center');
   // 8px more padding and 2px more border on each side
   expect(shrinkX).toBe(20);
   expect(shrinkY).toBe(20);
@@ -224,14 +224,14 @@ test('stores formats in the layout and undoes slider drags as one step', () => {
   dispatcher(store)(setVisualFormat('CHART-a', { radius: 8 }, 'drag'));
   dispatcher(store)(setVisualFormat('CHART-a', { radius: 12 }, 'drag'));
   const state = stateOf(store);
-  expect(state.dashboardLayout.present['CHART-a'].meta.mibiFormat).toEqual({
+  expect(state.dashboardLayout.present['CHART-a'].meta.auradataFormat).toEqual({
     radius: 12,
   });
   expect(state.dashboardState.hasUnsavedChanges).toBe(true);
 
   dispatcher(store)(UndoActionCreators.undo());
   expect(
-    stateOf(store).dashboardLayout.present['CHART-a'].meta.mibiFormat,
+    stateOf(store).dashboardLayout.present['CHART-a'].meta.auradataFormat,
   ).toBeUndefined();
 });
 
@@ -245,19 +245,19 @@ test('shares a style with every chart, keeping their subtitles', () => {
     setSharedVisualFormat({ shadow: 'strong', title: { subtitle: 'Mes' } }),
   );
   const { present } = stateOf(store).dashboardLayout;
-  expect(present.ROOT_ID.meta.mibiCanvas).toEqual({
+  expect(present.ROOT_ID.meta.auradataCanvas).toEqual({
     appearance: 'dark',
     visuals: { shadow: 'strong', title: {} },
   });
-  expect(present['CHART-a'].meta.mibiFormat).toEqual({
+  expect(present['CHART-a'].meta.auradataFormat).toEqual({
     title: { subtitle: 'Mes' },
   });
-  expect(present['CHART-b'].meta).not.toHaveProperty('mibiFormat');
+  expect(present['CHART-b'].meta).not.toHaveProperty('auradataFormat');
 
   // One undo step brings every chart back
   dispatcher(store)(UndoActionCreators.undo());
   expect(
-    stateOf(store).dashboardLayout.present['CHART-a'].meta.mibiFormat,
+    stateOf(store).dashboardLayout.present['CHART-a'].meta.auradataFormat,
   ).toEqual({ radius: 2, title: { subtitle: 'Mes' } });
 });
 
@@ -286,8 +286,8 @@ test('formats the canvas and then the selected chart', () => {
 
   fireEvent.click(screen.getByRole('radio', { name: 'Gradient' }));
   expect(
-    stateOf(store).dashboardLayout.present.ROOT_ID.meta.mibiCanvas?.background
-      ?.type,
+    stateOf(store).dashboardLayout.present.ROOT_ID.meta.auradataCanvas
+      ?.background?.type,
   ).toBe('gradient');
 
   act(() => selectVisual('CHART-a'));
@@ -299,12 +299,12 @@ test('formats the canvas and then the selected chart', () => {
   fireEvent.click(screen.getByRole('switch', { name: 'Show title' }));
   fireEvent.click(screen.getByRole('radio', { name: 'Strong' }));
   expect(
-    stateOf(store).dashboardLayout.present['CHART-a'].meta.mibiFormat,
+    stateOf(store).dashboardLayout.present['CHART-a'].meta.auradataFormat,
   ).toEqual({ title: { show: false }, shadow: 'strong' });
 
   fireEvent.click(screen.getByTestId('auradata-format-apply-all'));
   expect(
-    stateOf(store).dashboardLayout.present.ROOT_ID.meta.mibiCanvas?.visuals
+    stateOf(store).dashboardLayout.present.ROOT_ID.meta.auradataCanvas?.visuals
       ?.shadow,
   ).toBe('strong');
   // The chart keeps showing the style, now shared

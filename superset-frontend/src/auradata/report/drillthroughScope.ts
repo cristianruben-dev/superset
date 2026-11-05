@@ -24,8 +24,8 @@ import type {
 /** The drill through data mask: its id, state and the charts it reaches. */
 
 /** Non-numeric, so it never matches a chart's cross-filter. */
-export const DRILLTHROUGH_ID = 'mibi-drillthrough';
-export const DRILLTHROUGH_STATE_KEY = 'mibiDrillthrough';
+export const DRILLTHROUGH_ID = 'auradata-drillthrough';
+export const DRILLTHROUGH_STATE_KEY = 'auradataDrillthrough';
 
 export interface DrillthroughField {
   column: string;

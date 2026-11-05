@@ -234,7 +234,7 @@ test('pie and funnel charts sort by the metric or a dimension', () => {
     ]);
     expect(
       categories.toFormData({ by: 'country', ascending: true }, formData),
-    ).toEqual({ mibi_sort_by: 'country', mibi_sort_asc: true });
+    ).toEqual({ auradata_sort_by: 'country', auradata_sort_asc: true });
   });
 });
 
@@ -247,7 +247,11 @@ test('a pie without a sort of its own shows "Sort by metric"', () => {
   });
   expect(pie.current({ ...formData, sort_by_metric: false })).toBeUndefined();
   expect(
-    pie.current({ ...formData, mibi_sort_by: 'country', mibi_sort_asc: true }),
+    pie.current({
+      ...formData,
+      auradata_sort_by: 'country',
+      auradata_sort_asc: true,
+    }),
   ).toEqual({ by: 'country', ascending: true });
 });
 
@@ -271,7 +275,7 @@ test('a table sorts by its columns and metrics', () => {
     ...formData,
     ...table.toFormData({ by: 'country', ascending: true }, formData),
   };
-  expect(sorted.mibi_table_sort).toEqual([{ key: 'country', desc: false }]);
+  expect(sorted.auradata_table_sort).toEqual([{ key: 'country', desc: false }]);
   expect(table.current(sorted)).toEqual({ by: 'country', ascending: true });
 });
 

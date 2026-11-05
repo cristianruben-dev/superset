@@ -106,7 +106,7 @@ const Stage = styled.div`
     gap: ${theme.sizeUnit * 2}px;
     padding: ${STAGE_MARGIN / 2}px 0 ${STAGE_MARGIN}px;
     margin: 0 auto;
-    .mibi-device-caption {
+    .auradata-device-caption {
       height: ${DEVICE_CAPTION_HEIGHT - theme.sizeUnit * 2}px;
       display: flex;
       align-items: center;
@@ -117,11 +117,11 @@ const Stage = styled.div`
       color: ${theme.colorTextSecondary};
       white-space: nowrap;
     }
-    .mibi-device-caption strong {
+    .auradata-device-caption strong {
       color: ${theme.colorText};
       font-weight: ${theme.fontWeightStrong};
     }
-    .mibi-device-chip {
+    .auradata-device-chip {
       padding: 1px ${theme.sizeUnit * 2}px;
       border-radius: 999px;
       background: ${theme.colorFillTertiary};
@@ -142,7 +142,7 @@ const Body = styled.div<{ $radius: number }>`
       inset 0 0 0 4px ${HARDWARE.inner},
       0 24px 48px -12px ${HARDWARE.shadow},
       0 0 0 1px ${HARDWARE.outline};
-    .mibi-device-key {
+    .auradata-device-key {
       position: absolute;
       width: 4px;
       border-radius: 2px;
@@ -167,7 +167,7 @@ const Viewport = styled.div`
   right: 0;
   display: flex;
   flex-direction: column;
-  .mibi-device-scroll {
+  .auradata-device-scroll {
     position: relative;
     flex: 1;
     min-height: 0;
@@ -432,19 +432,24 @@ export const DeviceFrame = forwardRef<
   const pixels = pixelsOf(device);
   return (
     <Stage data-test="auradata-device-stage" data-device={device.id}>
-      <div className="mibi-device-caption" data-test="auradata-device-caption">
+      <div
+        className="auradata-device-caption"
+        data-test="auradata-device-caption"
+      >
         <strong>{device.name}</strong>
-        <span className="mibi-device-chip">
+        <span className="auradata-device-chip">
           {t('%s × %s pt', device.width, device.height)}
         </span>
-        <span className="mibi-device-chip">
+        <span className="auradata-device-chip">
           {t('%s × %s px · @%sx', pixels.width, pixels.height, device.scale)}
         </span>
-        <span className="mibi-device-chip" title={t('Safe area')}>
+        <span className="auradata-device-chip" title={t('Safe area')}>
           {t('Safe area %s × %s pt', device.width, safeHeightOf(device))}
         </span>
         {scale < 0.999 && (
-          <span className="mibi-device-chip">{Math.round(scale * 100)}%</span>
+          <span className="auradata-device-chip">
+            {Math.round(scale * 100)}%
+          </span>
         )}
       </div>
       <div
@@ -465,19 +470,19 @@ export const DeviceFrame = forwardRef<
           }}
         >
           <span
-            className="mibi-device-key"
+            className="auradata-device-key"
             style={{ left: -3, top: 120, height: 30 }}
           />
           <span
-            className="mibi-device-key"
+            className="auradata-device-key"
             style={{ left: -3, top: 180, height: 60 }}
           />
           <span
-            className="mibi-device-key"
+            className="auradata-device-key"
             style={{ left: -3, top: 250, height: 60 }}
           />
           <span
-            className="mibi-device-key"
+            className="auradata-device-key"
             style={{ right: -3, top: 200, height: 90 }}
           />
           {device.homeButton && (
@@ -514,7 +519,7 @@ export const DeviceFrame = forwardRef<
               <div style={{ flex: 1, minHeight: 0, display: 'flex' }}>
                 <div
                   ref={viewportRef}
-                  className="mibi-device-scroll"
+                  className="auradata-device-scroll"
                   style={viewer ? { paddingTop: VIEWER_PAGE_TOP } : undefined}
                 >
                   {children}

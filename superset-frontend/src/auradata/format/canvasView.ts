@@ -35,8 +35,8 @@ export interface CanvasView {
 export const MIN_ZOOM = 0.1;
 export const MAX_ZOOM = 4;
 
-const KEY = 'mibi.canvasView';
-const EVENT = 'mibi:canvas-view';
+const KEY = 'auradata.canvasView';
+const EVENT = 'auradata:canvas-view';
 const DEFAULT: CanvasView = { mode: 'fit-width', zoom: 1 };
 
 export const clampZoom = (zoom: number) =>

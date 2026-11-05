@@ -92,7 +92,7 @@ test('opens Explore in the panel and reloads the chart once it is saved', async 
   const frame = await screen.findByTestId('auradata-chart-editor-frame');
   expect(frame).toHaveAttribute(
     'src',
-    '/explore/?slice_id=3&mibi_panel=1&mibi_dock=1',
+    '/explore/?slice_id=3&auradata_panel=1&auradata_dock=1',
   );
   expect(screen.getByText('Edit visual')).toBeInTheDocument();
 
@@ -150,7 +150,10 @@ test('opens SQL Lab wide and turns a saved dataset into a new chart', async () =
   act(() => openChartEditor({ url: SQL_PANEL_URL, kind: 'sql' }));
 
   const frame = await screen.findByTestId('auradata-chart-editor-frame');
-  expect(frame).toHaveAttribute('src', '/sqllab/?dashboard_id=7&mibi_panel=1');
+  expect(frame).toHaveAttribute(
+    'src',
+    '/sqllab/?dashboard_id=7&auradata_panel=1',
+  );
   expect(screen.getByText('SQL editor')).toBeInTheDocument();
 
   act(() => {
@@ -168,7 +171,7 @@ test('opens SQL Lab wide and turns a saved dataset into a new chart', async () =
   await waitFor(() =>
     expect(screen.getByTestId('auradata-chart-editor-frame')).toHaveAttribute(
       'src',
-      '/chart/add/?dataset=ventas&dashboard_id=7&mibi_panel=1',
+      '/chart/add/?dataset=ventas&dashboard_id=7&auradata_panel=1',
     ),
   );
   expect(screen.getByText('New visual')).toBeInTheDocument();

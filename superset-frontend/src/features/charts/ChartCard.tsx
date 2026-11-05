@@ -267,7 +267,7 @@ export default function ChartCard({
           '/static/assets/images/chart-card-fallback.svg',
         )}
         description={
-          <span className="mibi-chart-meta">
+          <span className="auradata-chart-meta">
             <VizTypeTile vizType={chart.viz_type} size="s" title={vizName} />
             <span>{t('Modified %s', chart.changed_on_delta_humanized)}</span>
           </span>

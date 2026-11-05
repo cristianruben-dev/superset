@@ -1370,11 +1370,11 @@ export default function TableChart<D extends DataRecord = DataRecord>(
               const cell = e.currentTarget;
               if (
                 !handleContextMenu ||
-                !cell.closest('[data-mibi-tooltip-page]')
+                !cell.closest('[data-auradata-tooltip-page]')
               ) {
                 return;
               }
-              cell.dataset.mibiProbe = 'true';
+              cell.dataset.auradataProbe = 'true';
               try {
                 handleContextMenu(
                   row.original,
@@ -1383,12 +1383,12 @@ export default function TableChart<D extends DataRecord = DataRecord>(
                   e.clientY,
                 );
               } finally {
-                delete cell.dataset.mibiProbe;
+                delete cell.dataset.auradataProbe;
               }
             },
             onMouseLeave: (e: MouseEvent<HTMLElement>) => {
-              if (e.currentTarget.closest('[data-mibi-tooltip-page]')) {
-                window.dispatchEvent(new CustomEvent('mibi:mark-leave'));
+              if (e.currentTarget.closest('[data-auradata-tooltip-page]')) {
+                window.dispatchEvent(new CustomEvent('auradata:mark-leave'));
               }
             },
             onContextMenu: (e: MouseEvent) => {

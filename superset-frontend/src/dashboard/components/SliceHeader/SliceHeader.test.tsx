@@ -309,10 +309,10 @@ test('Should render click to edit prompt and run onExploreChart on click', async
     await screen.findByText('Click to edit Vaccine Candidates per Phase.'),
   ).toBeInTheDocument();
   const onOpen = jest.fn();
-  window.addEventListener('mibi:open-chart-editor', onOpen);
+  window.addEventListener('auradata:open-chart-editor', onOpen);
 
   userEvent.click(screen.getByText('Vaccine Candidates per Phase'));
-  window.removeEventListener('mibi:open-chart-editor', onOpen);
+  window.removeEventListener('auradata:open-chart-editor', onOpen);
   // The chart opens in the side panel, never on its own page
   expect(onOpen).toHaveBeenCalledTimes(1);
   expect(history.location.pathname).toBe('/superset/dashboard/1/');

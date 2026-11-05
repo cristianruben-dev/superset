@@ -30,11 +30,11 @@ afterEach(() => window.localStorage.clear());
 test('reads the stored grid and repairs bad values', () => {
   expect(readGrid()).toEqual(DEFAULT_GRID);
   window.localStorage.setItem(
-    'mibi.grid',
+    'auradata.grid',
     JSON.stringify({ show: false, style: 'dots', opacity: -4 }),
   );
   expect(readGrid()).toEqual({ color: undefined, opacity: 5 });
-  window.localStorage.setItem('mibi.grid', '{not json');
+  window.localStorage.setItem('auradata.grid', '{not json');
   expect(readGrid()).toEqual(DEFAULT_GRID);
 });
 
@@ -57,9 +57,9 @@ test('styles the grid from the Format pane and remembers it', () => {
   expect(guide).toHaveStyle({ backgroundSize: '32px 32px' });
 
   fireEvent.click(screen.getByRole('button', { name: 'Reset grid' }));
-  expect(JSON.parse(window.localStorage.getItem('mibi.grid')!).opacity).toBe(
-    DEFAULT_GRID.opacity,
-  );
+  expect(
+    JSON.parse(window.localStorage.getItem('auradata.grid')!).opacity,
+  ).toBe(DEFAULT_GRID.opacity);
   // The grid is always there: it has no switch
   expect(screen.queryByRole('switch')).not.toBeInTheDocument();
 });

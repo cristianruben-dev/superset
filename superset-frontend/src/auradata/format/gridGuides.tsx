@@ -40,8 +40,8 @@ export const DEFAULT_GRID: GridSettings = {
   opacity: 30,
 };
 
-const KEY = 'mibi.grid';
-const EVENT = 'mibi:grid';
+const KEY = 'auradata.grid';
+const EVENT = 'auradata:grid';
 
 const clamp = (value: number, min: number, max: number) =>
   Math.min(max, Math.max(min, value));
@@ -110,7 +110,7 @@ export function gridBackground(
 function usePageBottom(element: HTMLElement | null): number {
   const [bottom, setBottom] = useState(0);
   useEffect(() => {
-    const page = element?.closest<HTMLElement>('.mibi-canvas');
+    const page = element?.closest<HTMLElement>('.auradata-canvas');
     if (!element || !page || typeof ResizeObserver === 'undefined') {
       return undefined;
     }
@@ -142,7 +142,7 @@ export function GridGuide() {
   return (
     <div
       ref={setElement}
-      className="mibi-grid-guide"
+      className="auradata-grid-guide"
       aria-hidden
       data-test="auradata-grid-guide"
       style={{

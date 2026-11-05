@@ -54,7 +54,7 @@ export function useDrillthroughMenuItems(
   if (!point.length) {
     return [
       {
-        key: 'mibi-drillthrough',
+        key: 'auradata-drillthrough',
         label: t('Drill through'),
         disabled: true,
         title: t('Right-click a single data point to drill through'),
@@ -63,10 +63,10 @@ export function useDrillthroughMenuItems(
   }
   return [
     {
-      key: 'mibi-drillthrough',
+      key: 'auradata-drillthrough',
       label: t('Drill through'),
       children: pages.map(({ tab, columns }) => ({
-        key: `mibi-drillthrough-${tab.id}`,
+        key: `auradata-drillthrough-${tab.id}`,
         label: tab.title || t('Page'),
         disabled: !point.some(field => columns.includes(field.column)),
         onClick: () => {
