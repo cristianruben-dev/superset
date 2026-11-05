@@ -1,0 +1,105 @@
+{
+  "fn": "ownFormat",
+  "cases": [
+    {
+      "name": "none",
+      "args": [
+        null
+      ],
+      "expected": null
+    },
+    {
+      "name": "nothing own",
+      "args": [
+        {
+          "background": "#fff"
+        }
+      ],
+      "expected": null
+    },
+    {
+      "name": "full",
+      "args": [
+        {
+          "background": "#fff",
+          "radius": 6,
+          "link": {
+            "show": true,
+            "action": {
+              "type": "url",
+              "url": "https://auradata.mx"
+            }
+          },
+          "actionButton": {
+            "show": true,
+            "text": "Ver"
+          },
+          "title": {
+            "show": true,
+            "size": 16,
+            "subtitle": "Por mes",
+            "template": "{chart}"
+          },
+          "header": {
+            "menu": false,
+            "tooltip": {
+              "text": "Ayuda",
+              "color": "#111"
+            }
+          },
+          "chart": {
+            "show_legend": false,
+            "series_colors": {
+              "A": "#f00"
+            },
+            "x_axis_title": "Mes",
+            "color_scheme": "auradata"
+          }
+        }
+      ],
+      "expected": {
+        "title": {
+          "subtitle": "Por mes"
+        },
+        "header": {
+          "tooltip": {
+            "text": "Ayuda"
+          }
+        },
+        "link": {
+          "show": true,
+          "action": {
+            "type": "url",
+            "url": "https://auradata.mx"
+          }
+        },
+        "actionButton": {
+          "show": true,
+          "text": "Ver"
+        },
+        "chart": {
+          "series_colors": {
+            "A": "#f00"
+          },
+          "x_axis_title": "Mes"
+        }
+      }
+    },
+    {
+      "name": "empty subtitle is not kept",
+      "args": [
+        {
+          "title": {
+            "subtitle": ""
+          },
+          "header": {
+            "tooltip": {
+              "text": ""
+            }
+          }
+        }
+      ],
+      "expected": null
+    }
+  ]
+}

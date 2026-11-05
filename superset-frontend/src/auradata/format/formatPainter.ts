@@ -106,27 +106,40 @@ export const copiedFormat = () => copied;
 export const canPasteFormat = (item: LayoutItem | undefined) =>
   !!copied && !!item && item.id !== copied.sourceId;
 
+/**
+ * The meta of an object once it takes a copied format: the copied box with
+ * what belongs to this chart on top and, between elements of a kind, their
+ * style.
+ */
+export function pastedMeta(
+  item: LayoutItem,
+  format: CopiedFormat,
+): LayoutItem['meta'] {
+  const meta = { ...item.meta };
+  // What belongs to this chart stays with it
+  const current = item.meta[VISUAL_FORMAT_KEY] as VisualFormat | undefined;
+  let box = withOwnFormat(format.box, ownFormat(current));
+  const template = current?.title?.template;
+  if (sourceOf(item) !== 'chart' && template !== undefined) {
+    box = { ...box, title: { ...box?.title, template } };
+  }
+  if (box) meta[VISUAL_FORMAT_KEY] = box;
+  else delete meta[VISUAL_FORMAT_KEY];
+  if (format.style && format.source === sourceOf(item)) {
+    meta[ELEMENT_KEY] = {
+      ...(item.meta[ELEMENT_KEY] as ElementConfig),
+      ...format.style,
+    };
+  }
+  return meta;
+}
+
 /** Gives an object the copied box and, between elements of a kind, their style. */
 export const pasteFormat =
   (id: string) => (dispatch: AppDispatch, getState: GetState) => {
     const item = getState().dashboardLayout.present[id];
     if (!copied || !item) return;
-    const meta = { ...item.meta };
-    // What belongs to this chart stays with it
-    const current = item.meta[VISUAL_FORMAT_KEY] as VisualFormat | undefined;
-    let box = withOwnFormat(copied.box, ownFormat(current));
-    const template = current?.title?.template;
-    if (sourceOf(item) !== 'chart' && template !== undefined) {
-      box = { ...box, title: { ...box?.title, template } };
-    }
-    if (box) meta[VISUAL_FORMAT_KEY] = box;
-    else delete meta[VISUAL_FORMAT_KEY];
-    if (copied.style && copied.source === sourceOf(item)) {
-      meta[ELEMENT_KEY] = {
-        ...(item.meta[ELEMENT_KEY] as ElementConfig),
-        ...copied.style,
-      };
-    }
+    const meta = pastedMeta(item, copied);
     dispatch(updateLayout({ [id]: { ...item, meta } }, `paste:${Date.now()}`));
   };
 

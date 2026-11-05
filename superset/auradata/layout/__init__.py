@@ -31,9 +31,16 @@ from superset.auradata.layout.arrange import (
 )
 from superset.auradata.layout.cells import is_in_cells, layout_to_cells
 from superset.auradata.layout.formats import (
+    format_of,
     merge_visual_format,
+    own_chart_format,
+    own_format,
+    pasted_meta,
+    sharable_chart_format,
+    sharable_format,
     shared_visual_format,
     visual_format_of,
+    with_own_format,
 )
 from superset.auradata.layout.grid import (
     canvas_format,
@@ -91,6 +98,7 @@ __all__ = [
     "DEFAULT_OBJECT_ROWS",
     "descendants",
     "distribute_cells",
+    "format_of",
     "free_cell",
     "is_hidden_page",
     "is_in_cells",
@@ -110,17 +118,23 @@ __all__ = [
     "mobile_layout_of",
     "mobile_page_rows",
     "mobile_size_of",
+    "own_chart_format",
+    "own_format",
     "page_ids",
     "page_objects",
     "page_of",
     "page_title",
+    "pasted_meta",
     "place_at",
     "Pos",
     "pos_of",
     "root_meta",
     "row_count_of",
+    "sharable_chart_format",
+    "sharable_format",
     "shared_visual_format",
     "size_of",
+    "with_own_format",
     "top_tabs_id",
     "visual_format_of",
 ]

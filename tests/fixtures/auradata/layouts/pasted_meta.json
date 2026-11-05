@@ -1,0 +1,302 @@
+{
+  "fn": "pastedMeta",
+  "cases": [
+    {
+      "name": "chart onto chart",
+      "args": [
+        {
+          "id": "CHART-b",
+          "type": "CHART",
+          "children": [],
+          "meta": {
+            "chartId": 2,
+            "width": 10,
+            "height": 8,
+            "auradataFormat": {
+              "title": {
+                "subtitle": "Mine",
+                "size": 20
+              },
+              "chart": {
+                "series_colors": {
+                  "Z": "#00f"
+                },
+                "show_legend": true
+              }
+            }
+          }
+        },
+        {
+          "sourceId": "CHART-a",
+          "source": "chart",
+          "box": {
+            "background": "#fff",
+            "title": {
+              "show": true,
+              "size": 16,
+              "template": "{chart}"
+            },
+            "chart": {
+              "show_legend": false,
+              "color_scheme": "auradata"
+            }
+          }
+        }
+      ],
+      "expected": {
+        "chartId": 2,
+        "width": 10,
+        "height": 8,
+        "auradataFormat": {
+          "background": "#fff",
+          "title": {
+            "show": true,
+            "size": 16,
+            "template": "{chart}",
+            "subtitle": "Mine"
+          },
+          "chart": {
+            "show_legend": false,
+            "color_scheme": "auradata",
+            "series_colors": {
+              "Z": "#00f"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "shape onto shape",
+      "args": [
+        {
+          "id": "DYNAMIC-t",
+          "type": "DYNAMIC",
+          "children": [],
+          "meta": {
+            "componentKey": "auradata-shape",
+            "width": 4,
+            "height": 4,
+            "auradataElement": {
+              "kind": "shape",
+              "shape": "rectangle",
+              "text": "Adiós"
+            },
+            "auradataFormat": {
+              "title": {
+                "template": "Mine"
+              }
+            }
+          }
+        },
+        {
+          "sourceId": "DYNAMIC-s",
+          "source": "shape",
+          "box": {
+            "background": "#eee",
+            "title": {
+              "size": 12
+            }
+          },
+          "style": {
+            "kind": "shape",
+            "fill": {
+              "type": "solid",
+              "color": "#2563EB"
+            },
+            "radius": 4
+          }
+        }
+      ],
+      "expected": {
+        "componentKey": "auradata-shape",
+        "width": 4,
+        "height": 4,
+        "auradataElement": {
+          "kind": "shape",
+          "shape": "rectangle",
+          "text": "Adiós",
+          "fill": {
+            "type": "solid",
+            "color": "#2563EB"
+          },
+          "radius": 4
+        },
+        "auradataFormat": {
+          "background": "#eee",
+          "title": {
+            "size": 12,
+            "template": "Mine"
+          }
+        }
+      }
+    },
+    {
+      "name": "shape onto chart",
+      "args": [
+        {
+          "id": "CHART-b",
+          "type": "CHART",
+          "children": [],
+          "meta": {
+            "chartId": 2,
+            "width": 10,
+            "height": 8,
+            "auradataFormat": {
+              "title": {
+                "subtitle": "Mine",
+                "size": 20
+              },
+              "chart": {
+                "series_colors": {
+                  "Z": "#00f"
+                },
+                "show_legend": true
+              }
+            }
+          }
+        },
+        {
+          "sourceId": "DYNAMIC-s",
+          "source": "shape",
+          "box": {
+            "background": "#eee",
+            "title": {
+              "size": 12
+            }
+          },
+          "style": {
+            "kind": "shape",
+            "fill": {
+              "type": "solid",
+              "color": "#2563EB"
+            },
+            "radius": 4
+          }
+        }
+      ],
+      "expected": {
+        "chartId": 2,
+        "width": 10,
+        "height": 8,
+        "auradataFormat": {
+          "background": "#eee",
+          "title": {
+            "size": 12,
+            "subtitle": "Mine"
+          },
+          "chart": {
+            "series_colors": {
+              "Z": "#00f"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "chart onto image",
+      "args": [
+        {
+          "id": "DYNAMIC-i",
+          "type": "DYNAMIC",
+          "children": [],
+          "meta": {
+            "componentKey": "auradata-image",
+            "width": 4,
+            "height": 4,
+            "auradataElement": {
+              "kind": "image",
+              "src": "/x.png",
+              "alt": "X",
+              "opacity": 50
+            }
+          }
+        },
+        {
+          "sourceId": "CHART-a",
+          "source": "chart",
+          "box": {
+            "background": "#fff",
+            "title": {
+              "show": true,
+              "size": 16,
+              "template": "{chart}"
+            },
+            "chart": {
+              "show_legend": false,
+              "color_scheme": "auradata"
+            }
+          }
+        }
+      ],
+      "expected": {
+        "componentKey": "auradata-image",
+        "width": 4,
+        "height": 4,
+        "auradataElement": {
+          "kind": "image",
+          "src": "/x.png",
+          "alt": "X",
+          "opacity": 50
+        },
+        "auradataFormat": {
+          "background": "#fff",
+          "title": {
+            "show": true,
+            "size": 16,
+            "template": "{chart}"
+          },
+          "chart": {
+            "show_legend": false,
+            "color_scheme": "auradata"
+          }
+        }
+      }
+    },
+    {
+      "name": "empty box clears",
+      "args": [
+        {
+          "id": "CHART-b",
+          "type": "CHART",
+          "children": [],
+          "meta": {
+            "chartId": 2,
+            "width": 10,
+            "height": 8,
+            "auradataFormat": {
+              "title": {
+                "subtitle": "Mine",
+                "size": 20
+              },
+              "chart": {
+                "series_colors": {
+                  "Z": "#00f"
+                },
+                "show_legend": true
+              }
+            }
+          }
+        },
+        {
+          "sourceId": "x",
+          "source": "chart"
+        }
+      ],
+      "expected": {
+        "chartId": 2,
+        "width": 10,
+        "height": 8,
+        "auradataFormat": {
+          "title": {
+            "subtitle": "Mine"
+          },
+          "chart": {
+            "series_colors": {
+              "Z": "#00f"
+            }
+          }
+        }
+      }
+    }
+  ]
+}

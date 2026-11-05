@@ -35,6 +35,12 @@ import { columnCountOf } from './columns';
 import { mobileLayoutOf, mobileSizeOf } from './mobileLayout';
 import { clampToPage, freeCell, layoutToPositions, placeAt } from './positions';
 import { canvasSize, mergeVisualFormat } from './styles';
+import {
+  ownFormat,
+  sharableFormat,
+  withOwnFormat,
+} from './chartFormatSettings';
+import { formatOf, pastedMeta } from './formatPainter';
 
 const REPO = join(__dirname, '..', '..', '..', '..');
 const FIXTURES = join(REPO, 'tests', 'fixtures', 'auradata', 'layouts');
@@ -52,6 +58,11 @@ const FUNCTIONS: Record<string, Fn> = {
   clampToPage: clampToPage as Fn,
   placeAt: placeAt as Fn,
   mergeVisualFormat: mergeVisualFormat as Fn,
+  sharableFormat: sharableFormat as Fn,
+  ownFormat: ownFormat as Fn,
+  withOwnFormat: withOwnFormat as Fn,
+  formatOf: formatOf as Fn,
+  pastedMeta: pastedMeta as Fn,
   mobileLayoutOf: mobileLayoutOf as Fn,
   mobileSizeOf: ((item: LayoutItem | null) =>
     mobileSizeOf(item ?? undefined)) as Fn,

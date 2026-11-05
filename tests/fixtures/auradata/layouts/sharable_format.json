@@ -1,0 +1,108 @@
+{
+  "fn": "sharableFormat",
+  "cases": [
+    {
+      "name": "none",
+      "args": [
+        null
+      ],
+      "expected": null
+    },
+    {
+      "name": "empty",
+      "args": [
+        {}
+      ],
+      "expected": {}
+    },
+    {
+      "name": "full",
+      "args": [
+        {
+          "background": "#fff",
+          "radius": 6,
+          "link": {
+            "show": true,
+            "action": {
+              "type": "url",
+              "url": "https://auradata.mx"
+            }
+          },
+          "actionButton": {
+            "show": true,
+            "text": "Ver"
+          },
+          "title": {
+            "show": true,
+            "size": 16,
+            "subtitle": "Por mes",
+            "template": "{chart}"
+          },
+          "header": {
+            "menu": false,
+            "tooltip": {
+              "text": "Ayuda",
+              "color": "#111"
+            }
+          },
+          "chart": {
+            "show_legend": false,
+            "series_colors": {
+              "A": "#f00"
+            },
+            "x_axis_title": "Mes",
+            "color_scheme": "auradata"
+          }
+        }
+      ],
+      "expected": {
+        "background": "#fff",
+        "radius": 6,
+        "title": {
+          "show": true,
+          "size": 16,
+          "template": "{chart}"
+        },
+        "header": {
+          "menu": false,
+          "tooltip": {
+            "color": "#111"
+          }
+        },
+        "chart": {
+          "show_legend": false,
+          "color_scheme": "auradata"
+        }
+      }
+    },
+    {
+      "name": "only own chart settings",
+      "args": [
+        {
+          "chart": {
+            "series_colors": {
+              "A": "#f00"
+            }
+          }
+        }
+      ],
+      "expected": {}
+    },
+    {
+      "name": "empty subtitle is dropped",
+      "args": [
+        {
+          "title": {
+            "subtitle": "",
+            "size": 3
+          }
+        }
+      ],
+      "expected": {
+        "title": {
+          "size": 3
+        }
+      }
+    }
+  ]
+}

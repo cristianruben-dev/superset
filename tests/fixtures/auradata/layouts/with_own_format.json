@@ -1,0 +1,95 @@
+{
+  "fn": "withOwnFormat",
+  "cases": [
+    {
+      "name": "no own",
+      "args": [
+        {
+          "radius": 4
+        },
+        null
+      ],
+      "expected": {
+        "radius": 4
+      }
+    },
+    {
+      "name": "no shared",
+      "args": [
+        null,
+        {
+          "title": {
+            "subtitle": "x"
+          }
+        }
+      ],
+      "expected": {
+        "title": {
+          "subtitle": "x"
+        }
+      }
+    },
+    {
+      "name": "own over shared",
+      "args": [
+        {
+          "radius": 4,
+          "title": {
+            "size": 12,
+            "subtitle": "s"
+          },
+          "header": {
+            "menu": false,
+            "tooltip": {
+              "color": "#000"
+            }
+          },
+          "chart": {
+            "show_legend": true
+          }
+        },
+        {
+          "title": {
+            "subtitle": "mine"
+          },
+          "header": {
+            "tooltip": {
+              "text": "t"
+            }
+          },
+          "chart": {
+            "series_colors": {
+              "B": "#0f0"
+            }
+          },
+          "link": {
+            "show": true
+          }
+        }
+      ],
+      "expected": {
+        "radius": 4,
+        "title": {
+          "size": 12,
+          "subtitle": "mine"
+        },
+        "header": {
+          "menu": false,
+          "tooltip": {
+            "color": "#000",
+            "text": "t"
+          }
+        },
+        "chart": {
+          "show_legend": true,
+          "series_colors": {
+            "B": "#0f0"
+          }
+        },
+        "link": {
+          "show": true
+        }
+      }
+    }
+  ]
+}

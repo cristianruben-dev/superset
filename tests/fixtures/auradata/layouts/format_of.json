@@ -1,0 +1,175 @@
+{
+  "fn": "formatOf",
+  "cases": [
+    {
+      "name": "chart",
+      "args": [
+        {
+          "id": "CHART-a",
+          "type": "CHART",
+          "children": [],
+          "meta": {
+            "chartId": 1,
+            "width": 10,
+            "height": 8,
+            "auradataFormat": {
+              "background": "#fff",
+              "radius": 6,
+              "link": {
+                "show": true,
+                "action": {
+                  "type": "url",
+                  "url": "https://auradata.mx"
+                }
+              },
+              "actionButton": {
+                "show": true,
+                "text": "Ver"
+              },
+              "title": {
+                "show": true,
+                "size": 16,
+                "subtitle": "Por mes",
+                "template": "{chart}"
+              },
+              "header": {
+                "menu": false,
+                "tooltip": {
+                  "text": "Ayuda",
+                  "color": "#111"
+                }
+              },
+              "chart": {
+                "show_legend": false,
+                "series_colors": {
+                  "A": "#f00"
+                },
+                "x_axis_title": "Mes",
+                "color_scheme": "auradata"
+              }
+            }
+          }
+        }
+      ],
+      "expected": {
+        "sourceId": "CHART-a",
+        "source": "chart",
+        "box": {
+          "background": "#fff",
+          "radius": 6,
+          "title": {
+            "show": true,
+            "size": 16,
+            "template": "{chart}"
+          },
+          "header": {
+            "menu": false,
+            "tooltip": {
+              "color": "#111"
+            }
+          },
+          "chart": {
+            "show_legend": false,
+            "color_scheme": "auradata"
+          }
+        }
+      }
+    },
+    {
+      "name": "shape",
+      "args": [
+        {
+          "id": "DYNAMIC-s",
+          "type": "DYNAMIC",
+          "children": [],
+          "meta": {
+            "componentKey": "auradata-shape",
+            "width": 4,
+            "height": 4,
+            "auradataElement": {
+              "kind": "shape",
+              "shape": "ellipse",
+              "text": "Hola",
+              "fill": {
+                "type": "solid",
+                "color": "#2563EB"
+              },
+              "radius": 4
+            },
+            "auradataFormat": {
+              "title": {
+                "template": "Shape title",
+                "size": 12
+              },
+              "background": "#eee"
+            }
+          }
+        }
+      ],
+      "expected": {
+        "sourceId": "DYNAMIC-s",
+        "source": "shape",
+        "box": {
+          "title": {
+            "size": 12
+          },
+          "background": "#eee"
+        },
+        "style": {
+          "kind": "shape",
+          "fill": {
+            "type": "solid",
+            "color": "#2563EB"
+          },
+          "radius": 4
+        }
+      }
+    },
+    {
+      "name": "image",
+      "args": [
+        {
+          "id": "DYNAMIC-i",
+          "type": "DYNAMIC",
+          "children": [],
+          "meta": {
+            "componentKey": "auradata-image",
+            "width": 4,
+            "height": 4,
+            "auradataElement": {
+              "kind": "image",
+              "src": "/x.png",
+              "alt": "X",
+              "opacity": 50
+            }
+          }
+        }
+      ],
+      "expected": {
+        "sourceId": "DYNAMIC-i",
+        "source": "image",
+        "style": {
+          "kind": "image",
+          "opacity": 50
+        }
+      }
+    },
+    {
+      "name": "plain chart",
+      "args": [
+        {
+          "id": "CHART-c",
+          "type": "CHART",
+          "children": [],
+          "meta": {
+            "chartId": 3
+          }
+        }
+      ],
+      "expected": {
+        "sourceId": "CHART-c",
+        "source": "chart"
+      }
+    }
+  ]
+}
