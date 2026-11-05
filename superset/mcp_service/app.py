@@ -197,6 +197,18 @@ Report Elements and Slicers (AuraData BI):
 get_format_options with element=<kind> lists an element's settings. Buttons go to a
 page, a bookmark, back or an address; pictures arrive as base64, never an address.
 
+Report Interactivity (AuraData BI):
+- manage_native_filters scope_level / scope_pages: Filter bar levels (all pages,
+  some pages, some visuals)
+- set_filter_bar_auto_apply: Filters apply at once, or on Apply
+- get_filter_defaults: The values "Reset filters" brings back
+- list_bookmarks / create_bookmark / update_bookmark / delete_bookmark: Saved
+  views (page, filter selections, shown objects); buttons go to them
+- set_drillthrough_page / clear_drillthrough_page: Pages a data point drills to
+- set_visual_interactions: Whether a chart's cross-filters reach each other chart
+- sync_slicer: The pages a slicer filters and the pages that show it
+- make_tooltip_page / set_visual_tooltip: Report pages as the tooltip of marks
+
 Tag Management:
 - list_tags: List tags with advanced filters (1-based pagination)
 - get_tag_info: Get detailed tag information by ID
@@ -884,17 +896,23 @@ from superset.mcp_service.report_layout.tool import (  # noqa: F401, E402
     align_objects,
     bring_to_front,
     change_visual_dataset,
+    clear_drillthrough_page,
     copy_format,
+    create_bookmark,
     create_visual,
+    delete_bookmark,
     delete_page,
     distribute_objects,
     duplicate_page,
     format_element,
     format_slicer,
     format_visual,
+    get_filter_defaults,
     get_format_options,
     get_report_structure,
     get_visual_fields,
+    list_bookmarks,
+    make_tooltip_page,
     move_object,
     place_object,
     remove_element,
@@ -903,11 +921,17 @@ from superset.mcp_service.report_layout.tool import (  # noqa: F401, E402
     resize_object,
     set_canvas_format,
     set_dashboard_css,
+    set_drillthrough_page,
+    set_filter_bar_auto_apply,
     set_object_state,
     set_page_hidden,
     set_shared_visual_format,
     set_visual_fields,
+    set_visual_interactions,
     set_visual_sort,
+    set_visual_tooltip,
+    sync_slicer,
+    update_bookmark,
     update_element,
     update_slicer,
     upload_dashboard_background,

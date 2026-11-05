@@ -32,6 +32,7 @@ from superset.auradata.layout.format_patch import (
     merge_patch,
     ReportRefs,
 )
+from superset.auradata.layout.interactivity import tooltip_pages
 from superset.mcp_service.report_layout.editing import (
     append_in_new_row,
     LayoutEditError,
@@ -51,6 +52,7 @@ def report_refs(report: Report) -> ReportRefs:
     return ReportRefs(
         pages={p for p in page_ids(report.layout) if p != keys.GRID_ID},
         bookmarks={b.get("id") for b in bookmarks if isinstance(b, dict)},
+        tooltip_pages=set(tooltip_pages(report.layout)),
     )
 
 

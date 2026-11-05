@@ -31,7 +31,13 @@ from superset.auradata.layout import (
     page_title,
     visual_format_of,
 )
+from superset.auradata.layout.interactivity import filter_scope_level
 from superset.mcp_service.report_layout.editing import box, Report
+from superset.mcp_service.report_layout.interactivity import (
+    auto_apply_of,
+    dashboard_metadata,
+    excluded_interactions,
+)
 from superset.mcp_service.report_layout.schemas import (
     BookmarkSummary,
     CanvasSummary,
@@ -122,7 +128,16 @@ def _filter_summary(item: dict[str, Any]) -> FilterSummary:
             if isinstance(root, str) and root != keys.ROOT_ID
         ],
         excluded_charts=[c for c in scope.get("excluded") or [] if isinstance(c, int)],
+        level=filter_scope_level(item),
     )
+
+
+def _tooltip_of(layout: dict[str, Any], component_id: str) -> dict[str, Any] | None:
+    """The tooltip setting of a chart, its own over the shared one."""
+    if (layout.get(component_id) or {}).get("type") != keys.CHART_TYPE:
+        return None
+    setting = (visual_format_of(layout, component_id) or {}).get("tooltipPage")
+    return setting if isinstance(setting, dict) and setting else None
 
 
 def build_structure(report: Report, include_format: bool = True) -> ReportStructure:
@@ -158,6 +173,7 @@ def build_structure(report: Report, include_format: bool = True) -> ReportStruct
                     hidden=bool(item_meta.get(keys.HIDDEN_KEY)),
                     locked=bool(item_meta.get(keys.LOCKED_KEY)),
                     alt_text=item_meta.get(keys.ALT_TEXT_KEY),
+                    tooltip_page=_tooltip_of(layout, component_id),
                     format=resolved or None,
                 )
             )
@@ -180,6 +196,7 @@ def build_structure(report: Report, include_format: bool = True) -> ReportStruct
         )
 
     canvas = canvas_format(layout) or {}
+    metadata = dashboard_metadata(dashboard)
     bookmarks = (layout.get(keys.ROOT_ID) or {}).get("meta", {}).get(
         keys.BOOKMARKS_KEY
     ) or []
@@ -202,9 +219,15 @@ def build_structure(report: Report, include_format: bool = True) -> ReportStruct
                 name=item.get("name"),
                 page=item.get("page"),
                 options=item.get("options"),
+                filter_ids=sorted(item.get("filters") or {}),
+                hidden=sorted(
+                    cid for cid, hide in (item.get("visibility") or {}).items() if hide
+                ),
             )
             for item in bookmarks
             if isinstance(item, dict)
         ],
+        filter_bar_auto_apply=auto_apply_of(metadata),
+        interactions=excluded_interactions(metadata),
         warnings=report.warnings,
     )

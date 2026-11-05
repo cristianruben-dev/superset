@@ -53,6 +53,7 @@ from superset.auradata.layout.format_patch import (
     replace_settings,
     ReportRefs,
 )
+from superset.auradata.layout.interactivity import tooltip_pages
 from superset.extensions import event_logger
 from superset.mcp_service.report_layout.editing import (
     box,
@@ -141,6 +142,7 @@ def _refs(report: Report) -> ReportRefs:
     return ReportRefs(
         pages=set(page_ids(report.layout)),
         bookmarks={b.get("id") for b in bookmarks if isinstance(b, dict)},
+        tooltip_pages=set(tooltip_pages(report.layout)),
     )
 
 

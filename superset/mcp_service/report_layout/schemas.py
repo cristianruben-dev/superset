@@ -52,6 +52,9 @@ class ReportObject(BaseModel):
     hidden: bool = False
     locked: bool = False
     alt_text: str | None = None
+    tooltip_page: dict[str, Any] | None = Field(
+        None, description="A chart's tooltip: type default or page, and the page"
+    )
     format: dict[str, Any] | None = Field(
         None, description="Resolved format: the shared style plus its own"
     )
@@ -85,6 +88,9 @@ class FilterSummary(BaseModel):
     dataset_ids: list[int] = Field(default_factory=list)
     scope_pages: list[str] = Field(default_factory=list)
     excluded_charts: list[int] = Field(default_factory=list)
+    level: str | None = Field(
+        None, description="Filter bar section: report, page or visual"
+    )
 
 
 class BookmarkSummary(BaseModel):
@@ -92,6 +98,8 @@ class BookmarkSummary(BaseModel):
     name: str | None = None
     page: str | None = None
     options: dict[str, Any] | None = None
+    filter_ids: list[str] = Field(default_factory=list)
+    hidden: list[str] = Field(default_factory=list, description="Objects it hides")
 
 
 class ReportStructure(BaseModel):
@@ -102,6 +110,13 @@ class ReportStructure(BaseModel):
     pages: list[PageSummary]
     filters: list[FilterSummary]
     bookmarks: list[BookmarkSummary]
+    filter_bar_auto_apply: bool = Field(
+        True, description="Filters apply at once (false: on Apply)"
+    )
+    interactions: dict[str, list[int]] = Field(
+        default_factory=dict,
+        description="Charts each chart's cross-filters leave alone, by chart id",
+    )
     warnings: list[str] = Field(default_factory=list)
 
 

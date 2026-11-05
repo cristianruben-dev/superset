@@ -2147,6 +2147,14 @@ class DeleteDashboardResponse(BaseModel):
 # ---------------------------------------------------------------------------
 
 
+FilterScopeLevel = Literal["report", "page", "visual", "auto"]
+_SCOPE_LEVEL = (
+    "Filter bar section: report (all pages), page (scope_pages), visual "
+    "(scope_chart_ids) or auto (from the scope)"
+)
+_SCOPE_PAGES = "Pages (id, name or position) whose charts it filters"
+
+
 class BaseNewFilterSpec(BaseModel):
     """Common fields shared by all new native filter specs."""
 
@@ -2160,6 +2168,8 @@ class BaseNewFilterSpec(BaseModel):
             "charts that are on the dashboard."
         ),
     )
+    scope_level: FilterScopeLevel | None = Field(None, description=_SCOPE_LEVEL)
+    scope_pages: List[int | str] | None = Field(None, description=_SCOPE_PAGES)
 
 
 class FilterSelectSpec(BaseNewFilterSpec):
@@ -2275,6 +2285,8 @@ class NativeFilterUpdateSpec(BaseModel):
             "scope. All IDs must belong to charts on the dashboard."
         ),
     )
+    scope_level: FilterScopeLevel | None = Field(None, description=_SCOPE_LEVEL)
+    scope_pages: List[int | str] | None = Field(None, description=_SCOPE_PAGES)
 
     @field_validator("default_time_range")
     @classmethod

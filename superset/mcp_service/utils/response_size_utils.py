@@ -487,6 +487,16 @@ COMMITTED_WRITE_SPECS: Dict[str, CommittedWriteSpec] = {
     "remove_element": _spec("dashboard", "dashboard_id"),
     "update_element": _spec("dashboard", "dashboard_id"),
     "update_slicer": _spec("dashboard", "dashboard_id"),
+    "clear_drillthrough_page": _spec("dashboard", "dashboard_id"),
+    "create_bookmark": _spec("dashboard", "dashboard_id"),
+    "delete_bookmark": _spec("dashboard", "dashboard_id"),
+    "make_tooltip_page": _spec("dashboard", "dashboard_id"),
+    "set_drillthrough_page": _spec("dashboard", "dashboard_id"),
+    "set_filter_bar_auto_apply": _spec("dashboard", "dashboard_id"),
+    "set_visual_interactions": _spec("dashboard", "dashboard_id"),
+    "set_visual_tooltip": _spec("dashboard", "dashboard_id"),
+    "sync_slicer": _spec("dashboard", "dashboard_id"),
+    "update_bookmark": _spec("dashboard", "dashboard_id"),
 }
 
 COMMITTED_WRITE_TOOLS = frozenset(COMMITTED_WRITE_SPECS)

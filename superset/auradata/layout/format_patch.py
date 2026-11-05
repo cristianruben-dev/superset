@@ -55,6 +55,8 @@ class ReportRefs:
 
     pages: set[str] = field(default_factory=set)
     bookmarks: set[str] = field(default_factory=set)
+    #: Pages that are tooltips, the only ones a chart's tooltip shows
+    tooltip_pages: set[str] | None = None
 
 
 _HEX = re.compile(r"^#(?:[0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$")
@@ -477,6 +479,12 @@ def check_general_patch(
         refs,
         problems,
     )
+    page = (box.get("tooltipPage") or {}).get("page")
+    if refs.tooltip_pages is not None and page and page not in refs.tooltip_pages:
+        problems.append(
+            f"tooltipPage.page: {page!r} is not a tooltip page; tooltip pages: "
+            f"{sorted(refs.tooltip_pages)}"
+        )
     if problems:
         raise FormatPatchError(problems)
     return box, chart
