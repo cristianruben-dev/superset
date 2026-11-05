@@ -46,6 +46,8 @@ export interface FetchActivityOptions {
   include?: ActivityInclude;
   page?: number;
   pageSize?: number;
+  /** Keep only the saves of the AI assistant. */
+  onlyAssistant?: boolean;
   /**
    * Case-insensitive free-text search over the full history (not just the
    * loaded pages) — the server filters before paginating, so `count`
@@ -57,7 +59,13 @@ export interface FetchActivityOptions {
 export async function fetchActivity(
   entityType: VersionedEntityType,
   uuid: string,
-  { include = 'all', page = 0, pageSize = 25, q }: FetchActivityOptions = {},
+  {
+    include = 'all',
+    page = 0,
+    pageSize = 25,
+    q,
+    onlyAssistant = false,
+  }: FetchActivityOptions = {},
 ): Promise<ActivityResponse> {
   const params = new URLSearchParams({
     include,
@@ -67,6 +75,9 @@ export async function fetchActivity(
   const trimmedQ = q?.trim();
   if (trimmedQ) {
     params.set('q', trimmedQ);
+  }
+  if (onlyAssistant) {
+    params.set('by', 'assistant');
   }
   const { json } = await SupersetClient.get({
     endpoint: `/api/v1/${API_RESOURCE[entityType]}/${encodeURIComponent(uuid)}/activity/?${params.toString()}`,

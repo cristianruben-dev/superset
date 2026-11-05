@@ -341,6 +341,11 @@ export default function SaveGroupItem({
             {currentTag}
           </HeadlineRow>
           <Meta>{meta}</Meta>
+          {group.assistantModel && (
+            <Meta data-test="version-assistant-mark">
+              {t('Done by the assistant (%s)', group.assistantModel)}
+            </Meta>
+          )}
         </HeaderText>
         <GroupKebab
           entityType={entityType}

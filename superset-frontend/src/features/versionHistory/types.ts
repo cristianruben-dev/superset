@@ -173,6 +173,8 @@ export interface SaveGroup {
    * to, read from the synthetic `__meta__` headline record's `to_value`.
    */
   restoredToVersion?: number | null;
+  /** The model, when the AI assistant made this save. */
+  assistantModel?: string;
   /**
    * Set when the save touched dashboard layout containers (rows, columns,
    * the tab strip) that were dropped from the change list as scaffolding.

@@ -76,6 +76,8 @@ export function useVersionActivity(
   // loaded pages). Pass the already-debounced term; an empty/whitespace
   // value omits the filter.
   q = '',
+  // Keeps only the saves of the AI assistant, on the server like the search.
+  onlyAssistant = false,
 ): UseVersionActivityResult {
   const [records, setRecords] = useState<ActivityRecord[]>([]);
   const [newestGroup, setNewestGroup] = useState<SaveGroup | null>(null);
@@ -192,7 +194,7 @@ export function useVersionActivity(
         }
       }
     },
-    [entityType, uuid, include, q],
+    [entityType, uuid, include, q, onlyAssistant],
   );
 
   useEffect(() => {
@@ -254,7 +256,7 @@ export function useVersionActivity(
         setIsLoading(false);
       }
     }
-  }, [applyRecords, count, entityType, include, page, q, uuid]);
+  }, [applyRecords, count, entityType, include, onlyAssistant, page, q, uuid]);
 
   const refresh = useCallback(() => {
     fetchPage(0, true);

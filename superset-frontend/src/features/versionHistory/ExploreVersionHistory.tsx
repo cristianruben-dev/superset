@@ -162,11 +162,13 @@ export default function ExploreVersionHistory() {
   // doesn't refetch.
   const [searchTerm, setSearchTerm] = useState('');
   const debouncedSearch = useDebounceValue(searchTerm);
+  const [onlyAssistant, setOnlyAssistant] = useState(false);
   const activity = useVersionActivity(
     'chart',
     isPanelOpen ? uuid : undefined,
     include,
     debouncedSearch,
+    onlyAssistant,
   );
 
   const { requestRestore, openAsNew, restoreModal } = useVersionActions(
@@ -347,6 +349,8 @@ export default function ExploreVersionHistory() {
           activity={activity}
           include={include}
           onIncludeChange={handleIncludeChange}
+          onlyAssistant={onlyAssistant}
+          onOnlyAssistantChange={setOnlyAssistant}
           searchTerm={searchTerm}
           onSearchChange={setSearchTerm}
           previewedTransactionId={preview?.transactionId ?? null}

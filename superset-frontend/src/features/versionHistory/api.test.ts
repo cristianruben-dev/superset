@@ -96,6 +96,19 @@ test('fetchActivity forwards a trimmed q filter', async () => {
   expect(url.searchParams.get('q')).toBe('revenue');
 });
 
+test('fetchActivity asks the server for the saves of the assistant', async () => {
+  fetchMock.get(ACTIVITY_ENDPOINT, { result: [], count: 0 });
+
+  await fetchActivity('chart', 'chart-uuid', { onlyAssistant: true });
+  await fetchActivity('chart', 'chart-uuid');
+
+  const [only, all] = fetchMock.callHistory
+    .calls(ACTIVITY_ENDPOINT)
+    .map(call => new URL(call.url).searchParams);
+  expect(only.get('by')).toBe('assistant');
+  expect(all.has('by')).toBe(false);
+});
+
 test('fetchActivity omits q when it is whitespace only', async () => {
   fetchMock.get(ACTIVITY_ENDPOINT, { result: [], count: 0 });
 

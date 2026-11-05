@@ -29,6 +29,10 @@ import {
 } from 'src/components/ListView';
 import { Typography } from '@superset-ui/core/components';
 import { fetchUserOptions } from 'src/features/groups/utils';
+import {
+  ASSISTANT_ACTION,
+  actionLabel,
+} from 'src/auradata/assistant/actionMark';
 
 export type ActionLogObject = {
   user: {
@@ -83,6 +87,16 @@ function ActionLogList() {
           page: number,
           pageSize: number,
         ) => fetchUserOptions(filterValue, page, pageSize, addDangerToast),
+      },
+      {
+        Header: t('Done by'),
+        key: 'done_by',
+        id: 'action',
+        urlDisplay: 'done_by',
+        input: 'select',
+        operator: ListViewFilterOperator.Equals,
+        unfilteredLabel: t('All'),
+        selects: [{ label: t('The assistant'), value: ASSISTANT_ACTION }],
       },
       {
         Header: t('Dashboard Id'),
@@ -145,9 +159,9 @@ function ActionLogList() {
         Header: t('Action'),
         Cell: ({
           row: {
-            original: { action },
+            original: { action, json },
           },
-        }: any) => <span title={action}>{action}</span>,
+        }: any) => <span title={action}>{actionLabel(action, json)}</span>,
       },
       {
         accessor: 'user',

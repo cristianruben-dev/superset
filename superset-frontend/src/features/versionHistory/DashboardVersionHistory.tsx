@@ -122,11 +122,13 @@ export default function DashboardVersionHistory() {
   // doesn't refetch.
   const [searchTerm, setSearchTerm] = useState('');
   const debouncedSearch = useDebounceValue(searchTerm);
+  const [onlyAssistant, setOnlyAssistant] = useState(false);
   const activity = useVersionActivity(
     'dashboard',
     isPanelOpen ? uuid : undefined,
     include,
     debouncedSearch,
+    onlyAssistant,
   );
 
   useDashboardVersionPreview(uuid);
@@ -258,6 +260,8 @@ export default function DashboardVersionHistory() {
         activity={activity}
         include={include}
         onIncludeChange={handleIncludeChange}
+        onlyAssistant={onlyAssistant}
+        onOnlyAssistantChange={setOnlyAssistant}
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}
         previewedTransactionId={preview?.transactionId ?? null}

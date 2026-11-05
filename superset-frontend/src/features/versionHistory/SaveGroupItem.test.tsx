@@ -225,3 +225,11 @@ test.each<{ entityType: VersionedEntityType; isCurrent: boolean }>([
     expect(screen.getAllByTestId('version-history-action-row')).toHaveLength(2);
   },
 );
+
+test('a save of the assistant says so, with its model', () => {
+  renderItem({ group: makeGroup({ assistantModel: 'claude-sonnet-5-5' }) });
+
+  expect(
+    screen.getByText('Done by the assistant (claude-sonnet-5-5)'),
+  ).toBeInTheDocument();
+});

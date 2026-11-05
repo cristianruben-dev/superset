@@ -524,3 +524,17 @@ test('exactly one group is highlighted: the previewed one while previewing, else
   rerender(<VersionHistoryPanel {...props} previewedTransactionId={null} />);
   expect(groupBackgrounds()).toEqual([activeBg, restingBg]);
 });
+
+test('the panel offers the saves of the assistant alone', async () => {
+  const onOnlyAssistantChange = jest.fn();
+  render(
+    <VersionHistoryPanel
+      {...defaultProps([])}
+      onOnlyAssistantChange={onOnlyAssistantChange}
+    />,
+  );
+
+  await userEvent.click(screen.getByText('Only what the assistant did'));
+
+  expect(onOnlyAssistantChange).toHaveBeenCalledWith(true);
+});

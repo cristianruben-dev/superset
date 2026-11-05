@@ -438,3 +438,26 @@ test('recordKey separates same-path records that differ only by value', () => {
   expect(recordKey(first)).not.toBe(recordKey(second));
   expect(mergeActivityPages([first], [second])).toHaveLength(2);
 });
+
+test('buildTimeline tags a save of the assistant and keeps the mark off the list', () => {
+  const change = record({ transaction_id: 20 });
+  const mark = record({
+    transaction_id: 20,
+    kind: '__agent__',
+    operation: 'announce',
+    path: ['__agent__'],
+    from_value: null,
+    to_value: { assistant_model: 'claude-sonnet-5-5' },
+  });
+
+  const [group] = buildTimeline([mark, change]) as SaveGroup[];
+
+  expect(group.assistantModel).toBe('claude-sonnet-5-5');
+  expect(group.records).toEqual([change]);
+});
+
+test('buildTimeline leaves a save of a person without a tag', () => {
+  const [group] = buildTimeline([record({})]) as SaveGroup[];
+
+  expect(group.assistantModel).toBeUndefined();
+});

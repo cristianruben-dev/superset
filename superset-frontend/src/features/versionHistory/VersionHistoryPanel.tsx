@@ -22,6 +22,7 @@ import { styled } from '@apache-superset/core/theme';
 import { Alert } from '@apache-superset/core/components';
 import {
   Button,
+  Checkbox,
   EmptyState,
   Icons,
   Input,
@@ -87,6 +88,12 @@ const Controls = styled.div`
   `}
 `;
 
+const OnlyAssistant = styled.div`
+  ${({ theme }) => `
+    padding: 0 ${theme.sizeUnit * 6}px ${theme.sizeUnit * 3}px;
+  `}
+`;
+
 const Body = styled.div`
   ${({ theme }) => `
     flex: 1;
@@ -141,6 +148,9 @@ export interface VersionHistoryPanelProps {
    */
   canRestore?: boolean;
   onIncludeChange: (include: ActivityInclude) => void;
+  /** Keep only the saves of the AI assistant. The server filters them. */
+  onlyAssistant?: boolean;
+  onOnlyAssistantChange?: (only: boolean) => void;
   /**
    * Free-text search is controlled by the container, which debounces it
    * and feeds it to the activity hook so the server filters the full
@@ -166,6 +176,8 @@ export default function VersionHistoryPanel({
   include,
   canRestore = false,
   onIncludeChange,
+  onlyAssistant = false,
+  onOnlyAssistantChange,
   searchTerm,
   onSearchChange,
   previewedTransactionId,
@@ -203,7 +215,7 @@ export default function VersionHistoryPanel({
     [entityType],
   );
 
-  const hasSearch = searchTerm.trim().length > 0;
+  const hasSearch = searchTerm.trim().length > 0 || onlyAssistant;
 
   // The newest self save IS the live state: it gets a "Current" tag,
   // no preview affordances, and no restore action. The newest save
@@ -259,6 +271,17 @@ export default function VersionHistoryPanel({
           options={includeOptions}
         />
       </Controls>
+      {onOnlyAssistantChange && (
+        <OnlyAssistant>
+          <Checkbox
+            checked={onlyAssistant}
+            onChange={event => onOnlyAssistantChange(event.target.checked)}
+            data-test="version-history-only-assistant"
+          >
+            {t('Only what the assistant did')}
+          </Checkbox>
+        </OnlyAssistant>
+      )}
       <Body>
         <CurrentVersionSection
           entries={sessionEntries}

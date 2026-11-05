@@ -208,11 +208,18 @@ export function buildTimeline(records: ActivityRecord[]): TimelineEntry[] {
       }
       // The synthetic __meta__ headline (operation 'announce') is an
       // annotation, not a user edit: keep it out of the change list. For a
-      // restore it carries the target version number for the headline.
+      // restore it carries the target version number for the headline, and
+      // the __agent__ record names the model when the AI assistant saved.
       if (record.kind === '__meta__' || record.operation === 'announce') {
-        const meta = record.to_value as { version_number?: number } | null;
+        const meta = record.to_value as {
+          version_number?: number;
+          assistant_model?: string;
+        } | null;
         if (meta && typeof meta.version_number === 'number') {
           group.restoredToVersion = meta.version_number;
+        }
+        if (meta?.assistant_model) {
+          group.assistantModel = meta.assistant_model;
         }
       } else if (isLayoutScaffolding(record)) {
         // Dropping a chart into empty space makes Superset spawn a new ROW;
