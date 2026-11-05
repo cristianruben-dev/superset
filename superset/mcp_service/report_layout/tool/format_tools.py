@@ -201,6 +201,32 @@ def _option_sections(
     return sections
 
 
+def _json_shapes(
+    sections: list[dict[str, Any]],
+    request: GetFormatOptionsRequest,
+    notes: list[str],
+) -> dict[str, Any]:
+    """The value shapes of the json controls an answer lists; they come with
+    a level or a section, so the whole catalog of a chart stays small."""
+    used = {
+        control["control"]
+        for section in sections
+        for control in section["controls"]
+        if control["value"] == "json"
+    }
+    described = catalog.json_shapes()
+    if not used & set(described):
+        return {}
+    if not (request.level or request.section):
+        notes.append("Shapes of json controls come with a level or a section.")
+        return {}
+    notes.append(
+        "json controls of a component listed in shapes take that value; "
+        "the others keep the value Explore saves."
+    )
+    return {name: shape for name, shape in described.items() if name in used}
+
+
 def _element_options(kind: str) -> FormatOptionsResponse:
     """The settings of a kind of design element, with a new one's defaults."""
     from superset.auradata.layout.elements import MANAGED_SETTINGS
@@ -290,10 +316,12 @@ async def get_format_options(
         }
     elif viz_type is None:
         notes.append("Pass viz_type or an object for Visual and Analytics.")
+    shapes = _json_shapes(sections, request, notes)
     return FormatOptionsResponse(
         viz_type=viz_type,
         level=request.level,
         sections=sections,
+        shapes=shapes,
         general=general,
         notes=notes,
         chart_types=[] if viz_type else catalog.chart_types(),

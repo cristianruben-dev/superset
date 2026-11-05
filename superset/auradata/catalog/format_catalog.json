@@ -2225,6 +2225,273 @@
       }
     }
   },
+  "json_shapes": {
+    "FontControl": {
+      "value": {
+        "type": "object",
+        "fields": {
+          "fontFamily": {
+            "type": "enum",
+            "values": [
+              "Inter, Helvetica, Arial, sans-serif",
+              "Arial, Helvetica, sans-serif",
+              "Helvetica, Arial, sans-serif",
+              "\"Segoe UI\", Roboto, sans-serif",
+              "Roboto, Arial, sans-serif",
+              "Verdana, Geneva, sans-serif",
+              "Tahoma, Geneva, sans-serif",
+              "\"Trebuchet MS\", Helvetica, sans-serif",
+              "Georgia, serif",
+              "\"Times New Roman\", Times, serif",
+              "\"Courier New\", Courier, monospace"
+            ]
+          },
+          "fontSize": {
+            "type": "number",
+            "min": 1
+          },
+          "bold": {
+            "type": "boolean"
+          },
+          "italic": {
+            "type": "boolean"
+          },
+          "color": {
+            "type": "string",
+            "format": "color"
+          }
+        }
+      },
+      "note": "Empty properties inherit from the theme or the element."
+    },
+    "SeriesColorsControl": {
+      "value": {
+        "type": "map",
+        "keys": "series or category name",
+        "values": {
+          "type": "string",
+          "format": "color"
+        }
+      }
+    },
+    "SeriesFormatControl": {
+      "value": {
+        "type": "map",
+        "keys": "series name",
+        "values": {
+          "type": "object",
+          "fields": {
+            "showLabels": {
+              "type": "boolean"
+            },
+            "labelColor": {
+              "type": "string",
+              "format": "color"
+            },
+            "barTransparency": {
+              "type": "number",
+              "min": 0,
+              "max": 100
+            },
+            "lineWidth": {
+              "type": "number",
+              "min": 1,
+              "max": 10
+            },
+            "lineType": {
+              "type": "enum",
+              "values": [
+                "solid",
+                "dashed",
+                "dotted"
+              ]
+            },
+            "lineInterpolation": {
+              "type": "enum",
+              "values": [
+                "linear",
+                "smooth",
+                "monotone",
+                "start",
+                "middle",
+                "end"
+              ]
+            },
+            "lineTransparency": {
+              "type": "number",
+              "min": 0,
+              "max": 100
+            },
+            "axis": {
+              "type": "enum",
+              "values": [
+                "primary",
+                "secondary"
+              ]
+            },
+            "markerEnabled": {
+              "type": "boolean"
+            },
+            "markerSymbol": {
+              "type": "enum",
+              "values": [
+                "circle",
+                "rect",
+                "triangle",
+                "diamond"
+              ]
+            },
+            "markerSize": {
+              "type": "number",
+              "min": 0,
+              "max": 100
+            }
+          }
+        }
+      },
+      "note": "Only what differs from the chart; axis \"secondary\" moves a line, area or step series to a second Y axis."
+    },
+    "ReferenceLinesControl": {
+      "value": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "fields": {
+            "id": {
+              "type": "string"
+            },
+            "show": {
+              "type": "boolean"
+            },
+            "kind": {
+              "type": "enum",
+              "values": [
+                "constant",
+                "min",
+                "max",
+                "average",
+                "median",
+                "percentile"
+              ]
+            },
+            "axis": {
+              "type": "enum",
+              "values": [
+                "value",
+                "category"
+              ]
+            },
+            "value": {
+              "type": "number"
+            },
+            "percentile": {
+              "type": "number",
+              "min": 0,
+              "max": 100
+            },
+            "series": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            },
+            "color": {
+              "type": "string",
+              "format": "color"
+            },
+            "width": {
+              "type": "number",
+              "min": 0
+            },
+            "style": {
+              "type": "enum",
+              "values": [
+                "solid",
+                "dashed",
+                "dotted"
+              ]
+            },
+            "dash": {
+              "type": "string"
+            },
+            "cap": {
+              "type": "enum",
+              "values": [
+                "butt",
+                "round",
+                "square"
+              ]
+            },
+            "transparency": {
+              "type": "number",
+              "min": 0,
+              "max": 100
+            },
+            "behind": {
+              "type": "boolean"
+            },
+            "label": {
+              "type": "boolean"
+            },
+            "labelText": {
+              "type": "string"
+            },
+            "labelColor": {
+              "type": "string",
+              "format": "color"
+            },
+            "labelPosition": {
+              "type": "enum",
+              "values": [
+                "start",
+                "middle",
+                "end"
+              ]
+            },
+            "labelAbove": {
+              "type": "boolean"
+            },
+            "labelUnits": {
+              "type": "string"
+            },
+            "labelDecimals": {
+              "type": "number",
+              "min": 0,
+              "integer": true
+            },
+            "shade": {
+              "type": "enum",
+              "values": [
+                "none",
+                "before",
+                "after"
+              ]
+            },
+            "shadeColor": {
+              "type": "string",
+              "format": "color"
+            },
+            "shadeTransparency": {
+              "type": "number",
+              "min": 0,
+              "max": 100
+            }
+          }
+        }
+      },
+      "note": "value is a number, or a date for axis \"category\"; kind other than constant is calculated from series (all when empty)."
+    },
+    "BoundsControl": {
+      "value": {
+        "type": "array",
+        "items": {
+          "type": "number"
+        },
+        "length": 2
+      },
+      "note": "[min, max]; null leaves a bound to the data."
+    }
+  },
   "charts": {
     "big_number": {
       "sections": [

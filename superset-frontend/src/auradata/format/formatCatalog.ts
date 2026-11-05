@@ -28,6 +28,7 @@ import {
 } from './formatCards';
 import { elementCatalog } from '../elements/elementSpec';
 import { GENERAL_CHART_SETTINGS, GENERAL_FORMAT } from './generalFormat';
+import { JSON_SHAPES } from './jsonShapes';
 
 /**
  * The format catalog: per chart type, the controls the Visual and Analytics
@@ -92,6 +93,8 @@ export interface FormatCatalog {
   general_chart_settings: Json;
   /** Per kind of design element: its settings and the defaults of a new one */
   elements: Json;
+  /** The value `json` controls save, by control component */
+  json_shapes: Json;
   charts: Record<string, { sections: CatalogSection[] }>;
 }
 
@@ -220,6 +223,7 @@ export function buildFormatCatalog(vizTypes: string[]): FormatCatalog {
     general: GENERAL_FORMAT as unknown as Json,
     general_chart_settings: GENERAL_CHART_SETTINGS as unknown as Json,
     elements: elementCatalog() as unknown as Json,
+    json_shapes: JSON_SHAPES as unknown as Json,
     charts,
   };
 }

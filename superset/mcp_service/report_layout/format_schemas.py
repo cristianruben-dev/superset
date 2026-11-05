@@ -72,6 +72,10 @@ class FormatOptionsResponse(BaseModel):
     element: dict[str, Any] | None = Field(
         None, description="Settings and defaults of a kind of element"
     )
+    shapes: dict[str, Any] = Field(
+        default_factory=dict,
+        description="Value shape of json controls, by their control component",
+    )
     notes: list[str] = Field(default_factory=list)
     chart_types: list[str] = Field(default_factory=list)
     error: str | None = None

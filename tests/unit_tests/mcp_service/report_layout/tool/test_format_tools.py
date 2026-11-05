@@ -413,3 +413,48 @@ async def test_option_code_with_a_picture_of_another_site_is_refused(
     assert result["error_type"] == "InvalidFormat"
     assert "another site" in result["error"]
     assert layout(world) == before
+
+
+@pytest.mark.asyncio
+async def test_format_options_describe_the_shape_of_json_controls(
+    world: dict[str, Any],
+) -> None:
+    from superset.utils import json
+
+    as_user(world, "Vera")
+    bar = ok(
+        await call(
+            "get_format_options",
+            {"viz_type": "echarts_timeseries_bar", "level": "analytics"},
+        )
+    )
+    shapes = bar["shapes"]
+    assert "ReferenceLinesControl" in shapes
+    visual = ok(
+        await call(
+            "get_format_options",
+            {"viz_type": "echarts_timeseries_bar", "level": "visual"},
+        )
+    )
+    assert {"FontControl", "SeriesColorsControl", "SeriesFormatControl"} <= set(
+        visual["shapes"]
+    )
+    shapes = {**shapes, **visual["shapes"]}
+    assert shapes["SeriesColorsControl"]["value"]["type"] == "map"
+    line = shapes["ReferenceLinesControl"]["value"]["items"]["fields"]
+    assert line["kind"]["values"][0] == "constant"
+    assert shapes["FontControl"]["value"]["fields"]["fontSize"]["type"] == "number"
+    # Only the shapes of the controls the answer lists
+    legend = ok(
+        await call(
+            "get_format_options",
+            {"viz_type": "echarts_timeseries_bar", "section": "legend"},
+        )
+    )
+    assert "ReferenceLinesControl" not in legend["shapes"]
+    # The largest chart type stays under the response guard
+    for level in (None, "visual", "analytics"):
+        mixed = await call(
+            "get_format_options", {"viz_type": "mixed_timeseries", "level": level}
+        )
+        assert len(json.dumps(mixed)) < 50_000, level

@@ -101,3 +101,8 @@ def element_spec(kind: str) -> dict[str, Any]:
 def element_defaults(kind: str) -> dict[str, Any]:
     """Size in cells, box format and settings of a new element of a kind."""
     return load_catalog()["elements"][kind]["defaults"]
+
+
+def json_shapes() -> dict[str, Any]:
+    """The value the described ``json`` controls save, by control component."""
+    return load_catalog().get("json_shapes") or {}
