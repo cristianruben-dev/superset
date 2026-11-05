@@ -52,7 +52,7 @@ async def update_workspace(
     from superset.auradata import workspaces
 
     await ctx.info("Updating workspace: id=%s" % (request.workspace_id,))
-    changes = request.model_dump(exclude_none=True, exclude={"workspace_id"})
+    changes = request.model_dump(exclude_unset=True, exclude={"workspace_id"})
     with event_logger.log_context(action="mcp.update_workspace"):
         try:
             workspace = workspaces.update_workspace(request.workspace_id, changes)

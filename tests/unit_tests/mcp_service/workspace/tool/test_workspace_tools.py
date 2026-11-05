@@ -26,6 +26,8 @@ from sqlalchemy.orm.session import Session
 from superset.auradata.models import Workspace, WorkspaceDashboard, WorkspaceDataset
 from superset.connectors.sqla.models import SqlaTable
 from superset.models.dashboard import Dashboard
+from superset.subjects.models import Subject
+from superset.subjects.types import SubjectType
 from tests.unit_tests.mcp_service.workspace.world import (
     as_user,
     build_world,
@@ -510,3 +512,29 @@ async def test_an_admin_moves_an_unused_dataset_in(world: dict[str, Any]) -> Non
     assert result["success"] is True
     assert result["workspace"]["dataset_count"] == 2
     assert dataset_workspace(world, unused) == world["ventas_ws"].id
+
+
+@pytest.mark.asyncio
+async def test_moving_does_not_reveal_a_workspace_the_user_is_not_in(
+    world: dict[str, Any],
+) -> None:
+    """Carlos edits "Compartido", which sits in Ventas, and takes it to Finanzas."""
+    session = world["session"]
+    carlos = world["users"]["Carlos"]
+    shared = world["shared_dashboard"]
+    session.query(WorkspaceDashboard).delete()
+    session.add(
+        WorkspaceDashboard(workspace_id=world["ventas_ws"].id, dashboard_id=shared.id)
+    )
+    shared.editors = [Subject(label="carlos", type=SubjectType.USER, user_id=carlos.id)]
+    session.commit()
+
+    as_user(world, "Carlos")
+    result = await call(
+        "move_dashboard_to_workspace",
+        {"dashboard_id": shared.id, "workspace_id": world["finanzas_ws"].id},
+    )
+
+    assert result["success"] is True, result
+    assert result["previous_workspace_id"] is None
+    assert workspace_of(world, shared) == world["finanzas_ws"].id

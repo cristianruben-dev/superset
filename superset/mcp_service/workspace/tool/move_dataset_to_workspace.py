@@ -52,6 +52,7 @@ async def move_dataset_to_workspace(
     it. Sharing needs that role in the workspace it leaves.
     """
     from superset.auradata import workspaces
+    from superset.auradata.workspace_access import workspace_role
     from superset.auradata.workspace_datasets import dataset_workspace_id
     from superset.daos.dataset import DatasetDAO
 
@@ -87,7 +88,10 @@ async def move_dataset_to_workspace(
             return error_response(MoveToWorkspaceResponse, error)
     return MoveToWorkspaceResponse(
         success=True,
-        previous_workspace_id=current,
+        # Workspaces the user does not belong to stay private
+        previous_workspace_id=current
+        if current is not None and workspace_role(current)
+        else None,
         workspace=workspace,
         message=message,
     )

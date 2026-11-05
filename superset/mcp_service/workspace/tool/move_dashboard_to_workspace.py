@@ -53,6 +53,7 @@ async def move_dashboard_to_workspace(
     or move those datasets first.
     """
     from superset.auradata import workspaces
+    from superset.auradata.workspace_access import workspace_role
     from superset.auradata.workspace_datasets import dashboard_workspace_ids
     from superset.daos.dashboard import DashboardDAO
 
@@ -88,7 +89,10 @@ async def move_dashboard_to_workspace(
             return error_response(MoveToWorkspaceResponse, error)
     return MoveToWorkspaceResponse(
         success=True,
-        previous_workspace_id=current,
+        # Workspaces the user does not belong to stay private
+        previous_workspace_id=current
+        if current is not None and workspace_role(current)
+        else None,
         workspace=workspace,
         message=message,
     )
