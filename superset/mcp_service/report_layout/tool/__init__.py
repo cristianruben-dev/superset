@@ -15,7 +15,7 @@
 # specific language governing permissions and limitations
 # under the License.
 """Report structure, page, object, format, visual, element, slicer and
-interactivity tools."""
+interactivity and mobile layout tools."""
 
 from superset.mcp_service.report_layout.tool.element_tools import (
     add_element,
@@ -52,6 +52,11 @@ from superset.mcp_service.report_layout.tool.interactivity_tools import (
     set_visual_tooltip,
     sync_slicer,
     update_bookmark,
+)
+from superset.mcp_service.report_layout.tool.mobile_tools import (
+    clear_mobile_layout,
+    generate_mobile_layout,
+    set_mobile_layout,
 )
 from superset.mcp_service.report_layout.tool.object_tools import (
     align_objects,
@@ -125,4 +130,7 @@ __all__ = [
     "set_visual_tooltip",
     "sync_slicer",
     "update_bookmark",
+    "clear_mobile_layout",
+    "generate_mobile_layout",
+    "set_mobile_layout",
 ]

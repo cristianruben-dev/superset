@@ -209,6 +209,11 @@ Report Interactivity (AuraData BI):
 - sync_slicer: The pages a slicer filters and the pages that show it
 - make_tooltip_page / set_visual_tooltip: Report pages as the tooltip of marks
 
+Mobile Layout (AuraData BI):
+- generate_mobile_layout: Propose a page's phone layout (cards and slicers
+  first, charts stacked); apply=true saves it
+- set_mobile_layout / clear_mobile_layout: Explicit phone boxes, or none
+
 Tag Management:
 - list_tags: List tags with advanced filters (1-based pagination)
 - get_tag_info: Get detailed tag information by ID
@@ -897,6 +902,7 @@ from superset.mcp_service.report_layout.tool import (  # noqa: F401, E402
     bring_to_front,
     change_visual_dataset,
     clear_drillthrough_page,
+    clear_mobile_layout,
     copy_format,
     create_bookmark,
     create_visual,
@@ -907,6 +913,7 @@ from superset.mcp_service.report_layout.tool import (  # noqa: F401, E402
     format_element,
     format_slicer,
     format_visual,
+    generate_mobile_layout,
     get_filter_defaults,
     get_format_options,
     get_report_structure,
@@ -923,6 +930,7 @@ from superset.mcp_service.report_layout.tool import (  # noqa: F401, E402
     set_dashboard_css,
     set_drillthrough_page,
     set_filter_bar_auto_apply,
+    set_mobile_layout,
     set_object_state,
     set_page_hidden,
     set_shared_visual_format,

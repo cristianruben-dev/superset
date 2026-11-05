@@ -429,6 +429,9 @@ MCP_CACHE_CONFIG: dict[str, Any] = {
         "set_visual_tooltip",
         "sync_slicer",
         "update_bookmark",
+        "clear_mobile_layout",
+        "generate_mobile_layout",
+        "set_mobile_layout",
         # Reads the AI repeats after each change to look at the result
         "get_filter_defaults",
         "list_bookmarks",

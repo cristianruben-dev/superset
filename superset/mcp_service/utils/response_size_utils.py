@@ -497,6 +497,9 @@ COMMITTED_WRITE_SPECS: Dict[str, CommittedWriteSpec] = {
     "set_visual_tooltip": _spec("dashboard", "dashboard_id"),
     "sync_slicer": _spec("dashboard", "dashboard_id"),
     "update_bookmark": _spec("dashboard", "dashboard_id"),
+    "clear_mobile_layout": _spec("dashboard", "dashboard_id"),
+    "generate_mobile_layout": _spec("dashboard", "dashboard_id"),
+    "set_mobile_layout": _spec("dashboard", "dashboard_id"),
 }
 
 COMMITTED_WRITE_TOOLS = frozenset(COMMITTED_WRITE_SPECS)
