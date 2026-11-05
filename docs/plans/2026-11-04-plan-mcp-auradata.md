@@ -699,6 +699,35 @@ históricas. El `CLAUDE.md` del proyecto y el de `mcp_service` reescriben su reg
 - Columnas calculadas y métricas del dataset (ampliar `update_dataset_metric`), dataset virtual desde SQL dentro
   de un workspace.
 
+**Hecho (2026-11-05, rama `feat/mcp-data-model`), con la decisión 2 (las contraseñas nunca pasan por el chat):**
+1. `7fa50b22cf`: `test_database_connection(database_id)` prueba una conexión guardada en el servidor, con el mismo
+   comando que el botón «Probar conexión» de la web y la conexión enmascarada como la manda la web. Solo para quien
+   escribe bases de datos (admins, como la ruta REST); los errores salen sin contraseña ni URI. No hay
+   `create_database`: la respuesta apunta a la página de Conexiones (`/databaseview/list/`). Además,
+   `get_database_info` y `list_databases` devolvían `extra` tal cual, y `engine_params.connect_args` puede llevar una
+   contraseña: ahora se enmascaran las claves secretas (`redact_secrets`). Fijado con un test que siembra contraseña
+   en la URI, `encrypted_extra` y `connect_args`.
+2. `db49328a4c`: `create_dataset` y `create_virtual_dataset` aceptan `workspace_id`. El rol (contributor o admin) se
+   comprueba antes de crear, así un rechazo no deja un gemelo en la papelera, y el dataset entra con
+   `move_datasets`, como `linkNewDataset` en la web. Los gráficos de los tableros de ese workspace lo usan; los de
+   fuera no.
+3. `22494a05c2`: `add_calculated_column`, `update_calculated_column`, `delete_calculated_column`, `add_metric`,
+   `delete_metric` y `set_column_properties` (etiqueta, descripción, columna de tiempo, `groupby`, `filterable`,
+   formato de fecha). Pasan por `UpdateDatasetCommand` y solo para editores del dataset y admins; un rol de
+   workspace no edita datasets. Una expresión nueva se ejecuta antes con el chequeo de compilación de los gráficos:
+   un error de tipeo devuelve el mensaje de la base y no guarda nada. Las columnas de la tabla no se borran ni se
+   tratan como calculadas.
+4. Chequeo en vivo (clave de API de admin, revocada al final): la conexión 3 responde; se creó el dataset virtual
+   `fase8_ventas_modelo` (id 64) en «Análisis comercial» con la columna `tamano` y la métrica `ventas_total`; un
+   tipeo (`ventaz`) devolvió el error de Postgres con la pista; `query_dataset` agrupa por la columna nueva; la API
+   ofrece el dataset al tablero 219 de ese workspace y no al 218; el panel del editor de gráficos del 219 lo muestra.
+5. Pendiente:
+   - en dev, las URLs del MCP dicen `localhost:8888` (`docker/pythonpath_dev/superset_config.py`), no el 8188;
+   - el chequeo de compilación etiqueta un error de SQL como «Database connection error», heredado de
+     `_compile_chart`;
+   - una métrica no puede usar una columna calculada por su nombre (Superset no la expande; también fallaría en un
+     gráfico).
+
 ## 9. Papelera e historial (S–M)
 
 - `list_trash` (por workspace para contributors y admins; global en Administración).
