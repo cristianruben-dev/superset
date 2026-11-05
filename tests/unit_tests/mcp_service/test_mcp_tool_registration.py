@@ -68,6 +68,7 @@ EXPECTED_TOOL_OUTPUT_FIELDS = {
     "get_dashboard_layout": "tabs",
     "get_dashboard_screenshot": "mime_type",
     "get_database_info": "database_name",
+    "test_database_connection": "connections_url",
     "get_dataset_info": "table_name",
     "get_instance_info": "instance_summary",
     "get_query_info": "executed_sql",

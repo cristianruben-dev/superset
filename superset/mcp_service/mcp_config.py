@@ -408,6 +408,8 @@ MCP_CACHE_CONFIG: dict[str, Any] = {
         "set_page_hidden",
         "set_shared_visual_format",
         "set_workspace_member",
+        # Read-only, but a cached "it works" would hide a broken connection.
+        "test_database_connection",
         "update_chart",
         "update_chart_preview",
         "update_dashboard",

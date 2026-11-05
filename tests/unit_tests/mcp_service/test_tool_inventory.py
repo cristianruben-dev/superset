@@ -65,6 +65,7 @@ TOOL_BUDGETS = {
     "get_dashboard_layout": 1_600,
     "get_dashboard_screenshot": 1_500,
     "get_database_info": 1_400,
+    "test_database_connection": 1_600,
     "get_dataset_info": 2_400,
     "get_instance_info": 900,
     "get_query_info": 1_100,

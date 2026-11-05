@@ -54,6 +54,9 @@ _WRITE_SCOPED_READERS = {
     "get_chart_sql",
     # Lists users to add to a workspace: only for those who may edit its members.
     "list_member_candidates",
+    # Tests a stored connection: the REST test_connection route is a write one,
+    # kept for those who manage connections.
+    "test_database_connection",
 }
 
 

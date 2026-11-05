@@ -17,8 +17,10 @@
 
 from .get_database_info import get_database_info
 from .list_databases import list_databases
+from .test_database_connection import test_database_connection
 
 __all__ = [
     "list_databases",
     "get_database_info",
+    "test_database_connection",
 ]

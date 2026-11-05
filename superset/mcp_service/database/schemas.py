@@ -31,6 +31,7 @@ from pydantic import (
     model_serializer,
 )
 
+from superset.constants import PASSWORD_MASK
 from superset.daos.base import ColumnOperator, ColumnOperatorEnum
 from superset.mcp_service.common.cache_schemas import (
     CreatedByMeMixin,
@@ -210,6 +211,45 @@ def _get_backend(database: Any) -> str | None:
         return None
 
 
+# Keys of ``extra`` (usually inside ``engine_params.connect_args``) whose values are
+# secrets a connection may carry outside its URI. They never leave the server.
+SECRET_KEY_PARTS = (
+    "password",
+    "passwd",
+    "secret",
+    "token",
+    "credential",
+    "private_key",
+    "api_key",
+    "access_key",
+)
+SECRET_MASK = PASSWORD_MASK
+
+
+def _is_secret_key(key: str) -> bool:
+    lowered = key.lower()
+    return any(part in lowered for part in SECRET_KEY_PARTS)
+
+
+def redact_secrets(value: Any) -> Any:
+    """
+    A copy of ``value`` with every secret-looking key masked, at any depth.
+
+    :param value: A parsed JSON value, such as a database's ``extra``
+    :returns: The same structure, with the secrets replaced by ``SECRET_MASK``
+    """
+    if isinstance(value, dict):
+        return {
+            key: SECRET_MASK
+            if isinstance(key, str) and _is_secret_key(key) and item is not None
+            else redact_secrets(item)
+            for key, item in value.items()
+        }
+    if isinstance(value, list):
+        return [redact_secrets(item) for item in value]
+    return value
+
+
 def serialize_database_object(database: Any) -> DatabaseInfo | None:
     if not database:
         return None
@@ -233,9 +273,42 @@ def serialize_database_object(database: Any) -> DatabaseInfo | None:
         impersonate_user=getattr(database, "impersonate_user", None),
         is_managed_externally=getattr(database, "is_managed_externally", None),
         external_url=getattr(database, "external_url", None),
-        extra=_parse_json_field(database, "extra"),
+        extra=redact_secrets(_parse_json_field(database, "extra")),
         changed_on=getattr(database, "changed_on", None),
         changed_on_humanized=humanize_timestamp(getattr(database, "changed_on", None)),
         created_on=getattr(database, "created_on", None),
         created_on_humanized=humanize_timestamp(getattr(database, "created_on", None)),
+    )
+
+
+class TestDatabaseConnectionRequest(BaseModel):
+    """Request schema for test_database_connection."""
+
+    __test__ = False  # not a pytest class
+
+    database_id: Annotated[
+        int,
+        Field(
+            description="ID of an existing database connection. "
+            "Use list_databases to find it."
+        ),
+    ]
+
+
+class TestDatabaseConnectionResponse(BaseModel):
+    """Result of testing an existing database connection with its stored settings."""
+
+    __test__ = False  # not a pytest class
+
+    database_id: int | None = Field(None, description="Database ID")
+    database_name: str | None = Field(None, description="Database connection name")
+    backend: str | None = Field(None, description="Database backend")
+    ok: bool = Field(False, description="Whether the database answered")
+    message: str | None = Field(None, description="What happened, without credentials")
+    error: str | None = Field(None, description="Error message if the test failed")
+    error_type: str | None = Field(None, description="Type of error")
+    connections_url: str | None = Field(
+        None,
+        description="The Connections page of the web, where an admin creates or "
+        "edits connections and their credentials",
     )

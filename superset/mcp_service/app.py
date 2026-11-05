@@ -233,6 +233,7 @@ Tag Management:
 Database Connections:
 - list_databases: List database connections with advanced filters (1-based pagination)
 - get_database_info: Get detailed database connection info by ID (backend, capabilities)
+- test_database_connection: Test an existing connection with its stored credentials (admins). Connections and their credentials are created only in the web (Connections page), never through the chat
 
 User and Role Management:
 - list_users: List users with filtering (1-based pagination, admin only)
@@ -889,6 +890,7 @@ from superset.mcp_service.dashboard.tool import (  # noqa: F401, E402
 from superset.mcp_service.database.tool import (  # noqa: F401, E402
     get_database_info,
     list_databases,
+    test_database_connection,
 )
 from superset.mcp_service.dataset.tool import (  # noqa: F401, E402
     create_dataset,
