@@ -14,8 +14,17 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-"""Report structure, page, object, format and visual tools."""
+"""Report structure, page, object, format, visual, element and slicer tools."""
 
+from superset.mcp_service.report_layout.tool.element_tools import (
+    add_element,
+    add_slicer,
+    format_element,
+    format_slicer,
+    remove_element,
+    update_element,
+    update_slicer,
+)
 from superset.mcp_service.report_layout.tool.format_tools import (
     copy_format,
     format_visual,
@@ -82,4 +91,11 @@ __all__ = [
     "get_visual_fields",
     "set_visual_fields",
     "set_visual_sort",
+    "add_element",
+    "add_slicer",
+    "format_element",
+    "format_slicer",
+    "remove_element",
+    "update_element",
+    "update_slicer",
 ]

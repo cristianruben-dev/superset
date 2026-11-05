@@ -2213,6 +2213,19 @@ class FilterTimeSpec(BaseNewFilterSpec):
         return validate_time_range(v)
 
 
+class FilterRangeSpec(BaseNewFilterSpec):
+    """Spec for a new numerical range (filter_range) native filter; built by
+    the slicer tools, not offered by manage_native_filters."""
+
+    filter_type: Literal["filter_range"] = Field(
+        ..., description="Discriminator - must be 'filter_range'"
+    )
+    dataset_id: int = Field(..., description="ID of the dataset to filter on")
+    column: str = Field(
+        ..., min_length=1, description="Name of the numeric column to filter on"
+    )
+
+
 NewNativeFilterSpec = Annotated[
     FilterSelectSpec | FilterTimeSpec,
     Field(discriminator="filter_type"),

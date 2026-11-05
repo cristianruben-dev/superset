@@ -188,6 +188,15 @@ In AuraData BI a chart belongs to one dashboard: build reports with create_visua
 rather than generate_chart. These tools save on the chart and take over the chart
 settings the report's layout held, so the report shows the change.
 
+Report Elements and Slicers (AuraData BI):
+- add_element / update_element: Image, shape, button, text or page navigator on a page
+- format_element: The box of an element (title, background, border, shadow)
+- remove_element: Take an element or slicer off its page
+- add_slicer: A native filter and the canvas slicer that draws it, in one step
+- update_slicer / format_slicer: A slicer's options, and its Visual or General look
+get_format_options with element=<kind> lists an element's settings. Buttons go to a
+page, a bookmark, back or an address; pictures arrive as base64, never an address.
+
 Tag Management:
 - list_tags: List tags with advanced filters (1-based pagination)
 - get_tag_info: Get detailed tag information by ID
@@ -869,7 +878,9 @@ from superset.mcp_service.report.tool import (  # noqa: F401, E402
     list_reports,
 )
 from superset.mcp_service.report_layout.tool import (  # noqa: F401, E402
+    add_element,
     add_page,
+    add_slicer,
     align_objects,
     bring_to_front,
     change_visual_dataset,
@@ -878,12 +889,15 @@ from superset.mcp_service.report_layout.tool import (  # noqa: F401, E402
     delete_page,
     distribute_objects,
     duplicate_page,
+    format_element,
+    format_slicer,
     format_visual,
     get_format_options,
     get_report_structure,
     get_visual_fields,
     move_object,
     place_object,
+    remove_element,
     rename_page,
     reorder_pages,
     resize_object,
@@ -894,6 +908,8 @@ from superset.mcp_service.report_layout.tool import (  # noqa: F401, E402
     set_shared_visual_format,
     set_visual_fields,
     set_visual_sort,
+    update_element,
+    update_slicer,
     upload_dashboard_background,
     upload_dashboard_image,
 )

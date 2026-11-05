@@ -22,8 +22,6 @@ checked against the format catalog the frontend generates from the control
 panels (``superset/auradata/catalog``).
 """
 
-import base64
-import binascii
 import re
 from typing import Any, Callable
 
@@ -78,6 +76,7 @@ from superset.mcp_service.report_layout.format_schemas import (
     UploadBackgroundRequest,
     UploadElementImageRequest,
 )
+from superset.mcp_service.report_layout.pictures import decode_image
 
 _WRITE: dict[str, Any] = {
     "tags": ["mutate", "layout", "format"],
@@ -202,6 +201,34 @@ def _option_sections(
     return sections
 
 
+def _element_options(kind: str) -> FormatOptionsResponse:
+    """The settings of a kind of design element, with a new one's defaults."""
+    from superset.auradata.layout.elements import MANAGED_SETTINGS
+
+    spec = {
+        key: value
+        for key, value in catalog.element_spec(kind).items()
+        if key not in MANAGED_SETTINGS
+    }
+    return FormatOptionsResponse(
+        level="visual",
+        element={
+            "kind": kind,
+            "settings": spec,
+            "defaults": catalog.element_defaults(kind),
+        },
+        general={"settings": catalog.general_spec()},
+        notes=[
+            "Pass settings to add_element/update_element (format_slicer for a "
+            "filter); objects merge key by key, null resets one.",
+            "The box (title, background, border) is the General settings: "
+            "format_element.",
+            "color takes a CSS color; image a path of this site (upload with "
+            "image_base64); page a page id or name.",
+        ],
+    )
+
+
 @tool(
     tags=["discovery", "layout", "format"],
     class_permission_name="Dashboard",
@@ -221,9 +248,13 @@ async def get_format_options(
     range and default, and the General settings every object shares (title,
     background, border, shadow, padding, header icons, link, action button,
     tooltip and sampling). Pass viz_type, or a dashboard and object to read
-    the chart type of a chart. Use the keys with format_visual.
+    the chart type of a chart. Use the keys with format_visual. Pass
+    element (image, shape, button, text, navigator, filter) for the settings
+    of a design element or slicer.
     """
     await ctx.info(f"get_format_options: {request.viz_type or request.object}")
+    if request.element is not None:
+        return _element_options(request.element)
     viz_type = request.viz_type
     if viz_type is None and request.object is not None:
         try:
@@ -588,23 +619,6 @@ async def set_dashboard_css(
     return await _run("set_dashboard_css", ctx, change)
 
 
-def _decode_image(encoded: str) -> tuple[bytes, str]:
-    """The bytes and media type of a base64 picture, checked as uploads are."""
-    from superset.auradata.backgrounds import check_image, ImageUploadError
-
-    text = encoded.strip()
-    if text.startswith("data:"):
-        text = text.split(",", 1)[-1]
-    try:
-        data = base64.b64decode(text, validate=True)
-    except (binascii.Error, ValueError) as ex:
-        raise LayoutEditError("image_base64 is not valid base64.") from ex
-    try:
-        return data, check_image(data)
-    except ImageUploadError as ex:
-        raise LayoutEditError(str(ex)) from ex
-
-
 @tool(**_WRITE, annotations=_annotations("Upload a background"))
 async def upload_dashboard_background(
     request: UploadBackgroundRequest, ctx: Context
@@ -619,7 +633,7 @@ async def upload_dashboard_background(
         from superset.auradata.backgrounds import store_background
 
         report = open_report(request.dashboard, edit=True)
-        data, media_type = _decode_image(request.image_base64)
+        data, media_type = decode_image(request.image_base64)
         url = store_background(report.dashboard.id, data, media_type)
         canvas = dict(canvas_format(report.layout) or {})
         background: dict[str, Any] = {
@@ -659,7 +673,7 @@ async def upload_dashboard_image(
             kind = keys.element_kind(meta_of(report, target).get("componentKey"))
             if kind != "image":
                 raise LayoutEditError(f"{target} is not an image element.")
-        data, media_type = _decode_image(request.image_base64)
+        data, media_type = decode_image(request.image_base64)
         image_id, url = store_element_image(report.dashboard.id, data, media_type)
         changed: list[str] = []
         if target:

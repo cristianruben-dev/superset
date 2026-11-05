@@ -54,6 +54,9 @@ class GetFormatOptionsRequest(_Request):
     descriptions: bool = Field(
         False, description="Include control descriptions (with section)"
     )
+    element: (
+        Literal["image", "shape", "button", "text", "navigator", "filter"] | None
+    ) = Field(None, description="Settings of a design element or slicer (filter)")
 
 
 class FormatOptionsResponse(BaseModel):
@@ -65,6 +68,9 @@ class FormatOptionsResponse(BaseModel):
     )
     general: dict[str, Any] | None = Field(
         None, description="General settings, the same for every object"
+    )
+    element: dict[str, Any] | None = Field(
+        None, description="Settings and defaults of a kind of element"
     )
     notes: list[str] = Field(default_factory=list)
     chart_types: list[str] = Field(default_factory=list)

@@ -480,6 +480,13 @@ COMMITTED_WRITE_SPECS: Dict[str, CommittedWriteSpec] = {
     "create_visual": _spec("chart", "chart_id", "dashboard_id"),
     "set_visual_fields": _spec("chart", "chart_id", "dashboard_id"),
     "set_visual_sort": _spec("chart", "chart_id", "dashboard_id"),
+    "add_element": _spec("dashboard", "dashboard_id"),
+    "add_slicer": _spec("dashboard", "dashboard_id"),
+    "format_element": _spec("dashboard", "dashboard_id"),
+    "format_slicer": _spec("dashboard", "dashboard_id"),
+    "remove_element": _spec("dashboard", "dashboard_id"),
+    "update_element": _spec("dashboard", "dashboard_id"),
+    "update_slicer": _spec("dashboard", "dashboard_id"),
 }
 
 COMMITTED_WRITE_TOOLS = frozenset(COMMITTED_WRITE_SPECS)

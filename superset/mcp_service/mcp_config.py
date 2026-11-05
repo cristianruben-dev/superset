@@ -412,6 +412,13 @@ MCP_CACHE_CONFIG: dict[str, Any] = {
         "create_visual",
         "set_visual_fields",
         "set_visual_sort",
+        "add_element",
+        "add_slicer",
+        "format_element",
+        "format_slicer",
+        "remove_element",
+        "update_element",
+        "update_slicer",
         # Reads the AI repeats after each change to look at the result
         "get_dashboard_screenshot",
         "get_report_structure",
