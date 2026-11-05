@@ -75,10 +75,25 @@ async def found(name: str, world: dict[str, Any], dataset: str) -> bool:
 
 
 async def queried(name: str, world: dict[str, Any], dataset: str) -> bool:
-    """Whether the query got past the lookup (the table itself does not exist)."""
+    """
+    Whether the query ran. The table does not exist in the test database, so a
+    query that passed every access check fails only with "no such table".
+    """
     as_user(world, name)
     result = await call(
         "query_dataset", {"dataset_id": world[dataset].id, "columns": ["region"]}
+    )
+    if result.get("error_type") == "NotFound":
+        return False
+    assert "no such table" in (result.get("error") or ""), result
+    return True
+
+
+async def tabled(name: str, world: dict[str, Any], dataset: str) -> bool:
+    """Whether get_table found the dataset (semantic layer read of the same data)."""
+    as_user(world, name)
+    result = await call(
+        "get_table", {"dataset_id": world[dataset].id, "dimensions": ["region"]}
     )
     return result.get("error_type") != "NotFound"
 
@@ -92,6 +107,7 @@ async def test_data_access_does_not_open_another_workspace(
     assert await listed(name, world) == ["compartido"]
     assert not await found(name, world, "ventas")
     assert not await queried(name, world, "ventas")
+    assert not await tabled(name, world, "ventas")
     assert await found(name, world, "compartido")
 
 
@@ -103,6 +119,7 @@ async def test_members_with_data_access_see_their_workspace(
     assert await listed(name, world) == ["compartido", "ventas"]
     assert await found(name, world, "ventas")
     assert await queried(name, world, "ventas")
+    assert await tabled(name, world, "ventas")
 
 
 @pytest.mark.asyncio

@@ -95,6 +95,7 @@ def _resolve_builtin_dataset(
 
     from superset.connectors.sqla.models import SqlaTable
     from superset.daos.dataset import DatasetDAO
+    from superset.mcp_service.dataset.dataset_utils import visible_in_workspaces
 
     dataset_id = request.dataset_id
     assert dataset_id is not None
@@ -112,7 +113,8 @@ def _resolve_builtin_dataset(
                 subqueryload(SqlaTable.metrics),
             ],
         )
-    if dataset is None:
+    # AuraData BI: a dataset hidden by the workspace rules reads as not found
+    if dataset is None or not visible_in_workspaces(dataset.id):
         return SemanticLayerError.create(
             error=f"No dataset found with id: {dataset_id}.",
             error_type="NotFound",
