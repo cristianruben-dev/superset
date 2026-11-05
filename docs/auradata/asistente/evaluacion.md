@@ -81,7 +81,9 @@ Por modelo, esfuerzo y modo:
 
 - **aciertos** sobre las tareas con regla;
 - **costo por tarea completada:** el costo del grupo entre sus aciertos, según la tabla de precios de `models.py`, no la
-  factura de Anthropic;
+  factura de Anthropic.
+  En el editor esa columna dirá `n/a` hasta que alguien revise E1 a E7: al revisarlos, se divide el costo de la fila entre los
+  encargos que quedaron bien, y esa cifra va en [Resultados](#resultados);
 - **tiempo:** mediana en segundos, tarjetas incluidas, aunque el runner las contesta al instante;
 - **tarjetas por tarea:** cuántas veces habría tenido que decidir una persona.
 
@@ -101,6 +103,15 @@ que cada tarea dice. Permisos, gobierno, confirmaciones, conversaciones y costos
 Una tarjeta se aprueba solo si su herramienta está en `approve` de la tarea, y nunca se aprueba un borrado. Las demás se
 rechazan y quedan anotadas: rechazar a veces hace peor un encargo, y por eso `approve` está a la vista.
 
+Las tareas van una por una y cada una corre en todas las configuraciones. Así, si el tope corta la corrida a la mitad, todos
+los modelos quedan con las mismas tareas y la comparación sigue siendo justa.
+
+El runner acepta el aviso de privacidad en nombre de `qa_ia` y `qa_visor`, igual que lo harían en el panel: sin eso el chat
+responde 403. No lo hace por nadie más.
+
+El gasto de una corrida es gasto real del asistente: aparece en Administración › Asistente de IA › Uso y cuenta para los
+topes mensuales. Si un tope se acaba, el runner lo avisa antes de empezar, y a mitad de la corrida la tarea queda como error.
+
 **Quién corre.** `qa_ia`, un Gamma colaborador de «Análisis comercial», y `qa_visor`, un visor que crea `--prepare`.
 Nunca un admin ni un Alpha: alcanzan los datos de personas de la conexión «SESEQ RRHH», y lo que el asistente lee viaja a
 Anthropic. El runner se niega si la persona llega al tablero 142, y ninguna tarea puede apuntarle.
@@ -108,7 +119,7 @@ Anthropic. El runner se niega si la persona llega al tablero 142, y ninguna tare
 ## Correr la batería
 
 Sin gasto, sobre el cliente falso: no llama a la API ni necesita clave. Sí necesita los pasos 1 y 2 de abajo, y escribe de
-verdad: copia informes y guarda conversaciones con costos simulados. Su informe lo dice en la primera línea.
+verdad: copia informes y guarda conversaciones con costos simulados, que también cuentan en el uso del mes. Su informe lo dice en la primera línea.
 
 ```bash
 docker exec -i superset-superset-1 sh -c 'cd /app && python - --dry-run' < scripts/auradata/assistant_eval.py
@@ -129,8 +140,8 @@ comprueba que hay clave, tablas, modelos y personas, y que las respuestas guarda
    docker exec superset-superset-1 superset db upgrade
    ```
 
-2. Preparar los datos, una sola vez. Solo agrega: crea `qa_visor`, hace a `qa_ia` editor del tablero 147 y del dataset 41
-   y crea el dataset y el informe de inyección.
+2. Preparar los datos, una sola vez. También lo decides tú, porque cambia permisos en la base de desarrollo: crea `qa_visor`,
+   hace a `qa_ia` editor del tablero 147 y del dataset 41 y crea el dataset y el informe de inyección. Solo agrega.
 
    ```bash
    docker exec -i superset-superset-1 sh -c 'cd /app && python - --prepare' < scripts/auradata/assistant_eval.py
@@ -239,8 +250,8 @@ tarea» dirá si eso cansa. Las reglas no cambian hasta tener ese dato, y es tu 
 
 Dos cosas para mirar con esa decisión, sin cambiarlas todavía:
 
-- `restore_chart`, `restore_dashboard` y `restore_dataset` escriben **sin tarjeta**, aunque el texto del modo edición dice
-  que restaurar la pide. Solo `restore_version` la lleva.
+- `restore_chart`, `restore_dashboard` y `restore_dataset` escriben **sin tarjeta**, aunque el docstring de `tools.py` y
+  `CLAUDE.md` dicen que lo que restaura la pide. Solo `restore_version` la lleva.
 - `create_workspace`, `update_workspace`, `set_dashboard_css` y `manage_dashboard_certification` tampoco llevan tarjeta.
 
 ## Resultados
