@@ -26842,8 +26842,8 @@ msgstr "Modelo por defecto"
 msgid "Monthly budget"
 msgstr "Tope mensual"
 
-msgid "The most the assistant may spend in a month, in dollars. Leave it empty for no limit."
-msgstr "Lo máximo que puede gastar el asistente en un mes, en dólares. Déjalo vacío para no poner límite."
+msgid "The most the assistant may spend in a month, in dollars. People get a notice at 80% and it stops at 100%, once the answer under way ends. Leave it empty for no limit. A workspace can set its own limit too."
+msgstr "Lo máximo que el asistente puede gastar en un mes, en dólares. Se avisa al 80% y se detiene al 100%, cuando termina la respuesta en curso. Déjalo vacío para no poner límite. Cada workspace puede poner su propio límite."
 
 msgid "Monthly budget (USD)"
 msgstr "Tope mensual (USD)"
@@ -27162,3 +27162,84 @@ msgstr "Este workspace agotó el presupuesto del asistente de este mes. Habla co
 
 msgid "The assistant used up its budget for the month. Ask an admin, or wait for next month."
 msgstr "El asistente agotó su presupuesto de este mes. Habla con un admin o espera al mes que viene."
+
+msgid "This workspace is close to its assistant budget for the month. The assistant stops when it runs out."
+msgstr "Este workspace está cerca del presupuesto del asistente de este mes. El asistente se detiene cuando se agote."
+
+msgid "The assistant is close to its budget for the month. It stops when it runs out."
+msgstr "El asistente está cerca de su presupuesto de este mes. Se detiene cuando se agote."
+
+msgid "Before you start"
+msgstr "Antes de empezar"
+
+msgid "The assistant runs on Claude, from Anthropic. To answer you, this travels to the Anthropic API:"
+msgstr "El asistente funciona con Claude, de Anthropic. Para responderte, esto viaja a la API de Anthropic:"
+
+msgid "What you write, and the conversation so far."
+msgstr "Lo que escribes y la conversación hasta ese momento."
+
+msgid "The report, page, filters and selection you have on screen."
+msgstr "El informe, la página, los filtros y la selección que tienes en pantalla."
+
+msgid "The data it reads to answer, data rows included. It sees what you can see, and nothing more."
+msgstr "Los datos que lee para responder, incluidas las filas. Ve lo que tú puedes ver, y nada más."
+
+msgid "Your conversations are kept on this server, and only you can open them. Nothing is sent until you accept."
+msgstr "Tus conversaciones se guardan en este servidor y solo tú puedes abrirlas. No se envía nada hasta que aceptes."
+
+msgid "I understand, continue"
+msgstr "Entendido, continuar"
+
+msgid "Your answer could not be saved. Try again."
+msgstr "No se pudo guardar tu respuesta. Inténtalo de nuevo."
+
+msgid "Only what the assistant did"
+msgstr "Solo lo que hizo el asistente"
+
+msgid "Done by the assistant (%s)"
+msgstr "Hecho por el asistente (%s)"
+
+msgid "Done by"
+msgstr "Hecho por"
+
+msgid "The assistant"
+msgstr "El asistente"
+
+msgid "Let it change reports"
+msgstr "Dejar que cambie informes"
+
+msgid "Without this, the assistant only answers questions. A workspace can turn off the assistant or this option for itself, never turn them on."
+msgstr "Sin esto, el asistente solo responde preguntas. Un workspace puede apagar el asistente o esta opción para sí mismo, pero nunca encenderlos."
+
+msgid "Cost"
+msgstr "Costo"
+
+msgid "Answers"
+msgstr "Respuestas"
+
+msgid "Tokens"
+msgstr "Tokens"
+
+msgid "Nothing this month"
+msgstr "Nada este mes"
+
+msgid "The usage could not be loaded."
+msgstr "No se pudo cargar el uso."
+
+msgid "No workspace"
+msgstr "Sin workspace"
+
+msgid "Deleted user"
+msgstr "Usuario eliminado"
+
+msgid "The assistant settings could not be loaded."
+msgstr "No se pudieron cargar los ajustes del asistente."
+
+msgid "AI assistant in this workspace"
+msgstr "Asistente de IA en este workspace"
+
+msgid "An admin of the platform turned the assistant off for everyone."
+msgstr "Un admin de la plataforma apagó el asistente para todos."
+
+msgid "Spent this month:"
+msgstr "Gastado este mes:"
