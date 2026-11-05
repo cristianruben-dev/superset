@@ -172,6 +172,11 @@ def _grouped(start: datetime, *columns: Any) -> list[Any]:
     )
 
 
+def _totals(start: datetime) -> dict[str, Any]:
+    """A month's cost, tokens and answers in one row."""
+    return _amounts(_grouped(start)[0])
+
+
 def _amounts(row: Any) -> dict[str, Any]:
     return {
         "cost_usd": _money(row.cost),
@@ -208,9 +213,7 @@ def usage_report(start: datetime, now: datetime | None = None) -> dict[str, Any]
     months = []
     moment = month_start(now or datetime.now())
     for _ in range(MONTHS_SHOWN):
-        months.append(
-            {"month": month_key(moment), "cost_usd": _money(spent_usd(moment))}
-        )
+        months.append({"month": month_key(moment), **_totals(moment)})
         moment = previous_month(moment)
     return {
         "month": month_key(start),

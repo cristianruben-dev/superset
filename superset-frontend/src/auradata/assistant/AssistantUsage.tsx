@@ -37,7 +37,7 @@ interface Usage {
   month: string;
   total_usd: number;
   monthly_budget_usd: number | null;
-  months: { month: string; cost_usd: number }[];
+  months: (Amounts & { month: string })[];
   by_model: (Amounts & { model: string | null })[];
   by_workspace: (Amounts & {
     workspace_id: number | null;
@@ -84,20 +84,21 @@ const Page = styled.div`
   `}
 `;
 
+const FIGURE = { align: 'right' as const, className: 'auradata-figure' };
+
 function Breakdown({ title, rows }: { title: string; rows: Row[] }) {
-  const figure = { align: 'right' as const, className: 'auradata-figure' };
   const columns = useMemo(
     () => [
       { title, dataIndex: 'name', key: 'name' },
       {
-        ...figure,
+        ...FIGURE,
         title: t('Cost'),
         dataIndex: 'cost_usd',
         key: 'cost',
         render: money,
       },
-      { ...figure, title: t('Answers'), dataIndex: 'answers', key: 'answers' },
-      { ...figure, title: t('Tokens'), dataIndex: 'tokens', key: 'tokens' },
+      { ...FIGURE, title: t('Answers'), dataIndex: 'answers', key: 'answers' },
+      { ...FIGURE, title: t('Tokens'), dataIndex: 'tokens', key: 'tokens' },
     ],
     [title],
   );
@@ -180,6 +181,14 @@ export function AssistantUsage() {
             : `${money(usage.total_usd)} / ${money(usage.monthly_budget_usd)}`}
         </span>
       </div>
+      <Breakdown
+        title={t('Month')}
+        rows={usage.months.map(row => ({
+          ...row,
+          key: row.month,
+          name: row.month,
+        }))}
+      />
       <Breakdown
         title={t('Model')}
         rows={usage.by_model.map(row => ({

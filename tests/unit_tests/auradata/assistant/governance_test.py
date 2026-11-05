@@ -699,9 +699,10 @@ def test_usage_adds_up_by_model_workspace_and_user(
         HAIKU: 30,
         SONNET: 15,
     }
-    assert report["months"][:2] == [
-        {"month": "2026-11", "cost_usd": 6},
-        {"month": "2026-10", "cost_usd": 9},
+    assert report["months"][:3] == [
+        {"month": "2026-11", "cost_usd": 6, "tokens": 45, "answers": 3},
+        {"month": "2026-10", "cost_usd": 9, "tokens": 15, "answers": 1},
+        {"month": "2026-09", "cost_usd": 0, "tokens": 0, "answers": 0},
     ]
     assert len(report["months"]) == 12
 

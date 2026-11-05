@@ -27,8 +27,8 @@ const report = (month: string, total: number) => ({
   total_usd: total,
   monthly_budget_usd: 100,
   months: [
-    { month: '2026-11', cost_usd: 42.5 },
-    { month: '2026-10', cost_usd: 3 },
+    { month: '2026-11', cost_usd: 42.5, tokens: 1200, answers: 7 },
+    { month: '2026-10', cost_usd: 3, tokens: 90, answers: 1 },
   ],
   by_model: [
     { model: 'claude-sonnet-5-5', cost_usd: total, tokens: 1200, answers: 7 },
@@ -51,6 +51,10 @@ test('it breaks the month down and names what no longer exists', async () => {
 
   expect(await screen.findByTestId('assistant-usage-total')).toHaveTextContent(
     '$42.50 / $100.00',
+  );
+  expect(screen.getByRole('cell', { name: '2026-10' })).toBeInTheDocument();
+  expect(screen.getByRole('cell', { name: '$3.00' })).toHaveClass(
+    'auradata-figure',
   );
   expect(screen.getByText('claude-sonnet-5-5')).toBeInTheDocument();
   expect(screen.getByText('Ventas')).toBeInTheDocument();
