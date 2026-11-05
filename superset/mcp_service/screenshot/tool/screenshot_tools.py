@@ -23,7 +23,6 @@ from typing import Any
 
 from fastmcp import Context
 from fastmcp.tools.tool import ToolResult
-from flask import g
 from mcp.types import ImageContent, TextContent
 from superset_core.mcp.decorators import tool, ToolAnnotations
 
@@ -88,15 +87,15 @@ async def get_dashboard_screenshot(
         with event_logger.log_context(action="mcp.get_dashboard_screenshot"):
             report = open_report(request.dashboard)
             page_id = resolve_page(report, request.page)
+            dashboard_id = report.dashboard.id
             url = capture.page_url(report, page_id)
-            picture = capture.capture(
-                url, "standalone", capture.window_for(report), g.user
-            )
+            window = capture.window_for(report)
+            picture = await capture.capture(url, "standalone", window)
     except LayoutEditError as ex:
         await ctx.warning(f"Screenshot refused: {ex.error_type}: {ex.message}")
         return _error(ex)  # type: ignore[return-value]
     info = ScreenshotResponse(
-        dashboard_id=report.dashboard.id,
+        dashboard_id=dashboard_id,
         page=page_id,
         url=url,
         width=picture.width,
@@ -133,18 +132,15 @@ async def get_visual_screenshot(
                 )
             page_id = page_of_object(report, component_id)
             chart_id = (item.get("meta") or {}).get("chartId")
+            dashboard_id = report.dashboard.id
             url = capture.page_url(report, page_id)
-            picture = capture.capture(
-                url,
-                f"dashboard-chart-id-{chart_id}",
-                capture.window_for(report),
-                g.user,
-            )
+            element = f"dashboard-chart-id-{chart_id}"
+            picture = await capture.capture(url, element, capture.window_for(report))
     except LayoutEditError as ex:
         await ctx.warning(f"Screenshot refused: {ex.error_type}: {ex.message}")
         return _error(ex)  # type: ignore[return-value]
     info = ScreenshotResponse(
-        dashboard_id=report.dashboard.id,
+        dashboard_id=dashboard_id,
         page=page_id,
         object=component_id,
         url=url,

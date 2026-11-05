@@ -21,6 +21,7 @@ scheduled reports use). A page opens through a dashboard permalink whose
 active tab is that page; a visual is the element of its chart on its page.
 """
 
+import asyncio
 import io
 import logging
 from dataclasses import dataclass
@@ -58,12 +59,13 @@ def page_url(report: Report, page_id: str | None) -> str:
     dashboard = report.dashboard
     if not page_id or page_id == "GRID_ID":
         return get_url_path("Superset.dashboard", dashboard_id_or_slug=dashboard.id)
+    # The anchor opens the page; active tabs alone only move the page bar
     key = CreateDashboardPermalinkCommand(
         dashboard_id=str(dashboard.id),
         state={
             "dataMask": {},
             "activeTabs": [page_id],
-            "anchor": "",
+            "anchor": page_id,
             "urlParams": [],
         },
     ).run()
@@ -91,8 +93,34 @@ def shrink(image: bytes) -> Picture:
         return Picture(out.getvalue(), picture.width, picture.height)
 
 
-def capture(url: str, element: str, window: tuple[int, int], user: Any) -> Picture:
-    """Opens the URL as the user and takes the picture of one element."""
+async def capture(url: str, element: str, window: tuple[int, int]) -> Picture:
+    """
+    Opens the URL as the current user and takes the picture of one element.
+    Playwright's sync API refuses to run inside the server's event loop, so the
+    browser works in a thread with its own app context.
+    """
+    from flask import current_app, g
+
+    app = current_app._get_current_object()  # pylint: disable=protected-access
+    user_id = g.user.id
+    return await asyncio.to_thread(_capture, app, user_id, url, element, window)
+
+
+def _capture(
+    app: Any, user_id: int, url: str, element: str, window: tuple[int, int]
+) -> Picture:
+    with app.app_context():
+        from flask import g
+
+        from superset import security_manager
+
+        user = security_manager.get_user_by_id(user_id)
+        g.user = user
+        return take_picture(url, element, window, user)
+
+
+def take_picture(url: str, element: str, window: tuple[int, int], user: Any) -> Picture:
+    """Takes the picture of one element of a page, as the user."""
     from superset.utils.screenshots import DashboardScreenshot
 
     screenshot = DashboardScreenshot(url, None, window_size=window, thumb_size=window)
