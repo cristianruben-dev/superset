@@ -69,8 +69,12 @@ def _rules(idioma: str) -> str:
   porcentajes, el mismo formato para la misma medida en todo el informe.
 - Colores: paleta «auradata» (Azul Aura #2563EB primero, violeta #7C3AED, verde
   #10B981); fondo blanco; el degradado solo como acento de un título.
-- Todas las herramientas reciben sus campos dentro de `request={{...}}`. Nunca
-  inventes URLs: usa las que devuelven las herramientas.
+- Todas las herramientas reciben sus campos dentro de `request={{...}}`. Si tu
+  cliente solo muestra `search_tools` y `call_tool`, busca cada herramienta por
+  su nombre con `search_tools` y ejecútala con `call_tool` (nombre y
+  argumentos). Nunca inventes URLs: usa las que devuelven las herramientas.
+- Nombra las páginas por su nombre o su índice (1, 2…): el id de la primera
+  página cambia cuando el informe pasa a tener pestañas.
 - Detalle completo: recursos `auradata://report-conventions`, `auradata://brand`
   y `auradata://format-catalog`."""
 
@@ -111,10 +115,10 @@ async def informe_desde_dataset(
         tema: What the report should answer, e.g. "ventas por región"
         idioma: Language code for titles and replies; empty for the default
     """
-    dataset_line = f"el dataset «{dataset}»" if dataset else "un dataset"
-    workspace_line = f"el workspace «{workspace}»" if workspace else "un workspace"
+    dataset_line = f"del dataset «{dataset}»" if dataset else "de un dataset"
+    workspace_line = f"del workspace «{workspace}»" if workspace else "de un workspace"
     topic_line = f"\nTema del informe: {tema}." if tema else ""
-    return f"""Arma un informe de AuraData BI a partir de {dataset_line}, dentro de
+    return f"""Arma un informe de AuraData BI a partir {dataset_line}, dentro
 {workspace_line}.{topic_line}
 
 {_rules(idioma)}
@@ -136,7 +140,8 @@ async def informe_desde_dataset(
    "workspace_id": <id>, "dashboard_title": "<título>"}})`. Guarda el id
    que devuelve (`dashboard.id`).
    `get_report_structure(request={{"dashboard": <id>}})` da sus páginas;
-   renombra la primera con `rename_page` y añade las demás con `add_page`.
+   renombra la primera con `rename_page` (`"page": 1`) y añade las demás con
+   `add_page`.
 5. Título de la página: `add_element(request={{"dashboard": <id>, "page":
    <página>, "kind": "text", "x": 1, "y": 1, "width": 32, "height": 2,
    "settings": {{"html": "<b>Título</b>", "textStyle": {{"size": 24,
@@ -145,8 +150,11 @@ async def informe_desde_dataset(
    la forma de `config`, y luego `create_visual(request={{"dashboard": <id>,
    "page": <página>, "dataset_id": <id>, "config": {{...}}, "chart_name":
    "<título>", "x": .., "y": .., "width": .., "height": ..}})` con las cajas de
-   la página tipo. Tarjetas con `chart_type: "big_number"`, tendencia con `xy`
-   y `kind: "line"`, comparación con `xy` y `kind: "bar"`, detalle con `table`.
+   la página tipo (con 3 tarjetas: ancho 18 en x = 1, 21 y 41). Tarjetas con
+   `chart_type: "big_number"`, tendencia con `xy` y `kind: "line"`, comparación
+   con `xy` y `kind: "bar"` ordenada con `set_visual_sort`, detalle con
+   `table`. Usa métricas guardadas (`{{"name": "<métrica>", "saved_metric":
+   true}}`) para que el formato y la etiqueta salgan de la métrica.
 7. Segmentadores: `add_slicer(request={{"dashboard": <id>, "page": <página>,
    "name": "<Nombre>", "filter_type": "list", "dataset_id": <id>, "column":
    "<columna>", "x": 35, "y": 1, "width": 11, "height": 2}})`; uno de fechas

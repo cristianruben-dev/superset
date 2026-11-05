@@ -158,6 +158,8 @@ diseno_movil walk through the common jobs step by step.
 
 Available tools:
 (by group; each tool's own description has the details)
+When the tool list only shows search_tools and call_tool, find a tool by name
+or task with search_tools and run it through call_tool with its arguments.
 
 Workspaces:
 - list_workspaces / get_workspace / create_workspace / update_workspace / delete_workspace

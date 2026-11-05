@@ -73,7 +73,11 @@ async def test_prompts_carry_the_conventions_and_name_real_tools(name: str) -> N
     named = set(re.findall(r"`([a-z_]+)\(", text)) | set(
         re.findall(r"`([a-z]+_[a-z_]+)`", text)
     )
-    unknown = {word for word in named if word not in tools}
+    # search_tools and call_tool come from the tool search transform of the server
+    unknown = {word for word in named if word not in tools} - {
+        "search_tools",
+        "call_tool",
+    }
     # Values written as code (chart types, fields) are not tools
     assert unknown <= {
         "big_number",
