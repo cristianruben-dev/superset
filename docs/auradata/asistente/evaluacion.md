@@ -237,21 +237,19 @@ el camino principal; cambiar de dataset es editar `battery.json`. También se le
 ### Herramientas detrás de una tarjeta
 
 Sale del código que decide (`--list-cards`): de las 146 herramientas registradas, 4 están ocultas, 52 leen,
-61 escriben sin tarjeta y **29 piden tarjeta**.
+58 escriben sin tarjeta y **32 piden tarjeta**.
 
 | Por qué | Herramientas |
 | --- | --- |
 | Marcadas como destructivas | `clear_mobile_layout`, `delete_bookmark`, `delete_calculated_column`, `delete_chart`, `delete_dashboard`, `delete_metric`, `delete_page`, `delete_report`, `delete_workspace`, `execute_sql`, `manage_dashboard_owners`, `manage_dashboard_roles`, `manage_native_filters`, `remove_chart_from_dashboard`, `remove_element`, `remove_workspace_member`, `set_workspace_member`, `update_calculated_column`, `update_chart`, `update_dashboard`, `update_dataset_metric` |
 | Comparten o envían | `create_alert`, `create_report`, `publish_dashboard`, `share_dashboard`, `update_report` |
-| `CONFIRM_TOOLS` | `move_dashboard_to_workspace`, `move_dataset_to_workspace`, `restore_version` |
+| `CONFIRM_TOOLS` | `move_dashboard_to_workspace`, `move_dataset_to_workspace`, `restore_chart`, `restore_dashboard`, `restore_dataset`, `restore_version` |
 
 Cada `update_chart`, `update_dashboard`, `manage_native_filters` o `execute_sql` es una tarjeta, y la columna «Tarjetas por
 tarea» dirá si eso cansa. Las reglas no cambian hasta tener ese dato, y es tu decisión.
 
-Dos cosas para mirar con esa decisión, sin cambiarlas todavía:
+Algo para mirar con esa decisión, sin cambiarlo todavía:
 
-- `restore_chart`, `restore_dashboard` y `restore_dataset` escriben **sin tarjeta**, aunque el docstring de `tools.py` y
-  `CLAUDE.md` dicen que lo que restaura la pide. Solo `restore_version` la lleva.
 - `create_workspace`, `update_workspace`, `set_dashboard_css` y `manage_dashboard_certification` tampoco llevan tarjeta.
 
 ## Resultados

@@ -73,6 +73,9 @@ CONFIRM_TOOLS = frozenset(
     {
         "move_dashboard_to_workspace",
         "move_dataset_to_workspace",
+        "restore_chart",
+        "restore_dashboard",
+        "restore_dataset",
         "restore_version",
     }
 )

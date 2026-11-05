@@ -27061,6 +27061,15 @@ msgstr "Cambiar una métrica"
 msgid "Go back to an earlier version"
 msgstr "Volver a una versión anterior"
 
+msgid "Restore a chart from the trash"
+msgstr "Restaurar un gráfico de la papelera"
+
+msgid "Restore a report from the trash"
+msgstr "Restaurar un informe de la papelera"
+
+msgid "Restore a dataset from the trash"
+msgstr "Restaurar un dataset de la papelera"
+
 msgid "Schedule a report"
 msgstr "Programar un envío del informe"
 
