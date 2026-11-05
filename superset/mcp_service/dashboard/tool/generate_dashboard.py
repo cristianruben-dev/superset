@@ -412,7 +412,9 @@ def generate_dashboard(  # noqa: C901
                 "label_colors": {},
                 "shared_label_colors": {},
                 "color_scheme_domain": [],
-                "cross_filters_enabled": False,
+                # On, as a dashboard the editor creates: charts filter each
+                # other (set_visual_interactions narrows it per chart)
+                "cross_filters_enabled": True,
                 "native_filter_configuration": [],
                 "global_chart_configuration": {
                     "scope": {

@@ -1163,7 +1163,7 @@ class TestGenerateDashboard:
 
         overrides = {
             "label_colors": {"Electronics": "#4C78A8"},
-            "cross_filters_enabled": True,
+            "cross_filters_enabled": False,
         }
         request = {
             "chart_ids": [1],
@@ -1179,12 +1179,47 @@ class TestGenerateDashboard:
             merged = json.loads(created.json_metadata)
             # Caller overrides land verbatim
             assert merged["label_colors"] == {"Electronics": "#4C78A8"}
-            assert merged["cross_filters_enabled"] is True
+            assert merged["cross_filters_enabled"] is False
             # Defaults for keys the caller did NOT supply must still be
             # present — this is what makes it a *shallow merge* rather
             # than a full replace.
             assert "timed_refresh_immune_slices" in merged
             assert "refresh_frequency" in merged
+
+    @patch("superset.models.dashboard.Dashboard")
+    @patch("superset.daos.dashboard.DashboardDAO.find_by_id")
+    @patch("superset.db.session")
+    @pytest.mark.asyncio
+    async def test_generate_dashboard_turns_cross_filters_on(
+        self,
+        mock_db_session,
+        mock_find_by_id,
+        mock_dashboard_cls,
+        mcp_server,
+    ) -> None:
+        """Charts of a new report filter each other, as in a dashboard the
+        editor creates (no ``cross_filters_enabled`` reads as on there)."""
+        from superset.utils import json
+
+        charts = [_mock_chart(id=1, slice_name="Sales")]
+        mock_dashboard = _mock_dashboard(id=73, title="Interactive")
+        _setup_generate_dashboard_mocks(
+            mock_db_session,
+            mock_find_by_id,
+            mock_dashboard_cls,
+            charts,
+            mock_dashboard,
+        )
+
+        async with Client(mcp_server) as client:
+            result = await client.call_tool(
+                "generate_dashboard",
+                {"request": {"chart_ids": [1], "dashboard_title": "Interactive"}},
+            )
+
+            assert result.structured_content["error"] is None
+            created = mock_dashboard_cls.return_value
+            assert json.loads(created.json_metadata)["cross_filters_enabled"] is True
 
     @patch("superset.models.dashboard.Dashboard")
     @patch("superset.daos.dashboard.DashboardDAO.find_by_id")

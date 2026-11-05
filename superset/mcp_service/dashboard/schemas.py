@@ -713,7 +713,7 @@ class GenerateDashboardRequest(BaseModel):
             "json_metadata. Common fields: label_colors (per-series brand "
             "palette, e.g. {'Electronics': '#4C78A8'}), color_scheme "
             "(named Superset palette), cross_filters_enabled (bool, "
-            "default False — set True for interactive dashboards), "
+            "default True as in the editor; False turns cross-filters off), "
             "shared_label_colors (list of label names for cross-chart "
             "color consistency). Merged shallowly into the defaults; pass "
             "only the keys you want to override."
