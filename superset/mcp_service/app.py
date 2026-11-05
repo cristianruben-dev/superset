@@ -913,6 +913,9 @@ from superset.mcp_service.dataset.tool import (  # noqa: F401, E402
 from superset.mcp_service.explore.tool import (  # noqa: F401, E402
     generate_explore_link,
 )
+from superset.mcp_service.guidance import (  # noqa: F401, E402
+    resources as guidance_resources,
+)
 from superset.mcp_service.history.tool import (  # noqa: F401, E402
     get_version_diff,
     list_trash,

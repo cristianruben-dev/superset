@@ -526,6 +526,15 @@ def test_mcp_resources_registered():
         "instance://metadata resource not registered - "
         "check superset/mcp_service/system/resources/ imports"
     )
+    for uri in (
+        "auradata://brand",
+        "auradata://report-conventions",
+        "auradata://format-catalog",
+    ):
+        assert uri in resource_uris, (
+            f"{uri} resource not registered - "
+            "check superset/mcp_service/guidance/resources/ imports"
+        )
 
 
 def test_mcp_packages_discoverable_by_setuptools():
