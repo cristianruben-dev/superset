@@ -28,11 +28,10 @@ from superset.auradata.layout import (
     mobile_layout_of,
     page_ids,
     page_objects,
-    page_title,
     visual_format_of,
 )
 from superset.auradata.layout.interactivity import filter_scope_level
-from superset.mcp_service.report_layout.editing import box, Report
+from superset.mcp_service.report_layout.editing import box, page_name, Report
 from superset.mcp_service.report_layout.interactivity import (
     auto_apply_of,
     dashboard_metadata,
@@ -182,7 +181,7 @@ def build_structure(report: Report, include_format: bool = True) -> ReportStruct
         pages.append(
             PageSummary(
                 id=page_id,
-                name=page_title(layout, page_id) or f"Page {index}",
+                name=page_name(layout, page_id, index),
                 index=index,
                 hidden=bool(meta.get(keys.HIDDEN_PAGE_KEY)),
                 shown_to_viewers=not is_hidden_page(meta),

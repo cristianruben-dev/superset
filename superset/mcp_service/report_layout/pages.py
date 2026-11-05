@@ -26,6 +26,7 @@ from superset.auradata.layout import keys, page_ids, page_title, top_tabs_id
 from superset.mcp_service.dashboard.constants import generate_id
 from superset.mcp_service.report_layout.editing import (
     chart_ids_under,
+    default_page_name,
     LayoutEditError,
     Report,
     resolve_page,
@@ -33,10 +34,6 @@ from superset.mcp_service.report_layout.editing import (
 )
 
 TAB_DEFAULTS = {"defaultText": "Tab title", "placeholder": "Tab title"}
-
-
-def _default_name(index: int) -> str:
-    return f"Página {index}"
 
 
 def make_tabs(report: Report) -> str:
@@ -55,7 +52,7 @@ def make_tabs(report: Report) -> str:
     tabs_id = generate_id(keys.TABS_TYPE)
     first_id = generate_id(keys.TAB_TYPE)
     top_meta = dict(top.get("meta") or {})
-    first_meta: dict[str, Any] = {"text": _default_name(1), **TAB_DEFAULTS}
+    first_meta: dict[str, Any] = {"text": default_page_name(1), **TAB_DEFAULTS}
     if mobile := top_meta.pop(keys.MOBILE_LAYOUT_KEY, None):
         first_meta[keys.MOBILE_LAYOUT_KEY] = mobile
     layout[first_id] = {
@@ -88,7 +85,7 @@ def add_page(report: Report, name: str | None, position: int | None) -> str:
         "id": page_id,
         "children": [],
         "parents": [],
-        "meta": {"text": name or _default_name(len(children) + 1), **TAB_DEFAULTS},
+        "meta": {"text": name or default_page_name(len(children) + 1), **TAB_DEFAULTS},
     }
     index = len(children) if position is None else min(position - 1, len(children))
     children.insert(index, page_id)
@@ -96,9 +93,11 @@ def add_page(report: Report, name: str | None, position: int | None) -> str:
 
 
 def rename_page(report: Report, page: Any, name: str) -> str:
-    # A report of one page gets its tab, which holds the name
-    make_tabs(report)
+    """Renames a page; returns its id, which changes for a report of one page."""
     page_id = resolve_page(report, page)
+    if page_id == keys.GRID_ID:
+        # A report of one page gets its tab, which holds the name
+        page_id = report.layout[make_tabs(report)]["children"][0]
     report.layout[page_id].setdefault("meta", {})["text"] = name
     return page_id
 

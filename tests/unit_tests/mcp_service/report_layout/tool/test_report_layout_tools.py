@@ -134,6 +134,31 @@ async def test_a_write_saves_the_title_header_the_editor_adds(
 
 
 @pytest.mark.asyncio
+@pytest.mark.parametrize("page", ["GRID_ID", "listed name", 1])
+async def test_rename_the_page_of_a_report_of_one_page(
+    world: dict[str, Any], page: Any
+) -> None:
+    as_user(world, "Ana")
+    structure = ok(
+        await call("get_report_structure", {"dashboard": world["dashboard"].id})
+    )
+    assert [p["id"] for p in structure["pages"]] == ["GRID_ID"]
+    if page == "listed name":
+        page = structure["pages"][0]["name"]
+
+    result = ok(await as_editor(world, "rename_page", page=page, name="Resumen"))
+
+    data = layout(world)
+    tabs = data[data["ROOT_ID"]["children"][0]]
+    assert tabs["children"] == [result["page"]]
+    first = data[result["page"]]
+    assert first["meta"]["text"] == "Resumen"
+    assert first["children"] == ["ROW-1"]
+    # The mobile layout goes with the objects to the page
+    assert first["meta"]["auradataMobile"]["items"][0]["id"] == "CHART-1"
+
+
+@pytest.mark.asyncio
 async def test_pages_rename_reorder_hide_and_delete(world: dict[str, Any]) -> None:
     ok(await as_editor(world, "add_page", name="Detalle"))
     ok(await as_editor(world, "add_page", name="Notas", position=1))

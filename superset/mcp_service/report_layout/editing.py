@@ -206,6 +206,16 @@ def save_report(
 # Pages and objects
 
 
+def default_page_name(index: int) -> str:
+    """The name a page without one shows, from its position (from 1)."""
+    return f"Página {index}"
+
+
+def page_name(layout: dict[str, Any], page_id: str, index: int) -> str:
+    """The name of a page as tools list it: its own or the default one."""
+    return page_title(layout, page_id) or default_page_name(index)
+
+
 def resolve_page(report: Report, page: str | int | None) -> str:
     """A page by id, name (any case) or position from 1; the first by default."""
     pages = page_ids(report.layout)
@@ -221,7 +231,9 @@ def resolve_page(report: Report, page: str | int | None) -> str:
         if page in pages:
             return page
         named = [
-            p for p in pages if page_title(report.layout, p).lower() == page.lower()
+            p
+            for index, p in enumerate(pages, start=1)
+            if page_name(report.layout, p, index).lower() == page.lower()
         ]
         if len(named) == 1:
             return named[0]
@@ -231,7 +243,10 @@ def resolve_page(report: Report, page: str | int | None) -> str:
             )
     raise LayoutEditError(
         f"Page not found: {page!r}. Pages: "
-        + ", ".join(f"{p} ({page_title(report.layout, p)!r})" for p in pages),
+        + ", ".join(
+            f"{p} ({page_name(report.layout, p, index)!r})"
+            for index, p in enumerate(pages, start=1)
+        ),
         "NotFound",
     )
 
