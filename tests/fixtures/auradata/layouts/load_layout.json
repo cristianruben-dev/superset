@@ -1,0 +1,2666 @@
+{
+  "fn": "loadLayout",
+  "cases": [
+    {
+      "name": "generate_dashboard with 1 charts",
+      "args": [
+        {
+          "CHART-1": {
+            "children": [],
+            "id": "CHART-1",
+            "meta": {
+              "chartId": 1,
+              "height": 12,
+              "sliceName": "Chart 1",
+              "uuid": "chart-1",
+              "width": 30,
+              "auradataPos": {
+                "x": 0,
+                "y": 0
+              }
+            },
+            "parents": [
+              "ROOT_ID",
+              "GRID_ID",
+              "ROW-45b4407a"
+            ],
+            "type": "CHART"
+          },
+          "ROW-45b4407a": {
+            "children": [
+              "CHART-1"
+            ],
+            "id": "ROW-45b4407a",
+            "meta": {
+              "background": "BACKGROUND_TRANSPARENT"
+            },
+            "parents": [
+              "ROOT_ID",
+              "GRID_ID"
+            ],
+            "type": "ROW"
+          },
+          "GRID_ID": {
+            "children": [
+              "ROW-45b4407a"
+            ],
+            "id": "GRID_ID",
+            "parents": [
+              "ROOT_ID"
+            ],
+            "type": "GRID"
+          },
+          "ROOT_ID": {
+            "children": [
+              "GRID_ID"
+            ],
+            "id": "ROOT_ID",
+            "meta": {
+              "auradataCells": true
+            },
+            "type": "ROOT"
+          },
+          "DASHBOARD_VERSION_KEY": "v2"
+        }
+      ],
+      "expected": {
+        "CHART-1": {
+          "children": [],
+          "id": "CHART-1",
+          "meta": {
+            "chartId": 1,
+            "height": 12,
+            "sliceName": "Chart 1",
+            "uuid": "chart-1",
+            "width": 30,
+            "auradataPos": {
+              "x": 0,
+              "y": 0
+            }
+          },
+          "parents": [
+            "ROOT_ID",
+            "GRID_ID",
+            "ROW-45b4407a"
+          ],
+          "type": "CHART"
+        },
+        "ROW-45b4407a": {
+          "children": [
+            "CHART-1"
+          ],
+          "id": "ROW-45b4407a",
+          "meta": {
+            "background": "BACKGROUND_TRANSPARENT"
+          },
+          "parents": [
+            "ROOT_ID",
+            "GRID_ID"
+          ],
+          "type": "ROW"
+        },
+        "GRID_ID": {
+          "children": [
+            "ROW-45b4407a"
+          ],
+          "id": "GRID_ID",
+          "parents": [
+            "ROOT_ID"
+          ],
+          "type": "GRID"
+        },
+        "ROOT_ID": {
+          "children": [
+            "GRID_ID"
+          ],
+          "id": "ROOT_ID",
+          "meta": {
+            "auradataCells": true
+          },
+          "type": "ROOT"
+        },
+        "DASHBOARD_VERSION_KEY": "v2"
+      }
+    },
+    {
+      "name": "generate_dashboard with 6 charts",
+      "args": [
+        {
+          "CHART-1": {
+            "children": [],
+            "id": "CHART-1",
+            "meta": {
+              "chartId": 1,
+              "height": 12,
+              "sliceName": "Chart 1",
+              "uuid": "chart-1",
+              "width": 30,
+              "auradataPos": {
+                "x": 0,
+                "y": 0
+              }
+            },
+            "parents": [
+              "ROOT_ID",
+              "GRID_ID",
+              "ROW-0f097c25"
+            ],
+            "type": "CHART"
+          },
+          "ROW-0f097c25": {
+            "children": [
+              "CHART-1"
+            ],
+            "id": "ROW-0f097c25",
+            "meta": {
+              "background": "BACKGROUND_TRANSPARENT"
+            },
+            "parents": [
+              "ROOT_ID",
+              "GRID_ID"
+            ],
+            "type": "ROW"
+          },
+          "CHART-2": {
+            "children": [],
+            "id": "CHART-2",
+            "meta": {
+              "chartId": 2,
+              "height": 12,
+              "sliceName": "Chart 2",
+              "uuid": "chart-2",
+              "width": 30,
+              "auradataPos": {
+                "x": 30,
+                "y": 0
+              }
+            },
+            "parents": [
+              "ROOT_ID",
+              "GRID_ID",
+              "ROW-01426076"
+            ],
+            "type": "CHART"
+          },
+          "ROW-01426076": {
+            "children": [
+              "CHART-2"
+            ],
+            "id": "ROW-01426076",
+            "meta": {
+              "background": "BACKGROUND_TRANSPARENT"
+            },
+            "parents": [
+              "ROOT_ID",
+              "GRID_ID"
+            ],
+            "type": "ROW"
+          },
+          "CHART-3": {
+            "children": [],
+            "id": "CHART-3",
+            "meta": {
+              "chartId": 3,
+              "height": 12,
+              "sliceName": "Chart 3",
+              "uuid": "chart-3",
+              "width": 30,
+              "auradataPos": {
+                "x": 0,
+                "y": 12
+              }
+            },
+            "parents": [
+              "ROOT_ID",
+              "GRID_ID",
+              "ROW-635943ff"
+            ],
+            "type": "CHART"
+          },
+          "ROW-635943ff": {
+            "children": [
+              "CHART-3"
+            ],
+            "id": "ROW-635943ff",
+            "meta": {
+              "background": "BACKGROUND_TRANSPARENT"
+            },
+            "parents": [
+              "ROOT_ID",
+              "GRID_ID"
+            ],
+            "type": "ROW"
+          },
+          "CHART-4": {
+            "children": [],
+            "id": "CHART-4",
+            "meta": {
+              "chartId": 4,
+              "height": 12,
+              "sliceName": "Chart 4",
+              "uuid": "chart-4",
+              "width": 30,
+              "auradataPos": {
+                "x": 30,
+                "y": 12
+              }
+            },
+            "parents": [
+              "ROOT_ID",
+              "GRID_ID",
+              "ROW-f60b1c08"
+            ],
+            "type": "CHART"
+          },
+          "ROW-f60b1c08": {
+            "children": [
+              "CHART-4"
+            ],
+            "id": "ROW-f60b1c08",
+            "meta": {
+              "background": "BACKGROUND_TRANSPARENT"
+            },
+            "parents": [
+              "ROOT_ID",
+              "GRID_ID"
+            ],
+            "type": "ROW"
+          },
+          "CHART-5": {
+            "children": [],
+            "id": "CHART-5",
+            "meta": {
+              "chartId": 5,
+              "height": 12,
+              "sliceName": "Chart 5",
+              "uuid": "chart-5",
+              "width": 30,
+              "auradataPos": {
+                "x": 0,
+                "y": 24
+              }
+            },
+            "parents": [
+              "ROOT_ID",
+              "GRID_ID",
+              "ROW-130c7112"
+            ],
+            "type": "CHART"
+          },
+          "ROW-130c7112": {
+            "children": [
+              "CHART-5"
+            ],
+            "id": "ROW-130c7112",
+            "meta": {
+              "background": "BACKGROUND_TRANSPARENT"
+            },
+            "parents": [
+              "ROOT_ID",
+              "GRID_ID"
+            ],
+            "type": "ROW"
+          },
+          "CHART-6": {
+            "children": [],
+            "id": "CHART-6",
+            "meta": {
+              "chartId": 6,
+              "height": 12,
+              "sliceName": "Chart 6",
+              "uuid": "chart-6",
+              "width": 30,
+              "auradataPos": {
+                "x": 30,
+                "y": 24
+              }
+            },
+            "parents": [
+              "ROOT_ID",
+              "GRID_ID",
+              "ROW-fded3551"
+            ],
+            "type": "CHART"
+          },
+          "ROW-fded3551": {
+            "children": [
+              "CHART-6"
+            ],
+            "id": "ROW-fded3551",
+            "meta": {
+              "background": "BACKGROUND_TRANSPARENT"
+            },
+            "parents": [
+              "ROOT_ID",
+              "GRID_ID"
+            ],
+            "type": "ROW"
+          },
+          "GRID_ID": {
+            "children": [
+              "ROW-0f097c25",
+              "ROW-01426076",
+              "ROW-635943ff",
+              "ROW-f60b1c08",
+              "ROW-130c7112",
+              "ROW-fded3551"
+            ],
+            "id": "GRID_ID",
+            "parents": [
+              "ROOT_ID"
+            ],
+            "type": "GRID"
+          },
+          "ROOT_ID": {
+            "children": [
+              "GRID_ID"
+            ],
+            "id": "ROOT_ID",
+            "meta": {
+              "auradataCells": true,
+              "auradataCanvas": {
+                "size": {
+                  "mode": "custom",
+                  "width": 1920,
+                  "height": 1152
+                }
+              }
+            },
+            "type": "ROOT"
+          },
+          "DASHBOARD_VERSION_KEY": "v2"
+        }
+      ],
+      "expected": {
+        "CHART-1": {
+          "children": [],
+          "id": "CHART-1",
+          "meta": {
+            "chartId": 1,
+            "height": 12,
+            "sliceName": "Chart 1",
+            "uuid": "chart-1",
+            "width": 30,
+            "auradataPos": {
+              "x": 0,
+              "y": 0
+            }
+          },
+          "parents": [
+            "ROOT_ID",
+            "GRID_ID",
+            "ROW-0f097c25"
+          ],
+          "type": "CHART"
+        },
+        "ROW-0f097c25": {
+          "children": [
+            "CHART-1"
+          ],
+          "id": "ROW-0f097c25",
+          "meta": {
+            "background": "BACKGROUND_TRANSPARENT"
+          },
+          "parents": [
+            "ROOT_ID",
+            "GRID_ID"
+          ],
+          "type": "ROW"
+        },
+        "CHART-2": {
+          "children": [],
+          "id": "CHART-2",
+          "meta": {
+            "chartId": 2,
+            "height": 12,
+            "sliceName": "Chart 2",
+            "uuid": "chart-2",
+            "width": 30,
+            "auradataPos": {
+              "x": 30,
+              "y": 0
+            }
+          },
+          "parents": [
+            "ROOT_ID",
+            "GRID_ID",
+            "ROW-01426076"
+          ],
+          "type": "CHART"
+        },
+        "ROW-01426076": {
+          "children": [
+            "CHART-2"
+          ],
+          "id": "ROW-01426076",
+          "meta": {
+            "background": "BACKGROUND_TRANSPARENT"
+          },
+          "parents": [
+            "ROOT_ID",
+            "GRID_ID"
+          ],
+          "type": "ROW"
+        },
+        "CHART-3": {
+          "children": [],
+          "id": "CHART-3",
+          "meta": {
+            "chartId": 3,
+            "height": 12,
+            "sliceName": "Chart 3",
+            "uuid": "chart-3",
+            "width": 30,
+            "auradataPos": {
+              "x": 0,
+              "y": 12
+            }
+          },
+          "parents": [
+            "ROOT_ID",
+            "GRID_ID",
+            "ROW-635943ff"
+          ],
+          "type": "CHART"
+        },
+        "ROW-635943ff": {
+          "children": [
+            "CHART-3"
+          ],
+          "id": "ROW-635943ff",
+          "meta": {
+            "background": "BACKGROUND_TRANSPARENT"
+          },
+          "parents": [
+            "ROOT_ID",
+            "GRID_ID"
+          ],
+          "type": "ROW"
+        },
+        "CHART-4": {
+          "children": [],
+          "id": "CHART-4",
+          "meta": {
+            "chartId": 4,
+            "height": 12,
+            "sliceName": "Chart 4",
+            "uuid": "chart-4",
+            "width": 30,
+            "auradataPos": {
+              "x": 30,
+              "y": 12
+            }
+          },
+          "parents": [
+            "ROOT_ID",
+            "GRID_ID",
+            "ROW-f60b1c08"
+          ],
+          "type": "CHART"
+        },
+        "ROW-f60b1c08": {
+          "children": [
+            "CHART-4"
+          ],
+          "id": "ROW-f60b1c08",
+          "meta": {
+            "background": "BACKGROUND_TRANSPARENT"
+          },
+          "parents": [
+            "ROOT_ID",
+            "GRID_ID"
+          ],
+          "type": "ROW"
+        },
+        "CHART-5": {
+          "children": [],
+          "id": "CHART-5",
+          "meta": {
+            "chartId": 5,
+            "height": 12,
+            "sliceName": "Chart 5",
+            "uuid": "chart-5",
+            "width": 30,
+            "auradataPos": {
+              "x": 0,
+              "y": 24
+            }
+          },
+          "parents": [
+            "ROOT_ID",
+            "GRID_ID",
+            "ROW-130c7112"
+          ],
+          "type": "CHART"
+        },
+        "ROW-130c7112": {
+          "children": [
+            "CHART-5"
+          ],
+          "id": "ROW-130c7112",
+          "meta": {
+            "background": "BACKGROUND_TRANSPARENT"
+          },
+          "parents": [
+            "ROOT_ID",
+            "GRID_ID"
+          ],
+          "type": "ROW"
+        },
+        "CHART-6": {
+          "children": [],
+          "id": "CHART-6",
+          "meta": {
+            "chartId": 6,
+            "height": 12,
+            "sliceName": "Chart 6",
+            "uuid": "chart-6",
+            "width": 30,
+            "auradataPos": {
+              "x": 30,
+              "y": 24
+            }
+          },
+          "parents": [
+            "ROOT_ID",
+            "GRID_ID",
+            "ROW-fded3551"
+          ],
+          "type": "CHART"
+        },
+        "ROW-fded3551": {
+          "children": [
+            "CHART-6"
+          ],
+          "id": "ROW-fded3551",
+          "meta": {
+            "background": "BACKGROUND_TRANSPARENT"
+          },
+          "parents": [
+            "ROOT_ID",
+            "GRID_ID"
+          ],
+          "type": "ROW"
+        },
+        "GRID_ID": {
+          "children": [
+            "ROW-0f097c25",
+            "ROW-01426076",
+            "ROW-635943ff",
+            "ROW-f60b1c08",
+            "ROW-130c7112",
+            "ROW-fded3551"
+          ],
+          "id": "GRID_ID",
+          "parents": [
+            "ROOT_ID"
+          ],
+          "type": "GRID"
+        },
+        "ROOT_ID": {
+          "children": [
+            "GRID_ID"
+          ],
+          "id": "ROOT_ID",
+          "meta": {
+            "auradataCells": true,
+            "auradataCanvas": {
+              "size": {
+                "mode": "custom",
+                "width": 1920,
+                "height": 1152
+              }
+            }
+          },
+          "type": "ROOT"
+        },
+        "DASHBOARD_VERSION_KEY": "v2"
+      }
+    },
+    {
+      "name": "generate_dashboard with 25 charts",
+      "args": [
+        {
+          "CHART-1": {
+            "children": [],
+            "id": "CHART-1",
+            "meta": {
+              "chartId": 1,
+              "height": 12,
+              "sliceName": "Chart 1",
+              "uuid": "chart-1",
+              "width": 30,
+              "auradataPos": {
+                "x": 0,
+                "y": 0
+              }
+            },
+            "parents": [
+              "ROOT_ID",
+              "TABS-e2ec72ea",
+              "TAB-0efd1f30",
+              "ROW-49902b59"
+            ],
+            "type": "CHART"
+          },
+          "ROW-49902b59": {
+            "children": [
+              "CHART-1"
+            ],
+            "id": "ROW-49902b59",
+            "meta": {
+              "background": "BACKGROUND_TRANSPARENT"
+            },
+            "parents": [
+              "ROOT_ID",
+              "TABS-e2ec72ea",
+              "TAB-0efd1f30"
+            ],
+            "type": "ROW"
+          },
+          "CHART-2": {
+            "children": [],
+            "id": "CHART-2",
+            "meta": {
+              "chartId": 2,
+              "height": 12,
+              "sliceName": "Chart 2",
+              "uuid": "chart-2",
+              "width": 30,
+              "auradataPos": {
+                "x": 30,
+                "y": 0
+              }
+            },
+            "parents": [
+              "ROOT_ID",
+              "TABS-e2ec72ea",
+              "TAB-0efd1f30",
+              "ROW-0733778f"
+            ],
+            "type": "CHART"
+          },
+          "ROW-0733778f": {
+            "children": [
+              "CHART-2"
+            ],
+            "id": "ROW-0733778f",
+            "meta": {
+              "background": "BACKGROUND_TRANSPARENT"
+            },
+            "parents": [
+              "ROOT_ID",
+              "TABS-e2ec72ea",
+              "TAB-0efd1f30"
+            ],
+            "type": "ROW"
+          },
+          "CHART-3": {
+            "children": [],
+            "id": "CHART-3",
+            "meta": {
+              "chartId": 3,
+              "height": 12,
+              "sliceName": "Chart 3",
+              "uuid": "chart-3",
+              "width": 30,
+              "auradataPos": {
+                "x": 0,
+                "y": 12
+              }
+            },
+            "parents": [
+              "ROOT_ID",
+              "TABS-e2ec72ea",
+              "TAB-0efd1f30",
+              "ROW-268c76f4"
+            ],
+            "type": "CHART"
+          },
+          "ROW-268c76f4": {
+            "children": [
+              "CHART-3"
+            ],
+            "id": "ROW-268c76f4",
+            "meta": {
+              "background": "BACKGROUND_TRANSPARENT"
+            },
+            "parents": [
+              "ROOT_ID",
+              "TABS-e2ec72ea",
+              "TAB-0efd1f30"
+            ],
+            "type": "ROW"
+          },
+          "CHART-4": {
+            "children": [],
+            "id": "CHART-4",
+            "meta": {
+              "chartId": 4,
+              "height": 12,
+              "sliceName": "Chart 4",
+              "uuid": "chart-4",
+              "width": 30,
+              "auradataPos": {
+                "x": 30,
+                "y": 12
+              }
+            },
+            "parents": [
+              "ROOT_ID",
+              "TABS-e2ec72ea",
+              "TAB-0efd1f30",
+              "ROW-2fd96328"
+            ],
+            "type": "CHART"
+          },
+          "ROW-2fd96328": {
+            "children": [
+              "CHART-4"
+            ],
+            "id": "ROW-2fd96328",
+            "meta": {
+              "background": "BACKGROUND_TRANSPARENT"
+            },
+            "parents": [
+              "ROOT_ID",
+              "TABS-e2ec72ea",
+              "TAB-0efd1f30"
+            ],
+            "type": "ROW"
+          },
+          "CHART-5": {
+            "children": [],
+            "id": "CHART-5",
+            "meta": {
+              "chartId": 5,
+              "height": 12,
+              "sliceName": "Chart 5",
+              "uuid": "chart-5",
+              "width": 30,
+              "auradataPos": {
+                "x": 0,
+                "y": 24
+              }
+            },
+            "parents": [
+              "ROOT_ID",
+              "TABS-e2ec72ea",
+              "TAB-0efd1f30",
+              "ROW-308cedfa"
+            ],
+            "type": "CHART"
+          },
+          "ROW-308cedfa": {
+            "children": [
+              "CHART-5"
+            ],
+            "id": "ROW-308cedfa",
+            "meta": {
+              "background": "BACKGROUND_TRANSPARENT"
+            },
+            "parents": [
+              "ROOT_ID",
+              "TABS-e2ec72ea",
+              "TAB-0efd1f30"
+            ],
+            "type": "ROW"
+          },
+          "CHART-6": {
+            "children": [],
+            "id": "CHART-6",
+            "meta": {
+              "chartId": 6,
+              "height": 12,
+              "sliceName": "Chart 6",
+              "uuid": "chart-6",
+              "width": 30,
+              "auradataPos": {
+                "x": 30,
+                "y": 24
+              }
+            },
+            "parents": [
+              "ROOT_ID",
+              "TABS-e2ec72ea",
+              "TAB-0efd1f30",
+              "ROW-0fe314e9"
+            ],
+            "type": "CHART"
+          },
+          "ROW-0fe314e9": {
+            "children": [
+              "CHART-6"
+            ],
+            "id": "ROW-0fe314e9",
+            "meta": {
+              "background": "BACKGROUND_TRANSPARENT"
+            },
+            "parents": [
+              "ROOT_ID",
+              "TABS-e2ec72ea",
+              "TAB-0efd1f30"
+            ],
+            "type": "ROW"
+          },
+          "CHART-7": {
+            "children": [],
+            "id": "CHART-7",
+            "meta": {
+              "chartId": 7,
+              "height": 12,
+              "sliceName": "Chart 7",
+              "uuid": "chart-7",
+              "width": 30,
+              "auradataPos": {
+                "x": 0,
+                "y": 36
+              }
+            },
+            "parents": [
+              "ROOT_ID",
+              "TABS-e2ec72ea",
+              "TAB-0efd1f30",
+              "ROW-1e9a7ad7"
+            ],
+            "type": "CHART"
+          },
+          "ROW-1e9a7ad7": {
+            "children": [
+              "CHART-7"
+            ],
+            "id": "ROW-1e9a7ad7",
+            "meta": {
+              "background": "BACKGROUND_TRANSPARENT"
+            },
+            "parents": [
+              "ROOT_ID",
+              "TABS-e2ec72ea",
+              "TAB-0efd1f30"
+            ],
+            "type": "ROW"
+          },
+          "CHART-8": {
+            "children": [],
+            "id": "CHART-8",
+            "meta": {
+              "chartId": 8,
+              "height": 12,
+              "sliceName": "Chart 8",
+              "uuid": "chart-8",
+              "width": 30,
+              "auradataPos": {
+                "x": 30,
+                "y": 36
+              }
+            },
+            "parents": [
+              "ROOT_ID",
+              "TABS-e2ec72ea",
+              "TAB-0efd1f30",
+              "ROW-8f35c407"
+            ],
+            "type": "CHART"
+          },
+          "ROW-8f35c407": {
+            "children": [
+              "CHART-8"
+            ],
+            "id": "ROW-8f35c407",
+            "meta": {
+              "background": "BACKGROUND_TRANSPARENT"
+            },
+            "parents": [
+              "ROOT_ID",
+              "TABS-e2ec72ea",
+              "TAB-0efd1f30"
+            ],
+            "type": "ROW"
+          },
+          "CHART-9": {
+            "children": [],
+            "id": "CHART-9",
+            "meta": {
+              "chartId": 9,
+              "height": 12,
+              "sliceName": "Chart 9",
+              "uuid": "chart-9",
+              "width": 30,
+              "auradataPos": {
+                "x": 0,
+                "y": 48
+              }
+            },
+            "parents": [
+              "ROOT_ID",
+              "TABS-e2ec72ea",
+              "TAB-0efd1f30",
+              "ROW-7e008ea0"
+            ],
+            "type": "CHART"
+          },
+          "ROW-7e008ea0": {
+            "children": [
+              "CHART-9"
+            ],
+            "id": "ROW-7e008ea0",
+            "meta": {
+              "background": "BACKGROUND_TRANSPARENT"
+            },
+            "parents": [
+              "ROOT_ID",
+              "TABS-e2ec72ea",
+              "TAB-0efd1f30"
+            ],
+            "type": "ROW"
+          },
+          "CHART-10": {
+            "children": [],
+            "id": "CHART-10",
+            "meta": {
+              "chartId": 10,
+              "height": 12,
+              "sliceName": "Chart 10",
+              "uuid": "chart-10",
+              "width": 30,
+              "auradataPos": {
+                "x": 30,
+                "y": 48
+              }
+            },
+            "parents": [
+              "ROOT_ID",
+              "TABS-e2ec72ea",
+              "TAB-0efd1f30",
+              "ROW-3cc5b867"
+            ],
+            "type": "CHART"
+          },
+          "ROW-3cc5b867": {
+            "children": [
+              "CHART-10"
+            ],
+            "id": "ROW-3cc5b867",
+            "meta": {
+              "background": "BACKGROUND_TRANSPARENT"
+            },
+            "parents": [
+              "ROOT_ID",
+              "TABS-e2ec72ea",
+              "TAB-0efd1f30"
+            ],
+            "type": "ROW"
+          },
+          "CHART-11": {
+            "children": [],
+            "id": "CHART-11",
+            "meta": {
+              "chartId": 11,
+              "height": 12,
+              "sliceName": "Chart 11",
+              "uuid": "chart-11",
+              "width": 30,
+              "auradataPos": {
+                "x": 0,
+                "y": 60
+              }
+            },
+            "parents": [
+              "ROOT_ID",
+              "TABS-e2ec72ea",
+              "TAB-0efd1f30",
+              "ROW-c93da97d"
+            ],
+            "type": "CHART"
+          },
+          "ROW-c93da97d": {
+            "children": [
+              "CHART-11"
+            ],
+            "id": "ROW-c93da97d",
+            "meta": {
+              "background": "BACKGROUND_TRANSPARENT"
+            },
+            "parents": [
+              "ROOT_ID",
+              "TABS-e2ec72ea",
+              "TAB-0efd1f30"
+            ],
+            "type": "ROW"
+          },
+          "CHART-12": {
+            "children": [],
+            "id": "CHART-12",
+            "meta": {
+              "chartId": 12,
+              "height": 12,
+              "sliceName": "Chart 12",
+              "uuid": "chart-12",
+              "width": 30,
+              "auradataPos": {
+                "x": 30,
+                "y": 60
+              }
+            },
+            "parents": [
+              "ROOT_ID",
+              "TABS-e2ec72ea",
+              "TAB-0efd1f30",
+              "ROW-2dca20ee"
+            ],
+            "type": "CHART"
+          },
+          "ROW-2dca20ee": {
+            "children": [
+              "CHART-12"
+            ],
+            "id": "ROW-2dca20ee",
+            "meta": {
+              "background": "BACKGROUND_TRANSPARENT"
+            },
+            "parents": [
+              "ROOT_ID",
+              "TABS-e2ec72ea",
+              "TAB-0efd1f30"
+            ],
+            "type": "ROW"
+          },
+          "CHART-13": {
+            "children": [],
+            "id": "CHART-13",
+            "meta": {
+              "chartId": 13,
+              "height": 12,
+              "sliceName": "Chart 13",
+              "uuid": "chart-13",
+              "width": 30,
+              "auradataPos": {
+                "x": 0,
+                "y": 72
+              }
+            },
+            "parents": [
+              "ROOT_ID",
+              "TABS-e2ec72ea",
+              "TAB-0efd1f30",
+              "ROW-ebe69e0f"
+            ],
+            "type": "CHART"
+          },
+          "ROW-ebe69e0f": {
+            "children": [
+              "CHART-13"
+            ],
+            "id": "ROW-ebe69e0f",
+            "meta": {
+              "background": "BACKGROUND_TRANSPARENT"
+            },
+            "parents": [
+              "ROOT_ID",
+              "TABS-e2ec72ea",
+              "TAB-0efd1f30"
+            ],
+            "type": "ROW"
+          },
+          "CHART-14": {
+            "children": [],
+            "id": "CHART-14",
+            "meta": {
+              "chartId": 14,
+              "height": 12,
+              "sliceName": "Chart 14",
+              "uuid": "chart-14",
+              "width": 30,
+              "auradataPos": {
+                "x": 30,
+                "y": 72
+              }
+            },
+            "parents": [
+              "ROOT_ID",
+              "TABS-e2ec72ea",
+              "TAB-0efd1f30",
+              "ROW-1ade4d36"
+            ],
+            "type": "CHART"
+          },
+          "ROW-1ade4d36": {
+            "children": [
+              "CHART-14"
+            ],
+            "id": "ROW-1ade4d36",
+            "meta": {
+              "background": "BACKGROUND_TRANSPARENT"
+            },
+            "parents": [
+              "ROOT_ID",
+              "TABS-e2ec72ea",
+              "TAB-0efd1f30"
+            ],
+            "type": "ROW"
+          },
+          "CHART-15": {
+            "children": [],
+            "id": "CHART-15",
+            "meta": {
+              "chartId": 15,
+              "height": 12,
+              "sliceName": "Chart 15",
+              "uuid": "chart-15",
+              "width": 30,
+              "auradataPos": {
+                "x": 0,
+                "y": 84
+              }
+            },
+            "parents": [
+              "ROOT_ID",
+              "TABS-e2ec72ea",
+              "TAB-0efd1f30",
+              "ROW-391cc2f0"
+            ],
+            "type": "CHART"
+          },
+          "ROW-391cc2f0": {
+            "children": [
+              "CHART-15"
+            ],
+            "id": "ROW-391cc2f0",
+            "meta": {
+              "background": "BACKGROUND_TRANSPARENT"
+            },
+            "parents": [
+              "ROOT_ID",
+              "TABS-e2ec72ea",
+              "TAB-0efd1f30"
+            ],
+            "type": "ROW"
+          },
+          "CHART-16": {
+            "children": [],
+            "id": "CHART-16",
+            "meta": {
+              "chartId": 16,
+              "height": 12,
+              "sliceName": "Chart 16",
+              "uuid": "chart-16",
+              "width": 30,
+              "auradataPos": {
+                "x": 30,
+                "y": 84
+              }
+            },
+            "parents": [
+              "ROOT_ID",
+              "TABS-e2ec72ea",
+              "TAB-0efd1f30",
+              "ROW-80eaab0d"
+            ],
+            "type": "CHART"
+          },
+          "ROW-80eaab0d": {
+            "children": [
+              "CHART-16"
+            ],
+            "id": "ROW-80eaab0d",
+            "meta": {
+              "background": "BACKGROUND_TRANSPARENT"
+            },
+            "parents": [
+              "ROOT_ID",
+              "TABS-e2ec72ea",
+              "TAB-0efd1f30"
+            ],
+            "type": "ROW"
+          },
+          "CHART-17": {
+            "children": [],
+            "id": "CHART-17",
+            "meta": {
+              "chartId": 17,
+              "height": 12,
+              "sliceName": "Chart 17",
+              "uuid": "chart-17",
+              "width": 30,
+              "auradataPos": {
+                "x": 0,
+                "y": 96
+              }
+            },
+            "parents": [
+              "ROOT_ID",
+              "TABS-e2ec72ea",
+              "TAB-0efd1f30",
+              "ROW-abd5e271"
+            ],
+            "type": "CHART"
+          },
+          "ROW-abd5e271": {
+            "children": [
+              "CHART-17"
+            ],
+            "id": "ROW-abd5e271",
+            "meta": {
+              "background": "BACKGROUND_TRANSPARENT"
+            },
+            "parents": [
+              "ROOT_ID",
+              "TABS-e2ec72ea",
+              "TAB-0efd1f30"
+            ],
+            "type": "ROW"
+          },
+          "CHART-18": {
+            "children": [],
+            "id": "CHART-18",
+            "meta": {
+              "chartId": 18,
+              "height": 12,
+              "sliceName": "Chart 18",
+              "uuid": "chart-18",
+              "width": 30,
+              "auradataPos": {
+                "x": 30,
+                "y": 96
+              }
+            },
+            "parents": [
+              "ROOT_ID",
+              "TABS-e2ec72ea",
+              "TAB-0efd1f30",
+              "ROW-d8bef149"
+            ],
+            "type": "CHART"
+          },
+          "ROW-d8bef149": {
+            "children": [
+              "CHART-18"
+            ],
+            "id": "ROW-d8bef149",
+            "meta": {
+              "background": "BACKGROUND_TRANSPARENT"
+            },
+            "parents": [
+              "ROOT_ID",
+              "TABS-e2ec72ea",
+              "TAB-0efd1f30"
+            ],
+            "type": "ROW"
+          },
+          "CHART-19": {
+            "children": [],
+            "id": "CHART-19",
+            "meta": {
+              "chartId": 19,
+              "height": 12,
+              "sliceName": "Chart 19",
+              "uuid": "chart-19",
+              "width": 30,
+              "auradataPos": {
+                "x": 0,
+                "y": 108
+              }
+            },
+            "parents": [
+              "ROOT_ID",
+              "TABS-e2ec72ea",
+              "TAB-0efd1f30",
+              "ROW-6a19d821"
+            ],
+            "type": "CHART"
+          },
+          "ROW-6a19d821": {
+            "children": [
+              "CHART-19"
+            ],
+            "id": "ROW-6a19d821",
+            "meta": {
+              "background": "BACKGROUND_TRANSPARENT"
+            },
+            "parents": [
+              "ROOT_ID",
+              "TABS-e2ec72ea",
+              "TAB-0efd1f30"
+            ],
+            "type": "ROW"
+          },
+          "CHART-20": {
+            "children": [],
+            "id": "CHART-20",
+            "meta": {
+              "chartId": 20,
+              "height": 12,
+              "sliceName": "Chart 20",
+              "uuid": "chart-20",
+              "width": 30,
+              "auradataPos": {
+                "x": 30,
+                "y": 108
+              }
+            },
+            "parents": [
+              "ROOT_ID",
+              "TABS-e2ec72ea",
+              "TAB-0efd1f30",
+              "ROW-ad1a1241"
+            ],
+            "type": "CHART"
+          },
+          "ROW-ad1a1241": {
+            "children": [
+              "CHART-20"
+            ],
+            "id": "ROW-ad1a1241",
+            "meta": {
+              "background": "BACKGROUND_TRANSPARENT"
+            },
+            "parents": [
+              "ROOT_ID",
+              "TABS-e2ec72ea",
+              "TAB-0efd1f30"
+            ],
+            "type": "ROW"
+          },
+          "TAB-0efd1f30": {
+            "children": [
+              "ROW-49902b59",
+              "ROW-0733778f",
+              "ROW-268c76f4",
+              "ROW-2fd96328",
+              "ROW-308cedfa",
+              "ROW-0fe314e9",
+              "ROW-1e9a7ad7",
+              "ROW-8f35c407",
+              "ROW-7e008ea0",
+              "ROW-3cc5b867",
+              "ROW-c93da97d",
+              "ROW-2dca20ee",
+              "ROW-ebe69e0f",
+              "ROW-1ade4d36",
+              "ROW-391cc2f0",
+              "ROW-80eaab0d",
+              "ROW-abd5e271",
+              "ROW-d8bef149",
+              "ROW-6a19d821",
+              "ROW-ad1a1241"
+            ],
+            "id": "TAB-0efd1f30",
+            "meta": {
+              "text": "P\u00e1gina 1",
+              "defaultText": "Tab title",
+              "placeholder": "Tab title"
+            },
+            "parents": [
+              "ROOT_ID",
+              "TABS-e2ec72ea"
+            ],
+            "type": "TAB"
+          },
+          "CHART-21": {
+            "children": [],
+            "id": "CHART-21",
+            "meta": {
+              "chartId": 21,
+              "height": 12,
+              "sliceName": "Chart 21",
+              "uuid": "chart-21",
+              "width": 30,
+              "auradataPos": {
+                "x": 0,
+                "y": 0
+              }
+            },
+            "parents": [
+              "ROOT_ID",
+              "TABS-e2ec72ea",
+              "TAB-1ba03954",
+              "ROW-b8caecab"
+            ],
+            "type": "CHART"
+          },
+          "ROW-b8caecab": {
+            "children": [
+              "CHART-21"
+            ],
+            "id": "ROW-b8caecab",
+            "meta": {
+              "background": "BACKGROUND_TRANSPARENT"
+            },
+            "parents": [
+              "ROOT_ID",
+              "TABS-e2ec72ea",
+              "TAB-1ba03954"
+            ],
+            "type": "ROW"
+          },
+          "CHART-22": {
+            "children": [],
+            "id": "CHART-22",
+            "meta": {
+              "chartId": 22,
+              "height": 12,
+              "sliceName": "Chart 22",
+              "uuid": "chart-22",
+              "width": 30,
+              "auradataPos": {
+                "x": 30,
+                "y": 0
+              }
+            },
+            "parents": [
+              "ROOT_ID",
+              "TABS-e2ec72ea",
+              "TAB-1ba03954",
+              "ROW-266e7ca9"
+            ],
+            "type": "CHART"
+          },
+          "ROW-266e7ca9": {
+            "children": [
+              "CHART-22"
+            ],
+            "id": "ROW-266e7ca9",
+            "meta": {
+              "background": "BACKGROUND_TRANSPARENT"
+            },
+            "parents": [
+              "ROOT_ID",
+              "TABS-e2ec72ea",
+              "TAB-1ba03954"
+            ],
+            "type": "ROW"
+          },
+          "CHART-23": {
+            "children": [],
+            "id": "CHART-23",
+            "meta": {
+              "chartId": 23,
+              "height": 12,
+              "sliceName": "Chart 23",
+              "uuid": "chart-23",
+              "width": 30,
+              "auradataPos": {
+                "x": 0,
+                "y": 12
+              }
+            },
+            "parents": [
+              "ROOT_ID",
+              "TABS-e2ec72ea",
+              "TAB-1ba03954",
+              "ROW-f6b2508b"
+            ],
+            "type": "CHART"
+          },
+          "ROW-f6b2508b": {
+            "children": [
+              "CHART-23"
+            ],
+            "id": "ROW-f6b2508b",
+            "meta": {
+              "background": "BACKGROUND_TRANSPARENT"
+            },
+            "parents": [
+              "ROOT_ID",
+              "TABS-e2ec72ea",
+              "TAB-1ba03954"
+            ],
+            "type": "ROW"
+          },
+          "CHART-24": {
+            "children": [],
+            "id": "CHART-24",
+            "meta": {
+              "chartId": 24,
+              "height": 12,
+              "sliceName": "Chart 24",
+              "uuid": "chart-24",
+              "width": 30,
+              "auradataPos": {
+                "x": 30,
+                "y": 12
+              }
+            },
+            "parents": [
+              "ROOT_ID",
+              "TABS-e2ec72ea",
+              "TAB-1ba03954",
+              "ROW-c8a536ae"
+            ],
+            "type": "CHART"
+          },
+          "ROW-c8a536ae": {
+            "children": [
+              "CHART-24"
+            ],
+            "id": "ROW-c8a536ae",
+            "meta": {
+              "background": "BACKGROUND_TRANSPARENT"
+            },
+            "parents": [
+              "ROOT_ID",
+              "TABS-e2ec72ea",
+              "TAB-1ba03954"
+            ],
+            "type": "ROW"
+          },
+          "CHART-25": {
+            "children": [],
+            "id": "CHART-25",
+            "meta": {
+              "chartId": 25,
+              "height": 12,
+              "sliceName": "Chart 25",
+              "uuid": "chart-25",
+              "width": 30,
+              "auradataPos": {
+                "x": 0,
+                "y": 24
+              }
+            },
+            "parents": [
+              "ROOT_ID",
+              "TABS-e2ec72ea",
+              "TAB-1ba03954",
+              "ROW-c2190aac"
+            ],
+            "type": "CHART"
+          },
+          "ROW-c2190aac": {
+            "children": [
+              "CHART-25"
+            ],
+            "id": "ROW-c2190aac",
+            "meta": {
+              "background": "BACKGROUND_TRANSPARENT"
+            },
+            "parents": [
+              "ROOT_ID",
+              "TABS-e2ec72ea",
+              "TAB-1ba03954"
+            ],
+            "type": "ROW"
+          },
+          "TAB-1ba03954": {
+            "children": [
+              "ROW-b8caecab",
+              "ROW-266e7ca9",
+              "ROW-f6b2508b",
+              "ROW-c8a536ae",
+              "ROW-c2190aac"
+            ],
+            "id": "TAB-1ba03954",
+            "meta": {
+              "text": "P\u00e1gina 2",
+              "defaultText": "Tab title",
+              "placeholder": "Tab title"
+            },
+            "parents": [
+              "ROOT_ID",
+              "TABS-e2ec72ea"
+            ],
+            "type": "TAB"
+          },
+          "TABS-e2ec72ea": {
+            "children": [
+              "TAB-0efd1f30",
+              "TAB-1ba03954"
+            ],
+            "id": "TABS-e2ec72ea",
+            "meta": {},
+            "parents": [
+              "ROOT_ID"
+            ],
+            "type": "TABS"
+          },
+          "GRID_ID": {
+            "children": [],
+            "id": "GRID_ID",
+            "parents": [
+              "ROOT_ID"
+            ],
+            "type": "GRID"
+          },
+          "ROOT_ID": {
+            "children": [
+              "TABS-e2ec72ea"
+            ],
+            "id": "ROOT_ID",
+            "meta": {
+              "auradataCells": true,
+              "auradataCanvas": {
+                "size": {
+                  "mode": "custom",
+                  "width": 1920,
+                  "height": 3840
+                }
+              }
+            },
+            "type": "ROOT"
+          },
+          "DASHBOARD_VERSION_KEY": "v2"
+        }
+      ],
+      "expected": {
+        "CHART-1": {
+          "children": [],
+          "id": "CHART-1",
+          "meta": {
+            "chartId": 1,
+            "height": 12,
+            "sliceName": "Chart 1",
+            "uuid": "chart-1",
+            "width": 30,
+            "auradataPos": {
+              "x": 0,
+              "y": 0
+            }
+          },
+          "parents": [
+            "ROOT_ID",
+            "TABS-e2ec72ea",
+            "TAB-0efd1f30",
+            "ROW-49902b59"
+          ],
+          "type": "CHART"
+        },
+        "ROW-49902b59": {
+          "children": [
+            "CHART-1"
+          ],
+          "id": "ROW-49902b59",
+          "meta": {
+            "background": "BACKGROUND_TRANSPARENT"
+          },
+          "parents": [
+            "ROOT_ID",
+            "TABS-e2ec72ea",
+            "TAB-0efd1f30"
+          ],
+          "type": "ROW"
+        },
+        "CHART-2": {
+          "children": [],
+          "id": "CHART-2",
+          "meta": {
+            "chartId": 2,
+            "height": 12,
+            "sliceName": "Chart 2",
+            "uuid": "chart-2",
+            "width": 30,
+            "auradataPos": {
+              "x": 30,
+              "y": 0
+            }
+          },
+          "parents": [
+            "ROOT_ID",
+            "TABS-e2ec72ea",
+            "TAB-0efd1f30",
+            "ROW-0733778f"
+          ],
+          "type": "CHART"
+        },
+        "ROW-0733778f": {
+          "children": [
+            "CHART-2"
+          ],
+          "id": "ROW-0733778f",
+          "meta": {
+            "background": "BACKGROUND_TRANSPARENT"
+          },
+          "parents": [
+            "ROOT_ID",
+            "TABS-e2ec72ea",
+            "TAB-0efd1f30"
+          ],
+          "type": "ROW"
+        },
+        "CHART-3": {
+          "children": [],
+          "id": "CHART-3",
+          "meta": {
+            "chartId": 3,
+            "height": 12,
+            "sliceName": "Chart 3",
+            "uuid": "chart-3",
+            "width": 30,
+            "auradataPos": {
+              "x": 0,
+              "y": 12
+            }
+          },
+          "parents": [
+            "ROOT_ID",
+            "TABS-e2ec72ea",
+            "TAB-0efd1f30",
+            "ROW-268c76f4"
+          ],
+          "type": "CHART"
+        },
+        "ROW-268c76f4": {
+          "children": [
+            "CHART-3"
+          ],
+          "id": "ROW-268c76f4",
+          "meta": {
+            "background": "BACKGROUND_TRANSPARENT"
+          },
+          "parents": [
+            "ROOT_ID",
+            "TABS-e2ec72ea",
+            "TAB-0efd1f30"
+          ],
+          "type": "ROW"
+        },
+        "CHART-4": {
+          "children": [],
+          "id": "CHART-4",
+          "meta": {
+            "chartId": 4,
+            "height": 12,
+            "sliceName": "Chart 4",
+            "uuid": "chart-4",
+            "width": 30,
+            "auradataPos": {
+              "x": 30,
+              "y": 12
+            }
+          },
+          "parents": [
+            "ROOT_ID",
+            "TABS-e2ec72ea",
+            "TAB-0efd1f30",
+            "ROW-2fd96328"
+          ],
+          "type": "CHART"
+        },
+        "ROW-2fd96328": {
+          "children": [
+            "CHART-4"
+          ],
+          "id": "ROW-2fd96328",
+          "meta": {
+            "background": "BACKGROUND_TRANSPARENT"
+          },
+          "parents": [
+            "ROOT_ID",
+            "TABS-e2ec72ea",
+            "TAB-0efd1f30"
+          ],
+          "type": "ROW"
+        },
+        "CHART-5": {
+          "children": [],
+          "id": "CHART-5",
+          "meta": {
+            "chartId": 5,
+            "height": 12,
+            "sliceName": "Chart 5",
+            "uuid": "chart-5",
+            "width": 30,
+            "auradataPos": {
+              "x": 0,
+              "y": 24
+            }
+          },
+          "parents": [
+            "ROOT_ID",
+            "TABS-e2ec72ea",
+            "TAB-0efd1f30",
+            "ROW-308cedfa"
+          ],
+          "type": "CHART"
+        },
+        "ROW-308cedfa": {
+          "children": [
+            "CHART-5"
+          ],
+          "id": "ROW-308cedfa",
+          "meta": {
+            "background": "BACKGROUND_TRANSPARENT"
+          },
+          "parents": [
+            "ROOT_ID",
+            "TABS-e2ec72ea",
+            "TAB-0efd1f30"
+          ],
+          "type": "ROW"
+        },
+        "CHART-6": {
+          "children": [],
+          "id": "CHART-6",
+          "meta": {
+            "chartId": 6,
+            "height": 12,
+            "sliceName": "Chart 6",
+            "uuid": "chart-6",
+            "width": 30,
+            "auradataPos": {
+              "x": 30,
+              "y": 24
+            }
+          },
+          "parents": [
+            "ROOT_ID",
+            "TABS-e2ec72ea",
+            "TAB-0efd1f30",
+            "ROW-0fe314e9"
+          ],
+          "type": "CHART"
+        },
+        "ROW-0fe314e9": {
+          "children": [
+            "CHART-6"
+          ],
+          "id": "ROW-0fe314e9",
+          "meta": {
+            "background": "BACKGROUND_TRANSPARENT"
+          },
+          "parents": [
+            "ROOT_ID",
+            "TABS-e2ec72ea",
+            "TAB-0efd1f30"
+          ],
+          "type": "ROW"
+        },
+        "CHART-7": {
+          "children": [],
+          "id": "CHART-7",
+          "meta": {
+            "chartId": 7,
+            "height": 12,
+            "sliceName": "Chart 7",
+            "uuid": "chart-7",
+            "width": 30,
+            "auradataPos": {
+              "x": 0,
+              "y": 36
+            }
+          },
+          "parents": [
+            "ROOT_ID",
+            "TABS-e2ec72ea",
+            "TAB-0efd1f30",
+            "ROW-1e9a7ad7"
+          ],
+          "type": "CHART"
+        },
+        "ROW-1e9a7ad7": {
+          "children": [
+            "CHART-7"
+          ],
+          "id": "ROW-1e9a7ad7",
+          "meta": {
+            "background": "BACKGROUND_TRANSPARENT"
+          },
+          "parents": [
+            "ROOT_ID",
+            "TABS-e2ec72ea",
+            "TAB-0efd1f30"
+          ],
+          "type": "ROW"
+        },
+        "CHART-8": {
+          "children": [],
+          "id": "CHART-8",
+          "meta": {
+            "chartId": 8,
+            "height": 12,
+            "sliceName": "Chart 8",
+            "uuid": "chart-8",
+            "width": 30,
+            "auradataPos": {
+              "x": 30,
+              "y": 36
+            }
+          },
+          "parents": [
+            "ROOT_ID",
+            "TABS-e2ec72ea",
+            "TAB-0efd1f30",
+            "ROW-8f35c407"
+          ],
+          "type": "CHART"
+        },
+        "ROW-8f35c407": {
+          "children": [
+            "CHART-8"
+          ],
+          "id": "ROW-8f35c407",
+          "meta": {
+            "background": "BACKGROUND_TRANSPARENT"
+          },
+          "parents": [
+            "ROOT_ID",
+            "TABS-e2ec72ea",
+            "TAB-0efd1f30"
+          ],
+          "type": "ROW"
+        },
+        "CHART-9": {
+          "children": [],
+          "id": "CHART-9",
+          "meta": {
+            "chartId": 9,
+            "height": 12,
+            "sliceName": "Chart 9",
+            "uuid": "chart-9",
+            "width": 30,
+            "auradataPos": {
+              "x": 0,
+              "y": 48
+            }
+          },
+          "parents": [
+            "ROOT_ID",
+            "TABS-e2ec72ea",
+            "TAB-0efd1f30",
+            "ROW-7e008ea0"
+          ],
+          "type": "CHART"
+        },
+        "ROW-7e008ea0": {
+          "children": [
+            "CHART-9"
+          ],
+          "id": "ROW-7e008ea0",
+          "meta": {
+            "background": "BACKGROUND_TRANSPARENT"
+          },
+          "parents": [
+            "ROOT_ID",
+            "TABS-e2ec72ea",
+            "TAB-0efd1f30"
+          ],
+          "type": "ROW"
+        },
+        "CHART-10": {
+          "children": [],
+          "id": "CHART-10",
+          "meta": {
+            "chartId": 10,
+            "height": 12,
+            "sliceName": "Chart 10",
+            "uuid": "chart-10",
+            "width": 30,
+            "auradataPos": {
+              "x": 30,
+              "y": 48
+            }
+          },
+          "parents": [
+            "ROOT_ID",
+            "TABS-e2ec72ea",
+            "TAB-0efd1f30",
+            "ROW-3cc5b867"
+          ],
+          "type": "CHART"
+        },
+        "ROW-3cc5b867": {
+          "children": [
+            "CHART-10"
+          ],
+          "id": "ROW-3cc5b867",
+          "meta": {
+            "background": "BACKGROUND_TRANSPARENT"
+          },
+          "parents": [
+            "ROOT_ID",
+            "TABS-e2ec72ea",
+            "TAB-0efd1f30"
+          ],
+          "type": "ROW"
+        },
+        "CHART-11": {
+          "children": [],
+          "id": "CHART-11",
+          "meta": {
+            "chartId": 11,
+            "height": 12,
+            "sliceName": "Chart 11",
+            "uuid": "chart-11",
+            "width": 30,
+            "auradataPos": {
+              "x": 0,
+              "y": 60
+            }
+          },
+          "parents": [
+            "ROOT_ID",
+            "TABS-e2ec72ea",
+            "TAB-0efd1f30",
+            "ROW-c93da97d"
+          ],
+          "type": "CHART"
+        },
+        "ROW-c93da97d": {
+          "children": [
+            "CHART-11"
+          ],
+          "id": "ROW-c93da97d",
+          "meta": {
+            "background": "BACKGROUND_TRANSPARENT"
+          },
+          "parents": [
+            "ROOT_ID",
+            "TABS-e2ec72ea",
+            "TAB-0efd1f30"
+          ],
+          "type": "ROW"
+        },
+        "CHART-12": {
+          "children": [],
+          "id": "CHART-12",
+          "meta": {
+            "chartId": 12,
+            "height": 12,
+            "sliceName": "Chart 12",
+            "uuid": "chart-12",
+            "width": 30,
+            "auradataPos": {
+              "x": 30,
+              "y": 60
+            }
+          },
+          "parents": [
+            "ROOT_ID",
+            "TABS-e2ec72ea",
+            "TAB-0efd1f30",
+            "ROW-2dca20ee"
+          ],
+          "type": "CHART"
+        },
+        "ROW-2dca20ee": {
+          "children": [
+            "CHART-12"
+          ],
+          "id": "ROW-2dca20ee",
+          "meta": {
+            "background": "BACKGROUND_TRANSPARENT"
+          },
+          "parents": [
+            "ROOT_ID",
+            "TABS-e2ec72ea",
+            "TAB-0efd1f30"
+          ],
+          "type": "ROW"
+        },
+        "CHART-13": {
+          "children": [],
+          "id": "CHART-13",
+          "meta": {
+            "chartId": 13,
+            "height": 12,
+            "sliceName": "Chart 13",
+            "uuid": "chart-13",
+            "width": 30,
+            "auradataPos": {
+              "x": 0,
+              "y": 72
+            }
+          },
+          "parents": [
+            "ROOT_ID",
+            "TABS-e2ec72ea",
+            "TAB-0efd1f30",
+            "ROW-ebe69e0f"
+          ],
+          "type": "CHART"
+        },
+        "ROW-ebe69e0f": {
+          "children": [
+            "CHART-13"
+          ],
+          "id": "ROW-ebe69e0f",
+          "meta": {
+            "background": "BACKGROUND_TRANSPARENT"
+          },
+          "parents": [
+            "ROOT_ID",
+            "TABS-e2ec72ea",
+            "TAB-0efd1f30"
+          ],
+          "type": "ROW"
+        },
+        "CHART-14": {
+          "children": [],
+          "id": "CHART-14",
+          "meta": {
+            "chartId": 14,
+            "height": 12,
+            "sliceName": "Chart 14",
+            "uuid": "chart-14",
+            "width": 30,
+            "auradataPos": {
+              "x": 30,
+              "y": 72
+            }
+          },
+          "parents": [
+            "ROOT_ID",
+            "TABS-e2ec72ea",
+            "TAB-0efd1f30",
+            "ROW-1ade4d36"
+          ],
+          "type": "CHART"
+        },
+        "ROW-1ade4d36": {
+          "children": [
+            "CHART-14"
+          ],
+          "id": "ROW-1ade4d36",
+          "meta": {
+            "background": "BACKGROUND_TRANSPARENT"
+          },
+          "parents": [
+            "ROOT_ID",
+            "TABS-e2ec72ea",
+            "TAB-0efd1f30"
+          ],
+          "type": "ROW"
+        },
+        "CHART-15": {
+          "children": [],
+          "id": "CHART-15",
+          "meta": {
+            "chartId": 15,
+            "height": 12,
+            "sliceName": "Chart 15",
+            "uuid": "chart-15",
+            "width": 30,
+            "auradataPos": {
+              "x": 0,
+              "y": 84
+            }
+          },
+          "parents": [
+            "ROOT_ID",
+            "TABS-e2ec72ea",
+            "TAB-0efd1f30",
+            "ROW-391cc2f0"
+          ],
+          "type": "CHART"
+        },
+        "ROW-391cc2f0": {
+          "children": [
+            "CHART-15"
+          ],
+          "id": "ROW-391cc2f0",
+          "meta": {
+            "background": "BACKGROUND_TRANSPARENT"
+          },
+          "parents": [
+            "ROOT_ID",
+            "TABS-e2ec72ea",
+            "TAB-0efd1f30"
+          ],
+          "type": "ROW"
+        },
+        "CHART-16": {
+          "children": [],
+          "id": "CHART-16",
+          "meta": {
+            "chartId": 16,
+            "height": 12,
+            "sliceName": "Chart 16",
+            "uuid": "chart-16",
+            "width": 30,
+            "auradataPos": {
+              "x": 30,
+              "y": 84
+            }
+          },
+          "parents": [
+            "ROOT_ID",
+            "TABS-e2ec72ea",
+            "TAB-0efd1f30",
+            "ROW-80eaab0d"
+          ],
+          "type": "CHART"
+        },
+        "ROW-80eaab0d": {
+          "children": [
+            "CHART-16"
+          ],
+          "id": "ROW-80eaab0d",
+          "meta": {
+            "background": "BACKGROUND_TRANSPARENT"
+          },
+          "parents": [
+            "ROOT_ID",
+            "TABS-e2ec72ea",
+            "TAB-0efd1f30"
+          ],
+          "type": "ROW"
+        },
+        "CHART-17": {
+          "children": [],
+          "id": "CHART-17",
+          "meta": {
+            "chartId": 17,
+            "height": 12,
+            "sliceName": "Chart 17",
+            "uuid": "chart-17",
+            "width": 30,
+            "auradataPos": {
+              "x": 0,
+              "y": 96
+            }
+          },
+          "parents": [
+            "ROOT_ID",
+            "TABS-e2ec72ea",
+            "TAB-0efd1f30",
+            "ROW-abd5e271"
+          ],
+          "type": "CHART"
+        },
+        "ROW-abd5e271": {
+          "children": [
+            "CHART-17"
+          ],
+          "id": "ROW-abd5e271",
+          "meta": {
+            "background": "BACKGROUND_TRANSPARENT"
+          },
+          "parents": [
+            "ROOT_ID",
+            "TABS-e2ec72ea",
+            "TAB-0efd1f30"
+          ],
+          "type": "ROW"
+        },
+        "CHART-18": {
+          "children": [],
+          "id": "CHART-18",
+          "meta": {
+            "chartId": 18,
+            "height": 12,
+            "sliceName": "Chart 18",
+            "uuid": "chart-18",
+            "width": 30,
+            "auradataPos": {
+              "x": 30,
+              "y": 96
+            }
+          },
+          "parents": [
+            "ROOT_ID",
+            "TABS-e2ec72ea",
+            "TAB-0efd1f30",
+            "ROW-d8bef149"
+          ],
+          "type": "CHART"
+        },
+        "ROW-d8bef149": {
+          "children": [
+            "CHART-18"
+          ],
+          "id": "ROW-d8bef149",
+          "meta": {
+            "background": "BACKGROUND_TRANSPARENT"
+          },
+          "parents": [
+            "ROOT_ID",
+            "TABS-e2ec72ea",
+            "TAB-0efd1f30"
+          ],
+          "type": "ROW"
+        },
+        "CHART-19": {
+          "children": [],
+          "id": "CHART-19",
+          "meta": {
+            "chartId": 19,
+            "height": 12,
+            "sliceName": "Chart 19",
+            "uuid": "chart-19",
+            "width": 30,
+            "auradataPos": {
+              "x": 0,
+              "y": 108
+            }
+          },
+          "parents": [
+            "ROOT_ID",
+            "TABS-e2ec72ea",
+            "TAB-0efd1f30",
+            "ROW-6a19d821"
+          ],
+          "type": "CHART"
+        },
+        "ROW-6a19d821": {
+          "children": [
+            "CHART-19"
+          ],
+          "id": "ROW-6a19d821",
+          "meta": {
+            "background": "BACKGROUND_TRANSPARENT"
+          },
+          "parents": [
+            "ROOT_ID",
+            "TABS-e2ec72ea",
+            "TAB-0efd1f30"
+          ],
+          "type": "ROW"
+        },
+        "CHART-20": {
+          "children": [],
+          "id": "CHART-20",
+          "meta": {
+            "chartId": 20,
+            "height": 12,
+            "sliceName": "Chart 20",
+            "uuid": "chart-20",
+            "width": 30,
+            "auradataPos": {
+              "x": 30,
+              "y": 108
+            }
+          },
+          "parents": [
+            "ROOT_ID",
+            "TABS-e2ec72ea",
+            "TAB-0efd1f30",
+            "ROW-ad1a1241"
+          ],
+          "type": "CHART"
+        },
+        "ROW-ad1a1241": {
+          "children": [
+            "CHART-20"
+          ],
+          "id": "ROW-ad1a1241",
+          "meta": {
+            "background": "BACKGROUND_TRANSPARENT"
+          },
+          "parents": [
+            "ROOT_ID",
+            "TABS-e2ec72ea",
+            "TAB-0efd1f30"
+          ],
+          "type": "ROW"
+        },
+        "TAB-0efd1f30": {
+          "children": [
+            "ROW-49902b59",
+            "ROW-0733778f",
+            "ROW-268c76f4",
+            "ROW-2fd96328",
+            "ROW-308cedfa",
+            "ROW-0fe314e9",
+            "ROW-1e9a7ad7",
+            "ROW-8f35c407",
+            "ROW-7e008ea0",
+            "ROW-3cc5b867",
+            "ROW-c93da97d",
+            "ROW-2dca20ee",
+            "ROW-ebe69e0f",
+            "ROW-1ade4d36",
+            "ROW-391cc2f0",
+            "ROW-80eaab0d",
+            "ROW-abd5e271",
+            "ROW-d8bef149",
+            "ROW-6a19d821",
+            "ROW-ad1a1241"
+          ],
+          "id": "TAB-0efd1f30",
+          "meta": {
+            "text": "P\u00e1gina 1",
+            "defaultText": "Tab title",
+            "placeholder": "Tab title"
+          },
+          "parents": [
+            "ROOT_ID",
+            "TABS-e2ec72ea"
+          ],
+          "type": "TAB"
+        },
+        "CHART-21": {
+          "children": [],
+          "id": "CHART-21",
+          "meta": {
+            "chartId": 21,
+            "height": 12,
+            "sliceName": "Chart 21",
+            "uuid": "chart-21",
+            "width": 30,
+            "auradataPos": {
+              "x": 0,
+              "y": 0
+            }
+          },
+          "parents": [
+            "ROOT_ID",
+            "TABS-e2ec72ea",
+            "TAB-1ba03954",
+            "ROW-b8caecab"
+          ],
+          "type": "CHART"
+        },
+        "ROW-b8caecab": {
+          "children": [
+            "CHART-21"
+          ],
+          "id": "ROW-b8caecab",
+          "meta": {
+            "background": "BACKGROUND_TRANSPARENT"
+          },
+          "parents": [
+            "ROOT_ID",
+            "TABS-e2ec72ea",
+            "TAB-1ba03954"
+          ],
+          "type": "ROW"
+        },
+        "CHART-22": {
+          "children": [],
+          "id": "CHART-22",
+          "meta": {
+            "chartId": 22,
+            "height": 12,
+            "sliceName": "Chart 22",
+            "uuid": "chart-22",
+            "width": 30,
+            "auradataPos": {
+              "x": 30,
+              "y": 0
+            }
+          },
+          "parents": [
+            "ROOT_ID",
+            "TABS-e2ec72ea",
+            "TAB-1ba03954",
+            "ROW-266e7ca9"
+          ],
+          "type": "CHART"
+        },
+        "ROW-266e7ca9": {
+          "children": [
+            "CHART-22"
+          ],
+          "id": "ROW-266e7ca9",
+          "meta": {
+            "background": "BACKGROUND_TRANSPARENT"
+          },
+          "parents": [
+            "ROOT_ID",
+            "TABS-e2ec72ea",
+            "TAB-1ba03954"
+          ],
+          "type": "ROW"
+        },
+        "CHART-23": {
+          "children": [],
+          "id": "CHART-23",
+          "meta": {
+            "chartId": 23,
+            "height": 12,
+            "sliceName": "Chart 23",
+            "uuid": "chart-23",
+            "width": 30,
+            "auradataPos": {
+              "x": 0,
+              "y": 12
+            }
+          },
+          "parents": [
+            "ROOT_ID",
+            "TABS-e2ec72ea",
+            "TAB-1ba03954",
+            "ROW-f6b2508b"
+          ],
+          "type": "CHART"
+        },
+        "ROW-f6b2508b": {
+          "children": [
+            "CHART-23"
+          ],
+          "id": "ROW-f6b2508b",
+          "meta": {
+            "background": "BACKGROUND_TRANSPARENT"
+          },
+          "parents": [
+            "ROOT_ID",
+            "TABS-e2ec72ea",
+            "TAB-1ba03954"
+          ],
+          "type": "ROW"
+        },
+        "CHART-24": {
+          "children": [],
+          "id": "CHART-24",
+          "meta": {
+            "chartId": 24,
+            "height": 12,
+            "sliceName": "Chart 24",
+            "uuid": "chart-24",
+            "width": 30,
+            "auradataPos": {
+              "x": 30,
+              "y": 12
+            }
+          },
+          "parents": [
+            "ROOT_ID",
+            "TABS-e2ec72ea",
+            "TAB-1ba03954",
+            "ROW-c8a536ae"
+          ],
+          "type": "CHART"
+        },
+        "ROW-c8a536ae": {
+          "children": [
+            "CHART-24"
+          ],
+          "id": "ROW-c8a536ae",
+          "meta": {
+            "background": "BACKGROUND_TRANSPARENT"
+          },
+          "parents": [
+            "ROOT_ID",
+            "TABS-e2ec72ea",
+            "TAB-1ba03954"
+          ],
+          "type": "ROW"
+        },
+        "CHART-25": {
+          "children": [],
+          "id": "CHART-25",
+          "meta": {
+            "chartId": 25,
+            "height": 12,
+            "sliceName": "Chart 25",
+            "uuid": "chart-25",
+            "width": 30,
+            "auradataPos": {
+              "x": 0,
+              "y": 24
+            }
+          },
+          "parents": [
+            "ROOT_ID",
+            "TABS-e2ec72ea",
+            "TAB-1ba03954",
+            "ROW-c2190aac"
+          ],
+          "type": "CHART"
+        },
+        "ROW-c2190aac": {
+          "children": [
+            "CHART-25"
+          ],
+          "id": "ROW-c2190aac",
+          "meta": {
+            "background": "BACKGROUND_TRANSPARENT"
+          },
+          "parents": [
+            "ROOT_ID",
+            "TABS-e2ec72ea",
+            "TAB-1ba03954"
+          ],
+          "type": "ROW"
+        },
+        "TAB-1ba03954": {
+          "children": [
+            "ROW-b8caecab",
+            "ROW-266e7ca9",
+            "ROW-f6b2508b",
+            "ROW-c8a536ae",
+            "ROW-c2190aac"
+          ],
+          "id": "TAB-1ba03954",
+          "meta": {
+            "text": "P\u00e1gina 2",
+            "defaultText": "Tab title",
+            "placeholder": "Tab title"
+          },
+          "parents": [
+            "ROOT_ID",
+            "TABS-e2ec72ea"
+          ],
+          "type": "TAB"
+        },
+        "TABS-e2ec72ea": {
+          "children": [
+            "TAB-0efd1f30",
+            "TAB-1ba03954"
+          ],
+          "id": "TABS-e2ec72ea",
+          "meta": {},
+          "parents": [
+            "ROOT_ID"
+          ],
+          "type": "TABS"
+        },
+        "GRID_ID": {
+          "children": [],
+          "id": "GRID_ID",
+          "parents": [
+            "ROOT_ID"
+          ],
+          "type": "GRID"
+        },
+        "ROOT_ID": {
+          "children": [
+            "TABS-e2ec72ea"
+          ],
+          "id": "ROOT_ID",
+          "meta": {
+            "auradataCells": true,
+            "auradataCanvas": {
+              "size": {
+                "mode": "custom",
+                "width": 1920,
+                "height": 3840
+              }
+            }
+          },
+          "type": "ROOT"
+        },
+        "DASHBOARD_VERSION_KEY": "v2"
+      }
+    }
+  ]
+}

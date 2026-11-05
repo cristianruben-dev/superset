@@ -119,3 +119,28 @@ def test_element_kind() -> None:
     assert keys.element_kind("auradata-chart") is None
     assert keys.element_kind("button") is None
     assert keys.element_kind(None) is None
+
+
+@pytest.mark.parametrize("count", [0, 1, 4, 5, 20, 21, 45])
+def test_generated_reports_load_unchanged(count: int) -> None:
+    """What generate_dashboard writes is what the editor would save."""
+    from types import SimpleNamespace
+
+    from superset.mcp_service.dashboard.tool.generate_dashboard import (
+        _create_dashboard_layout,
+    )
+
+    charts = [
+        SimpleNamespace(id=i, slice_name=f"Chart {i}", uuid=None)
+        for i in range(1, count + 1)
+    ]
+    layout = json.loads(json.dumps(_create_dashboard_layout(charts)))
+    assert layout_to_positions(layout_to_cells(layout)) == layout
+    assert (
+        sum(
+            1
+            for item in layout.values()
+            if isinstance(item, dict) and item.get("type") == "CHART"
+        )
+        == count
+    )

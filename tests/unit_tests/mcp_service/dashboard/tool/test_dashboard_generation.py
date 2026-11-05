@@ -536,7 +536,7 @@ class TestGenerateDashboard:
             assert position_json["ROOT_ID"]["children"] == ["GRID_ID"]
 
             grid_children = position_json["GRID_ID"]["children"]
-            assert len(grid_children) == 3
+            assert len(grid_children) == 6
 
             for row_id in grid_children:
                 assert row_id.startswith("ROW-")
@@ -549,23 +549,28 @@ class TestGenerateDashboard:
                 assert chart_data["type"] == "CHART"
                 assert "meta" in chart_data
                 assert chart_data["meta"]["chartId"] == chart_id
-                assert chart_data["meta"]["width"] == 4
+                # In cells: half of the 60 columns of a 16:9 page, placed
+                assert chart_data["meta"]["width"] == 30
+                assert chart_data["meta"]["height"] == 12
+                row, column = divmod(chart_id - 1, 2)
+                assert chart_data["meta"]["auradataPos"] == {
+                    "x": column * 30,
+                    "y": row * 12,
+                }
 
-                chart_parents = chart_data["parents"]
-                column_key = chart_parents[-1]
-                assert column_key.startswith("COLUMN-")
-                assert column_key in position_json
-                column_data = position_json[column_key]
-                assert column_data["type"] == "COLUMN"
-                assert chart_key in column_data["children"]
-
-                column_parents = column_data["parents"]
-                row_key = column_parents[-1]
+                row_key = chart_data["parents"][-1]
                 assert row_key.startswith("ROW-")
-                assert row_key in position_json
                 row_data = position_json[row_key]
                 assert row_data["type"] == "ROW"
-                assert column_key in row_data["children"]
+                assert row_data["children"] == [chart_key]
+
+            # Three rows of 12 need more than the 34 rows of the page: it grows
+            assert position_json["ROOT_ID"]["meta"] == {
+                "auradataCells": True,
+                "auradataCanvas": {
+                    "size": {"mode": "custom", "width": 1920, "height": 1152}
+                },
+            }
 
     @patch("superset.models.dashboard.Dashboard")
     @patch("superset.db.session")

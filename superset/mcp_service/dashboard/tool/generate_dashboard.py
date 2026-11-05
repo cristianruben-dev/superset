@@ -30,13 +30,16 @@ from pydantic import ValidationError
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from superset_core.mcp.decorators import tool, ToolAnnotations
 
+from superset.auradata.layout import (
+    CANVAS_PRESETS,
+    CELL,
+    DEFAULT_OBJECT_ROWS,
+    keys,
+    MAX_CANVAS_CELLS,
+)
 from superset.dashboards.layout import repair_position
 from superset.extensions import db, event_logger, security_manager
-from superset.mcp_service.dashboard.constants import (
-    generate_id,
-    GRID_COLUMN_COUNT,
-    GRID_DEFAULT_CHART_WIDTH,
-)
+from superset.mcp_service.dashboard.constants import generate_id
 from superset.mcp_service.dashboard.layout_validation import rebuild_parent_chains
 from superset.mcp_service.dashboard.schemas import (
     DashboardInfo,
@@ -54,96 +57,125 @@ from superset.utils import json
 logger = logging.getLogger(__name__)
 
 
+# Charts of a generated report: two per row, each half the page wide
+GENERATED_CHARTS_PER_ROW = 2
+GENERATED_CHART_ROWS = DEFAULT_OBJECT_ROWS
+
+
+def _chart_component(chart: Any, parents: list[str], x: int, y: int) -> dict[str, Any]:
+    width = CANVAS_PRESETS["16:9"][0] // CELL // GENERATED_CHARTS_PER_ROW
+    return {
+        "children": [],
+        "id": f"CHART-{chart.id}",
+        "meta": {
+            "chartId": chart.id,
+            "height": GENERATED_CHART_ROWS,
+            "sliceName": chart.slice_name or f"Chart {chart.id}",
+            "uuid": str(chart.uuid) if chart.uuid else f"chart-{chart.id}",
+            "width": width,
+            keys.POS_KEY: {"x": x, "y": y},
+        },
+        "parents": parents,
+        "type": "CHART",
+    }
+
+
 def _create_dashboard_layout(chart_objects: List[Any]) -> Dict[str, Any]:
     """
-    Create a simple dashboard layout with charts arranged in a grid.
+    Create the layout of a new report, in cells as the editor saves it, so
+    opening it converts nothing: a 16:9 page with two charts per row, each in a
+    ROW and placed at its cell (``auradataPos``).
 
-    This creates a ``ROW > COLUMN > CHART`` hierarchy for each row,
-    matching the component structure that the Superset frontend expects.
+    When the charts do not fit the page it grows, as ``layoutToPositions`` does
+    on load, up to the largest page (128 rows); the rest go to more pages.
 
     Args:
         chart_objects: List of Chart ORM objects (not IDs)
     """
     layout: Dict[str, Any] = {}
+    page_columns, page_rows = (n // CELL for n in CANVAS_PRESETS["16:9"])
+    rows_per_page = MAX_CANVAS_CELLS // GENERATED_CHART_ROWS
+    per_page = rows_per_page * GENERATED_CHARTS_PER_ROW
+    chunks = [
+        chart_objects[i : i + per_page] for i in range(0, len(chart_objects), per_page)
+    ] or [[]]
+    width = page_columns // GENERATED_CHARTS_PER_ROW
 
-    # Grid configuration based on real Superset dashboard patterns
-    # Use 2-chart rows with medium-sized charts (like existing dashboards)
-    charts_per_row = 2
-    chart_width = GRID_DEFAULT_CHART_WIDTH
-    chart_height = 50  # Good height for most chart types
-
-    # Create rows with charts wrapped in columns
-    row_ids = []
-    for i in range(0, len(chart_objects), charts_per_row):
-        row_id = generate_id("ROW")
-        row_ids.append(row_id)
-
-        # Get charts for this row (up to 2 charts like real dashboards)
-        row_charts = chart_objects[i : i + charts_per_row]
-        column_keys = []
-
-        # Calculate column width: divide grid evenly among charts in this row
-        col_width = GRID_COLUMN_COUNT // len(row_charts)
-
-        for chart in row_charts:
-            chart_key = f"CHART-{chart.id}"
-            column_key = generate_id("COLUMN")
-            column_keys.append(column_key)
-
-            # Create chart component with standard dimensions
-            layout[chart_key] = {
-                "children": [],
-                "id": chart_key,
-                "meta": {
-                    "chartId": chart.id,
-                    "height": chart_height,
-                    "sliceName": chart.slice_name or f"Chart {chart.id}",
-                    "uuid": str(chart.uuid) if chart.uuid else f"chart-{chart.id}",
-                    "width": chart_width,
-                },
-                "parents": ["ROOT_ID", "GRID_ID", row_id, column_key],
-                "type": "CHART",
+    tabs_id = generate_id(keys.TABS_TYPE) if len(chunks) > 1 else None
+    page_ids: list[str] = []
+    bottom = 0
+    for number, charts in enumerate(chunks, start=1):
+        page_id = generate_id(keys.TAB_TYPE) if tabs_id else keys.GRID_ID
+        page_parents = [keys.ROOT_ID, tabs_id] if tabs_id else [keys.ROOT_ID]
+        row_ids: list[str] = []
+        for index, chart in enumerate(charts):
+            row_id = generate_id(keys.ROW_TYPE)
+            row_ids.append(row_id)
+            row, column = divmod(index, GENERATED_CHARTS_PER_ROW)
+            y = row * GENERATED_CHART_ROWS
+            bottom = max(bottom, y + GENERATED_CHART_ROWS)
+            chart_parents = [*page_parents, page_id, row_id]
+            layout[f"CHART-{chart.id}"] = _chart_component(
+                chart, chart_parents, column * width, y
+            )
+            layout[row_id] = {
+                "children": [f"CHART-{chart.id}"],
+                "id": row_id,
+                "meta": {"background": "BACKGROUND_TRANSPARENT"},
+                "parents": [*page_parents, page_id],
+                "type": keys.ROW_TYPE,
             }
-
-            # Create column wrapper for the chart (ROW > COLUMN > CHART)
-            layout[column_key] = {
-                "children": [chart_key],
-                "id": column_key,
+        if tabs_id:
+            layout[page_id] = {
+                "children": row_ids,
+                "id": page_id,
                 "meta": {
-                    "background": "BACKGROUND_TRANSPARENT",
-                    "width": col_width,
+                    "text": f"Página {number}",
+                    "defaultText": "Tab title",
+                    "placeholder": "Tab title",
                 },
-                "parents": ["ROOT_ID", "GRID_ID", row_id],
-                "type": "COLUMN",
+                "parents": page_parents,
+                "type": keys.TAB_TYPE,
             }
+        else:
+            layout[keys.GRID_ID] = {
+                "children": row_ids,
+                "id": keys.GRID_ID,
+                "parents": [keys.ROOT_ID],
+                "type": keys.GRID_TYPE,
+            }
+        page_ids.append(page_id)
 
-        # Create row containing the columns
-        layout[row_id] = {
-            "children": column_keys,
-            "id": row_id,
-            "meta": {"background": "BACKGROUND_TRANSPARENT"},
-            "parents": ["ROOT_ID", "GRID_ID"],
-            "type": "ROW",
+    root_meta: dict[str, Any] = {keys.CELLS_KEY: True}
+    if bottom > page_rows:
+        root_meta[keys.CANVAS_FORMAT_KEY] = {
+            "size": {
+                "mode": "custom",
+                "width": page_columns * CELL,
+                "height": bottom * CELL,
+            }
         }
-
-    # Add GRID container
-    layout["GRID_ID"] = {
-        "children": row_ids,
-        "id": "GRID_ID",
-        "parents": ["ROOT_ID"],
-        "type": "GRID",
+    if tabs_id:
+        layout[tabs_id] = {
+            "children": page_ids,
+            "id": tabs_id,
+            "meta": {},
+            "parents": [keys.ROOT_ID],
+            "type": keys.TABS_TYPE,
+        }
+        layout[keys.GRID_ID] = {
+            "children": [],
+            "id": keys.GRID_ID,
+            "parents": [keys.ROOT_ID],
+            "type": keys.GRID_TYPE,
+        }
+    layout[keys.ROOT_ID] = {
+        "children": [tabs_id or keys.GRID_ID],
+        "id": keys.ROOT_ID,
+        "meta": root_meta,
+        "type": keys.ROOT_TYPE,
     }
-
-    # Add root layout container
-    layout["ROOT_ID"] = {
-        "children": ["GRID_ID"],
-        "id": "ROOT_ID",
-        "type": "ROOT",
-    }
-
-    # Add dashboard version
-    layout["DASHBOARD_VERSION_KEY"] = "v2"
-
+    layout[keys.VERSION_KEY] = "v2"
     return layout
 
 
@@ -207,10 +239,11 @@ def generate_dashboard(  # noqa: C901
     - To add a chart to an EXISTING dashboard, use add_chart_to_existing_dashboard.
       Never use this tool as a fallback when add_chart_to_existing_dashboard fails.
     - All charts must exist and be accessible to current user
-    - Layout: by default, charts are arranged in an auto-generated 2-column
-      grid. When ``position_json`` is supplied, that explicit layout is used
-      instead and the auto-generated grid is skipped — use this to compose
-      custom rows, header bands, or MARKDOWN/HEADER components. Each
+    - Layout: by default, charts go two per row on a 16:9 page of cells
+      (30 x 12 cells each); arrange them later with place_object and the
+      other layout tools. When ``position_json`` is supplied, that explicit
+      layout is used instead and the auto-generated one is skipped — use
+      this to compose custom rows, header bands, or MARKDOWN/HEADER components. Each
       component's ``parents`` is recomputed from its ``children`` edges
       before saving, so an omitted or incomplete ``parents`` array is fine.
 
