@@ -80,12 +80,27 @@ ASGIMessage = Mapping[str, Any]
 
 @pytest.fixture(autouse=True)
 def mock_auth() -> Iterator[Mock]:
-    """Make authentication deterministic for list and call requests."""
-    with patch("superset.mcp_service.auth.get_user_from_request") as mock_get_user:
-        mock_user = Mock()
-        mock_user.id = 1
-        mock_user.username = "admin"
-        mock_get_user.return_value = mock_user
+    """Make authentication deterministic for list and call requests.
+
+    Tool calls resolve the user through ``auth.get_user_from_request``; the
+    tool-list visibility middleware imported its own reference, so both are
+    patched. Otherwise the list resolves a real user (for instance the dev
+    config's ``MCP_DEV_USERNAME``), finds none in the test database and hides
+    every tool.
+    """
+    mock_user = Mock()
+    mock_user.id = 1
+    mock_user.username = "admin"
+    with (
+        patch(
+            "superset.mcp_service.auth.get_user_from_request",
+            return_value=mock_user,
+        ) as mock_get_user,
+        patch(
+            "superset.mcp_service.middleware.get_user_from_request",
+            return_value=mock_user,
+        ),
+    ):
         yield mock_get_user
 
 
@@ -265,7 +280,7 @@ async def test_tools_call_health_check_over_real_asgi_transport() -> None:
 
     data = json.loads(result.content[0].text)
     assert data["status"] == "healthy"
-    assert data["service"] == "Superset MCP Service"
+    assert data["service"] == "AuraData BI MCP Service"
     assert result.structured_content == data
 
 
