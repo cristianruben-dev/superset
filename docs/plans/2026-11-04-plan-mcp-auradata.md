@@ -278,11 +278,12 @@ históricas. El `CLAUDE.md` del proyecto y el de `mcp_service` reescriben su reg
    borrar descripción o color. `074da0079d`: las escrituras también funcionan para un contributor sin permisos de
    datos (solo con la concesión del workspace). `360376d995`: `get_table` tenía el mismo agujero que
    `query_dataset`; ya aplica las reglas.
-6. Pendiente:
+6. `81a125910c`: `list_metrics`, `get_compatible_metrics`, `get_compatible_dimensions` y `generate_explore_link`
+   tenían la misma fuga; ya tratan como inexistente un dataset oculto por las reglas de workspace.
+   `get_dashboard_datasets` queda igual que la API REST: lista los datasets de un tablero visible, y el workspace ya
+   oculta el tablero a quien no es miembro (fijado con un test).
+7. Pendiente:
    - la imagen del workspace y `create_dataset(workspace_id)`;
-   - `list_metrics`, `get_compatible_dimensions`/`get_compatible_metrics`, `generate_explore_link` y quizá
-     `get_dashboard_datasets` resuelven datasets con `DatasetDAO` sin `WorkspaceDatasetFilter`: un no-miembro con
-     permisos de datos aún ve sus métricas y columnas;
    - decidir si la web debe pedir editoría real para certificar, como el MCP. Leído en el código, sin probar: el
      PUT de tablero no tiene chequeo propio para `certified_by`, así que un contributor podría certificar.
 
