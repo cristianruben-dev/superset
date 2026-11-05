@@ -63,7 +63,7 @@ TOOL_BUDGETS = {
     "get_dashboard_datasets": 1_100,
     "get_dashboard_info": 3_100,
     "get_dashboard_layout": 1_600,
-    "get_dashboard_screenshot": 1_100,
+    "get_dashboard_screenshot": 1_500,
     "get_database_info": 1_400,
     "get_dataset_info": 2_400,
     "get_instance_info": 900,

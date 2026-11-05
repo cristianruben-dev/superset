@@ -24,9 +24,15 @@ active tab is that page; a visual is the element of its chart on its page.
 import asyncio
 import io
 import logging
+import math
 from dataclasses import dataclass
 from typing import Any
 
+from superset.auradata.layout import (
+    MOBILE_COLUMNS,
+    mobile_layout_of,
+    mobile_page_rows,
+)
 from superset.mcp_service.report_layout.editing import LayoutEditError, Report
 
 logger = logging.getLogger(__name__)
@@ -36,6 +42,9 @@ MAX_IMAGE_SIDE = 1600
 JPEG_QUALITY = 80
 # Room for the top bar of the report around its page, in pixels
 CHROME_HEIGHT = 160
+# A phone screen in CSS pixels (points): an iPhone 15, as the editor's preview
+PHONE_WIDTH = 393
+PHONE_HEIGHT = 852
 
 
 @dataclass
@@ -79,6 +88,23 @@ def window_for(report: Report) -> tuple[int, int]:
     from superset.auradata.layout import CELL
 
     return report.columns * CELL, report.rows * CELL + CHROME_HEIGHT
+
+
+def phone_window_for(report: Report, page_id: str) -> tuple[tuple[int, int], bool]:
+    """
+    A phone screen tall enough for the whole page as a phone shows it: its
+    mobile layout when it has one, else the canvas scaled to the width. The
+    page scrolls inside its own container, so a shorter window would cut it.
+    Also says whether the page has a mobile layout.
+    """
+    # Both pages are scaled to the phone width, so their height is in proportion
+    boxes = mobile_layout_of(report.layout, page_id)
+    if boxes:
+        height = mobile_page_rows(boxes) * PHONE_WIDTH / MOBILE_COLUMNS
+    else:
+        height = report.rows * PHONE_WIDTH / report.columns
+    tall = max(PHONE_HEIGHT, math.ceil(height) + CHROME_HEIGHT)
+    return (PHONE_WIDTH, tall), boxes is not None
 
 
 def shrink(image: bytes) -> Picture:

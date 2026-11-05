@@ -107,7 +107,7 @@ async def generate_mobile_layout(
     slicers first (small cards two per row), then charts in reading order at
     full width, text boxes kept before what followed them, hidden objects left
     out. Returns the boxes; pass apply=true to save them as the page's mobile
-    layout.
+    layout. Look at it with get_dashboard_screenshot(device='phone').
     """
 
     def change() -> MobileLayoutResponse:

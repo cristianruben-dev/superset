@@ -155,3 +155,38 @@ async def test_a_browser_failure_is_reported(
     )
     assert info["error_type"] == "ScreenshotUnavailable"
     assert image is None
+
+
+@pytest.mark.asyncio
+async def test_a_phone_shows_the_whole_mobile_layout(
+    world: dict[str, Any], browser: Any
+) -> None:
+    as_user(world, "Vera")
+    info, image = await look(
+        "get_dashboard_screenshot",
+        {"dashboard": world["dashboard"].id, "device": "phone"},
+    )
+
+    assert info.get("error") is None, info
+    assert info["device"] == "phone"
+    assert info["mobile_layout"] is True
+    assert image is not None
+    # 393 pt wide; the phone page (at least 24 cells of 12) scaled to it, plus
+    # the top bar
+    assert browser.call_args.kwargs["window_size"] == (393, 24 * 393 // 12 + 160)
+
+
+@pytest.mark.asyncio
+async def test_a_phone_without_mobile_layout_shows_the_scaled_canvas(
+    world: dict[str, Any], browser: Any
+) -> None:
+    ok(await as_editor(world, "clear_mobile_layout"))
+    as_user(world, "Vera")
+    info, _ = await look(
+        "get_dashboard_screenshot",
+        {"dashboard": world["dashboard"].id, "device": "phone"},
+    )
+
+    assert info["mobile_layout"] is False
+    # The 60 x 34 cell canvas at 393 px wide is short: a whole phone screen
+    assert browser.call_args.kwargs["window_size"] == (393, 852)

@@ -81,15 +81,24 @@ async def get_dashboard_screenshot(
     """
     Take a picture of a page of a report as viewers see it (JPEG, at most
     1600 px on a side), to check the layout and format after changing them.
+    device='phone' shows it on a 393 pt wide phone: its mobile layout, or the
+    canvas scaled to the width when the page has none.
     """
-    await ctx.info(f"Screenshot of dashboard={request.dashboard} page={request.page}")
+    await ctx.info(
+        f"Screenshot of dashboard={request.dashboard} page={request.page} "
+        f"device={request.device}"
+    )
+    mobile_layout: bool | None = None
     try:
         with event_logger.log_context(action="mcp.get_dashboard_screenshot"):
             report = open_report(request.dashboard)
             page_id = resolve_page(report, request.page)
             dashboard_id = report.dashboard.id
             url = capture.page_url(report, page_id)
-            window = capture.window_for(report)
+            if request.device == "phone":
+                window, mobile_layout = capture.phone_window_for(report, page_id)
+            else:
+                window = capture.window_for(report)
             picture = await capture.capture(url, "standalone", window)
     except LayoutEditError as ex:
         await ctx.warning(f"Screenshot refused: {ex.error_type}: {ex.message}")
@@ -98,6 +107,8 @@ async def get_dashboard_screenshot(
         dashboard_id=dashboard_id,
         page=page_id,
         url=url,
+        device=request.device,
+        mobile_layout=mobile_layout,
         width=picture.width,
         height=picture.height,
         mime_type=picture.mime_type,

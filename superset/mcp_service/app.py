@@ -213,6 +213,7 @@ Mobile Layout (AuraData BI):
 - generate_mobile_layout: Propose a page's phone layout (cards and slicers
   first, charts stacked); apply=true saves it
 - set_mobile_layout / clear_mobile_layout: Explicit phone boxes, or none
+- get_dashboard_screenshot device='phone': Look at the page as a phone shows it
 
 Tag Management:
 - list_tags: List tags with advanced filters (1-based pagination)

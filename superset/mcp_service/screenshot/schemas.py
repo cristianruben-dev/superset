@@ -16,6 +16,8 @@
 # under the License.
 """Schemas of the report screenshot tools."""
 
+from typing import Literal
+
 from pydantic import BaseModel, ConfigDict, Field
 
 
@@ -25,6 +27,11 @@ class GetDashboardScreenshotRequest(BaseModel):
     dashboard: int | str = Field(description="Dashboard id, uuid or slug")
     page: int | str | None = Field(
         None, description="Page id, name or position from 1; the first by default"
+    )
+    device: Literal["desktop", "phone"] = Field(
+        "desktop",
+        description="phone: a 393 pt wide screen, as a phone viewer sees the page "
+        "(its mobile layout, or the canvas scaled to the width)",
     )
 
 
@@ -43,6 +50,10 @@ class ScreenshotResponse(BaseModel):
     dashboard_id: int | None = None
     page: str | None = None
     object: str | None = None
+    device: str | None = None
+    mobile_layout: bool | None = Field(
+        None, description="phone: whether the page showed its mobile layout"
+    )
     url: str | None = None
     width: int | None = Field(None, description="Picture width in pixels")
     height: int | None = Field(None, description="Picture height in pixels")
