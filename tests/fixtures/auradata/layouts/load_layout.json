@@ -2661,6 +2661,567 @@
         },
         "DASHBOARD_VERSION_KEY": "v2"
       }
+    },
+    {
+      "name": "a report built by the MCP layout tools (dashboard 217 of the live check)",
+      "args": [
+        {
+          "CHART-301": {
+            "children": [],
+            "id": "CHART-301",
+            "meta": {
+              "chartId": 301,
+              "height": 12,
+              "sliceName": "Fase 2 prueba 1",
+              "uuid": "0a2144bd-0677-4298-9c8d-364609c97bbd",
+              "width": 30,
+              "auradataPos": {
+                "x": 0,
+                "y": 0
+              },
+              "auradataAltText": "Ventas por regi\u00f3n"
+            },
+            "parents": [
+              "ROOT_ID",
+              "TABS-aed15c6f",
+              "TAB-ccc2d7ef",
+              "ROW-5d8dc2af"
+            ],
+            "type": "CHART"
+          },
+          "ROW-5d8dc2af": {
+            "children": [
+              "CHART-301"
+            ],
+            "id": "ROW-5d8dc2af",
+            "meta": {
+              "background": "BACKGROUND_TRANSPARENT"
+            },
+            "parents": [
+              "ROOT_ID",
+              "TABS-aed15c6f",
+              "TAB-ccc2d7ef"
+            ],
+            "type": "ROW"
+          },
+          "CHART-302": {
+            "children": [],
+            "id": "CHART-302",
+            "meta": {
+              "chartId": 302,
+              "height": 12,
+              "sliceName": "Fase 2 prueba 2",
+              "uuid": "748f5d99-7862-4cf7-9300-067577603a90",
+              "width": 30,
+              "auradataPos": {
+                "x": 30,
+                "y": 0
+              }
+            },
+            "parents": [
+              "ROOT_ID",
+              "TABS-aed15c6f",
+              "TAB-ccc2d7ef",
+              "ROW-b4a127e6"
+            ],
+            "type": "CHART"
+          },
+          "ROW-b4a127e6": {
+            "children": [
+              "CHART-302"
+            ],
+            "id": "ROW-b4a127e6",
+            "meta": {
+              "background": "BACKGROUND_TRANSPARENT"
+            },
+            "parents": [
+              "ROOT_ID",
+              "TABS-aed15c6f",
+              "TAB-ccc2d7ef"
+            ],
+            "type": "ROW"
+          },
+          "CHART-303": {
+            "children": [],
+            "id": "CHART-303",
+            "meta": {
+              "chartId": 303,
+              "height": 12,
+              "sliceName": "Fase 2 prueba 3",
+              "uuid": "30fcc586-c8db-4056-ab4f-b46edca09d6e",
+              "width": 30,
+              "auradataPos": {
+                "x": 0,
+                "y": 12
+              }
+            },
+            "parents": [
+              "ROOT_ID",
+              "TABS-aed15c6f",
+              "TAB-ccc2d7ef",
+              "ROW-e5761394"
+            ],
+            "type": "CHART"
+          },
+          "ROW-e5761394": {
+            "children": [
+              "CHART-303"
+            ],
+            "id": "ROW-e5761394",
+            "meta": {
+              "background": "BACKGROUND_TRANSPARENT"
+            },
+            "parents": [
+              "ROOT_ID",
+              "TABS-aed15c6f",
+              "TAB-ccc2d7ef"
+            ],
+            "type": "ROW"
+          },
+          "CHART-304": {
+            "children": [],
+            "id": "CHART-304",
+            "meta": {
+              "chartId": 304,
+              "height": 14,
+              "sliceName": "Fase 2 prueba 4",
+              "uuid": "ca2c8daa-9de0-41a5-8176-eca47e085bf9",
+              "width": 60,
+              "auradataPos": {
+                "x": 0,
+                "y": 13
+              }
+            },
+            "parents": [
+              "ROOT_ID",
+              "TABS-aed15c6f",
+              "TAB-79a60701",
+              "ROW-0a425596"
+            ],
+            "type": "CHART"
+          },
+          "CHART-305": {
+            "children": [],
+            "id": "CHART-305",
+            "meta": {
+              "chartId": 305,
+              "height": 12,
+              "sliceName": "Fase 2 prueba 5",
+              "uuid": "23ff1668-da35-4253-a918-49370b43ea57",
+              "width": 30,
+              "auradataPos": {
+                "x": 0,
+                "y": 0
+              }
+            },
+            "parents": [
+              "ROOT_ID",
+              "TABS-aed15c6f",
+              "TAB-79a60701",
+              "ROW-5692a2f4"
+            ],
+            "type": "CHART"
+          },
+          "GRID_ID": {
+            "children": [],
+            "id": "GRID_ID",
+            "parents": [
+              "ROOT_ID"
+            ],
+            "type": "GRID",
+            "meta": {}
+          },
+          "ROOT_ID": {
+            "children": [
+              "TABS-aed15c6f"
+            ],
+            "id": "ROOT_ID",
+            "meta": {
+              "auradataCells": true,
+              "auradataCanvas": {
+                "size": {
+                  "mode": "custom",
+                  "width": 1920,
+                  "height": 1152
+                }
+              }
+            },
+            "type": "ROOT"
+          },
+          "DASHBOARD_VERSION_KEY": "v2",
+          "TAB-ccc2d7ef": {
+            "type": "TAB",
+            "id": "TAB-ccc2d7ef",
+            "children": [
+              "ROW-5d8dc2af",
+              "ROW-b4a127e6",
+              "ROW-e5761394"
+            ],
+            "parents": [
+              "ROOT_ID",
+              "TABS-aed15c6f"
+            ],
+            "meta": {
+              "text": "P\u00e1gina 1",
+              "defaultText": "Tab title",
+              "placeholder": "Tab title"
+            }
+          },
+          "TABS-aed15c6f": {
+            "type": "TABS",
+            "id": "TABS-aed15c6f",
+            "children": [
+              "TAB-ccc2d7ef",
+              "TAB-79a60701",
+              "TAB-d1d7e708"
+            ],
+            "parents": [
+              "ROOT_ID"
+            ],
+            "meta": {}
+          },
+          "TAB-79a60701": {
+            "type": "TAB",
+            "id": "TAB-79a60701",
+            "children": [
+              "ROW-5692a2f4",
+              "ROW-0a425596"
+            ],
+            "parents": [
+              "ROOT_ID",
+              "TABS-aed15c6f"
+            ],
+            "meta": {
+              "text": "Detalle",
+              "defaultText": "Tab title",
+              "placeholder": "Tab title"
+            }
+          },
+          "TAB-d1d7e708": {
+            "type": "TAB",
+            "id": "TAB-d1d7e708",
+            "children": [],
+            "parents": [
+              "ROOT_ID",
+              "TABS-aed15c6f"
+            ],
+            "meta": {
+              "text": "Notas",
+              "defaultText": "Tab title",
+              "placeholder": "Tab title",
+              "auradataHiddenPage": true
+            }
+          },
+          "ROW-5692a2f4": {
+            "type": "ROW",
+            "id": "ROW-5692a2f4",
+            "children": [
+              "CHART-305"
+            ],
+            "parents": [
+              "ROOT_ID",
+              "TABS-aed15c6f",
+              "TAB-79a60701"
+            ],
+            "meta": {
+              "background": "BACKGROUND_TRANSPARENT"
+            }
+          },
+          "ROW-0a425596": {
+            "type": "ROW",
+            "id": "ROW-0a425596",
+            "children": [
+              "CHART-304"
+            ],
+            "parents": [
+              "ROOT_ID",
+              "TABS-aed15c6f",
+              "TAB-79a60701"
+            ],
+            "meta": {
+              "background": "BACKGROUND_TRANSPARENT"
+            }
+          }
+        }
+      ],
+      "expected": {
+        "CHART-301": {
+          "children": [],
+          "id": "CHART-301",
+          "meta": {
+            "chartId": 301,
+            "height": 12,
+            "sliceName": "Fase 2 prueba 1",
+            "uuid": "0a2144bd-0677-4298-9c8d-364609c97bbd",
+            "width": 30,
+            "auradataPos": {
+              "x": 0,
+              "y": 0
+            },
+            "auradataAltText": "Ventas por regi\u00f3n"
+          },
+          "parents": [
+            "ROOT_ID",
+            "TABS-aed15c6f",
+            "TAB-ccc2d7ef",
+            "ROW-5d8dc2af"
+          ],
+          "type": "CHART"
+        },
+        "ROW-5d8dc2af": {
+          "children": [
+            "CHART-301"
+          ],
+          "id": "ROW-5d8dc2af",
+          "meta": {
+            "background": "BACKGROUND_TRANSPARENT"
+          },
+          "parents": [
+            "ROOT_ID",
+            "TABS-aed15c6f",
+            "TAB-ccc2d7ef"
+          ],
+          "type": "ROW"
+        },
+        "CHART-302": {
+          "children": [],
+          "id": "CHART-302",
+          "meta": {
+            "chartId": 302,
+            "height": 12,
+            "sliceName": "Fase 2 prueba 2",
+            "uuid": "748f5d99-7862-4cf7-9300-067577603a90",
+            "width": 30,
+            "auradataPos": {
+              "x": 30,
+              "y": 0
+            }
+          },
+          "parents": [
+            "ROOT_ID",
+            "TABS-aed15c6f",
+            "TAB-ccc2d7ef",
+            "ROW-b4a127e6"
+          ],
+          "type": "CHART"
+        },
+        "ROW-b4a127e6": {
+          "children": [
+            "CHART-302"
+          ],
+          "id": "ROW-b4a127e6",
+          "meta": {
+            "background": "BACKGROUND_TRANSPARENT"
+          },
+          "parents": [
+            "ROOT_ID",
+            "TABS-aed15c6f",
+            "TAB-ccc2d7ef"
+          ],
+          "type": "ROW"
+        },
+        "CHART-303": {
+          "children": [],
+          "id": "CHART-303",
+          "meta": {
+            "chartId": 303,
+            "height": 12,
+            "sliceName": "Fase 2 prueba 3",
+            "uuid": "30fcc586-c8db-4056-ab4f-b46edca09d6e",
+            "width": 30,
+            "auradataPos": {
+              "x": 0,
+              "y": 12
+            }
+          },
+          "parents": [
+            "ROOT_ID",
+            "TABS-aed15c6f",
+            "TAB-ccc2d7ef",
+            "ROW-e5761394"
+          ],
+          "type": "CHART"
+        },
+        "ROW-e5761394": {
+          "children": [
+            "CHART-303"
+          ],
+          "id": "ROW-e5761394",
+          "meta": {
+            "background": "BACKGROUND_TRANSPARENT"
+          },
+          "parents": [
+            "ROOT_ID",
+            "TABS-aed15c6f",
+            "TAB-ccc2d7ef"
+          ],
+          "type": "ROW"
+        },
+        "CHART-304": {
+          "children": [],
+          "id": "CHART-304",
+          "meta": {
+            "chartId": 304,
+            "height": 14,
+            "sliceName": "Fase 2 prueba 4",
+            "uuid": "ca2c8daa-9de0-41a5-8176-eca47e085bf9",
+            "width": 60,
+            "auradataPos": {
+              "x": 0,
+              "y": 13
+            }
+          },
+          "parents": [
+            "ROOT_ID",
+            "TABS-aed15c6f",
+            "TAB-79a60701",
+            "ROW-0a425596"
+          ],
+          "type": "CHART"
+        },
+        "CHART-305": {
+          "children": [],
+          "id": "CHART-305",
+          "meta": {
+            "chartId": 305,
+            "height": 12,
+            "sliceName": "Fase 2 prueba 5",
+            "uuid": "23ff1668-da35-4253-a918-49370b43ea57",
+            "width": 30,
+            "auradataPos": {
+              "x": 0,
+              "y": 0
+            }
+          },
+          "parents": [
+            "ROOT_ID",
+            "TABS-aed15c6f",
+            "TAB-79a60701",
+            "ROW-5692a2f4"
+          ],
+          "type": "CHART"
+        },
+        "GRID_ID": {
+          "children": [],
+          "id": "GRID_ID",
+          "parents": [
+            "ROOT_ID"
+          ],
+          "type": "GRID",
+          "meta": {}
+        },
+        "ROOT_ID": {
+          "children": [
+            "TABS-aed15c6f"
+          ],
+          "id": "ROOT_ID",
+          "meta": {
+            "auradataCells": true,
+            "auradataCanvas": {
+              "size": {
+                "mode": "custom",
+                "width": 1920,
+                "height": 1152
+              }
+            }
+          },
+          "type": "ROOT"
+        },
+        "DASHBOARD_VERSION_KEY": "v2",
+        "TAB-ccc2d7ef": {
+          "type": "TAB",
+          "id": "TAB-ccc2d7ef",
+          "children": [
+            "ROW-5d8dc2af",
+            "ROW-b4a127e6",
+            "ROW-e5761394"
+          ],
+          "parents": [
+            "ROOT_ID",
+            "TABS-aed15c6f"
+          ],
+          "meta": {
+            "text": "P\u00e1gina 1",
+            "defaultText": "Tab title",
+            "placeholder": "Tab title"
+          }
+        },
+        "TABS-aed15c6f": {
+          "type": "TABS",
+          "id": "TABS-aed15c6f",
+          "children": [
+            "TAB-ccc2d7ef",
+            "TAB-79a60701",
+            "TAB-d1d7e708"
+          ],
+          "parents": [
+            "ROOT_ID"
+          ],
+          "meta": {}
+        },
+        "TAB-79a60701": {
+          "type": "TAB",
+          "id": "TAB-79a60701",
+          "children": [
+            "ROW-5692a2f4",
+            "ROW-0a425596"
+          ],
+          "parents": [
+            "ROOT_ID",
+            "TABS-aed15c6f"
+          ],
+          "meta": {
+            "text": "Detalle",
+            "defaultText": "Tab title",
+            "placeholder": "Tab title"
+          }
+        },
+        "TAB-d1d7e708": {
+          "type": "TAB",
+          "id": "TAB-d1d7e708",
+          "children": [],
+          "parents": [
+            "ROOT_ID",
+            "TABS-aed15c6f"
+          ],
+          "meta": {
+            "text": "Notas",
+            "defaultText": "Tab title",
+            "placeholder": "Tab title",
+            "auradataHiddenPage": true
+          }
+        },
+        "ROW-5692a2f4": {
+          "type": "ROW",
+          "id": "ROW-5692a2f4",
+          "children": [
+            "CHART-305"
+          ],
+          "parents": [
+            "ROOT_ID",
+            "TABS-aed15c6f",
+            "TAB-79a60701"
+          ],
+          "meta": {
+            "background": "BACKGROUND_TRANSPARENT"
+          }
+        },
+        "ROW-0a425596": {
+          "type": "ROW",
+          "id": "ROW-0a425596",
+          "children": [
+            "CHART-304"
+          ],
+          "parents": [
+            "ROOT_ID",
+            "TABS-aed15c6f",
+            "TAB-79a60701"
+          ],
+          "meta": {
+            "background": "BACKGROUND_TRANSPARENT"
+          }
+        }
+      }
     }
   ]
 }
