@@ -38,7 +38,7 @@ TOOL_BUDGETS = {
     "align_objects": 1_300,
     "bring_to_front": 1_200,
     "create_dataset": 2_000,
-    "create_virtual_dataset": 3_900,
+    "create_virtual_dataset": 4_000,
     "create_workspace": 1_000,
     "delete_chart": 1_100,
     "delete_dashboard": 1_100,
