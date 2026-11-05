@@ -505,6 +505,13 @@ def test_mcp_prompts_registered():
     """Test that MCP prompts are registered."""
     prompts = _run(mcp.list_prompts())
     assert len(prompts) > 0
+    names = {prompt.name for prompt in prompts}
+    assert {
+        "informe_desde_dataset",
+        "replicar_informe_power_bi",
+        "revisar_informe",
+        "diseno_movil",
+    } <= names, "check superset/mcp_service/guidance/prompts/ imports"
 
 
 def test_mcp_resources_registered():

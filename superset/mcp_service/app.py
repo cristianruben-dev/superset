@@ -914,6 +914,7 @@ from superset.mcp_service.explore.tool import (  # noqa: F401, E402
     generate_explore_link,
 )
 from superset.mcp_service.guidance import (  # noqa: F401, E402
+    prompts as guidance_prompts,
     resources as guidance_resources,
 )
 from superset.mcp_service.history.tool import (  # noqa: F401, E402
