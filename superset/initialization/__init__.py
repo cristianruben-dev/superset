@@ -381,7 +381,7 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
         appbuilder.add_view(
             RolesListView,
             "List Roles",
-            label=_("List Roles"),
+            label=_("Roles"),
             category="Security",
             category_label=_("Security"),
             menu_cond=lambda: bool(
@@ -401,7 +401,7 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
         appbuilder.add_view(
             UsersListView,
             "List Users",
-            label=_("List Users"),
+            label=_("Users"),
             category="Security",
             category_label=_("Security"),
             menu_cond=lambda: bool(
