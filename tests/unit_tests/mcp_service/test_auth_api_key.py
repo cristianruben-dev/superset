@@ -192,7 +192,7 @@ def test_invalid_api_key_raises(app: SupersetApp) -> None:
             with _patch_access_token(access_token):
                 with pytest.raises(
                     PermissionError,
-                    match=r"Invalid or expired API key.*/user_info/",
+                    match=r"Invalid or expired API key.*/connect-ai/",
                 ):
                     get_user_from_request()
         assert access_token.token == "", (
