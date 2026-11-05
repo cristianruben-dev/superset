@@ -261,6 +261,13 @@ class ListDatasetsRequest(
             ),
         ),
     ]
+    usable_in_dashboard: int | None = Field(
+        None,
+        description=(
+            "Dashboard ID: only datasets its charts may use (its workspace's "
+            "or shared ones)."
+        ),
+    )
 
     @field_validator("filters", mode="before")
     @classmethod

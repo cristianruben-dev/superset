@@ -22,13 +22,52 @@ from typing import Any
 from superset.mcp_service.utils import _is_uuid
 
 
+def visible_in_workspaces(dataset_id: int) -> bool:
+    """Whether the workspace rules let the current user see a dataset.
+
+    AuraData BI: the datasets of a workspace are for its members, its editors
+    and admins, as in the REST dataset API, which adds ``WorkspaceDatasetFilter``
+    to the ``DatasourceFilter`` of ``DatasetDAO``. The workspace grant of
+    contributors and admins is part of ``DatasourceFilter`` already.
+    """
+    from flask_appbuilder.models.sqla.interface import SQLAInterface
+
+    from superset import db
+    from superset.auradata.workspace_datasets import (
+        dataset_visibility_filter,
+        dataset_workspace_id,
+        WorkspaceDatasetFilter,
+    )
+    from superset.connectors.sqla.models import SqlaTable
+
+    # No rule applies, or the dataset is shared: nothing to hide
+    if dataset_visibility_filter(SqlaTable.id) is None:
+        return True
+    if dataset_workspace_id(dataset_id) is None:
+        return True
+    query = db.session.query(SqlaTable.id).filter(SqlaTable.id == dataset_id)
+    datamodel = SQLAInterface(SqlaTable, db.session)
+    query = WorkspaceDatasetFilter("id", datamodel).apply(query, None)
+    return query.first() is not None
+
+
 def resolve_dataset(
     identifier: int | str, eager_options: list[Any] | None = None
 ) -> Any | None:
     """Resolve a dataset by int ID or UUID string.
 
-    Replicates the identifier resolution logic from ModelGetInfoCore._find_object().
+    Replicates the identifier resolution logic from ModelGetInfoCore._find_object(),
+    and treats a dataset hidden by the workspace rules as not found.
     """
+    dataset = _find_dataset(identifier, eager_options)
+    if dataset is None or not visible_in_workspaces(dataset.id):
+        return None
+    return dataset
+
+
+def _find_dataset(
+    identifier: int | str, eager_options: list[Any] | None = None
+) -> Any | None:
     from superset.daos.dataset import DatasetDAO
 
     opts = eager_options or None

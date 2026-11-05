@@ -79,7 +79,7 @@ TOOL_BUDGETS = {
     "list_charts": 5_300,
     "list_dashboards": 4_800,
     "list_databases": 3_500,
-    "list_datasets": 4_600,
+    "list_datasets": 4_800,
     "list_member_candidates": 1_000,
     "list_metrics": 1_900,
     "list_queries": 3_000,

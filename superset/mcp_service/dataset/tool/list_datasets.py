@@ -155,6 +155,10 @@ async def list_datasets(
         )
 
     try:
+        from superset.auradata.workspace_datasets import (
+            DatasetUsableInDashboardFilter,
+            WorkspaceDatasetFilter,
+        )
         from superset.daos.dataset import DatasetDAO
         from superset.datasets.filters import DatasetCertifiedFilter
         from superset.mcp_service.common.schema_discovery import (
@@ -188,13 +192,19 @@ async def list_datasets(
         )
 
         with event_logger.log_context(action="mcp.list_datasets.query"):
-            custom_filters = None
+            # AuraData BI: the datasets of a workspace are for its members, as
+            # in the REST dataset API
+            custom_filters = {
+                "workspace": tool.build_bound_filter(WorkspaceDatasetFilter, None)
+            }
+            if request.usable_in_dashboard is not None:
+                custom_filters["usable_in_dashboard"] = tool.build_bound_filter(
+                    DatasetUsableInDashboardFilter, request.usable_in_dashboard
+                )
             if request.certified is not None:
-                custom_filters = {
-                    "certified": tool.build_bound_filter(
-                        DatasetCertifiedFilter, request.certified
-                    )
-                }
+                custom_filters["certified"] = tool.build_bound_filter(
+                    DatasetCertifiedFilter, request.certified
+                )
             result = tool.run_tool(
                 filters=request.filters,
                 search=request.search,

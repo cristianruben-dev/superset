@@ -152,6 +152,20 @@ async def get_dataset_info(
 
             result = tool.run_tool(request.identifier)
 
+        if isinstance(result, DatasetInfo) and result.id is not None:
+            from superset.mcp_service.dataset.dataset_utils import (
+                visible_in_workspaces,
+            )
+
+            # AuraData BI: hidden by the workspace rules reads as not found
+            if not visible_in_workspaces(result.id):
+                result = DatasetError.create(
+                    error=(
+                        f"DatasetInfo with identifier '{request.identifier}' not found"
+                    ),
+                    error_type="not_found",
+                )
+
         if isinstance(result, DatasetInfo):
             await ctx.info(
                 "Dataset information retrieved successfully: "
