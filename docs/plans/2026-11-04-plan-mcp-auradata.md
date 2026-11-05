@@ -985,8 +985,9 @@ Cada fase deja su parte. Al final se ordena en:
        `test_interactivity_tools.py`, `test_element_tools.py`, `test_guidance_prompts.py`,
        `test_tool_inventory.py`, `test_mcp_tool_registration.py` y `test_reference_doc.py`;
      - Jest de `SlicerView.test.tsx` y `RangeSlicerView.test.tsx`.
-   - En el contenedor quedó una copia de la referencia en `/app/docs/` para correr el test. El contenedor no
-     monta `docs/`.
+   - El contenedor de desarrollo no monta `docs/`: allí `test_reference_doc.py` se salta la comparación (comprobada
+     con una copia temporal, ya borrada, con y sin la config de dev en el `PYTHONPATH`). Corre entera donde está el
+     repositorio completo.
 
 ## Decisiones
 
