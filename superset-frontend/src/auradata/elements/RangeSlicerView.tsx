@@ -47,6 +47,12 @@ const Box = styled.div`
     height: 100%;
     min-height: 0;
     font-family: var(--mb-s-family, inherit);
+
+    /* Controls do not inherit the font: they would draw in the system one */
+    button,
+    select {
+      font-family: inherit;
+    }
     font-size: var(--mb-s-size, inherit);
     color: var(--mb-s-color, ${theme.colorText});
 

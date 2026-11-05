@@ -61,6 +61,12 @@ const Box = styled.div`
     min-height: 0;
     font-family: var(--mb-s-family, inherit);
 
+    /* Controls do not inherit the font: they would draw in the system one */
+    button,
+    select {
+      font-family: inherit;
+    }
+
     .slicer-search,
     .slicer-input {
       width: 100%;

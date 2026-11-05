@@ -326,3 +326,12 @@ test('the remove mark of a chip can move left or hide', async () => {
   });
   expect(chip).toHaveTextContent(/^North$/);
 });
+
+test('buttons take the font of the slicer, not the system one', async () => {
+  // A <button> does not inherit the font by default: the values would draw in
+  // the system font instead of Outfit or the font chosen for them
+  await renderSlicer({ variant: 'buttons' });
+  const [item] = await screen.findAllByTestId('auradata-slicer-item');
+  expect(item.tagName).toBe('BUTTON');
+  expect(item).toHaveStyle('font-family: inherit');
+});
