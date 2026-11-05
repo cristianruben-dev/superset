@@ -157,6 +157,8 @@ def mobile_size_of(item: Any) -> dict[str, int]:
 MOBILE_CHART_MIN_ROWS = 8
 # A card takes half the phone page when it is at most this share of the canvas
 SMALL_CARD_SHARE = 1 / 3
+# Cards on a phone: tall enough for their title and a readable figure
+MOBILE_CARD_MIN_ROWS = 4
 MOBILE_CARD_MAX_ROWS = 6
 
 
@@ -216,7 +218,7 @@ def _phone_rows(
     item = layout.get(component_id)
     rows = _scaled_rows(item, width)
     if card:
-        return max(MIN_CHART_ROWS, min(MOBILE_CARD_MAX_ROWS, rows))
+        return max(MOBILE_CARD_MIN_ROWS, min(MOBILE_CARD_MAX_ROWS, rows))
     if _is_chart(layout, component_id):
         return max(MOBILE_CHART_MIN_ROWS, min(MOBILE_DEFAULT_MAX_ROWS, rows))
     return mobile_size_of(item)["height"]

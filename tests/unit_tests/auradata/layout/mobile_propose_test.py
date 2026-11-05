@@ -90,12 +90,12 @@ def propose(layout: dict[str, Any]) -> list[dict[str, Any]]:
 def test_title_heads_then_cards_and_slicers_then_charts_in_reading_order() -> None:
     assert propose(page()) == [
         {"id": "TITLE", "x": 0, "y": 0, "width": 12, "height": 2},
-        {"id": "CARD-1", "x": 0, "y": 2, "width": 6, "height": 3},
-        {"id": "CARD-2", "x": 6, "y": 2, "width": 6, "height": 3},
-        {"id": "SLICER", "x": 0, "y": 5, "width": 12, "height": 4},
-        {"id": "BAR", "x": 0, "y": 9, "width": 12, "height": 8},
-        {"id": "NOTE", "x": 0, "y": 17, "width": 12, "height": 2},
-        {"id": "LINE", "x": 0, "y": 19, "width": 12, "height": 8},
+        {"id": "CARD-1", "x": 0, "y": 2, "width": 6, "height": 4},
+        {"id": "CARD-2", "x": 6, "y": 2, "width": 6, "height": 4},
+        {"id": "SLICER", "x": 0, "y": 6, "width": 12, "height": 4},
+        {"id": "BAR", "x": 0, "y": 10, "width": 12, "height": 8},
+        {"id": "NOTE", "x": 0, "y": 18, "width": 12, "height": 2},
+        {"id": "LINE", "x": 0, "y": 20, "width": 12, "height": 8},
     ]
 
 
