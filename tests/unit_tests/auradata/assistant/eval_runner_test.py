@@ -357,6 +357,19 @@ def test_a_person_who_reaches_a_forbidden_dashboard_is_refused(
     assert "reaches dashboard" in problems[0]
 
 
+def test_a_reader_who_cannot_reach_the_data_is_told_before_spending(
+    world: dict[str, Any],  # noqa: F811
+    mocker: MockerFixture,
+) -> None:
+    built = battery_for(world, mocker, task_of())
+    built["data_source"]["dashboard_id"] = world["dashboard"].id
+    built["data_source"]["dataset_id"] = world["ventas"].id
+    mocker.patch.object(security_manager, "can_access_dashboard", return_value=True)
+    mocker.patch.object(security_manager, "can_access_datasource", return_value=False)
+
+    assert "--prepare" in runner._reader_problems(built["tasks"], built)[0]
+
+
 def test_a_dry_run_goes_through_the_real_path_and_writes_a_report(
     world: dict[str, Any],  # noqa: F811
     tmp_path: Path,

@@ -746,8 +746,28 @@ def problems_before_spending(
         if model not in catalog_ids
     ]
     problems += _user_problems(tasks, battery)
+    problems += _reader_problems(tasks, battery)
     problems += wrong_answers(tasks, battery)
     return problems
+
+
+def _reader_problems(tasks: list[dict[str, Any]], battery: dict[str, Any]) -> list[str]:
+    """The person of the data tasks must reach their report and their dataset."""
+    if not any(task["kind"] == "data" for task in tasks):
+        return []
+    username = battery["users"]["reader"]
+    g.user = security_manager.find_user(username)
+    source = battery["data_source"]
+    dashboard = db.session.get(Dashboard, source["dashboard_id"])
+    dataset = db.session.get(SqlaTable, source["dataset_id"])
+    if (
+        dashboard is not None
+        and dataset is not None
+        and security_manager.can_access_dashboard(dashboard)
+        and security_manager.can_access_datasource(dataset)
+    ):
+        return []
+    return [f"{username} cannot read the data tasks: run --prepare"]
 
 
 def _user_problems(tasks: list[dict[str, Any]], battery: dict[str, Any]) -> list[str]:
