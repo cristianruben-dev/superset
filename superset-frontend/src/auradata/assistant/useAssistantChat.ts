@@ -29,6 +29,7 @@ import {
 import { transcriptOf, withEvent } from './transcript';
 import type {
   AssistantContext,
+  AssistantBudget,
   AssistantEvent,
   ChatMessage,
   ChatMode,
@@ -70,6 +71,8 @@ export function useAssistantChat(
   const [busy, setBusy] = useState(false);
   const [confirmations, setConfirmations] = useState<Confirmation[]>([]);
   const [canUndo, setCanUndo] = useState(false);
+  // Fresher than what the panel read when it opened
+  const [budget, setBudget] = useState<AssistantBudget | null>(null);
   const inFlight = useRef<AbortController | null>(null);
 
   const stop = useCallback(() => inFlight.current?.abort(), []);
@@ -124,6 +127,7 @@ export function useAssistantChat(
         } else if (event.event === 'done') {
           setContextTokens(event.data.context_tokens);
           setCanUndo(event.data.can_undo ?? false);
+          if (event.data.budget) setBudget(event.data.budget);
         } else {
           changed =
             changed || (event.event === 'tool_end' && !!event.data.changed);
@@ -228,6 +232,7 @@ export function useAssistantChat(
     busy,
     confirmations,
     canUndo,
+    budget,
     send,
     decide,
     undo,

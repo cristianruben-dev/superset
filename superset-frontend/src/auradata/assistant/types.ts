@@ -33,10 +33,29 @@ export interface OfferedModel {
   max_input_tokens: number | null;
 }
 
+/** Where this month stands against a limit. It never holds an amount. */
+export interface AssistantBudget {
+  level: 'ok' | 'warning' | 'stopped';
+  scope: 'global' | 'workspace' | null;
+}
+
 /** Answer of `GET /api/v1/auradata/assistant/models/`. */
 export interface AssistantModels {
   available: boolean;
   models: OfferedModel[];
+  edit_available?: boolean;
+  privacy_accepted?: boolean;
+  budget?: AssistantBudget;
+}
+
+/** What a person can do with the assistant on one report. */
+export interface AssistantAccess {
+  models: OfferedModel[];
+  /** The same models when the copilot runs here, none when it does not. */
+  editModels: OfferedModel[];
+  privacyAccepted: boolean;
+  budget: AssistantBudget;
+  acceptPrivacy: () => Promise<void>;
 }
 
 /** A filter that ran in a query. */
@@ -179,5 +198,10 @@ export type AssistantEvent =
   | { event: 'error'; data: { code: string; message: string } }
   | {
       event: 'done';
-      data: { model?: string; context_tokens: number; can_undo?: boolean };
+      data: {
+        model?: string;
+        context_tokens: number;
+        can_undo?: boolean;
+        budget?: AssistantBudget;
+      };
     };

@@ -17,12 +17,12 @@
  * under the License.
  */
 import { render, screen, userEvent } from 'spec/helpers/testing-library';
-import { useAssistantModels } from '../assistant/useAssistant';
+import { useAssistantAccess } from '../assistant/useAssistant';
 import { usePhoneScreen } from '../format/mobile';
 import { ReadingBar } from './ReadingBar';
 
 jest.mock('../assistant/useAssistant', () => ({
-  useAssistantModels: jest.fn(),
+  useAssistantAccess: jest.fn(),
 }));
 
 jest.mock('../assistant/AssistantPanel', () => ({
@@ -36,7 +36,7 @@ jest.mock('../format/mobile', () => ({
   usePhoneScreen: jest.fn(),
 }));
 
-const models = useAssistantModels as jest.Mock;
+const models = useAssistantAccess as jest.Mock;
 const phone = usePhoneScreen as jest.Mock;
 
 const initialState = {
@@ -51,7 +51,7 @@ const setup = () =>
 
 beforeEach(() => {
   phone.mockReturnValue(false);
-  models.mockReturnValue([{ id: 'claude-sonnet-5-5' }]);
+  models.mockReturnValue({ models: [{ id: 'claude-sonnet-5-5' }] });
 });
 
 test('the assistant opens from the reading bar and closes with it', async () => {
@@ -66,7 +66,7 @@ test('the assistant opens from the reading bar and closes with it', async () => 
 });
 
 test('without models there is no assistant at all', () => {
-  models.mockReturnValue([]);
+  models.mockReturnValue({ models: [] });
 
   setup();
 
@@ -88,7 +88,7 @@ test('a phone has no bar of commands but still reaches the assistant', async () 
 
 test('a phone shows nothing when the assistant is off', () => {
   phone.mockReturnValue(true);
-  models.mockReturnValue([]);
+  models.mockReturnValue({ models: [] });
 
   setup();
 

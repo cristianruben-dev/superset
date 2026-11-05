@@ -50,7 +50,10 @@ import { confirmationTitle } from './confirmations';
 import { editorContext, pageContext } from './context';
 import { reloadReport, saveReport } from './editorActions';
 import { isLongConversation } from './transcript';
+import { PrivacyNotice } from './PrivacyNotice';
 import type {
+  AssistantAccess,
+  AssistantBudget,
   ChatMessage,
   ChatMode,
   Conversation,
@@ -81,6 +84,25 @@ const toolLabel = (name: string) =>
     get_dashboard_screenshot: t('Looking at the report'),
     get_visual_screenshot: t('Looking at a chart'),
   })[name] ?? confirmationTitle({ name, title: t('Using %s', name) });
+
+const budgetMessage = ({ level, scope }: AssistantBudget) => {
+  if (level === 'stopped') {
+    return scope === 'workspace'
+      ? t(
+          'This workspace used up its assistant budget for the month. Ask an admin of the workspace, or wait for next month.',
+        )
+      : t(
+          'The assistant used up its budget for the month. Ask an admin, or wait for next month.',
+        );
+  }
+  return scope === 'workspace'
+    ? t(
+        'This workspace is close to its assistant budget for the month. The assistant stops when it runs out.',
+      )
+    : t(
+        'The assistant is close to its budget for the month. It stops when it runs out.',
+      );
+};
 
 /** Whether a model can go on with a conversation of another model. */
 const canContinue = (model: OfferedModel, current?: OfferedModel) =>
@@ -236,17 +258,35 @@ function Answer({
  * The conversation with the assistant: «Ask your data» in reading, and the copilot of
  * the editor. The model answers on the server, which decides what it can reach. In the
  * editor it acts on the saved report, so the panel asks to save or discard first, and
- * shows what it did when it ends.
+ * shows what it did when it ends. The first time, it says what travels to Anthropic, and
+ * nothing is sent until the person accepts.
  */
 export function AssistantChat({
   mode,
-  models,
+  access,
   active,
 }: {
   mode: ChatMode;
-  models: OfferedModel[];
+  access: AssistantAccess;
   active: boolean;
 }) {
+  return access.privacyAccepted ? (
+    <Conversations mode={mode} access={access} active={active} />
+  ) : (
+    <PrivacyNotice onAccept={access.acceptPrivacy} />
+  );
+}
+
+function Conversations({
+  mode,
+  access,
+  active,
+}: {
+  mode: ChatMode;
+  access: AssistantAccess;
+  active: boolean;
+}) {
+  const { models } = access;
   const store = useStore<RootState>();
   const dispatch = useDispatch();
   const history = useHistory();
@@ -312,6 +352,8 @@ export function AssistantChat({
     chat.contextTokens,
     selected?.max_input_tokens,
   );
+  const budget = chat.budget ?? access.budget;
+  const stopped = budget.level === 'stopped';
 
   useEffect(() => {
     if (active) loadConversations();
@@ -354,7 +396,7 @@ export function AssistantChat({
 
   const submit = () => {
     const message = draft.trim();
-    if (!message || chat.busy || !model || blocked) return;
+    if (!message || chat.busy || !model || blocked || stopped) return;
     setDraft('');
     chat.send(message, model, contextNow());
   };
@@ -537,6 +579,15 @@ export function AssistantChat({
         />
       )}
 
+      {budget.level !== 'ok' && (
+        <Alert
+          type={stopped ? 'error' : 'warning'}
+          showIcon
+          message={budgetMessage(budget)}
+          data-test="auradata-assistant-budget"
+        />
+      )}
+
       <Composer
         onSubmit={event => {
           event.preventDefault();
@@ -553,6 +604,7 @@ export function AssistantChat({
           value={draft}
           onChange={event => setDraft(event.target.value)}
           onKeyDown={onKeyDown}
+          disabled={stopped}
           autoSize={{ minRows: 1, maxRows: 5 }}
           data-test="auradata-assistant-input"
         />
@@ -569,7 +621,7 @@ export function AssistantChat({
           <Button
             buttonStyle="primary"
             htmlType="submit"
-            disabled={!draft.trim() || blocked}
+            disabled={!draft.trim() || blocked || stopped}
             data-test="auradata-assistant-send"
           >
             {t('Send')}
@@ -585,11 +637,11 @@ export function AssistantChat({
 export function AssistantPanel({
   open,
   onClose,
-  models,
+  access,
 }: {
   open: boolean;
   onClose: () => void;
-  models: OfferedModel[];
+  access: AssistantAccess;
 }) {
   const phone = usePhoneScreen();
   return (
@@ -603,7 +655,7 @@ export function AssistantPanel({
       styles={{ body: { padding: 0 } }}
       data-test="auradata-assistant-panel"
     >
-      <AssistantChat mode="read" models={models} active={open} />
+      <AssistantChat mode="read" access={access} active={open} />
     </Drawer>
   );
 }

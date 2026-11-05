@@ -109,7 +109,6 @@ function Breakdown({ title, rows }: { title: string; rows: Row[] }) {
           data={rows}
           columns={columns}
           rowKey="key"
-          size="small"
           usePagination={false}
           sticky={false}
           locale={{ emptyText: t('Nothing this month') }}

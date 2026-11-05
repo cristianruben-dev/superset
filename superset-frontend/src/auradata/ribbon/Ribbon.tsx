@@ -18,7 +18,7 @@
  */
 import { useContext, useEffect, useRef, useState, type ReactNode } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useAssistantModels } from '../assistant/useAssistant';
+import { useAssistantAccess } from '../assistant/useAssistant';
 import { t } from '@apache-superset/core/translation';
 import { Button, Dropdown, Modal } from '@superset-ui/core/components';
 import { Icons } from '@superset-ui/core/components/Icons';
@@ -190,7 +190,7 @@ export function Ribbon({
     (state: RootState) => state.dashboardState.activeTabs,
   );
   const dashboardId = useSelector((state: RootState) => state.dashboardInfo.id);
-  const assistantModels = useAssistantModels();
+  const assistantModels = useAssistantAccess(dashboardId).editModels;
   const dashboardPageId = useContext(DashboardPageIdContext);
 
   const primary = useSelectedVisual();

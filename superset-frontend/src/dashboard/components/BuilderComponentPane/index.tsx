@@ -22,6 +22,7 @@ import {
   useFollowFieldSteps,
 } from 'src/auradata/format/chartFields';
 import { useCallback, useEffect, type ReactNode } from 'react';
+import { useSelector } from 'react-redux';
 import tinycolor from 'tinycolor2';
 import Tabs from '@superset-ui/core/components/Tabs';
 import { t } from '@apache-superset/core/translation';
@@ -41,6 +42,7 @@ import {
 import { SelectionPane } from 'src/auradata/format/SelectionPane';
 import SliceAdder from 'src/dashboard/containers/SliceAdder';
 import dashboardComponents from 'src/visualizations/presets/dashboardComponents';
+import type { RootState } from 'src/dashboard/types';
 import NewDivider from '../gridComponents/new/NewDivider';
 import NewHeader from '../gridComponents/new/NewHeader';
 import NewTabs from '../gridComponents/new/NewTabs';
@@ -50,7 +52,7 @@ import { FormatPane } from 'src/auradata/format/FormatPane';
 import { NewElements } from 'src/auradata/elements/NewElements';
 import { BookmarksPane } from 'src/auradata/report/BookmarksPane';
 import { AssistantChat } from 'src/auradata/assistant/AssistantPanel';
-import { useAssistantModels } from 'src/auradata/assistant/useAssistant';
+import { useAssistantAccess } from 'src/auradata/assistant/useAssistant';
 import { selectVisual, useOnOpenFormat } from 'src/auradata/format/selection';
 import { useObjectShortcuts } from 'src/auradata/format/useObjectCommands';
 
@@ -88,7 +90,8 @@ const BuilderComponentPane = ({ topOffset = 0, pageTop = 0 }) => {
   const occupied = topOffset + pageTop;
   const activeKey = useBuilderTab();
   const collapsed = usePaneCollapsed('builder');
-  const assistantModels = useAssistantModels();
+  const dashboardId = useSelector((state: RootState) => state.dashboardInfo.id);
+  const assistant = useAssistantAccess(dashboardId);
   const width = collapsed
     ? BUILDER_SIDEPANEL_RAIL_WIDTH
     : BUILDER_SIDEPANEL_WIDTH;
@@ -285,7 +288,7 @@ const BuilderComponentPane = ({ topOffset = 0, pageTop = 0 }) => {
                   </div>
                 ),
               },
-              ...(assistantModels.length
+              ...(assistant.editModels.length
                 ? [
                     {
                       key: TABS_KEYS.ASSISTANT,
@@ -301,7 +304,10 @@ const BuilderComponentPane = ({ topOffset = 0, pageTop = 0 }) => {
                         >
                           <AssistantChat
                             mode="edit"
-                            models={assistantModels}
+                            access={{
+                              ...assistant,
+                              models: assistant.editModels,
+                            }}
                             active
                           />
                         </div>

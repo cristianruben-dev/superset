@@ -31,10 +31,14 @@ import type {
 
 const CHAT_URL = '/api/v1/auradata/assistant/';
 
-export const fetchModels = (): Promise<AssistantModels> =>
-  SupersetClient.get({ endpoint: `${CHAT_URL}models/` }).then(
-    ({ json }) => json.result,
-  );
+export const fetchModels = (dashboardId: number): Promise<AssistantModels> =>
+  SupersetClient.get({
+    endpoint: `${CHAT_URL}models/?dashboard_id=${dashboardId}`,
+  }).then(({ json }) => json.result);
+
+/** Stores on the server that this person read the privacy notice. */
+export const acceptPrivacy = (): Promise<unknown> =>
+  SupersetClient.post({ endpoint: `${CHAT_URL}privacy/` });
 
 export const fetchConversations = (
   dashboardId: number,

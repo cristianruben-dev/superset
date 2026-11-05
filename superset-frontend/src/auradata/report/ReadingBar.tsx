@@ -24,7 +24,7 @@ import { Button } from '@superset-ui/core/components';
 import { Icons } from '@superset-ui/core/components/Icons';
 import type { RootState } from 'src/dashboard/types';
 import { AssistantPanel } from '../assistant/AssistantPanel';
-import { useAssistantModels } from '../assistant/useAssistant';
+import { useAssistantAccess } from '../assistant/useAssistant';
 import { usePhoneScreen } from '../format/mobile';
 import { setPresenting } from '../present/presentation';
 import { RibbonButton } from '../ribbon/parts';
@@ -142,7 +142,9 @@ export function ReadingBar({
   const [fullscreen, toggleFullscreen] = useFullscreen();
   // As Power BI mobile: a phone shows the report without commands
   const phone = usePhoneScreen();
-  const assistantModels = useAssistantModels();
+  const dashboardId = useSelector((state: RootState) => state.dashboardInfo.id);
+  const assistant = useAssistantAccess(dashboardId);
+  const assistantModels = assistant.models;
   const [assistantOpen, setAssistantOpen] = useState(false);
   const [assistantUsed, setAssistantUsed] = useState(false);
   const openAssistant = () => {
@@ -153,7 +155,7 @@ export function ReadingBar({
     <AssistantPanel
       open={assistantOpen}
       onClose={() => setAssistantOpen(false)}
-      models={assistantModels}
+      access={assistant}
     />
   );
 

@@ -19,11 +19,11 @@
 
 import { act, render, screen } from 'spec/helpers/testing-library';
 import { openFormat } from 'src/auradata/format/selection';
-import { useAssistantModels } from 'src/auradata/assistant/useAssistant';
+import { useAssistantAccess } from 'src/auradata/assistant/useAssistant';
 import BuilderComponentPane from '.';
 
 jest.mock('src/auradata/assistant/useAssistant', () => ({
-  useAssistantModels: jest.fn(() => []),
+  useAssistantAccess: jest.fn(() => ({ models: [], editModels: [] })),
 }));
 
 jest.mock('src/dashboard/containers/SliceAdder', () => () => (
@@ -68,7 +68,10 @@ test('BuilderComponentPane opens the Format tab when a chart asks for it', () =>
 });
 
 test('BuilderComponentPane has the assistant only when it answers', () => {
-  (useAssistantModels as jest.Mock).mockReturnValue([{ id: 'model' }]);
+  (useAssistantAccess as jest.Mock).mockReturnValue({
+    models: [{ id: 'model' }],
+    editModels: [{ id: 'model' }],
+  });
   render(<BuilderComponentPane topOffset={115} />, {
     useRedux: true,
     initialState: {
@@ -81,5 +84,8 @@ test('BuilderComponentPane has the assistant only when it answers', () => {
   const tabs = screen.getAllByRole('tab');
   expect(tabs).toHaveLength(6);
   expect(tabs[5]).toHaveTextContent('Assistant');
-  (useAssistantModels as jest.Mock).mockReturnValue([]);
+  (useAssistantAccess as jest.Mock).mockReturnValue({
+    models: [],
+    editModels: [],
+  });
 });

@@ -16,25 +16,46 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { useEffect, useState } from 'react';
-import { fetchModels } from './client';
-import type { OfferedModel } from './types';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { acceptPrivacy, fetchModels } from './client';
+import type {
+  AssistantAccess,
+  AssistantBudget,
+  AssistantModels,
+} from './types';
+
+const NO_LIMIT: AssistantBudget = { level: 'ok', scope: null };
 
 /**
- * Whether this report offers the assistant, and its models. It stays hidden unless
- * the server says it answers: on, with a key, for a user of a browser session.
+ * What this report offers of the assistant. It stays hidden unless the server says it
+ * answers here: on, with a key, for a user of a browser session, in this workspace.
  */
-export function useAssistantModels(): OfferedModel[] {
-  const [models, setModels] = useState<OfferedModel[]>([]);
+export function useAssistantAccess(dashboardId: number): AssistantAccess {
+  const [answer, setAnswer] = useState<AssistantModels | null>(null);
   useEffect(() => {
     let live = true;
-    fetchModels().then(
-      result => live && setModels(result.available ? result.models : []),
-      () => live && setModels([]),
+    fetchModels(dashboardId).then(
+      result => live && setAnswer(result),
+      () => live && setAnswer(null),
     );
     return () => {
       live = false;
     };
+  }, [dashboardId]);
+
+  const accept = useCallback(async () => {
+    await acceptPrivacy();
+    setAnswer(current => current && { ...current, privacy_accepted: true });
   }, []);
-  return models;
+
+  return useMemo(() => {
+    const models = answer?.available ? answer.models : [];
+    return {
+      models,
+      editModels: answer?.edit_available ? models : [],
+      privacyAccepted: !!answer?.privacy_accepted,
+      budget: answer?.budget ?? NO_LIMIT,
+      acceptPrivacy: accept,
+    };
+  }, [accept, answer]);
 }

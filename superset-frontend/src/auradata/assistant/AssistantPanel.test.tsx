@@ -37,7 +37,12 @@ import {
   undoTurn,
 } from './client';
 import { reloadReport, saveReport } from './editorActions';
-import type { AssistantEvent, Figure, OfferedModel } from './types';
+import type {
+  AssistantAccess,
+  AssistantEvent,
+  Figure,
+  OfferedModel,
+} from './types';
 
 jest.unmock('react-markdown');
 
@@ -82,6 +87,18 @@ const HAIKU: OfferedModel = {
   default: false,
 };
 
+const accessOf = (
+  models: OfferedModel[],
+  overrides: Partial<AssistantAccess> = {},
+): AssistantAccess => ({
+  models,
+  editModels: models,
+  privacyAccepted: true,
+  budget: { level: 'ok', scope: null },
+  acceptPrivacy: jest.fn(() => Promise.resolve()),
+  ...overrides,
+});
+
 const FIGURE: Figure = {
   dataset_id: 7,
   dataset_name: 'ventas',
@@ -120,10 +137,17 @@ const initialState = {
 };
 
 const setup = (onClose = jest.fn()) =>
-  render(<AssistantPanel open onClose={onClose} models={[SONNET, HAIKU]} />, {
-    useRedux: true,
-    initialState,
-  });
+  render(
+    <AssistantPanel
+      open
+      onClose={onClose}
+      access={accessOf([SONNET, HAIKU])}
+    />,
+    {
+      useRedux: true,
+      initialState,
+    },
+  );
 
 const sendQuestion = async (text = '¿Cuánto vendimos?') => {
   await userEvent.type(screen.getByRole('textbox'), `${text}{enter}`);
@@ -236,7 +260,11 @@ test('stopping aborts the stream, and so does closing the panel', async () => {
 
   await sendQuestion();
   rerender(
-    <AssistantPanel open={false} onClose={jest.fn()} models={[SONNET]} />,
+    <AssistantPanel
+      open={false}
+      onClose={jest.fn()}
+      access={accessOf([SONNET])}
+    />,
   );
 
   await waitFor(() => expect(stream.signal()?.aborted).toBe(true));
@@ -343,7 +371,7 @@ const editorState = (unsaved = false) => ({
 });
 
 const setupEditor = (unsaved = false) =>
-  render(<AssistantChat mode="edit" models={[SONNET]} active />, {
+  render(<AssistantChat mode="edit" access={accessOf([SONNET])} active />, {
     useRedux: true,
     initialState: editorState(unsaved),
   });
@@ -515,7 +543,9 @@ test('the editor reloads when an answer changed the report, and offers undo', as
 
 test('changes made on the canvas during an answer are not thrown away', async () => {
   const store = createStore(editorState(), reducerIndex);
-  render(<AssistantChat mode="edit" models={[SONNET]} active />, { store });
+  render(<AssistantChat mode="edit" access={accessOf([SONNET])} active />, {
+    store,
+  });
   const stream = heldStream();
   await sendQuestion('Agrega una página');
   stream.emit({
@@ -570,4 +600,88 @@ test('a refused undo shows why', async () => {
 
   await waitFor(() => expect(undo).toHaveBeenCalled());
   expect(reloadReport).not.toHaveBeenCalled();
+});
+
+test('the first time it says what is sent and sends nothing until accepted', async () => {
+  const acceptPrivacy = jest.fn(() => Promise.resolve());
+  render(
+    <AssistantChat
+      mode="read"
+      access={accessOf([SONNET], { privacyAccepted: false, acceptPrivacy })}
+      active
+    />,
+    { useRedux: true, useRouter: true, initialState },
+  );
+
+  expect(screen.getByTestId('auradata-assistant-privacy')).toHaveTextContent(
+    'data rows included',
+  );
+  expect(screen.queryByTestId('auradata-assistant-input')).toBeNull();
+  expect(conversations).not.toHaveBeenCalled();
+
+  await userEvent.click(screen.getByTestId('auradata-assistant-accept'));
+
+  expect(acceptPrivacy).toHaveBeenCalledTimes(1);
+  expect(ask).not.toHaveBeenCalled();
+});
+
+test('near the limit it warns and still answers', async () => {
+  render(
+    <AssistantChat
+      mode="read"
+      access={accessOf([SONNET], {
+        budget: { level: 'warning', scope: 'workspace' },
+      })}
+      active
+    />,
+    { useRedux: true, useRouter: true, initialState },
+  );
+
+  expect(
+    await screen.findByTestId('auradata-assistant-budget'),
+  ).toHaveTextContent('This workspace is close to its assistant budget');
+  expect(screen.getByTestId('auradata-assistant-input')).toBeEnabled();
+});
+
+test('at the limit it says so and takes no new message', async () => {
+  render(
+    <AssistantChat
+      mode="read"
+      access={accessOf([SONNET], {
+        budget: { level: 'stopped', scope: 'global' },
+      })}
+      active
+    />,
+    { useRedux: true, useRouter: true, initialState },
+  );
+
+  expect(
+    await screen.findByTestId('auradata-assistant-budget'),
+  ).toHaveTextContent('The assistant used up its budget for the month');
+  expect(screen.getByTestId('auradata-assistant-input')).toBeDisabled();
+  expect(screen.getByTestId('auradata-assistant-send')).toBeDisabled();
+});
+
+test('the end of an answer updates the notice of the month', async () => {
+  ask.mockImplementation(async (_question, onEvent) => {
+    onEvent({
+      event: 'done',
+      data: {
+        context_tokens: 1,
+        budget: { level: 'stopped', scope: 'global' },
+      },
+    });
+  });
+  render(<AssistantChat mode="read" access={accessOf([SONNET])} active />, {
+    useRedux: true,
+    useRouter: true,
+    initialState,
+  });
+
+  await sendQuestion();
+
+  expect(
+    await screen.findByTestId('auradata-assistant-budget'),
+  ).toBeInTheDocument();
+  expect(screen.getByTestId('auradata-assistant-input')).toBeDisabled();
 });
