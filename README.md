@@ -74,7 +74,10 @@ algunas reglas de producto distintas:
   (#2563EB) con acentos violeta y verde, modo claro y oscuro, paletas de gráficos
   (AuraData, Aura suave, Corporativo, Neón, Fresco) y pantalla de carga.
 - **En español por defecto**, con inglés como segundo idioma.
-- **Servicio MCP** para que asistentes de IA consulten y creen tableros.
+- **Una IA puede armar tus informes:** el servicio MCP deja a Claude u otro asistente crear áreas de
+  trabajo, conjuntos de datos e informes completos (páginas, gráficos, formato, segmentadores,
+  marcadores, obtener detalles, diseño móvil), mirarlos con una captura, exportarlos y compartirlos.
+  Se conecta con una clave personal creada en «Conectar IA» y actúa como su dueño, con sus mismos permisos.
 - Conexión a PostgreSQL, SQL Server, MySQL, Databricks, Amazon Redshift y DuckDB.
 - **Historial de versiones y papelera:** un tablero, gráfico o conjunto de datos eliminado se queda
   en la papelera del área de trabajo (o en Administración) hasta que se purga; el historial de un
@@ -95,8 +98,15 @@ de Superset:
 | Traducciones al español | `superset/translations/es/LC_MESSAGES/messages.po` |
 | Configuración de producción | `docker/pythonpath_prod/superset_config.py` |
 
-La guía para asistentes de IA que trabajan en el código está en
-[AGENTS.md](AGENTS.md) (`CLAUDE.md` apunta al mismo archivo).
+## Documentación
+
+| Para | Documento |
+| --- | --- |
+| Usuarios | [Manual de AuraData BI](docs/auradata/manual/README.md), pantalla por pantalla |
+| Conectar una IA | [docs/auradata/mcp/conectar.md](docs/auradata/mcp/conectar.md) |
+| Herramientas del MCP | [docs/auradata/mcp/referencia.md](docs/auradata/mcp/referencia.md) (generada) y la [lista de evaluación](docs/auradata/mcp/evaluacion.md) |
+| Desarrolladores | [docs/auradata/arquitectura.md](docs/auradata/arquitectura.md) |
+| Asistentes de IA que trabajan en el código | [AGENTS.md](AGENTS.md) (`CLAUDE.md` apunta al mismo archivo) |
 
 ## Ramas
 
