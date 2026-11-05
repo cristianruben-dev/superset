@@ -432,7 +432,11 @@ MCP_CACHE_CONFIG: dict[str, Any] = {
         "clear_mobile_layout",
         "generate_mobile_layout",
         "set_mobile_layout",
+        "restore_version",
         # Reads the AI repeats after each change to look at the result
+        "get_version_diff",
+        "list_trash",
+        "list_versions",
         "get_filter_defaults",
         "list_bookmarks",
         "get_dashboard_screenshot",

@@ -215,6 +215,12 @@ Mobile Layout (AuraData BI):
 - set_mobile_layout / clear_mobile_layout: Explicit phone boxes, or none
 - get_dashboard_screenshot device='phone': Look at the page as a phone shows it
 
+Trash and Version History (AuraData BI):
+- list_trash: Deleted dashboards of a workspace (contributors), or the whole trash
+- list_versions: Saved versions of a dashboard, chart or dataset, newest first
+- get_version_diff: The changes one version made, as the web's history shows them
+- restore_version: Go back to a version (a new version; editors and contributors)
+
 Tag Management:
 - list_tags: List tags with advanced filters (1-based pagination)
 - get_tag_info: Get detailed tag information by ID
@@ -886,6 +892,12 @@ from superset.mcp_service.dataset.tool import (  # noqa: F401, E402
 )
 from superset.mcp_service.explore.tool import (  # noqa: F401, E402
     generate_explore_link,
+)
+from superset.mcp_service.history.tool import (  # noqa: F401, E402
+    get_version_diff,
+    list_trash,
+    list_versions,
+    restore_version,
 )
 from superset.mcp_service.query.tool import (  # noqa: F401, E402
     get_query_info,
