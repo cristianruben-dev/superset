@@ -49,6 +49,7 @@ from superset.auradata.assistant.agent import (
     run_conversation,
 )
 from superset.auradata.assistant.conversations import (
+    context_tokens_of,
     conversation_json,
     conversation_messages,
     ConversationBusyError,
@@ -58,6 +59,7 @@ from superset.auradata.assistant.conversations import (
     history_of,
     list_conversations,
 )
+from superset.auradata.assistant.figures import figures_in
 from superset.auradata.assistant.models import (
     Catalog,
     CatalogModel,
@@ -577,11 +579,14 @@ class AssistantRestApi(BaseSupersetApi):
         conversation = find_conversation(conversation_id, get_user_id())
         if conversation is None or _open_dashboard(conversation.dashboard_id) is None:
             return self.response_404()
+        messages = conversation_messages(conversation)
         return self.response(
             200,
             result={
                 **conversation_json(conversation),
-                "messages": conversation_messages(conversation),
+                "messages": messages,
+                "figures": figures_in(messages),
+                "context_tokens": context_tokens_of(conversation),
             },
         )
 

@@ -46,6 +46,7 @@ from superset.auradata.assistant.conversations import (
     ConversationLog,
     STOP_REFUSAL,
 )
+from superset.auradata.assistant.figures import figure_of
 from superset.auradata.assistant.models import (
     CatalogModel,
     cost_of_message,
@@ -255,15 +256,17 @@ def _run_tools(
     for block in tool_uses:
         yield "tool_start", {"id": block["id"], "name": block["name"]}
         outcome = toolbox.call(block["name"], block.get("input"))
-        results.append(_result_block(block["id"], outcome))
-        yield (
-            "tool_end",
-            {
-                "id": block["id"],
-                "name": block["name"],
-                "is_error": outcome.is_error,
-            },
-        )
+        result = _result_block(block["id"], outcome)
+        results.append(result)
+        payload = {
+            "id": block["id"],
+            "name": block["name"],
+            "is_error": outcome.is_error,
+        }
+        figure = figure_of(block, result)
+        if figure is not None:
+            payload["figure"] = figure
+        yield "tool_end", payload
 
 
 def _with_missing_results(
@@ -278,7 +281,13 @@ def _with_missing_results(
     ]
 
 
-def _done(model: CatalogModel, usage: TokenUsage, cost: Decimal, stop: Any) -> Event:
+def _done(
+    model: CatalogModel,
+    usage: TokenUsage,
+    cost: Decimal,
+    stop: Any,
+    context_tokens: int,
+) -> Event:
     return "done", {
         "model": model.id,
         "stop_reason": stop,
@@ -287,6 +296,7 @@ def _done(model: CatalogModel, usage: TokenUsage, cost: Decimal, stop: Any) -> E
         "cache_read_input_tokens": usage.cache_read_input_tokens,
         "cache_creation_input_tokens": usage.cache_creation_input_tokens,
         "cost_usd": float(cost),
+        "context_tokens": context_tokens,
     }
 
 
@@ -305,6 +315,7 @@ def run_conversation(  # noqa: C901
     total_usage = TokenUsage()
     total_cost = Decimal(0)
     stop_reason = None
+    context_tokens = 0
 
     for _call in range(MAX_MODEL_CALLS):
         params = request_params(model, system, tools, history)
@@ -323,6 +334,7 @@ def run_conversation(  # noqa: C901
         total_usage += turn.usage
         total_cost += turn.cost_usd
         stop_reason = turn.stop_reason
+        context_tokens = turn.usage.context_tokens
 
         if stop_reason == STOP_REFUSAL:
             log.add_turn(turn)
@@ -385,4 +397,4 @@ def run_conversation(  # noqa: C901
             },
         )
 
-    yield _done(model, total_usage, total_cost, stop_reason)
+    yield _done(model, total_usage, total_cost, stop_reason, context_tokens)

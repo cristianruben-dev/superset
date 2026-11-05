@@ -66,6 +66,7 @@ from superset.auradata.assistant.tools import (
     MODE_READ,
     TOOL_SEARCH_NAME,
     ToolBox,
+    ToolOutcome,
 )
 from superset.auradata.models import AssistantMessage
 from superset.mcp_service.app import mcp
@@ -1015,6 +1016,55 @@ def test_an_image_result_becomes_an_image_block() -> None:
         "type": "image",
         "source": {"type": "base64", "media_type": "image/png", "data": "AAAA"},
     }
+
+
+QUERY_RESULT = {
+    "dataset_id": 7,
+    "dataset_name": "ventas",
+    "data": [{"region": "Norte", "total": 10}, {"region": "Sur", "total": 4}],
+    "columns": [{"name": "region", "data_type": "string"}],
+    "applied_filters": [{"col": "fecha", "op": "TEMPORAL_RANGE", "val": "Last year"}],
+    "from_dttm": "2025-01-01T00:00:00",
+    "to_dttm": "2026-01-01T00:00:00",
+}
+
+
+def test_a_query_gives_the_same_figure_live_and_when_read_later(
+    client: Any, world: dict[str, Any], mocker: MockerFixture
+) -> None:
+    login(world, "Ana")
+    use_model(
+        mocker,
+        reply(
+            tool_use(
+                "query_dataset",
+                {"metrics": ["total"], "columns": ["region"], "order_by": ["total"]},
+            ),
+            stop_reason="tool_use",
+        ),
+        reply(text("Ganó el Norte")),
+    )
+    mocker.patch.object(
+        ToolBox,
+        "call",
+        return_value=ToolOutcome(
+            [{"type": "text", "text": json.dumps(QUERY_RESULT)}],
+        ),
+    )
+
+    response = ask(client, world["dashboard"])
+
+    figure = payloads(response, "tool_end")[0]["figure"]
+    assert figure["dataset_name"] == "ventas"
+    assert figure["metrics"] == ["total"]
+    assert figure["filters"][0]["val"] == "Last year"
+    stored = client.get(f"{URL}conversations/{conversation_id_of(response)}/").json[
+        "result"
+    ]
+    assert stored["figures"] == {"toolu_1": figure}
+    # What the last call to the API read, not what the turn added up
+    assert payloads(response, "done")[0]["context_tokens"] == 100
+    assert stored["context_tokens"] == 100
 
 
 def test_a_silent_model_keeps_the_stream_open(

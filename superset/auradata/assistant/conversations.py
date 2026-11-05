@@ -152,6 +152,26 @@ def conversation_messages(conversation: AssistantConversation) -> list[dict[str,
     return [message_json(message) for message in _messages_of(conversation)]
 
 
+def context_tokens_of(conversation: AssistantConversation) -> int:
+    """How much of the model's context the last response took."""
+    last = (
+        db.session.query(AssistantMessage)
+        .filter(
+            AssistantMessage.conversation_id == conversation.id,
+            AssistantMessage.role == "assistant",
+        )
+        .order_by(AssistantMessage.seq.desc())
+        .first()
+    )
+    if last is None:
+        return 0
+    return (
+        last.input_tokens
+        + last.cache_read_input_tokens
+        + last.cache_creation_input_tokens
+    )
+
+
 def content_to_send(blocks: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """
     A stored turn as the API takes it back: unchanged, except after a model handed
