@@ -697,6 +697,9 @@ def diff_json_field(
 #   global_chart_configuration: dashboard-wide filter scope; the
 #                               ``chartsInScope`` list mirrors live
 #                               dashboard membership.
+#                               Both are diffed by
+#                               :func:`diff_cross_filter_scopes` instead,
+#                               on the scopes alone ("Edit interactions").
 #   map_label_colors:           label → colour map, re-stamped on save
 #                               from currently-visible filter values.
 #   shared_label_colors:        cross-chart shared-label colour list,
@@ -725,6 +728,64 @@ DASHBOARD_JSON_METADATA_AUDIT_KEYS: frozenset[str] = frozenset(
 )
 
 
+def _cross_filter_scope(entry: Any) -> Any:
+    """The authored part of a cross-filter configuration: its scope."""
+    if not isinstance(entry, dict):
+        return None
+    cross_filters = entry.get("crossFilters")
+    if isinstance(cross_filters, dict):
+        return cross_filters.get("scope")
+    return entry.get("scope")
+
+
+def diff_cross_filter_scopes(from_value: Any, to_value: Any) -> list[ChangeRecord]:
+    """
+    Records for "Edit interactions": the cross-filter scope of each chart
+    (``chart_configuration``) and of the dashboard
+    (``global_chart_configuration``), as ``kind="interaction"``.
+
+    The derived ``chartsInScope`` lists follow dashboard membership and are
+    left out, and a chart following the dashboard's scope (``"global"``) is
+    the same as a chart without an entry, so adding or removing a chart
+    records nothing here.
+    """
+    from_p = _coerce_params(from_value)
+    to_p = _coerce_params(to_value)
+    records: list[ChangeRecord] = []
+
+    def emit(path: list[Any], pre: Any, post: Any) -> None:
+        if _values_equivalent(pre, post):
+            return
+        records.append(
+            ChangeRecord(
+                kind="interaction",
+                operation=_operation_from_values(pre, post),
+                path=path,
+                from_value=pre,
+                to_value=post,
+            )
+        )
+
+    emit(
+        ["json_metadata", "global_chart_configuration"],
+        _cross_filter_scope(from_p.get("global_chart_configuration")),
+        _cross_filter_scope(to_p.get("global_chart_configuration")),
+    )
+    pre_charts = from_p.get("chart_configuration")
+    post_charts = to_p.get("chart_configuration")
+    pre_charts = pre_charts if isinstance(pre_charts, dict) else {}
+    post_charts = post_charts if isinstance(post_charts, dict) else {}
+    for chart_id in sorted(set(pre_charts) | set(post_charts), key=str):
+        pre = _cross_filter_scope(pre_charts.get(chart_id))
+        post = _cross_filter_scope(post_charts.get(chart_id))
+        emit(
+            ["json_metadata", "chart_configuration", str(chart_id)],
+            None if pre == "global" else pre,
+            None if post == "global" else post,
+        )
+    return records
+
+
 # Layout component types and how they map to record ``kind`` strings.
 # ``HEADER_ID`` is excluded — that's the dashboard's title bar, mirrored
 # from ``dashboard_title``. ``ROOT_ID`` and ``GRID_ID`` are structural
@@ -739,6 +800,8 @@ _LAYOUT_TYPE_TO_KIND: dict[str, str] = {
     "HEADER": "header",
     "MARKDOWN": "markdown",
     "DIVIDER": "divider",
+    # Design elements and canvas slicers of AuraData BI
+    "DYNAMIC": "element",
 }
 
 # Layout components we never emit records for: ROOT_ID is the layout
@@ -746,6 +809,19 @@ _LAYOUT_TYPE_TO_KIND: dict[str, str] = {
 # stack inside ROOT_ID; HEADER_ID is the dashboard's title bar (already
 # covered by the ``dashboard_title`` scalar field).
 _LAYOUT_SUPPRESSED_IDS: frozenset[str] = frozenset({"ROOT_ID", "GRID_ID", "HEADER_ID"})
+
+# The singletons whose ``meta`` holds report settings in AuraData BI: the
+# canvas format and bookmarks (ROOT_ID) and, for a report of one page, the
+# page's own settings such as its mobile layout (GRID_ID). Their meta edits
+# are recorded as ``kind="report"``, one record per changed top-level key, so
+# the history names the setting instead of a deep leaf of it.
+_LAYOUT_SETTINGS_IDS: tuple[str, ...] = ("ROOT_ID", "GRID_ID")
+
+# Meta keys of those singletons that carry no authored change: the marker of
+# a layout converted to the cell grid and the editor's undo step counter.
+_LAYOUT_SETTINGS_IGNORED_KEYS: frozenset[str] = frozenset(
+    {"auradataCells", "auradataFieldStep"}
+)
 
 
 def _layout_component_label(node: dict[str, Any]) -> str | None:
@@ -868,11 +944,21 @@ def _diff_layout_node(
     # a leaf added inside an existing node gets ``add`` and so on. The
     # node-level "this was an edit" fact is implicit in the path shape
     # carrying segments after ``node_id``.
-    return _recursive_leaf_diff(
+    pre_meta = _meta_excluding_position(pre_node)
+    post_meta = _meta_excluding_position(post_node)
+    records: list[ChangeRecord] = []
+    if kind == "tab":
+        # A page's own settings (mobile layout, drill through, tooltip page)
+        # are recorded whole, by setting, like those of a report of one page
+        settings = {k for k in set(pre_meta) | set(post_meta) if _is_setting(k)}
+        records = _settings_records(node_id, pre_meta, post_meta, settings)
+        pre_meta = {k: v for k, v in pre_meta.items() if k not in settings}
+        post_meta = {k: v for k, v in post_meta.items() if k not in settings}
+    return records + _recursive_leaf_diff(
         kind=kind,
         path_prefix=[node_id],
-        pre=_meta_excluding_position(pre_node),
-        post=_meta_excluding_position(post_node),
+        pre=pre_meta,
+        post=post_meta,
         max_depth=_LAYOUT_META_DIFF_DEPTH,
     )
 
@@ -902,8 +988,10 @@ def diff_dashboard_layout(
     for an ``edit`` that recurses into ``meta``). Paths no longer carry
     the verb — see :func:`_layout_chart_uuids_by_verb`.
 
-    ``ROOT_ID`` / ``GRID_ID`` / ``HEADER_ID`` are suppressed (see
-    :data:`_LAYOUT_SUPPRESSED_IDS`).
+    ``ROOT_ID`` / ``GRID_ID`` / ``HEADER_ID`` are suppressed as components
+    (see :data:`_LAYOUT_SUPPRESSED_IDS`); the report settings in the meta of
+    ``ROOT_ID`` and ``GRID_ID`` are recorded as ``kind="report"`` (see
+    :data:`_LAYOUT_SETTINGS_IDS`).
     """
     pre_nodes = _layout_nodes(pre)
     post_nodes = _layout_nodes(post)
@@ -912,7 +1000,58 @@ def diff_dashboard_layout(
         records.extend(
             _diff_layout_node(node_id, pre_nodes.get(node_id), post_nodes.get(node_id))
         )
+    records.extend(_diff_layout_settings(pre, post))
     return records
+
+
+def _is_setting(key: str) -> bool:
+    """An AuraData BI setting of the report or of a page (``auradata*``)."""
+    return key.startswith("auradata") and key not in _LAYOUT_SETTINGS_IGNORED_KEYS
+
+
+def _settings_records(
+    node_id: str,
+    pre_meta: dict[str, Any],
+    post_meta: dict[str, Any],
+    settings: Iterable[str],
+) -> list[ChangeRecord]:
+    """One ``kind="report"`` record per changed setting, its value whole."""
+    records: list[ChangeRecord] = []
+    for key in sorted(settings):
+        from_value, to_value = pre_meta.get(key), post_meta.get(key)
+        if _values_equivalent(from_value, to_value):
+            continue
+        records.append(
+            ChangeRecord(
+                kind="report",
+                operation=_operation_from_values(from_value, to_value),
+                path=[node_id, key],
+                from_value=from_value,
+                to_value=to_value,
+            )
+        )
+    return records
+
+
+def _diff_layout_settings(pre: Any, post: Any) -> list[ChangeRecord]:
+    """``kind="report"`` records for the meta of ROOT_ID and GRID_ID."""
+    pre_layout = _coerce_params(pre)
+    post_layout = _coerce_params(post)
+    records: list[ChangeRecord] = []
+    for node_id in _LAYOUT_SETTINGS_IDS:
+        pre_meta = _meta_excluding_position(_as_node(pre_layout.get(node_id)))
+        post_meta = _meta_excluding_position(_as_node(post_layout.get(node_id)))
+        keys = {
+            k
+            for k in set(pre_meta) | set(post_meta)
+            if k not in _LAYOUT_SETTINGS_IGNORED_KEYS
+        }
+        records.extend(_settings_records(node_id, pre_meta, post_meta, keys))
+    return records
+
+
+def _as_node(value: Any) -> dict[str, Any]:
+    return value if isinstance(value, dict) else {}
 
 
 def _layout_nodes(raw: Any) -> dict[str, dict[str, Any]]:
@@ -951,6 +1090,9 @@ def diff_dashboard(
             post.get("json_metadata"),
             exclude_keys=DASHBOARD_JSON_METADATA_AUDIT_KEYS,
         )
+    )
+    records.extend(
+        diff_cross_filter_scopes(pre.get("json_metadata"), post.get("json_metadata"))
     )
     records.extend(
         diff_dashboard_layout(pre.get("position_json"), post.get("position_json"))

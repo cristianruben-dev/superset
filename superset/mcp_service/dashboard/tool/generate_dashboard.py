@@ -218,6 +218,35 @@ def _generate_title_from_charts(chart_objects: List[Any]) -> str:
     return title
 
 
+def default_json_metadata() -> Dict[str, Any]:
+    """
+    The json_metadata of a new report. It is already in the shape the
+    dashboard update command saves (``set_dash_metadata``), so a later write
+    of the metadata only records what it changed in the version history.
+    """
+    return {
+        "expanded_slices": {},
+        "expand_all_slices": False,
+        "refresh_frequency": 0,
+        "timed_refresh_immune_slices": [],
+        "color_scheme": None,
+        "label_colors": {},
+        "shared_label_colors": {},
+        "color_scheme_domain": [],
+        # On, as a dashboard the editor creates: charts filter each other
+        # (set_visual_interactions narrows it per chart)
+        "cross_filters_enabled": True,
+        "native_filter_configuration": [],
+        "global_chart_configuration": {
+            "scope": {
+                "rootPath": ["ROOT_ID"],
+                "excluded": [],
+            }
+        },
+        "chart_configuration": {},
+    }
+
+
 @tool(
     tags=["mutate"],
     class_permission_name="Dashboard",
@@ -403,27 +432,7 @@ def generate_dashboard(  # noqa: C901
             # When the caller supplied json_metadata_overrides, merge those
             # in shallowly so the LLM can override label_colors / color_scheme
             # / cross_filters_enabled without re-specifying the whole shape.
-            json_metadata_dict: Dict[str, Any] = {
-                "filter_scopes": {},
-                "expanded_slices": {},
-                "refresh_frequency": 0,
-                "timed_refresh_immune_slices": [],
-                "color_scheme": None,
-                "label_colors": {},
-                "shared_label_colors": {},
-                "color_scheme_domain": [],
-                # On, as a dashboard the editor creates: charts filter each
-                # other (set_visual_interactions narrows it per chart)
-                "cross_filters_enabled": True,
-                "native_filter_configuration": [],
-                "global_chart_configuration": {
-                    "scope": {
-                        "rootPath": ["ROOT_ID"],
-                        "excluded": [],
-                    }
-                },
-                "chart_configuration": {},
-            }
+            json_metadata_dict = default_json_metadata()
             if request.json_metadata_overrides:
                 json_metadata_dict.update(request.json_metadata_overrides)
             json_metadata = json.dumps(json_metadata_dict)

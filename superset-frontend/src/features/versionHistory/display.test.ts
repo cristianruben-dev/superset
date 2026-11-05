@@ -146,6 +146,42 @@ test('describeRecord labels dashboard layout changes', () => {
   ).toBe("Added tab 'Overview'");
 });
 
+test('describeRecord names report settings, interactions and elements', () => {
+  const report = (path: string[], operation = 'edit') =>
+    describeRecord(
+      record({ kind: 'report', operation, path, to_value: { items: [] } }),
+    );
+  expect(report(['ROOT_ID', 'auradataBookmarks'])).toBe('Changed bookmarks');
+  expect(report(['ROOT_ID', 'auradataCanvas'])).toBe('Changed canvas format');
+  expect(report(['TAB-1', 'auradataMobile'])).toBe('Changed the mobile layout');
+  expect(report(['GRID_ID', 'auradataMobile'], 'remove')).toBe(
+    'Removed the mobile layout',
+  );
+  expect(report(['TAB-2', 'auradataTooltipPage'])).toBe(
+    'Changed a tooltip page',
+  );
+  expect(report(['ROOT_ID', 'somethingElse'])).toBe('Changed report settings');
+  expect(
+    describeRecord(
+      record({
+        kind: 'interaction',
+        operation: 'edit',
+        path: ['json_metadata', 'chart_configuration', '12'],
+      }),
+    ),
+  ).toBe('Changed visual interactions');
+  expect(
+    describeRecord(
+      record({
+        kind: 'element',
+        operation: 'add',
+        path: ['DYNAMIC-1'],
+        to_value: { id: 'DYNAMIC-1', type: 'DYNAMIC' },
+      }),
+    ),
+  ).toBe('Added a design element');
+});
+
 test('describeRecord names a layout chart from its node payload', () => {
   // Dashboard layout chart-add records carry the chart title as `name`;
   // the path holds only the opaque node id.

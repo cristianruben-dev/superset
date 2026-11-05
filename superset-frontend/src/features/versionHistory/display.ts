@@ -65,7 +65,7 @@ export function formatAuthor(changedBy: ActivityChangedBy | null): string {
  * These must never surface as a record's subject.
  */
 const OPAQUE_ID =
-  /^(CHART|ROW|COLUMN|TAB|TABS|HEADER|MARKDOWN|DIVIDER|GRID|ROOT)-|^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  /^(CHART|ROW|COLUMN|TAB|TABS|HEADER|MARKDOWN|DIVIDER|DYNAMIC|GRID|ROOT)-|^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 function isOpaqueId(value: string): boolean {
   return OPAQUE_ID.test(value);
@@ -173,8 +173,38 @@ function layoutKindLabel(kind: string): string | null {
       return t('markdown');
     case 'divider':
       return t('divider');
+    case 'element':
+      return t('design element');
     default:
       return null;
+  }
+}
+
+/**
+ * A setting of an AuraData BI report or page, recorded whole by the key it
+ * keeps in the layout (``kind='report'``, path ``[node id, key]``).
+ */
+function reportSettingHeadline(record: ActivityRecord): string {
+  const removed = record.operation === 'remove';
+  switch (record.path[1]) {
+    case 'auradataBookmarks':
+      return t('Changed bookmarks');
+    case 'auradataCanvas':
+      return t('Changed canvas format');
+    case 'auradataMobile':
+      return removed
+        ? t('Removed the mobile layout')
+        : t('Changed the mobile layout');
+    case 'auradataDrillthrough':
+      return removed
+        ? t('Removed a drill through page')
+        : t('Changed a drill through page');
+    case 'auradataTooltipPage':
+      return removed
+        ? t('Removed a tooltip page')
+        : t('Changed a tooltip page');
+    default:
+      return t('Changed report settings');
   }
 }
 
@@ -265,6 +295,14 @@ export function describeRecord(record: ActivityRecord): string {
 
   if (kind === 'color_palette') {
     return t('Changed color palette');
+  }
+
+  if (kind === 'interaction') {
+    return t('Changed visual interactions');
+  }
+
+  if (kind === 'report') {
+    return reportSettingHeadline(record);
   }
 
   const label = layoutKindLabel(kind);

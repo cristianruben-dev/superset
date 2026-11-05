@@ -26631,3 +26631,36 @@ msgstr "Usar esta tabla en el gráfico"
 
 msgid "The server refused the fields of a chart: it keeps its saved fields."
 msgstr "El servidor rechazó los campos de un gráfico: conserva los guardados."
+
+msgid "design element"
+msgstr "elemento de diseño"
+
+msgid "Changed bookmarks"
+msgstr "Se cambiaron los marcadores"
+
+msgid "Changed canvas format"
+msgstr "Se cambió el formato del lienzo"
+
+msgid "Changed the mobile layout"
+msgstr "Se cambió el diseño móvil"
+
+msgid "Removed the mobile layout"
+msgstr "Se quitó el diseño móvil"
+
+msgid "Changed a drill through page"
+msgstr "Se cambió una página de obtener detalles"
+
+msgid "Removed a drill through page"
+msgstr "Se quitó una página de obtener detalles"
+
+msgid "Changed a tooltip page"
+msgstr "Se cambió una página de información sobre herramientas"
+
+msgid "Removed a tooltip page"
+msgstr "Se quitó una página de información sobre herramientas"
+
+msgid "Changed report settings"
+msgstr "Se cambió la configuración del informe"
+
+msgid "Changed visual interactions"
+msgstr "Se cambiaron las interacciones de los objetos visuales"
