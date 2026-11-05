@@ -67,6 +67,26 @@ logger = logging.getLogger(__name__)
 MCP_DASHBOARD_TIME_FILTER_SUBJECT = "_mcp_dashboard_time_filter_subject"
 
 
+def find_accessible_dataset(identifier: int | str) -> Any | None:
+    """
+    The dataset with this id or UUID, when the current user may read it; None
+    otherwise, so a dataset the user cannot see looks like a missing one.
+    """
+    from superset.daos.dataset import DatasetDAO
+    from superset.mcp_service.auth import has_dataset_access
+
+    if isinstance(identifier, int) or (
+        isinstance(identifier, str) and identifier.isdecimal()
+    ):
+        dataset = DatasetDAO.find_by_id(int(identifier))
+    else:
+        dataset = DatasetDAO.find_by_id(identifier, id_column="uuid")
+    if dataset and not has_dataset_access(dataset):
+        logger.warning("Refused access to dataset %s", identifier)
+        return None
+    return dataset
+
+
 @dataclass
 class DatasetValidationResult:
     """Result of dataset accessibility validation."""

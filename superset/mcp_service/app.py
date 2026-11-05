@@ -178,6 +178,16 @@ Report Format (AuraData BI):
 Read the keys with get_format_options before formatting; the format lives in the
 layout, so it saves, undoes and exports with the dashboard.
 
+Report Visuals (AuraData BI):
+- create_visual: Create a chart inside a report and place it on a page in one step
+- get_visual_fields: The field wells, sort and sort choices of a chart of a report
+- set_visual_fields: Put fields in the wells of a chart (axis, legend, values, columns)
+- change_visual_dataset: Move a chart to another dataset of the report's workspace
+- set_visual_sort: Sort a chart as its "Sort axis" menu does
+In AuraData BI a chart belongs to one dashboard: build reports with create_visual
+rather than generate_chart. These tools save on the chart and take over the chart
+settings the report's layout held, so the report shows the change.
+
 Tag Management:
 - list_tags: List tags with advanced filters (1-based pagination)
 - get_tag_info: Get detailed tag information by ID
@@ -862,13 +872,16 @@ from superset.mcp_service.report_layout.tool import (  # noqa: F401, E402
     add_page,
     align_objects,
     bring_to_front,
+    change_visual_dataset,
     copy_format,
+    create_visual,
     delete_page,
     distribute_objects,
     duplicate_page,
     format_visual,
     get_format_options,
     get_report_structure,
+    get_visual_fields,
     move_object,
     place_object,
     rename_page,
@@ -879,6 +892,8 @@ from superset.mcp_service.report_layout.tool import (  # noqa: F401, E402
     set_object_state,
     set_page_hidden,
     set_shared_visual_format,
+    set_visual_fields,
+    set_visual_sort,
     upload_dashboard_background,
     upload_dashboard_image,
 )

@@ -660,10 +660,20 @@ class GenerateDashboardRequest(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
     chart_ids: List[int] = Field(
-        ...,
-        description="List of chart IDs to include in the dashboard",
-        min_length=1,
+        default_factory=list,
+        description=(
+            "Chart IDs to include in the dashboard. Leave empty to start an "
+            "empty report and add its charts with create_visual."
+        ),
         max_length=250,
+    )
+    workspace_id: int | None = Field(
+        None,
+        description=(
+            "Workspace to create the dashboard in (you must be a contributor "
+            "or admin of it). Its charts may then use the workspace's "
+            "datasets; outside a workspace they only use shared ones."
+        ),
     )
     dashboard_title: str | None = Field(
         None,

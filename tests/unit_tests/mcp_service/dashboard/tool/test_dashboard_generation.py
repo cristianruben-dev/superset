@@ -98,7 +98,7 @@ def mock_chart_access() -> Iterator[None]:
 def mock_workspace_datasets() -> Iterator[Mock]:
     """Charts use shared datasets unless a test says otherwise (AuraData BI)."""
     with patch(
-        "superset.auradata.workspace_datasets.chart_datasets_of_other_workspaces",
+        "superset.auradata.workspace_datasets.chart_datasets_outside",
         return_value=[],
     ) as foreign:
         yield foreign
@@ -286,7 +286,8 @@ class TestGenerateDashboard:
         mock_workspace_datasets,
         mcp_server,
     ):
-        """A new dashboard is outside workspaces: its charts use shared datasets."""
+        """Without workspace_id a new dashboard is outside workspaces: its charts
+        use shared datasets."""
         charts = [_mock_chart(id=1, slice_name="Sales Chart")]
         _setup_generate_dashboard_mocks(
             mock_db_session,

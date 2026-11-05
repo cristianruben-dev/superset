@@ -921,10 +921,24 @@ async def update_chart(  # noqa: C901
                 if validation_error is not None:
                     return validation_error
 
+            previous_form_data = _get_existing_form_data(chart)
             with event_logger.log_context(action="mcp.update_chart.db_write"):
                 command = UpdateChartCommand(chart.id, payload_or_error)
                 updated_chart = command.run()
             saved = True
+            if new_form_data is not None:
+                # A setting the report's layout holds over the chart would hide
+                # the change: move it to the chart, or say why it stays
+                from superset.mcp_service.report_layout.visuals import (
+                    changed_keys,
+                    unmask_for_chart,
+                )
+
+                with event_logger.log_context(action="mcp.update_chart.unmask"):
+                    warnings += unmask_for_chart(
+                        updated_chart,
+                        changed_keys(previous_form_data, new_form_data),
+                    )
             explore_url = (
                 f"{get_superset_base_url()}/explore/?slice_id={updated_chart.id}"
             )

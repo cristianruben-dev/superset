@@ -239,6 +239,9 @@ def generate_dashboard(  # noqa: C901
     - To add a chart to an EXISTING dashboard, use add_chart_to_existing_dashboard.
       Never use this tool as a fallback when add_chart_to_existing_dashboard fails.
     - All charts must exist and be accessible to current user
+    - workspace_id creates it inside a workspace you contribute to, so its
+      charts may use that workspace's datasets. Leave chart_ids empty to
+      start an empty report and add charts with create_visual.
     - Layout: by default, charts go two per row on a 16:9 page of cells
       (30 x 12 cells each); arrange them later with place_object and the
       other layout tools. When ``position_json`` is supplied, that explicit
@@ -256,6 +259,29 @@ def generate_dashboard(  # noqa: C901
     sanitization_warnings = list(getattr(request, "sanitization_warnings", []) or [])
 
     try:
+        # The workspace to create the report in, where the user contributes
+        if request.workspace_id is not None:
+            from superset.auradata.workspaces import (
+                find_workspace,
+                ROLE_CONTRIBUTOR,
+                WorkspaceError,
+            )
+
+            try:
+                find_workspace(request.workspace_id, ROLE_CONTRIBUTOR)
+            except WorkspaceError as ex:
+                return GenerateDashboardResponse(
+                    dashboard=None,
+                    dashboard_url=None,
+                    error=(
+                        f"Workspace {request.workspace_id} not found. Use "
+                        "list_workspaces."
+                        if ex.status == 404
+                        else "You must be a contributor or admin of workspace "
+                        f"{request.workspace_id} to create a dashboard in it."
+                    ),
+                )
+
         # avoids ImportError before Flask app initialisation:
         # `Exception: App not initialized yet. Please call init_app first`
         # raised from superset.utils.encrypt when Slice's encrypted Column
@@ -302,19 +328,17 @@ def generate_dashboard(  # noqa: C901
                 )
 
             # Charts use the datasets of their dashboard's workspace or shared
-            # ones (AuraData BI); a new dashboard is outside any workspace
-            from superset.auradata.workspace_datasets import (
-                chart_datasets_of_other_workspaces,
-            )
+            # ones (AuraData BI)
+            from superset.auradata.workspace_datasets import chart_datasets_outside
 
-            if foreign := chart_datasets_of_other_workspaces(found_chart_ids, None):
+            if foreign := chart_datasets_outside(found_chart_ids, request.workspace_id):
                 return GenerateDashboardResponse(
                     dashboard=None,
                     dashboard_url=None,
                     error=(
-                        "These charts use datasets of a workspace: "
-                        f"{', '.join(foreign)}. A dashboard outside that workspace "
-                        "can only use shared datasets."
+                        "These charts use datasets of another workspace: "
+                        f"{', '.join(foreign)}. A dashboard only uses the datasets "
+                        "of its workspace (workspace_id) or shared ones."
                     ),
                 )
 
@@ -452,6 +476,16 @@ def generate_dashboard(  # noqa: C901
                 dashboard.slices = fresh_charts
 
                 db.session.add(dashboard)
+                if request.workspace_id is not None:
+                    from superset.auradata.models import WorkspaceDashboard
+
+                    db.session.flush()
+                    db.session.add(
+                        WorkspaceDashboard(
+                            workspace_id=request.workspace_id,
+                            dashboard_id=dashboard.id,
+                        )
+                    )
                 db.session.commit()  # pylint: disable=consider-using-transaction
                 try:
                     db.session.refresh(dashboard)

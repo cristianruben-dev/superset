@@ -14,7 +14,7 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-"""Report structure, page, object and format tools."""
+"""Report structure, page, object, format and visual tools."""
 
 from superset.mcp_service.report_layout.tool.format_tools import (
     copy_format,
@@ -46,6 +46,13 @@ from superset.mcp_service.report_layout.tool.page_tools import (
     reorder_pages,
     set_page_hidden,
 )
+from superset.mcp_service.report_layout.tool.visual_tools import (
+    change_visual_dataset,
+    create_visual,
+    get_visual_fields,
+    set_visual_fields,
+    set_visual_sort,
+)
 
 __all__ = [
     "add_page",
@@ -70,4 +77,9 @@ __all__ = [
     "set_shared_visual_format",
     "upload_dashboard_background",
     "upload_dashboard_image",
+    "change_visual_dataset",
+    "create_visual",
+    "get_visual_fields",
+    "set_visual_fields",
+    "set_visual_sort",
 ]

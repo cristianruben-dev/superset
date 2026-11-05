@@ -1864,6 +1864,7 @@ class TestUpdateChartSaveWithConfig:
         updated_chart.slice_name = "After-save"
         updated_chart.viz_type = "table"
         updated_chart.uuid = "uuid-77"
+        updated_chart.dashboards = []
         mock_update_cmd_cls.return_value.run.return_value = updated_chart
 
         request = {

@@ -408,9 +408,14 @@ MCP_CACHE_CONFIG: dict[str, Any] = {
         "update_workspace",
         "upload_dashboard_background",
         "upload_dashboard_image",
+        "change_visual_dataset",
+        "create_visual",
+        "set_visual_fields",
+        "set_visual_sort",
         # Reads the AI repeats after each change to look at the result
         "get_dashboard_screenshot",
         "get_report_structure",
+        "get_visual_fields",
         "get_visual_screenshot",
     ],
 }

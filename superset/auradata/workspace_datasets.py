@@ -232,13 +232,23 @@ def chart_datasets_of_other_workspaces(
         any workspace)
     :returns: The names of the datasets that break the rule
     """
+    workspace_id = next(iter(dashboard_workspace_ids([dashboard_id])), None)
+    return chart_datasets_outside(chart_ids, workspace_id)
+
+
+def chart_datasets_outside(
+    chart_ids: Iterable[int], workspace_id: int | None
+) -> list[str]:
+    """
+    The names of the datasets that these charts use and that belong to a
+    workspace other than ``workspace_id`` (any workspace, when it is None).
+    """
     from superset.connectors.sqla.models import SqlaTable
     from superset.models.slice import Slice
 
     ids = list(chart_ids)
     if not enabled() or not ids:
         return []
-    workspace_id = next(iter(dashboard_workspace_ids([dashboard_id])), None)
     rows = (
         db.session.query(SqlaTable.table_name)
         .join(WorkspaceDataset, WorkspaceDataset.dataset_id == SqlaTable.id)

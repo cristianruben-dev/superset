@@ -476,6 +476,10 @@ COMMITTED_WRITE_SPECS: Dict[str, CommittedWriteSpec] = {
     "set_shared_visual_format": _spec("dashboard", "dashboard_id"),
     "upload_dashboard_background": _spec("dashboard", "dashboard_id"),
     "upload_dashboard_image": _spec("dashboard", "dashboard_id"),
+    "change_visual_dataset": _spec("chart", "chart_id", "dashboard_id"),
+    "create_visual": _spec("chart", "chart_id", "dashboard_id"),
+    "set_visual_fields": _spec("chart", "chart_id", "dashboard_id"),
+    "set_visual_sort": _spec("chart", "chart_id", "dashboard_id"),
 }
 
 COMMITTED_WRITE_TOOLS = frozenset(COMMITTED_WRITE_SPECS)
