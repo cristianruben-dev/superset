@@ -73,6 +73,10 @@ async def add_calculated_column(
     back as an error. Only the dataset's editors (and admins) change its model;
     a workspace role does not allow it.
 
+    A saved metric cannot use this column by name: Superset does not expand
+    calculated columns inside metric expressions, so write the column's
+    expression inline in the metric (SUM(CASE ... END), not SUM(size)).
+
     Example:
     ```json
     {"dataset_id": 12, "column_name": "size",
@@ -268,6 +272,10 @@ async def add_metric(request: AddMetricRequest, ctx: Context) -> DatasetModelRes
     The expression runs once on the dataset before it is saved. Charts then use
     it as ``{"name": "<metric_name>", "saved_metric": true}``. Change it later
     with update_dataset_metric.
+
+    Use physical columns only: a calculated column is not expanded inside a
+    metric, so its name fails. Repeat its expression inline instead, e.g.
+    SUM(CASE WHEN total > 100 THEN total ELSE 0 END).
 
     Example:
     ```json

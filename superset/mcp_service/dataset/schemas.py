@@ -395,7 +395,9 @@ class CreateDatasetMetric(BaseModel):
     metric_name: str = Field(..., description="Name of the metric")
     expression: str = Field(
         ...,
-        description="Aggregate SQL expression for the metric, e.g. SUM(amount)",
+        description="Aggregate SQL expression for the metric, e.g. SUM(amount). "
+        "Use physical columns: calculated columns are not expanded in metrics, "
+        "so write their expression inline",
     )
     verbose_name: str | None = None
     description: str | None = None
@@ -656,7 +658,8 @@ class UpdateDatasetMetricRequest(BaseModel):
     )
     expression: str | None = Field(
         None,
-        description="New SQL aggregation expression (e.g. 'SUM(revenue)').",
+        description="New SQL aggregation expression (e.g. 'SUM(revenue)'). "
+        "Calculated columns are not expanded here: write their expression inline.",
     )
     verbose_name: str | None = Field(
         None, max_length=1024, description="Human-friendly display label."
