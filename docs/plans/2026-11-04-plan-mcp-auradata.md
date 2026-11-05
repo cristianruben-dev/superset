@@ -728,8 +728,8 @@ históricas. El `CLAUDE.md` del proyecto y el de `mcp_service` reescriben su reg
      del tipo (`can_read`/`can_write` de Dashboard, Chart o Dataset) con `check_tool_permission`.
    - Un contributor lee y restaura el historial de tableros y gráficos de su workspace, como en la web
      (`dash_edit_perm` sale de `can_edit_resource`); el de un dataset no (sigue los permisos normales).
-   - Tests con base real (`test_history_tools.py`, 32): editor, contributor, admin del workspace, viewer, otro
-     workspace y admin. Las filas de versión vienen de Continuum, que la base en memoria no corre: el historial y
+   - Tests con base real (`test_history_tools.py`, 36): editor, contributor, admin del workspace, viewer, otro
+     workspace y admin. `631081dc98`: los elementos de la papelera global se arman fuera del bypass de borrados. Las filas de versión vienen de Continuum, que la base en memoria no corre: el historial y
      el motor de restauración son fijos, los permisos y los comandos reales.
 5. Chequeo en vivo (MCP en 5108, tablero nuevo 223 «Fase 9 historial» del workspace 6):
    - `update_dashboard` (título) y `add_page` («Detalle») dieron las versiones 1 y 2; `get_version_diff` de cada una
@@ -744,6 +744,10 @@ históricas. El `CLAUDE.md` del proyecto y el de `mcp_service` reescriben su reg
      web).
    - `get_version_diff` devuelve lo que cambió una versión; no compara dos versiones cualesquiera.
    - No se corrieron `pre-commit` ni mypy: solo ruff (check y format) sobre los archivos tocados.
+   - Decisión a confirmar: la papelera global sin `workspace_id` no es solo de admins; un no admin ve lo que edita,
+     como la papelera de Administración por REST.
+   - Los dos mensajes nuevos en español necesitan el `.mo` compilado (generado, fuera de git) para verse en la web.
+   - El tablero 223 «Fase 9 historial» queda en el workspace 6.
 
 ## 10. Captura, exportación, envío y compartir (M)
 
