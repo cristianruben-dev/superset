@@ -19,6 +19,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import rehypeSanitize, { defaultSchema } from 'rehype-sanitize';
 import remarkGfm from 'remark-gfm';
+import type { Components } from 'react-markdown';
 import { cloneDeep, mergeWith } from 'lodash-es';
 import { FeatureFlag, isFeatureEnabled } from '../../utils';
 
@@ -26,6 +27,12 @@ interface SafeMarkdownProps {
   source: string;
   htmlSanitization?: boolean;
   htmlSchemaOverrides?: typeof defaultSchema;
+  /** Show raw HTML of the source as text, whatever the feature flag says. */
+  escapeRawHtml?: boolean;
+  /** Elements to leave out of the result. */
+  disallowedElements?: string[];
+  /** Components that draw elements of the result. */
+  components?: Components;
 }
 
 // Link protocols that can execute script when used as an href.
@@ -157,8 +164,12 @@ export function SafeMarkdown({
   source,
   htmlSanitization = true,
   htmlSchemaOverrides = {},
+  escapeRawHtml = false,
+  disallowedElements,
+  components,
 }: SafeMarkdownProps) {
-  const escapeHtml = isFeatureEnabled(FeatureFlag.EscapeMarkdownHtml);
+  const escapeHtml =
+    escapeRawHtml || isFeatureEnabled(FeatureFlag.EscapeMarkdownHtml);
   const [rehypeRawPlugin, setRehypeRawPlugin] = useState<any>(null);
   const [ReactMarkdown, setReactMarkdown] = useState<any>(null);
   useEffect(() => {
@@ -196,6 +207,8 @@ export function SafeMarkdown({
       remarkPlugins={[remarkGfm]}
       skipHtml={false}
       urlTransform={transformLinkUri}
+      disallowedElements={disallowedElements}
+      components={components}
     >
       {source}
     </ReactMarkdown>
