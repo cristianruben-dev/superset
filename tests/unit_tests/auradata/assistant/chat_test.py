@@ -115,6 +115,7 @@ def world(session: Any, mocker: MockerFixture, full_api_access: None) -> dict[st
         "get_assistant_settings",
         return_value=AssistantSettings(True, SONNET, None, None),
     )
+    mocker.patch.object(api_module, "accepted_privacy", return_value=True)
     mocker.patch.object(
         api_module,
         "get_catalog",

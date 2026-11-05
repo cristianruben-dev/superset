@@ -27147,3 +27147,18 @@ msgstr "Pídele al asistente que cambie este informe"
 
 msgid "The assistant changed the saved report while you were editing. Discard your changes to see it."
 msgstr "El asistente cambió el informe guardado mientras editabas. Descarta tus cambios para verlo."
+
+msgid "Accept the privacy notice of the assistant first."
+msgstr "Primero acepta el aviso de privacidad del asistente."
+
+msgid "The AI assistant is turned off in this workspace."
+msgstr "El asistente de IA está apagado en este workspace."
+
+msgid "The assistant cannot change reports here. It can still answer."
+msgstr "Aquí el asistente no puede cambiar informes. Sí puede responder."
+
+msgid "This workspace used up its assistant budget for the month. Ask an admin of the workspace, or wait for next month."
+msgstr "Este workspace agotó el presupuesto del asistente de este mes. Habla con un admin del workspace o espera al mes que viene."
+
+msgid "The assistant used up its budget for the month. Ask an admin, or wait for next month."
+msgstr "El asistente agotó su presupuesto de este mes. Habla con un admin o espera al mes que viene."

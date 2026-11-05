@@ -295,6 +295,7 @@ EXTRA_CATEGORICAL_COLOR_SCHEMES: list[dict[str, Any]] = [
 
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY") or None
 AURADATA_ASSISTANT_ENABLED = False
+AURADATA_ASSISTANT_EDIT_ENABLED = True
 AURADATA_ASSISTANT_DEFAULT_MODEL = "claude-sonnet-5-5"
 # None offers the current model of each family
 AURADATA_ASSISTANT_ALLOWED_MODELS: list[str] | None = None

@@ -27,6 +27,12 @@ The chat rides on the same permission, held by anyone who can open a dashboard, 
 takes only a browser session: it spends the server's key, and an API key must not reach
 it. The user comes from that session and from nowhere in the request.
 
+Before a message reaches Anthropic the person must have accepted the privacy notice, the
+switches must allow that mode on that report, now, and the month must be under its
+limits. A decision goes on with a turn already running, so the limits do not stop it,
+and an undo costs nothing, so they do not stop that either; the switches stop both.
+Figures in dollars are for admins: a person using the panel only learns the level.
+
 A decision on a pending call names only the call: what runs is what the conversation
 stored, and it is checked again for the person deciding, at that moment. The context of
 a message is read by the model as data, and ``dashboard_id`` is the only part of it that
@@ -36,7 +42,8 @@ the server acts on.
 from __future__ import annotations
 
 import logging
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
+from datetime import datetime
 from typing import Any
 from uuid import UUID
 
@@ -69,8 +76,19 @@ from superset.auradata.assistant.conversations import (
     pending_turn,
     rejected_calls,
     uses_tool_search,
+    workspace_id_of,
 )
 from superset.auradata.assistant.figures import figures_in
+from superset.auradata.assistant.governance import (
+    accept_privacy,
+    accepted_privacy,
+    budget_of,
+    OFF_IN_WORKSPACE,
+    save_workspace_settings,
+    switched_off,
+    workspace_settings,
+    WorkspaceAssistantSettings,
+)
 from superset.auradata.assistant.models import (
     Catalog,
     CatalogModel,
@@ -86,6 +104,15 @@ from superset.auradata.assistant.settings import (
     offered_models,
     save_assistant_settings,
 )
+from superset.auradata.assistant.spending import (
+    BudgetState,
+    LEVEL_STOPPED,
+    month_start,
+    parse_month,
+    SCOPE_WORKSPACE,
+    spent_usd,
+    usage_report,
+)
 from superset.auradata.assistant.tools import MODE_EDIT, MODE_READ, MODES, ToolBox
 from superset.auradata.assistant.undo import (
     can_undo,
@@ -94,6 +121,12 @@ from superset.auradata.assistant.undo import (
     UndoConflictError,
     UndoError,
     UNDONE_NOTE,
+)
+from superset.auradata.models import ROLE_ADMIN
+from superset.auradata.workspaces import (
+    find_workspace,
+    WorkspaceForbiddenError,
+    WorkspaceNotFoundError,
 )
 from superset.commands.dashboard.exceptions import (
     DashboardAccessDeniedError,
@@ -123,6 +156,19 @@ class AssistantSettingsSchema(Schema):
         fields.String(validate=validate.Length(min=1, max=128)),
         allow_none=True,
     )
+    monthly_budget_usd = fields.Float(
+        allow_none=True,
+        allow_nan=False,
+        validate=validate.Range(min=0),
+    )
+    edit_enabled = fields.Boolean()
+
+
+class WorkspaceAssistantSchema(Schema):
+    """What the admins of a workspace can change. Keys left out keep their value."""
+
+    enabled = fields.Boolean()
+    edit_enabled = fields.Boolean()
     monthly_budget_usd = fields.Float(
         allow_none=True,
         allow_nan=False,
@@ -234,6 +280,7 @@ def _settings_json(settings: AssistantSettings, catalog: Catalog) -> dict[str, A
             None if settings.allowed_models is None else list(settings.allowed_models)
         ),
         "monthly_budget_usd": settings.monthly_budget_usd,
+        "edit_enabled": settings.edit_enabled,
         "has_api_key": has_api_key(),
         "models": [_model_json(model, offered) for model in catalog.models],
         "models_source": catalog.source,
@@ -257,12 +304,32 @@ def _offered_model_json(model: CatalogModel, default_model: str) -> dict[str, An
     }
 
 
+def _budget_json(state: BudgetState) -> dict[str, Any]:
+    return {"level": state.level, "scope": state.scope}
+
+
+def _workspace_json(
+    workspace_id: int,
+    own: WorkspaceAssistantSettings,
+    settings: AssistantSettings,
+) -> dict[str, Any]:
+    """What the admins of a workspace see: its settings and what it spent."""
+    return {
+        "enabled": own.enabled,
+        "edit_enabled": own.edit_enabled,
+        "monthly_budget_usd": own.monthly_budget_usd,
+        "spent_usd": float(spent_usd(month_start(datetime.now()), workspace_id)),
+        "global_enabled": _is_on(settings),
+        "global_edit_enabled": settings.edit_enabled,
+    }
+
+
+def _is_on(settings: AssistantSettings) -> bool:
+    return bool(current_app.config["AURADATA_ASSISTANT_ENABLED"] and settings.enabled)
+
+
 def _is_available(settings: AssistantSettings) -> bool:
-    return bool(
-        current_app.config["AURADATA_ASSISTANT_ENABLED"]
-        and settings.enabled
-        and has_api_key()
-    )
+    return _is_on(settings) and has_api_key()
 
 
 def _event_stream(events: Iterator[str]) -> Response:
@@ -284,6 +351,7 @@ def _turn_stream(
     dashboard_id: int,
     mode: str,
     turn: Iterator[tuple[str, dict[str, Any]]],
+    budget: Callable[[], BudgetState],
     continues: bool = False,
 ) -> Iterator[str]:
     """
@@ -292,7 +360,8 @@ def _turn_stream(
     browser left first, so it can be undone, and ``done`` says so. The first record
     waits for that change: what anyone saved while the model thought, or while a card
     waited, is not part of the turn and an undo keeps it. ``continues`` says this
-    stream goes on with a turn stopped by a card.
+    stream goes on with a turn stopped by a card. ``done`` also says where the month
+    stands, so the panel warns without asking again.
     """
     changed = False
     started = False
@@ -321,6 +390,7 @@ def _turn_stream(
                 payload = {
                     **payload,
                     "can_undo": mode == MODE_EDIT and can_undo(conversation),
+                    "budget": _budget_json(budget()),
                 }
             yield _sse(event, payload)
     except ConversationBusyError:
@@ -353,7 +423,13 @@ class AssistantAdminRestApi(BaseSupersetApi):
     resource_name = "auradata_assistant"
     allow_browser_login = True
     class_permission_name = "Dashboard"
-    method_permission_name = {"get_settings": "read", "put_settings": "read"}
+    method_permission_name = {
+        "get_settings": "read",
+        "put_settings": "read",
+        "usage": "read",
+        "get_workspace": "read",
+        "put_workspace": "write",
+    }
     openapi_spec_tag = "AuraData BI"
 
     @expose("/settings/", methods=("GET",))
@@ -430,6 +506,145 @@ class AssistantAdminRestApi(BaseSupersetApi):
             return self.response_422(message=ex.messages)
         return self.response(200, result=_settings_json(settings, catalog))
 
+    @expose("/usage/", methods=("GET",))
+    @protect()
+    @safe
+    @statsd_metrics
+    def usage(self) -> Response:
+        """What the assistant spent, by month, model, workspace and user.
+        ---
+        get:
+          summary: Spending of the AI assistant
+          parameters:
+          - in: query
+            name: month
+            description: The month to break down, as YYYY-MM. By default, this one
+            schema:
+              type: string
+          responses:
+            200:
+              description: The month, its breakdowns and the last months
+            400:
+              $ref: '#/components/responses/400'
+            401:
+              $ref: '#/components/responses/401'
+            403:
+              $ref: '#/components/responses/403'
+        """
+        if not security_manager.is_admin():
+            return self.response_403()
+        now = datetime.now()
+        try:
+            start = (
+                parse_month(request.args["month"])
+                if "month" in request.args
+                else month_start(now)
+            )
+        except ValueError:
+            return self.response_400(message="The month must look like 2026-11")
+        return self.response(
+            200,
+            result={
+                **usage_report(start, now),
+                "monthly_budget_usd": get_assistant_settings().monthly_budget_usd,
+            },
+        )
+
+    def _workspace_refusal(self, pk: int) -> Response | None:
+        """
+        Only the admins of a workspace, and those of the platform, reach its settings.
+        Someone outside it does not learn it exists.
+        """
+        try:
+            find_workspace(pk, ROLE_ADMIN)
+        except WorkspaceNotFoundError:
+            return self.response_404()
+        except WorkspaceForbiddenError:
+            return self.response_403()
+        return None
+
+    @expose("/workspace/<int:pk>/", methods=("GET",))
+    @protect()
+    @safe
+    @statsd_metrics
+    def get_workspace(self, pk: int) -> Response:
+        """The assistant in a workspace: its switches, its limit and its month.
+        ---
+        get:
+          summary: The AI assistant in a workspace
+          parameters:
+          - in: path
+            name: pk
+            required: true
+            schema:
+              type: integer
+          responses:
+            200:
+              description: The settings of the workspace
+            401:
+              $ref: '#/components/responses/401'
+            403:
+              $ref: '#/components/responses/403'
+            404:
+              $ref: '#/components/responses/404'
+        """
+        if (refused := self._workspace_refusal(pk)) is not None:
+            return refused
+        return self.response(
+            200,
+            result=_workspace_json(
+                pk, workspace_settings(pk), get_assistant_settings()
+            ),
+        )
+
+    @expose("/workspace/<int:pk>/", methods=("PUT",))
+    @protect()
+    @safe
+    @statsd_metrics
+    def put_workspace(self, pk: int) -> Response:
+        """Change the assistant in a workspace.
+        ---
+        put:
+          summary: Change the AI assistant in a workspace
+          parameters:
+          - in: path
+            name: pk
+            required: true
+            schema:
+              type: integer
+          requestBody:
+            required: true
+            content:
+              application/json:
+                schema:
+                  type: object
+          responses:
+            200:
+              description: The settings in force
+            400:
+              $ref: '#/components/responses/400'
+            401:
+              $ref: '#/components/responses/401'
+            403:
+              $ref: '#/components/responses/403'
+            404:
+              $ref: '#/components/responses/404'
+        """
+        if (refused := self._workspace_refusal(pk)) is not None:
+            return refused
+        if not request.is_json:
+            return self.response_400(message="Request is not JSON")
+        try:
+            values = WorkspaceAssistantSchema().load(request.json)
+        except ValidationError as ex:
+            return self.response_400(message=ex.messages)
+        return self.response(
+            200,
+            result=_workspace_json(
+                pk, save_workspace_settings(pk, values), get_assistant_settings()
+            ),
+        )
+
 
 class AssistantRestApi(BaseSupersetApi):
     """Talk to the assistant, as the user of the session."""
@@ -445,6 +660,7 @@ class AssistantRestApi(BaseSupersetApi):
         "conversation": "read",
         "decide": "read",
         "undo": "read",
+        "privacy": "read",
     }
     openapi_spec_tag = "AuraData BI"
 
@@ -495,6 +711,8 @@ class AssistantRestApi(BaseSupersetApi):
         settings = get_assistant_settings()
         if (refused := self._refused_by_settings(settings)) is not None:
             return refused
+        if (refused := self._refused_by_privacy()) is not None:
+            return refused
         if not request.is_json:
             return self.response_400(message="Request is not JSON")
         try:
@@ -531,6 +749,12 @@ class AssistantRestApi(BaseSupersetApi):
                 )
         if mode == MODE_EDIT and not security_manager.can_edit_resource(dashboard):
             return self.response_403()
+        dashboard_id = dashboard.id
+        workspace_id = workspace_id_of(dashboard_id)
+        if (refused := self._refused_here(settings, workspace_id, mode)) is not None:
+            return refused
+        if (refused := self._refused_by_budget(settings, workspace_id)) is not None:
+            return refused
         history = history_of(conversation) if conversation else []
         if _no_tool_search_for(model, history):
             return self.response_422(message=self._tool_search_needed())
@@ -539,7 +763,7 @@ class AssistantRestApi(BaseSupersetApi):
             # Every call is decided: its tools are running in another request
             return self._busy()
 
-        prepared = self._prepare(model, mode)
+        prepared = self._prepare(model, mode, dashboard_id)
         if prepared is None:
             return self.response(503, message=_("The AI assistant is not installed."))
         client, toolbox, system = prepared
@@ -547,10 +771,10 @@ class AssistantRestApi(BaseSupersetApi):
         previous_model = conversation.model if conversation else model.id
         if conversation is None:
             conversation = create_conversation(
-                user_id, dashboard.id, mode, model.id, question
+                user_id, dashboard_id, mode, model.id, question
             )
         conversation.model = model.id
-        dashboard_id = dashboard.id
+        toolbox.conversation_id = str(conversation.id)
         log = log or ConversationLog(conversation, user_id)
         # A person who writes instead of deciding has moved on: those calls never run,
         # and their answers go first, as the API asks of a user turn
@@ -578,17 +802,79 @@ class AssistantRestApi(BaseSupersetApi):
             if previous_model != model.id:
                 # Prompt caches belong to one model: this turn starts them again
                 yield _sse("model_changed", {"from": previous_model, "to": model.id})
-            yield from _turn_stream(conversation, log, dashboard_id, mode, turn())
+            yield from _turn_stream(
+                conversation,
+                log,
+                dashboard_id,
+                mode,
+                turn(),
+                lambda: budget_of(settings, workspace_id),
+            )
 
         return _event_stream(events())
 
     def _refused_by_settings(self, settings: AssistantSettings) -> Response | None:
         """Why the assistant cannot answer here, if it cannot."""
-        if not (current_app.config["AURADATA_ASSISTANT_ENABLED"] and settings.enabled):
-            return self.response(403, message=_("The AI assistant is turned off."))
+        if (refused := self._turned_off(settings)) is not None:
+            return refused
         if not has_api_key():
             return self.response(503, message=_("The AI assistant has no API key."))
         return None
+
+    def _turned_off(self, settings: AssistantSettings) -> Response | None:
+        if not _is_on(settings):
+            return self.response(403, message=_("The AI assistant is turned off."))
+        return None
+
+    def _refused_here(
+        self, settings: AssistantSettings, workspace_id: int | None, mode: str
+    ) -> Response | None:
+        """Why this mode does not run on this report at this moment, if it does not."""
+        reason = switched_off(settings, workspace_id, mode)
+        if reason is None:
+            return None
+        return self.response(
+            403,
+            reason=reason,
+            message=(
+                _("The AI assistant is turned off in this workspace.")
+                if reason == OFF_IN_WORKSPACE
+                else _("The assistant cannot change reports here. It can still answer.")
+            ),
+        )
+
+    def _refused_by_budget(
+        self, settings: AssistantSettings, workspace_id: int | None
+    ) -> Response | None:
+        """Checked before each new turn. A turn under way finishes."""
+        state = budget_of(settings, workspace_id)
+        if state.level != LEVEL_STOPPED:
+            return None
+        return self.response(
+            429,
+            reason="budget",
+            message=(
+                _(
+                    "This workspace used up its assistant budget for the month. Ask an "
+                    "admin of the workspace, or wait for next month."
+                )
+                if state.scope == SCOPE_WORKSPACE
+                else _(
+                    "The assistant used up its budget for the month. Ask an admin, or "
+                    "wait for next month."
+                )
+            ),
+        )
+
+    def _refused_by_privacy(self) -> Response | None:
+        """Nothing travels to Anthropic for someone who has not read what travels."""
+        if accepted_privacy(get_user_id()):
+            return None
+        return self.response(
+            403,
+            reason="privacy",
+            message=_("Accept the privacy notice of the assistant first."),
+        )
 
     @staticmethod
     def _offered_model(
@@ -598,11 +884,13 @@ class AssistantRestApi(BaseSupersetApi):
         return next((item for item in offered if item.id == model_id), None)
 
     @staticmethod
-    def _prepare(model: CatalogModel, mode: str) -> tuple[Any, ToolBox, str] | None:
+    def _prepare(
+        model: CatalogModel, mode: str, dashboard_id: int
+    ) -> tuple[Any, ToolBox, str] | None:
         """The client, the tools of the person asking and the system prompt."""
         try:
             client = build_client()
-            toolbox = ToolBox(g.user.username, mode)
+            toolbox = ToolBox(g.user.username, mode, model.id, dashboard_id)
             return (
                 client,
                 toolbox,
@@ -674,6 +962,8 @@ class AssistantRestApi(BaseSupersetApi):
         settings = get_assistant_settings()
         if (refused := self._refused_by_settings(settings)) is not None:
             return refused
+        if (refused := self._refused_by_privacy()) is not None:
+            return refused
         if not request.is_json:
             return self.response_400(message="Request is not JSON")
         try:
@@ -696,6 +986,13 @@ class AssistantRestApi(BaseSupersetApi):
             dashboard
         ):
             return self.response_403()
+        dashboard_id = dashboard.id
+        workspace_id = workspace_id_of(dashboard_id)
+        # A card can wait for days: the switches are read now
+        if (
+            refused := self._refused_here(settings, workspace_id, MODE_EDIT)
+        ) is not None:
+            return refused
         tool_use_id = data["tool_use_id"]
         pending = pending_turn(conversation)
         if pending is None or tool_use_id not in pending.undecided:
@@ -707,13 +1004,13 @@ class AssistantRestApi(BaseSupersetApi):
             return self.response_422(message=_("This model is not available."))
         if _no_tool_search_for(model, history_of(conversation)):
             return self.response_422(message=self._tool_search_needed())
-        prepared = self._prepare(model, MODE_EDIT)
+        prepared = self._prepare(model, MODE_EDIT, dashboard_id)
         if prepared is None:
             return self.response(503, message=_("The AI assistant is not installed."))
         client, toolbox, system = prepared
 
         conversation.model = model.id
-        dashboard_id = dashboard.id
+        toolbox.conversation_id = str(conversation.id)
         try:
             # Stored before anything runs: of two racing requests one stops here
             log.add_decision(tool_use_id, data["approved"])
@@ -740,7 +1037,13 @@ class AssistantRestApi(BaseSupersetApi):
 
         return _event_stream(
             _turn_stream(
-                conversation, log, dashboard_id, MODE_EDIT, turn(), continues=True
+                conversation,
+                log,
+                dashboard_id,
+                MODE_EDIT,
+                turn(),
+                lambda: budget_of(settings, workspace_id),
+                continues=True,
             )
         )
 
@@ -748,7 +1051,7 @@ class AssistantRestApi(BaseSupersetApi):
     @protect()
     @safe
     @statsd_metrics
-    def undo(self, conversation_id: UUID) -> Response:
+    def undo(self, conversation_id: UUID) -> Response:  # noqa: C901
         """Go back to before the last turn of the assistant that changed the report.
         ---
         post:
@@ -776,6 +1079,9 @@ class AssistantRestApi(BaseSupersetApi):
         """
         if not _session_user_only():
             return self.response_403()
+        settings = get_assistant_settings()
+        if (refused := self._turned_off(settings)) is not None:
+            return refused
         conversation = find_conversation(conversation_id, get_user_id())
         if conversation is None:
             return self.response_404()
@@ -787,6 +1093,12 @@ class AssistantRestApi(BaseSupersetApi):
             dashboard
         ):
             return self.response_403()
+        if (
+            refused := self._refused_here(
+                settings, workspace_id_of(dashboard.id), MODE_EDIT
+            )
+        ) is not None:
+            return refused
         if pending_turn(conversation) is not None:
             return self.response(
                 409, message=_("Answer the pending action before undoing.")
@@ -821,6 +1133,12 @@ class AssistantRestApi(BaseSupersetApi):
         ---
         get:
           summary: Models of the AI assistant a user can pick
+          parameters:
+          - in: query
+            name: dashboard_id
+            description: The report asking. Its workspace has its own say
+            schema:
+              type: integer
           responses:
             200:
               description: Whether it is available, and its models
@@ -832,19 +1150,55 @@ class AssistantRestApi(BaseSupersetApi):
         if not _session_user_only():
             return self.response_403()
         settings = get_assistant_settings()
+        not_here = {"available": False, "models": []}
         if not _is_available(settings):
-            return self.response(200, result={"available": False, "models": []})
+            return self.response(200, result=not_here)
+        workspace_id = None
+        dashboard_id = request.args.get("dashboard_id", type=int)
+        if dashboard_id is not None:
+            dashboard = _open_dashboard(dashboard_id)
+            if dashboard is None:
+                return self.response(200, result=not_here)
+            workspace_id = workspace_id_of(dashboard.id)
+        if switched_off(settings, workspace_id, MODE_READ) is not None:
+            return self.response(200, result=not_here)
         offered = offered_models(settings, get_catalog())
         return self.response(
             200,
             result={
                 "available": bool(offered),
+                "edit_available": bool(offered)
+                and switched_off(settings, workspace_id, MODE_EDIT) is None,
+                "privacy_accepted": accepted_privacy(get_user_id()),
+                "budget": _budget_json(budget_of(settings, workspace_id)),
                 "models": [
                     _offered_model_json(model, settings.default_model)
                     for model in offered
                 ],
             },
         )
+
+    @expose("/privacy/", methods=("POST",))
+    @protect()
+    @safe
+    @statsd_metrics
+    def privacy(self) -> Response:
+        """Accept the privacy notice of the assistant, for the user of the session.
+        ---
+        post:
+          summary: Accept the privacy notice of the AI assistant
+          responses:
+            200:
+              description: It is stored
+            401:
+              $ref: '#/components/responses/401'
+            403:
+              $ref: '#/components/responses/403'
+        """
+        if not _session_user_only():
+            return self.response_403()
+        accept_privacy(get_user_id())
+        return self.response(200, result={"privacy_accepted": True})
 
     @expose("/conversations/", methods=("GET",))
     @protect()

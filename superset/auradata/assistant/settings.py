@@ -48,6 +48,8 @@ class AssistantSettings:
     allowed_models: tuple[str, ...] | None
     # None sets no limit
     monthly_budget_usd: float | None
+    # The editor's copilot, apart from the read panel
+    edit_enabled: bool = True
 
 
 class AssistantSettingsError(ValueError):
@@ -66,6 +68,7 @@ def _config_defaults() -> dict[str, Any]:
         "default_model": config["AURADATA_ASSISTANT_DEFAULT_MODEL"],
         "allowed_models": config["AURADATA_ASSISTANT_ALLOWED_MODELS"],
         "monthly_budget_usd": config["AURADATA_ASSISTANT_MONTHLY_BUDGET_USD"],
+        "edit_enabled": bool(config["AURADATA_ASSISTANT_EDIT_ENABLED"]),
     }
 
 
@@ -76,6 +79,7 @@ def _settings_from(values: dict[str, Any]) -> AssistantSettings:
         default_model=values["default_model"],
         allowed_models=None if allowed is None else tuple(allowed),
         monthly_budget_usd=values["monthly_budget_usd"],
+        edit_enabled=values["edit_enabled"],
     )
 
 

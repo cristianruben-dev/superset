@@ -75,6 +75,8 @@ class KeyValueResource(StrEnum):
     LOCK = "lock"
     PKCE_CODE_VERIFIER = "pkce_code_verifier"
     SQLLAB_PERMALINK = "sqllab_permalink"
+    # One entry per workspace and per person (superset.auradata.assistant.governance)
+    AURADATA_ASSISTANT = "auradata_assistant"
 
 
 class SharedKey(StrEnum):
