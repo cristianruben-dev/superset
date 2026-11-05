@@ -274,8 +274,17 @@ históricas. El `CLAUDE.md` del proyecto y el de `mcp_service` reescriben su reg
 4. `74a1143244`: **el agujero de datos era real**. Un usuario con permisos de datos que no es miembro veía los
    datasets de un workspace en `list_datasets`, `get_dataset_info` y `query_dataset`. Ahora aplican
    `WorkspaceDatasetFilter` como la API REST. `list_datasets` gana `usable_in_dashboard` (fila 9).
-5. Pendiente: la imagen del workspace, `create_dataset(workspace_id)`; y decidir si la web debe pedir editoría real
-   para certificar, como el MCP (hoy un contributor puede certificar desde la web).
+5. `3007be04e8`: mover no revela el workspace de origen si no eres miembro; `update_workspace` acepta `null` para
+   borrar descripción o color. `074da0079d`: las escrituras también funcionan para un contributor sin permisos de
+   datos (solo con la concesión del workspace). `360376d995`: `get_table` tenía el mismo agujero que
+   `query_dataset`; ya aplica las reglas.
+6. Pendiente:
+   - la imagen del workspace y `create_dataset(workspace_id)`;
+   - `list_metrics`, `get_compatible_dimensions`/`get_compatible_metrics`, `generate_explore_link` y quizá
+     `get_dashboard_datasets` resuelven datasets con `DatasetDAO` sin `WorkspaceDatasetFilter`: un no-miembro con
+     permisos de datos aún ve sus métricas y columnas;
+   - decidir si la web debe pedir editoría real para certificar, como el MCP. Leído en el código, sin probar: el
+     PUT de tablero no tiene chequeo propio para `certified_by`, así que un contributor podría certificar.
 
 ## 2. Biblioteca de layout y estructura del informe (L)
 
