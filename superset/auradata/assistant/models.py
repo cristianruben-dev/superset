@@ -39,6 +39,7 @@ import time
 from collections.abc import Mapping
 from dataclasses import dataclass, field, replace
 from datetime import datetime, timezone
+from decimal import Decimal
 from threading import Lock
 from types import MappingProxyType
 from typing import Any
@@ -56,6 +57,10 @@ REFUSAL_FALLBACK_BETA = "server-side-fallback-2026-07-01"  # noqa: S105
 # Multipliers of the input price for prompt cache writes, by time to live
 CACHE_WRITE_5M = 1.25
 CACHE_WRITE_1H = 2.0
+
+MILLION = Decimal(1_000_000)
+# Entries of ``usage.iterations`` that are sampling of the model
+BILLED_ITERATIONS = ("message", "fallback_message")
 
 STATUS_CURRENT = "current"  # noqa: S105
 STATUS_AVAILABLE = "available"  # noqa: S105
@@ -117,6 +122,10 @@ class ModelSpec:
     forced_tool_choice: bool = True
     # Value of ``fallbacks`` that retries a refused request; None when there is none
     refusal_fallback: str | None = None
+    # Whether the model finds deferred tools with the tool search tool
+    tool_search: bool = True
+    # Whether the request can take the top-level ``cache_control``
+    automatic_cache: bool = True
 
     def refusal_fallback_params(self) -> dict[str, Any]:
         """Request arguments that opt into the refusal fallback of this model."""
@@ -126,6 +135,24 @@ class ModelSpec:
             "betas": [REFUSAL_FALLBACK_BETA],
             "fallbacks": self.refusal_fallback,
         }
+
+
+@dataclass(frozen=True)
+class TokenUsage:
+    """Tokens of one call to the API, or of several added up."""
+
+    input_tokens: int = 0
+    output_tokens: int = 0
+    cache_read_input_tokens: int = 0
+    cache_creation_input_tokens: int = 0
+
+    def __add__(self, other: TokenUsage) -> TokenUsage:
+        return TokenUsage(
+            self.input_tokens + other.input_tokens,
+            self.output_tokens + other.output_tokens,
+            self.cache_read_input_tokens + other.cache_read_input_tokens,
+            self.cache_creation_input_tokens + other.cache_creation_input_tokens,
+        )
 
 
 def _cached_at_a_tenth(input_price: float, output_price: float) -> ModelPrice:
@@ -278,6 +305,8 @@ PRUDENT_SPEC = ModelSpec(
     efforts=(),
     default_effort=None,
     forced_tool_choice=False,
+    tool_search=False,
+    automatic_cache=False,
 )
 
 
@@ -328,6 +357,60 @@ def family_of(model_id: str) -> str:
 def spec_of(model_id: str) -> ModelSpec | None:
     """The table row of a model id, also when it comes with a date suffix."""
     return MODEL_TABLE.get(_DATE_SUFFIX.sub("", model_id))
+
+
+def cost_of_tokens(price: ModelPrice, usage: TokenUsage) -> Decimal:
+    """What these tokens cost in dollars, written on the 5 minute cache."""
+    prompt = (
+        usage.input_tokens
+        + usage.cache_read_input_tokens
+        + usage.cache_creation_input_tokens
+    )
+    is_long = price.long_prompt_tokens is not None and prompt > price.long_prompt_tokens
+    input_price = price.long_input if is_long else price.input
+    output_price = price.long_output if is_long else price.output
+    dollars_per_million = (
+        Decimal(str(input_price)) * usage.input_tokens
+        + Decimal(str(output_price)) * usage.output_tokens
+        + Decimal(str(price.cache_read)) * usage.cache_read_input_tokens
+        + Decimal(str(input_price))
+        * Decimal(str(CACHE_WRITE_5M))
+        * usage.cache_creation_input_tokens
+    )
+    return dollars_per_million / MILLION
+
+
+def _usage_of(attempt: Any) -> TokenUsage:
+    return TokenUsage(
+        attempt.input_tokens or 0,
+        attempt.output_tokens or 0,
+        attempt.cache_read_input_tokens or 0,
+        attempt.cache_creation_input_tokens or 0,
+    )
+
+
+def cost_of_message(model_id: str, usage: Any) -> tuple[TokenUsage, Decimal]:
+    """
+    Tokens and dollars of one API response.
+
+    With ``iterations`` each attempt counts at the rates of the model that ran it: the
+    top level only covers the attempt that produced the message. A declined attempt
+    counts too, so a spending limit errs on the side of stopping early. A model the
+    table does not know is priced with ``PRUDENT_SPEC``.
+    """
+    attempts = [
+        attempt
+        for attempt in getattr(usage, "iterations", None) or ()
+        if attempt.type in BILLED_ITERATIONS
+    ]
+    total = TokenUsage()
+    cost = Decimal(0)
+    for attempt in attempts or [usage]:
+        spec = spec_of(getattr(attempt, "model", None) or model_id) or PRUDENT_SPEC
+        tokens = _usage_of(attempt)
+        total += tokens
+        cost += cost_of_tokens(spec.price, tokens)
+    return total, cost
 
 
 def _sort_key(model: CatalogModel) -> tuple[int, int]:

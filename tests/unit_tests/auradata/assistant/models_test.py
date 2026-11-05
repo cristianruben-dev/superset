@@ -17,6 +17,7 @@
 """The model catalog: live list, fallback to the table and prudent values."""
 
 from collections.abc import Iterator
+from decimal import Decimal
 from types import SimpleNamespace
 from typing import Any
 
@@ -27,6 +28,8 @@ from flask import Flask
 
 from superset.auradata.assistant import models as catalog_module
 from superset.auradata.assistant.models import (
+    cost_of_message,
+    cost_of_tokens,
     get_catalog,
     MODEL_TABLE,
     PROBLEM_NO_API_KEY,
@@ -38,6 +41,7 @@ from superset.auradata.assistant.models import (
     SOURCE_LIVE,
     SOURCE_TABLE,
     spec_of,
+    TokenUsage,
 )
 
 
@@ -303,3 +307,59 @@ def test_haiku_4_5_uses_a_budget_and_rejects_effort() -> None:
     assert spec.thinking_on == {"type": "enabled", "budget_tokens": 4096}
     assert spec.thinking_off is None
     assert spec.efforts == ()
+
+
+def test_tokens_cost_what_the_table_says() -> None:
+    usage = TokenUsage(1_000_000, 100_000, 2_000_000, 400_000)
+
+    cost = cost_of_tokens(MODEL_TABLE["claude-sonnet-5-5"].price, usage)
+
+    # Input 2, output 1, cache reads 0.40 and cache writes 1 (2 × 1.25 × 0.4)
+    assert cost == Decimal("4.4")
+
+
+def test_a_long_prompt_bills_at_the_long_prices() -> None:
+    price = MODEL_TABLE["claude-haiku-5-5"].price
+
+    short = cost_of_tokens(price, TokenUsage(100_000, 1_000_000))
+    long = cost_of_tokens(price, TokenUsage(60_000, 1_000_000, 41_000))
+
+    assert short == Decimal("0.51")
+    assert long == Decimal("2.53041")
+
+
+def test_a_message_without_iterations_uses_its_top_level_usage() -> None:
+    usage = SimpleNamespace(
+        input_tokens=1_000_000,
+        output_tokens=0,
+        cache_read_input_tokens=None,
+        cache_creation_input_tokens=None,
+        iterations=None,
+    )
+
+    tokens, cost = cost_of_message("claude-sonnet-5-5", usage)
+
+    assert tokens == TokenUsage(1_000_000, 0, 0, 0)
+    assert cost == Decimal(2)
+
+
+def test_an_unknown_model_costs_the_most_expensive_price() -> None:
+    usage = SimpleNamespace(
+        input_tokens=1_000_000,
+        output_tokens=0,
+        cache_read_input_tokens=0,
+        cache_creation_input_tokens=0,
+    )
+
+    assert cost_of_message("claude-new", usage)[1] == Decimal(
+        str(PRUDENT_SPEC.price.input)
+    )
+
+
+def test_a_model_the_table_does_not_know_sends_nothing_optional() -> None:
+    assert PRUDENT_SPEC.tool_search is False
+    assert PRUDENT_SPEC.automatic_cache is False
+
+
+def test_every_model_of_the_table_finds_tools_with_tool_search() -> None:
+    assert all(spec.tool_search for spec in MODEL_TABLE.values())
