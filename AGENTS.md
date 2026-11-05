@@ -90,6 +90,12 @@ This repository is **AuraData BI**, a fork of Apache Superset 7.0 shaped like Po
   mapped resource, and a mutating one a write scope). With `MCP_API_KEY_ENABLED` on, the MCP refuses requests without
   a key, so dev's `MCP_DEV_USERNAME` only applies with `MCP_API_KEY_ENABLED=false`. `MCP_SERVICE_URL` is the address
   the page shows; a JWT (`MCP_JWT_SECRET`) stays as an alternative in prod.
+- **The in-app AI assistant** (`superset/auradata/assistant/`, plan in `docs/plans/2026-11-05-plan-asistente-ia.md`):
+  `models.py` is the catalog (live list from the Models API, plus `MODEL_TABLE`, by exact id, with what the API does not
+  say); code reads a `ModelSpec` and never asks which model it is. `settings.py` overlays the admin's choices, kept under
+  one `SharedKey` of the key-value store (no table), on the `AURADATA_ASSISTANT_*` config. Administration › AI assistant
+  (`/assistant/settings/`, `/api/v1/auradata_assistant/settings/`) is admin only. `ANTHROPIC_API_KEY` stays on the server:
+  no response carries it. `anthropic` is imported only where the client is built, so a process without it still starts.
 - **The MCP drives the whole product** (`superset/mcp_service/`, its own `CLAUDE.md`): workspaces, report pages and
   objects, visuals, format, elements and slicers, interactivity, mobile layout, capture and export, sharing,
   scheduled reports, trash and history, the data model, and `auradata://` guidance with Spanish prompts. Tools write
@@ -183,7 +189,7 @@ This repository is **AuraData BI**, a fork of Apache Superset 7.0 shaped like Po
 
 AuraData BI APIs: `/api/v1/workspace/` (with `<id>/dashboards/` and `<id>/datasets/`),
 `/api/v1/dashboard_background/<dashboard>/`, `/api/v1/dashboard_image/<dashboard>/<image>/`,
-`/api/v1/auradata/dashboard_previews/`. Each new API is registered in `superset/initialization/__init__.py`.
+`/api/v1/auradata/dashboard_previews/`, `/api/v1/auradata_assistant/settings/`. Each new API is registered in `superset/initialization/__init__.py`.
 
 ### Dashboard formatting lives in the layout
 Formats are stored in `position_json`, so they save, undo and export with the dashboard:

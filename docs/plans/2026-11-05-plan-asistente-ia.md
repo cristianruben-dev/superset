@@ -50,6 +50,9 @@ Tamaños: **S** (un día o menos), **M** (unos días), **L** (una semana o más)
 - **Dependencia nueva:** el SDK oficial `anthropic` de Python. Hace falta para hablar con la API y no hay alternativa
   oficial. Va en `requirements/` y en las imágenes `dev` y `prod`.
 
+> **Nota (2026-11-05):** el usuario eligió empezar antes de la verificación pesada y antes de E1 a E8, que siguen
+> pendientes.
+
 ## Orden
 
 | Fase | Qué | Tamaño |
