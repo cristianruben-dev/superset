@@ -179,6 +179,10 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
         # pylint: disable=import-outside-toplevel,too-many-locals,too-many-statements
         from superset.advanced_data_type.api import AdvancedDataTypeRestApi
         from superset.auradata.api import AuraDataRestApi
+        from superset.auradata.assistant.api import (
+            AssistantAdminRestApi,
+            AssistantSettingsView,
+        )
         from superset.auradata.backgrounds import (
             DashboardBackgroundRestApi,
             DashboardImageRestApi,
@@ -277,6 +281,7 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
         appbuilder.add_api(DashboardPermalinkRestApi)
         appbuilder.add_api(DashboardRestApi)
         appbuilder.add_api(AuraDataRestApi)
+        appbuilder.add_api(AssistantAdminRestApi)
         appbuilder.add_api(WorkspaceRestApi)
         appbuilder.add_api(DashboardBackgroundRestApi)
         appbuilder.add_api(DashboardImageRestApi)
@@ -448,6 +453,7 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
         # Setup views with no menu
         #
         appbuilder.add_view_no_menu(Api)
+        appbuilder.add_view_no_menu(AssistantSettingsView)
         appbuilder.add_view_no_menu(Dashboard)
         appbuilder.add_view_no_menu(WorkspaceView)
         appbuilder.add_view_no_menu(DataView)
