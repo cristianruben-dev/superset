@@ -23,6 +23,8 @@
 #
 # Add `--profile mcp` to also start the MCP service for AI agents.
 # Put a reverse proxy with TLS (nginx, Traefik, Caddy...) in front of port 8088.
+# Give it a read timeout of 300 s on /api/v1/auradata/assistant/: the AI assistant streams,
+# and a tool can run for minutes without sending a byte.
 
 x-auradata-image: &auradata-image
   image: ${AURADATA_IMAGE:-auradata-bi:latest}

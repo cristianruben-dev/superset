@@ -105,7 +105,20 @@ This repository is **AuraData BI**, a fork of Apache Superset 7.0 shaped like Po
   offered in any mode until phase 3. A conversation belongs to one user, dashboard and mode, and only grows
   (`conversations.py`, tables `auradata_assistant_conversations` and `auradata_assistant_messages`): `content` is sent
   back unchanged, except the blocks the API says to omit before a `fallback` block, and refused turns stay for their cost
-  but are not sent. What a tool returns never enters the system prompt (`prompt.py`).
+  but are not sent. What a tool returns never enters the system prompt (`prompt.py`). The model call waits in a thread of
+  its own (`_call_model`, HTTP only, never the session, `g` or the tools) so the stream can send a `: keep-alive` comment:
+  the SDK drops the pings and thinking is not displayed. `docker/nginx` gives the chat route 300 s for tools that run long;
+  a production proxy needs the same.
+- **«Ask your data»** (`src/auradata/assistant/`): the panel of the reading view, read only, opened from `ReadingBar` (a
+  floating button on phones, which have no bar) and only when `GET /api/v1/auradata/assistant/models/` says `available`.
+  `client.ts` reads the SSE body of a `fetch` with the CSRF token of `SupersetClient`, which does not stream; `transcript.ts`
+  turns events and stored rows into the same messages. A figure comes from the last `query_dataset` of an answer
+  (`superset/auradata/assistant/figures.py`, `figure_of`), so nothing new is stored and the model has no say in its source;
+  the panel repeats that query through the chart data API (`figure.ts`), which decides access, and keeps the rows as a table
+  if it refuses or the shape does not fit a chart. Text goes through `AssistantMarkdown`: raw HTML stays text, no pictures,
+  and only links of this site, because an injected instruction could carry data away in an address. The page and filters
+  travel in `context.ts`, under the size the server takes. A model without tool search cannot take over a conversation of
+  one with it.
 - **The MCP drives the whole product** (`superset/mcp_service/`, its own `CLAUDE.md`): workspaces, report pages and
   objects, visuals, format, elements and slicers, interactivity, mobile layout, capture and export, sharing,
   scheduled reports, trash and history, the data model, and `auradata://` guidance with Spanish prompts. Tools write
@@ -192,6 +205,7 @@ This repository is **AuraData BI**, a fork of Apache Superset 7.0 shaped like Po
 | Presentation mode, PDF/PNG export | - | `auradata/present`, `auradata/export` |
 | Ribbon and lineage | - | `auradata/ribbon` |
 | Selection pane, locked and hidden objects, page menu | - | `auradata/format/SelectionPane.tsx`, `auradata/format/lock.ts`, `auradata/report/PageMenu.tsx`, `auradata/report/pageActions.ts` |
+| AI assistant | `superset/auradata/assistant/` | `auradata/assistant` |
 | Report interactivity (edit interactions, drill through, sync slicers, bookmarks, Back/bookmark buttons, tooltip pages, reset filters) | - | `auradata/report` |
 | Chart type icons | - | `auradata/vizIcons` |
 | Layout model in Python, format catalog | `superset/auradata/layout/`, `superset/auradata/catalog/` | `auradata/format/layoutDrift.test.ts`, `formatCatalog.test.ts` write their fixtures |
@@ -199,7 +213,8 @@ This repository is **AuraData BI**, a fork of Apache Superset 7.0 shaped like Po
 
 AuraData BI APIs: `/api/v1/workspace/` (with `<id>/dashboards/` and `<id>/datasets/`),
 `/api/v1/dashboard_background/<dashboard>/`, `/api/v1/dashboard_image/<dashboard>/<image>/`,
-`/api/v1/auradata/dashboard_previews/`, `/api/v1/auradata_assistant/settings/`, `/api/v1/auradata/assistant/`. Each new API is registered in `superset/initialization/__init__.py`.
+`/api/v1/auradata/dashboard_previews/`, `/api/v1/auradata_assistant/settings/`, `/api/v1/auradata/assistant/` (with `models/`
+and `conversations/`). Each new API is registered in `superset/initialization/__init__.py`.
 
 ### Dashboard formatting lives in the layout
 Formats are stored in `position_json`, so they save, undo and export with the dashboard:

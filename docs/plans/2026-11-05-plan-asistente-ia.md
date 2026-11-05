@@ -150,6 +150,20 @@ el modelo elegido, y queda guardada con su costo.
 **Listo cuando:** un visor pregunta «¿qué región vendió más el último trimestre?» en el tablero de demostración y
 recibe la respuesta, con la cifra, su origen y un gráfico chico, sin poder cambiar nada.
 
+> **Hecho (2026-11-05), con pruebas sobre un cliente falso y un stream falso.** Falta la prueba real con la clave de
+> Anthropic, y ver el panel en un navegador. Decisiones:
+> - **El gráfico sale de la consulta, no del modelo:** la última `query_dataset` de cada respuesta da su figura
+>   (`figures.py`), sacada de lo que la conversación ya guarda, en vivo y al leerla después. El modelo no elige el dataset
+>   ni los filtros que se muestran, y no hizo falta otra herramienta.
+> - El panel repite esa consulta por la API de datos de gráficos, que decide el acceso. Si la rechaza o la forma no da para
+>   un gráfico, quedan las filas en una tabla.
+> - **Texto del modelo:** el HTML queda como texto, sin imágenes y solo con enlaces de este sitio, porque una orden
+>   inyectada en un dataset podría sacar datos en una dirección.
+> - **Keep-alive:** el SDK descarta los `ping`, así que la llamada al modelo espera en un hilo propio y el stream manda un
+>   comentario cada 15 s. Las herramientas no: para ellas nginx da 300 s en esta ruta, y un proxy de producción necesita lo
+>   mismo.
+> - En teléfonos no hay barra de comandos: un botón flotante abre el panel a pantalla completa.
+
 ## 3. Copiloto del editor (L)
 
 1. **El panel en el editor:** una pestaña «Asistente» junto a los paneles (formato, datos, campos…) y un botón en la
