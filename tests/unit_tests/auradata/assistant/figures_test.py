@@ -60,6 +60,17 @@ def test_a_query_names_its_dataset_and_the_filters_that_ran() -> None:
     assert figure["filters"] == ROWS["applied_filters"]
     assert figure["columns"] == ["region"]
     assert figure["rows"] == ROWS["data"]
+    assert figure["row_limit"] == 1000
+
+
+def test_a_figure_keeps_the_limit_of_its_query() -> None:
+    tool_use = call()
+    tool_use["input"]["row_limit"] = 5
+
+    figure = figure_of(tool_use, result(ROWS))
+
+    assert figure is not None
+    assert figure["row_limit"] == 5
 
 
 def test_a_long_result_keeps_its_count_and_only_a_few_rows() -> None:

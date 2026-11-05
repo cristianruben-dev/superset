@@ -74,6 +74,7 @@ const FIGURE: Figure = {
   filters: [],
   order_by: [],
   order_desc: true,
+  row_limit: 1000,
   rows: [
     { region: 'Norte', total: 10 },
     { region: 'Sur', total: 4 },

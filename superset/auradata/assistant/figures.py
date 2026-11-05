@@ -32,6 +32,8 @@ from superset.utils import json
 
 QUERY_TOOL = "query_dataset"
 MAX_ROWS = 30
+# The limit of ``query_dataset`` when the call sets none
+DEFAULT_ROW_LIMIT = 1000
 
 
 def _result_text(result: dict[str, Any]) -> str | None:
@@ -69,6 +71,7 @@ def figure_of(
         "filters": response.get("applied_filters") or [],
         "order_by": request.get("order_by") or [],
         "order_desc": request.get("order_desc", True),
+        "row_limit": request.get("row_limit", DEFAULT_ROW_LIMIT),
         "rows": rows[:MAX_ROWS],
         "row_count": len(rows),
         "from_dttm": response.get("from_dttm"),

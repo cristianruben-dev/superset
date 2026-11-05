@@ -29,6 +29,7 @@ const figure = (changes: Partial<Figure> = {}): Figure => ({
   filters: [],
   order_by: [],
   order_desc: true,
+  row_limit: 1000,
   rows: [
     { region: 'Norte', total: 10 },
     { region: 'Sur', total: 4 },
@@ -90,6 +91,7 @@ test.each([
   ['too many metrics', { metrics: ['a', 'b', 'c'] }],
   ['one row of a dimension', { row_count: 1 }],
   ['too many rows', { row_count: 31 }],
+  ['a query cut by its limit', { row_count: 5, row_limit: 5 }],
 ])('%s read better as a table', (_name, changes) => {
   expect(chartFormData(figure(changes), 3)).toBeNull();
 });

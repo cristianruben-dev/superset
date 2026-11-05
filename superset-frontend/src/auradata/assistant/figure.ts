@@ -47,7 +47,8 @@ const adhocFilter = ({ col, op, val }: FigureFilter) =>
 /**
  * The query of a figure as a chart, or null when its shape reads better as a table.
  * It repeats what ran through the normal chart data API, so that API decides whether
- * this user reaches the dataset. Nothing here is saved.
+ * this user reaches the dataset. A query its limit cut, as a top five, stays a table:
+ * without its order and limit the chart would show other rows. Nothing here is saved.
  */
 export function chartFormData(
   figure: Figure,
@@ -74,7 +75,8 @@ export function chartFormData(
     metrics.length < 1 ||
     metrics.length > MAX_CHART_METRICS ||
     rows < 2 ||
-    rows > MAX_CHART_ROWS
+    rows > MAX_CHART_ROWS ||
+    rows >= figure.row_limit
   ) {
     return null;
   }

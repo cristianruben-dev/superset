@@ -52,6 +52,7 @@ export interface Figure {
   filters: FigureFilter[];
   order_by: string[];
   order_desc: boolean;
+  row_limit: number;
   rows: Record<string, unknown>[];
   row_count: number;
   from_dttm: string | null;

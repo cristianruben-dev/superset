@@ -42,6 +42,7 @@ const FIGURE: Figure = {
   filters: [{ col: 'pais', op: '==', val: 'MX' }],
   order_by: [],
   order_desc: true,
+  row_limit: 1000,
   rows: [
     { region: 'Norte', total: 1000 },
     { region: 'Sur', total: 4 },

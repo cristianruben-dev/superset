@@ -62,7 +62,7 @@ beforeEach(() => {
   jest.spyOn(SupersetClient, 'getCSRFToken').mockResolvedValue('the-token');
   jest
     .spyOn(SupersetClient, 'getUrl')
-    .mockImplementation(({ endpoint }) => `http://app${endpoint}`);
+    .mockImplementation(request => `http://app${request?.endpoint}`);
   jest.spyOn(SupersetClient, 'reAuthenticate').mockResolvedValue(undefined);
 });
 
