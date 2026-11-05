@@ -831,10 +831,19 @@ Cada fase deja su parte. Al final se ordena en:
 
 1. ~~R4: claves guardadas.~~ **Decidido (2026-11-04): se renombran también**, con el diseño de «R4: renombrar
    los datos guardados».
-2. **Credenciales de bases de datos por MCP (fase 8).** Pasar contraseñas por la conversación con la IA las deja
-   en el historial del cliente. Alternativa: el MCP solo prueba y crea conexiones con un secreto ya guardado en el
-   servidor.
-3. **Antes de R1:** qué hacer con los 14 archivos modificados sin commit en `main`.
+2. ~~Credenciales de bases de datos por MCP (fase 8).~~ **Decidido (2026-11-05): nunca pasan por el chat.** Un
+   admin crea la conexión en la web; la IA la lista, la prueba y la usa, pero no da de alta conexiones con una
+   contraseña escrita en la conversación.
+3. ~~Antes de R1: los 14 archivos sin commit.~~ Hecho: se commitearon el 2026-11-04.
+4. **Acceso de la IA al MCP (decidido 2026-11-05): claves de API personales.** Superset 7.0 ya trae claves `sst_`
+   con permisos por recurso y acción (`superset/security/api_key_scopes.py`, `FAB_API_KEY_ENABLED`,
+   `MCP_API_KEY_ENABLED`), que el MCP acepta. Se encienden y AuraData añade una pantalla «Conectar IA» en español
+   (crear, elegir permisos, copiar la configuración del cliente, revocar). La clave actúa como su dueño y sus permisos
+   solo restringen. OAuth (el «Añadir conector» de claude.ai) queda para después. Bloque A, antes de la fase 8.
+5. **Certificar (decidido 2026-11-05):** solo los editores reales y los admins del workspace ponen o quitan el sello
+   de certificado, en la web y en el MCP. Un contributor no. Va con el bloque A.
+6. **Papelera global (decidido 2026-11-05):** queda como está: cada uno ve lo que puede editar, los admins todo,
+   igual que la papelera de Administración.
 
 ## Riesgo
 
