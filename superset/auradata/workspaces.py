@@ -331,6 +331,35 @@ def workspace_dashboards(workspace: Workspace) -> list[Dashboard]:
     )
 
 
+def workspace_trash(pk: int) -> list[Dashboard]:
+    """
+    The deleted dashboards of a workspace, most recently deleted first. Only its
+    contributors and admins see them, the people who can restore them.
+
+    :raises WorkspaceNotFoundError: The user does not belong to the workspace
+    :raises WorkspaceForbiddenError: The user is a viewer of it
+    """
+    workspace, _ = find_workspace(pk, ROLE_CONTRIBUTOR)
+    ids = [link.dashboard_id for link in workspace.dashboards]
+    if not ids:
+        return []
+    return (
+        db.session.query(Dashboard)
+        .execution_options(**{SKIP_VISIBILITY_FILTER_CLASSES: {Dashboard}})
+        .filter(Dashboard.id.in_(ids), Dashboard.deleted_at.isnot(None))
+        .order_by(Dashboard.deleted_at.desc())
+        .all()
+    )
+
+
+def restore_blockers(dashboard: Dashboard) -> str | None:
+    """
+    Why a deleted dashboard can't be restored: the charts of it that now belong to
+    another dashboard. None when it can be restored.
+    """
+    return describe_conflicts(find_charts_blocking_restore(dashboard.id)) or None
+
+
 def workspace_dataset_list(workspace: Workspace) -> list[SqlaTable]:
     """The datasets of a workspace the user can access, latest change first."""
     ids = [link.dataset_id for link in workspace.datasets]
@@ -945,19 +974,10 @@ class WorkspaceRestApi(BaseSupersetApi):
             404:
               $ref: '#/components/responses/404'
         """
-        workspace, _, error_response = self._find(pk, ROLE_CONTRIBUTOR)
-        if workspace is None:
-            return error_response
-        ids = [link.dashboard_id for link in workspace.dashboards]
-        dashboards = (
-            db.session.query(Dashboard)
-            .execution_options(**{SKIP_VISIBILITY_FILTER_CLASSES: {Dashboard}})
-            .filter(Dashboard.id.in_(ids), Dashboard.deleted_at.isnot(None))
-            .order_by(Dashboard.deleted_at.desc())
-            .all()
-            if ids
-            else []
-        )
+        try:
+            dashboards = workspace_trash(pk)
+        except WorkspaceError as error:
+            return self._error(error)
         return self.response(
             200,
             result=[
@@ -968,10 +988,7 @@ class WorkspaceRestApi(BaseSupersetApi):
                     "deleted_at_delta_humanized": format_time_humanized(
                         dashboard.deleted_at
                     ),
-                    "blocked_by": describe_conflicts(
-                        find_charts_blocking_restore(dashboard.id)
-                    )
-                    or None,
+                    "blocked_by": restore_blockers(dashboard),
                 }
                 for dashboard in dashboards
             ],

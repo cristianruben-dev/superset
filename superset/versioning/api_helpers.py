@@ -324,45 +324,36 @@ class PathEntityResponseError(Exception):
         self.response = response
 
 
-def resolve_endpoint_path_entity(
-    api: Any, model_cls: type[Model], uuid_str: str
-) -> tuple[Any, UUID]:
-    """Run path-entity preflight for a versions or activity endpoint.
+class HistoryEntityNotFoundError(Exception):
+    """No live entity has this UUID."""
 
-    1. Parse *uuid_str* into a UUID (or raise → 400).
-    2. Look up the live entity via ``VersionDAO.find_active_by_uuid``
-       (or raise → 404).
-    3. Enforce object-level editorship via
-       ``security_manager.raise_for_editorship`` (or raise → 403).
 
-    Returns ``(entity, entity_uuid)`` on success — the parsed UUID is
-    threaded out so callers don't re-parse the path-string. Raises
-    :class:`PathEntityResponseError` carrying the appropriate error
-    Response on any failure; the endpoint method should::
+class HistoryEntityForbiddenError(Exception):
+    """The user may not read the history of this entity."""
 
-        try:
-            entity, entity_uuid = resolve_endpoint_path_entity(
-                self, Dashboard, uuid_str
-            )
-        except PathEntityResponseError as exc:
-            return exc.response
 
-    *api* is the FAB ``ModelRestApi`` instance — we call
-    ``api.response_400`` / ``api.response_403`` / ``api.response_404``
-    on it. Pass ``self`` from the endpoint method.
+def find_history_entity(model_cls: type[Model], entity_uuid: UUID) -> Any:
+    """The live entity whose history the current user may read.
+
+    The gate of the version and activity endpoints, shared with the MCP
+    service so both answer the same principals:
+
+    1. An embedded guest is refused before any database lookup.
+    2. The live entity is looked up via ``VersionDAO.find_active_by_uuid``.
+    3. The user must edit it: an editor, an admin, or (AuraData BI) a
+       contributor or admin of the workspace that holds it.
+
+    :raises LookupError: The model is not wired for version endpoints
+    :raises HistoryEntityNotFoundError: No live entity has this UUID
+    :raises HistoryEntityForbiddenError: The user may not read its history
     """
     # Static wiring validation runs first: an unwired model must fail
-    # closed loudly before any parsing or database work, not surface as
-    # an incidental AttributeError inside the DAO lookup.
+    # closed loudly before any database work, not surface as an
+    # incidental AttributeError inside the DAO lookup.
     if model_cls not in _version_endpoint_models():
         raise LookupError(
             f"Model {model_cls.__name__!r} is not wired for version endpoints"
         )
-
-    try:
-        entity_uuid = UUID(uuid_str)
-    except ValueError as exc:
-        raise PathEntityResponseError(api.response_400(message="Invalid UUID")) from exc
 
     # M10 / SECURITY.md's guest row: an embedded guest's capability is
     # reading the dashboards its token authorizes — never their change
@@ -373,11 +364,11 @@ def resolve_endpoint_path_entity(
     # disclose which UUIDs exist to a principal with no read visibility
     # into them.
     if security_manager.is_guest_user():
-        raise PathEntityResponseError(api.response_403())
+        raise HistoryEntityForbiddenError()
 
     entity = VersionDAO.find_active_by_uuid(model_cls, entity_uuid)
     if entity is None:
-        raise PathEntityResponseError(api.response_404())
+        raise HistoryEntityNotFoundError()
     # Version history is EDIT-gated, not read-gated (sc-120001 decision,
     # following the sc-103156 SIP): the full change log — author
     # identities, timestamps, field-level before/after diffs — is for
@@ -397,8 +388,53 @@ def resolve_endpoint_path_entity(
     # dashboard edits it, so they read its history too (the workspace role
     # never grants access to data).
     if not (security_manager.is_editor(entity) or edits_as_workspace_member(entity)):
-        raise PathEntityResponseError(api.response_403())
+        raise HistoryEntityForbiddenError()
+    return entity
 
+
+def resolve_endpoint_path_entity(
+    api: Any, model_cls: type[Model], uuid_str: str
+) -> tuple[Any, UUID]:
+    """Run path-entity preflight for a versions or activity endpoint.
+
+    1. Parse *uuid_str* into a UUID (or raise → 400).
+    2. Run :func:`find_history_entity` (404 when there is no live entity,
+       403 when the user may not read its history).
+
+    Returns ``(entity, entity_uuid)`` on success — the parsed UUID is
+    threaded out so callers don't re-parse the path-string. Raises
+    :class:`PathEntityResponseError` carrying the appropriate error
+    Response on any failure; the endpoint method should::
+
+        try:
+            entity, entity_uuid = resolve_endpoint_path_entity(
+                self, Dashboard, uuid_str
+            )
+        except PathEntityResponseError as exc:
+            return exc.response
+
+    *api* is the FAB ``ModelRestApi`` instance — we call
+    ``api.response_400`` / ``api.response_403`` / ``api.response_404``
+    on it. Pass ``self`` from the endpoint method.
+    """
+    # Static wiring validation runs first, before parsing (see
+    # find_history_entity, which checks it again).
+    if model_cls not in _version_endpoint_models():
+        raise LookupError(
+            f"Model {model_cls.__name__!r} is not wired for version endpoints"
+        )
+
+    try:
+        entity_uuid = UUID(uuid_str)
+    except ValueError as exc:
+        raise PathEntityResponseError(api.response_400(message="Invalid UUID")) from exc
+
+    try:
+        entity = find_history_entity(model_cls, entity_uuid)
+    except HistoryEntityForbiddenError as exc:
+        raise PathEntityResponseError(api.response_403()) from exc
+    except HistoryEntityNotFoundError as exc:
+        raise PathEntityResponseError(api.response_404()) from exc
     return entity, entity_uuid
 
 
