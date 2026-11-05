@@ -186,3 +186,28 @@ def get_matching_dashboard_permalink_state(
     if not user_can_view_data_model_metadata():
         state = redact_filter_state_data_model_metadata(state, native_filters)
     return DashboardPermalinkState(key=key, state=state)
+
+
+def create_page_permalink(dashboard_id: int, page_id: str | None = None) -> str:
+    """
+    The key of a permalink that opens a dashboard, on one page when given (its
+    tab is active and the page is the anchor). Committed, so another
+    connection (a browser) can read it right away.
+    """
+    from superset.commands.dashboard.permalink.create import (
+        CreateDashboardPermalinkCommand,
+    )
+    from superset.extensions import db
+
+    pages = [page_id] if page_id and page_id != "GRID_ID" else []
+    key = CreateDashboardPermalinkCommand(
+        dashboard_id=str(dashboard_id),
+        state={
+            "dataMask": {},
+            "activeTabs": pages,
+            "anchor": pages[0] if pages else None,
+            "urlParams": [],
+        },
+    ).run()
+    db.session.commit()  # pylint: disable=consider-using-transaction
+    return key

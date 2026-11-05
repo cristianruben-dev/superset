@@ -59,27 +59,14 @@ class Picture:
 
 def page_url(report: Report, page_id: str | None) -> str:
     """The URL that opens the report on a page."""
-    from superset.commands.dashboard.permalink.create import (
-        CreateDashboardPermalinkCommand,
-    )
-    from superset.extensions import db
+    from superset.mcp_service.dashboard.permalink import create_page_permalink
     from superset.utils.urls import get_url_path
 
     dashboard = report.dashboard
     if not page_id or page_id == "GRID_ID":
         return get_url_path("Superset.dashboard", dashboard_id_or_slug=dashboard.id)
     # The anchor opens the page; active tabs alone only move the page bar
-    key = CreateDashboardPermalinkCommand(
-        dashboard_id=str(dashboard.id),
-        state={
-            "dataMask": {},
-            "activeTabs": [page_id],
-            "anchor": page_id,
-            "urlParams": [],
-        },
-    ).run()
-    # Playwright reads the permalink on another connection
-    db.session.commit()  # pylint: disable=consider-using-transaction
+    key = create_page_permalink(dashboard.id, page_id)
     return get_url_path("Superset.dashboard_permalink", key=key)
 
 

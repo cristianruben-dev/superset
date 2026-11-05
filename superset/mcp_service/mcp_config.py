@@ -399,6 +399,8 @@ MCP_CACHE_CONFIG: dict[str, Any] = {
         "create_report",
         "delete_report",
         "update_report",
+        "publish_dashboard",
+        "share_dashboard",
         "save_sql_query",
         "set_canvas_format",
         "set_dashboard_css",

@@ -221,6 +221,9 @@ Trash and Version History (AuraData BI):
 - get_version_diff: The changes one version made, as the web's history shows them
 - restore_version: Go back to a version (a new version; editors and contributors)
 
+Sharing (AuraData BI):
+- publish_dashboard: Publish a report, or turn it back into a draft
+- share_dashboard: The link to send (a permalink to a page), who opens it, how to add people
 
 Tag Management:
 - list_tags: List tags with advanced filters (1-based pagination)
@@ -988,6 +991,10 @@ from superset.mcp_service.semantic_layer.tool import (  # noqa: F401, E402
     get_compatible_metrics,
     get_table,
     list_metrics,
+)
+from superset.mcp_service.sharing.tool import (  # noqa: F401, E402
+    publish_dashboard,
+    share_dashboard,
 )
 from superset.mcp_service.sql_lab.tool import (  # noqa: F401, E402
     execute_sql,

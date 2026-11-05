@@ -123,6 +123,8 @@ TOOL_BUDGETS = {
     "create_report": 2_300,
     "delete_report": 1_000,
     "update_report": 2_900,
+    "publish_dashboard": 1_200,
+    "share_dashboard": 1_300,
     "save_sql_query": 1_600,
     "set_object_state": 1_400,
     "copy_format": 1_300,
