@@ -161,6 +161,11 @@ def test_log_this_with_context_derives_object_id_despite_outer_decorator(
     ``request.view_args``, with no ``add_extra_log_payload`` call in the view.
     """
     mock_log = mocker.patch.object(DBEventLogger, "log")
+    # AuraData BI's action log drops reads; this test is about the id, so keep
+    # every record
+    mocker.patch.object(
+        DBEventLogger, "select_records", side_effect=lambda action, records: records
+    )
     logger = DBEventLogger()
 
     class FakeDashboardRestApi:  # pylint: disable=too-few-public-methods

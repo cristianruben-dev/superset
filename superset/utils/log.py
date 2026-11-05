@@ -256,6 +256,22 @@ class AbstractEventLogger(ABC):
     ) -> None:
         pass
 
+    @staticmethod
+    def _explode_records(payload: dict[str, Any]) -> list[dict[str, Any]]:
+        """The records of a payload, one per item when it carries a bulk list."""
+        try:
+            # bulk insert
+            explode_by = payload.get("explode")
+            return json.loads(payload.get(explode_by))  # type: ignore
+        except Exception:  # pylint: disable=broad-except
+            return [payload]
+
+    def select_records(
+        self, action: str, records: list[dict[str, Any]]
+    ) -> list[dict[str, Any]]:
+        """The records of an event that get logged; all of them by default."""
+        return records
+
     def log_with_context(  # pylint: disable=too-many-locals,too-many-arguments
         self,
         action: str,
@@ -324,12 +340,9 @@ class AbstractEventLogger(ABC):
         if log_to_statsd:
             stats_logger_manager.instance.incr(action)
 
-        try:
-            # bulk insert
-            explode_by = payload.get("explode")
-            records = json.loads(payload.get(explode_by))  # type: ignore
-        except Exception:  # pylint: disable=broad-except
-            records = [payload]
+        records = self.select_records(action, self._explode_records(payload))
+        if not records:
+            return
 
         self.log(
             user_id,
@@ -494,6 +507,15 @@ def get_event_logger_from_cfg_value(cfg_value: Any) -> AbstractEventLogger:
 
 class DBEventLogger(AbstractEventLogger):
     """Event logger that commits logs to Superset DB"""
+
+    def select_records(
+        self, action: str, records: list[dict[str, Any]]
+    ) -> list[dict[str, Any]]:
+        """Keep only the events the action log is meant to hold (AuraData BI)."""
+        # pylint: disable=import-outside-toplevel
+        from superset.auradata.action_log import select_records
+
+        return select_records(action, records)
 
     def log(  # pylint: disable=too-many-arguments,too-many-locals
         self,
