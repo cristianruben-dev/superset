@@ -90,6 +90,14 @@ This repository is **AuraData BI**, a fork of Apache Superset 7.0 shaped like Po
   mapped resource, and a mutating one a write scope). With `MCP_API_KEY_ENABLED` on, the MCP refuses requests without
   a key, so dev's `MCP_DEV_USERNAME` only applies with `MCP_API_KEY_ENABLED=false`. `MCP_SERVICE_URL` is the address
   the page shows; a JWT (`MCP_JWT_SECRET`) stays as an alternative in prod.
+- **The MCP drives the whole product** (`superset/mcp_service/`, its own `CLAUDE.md`): workspaces, report pages and
+  objects, visuals, format, elements and slicers, interactivity, mobile layout, capture and export, sharing,
+  scheduled reports, trash and history, the data model, and `auradata://` guidance with Spanish prompts. Tools write
+  layouts through the Python layout library (`superset/auradata/layout/`) and the same commands as the web. A tool
+  change regenerates `docs/auradata/mcp/referencia.md` (`scripts/auradata/mcp_reference.py`;
+  `tests/unit_tests/mcp_service/test_reference_doc.py` fails when it is stale).
+- **Docs** live in `docs/auradata/`: `manual/` (users, Spanish, with screenshots), `mcp/conectar.md` (connecting an AI),
+  `mcp/referencia.md` (generated), `mcp/evaluacion.md` (end to end checks) and `arquitectura.md` (developers).
 - **Flags fixed by the product** (`FORCED_OFF_FLAGS`, `superset/utils/feature_flag_manager.py`): Superset's mobile consumption mode
   (`auradataMobile` replaces it) and Table V2 stay off whatever the configuration says.
 - **Soft delete and version history** (on by default since 7.0): a deleted dashboard, chart or
@@ -170,6 +178,8 @@ This repository is **AuraData BI**, a fork of Apache Superset 7.0 shaped like Po
 | Selection pane, locked and hidden objects, page menu | - | `auradata/format/SelectionPane.tsx`, `auradata/format/lock.ts`, `auradata/report/PageMenu.tsx`, `auradata/report/pageActions.ts` |
 | Report interactivity (edit interactions, drill through, sync slicers, bookmarks, Back/bookmark buttons, tooltip pages, reset filters) | - | `auradata/report` |
 | Chart type icons | - | `auradata/vizIcons` |
+| Layout model in Python, format catalog | `superset/auradata/layout/`, `superset/auradata/catalog/` | `auradata/format/layoutDrift.test.ts`, `formatCatalog.test.ts` write their fixtures |
+| MCP tools for AI clients, «Conectar IA» | `superset/mcp_service/` (`workspace/`, `report_layout/`, `history/`, `guidance/`…) | `auradata/connectAi` |
 
 AuraData BI APIs: `/api/v1/workspace/` (with `<id>/dashboards/` and `<id>/datasets/`),
 `/api/v1/dashboard_background/<dashboard>/`, `/api/v1/dashboard_image/<dashboard>/<image>/`,

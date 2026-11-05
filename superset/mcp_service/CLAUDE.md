@@ -220,6 +220,22 @@ The `@tool` and `@prompt` decorators are defined as stubs in the `superset-core`
   the prompts in `guidance/prompts/` repeat the key rules inline, in Spanish, and only name real tools
   (`tests/unit_tests/mcp_service/guidance/test_guidance_prompts.py` checks it).
 
+## AuraData BI: Tool Groups, Keys and the Reference
+
+- **Groups** by folder: `workspace/`, `report_layout/` (structure and pages, objects, visuals, format, elements and
+  slicers, interactivity, mobile), `screenshot/`, `sharing/`, `report/`, `history/`, `dataset/` and `database/`
+  (data model, connections), `guidance/` (resources and prompts); the rest are Superset's tools with the fork rules
+  added. Tags name the area (`layout`, `format`, `elements`, `interactivity`, `mobile`, `workspace`, `history`,
+  `sharing`…) and `mutate` marks writes; the reference lists each tool's tags.
+- **Who calls them**: an AI with a personal `sst_` key from «Conectar IA» (`/connect-ai/`), acting as the key's owner;
+  key scopes only narrow tools. User guide: `docs/auradata/mcp/conectar.md`.
+- **Reference**: `docs/auradata/mcp/referencia.md` is rendered from the registry by `reference.py`
+  (`scripts/auradata/mcp_reference.py` writes it). Adding or changing a tool, its parameters, a prompt or a
+  resource means regenerating it; `tests/unit_tests/mcp_service/test_reference_doc.py` fails until you do. The
+  development stack does not mount `docs/`: see the script's docstring.
+- **Adding a tool**, the full checklist (permissions, `can_edit_resource`, scope coverage, cache exclusions,
+  inventory budgets, reference): `docs/auradata/arquitectura.md`, «Cómo se añade una herramienta».
+
 ## Critical Convention: Tool, Prompt, and Resource Registration
 
 **IMPORTANT**: When creating new MCP tools, prompts, or resources, you MUST add their imports to `app.py` for auto-registration. Do NOT add them to `server.py` - that approach doesn't work properly.
