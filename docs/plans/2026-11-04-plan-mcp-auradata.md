@@ -855,7 +855,8 @@ Cada fase deja su parte. Al final se ordena en:
      como tú, crea claves (por defecto de solo lectura, solo con los scopes que el usuario puede dar), las lista y
      revoca, y da la configuración de Claude Code y Claude Desktop (vía `mcp-remote`) con la clave recién creada.
    - Chequeo en vivo con un usuario de prueba Gamma, contributor de «Análisis comercial»: la clave actúa como él (solo
-     ve su workspace), una clave de solo lectura no puede llamar `update_workspace`, sin clave hay 401 y, revocada, 401.
+     ve su workspace, y `list_datasets` solo devuelve `ventas_demo`, nada de «SESEQ RRHH»), una clave de solo lectura
+     no puede llamar `update_workspace`, sin clave hay 401 y, revocada, 401.
    - Pendiente: los scopes solo limitan el MCP; la misma clave usada contra la API REST actúa con todos los permisos
      del usuario (comportamiento de Superset, avisado en la página).
 5. **Certificar (decidido 2026-11-05):** solo los editores reales y los admins del workspace ponen o quitan el sello
@@ -866,7 +867,11 @@ Cada fase deja su parte. Al final se ordena en:
    `manage_dashboard_certification` usa la misma regla: antes pedía editoría real y dejaba fuera a los admins del
    workspace. El diálogo deja el sello de solo lectura para quien no puede certificar y no lo envía. Los datasets ya
    eran solo de sus editores (ningún rol de workspace los edita). Probado en vivo por la API web y por MCP.
+   El sello se compara como se ve (`161e851307`): el guardado del encabezado manda los detalles vacíos cuando nadie
+   certificó, y unos detalles sin firmante no deben bloquear el guardado de un contributor.
    Pendiente: el diálogo de propiedades del gráfico (Explore) no bloquea los campos; el servidor sí rechaza el cambio.
+   Si alguien certifica mientras un contributor tiene el tablero abierto, el siguiente guardado de este manda el sello
+   viejo y recibe un 422 hasta que recarga.
 6. **Papelera global (decidido 2026-11-05):** queda como está: cada uno ve lo que puede editar, los admins todo,
    igual que la papelera de Administración.
 
