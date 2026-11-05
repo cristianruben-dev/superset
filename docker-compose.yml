@@ -123,6 +123,11 @@ services:
       <<: *common-build
     command: ["/app/docker/docker-bootstrap.sh", "app"]
     restart: unless-stopped
+    environment: &superset-host-ports
+      # Host ports the stack is published on, for the links the app and the MCP
+      # hand out (docker/pythonpath_dev/superset_config.py).
+      SUPERSET_HOST_PORT: ${SUPERSET_PORT:-8088}
+      MCP_HOST_PORT: ${MCP_PORT:-5008}
     ports:
       - ${SUPERSET_PORT:-8088}:8088
     extra_hosts:
@@ -148,6 +153,7 @@ services:
     command: ["/app/docker/docker-bootstrap.sh", "mcp"]
     restart: unless-stopped
     environment:
+      <<: *superset-host-ports
       MCP_PORT: 5008
     ports:
       - "127.0.0.1:${MCP_PORT:-5008}:5008"
@@ -239,6 +245,7 @@ services:
       - path: docker/.env-local # optional override
         required: false
     environment:
+      <<: *superset-host-ports
       CELERYD_CONCURRENCY: 2
     restart: unless-stopped
     depends_on:

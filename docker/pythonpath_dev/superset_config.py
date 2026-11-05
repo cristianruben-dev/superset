@@ -113,9 +113,16 @@ ALERT_REPORTS_NOTIFICATION_DRY_RUN = True
 # path; only the scheme, host, and port must be correct here. SUPERSET_APP_ROOT is
 # kept for consumers that concatenate paths directly (e.g. cache warm-up).
 WEBDRIVER_BASEURL = f"http://superset:8088{os.environ.get('SUPERSET_APP_ROOT', '/')}/"
-# The base URL for the email report hyperlinks.
+# The address people open the app at: links of email reports and of MCP tools.
+# docker-compose passes the host port it publishes the app on (SUPERSET_PORT) as
+# SUPERSET_HOST_PORT; set SUPERSET_PUBLIC_URL (e.g. in docker/.env-local) when the
+# app is reached some other way, such as through nginx or another host name.
+SUPERSET_PUBLIC_URL = os.getenv("SUPERSET_PUBLIC_URL") or (
+    f"http://localhost:{os.getenv('SUPERSET_HOST_PORT', '8088')}"
+)
 WEBDRIVER_BASEURL_USER_FRIENDLY = (
-    f"http://localhost:8888/{os.environ.get('SUPERSET_APP_ROOT', '/')}/"
+    f"{SUPERSET_PUBLIC_URL.rstrip('/')}"
+    f"{os.environ.get('SUPERSET_APP_ROOT', '/').rstrip('/')}/"
 )
 SQLLAB_CTAS_NO_LIMIT = True
 
@@ -129,9 +136,11 @@ FEATURE_FLAGS["FAB_API_KEY_ENABLED"] = True
 MCP_API_KEY_ENABLED = _api_keys
 MCP_API_KEY_CREATE_URL = "/connect-ai/"
 # Address an AI client connects to, shown on the «Conectar IA» page. The compose file
-# publishes the MCP port on the host as MCP_PORT (5008 unless overridden), which the
-# app container cannot see: set MCP_SERVICE_URL when it differs.
-MCP_SERVICE_URL = os.getenv("MCP_SERVICE_URL") or "http://localhost:5008/mcp"
+# publishes the MCP port on the host as MCP_PORT (5008 unless overridden) and passes
+# it as MCP_HOST_PORT; set MCP_SERVICE_URL when the MCP is reached some other way.
+MCP_SERVICE_URL = os.getenv("MCP_SERVICE_URL") or (
+    f"http://localhost:{os.getenv('MCP_HOST_PORT', '5008')}/mcp"
+)
 
 # User the MCP service acts as when it takes no credential. With API keys on (the
 # default) the MCP service refuses any request without a key, so this only applies
