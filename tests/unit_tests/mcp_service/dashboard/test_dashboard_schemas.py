@@ -1059,12 +1059,13 @@ class TestRequestSchemaAliasChoices:
 
 
 def test_generate_dashboard_request_chart_ids_is_bounded() -> None:
-    """chart_ids is bounded (min 1, max 250) to prevent an unbounded array,
-    matching the length caps on sibling MCP request schemas."""
+    """chart_ids is capped at 250 to prevent an unbounded array, matching the
+    length caps on sibling MCP request schemas. It may be empty or left out:
+    an empty report gets its charts later with create_visual."""
+    GenerateDashboardRequest(chart_ids=[])
+    assert GenerateDashboardRequest().chart_ids == []
     GenerateDashboardRequest(chart_ids=[1])
     GenerateDashboardRequest(chart_ids=list(range(250)))
-    with pytest.raises(ValidationError):
-        GenerateDashboardRequest(chart_ids=[])
     with pytest.raises(ValidationError):
         GenerateDashboardRequest(chart_ids=list(range(251)))
 
