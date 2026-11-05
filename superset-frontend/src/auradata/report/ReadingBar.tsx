@@ -20,8 +20,11 @@ import { useEffect, useState, type ReactNode } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { t } from '@apache-superset/core/translation';
 import { css, styled } from '@apache-superset/core/theme';
+import { Button } from '@superset-ui/core/components';
 import { Icons } from '@superset-ui/core/components/Icons';
 import type { RootState } from 'src/dashboard/types';
+import { AssistantPanel } from '../assistant/AssistantPanel';
+import { useAssistantModels } from '../assistant/useAssistant';
 import { usePhoneScreen } from '../format/mobile';
 import { setPresenting } from '../present/presentation';
 import { RibbonButton } from '../ribbon/parts';
@@ -89,6 +92,17 @@ function CommandGroup({
   );
 }
 
+/** A phone has no bar of commands: the assistant waits over the corner of the page. */
+const PhoneCommand = styled(Button)`
+  ${({ theme }) => css`
+    position: fixed;
+    right: ${theme.sizeUnit * 4}px;
+    bottom: ${theme.sizeUnit * 20}px;
+    z-index: ${theme.zIndexPopupBase - 1};
+    box-shadow: ${theme.boxShadowSecondary};
+  `}
+`;
+
 const useFullscreen = () => {
   const [fullscreen, setFullscreen] = useState(
     () => !!document.fullscreenElement,
@@ -128,8 +142,36 @@ export function ReadingBar({
   const [fullscreen, toggleFullscreen] = useFullscreen();
   // As Power BI mobile: a phone shows the report without commands
   const phone = usePhoneScreen();
+  const assistantModels = useAssistantModels();
+  const [assistantOpen, setAssistantOpen] = useState(false);
+  const [assistantUsed, setAssistantUsed] = useState(false);
+  const openAssistant = () => {
+    setAssistantUsed(true);
+    setAssistantOpen(true);
+  };
+  const assistantPanel = assistantUsed && (
+    <AssistantPanel
+      open={assistantOpen}
+      onClose={() => setAssistantOpen(false)}
+      models={assistantModels}
+    />
+  );
 
-  if (phone) return null;
+  if (phone) {
+    return assistantModels.length > 0 ? (
+      <>
+        <PhoneCommand
+          buttonStyle="primary"
+          onClick={openAssistant}
+          icon={<Icons.CommentOutlined iconSize="m" />}
+          data-test="auradata-assistant-phone-button"
+        >
+          {t('Ask')}
+        </PhoneCommand>
+        {assistantPanel}
+      </>
+    ) : null;
+  }
 
   return (
     <Bar
@@ -198,6 +240,21 @@ export function ReadingBar({
           data-test="auradata-export-button"
         />
       </CommandGroup>
+      {assistantModels.length > 0 && (
+        <CommandGroup label={t('Assistant')}>
+          <RibbonButton
+            small
+            label={t('Ask your data')}
+            icon={<Icons.CommentOutlined iconSize="m" />}
+            pressed={assistantOpen}
+            onClick={() =>
+              assistantOpen ? setAssistantOpen(false) : openAssistant()
+            }
+            data-test="auradata-assistant-button"
+          />
+        </CommandGroup>
+      )}
+      {assistantPanel}
     </Bar>
   );
 }

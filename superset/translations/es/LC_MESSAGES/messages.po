@@ -26910,3 +26910,93 @@ msgstr "La respuesta era demasiado larga y se cortó. Pide menos."
 
 msgid "This took too many steps. Ask for something smaller."
 msgstr "Esto necesitó demasiados pasos. Pide algo más acotado."
+
+msgid "Showing %s of %s rows."
+msgstr "Mostrando %s de %s filas."
+
+msgid "The chart could not be drawn."
+msgstr "No se pudo dibujar el gráfico."
+
+msgid "Economical"
+msgstr "Económico"
+
+msgid "Balanced"
+msgstr "Equilibrado"
+
+msgid "Reading the report"
+msgstr "Leyendo el informe"
+
+msgid "Looking at the datasets"
+msgstr "Revisando los datasets"
+
+msgid "Querying the data"
+msgstr "Consultando los datos"
+
+msgid "Reading a chart"
+msgstr "Leyendo un gráfico"
+
+msgid "Looking at the report"
+msgstr "Mirando el informe"
+
+msgid "Looking at a chart"
+msgstr "Mirando un gráfico"
+
+msgid "Using %s"
+msgstr "Usando %s"
+
+msgid "Steps of the answer"
+msgstr "Pasos de la respuesta"
+
+msgid "You stopped this answer."
+msgstr "Detuviste esta respuesta."
+
+msgid "Assistant"
+msgstr "Asistente"
+
+msgid "Model"
+msgstr "Modelo"
+
+msgid "New conversation"
+msgstr "Nueva conversación"
+
+msgid "Conversations of this report"
+msgstr "Conversaciones de este informe"
+
+msgid "Ask about this report. The assistant answers about the page and filters on your screen, and it cannot change anything."
+msgstr "Pregunta sobre este informe. El asistente responde sobre la página y los filtros que tienes en pantalla, y no puede cambiar nada."
+
+msgid "You changed the model, so it reads this conversation from scratch: this answer takes longer and costs more than usual."
+msgstr "Cambiaste de modelo, así que lee esta conversación desde cero: esta respuesta tarda más y cuesta más de lo normal."
+
+msgid "This conversation is getting too long for the model. Start a new one to keep going."
+msgstr "Esta conversación se está haciendo demasiado larga para el modelo. Empieza una nueva para seguir."
+
+msgid "Your question"
+msgstr "Tu pregunta"
+
+msgid "Send"
+msgstr "Enviar"
+
+msgid "What you ask, and the data it reads, go to Anthropic."
+msgstr "Lo que preguntas y los datos que consulta se envían a Anthropic."
+
+msgid "The assistant could not answer. Try again."
+msgstr "El asistente no pudo responder. Vuelve a intentarlo."
+
+msgid "Dataset: %s"
+msgstr "Dataset: %s"
+
+msgid "no filters"
+msgstr "sin filtros"
+
+msgid "The answer was cut off. Try again."
+msgstr "La respuesta se cortó. Vuelve a intentarlo."
+
+msgid "The AI declined to answer this."
+msgstr "La IA no quiso responder a esto."
+
+msgid "Ask"
+msgstr "Preguntar"
+
+msgid "Ask your data"
+msgstr "Pregúntale a tus datos"
