@@ -58,18 +58,61 @@ def find_dashboard(
     return dashboard, None
 
 
+class ImageUploadError(ValueError):
+    """A picture the report refuses, with the message to show."""
+
+
+def check_image(data: bytes) -> str:
+    """The media type of an uploaded picture; raises ImageUploadError when it
+    is too large or not a PNG, JPEG, GIF or WebP image."""
+    if len(data) > MAX_IMAGE_BYTES:
+        raise ImageUploadError("The image is larger than 2 MB")
+    media_type = sniff_image_type(data)
+    if media_type is None:
+        raise ImageUploadError("Use a PNG, JPEG, GIF or WebP image")
+    return media_type
+
+
+def store_background(dashboard_id: int, data: bytes, media_type: str) -> str:
+    """Saves the background picture of a dashboard and returns its URL. The
+    caller checks that the user may edit the dashboard."""
+    background = db.session.get(DashboardBackground, dashboard_id)
+    if background is None:
+        background = DashboardBackground(dashboard_id=dashboard_id)
+        db.session.add(background)
+    background.image = data
+    background.image_type = media_type
+    background.changed_on = datetime.now()
+    db.session.commit()  # pylint: disable=consider-using-transaction
+    return background_url(background)
+
+
+def store_element_image(
+    dashboard_id: int, data: bytes, media_type: str
+) -> tuple[int, str]:
+    """Saves a picture for an image element of a dashboard and returns its id
+    and URL. The caller checks that the user may edit the dashboard."""
+    image = DashboardImage(
+        dashboard_id=dashboard_id,
+        image=data,
+        image_type=media_type,
+        created_on=datetime.now(),
+    )
+    db.session.add(image)
+    db.session.commit()  # pylint: disable=consider-using-transaction
+    return image.id, dashboard_image_url(image)
+
+
 def read_upload(api: BaseSupersetApi) -> tuple[bytes, str] | Response:
     """The uploaded ``image`` and its media type, or the error to return."""
     upload = request.files.get("image")
     if upload is None:
         return api.response_400(message="Missing image")
     data = upload.read(MAX_IMAGE_BYTES + 1)
-    if len(data) > MAX_IMAGE_BYTES:
-        return api.response_400(message="The image is larger than 2 MB")
-    media_type = sniff_image_type(data)
-    if media_type is None:
-        return api.response_400(message="Use a PNG, JPEG, GIF or WebP image")
-    return data, media_type
+    try:
+        return data, check_image(data)
+    except ImageUploadError as ex:
+        return api.response_400(message=str(ex))
 
 
 def image_response(data: bytes, media_type: str) -> Response:
@@ -167,15 +210,8 @@ class DashboardBackgroundRestApi(BaseSupersetApi):
         if isinstance(upload, Response):
             return upload
         data, media_type = upload
-        background = db.session.get(DashboardBackground, pk)
-        if background is None:
-            background = DashboardBackground(dashboard_id=pk)
-            db.session.add(background)
-        background.image = data
-        background.image_type = media_type
-        background.changed_on = datetime.now()
-        db.session.commit()  # pylint: disable=consider-using-transaction
-        return self.response(200, result={"url": background_url(background)})
+        url = store_background(pk, data, media_type)
+        return self.response(200, result={"url": url})
 
     @expose("/<int:pk>/", methods=("DELETE",))
     @protect()
@@ -299,17 +335,8 @@ class DashboardImageRestApi(BaseSupersetApi):
         if isinstance(upload, Response):
             return upload
         data, media_type = upload
-        image = DashboardImage(
-            dashboard_id=pk,
-            image=data,
-            image_type=media_type,
-            created_on=datetime.now(),
-        )
-        db.session.add(image)
-        db.session.commit()  # pylint: disable=consider-using-transaction
-        return self.response(
-            201, result={"id": image.id, "url": dashboard_image_url(image)}
-        )
+        image_id, url = store_element_image(pk, data, media_type)
+        return self.response(201, result={"id": image_id, "url": url})
 
     @expose("/<int:pk>/<int:image_id>/", methods=("DELETE",))
     @protect()
