@@ -183,6 +183,25 @@ recibe la respuesta, con la cifra, su origen y un gráfico chico, sin poder camb
 **Listo cuando:** en un informe de prueba, «agrega un gráfico de barras de ventas por región en la página 2 y alinéalo
 con el de arriba» funciona, se ve en el editor y se deshace con un clic.
 
+> **Hecho (2026-11-05), con pruebas sobre un cliente falso y un stream falso.** Falta el «listo cuando»: necesita la clave de
+> Anthropic, y ver el editor en un navegador. Decisiones:
+> - **Sin migración:** lo pendiente se deduce de lo guardado. Un turno con una llamada por confirmar queda sin resultados y
+>   con un registro `awaiting`; las decisiones y las versiones de cada turno son filas de rol `record`, que nunca se envían
+>   al modelo. El historial lee solo `user` y `assistant`.
+> - **La decisión lleva solo el id de la llamada,** nunca la herramienta ni sus argumentos, y se escribe antes de ejecutar: la
+>   posición única deja pasar a una sola de dos peticiones simultáneas.
+> - **Quedan detrás de la tarjeta todas las herramientas marcadas como destructivas,** no solo borrar, publicar, compartir y
+>   programar: también `update_chart`, `update_dashboard`, `manage_native_filters`, `execute_sql` y otras. Es lo prudente, y
+>   puede sobrar en el uso real: se revisa en la fase 5.
+> - **Escribir en vez de decidir descarta las llamadas,** con un resultado «no se ejecutó» para cada una. Rechazar una llamada
+>   frena también las llamadas simples de ese paso.
+> - **Deshacer restaura el tablero y sus gráficos,** cada uno con su comando, porque una versión del tablero no guarda el
+>   contenido de los gráficos. Se niega si el informe cambió después del turno. No toca los datasets (otros informes los
+>   leen), un gráfico creado por el turno queda fuera del informe sin borrarse y uno borrado sigue en la papelera.
+> - **Cada herramienta es una versión,** así que un turno ocupa varias en el historial. La fase 4 marca al asistente en
+>   `ToolBox.call`, por donde pasan todas, y los registros `turn_start` y `turn_end` dan el tramo de cada turno.
+> - **Un proceso que muere con una herramienta en marcha** deja su conversación ocupada (409): se sigue en una nueva.
+
 ## 4. Gobierno (M)
 
 1. **Marca de la IA:** el historial de versiones y el registro de acciones dicen «hecho por el asistente (modelo X)», y

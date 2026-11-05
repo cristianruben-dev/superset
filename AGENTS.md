@@ -101,14 +101,39 @@ This repository is **AuraData BI**, a fork of Apache Superset 7.0 shaped like Po
   or cut response never runs tools. `tools.py` builds `ToolBox`, the exact tools of a user in a mode and the only gate for
   a tool name; each call runs the real tool in an in-memory MCP session under `run_as`, because the web config may set
   `MCP_DEV_USERNAME`, which user resolution reads before `g.user`. Read mode also carries the `superset:read` scope, so
-  the tool wrapper refuses writes by itself. Tools that need an on-screen confirmation (destructive or sharing) are not
-  offered in any mode until phase 3. A conversation belongs to one user, dashboard and mode, and only grows
+  the tool wrapper refuses writes by itself. A conversation belongs to one user, dashboard and mode, and only grows
   (`conversations.py`, tables `auradata_assistant_conversations` and `auradata_assistant_messages`): `content` is sent
   back unchanged, except the blocks the API says to omit before a `fallback` block, and refused turns stay for their cost
   but are not sent. What a tool returns never enters the system prompt (`prompt.py`). The model call waits in a thread of
   its own (`_call_model`, HTTP only, never the session, `g` or the tools) so the stream can send a `: keep-alive` comment:
-  the SDK drops the pings and thinking is not displayed. `docker/nginx` gives the chat route 300 s for tools that run long;
-  a production proxy needs the same.
+  the SDK drops the pings and thinking is not displayed. A person who leaves closes that call (`ModelCall`, the connection
+  is shut down because closing a socket does not wake its reader) and what the API already reported stays as a row with
+  `stop_reason: interrupted`, kept for its cost and never sent. `docker/nginx` gives the chat and decide routes 300 s for
+  tools that run long; a production proxy needs the same. A model without tool search is refused (422) for a history that
+  used it.
+- **The editor's copilot** (mode `edit`, the Assistant tab of `BuilderComponentPane`, Home › Assistant in the ribbon,
+  `AssistantChat` in `AssistantPanel.tsx`). It works on the saved report: with unsaved changes the panel asks to save
+  (`saveReport`, which stays in the editor through `keepEditingOnSave`) or discard, and after an answer that changed
+  something `reloadReport` hydrates again without leaving the editor; unsaved work made during the answer is never thrown
+  away. `editorContext` adds the page and the selected objects with their format. The context is data for the model:
+  `dashboard_id` is the only part the server reads.
+- **Confirmations are a security boundary.** A tool that deletes, overwrites, publishes, shares, schedules, restores or
+  moves (`_needs_confirmation`, `CONFIRM_TOOLS` in `tools.py`) stops the loop: none of that turn's tools run, the turn is
+  stored without results plus an `awaiting` record (role `record`, never sent to the model), and that is the whole pending
+  state (`pending_turn`), with no table of its own. `POST .../conversations/<id>/decide/` takes only `tool_use_id` and
+  `approved`: what runs is the stored call, for the owner of the conversation, who is checked again (`can_edit_resource`)
+  at that moment. The decision is written first: the unique `seq` lets one of two racing requests through before any tool
+  runs, and once results are stored the call stops being pending, so a decision works once. `ToolBox.call` refuses these
+  tools without `approved=True`, which only `_run_tools` passes, from a stored decision. Text of the model or of a tool
+  cannot approve anything; a person who writes instead of deciding moves on, and the calls get a "not run" result. Each
+  call gets a `tool_result`, a rejected one too, and a rejection holds back the plain calls of its step. A new tool that
+  matters to a person gets a Spanish title in `confirmations.ts` (`copilot_test.py` checks it). Calls run through
+  `ToolBox.call`, which is the place to mark what the assistant did.
+- **Undo** (`undo.py`, `POST .../conversations/<id>/undo/`): `turn_start` and `turn_end` records hold the versions of the
+  dashboard and its charts around a turn; undoing runs the restore commands as the person, charts included, because a
+  dashboard version has no chart content. It refuses (409) when the report changed after the turn, and each undo uncovers
+  the turn before. A dataset the turn changed, a chart it created (left out of the report) and a chart it deleted stay as
+  they are.
 - **«Ask your data»** (`src/auradata/assistant/`): the panel of the reading view, read only, opened from `ReadingBar` (a
   floating button on phones, which have no bar) and only when `GET /api/v1/auradata/assistant/models/` says `available`.
   `client.ts` reads the SSE body of a `fetch` with the CSRF token of `SupersetClient`, which does not stream; `transcript.ts`
@@ -205,7 +230,7 @@ This repository is **AuraData BI**, a fork of Apache Superset 7.0 shaped like Po
 | Presentation mode, PDF/PNG export | - | `auradata/present`, `auradata/export` |
 | Ribbon and lineage | - | `auradata/ribbon` |
 | Selection pane, locked and hidden objects, page menu | - | `auradata/format/SelectionPane.tsx`, `auradata/format/lock.ts`, `auradata/report/PageMenu.tsx`, `auradata/report/pageActions.ts` |
-| AI assistant | `superset/auradata/assistant/` | `auradata/assistant` |
+| AI assistant, editor's copilot | `superset/auradata/assistant/` | `auradata/assistant` |
 | Report interactivity (edit interactions, drill through, sync slicers, bookmarks, Back/bookmark buttons, tooltip pages, reset filters) | - | `auradata/report` |
 | Chart type icons | - | `auradata/vizIcons` |
 | Layout model in Python, format catalog | `superset/auradata/layout/`, `superset/auradata/catalog/` | `auradata/format/layoutDrift.test.ts`, `formatCatalog.test.ts` write their fixtures |
