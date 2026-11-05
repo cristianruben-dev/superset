@@ -182,27 +182,48 @@ def can_certify(resource: Any) -> bool:
 CERTIFICATION_FIELDS = ("certified_by", "certification_details")
 
 
+def _shown_stamp(certified_by: Any, details: Any) -> tuple[Any, Any]:
+    """The stamp as the app shows it: details only count with a certifier."""
+    certified_by = certified_by or None
+    return certified_by, (details or None) if certified_by else None
+
+
 def certification_errors(
     resource: Any, properties: dict[str, Any]
 ) -> list[ValidationError]:
     """
     An error for each certification field an update changes without the right
-    to certify. A field sent back unchanged is not a change ("" and None are the
-    same empty stamp), as the properties dialog sends the whole object.
+    to certify.
+
+    The stamp is compared as the app shows it, as saves send it back with every
+    change ("" and None are the same empty stamp, and details without a
+    certifier show nothing). An update that leaves the shown stamp as it is drops
+    both fields from ``properties``, so the stored values stay untouched.
 
     :param resource: The dashboard or chart being updated
-    :param properties: The update payload
+    :param properties: The update payload, edited in place
     """
-    changed = [
-        field
-        for field in CERTIFICATION_FIELDS
-        if field in properties
-        and (properties[field] or None) != (getattr(resource, field, None) or None)
-    ]
-    if not changed or can_certify(resource):
+    if not any(field in properties for field in CERTIFICATION_FIELDS):
+        return []
+    current = _shown_stamp(resource.certified_by, resource.certification_details)
+    requested = _shown_stamp(
+        properties.get("certified_by", resource.certified_by),
+        properties.get("certification_details", resource.certification_details),
+    )
+    if requested == current:
+        for field in CERTIFICATION_FIELDS:
+            properties.pop(field, None)
+        return []
+    if can_certify(resource):
         return []
     message = __("Only editors and workspace admins can certify.")
-    return [ValidationError([message], field_name=field) for field in changed]
+    return [
+        ValidationError([message], field_name=field)
+        for field, before, after in zip(
+            CERTIFICATION_FIELDS, current, requested, strict=True
+        )
+        if before != after
+    ]
 
 
 def workspace_editable_dashboard_ids() -> Any | None:

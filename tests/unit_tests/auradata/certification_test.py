@@ -79,7 +79,9 @@ def _field_errors(error: Exception) -> dict[str, Any]:
     return error.normalized_messages()  # type: ignore[attr-defined]
 
 
-def test_a_contributor_cannot_certify_a_dashboard(world: dict[str, Any]) -> None:
+def test_a_contributor_cannot_certify_a_dashboard(
+    session: Session, world: dict[str, Any]
+) -> None:
     finanzas = world["finanzas"]
 
     assert not can_certify(finanzas)
@@ -87,6 +89,8 @@ def test_a_contributor_cannot_certify_a_dashboard(world: dict[str, Any]) -> None
         UpdateDashboardCommand(finanzas.id, {"certified_by": "Ana"}).validate()
     assert "certified_by" in _field_errors(error.value)
 
+    finanzas.certified_by = "Finance team"
+    session.flush()
     with pytest.raises(DashboardInvalidError) as error:
         UpdateDashboardCommand(
             finanzas.id, {"certification_details": "Checked"}
@@ -154,3 +158,25 @@ def test_guests_never_certify(mocker: MockerFixture, world: dict[str, Any]) -> N
 
     mocker.patch.object(security_manager, "is_guest_user", return_value=True)
     assert not can_certify(world["finanzas"])
+
+
+def test_details_without_a_certifier_do_not_block_a_contributor(
+    session: Session, world: dict[str, Any]
+) -> None:
+    """The header save sends empty details when nobody certified; details left
+    without a certifier (the MCP tool allows it) show nothing, so sending them
+    empty is no change, and the stored details stay as they are."""
+    finanzas = world["finanzas"]
+    finanzas.certification_details = "Checked against the ledger"
+    session.flush()
+    properties = {
+        "dashboard_title": "Finanzas 2026",
+        "certified_by": "",
+        "certification_details": "",
+    }
+
+    command = UpdateDashboardCommand(finanzas.id, properties)
+    command.validate()
+
+    assert "certification_details" not in command._properties
+    assert "certified_by" not in command._properties
