@@ -47,6 +47,7 @@ Configuration:
 import logging
 from contextlib import AbstractContextManager, contextmanager
 from contextvars import ContextVar
+from dataclasses import dataclass
 from typing import Any, Callable, cast, Generator, TYPE_CHECKING, TypeAlias, TypeVar
 
 from flask import current_app, g, has_app_context, has_request_context
@@ -93,6 +94,41 @@ logger = logging.getLogger(__name__)
 # survives that context pop (mirrors _mcp_call_id_var in middleware.py) so
 # audit logging can attribute the call to the right user.
 _mcp_user_id_var: ContextVar[int | None] = ContextVar("mcp_user_id", default=None)
+
+
+@dataclass(frozen=True)
+class InProcessPrincipal:
+    """The user an in-process tool call runs as, and what it may do.
+
+    ``scopes`` narrow the tools exactly as the scopes of an API key do; None adds
+    no restriction beyond what the user already has.
+    """
+
+    username: str
+    scopes: frozenset[str] | None = None
+
+
+# Set only by ``run_as``, around tools called inside a web request of that user.
+# A ContextVar and not ``g``: tool calls may push their own application context.
+_in_process_principal: ContextVar[InProcessPrincipal | None] = ContextVar(
+    "mcp_in_process_principal", default=None
+)
+
+
+@contextmanager
+def run_as(principal: InProcessPrincipal) -> Generator[None, None, None]:
+    """Run the tool calls of this block as ``principal``.
+
+    Takes precedence over every other identity source, and fails closed: while it
+    is set, a user that cannot be loaded denies the call and never falls through
+    to ``MCP_DEV_USERNAME``, which the web configuration may also define.
+    """
+    token = _in_process_principal.set(principal)
+    try:
+        yield
+    finally:
+        _in_process_principal.reset(token)
+
 
 # An MCP request resolves to a real DB ``User`` or, for embedded guests, a
 # ``GuestUser`` (an AnonymousUserMixin, not a ``User`` subclass). Both are valid
@@ -157,6 +193,9 @@ def _get_token_scopes() -> set[str] | None:
     scope-less JWT deployments). Returns a (possibly populated) set only when
     the token explicitly advertises scopes.
     """
+    if (principal := _in_process_principal.get()) is not None:
+        return None if principal.scopes is None else set(principal.scopes)
+
     try:
         from fastmcp.server.dependencies import get_access_token
     except ImportError:
@@ -805,6 +844,8 @@ def get_user_from_request() -> MCPUser:
     """
     Get the current user for the MCP tool request.
 
+    An in-process principal (see ``run_as``) comes before every source below.
+
     Priority order:
     1. JWT auth context (per-request ContextVar from MCP SDK) — safest. This
        also resolves a verified embedded guest token to a ``GuestUser`` (when
@@ -825,6 +866,12 @@ def get_user_from_request() -> MCPUser:
     Raises:
         ValueError: If user cannot be authenticated or found
     """
+    if (principal := _in_process_principal.get()) is not None:
+        user = load_user_with_relationships(username=principal.username)
+        if user is None:
+            raise PermissionError(f"User '{principal.username}' not found.")
+        return user
+
     # Priority 1: JWT context (per-request safe via ContextVar)
     if (jwt_user := _resolve_user_from_jwt_context(current_app)) is not None:
         return jwt_user

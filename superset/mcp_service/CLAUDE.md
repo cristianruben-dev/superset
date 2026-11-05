@@ -413,6 +413,11 @@ Guest tokens are verified by `GuestTokenVerifier` (in the `CompositeTokenVerifie
 before the JWT verifier) using the shared core `GUEST_TOKEN_JWT_*` config, then
 built into a `GuestUser` in `_resolve_user_from_jwt_context`. See `SECURITY.md`.
 
+The in-app assistant calls tools in the web process, where the web config may also set
+`MCP_DEV_USERNAME`. It wraps those calls in `auth.run_as(InProcessPrincipal(...))`, which comes before
+all four sources and fails closed; its `scopes` narrow tools like an API key's. Never call a tool in
+process without it, and never rely on `g.user` there.
+
 **`@mcp_auth_hook`** is only used directly on **resources** — tools get auth wrapping from `@tool(protect=True)`.
 
 ### 4. Use Pydantic Schemas
