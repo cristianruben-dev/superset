@@ -227,6 +227,364 @@ def serialize(workspace: Workspace, role: str | None = None) -> dict[str, Any]:
     }
 
 
+class WorkspaceError(Exception):
+    """A workspace operation that cannot be done; ``status`` is its HTTP code."""
+
+    status = 400
+
+    def __init__(self, message: Any = None) -> None:
+        super().__init__(message)
+        self.message = message
+
+
+class WorkspaceNotFoundError(WorkspaceError):
+    """The workspace, or an object of the request, does not exist for the user."""
+
+    status = 404
+
+
+class WorkspaceForbiddenError(WorkspaceError):
+    """The user's role, or their rights on an object, do not allow the change."""
+
+    status = 403
+
+
+class WorkspaceInvalidError(WorkspaceError):
+    """The request is malformed; ``message`` holds the field errors."""
+
+    status = 400
+
+
+class WorkspaceConflictError(WorkspaceError):
+    """The change would break a workspace rule, such as the dataset rule."""
+
+    status = 422
+
+
+def _load(schema: Schema, payload: Any) -> dict[str, Any]:
+    try:
+        return schema.load(payload or {})
+    except ValidationError as error:
+        raise WorkspaceInvalidError(error.messages) from error
+
+
+def find_workspace(pk: int, min_role: str = ROLE_VIEWER) -> tuple[Workspace, str]:
+    """
+    The workspace and the current user's role in it.
+
+    :raises WorkspaceNotFoundError: The user does not belong to it
+    :raises WorkspaceForbiddenError: Their role is below ``min_role``
+    """
+    workspace = db.session.query(Workspace).filter(Workspace.id == pk).one_or_none()
+    role = workspace_role(pk) if workspace else None
+    if workspace is None or role is None:
+        raise WorkspaceNotFoundError()
+    if role_rank(role) < role_rank(min_role):
+        raise WorkspaceForbiddenError()
+    return workspace, role
+
+
+def visible_workspaces() -> list[Workspace]:
+    """The workspaces of the current user (all of them for Superset admins)."""
+    query = db.session.query(Workspace)
+    if not security_manager.is_admin():
+        query = query.filter(Workspace.id.in_(member_workspace_ids(get_user_id())))
+    return query.order_by(Workspace.name).all()
+
+
+def create_workspace(payload: Any) -> Workspace:
+    """Create a workspace administered by whoever creates it."""
+    data = _load(WorkspaceSchema(), payload)
+    workspace = Workspace(**data)
+    if user_id := get_user_id():
+        workspace.members.append(WorkspaceMember(user_id=user_id, role=ROLE_ADMIN))
+    db.session.add(workspace)
+    db.session.commit()  # pylint: disable=consider-using-transaction
+    return workspace
+
+
+def update_workspace(pk: int, payload: Any) -> Workspace:
+    """Change the name, description or color of a workspace (its admins)."""
+    workspace, _ = find_workspace(pk, ROLE_ADMIN)
+    data = _load(WorkspaceSchema(partial=True), payload)
+    for key, value in data.items():
+        setattr(workspace, key, value)
+    db.session.commit()  # pylint: disable=consider-using-transaction
+    return workspace
+
+
+def delete_workspace(pk: int) -> None:
+    """Delete a workspace (its admins). Its dashboards and datasets are kept."""
+    workspace, _ = find_workspace(pk, ROLE_ADMIN)
+    db.session.delete(workspace)
+    db.session.commit()  # pylint: disable=consider-using-transaction
+
+
+def workspace_dashboards(workspace: Workspace) -> list[Dashboard]:
+    """The dashboards of a workspace the user can access, latest change first."""
+    ids = [link.dashboard_id for link in workspace.dashboards]
+    dashboards = DashboardDAO.find_by_ids(ids) if ids else []
+    return sorted(
+        dashboards,
+        key=lambda dashboard: dashboard.changed_on or datetime.min,
+        reverse=True,
+    )
+
+
+def workspace_dataset_list(workspace: Workspace) -> list[SqlaTable]:
+    """The datasets of a workspace the user can access, latest change first."""
+    ids = [link.dataset_id for link in workspace.datasets]
+    if not ids:
+        return []
+    return sorted(
+        DatasetDAO.find_by_ids(ids),
+        key=lambda dataset: dataset.changed_on or datetime.min,
+        reverse=True,
+    )
+
+
+def move_dashboards(pk: int, payload: Any) -> Workspace:
+    """
+    Move dashboards into (``add``) or out of (``remove``) a workspace.
+
+    A dashboard lives in one workspace: adding it here takes it out of the
+    previous one. Contributors and admins of the workspace move dashboards, and
+    adding one also needs the right to change it. The charts of a dashboard only
+    use its workspace's datasets or shared ones.
+
+    :raises WorkspaceConflictError: A dashboard would break the dataset rule
+    """
+    workspace, _ = find_workspace(pk, ROLE_CONTRIBUTOR)
+    data = _load(WorkspaceDashboardsSchema(), payload)
+
+    requested = set(data["add"]) | set(data["remove"])
+    dashboards = {d.id: d for d in DashboardDAO.find_by_ids(list(requested))}
+    if set(dashboards) != requested:
+        raise WorkspaceNotFoundError()
+    try:
+        # Bringing a dashboard in needs the right to change it; taking one
+        # out only needs a contributor role here
+        for dashboard_id in data["add"]:
+            security_manager.raise_for_editorship(dashboards[dashboard_id])
+    except SupersetSecurityException as error:
+        raise WorkspaceForbiddenError() from error
+
+    links = (
+        db.session.query(WorkspaceDashboard)
+        .filter(WorkspaceDashboard.dashboard_id.in_(requested))
+        .all()
+    )
+    leaving = [
+        link.dashboard_id
+        for link in links
+        if link.dashboard_id in data["remove"]
+        and link.dashboard_id not in data["add"]
+        and link.workspace_id == workspace.id
+    ]
+    if conflicts := sorted(
+        set(datasets_of_other_workspaces(data["add"], workspace.id))
+        | set(datasets_of_other_workspaces(leaving, None))
+    ):
+        raise WorkspaceConflictError(
+            __(
+                "These dashboards use datasets of another workspace: "
+                "%(datasets)s. Share those datasets first.",
+                datasets=", ".join(conflicts),
+            )
+        )
+    relink(
+        links,
+        "dashboard_id",
+        data["add"],
+        workspace.id,
+        lambda dashboard_id: WorkspaceDashboard(
+            workspace_id=workspace.id, dashboard_id=dashboard_id
+        ),
+    )
+    db.session.commit()  # pylint: disable=consider-using-transaction
+    db.session.refresh(workspace)
+    return workspace
+
+
+def move_datasets(pk: int, payload: Any) -> Workspace:
+    """
+    Move datasets into (``add``) a workspace, or out of it (``remove``) to share
+    them.
+
+    A dataset belongs to one workspace: adding it here takes it out of the
+    previous one, and only works when no dashboard outside this workspace uses
+    it. Contributors and admins of the workspace move datasets, and adding one
+    also needs real editorship of it.
+
+    :raises WorkspaceConflictError: Dashboards outside the workspace use them
+    """
+    workspace, _ = find_workspace(pk, ROLE_CONTRIBUTOR)
+    data = _load(WorkspaceDatasetsSchema(), payload)
+
+    requested = set(data["add"]) | set(data["remove"])
+    datasets = {d.id: d for d in DatasetDAO.find_by_ids(list(requested))}
+    if set(datasets) != requested:
+        raise WorkspaceNotFoundError()
+    try:
+        for dataset_id in data["add"]:
+            security_manager.raise_for_editorship(datasets[dataset_id])
+    except SupersetSecurityException as error:
+        raise WorkspaceForbiddenError() from error
+    if conflicts := datasets_used_outside(data["add"], workspace.id):
+        raise WorkspaceConflictError(
+            __(
+                "Dashboards outside this workspace use these datasets: %(datasets)s.",
+                datasets=", ".join(conflicts),
+            )
+        )
+
+    links = (
+        db.session.query(WorkspaceDataset)
+        .filter(WorkspaceDataset.dataset_id.in_(requested))
+        .all()
+    )
+    relink(
+        links,
+        "dataset_id",
+        data["add"],
+        workspace.id,
+        lambda dataset_id: WorkspaceDataset(
+            workspace_id=workspace.id, dataset_id=dataset_id
+        ),
+    )
+    db.session.commit()  # pylint: disable=consider-using-transaction
+    db.session.refresh(workspace)
+    return workspace
+
+
+def workspace_of_dashboard(dashboard_id: int) -> tuple[Workspace, str] | None:
+    """
+    The workspace a dashboard lives in and the user's role there, or None when
+    it has none or the user does not belong to it (workspaces stay private).
+
+    :raises WorkspaceNotFoundError: The user cannot see the dashboard
+    """
+    if DashboardDAO.find_by_id(dashboard_id) is None:
+        raise WorkspaceNotFoundError()
+    link = (
+        db.session.query(WorkspaceDashboard)
+        .filter(WorkspaceDashboard.dashboard_id == dashboard_id)
+        .one_or_none()
+    )
+    role = workspace_role(link.workspace_id) if link else None
+    if link is None or role is None:
+        return None
+    return link.workspace, role
+
+
+def workspace_of_dataset(dataset_id: int) -> tuple[Workspace, str] | None:
+    """
+    The workspace a dataset belongs to and the user's role there, or None when
+    it is shared or the user does not belong to it.
+
+    :raises WorkspaceNotFoundError: The user cannot see the dataset
+    """
+    if DatasetDAO.find_by_id(dataset_id) is None:
+        raise WorkspaceNotFoundError()
+    link = (
+        db.session.query(WorkspaceDataset)
+        .filter(WorkspaceDataset.dataset_id == dataset_id)
+        .one_or_none()
+    )
+    role = workspace_role(link.workspace_id) if link else None
+    if link is None or role is None:
+        return None
+    return link.workspace, role
+
+
+def workspace_members(pk: int) -> list[WorkspaceMember]:
+    """The members of a workspace, admins first, then by first name."""
+    workspace, _ = find_workspace(pk)
+    return sorted(
+        (member for member in workspace.members if member.user),
+        key=lambda member: (
+            -role_rank(member.role),
+            (member.user.first_name or "").lower(),
+        ),
+    )
+
+
+def is_last_admin(workspace: Workspace, member: WorkspaceMember) -> bool:
+    """Whether the member is the only admin of the workspace."""
+    admins = [m for m in workspace.members if m.role == ROLE_ADMIN]
+    return member.role == ROLE_ADMIN and len(admins) == 1
+
+
+def set_member(pk: int, payload: Any) -> tuple[Workspace, str]:
+    """
+    Add an active user to a workspace, or change their role (its admins).
+
+    :raises WorkspaceInvalidError: It would leave the workspace without an admin
+    """
+    workspace, role = find_workspace(pk, ROLE_ADMIN)
+    data = _load(WorkspaceMemberSchema(), payload)
+    user = (
+        db.session.query(security_manager.user_model)
+        .filter(security_manager.user_model.id == data["user_id"])
+        .one_or_none()
+    )
+    if user is None or not user.active:
+        raise WorkspaceNotFoundError()
+
+    member = next((m for m in workspace.members if m.user_id == data["user_id"]), None)
+    if member is None:
+        workspace.members.append(WorkspaceMember(user_id=user.id, role=data["role"]))
+    else:
+        if is_last_admin(workspace, member) and data["role"] != ROLE_ADMIN:
+            raise WorkspaceInvalidError("A workspace needs at least one admin")
+        member.role = data["role"]
+    db.session.commit()  # pylint: disable=consider-using-transaction
+    db.session.refresh(workspace)
+    return workspace, role
+
+
+def remove_member(pk: int, user_id: int) -> tuple[Workspace, str | None]:
+    """
+    Remove a member. Admins remove anyone; any member can leave.
+
+    :returns: The workspace and the user's role in it afterwards (None when
+        they left it)
+    :raises WorkspaceInvalidError: It would leave the workspace without an admin
+    """
+    leaving = user_id == get_user_id()
+    workspace, _ = find_workspace(pk, ROLE_VIEWER if leaving else ROLE_ADMIN)
+    member = next((m for m in workspace.members if m.user_id == user_id), None)
+    if member is None:
+        raise WorkspaceNotFoundError()
+    if is_last_admin(workspace, member):
+        raise WorkspaceInvalidError("A workspace needs at least one admin")
+    workspace.members.remove(member)
+    db.session.commit()  # pylint: disable=consider-using-transaction
+    db.session.refresh(workspace)
+    return workspace, workspace_role(workspace.id)
+
+
+def member_candidates(pk: int, text: str | None = None) -> list[Any]:
+    """Up to 20 active users who are not members yet (for the admins to add)."""
+    workspace, _ = find_workspace(pk, ROLE_ADMIN)
+    user_model = security_manager.user_model
+    query = db.session.query(user_model).filter(
+        user_model.active.is_(True),
+        ~user_model.id.in_([member.user_id for member in workspace.members]),
+    )
+    if text := (text or "").strip():
+        pattern = f"%{text}%"
+        query = query.filter(
+            or_(
+                user_model.first_name.ilike(pattern),
+                user_model.last_name.ilike(pattern),
+                user_model.username.ilike(pattern),
+                user_model.email.ilike(pattern),
+            )
+        )
+    return query.order_by(user_model.first_name).limit(20).all()
+
+
 class WorkspaceRestApi(BaseSupersetApi):
     """Workspaces group dashboards, each with a name, picture and description."""
 
@@ -262,13 +620,21 @@ class WorkspaceRestApi(BaseSupersetApi):
         The workspace, the user's role in it, or the error to return: 404 when the
         user does not belong to it, 403 when their role is below ``min_role``.
         """
-        workspace = db.session.query(Workspace).filter(Workspace.id == pk).one_or_none()
-        role = workspace_role(pk) if workspace else None
-        if workspace is None or role is None:
-            return None, None, self.response_404()
-        if role_rank(role) < role_rank(min_role):
-            return None, None, self.response_403()
+        try:
+            workspace, role = find_workspace(pk, min_role)
+        except WorkspaceError as error:
+            return None, None, self._error(error)
         return workspace, role, None
+
+    def _error(self, error: WorkspaceError) -> Response:
+        """The response of a workspace operation that could not be done."""
+        if isinstance(error, WorkspaceNotFoundError):
+            return self.response_404()
+        if isinstance(error, WorkspaceForbiddenError):
+            return self.response_403()
+        if isinstance(error, WorkspaceConflictError):
+            return self.response_422(message=error.message)
+        return self.response_400(message=error.message)
 
     @expose("/", methods=("GET",))
     @protect()
@@ -285,11 +651,7 @@ class WorkspaceRestApi(BaseSupersetApi):
             401:
               $ref: '#/components/responses/401'
         """
-        query = db.session.query(Workspace)
-        if not security_manager.is_admin():
-            query = query.filter(Workspace.id.in_(member_workspace_ids(get_user_id())))
-        workspaces = query.order_by(Workspace.name).all()
-        return self.response(200, result=[serialize(ws) for ws in workspaces])
+        return self.response(200, result=[serialize(ws) for ws in visible_workspaces()])
 
     @expose("/<int:pk>/", methods=("GET",))
     @protect()
@@ -338,15 +700,9 @@ class WorkspaceRestApi(BaseSupersetApi):
               $ref: '#/components/responses/400'
         """
         try:
-            data = WorkspaceSchema().load(request.json or {})
-        except ValidationError as error:
-            return self.response_400(message=error.messages)
-        workspace = Workspace(**data)
-        if user_id := get_user_id():
-            # Whoever creates a workspace administers it
-            workspace.members.append(WorkspaceMember(user_id=user_id, role=ROLE_ADMIN))
-        db.session.add(workspace)
-        db.session.commit()  # pylint: disable=consider-using-transaction
+            workspace = create_workspace(request.json)
+        except WorkspaceError as error:
+            return self._error(error)
         return self.response(201, result=serialize(workspace))
 
     @expose("/<int:pk>/", methods=("PUT",))
@@ -379,16 +735,10 @@ class WorkspaceRestApi(BaseSupersetApi):
             404:
               $ref: '#/components/responses/404'
         """
-        workspace, _, error_response = self._find(pk, ROLE_ADMIN)
-        if workspace is None:
-            return error_response
         try:
-            data = WorkspaceSchema(partial=True).load(request.json or {})
-        except ValidationError as error:
-            return self.response_400(message=error.messages)
-        for key, value in data.items():
-            setattr(workspace, key, value)
-        db.session.commit()  # pylint: disable=consider-using-transaction
+            workspace = update_workspace(pk, request.json)
+        except WorkspaceError as error:
+            return self._error(error)
         return self.response(200, result=serialize(workspace))
 
     @expose("/<int:pk>/", methods=("DELETE",))
@@ -413,11 +763,10 @@ class WorkspaceRestApi(BaseSupersetApi):
             404:
               $ref: '#/components/responses/404'
         """
-        workspace, _, error_response = self._find(pk, ROLE_ADMIN)
-        if workspace is None:
-            return error_response
-        db.session.delete(workspace)
-        db.session.commit()  # pylint: disable=consider-using-transaction
+        try:
+            delete_workspace(pk)
+        except WorkspaceError as error:
+            return self._error(error)
         return self.response(200, message="OK")
 
     @expose("/<int:pk>/image/", methods=("GET",))
@@ -553,13 +902,7 @@ class WorkspaceRestApi(BaseSupersetApi):
         workspace, _, error_response = self._find(pk)
         if workspace is None:
             return error_response
-        ids = [link.dashboard_id for link in workspace.dashboards]
-        dashboards = DashboardDAO.find_by_ids(ids) if ids else []
-        dashboards = sorted(
-            dashboards,
-            key=lambda dashboard: dashboard.changed_on or datetime.min,
-            reverse=True,
-        )
+        dashboards = workspace_dashboards(workspace)
         return self.response(
             200,
             result=[
@@ -677,61 +1020,10 @@ class WorkspaceRestApi(BaseSupersetApi):
             404:
               $ref: '#/components/responses/404'
         """
-        workspace, _, error_response = self._find(pk, ROLE_CONTRIBUTOR)
-        if workspace is None:
-            return error_response
         try:
-            data = WorkspaceDashboardsSchema().load(request.json or {})
-        except ValidationError as error:
-            return self.response_400(message=error.messages)
-
-        requested = set(data["add"]) | set(data["remove"])
-        dashboards = {d.id: d for d in DashboardDAO.find_by_ids(list(requested))}
-        if set(dashboards) != requested:
-            return self.response_404()
-        try:
-            # Bringing a dashboard in needs the right to change it; taking one
-            # out only needs a contributor role here
-            for dashboard_id in data["add"]:
-                security_manager.raise_for_editorship(dashboards[dashboard_id])
-        except SupersetSecurityException:
-            return self.response_403()
-
-        links = (
-            db.session.query(WorkspaceDashboard)
-            .filter(WorkspaceDashboard.dashboard_id.in_(requested))
-            .all()
-        )
-        # The charts of a dashboard only use its workspace's datasets or shared ones
-        leaving = [
-            link.dashboard_id
-            for link in links
-            if link.dashboard_id in data["remove"]
-            and link.dashboard_id not in data["add"]
-            and link.workspace_id == workspace.id
-        ]
-        if conflicts := sorted(
-            set(datasets_of_other_workspaces(data["add"], workspace.id))
-            | set(datasets_of_other_workspaces(leaving, None))
-        ):
-            return self.response_422(
-                message=__(
-                    "These dashboards use datasets of another workspace: "
-                    "%(datasets)s. Share those datasets first.",
-                    datasets=", ".join(conflicts),
-                )
-            )
-        relink(
-            links,
-            "dashboard_id",
-            data["add"],
-            workspace.id,
-            lambda dashboard_id: WorkspaceDashboard(
-                workspace_id=workspace.id, dashboard_id=dashboard_id
-            ),
-        )
-        db.session.commit()  # pylint: disable=consider-using-transaction
-        db.session.refresh(workspace)
+            workspace = move_dashboards(pk, request.json)
+        except WorkspaceError as error:
+            return self._error(error)
         return self.response(200, result=serialize(workspace))
 
     @expose("/<int:pk>/datasets/", methods=("GET",))
@@ -757,16 +1049,7 @@ class WorkspaceRestApi(BaseSupersetApi):
         workspace, _, error_response = self._find(pk)
         if workspace is None:
             return error_response
-        ids = [link.dataset_id for link in workspace.datasets]
-        datasets = (
-            sorted(
-                DatasetDAO.find_by_ids(ids),
-                key=lambda dataset: dataset.changed_on or datetime.min,
-                reverse=True,
-            )
-            if ids
-            else []
-        )
+        datasets = workspace_dataset_list(workspace)
         return self.response(
             200,
             result=[
@@ -831,48 +1114,10 @@ class WorkspaceRestApi(BaseSupersetApi):
             422:
               $ref: '#/components/responses/422'
         """
-        workspace, _, error_response = self._find(pk, ROLE_CONTRIBUTOR)
-        if workspace is None:
-            return error_response
         try:
-            data = WorkspaceDatasetsSchema().load(request.json or {})
-        except ValidationError as error:
-            return self.response_400(message=error.messages)
-
-        requested = set(data["add"]) | set(data["remove"])
-        datasets = {d.id: d for d in DatasetDAO.find_by_ids(list(requested))}
-        if set(datasets) != requested:
-            return self.response_404()
-        try:
-            for dataset_id in data["add"]:
-                security_manager.raise_for_editorship(datasets[dataset_id])
-        except SupersetSecurityException:
-            return self.response_403()
-        if conflicts := datasets_used_outside(data["add"], workspace.id):
-            return self.response_422(
-                message=__(
-                    "Dashboards outside this workspace use these datasets: "
-                    "%(datasets)s.",
-                    datasets=", ".join(conflicts),
-                )
-            )
-
-        links = (
-            db.session.query(WorkspaceDataset)
-            .filter(WorkspaceDataset.dataset_id.in_(requested))
-            .all()
-        )
-        relink(
-            links,
-            "dataset_id",
-            data["add"],
-            workspace.id,
-            lambda dataset_id: WorkspaceDataset(
-                workspace_id=workspace.id, dataset_id=dataset_id
-            ),
-        )
-        db.session.commit()  # pylint: disable=consider-using-transaction
-        db.session.refresh(workspace)
+            workspace = move_datasets(pk, request.json)
+        except WorkspaceError as error:
+            return self._error(error)
         return self.response(200, result=serialize(workspace))
 
     @expose("/of_dashboard/<int:dashboard_id>/", methods=("GET",))
@@ -895,18 +1140,14 @@ class WorkspaceRestApi(BaseSupersetApi):
             404:
               $ref: '#/components/responses/404'
         """
-        if DashboardDAO.find_by_id(dashboard_id) is None:
-            return self.response_404()
-        link = (
-            db.session.query(WorkspaceDashboard)
-            .filter(WorkspaceDashboard.dashboard_id == dashboard_id)
-            .one_or_none()
-        )
-        role = workspace_role(link.workspace_id) if link else None
-        if link is None or role is None:
+        try:
+            found = workspace_of_dashboard(dashboard_id)
+        except WorkspaceError as error:
+            return self._error(error)
+        if found is None:
             # Workspaces the user does not belong to stay private
             return self.response(200, result=None)
-        workspace = link.workspace
+        workspace, role = found
         return self.response(
             200,
             result={
@@ -938,16 +1179,10 @@ class WorkspaceRestApi(BaseSupersetApi):
             404:
               $ref: '#/components/responses/404'
         """
-        workspace, _, error_response = self._find(pk)
-        if workspace is None:
-            return error_response
-        members = sorted(
-            (member for member in workspace.members if member.user),
-            key=lambda member: (
-                -role_rank(member.role),
-                (member.user.first_name or "").lower(),
-            ),
-        )
+        try:
+            members = workspace_members(pk)
+        except WorkspaceError as error:
+            return self._error(error)
         return self.response(
             200,
             result=[
@@ -996,34 +1231,10 @@ class WorkspaceRestApi(BaseSupersetApi):
             404:
               $ref: '#/components/responses/404'
         """
-        workspace, role, error_response = self._find(pk, ROLE_ADMIN)
-        if workspace is None:
-            return error_response
         try:
-            data = WorkspaceMemberSchema().load(request.json or {})
-        except ValidationError as error:
-            return self.response_400(message=error.messages)
-        user = (
-            db.session.query(security_manager.user_model)
-            .filter(security_manager.user_model.id == data["user_id"])
-            .one_or_none()
-        )
-        if user is None or not user.active:
-            return self.response_404()
-
-        member = next(
-            (m for m in workspace.members if m.user_id == data["user_id"]), None
-        )
-        if member is None:
-            workspace.members.append(
-                WorkspaceMember(user_id=user.id, role=data["role"])
-            )
-        else:
-            if self._is_last_admin(workspace, member) and data["role"] != ROLE_ADMIN:
-                return self.response_400(message="A workspace needs at least one admin")
-            member.role = data["role"]
-        db.session.commit()  # pylint: disable=consider-using-transaction
-        db.session.refresh(workspace)
+            workspace, role = set_member(pk, request.json)
+        except WorkspaceError as error:
+            return self._error(error)
         return self.response(200, result=serialize(workspace, role))
 
     @expose("/<int:pk>/members/<int:user_id>/", methods=("DELETE",))
@@ -1054,21 +1265,10 @@ class WorkspaceRestApi(BaseSupersetApi):
             404:
               $ref: '#/components/responses/404'
         """
-        leaving = user_id == get_user_id()
-        workspace, _, error_response = self._find(
-            pk, ROLE_VIEWER if leaving else ROLE_ADMIN
-        )
-        if workspace is None:
-            return error_response
-        member = next((m for m in workspace.members if m.user_id == user_id), None)
-        if member is None:
-            return self.response_404()
-        if self._is_last_admin(workspace, member):
-            return self.response_400(message="A workspace needs at least one admin")
-        workspace.members.remove(member)
-        db.session.commit()  # pylint: disable=consider-using-transaction
-        db.session.refresh(workspace)
-        role = workspace_role(workspace.id)
+        try:
+            workspace, role = remove_member(pk, user_id)
+        except WorkspaceError as error:
+            return self._error(error)
         return self.response(200, result=serialize(workspace, role) if role else None)
 
     @expose("/<int:pk>/member_candidates/", methods=("GET",))
@@ -1097,34 +1297,14 @@ class WorkspaceRestApi(BaseSupersetApi):
             404:
               $ref: '#/components/responses/404'
         """
-        workspace, _, error_response = self._find(pk, ROLE_ADMIN)
-        if workspace is None:
-            return error_response
-        user_model = security_manager.user_model
-        query = db.session.query(user_model).filter(
-            user_model.active.is_(True),
-            ~user_model.id.in_([member.user_id for member in workspace.members]),
-        )
-        if text := (request.args.get("q") or "").strip():
-            pattern = f"%{text}%"
-            query = query.filter(
-                or_(
-                    user_model.first_name.ilike(pattern),
-                    user_model.last_name.ilike(pattern),
-                    user_model.username.ilike(pattern),
-                    user_model.email.ilike(pattern),
-                )
-            )
-        users = query.order_by(user_model.first_name).limit(20).all()
+        try:
+            users = member_candidates(pk, request.args.get("q"))
+        except WorkspaceError as error:
+            return self._error(error)
         return self.response(
             200,
             result=[{**user_dict(user), "username": user.username} for user in users],
         )
-
-    @staticmethod
-    def _is_last_admin(workspace: Workspace, member: WorkspaceMember) -> bool:
-        admins = [m for m in workspace.members if m.role == ROLE_ADMIN]
-        return member.role == ROLE_ADMIN and len(admins) == 1
 
 
 class WorkspaceView(BaseSupersetView):
