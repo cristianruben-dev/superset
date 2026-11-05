@@ -44,10 +44,7 @@ import { DashboardPageIdContext } from 'src/dashboard/containers/DashboardPage';
 import type { RootState } from 'src/dashboard/types';
 import { openChartEditor } from 'src/auradata/chartEditor';
 import Control from 'src/explore/components/Control';
-import {
-  getSectionsToRender,
-  isQuerySection,
-} from 'src/explore/controlUtils/getSectionsToRender';
+import { getSectionsToRender } from 'src/explore/controlUtils/getSectionsToRender';
 import { getControlStateFromControlConfig } from 'src/explore/controlUtils/getControlState';
 import {
   legacyCardFormat,
@@ -60,6 +57,7 @@ import type { VisualFormat } from './types';
 import {
   buildFormatCards,
   cardControlNames,
+  lookSections as lookSectionsOf,
   type FormatCard,
   type FormatCardItem,
 } from './formatCards';
@@ -174,12 +172,7 @@ function buildControls(
   const sections = getSectionsToRender(vizType, datasourceType).filter(
     Boolean,
   ) as ControlPanelSectionConfig[];
-  const lookSections = sections.filter(
-    section =>
-      // Small multiples ask for data, but are part of the Analytics level
-      (section.tabOverride === 'matrixify' || !isQuerySection(section)) &&
-      section.controlSetRows?.length > 0,
-  );
+  const lookSections = lookSectionsOf(sections);
   const formData = panelState.form_data as unknown as FormData;
   const controls = seedControls(sections, formData, panelState.datasource);
   const state = { ...panelState, controls } as ControlPanelState;

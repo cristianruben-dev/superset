@@ -21,6 +21,7 @@ import type {
   ControlPanelSectionConfig,
   CustomControlItem,
 } from '@superset-ui/chart-controls';
+import { isQuerySection } from 'src/explore/controlUtils/getSectionsToRender';
 
 /** The control whose switch sits in the heading of a section of the pane. */
 export interface CardToggle {
@@ -1043,6 +1044,18 @@ export function buildFormatCards(
   );
   return cards;
 }
+
+/**
+ * The sections of a control panel that hold the look of a chart: those of the
+ * Format pane, not of its data.
+ */
+export const lookSections = (sections: ControlPanelSectionConfig[]) =>
+  sections.filter(
+    section =>
+      // Small multiples ask for data, but are part of the Analytics level
+      (section.tabOverride === 'matrixify' || !isQuerySection(section)) &&
+      section.controlSetRows?.length > 0,
+  );
 
 /** The controls a section can reset, its switch included. */
 export const cardControlNames = (card: FormatCard) => [
