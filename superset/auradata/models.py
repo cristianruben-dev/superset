@@ -24,10 +24,10 @@ from sqlalchemy.orm import deferred, relationship
 
 from superset.models.helpers import AuditMixinNullable, UUIDMixin
 
-WORKSPACES_TABLE = "mibi_workspaces"
-WORKSPACE_DASHBOARDS_TABLE = "mibi_workspace_dashboards"
-WORKSPACE_MEMBERS_TABLE = "mibi_workspace_members"
-WORKSPACE_DATASETS_TABLE = "mibi_workspace_datasets"
+WORKSPACES_TABLE = "auradata_workspaces"
+WORKSPACE_DASHBOARDS_TABLE = "auradata_workspace_dashboards"
+WORKSPACE_MEMBERS_TABLE = "auradata_workspace_members"
+WORKSPACE_DATASETS_TABLE = "auradata_workspace_datasets"
 
 # Workspace roles, from the least to the most rights
 ROLE_VIEWER = "viewer"
@@ -126,7 +126,7 @@ class WorkspaceMember(Model):
     __tablename__ = WORKSPACE_MEMBERS_TABLE
     __table_args__ = (
         sa.UniqueConstraint(
-            "workspace_id", "user_id", name="uq_mibi_workspace_members"
+            "workspace_id", "user_id", name="uq_auradata_workspace_members"
         ),
     )
 
@@ -145,7 +145,7 @@ class WorkspaceMember(Model):
     user = relationship("User", foreign_keys=[user_id])
 
 
-DASHBOARD_BACKGROUNDS_TABLE = "mibi_dashboard_backgrounds"
+DASHBOARD_BACKGROUNDS_TABLE = "auradata_dashboard_backgrounds"
 
 
 class DashboardBackground(Model):
@@ -163,7 +163,7 @@ class DashboardBackground(Model):
     changed_on = sa.Column(sa.DateTime, nullable=False)
 
 
-DASHBOARD_IMAGES_TABLE = "mibi_dashboard_images"
+DASHBOARD_IMAGES_TABLE = "auradata_dashboard_images"
 
 
 class DashboardImage(Model):

@@ -44,7 +44,7 @@ def bookmarked_positions(chart_id: int) -> dict[str, Any]:
         "ROOT_ID": {
             "type": "ROOT",
             "meta": {
-                "mibiBookmarks": [
+                "auradataBookmarks": [
                     {
                         "id": "b1",
                         "name": "North",
@@ -67,7 +67,7 @@ def test_remap_bookmark_chart_ids_keeps_native_filters() -> None:
 
     remap_bookmark_chart_ids(positions, {59: 104})
 
-    filters = positions["ROOT_ID"]["meta"]["mibiBookmarks"][0]["filters"]
+    filters = positions["ROOT_ID"]["meta"]["auradataBookmarks"][0]["filters"]
     assert set(filters) == {"104", "NATIVE_FILTER-abc"}
     assert filters["104"] == {"filterState": {"value": ["North"]}}
 
@@ -147,7 +147,7 @@ def test_copy_dashboard_points_bookmarks_at_the_copies(
     new_id = copied.slices[0].id
     assert new_id != chart.id
     positions = json.loads(copied.position_json)
-    filters = positions["ROOT_ID"]["meta"]["mibiBookmarks"][0]["filters"]
+    filters = positions["ROOT_ID"]["meta"]["auradataBookmarks"][0]["filters"]
     assert set(filters) == {str(new_id), "NATIVE_FILTER-abc"}
     assert json.loads(copied.json_metadata)["chart_configuration"] == {
         str(new_id): {"id": new_id}

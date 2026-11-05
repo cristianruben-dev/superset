@@ -44,10 +44,10 @@ def generate_id(prefix: str) -> str:
 # in cells is marked on its root, sizes every object in cells and places charts,
 # elements and text boxes at an absolute cell of their page.
 CELL = 32
-CELLS_KEY = "mibiCells"
-CANVAS_FORMAT_KEY = "mibiCanvas"
-POS_KEY = "mibiPos"
-LEGACY_COLUMN_COUNT_KEY = "mibiColumns"
+CELLS_KEY = "auradataCells"
+CANVAS_FORMAT_KEY = "auradataCanvas"
+POS_KEY = "auradataPos"
+LEGACY_COLUMN_COUNT_KEY = "auradataColumns"
 # Page presets in cells (width, height); 16:9 is the default
 CANVAS_PRESETS: dict[str, tuple[int, int]] = {
     "16:9": (60, 34),
@@ -98,7 +98,7 @@ def layout_column_count(layout: dict[str, Any]) -> int:
     """
     The columns of a dashboard layout. A layout in cells has as many columns as
     its page is wide in cells; one from before the cell grid uses 12, or the 24
-    or 48 it kept on the root as ``mibiColumns``.
+    or 48 it kept on the root as ``auradataColumns``.
     """
     if is_in_cells(layout):
         return canvas_cells(layout)[0]

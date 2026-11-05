@@ -19,7 +19,7 @@
 When a dashboard is copied (or imported) its charts get new ids. Besides the
 layout, these places name charts by id and must follow them:
 
-- ``ROOT_ID.meta.mibiBookmarks[].filters``: the saved selections of a bookmark,
+- ``ROOT_ID.meta.auradataBookmarks[].filters``: the saved selections of a bookmark,
   by data mask id; cross-filters use the chart id as key.
 - ``chart_configuration`` and ``global_chart_configuration``: the cross-filter
   scopes of "Edit interactions".
@@ -31,7 +31,7 @@ from __future__ import annotations
 
 from typing import Any
 
-BOOKMARKS_KEY = "mibiBookmarks"
+BOOKMARKS_KEY = "auradataBookmarks"
 
 
 def _new_key(key: str, id_map: dict[int, int]) -> str:

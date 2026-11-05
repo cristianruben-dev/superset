@@ -16578,7 +16578,7 @@ msgid "© Layer attribution"
 msgstr "© Atribución de la capa"
 
 # AuraData BI: charts belong to a single dashboard
-# (superset/mibi/single_dashboard.py)
+# (superset/auradata/single_dashboard.py)
 msgid "A chart can only belong to one dashboard."
 msgstr "Un gráfico solo puede pertenecer a un tablero."
 
@@ -16606,7 +16606,7 @@ msgstr ""
 "pertenecen a otro tablero: %(chart_ids)s"
 
 # AuraData BI: a workspace role edits but never changes editors or viewers
-# (superset/mibi/workspace_access.py)
+# (superset/auradata/workspace_access.py)
 msgid "Only its editors can change who edits or views it."
 msgstr "Solo sus editores pueden cambiar quién lo edita o lo ve."
 

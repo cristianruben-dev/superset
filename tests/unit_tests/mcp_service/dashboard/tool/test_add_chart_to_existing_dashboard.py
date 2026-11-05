@@ -505,7 +505,7 @@ def _cells_layout() -> dict[str, object]:
             "type": "ROOT",
             "id": "ROOT_ID",
             "children": ["GRID_ID"],
-            "meta": {"mibiCells": True},
+            "meta": {"auradataCells": True},
         },
         "GRID_ID": {
             "type": "GRID",
@@ -528,7 +528,7 @@ def _cells_layout() -> dict[str, object]:
                 "chartId": 5,
                 "width": 12,
                 "height": 12,
-                "mibiPos": {"x": 0, "y": 0},
+                "auradataPos": {"x": 0, "y": 0},
             },
             "parents": ["ROOT_ID", "GRID_ID", "ROW-1"],
         },
@@ -576,12 +576,12 @@ async def test_add_to_cells_layout_uses_cells_and_a_free_cell(
     meta = stored["CHART-10"]["meta"]
     assert meta["width"] == 12
     assert meta["height"] == 12
-    assert meta["mibiPos"] == {"x": 12, "y": 0}
+    assert meta["auradataPos"] == {"x": 12, "y": 0}
     column = stored[stored["CHART-10"]["parents"][-1]]
     assert column["type"] == "COLUMN"
     assert column["meta"]["width"] == 12
     # The chart already there keeps its place
-    assert stored["CHART-5"]["meta"]["mibiPos"] == {"x": 0, "y": 0}
+    assert stored["CHART-5"]["meta"]["auradataPos"] == {"x": 0, "y": 0}
 
 
 @pytest.mark.asyncio
@@ -600,7 +600,7 @@ async def test_add_to_full_cells_page_goes_below_the_lowest_object(
     stored = await _add_chart_to(json.dumps(layout), mcp_server)
 
     # 16:9 is 34 cells tall: 30 would leave the page, so it stops at 34 - 12
-    assert stored["CHART-10"]["meta"]["mibiPos"] == {"x": 0, "y": 22}
+    assert stored["CHART-10"]["meta"]["auradataPos"] == {"x": 0, "y": 22}
 
 
 @pytest.mark.asyncio
@@ -611,11 +611,11 @@ async def test_add_to_legacy_layout_keeps_column_units(mcp_server: object) -> No
 
     layout = _cells_layout()
     del layout["ROOT_ID"]["meta"]  # type: ignore[attr-defined]
-    del layout["CHART-5"]["meta"]["mibiPos"]  # type: ignore[index]
+    del layout["CHART-5"]["meta"]["auradataPos"]  # type: ignore[index]
 
     stored = await _add_chart_to(json.dumps(layout), mcp_server)
 
     meta = stored["CHART-10"]["meta"]
     assert meta["width"] == 4
     assert meta["height"] == 50
-    assert "mibiPos" not in meta
+    assert "auradataPos" not in meta

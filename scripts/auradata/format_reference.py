@@ -213,7 +213,7 @@ layout: dict[str, Any] = {
         "id": "ROOT_ID",
         "type": "ROOT",
         "children": ["GRID_ID"],
-        "meta": {"mibiCells": True},
+        "meta": {"auradataCells": True},
     },
     "GRID_ID": {
         "id": "GRID_ID",
@@ -268,7 +268,7 @@ for i, (name, viz, params) in enumerate(CHARTS):
             "sliceName": name,
             "width": W,
             "height": H,
-            "mibiPos": {"x": (i % COLS) * W, "y": (i // COLS) * H},
+            "auradataPos": {"x": (i % COLS) * W, "y": (i // COLS) * H},
         },
     }
 

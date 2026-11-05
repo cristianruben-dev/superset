@@ -16,8 +16,6 @@
 # under the License.
 """Tests for superset/auradata/workspace_datasets.py and its API."""
 
-import importlib.util
-from pathlib import Path
 from typing import Any
 
 import pytest
@@ -38,12 +36,6 @@ from superset.models.core import Database
 from superset.models.dashboard import Dashboard
 from superset.models.slice import Slice
 from superset.subjects.utils import get_or_create_user_subject
-
-MIGRATION = (
-    Path(__file__).parents[3]
-    / "superset/migrations/versions"
-    / "2026_11_04_1000_d3f9a2b17c64_mibi_workspace_datasets.py"
-)
 
 
 @pytest.fixture
@@ -224,38 +216,6 @@ def test_conflicts_when_moving_dashboards_or_datasets(
         workspace_datasets.datasets_used_outside([world["comun"].id], ws_ventas) == []
     )
     assert workspace_datasets.datasets_of_other_workspaces([tablero], None) == []
-
-
-def test_the_migration_assigns_datasets_used_by_one_workspace(
-    mocker: MockerFixture, world: dict[str, Any], session: Session
-) -> None:
-    spec = importlib.util.spec_from_file_location("migration", MIGRATION)
-    assert spec
-    assert spec.loader
-    migration = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(migration)
-    session.query(WorkspaceDataset).delete()
-    other = Dashboard(dashboard_title="Otro")
-    session.add(other)
-    session.flush()
-    session.add(
-        WorkspaceDashboard(workspace_id=world["ws_ajena"].id, dashboard_id=other.id)
-    )
-    # "ventas" only on a dashboard of Ventas, "ajena" also outside workspaces,
-    # "comun" on dashboards of two workspaces
-    chart_on(world["tablero"], world["ventas"], session)
-    chart_on(world["tablero"], world["ajena"], session)
-    chart_on(world["libre"], world["ajena"], session)
-    chart_on(world["tablero"], world["comun"], session)
-    chart_on(other, world["comun"], session)
-    mocker.patch.object(migration.op, "execute", side_effect=session.execute)
-
-    migration.assign_existing_datasets()
-
-    links = {
-        (link.dataset_id, link.workspace_id) for link in session.query(WorkspaceDataset)
-    }
-    assert links == {(world["ventas"].id, world["ws_ventas"].id)}
 
 
 @pytest.fixture

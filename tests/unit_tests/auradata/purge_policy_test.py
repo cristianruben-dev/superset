@@ -51,12 +51,12 @@ def owned_tables(model: type) -> set[str]:
 def test_dashboard_purge_removes_its_format_and_workspace_link() -> None:
     """A dashboard takes its backgrounds, images and workspace link with it."""
     assert {
-        "mibi_dashboard_backgrounds",
-        "mibi_dashboard_images",
-        "mibi_workspace_dashboards",
+        "auradata_dashboard_backgrounds",
+        "auradata_dashboard_images",
+        "auradata_workspace_dashboards",
     } <= owned_tables(Dashboard)
 
 
 def test_dataset_purge_removes_its_workspace_link() -> None:
     """A dataset takes its workspace link with it."""
-    assert "mibi_workspace_datasets" in owned_tables(SqlaTable)
+    assert "auradata_workspace_datasets" in owned_tables(SqlaTable)

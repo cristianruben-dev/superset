@@ -36,21 +36,21 @@ from superset.mcp_service.dashboard.tool.add_chart_to_existing_dashboard import 
     [
         ({}, 12),
         ({"ROOT_ID": {"meta": {}}}, 12),
-        ({"ROOT_ID": {"meta": {"mibiColumns": 48}}}, 48),
-        ({"ROOT_ID": {"meta": {"mibiColumns": 7}}}, 12),
+        ({"ROOT_ID": {"meta": {"auradataColumns": 48}}}, 48),
+        ({"ROOT_ID": {"meta": {"auradataColumns": 7}}}, 12),
         ({"ROOT_ID": "broken"}, 12),
         # A layout in cells has the columns of its page, in cells
-        ({"ROOT_ID": {"meta": {"mibiCells": True}}}, 60),
+        ({"ROOT_ID": {"meta": {"auradataCells": True}}}, 60),
         (
-            {"ROOT_ID": {"meta": {"mibiCells": True, "mibiColumns": 48}}},
+            {"ROOT_ID": {"meta": {"auradataCells": True, "auradataColumns": 48}}},
             60,
         ),
         (
             {
                 "ROOT_ID": {
                     "meta": {
-                        "mibiCells": True,
-                        "mibiCanvas": {"size": {"mode": "4:3"}},
+                        "auradataCells": True,
+                        "auradataCanvas": {"size": {"mode": "4:3"}},
                     }
                 }
             },
@@ -74,7 +74,7 @@ def test_a_chart_added_to_a_48_column_dashboard() -> None:
             "type": "ROOT",
             "id": "ROOT_ID",
             "children": ["GRID_ID"],
-            "meta": {"mibiColumns": 48},
+            "meta": {"auradataColumns": 48},
         },
         "GRID_ID": {
             "type": "GRID",
@@ -104,5 +104,5 @@ def test_a_chart_added_to_a_48_column_dashboard() -> None:
 )
 def test_canvas_cells(size: dict[str, Any] | None, expected: tuple[int, int]) -> None:
     canvas = {"size": size} if size else {}
-    layout = {"ROOT_ID": {"meta": {"mibiCells": True, "mibiCanvas": canvas}}}
+    layout = {"ROOT_ID": {"meta": {"auradataCells": True, "auradataCanvas": canvas}}}
     assert canvas_cells(layout) == expected

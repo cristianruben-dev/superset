@@ -33,7 +33,7 @@ GLOBAL_TASK_FRAMEWORK = "GLOBAL_TASK_FRAMEWORK"
 # AuraData BI: flags the product fixes to off whatever the configuration, the
 # environment or a dynamic callback says.
 # - MOBILE_CONSUMPTION_MODE: a phone shows the optional mobile layout of each
-#   page (``meta.mibiMobile``); Superset's consumption-only mobile mode would
+#   page (``meta.auradataMobile``); Superset's consumption-only mobile mode would
 #   replace it with its own routes and chrome.
 # - AG_GRID_TABLE_ENABLED, TABLE_V2_TIME_COMPARISON_ENABLED: Table V2 has none of
 #   the table format, conditional formatting, sparklines or tooltip pages of the

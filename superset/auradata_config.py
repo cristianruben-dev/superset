@@ -214,12 +214,11 @@ THEME_DARK: Theme = {
 VIZ_TYPE_DENYLIST: list[str] = []
 
 # --- Chart palettes ---------------------------------------------------------
-# "AuraData" is the default; each dashboard can pick another one. Its id stays
-# "mibi" because saved dashboards refer to their palette by id.
+# "AuraData" is the default; each dashboard can pick another one by its id.
 
 EXTRA_CATEGORICAL_COLOR_SCHEMES: list[dict[str, Any]] = [
     {
-        "id": "mibi",
+        "id": "auradata",
         "label": "AuraData",
         "isDefault": True,
         "colors": [

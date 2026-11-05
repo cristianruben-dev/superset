@@ -103,7 +103,7 @@ FEATURE_FLAGS = {
     "THUMBNAILS": True,
     "ENABLE_EXTENSIONS": True,
     # MOBILE_CONSUMPTION_MODE (Superset 7.0) stays off: AuraData BI has its own
-    # mobile layout per page (meta.mibiMobile)
+    # mobile layout per page (meta.auradataMobile)
     "SEMANTIC_LAYERS": True,
 }
 EXTENSIONS_PATH = "/app/docker/extensions"
