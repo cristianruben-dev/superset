@@ -254,29 +254,6 @@ function Answer({
   );
 }
 
-/**
- * The conversation with the assistant: «Ask your data» in reading, and the copilot of
- * the editor. The model answers on the server, which decides what it can reach. In the
- * editor it acts on the saved report, so the panel asks to save or discard first, and
- * shows what it did when it ends. The first time, it says what travels to Anthropic, and
- * nothing is sent until the person accepts.
- */
-export function AssistantChat({
-  mode,
-  access,
-  active,
-}: {
-  mode: ChatMode;
-  access: AssistantAccess;
-  active: boolean;
-}) {
-  return access.privacyAccepted ? (
-    <Conversations mode={mode} access={access} active={active} />
-  ) : (
-    <PrivacyNotice onAccept={access.acceptPrivacy} />
-  );
-}
-
 function Conversations({
   mode,
   access,
@@ -630,6 +607,29 @@ function Conversations({
       </Composer>
       <Hint>{t('What you ask, and the data it reads, go to Anthropic.')}</Hint>
     </Column>
+  );
+}
+
+/**
+ * The conversation with the assistant: «Ask your data» in reading, and the copilot of
+ * the editor. The model answers on the server, which decides what it can reach. In the
+ * editor it acts on the saved report, so the panel asks to save or discard first, and
+ * shows what it did when it ends. The first time, it says what travels to Anthropic, and
+ * nothing is sent until the person accepts.
+ */
+export function AssistantChat({
+  mode,
+  access,
+  active,
+}: {
+  mode: ChatMode;
+  access: AssistantAccess;
+  active: boolean;
+}) {
+  return access.privacyAccepted ? (
+    <Conversations mode={mode} access={access} active={active} />
+  ) : (
+    <PrivacyNotice onAccept={access.acceptPrivacy} />
   );
 }
 
