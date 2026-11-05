@@ -33,9 +33,9 @@ PROD_CONFIG = (
 def prod_config(monkeypatch: pytest.MonkeyPatch) -> ModuleType:
     """Load docker/pythonpath_prod/superset_config.py with a minimal environment."""
     monkeypatch.setenv("SUPERSET_SECRET_KEY", "test-secret")
-    monkeypatch.setenv("POSTGRES_USER", "mibi")
+    monkeypatch.setenv("POSTGRES_USER", "auradata")
     monkeypatch.setenv("POSTGRES_PASSWORD", "pw")
-    monkeypatch.setenv("POSTGRES_DB", "mibi")
+    monkeypatch.setenv("POSTGRES_DB", "auradata")
     spec = importlib.util.spec_from_file_location("auradata_prod_config", PROD_CONFIG)
     assert spec is not None
     assert spec.loader is not None

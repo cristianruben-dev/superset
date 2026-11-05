@@ -80,14 +80,17 @@ def _cache(prefix: str, timeout: int) -> dict[str, object]:
     }
 
 
-CACHE_CONFIG = _cache("mibi_", 300)
-DATA_CACHE_CONFIG = _cache("mibi_data_", 3600)
-FILTER_STATE_CACHE_CONFIG = _cache("mibi_filter_", 86400)
-EXPLORE_FORM_DATA_CACHE_CONFIG = _cache("mibi_explore_", 86400)
-THUMBNAIL_CACHE_CONFIG = _cache("mibi_thumbnail_", 86400)
+CACHE_CONFIG = _cache("auradata_", 300)
+DATA_CACHE_CONFIG = _cache("auradata_data_", 3600)
+FILTER_STATE_CACHE_CONFIG = _cache("auradata_filter_", 86400)
+EXPLORE_FORM_DATA_CACHE_CONFIG = _cache("auradata_explore_", 86400)
+THUMBNAIL_CACHE_CONFIG = _cache("auradata_thumbnail_", 86400)
 
 RESULTS_BACKEND = RedisCache(
-    host=REDIS_HOST, port=REDIS_PORT, db=REDIS_RESULTS_DB, key_prefix="mibi_results_"
+    host=REDIS_HOST,
+    port=REDIS_PORT,
+    db=REDIS_RESULTS_DB,
+    key_prefix="auradata_results_",
 )
 
 
@@ -121,7 +124,7 @@ SMTP_STARTTLS = _flag("SMTP_STARTTLS", True)
 SMTP_SSL = _flag("SMTP_SSL", False)
 SMTP_USER = os.getenv("SMTP_USER", "")
 SMTP_PASSWORD = os.getenv("SMTP_PASSWORD", "")
-SMTP_MAIL_FROM = os.getenv("SMTP_MAIL_FROM", "mibi@example.com")
+SMTP_MAIL_FROM = os.getenv("SMTP_MAIL_FROM", "auradata@example.com")
 EMAIL_REPORTS_SUBJECT_PREFIX = "[AuraData BI] "
 
 # --- MCP service --------------------------------------------------------------
