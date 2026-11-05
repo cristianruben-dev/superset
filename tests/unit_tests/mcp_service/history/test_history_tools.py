@@ -231,6 +231,25 @@ async def test_the_whole_trash_of_an_admin(world: dict[str, Any]) -> None:
 
 
 @pytest.mark.asyncio
+async def test_the_whole_trash_blocks_only_on_live_dashboards(
+    world: dict[str, Any],
+) -> None:
+    """A chart in two deleted dashboards blocks neither of them."""
+    session = world["session"]
+    trash(world, world["dashboard"])
+    shared = session.get(Dashboard, world["shared_dashboard"].id)
+    shared.slices = [*shared.slices, session.get(Slice, world["chart"].id)]
+    session.commit()
+    trash(world, world["shared_dashboard"])
+
+    as_user(world, "Root")
+    result = await call("list_trash", {"entity_types": ["dashboard"]})
+
+    assert sorted(i["name"] for i in result["items"]) == ["Compartido", "Ventas"]
+    assert [i["blocked_by"] for i in result["items"]] == [None, None]
+
+
+@pytest.mark.asyncio
 async def test_the_whole_trash_of_others_holds_what_they_edit(
     world: dict[str, Any],
 ) -> None:
@@ -335,11 +354,12 @@ async def test_a_contributor_does_not_read_the_history_of_a_dataset(
 
 
 @pytest.mark.asyncio
+@pytest.mark.parametrize("name", READERS)
 async def test_the_diff_of_a_version(
-    world: dict[str, Any], mocker: MockerFixture
+    world: dict[str, Any], mocker: MockerFixture, name: str
 ) -> None:
     fake_history(mocker)
-    as_user(world, "Ana")
+    as_user(world, name)
     request = {"entity_type": "dashboard", "identifier": world["dashboard"].id}
     result = await call("get_version_diff", {**request, "version_number": 1})
 

@@ -328,5 +328,7 @@ def global_trash(
                 page_size=limit,
                 custom_filters=custom_filters,
             )
-            items.extend(trash_item(entity_type, row, kind.name_attr) for row in rows)
+        # Built after the bypass ends, so what they read about other rows sees
+        # only live ones
+        items.extend(trash_item(entity_type, row, kind.name_attr) for row in rows)
     return sorted(items, key=lambda item: item.deleted_at or "", reverse=True)
