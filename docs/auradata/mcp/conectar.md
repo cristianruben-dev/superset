@@ -40,7 +40,7 @@ La [referencia de herramientas](referencia.md) dice qué ámbito pide cada herra
 
 ## 2. Configura tu cliente
 
-La página muestra la **dirección del MCP** de tu instalación (en desarrollo, `http://localhost:5108/mcp`). En los
+La página muestra la **dirección del MCP** de tu instalación (en desarrollo, `http://localhost:5008/mcp`). En los
 ejemplos, cambia la dirección y `sst_…` por las tuyas.
 
 ### Claude Code
@@ -48,7 +48,7 @@ ejemplos, cambia la dirección y `sst_…` por las tuyas.
 Ejecuta en una terminal:
 
 ```bash
-claude mcp add --transport http auradata http://localhost:5108/mcp --header "Authorization: Bearer sst_…"
+claude mcp add --transport http auradata http://localhost:5008/mcp --header "Authorization: Bearer sst_…"
 ```
 
 ### Claude Desktop
@@ -64,7 +64,7 @@ Claude Desktop solo arranca servidores locales, así que usa `mcp-remote` como p
       "args": [
         "-y",
         "mcp-remote",
-        "http://localhost:5108/mcp",
+        "http://localhost:5008/mcp",
         "--header",
         "Authorization:${AURADATA_AUTH}",
         "--allow-http"
@@ -89,7 +89,7 @@ del MCP con la cabecera `Authorization: Bearer sst_…`.
 
 Pídele a la IA: «¿qué workspaces tengo en AuraData BI?». Debe responder con los mismos que ves en la web. El servidor
 le enseña pocas herramientas al principio y la IA busca las demás por su nombre o su función (`search_tools`), así
-que es normal que no aparezcan las 146 en la lista del cliente.
+que es normal que no aparezcan todas en la lista del cliente.
 
 ## 3. Qué le puedes pedir
 
