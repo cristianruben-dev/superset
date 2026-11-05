@@ -42,6 +42,10 @@ from superset.mcp_service.dataset.schemas import (
     DatasetInfo,
     serialize_dataset_object,
 )
+from superset.mcp_service.dataset.workspace_link import (
+    link_to_workspace,
+    workspace_refusal,
+)
 from superset.subjects.utils import get_or_create_user_subject
 
 logger = logging.getLogger(__name__)
@@ -143,6 +147,9 @@ async def create_dataset(
     - catalog: Catalog where the table lives. Omit for databases without catalog
       support.
     - editors: List of user IDs to set as editors (defaults to calling user)
+    - workspace_id: Workspace the dataset joins, so the charts of that
+      workspace's dashboards can use it (contributors and admins of the
+      workspace). Without it the dataset is shared.
 
     Example:
     ```json
@@ -166,6 +173,12 @@ async def create_dataset(
     )
 
     try:
+        if request.workspace_id is not None and (
+            refusal := workspace_refusal(request.workspace_id, request.editors)
+        ):
+            await ctx.warning("Dataset refused in workspace: %s" % (refusal,))
+            return DatasetError.create(error=refusal, error_type="WorkspaceError")
+
         dataset_properties, error = _build_dataset_properties(request)
         if error is not None:
             return error
@@ -174,12 +187,21 @@ async def create_dataset(
         with event_logger.log_context(action="mcp.create_dataset.create"):
             dataset = CreateDatasetCommand(dataset_properties).run()
 
+        if request.workspace_id is not None:
+            with event_logger.log_context(action="mcp.create_dataset.workspace"):
+                if link_error := link_to_workspace(dataset.id, request.workspace_id):
+                    await ctx.warning(link_error)
+                    return DatasetError.create(
+                        error=link_error, error_type="WorkspaceError"
+                    )
+
         result = serialize_dataset_object(dataset)
         if result is None:
             return DatasetError.create(
                 error="Dataset was created but could not be serialized",
                 error_type="SerializationError",
             )
+        result.workspace_id = request.workspace_id
 
         await ctx.info(
             "Dataset registered: id=%s, table=%s"

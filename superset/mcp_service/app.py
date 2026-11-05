@@ -254,8 +254,8 @@ Alerts & Reports:
 Dataset Management:
 - list_datasets: List datasets with advanced filters (1-based pagination)
 - get_dataset_info: Get detailed dataset information by ID (includes columns/metrics)
-- create_dataset: Register a physical table as a dataset against an existing DB connection (requires write access)
-- create_virtual_dataset: Save a SQL query as a virtual dataset for charting (requires write access)
+- create_dataset: Register a physical table as a dataset against an existing DB connection (requires write access; workspace_id puts it in a workspace, for its contributors and admins)
+- create_virtual_dataset: Save a SQL query as a virtual dataset for charting (requires write access; workspace_id as in create_dataset)
 - update_dataset_metric: Update a saved metric on a dataset — expression, name, verbose_name, format (requires dataset ownership)
 - query_dataset: Query a dataset using its semantic layer (saved metrics, dimensions, filters) without needing a saved chart
 

@@ -27,6 +27,10 @@ from superset.mcp_service.dataset.schemas import (
     CreateVirtualDatasetRequest,
     CreateVirtualDatasetResponse,
 )
+from superset.mcp_service.dataset.workspace_link import (
+    link_to_workspace,
+    workspace_refusal,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -109,11 +113,26 @@ async def create_virtual_dataset(  # noqa: C901
     2. Use the returned ``id`` as the ``dataset_id`` in generate_chart or
        generate_explore_link
     3. Use the returned ``columns`` list to pick columns for the chart config
+
+    Pass ``workspace_id`` to create it inside a workspace (contributors and
+    admins of the workspace), so the charts of its dashboards can use it.
+    Without it the dataset is shared.
     """
     await ctx.info(
         f"Creating virtual dataset: database_id={request.database_id}, "
         f"dataset_name={request.dataset_name!r}"
     )
+
+    if request.workspace_id is not None and (
+        refusal := workspace_refusal(request.workspace_id)
+    ):
+        await ctx.warning(f"Virtual dataset refused in workspace: {refusal}")
+        return CreateVirtualDatasetResponse(
+            dataset_name=request.dataset_name,
+            sql=request.sql,
+            database_id=request.database_id,
+            error=refusal,
+        )
 
     try:
         from superset.commands.dataset.create import CreateDatasetCommand
@@ -150,6 +169,15 @@ async def create_virtual_dataset(  # noqa: C901
                 ):
                     dataset = _update_virtual_dataset(dataset.id, update_props)
 
+        link_error = None
+        if request.workspace_id is not None:
+            with event_logger.log_context(
+                action="mcp.create_virtual_dataset.workspace"
+            ):
+                link_error = link_to_workspace(dataset.id, request.workspace_id)
+            if link_error:
+                await ctx.warning(link_error)
+
         # Build response
         columns = [col.column_name for col in dataset.columns]
         dataset_url = (
@@ -169,6 +197,8 @@ async def create_virtual_dataset(  # noqa: C901
             database_id=request.database_id,
             columns=columns,
             url=dataset_url,
+            workspace_id=None if link_error else request.workspace_id,
+            error=link_error,
         )
 
     except DatasetSoftDeletedTwinExistsError as exc:

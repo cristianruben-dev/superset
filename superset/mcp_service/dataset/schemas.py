@@ -196,6 +196,10 @@ class DatasetInfo(BaseModel):
     is_favorite: bool | None = Field(
         None, description="Whether this dataset is favorited by the current user"
     )
+    workspace_id: int | None = Field(
+        None,
+        description="Set by create_dataset: the workspace the new dataset joined",
+    )
     model_config = ConfigDict(
         from_attributes=True,
         ser_json_timedelta="iso8601",
@@ -470,6 +474,15 @@ class CreateDatasetRequest(BaseModel):
             "Defaults to the calling user.",
         ),
     ]
+    workspace_id: Annotated[
+        int | None,
+        Field(
+            default=None,
+            description="Workspace the new dataset joins, so the charts of its "
+            "dashboards can use it (you must be a contributor or admin there). "
+            "Omit it for a shared dataset, usable in every dashboard.",
+        ),
+    ]
 
     @field_validator("schema_", "catalog", mode="before")
     @classmethod
@@ -537,6 +550,15 @@ class CreateVirtualDatasetRequest(BaseModel):
         description="Optional list of calculated columns to create. Each column "
         "must have 'column_name' and 'expression'.",
     )
+    workspace_id: Annotated[
+        int | None,
+        Field(
+            default=None,
+            description="Workspace the new dataset joins, so the charts of its "
+            "dashboards can use it (you must be a contributor or admin there). "
+            "Omit it for a shared dataset, usable in every dashboard.",
+        ),
+    ]
 
     @field_validator("sql")
     @classmethod
@@ -572,6 +594,9 @@ class CreateVirtualDatasetResponse(BaseModel):
     url: str | None = Field(
         None,
         description="URL to view/edit the dataset in Superset. None if failed.",
+    )
+    workspace_id: int | None = Field(
+        None, description="Workspace the dataset joined; None when it is shared."
     )
     error: str | None = Field(
         None,
