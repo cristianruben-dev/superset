@@ -175,6 +175,12 @@ EXPECTED_TOOL_OUTPUT_FIELDS = {
     "update_chart_preview": "previous_form_data_key",
     "update_dashboard": "changed_fields",
     "update_dataset_metric": "updated_properties",
+    "add_calculated_column": "column",
+    "add_metric": "metric",
+    "delete_calculated_column": "deleted",
+    "delete_metric": "deleted",
+    "set_column_properties": "column",
+    "update_calculated_column": "column",
     "update_workspace": "workspace",
 }
 
@@ -270,6 +276,12 @@ MUTATING_TOOLS = {
     "update_dashboard",
     "update_dataset_metric",
     "update_workspace",
+    "add_calculated_column",
+    "add_metric",
+    "delete_calculated_column",
+    "delete_metric",
+    "set_column_properties",
+    "update_calculated_column",
 }
 
 # Mutating tools deliberately outside COMMITTED_WRITE_SPECS. Each is excluded
@@ -304,6 +316,9 @@ DESTRUCTIVE_TOOLS = {
     "update_chart",
     "update_dashboard",
     "update_dataset_metric",
+    "delete_calculated_column",
+    "delete_metric",
+    "update_calculated_column",
 }
 
 

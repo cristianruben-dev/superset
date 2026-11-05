@@ -1071,3 +1071,193 @@ class RestoreDatasetResponse(BaseModel):
             "not retry; ask the user)."
         ),
     )
+
+
+# Modeling: calculated columns, saved metrics and column properties
+
+DatasetItemIdentifier = Annotated[
+    int | str,
+    Field(
+        description="Column or metric to change: its numeric ID or its name. "
+        "Use get_dataset_info to see them."
+    ),
+]
+
+
+class DatasetColumnDetail(BaseModel):
+    """A dataset column after a change."""
+
+    id: int | None = Field(None, description="Column ID")
+    column_name: str = Field(..., description="Column name")
+    verbose_name: str | None = Field(None, description="Display label")
+    description: str | None = Field(None, description="Column description")
+    expression: str | None = Field(
+        None, description="SQL expression; set only for calculated columns"
+    )
+    type: str | None = Field(None, description="Column type")
+    is_dttm: bool | None = Field(None, description="Whether it is a time column")
+    groupby: bool | None = Field(None, description="Whether charts group by it")
+    filterable: bool | None = Field(None, description="Whether filters use it")
+    python_date_format: str | None = Field(
+        None, description="Python date format of a time column stored as text"
+    )
+
+
+class ColumnFields(BaseModel):
+    """Optional column settings shared by the column tools."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    verbose_name: str | None = Field(
+        None, max_length=1024, description="Display label shown in charts"
+    )
+    description: str | None = Field(None, description="Column description")
+    is_dttm: bool | None = Field(
+        None, description="Mark the column as a time column (for time charts)"
+    )
+    groupby: bool | None = Field(
+        None, description="Whether charts can group by the column"
+    )
+    filterable: bool | None = Field(
+        None, description="Whether filters can use the column"
+    )
+
+
+class AddCalculatedColumnRequest(ColumnFields):
+    """Request schema for add_calculated_column."""
+
+    dataset_id: int | str = Field(..., description="Dataset ID or UUID")
+    column_name: str = Field(
+        ..., min_length=1, max_length=255, description="Name of the new column"
+    )
+    expression: str = Field(
+        ...,
+        min_length=1,
+        description="Row-level SQL expression in the database's dialect, e.g. "
+        "\"CASE WHEN total > 100 THEN 'big' ELSE 'small' END\"",
+    )
+    type: str | None = Field(
+        None, max_length=32, description="Column type, e.g. VARCHAR or NUMERIC"
+    )
+
+
+MODEL_UPDATE_FIELDS = frozenset(
+    {
+        "column_name",
+        "expression",
+        "verbose_name",
+        "description",
+        "type",
+        "is_dttm",
+        "groupby",
+        "filterable",
+    }
+)
+
+
+class UpdateCalculatedColumnRequest(ColumnFields):
+    """Request schema for update_calculated_column."""
+
+    dataset_id: int | str = Field(..., description="Dataset ID or UUID")
+    column: DatasetItemIdentifier
+    column_name: str | None = Field(
+        None,
+        min_length=1,
+        max_length=255,
+        description="New name; charts that use the old one stop finding it",
+    )
+    expression: str | None = Field(None, min_length=1, description="New expression")
+    type: str | None = Field(None, max_length=32, description="Column type")
+
+    def updates(self) -> dict[str, Any]:
+        """Only the settings the caller passed."""
+        return self.model_dump(exclude_unset=True, include=set(MODEL_UPDATE_FIELDS))
+
+    @model_validator(mode="after")
+    def _something_changes(self) -> "UpdateCalculatedColumnRequest":
+        if not self.model_fields_set & MODEL_UPDATE_FIELDS:
+            raise ValueError(
+                f"Pass at least one setting to change: {sorted(MODEL_UPDATE_FIELDS)}"
+            )
+        for name in ("column_name", "expression"):
+            if name in self.model_fields_set and getattr(self, name) is None:
+                raise ValueError(f"{name} cannot be null")
+        return self
+
+
+class DeleteDatasetItemRequest(BaseModel):
+    """Request schema for delete_calculated_column and delete_metric."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    dataset_id: int | str = Field(..., description="Dataset ID or UUID")
+    name: DatasetItemIdentifier
+
+
+COLUMN_PROPERTY_FIELDS = frozenset(
+    {
+        "verbose_name",
+        "description",
+        "is_dttm",
+        "groupby",
+        "filterable",
+        "python_date_format",
+    }
+)
+
+
+class SetColumnPropertiesRequest(ColumnFields):
+    """Request schema for set_column_properties."""
+
+    dataset_id: int | str = Field(..., description="Dataset ID or UUID")
+    column: DatasetItemIdentifier
+    python_date_format: str | None = Field(
+        None,
+        max_length=255,
+        description="Python strftime format of a time column stored as text "
+        "(e.g. '%Y-%m-%d'), or 'epoch_s' / 'epoch_ms' for numbers",
+    )
+
+    def updates(self) -> dict[str, Any]:
+        """Only the settings the caller passed."""
+        return self.model_dump(exclude_unset=True, include=set(COLUMN_PROPERTY_FIELDS))
+
+    @model_validator(mode="after")
+    def _something_changes(self) -> "SetColumnPropertiesRequest":
+        if not self.model_fields_set & COLUMN_PROPERTY_FIELDS:
+            raise ValueError(
+                f"Pass at least one property: {sorted(COLUMN_PROPERTY_FIELDS)}"
+            )
+        return self
+
+
+class AddMetricRequest(CreateDatasetMetric):
+    """Request schema for add_metric."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    dataset_id: int | str = Field(..., description="Dataset ID or UUID")
+
+
+class DatasetModelResponse(BaseModel):
+    """Result of a change to a dataset's columns or metrics."""
+
+    dataset_id: int | None = Field(None, description="Dataset ID")
+    dataset_name: str | None = Field(None, description="Dataset name")
+    column: DatasetColumnDetail | None = Field(
+        None, description="The column after the change"
+    )
+    metric: DatasetMetricDetail | None = Field(
+        None, description="The metric after the change"
+    )
+    changed: List[str] = Field(
+        default_factory=list, description="Settings that changed"
+    )
+    deleted: str | None = Field(None, description="Name of what was deleted")
+    url: str | None = Field(None, description="Explore URL for the dataset")
+    error: str | None = Field(None, description="Error message if nothing changed")
+    error_type: str | None = Field(
+        None,
+        description="NotFound, Forbidden, InvalidExpression, InvalidRequest or "
+        "UpdateFailed",
+    )

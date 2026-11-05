@@ -257,6 +257,9 @@ Dataset Management:
 - create_dataset: Register a physical table as a dataset against an existing DB connection (requires write access; workspace_id puts it in a workspace, for its contributors and admins)
 - create_virtual_dataset: Save a SQL query as a virtual dataset for charting (requires write access; workspace_id as in create_dataset)
 - update_dataset_metric: Update a saved metric on a dataset — expression, name, verbose_name, format (requires dataset ownership)
+- add_metric / delete_metric: Add or delete a saved metric of a dataset (its editors; the expression runs once before saving)
+- add_calculated_column / update_calculated_column / delete_calculated_column: Model row-level calculated columns (its editors; workspace roles do not edit datasets)
+- set_column_properties: Label, description, time column, groupby/filterable flags and date format of any column
 - query_dataset: Query a dataset using its semantic layer (saved metrics, dimensions, filters) without needing a saved chart
 
 Semantic Layer:
@@ -893,12 +896,18 @@ from superset.mcp_service.database.tool import (  # noqa: F401, E402
     test_database_connection,
 )
 from superset.mcp_service.dataset.tool import (  # noqa: F401, E402
+    add_calculated_column,
+    add_metric,
     create_dataset,
     create_virtual_dataset,
+    delete_calculated_column,
+    delete_metric,
     get_dataset_info,
     list_datasets,
     query_dataset,
     restore_dataset,
+    set_column_properties,
+    update_calculated_column,
     update_dataset_metric,
 )
 from superset.mcp_service.explore.tool import (  # noqa: F401, E402

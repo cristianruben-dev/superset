@@ -193,6 +193,22 @@ The `@tool` and `@prompt` decorators are defined as stubs in the `superset-core`
   (`dashboard/permalink.py:create_page_permalink`) and points at the governance and workspace tools to add
   people instead of re-implementing them.
 
+## AuraData BI: Connections and Data Model
+
+- **Connections**: database credentials never pass through the chat. An admin creates and edits
+  connections in the web (Connections page, `/databaseview/list/`); the MCP lists, inspects and tests
+  them. `test_database_connection` runs `TestConnectionDatabaseCommand` with the stored connection,
+  masked as the web sends it, for those who may write databases (admins), and scrubs the password and
+  URI from errors. Database reads mask secret keys of `extra` (`database/schemas.py:redact_secrets`);
+  never return `sqlalchemy_uri`, `password` or `encrypted_extra`.
+- **Datasets in a workspace**: `create_dataset`/`create_virtual_dataset` take `workspace_id`
+  (`dataset/workspace_link.py`): the role is checked before creating, so a refusal leaves no trashed
+  twin, and the dataset joins with `move_datasets`, as the web's `linkNewDataset` does.
+- **Modeling** (`dataset/modeling.py`, `dataset/tool/model_tools.py`): every change goes through
+  `UpdateDatasetCommand` with every other column or metric sent back as an `{id, name}` stub (the DAO
+  deletes what is left out). Only dataset editors and admins model a dataset; workspace roles never do.
+  A new expression runs once through the chart compile check before it is saved.
+
 ## Critical Convention: Tool, Prompt, and Resource Registration
 
 **IMPORTANT**: When creating new MCP tools, prompts, or resources, you MUST add their imports to `app.py` for auto-registration. Do NOT add them to `server.py` - that approach doesn't work properly.

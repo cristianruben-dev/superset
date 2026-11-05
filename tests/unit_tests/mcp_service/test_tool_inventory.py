@@ -175,6 +175,12 @@ TOOL_BUDGETS = {
     "update_chart_preview": 55_000,
     "update_dashboard": 4_100,
     "update_dataset_metric": 3_100,
+    "add_calculated_column": 2_100,
+    "add_metric": 1_600,
+    "delete_calculated_column": 1_300,
+    "delete_metric": 1_200,
+    "set_column_properties": 2_200,
+    "update_calculated_column": 2_400,
     "update_workspace": 1_200,
 }
 
