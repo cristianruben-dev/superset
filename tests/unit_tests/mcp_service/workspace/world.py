@@ -28,7 +28,10 @@ from typing import Any
 
 from fastmcp import Client
 from pytest_mock import MockerFixture
+from sqlalchemy import create_engine
+from sqlalchemy.engine import Engine
 from sqlalchemy.orm.session import Session
+from sqlalchemy.pool import StaticPool
 
 from superset import security_manager
 from superset.auradata.models import (
@@ -40,13 +43,25 @@ from superset.auradata.models import (
     WorkspaceDataset,
     WorkspaceMember,
 )
-from superset.connectors.sqla.models import SqlaTable
+from superset.connectors.sqla.models import SqlaTable, TableColumn
 from superset.models.core import Database
 from superset.models.dashboard import Dashboard
 from superset.models.slice import Slice
 from superset.utils import json
 
 PEOPLE = ("Ana", "Ada", "Vera", "Carlos", "Dani", "Root")
+
+
+def shared_engine() -> Engine:
+    """
+    One in-memory database for every thread: some tools run their work in a
+    worker thread, which a plain SQLite memory connection refuses.
+    """
+    return create_engine(
+        "sqlite://",
+        connect_args={"check_same_thread": False},
+        poolclass=StaticPool,
+    )
 
 
 def build_world(
@@ -69,7 +84,11 @@ def build_world(
         for name in PEOPLE
     }
     database = Database(database_name="almacen", sqlalchemy_uri="sqlite://")
-    ventas = SqlaTable(table_name="ventas", database=database)
+    ventas = SqlaTable(
+        table_name="ventas",
+        database=database,
+        columns=[TableColumn(column_name="region", type="VARCHAR")],
+    )
     compartido = SqlaTable(table_name="compartido", database=database)
     session.add_all([*users.values(), database, ventas, compartido])
     session.flush()

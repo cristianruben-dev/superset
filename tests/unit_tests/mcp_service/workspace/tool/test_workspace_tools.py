@@ -20,12 +20,23 @@ from typing import Any
 
 import pytest
 from pytest_mock import MockerFixture
+from sqlalchemy.engine import Engine
 from sqlalchemy.orm.session import Session
 
 from superset.auradata.models import Workspace, WorkspaceDashboard, WorkspaceDataset
 from superset.connectors.sqla.models import SqlaTable
 from superset.models.dashboard import Dashboard
-from tests.unit_tests.mcp_service.workspace.world import as_user, build_world, call
+from tests.unit_tests.mcp_service.workspace.world import (
+    as_user,
+    build_world,
+    call,
+    shared_engine,
+)
+
+
+@pytest.fixture
+def session_engine() -> Engine:
+    return shared_engine()
 
 
 @pytest.fixture
