@@ -441,6 +441,47 @@ históricas. El `CLAUDE.md` del proyecto y el de `mcp_service` reescriben su reg
   layout y la escribe en el gráfico (como hace `saveChartFields` con los campos), o avisa. Nunca un éxito
   silencioso que no cambia nada.
 
+**Hecho (2026-11-05, rama `feat/mcp-visuals`):**
+1. `a09b70fe9f`: `add_chart_to_existing_dashboard` escribe `ROW > CHART`, como el editor (`SaveModal.tsx`, `hydrate.ts`).
+   - Convierte el layout como al abrirlo (`layout_to_cells`, `layout_to_positions`) y pone el gráfico de 12 × 12 en la
+     primera celda libre. Ya no hay `COLUMN`, que lo estiraba a todo el ancho.
+   - Un test comprueba que el layout guardado carga sin cambios. El fixture `load_layout.json` de la fase 2 sigue pasando.
+2. `967f8623a4`: `superset/auradata/layout/fields.py` y `sort.py`.
+   - Son los gemelos de `rolesOf`, `addWellsOf`, `fieldsKeptBy` y los adaptadores de `sort/adapters.ts`.
+   - Incluyen el orden invertido de los ejes horizontales o invertidos.
+3. `7a196f1c8d`: herramientas de visuales (las unidades 1–3 comparten `report_layout/visuals.py` y `visual_tools.py`).
+   - `create_visual` crea el gráfico (validación y compilación de `generate_chart`) y lo coloca en la página en una
+     transacción. `CreateChartCommand` con `dashboards` valida un tablero por gráfico, datasets del workspace y
+     `can_edit_resource`. Un lugar rechazado (solape) no deja el gráfico.
+   - `get_visual_fields`, `set_visual_fields`, `change_visual_dataset` y `set_visual_sort`. Un cambio que vacía un pozo
+     se rechaza, como hace el frontend (`invalid`), salvo que traiga campos de reemplazo. Antes de guardar se compila.
+   - **`query_context`:** se deja en `None`, como hace `update_chart`. Se comparó con los gráficos guardados por el
+     frontend: los dicts de Python no llevan `post_processing`, `orderby` ni la columna `BASE_AXIS`, y el pie 216 tenía
+     uno ya desfasado. Los informes programados regeneran uno faltante con una captura (`_update_query_context`).
+   - **Regla de `auradataFormat.chart`:** cada escritura (también `update_chart`) quita del formato propio del objeto las
+     claves que cambia y lo dice (`moved_from_layout`). Avisa de las claves que aún fija el formato compartido; quitarlas
+     reestilizaría todos los gráficos. Si el usuario no puede editar el tablero, también lo avisa.
+   - `generate_dashboard` acepta `workspace_id` (contributor o admin) y una lista de gráficos vacía.
+   - Tests de permisos con base real: editor, contributor y admin escriben; viewer y otro workspace no.
+4. `9b33f060e7`: el título de un gráfico es un `styled.a` que hereda el color de `.header-title`. Antes fijaba el
+   color del tema y tapaba `--mb-v-title-color` en modo lectura.
+5. Chequeo en vivo (MCP en 5108):
+   - Se creó por herramientas el tablero 219 en «Análisis comercial» (workspace 6), con los gráficos 310–312 sobre
+     `ventas_demo`.
+   - Después: leyenda por categoría con `set_visual_fields`, orden por total y por categoría con `set_visual_sort`, y
+     título violeta con `format_visual`.
+   - La captura muestra los tres visuales sin solaparse, con la leyenda y los órdenes.
+   - En el navegador, en lectura, el título calcula `rgb(124, 58, 237)`. En modo edición, Guardar y Deshacer siguen
+     deshabilitados.
+   - El historial tiene una versión por `create_visual`, con su gráfico y su fila.
+6. Pendiente:
+   - El color del título se comprobó como admin en modo lectura (el mismo enlace que ve un viewer), no con un
+     usuario viewer.
+   - La regla de `auradataFormat.chart` no se comprobó en vivo; la cubren tests.
+   - `set_visual_fields` solo conoce los pozos de los tipos de `rolesOf`. Los demás tipos se cambian con `update_chart`.
+   - Las opciones dinámicas (`color_scheme`) siguen sin validarse.
+   - No se corrieron `pre-commit` ni mypy: solo ruff, oxlint y oxfmt sobre los archivos tocados.
+
 ## 5. Elementos y segmentadores (L)
 
 - `add_element` / `update_element` para imagen, forma, botón (acciones: página, marcador, atrás, URL) y texto.
