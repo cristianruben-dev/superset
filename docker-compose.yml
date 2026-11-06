@@ -261,8 +261,13 @@ services:
     volumes: *superset-volumes
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    # Only looks for the process: `celery inspect ping` starts a whole Python and the
+    # app on each check, and on a loaded machine those pile up faster than they end
     healthcheck:
-      test: ["CMD-SHELL", "celery -A superset.tasks.celery_app:app inspect ping -d celery@$$HOSTNAME"]
+      test: ["CMD", "pgrep", "-f", "celery.*worker"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
     # Bump memory limit if processing screenshots / thumbnails on superset-worker
     # mem_limit: 2038m
     # mem_reservation: 128M
