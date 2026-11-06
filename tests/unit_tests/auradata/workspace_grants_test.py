@@ -43,6 +43,9 @@ from superset.auradata.models import (
     WorkspaceMember,
 )
 from superset.charts.filters import ChartFilter
+from superset.commands.chart.create import CreateChartCommand
+from superset.commands.chart.exceptions import ChartForbiddenError
+from superset.commands.chart.update import UpdateChartCommand
 from superset.connectors.sqla.models import (
     RLSFilterSubjects,
     RLSFilterTables,
@@ -296,6 +299,72 @@ def test_a_draft_stays_hidden_from_a_viewer(
     as_user(world, "Ana")
     assert allowed(check, dashboard=world["dashboard"])
     assert listed() == {"Ventas"}
+
+
+def create_chart(world: dict[str, Any], dataset: str = "ventas") -> None:
+    CreateChartCommand(
+        {
+            "slice_name": "nuevo",
+            "viz_type": "table",
+            "datasource_id": world[dataset].id,
+            "datasource_type": "table",
+        }
+    ).validate()
+
+
+def test_reading_a_dataset_builds_nothing_on_it(world: dict[str, Any]) -> None:
+    """A chart is a write, even one of their own that no dashboard shows."""
+    as_user(world, "Vera")
+
+    with pytest.raises(ChartForbiddenError):
+        create_chart(world)
+
+
+def test_a_viewer_moves_no_chart_of_theirs_onto_the_dataset(
+    session: Session, world: dict[str, Any]
+) -> None:
+    """Their own chart, on a dataset they read: only the move is refused."""
+    own = Slice(
+        slice_name="propio",
+        viz_type="table",
+        datasource_type="table",
+        datasource_id=world["compartido"].id,
+    )
+    session.add(own)
+    session.flush()
+    as_user(world, "Vera")
+    world["mocker"].patch.object(security_manager, "is_editor", return_value=True)
+    world["mocker"].patch.object(
+        security_manager, "can_edit_resource", return_value=True
+    )
+    world["mocker"].patch(
+        "superset.commands.chart.update.ChartDAO.find_by_id", return_value=own
+    )
+    world["mocker"].patch(
+        "superset.auradata.workspace_grants._reads_outside_the_grant",
+        return_value=False,
+    )
+
+    with pytest.raises(ChartForbiddenError):
+        UpdateChartCommand(
+            own.id,
+            {"datasource_id": world["ventas"].id, "datasource_type": "table"},
+        ).validate()
+
+
+def test_a_real_data_permission_keeps_building_charts(
+    world: dict[str, Any],
+) -> None:
+    as_user(world, "Vera")
+    security_manager.can_access.return_value = True
+
+    create_chart(world)
+
+
+def test_a_contributor_builds_charts_on_the_dataset(world: dict[str, Any]) -> None:
+    as_user(world, "Ana")
+
+    create_chart(world)
 
 
 def listed_charts(session: Session) -> set[str]:

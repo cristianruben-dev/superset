@@ -27,7 +27,8 @@ grant is narrow on purpose:
 * Only reading. It never makes anyone an editor: viewers keep their role, and
   drafts and every edit point keep asking for a contributor or admin
   (``workspace_access``). A viewer reaches the charts of published dashboards
-  only: one chart lives in one dashboard, so the charts of a draft are the draft.
+  only (one chart lives in one dashboard, so the charts of a draft are the draft)
+  and builds no chart on the dataset.
 * Only the object checks of charts, dashboards and datasets (``raise_for_access``
   and the list filters). Raw SQL (SQL Lab, MetaDB, MCP ``execute_sql``), schema
   and database listings and editing a dataset keep following real permissions,
@@ -130,22 +131,29 @@ def _reads_outside_the_grant(datasource: Any) -> bool:
     return True
 
 
+def only_reads(datasource: Any) -> bool:
+    """
+    Whether a dataset opens to the current user only as a viewer of its workspace:
+    no other permission reaches it. They read it, and build nothing on it.
+
+    :param datasource: The dataset
+    """
+    return (
+        grants_dataset(datasource)
+        and not _is_in(datasource.id, _edited_dataset_ids(get_user_id()))
+        and not _reads_outside_the_grant(datasource)
+    )
+
+
 def hides_chart(chart: Any, datasource: Any) -> bool:
     """
-    Whether a chart stays closed although its dataset opens: only the grant opens
-    the dataset, the user does not edit that workspace, and no published dashboard
-    shows the chart.
+    Whether a chart stays closed although its dataset opens: the user only reads the
+    dataset, and no published dashboard shows the chart.
 
     :param chart: The chart
     :param datasource: The dataset of the chart, which the user can access
     """
-    if not grants_dataset(datasource):
-        return False
-    return (
-        not _is_in(datasource.id, _edited_dataset_ids(get_user_id()))
-        and not _is_in(chart.id, _published_chart_ids())
-        and not _reads_outside_the_grant(datasource)
-    )
+    return only_reads(datasource) and not _is_in(chart.id, _published_chart_ids())
 
 
 def grant_clause(base_model: Any) -> sa.sql.elements.ColumnElement[bool] | None:

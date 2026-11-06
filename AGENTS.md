@@ -78,7 +78,8 @@ This repository is **AuraData BI**, a fork of Apache Superset 7.0 shaped like Po
   narrow grant (`superset/auradata/workspace_grants.py`): the members of a workspace, viewers included, read the
   datasets that belong to it (`raise_for_access`, `DatasourceFilter`, `ChartFilter`,
   `DashboardAccessFilter`), never other workspaces or shared datasets. A viewer stays a viewer: no editing, no
-  drafts and no chart outside a published dashboard (`hides_chart`). RLS still applies;
+  drafts, no chart outside a published dashboard (`hides_chart`) and no new chart on the dataset (`only_reads`). RLS
+  still applies;
   SQL Lab, database schemas and editing a dataset keep their normal permissions. A new data-access
   check keeps `is_editor` and adds this grant only where the dataset is the thing read
   (`tests/unit_tests/auradata/workspace_grants_test.py`). Certifying a dashboard or chart (`certified_by`,

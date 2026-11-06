@@ -27,6 +27,7 @@ from superset import security_manager
 from superset.auradata.single_dashboard import validate_chart_dashboards
 from superset.auradata.workspace_access import certification_errors
 from superset.auradata.workspace_datasets import validate_chart_dataset
+from superset.auradata.workspace_grants import only_reads
 from superset.commands.base import BaseCommand, UpdateMixin
 from superset.commands.chart.exceptions import (
     ChartForbiddenError,
@@ -238,6 +239,9 @@ class UpdateChartCommand(UpdateMixin, BaseCommand):
                 )
                 self._properties["datasource_name"] = datasource.name
                 security_manager.raise_for_access(datasource=datasource)
+                # AuraData BI: a workspace viewer moves no chart onto a dataset
+                if effective_id != self._model.datasource_id and only_reads(datasource):
+                    raise ChartForbiddenError()
             except SupersetSecurityException as ex:
                 raise ChartForbiddenError() from ex
             except ValidationError as ex:

@@ -26,6 +26,7 @@ from marshmallow import ValidationError
 from superset import security_manager
 from superset.auradata.single_dashboard import validate_chart_dashboards
 from superset.auradata.workspace_datasets import validate_chart_dataset
+from superset.auradata.workspace_grants import only_reads
 from superset.commands.base import BaseCommand, CreateMixin
 from superset.commands.chart.exceptions import (
     ChartCreateFailedError,
@@ -81,6 +82,9 @@ class CreateChartCommand(CreateMixin, BaseCommand):
             datasource = get_datasource_by_id(datasource_id, datasource_type)
             self._properties["datasource_name"] = datasource.name
             security_manager.raise_for_access(datasource=datasource)
+            # AuraData BI: a workspace viewer reads the dataset and stops there
+            if only_reads(datasource):
+                raise ChartForbiddenError()
         except SupersetSecurityException as ex:
             raise ChartForbiddenError() from ex
         except ValidationError as ex:
