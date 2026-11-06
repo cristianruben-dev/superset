@@ -110,7 +110,7 @@ This repository is **AuraData BI**, a fork of Apache Superset 7.0 shaped like Po
   but are not sent. What a tool returns never enters the system prompt (`prompt.py`). The model call waits in a thread of
   its own (`ModelCall`, HTTP only, never the session, `g` or the tools) so the stream can send a `: keep-alive` comment:
   the SDK drops the pings and long stretches of thinking have no text. Each `ModelSpec` says its `thinking_display`
-  (`updates`, or `summarized` where that does not exist; `tuned_spec` clears it when the admin stops thinking, because
+  (`updates`, or None: `summarized` arrives in English with internal details; `tuned_spec` clears it when the admin stops thinking, because
   `disabled` and `between_tools` refuse a `display`), and the text of thinking blocks streams as `note` events, among the
   steps of the answer and always as plain text. A note is not stored apart: the blocks stay as they came, and a
   conversation read later shows what they hold (`transcriptOf`). Thinking events without text never reach the queue of

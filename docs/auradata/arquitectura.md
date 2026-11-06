@@ -243,8 +243,8 @@ Un mensaje admite hasta `MAX_MODEL_CALLS` (25) llamadas al modelo. Nada acota lo
 pasarse del tope: los topes solo se miran antes de empezar.
 
 **Notas del modelo.** El texto de los bloques de razonamiento llega como eventos `note` (`text` y `starts`, que abre una nota
-nueva). Con `display: "updates"` son las notas que el modelo escribe para quien mira entre una herramienta y otra; con
-`"summarized"`, esas notas mezcladas con resúmenes de su razonamiento. Pueden ser cero en toda una respuesta, y un comentario
+nueva). Con `display: "updates"` son las notas que el modelo escribe para quien mira entre una herramienta y otra.
+`"summarized"` no se usa: sus resúmenes llegan en inglés y con detalles internos. Pueden ser cero en toda una respuesta, y un comentario
 corto del modelo sigue llegando como texto. El panel las pinta entre los pasos, como texto plano: vienen del modelo. No se
 guardan aparte: los bloques siguen guardándose y reenviándose tal como llegaron, y una conversación leída después muestra lo
 que ellos tengan, o nada. La frase fija que la API pone cuando corta una respuesta se esconde en `stepsOf`.
@@ -355,7 +355,7 @@ Un modelo nuevo aparece solo en Administración si la API lo lista, con valores 
    ante un rechazo y si tiene búsqueda de herramientas.
 2. **Agrega la fila** a `MODEL_TABLE`, con el id exacto y sin sufijo de fecha (`spec_of` lo quita). Si la caché vale una décima de
    la entrada, `_cached_at_a_tenth` ahorra escribirla. Llena también los campos que nadie lee todavía: costarán menos el día
-   que se usen. `thinking_display` es `DISPLAY_UPDATES` si el modelo tiene notas de progreso y `DISPLAY_SUMMARIZED` si no: un
+   que se usen. `thinking_display` es `DISPLAY_UPDATES` si el modelo tiene notas de progreso y `None` si no: un
    valor que el modelo no conoce es un 400 en todas sus peticiones, así que pruébalo con una petición real.
 3. **Elige `status`:** `STATUS_CURRENT` si es de los que se ofrecen por defecto, y pasa el anterior de su familia a
    `STATUS_AVAILABLE`. `STATUS_RESTRICTED` es para modelos de programas especiales, que solo salen si la API los lista.

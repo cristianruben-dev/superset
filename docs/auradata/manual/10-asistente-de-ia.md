@@ -28,7 +28,7 @@ cambios mientras lo editas. Corre sobre Claude, de Anthropic, y trabaja siempre 
 2. Escribe y pulsa `Enter`. `Mayús + Enter` cambia de línea.
 3. Lee la respuesta. Mientras trabaja, el panel muestra qué está haciendo; **Detener** corta la respuesta. Entre sus pasos
    pueden salir notas del modelo sobre lo que acaba de ver y lo que sigue. Al terminar se pliegan en una línea, «N pasos», que
-   se abre con un clic. No todas las respuestas traen notas, y según el modelo pueden salir en inglés.
+   se abre con un clic. No todas las respuestas traen notas.
 
 Responde sobre **la página y los filtros que tienes en pantalla**, salvo que le pidas otra cosa. Por ejemplo:
 

@@ -521,7 +521,7 @@ def test_a_summary_of_the_thinking_needs_no_beta_header() -> None:
         [],
     )
 
-    assert params["thinking"] == {"type": "adaptive", "display": "summarized"}
+    assert params["thinking"] == {"type": "adaptive"}
     assert "betas" not in params
 
 
@@ -731,7 +731,7 @@ def test_each_model_gets_what_its_row_says(
     assert sonnet["output_config"] == {"effort": "high"}
     assert sonnet["max_tokens"] == 64000
     assert "fallbacks" not in haiku
-    assert haiku["thinking"] == {"type": "adaptive", "display": "summarized"}
+    assert haiku["thinking"] == {"type": "adaptive"}
     assert "anthropic-beta" not in haiku_headers
     assert haiku["output_config"] == {"effort": "medium"}
     for key in ("thinking", "output_config", "fallbacks", "cache_control"):

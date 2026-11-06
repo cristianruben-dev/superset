@@ -418,16 +418,16 @@ def test_a_model_without_effort_or_a_way_to_stop_thinking_leaves_both_out() -> N
         ("claude-mythos-5-1", "updates"),
         ("claude-opus-5-5", "updates"),
         ("claude-sonnet-5-5", "updates"),
-        ("claude-haiku-5-5", "summarized"),
-        ("claude-opus-5", "summarized"),
-        ("claude-sonnet-5", "summarized"),
-        ("claude-opus-4-8", "summarized"),
-        ("claude-opus-4-7", "summarized"),
-        ("claude-mythos-5", "summarized"),
+        ("claude-haiku-5-5", None),
+        ("claude-opus-5", None),
+        ("claude-sonnet-5", None),
+        ("claude-opus-4-8", None),
+        ("claude-opus-4-7", None),
+        ("claude-mythos-5", None),
     ],
 )
 def test_each_model_shows_what_it_has_of_its_thinking(
-    model_id: str, display: str
+    model_id: str, display: str | None
 ) -> None:
     assert MODEL_TABLE[model_id].thinking_display == display
 

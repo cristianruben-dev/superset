@@ -59,7 +59,6 @@ THINKING_UPDATES_BETA = "thinking-display-updates-2026-08-18"  # noqa: S105
 # Values of ``thinking.display``: the notes the model writes for the person between
 # tools with the reasoning hidden, or those notes mixed with summaries of the reasoning
 DISPLAY_UPDATES = "updates"
-DISPLAY_SUMMARIZED = "summarized"
 
 # Multipliers of the input price for prompt cache writes, by time to live
 CACHE_WRITE_5M = 1.25
@@ -189,7 +188,6 @@ MODEL_TABLE: Mapping[str, ModelSpec] = MappingProxyType(
             display_name="Claude Haiku 5.5",
             family="haiku",
             status=STATUS_CURRENT,
-            thinking_display=DISPLAY_SUMMARIZED,
             price=ModelPrice(
                 0.10,
                 0.50,
@@ -236,7 +234,6 @@ MODEL_TABLE: Mapping[str, ModelSpec] = MappingProxyType(
             display_name="Claude Haiku 4.5",
             family="haiku",
             status=STATUS_AVAILABLE,
-            thinking_display=DISPLAY_SUMMARIZED,
             price=_cached_at_a_tenth(1.00, 5.00),
             thinking_on=MappingProxyType({"type": "enabled", "budget_tokens": 4096}),
             thinking_off=None,
@@ -247,14 +244,12 @@ MODEL_TABLE: Mapping[str, ModelSpec] = MappingProxyType(
             display_name="Claude Sonnet 5",
             family="sonnet",
             status=STATUS_AVAILABLE,
-            thinking_display=DISPLAY_SUMMARIZED,
             price=_cached_at_a_tenth(2.00, 10.00),
         ),
         "claude-sonnet-4-6": ModelSpec(
             display_name="Claude Sonnet 4.6",
             family="sonnet",
             status=STATUS_AVAILABLE,
-            thinking_display=DISPLAY_SUMMARIZED,
             price=_cached_at_a_tenth(3.00, 15.00),
             efforts=EFFORTS_WITHOUT_XHIGH,
         ),
@@ -262,7 +257,6 @@ MODEL_TABLE: Mapping[str, ModelSpec] = MappingProxyType(
             display_name="Claude Opus 5",
             family="opus",
             status=STATUS_AVAILABLE,
-            thinking_display=DISPLAY_SUMMARIZED,
             price=_cached_at_a_tenth(5.00, 25.00),
             thinking_off_max_effort="high",
             refusal_fallback="default",
@@ -271,21 +265,18 @@ MODEL_TABLE: Mapping[str, ModelSpec] = MappingProxyType(
             display_name="Claude Opus 4.8",
             family="opus",
             status=STATUS_AVAILABLE,
-            thinking_display=DISPLAY_SUMMARIZED,
             price=_cached_at_a_tenth(5.00, 25.00),
         ),
         "claude-opus-4-7": ModelSpec(
             display_name="Claude Opus 4.7",
             family="opus",
             status=STATUS_AVAILABLE,
-            thinking_display=DISPLAY_SUMMARIZED,
             price=_cached_at_a_tenth(5.00, 25.00),
         ),
         "claude-opus-4-6": ModelSpec(
             display_name="Claude Opus 4.6",
             family="opus",
             status=STATUS_AVAILABLE,
-            thinking_display=DISPLAY_SUMMARIZED,
             price=_cached_at_a_tenth(5.00, 25.00),
             efforts=EFFORTS_WITHOUT_XHIGH,
         ),
@@ -314,7 +305,6 @@ MODEL_TABLE: Mapping[str, ModelSpec] = MappingProxyType(
             display_name="Claude Mythos 5",
             family="mythos",
             status=STATUS_RESTRICTED,
-            thinking_display=DISPLAY_SUMMARIZED,
             price=ModelPrice(10.00, 50.00, 1.00),
             thinking_off=None,
             thinking_always_on=True,
