@@ -121,8 +121,8 @@ This repository is **AuraData BI**, a fork of Apache Superset 7.0 shaped like Po
   used it. How long a conversation is comes from `context_tokens` of its last answer (`context_of_message`), which the too-long
   warning reads: what the model read the last time it ran. A tool search runs the model several times inside one response and
   the top level of `usage` adds them up, which is right for the cost and about double for the length, so never measure the
-  context from the token columns. `usage.iterations` only comes with the fallback beta, so a request with tool search always
-  sends it (`USAGE_PER_PASS_BETA`), without `fallbacks` on a model that has none; it leaves the prompt cache as it was.
+  context from the token columns. `usage.iterations` does not come without a beta header, so a request with tool search always
+  sends the fallback one (`USAGE_PER_PASS_BETA`), without `fallbacks` on a model that has none; it leaves the prompt cache as it was.
 - **The editor's copilot** (mode `edit`, the Assistant tab of `BuilderComponentPane`, Home › Assistant in the ribbon,
   `AssistantChat` in `AssistantPanel.tsx`). It works on the saved report: with unsaved changes the panel asks to save
   (`saveReport`, which stays in the editor through `keepEditingOnSave`) or discard, and after an answer that changed
