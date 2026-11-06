@@ -8,8 +8,8 @@ cambios mientras lo editas. Corre sobre Claude, de Anthropic, y trabaja siempre 
 | Leyendo un informe | **Pregúntale a tus datos** | Responde sobre los datos. No puede cambiar nada |
 | Editando un informe | **Asistente** | Cambia el informe guardado, y te pregunta antes de lo delicado |
 
-> **Estado de este capítulo.** Describe lo que hace el código. Todavía no se ha probado con un modelo real ni se ha visto
-> en un navegador, y por eso no lleva capturas.
+> **Estado de este capítulo.** El asistente ya se probó con Claude real y en un navegador. El capítulo todavía no lleva
+> capturas.
 
 ¿Buscas usar tu propia IA, como Claude Code o Claude Desktop? Eso es otra cosa: mira
 [9. Conectar IA](09-conectar-ia.md#asistente-o-conectar-ia).

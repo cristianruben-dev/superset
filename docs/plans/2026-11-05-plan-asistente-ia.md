@@ -264,6 +264,11 @@ con el de arriba» funciona, se ve en el editor y se deshace con un clic.
 > - **El bucle usaba solo parte de la tabla de modelos** (resuelto): el admin elige esfuerzo y razonamiento, y `tuned_spec`
 >   los traduce para cada modelo. `forced_tool_choice` se quitó, porque nunca se fuerza una herramienta.
 
+> **Prueba real (2026-11-06), $12.59 en total.** Lista de modelos, panel de lectura y copiloto probados con Claude y en el
+> navegador. Sacó a la luz lo que el cliente falso escondía: el stream perdía la sesión de la vista, las figuras leían mal las
+> llamadas reales, `query_dataset` no agregaba y las capturas fallaban fuera de su hilo. Resultados en
+> `docs/auradata/asistente/evaluacion.md`. Pendientes: revisar a mano las tareas de edición, E6 e I2.
+
 ## Riesgo
 
 - **Seguridad:** el asistente actúa como el usuario y nunca puede más que él (principio 2). La inyección de órdenes

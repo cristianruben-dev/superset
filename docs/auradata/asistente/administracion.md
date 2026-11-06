@@ -6,10 +6,9 @@ consulta viajan a Anthropic, y eso lo decides tú.
 Para quien usa el panel está el [capítulo 10 del manual](../manual/10-asistente-de-ia.md). Para quien cambia el código,
 [arquitectura.md](../arquitectura.md#6-el-asistente-de-ia).
 
-> **Lo que no se ha comprobado.** Ningún modelo real se ha llamado y ninguna pantalla del asistente se ha visto en un
-> navegador. Las pruebas automáticas corren sobre un cliente falso, y las
-> [recomendaciones por modelo](evaluacion.md#resultados) siguen pendientes. La primera puesta en marcha es también la
-> primera prueba real: empieza con un tope bajo.
+> **Lo que se ha comprobado.** El asistente se probó con Claude real en desarrollo y sus dos paneles se vieron en un
+> navegador: ver la [evaluación](evaluacion.md#resultados). Falta probarlo detrás de un proxy real y en producción: empieza
+> con un tope bajo.
 
 ## Puesta en marcha
 
@@ -96,7 +95,7 @@ El modelo por defecto de fábrica es Claude Sonnet 5.5. Que sea el de fábrica n
   hasta alto.
 - Opus 5.5 y Fable 5.1 siempre razonan: en ellos, solo el esfuerzo lo baja.
 
-Ninguna combinación se probó con un modelo real.
+La [evaluación](evaluacion.md#resultados) compara los niveles bajo y medio. Apagar el razonamiento no se probó con un modelo real.
 
 ## Topes de gasto
 
@@ -212,7 +211,7 @@ Si instalaste `anthropic` a mano en un contenedor, lo pierdes al recrearlo. La s
 | Un turno puede pasarse del tope | Nada limita el gasto de un solo turno, salvo las 25 llamadas al modelo por tramo, que vuelven a contar después de una tarjeta | Deja margen en el tope |
 | Un proceso que muere con una herramienta en marcha | Esa conversación queda ocupada y responde 409 | Empezar una conversación nueva funciona |
 | Muchas herramientas piden tarjeta | [32 de 146](evaluacion.md#herramientas-detrás-de-una-tarjeta), incluidas `update_chart` y `update_dashboard`. Puede cansar en el uso real | Se revisa con los datos de la evaluación |
-| Capturas (`get_dashboard_screenshot`) desde el proceso web | Sin probar | Revísalo en la primera corrida real |
+| Capturas (`get_dashboard_screenshot`) desde el proceso web | Funcionan en desarrollo | Sin probar en producción |
 | Rutas `undo/` y `models/` | Sin bloque propio en el proxy: son respuestas cortas | Nada |
 
 ## Si algo falla
