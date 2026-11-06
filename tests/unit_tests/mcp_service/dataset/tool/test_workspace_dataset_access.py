@@ -21,6 +21,7 @@ read them without data permissions of their own (``workspace_grants``). Nobody
 else gains anything.
 """
 
+from datetime import datetime
 from typing import Any
 
 import pytest
@@ -31,6 +32,7 @@ from sqlalchemy.orm.session import Session
 from superset import security_manager
 from superset.auradata.models import WorkspaceDataset
 from superset.connectors.sqla.models import SqlaTable
+from superset.subjects.utils import get_or_create_user_subject
 from tests.unit_tests.mcp_service.workspace.world import (
     as_user,
     build_world,
@@ -141,6 +143,56 @@ async def test_others_read_nothing_without_data_access(
     assert await listed(name, no_data_world) == []
     assert not await found(name, no_data_world, "ventas")
     assert not await queried(name, no_data_world, "ventas")
+
+
+def make_editor(world: dict[str, Any], name: str, dataset: str) -> None:
+    subject = get_or_create_user_subject(world["users"][name].id)
+    world[dataset].editors = [subject]
+    world["session"].commit()
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("dataset", ["ventas", "compartido"])
+async def test_an_editor_finds_their_dataset_without_data_access(
+    no_data_world: dict[str, Any], dataset: str
+) -> None:
+    """``raise_for_access`` counts editorship, so the lists must not hide it."""
+    make_editor(no_data_world, "Dani", dataset)
+
+    assert await listed("Dani", no_data_world) == [dataset]
+    assert await found("Dani", no_data_world, dataset)
+
+
+@pytest.mark.asyncio
+async def test_an_editor_queries_their_dataset_without_data_access(
+    no_data_world: dict[str, Any],
+) -> None:
+    make_editor(no_data_world, "Dani", "ventas")
+
+    assert await queried("Dani", no_data_world, "ventas")
+
+
+@pytest.mark.asyncio
+async def test_editing_one_dataset_opens_no_other(
+    no_data_world: dict[str, Any],
+) -> None:
+    make_editor(no_data_world, "Dani", "compartido")
+
+    assert not await found("Dani", no_data_world, "ventas")
+    assert await listed("Carlos", no_data_world) == []
+
+
+@pytest.mark.asyncio
+async def test_an_editor_does_not_list_a_deleted_dataset(
+    no_data_world: dict[str, Any],
+) -> None:
+    """The trash keeps its own door, the deleted-state filter of the REST API."""
+    make_editor(no_data_world, "Dani", "compartido")
+    no_data_world["compartido"].deleted_at = datetime(2026, 1, 1)
+    no_data_world["session"].commit()
+
+    assert await listed("Dani", no_data_world) == []
+    assert not await found("Dani", no_data_world, "compartido")
 
 
 @pytest.mark.asyncio
