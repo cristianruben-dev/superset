@@ -312,6 +312,9 @@
       "files": [
         "packages/superset-ui-chart-controls/src/components/TabularSparkline.tsx",
         "plugins/plugin-chart-echarts/src/BigNumber/BigNumberViz.tsx",
+        "src/auradata/assistant/AnswerActions.tsx",
+        "src/auradata/assistant/CommandMenu.tsx",
+        "src/auradata/assistant/ConversationList.tsx",
         "src/auradata/dashboard/FilterCard.tsx",
         "src/auradata/data/DataPage.tsx",
         "src/auradata/elements/ElementFormat.tsx",
