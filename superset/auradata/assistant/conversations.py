@@ -692,7 +692,9 @@ class ConversationLog:
         )
         self._commit()
 
-    def add_undone(self, versions: dict[str, Any], note: dict[str, Any]) -> None:
+    def add_undone(
+        self, versions: dict[str, Any] | None, note: dict[str, Any]
+    ) -> None:
         """An undo, and in the same commit a note that tells the model."""
         self._row(ROLE_RECORD, [{"type": RECORD_UNDONE, "versions": versions}])
         self._row("user", [note])

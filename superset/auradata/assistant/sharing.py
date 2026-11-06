@@ -126,7 +126,7 @@ def is_live(artifact: AssistantArtifact) -> bool:
     )
 
 
-def reads_share(artifact: AssistantArtifact, user_id: int) -> bool:
+def reads_share(artifact: AssistantArtifact, user_id: int | None) -> bool:
     """Whether this person, the current user, reads this document as shared."""
     # pylint: disable=import-outside-toplevel
     from superset.auradata.assistant.turns import open_dashboard
@@ -264,7 +264,7 @@ def share_card(
         if block["type"] in DATA_BLOCKS
     ]
     passages = [line for text in texts for line in _passages(text)]
-    passages += [name for name in names if _NUMBER.search(name)]
+    passages += [name for name in names if name and _NUMBER.search(name)]
     workspace_id = workspace_id_of(artifact.dashboard_id)
     workspace = db.session.get(Workspace, workspace_id) if workspace_id else None
     dashboard = db.session.get(Dashboard, artifact.dashboard_id)

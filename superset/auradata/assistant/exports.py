@@ -168,7 +168,11 @@ def _export(job: dict[str, Any], user: Any) -> dict[str, Any]:
 
     artifact = find_artifact(UUID(job["artifact_id"]), user.id)
     version = version_of(artifact.id) if artifact else None
-    if version is None or open_dashboard(artifact.dashboard_id) is None:
+    if (
+        artifact is None
+        or version is None
+        or open_dashboard(artifact.dashboard_id) is None
+    ):
         return {**job, "status": FAILED}
     pdf = document_pdf(artifact.id, version.title)
     log_document(ACTION_EXPORT, artifact, version)

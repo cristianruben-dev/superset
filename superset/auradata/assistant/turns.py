@@ -62,7 +62,7 @@ import time
 from collections.abc import Callable, Generator, Iterator
 from contextlib import nullcontext
 from dataclasses import replace
-from typing import Any
+from typing import Any, cast
 from uuid import UUID
 
 from flask import current_app, g, has_request_context
@@ -147,6 +147,11 @@ TIMED_OUT = "timed_out"
 
 class _FencedError(Exception):
     """This turn was given up for dead while it ran: its stream is not its own."""
+
+
+def _held_conversation(conversation_id: UUID, user_id: int) -> AssistantConversation:
+    """The conversation of a running turn: it cannot be deleted while a turn holds it."""
+    return cast(AssistantConversation, find_conversation(conversation_id, user_id))
 
 
 def turn_seconds() -> int:
@@ -373,7 +378,7 @@ def _closing(
     state = budget()
     return {
         "can_undo": ticket.mode == MODE_EDIT
-        and can_undo(find_conversation(conversation_id, ticket.user_id)),
+        and can_undo(_held_conversation(conversation_id, ticket.user_id)),
         "budget": {"level": state.level, "scope": state.scope},
         "message_id": str(log.answer_id) if log.answer_id else None,
     }
@@ -399,7 +404,7 @@ def _decided_turn(
         system,
         toolbox,
         log,
-        lambda: find_conversation(UUID(ticket.conversation_id), ticket.user_id),
+        lambda: _held_conversation(UUID(ticket.conversation_id), ticket.user_id),
         decided,
     )
 
@@ -519,7 +524,7 @@ def _answer(store: TurnStore, ticket: TurnTicket, watch: _Watch) -> None:
                 {
                     "stop_reason": STOP_INTERRUPTED,
                     "context_tokens": context_tokens_of(
-                        find_conversation(conversation_id, ticket.user_id)
+                        _held_conversation(conversation_id, ticket.user_id)
                     ),
                     **_closing(conversation_id, ticket, log, budget),
                 },

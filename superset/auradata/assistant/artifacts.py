@@ -36,7 +36,7 @@ answers said, so it cannot outlive them.
 from __future__ import annotations
 
 from collections.abc import Iterable, Sequence
-from typing import Any
+from typing import Any, cast
 from uuid import UUID, uuid4
 
 from sqlalchemy.exc import IntegrityError
@@ -45,6 +45,7 @@ from superset import security_manager
 from superset.auradata.models import AssistantArtifact, AssistantArtifactVersion
 from superset.exceptions import SupersetSecurityException
 from superset.extensions import db
+from superset.superset_typing import AdhocMetric
 from superset.utils import json
 
 CREATE_ARTIFACT = "create_artifact"
@@ -286,7 +287,7 @@ def _unknown_names(dataset: Any, query: dict[str, Any]) -> list[str]:
     return validate_query_names(
         metrics | {metric["label"] for metric in aggregates},
         columns,
-        metrics=[*query.get("metrics", []), *aggregates],
+        metrics=[*query.get("metrics", []), *cast(list[AdhocMetric], aggregates)],
         dimensions=[
             *query.get("columns", []),
             *(item["column"] for item in query.get("aggregates", [])),
