@@ -71,6 +71,7 @@ from superset.auradata.assistant.tools import (
 from superset.auradata.models import AssistantMessage
 from superset.mcp_service.app import mcp
 from superset.mcp_service.auth import METHOD_PERMISSION_ATTR
+from superset.extensions import db
 from superset.utils import json
 from tests.unit_tests.auradata.assistant.fake_anthropic import (
     FakeAnthropic,
@@ -493,6 +494,34 @@ def test_the_request_follows_the_effort_and_thinking_of_the_admin(
     assert ask(client, world["dashboard"]).status_code == 200
     assert fake.requests[0]["thinking"] == {"type": "between_tools"}
     assert fake.requests[0]["output_config"] == {"effort": "high"}
+
+
+def lose_the_session_before_streaming(mocker: MockerFixture) -> None:
+    """
+    A real server ends the request's session when the view returns, so a stream reads
+    nothing the view loaded. The test client keeps it, which hid this.
+    """
+    stream = api_module._event_stream
+
+    def after_the_view(events: Any) -> Any:
+        db.session.expunge_all()
+        return stream(events)
+
+    mocker.patch.object(api_module, "_event_stream", side_effect=after_the_view)
+
+
+def test_the_stream_outlives_the_session_of_the_view(
+    client: Any, world: dict[str, Any], mocker: MockerFixture
+) -> None:
+    login(world, "Root")
+    use_model(mocker, reply(text("Cien.")))
+    lose_the_session_before_streaming(mocker)
+
+    response = ask(client, world["dashboard"])
+
+    assert "".join(item["text"] for item in payloads(response, "text")) == "Cien."
+    assert payloads(response, "error") == []
+    assert payloads(response, "done")
 
 
 def test_a_model_that_is_not_offered_is_refused(

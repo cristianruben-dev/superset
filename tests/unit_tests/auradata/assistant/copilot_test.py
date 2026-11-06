@@ -52,6 +52,7 @@ from superset.mcp_service.app import mcp
 from superset.models.slice import Slice
 from superset.utils import json
 from tests.unit_tests.auradata.assistant.chat_test import (  # noqa: F401
+    lose_the_session_before_streaming,
     ask,
     catalog_model,
     conversation_id_of,
@@ -262,6 +263,24 @@ def test_a_destructive_call_stops_the_loop_and_shows_its_card(
     ]
     assert [item["id"] for item in stored["pending"]] == ["toolu_1"]
     assert {message["role"] for message in stored["messages"]} == {"user", "assistant"}
+
+
+def test_a_decision_streams_after_the_session_of_the_view_ended(
+    client: Any,
+    world: dict[str, Any],  # noqa: F811
+    mocker: MockerFixture,
+) -> None:
+    login(world, "Ana")
+    add_page(world)
+    use_model(mocker, asks_to_delete(world), reply(text("La borré")))
+    conversation_id = conversation_id_of(ask_in_editor(client, world))
+    spy_on_tools(mocker)
+    lose_the_session_before_streaming(mocker)
+
+    decided = decide(client, conversation_id)
+
+    assert payloads(decided, "error") == []
+    assert payloads(decided, "done")
 
 
 def test_an_approval_runs_that_exact_call_once(

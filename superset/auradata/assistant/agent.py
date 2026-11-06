@@ -39,7 +39,7 @@ import logging
 import queue
 import socket
 import threading
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 from decimal import Decimal
 from typing import Any
 
@@ -519,15 +519,18 @@ def resume_after_decisions(  # pylint: disable=too-many-arguments
     system: str,
     toolbox: ToolBox,
     log: ConversationLog,
-    conversation: AssistantConversation,
+    conversation_of: Callable[[], AssistantConversation],
     pending: PendingTurn,
 ) -> Iterator[Event]:
-    """Run a turn the person has decided on, as stored, and let the model go on."""
+    """
+    Run a turn the person has decided on, as stored, and let the model go on. The
+    conversation is read after the tools run, because they end the session they share.
+    """
     results: list[dict[str, Any]] = []
     try:
         yield from _run_tools(pending.calls, toolbox, results, pending.decisions)
     finally:
         log.add_results(_with_missing_results(pending.calls, results))
     yield from run_conversation(
-        client, model, system, toolbox, log, history_of(conversation)
+        client, model, system, toolbox, log, history_of(conversation_of())
     )

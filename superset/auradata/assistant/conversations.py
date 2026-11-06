@@ -375,10 +375,16 @@ def not_run_results(pending: PendingTurn) -> list[dict[str, Any]]:
 
 
 class ConversationLog:
-    """Writes one request's messages at the end of a conversation."""
+    """
+    Writes one request's messages at the end of a conversation.
+
+    It keeps ids and no row: it lives through a stream, which runs after the session
+    of the view ended, and tools end the session they share with it.
+    """
 
     def __init__(self, conversation: AssistantConversation, user_id: int) -> None:
-        self._conversation = conversation
+        self._conversation_id = conversation.id
+        self._dashboard_id = conversation.dashboard_id
         self._user_id = user_id
         last = (
             db.session.query(db.func.max(AssistantMessage.seq))
@@ -389,7 +395,7 @@ class ConversationLog:
 
     def _row(self, role: str, content: list[dict[str, Any]]) -> AssistantMessage:
         row = AssistantMessage(
-            conversation_id=self._conversation.id,
+            conversation_id=self._conversation_id,
             seq=self._next_seq,
             role=role,
             content=json.dumps(content),
@@ -470,8 +476,8 @@ class ConversationLog:
         row.stop_reason = turn.stop_reason
         row.user_id = self._user_id
         row.workspace_id = (
-            workspace_id_of(self._conversation.dashboard_id)
-            if self._conversation.dashboard_id is not None
+            workspace_id_of(self._dashboard_id)
+            if self._dashboard_id is not None
             else None
         )
         row.input_tokens = turn.usage.input_tokens

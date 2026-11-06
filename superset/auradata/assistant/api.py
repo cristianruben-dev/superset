@@ -349,7 +349,8 @@ def _no_tool_search_for(model: CatalogModel, history: list[dict[str, Any]]) -> b
 
 
 def _turn_stream(
-    conversation: Any,
+    conversation_id: UUID,
+    user_id: int,
     log: ConversationLog,
     dashboard_id: int,
     mode: str,
@@ -364,7 +365,8 @@ def _turn_stream(
     waits for that change: what anyone saved while the model thought, or while a card
     waited, is not part of the turn and an undo keeps it. ``continues`` says this
     stream goes on with a turn stopped by a card. ``done`` also says where the month
-    stands, so the panel warns without asking again.
+    stands, so the panel warns without asking again. A stream runs after the session
+    of the view ended, so it takes ids and reads what it needs again.
     """
     changed = False
     started = False
@@ -392,7 +394,8 @@ def _turn_stream(
                 end_turn()
                 payload = {
                     **payload,
-                    "can_undo": mode == MODE_EDIT and can_undo(conversation),
+                    "can_undo": mode == MODE_EDIT
+                    and can_undo(find_conversation(conversation_id, user_id)),
                     "budget": _budget_json(budget()),
                 }
             yield _sse(event, payload)
@@ -793,6 +796,7 @@ class AssistantRestApi(BaseSupersetApi):
                 409, message=_("This conversation is answering another message.")
             )
         history.append({"role": "user", "content": message})
+        conversation_id = conversation.id
 
         def turn() -> Iterator[tuple[str, dict[str, Any]]]:
             yield from run_conversation(client, model, system, toolbox, log, history)
@@ -800,13 +804,14 @@ class AssistantRestApi(BaseSupersetApi):
         def events() -> Iterator[str]:
             yield _sse(
                 "conversation",
-                {"id": str(conversation.id), "mode": mode, "model": model.id},
+                {"id": str(conversation_id), "mode": mode, "model": model.id},
             )
             if previous_model != model.id:
                 # Prompt caches belong to one model: this turn starts them again
                 yield _sse("model_changed", {"from": previous_model, "to": model.id})
             yield from _turn_stream(
-                conversation,
+                conversation_id,
+                user_id,
                 log,
                 dashboard_id,
                 mode,
@@ -1035,17 +1040,26 @@ class AssistantRestApi(BaseSupersetApi):
                     "done",
                     {
                         "stop_reason": "tool_use",
-                        "context_tokens": context_tokens_of(conversation),
+                        "context_tokens": context_tokens_of(
+                            find_conversation(conversation_id, user_id)
+                        ),
                     },
                 )
                 return
             yield from resume_after_decisions(
-                client, model, system, toolbox, log, conversation, decided
+                client,
+                model,
+                system,
+                toolbox,
+                log,
+                lambda: find_conversation(conversation_id, user_id),
+                decided,
             )
 
         return _event_stream(
             _turn_stream(
-                conversation,
+                conversation_id,
+                user_id,
                 log,
                 dashboard_id,
                 MODE_EDIT,
