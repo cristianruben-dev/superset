@@ -978,11 +978,17 @@ test('an answer with notes and no tools folds them too', async () => {
   setup();
   await sendQuestion();
 
-  stream.emit({ event: 'note', data: { text: 'Lo pienso.', starts: true } });
+  stream.emit({
+    event: 'note',
+    data: { text: 'Lo pienso.\n\n', starts: true },
+  });
   stream.emit({ event: 'text', data: { text: 'Cien' } });
   await stream.end();
 
   expect(await screen.findByText('1 step')).toBeInTheDocument();
+  expect(screen.getByTestId('auradata-assistant-note').textContent).toBe(
+    'Lo pienso.',
+  );
 });
 
 test('what the model writes in a note stays plain text', async () => {

@@ -539,7 +539,7 @@ function AnswerSteps({
             className="note"
             data-test="auradata-assistant-note"
           >
-            {item.note.text}
+            {item.note.text.trim()}
           </li>
         ) : (
           <li
