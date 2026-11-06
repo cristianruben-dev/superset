@@ -37,6 +37,8 @@ ASSISTANT_CONVERSATIONS_TABLE = "auradata_assistant_conversations"
 ASSISTANT_MESSAGES_TABLE = "auradata_assistant_messages"
 ASSISTANT_FEEDBACK_TABLE = "auradata_assistant_feedback"
 ASSISTANT_ATTACHMENTS_TABLE = "auradata_assistant_attachments"
+ASSISTANT_ARTIFACTS_TABLE = "auradata_assistant_artifacts"
+ASSISTANT_ARTIFACT_VERSIONS_TABLE = "auradata_assistant_artifact_versions"
 
 # Workspace roles, from the least to the most rights
 ROLE_VIEWER = "viewer"
@@ -375,3 +377,72 @@ class AssistantFeedback(Model):
     changed_on = sa.Column(
         sa.DateTime, nullable=False, default=datetime.now, onupdate=datetime.now
     )
+
+
+class AssistantArtifact(Model):
+    """
+    A document the assistant wrote for one person, over one report, in one conversation.
+
+    The row only says whose it is and where it lives: what it holds is in its versions,
+    and the last one is the document. It goes with its conversation
+    (``conversations.erase_conversations``), and like one it is unreadable once it loses
+    its owner or its report, until the retention task removes that conversation.
+    """
+
+    __tablename__ = ASSISTANT_ARTIFACTS_TABLE
+
+    id = sa.Column(UUIDType(binary=True), primary_key=True, default=uuid.uuid4)
+    conversation_id = sa.Column(
+        UUIDType(binary=True),
+        sa.ForeignKey(f"{ASSISTANT_CONVERSATIONS_TABLE}.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    user_id = sa.Column(
+        sa.Integer,
+        sa.ForeignKey("ab_user.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+    )
+    dashboard_id = sa.Column(
+        sa.Integer,
+        sa.ForeignKey("dashboards.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+    )
+    created_on = sa.Column(sa.DateTime, nullable=False, default=datetime.now)
+
+
+class AssistantArtifactVersion(Model):
+    """
+    One state of a document, whole. Rows are only ever added: going back to an earlier
+    version copies it as a new one, and the unique ``number`` lets one of two racing
+    writers through.
+
+    ``blocks`` is a JSON list that ``artifact_blocks.py`` validated. A block of data
+    holds its query and never a number, so no row here keeps figures of a reader.
+    """
+
+    __tablename__ = ASSISTANT_ARTIFACT_VERSIONS_TABLE
+    __table_args__ = (
+        sa.UniqueConstraint(
+            "artifact_id", "number", name="uq_auradata_assistant_artifact_versions"
+        ),
+    )
+
+    id = sa.Column(UUIDType(binary=True), primary_key=True, default=uuid.uuid4)
+    artifact_id = sa.Column(
+        UUIDType(binary=True),
+        sa.ForeignKey(f"{ASSISTANT_ARTIFACTS_TABLE}.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    number = sa.Column(sa.Integer, nullable=False)
+    title = sa.Column(sa.String(250), nullable=False)
+    blocks = sa.Column(MediumText(), nullable=False)
+    # How it came to be: created, changed or restored
+    origin = sa.Column(sa.String(16), nullable=False)
+    # The version a restored one copies
+    restored_from = sa.Column(sa.Integer, nullable=True)
+    # The model that wrote it, when one did
+    model = sa.Column(sa.String(128), nullable=True)
+    created_on = sa.Column(sa.DateTime, nullable=False, default=datetime.now)

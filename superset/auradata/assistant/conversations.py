@@ -33,7 +33,8 @@ changes the title and nothing else, and ``erase_conversations`` is the one way t
 delete. It removes everything that was said, and leaves behind what the limits of
 spending and the usage report need: the rows of the answers, empty and detached, and
 their votes. The images of a conversation live in a table of their own, and a message
-only names them, so ``history_of`` is the place that puts them back for the API.
+only names them, so ``history_of`` is the place that puts them back for the API. Its
+documents (``artifacts.py``) go with it too: they say what its answers said.
 """
 
 from __future__ import annotations
@@ -48,6 +49,7 @@ from uuid import UUID, uuid4
 import sqlalchemy as sa
 from sqlalchemy.exc import IntegrityError
 
+from superset.auradata.assistant.artifacts import delete_artifacts_of
 from superset.auradata.assistant.attachments import (
     claim_drafts,
     delete_attachments_of,
@@ -83,6 +85,8 @@ RECORD_TURN_END = "turn_end"
 RECORD_UNDONE = "undone"
 # A turn that never finished: its worker died, or no worker took it
 RECORD_TURN_LOST = "turn_lost"
+# A person went back to a version of a document. It keeps the conversation alive
+RECORD_ARTIFACT_RESTORED = "artifact_restored"
 
 # Why a call did not run, for the model. Each one answers its tool_use
 REJECTED = "The user rejected this action. It did not run. Do not retry it."
@@ -232,10 +236,12 @@ def erase_conversations(ids: Sequence[UUID]) -> None:
 
     Only what accounting needs stays, with no tie to the conversation: the rows of the
     answers, emptied, and their votes, without a reason. The keys that point at a
-    conversation cascade, so these rows are detached before it goes. Its images are
-    deleted by name, so they go even on a database that does not enforce those keys.
+    conversation cascade, so these rows are detached before it goes. Its images and
+    documents are deleted by name, so they go even on a database that does not enforce
+    those keys.
     """
     delete_attachments_of(ids)
+    delete_artifacts_of(ids)
     db.session.query(AssistantMessage).filter(
         AssistantMessage.conversation_id.in_(ids),
         AssistantMessage.role != "assistant",
@@ -657,6 +663,20 @@ class ConversationLog:
     def add_turn_lost(self, code: str) -> None:
         """A turn that ended without an ending. The model never reads this."""
         self._row(ROLE_RECORD, [{"type": RECORD_TURN_LOST, "code": code}])
+        self._commit()
+
+    def add_artifact_restored(self, artifact_id: UUID, version: int) -> None:
+        """A person went back to an earlier version. The model never reads this."""
+        self._row(
+            ROLE_RECORD,
+            [
+                {
+                    "type": RECORD_ARTIFACT_RESTORED,
+                    "artifact_id": str(artifact_id),
+                    "version": version,
+                }
+            ],
+        )
         self._commit()
 
     def add_undone(self, versions: dict[str, Any], note: dict[str, Any]) -> None:
