@@ -27508,3 +27508,6 @@ msgstr "Ya no puedes usar el asistente en este informe."
 
 msgid "The connection was lost. Open this conversation again to see the answer."
 msgstr "Se perdió la conexión. Abre de nuevo esta conversación para ver la respuesta."
+
+msgid "This version cannot be restored: it uses data you can no longer reach, or the document has too many versions."
+msgstr "No se puede volver a esta versión: usa datos a los que ya no llegas, o el documento tiene demasiadas versiones."

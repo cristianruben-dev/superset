@@ -172,7 +172,7 @@ def test_every_destructive_or_sharing_tool_needs_a_card(
     box = ToolBox("ada", MODE_EDIT)
     tools = {tool.name: tool for tool in box._registered()}
 
-    for name in box.names:
+    for name in box.names & set(tools):
         annotations = tools[name].annotations
         if annotations.destructiveHint or "sharing" in tools[name].tags:
             assert box.needs_confirmation(name), name

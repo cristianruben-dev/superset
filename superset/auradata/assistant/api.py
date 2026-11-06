@@ -73,6 +73,17 @@ from flask_babel import get_locale, gettext as _
 from marshmallow import fields, Schema, validate, ValidationError
 
 from superset import security_manager
+from superset.auradata.assistant.artifacts import (
+    artifact_calls,
+    artifact_json,
+    ArtifactMovedError,
+    ArtifactRefusedError,
+    find_artifact,
+    restore_version,
+    selected_context,
+    summaries_of,
+    version_of,
+)
 from superset.auradata.assistant.attachments import (
     attachment_block,
     attachments_in,
@@ -178,6 +189,7 @@ from superset.auradata.assistant.undo import (
 )
 from superset.auradata.backgrounds import image_response
 from superset.auradata.models import (
+    AssistantArtifact,
     AssistantConversation,
     AssistantMessage,
     ROLE_ADMIN,
@@ -242,6 +254,13 @@ class AssistantObjectSchema(Schema):
     format = fields.Dict()
 
 
+class AssistantArtifactRefSchema(Schema):
+    """The document open beside the chat, by name: the server reads what it holds."""
+
+    id = fields.String(required=True, validate=validate.Length(max=36))
+    block_id = fields.String(load_default=None, validate=validate.Length(max=36))
+
+
 class AssistantContextSchema(Schema):
     """
     Where the user is. All of it reaches the AI, as data. It comes from the browser, so
@@ -254,6 +273,7 @@ class AssistantContextSchema(Schema):
     page_id = fields.String(validate=validate.Length(max=250))
     selection = fields.List(fields.Nested(AssistantObjectSchema))
     filters = fields.Dict()
+    artifact = fields.Nested(AssistantArtifactRefSchema)
 
 
 class AssistantChatSchema(Schema):
@@ -288,6 +308,12 @@ class AssistantRenameSchema(Schema):
     title = fields.String(
         required=True, validate=validate.Length(min=1, max=TITLE_LENGTH)
     )
+
+
+class AssistantRestoreSchema(Schema):
+    """Which version of a document to go back to."""
+
+    version = fields.Integer(required=True, validate=validate.Range(min=1))
 
 
 class AssistantFeedbackSchema(Schema):
@@ -655,6 +681,9 @@ class AssistantRestApi(BaseSupersetApi):
         "upload_attachment": "read",
         "attachment": "read",
         "remove_attachment": "read",
+        "artifact": "read",
+        "artifact_version": "read",
+        "restore_artifact": "read",
     }
     openapi_spec_tag = "AuraData BI"
 
@@ -775,6 +804,13 @@ class AssistantRestApi(BaseSupersetApi):
             )
         conversation.model = model.id
         log = log or ConversationLog(conversation, user_id)
+        reference = context.pop("artifact", None)
+        if reference is not None:
+            opened = selected_context(
+                reference["id"], reference["block_id"], user_id, conversation.id
+            )
+            if opened is not None:
+                context["artifact"] = opened
         # A person who writes instead of deciding has moved on: those calls never run,
         # and their answers go first, as the API asks of a user turn. Images go before
         # the text, where the model reads them best
@@ -1410,6 +1446,8 @@ class AssistantRestApi(BaseSupersetApi):
                 **conversation_json(conversation),
                 "messages": messages,
                 "figures": figures_in(messages),
+                "artifact_calls": artifact_calls(messages),
+                "artifacts": summaries_of(conversation.id),
                 "context_tokens": context_tokens_of(conversation),
                 "pending": [] if running else pending_json(pending_turn(conversation)),
                 "rejected": rejected_calls(conversation),
@@ -1661,6 +1699,166 @@ class AssistantRestApi(BaseSupersetApi):
         if not delete_draft(attachment_id, get_user_id()):
             return self.response_404()
         return self.response(200, message="OK")
+
+    def _open_artifact(self, artifact_id: UUID) -> AssistantArtifact | None:
+        """A document of this person, on a report they can still open."""
+        artifact = find_artifact(artifact_id, get_user_id())
+        if artifact is None or open_dashboard(artifact.dashboard_id) is None:
+            return None
+        return artifact
+
+    @expose("/artifacts/<uuid:artifact_id>/", methods=("GET",))
+    @protect()
+    @safe
+    @statsd_metrics
+    def artifact(self, artifact_id: UUID) -> Response:
+        """A document of the user of the session, as it stands.
+        ---
+        get:
+          summary: The last version of a document of the current user
+          description: >-
+            Its data blocks hold queries, never numbers: the reader runs them through
+            the chart data API. sources names only the datasets the reader reaches.
+          parameters:
+          - in: path
+            name: artifact_id
+            required: true
+            schema:
+              type: string
+              format: uuid
+          responses:
+            200:
+              description: The document, with its history
+            401:
+              $ref: '#/components/responses/401'
+            403:
+              $ref: '#/components/responses/403'
+            404:
+              $ref: '#/components/responses/404'
+        """
+        if not _session_user_only():
+            return self.response_403()
+        artifact = self._open_artifact(artifact_id)
+        version = version_of(artifact.id) if artifact else None
+        if artifact is None or version is None:
+            return self.response_404()
+        return self.response(200, result=artifact_json(artifact, version))
+
+    @expose("/artifacts/<uuid:artifact_id>/versions/<int:number>/", methods=("GET",))
+    @protect()
+    @safe
+    @statsd_metrics
+    def artifact_version(self, artifact_id: UUID, number: int) -> Response:
+        """One version of a document of the user of the session.
+        ---
+        get:
+          summary: A version of a document of the current user
+          parameters:
+          - in: path
+            name: artifact_id
+            required: true
+            schema:
+              type: string
+              format: uuid
+          - in: path
+            name: number
+            required: true
+            schema:
+              type: integer
+          responses:
+            200:
+              description: That version of the document, with its history
+            401:
+              $ref: '#/components/responses/401'
+            403:
+              $ref: '#/components/responses/403'
+            404:
+              $ref: '#/components/responses/404'
+        """
+        if not _session_user_only():
+            return self.response_403()
+        artifact = self._open_artifact(artifact_id)
+        version = version_of(artifact.id, number) if artifact else None
+        if artifact is None or version is None:
+            return self.response_404()
+        return self.response(200, result=artifact_json(artifact, version))
+
+    @expose("/artifacts/<uuid:artifact_id>/restore/", methods=("POST",))
+    @protect()
+    @safe
+    @statsd_metrics
+    def restore_artifact(self, artifact_id: UUID) -> Response:
+        """Go back to a version of a document, which adds a new one.
+        ---
+        post:
+          summary: Go back to a version of a document of the current user
+          requestBody:
+            required: true
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    version:
+                      type: integer
+          parameters:
+          - in: path
+            name: artifact_id
+            required: true
+            schema:
+              type: string
+              format: uuid
+          responses:
+            200:
+              description: The document, with the new version as its last
+            400:
+              $ref: '#/components/responses/400'
+            401:
+              $ref: '#/components/responses/401'
+            403:
+              $ref: '#/components/responses/403'
+            404:
+              $ref: '#/components/responses/404'
+            409:
+              description: A turn is running on this conversation
+            422:
+              $ref: '#/components/responses/422'
+        """
+        if not _session_user_only():
+            return self.response_403()
+        if not request.is_json:
+            return self.response_400(message="Request is not JSON")
+        try:
+            number = AssistantRestoreSchema().load(request.json)["version"]
+        except ValidationError as ex:
+            return self.response_400(message=ex.messages)
+        user_id = get_user_id()
+        artifact = self._open_artifact(artifact_id)
+        conversation = (
+            find_conversation(artifact.conversation_id, user_id) if artifact else None
+        )
+        if artifact is None or conversation is None:
+            return self.response_404()
+        store = turn_store()
+        settle_turn(store, conversation.id)
+        if store.holder(conversation.id) is not None:
+            return self._busy()
+        try:
+            log = ConversationLog(conversation, user_id)
+            version = restore_version(artifact, number)
+            if version is None:
+                return self.response_404()
+            log.add_artifact_restored(artifact.id, version.number)
+        except (ArtifactMovedError, ConversationBusyError):
+            return self._busy()
+        except ArtifactRefusedError:
+            return self.response_422(
+                message=_(
+                    "This version cannot be restored: it uses data you can no longer "
+                    "reach, or the document has too many versions."
+                )
+            )
+        return self.response(200, result=artifact_json(artifact, version))
 
     def _answer_to_vote(
         self, conversation_id: UUID, message_id: UUID

@@ -34,6 +34,8 @@ from superset.auradata.assistant.retention import (
 )
 from superset.auradata.assistant.spending import month_start, spent_usd, usage_report
 from superset.auradata.models import (
+    AssistantArtifact,
+    AssistantArtifactVersion,
     AssistantConversation,
     AssistantMessage,
 )
@@ -49,7 +51,7 @@ from tests.unit_tests.auradata.assistant.chat_test import (  # noqa: F401
     world,
 )
 from tests.unit_tests.auradata.assistant.copilot_test import asks_to_delete
-from tests.unit_tests.auradata.assistant.fake_anthropic import reply, text
+from tests.unit_tests.auradata.assistant.fake_anthropic import reply, text, tool_use
 from tests.unit_tests.auradata.assistant.feedback_test import answered, vote_url
 
 DAYS = 90
@@ -370,3 +372,31 @@ def test_the_setting_defaults_to_ninety_days_and_the_task_is_scheduled() -> None
         CeleryConfig.beat_schedule["auradata_assistant.purge_conversations"]["task"]
         == "auradata_assistant.purge_conversations"
     )
+
+
+def test_a_purged_conversation_takes_its_documents(
+    client: Any,
+    world: dict[str, Any],  # noqa: F811
+    mocker: MockerFixture,
+) -> None:
+    login(world, "Ana")
+    use_model(
+        mocker,
+        reply(
+            tool_use(
+                "create_artifact",
+                {"title": "Secreto", "blocks": [{"type": "text", "text": "Secreto"}]},
+            ),
+            stop_reason="tool_use",
+        ),
+        reply(text("Listo")),
+    )
+    conversation = conversation_id_of(ask(client, world["dashboard"]))
+    age(world, conversation, DAYS + 1)
+
+    report = purge_conversations(DAYS)
+
+    assert report["deleted"] == 1
+    session = world["session"]
+    assert session.query(AssistantArtifact).count() == 0
+    assert session.query(AssistantArtifactVersion).count() == 0

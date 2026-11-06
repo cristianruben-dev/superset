@@ -32,6 +32,10 @@ the assistant leaves its mark: the saves of a call say which model made them
 (``acting_model``), and each call is a row of the action log, because the MCP service
 that writes those rows for an outside AI does not run here.
 
+Besides those, every person gets the tools of the assistant's own documents
+(``artifact_tools.py``), in both modes and outside the MCP catalog: they change no
+report and need no card, and ``call`` runs them here, as the person of the turn.
+
 The FastMCP middleware does not run in-process, so this module caps the size
 of results and hides internal errors, as the size guard and the error handler do on
 the MCP server.
@@ -45,13 +49,16 @@ import time
 from collections.abc import Sequence
 from dataclasses import dataclass
 from typing import Any
+from uuid import UUID
 
 from flask import current_app, g
 
+from superset import security_manager
 from superset.auradata.action_log import ASSISTANT_TOOL_CALL
-from superset.extensions import event_logger
+from superset.auradata.assistant.artifacts import ARTIFACT_TOOLS
+from superset.extensions import db, event_logger
 from superset.security.api_key_scopes import METHOD_PERMISSION_SCOPE_ACTION
-from superset.utils.core import get_user_id
+from superset.utils.core import get_user_id, override_user
 from superset.versioning.changes import acting_model
 
 logger = logging.getLogger(__name__)
@@ -272,17 +279,23 @@ class ToolBox:
     @property
     def names(self) -> frozenset[str]:
         """Every tool name this request accepts."""
-        return frozenset(self._tools)
+        return frozenset(self._tools) | ARTIFACT_TOOLS
 
     def definitions(self, tool_search: bool) -> list[dict[str, Any]]:
         """
         The ``tools`` of the request, in the same order every time: the prompt cache
-        is a match on bytes. Without tool search only the fixed group is offered.
+        is a match on bytes. Without tool search only the fixed group is offered, with
+        the tools of the assistant's own documents, which never wait behind a search.
         """
+        from superset.auradata.assistant.artifact_tools import own_definitions
+
         fixed = [
-            _definition(self._tools[name], deferred=False)
-            for name in FIXED_TOOLS
-            if name in self._tools
+            *(
+                _definition(self._tools[name], deferred=False)
+                for name in FIXED_TOOLS
+                if name in self._tools
+            ),
+            *own_definitions(),
         ]
         if not tool_search:
             return fixed
@@ -305,6 +318,10 @@ class ToolBox:
 
     def title(self, name: str) -> str:
         """The name of a tool for a person."""
+        if name in ARTIFACT_TOOLS:
+            from superset.auradata.assistant.artifact_tools import OWN_TOOLS
+
+            return OWN_TOOLS[name].title
         tool = self._tools.get(name)
         annotations = tool.annotations if tool is not None else None
         return (annotations.title if annotations else None) or name
@@ -316,6 +333,8 @@ class ToolBox:
         ``approved`` says the person approved this very call. Only the code that
         reads their stored decision passes it; nothing the model says can set it.
         """
+        if name in ARTIFACT_TOOLS:
+            return self._call_own(name, arguments)
         if name not in self._tools:
             logger.warning("Assistant refused a tool it does not offer: %r", name)
             return _error(f"The tool {name!r} is not available here.")
@@ -346,6 +365,43 @@ class ToolBox:
         blocks = [_block_of(item) for item in result.content]
         return ToolOutcome(blocks or [_text_block("")])
 
+    def _call_own(self, name: str, arguments: Any) -> ToolOutcome:
+        """
+        Run a tool of the assistant's own documents, as the person of this turn. An MCP
+        call ends the session it shares with the turn, so the person is read again, and
+        whatever is not known stops here: there is nobody else to act as.
+        """
+        from superset.auradata.assistant.artifact_tools import (
+            OwnToolContext,
+            run_own_tool,
+        )
+
+        if not isinstance(arguments, dict):
+            return _error("The input of a tool must be an object.")
+        user_id = self._user_id if self._user_id is not None else get_user_id()
+        if user_id is None or self.conversation_id is None or not self._dashboard_id:
+            return _error("Documents are not available here.")
+        user = db.session.get(security_manager.user_model, user_id)
+        if user is None:
+            return _error("Documents are not available here.")
+        context = OwnToolContext(
+            user_id, UUID(self.conversation_id), self._dashboard_id, self._model
+        )
+        previous_login = g.get("_login_user")
+        started = time.monotonic()
+        try:
+            with override_user(user):
+                g._login_user = user  # pylint: disable=protected-access
+                text, failed = run_own_tool(name, arguments, context)
+        except Exception:  # pylint: disable=broad-except
+            db.session.rollback()
+            logger.exception("Assistant tool %s failed", name)
+            text, failed = "The tool failed. Try again or ask for something else.", True
+        finally:
+            g._login_user = previous_login  # pylint: disable=protected-access
+        self._log_call(name, arguments, user_id, started, not failed)
+        return _error(text) if failed else ToolOutcome([_text_block(text)])
+
     def _log_call(
         self,
         name: str,
@@ -358,6 +414,11 @@ class ToolBox:
         from superset.mcp_service.middleware import _sanitize_params
 
         try:
+            params = _sanitize_params(arguments)
+            if name in ARTIFACT_TOOLS:
+                from superset.auradata.assistant.artifact_tools import log_params
+
+                params = log_params(arguments)
             event_logger.log(
                 user_id=user_id,
                 action=ASSISTANT_TOOL_CALL,
@@ -370,7 +431,7 @@ class ToolBox:
                     "model": self._model,
                     "mode": self._mode,
                     "conversation_id": self.conversation_id,
-                    "params": _sanitize_params(arguments),
+                    "params": params,
                     "success": success,
                 },
             )

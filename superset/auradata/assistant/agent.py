@@ -46,6 +46,7 @@ from typing import Any
 from flask import current_app
 from flask_babel import gettext as _
 
+from superset.auradata.assistant.artifacts import artifact_of
 from superset.auradata.assistant.conversations import (
     AssistantTurn,
     confirmation_json,
@@ -429,6 +430,9 @@ def _run_tools(
         figure = figure_of(block, result)
         if figure is not None:
             payload["figure"] = figure
+        artifact = artifact_of(block, result)
+        if artifact is not None:
+            payload["artifact"] = artifact
         yield "tool_end", payload
 
 

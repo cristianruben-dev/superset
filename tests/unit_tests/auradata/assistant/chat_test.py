@@ -45,6 +45,8 @@ from superset.auradata.assistant import (
     turns as turns_module,
     undo as undo_module,
 )
+from superset.auradata.assistant.artifact_tools import OWN_TOOLS
+from superset.auradata.assistant.artifacts import ARTIFACT_TOOLS
 from superset.auradata.assistant.conversations import (
     AssistantTurn,
     ConversationBusyError,
@@ -236,7 +238,7 @@ def test_read_mode_never_offers_a_write_tool(
     registered = {
         tool.name: tool for tool in asyncio.run(mcp.list_tools(run_middleware=False))
     }
-    for name in names - {TOOL_SEARCH_NAME}:
+    for name in names - {TOOL_SEARCH_NAME} - ARTIFACT_TOOLS:
         tool = registered[name]
         assert tool.annotations.readOnlyHint is True, name
         assert "mutate" not in tool.tags, name
@@ -671,7 +673,10 @@ def test_the_request_is_stable_and_the_prefix_is_cached(
     assert tools[0]["name"] == TOOL_SEARCH_NAME
     assert "defer_loading" not in tools[0]
     fixed = [tool["name"] for tool in tools[1:] if not tool.get("defer_loading")]
-    assert fixed == [name for name in FIXED_TOOLS if name in fixed]
+    assert fixed == [
+        *(name for name in FIXED_TOOLS if name in fixed),
+        *OWN_TOOLS,
+    ]
     assert "query_dataset" in fixed
     deferred = [tool["name"] for tool in tools if tool.get("defer_loading")]
     assert deferred == sorted(deferred)
