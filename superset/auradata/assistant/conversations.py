@@ -32,7 +32,8 @@ The content of a conversation is never rewritten, and it goes as a whole: a rena
 changes the title and nothing else, and ``erase_conversations`` is the one way to
 delete. It removes everything that was said, and leaves behind what the limits of
 spending and the usage report need: the rows of the answers, empty and detached, and
-their votes.
+their votes. The images of a conversation live in a table of their own, and a message
+only names them, so ``history_of`` is the place that puts them back for the API.
 """
 
 from __future__ import annotations
@@ -47,6 +48,11 @@ from uuid import UUID, uuid4
 import sqlalchemy as sa
 from sqlalchemy.exc import IntegrityError
 
+from superset.auradata.assistant.attachments import (
+    claim_drafts,
+    delete_attachments_of,
+    with_images,
+)
 from superset.auradata.assistant.models import TokenUsage
 from superset.auradata.models import (
     AssistantConversation,
@@ -218,8 +224,10 @@ def erase_conversations(ids: Sequence[UUID]) -> None:
 
     Only what accounting needs stays, with no tie to the conversation: the rows of the
     answers, emptied, and their votes, without a reason. The keys that point at a
-    conversation cascade, so these rows are detached before it goes.
+    conversation cascade, so these rows are detached before it goes. Its images are
+    deleted by name, so they go even on a database that does not enforce those keys.
     """
+    delete_attachments_of(ids)
     db.session.query(AssistantMessage).filter(
         AssistantMessage.conversation_id.in_(ids),
         AssistantMessage.role != "assistant",
@@ -467,14 +475,16 @@ def history_of(conversation: AssistantConversation) -> list[dict[str, Any]]:
     sent: the API says to discard refused output, and consecutive user turns are valid.
     A response the person left in the middle is not sent either: it has no content.
     """
-    return [
-        {
-            "role": message.role,
-            "content": content_to_send(json.loads(message.content)),
-        }
-        for message in _messages_of(conversation)
-        if message.role != ROLE_RECORD and message.stop_reason not in _NOT_SENT
-    ]
+    return with_images(
+        [
+            {
+                "role": message.role,
+                "content": content_to_send(json.loads(message.content)),
+            }
+            for message in _messages_of(conversation)
+            if message.role != ROLE_RECORD and message.stop_reason not in _NOT_SENT
+        ]
+    )
 
 
 def uses_tool_search(history: list[dict[str, Any]]) -> bool:
@@ -548,9 +558,20 @@ class ConversationLog:
             db.session.rollback()
             raise ConversationBusyError from ex
 
-    def add_user_message(self, content: list[dict[str, Any]]) -> None:
+    def add_user_message(
+        self, content: list[dict[str, Any]], attachments: Sequence[UUID] = ()
+    ) -> None:
+        """Store a message and, in the same commit, the images it sends."""
         self._row("user", content)
-        self._commit()
+        try:
+            if attachments and not claim_drafts(
+                attachments, self._conversation_id, self._user_id
+            ):
+                raise ConversationBusyError
+            db.session.commit()
+        except (IntegrityError, ConversationBusyError) as ex:
+            db.session.rollback()
+            raise ConversationBusyError from ex
 
     def add_results(self, tool_results: list[dict[str, Any]]) -> None:
         """Answer a turn that waited for decisions."""

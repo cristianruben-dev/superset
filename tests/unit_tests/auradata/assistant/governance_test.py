@@ -578,7 +578,9 @@ def test_a_new_notice_asks_everyone_again(
     accept_privacy(user)
     assert accepted_privacy(user)
 
-    mocker.patch.object(governance, "PRIVACY_NOTICE_VERSION", 2)
+    mocker.patch.object(
+        governance, "PRIVACY_NOTICE_VERSION", governance.PRIVACY_NOTICE_VERSION + 1
+    )
 
     assert not accepted_privacy(user)
 

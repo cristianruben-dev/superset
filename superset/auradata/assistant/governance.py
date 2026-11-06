@@ -46,7 +46,7 @@ from superset.key_value.types import JsonKeyValueCodec, KeyValueResource
 from superset.key_value.utils import get_uuid_namespace
 from superset.utils.decorators import transaction
 
-PRIVACY_NOTICE_VERSION = 1
+PRIVACY_NOTICE_VERSION = 2
 
 RESOURCE = KeyValueResource.AURADATA_ASSISTANT
 CODEC = JsonKeyValueCodec()

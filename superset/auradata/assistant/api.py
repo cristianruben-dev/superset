@@ -40,6 +40,9 @@ totals.
 A conversation is renamed or deleted by its owner alone: anyone else gets a 404.
 Deleting asks for no switch and no report: people can always remove what they said.
 
+An image is uploaded on its own, cleaned there, and a message only names it: see
+``attachments.py``. Only its owner reads it, and anyone else gets a 404.
+
 A decision on a pending call names only the call: what runs is what the conversation
 stored, and it is checked again for the person deciding, at that moment. The context of
 a message is read by the model as data, and ``dashboard_id`` is the only part of it that
@@ -68,6 +71,20 @@ from superset.auradata.assistant.agent import (
     KEEP_ALIVE,
     resume_after_decisions,
     run_conversation,
+)
+from superset.auradata.assistant.attachments import (
+    attachment_block,
+    attachments_in,
+    clean_image,
+    delete_draft,
+    find_attachment,
+    has_drafts,
+    ImageRefusedError,
+    MAX_PER_CONVERSATION,
+    MAX_PER_MESSAGE,
+    MAX_UPLOAD_BYTES,
+    save_draft,
+    with_images,
 )
 from superset.auradata.assistant.conversations import (
     context_tokens_of,
@@ -143,7 +160,12 @@ from superset.auradata.assistant.undo import (
     UndoError,
     UNDONE_NOTE,
 )
-from superset.auradata.models import AssistantMessage, ROLE_ADMIN
+from superset.auradata.backgrounds import image_response
+from superset.auradata.models import (
+    AssistantConversation,
+    AssistantMessage,
+    ROLE_ADMIN,
+)
 from superset.auradata.workspaces import (
     find_workspace,
     WorkspaceForbiddenError,
@@ -166,6 +188,8 @@ logger = logging.getLogger(__name__)
 
 MAX_MESSAGE_CHARS = 20_000
 MAX_CONTEXT_CHARS = 8_000
+# What a form adds around the file it carries
+UPLOAD_OVERHEAD_BYTES = 8_192
 
 
 class AssistantSettingsSchema(Schema):
@@ -227,7 +251,10 @@ class AssistantChatSchema(Schema):
     """A message for the assistant."""
 
     message = fields.String(
-        required=True, validate=validate.Length(min=1, max=MAX_MESSAGE_CHARS)
+        load_default="", validate=validate.Length(max=MAX_MESSAGE_CHARS)
+    )
+    attachments = fields.List(
+        fields.UUID(), load_default=list, validate=validate.Length(max=MAX_PER_MESSAGE)
     )
     conversation_id = fields.UUID(load_default=None)
     model = fields.String(load_default=None, validate=validate.Length(max=128))
@@ -707,6 +734,9 @@ class AssistantRestApi(BaseSupersetApi):
         "privacy": "read",
         "feedback": "read",
         "clear_feedback": "read",
+        "upload_attachment": "read",
+        "attachment": "read",
+        "remove_attachment": "read",
     }
     openapi_spec_tag = "AuraData BI"
 
@@ -766,7 +796,8 @@ class AssistantRestApi(BaseSupersetApi):
         except ValidationError as ex:
             return self.response_400(message=ex.messages)
         question = data["message"].strip()
-        if not question:
+        attachments = list(dict.fromkeys(data["attachments"]))
+        if not question and not attachments:
             return self.response_400(message="The message is empty")
         context = data["context"]
         if len(json.dumps(context)) > MAX_CONTEXT_CHARS:
@@ -801,6 +832,8 @@ class AssistantRestApi(BaseSupersetApi):
             return refused
         if (refused := self._refused_by_budget(settings, workspace_id)) is not None:
             return refused
+        if (refused := self._refused_images(attachments, conversation)) is not None:
+            return refused
         history = history_of(conversation) if conversation else []
         if _no_tool_search_for(model, history):
             return self.response_422(message=self._tool_search_needed())
@@ -817,25 +850,28 @@ class AssistantRestApi(BaseSupersetApi):
         previous_model = conversation.model if conversation else model.id
         if conversation is None:
             conversation = create_conversation(
-                user_id, dashboard_id, mode, model.id, question
+                user_id, dashboard_id, mode, model.id, question or _("Image")
             )
         conversation.model = model.id
         toolbox.conversation_id = str(conversation.id)
         log = log or ConversationLog(conversation, user_id)
         # A person who writes instead of deciding has moved on: those calls never run,
-        # and their answers go first, as the API asks of a user turn
+        # and their answers go first, as the API asks of a user turn. Images go before
+        # the text, where the model reads them best
         message = [
             *(not_run_results(pending) if pending else []),
+            *[attachment_block(item) for item in attachments],
             context_block(context),
-            {"type": "text", "text": question},
+            *([{"type": "text", "text": question}] if question else []),
         ]
         try:
-            log.add_user_message(message)
+            log.add_user_message(message, attachments)
         except ConversationBusyError:
             return self.response(
                 409, message=_("This conversation is answering another message.")
             )
-        history.append({"role": "user", "content": message})
+        # The same blocks a later request reads from the database
+        history.extend(with_images([{"role": "user", "content": message}]))
         conversation_id = conversation.id
 
         def turn() -> Iterator[tuple[str, dict[str, Any]]]:
@@ -860,6 +896,21 @@ class AssistantRestApi(BaseSupersetApi):
             )
 
         return _event_stream(events())
+
+    def _refused_images(
+        self, attachments: list[UUID], conversation: AssistantConversation | None
+    ) -> Response | None:
+        """Why these images cannot join this conversation, if they cannot."""
+        if not attachments:
+            return None
+        if not has_drafts(attachments, get_user_id()):
+            return self.response_422(message=_("Attach your images again."))
+        held = attachments_in(conversation.id) if conversation else 0
+        if held + len(attachments) > MAX_PER_CONVERSATION:
+            return self.response_422(
+                message=_("This conversation cannot take more images. Start a new one.")
+            )
+        return None
 
     def _refused_by_settings(self, settings: AssistantSettings) -> Response | None:
         """Why the assistant cannot answer here, if it cannot."""
@@ -1438,6 +1489,153 @@ class AssistantRestApi(BaseSupersetApi):
             delete_conversation(conversation)
         except ConversationBusyError:
             return self._busy()
+        return self.response(200, message="OK")
+
+    @expose("/attachments/", methods=("POST",))
+    @protect()
+    @safe
+    @statsd_metrics
+    def upload_attachment(self) -> Response:
+        """Keep an image for the next message of the user of the session.
+        ---
+        post:
+          summary: Upload an image for the AI assistant
+          description: >-
+            The server reads the real type from the content and stores a new image,
+            without metadata. It waits for a message, which names it by its id.
+          requestBody:
+            required: true
+            content:
+              multipart/form-data:
+                schema:
+                  type: object
+                  properties:
+                    image:
+                      type: string
+                      format: binary
+          responses:
+            200:
+              description: The stored image
+            400:
+              $ref: '#/components/responses/400'
+            401:
+              $ref: '#/components/responses/401'
+            403:
+              $ref: '#/components/responses/403'
+            413:
+              description: The file is too large
+            422:
+              description: The image is refused, and the message says why
+            503:
+              description: The assistant cannot run on this server
+        """
+        if not _session_user_only():
+            return self.response_403()
+        settings = get_assistant_settings()
+        if (refused := self._refused_by_settings(settings)) is not None:
+            return refused
+        if (refused := self._refused_by_privacy()) is not None:
+            return refused
+        if (request.content_length or 0) > MAX_UPLOAD_BYTES + UPLOAD_OVERHEAD_BYTES:
+            return self.response(413, message=_("This image is larger than 8 MB."))
+        upload = request.files.get("image")
+        if upload is None:
+            return self.response_400(message="Missing image")
+        try:
+            draft = save_draft(
+                get_user_id(), clean_image(upload.read(MAX_UPLOAD_BYTES + 1))
+            )
+        except ImageRefusedError as ex:
+            return self.response(422, message=str(ex))
+        return self.response(
+            200,
+            result={
+                "id": str(draft.id),
+                "media_type": draft.image_type,
+                "width": draft.width,
+                "height": draft.height,
+            },
+        )
+
+    @expose("/attachments/<uuid:attachment_id>/", methods=("GET",))
+    @protect()
+    @safe
+    @statsd_metrics
+    def attachment(self, attachment_id: UUID) -> Response:
+        """An image of the user of the session.
+        ---
+        get:
+          summary: An image attached to the AI assistant by the current user
+          parameters:
+          - in: path
+            name: attachment_id
+            required: true
+            schema:
+              type: string
+              format: uuid
+          responses:
+            200:
+              description: The image
+              content:
+                image/*:
+                  schema:
+                    type: string
+                    format: binary
+            401:
+              $ref: '#/components/responses/401'
+            403:
+              $ref: '#/components/responses/403'
+            404:
+              $ref: '#/components/responses/404'
+        """
+        if not _session_user_only():
+            return self.response_403()
+        user_id = get_user_id()
+        found = find_attachment(attachment_id, user_id)
+        if found is None:
+            return self.response_404()
+        if found.conversation_id is not None:
+            conversation = find_conversation(found.conversation_id, user_id)
+            if (
+                conversation is None
+                or _open_dashboard(conversation.dashboard_id) is None
+            ):
+                return self.response_404()
+        response = image_response(found.image, found.image_type)
+        # A deleted conversation must not live on in a cache
+        response.headers["Cache-Control"] = "private, no-store"
+        return response
+
+    @expose("/attachments/<uuid:attachment_id>/", methods=("DELETE",))
+    @protect()
+    @safe
+    @statsd_metrics
+    def remove_attachment(self, attachment_id: UUID) -> Response:
+        """Drop an image that was not sent yet.
+        ---
+        delete:
+          summary: Delete an image of the current user that no message sent
+          parameters:
+          - in: path
+            name: attachment_id
+            required: true
+            schema:
+              type: string
+              format: uuid
+          responses:
+            200:
+              description: The image is gone
+            401:
+              $ref: '#/components/responses/401'
+            403:
+              $ref: '#/components/responses/403'
+            404:
+              $ref: '#/components/responses/404'
+        """
+        if not _session_user_only():
+            return self.response_403()
+        if not delete_draft(attachment_id, get_user_id()):
+            return self.response_404()
         return self.response(200, message="OK")
 
     def _answer_to_vote(

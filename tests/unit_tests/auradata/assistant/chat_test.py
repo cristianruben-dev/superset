@@ -38,7 +38,12 @@ from pytest_mock import MockerFixture
 from sqlalchemy.engine import Engine
 
 from superset import security_manager
-from superset.auradata.assistant import agent, api as api_module, undo as undo_module
+from superset.auradata.assistant import (
+    agent,
+    api as api_module,
+    attachments as attachments_module,
+    undo as undo_module,
+)
 from superset.auradata.assistant.conversations import (
     AssistantTurn,
     ConversationBusyError,
@@ -1404,7 +1409,12 @@ def test_an_api_key_cannot_read_the_models(
 
 def test_every_message_of_the_chat_has_its_spanish_translation() -> None:
     """Product rule: Spanish first. A missing entry would reach users in English."""
-    sources = [agent.__file__, api_module.__file__, undo_module.__file__]
+    sources = [
+        agent.__file__,
+        api_module.__file__,
+        undo_module.__file__,
+        attachments_module.__file__,
+    ]
     catalog_path = Path(api_module.__file__).parents[2] / (
         "translations/es/LC_MESSAGES/messages.po"
     )
@@ -1419,6 +1429,7 @@ def test_every_message_of_the_chat_has_its_spanish_translation() -> None:
     trees = [
         ast.parse(Path(sources[0]).read_text()),
         ast.parse(Path(sources[2]).read_text()),
+        ast.parse(Path(sources[3]).read_text()),
         chat_class,
     ]
     wanted = {

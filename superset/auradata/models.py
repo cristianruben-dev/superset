@@ -36,6 +36,7 @@ WORKSPACE_DATASETS_TABLE = "auradata_workspace_datasets"
 ASSISTANT_CONVERSATIONS_TABLE = "auradata_assistant_conversations"
 ASSISTANT_MESSAGES_TABLE = "auradata_assistant_messages"
 ASSISTANT_FEEDBACK_TABLE = "auradata_assistant_feedback"
+ASSISTANT_ATTACHMENTS_TABLE = "auradata_assistant_attachments"
 
 # Workspace roles, from the least to the most rights
 ROLE_VIEWER = "viewer"
@@ -287,6 +288,42 @@ class AssistantMessage(Model):
     )
 
     conversation = relationship("AssistantConversation", back_populates="messages")
+
+
+class AssistantAttachment(Model):
+    """
+    An image attached to the assistant, as ``attachments.clean_image`` left it. A
+    message only names it, by id: these bytes go out on every later request, and the
+    history is read many times in a turn. Nothing here changes after the upload.
+
+    Without ``conversation_id`` it is a draft, which only its ``user_id`` can read: it
+    joins a conversation with the message that sends it. A draft nobody sent is deleted
+    by the retention task. No name of a file, and no metadata, ever reaches this table.
+    """
+
+    __tablename__ = ASSISTANT_ATTACHMENTS_TABLE
+
+    id = sa.Column(UUIDType(binary=True), primary_key=True, default=uuid.uuid4)
+    conversation_id = sa.Column(
+        UUIDType(binary=True),
+        sa.ForeignKey(f"{ASSISTANT_CONVERSATIONS_TABLE}.id", ondelete="CASCADE"),
+        nullable=True,
+        index=True,
+    )
+    user_id = sa.Column(
+        sa.Integer,
+        sa.ForeignKey("ab_user.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+    )
+    # A length, because a plain BLOB of MySQL stops at 64 KB
+    image = deferred(sa.Column(sa.LargeBinary(length=2**24 - 1), nullable=False))
+    image_type = sa.Column(sa.String(50), nullable=False)
+    width = sa.Column(sa.Integer, nullable=False)
+    height = sa.Column(sa.Integer, nullable=False)
+    created_on = sa.Column(
+        sa.DateTime, nullable=False, default=datetime.now, index=True
+    )
 
 
 class AssistantFeedback(Model):

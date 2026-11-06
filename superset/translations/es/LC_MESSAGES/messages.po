@@ -27410,3 +27410,24 @@ msgstr "No se pudo abrir esta conversación."
 
 msgid "Conversation deleted."
 msgstr "Conversación eliminada."
+
+msgid "Image"
+msgstr "Imagen"
+
+msgid "This image is larger than 8 MB."
+msgstr "Esta imagen pesa más de 8 MB."
+
+msgid "This image has too many pixels."
+msgstr "Esta imagen tiene demasiados píxeles."
+
+msgid "Use a PNG, JPEG or WEBP image."
+msgstr "Usa una imagen PNG, JPEG o WEBP."
+
+msgid "You have too many images waiting. Send or remove some first."
+msgstr "Tienes demasiadas imágenes en espera. Envía o quita algunas primero."
+
+msgid "Attach your images again."
+msgstr "Vuelve a adjuntar tus imágenes."
+
+msgid "This conversation cannot take more images. Start a new one."
+msgstr "Esta conversación ya no admite más imágenes. Empieza una nueva."

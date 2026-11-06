@@ -21,6 +21,7 @@ from __future__ import annotations
 import logging
 from typing import Any
 
+from superset.auradata.assistant.attachments import purge_drafts
 from superset.auradata.assistant.retention import purge_conversations, retention_days
 from superset.extensions import celery_app
 
@@ -31,13 +32,15 @@ logger = logging.getLogger(__name__)
 def purge_assistant_conversations(dry_run: bool = False) -> dict[str, Any]:
     """
     One pass of the retention of the assistant. ``dry_run`` only counts. A failure ends
-    the pass and the next firing starts again: deleted batches stay deleted.
+    the pass and the next firing starts again: deleted batches stay deleted. Images
+    nobody sent are not conversations, so they go whatever the retention says.
     """
     days = retention_days()
-    if days is None:
-        logger.info("assistant retention: no retention set, nothing is deleted")
-        return {"skipped": 1}
     try:
+        purge_drafts(dry_run=dry_run)
+        if days is None:
+            logger.info("assistant retention: no retention set, nothing is deleted")
+            return {"skipped": 1}
         return purge_conversations(days, dry_run=dry_run)
     except Exception:  # pylint: disable=broad-except
         logger.exception("assistant retention: the task failed")
