@@ -12,8 +12,8 @@ Para quien usa el panel está el [capítulo 10 del manual](../manual/10-asistent
 
 ## Puesta en marcha
 
-Hacen falta **dos encendidos**: uno en la configuración del servidor y otro en la pantalla. Si falta el primero, el
-interruptor de la pantalla se puede ver encendido y el asistente sigue apagado.
+El interruptor de la pantalla es el que manda. `AURADATA_ASSISTANT_ENABLED` solo da el valor inicial, hasta que un
+administrador guarda.
 
 1. **Agrega la clave y el encendido** al archivo de entorno.
 
@@ -110,6 +110,12 @@ Son constantes del código, no ajustes.
 | Páginas que crea «Guardar como página» | 5 | `artifact_pages.py` |
 | Filas del gráfico de una respuesta | 30 | `figures.py` |
 | Eventos de un turno en Redis | 50 000 | `turn_store.py` |
+
+### En Coolify
+
+`docker-compose.coolify.yml` es el archivo de este despliegue. Coolify genera solas las claves `SERVICE_*`, incluida la
+contraseña de `admin` (`SERVICE_PASSWORD_ADMIN`), y solo `ANTHROPIC_API_KEY` se pega a mano. Si Cloudflare está delante,
+cada dominio necesita su propio registro apuntando al servidor: el comodín `*.auradata.mx` va a otro origen.
 
 ## Modelos
 
