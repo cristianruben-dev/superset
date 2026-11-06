@@ -23,6 +23,7 @@ import { css, styled } from '@apache-superset/core/theme';
 import { Loading } from '@superset-ui/core/components';
 import { Icons } from '@superset-ui/core/components/Icons';
 import { useResizeDetector } from 'react-resize-detector';
+import getBootstrapData from 'src/utils/getBootstrapData';
 import { blockSource, figureValue, grouped, rowsOf } from './artifact';
 import { AssistantMarkdown } from './AssistantMarkdown';
 import type {
@@ -269,7 +270,9 @@ const Rows = styled.div`
 
 const cellText = (value: unknown) => {
   if (value === null || value === undefined) return '';
-  return typeof value === 'number' ? value.toLocaleString() : String(value);
+  return typeof value === 'number'
+    ? value.toLocaleString(getBootstrapData().common?.locale)
+    : String(value);
 };
 
 function Refused() {

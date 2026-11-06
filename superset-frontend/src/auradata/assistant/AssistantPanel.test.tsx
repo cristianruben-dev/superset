@@ -27,6 +27,7 @@ import {
   waitFor,
 } from 'spec/helpers/testing-library';
 import { setUnsavedChanges } from 'src/dashboard/actions/dashboardState';
+import * as mobile from '../format/mobile';
 import { AssistantChat, AssistantPanel } from './AssistantPanel';
 import {
   askAssistant,
@@ -1588,4 +1589,24 @@ test('opening a conversation brings its last document back', async () => {
     await screen.findByTestId('auradata-artifact-panel'),
   ).toBeInTheDocument();
   expect(fetchArtifact).toHaveBeenCalledWith('doc', undefined);
+});
+
+test('on a phone a picked block goes back to the chat and still travels', async () => {
+  const phone = jest.spyOn(mobile, 'usePhoneScreen').mockReturnValue(true);
+  const stream = await writeDocument();
+  await stream.end();
+
+  fireEvent.click(await screen.findByTestId('auradata-artifact-pick'));
+
+  expect(
+    screen.queryByTestId('auradata-artifact-panel'),
+  ).not.toBeInTheDocument();
+  expect(screen.getByTestId('auradata-assistant-aimed')).toBeInTheDocument();
+  ask.mockReset().mockResolvedValue(undefined);
+  await sendQuestion('acorta este párrafo');
+  expect(ask.mock.calls[0][0].context.artifact).toEqual({
+    id: 'doc',
+    block_id: 'b1',
+  });
+  phone.mockRestore();
 });

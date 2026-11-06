@@ -697,7 +697,7 @@ function Answer({
       )}
       {steps.length > 0 && <AnswerSteps steps={steps} writing={writing} />}
       {message.text && <AssistantMarkdown text={message.text} />}
-      {message.figure && (
+      {message.figure && !message.artifact && (
         <AssistantFigure figure={message.figure} dashboardId={dashboardId} />
       )}
       {message.artifact && (
@@ -763,7 +763,9 @@ function Conversations({
   const [conversations, setConversations] = useState<ListedConversation[]>([]);
   const [listOpen, setListOpen] = useState(false);
   const [draft, setDraft] = useState('');
+  const phone = usePhoneScreen();
   const [openArtifact, setOpenArtifact] = useState<string | null>(null);
+  const [artifactShown, setArtifactShown] = useState(false);
   const [selectedBlock, setSelectedBlock] = useState<string | null>(null);
   const [column, setColumn] = useState<HTMLDivElement | null>(null);
   const [dropping, setDropping] = useState(false);
@@ -837,8 +839,20 @@ function Conversations({
   // A document shows as soon as an answer writes it, and follows its versions
   useEffect(() => {
     setOpenArtifact(chat.artifact?.id ?? null);
+    setArtifactShown(!!chat.artifact);
     setSelectedBlock(null);
   }, [chat.artifact?.id, chat.artifact?.version]);
+
+  const showArtifact = (id: string) => {
+    setOpenArtifact(id);
+    setArtifactShown(true);
+  };
+
+  // A phone has room for one of the two: a block picked there goes back to the chat
+  const selectBlock = (id: string | null) => {
+    setSelectedBlock(id);
+    if (phone && id) setArtifactShown(false);
+  };
 
   // A reload comes back to the conversation it left, and to its answer if it is running
   const toRestore = useRef(rememberedConversation(dashboardId, mode));
@@ -943,12 +957,13 @@ function Conversations({
     ...(editing
       ? editorContext(store.getState(), dashboardId, selectedVisuals())
       : pageContext(store.getState(), dashboardId)),
-    ...(openArtifact && {
-      artifact: {
-        id: openArtifact,
-        ...(selectedBlock && { block_id: selectedBlock }),
-      },
-    }),
+    ...(openArtifact &&
+      (artifactShown || selectedBlock) && {
+        artifact: {
+          id: openArtifact,
+          ...(selectedBlock && { block_id: selectedBlock }),
+        },
+      }),
   });
 
   const canSend = !chat.busy && !!model && !blocked && !stopped;
@@ -1101,7 +1116,7 @@ function Conversations({
       onDragLeave={onDragLeave}
       onDrop={onDrop}
     >
-      {active && openArtifact && (
+      {active && openArtifact && artifactShown && (
         <ArtifactPanel
           artifactId={openArtifact}
           liveVersion={
@@ -1114,12 +1129,12 @@ function Conversations({
           busy={chat.busy}
           canAsk={canSend}
           selected={selectedBlock}
-          onSelect={setSelectedBlock}
+          onSelect={selectBlock}
           onRefresh={() =>
             ask(t('Refresh the text of this document with the current figures'))
           }
           onClose={() => {
-            setOpenArtifact(null);
+            setArtifactShown(false);
             setSelectedBlock(null);
           }}
         />
@@ -1216,7 +1231,7 @@ function Conversations({
                 }
                 onVote={feedback => vote(message, feedback)}
                 onNewConversation={startNew}
-                onOpenArtifact={artifact => setOpenArtifact(artifact.id)}
+                onOpenArtifact={artifact => showArtifact(artifact.id)}
               />
             ),
           )}
