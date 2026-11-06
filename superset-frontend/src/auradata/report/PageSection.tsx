@@ -19,7 +19,7 @@
 import { useMemo, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { t } from '@apache-superset/core/translation';
-import { css, styled } from '@apache-superset/core/theme';
+import { css, styled, useTheme } from '@apache-superset/core/theme';
 import { Button, Select, Switch } from '@superset-ui/core/components';
 import { getClientErrorObject } from '@superset-ui/core';
 import { logging } from '@apache-superset/core/utils';
@@ -82,6 +82,7 @@ function useDashboardColumns(): string[] {
  * to it, and on which columns.
  */
 export function PageSection() {
+  const theme = useTheme();
   const dispatch = useDispatch();
   const layout = useSelector(
     (state: RootState) => state.dashboardLayout.present,
@@ -174,7 +175,7 @@ export function PageSection() {
       {background.type === 'color' && (
         <ColorField
           label={t('Color')}
-          value={background.color ?? '#FFFFFF'}
+          value={background.color ?? theme.colorBgContainer}
           onChange={color => setBackground({ ...background, color })}
         />
       )}

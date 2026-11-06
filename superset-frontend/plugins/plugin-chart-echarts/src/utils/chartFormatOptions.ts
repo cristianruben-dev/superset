@@ -38,6 +38,7 @@ import {
   getEchartsTextStyle,
   parseDashArray,
 } from './formatting';
+import { CATEGORY_SCROLL_FILL_COLOR } from './formatColors';
 
 /*
  * The options of the Format pane for bars, columns, lines, areas and combos that
@@ -1107,7 +1108,7 @@ function categoryScroll(
       showDataShadow: false,
       // Readable over the light and the dark look of a report
       borderColor: 'transparent',
-      fillerColor: 'rgba(128, 128, 128, 0.35)',
+      fillerColor: CATEGORY_SCROLL_FILL_COLOR,
       ...(isHorizontal
         ? { right: 0, width: SCROLLBAR_SIZE - 6 }
         : { bottom: 0, height: SCROLLBAR_SIZE - 6 }),

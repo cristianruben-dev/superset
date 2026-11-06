@@ -23,7 +23,11 @@ import { Switch } from '@superset-ui/core/components';
 import type { RootState } from 'src/dashboard/types';
 import { CHART_TYPE } from 'src/dashboard/util/componentTypes';
 import { setVisualFormat } from './actions';
-import { BASE_VISUAL_PADDING, mergeVisualFormat } from './styles';
+import {
+  BASE_VISUAL_PADDING,
+  DEFAULT_SHADOW_COLOR,
+  mergeVisualFormat,
+} from './styles';
 import { useSharedVisualFormat } from './useVisualFormat';
 import {
   ColorField,
@@ -188,7 +192,7 @@ export function BoxSections({ id }: { id: string }) {
           <>
             <ColorField
               label={t('Color')}
-              value={shadow.color ?? '#000000'}
+              value={shadow.color ?? DEFAULT_SHADOW_COLOR}
               onChange={color => updateShadow({ color }, 'color')}
               testId="auradata-format-shadow-color"
             />

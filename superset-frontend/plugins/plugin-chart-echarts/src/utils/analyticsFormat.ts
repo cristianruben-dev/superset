@@ -23,6 +23,7 @@ import {
   toBoundedNumber,
   toCssColor,
 } from '@superset-ui/core';
+import { FORMAT_LINE_COLOR } from './formatColors';
 import { parseDashArray } from './formatting';
 
 /*
@@ -163,7 +164,7 @@ const lineStyle = (
   },
   fallback?: string,
 ) => ({
-  color: toCssColor(format.color) ?? fallback ?? '#666666',
+  color: toCssColor(format.color) ?? fallback ?? FORMAT_LINE_COLOR,
   width: toBoundedNumber(format.width, 1, 0, 20),
   type: parseDashArray(format.dash) ?? format.style ?? 'dashed',
   ...(format.cap ? { cap: format.cap } : {}),
@@ -213,7 +214,10 @@ function shadeSeries(
           ? { x: from, y, width: Math.max(0, to - from), height }
           : { x, y: from, width, height: Math.max(0, to - from) },
         style: {
-          fill: toCssColor(line.shadeColor) ?? toCssColor(line.color) ?? '#666',
+          fill:
+            toCssColor(line.shadeColor) ??
+            toCssColor(line.color) ??
+            FORMAT_LINE_COLOR,
           opacity: opacityOf(line.shadeTransparency ?? 80),
         },
       };

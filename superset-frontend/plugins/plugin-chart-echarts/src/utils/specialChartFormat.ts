@@ -38,6 +38,12 @@ import {
   xAxisFormatOptions,
   yAxisFormatOptions,
 } from './chartFormatOptions';
+import {
+  FADED_COLOR,
+  FORMAT_LINE_COLOR,
+  SCATTER_LOWER_SHADE_COLOR,
+  SCATTER_UPPER_SHADE_COLOR,
+} from './formatColors';
 import type { VisualFormatFormData } from '../types';
 
 type Node = Record<string, unknown>;
@@ -223,7 +229,7 @@ function scatterExtras(options: Node, list: Node[], format: Format) {
               formatter: String(format.scatterRatioLabel ?? ''),
             },
             lineStyle: {
-              color: color(format.scatterRatioColor) ?? '#666',
+              color: color(format.scatterRatioColor) ?? FORMAT_LINE_COLOR,
               width: bound(format.scatterRatioWidth, 1, 0, 20),
               type:
                 parseDashArray(format.scatterRatioDash) ??
@@ -252,7 +258,7 @@ function scatterExtras(options: Node, list: Node[], format: Format) {
     for (const upper of [false, true]) {
       const fill =
         color(upper ? format.scatterUpperColor : format.scatterLowerColor) ??
-        (upper ? '#2563eb' : '#10b981');
+        (upper ? SCATTER_UPPER_SHADE_COLOR : SCATTER_LOWER_SHADE_COLOR);
       const renderItem: CustomSeriesRenderItem = (params, api) => {
         const rect = record(params.coordSys);
         if (
@@ -436,7 +442,7 @@ export function applySpecialChartFormat<T extends object>(
     )
       item.borderColor = mixColors(
         item.borderColor,
-        'rgba(0,0,0,0)',
+        FADED_COLOR,
         bound(format.specialBorderTransparency, 0, 0, 100) / 100,
       );
     if (format.specialBorderOnly === true) {
@@ -779,7 +785,9 @@ export function applySpecialChartFormat<T extends object>(
         show: true,
         length: '85%',
         width: 2,
-        itemStyle: { color: color(format.gaugeTargetColor) ?? '#666' },
+        itemStyle: {
+          color: color(format.gaugeTargetColor) ?? FORMAT_LINE_COLOR,
+        },
       },
       detail: {
         show: true,
@@ -818,7 +826,7 @@ export function applySpecialChartFormat<T extends object>(
         type: 'line',
         shape: { x1: from[0] + gap, y1: from[1], x2: to[0] - gap, y2: to[1] },
         style: {
-          stroke: color(format.waterfallConnectorColor) ?? '#666',
+          stroke: color(format.waterfallConnectorColor) ?? FORMAT_LINE_COLOR,
           lineWidth: bound(format.waterfallConnectorWidth, 1, 0, 20),
           lineDash:
             format.waterfallConnectorStyle === 'dashed'

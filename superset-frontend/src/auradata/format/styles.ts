@@ -58,6 +58,22 @@ export const withOpacity = (color: string, opacity = 100) => {
     : color;
 };
 
+/** The color of a custom shadow that stores none. */
+export const DEFAULT_SHADOW_COLOR =
+  // eslint-disable-next-line theme-colors/no-literal-colors
+  '#000000';
+
+/**
+ * What the text of a tooltip chooses from. It only depends on the background
+ * the chart stores, so it stays the same in every theme.
+ */
+const READABLE_TOOLTIP_TEXT_COLORS = [
+  // eslint-disable-next-line theme-colors/no-literal-colors
+  '#ffffff',
+  // eslint-disable-next-line theme-colors/no-literal-colors
+  '#0a0a0f',
+];
+
 export const shadowOf = (
   level: ShadowLevel | undefined,
   theme: SupersetTheme,
@@ -67,7 +83,7 @@ export const shadowOf = (
   if (level === 'strong') return theme.boxShadowSecondary;
   if (level === 'custom') {
     const {
-      color = '#000000',
+      color = DEFAULT_SHADOW_COLOR,
       opacity = 25,
       angle = 90,
       distance = 4,
@@ -321,7 +337,7 @@ export function echartsHostFormat(
         rest.labelColor ||
         (background &&
           tinycolor
-            .mostReadable(background, ['#ffffff', '#0a0a0f'])
+            .mostReadable(background, READABLE_TOOLTIP_TEXT_COLORS)
             .toHexString()),
     },
   });
