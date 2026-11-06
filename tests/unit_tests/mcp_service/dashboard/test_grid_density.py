@@ -85,7 +85,7 @@ def test_a_chart_added_to_a_48_column_dashboard() -> None:
     }
     chart = Mock(slice_name="Ventas", uuid=None)
     chart_key, row_key = _add_chart_to_layout(layout, chart, 7, "ROW-new", "GRID_ID")
-    assert layout[chart_key]["meta"]["width"] == 16
+    assert layout[chart_key]["meta"]["width"] == 12
     assert "width" not in layout[row_key]["meta"]
 
 
