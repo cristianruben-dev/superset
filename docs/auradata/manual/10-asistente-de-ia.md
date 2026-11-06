@@ -8,8 +8,10 @@ cambios mientras lo editas. Corre sobre Claude, de Anthropic, y trabaja siempre 
 | Leyendo un informe | **Pregúntale a tus datos** | Responde sobre los datos. No puede cambiar nada |
 | Editando un informe | **Asistente** | Cambia el informe guardado, y te pregunta antes de lo delicado |
 
-> **Estado de este capítulo.** El asistente ya se probó con Claude real y en un navegador. El capítulo todavía no lleva
-> capturas.
+![El asistente respondiendo mientras lees un informe](img/asistente-lectura.jpg)
+
+> **Sobre las capturas.** Son de la aplicación real, con el texto de una respuesta real, repetido sin llamar al modelo para que no
+> gasten.
 
 ¿Buscas usar tu propia IA, como Claude Code o Claude Desktop? Eso es otra cosa: mira
 [9. Conectar IA](09-conectar-ia.md#asistente-o-conectar-ia).
@@ -90,6 +92,8 @@ respondía, el editor no tira tu trabajo: te avisa, y para ver lo del asistente 
 Para lo delicado, el asistente se detiene y muestra una tarjeta con la acción y sus datos exactos. Nada de eso corre hasta
 que pulses **Aprobar**; **Rechazar** lo descarta.
 
+![Una tarjeta de confirmación en el editor](img/asistente-tarjeta.jpg)
+
 Piden tarjeta las acciones que:
 
 | Tipo | Ejemplos |
@@ -138,6 +142,8 @@ con **Solo lo que hizo el asistente**. En el registro de acciones, cada herramie
 Pide un entregable, como «hazme el resumen ejecutivo de este informe», y el asistente lo escribe en un documento al lado del chat.
 Funciona también mientras lees, porque un documento es tuyo y no cambia el informe. Solo tú lo ves, hasta que lo compartes.
 Bajo el título dice qué modelo lo hizo.
+
+![Un documento al lado del chat](img/asistente-documento.jpg)
 
 Un documento tiene texto, cifras destacadas, gráficos y tablas. Las cifras, gráficos y tablas guardan su consulta, no el número: se
 leen cada vez que lo abres, con tus permisos, y debajo dicen de qué dataset y filtros salen. Si ya no tienes acceso a un dato, ese
@@ -202,7 +208,7 @@ en el suyo: **Económico**, **Equilibrado** o **Máximo**. Puedes cambiarlo cuan
   todo desde cero. El panel te lo avisa.
 - **Un modelo gris** no puede seguir esa conversación. Empieza una **Nueva conversación**.
 - **Si dudas,** usa el que viene por defecto: en la [comparación real](../asistente/evaluacion.md#recomendación-por-modo) fue el mejor
-  equilibrio para editar informes. Para preguntas sobre los datos, un modelo económico también acertó.
+  equilibrio para editar informes. Para preguntas y documentos, un modelo económico acertó lo mismo.
 
 Si una conversación se hace demasiado larga para el modelo, el panel te pide empezar otra.
 
@@ -210,6 +216,8 @@ Si una conversación se hace demasiado larga para el modelo, el panel te pide em
 
 Escribe `/` en la caja de preguntas y se abre una lista de atajos del panel. Muévete con las flechas, elige con Enter y
 ciérrala con Escape. También funcionan con el ratón, y puedes escribir el nombre completo.
+
+![La lista de comandos en la caja de preguntas](img/asistente-comandos.jpg)
 
 | Comando | En inglés | Qué hace |
 | --- | --- | --- |
@@ -266,7 +274,8 @@ asistente y con qué parámetros, y no se borra con la conversación.
 - **Cambiar nada mientras lees.** En modo lectura solo responde; los cambios se piden desde el editor.
 - **Ver tus cambios sin guardar.** Trabaja sobre lo guardado.
 - **Recibir otros archivos.** Solo imágenes: un Excel, un CSV o un PDF no se pueden adjuntar.
-- **Entregarte archivos.** Para un PDF o una imagen, usa [Exportar](07-lectura-presentar-exportar.md).
+- **Entregarte archivos,** salvo el PDF de un [documento](#exportarlo-a-pdf). Para el PDF o la imagen de un informe, usa
+  [Exportar](07-lectura-presentar-exportar.md).
 - **Mostrar imágenes ni enlazar fuera del sitio.** En sus respuestas el HTML queda como texto, no se cargan imágenes y solo
   funcionan los enlaces a este mismo sitio. Es una protección: un texto malicioso en un dataset podría intentar sacar
   datos en una dirección.
@@ -287,6 +296,9 @@ asistente y con qué parámetros, y no se borra con la conversación.
 | «Usa una imagen PNG, JPEG o WEBP» | El archivo no es una de esas imágenes, aunque se llame así, o está dañado. SVG y GIF no se aceptan | Haz una captura de nuevo o guárdala como PNG |
 | «Esta imagen tiene demasiados píxeles» o «pesa más de 8 MB» | La imagen supera lo que el servidor abre | Redúcela o recórtala |
 | «Esta conversación ya no admite más imágenes» | Ya lleva 20 | Empieza una nueva |
-| La conversación dice estar ocupada | Otra petición la está usando, o se cortó a mitad de una herramienta | Espera un momento; si sigue, empieza una nueva |
+| La conversación dice estar ocupada | Todavía está respondiendo, quizá en otra pestaña | Espera a que termine, o pulsa **Detener** |
+| «No hay ningún worker del asistente libre» | El servidor no tiene dónde correr tu respuesta ahora | Prueba en un momento; si se repite, avísale a un administrador |
+| «El asistente se detuvo antes de terminar» | Se cayó el proceso que la corría. La conversación sigue funcionando | Si estaba cambiando el informe, revísalo antes de pedirlo otra vez |
+| «Esto tardó demasiado y se detuvo» | Pasó el tiempo de una respuesta, 20 minutos por defecto | Pide algo más acotado |
 
 La guía para administradores está en [asistente/administracion.md](../asistente/administracion.md).
