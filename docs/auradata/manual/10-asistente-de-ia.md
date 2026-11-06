@@ -133,6 +133,25 @@ Lo que hace el asistente queda en el historial con la marca **Hecho por el asist
 con **Solo lo que hizo el asistente**. En el registro de acciones, cada herramienta usada es una fila, con el filtro
 **Hecho por**.
 
+## Pedir un documento
+
+Pide un entregable, como «hazme el resumen ejecutivo de este informe», y el asistente lo escribe en un documento al lado del chat.
+Funciona también mientras lees, porque un documento es tuyo y no cambia el informe. Solo tú lo ves.
+
+Un documento tiene texto, cifras destacadas, gráficos y tablas. Las cifras, gráficos y tablas guardan su consulta, no el número: se
+leen cada vez que lo abres, con tus permisos, y debajo dicen de qué dataset y filtros salen. Si ya no tienes acceso a un dato, ese
+bloque lo dice.
+
+- **Ajustarlo.** Sigue conversando: «quita la tabla», «agrega un párrafo sobre el Norte». Cada cambio es una versión nueva.
+- **Cambiar un bloque.** Haz clic en un bloque y escribe qué cambiar, por ejemplo «acorta este párrafo» o «cambia este gráfico a
+  líneas». Mientras esté seleccionado, el chat lo indica sobre tu mensaje.
+- **Volver atrás.** Abre **Historial de versiones**, elige una y pulsa **Volver a esta versión**. Se agrega una versión nueva: no
+  se pierde ninguna.
+- **Actualizar el texto.** El texto queda como se escribió, aunque las cifras cambien. Bajo el título ves su fecha, y **Actualizar
+  el texto** le pide al asistente que lo reescriba con las cifras de hoy.
+
+Si borras la conversación, su documento se borra con ella, y lo mismo ocurre cuando vence la retención.
+
 ## Elegir el modelo
 
 El selector de arriba muestra los modelos que dejó un administrador, con una etiqueta de precio relativo y **por defecto**
@@ -189,6 +208,7 @@ plazo. Una con una acción esperando tu decisión se queda hasta que la responda
 - lo que escribes y la conversación hasta ese momento;
 - las imágenes que adjuntas, sin sus metadatos, en cada mensaje de esa conversación;
 - el informe, la página, los filtros y la selección que tienes en pantalla;
+- el documento abierto y el bloque que selecciones;
 - los datos que lee para responder, con sus filas.
 
 Ve lo que tú ves y nada más. Por eso conviene pensar qué consultas: si tu acceso llega a datos personales, el asistente

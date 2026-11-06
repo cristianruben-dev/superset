@@ -191,6 +191,7 @@ AURADATA_ASSISTANT_RETENTION_DAYS = None  # conservar todo, para siempre
 | Conversación con un turno en marcha | Se queda |
 | Conversación de un informe en la papelera | Sigue su retención normal: el informe puede volver |
 | Imagen subida que ningún mensaje envió, con más de un día | Se borra, aunque no haya retención configurada |
+| Documento del asistente | Se borra con su conversación, con todas sus versiones |
 
 - **Con `None` no se borra nada,** tampoco lo huérfano. Lo mismo con un valor que no tenga sentido, como `0` o `"90"`: el log lo
   avisa y la tarea no toca nada.

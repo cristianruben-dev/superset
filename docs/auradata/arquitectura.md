@@ -216,6 +216,7 @@ como la persona que tiene la sesión. Las reglas están en `AGENTS.md`; para el 
 | `conversations.py` | Conversaciones que solo crecen; el estado pendiente se deduce de lo guardado |
 | `attachments.py` | Imágenes adjuntas: limpiarlas al subirlas y ponerlas en cada petición |
 | `undo.py` | Deshacer un turno con los comandos de restaurar |
+| `artifacts.py`, `artifact_blocks.py`, `artifact_tools.py` | Documentos: versiones, forma de los bloques y herramientas propias |
 | `figures.py` | El gráfico de una respuesta, sacado de la última `query_dataset` |
 | `models.py`, `settings.py` | Catálogo de modelos y ajustes del admin |
 | `governance.py`, `spending.py` | Interruptores, aviso de privacidad, topes y uso |
@@ -390,6 +391,44 @@ de más de un día.
 Modelo y datos no llegan a imágenes: `AssistantMarkdown` sigue sin cargarlas, y el único camino a esa ruta son ids que el
 servidor escribió en un mensaje de la persona. Lo escrito dentro de una imagen es dato (`RULES`), aunque llegue en un turno de
 usuario.
+
+### Los documentos
+
+Un documento es de una persona, un informe y una conversación. Cada cambio agrega una fila a
+`auradata_assistant_artifact_versions`, la última es el documento y volver a una versión copia aquella como una nueva. La
+fila de `auradata_assistant_artifacts` solo dice de quién es y dónde vive.
+
+| Bloque | Campos | Regla |
+| --- | --- | --- |
+| `text` | `text`, en Markdown; el servidor agrega `written_on` | Sin HTML, imágenes ni enlaces a otros sitios |
+| `figure` | `label`, `format` (`number`, `compact`, `percent`, `currency`), `query` | Una métrica, sin columnas |
+| `chart` | `title`, `chart` (`bar`, `line`, `area`, `pie`), `query` | Eje y serie opcional; un pastel, una columna y una métrica |
+| `table` | `title`, `query` | Columnas, métricas o ambas, hasta 100 filas |
+
+Todo bloque tiene un `id` del servidor, estable entre versiones. `query` tiene la forma de `query_dataset`: `dataset_id`,
+`columns`, `metrics`, `aggregates`, `filters`, `time_range`, `time_column`, `order_by`, `order_desc` y `row_limit`.
+`artifact_blocks.py` prohíbe campos desconocidos en todos los niveles, así que un bloque no tiene dónde guardar una cifra. Sus
+modelos de pydantic también generan el esquema que ve el modelo.
+
+Al guardar, `query_problem` revisa cada consulta como la persona: que llegue al dataset, que un gráfico de ese informe pueda
+usarlo y que existan sus columnas y métricas. Al abrir, `useBlockData` corre la consulta por la API de datos de gráficos con los
+permisos de quien mira. Un 401, 403 o 404 se dice en el bloque, y `sources` solo nombra los datasets a los que el lector llega.
+El número vive en ese componente: no vuelve al servidor ni entra al contexto del modelo.
+
+`create_artifact`, `change_artifact` y `read_artifact` no son herramientas del MCP, porque una IA de fuera no tiene conversación.
+`ToolBox` las ofrece en los dos modos y `_call_own` las corre con la persona del turno. Decidimos que no pidan tarjeta ni registren
+deshacer: solo tocan el documento de esa persona, que tiene su propio historial. Lo que entra al registro de acciones son ids,
+porque ese registro sobrevive a la conversación.
+
+El navegador solo nombra el documento abierto y el bloque elegido (`artifact: {id, block_id}`). `selected_context` lee lo guardado,
+comprueba que sea de esa persona y esa conversación, y lo pone en `<page_context>`. Si `change_artifact` llega con una versión
+vieja, por ejemplo tras volver atrás, se rechaza y el modelo lee otra vez.
+
+**Límite aceptado:** el texto queda como se escribió. Cada bloque guarda `written_on`, una versión restaurada conserva esas fechas y
+el panel muestra la más antigua, con un botón que manda un mensaje normal para actualizarlo.
+
+**Retención:** un documento se borra con su conversación, en `erase_conversations`, porque repite lo que dijeron sus respuestas.
+Volver a una versión deja una fila `record`, que cuenta como actividad para la retención.
 
 ### Deshacer
 
