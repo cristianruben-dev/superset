@@ -297,9 +297,16 @@ es de una persona, un tablero y un modo: otra combinación responde 422, y la de
   `turn_end`, `undone`) y nunca se envía. Las filas `refusal` e `interrupted` quedan por su costo y no se envían.
 - **Sin tablas para lo pendiente.** `pending_turn` lo deduce de lo guardado: un turno deja de esperar cuando una fila trae sus
   resultados, así que una decisión vale una sola vez.
-- **Sin compactar ni borrar.** Una conversación larga llega al límite del modelo, y el panel avisa al 80%. No hay ruta para
-  borrarlas. Las claves a `dashboards` y `ab_user` son `SET NULL`: al borrar el tablero o la persona, las filas se quedan, con su
-  costo y su contenido, y ya no se abren en la aplicación.
+- **Sin compactar.** Una conversación larga llega al límite del modelo, y el panel avisa al 80%. Renombrar cambia solo `title`.
+- **Se borra entera, y solo por un sitio.** `erase_conversations` elimina todo menos lo que la contabilidad necesita: las filas
+  `assistant`, con `content` en `[]` y `conversation_id` vacío, y sus votos, sin `reason`. `spending.py` no distingue esas filas de
+  las demás, así que no hay una segunda fuente de gasto que sumar. Las claves hacia la conversación siguen en `CASCADE`: borrarla
+  por otra vía se lleva el contenido y también el gasto. Si fallara algo, que falle del lado de la privacidad.
+- **Retención.** `retention.py` borra lo vencido por fecha del último mensaje (`last_activity`), nunca por `changed_on`, que un
+  renombrado mueve y un mensaje no. Las claves a `dashboards` y `ab_user` son `SET NULL`: esas conversaciones ya no se abren, y
+  también se van. Cada lote se juzga otra vez con las filas bloqueadas (`FOR UPDATE SKIP LOCKED`), y se salta una tarjeta
+  pendiente o un turno en marcha (`turn_is_running`). El `DELETE` de la API responde 409 durante un turno: su escritura final ya
+  no tendría dónde guardar el costo.
 - **Costos.** Solo las filas `assistant` tienen costo. `spending.py` es el único sitio del mes, el redondeo y los topes.
 
 Deshacer se apoya en `turn_start`, escrito justo antes del primer cambio, y `turn_end`. Lo guardado mientras el modelo pensaba

@@ -127,8 +127,24 @@ en el suyo: **Económico**, **Equilibrado** o **Máximo**. Puedes cambiarlo cuan
 - **Si dudas,** usa el que viene por defecto: en la [comparación real](../asistente/evaluacion.md#recomendación-por-modo) fue el mejor
   equilibrio para editar informes. Para preguntas sobre los datos, un modelo económico también acertó.
 
-Las conversaciones quedan en **Conversaciones de este informe**, separadas por modo. Si una se hace demasiado larga para el
-modelo, el panel te pide empezar otra.
+Si una conversación se hace demasiado larga para el modelo, el panel te pide empezar otra.
+
+## Tus conversaciones
+
+Arriba del panel está la conversación abierta. Púlsala para ver **Conversaciones de este informe**, agrupadas por fecha y
+separadas por modo: las de lectura no salen en el editor, ni al revés.
+
+- **Buscar.** Escribe parte del título. No importan las mayúsculas ni los acentos.
+- **Abrir.** Pulsa el título.
+- **Cambiar el nombre.** Pulsa el lápiz, escribe y confirma con Intro. Con Esc lo dejas como estaba. El título es lo único que
+  cambia: lo que se dijo sigue igual.
+- **Eliminar.** Pulsa la papelera y confirma. Se borra lo que se dijo y los datos que leyó, y **no se puede recuperar**. Lo que
+  el asistente cambió en el informe se queda, pero ya no puedes deshacerlo desde el panel.
+
+Solo tú ves, renombras o eliminas tus conversaciones. Mientras el asistente responde hay que esperar a que termine.
+
+Las conversaciones **se borran solas** a los 90 días de su último mensaje, salvo que tu administrador haya configurado otro
+plazo. Una con una acción esperando tu decisión se queda hasta que la respondas.
 
 ## Privacidad
 
@@ -141,9 +157,10 @@ modelo, el panel te pide empezar otra.
 Ve lo que tú ves y nada más. Por eso conviene pensar qué consultas: si tu acceso llega a datos personales, el asistente
 también puede leerlos, y entonces viajan a Anthropic.
 
-Las conversaciones se guardan en el servidor de AuraData BI, y en el panel solo tú puedes abrirlas. No hay botón para
-borrarlas. La pantalla de uso de los administradores muestra cuánto gastó cada persona y los totales de votos, no lo que preguntó; el registro de
-acciones sí guarda qué herramientas usó el asistente y con qué parámetros.
+Las conversaciones se guardan en el servidor de AuraData BI, y en el panel solo tú puedes abrirlas. Puedes
+[eliminarlas](#tus-conversaciones) cuando quieras. La pantalla de uso de los administradores muestra cuánto gastó cada persona y
+los totales de votos, no lo que preguntó, y eso se mantiene después de eliminar una conversación. El registro de acciones sí guarda qué herramientas usó el
+asistente y con qué parámetros, y no se borra con la conversación.
 
 ## Lo que no puede hacer
 

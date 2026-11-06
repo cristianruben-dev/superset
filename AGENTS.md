@@ -157,9 +157,21 @@ This repository is **AuraData BI**, a fork of Apache Superset 7.0 shaped like Po
   `PUT`/`DELETE /conversations/<id>/messages/<id>/feedback/` answer 404 for anything but an answer of the voter's own
   conversation. A vote goes on the first row of the answer: `ConversationLog.answer_id` reaches the panel as `message_id` in
   `done` (a stream that fails before that has none), and a turn resumed from a card keeps the first. One row per message
-  and user, in a table of its own, so a vote never touches a message or the conversation; both keys cascade, so a vote goes
-  with its conversation, and `conversation_id` deletes it even if message rows stay for their cost. Only totals leave the table for others: `usage_report` counts them
+  and user, in a table of its own, so a vote never touches a message or the conversation. A vote outlives a deleted
+  conversation, detached and without its reason. Only totals leave the table for others: `usage_report` counts them
   by model and workspace, in the month of the answer, for admins, without reasons or text.
+- **Managing conversations** (`ConversationList.tsx`, a view of the panel opened from its top row; `conversationGroups.ts`):
+  search by title in the browser, groups by date of the last message (`last_message_on`, since `changed_on` moves on a rename
+  and not on a message). `PUT`/`DELETE /conversations/<id>/` answer 404 to anyone but the owner. A rename changes `title` only.
+  Delete needs no switch or report, and answers 409 during a turn (`turn_is_running`), whose last write would lose its cost.
+- **Deleting and retention** (`conversations.py`, `retention.py`, `superset/tasks/assistant_retention.py`): `erase_conversations`
+  is the only way to delete. It removes all a conversation holds and keeps the `assistant` rows, with `content` set to `[]` and
+  no `conversation_id`, and their votes, so `spending.py` sums the same rows before and after and a deletion never refills a
+  limit. There is no ledger and no second source of spending. The keys to a conversation stay `CASCADE`, so any other deletion
+  takes the content and the totals. `auradata_assistant.purge_conversations` (nightly, in `CeleryConfig.beat_schedule`) deletes
+  what is past `AURADATA_ASSISTANT_RETENTION_DAYS` (90; None or a nonsensical value keeps everything, orphans too), by last
+  message, and orphans (`dashboard_id` or `user_id` empty; a report in the trash keeps its id). It counts and logs first, takes
+  `dry_run`, works in batches judged again under `FOR UPDATE SKIP LOCKED`, and never touches a pending card or a running turn.
 - **Privacy notice** (`PrivacyNotice.tsx`, `accept_privacy`): until a person accepts, per user on the server, chat and decide
   answer 403 (`reason: privacy`) and nothing reaches Anthropic. A change to what the notice says raises
   `PRIVACY_NOTICE_VERSION`, and everyone is asked again.
@@ -476,8 +488,9 @@ themes and CSS templates) → `d3f9a2b17c64` (workspace datasets). The chain end
 `f1c7a9e2b305`, whose `down_revision` is the Superset 7.0 head (`88a01c781622`) and the fork head, so there is
 one head and a database at `d3f9a2b17c64` still runs the 41 migrations of 7.0 on `db upgrade`. After the merge comes
 `a7e3c91d4b60` (renames the persisted `mibi` names to `auradata`).
-After it comes `c6a1f4e09b27` (conversations of the assistant), then `b2d58e7a13c4` (votes on its answers).
-- A new fork migration revises the current head (`b2d58e7a13c4` until the next one).
+After it comes `c6a1f4e09b27` (conversations of the assistant), then `b2d58e7a13c4` (votes on its answers) and
+`e5a7c3f19d42` (rows that outlive a deleted conversation).
+- A new fork migration revises the current head (`e5a7c3f19d42` until the next one).
 - Each new Superset release follows the same rule: add another merge revision of its head and the fork head.
   Never repoint `8bc9e5b95335` (or any fork revision) to the new upstream head: a database that already ran the
   fork migrations would skip the new upstream ones.

@@ -150,17 +150,59 @@ También muestra **Gastado este mes**, en dólares, a los administradores del á
 - **El aviso:** hasta que cada persona lo acepta, el chat y las decisiones responden 403 y nada llega a Anthropic. Se guarda
   por persona. Cambiar su texto obliga a subir `PRIVACY_NOTICE_VERSION`, y todos lo aceptan de nuevo.
 - **Qué se guarda aquí:** las conversaciones completas, con los resultados de las herramientas y sus filas de datos, quedan en
-  la base de metadatos (`auradata_assistant_messages`). Ninguna pantalla ni API las borra, y ninguna tarea las purga. **Borrar el
-  informe o la persona tampoco:** esa referencia queda vacía, la conversación deja de abrirse en la aplicación y su contenido
-  sigue en la base. Cuéntalo en tu política de retención.
+  la base de metadatos (`auradata_assistant_messages`) hasta que su dueño las elimina o vence su [retención](#retención).
 - **Quién lee qué:** en la aplicación, cada conversación es de su dueño. Quien tenga acceso a la base de metadatos las puede
   leer. **Uso** no muestra contenido. El registro de acciones guarda cada herramienta con sus parámetros.
+
+## Retención
+
+Una tarea de Celery, `auradata_assistant.purge_conversations`, corre cada noche a las 03:30. Viene en el `beat_schedule` de
+`superset.config`, que las configuraciones de `dev` y `prod` heredan: necesita **`superset-worker-beat`** y un worker en marcha.
+
+```python
+AURADATA_ASSISTANT_RETENTION_DAYS = 90    # días desde el último mensaje
+AURADATA_ASSISTANT_RETENTION_DAYS = None  # conservar todo, para siempre
+```
+
+| Qué | Qué le pasa |
+| --- | --- |
+| Conversación cuyo último mensaje pasó los días configurados | Se borra |
+| Conversación de un informe o una persona ya borrados, sea cual sea su edad | Se borra: nadie puede abrirla |
+| Conversación con una tarjeta de confirmación esperando | **Se queda**, aunque esté vencida |
+| Conversación con un turno en marcha | Se queda |
+| Conversación de un informe en la papelera | Sigue su retención normal: el informe puede volver |
+
+- **Con `None` no se borra nada,** tampoco lo huérfano. Lo mismo con un valor que no tenga sentido, como `0` o `"90"`: el log lo
+  avisa y la tarea no toca nada.
+- **Es irreversible.** Cada pasada primero cuenta y lo escribe en el log, y luego borra de a 50. Un lote que falla se deshace
+  entero, y lo intenta la siguiente noche. Al log solo llegan cantidades, nunca títulos ni contenido.
+- **Para ver qué borraría,** corre la tarea sin borrar, con su worker en marcha:
+
+  ```bash
+  celery --app=superset.tasks.celery_app:app call auradata_assistant.purge_conversations --kwargs '{"dry_run": true}'
+  ```
+
+  El log del worker trae `expired`, `orphaned`, `would_delete`, `kept_pending` y `kept_under_way`.
+- **Una tarjeta vieja se queda hasta que alguien la responda.** Si es de un informe o una persona borrados, nadie puede
+  responderla, y su contenido queda en la base. `kept_pending` cuenta esos casos: revísalos si no bajan.
+
+### Qué sobrevive
+
+Los topes de gasto y **Uso** siguen dando lo mismo después de borrar: **borrar una conversación no devuelve presupuesto.**
+
+- **Se borra:** el título, los mensajes de la persona, los resultados de las herramientas con sus filas de datos, los registros
+  de lo que hizo y el texto de cada respuesta.
+- **Queda:** una fila por respuesta, vacía y sin relación con la conversación, con su modelo, tokens, costo, fecha, persona y
+  área de trabajo, más su voto sin el motivo. Sin eso, el mes cambiaría al borrar.
+- **No lo toca:** el registro de acciones, que guarda cada herramienta con sus parámetros y solo se purga si activas
+  `prune_logs`, ni las copias de la base.
 
 ## La migración
 
 `c6a1f4e09b27` crea `auradata_assistant_conversations` y `auradata_assistant_messages`. Solo agrega tablas. Corre con
 `superset db upgrade`, que `superset-init` ejecuta al arrancar. `b2d58e7a13c4` agrega `auradata_assistant_feedback`, con los
-votos, que se borran junto con su conversación.
+votos. `e5a7c3f19d42` deja vacío `conversation_id` en las dos tablas de filas que sobreviven a su conversación. Revertirla borra
+esas filas, y con ellas el gasto y los votos de las conversaciones ya borradas.
 
 Sin ella, el asistente no puede guardar conversaciones. En una base que ya existe, respáldala antes, como con cualquier
 migración.
@@ -211,6 +253,8 @@ dos. Sin ellos, la pantalla avisa que falta el SDK y el chat responde 503. Todos
 `Dockerfile`, así que al reconstruir todos quedan con el SDK.
 
 Si instalaste `anthropic` a mano en un contenedor, lo pierdes al recrearlo. La solución es reconstruir.
+
+La [retención](#retención) corre aparte: `superset-worker-beat` la dispara y un worker la ejecuta. Si no corren, nada se borra.
 
 ## Límites conocidos
 
