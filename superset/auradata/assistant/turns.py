@@ -91,7 +91,7 @@ from superset.auradata.assistant.conversations import (
 )
 from superset.auradata.assistant.governance import budget_of
 from superset.auradata.assistant.models import CatalogModel, get_catalog, tuned_spec
-from superset.auradata.assistant.prompt import system_prompt
+from superset.auradata.assistant.prompt import system_prompt, TOOL_SEARCH_NOTE
 from superset.auradata.assistant.settings import (
     AssistantSettings,
     get_assistant_settings,
@@ -427,9 +427,12 @@ def _prepare_turn(
             {"code": "failed", "message": _("The AI assistant is not installed.")},
         )
     toolbox.conversation_id = ticket.conversation_id
-    if conversation.system_prompt is None:
+    stored = conversation.system_prompt
+    if stored is None or (TOOL_SEARCH_NOTE in stored) != model.spec.tool_search:
         # Sent as it is on every later turn: its thinking is bound to this text, so a
-        # change of the prompt reaches new conversations and leaves this one alone
+        # change of the prompt reaches new conversations and leaves this one alone. Only
+        # a change to a model that finds its tools another way writes it again: it would
+        # tell that model of tools it does not have
         conversation.system_prompt = system_prompt(
             ticket.mode, toolbox.unavailable, model.spec.tool_search
         )

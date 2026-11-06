@@ -23,6 +23,7 @@ checks of the product decide. ``chat_test.world`` says yes to everything and cou
 tell any of this apart.
 """
 
+import asyncio
 from typing import Any
 
 import pytest
@@ -170,3 +171,21 @@ def test_a_role_with_access_to_the_dataset_opens_the_chart_query(
     security_manager.user_view_menu_names.return_value = {perm}
 
     assert chart_query_is_allowed(world, "Dani")
+
+
+def test_a_tool_stays_with_its_person_on_a_thread_with_a_running_loop(
+    world: dict[str, Any],
+) -> None:
+    """
+    A worker that took a screenshot keeps a loop running on its thread, so a tool runs
+    in a thread of its own. Who it runs as has to go with it, and nobody else's access.
+    """
+
+    async def after_a_screenshot() -> list[Any]:
+        return [query(world, name) for name in ("Vera", "Dani")]
+
+    vera, dani = asyncio.run(after_a_screenshot())
+
+    # Past every check: only this test database has no such table
+    assert "no such table" in text_of(vera)
+    assert "no such table" not in text_of(dani)

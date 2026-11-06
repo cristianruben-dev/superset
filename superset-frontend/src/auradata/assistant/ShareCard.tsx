@@ -22,6 +22,7 @@ import { css, styled } from '@apache-superset/core/theme';
 import { Button, Loading } from '@superset-ui/core/components';
 import { Icons } from '@superset-ui/core/components/Icons';
 import { useToasts } from 'src/components/MessageToasts/withToasts';
+import { ensureAppRoot } from 'src/utils/pathUtils';
 import {
   AssistantError,
   fetchShareCard,
@@ -91,7 +92,7 @@ const problemText = (problem: ShareCardData['problem']) =>
 
 /** The link a member of the workspace opens. */
 const linkOf = (id: string) =>
-  `${window.location.origin}/assistant/document/${id}/`;
+  `${window.location.origin}${ensureAppRoot(`/assistant/document/${id}/`)}`;
 
 function Passages({ card }: { card: ShareCardData }) {
   if (!card.passages.length) {

@@ -17,9 +17,9 @@
  * under the License.
  */
 import { useEffect, useState } from 'react';
-import { t } from '@apache-superset/core/translation';
 import { css, styled } from '@apache-superset/core/theme';
 import getBootstrapData from 'src/utils/getBootstrapData';
+import { ensureAppRoot } from 'src/utils/pathUtils';
 import { fetchSharedDocuments } from 'src/auradata/assistant/client';
 import { parseServerDate } from 'src/auradata/assistant/conversationGroups';
 import type { SharedDocument } from 'src/auradata/assistant/types';
@@ -88,7 +88,9 @@ export function WorkspaceDocuments({
       <List data-test="auradata-workspace-documents">
         {documents.map(item => (
           <li key={item.id}>
-            <a href={`/assistant/document/${item.id}/`}>{item.title}</a>
+            <a href={ensureAppRoot(`/assistant/document/${item.id}/`)}>
+              {item.title}
+            </a>
             <span className="meta">
               {`${item.author ?? ''} · ${dateOf(item.shared_on)}`}
             </span>

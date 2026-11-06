@@ -333,6 +333,21 @@ def test_an_unapproved_call_never_runs_whatever_the_model_says(
     assert box.changes_something(SAVE_ARTIFACT)
 
 
+def test_the_card_of_a_document_speaks_for_the_tools_of_a_page_alone(
+    world: dict[str, Any],  # noqa: F811
+    mocker: MockerFixture,
+) -> None:
+    login(world, "Ana")
+    box = ToolBox("ana", MODE_EDIT, dashboard_id=1, user_id=world["users"]["Ana"].id)
+    run = mocker.patch.object(box, "call")
+
+    refused = box._call_page_tool("delete_dashboard", {"request": {}})
+    box._call_page_tool("add_page", {"request": {}})
+
+    assert refused.is_error
+    run.assert_called_once_with("add_page", {"request": {}}, approved=True)
+
+
 def test_the_person_decides_and_the_turn_can_be_undone(
     client: Any,
     world: dict[str, Any],  # noqa: F811

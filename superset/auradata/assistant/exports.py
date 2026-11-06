@@ -133,10 +133,12 @@ def sheets_of(png: bytes) -> list[Any]:
 
     with Image.open(io.BytesIO(png)) as picture:
         whole = picture.convert("RGB")
+    # A window of a higher pixel density gives more pixels for the same sheet
+    width, height = whole.width, round(SHEET_HEIGHT * whole.width / SHEET_WIDTH)
     sheets = []
-    for top in range(0, whole.height, SHEET_HEIGHT):
-        sheet = Image.new("RGB", (SHEET_WIDTH, SHEET_HEIGHT), "white")
-        sheet.paste(whole.crop((0, top, SHEET_WIDTH, top + SHEET_HEIGHT)), (0, 0))
+    for top in range(0, whole.height, height):
+        sheet = Image.new("RGB", (width, height), "white")
+        sheet.paste(whole.crop((0, top, width, top + height)), (0, 0))
         sheets.append(sheet)
     if len(sheets) > MAX_SHEETS:
         raise LayoutEditError(f"The document takes over {MAX_SHEETS} sheets.")
@@ -149,7 +151,9 @@ def document_pdf(artifact_id: UUID, title: str) -> bytes:
     # In a thread of its own, as a tool takes a screenshot: sync Playwright leaves this
     # one with a running loop, and the turn this worker takes next could not call a tool
     picture = run_coroutine(capture_raw(url, READY_CLASS, (SHEET_WIDTH, SHEET_HEIGHT)))
-    pdf = build_pdf(sheets_of(picture), title, resolution=SHEET_DPI)
+    sheets = sheets_of(picture)
+    resolution = SHEET_DPI * sheets[0].width / SHEET_WIDTH
+    pdf = build_pdf(sheets, title, resolution=resolution)
     check_size(pdf)
     return pdf
 

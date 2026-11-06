@@ -54,9 +54,9 @@ from tests.unit_tests.auradata.assistant.chat_test import (  # noqa: F401
 from tests.unit_tests.auradata.assistant.memory_store import MemoryTurnStore
 
 
-def picture(height: int) -> bytes:
+def picture(height: int, width: int = SHEET_WIDTH) -> bytes:
     out = io.BytesIO()
-    Image.new("RGB", (SHEET_WIDTH, height), "white").save(out, format="PNG")
+    Image.new("RGB", (width, height), "white").save(out, format="PNG")
     return out.getvalue()
 
 
@@ -73,6 +73,13 @@ def test_a_picture_is_cut_into_whole_sheets() -> None:
 
     assert len(sheets) == 3
     assert all(sheet.size == (SHEET_WIDTH, SHEET_HEIGHT) for sheet in sheets)
+
+
+def test_a_denser_window_gives_the_same_sheets_with_more_pixels() -> None:
+    sheets = sheets_of(picture(SHEET_HEIGHT * 2 * 2, width=SHEET_WIDTH * 2))
+
+    assert len(sheets) == 2
+    assert sheets[0].size == (SHEET_WIDTH * 2, SHEET_HEIGHT * 2)
 
 
 def test_a_document_has_a_limit_of_sheets() -> None:

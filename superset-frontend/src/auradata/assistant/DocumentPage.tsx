@@ -23,6 +23,7 @@ import { css, styled } from '@apache-superset/core/theme';
 import { Button, Loading } from '@superset-ui/core/components';
 import { Icons } from '@superset-ui/core/components/Icons';
 import { URL_PARAMS } from 'src/constants';
+import { ensureAppRoot } from 'src/utils/pathUtils';
 import { getUrlParam } from 'src/utils/urlUtils';
 import { dataBlocks } from './artifact';
 import { ArtifactBlocks } from './ArtifactBlocks';
@@ -165,7 +166,7 @@ export default function DocumentPage() {
           <Button
             buttonStyle="link"
             buttonSize="small"
-            href={`/dashboard/${found.dashboard_id}/`}
+            href={ensureAppRoot(`/dashboard/${found.dashboard_id}/`)}
             icon={<Icons.ArrowLeftOutlined iconSize="s" />}
           >
             {t('Go to the report')}

@@ -415,9 +415,19 @@ class ToolBox:
             UUID(self.conversation_id),
             self._dashboard_id,
             self._model,
-            # The person approved the whole of it on the card of the call that runs this
-            lambda name, arguments: self.call(name, arguments, approved=True),
+            self._call_page_tool,
         )
+
+    def _call_page_tool(self, name: str, arguments: dict[str, Any]) -> ToolOutcome:
+        """
+        A tool of the report for a saved document. The person approved the whole of it
+        on the card of the call that runs this, which speaks for these tools alone.
+        """
+        from superset.auradata.assistant.artifact_pages import PAGE_TOOLS
+
+        if name not in PAGE_TOOLS:
+            return _error(f"The tool {name!r} needs the approval of the user.")
+        return self.call(name, arguments, approved=True)
 
     def _call_own(self, name: str, arguments: Any) -> ToolOutcome:
         """

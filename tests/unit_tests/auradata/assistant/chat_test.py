@@ -67,6 +67,7 @@ from superset.auradata.assistant.models import (
     TokenUsage,
     tuned_spec,
 )
+from superset.auradata.assistant.prompt import TOOL_SEARCH_NOTE
 from superset.auradata.assistant.settings import AssistantSettings
 from superset.auradata.assistant.tools import (
     _block_of,
@@ -576,14 +577,15 @@ def test_a_conversation_keeps_the_prompt_it_started_with_across_a_change(
     first = ask(client, world["dashboard"])
     conversation = conversation_id_of(first)
 
-    mocker.patch.object(turns_module, "system_prompt", return_value="An edited prompt")
+    edited = f"An edited prompt{TOOL_SEARCH_NOTE}"
+    mocker.patch.object(turns_module, "system_prompt", return_value=edited)
     ask(client, world["dashboard"], message="Sigue", conversation_id=conversation)
     other = ask(client, world["dashboard"], message="Empiezo otra")
 
     started, kept, fresh = (request["system"][0]["text"] for request in fake.requests)
-    assert started != "An edited prompt"
+    assert started != edited
     assert kept == started
-    assert fresh == "An edited prompt"
+    assert fresh == edited
     assert conversation_id_of(other) != conversation
 
 
@@ -599,17 +601,32 @@ def test_a_conversation_without_a_stored_prompt_takes_the_one_of_its_next_turn(
     stored.system_prompt = None
     session.commit()
 
-    mocker.patch.object(
-        turns_module, "system_prompt", return_value="The prompt of the day"
-    )
+    today = f"The prompt of the day{TOOL_SEARCH_NOTE}"
+    mocker.patch.object(turns_module, "system_prompt", return_value=today)
     ask(client, world["dashboard"], message="Sigue", conversation_id=conversation)
-    mocker.patch.object(turns_module, "system_prompt", return_value="A later one")
+    later = f"A later one{TOOL_SEARCH_NOTE}"
+    mocker.patch.object(turns_module, "system_prompt", return_value=later)
     ask(client, world["dashboard"], message="Sigue", conversation_id=conversation)
 
-    assert [r["system"][0]["text"] for r in fake.requests[1:]] == [
-        "The prompt of the day",
-        "The prompt of the day",
-    ]
+    assert [r["system"][0]["text"] for r in fake.requests[1:]] == [today, today]
+
+
+def test_a_change_to_a_model_that_finds_tools_otherwise_writes_the_prompt_again(
+    client: Any, world: dict[str, Any], session: Any, mocker: MockerFixture
+) -> None:
+    login(world, "Ana")
+    fake = use_model(mocker, reply(text("Hola")), reply(text("Sigo")))
+    mocker.patch.object(
+        turns_module, "system_prompt", return_value=f"Rules{TOOL_SEARCH_NOTE}"
+    )
+    conversation = conversation_id_of(ask(client, world["dashboard"], model=UNKNOWN))
+    stored = session.get(AssistantConversation, UUID(conversation))
+    stored.system_prompt = "Rules"
+    session.commit()
+
+    ask(client, world["dashboard"], message="Sigue", conversation_id=conversation)
+
+    assert fake.requests[1]["system"][0]["text"] == f"Rules{TOOL_SEARCH_NOTE}"
 
 
 def test_dropped_thinking_is_logged_and_a_change_of_model_is_not(

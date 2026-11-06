@@ -80,6 +80,17 @@ SAME_OPERATORS = frozenset(
 )
 TIME_OPERATOR = "TEMPORAL_RANGE"
 
+# All the tools a saved document goes through: the card approved these, and only these
+PAGE_TOOLS = frozenset(
+    {
+        "get_report_structure",
+        "add_page",
+        "add_element",
+        "create_visual",
+        "set_visual_sort",
+    }
+)
+
 ToolCall = Callable[[str, dict[str, Any]], Any]
 
 
@@ -367,13 +378,11 @@ def save_pages(
 
 def save_title(title: str, blocks: list[dict[str, Any]], pages: int) -> str:
     """What the card says this will create, in the language of the person."""
-    count = len(blocks)
-    return ngettext(
-        "Save «%(title)s» as %(pages)d page of this report, with %(count)d new object",
-        "Save «%(title)s» as %(pages)d pages of this report, with %(count)d new "
-        "objects",
-        count,
+    where = ngettext(
+        "Save «%(title)s» as %(num)d page of this report",
+        "Save «%(title)s» as %(num)d pages of this report",
+        pages,
         title=title,
-        pages=pages,
-        count=count,
     )
+    what = ngettext("%(num)d new object", "%(num)d new objects", len(blocks))
+    return f"{where}: {what}"
