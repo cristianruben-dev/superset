@@ -228,8 +228,8 @@ This repository is **AuraData BI**, a fork of Apache Superset 7.0 shaped like Po
   limits on every list and text, and a block of data has no field for a number, only a `query` in the words of `query_dataset`.
   `id` and `written_on` are stamped by the server. Text refuses raw HTML, pictures and links off this site when stored, and
   still goes through `AssistantMarkdown`. `query_problem` holds each query as the person (`user_can_view_data_model_metadata`,
-  `resolve_dataset`, `raise_for_access`, `validate_chart_dataset`, names of the dataset) and fixes its time column; a restore
-  rechecks reach. `create_artifact`, `change_artifact` and `read_artifact` are the assistant's own, never MCP tools: `ToolBox`
+  `resolve_dataset`, `raise_for_access`, `validate_chart_dataset`, names of the dataset) and fixes its time column, also on a
+  restore. `create_artifact`, `change_artifact` and `read_artifact` are the assistant's own, never MCP tools: `ToolBox`
   offers them in both modes, not deferred and with no card, `changes_something` is False so a turn records no undo, and
   `ToolBox._call_own` runs them with the person of the turn, read again, because an MCP call ends the shared session. No input
   names a person: `OwnToolContext` comes from the turn, and a document of anyone else or of another conversation answers as one
@@ -244,6 +244,8 @@ This repository is **AuraData BI**, a fork of Apache Superset 7.0 shaped like Po
   the data, so a block of text carries `written_on`, the document shows its oldest date and refreshing it is a message.
   `erase_conversations` deletes the documents of a conversation, retention included; a restore leaves a `record` row, which
   counts as activity. `ArtifactPanel` is a portal next to the chat (`useDockBox`), in the drawer and in the editor's pane alike.
+- **The system prompt binds a conversation:** a stored thinking block is signed against it, so changing `prompt.py` makes the
+  API refuse (400) the next message of any conversation that holds one. Those conversations must be started again.
 - **Privacy notice** (`PrivacyNotice.tsx`, `accept_privacy`): until a person accepts, per user on the server, chat and decide
   answer 403 (`reason: privacy`) and nothing reaches Anthropic. A change to what the notice says raises
   `PRIVACY_NOTICE_VERSION`, and everyone is asked again.
