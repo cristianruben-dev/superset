@@ -470,6 +470,45 @@ def test_the_owner_sees_where_it_is_shared(
     assert found["workspace"] == "Ventas"
 
 
+def test_a_reader_with_only_gamma_data_rights_reads_the_blocks_of_the_workspace(
+    client: Any,
+    world: dict[str, Any],  # noqa: F811
+    shared: dict[str, Any],
+) -> None:
+    login(world, "Vera")
+
+    types = [
+        item["type"] for item in page(client, shared["id"]).json["result"]["blocks"]
+    ]
+
+    assert types == ["text", "table", "refused"]
+
+
+def test_a_role_kept_out_of_the_data_model_gets_every_block_hidden(
+    client: Any,
+    world: dict[str, Any],  # noqa: F811
+    shared: dict[str, Any],
+    mocker: MockerFixture,
+) -> None:
+    """Its queries name columns and filter values, which that role does not get."""
+    mocker.patch.object(
+        security_manager,
+        "can_access",
+        side_effect=lambda permission, view: (permission, view)
+        == ("can_read", "Dashboard"),
+    )
+    login(world, "Vera")
+
+    result = page(client, shared["id"]).json["result"]
+
+    assert [item["type"] for item in result["blocks"]] == [
+        "text",
+        "refused",
+        "refused",
+    ]
+    assert result["sources"] == {}
+
+
 def test_an_author_who_lost_the_report_can_still_stop_sharing(
     client: Any,
     world: dict[str, Any],  # noqa: F811
