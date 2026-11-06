@@ -339,8 +339,9 @@ proxy, que un mensaje con cinco capturas en JSON sí pasaría. `clean_image` es 
 El mensaje guarda `{"type": "auradata_attachment", "id": …}`, no los bytes: el historial se lee varias veces por turno. `with_images`
 arma el bloque `image`, antes del texto, donde el modelo lo lee mejor. La llaman `history_of` y el chat para el turno nuevo, y debe
 dar lo mismo byte a byte: es lo que mantiene el prefijo de la caché. Ese tipo propio hace además que un camino que olvide
-expandirlo reciba un 400 de la API en vez de perder la imagen en silencio. Medido con Claude real en una conversación de 75 000
-tokens: el turno siguiente lee 74 898 de la caché, y un turno que agrega otra imagen lee 81 078 y escribe 865.
+expandirlo reciba un 400 de la API en vez de perder la imagen en silencio. Medido con Claude real en una conversación de 81 000
+tokens: un turno que agrega otra imagen lee 81 078 de la caché y escribe 865, y el siguiente, que responde sobre esa imagen, lee
+81 943 y escribe 138.
 
 Una subida es un borrador de `user_id`, sin `conversation_id`. La reclama `add_user_message`, en el mismo commit del mensaje, y de
 dos mensajes con el mismo borrador solo gana uno (409). La lectura pide ser el dueño y poder abrir el informe, y responde 404
