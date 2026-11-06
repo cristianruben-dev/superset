@@ -40,7 +40,9 @@ def thinking(value: str, signature: str) -> dict[str, Any]:
     return {"type": "thinking", "thinking": value, "signature": signature}
 
 
-def tool_use(name: str, tool_input: dict[str, Any], tool_id: str = "toolu_1") -> dict:
+def tool_use(
+    name: str, tool_input: dict[str, Any], tool_id: str = "toolu_1"
+) -> dict[str, Any]:
     return {"type": "tool_use", "id": tool_id, "name": name, "input": tool_input}
 
 
@@ -64,6 +66,8 @@ def _event(name: str, **data: Any) -> str:
 
 def _block_events(index: int, block: dict[str, Any]) -> list[str]:
     kind = block["type"]
+    start: dict[str, Any]
+    delta: dict[str, Any]
     if kind == "text":
         start, delta = (
             {"type": "text", "text": ""},

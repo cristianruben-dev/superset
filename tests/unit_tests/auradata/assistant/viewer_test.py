@@ -24,7 +24,8 @@ tell any of this apart.
 """
 
 import asyncio
-from typing import Any
+from typing import Any, cast
+from unittest.mock import MagicMock
 
 import pytest
 from flask import current_app, g
@@ -168,7 +169,7 @@ def test_a_role_with_access_to_the_dataset_opens_the_chart_query(
     """A role still opens a dataset to someone outside its workspace's grant."""
     perm = world["ventas"].perm
     world["granted"].add(("datasource_access", perm))
-    security_manager.user_view_menu_names.return_value = {perm}
+    cast(MagicMock, security_manager.user_view_menu_names).return_value = {perm}
 
     assert chart_query_is_allowed(world, "Dani")
 

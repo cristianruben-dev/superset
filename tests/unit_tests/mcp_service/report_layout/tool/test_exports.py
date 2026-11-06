@@ -103,6 +103,7 @@ async def test_who_sees_the_report_exports_it(
     assert info["mime_type"] == "image/png"
     assert [page["id"] for page in info["pages"]] == ["GRID_ID"]
     assert (info["width"], info["height"]) == PAGE
+    assert data is not None
     assert Image.open(io.BytesIO(data)).size == PAGE
     (screenshot,) = browser.call_args.args
     assert screenshot.element == "auradata-canvas"
@@ -137,6 +138,7 @@ async def test_all_pages_leave_out_hidden_and_tooltip_pages(
     assert [page["name"] for page in info["pages"]] == ["Página 1", "Detalle"]
     assert browser.call_count == 2
     # One under another, with a gap
+    assert data is not None
     assert Image.open(io.BytesIO(data)).size == (1920, 2 * 1088 + export.PAGE_GAP)
 
 
@@ -153,6 +155,7 @@ async def test_a_pdf_has_a_page_per_report_page(
     assert info.get("error") is None, info
     assert info["mime_type"] == "application/pdf"
     assert info["file_name"].endswith(".pdf")
+    assert data is not None
     assert data.startswith(b"%PDF")
     assert pdf_pages(data) == 2
     # 1920 x 1088 px at 96 px to the inch: 1440 x 816 pt

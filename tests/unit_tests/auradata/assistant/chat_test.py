@@ -28,7 +28,8 @@ import threading
 from decimal import Decimal
 from pathlib import Path
 from types import SimpleNamespace
-from typing import Any
+from typing import Any, cast
+from unittest.mock import MagicMock
 from uuid import UUID, uuid4
 
 import pytest
@@ -847,7 +848,9 @@ def test_the_page_context_travels_in_the_user_turn(
     assert question == {"type": "text", "text": "Hola"}
 
 
-def request_for(mocker: MockerFixture, client: Any, world: Any, model: str) -> dict:
+def request_for(
+    mocker: MockerFixture, client: Any, world: Any, model: str
+) -> tuple[dict[str, Any], Any]:
     fake = use_model(mocker, reply(text("Hola"), model=model))
     ask(client, world["dashboard"], model=model)
     return fake.requests[0], fake.headers[0]
@@ -1145,7 +1148,8 @@ def test_a_fallback_is_priced_by_attempt_and_sent_back_as_the_api_asks(
     assert Decimal(str(done["cost_usd"])) == Decimal("0.0095")
     sent = fake.requests[1]["messages"][1]["content"]
     assert [block["type"] for block in sent] == ["text", "fallback", "text"]
-    stored = find_conversation(conversation_id, world["users"]["Ana"].id)
+    stored = find_conversation(UUID(conversation_id), world["users"]["Ana"].id)
+    assert stored is not None
     assert json.loads(stored.messages[1].content)[0]["thinking"] == (
         "del modelo que declinó"
     )
@@ -1198,7 +1202,7 @@ def test_a_browser_that_leaves_mid_tool_leaves_a_valid_history(
         )
     )
     run = mocker.spy(ToolBox, "_call_tool")
-    events = agent.run_conversation(
+    events: Any = agent.run_conversation(
         fake.client,
         catalog_model(SONNET),
         "system",
@@ -1573,14 +1577,14 @@ def test_the_models_say_when_the_assistant_cannot_answer(
     result = client.get(f"{URL}models/").json["result"]
 
     assert result == {"available": False, "models": []}
-    api_module.get_catalog.assert_not_called()
+    cast(MagicMock, api_module.get_catalog).assert_not_called()
 
 
 def test_turning_it_off_in_the_settings_hides_the_models(
     client: Any, world: dict[str, Any], mocker: MockerFixture
 ) -> None:
     login(world, "Ana")
-    api_module.get_assistant_settings.return_value = AssistantSettings(
+    cast(MagicMock, api_module.get_assistant_settings).return_value = AssistantSettings(
         False, SONNET, None, None
     )
 

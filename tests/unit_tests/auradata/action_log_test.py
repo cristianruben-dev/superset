@@ -16,6 +16,8 @@
 # under the License.
 """Tests for what the action log keeps."""
 
+from typing import Any
+
 import pytest
 
 from superset.auradata.action_log import is_recorded_action, select_records
@@ -67,7 +69,7 @@ def test_reads_and_internal_steps_are_dropped(action: str) -> None:
 
 
 def test_browser_batch_keeps_only_meaningful_events() -> None:
-    records = [
+    records: list[dict[str, Any]] = [
         {"event_name": "mount_dashboard", "dashboard_id": 1},
         {"event_name": "load_chart"},
         {"event_name": "render_chart"},

@@ -16,7 +16,8 @@
 # under the License.
 """The admin API of the assistant: who gets in and what it answers."""
 
-from typing import Any
+from typing import Any, cast
+from unittest.mock import MagicMock
 
 import pytest
 from flask import current_app
@@ -89,7 +90,7 @@ def test_a_non_admin_cannot_change_the_settings(
     full_api_access: None,
     not_admin: None,
     catalog: Catalog,
-    store: dict,
+    store: dict[str, Any],
 ) -> None:
     response = client.put(SETTINGS_URL, json={"enabled": True})
 
@@ -108,7 +109,7 @@ def test_the_admin_reads_settings_and_models_but_never_the_key(
     full_api_access: None,
     admin: None,
     catalog: Catalog,
-    store: dict,
+    store: dict[str, Any],
     mocker: MockerFixture,
 ) -> None:
     mocker.patch.dict(current_app.config, {"ANTHROPIC_API_KEY": SECRET})
@@ -140,11 +141,11 @@ def test_refresh_asks_for_the_list_again(
     full_api_access: None,
     admin: None,
     catalog: Catalog,
-    store: dict,
+    store: dict[str, Any],
 ) -> None:
     client.get(f"{SETTINGS_URL}?refresh=true")
 
-    api_module.get_catalog.assert_called_once_with(refresh=True)
+    cast(MagicMock, api_module.get_catalog).assert_called_once_with(refresh=True)
 
 
 def test_the_admin_saves_models_and_default(
@@ -152,7 +153,7 @@ def test_the_admin_saves_models_and_default(
     full_api_access: None,
     admin: None,
     catalog: Catalog,
-    store: dict,
+    store: dict[str, Any],
 ) -> None:
     response = client.put(
         SETTINGS_URL,
@@ -182,7 +183,7 @@ def test_a_default_outside_the_allowed_models_is_refused(
     full_api_access: None,
     admin: None,
     catalog: Catalog,
-    store: dict,
+    store: dict[str, Any],
 ) -> None:
     response = client.put(
         SETTINGS_URL,
@@ -212,7 +213,7 @@ def test_malformed_settings_are_refused(
     full_api_access: None,
     admin: None,
     catalog: Catalog,
-    store: dict,
+    store: dict[str, Any],
     payload: dict[str, Any],
 ) -> None:
     response = client.put(SETTINGS_URL, json=payload)

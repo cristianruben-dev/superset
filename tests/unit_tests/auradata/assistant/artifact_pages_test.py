@@ -417,7 +417,10 @@ def test_a_save_approved_on_a_version_that_moved_before_it_runs_is_refused(
     )
     card = payloads(response, "confirm")[0]
     stored = find_conversation(UUID(conversation), world["users"]["Ana"].id)
-    assert pending_turn(stored).card_versions == {card["id"]: 1}
+    assert stored is not None
+    pending = pending_turn(stored)
+    assert pending is not None
+    assert pending.card_versions == {card["id"]: 1}
 
     decided = client.post(
         f"{URL}conversations/{conversation}/decide/",

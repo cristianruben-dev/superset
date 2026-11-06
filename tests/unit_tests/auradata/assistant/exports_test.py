@@ -24,7 +24,7 @@ import base64
 import io
 import time
 from types import SimpleNamespace
-from typing import Any
+from typing import Any, cast
 from uuid import UUID
 
 import pytest
@@ -44,6 +44,8 @@ from superset.auradata.assistant.exports import (
     start_export,
 )
 from superset.auradata.assistant.tools import run_coroutine
+from superset.auradata.assistant.turn_store import TurnStore
+from superset.auradata.models import AssistantArtifact
 from superset.mcp_service.report_layout.editing import LayoutEditError
 from tests.unit_tests.auradata.assistant.artifacts_test import document, text_block
 from tests.unit_tests.auradata.assistant.chat_test import (  # noqa: F401
@@ -59,6 +61,12 @@ def picture(height: int, width: int = SHEET_WIDTH) -> bytes:
     out = io.BytesIO()
     Image.new("RGB", (width, height), "white").save(out, format="PNG")
     return out.getvalue()
+
+
+def stored_job(store: TurnStore, job_id: str) -> dict[str, Any]:
+    job = store.export(job_id)
+    assert job is not None
+    return job
 
 
 @pytest.fixture
@@ -96,10 +104,12 @@ def test_the_task_only_carries_the_id_of_a_ticket(
 
     artifact = SimpleNamespace(id=UUID(int=1), conversation_id=UUID(int=2))
 
-    job_id = start_export(store, artifact, world["users"]["Ana"].id, "es")
+    job_id = start_export(
+        store, cast(AssistantArtifact, artifact), world["users"]["Ana"].id, "es"
+    )
 
     assert queued.call_args.kwargs["args"] == [job_id]
-    assert store.export(job_id)["user_id"] == world["users"]["Ana"].id
+    assert stored_job(store, job_id)["user_id"] == world["users"]["Ana"].id
 
 
 def test_only_the_owner_exports_and_gets_the_file(
@@ -203,7 +213,7 @@ def test_a_ticket_is_held_against_the_document_again(
     run_export(turn_memory, "stolen")
 
     pdf.assert_not_called()
-    assert turn_memory.export("stolen")["status"] == FAILED
+    assert stored_job(turn_memory, "stolen")["status"] == FAILED
 
 
 def test_a_failed_capture_says_so_and_a_lost_one_stops_waiting(
@@ -223,7 +233,7 @@ def test_a_failed_capture_says_so_and_a_lost_one_stops_waiting(
     assert client.get(f"{url}{failed}/").status_code == 422
 
     lost = client.post(url).json["result"]["job_id"]
-    job = turn_memory.export(lost)
+    job = stored_job(turn_memory, lost)
     turn_memory.save_export(
         lost, {**job, "opened_at": time.time() - EXPORT_SECONDS * 3}
     )
@@ -242,7 +252,9 @@ def test_the_file_of_a_finished_ticket_is_the_one_stored() -> None:
         },
     )
 
-    assert exports.job_of(store, "x", UUID(int=2), 1)["status"] == DONE
+    job = exports.job_of(store, "x", UUID(int=2), 1)
+    assert job is not None
+    assert job["status"] == DONE
     assert exports.job_of(store, "x", UUID(int=2), 2) is None
     assert exports.job_of(store, "x", UUID(int=3), 1) is None
 

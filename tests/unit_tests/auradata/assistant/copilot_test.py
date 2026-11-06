@@ -23,8 +23,10 @@ only the model fake, and counts what reaches the tools with a spy on ``_call_too
 
 import asyncio
 import threading
+from decimal import Decimal
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
+from unittest.mock import MagicMock
 from uuid import UUID, uuid4
 
 import anthropic
@@ -417,7 +419,7 @@ def test_two_racing_decisions_run_the_call_once(
 def racing_decision(mocker: MockerFixture, world: dict[str, Any], id_: str) -> None:  # noqa: F811
     """Another request decides right after this one read what is pending."""
     real = api_module.pending_turn
-    raced = []
+    raced: list[bool] = []
 
     def read_then_race(conversation: Any) -> Any:
         found = real(conversation)
@@ -633,7 +635,7 @@ def test_a_viewer_with_a_forged_pending_call_gets_nothing(
     log.add_user_message([text("Hola")])
     log.add_turn(
         agent.AssistantTurn(
-            [delete_call(world)], SONNET, "tool_use", agent.TokenUsage(), 0
+            [delete_call(world)], SONNET, "tool_use", agent.TokenUsage(), Decimal(0)
         ),
         awaiting=[{"id": "toolu_1", "title": "Delete page"}],
     )
@@ -941,7 +943,7 @@ def test_stopping_while_the_model_thinks_closes_the_call_and_keeps_its_cost(
             },
         ).encode()
     )
-    events = agent.run_conversation(
+    events: Any = agent.run_conversation(
         hanging_client(body),
         catalog_model(SONNET),
         "system",
@@ -987,6 +989,8 @@ def test_stopping_before_the_api_says_anything_stores_nothing(
 class Versions:
     """The history, which the in-memory database does not keep: one id per thing."""
 
+    call: Any
+
     def __init__(self, mocker: MockerFixture, world: dict[str, Any]) -> None:  # noqa: F811
         self.live: dict[Any, str] = {
             world["dashboard"].uuid: VERSION_A,
@@ -1027,7 +1031,7 @@ def changing_turn(world: dict[str, Any], versions: Versions) -> dict[str, Any]: 
         versions.live[dashboard_uuid] = VERSION_B
         return await run(name, arguments)
 
-    versions.call = change  # type: ignore[attr-defined]
+    versions.call = change
     return reply(
         tool_use(
             "add_page",
@@ -1084,7 +1088,7 @@ def test_undo_also_restores_the_charts_a_turn_changed(
     versions.live[world["chart"].uuid] = VERSION_C
     use_model(mocker, changing_turn(world, versions), reply(text("Listo")))
     chart_uuid = world["chart"].uuid
-    change = versions.call  # type: ignore[attr-defined]
+    change = versions.call
 
     async def change_chart(name: str, arguments: dict[str, Any]) -> Any:
         versions.live[chart_uuid] = VERSION_B
@@ -1167,7 +1171,7 @@ def test_each_undo_uncovers_the_turn_before(
         ),
         reply(text("Listo")),
     )
-    run = ToolBox._call_tool.side_effect
+    run = cast(MagicMock, ToolBox._call_tool).side_effect
 
     async def change_again(name: str, arguments: dict[str, Any]) -> Any:
         result = await run(name, arguments)
@@ -1296,7 +1300,7 @@ def test_undo_goes_back_over_a_turn_that_added_a_chart(
     session.add(new_chart)
     session.commit()
     use_model(mocker, changing_turn(world, versions), reply(text("Listo")))
-    change = versions.call  # type: ignore[attr-defined]
+    change = versions.call
 
     async def add_chart(name: str, arguments: dict[str, Any]) -> Any:
         dashboard.slices.append(new_chart)

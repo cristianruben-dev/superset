@@ -517,6 +517,7 @@ def test_a_message_can_be_only_an_image(
     conversation = find_conversation(
         UUID(conversation_id_of(response)), world["users"]["Ana"].id
     )
+    assert conversation is not None
     assert conversation.title == "Image"
 
 
@@ -695,6 +696,7 @@ def test_retention_deletes_the_images_of_an_expired_conversation(
     conversation = find_conversation(
         UUID(conversation_id_of(response)), world["users"]["Ana"].id
     )
+    assert conversation is not None
     conversation.created_on = moment
     world["session"].query(AssistantMessage).update({"created_on": moment})
     world["session"].commit()
@@ -754,6 +756,7 @@ def test_delete_conversation_keeps_what_it_cost(
     conversation = find_conversation(
         UUID(conversation_id_of(response)), world["users"]["Ana"].id
     )
+    assert conversation is not None
 
     delete_conversation(conversation)
 

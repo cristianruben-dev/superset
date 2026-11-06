@@ -225,6 +225,7 @@ def test_a_turn_under_way_is_not_deleted_under_it(
 ) -> None:
     conversation, _ = answered(client, world, mocker)
     row = find_conversation(UUID(conversation), world["users"]["Ana"].id)
+    assert row is not None
     ConversationLog(row, world["users"]["Ana"].id).add_user_message(
         [{"type": "text", "text": "¿Y ahora?"}]
     )
@@ -242,6 +243,7 @@ def test_a_turn_that_died_stops_counting_as_under_way(
 ) -> None:
     conversation, _ = answered(client, world, mocker)
     row = find_conversation(UUID(conversation), world["users"]["Ana"].id)
+    assert row is not None
     ConversationLog(row, world["users"]["Ana"].id).add_user_message(
         [{"type": "text", "text": "¿Y ahora?"}]
     )
@@ -257,6 +259,7 @@ def test_an_undo_is_not_a_turn_under_way(
 ) -> None:
     conversation, _ = answered(client, world, mocker)
     row = find_conversation(UUID(conversation), world["users"]["Ana"].id)
+    assert row is not None
     ConversationLog(row, world["users"]["Ana"].id).add_undone(
         {}, {"type": "text", "text": "Nota"}
     )

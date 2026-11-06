@@ -34,6 +34,7 @@ Covers:
 import logging
 from collections.abc import Iterator
 from functools import partial
+from typing import Any
 from unittest.mock import Mock, patch
 
 import pytest
@@ -535,7 +536,7 @@ def _cells_layout() -> dict[str, object]:
     }
 
 
-async def _add_chart_to(position_json: str, mcp_server: object) -> dict:
+async def _add_chart_to(position_json: str, mcp_server: object) -> dict[str, Any]:
     """Add chart 10 to a dashboard holding chart 5; return the stored layout."""
     from superset.utils import json
 

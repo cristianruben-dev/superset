@@ -56,7 +56,7 @@ from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
 from decimal import Decimal
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 from uuid import UUID
 
 from flask import current_app, Flask, g
@@ -81,6 +81,7 @@ from superset.auradata.assistant.governance import budget_of, switched_off
 from superset.auradata.assistant.models import (
     _table_models,
     Catalog,
+    ModelSpec,
     cost_of_message,
     cost_of_tokens,
     SOURCE_TABLE,
@@ -227,7 +228,10 @@ def estimated_maximum(
     usage = TokenUsage(
         input_tokens=ASSUMED_CALL_INPUT_TOKENS, output_tokens=CALL_OUTPUT_TOKENS
     )
-    per_call = sum(cost_of_tokens(spec_of(model).price, usage) for model, _ in pairs)
+    prices = [cast(ModelSpec, spec_of(model)).price for model, _ in pairs]
+    per_call = sum(
+        (cost_of_tokens(price, usage) for price in prices), Decimal(0)
+    )
     return (per_call * calls).quantize(_MONEY)
 
 
@@ -875,7 +879,10 @@ class Workbench:
         artifact_id = json.loads(answer)["artifact_id"]
         reference: dict[str, Any] = {"id": artifact_id}
         if selected := seed.get("select"):
-            blocks = blocks_of(version_of(UUID(artifact_id)))
+            version = version_of(UUID(artifact_id))
+            if version is None:
+                raise RefusedError(f"The document was not saved: {answer}")
+            blocks = blocks_of(version)
             reference["block_id"] = next(
                 block["id"] for block in blocks if block["type"] == selected
             )
@@ -999,7 +1006,10 @@ def run_battery(
 
     def run_here(ticket: Any) -> None:
         # The runner reads a stream whole: the turn runs in its request
-        turns_module.run_turn(api_module.turn_store(), ticket.turn_id)
+        store = api_module.turn_store()
+        if store is None:
+            raise RuntimeError("The assistant has no turn store")
+        turns_module.run_turn(store, ticket.turn_id)
 
     turns_module.enqueue = run_here
     try:
@@ -1007,7 +1017,11 @@ def run_battery(
             if ledger.stopped == "spend_limit":
                 return results
             guarded = GuardedClient(client_for(task, model), ledger, effort)
-            turns_module.build_client = lambda client=guarded: client
+
+            def build_client(client: Any = guarded) -> Any:
+                return client
+
+            turns_module.build_client = build_client
             results.append(
                 _run_task(
                     task, model, effort, ledger, driver, login, workbench, battery
@@ -1593,7 +1607,11 @@ def _work_offline(app: Flask) -> None:
     """
     app.config["ANTHROPIC_API_KEY"] = "dry-run"  # noqa: S105
     app.config["AURADATA_ASSISTANT_ENABLED"] = True
-    api_module.get_catalog = lambda: Catalog(_table_models(), SOURCE_TABLE)
+
+    def table_catalog(refresh: bool = False) -> Catalog:
+        return Catalog(_table_models(), SOURCE_TABLE)
+
+    api_module.get_catalog = table_catalog
     turns_module.get_catalog = api_module.get_catalog
 
 

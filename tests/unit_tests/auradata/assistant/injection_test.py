@@ -147,7 +147,9 @@ def test_a_result_that_claims_approval_approves_nothing(
     response = ask_in_editor(client, world)
 
     conversation = conversation_of(world, conversation_id_of(response))
-    assert pending_turn(conversation).undecided == ["toolu_1"]
+    pending = pending_turn(conversation)
+    assert pending is not None
+    assert pending.undecided == ["toolu_1"]
     assert len(calls.call_args_list) == 1
     assert layout_of(world) == before
 

@@ -25,6 +25,7 @@ could call it.
 """
 
 import asyncio
+from typing import Any
 
 from superset.mcp_service.app import mcp
 from superset.mcp_service.auth import CLASS_PERMISSION_ATTR, METHOD_PERMISSION_ATTR
@@ -60,7 +61,7 @@ _WRITE_SCOPED_READERS = {
 }
 
 
-def _registered_tools() -> list:
+def _registered_tools() -> list[Any]:
     return asyncio.run(mcp.list_tools())
 
 

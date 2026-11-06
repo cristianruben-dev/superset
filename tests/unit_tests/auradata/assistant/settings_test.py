@@ -75,7 +75,7 @@ def store(mocker: Any) -> Iterator[dict[SharedKey, Any]]:
         yield values
 
 
-def test_without_a_stored_choice_the_configuration_decides(store: dict) -> None:
+def test_without_a_stored_choice_the_configuration_decides(store: dict[str, Any]) -> None:
     assert get_assistant_settings() == AssistantSettings(
         enabled=False,
         default_model="claude-sonnet-5-5",
@@ -84,7 +84,7 @@ def test_without_a_stored_choice_the_configuration_decides(store: dict) -> None:
     )
 
 
-def test_what_the_admin_stored_wins_over_the_configuration(store: dict) -> None:
+def test_what_the_admin_stored_wins_over_the_configuration(store: dict[str, Any]) -> None:
     store[SharedKey.AURADATA_ASSISTANT_SETTINGS] = {
         "enabled": True,
         "allowed_models": ["claude-haiku-5-5", "claude-sonnet-5-5"],
@@ -97,7 +97,7 @@ def test_what_the_admin_stored_wins_over_the_configuration(store: dict) -> None:
     assert settings.default_model == "claude-sonnet-5-5"
 
 
-def test_saving_writes_the_shared_key_and_reads_back(store: dict) -> None:
+def test_saving_writes_the_shared_key_and_reads_back(store: dict[str, Any]) -> None:
     saved = save_assistant_settings(
         {
             "enabled": True,
@@ -114,7 +114,7 @@ def test_saving_writes_the_shared_key_and_reads_back(store: dict) -> None:
     assert store[SharedKey.AURADATA_ASSISTANT_SETTINGS]["enabled"] is True
 
 
-def test_the_default_model_must_be_allowed(store: dict) -> None:
+def test_the_default_model_must_be_allowed(store: dict[str, Any]) -> None:
     with pytest.raises(AssistantSettingsError) as raised:
         save_assistant_settings(
             {
@@ -128,7 +128,7 @@ def test_the_default_model_must_be_allowed(store: dict) -> None:
     assert SharedKey.AURADATA_ASSISTANT_SETTINGS not in store
 
 
-def test_without_a_list_the_default_must_be_a_current_model(store: dict) -> None:
+def test_without_a_list_the_default_must_be_a_current_model(store: dict[str, Any]) -> None:
     with pytest.raises(AssistantSettingsError) as raised:
         save_assistant_settings(
             {"default_model": "claude-opus-4-8"},
@@ -138,7 +138,7 @@ def test_without_a_list_the_default_must_be_a_current_model(store: dict) -> None
     assert list(raised.value.messages) == ["default_model"]
 
 
-def test_an_empty_allowed_list_is_refused(store: dict) -> None:
+def test_an_empty_allowed_list_is_refused(store: dict[str, Any]) -> None:
     with pytest.raises(AssistantSettingsError) as raised:
         save_assistant_settings(
             {"allowed_models": []},
@@ -148,7 +148,7 @@ def test_an_empty_allowed_list_is_refused(store: dict) -> None:
     assert list(raised.value.messages) == ["allowed_models"]
 
 
-def test_unknown_models_are_refused(store: dict) -> None:
+def test_unknown_models_are_refused(store: dict[str, Any]) -> None:
     with pytest.raises(AssistantSettingsError) as raised:
         save_assistant_settings(
             {"allowed_models": ["claude-sonnet-5-5", "gpt-5"]},
@@ -158,7 +158,7 @@ def test_unknown_models_are_refused(store: dict) -> None:
     assert "gpt-5" in raised.value.messages["allowed_models"][0]
 
 
-def test_models_stored_earlier_survive_a_shorter_catalog(store: dict) -> None:
+def test_models_stored_earlier_survive_a_shorter_catalog(store: dict[str, Any]) -> None:
     store[SharedKey.AURADATA_ASSISTANT_SETTINGS] = {
         "allowed_models": ["claude-sonnet-5-5", "claude-new-live-model"],
         "default_model": "claude-new-live-model",
@@ -170,7 +170,7 @@ def test_models_stored_earlier_survive_a_shorter_catalog(store: dict) -> None:
     assert saved.enabled is True
 
 
-def test_by_default_only_current_models_are_offered(store: dict) -> None:
+def test_by_default_only_current_models_are_offered(store: dict[str, Any]) -> None:
     models = offered_models(
         get_assistant_settings(),
         catalog("claude-sonnet-5-5", "claude-opus-4-8", "claude-opus-5-5"),
@@ -180,7 +180,7 @@ def test_by_default_only_current_models_are_offered(store: dict) -> None:
 
 
 def test_an_allowed_list_narrows_the_offer_to_what_the_catalog_has(
-    store: dict,
+    store: dict[str, Any],
 ) -> None:
     settings = AssistantSettings(
         enabled=True,
@@ -197,7 +197,7 @@ def test_an_allowed_list_narrows_the_offer_to_what_the_catalog_has(
     assert [model.id for model in models] == ["claude-opus-4-8"]
 
 
-def test_has_api_key_only_says_whether_there_is_one(store: dict) -> None:
+def test_has_api_key_only_says_whether_there_is_one(store: dict[str, Any]) -> None:
     assert has_api_key() is False
 
     current_app.config["ANTHROPIC_API_KEY"] = "test-key"  # noqa: S105

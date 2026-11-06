@@ -23,7 +23,8 @@ the workspace.
 """
 
 from datetime import datetime
-from typing import Any
+from typing import Any, cast
+from unittest.mock import MagicMock
 
 import pytest
 import sqlalchemy as sa
@@ -356,7 +357,7 @@ def test_a_real_data_permission_keeps_building_charts(
     world: dict[str, Any],
 ) -> None:
     as_user(world, "Vera")
-    security_manager.can_access.return_value = True
+    cast(MagicMock, security_manager.can_access).return_value = True
 
     create_chart(world)
 
@@ -431,7 +432,7 @@ def test_a_real_data_permission_keeps_opening_the_chart_of_a_draft(
     world["dashboard"].published = False
     session.flush()
     as_user(world, "Vera")
-    security_manager.can_access.return_value = True
+    cast(MagicMock, security_manager.can_access).return_value = True
 
     assert allowed(security_manager.raise_for_access, chart=world["chart"])
 

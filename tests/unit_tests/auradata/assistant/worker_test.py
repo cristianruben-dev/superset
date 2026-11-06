@@ -301,7 +301,10 @@ def test_a_call_that_needs_a_person_does_not_run_in_the_worker(
     conversation = find_conversation(
         UUID(ticket.conversation_id), world["users"]["Ana"].id
     )
-    assert pending_turn(conversation).undecided == ["toolu_1"]
+    assert conversation is not None
+    pending = pending_turn(conversation)
+    assert pending is not None
+    assert pending.undecided == ["toolu_1"]
 
 
 @AMBIENT
@@ -598,6 +601,7 @@ def test_a_failed_queueing_leaves_alone_a_turn_a_worker_took(
     conversation = find_conversation(
         UUID(ticket.conversation_id), world["users"]["Ana"].id
     )
+    assert conversation is not None
     assert lost_turns(conversation) == []
     assert turn_memory.claimed(ticket.turn_id) == TAKEN
 
@@ -669,6 +673,7 @@ def test_a_stop_between_tools_leaves_the_next_one_unrun_and_the_history_valid(
     conversation = find_conversation(
         UUID(ticket.conversation_id), world["users"]["Ana"].id
     )
+    assert conversation is not None
     calls = [
         block
         for message in history_of(conversation)
@@ -774,6 +779,7 @@ def test_a_dead_worker_leaves_a_clear_message_and_a_usable_conversation(
     conversation = find_conversation(
         UUID(ticket.conversation_id), world["users"]["Ana"].id
     )
+    assert conversation is not None
     assert not turn_is_running(conversation)
     use_model(mocker, reply(text("Sigo aquí")))
     answer = ask(
@@ -798,6 +804,7 @@ def test_a_dead_turn_is_repaired_once_however_many_find_it(
     conversation = find_conversation(
         UUID(ticket.conversation_id), world["users"]["Ana"].id
     )
+    assert conversation is not None
     assert len(lost_turns(conversation)) == 1
     assert len(named(written(turn_memory, ticket), "turn_end")) == 1
 
@@ -843,6 +850,7 @@ def test_a_decided_turn_whose_worker_died_answers_its_calls(
     conversation_id = conversation_id_of(ask_in_editor(client, world))
     user_id = world["users"]["Ana"].id
     conversation = find_conversation(UUID(conversation_id), user_id)
+    assert conversation is not None
     ConversationLog(conversation, user_id).add_decision("toolu_1", True)
     dead_turn(
         world,
@@ -873,6 +881,7 @@ def test_decided_calls_with_no_turn_left_do_not_block_the_next_message(
     conversation_id = conversation_id_of(ask_in_editor(client, world))
     user_id = world["users"]["Ana"].id
     conversation = find_conversation(UUID(conversation_id), user_id)
+    assert conversation is not None
     ConversationLog(conversation, user_id).add_decision("toolu_1", True)
     use_model(mocker, reply(text("Vale")))
 
@@ -1196,6 +1205,7 @@ def test_a_conversation_read_during_a_turn_leaves_that_turn_to_its_stream(
     conversation_id = conversation_id_of(ask(client, world["dashboard"]))
     user_id = world["users"]["Ana"].id
     conversation = find_conversation(UUID(conversation_id), user_id)
+    assert conversation is not None
     log = ConversationLog(conversation, user_id)
     log.add_user_message([text("Segunda")])
     seq = log.next_seq

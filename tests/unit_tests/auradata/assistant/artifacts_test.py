@@ -78,7 +78,7 @@ def text_block(value: str = "Las ventas subieron.") -> dict[str, Any]:
     return {"type": "text", "text": value}
 
 
-def query(dataset_id: int, **fields: Any) -> dict[str, Any]:
+def query(dataset_id: int | str, **fields: Any) -> dict[str, Any]:
     return {"dataset_id": dataset_id, "metrics": ["total"], **fields}
 
 
@@ -871,6 +871,7 @@ def test_going_back_adds_a_version_with_the_old_content(
         (3, "restored", 1),
     ]
     conversation = find_conversation(UUID(conversation_id), world["users"]["Ana"].id)
+    assert conversation is not None
     assert records_of(conversation)[-1]["type"] == "artifact_restored"
 
 
@@ -1117,6 +1118,7 @@ def test_going_back_writes_after_the_last_message(
     login(world, "Ana")
     artifact, conversation_id = document(client, world, mocker, text_block())
     conversation = find_conversation(UUID(conversation_id), world["users"]["Ana"].id)
+    assert conversation is not None
     before = ConversationLog(conversation, world["users"]["Ana"].id).next_seq
 
     client.post(f"{URL}artifacts/{artifact['id']}/restore/", json={"version": 1})
