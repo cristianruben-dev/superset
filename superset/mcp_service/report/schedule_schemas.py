@@ -60,10 +60,10 @@ class ScheduleFields(BaseModel):
 class CreateReportRequest(ScheduleFields):
     name: str = Field(min_length=1, max_length=150)
     dashboard: int | str = Field(description="Dashboard id, uuid or slug")
-    crontab: str = Field(  # type: ignore[assignment]
+    crontab: str = Field(
         description="When it runs, as a cron expression: '0 8 * * 1' (Mon 8:00)"
     )
-    recipients: list[str] = Field(  # type: ignore[assignment]
+    recipients: list[str] = Field(
         min_length=1, max_length=50, description=EMAILS_DESCRIPTION
     )
 

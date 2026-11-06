@@ -24,7 +24,7 @@ dimensions) without requiring a saved chart.
 
 import logging
 import time
-from typing import Any
+from typing import Any, cast
 
 from fastmcp import Context
 from sqlalchemy.exc import SQLAlchemyError
@@ -56,6 +56,7 @@ from superset.mcp_service.privacy import (
 from superset.mcp_service.utils.cache_utils import get_cache_status_from_result
 from superset.mcp_service.utils.oauth2_utils import build_oauth2_redirect_message
 from superset.mcp_service.utils.response_utils import format_data_columns
+from superset.superset_typing import AdhocMetric, Metric
 
 logger = logging.getLogger(__name__)
 
@@ -184,11 +185,15 @@ async def query_dataset(  # noqa: C901
         aggregates = [
             aggregate_metric(item.column, item.aggregate) for item in request.aggregates
         ]
+        metrics: list[Metric] = [
+            *request.metrics,
+            *cast(list[AdhocMetric], aggregates),
+        ]
 
         validation_errors: list[str] = validate_query_names(
             valid_metrics | {metric["label"] for metric in aggregates},
             valid_columns,
-            metrics=[*request.metrics, *aggregates],
+            metrics=metrics,
             dimensions=[
                 *request.columns,
                 *(item.column for item in request.aggregates),
@@ -309,7 +314,7 @@ async def query_dataset(  # noqa: C901
         # in query_filters above, alongside the effective_filters bookkeeping.
         query_dict: dict[str, Any] = build_query_dict(
             time_column=granularity,
-            metrics=[*request.metrics, *aggregates],
+            metrics=metrics,
             dimensions=request.columns,
             filters=query_filters,
             limit=request.row_limit,

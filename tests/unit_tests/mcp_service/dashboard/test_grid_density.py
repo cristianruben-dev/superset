@@ -84,11 +84,9 @@ def test_a_chart_added_to_a_48_column_dashboard() -> None:
         },
     }
     chart = Mock(slice_name="Ventas", uuid=None)
-    chart_key, column_key, _ = _add_chart_to_layout(
-        layout, chart, 7, "ROW-new", "GRID_ID"
-    )
+    chart_key, row_key = _add_chart_to_layout(layout, chart, 7, "ROW-new", "GRID_ID")
     assert layout[chart_key]["meta"]["width"] == 16
-    assert layout[column_key]["meta"]["width"] == 48
+    assert "width" not in layout[row_key]["meta"]
 
 
 @pytest.mark.parametrize(

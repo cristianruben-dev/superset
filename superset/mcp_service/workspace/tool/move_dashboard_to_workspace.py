@@ -68,11 +68,12 @@ async def move_dashboard_to_workspace(
             if DashboardDAO.find_by_id(dashboard_id) is None:
                 raise workspaces.WorkspaceNotFoundError()
             current = next(iter(dashboard_workspace_ids([dashboard_id])), None)
-            if target is None and current is None:
-                message = "The dashboard is not in any workspace."
-            elif target is None:
-                workspaces.move_dashboards(current, {"remove": [dashboard_id]})
-                message = "The dashboard left its workspace."
+            if target is None:
+                if current is None:
+                    message = "The dashboard is not in any workspace."
+                else:
+                    workspaces.move_dashboards(current, {"remove": [dashboard_id]})
+                    message = "The dashboard left its workspace."
             elif target == current:
                 workspaces.find_workspace(target)
                 message = "The dashboard is already in this workspace."

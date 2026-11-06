@@ -17,6 +17,7 @@
 """MCP tool: restore_version"""
 
 import logging
+from typing import Any
 
 from fastmcp import Context
 from superset_core.mcp.decorators import tool, ToolAnnotations
@@ -27,7 +28,7 @@ from superset.mcp_service.history.schemas import RestoreVersionResponse, Version
 logger = logging.getLogger(__name__)
 
 
-def _commands() -> dict[str, type]:
+def _commands() -> dict[str, type[Any]]:
     """The restore command of each kind, the one the REST endpoints run."""
     from superset.commands.chart.restore_version import RestoreChartVersionCommand
     from superset.commands.dashboard.restore_version import (

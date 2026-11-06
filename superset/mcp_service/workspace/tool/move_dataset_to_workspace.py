@@ -67,11 +67,12 @@ async def move_dataset_to_workspace(
             if DatasetDAO.find_by_id(dataset_id) is None:
                 raise workspaces.WorkspaceNotFoundError()
             current = dataset_workspace_id(dataset_id)
-            if target is None and current is None:
-                message = "The dataset is already shared."
-            elif target is None:
-                workspaces.move_datasets(current, {"remove": [dataset_id]})
-                message = "The dataset is now shared."
+            if target is None:
+                if current is None:
+                    message = "The dataset is already shared."
+                else:
+                    workspaces.move_datasets(current, {"remove": [dataset_id]})
+                    message = "The dataset is now shared."
             elif target == current:
                 workspaces.find_workspace(target)
                 message = "The dataset is already in this workspace."

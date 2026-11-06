@@ -58,7 +58,7 @@ def visible_in_workspaces(dataset_id: int) -> bool:
     return workspace_filtered(query).first() is not None
 
 
-def find_visible_dataset(dataset_id: int, **kwargs: Any) -> Any | None:
+def find_visible_dataset(dataset_id: int | str, **kwargs: Any) -> Any | None:
     """``DatasetDAO.find_by_id``, with a dataset hidden by the workspace rules as
     not found."""
     from superset.daos.dataset import DatasetDAO

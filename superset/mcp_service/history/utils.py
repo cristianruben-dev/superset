@@ -107,7 +107,7 @@ def error_response(response_cls: type[R], error: HistoryError, **fields: Any) ->
     )
 
 
-def models() -> dict[str, type]:
+def models() -> dict[str, type[Any]]:
     """The model of each kind."""
     from superset.connectors.sqla.models import SqlaTable
     from superset.models.dashboard import Dashboard
@@ -298,7 +298,7 @@ def trash_item(entity_type: str, entity: Any, name_attr: str) -> TrashItem:
 
     deleted_at = getattr(entity, "deleted_at", None)
     return TrashItem(
-        entity_type=entity_type,  # type: ignore[arg-type]
+        entity_type=entity_type,
         id=entity.id,
         uuid=str(entity.uuid),
         name=str(getattr(entity, name_attr) or ""),

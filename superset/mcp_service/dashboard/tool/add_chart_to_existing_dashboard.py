@@ -207,7 +207,7 @@ def _add_chart_to_layout(
     chart_id: int,
     row_key: str,
     parent_id: str,
-) -> tuple[str, str, str]:
+) -> tuple[str, str]:
     """
     Add a chart, in a row of its own, to a layout in cells.
 
