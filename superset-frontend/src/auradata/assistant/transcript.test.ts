@@ -16,8 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { isLongConversation, transcriptOf, withEvent } from './transcript';
+import {
+  isLongConversation,
+  stepsOf,
+  transcriptOf,
+  withEvent,
+} from './transcript';
 import type {
+  AssistantEvent,
   ChatMessage,
   Figure,
   StoredBlock,
@@ -249,4 +255,114 @@ test('an answer keeps the id of its first row and the vote stored on it', () => 
     storedId: first.id,
     feedback: { vote: 'down', reason: 'other' },
   });
+});
+
+const lines = (message: ChatMessage) =>
+  stepsOf(message, name => name.toUpperCase()).map(item =>
+    item.kind === 'note' ? item.note.text : `[${item.label}]`,
+  );
+
+const step = (id: string, name: string) => ({
+  id,
+  name,
+  running: false,
+  failed: false,
+});
+
+test('a note grows with its text and each block opens another', () => {
+  const events = [
+    { text: 'Miro', starts: true },
+    { text: ' las ventas.', starts: false },
+    { text: 'Ya las tengo.', starts: true },
+  ];
+
+  const result = events.reduce(
+    (current, data) => withEvent(current, { event: 'note', data }),
+    answer({ tools: [step('t1', 'leer')] }),
+  );
+
+  expect(result.notes).toEqual([
+    { text: 'Miro las ventas.', after: 1 },
+    { text: 'Ya las tengo.', after: 1 },
+  ]);
+});
+
+test('a note stays before the tool it introduces', () => {
+  const result = [
+    { event: 'note', data: { text: 'Primero leo.', starts: true } },
+    { event: 'tool_start', data: { id: 't1', name: 'leer' } },
+    { event: 'tool_end', data: { id: 't1', name: 'leer', is_error: false } },
+    { event: 'note', data: { text: 'Ahora consulto.', starts: true } },
+    { event: 'tool_start', data: { id: 't2', name: 'consultar' } },
+    { event: 'note', data: { text: 'Listo.', starts: true } },
+  ].reduce(
+    (current, event) => withEvent(current, event as AssistantEvent),
+    answer(),
+  );
+
+  expect(lines(result)).toEqual([
+    'Primero leo.',
+    '[LEER]',
+    'Ahora consulto.',
+    '[CONSULTAR]',
+    'Listo.',
+  ]);
+});
+
+test('a tool used again shows once, where it last ran', () => {
+  const message = answer({
+    tools: [step('t1', 'leer'), step('t2', 'consultar'), step('t3', 'leer')],
+    notes: [{ text: 'Vuelvo a leer.', after: 2 }],
+  });
+
+  expect(lines(message)).toEqual(['[CONSULTAR]', 'Vuelvo a leer.', '[LEER]']);
+});
+
+test('what the API writes when a response is cut never shows as a note', () => {
+  const message = answer({
+    notes: [
+      {
+        text: 'This part of the response was interrupted before it finished.',
+        after: 0,
+      },
+      { text: '  ', after: 0 },
+    ],
+  });
+
+  expect(lines(message)).toEqual([]);
+});
+
+test('read later, an answer shows what its stored blocks hold of the notes', () => {
+  const [, read] = transcriptOf(
+    stored([
+      row('user', [{ type: 'text', text: 'Hola' }]),
+      row('assistant', [
+        { type: 'thinking', thinking: '' },
+        { type: 'thinking', thinking: 'Miro las ventas.' },
+        { type: 'tool_use', id: 't1', name: 'leer' },
+      ]),
+      row('user', [{ type: 'tool_result', tool_use_id: 't1' }]),
+      row('assistant', [
+        { type: 'thinking', thinking: 'Ya las tengo.' },
+        { type: 'text', text: 'Cien' },
+      ]),
+    ]),
+  );
+
+  expect(lines(read)).toEqual(['Miro las ventas.', '[LEER]', 'Ya las tengo.']);
+  expect(read.text).toBe('Cien');
+});
+
+test('a conversation whose blocks hold no text shows no notes', () => {
+  const [, read] = transcriptOf(
+    stored([
+      row('user', [{ type: 'text', text: 'Hola' }]),
+      row('assistant', [
+        { type: 'thinking', thinking: '' },
+        { type: 'text', text: 'Cien' },
+      ]),
+    ]),
+  );
+
+  expect(read.notes).toBeUndefined();
 });

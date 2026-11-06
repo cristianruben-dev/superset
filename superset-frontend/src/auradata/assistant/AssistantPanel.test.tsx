@@ -942,3 +942,59 @@ test('the end of an answer updates the notice of the month', async () => {
   ).toBeInTheDocument();
   expect(screen.getByTestId('auradata-assistant-input')).toBeDisabled();
 });
+
+test('the notes of the model show among its steps and fold when it ends', async () => {
+  const stream = heldStream();
+  setup();
+  await sendQuestion();
+  expect(screen.getByText('Thinking…')).toBeInTheDocument();
+
+  stream.emit({ event: 'note', data: { text: 'Miro', starts: true } });
+  stream.emit({ event: 'note', data: { text: ' las ventas.', starts: false } });
+
+  expect(screen.queryByText('Thinking…')).not.toBeInTheDocument();
+  const note = screen.getByTestId('auradata-assistant-note');
+  expect(note).toHaveTextContent('Miro las ventas.');
+  expect(note.closest('details')).toBeNull();
+
+  stream.emit({
+    event: 'tool_start',
+    data: { id: 't1', name: 'query_dataset' },
+  });
+  stream.emit({
+    event: 'tool_end',
+    data: { id: 't1', name: 'query_dataset', is_error: false },
+  });
+  stream.emit({ event: 'text', data: { text: 'Cien' } });
+  await stream.end();
+
+  const fold = (await screen.findByText('2 steps')).closest('details');
+  expect(fold).not.toHaveAttribute('open');
+  expect(fold).toContainElement(screen.getByTestId('auradata-assistant-note'));
+});
+
+test('an answer with notes and no tools folds them too', async () => {
+  const stream = heldStream();
+  setup();
+  await sendQuestion();
+
+  stream.emit({ event: 'note', data: { text: 'Lo pienso.', starts: true } });
+  stream.emit({ event: 'text', data: { text: 'Cien' } });
+  await stream.end();
+
+  expect(await screen.findByText('1 step')).toBeInTheDocument();
+});
+
+test('what the model writes in a note stays plain text', async () => {
+  const stream = heldStream();
+  setup();
+  await sendQuestion();
+
+  const markup =
+    '<img src="https://example.com/x.png"> **negrita** [a](https://example.com)';
+  stream.emit({ event: 'note', data: { text: markup, starts: true } });
+
+  const note = screen.getByTestId('auradata-assistant-note');
+  expect(note.textContent).toBe(markup);
+  expect(note.children).toHaveLength(0);
+});

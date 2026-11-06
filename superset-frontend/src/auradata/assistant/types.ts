@@ -143,6 +143,7 @@ export interface StoredBlock {
   id?: string;
   name?: string;
   text?: string;
+  thinking?: string;
   tool_use_id?: string;
   is_error?: boolean;
 }
@@ -183,12 +184,25 @@ export interface ToolStep {
   rejected?: boolean;
 }
 
+/** What the model shows of its thinking. Its text is plain, whatever it holds. */
+export interface StepNote {
+  text: string;
+  /** How many tools of the answer came before it. */
+  after: number;
+}
+
+/** A line of the steps of an answer. */
+export type AnswerStep =
+  | { kind: 'tool'; label: string; step: ToolStep }
+  | { kind: 'note'; note: StepNote };
+
 /** A message of the panel. */
 export interface ChatMessage {
   id: string;
   role: 'user' | 'assistant';
   text: string;
   tools: ToolStep[];
+  notes?: StepNote[];
   /** The id on the server of an answer, what a vote goes on. */
   storedId?: string;
   feedback?: Feedback | null;
@@ -208,6 +222,8 @@ export type AssistantEvent =
   | { event: 'conversation'; data: { id: string; model: string; mode: string } }
   | { event: 'model_changed'; data: { from: string; to: string } }
   | { event: 'text'; data: { text: string } }
+  /** `starts` opens a new note; otherwise the text joins the last one. */
+  | { event: 'note'; data: { text: string; starts: boolean } }
   | { event: 'tool_start'; data: { id: string; name: string } }
   | {
       event: 'tool_end';

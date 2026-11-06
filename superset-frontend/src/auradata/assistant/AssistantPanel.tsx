@@ -50,9 +50,10 @@ import { confirmationTitle } from './confirmations';
 import { editorContext, pageContext } from './context';
 import { ConversationList } from './ConversationList';
 import { reloadReport, saveReport } from './editorActions';
-import { isLongConversation } from './transcript';
+import { isLongConversation, stepsOf } from './transcript';
 import { PrivacyNotice } from './PrivacyNotice';
 import type {
+  AnswerStep,
   AssistantAccess,
   AssistantBudget,
   ChatMessage,
@@ -292,6 +293,11 @@ const StepList = styled.ul`
     li.failed {
       color: ${theme.colorError};
     }
+    li.note {
+      display: block;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
   `}
 `;
 
@@ -513,39 +519,49 @@ function StepIcon({ step }: { step: ToolStep }) {
 }
 
 /**
- * The tools of an answer, once each. They show as it works, and fold into one line when
- * it ends, unless one of them failed.
+ * What an answer did, in order: its tools, once each, and the notes of the model as
+ * plain text. They show as it works, and fold into one line when it ends, unless one
+ * of the tools failed.
  */
-function ToolSteps({
-  tools,
+function AnswerSteps({
+  steps,
   writing,
 }: {
-  tools: ToolStep[];
+  steps: AnswerStep[];
   writing: boolean;
 }) {
-  const steps = [
-    ...new Map(tools.map(step => [toolLabel(step.name), step])).entries(),
-  ];
   const list = (
     <StepList aria-label={t('Steps of the answer')}>
-      {steps.map(([label, step]) => (
-        <li
-          key={label}
-          className={step.failed ? 'failed' : undefined}
-          data-test="auradata-assistant-step"
-        >
-          <StepIcon step={step} />
-          <span>
-            {step.running ? `${label}…` : label}
-            {step.rejected && ` (${t('rejected')})`}
-          </span>
-        </li>
-      ))}
+      {steps.map((item, index) =>
+        item.kind === 'note' ? (
+          <li
+            key={`note-${index}`}
+            className="note"
+            data-test="auradata-assistant-note"
+          >
+            {item.note.text}
+          </li>
+        ) : (
+          <li
+            key={item.label}
+            className={item.step.failed ? 'failed' : undefined}
+            data-test="auradata-assistant-step"
+          >
+            <StepIcon step={item.step} />
+            <span>
+              {item.step.running ? `${item.label}…` : item.label}
+              {item.step.rejected && ` (${t('rejected')})`}
+            </span>
+          </li>
+        ),
+      )}
     </StepList>
   );
   if (writing) return <Running>{list}</Running>;
   return (
-    <StepsFold open={tools.some(step => step.failed)}>
+    <StepsFold
+      open={steps.some(item => item.kind === 'tool' && item.step.failed)}
+    >
       <summary>
         <Icons.RightOutlined iconSize="xs" />
         {tn('%s step', '%s steps', steps.length, steps.length)}
@@ -571,7 +587,8 @@ function Answer({
   onVote: (feedback: Feedback | null) => Promise<void>;
   onNewConversation: () => void;
 }) {
-  const waiting = writing && !message.text && !message.tools.length;
+  const steps = stepsOf(message, toolLabel);
+  const waiting = writing && !message.text && !steps.length;
   return (
     <Bubble fromUser={false} data-test="auradata-assistant-answer">
       {waiting && (
@@ -582,9 +599,7 @@ function Answer({
           </li>
         </StepList>
       )}
-      {message.tools.length > 0 && (
-        <ToolSteps tools={message.tools} writing={writing} />
-      )}
+      {steps.length > 0 && <AnswerSteps steps={steps} writing={writing} />}
       {message.text && <AssistantMarkdown text={message.text} />}
       {message.figure && (
         <AssistantFigure figure={message.figure} dashboardId={dashboardId} />
@@ -707,6 +722,7 @@ function Conversations({
     chat.messages.length,
     latest?.text,
     latest?.tools,
+    latest?.notes,
     latest?.figure,
     latest?.problem,
     listOpen,

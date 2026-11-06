@@ -18,6 +18,7 @@
  */
 import { t } from '@apache-superset/core/translation';
 import type {
+  AnswerStep,
   AssistantEvent,
   ChatMessage,
   Feedback,
@@ -31,6 +32,9 @@ const LONG_CONVERSATION = 0.8;
 const FALLBACK_CONTEXT_TOKENS = 200_000;
 const PAGE_CONTEXT = '<page_context>';
 const CONTEXT_EXCEEDED = 'context_exceeded';
+/** What the API writes in place of a note when a response is cut: not for the person. */
+const CUT_NOTE =
+  'This part of the response was interrupted before it finished.';
 
 const emptyAnswer = (id: string, feedback?: Feedback): ChatMessage => ({
   id,
@@ -56,7 +60,7 @@ const failedTools = (blocks: StoredBlock[]) =>
 /**
  * A stored conversation as the panel shows it. The answer to a question spans several
  * rows: each call to the model, and the results of its tools in rows of their own.
- * Only text and tools show, whatever else the API returned.
+ * Only text, tools and what thinking blocks hold show, whatever else the API returned.
  */
 export function transcriptOf(stored: StoredConversation): ChatMessage[] {
   const messages: ChatMessage[] = [];
@@ -98,6 +102,12 @@ export function transcriptOf(stored: StoredConversation): ChatMessage[] {
           ? `${current.text}\n\n${block.text}`
           : block.text;
       }
+      if (block.type === 'thinking' && block.thinking) {
+        current.notes = [
+          ...(current.notes ?? []),
+          { text: block.thinking, after: current.tools.length },
+        ];
+      }
       if (block.type === 'tool_use' && block.id) {
         const step = {
           id: block.id,
@@ -123,6 +133,33 @@ export const isLongConversation = (
   contextTokens >=
   (maxInputTokens || FALLBACK_CONTEXT_TOKENS) * LONG_CONVERSATION;
 
+/**
+ * The lines of the steps of an answer, in the order they happened. Each tool shows
+ * once, where it last ran, and a note stays before the tool it introduced.
+ */
+export function stepsOf(
+  { tools, notes = [] }: ChatMessage,
+  labelOf: (name: string) => string,
+): AnswerStep[] {
+  const steps: AnswerStep[] = [];
+  const addNotes = (after: number) =>
+    notes
+      .filter(note => note.after === after)
+      .filter(note => note.text.trim() && note.text !== CUT_NOTE)
+      .forEach(note => steps.push({ kind: 'note', note }));
+  tools.forEach((step, index) => {
+    addNotes(index);
+    const label = labelOf(step.name);
+    const earlier = steps.findIndex(
+      item => item.kind === 'tool' && item.label === label,
+    );
+    if (earlier >= 0) steps.splice(earlier, 1);
+    steps.push({ kind: 'tool', label, step });
+  });
+  addNotes(tools.length);
+  return steps;
+}
+
 /** What an event changes in the answer being written. */
 export function withEvent(
   answer: ChatMessage,
@@ -135,6 +172,17 @@ export function withEvent(
         ...answer,
         text: `${answer.text}${gap}${data.text}`,
         pause: false,
+      };
+    }
+    case 'note': {
+      const notes = answer.notes ?? [];
+      const last = notes[notes.length - 1];
+      return {
+        ...answer,
+        notes:
+          data.starts || !last
+            ? [...notes, { text: data.text, after: answer.tools.length }]
+            : [...notes.slice(0, -1), { ...last, text: last.text + data.text }],
       };
     }
     case 'tool_start':
