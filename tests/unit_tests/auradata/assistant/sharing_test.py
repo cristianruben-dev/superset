@@ -470,6 +470,29 @@ def test_the_owner_sees_where_it_is_shared(
     assert found["workspace"] == "Ventas"
 
 
+def test_an_author_who_lost_the_report_can_still_stop_sharing(
+    client: Any,
+    world: dict[str, Any],  # noqa: F811
+    shared: dict[str, Any],
+    mocker: MockerFixture,
+    session: Any,
+) -> None:
+    mocker.patch("superset.auradata.assistant.api.open_dashboard", return_value=None)
+    mocker.patch(
+        "superset.auradata.assistant.turns.DashboardDAO.get_by_id_or_slug",
+        side_effect=DashboardAccessDeniedError,
+    )
+    login(world, "Ana")
+    listed = client.get(f"{URL}documents/?workspace_id={world['ventas_ws'].id}")
+    assert [item["opens"] for item in listed.json["result"]] == [False]
+
+    assert client.delete(f"{URL}artifacts/{shared['id']}/share/").status_code == 200
+
+    assert session.get(AssistantArtifact, UUID(shared["id"])).shared_version is None
+    login(world, "Vera")
+    assert client.delete(f"{URL}artifacts/{shared['id']}/share/").status_code == 404
+
+
 def test_a_workspace_lists_what_each_member_reads(
     client: Any,
     world: dict[str, Any],  # noqa: F811

@@ -17,10 +17,15 @@
  * under the License.
  */
 import { useEffect, useState } from 'react';
+import { t } from '@apache-superset/core/translation';
 import { css, styled } from '@apache-superset/core/theme';
+import { Button } from '@superset-ui/core/components';
 import getBootstrapData from 'src/utils/getBootstrapData';
 import { ensureAppRoot } from 'src/utils/pathUtils';
-import { fetchSharedDocuments } from 'src/auradata/assistant/client';
+import {
+  fetchSharedDocuments,
+  unshareArtifact,
+} from 'src/auradata/assistant/client';
 import { parseServerDate } from 'src/auradata/assistant/conversationGroups';
 import type { SharedDocument } from 'src/auradata/assistant/types';
 
@@ -55,7 +60,8 @@ const dateOf = (value: string) =>
 
 /**
  * The documents of the assistant shared in a workspace, which this person can read. The
- * server decides that one by one; with none, the section does not show.
+ * server decides that one by one; with none, the section does not show. An author who
+ * lost the report gets no link, only the way to stop sharing it.
  */
 export function WorkspaceDocuments({
   workspaceId,
@@ -81,6 +87,11 @@ export function WorkspaceDocuments({
     };
   }, [workspaceId]);
 
+  const stopSharing = async (id: string) => {
+    await unshareArtifact(id);
+    setDocuments(found => found.filter(item => item.id !== id));
+  };
+
   if (!documents.length) return null;
   return (
     <>
@@ -88,9 +99,23 @@ export function WorkspaceDocuments({
       <List data-test="auradata-workspace-documents">
         {documents.map(item => (
           <li key={item.id}>
-            <a href={ensureAppRoot(`/assistant/document/${item.id}/`)}>
-              {item.title}
-            </a>
+            {item.opens ? (
+              <a href={ensureAppRoot(`/assistant/document/${item.id}/`)}>
+                {item.title}
+              </a>
+            ) : (
+              <span>
+                {item.title}{' '}
+                <Button
+                  buttonSize="xsmall"
+                  buttonStyle="link"
+                  onClick={() => stopSharing(item.id)}
+                  data-test="auradata-workspace-document-stop"
+                >
+                  {t('Stop sharing')}
+                </Button>
+              </span>
+            )}
             <span className="meta">
               {`${item.author ?? ''} · ${dateOf(item.shared_on)}`}
             </span>

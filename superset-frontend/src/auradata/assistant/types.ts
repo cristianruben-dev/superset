@@ -230,6 +230,8 @@ export interface SharedDocument {
   author: string | null;
   dashboard_id: number;
   shared_on: string;
+  /** False for an author who lost the report: all they can do is stop sharing it. */
+  opens: boolean;
 }
 
 /** An object the user has selected in the editor, for the assistant to read. */

@@ -330,7 +330,13 @@ def end_moved_shares(dashboard_ids: Iterable[int]) -> None:
 
 
 def shared_in(workspace_id: int) -> list[dict[str, Any]]:
-    """What the current user reads as shared in a workspace, the last shared first."""
+    """
+    What the current user reads as shared in a workspace, the last shared first. An
+    author who lost the report still finds theirs, to stop sharing it: ``opens`` says so.
+    """
+    # pylint: disable=import-outside-toplevel
+    from superset.auradata.assistant.turns import open_dashboard
+
     user_id = get_user_id()
     found = []
     for artifact in (
@@ -353,6 +359,7 @@ def shared_in(workspace_id: int) -> list[dict[str, Any]]:
                     "author": _name_of(_author(artifact)),
                     "dashboard_id": artifact.dashboard_id,
                     "shared_on": artifact.shared_on.isoformat(),
+                    "opens": open_dashboard(artifact.dashboard_id) is not None,
                 }
             )
     return found

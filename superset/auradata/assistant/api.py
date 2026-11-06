@@ -2095,10 +2095,12 @@ class AssistantRestApi(BaseSupersetApi):
         """
         if not _session_user_only():
             return self.response_403()
-        found = self._last_version_of(artifact_id)
-        if found is None:
+        # Not ``_open_artifact``: this only takes access away, so an author who lost the
+        # report can still do it
+        artifact = find_artifact(artifact_id, get_user_id())
+        version = version_of(artifact.id) if artifact else None
+        if artifact is None or version is None:
             return self.response_404()
-        artifact, version = found
         sharing.log_document(sharing.ACTION_UNSHARE, artifact, version)
         sharing.unshare(artifact)
         return self.response(200, result=artifact_json(artifact, version))
@@ -2136,12 +2138,13 @@ class AssistantRestApi(BaseSupersetApi):
 
         if not _session_user_only():
             return self.response_403()
-        if self._last_version_of(artifact_id) is None:
+        found = self._last_version_of(artifact_id)
+        if found is None:
             return self.response_404()
         store = turn_store()
         if store is None:
             return self.response_422(message=_("Export is not available here."))
-        job_id = start_export(store, artifact_id, get_user_id(), _locale())
+        job_id = start_export(store, found[0], get_user_id(), _locale())
         return self.response(202, result={"job_id": job_id})
 
     @expose("/artifacts/<uuid:artifact_id>/export/<string:job_id>/", methods=("GET",))
