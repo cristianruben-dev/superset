@@ -185,6 +185,65 @@ async def test_query_dataset_success(mcp_server: FastMCP) -> None:
 
 
 @pytest.mark.asyncio
+async def test_query_dataset_aggregates_a_column_without_a_saved_metric(
+    mcp_server: FastMCP,
+) -> None:
+    with (
+        patch.object(
+            query_dataset_module, "resolve_dataset", return_value=_make_dataset()
+        ),
+        patch.object(
+            query_dataset_module,
+            "execute_tabular_query",
+            return_value=_mock_command_result(),
+        ) as execute,
+    ):
+        async with Client(mcp_server) as client:
+            await client.call_tool(
+                "query_dataset",
+                {
+                    "request": {
+                        "dataset_id": 1,
+                        "aggregates": [{"column": "category", "aggregate": "COUNT"}],
+                        "columns": ["category"],
+                        "order_by": ["COUNT(category)"],
+                    }
+                },
+            )
+
+    query = execute.call_args.args[2]
+    assert query["metrics"] == [
+        {
+            "expressionType": "SIMPLE",
+            "column": {"column_name": "category"},
+            "aggregate": "COUNT",
+            "label": "COUNT(category)",
+        }
+    ]
+
+
+@pytest.mark.asyncio
+async def test_query_dataset_refuses_an_aggregate_of_an_unknown_column(
+    mcp_server: FastMCP,
+) -> None:
+    with patch.object(
+        query_dataset_module, "resolve_dataset", return_value=_make_dataset()
+    ):
+        async with Client(mcp_server) as client:
+            result = await client.call_tool(
+                "query_dataset",
+                {
+                    "request": {
+                        "dataset_id": 1,
+                        "aggregates": [{"column": "nope", "aggregate": "SUM"}],
+                    }
+                },
+            )
+
+    assert "nope" in result.content[0].text
+
+
+@pytest.mark.asyncio
 async def test_query_dataset_exposes_filters_to_jinja_macros(
     mcp_server: FastMCP,
 ) -> None:

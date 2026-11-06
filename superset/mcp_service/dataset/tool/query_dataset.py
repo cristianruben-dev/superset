@@ -42,6 +42,7 @@ from superset.extensions import event_logger
 from superset.mcp_service.chart.schemas import DataColumn, PerformanceMetadata
 from superset.mcp_service.dataset.dataset_utils import resolve_dataset
 from superset.mcp_service.dataset.schemas import (
+    aggregate_metric,
     DatasetError,
     QueryDatasetFilter,
     QueryDatasetRequest,
@@ -60,9 +61,8 @@ logger = logging.getLogger(__name__)
 
 
 _NO_SAVED_METRICS_HINT = (
-    "This dataset has no saved metrics, and query_dataset accepts saved "
-    "metric names only (not ad-hoc expressions). Use execute_sql for "
-    "ad-hoc aggregates, or add a saved metric to the dataset."
+    "This dataset has no saved metrics. Use aggregates to compute one over "
+    "a column, or add a saved metric to the dataset."
 )
 
 
@@ -104,6 +104,7 @@ async def query_dataset(  # noqa: C901
     {
         "dataset_id": 123,
         "metrics": ["count", "avg_revenue"],
+        "aggregates": [{"column": "price", "aggregate": "SUM"}],
         "columns": ["product_category"],
         "time_range": "Last 7 days",
         "row_limit": 100
@@ -180,12 +181,18 @@ async def query_dataset(  # noqa: C901
         await ctx.report_progress(2, 5, "Validating columns and metrics")
         valid_columns = {c.column_name for c in dataset.columns}
         valid_metrics = {m.metric_name for m in dataset.metrics}
+        aggregates = [
+            aggregate_metric(item.column, item.aggregate) for item in request.aggregates
+        ]
 
         validation_errors: list[str] = validate_query_names(
-            valid_metrics,
+            valid_metrics | {metric["label"] for metric in aggregates},
             valid_columns,
-            metrics=request.metrics,
-            dimensions=request.columns,
+            metrics=[*request.metrics, *aggregates],
+            dimensions=[
+                *request.columns,
+                *(item.column for item in request.aggregates),
+            ],
             filters=[{"col": f.col} for f in request.filters],
             order_names=request.order_by,
             metrics_empty_hint=_NO_SAVED_METRICS_HINT,
@@ -302,7 +309,7 @@ async def query_dataset(  # noqa: C901
         # in query_filters above, alongside the effective_filters bookkeeping.
         query_dict: dict[str, Any] = build_query_dict(
             time_column=granularity,
-            metrics=request.metrics,
+            metrics=[*request.metrics, *aggregates],
             dimensions=request.columns,
             filters=query_filters,
             limit=request.row_limit,

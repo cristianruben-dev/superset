@@ -3789,6 +3789,7 @@ Example:
 {
     "dataset_id": 123,
     "metrics": ["count", "avg_revenue"],
+    "aggregates": [{"column": "price", "aggregate": "SUM"}],
     "columns": ["product_category"],
     "time_range": "Last 7 days",
     "row_limit": 100
@@ -3802,6 +3803,7 @@ Example:
 | `cache_timeout` | integer |  |  | Cache timeout override in seconds (0 to disable) |
 | `dataset_id` | integer o string | sí |  | Dataset identifier — numeric ID or UUID string. |
 | `metrics` | lista de string |  |  | Saved metric names to compute (e.g. ['count', 'avg_revenue']). Use get_dataset_info to discover available metrics. |
+| `aggregates` | lista de objeto |  |  | Aggregates over columns, for what no saved metric covers (e.g. [{"column": "sales", "aggregate": "SUM"}]). Each result is named like SUM(sales), which order_by takes too. |
 | `columns` | lista de string |  |  | Column/dimension names for GROUP BY or SELECT (e.g. ['category', 'region']). Use get_dataset_info to discover available columns. |
 | `filters` | lista de objeto |  |  | Filter conditions (e.g. [{"col": "status", "op": "==", "val": "active"}]). |
 | `time_range` | string |  |  | Time range filter. Use Superset relative shorthands like 'Last 7 days', 'Last month', 'Last year', 'Last quarter', 'Current week', 'previous calendar year', or an ISO-8601 range like '2024-01-01 : 2024-12-31'. Requires a temporal column on the dataset. Bracket shorthands like '[year]' or '[quarter]' are also accepted and normalized to the equivalent 'Last &lt;unit>' form. |

@@ -61,12 +61,26 @@ def figure_of(
         return None
     if not isinstance(response, dict) or not response.get("data"):
         return None
+    from superset.mcp_service.dataset.schemas import aggregate_metric
+
     request = tool_use.get("input") or {}
+    # The tools take their arguments under ``request``
+    request = request.get("request", request)
     rows = response["data"]
+    metrics = [
+        *(request.get("metrics") or []),
+        *(
+            aggregate_metric(item["column"], item["aggregate"])
+            for item in request.get("aggregates") or []
+        ),
+    ]
+    if not metrics and len(rows) > MAX_ROWS:
+        # Rows the model went through to answer, which say nothing on their own
+        return None
     return {
         "dataset_id": response.get("dataset_id"),
         "dataset_name": response.get("dataset_name"),
-        "metrics": request.get("metrics") or [],
+        "metrics": metrics,
         "columns": request.get("columns") or [],
         "filters": response.get("applied_filters") or [],
         "order_by": request.get("order_by") or [],

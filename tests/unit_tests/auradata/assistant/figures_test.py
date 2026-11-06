@@ -108,3 +108,42 @@ def test_a_stored_conversation_gives_its_figures_by_call() -> None:
     ]
 
     assert list(figures_in(messages)) == ["toolu_1"]
+
+
+def test_a_query_with_its_arguments_under_request_keeps_them() -> None:
+    """That is how the model calls the tools."""
+    figure = figure_of(
+        {
+            "name": "query_dataset",
+            "input": {
+                "request": {
+                    "columns": ["region"],
+                    "aggregates": [{"column": "ventas", "aggregate": "SUM"}],
+                }
+            },
+        },
+        result({"dataset_id": 41, "dataset_name": "d", "data": [{"region": "N"}]}),
+    )
+
+    assert figure is not None
+    assert figure["columns"] == ["region"]
+    assert figure["metrics"] == [
+        {
+            "expressionType": "SIMPLE",
+            "column": {"column_name": "ventas"},
+            "aggregate": "SUM",
+            "label": "SUM(ventas)",
+        }
+    ]
+
+
+def test_many_rows_without_a_metric_are_no_figure() -> None:
+    rows = [{"region": "N"}] * 31
+
+    assert (
+        figure_of(
+            {"name": "query_dataset", "input": {"request": {"columns": ["region"]}}},
+            result({"dataset_id": 41, "dataset_name": "d", "data": rows}),
+        )
+        is None
+    )

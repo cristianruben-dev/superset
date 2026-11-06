@@ -811,6 +811,25 @@ class QueryDatasetFilter(BaseModel):
         return self
 
 
+def aggregate_metric(column: str, aggregate: str) -> dict[str, Any]:
+    """An aggregate over a column, in the shape a query takes an ad-hoc metric."""
+    return {
+        "expressionType": "SIMPLE",
+        "column": {"column_name": column},
+        "aggregate": aggregate,
+        "label": f"{aggregate}({column})",
+    }
+
+
+class QueryDatasetAggregate(BaseModel):
+    """An aggregate over one column, for a dataset without that saved metric."""
+
+    column: str = Field(..., description="Column to aggregate.")
+    aggregate: Literal["SUM", "AVG", "COUNT", "COUNT_DISTINCT", "MIN", "MAX"] = Field(
+        ..., description="Aggregate to compute."
+    )
+
+
 class QueryDatasetRequest(QueryCacheControl):
     """Request schema for query_dataset tool."""
 
@@ -823,6 +842,14 @@ class QueryDatasetRequest(QueryCacheControl):
         description=(
             "Saved metric names to compute (e.g. ['count', 'avg_revenue']). "
             "Use get_dataset_info to discover available metrics."
+        ),
+    )
+    aggregates: List[QueryDatasetAggregate] = Field(
+        default_factory=list,
+        description=(
+            "Aggregates over columns, for what no saved metric covers (e.g. "
+            '[{"column": "sales", "aggregate": "SUM"}]). Each result is named '
+            "like SUM(sales), which order_by takes too."
         ),
     )
     columns: List[str] = Field(
@@ -881,9 +908,10 @@ class QueryDatasetRequest(QueryCacheControl):
     @model_validator(mode="after")
     def validate_metrics_or_columns(self) -> "QueryDatasetRequest":
         """At least one of metrics or columns must be provided."""
-        if not self.metrics and not self.columns:
+        if not self.metrics and not self.aggregates and not self.columns:
             raise ValueError(
-                "At least one of 'metrics' or 'columns' must be provided. "
+                "At least one of 'metrics', 'aggregates' or 'columns' must be "
+                "provided. "
                 "Use get_dataset_info to discover available metrics and columns."
             )
         return self

@@ -16,6 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import type { QueryFormMetric } from '@superset-ui/core';
 /** What a conversation can do: answer about a report, or change it too. */
 export type ChatMode = 'read' | 'edit';
 
@@ -69,7 +70,7 @@ export interface FigureFilter {
 export interface Figure {
   dataset_id: number;
   dataset_name: string;
-  metrics: string[];
+  metrics: QueryFormMetric[];
   columns: string[];
   filters: FigureFilter[];
   order_by: string[];

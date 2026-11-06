@@ -55,9 +55,11 @@ READ_MODE = """\
 This conversation is read only: you answer about the data and cannot change \
 anything. If the user asks for a change, tell them to do it from the report editor.
 
-The panel draws a small chart or table by itself, with its dataset and filters, from \
-the last query_dataset of your answer: make that call the one that answers the \
-question, and do not repeat its rows in a table of your own."""
+The panel draws a small chart or table under your answer, with its dataset and \
+filters, from the last query_dataset of your answer: make that call the one that \
+answers the question, and do not repeat its rows in a table of your own. \
+query_dataset takes aggregates over columns, such as a sum by region, when no saved \
+metric covers them."""
 
 EDIT_MODE = """\
 This conversation can change this report, through the tools available. Changes apply \

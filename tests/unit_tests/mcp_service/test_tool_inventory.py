@@ -111,7 +111,7 @@ TOOL_BUDGETS = {
     "move_object": 1_500,
     "open_sql_lab_with_context": 1_800,
     "place_object": 1_800,
-    "query_dataset": 3_700,
+    "query_dataset": 4_300,
     "remove_chart_from_dashboard": 1_300,
     "remove_workspace_member": 1_000,
     "rename_page": 1_000,
