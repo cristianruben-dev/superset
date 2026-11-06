@@ -532,7 +532,7 @@ export function MobileLayoutPane({ topOffset = 0, pageTop = 0 }) {
         <footer>
           <div className="keys">
             <kbd>←↑→↓</kbd> {t('move')} · <kbd>⇧</kbd>+<kbd>←↑→↓</kbd>{' '}
-            {t('resize')} · <kbd>Supr</kbd> {t('remove')}
+            {t('resize')} · <kbd>{t('Del')}</kbd> {t('remove')}
           </div>
           <Button
             buttonStyle="primary"

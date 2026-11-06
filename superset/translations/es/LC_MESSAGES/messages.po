@@ -4510,6 +4510,9 @@ msgstr ""
 "Define si el paso debe aparecer al principio, en el medio o al final "
 "entre dos puntos de datos"
 
+msgid "Del"
+msgstr "Supr"
+
 msgid "Delete"
 msgstr "Eliminar"
 
