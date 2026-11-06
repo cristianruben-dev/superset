@@ -50,6 +50,7 @@ from superset.auradata.assistant.conversations import (
     pending_turn,
     turn_is_running,
 )
+from superset.auradata.assistant.sharing import end_shares_of_conversations
 from superset.auradata.assistant.turn_store import forget_streams, turn_store
 from superset.auradata.models import AssistantConversation
 from superset.extensions import db
@@ -127,11 +128,13 @@ def _purge_batch(
         )
     }
     doomed = []
+    held = []
     for row in rows:
         if row.id not in due:
             report.kept_under_way += 1
         elif pending_turn(row) is not None:
             report.kept_pending += 1
+            held.append(row.id)
         elif turn_is_running(row, now):
             report.kept_under_way += 1
         else:
@@ -142,6 +145,9 @@ def _purge_batch(
         return
     if doomed:
         erase_conversations(doomed)
+    if held:
+        # It stays for its card, not for anyone else to go on reading it
+        end_shares_of_conversations(held)
     db.session.commit()
     report.deleted += len(doomed)
     forget_streams(turn_store(), doomed)

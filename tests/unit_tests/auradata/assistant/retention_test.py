@@ -21,7 +21,7 @@ that the accounting of the month does not move.
 
 from datetime import datetime, timedelta
 from typing import Any
-from uuid import UUID
+from uuid import UUID, uuid4
 
 import pytest
 from pytest_mock import MockerFixture
@@ -269,6 +269,37 @@ def test_a_conversation_with_a_card_stays_however_old(
     assert report["kept_pending"] == 1
     assert report["deleted"] == 0
     assert exists(world, pending)
+
+
+def test_a_conversation_kept_for_a_card_stops_being_shared(
+    client: Any,
+    world: dict[str, Any],  # noqa: F811
+    mocker: MockerFixture,
+) -> None:
+    pending = waiting_for_a_card(client, world, mocker)
+    artifact = AssistantArtifact(
+        id=uuid4(),
+        conversation_id=UUID(pending),
+        user_id=world["users"]["Ana"].id,
+        dashboard_id=world["dashboard"].id,
+        shared_workspace_id=world["ventas_ws"].id,
+        shared_version=1,
+        shared_on=datetime.now(),
+    )
+    world["session"].add(artifact)
+    world["session"].commit()
+    age(world, pending, DAYS + 400)
+
+    purge_conversations(DAYS, dry_run=True)
+    assert world["session"].get(AssistantArtifact, artifact.id).shared_version == 1
+
+    report = purge_conversations(DAYS)
+
+    assert report["kept_pending"] == 1
+    assert exists(world, pending)
+    stored = world["session"].get(AssistantArtifact, artifact.id)
+    assert stored.shared_version is None
+    assert stored.shared_workspace_id is None
 
 
 def test_a_card_on_a_lost_report_stays_too(

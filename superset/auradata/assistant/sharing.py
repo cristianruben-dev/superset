@@ -329,6 +329,15 @@ def end_moved_shares(dashboard_ids: Iterable[int]) -> None:
             _close(artifact)
 
 
+def end_shares_of_conversations(conversation_ids: Sequence[UUID]) -> None:
+    """A conversation kept past its retention keeps its text from anyone else."""
+    for artifact in db.session.query(AssistantArtifact).filter(
+        AssistantArtifact.conversation_id.in_(conversation_ids),
+        AssistantArtifact.shared_version.isnot(None),
+    ):
+        _close(artifact)
+
+
 def shared_in(workspace_id: int) -> list[dict[str, Any]]:
     """
     What the current user reads as shared in a workspace, the last shared first. An
