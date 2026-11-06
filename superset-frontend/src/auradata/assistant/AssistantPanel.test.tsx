@@ -1179,3 +1179,171 @@ test('a conversation read later shows its images', async () => {
   const sent = await screen.findByRole('img', { name: 'Attached image' });
   expect(sent.getAttribute('src')).toContain('/attachments/i6/');
 });
+
+const questionBox = () => screen.getByTestId('auradata-assistant-input');
+const commandMenu = () => screen.queryByRole('listbox', { name: 'Commands' });
+const finishedAnswer = () => {
+  ask.mockImplementation(async (_question, onEvent) => {
+    onEvent({ event: 'text', data: { text: 'Listo' } });
+    onEvent({ event: 'done', data: { context_tokens: 1 } });
+  });
+};
+
+test('a slash opens a list the keyboard can use', async () => {
+  setup();
+
+  await userEvent.type(questionBox(), '/');
+
+  const options = screen.getAllByRole('option');
+  expect(options.map(option => option.textContent)).toEqual([
+    '/modelChoose the model',
+    '/summaryAsk for a summary of this page',
+  ]);
+  expect(questionBox()).toHaveAttribute('aria-controls', commandMenu()?.id);
+  expect(questionBox()).toHaveAttribute('aria-activedescendant', options[0].id);
+  expect(options[0]).toHaveAttribute('aria-selected', 'true');
+
+  await userEvent.type(questionBox(), '{arrowdown}');
+  expect(questionBox()).toHaveAttribute('aria-activedescendant', options[1].id);
+  await userEvent.type(questionBox(), '{arrowdown}');
+  expect(questionBox()).toHaveAttribute('aria-activedescendant', options[0].id);
+  await userEvent.type(questionBox(), '{arrowup}');
+  expect(questionBox()).toHaveAttribute('aria-activedescendant', options[1].id);
+});
+
+test('/summary and /resumen send a plain question, never a command', async () => {
+  finishedAnswer();
+  setup();
+
+  await userEvent.type(questionBox(), '/resumen{enter}');
+
+  await waitFor(() => expect(ask).toHaveBeenCalledTimes(1));
+  expect(ask.mock.calls[0][0].message).toBe('Summarize this page');
+  expect(questionBox()).toHaveValue('');
+  expect(commandMenu()).toBeNull();
+});
+
+test('Escape closes the list and leaves the panel and the text alone', async () => {
+  finishedAnswer();
+  const onClose = jest.fn();
+  setup(onClose);
+
+  await userEvent.type(questionBox(), '/res');
+  await userEvent.type(questionBox(), '{esc}');
+
+  expect(commandMenu()).toBeNull();
+  expect(onClose).not.toHaveBeenCalled();
+  expect(questionBox()).toHaveValue('/res');
+
+  await userEvent.type(questionBox(), 'ultado{enter}');
+  await waitFor(() => expect(ask).toHaveBeenCalledTimes(1));
+  expect(ask.mock.calls[0][0].message).toBe('/resultado');
+});
+
+test('a message that only starts with a slash goes as a question', async () => {
+  finishedAnswer();
+  setup();
+
+  await sendQuestion('/ventas del mes');
+
+  await waitFor(() => expect(ask).toHaveBeenCalledTimes(1));
+  expect(ask.mock.calls[0][0].message).toBe('/ventas del mes');
+});
+
+test('a command after Escape still does not reach the model', async () => {
+  finishedAnswer();
+  setup();
+
+  await userEvent.type(questionBox(), '/resumen{esc}{enter}');
+
+  await waitFor(() => expect(ask).toHaveBeenCalledTimes(1));
+  expect(ask.mock.calls[0][0].message).toBe('Summarize this page');
+});
+
+test('a command that cannot run here stays out of the list and of the model', async () => {
+  setup();
+
+  await userEvent.type(questionBox(), '/deshacer');
+  expect(commandMenu()).toBeNull();
+  await userEvent.type(questionBox(), '{enter}');
+
+  expect(ask).not.toHaveBeenCalled();
+  expect(questionBox()).toHaveValue('/deshacer');
+});
+
+test('/nuevo leaves the conversation, as the button does', async () => {
+  finishedAnswer();
+  setup();
+  await sendQuestion('¿Cuánto vendimos?');
+  expect(await screen.findByText('Listo')).toBeInTheDocument();
+
+  await userEvent.type(questionBox(), '/nuevo{enter}');
+
+  await waitFor(() => expect(screen.queryByText('Listo')).toBeNull());
+  expect(ask).toHaveBeenCalledTimes(1);
+  expect(questionBox()).toHaveValue('');
+});
+
+test('/new is not offered while there is nothing to leave or an answer runs', async () => {
+  setup();
+  await userEvent.type(questionBox(), '/ne');
+  expect(commandMenu()).toBeNull();
+  await userEvent.clear(questionBox());
+
+  const stream = heldStream();
+  await sendQuestion('¿Cuánto vendimos?');
+  await userEvent.type(questionBox(), '/');
+
+  expect(commandMenu()).toBeNull();
+  await stream.end();
+});
+
+test('/modelo opens the list of models and a choice goes back to the question', async () => {
+  setup();
+
+  await userEvent.type(questionBox(), '/modelo{enter}');
+
+  const models = await screen.findByRole('combobox', { name: 'Model' });
+  await waitFor(() => expect(models).toHaveAttribute('aria-expanded', 'true'));
+  expect(ask).not.toHaveBeenCalled();
+  expect(questionBox()).toHaveValue('');
+
+  await userEvent.click(await screen.findByText(/Claude Haiku 5\.5 ·/));
+
+  await waitFor(() => expect(questionBox()).toHaveFocus());
+  await sendQuestion('¿Cuánto?');
+  expect(ask.mock.calls[0][0].model).toBe(HAIKU.id);
+});
+
+test('/deshacer is offered once the assistant changed the report, and undoes it', async () => {
+  setupEditor();
+  const stream = heldStream();
+  await sendQuestion('Agrega una página');
+  stream.emit({
+    event: 'conversation',
+    data: { id: 'c1', model: SONNET.id, mode: 'edit' },
+  });
+  stream.emit({ event: 'done', data: { context_tokens: 10, can_undo: true } });
+  await stream.end();
+  undo.mockResolvedValue({ skipped_charts: 0, can_undo: false });
+
+  await userEvent.type(questionBox(), '/des');
+  expect(
+    screen.getAllByRole('option').map(option => option.textContent),
+  ).toEqual(['/undoUndo the assistant’s changes']);
+  await userEvent.type(questionBox(), '{enter}');
+
+  await waitFor(() => expect(undo).toHaveBeenCalledWith('c1'));
+  expect(ask).toHaveBeenCalledTimes(1);
+});
+
+test('a click on a command runs it', async () => {
+  finishedAnswer();
+  setup();
+  await userEvent.type(questionBox(), '/');
+
+  await userEvent.click(screen.getByText('/summary'));
+
+  await waitFor(() => expect(ask).toHaveBeenCalledTimes(1));
+  expect(ask.mock.calls[0][0].message).toBe('Summarize this page');
+});

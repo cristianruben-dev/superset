@@ -19,6 +19,7 @@
 import {
   type ChangeEvent,
   type ClipboardEvent,
+  type ComponentRef,
   type DragEvent,
   type KeyboardEvent,
   useCallback,
@@ -49,6 +50,8 @@ import {
   fetchConversations,
   renameConversation,
 } from './client';
+import { CommandMenu } from './CommandMenu';
+import { commandNamed, type CommandId } from './commands';
 import { ConfirmationCard } from './ConfirmationCard';
 import { confirmationTitle } from './confirmations';
 import { editorContext, pageContext } from './context';
@@ -69,6 +72,7 @@ import type {
   ToolStep,
 } from './types';
 import { useAssistantChat } from './useAssistantChat';
+import { useCommandMenu } from './useCommandMenu';
 import { ACCEPTED_IMAGES, useComposerImages } from './useComposerImages';
 
 const PANEL_WIDTH = 440;
@@ -456,6 +460,7 @@ const Footer = styled.div`
 
 const Composer = styled.form`
   ${({ theme }) => css`
+    position: relative;
     display: flex;
     flex-direction: column;
     gap: ${theme.sizeUnit}px;
@@ -666,6 +671,9 @@ function Conversations({
   const [draft, setDraft] = useState('');
   const [dropping, setDropping] = useState(false);
   const picker = useRef<HTMLInputElement>(null);
+  const question = useRef<ComponentRef<typeof Input.TextArea>>(null);
+  const modelSelect = useRef<ComponentRef<typeof Select>>(null);
+  const [modelsOpen, setModelsOpen] = useState(false);
   const composerImages = useComposerImages();
   const fallbackModel =
     models.find(model => model.default)?.id ?? models[0]?.id;
@@ -816,6 +824,14 @@ function Conversations({
   const canSend = !chat.busy && !!model && !blocked && !stopped;
   const attached = composerImages.images;
   const uploading = attached.some(image => !image.id);
+  const canStartNew = !chat.busy && chat.messages.length > 0;
+  const canShowUndo = editing && chat.canUndo && !chat.busy;
+  const commandCanRun: Record<CommandId, boolean> = {
+    new: canStartNew,
+    model: !chat.busy,
+    summary: canSend && !uploading,
+    undo: canShowUndo && !blocked,
+  };
 
   const ask = (text: string) => {
     const message = text.trim();
@@ -832,8 +848,6 @@ function Conversations({
       attached.map(image => image.id as string),
     );
   };
-
-  const submit = () => ask(draft);
 
   const decide = (id: string, approved: boolean) => {
     if (model) chat.decide(id, approved, model);
@@ -866,7 +880,43 @@ function Conversations({
     }
   };
 
+  // The focus goes back to the question when the list of models closes
+  const openModels = () => {
+    setModelsOpen(true);
+    modelSelect.current?.focus();
+  };
+
+  const onModelsOpenChange = (open: boolean) => {
+    setModelsOpen(open);
+    if (!open && modelsOpen) question.current?.focus();
+  };
+
+  /** A shortcut of the panel: nothing of it reaches the model as a command. */
+  const runCommand = (id: CommandId) => {
+    setDraft('');
+    ({
+      new: startNew,
+      model: openModels,
+      summary: () => ask(t('Summarize this page')),
+      undo,
+    })[id]();
+  };
+
+  const submit = () => {
+    const command = commandNamed(draft);
+    if (!command) ask(draft);
+    else if (commandCanRun[command]) runCommand(command);
+    else addWarningToast(t('This command is not available right now.'));
+  };
+
+  const commandMenu = useCommandMenu(
+    draft,
+    (Object.keys(commandCanRun) as CommandId[]).filter(id => commandCanRun[id]),
+    runCommand,
+  );
+
   const onKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
+    if (commandMenu.onKeyDown(event)) return;
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault();
       submit();
@@ -938,7 +988,7 @@ function Conversations({
           <Button
             buttonStyle="secondary"
             onClick={startNew}
-            disabled={chat.busy || !chat.messages.length}
+            disabled={!canStartNew}
             icon={<Icons.PlusOutlined iconSize="m" />}
             tooltip={t('New conversation')}
             aria-label={t('New conversation')}
@@ -1018,7 +1068,7 @@ function Conversations({
               onDecide={approved => decide(confirmation.id, approved)}
             />
           ))}
-          {editing && chat.canUndo && !chat.busy && (
+          {canShowUndo && (
             <QuietAction
               type="button"
               onClick={undo}
@@ -1108,9 +1158,27 @@ function Conversations({
           onPaste={onPaste}
           data-dropping={dropping}
         >
+          {commandMenu.open && (
+            <CommandMenu
+              id={commandMenu.listId}
+              optionId={commandMenu.optionId}
+              options={commandMenu.options}
+              activeIndex={commandMenu.activeIndex}
+              onHover={commandMenu.setActive}
+              onChoose={runCommand}
+            />
+          )}
           <ComposerImages images={attached} onRemove={composerImages.remove} />
           <Input.TextArea
+            ref={question}
             aria-label={t('Your question')}
+            aria-autocomplete="list"
+            aria-controls={commandMenu.open ? commandMenu.listId : undefined}
+            aria-activedescendant={
+              commandMenu.open
+                ? commandMenu.optionId(commandMenu.activeIndex)
+                : undefined
+            }
             placeholder={
               chat.confirmations.length
                 ? t('If you write, the actions above are dropped')
@@ -1119,6 +1187,8 @@ function Conversations({
             value={draft}
             onChange={event => setDraft(event.target.value)}
             onKeyDown={onKeyDown}
+            onFocus={commandMenu.onFocus}
+            onBlur={commandMenu.onBlur}
             disabled={stopped}
             variant="borderless"
             autoSize={{ minRows: 1, maxRows: 6 }}
@@ -1144,9 +1214,12 @@ function Conversations({
               data-test="auradata-assistant-attach"
             />
             <Select
+              ref={modelSelect}
               ariaLabel={t('Model')}
               value={model}
               options={modelOptions}
+              open={modelsOpen}
+              onOpenChange={onModelsOpenChange}
               onChange={value => setChosenModel(String(value))}
               disabled={chat.busy}
               showSearch={false}

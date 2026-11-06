@@ -27452,3 +27452,33 @@ msgstr "Imagen adjunta"
 
 msgid "Attach images"
 msgstr "Adjuntar imágenes"
+
+msgid "/new"
+msgstr "/nuevo"
+
+msgid "/model"
+msgstr "/modelo"
+
+msgid "/summary"
+msgstr "/resumen"
+
+msgid "/undo"
+msgstr "/deshacer"
+
+msgid "Start a new conversation"
+msgstr "Empieza una conversación nueva"
+
+msgid "Choose the model"
+msgstr "Elige el modelo"
+
+msgid "Ask for a summary of this page"
+msgstr "Pide un resumen de esta página"
+
+msgid "Summarize this page"
+msgstr "Resume esta página"
+
+msgid "Commands"
+msgstr "Comandos"
+
+msgid "This command is not available right now."
+msgstr "Este comando no está disponible ahora."
