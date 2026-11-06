@@ -178,11 +178,13 @@ const RenameForm = styled.form`
   `}
 `;
 
-const Confirm = styled.div`
+const Confirm = styled.fieldset`
   ${({ theme }) => css`
     display: flex;
     flex-direction: column;
     gap: ${theme.sizeUnit * 2}px;
+    min-width: 0;
+    margin: 0;
     padding: ${theme.sizeUnit * 2}px;
     border: 1px solid ${theme.colorBorderSecondary};
     border-radius: ${theme.sizeUnit * 2}px;
@@ -298,7 +300,7 @@ function ConfirmDelete({
   };
 
   return (
-    <Confirm role="group" aria-label={t('Delete conversation')}>
+    <Confirm aria-label={t('Delete conversation')}>
       <p>
         {t(
           'Delete «%s»? What was said and the data it read are erased, and you cannot get them back.',

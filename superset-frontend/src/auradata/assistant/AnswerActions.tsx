@@ -83,13 +83,16 @@ const Action = styled.button`
   `}
 `;
 
-const Reasons = styled.div`
+const Reasons = styled.fieldset`
   ${({ theme }) => css`
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     gap: ${theme.sizeUnit}px;
-    margin-top: ${theme.sizeUnit}px;
+    min-width: 0;
+    margin: ${theme.sizeUnit}px 0 0;
+    padding: 0;
+    border: 0;
     font-size: ${theme.fontSizeSM}px;
     color: ${theme.colorTextTertiary};
 
@@ -186,7 +189,7 @@ export function AnswerActions({
 }) {
   const [saving, setSaving] = useState(false);
   const [asking, setAsking] = useState(false);
-  const reasonsRef = useRef<HTMLDivElement>(null);
+  const reasonsRef = useRef<HTMLFieldSetElement>(null);
   const showReasons = asking && message.feedback?.vote === 'down';
   useEffect(() => {
     if (showReasons) reasonsRef.current?.scrollIntoView?.({ block: 'nearest' });
@@ -250,7 +253,6 @@ export function AnswerActions({
       {showReasons && (
         <Reasons
           ref={reasonsRef}
-          role="group"
           aria-label={t('What went wrong?')}
           data-test="auradata-assistant-reasons"
         >
