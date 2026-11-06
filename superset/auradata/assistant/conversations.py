@@ -371,8 +371,7 @@ def turn_is_running(
         return False
     if _is_lost(rows[-1]):
         return False
-    pending = pending_turn(conversation)
-    if pending is not None:
+    if (pending := pending_turn(conversation)) is not None:
         return not pending.undecided
     last = max(
         (index for index, row in enumerate(rows) if row.role != ROLE_RECORD),
@@ -692,9 +691,7 @@ class ConversationLog:
         )
         self._commit()
 
-    def add_undone(
-        self, versions: dict[str, Any] | None, note: dict[str, Any]
-    ) -> None:
+    def add_undone(self, versions: dict[str, Any] | None, note: dict[str, Any]) -> None:
         """An undo, and in the same commit a note that tells the model."""
         self._row(ROLE_RECORD, [{"type": RECORD_UNDONE, "versions": versions}])
         self._row("user", [note])

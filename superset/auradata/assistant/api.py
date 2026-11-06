@@ -819,11 +819,7 @@ class AssistantRestApi(BaseSupersetApi):
         if _no_tool_search_for(model, history):
             return self.response_422(message=self._tool_search_needed())
         pending = pending_turn(conversation) if conversation else None
-        if (
-            conversation is not None
-            and pending is not None
-            and not pending.undecided
-        ):
+        if conversation is not None and pending is not None and not pending.undecided:
             # Every call is decided and no turn holds them: what ran them is gone
             repair_conversation(conversation, user_id)
             pending = None
@@ -836,8 +832,7 @@ class AssistantRestApi(BaseSupersetApi):
             )
         conversation.model = model.id
         log = log or ConversationLog(conversation, user_id)
-        reference = context.pop("artifact", None)
-        if reference is not None:
+        if (reference := context.pop("artifact", None)) is not None:
             opened = selected_context(
                 reference["id"], reference["block_id"], user_id, conversation.id
             )

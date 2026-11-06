@@ -556,8 +556,7 @@ async def set_shared_visual_format(
             fmt = dict(canvas.get("visuals") or {})
         if request.patch:
             fmt = _patched_shared(report, fmt, request.patch)
-        shared = sharable_format(fmt)
-        if shared:
+        if shared := sharable_format(fmt):
             canvas["visuals"] = shared
         else:
             canvas.pop("visuals", None)

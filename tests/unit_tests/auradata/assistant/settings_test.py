@@ -75,7 +75,9 @@ def store(mocker: Any) -> Iterator[dict[SharedKey, Any]]:
         yield values
 
 
-def test_without_a_stored_choice_the_configuration_decides(store: dict[str, Any]) -> None:
+def test_without_a_stored_choice_the_configuration_decides(
+    store: dict[str, Any],
+) -> None:
     assert get_assistant_settings() == AssistantSettings(
         enabled=False,
         default_model="claude-sonnet-5-5",
@@ -84,7 +86,9 @@ def test_without_a_stored_choice_the_configuration_decides(store: dict[str, Any]
     )
 
 
-def test_what_the_admin_stored_wins_over_the_configuration(store: dict[str, Any]) -> None:
+def test_what_the_admin_stored_wins_over_the_configuration(
+    store: dict[str, Any],
+) -> None:
     store[SharedKey.AURADATA_ASSISTANT_SETTINGS] = {
         "enabled": True,
         "allowed_models": ["claude-haiku-5-5", "claude-sonnet-5-5"],
@@ -128,7 +132,9 @@ def test_the_default_model_must_be_allowed(store: dict[str, Any]) -> None:
     assert SharedKey.AURADATA_ASSISTANT_SETTINGS not in store
 
 
-def test_without_a_list_the_default_must_be_a_current_model(store: dict[str, Any]) -> None:
+def test_without_a_list_the_default_must_be_a_current_model(
+    store: dict[str, Any],
+) -> None:
     with pytest.raises(AssistantSettingsError) as raised:
         save_assistant_settings(
             {"default_model": "claude-opus-4-8"},

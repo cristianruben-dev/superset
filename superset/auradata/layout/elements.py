@@ -115,8 +115,7 @@ def check_element_patch(
 ) -> dict[str, Any]:
     """A patch of the settings of an element of a kind, checked against the
     catalog; settings the tools manage are refused, None resets a setting."""
-    managed = sorted(MANAGED_SETTINGS & set(patch))
-    if managed:
+    if managed := sorted(MANAGED_SETTINGS & set(patch)):
         raise FormatPatchError(
             [f"{key}: set by the tools, not by a patch" for key in managed]
         )

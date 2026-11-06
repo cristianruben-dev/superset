@@ -150,7 +150,7 @@ class _FencedError(Exception):
 
 
 def _held_conversation(conversation_id: UUID, user_id: int) -> AssistantConversation:
-    """The conversation of a running turn: it cannot be deleted while a turn holds it."""
+    """The conversation of a running turn, which cannot be deleted while it runs."""
     return cast(AssistantConversation, find_conversation(conversation_id, user_id))
 
 

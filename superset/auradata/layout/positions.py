@@ -262,4 +262,3 @@ def _js_string(value: Any) -> str:
     if isinstance(value, float) and value == int(value):
         return str(int(value))
     return str(value)
-

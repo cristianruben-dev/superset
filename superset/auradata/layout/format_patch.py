@@ -162,8 +162,7 @@ def _js_unescape(text: str) -> str:
 
     def decode(match: re.Match[str]) -> str:
         hex2, braced, hex4, other = match.groups()
-        code = hex2 or braced or hex4
-        if code:
+        if code := hex2 or braced or hex4:
             try:
                 return chr(int(code, 16))
             except (ValueError, OverflowError):
@@ -398,8 +397,7 @@ def _check_field(
             name: _check_field(f"{path}.{name}", spec["values"], item, refs, problems)
             for name, item in value.items()
         }
-    problem = _scalar_problem(spec, value, refs)
-    if problem:
+    if problem := _scalar_problem(spec, value, refs):
         problems.append(f"{path}: {problem}")
     return value
 

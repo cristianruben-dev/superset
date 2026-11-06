@@ -79,9 +79,7 @@ def _items(layout: dict[str, Any]) -> list[dict[str, Any]]:
     return [item for item in layout.values() if isinstance(item, dict)]
 
 
-def _fit_rows(
-    layout: dict[str, Any], widths: dict[str, int], columns: int
-) -> None:
+def _fit_rows(layout: dict[str, Any], widths: dict[str, int], columns: int) -> None:
     """Rounding must not make a row wider than the page."""
     for item in _items(layout):
         if item.get("type") != ROW_TYPE:

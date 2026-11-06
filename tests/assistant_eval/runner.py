@@ -81,9 +81,9 @@ from superset.auradata.assistant.governance import budget_of, switched_off
 from superset.auradata.assistant.models import (
     _table_models,
     Catalog,
-    ModelSpec,
     cost_of_message,
     cost_of_tokens,
+    ModelSpec,
     SOURCE_TABLE,
     spec_of,
     TokenUsage,
@@ -229,9 +229,7 @@ def estimated_maximum(
         input_tokens=ASSUMED_CALL_INPUT_TOKENS, output_tokens=CALL_OUTPUT_TOKENS
     )
     prices = [cast(ModelSpec, spec_of(model)).price for model, _ in pairs]
-    per_call = sum(
-        (cost_of_tokens(price, usage) for price in prices), Decimal(0)
-    )
+    per_call = sum((cost_of_tokens(price, usage) for price in prices), Decimal(0))
     return (per_call * calls).quantize(_MONEY)
 
 

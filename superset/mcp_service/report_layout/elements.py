@@ -99,7 +99,9 @@ def patched_settings(
     return {**merge_patch(current, clean), "kind": kind}
 
 
-def patched_box(report: Report, current: dict[str, Any] | None, patch: dict[str, Any]) -> Any:
+def patched_box(
+    report: Report, current: dict[str, Any] | None, patch: dict[str, Any]
+) -> Any:
     """The General format of an element with a checked patch over it; the
     chart settings of the General level (tooltip, sampling) are refused."""
     general, chart = check_general_patch(patch, report_refs(report))

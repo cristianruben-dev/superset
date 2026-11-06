@@ -120,7 +120,6 @@ def save_vote(
 
 def clear_vote(answer: AssistantMessage, user_id: int) -> None:
     """Take back the vote of this person, if there is one."""
-    row = _find_vote(answer.id, user_id)
-    if row is not None:
+    if (row := _find_vote(answer.id, user_id)) is not None:
         db.session.delete(row)
         db.session.commit()

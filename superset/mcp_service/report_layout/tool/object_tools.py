@@ -31,9 +31,9 @@ from superset.auradata.layout import (
     align_cells,
     distribute_cells,
     free_cell,
-    Pos,
     keys,
     layer_order,
+    Pos,
 )
 from superset.mcp_service.report_layout.editing import (
     append_in_new_row,

@@ -59,8 +59,7 @@ def filter_scope_level(filter_conf: Any) -> str:
     of its charts a visual filter.
     """
     conf = as_dict(filter_conf)
-    level = conf.get("scopeLevel")
-    if level in SCOPE_LEVELS:
+    if (level := conf.get("scopeLevel")) in SCOPE_LEVELS:
         return str(level)
     scope = as_dict(conf.get("scope"))
     root_path = scope.get("rootPath")

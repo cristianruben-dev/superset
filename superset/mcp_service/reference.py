@@ -229,8 +229,7 @@ def _render_tool(tool: Any) -> list[str]:
             "- **Etiquetas:** " + ", ".join(f"`{tag}`" for tag in sorted(tool.tags))
         )
     lines.append("")
-    description = inspect.cleandoc(tool.description or "")
-    if description:
+    if description := inspect.cleandoc(tool.description or ""):
         lines += [description, ""]
 
     schema, wrapped = _arguments(tool.parameters or {})

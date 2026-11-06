@@ -110,8 +110,7 @@ def sharable_format(fmt: Any) -> Any:
         for key, value in fmt.items()
         if key not in ("chart", "link", "actionButton")
     }
-    sharable = sharable_chart_format(fmt.get("chart"))
-    if sharable:
+    if sharable := sharable_chart_format(fmt.get("chart")):
         shared["chart"] = sharable
     title = shared.get("title")
     if isinstance(title, dict) and "subtitle" in title:
@@ -139,8 +138,7 @@ def own_format(fmt: Any) -> dict[str, Any] | None:
     for key in ("link", "actionButton"):
         if truthy(fmt.get(key)):
             kept[key] = fmt[key]
-    chart = own_chart_format(fmt.get("chart"))
-    if chart:
+    if chart := own_chart_format(fmt.get("chart")):
         kept["chart"] = chart
     return kept or None
 
