@@ -449,6 +449,11 @@ de nuevo.
 | El lector tiene fila en `auradata_workspace_members` | 404. Un admin de Superset no es la excepción |
 | El lector abre el informe (`open_dashboard`) | 404. Por eso un documento de un borrador se queda con quien ve el borrador |
 
+Una conversación vencida que se queda por una tarjeta pendiente deja de estar compartida (`retention.py`). Dejar de compartir solo
+pide ser el dueño, no abrir el informe: quita acceso, y un autor que perdió el informe lo hace desde la lista del workspace. Un lector
+cuyo rol no ve el modelo de datos (`user_can_view_data_model_metadata`) recibe los bloques ocultos, porque una consulta nombra columnas
+y filtros. Gamma sí lo ve.
+
 `GET /documents/<id>/` no lleva `protect()`: revisa la sesión y el permiso por su cuenta para responder 404 también a un visitante
 anónimo, que de otro modo recibiría un 401 y sabría que la ruta distingue.
 
@@ -467,7 +472,8 @@ herramienta.
 
 El navegador vive en los workers y tarda segundos, así que `POST .../export/` solo deja un ticket en Redis y encola una tarea con
 su id, que no tiene argumento para un usuario, como un turno. El panel pregunta por `GET .../export/<job>/` hasta recibir el
-archivo, que espera 15 minutos en Redis solo para quien lo pidió.
+archivo, que espera 15 minutos en Redis solo para quien lo pidió. Servirlo vuelve a leer el documento como esa persona, y borrar
+la conversación borra sus archivos (`forget`).
 
 El worker abre `/assistant/document/<id>/` como esa persona con `capture_raw`, la misma captura de las exportaciones de informes.
 En modo `standalone` la página espera a todos sus bloques y a la animación de ECharts, reparte sus piezas en hojas A4 para que
@@ -485,6 +491,10 @@ turno registre `turn_start` y `turn_end`, así que deshacer funciona igual que s
 `artifact_pages.py` pide `add_page`, `add_element` y `create_visual` a `ToolBox`, con `approved=True` porque la persona aprobó el
 conjunto en la tarjeta. Una gráfica por tablero, las celdas del lienzo, los permisos y el historial valen porque esas herramientas
 los cumplen.
+
+La tarjeta describe una versión, y solo esa se guarda. Si la llamada no nombra la última versión al llegar la tarjeta, no hay tarjeta
+y la llamada se rechaza. La versión descrita queda en el registro `awaiting`, y `_save` la compara con la última al correr: un
+`change_artifact` del mismo turno deja la tarjeta sin efecto.
 
 `page_plan` reparte los bloques en páginas del tamaño del lienzo: lo que no cabe pasa a otra, hasta 5. Un bloque de datos se
 convierte en un gráfico solo si dice exactamente lo mismo. Si un filtro no tiene equivalente, el bloque queda fuera y el resultado

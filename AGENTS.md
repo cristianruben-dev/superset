@@ -270,6 +270,9 @@ This repository is **AuraData BI**, a fork of Apache Superset 7.0 shaped like Po
   pages) and calls `add_page`, `add_element` and `create_visual` through `ToolBox`, so every rule of those tools holds. It reaches any
   document of the person on that report, so one written while reading can be saved from the editor. A query that no chart says
   exactly stays out of the report and the result names it: never a chart without one of its filters. `create_visual` takes `time_filters`.
+  A card describes one version: `save_card` gives no card to a call that does not name the last one, the `awaiting` record keeps it
+  (`card_versions`) and `_save` runs only on it. Stopping a share only asks for the owner (`find_artifact`), a conversation kept
+  past retention for a card stops being shared, and a served PDF reads the document again and goes with its conversation (`forget`).
 - **The system prompt binds a conversation:** a stored thinking block is signed against the system prompt, the tools and the
   history. `conversation.system_prompt` holds the prompt of its first turn and every later turn resends it (`_prepare_turn`), so editing
   `prompt.py` reaches new conversations only; to tell a running one something, write a message of the conversation. Tools still change, with
