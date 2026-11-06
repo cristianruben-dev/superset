@@ -32,6 +32,7 @@ import {
 } from './client';
 import { transcriptOf, wasStopped, withEvent } from './transcript';
 import type {
+  ArtifactRef,
   AssistantContext,
   AssistantBudget,
   AssistantEvent,
@@ -79,6 +80,8 @@ export function useAssistantChat(
   const [canUndo, setCanUndo] = useState(false);
   // Fresher than what the panel read when it opened
   const [budget, setBudget] = useState<AssistantBudget | null>(null);
+  // The document this conversation wrote last, which follows the answer as it goes
+  const [artifact, setArtifact] = useState<ArtifactRef | null>(null);
   const inFlight = useRef<AbortController | null>(null);
   const currentId = useRef<string | null>(null);
   const stopWanted = useRef(false);
@@ -116,6 +119,7 @@ export function useAssistantChat(
     setCacheLost(false);
     setConfirmations([]);
     setCanUndo(false);
+    setArtifact(null);
   }, [leave, select]);
 
   const show = useCallback(
@@ -128,6 +132,7 @@ export function useAssistantChat(
       setCacheLost(false);
       setConfirmations(stored.pending ?? []);
       setCanUndo(stored.can_undo ?? false);
+      setArtifact(stored.artifacts?.[stored.artifacts.length - 1] ?? null);
       return transcript;
     },
     [select],
@@ -179,6 +184,9 @@ export function useAssistantChat(
         } else {
           changed =
             changed || (event.event === 'tool_end' && !!event.data.changed);
+          if (event.event === 'tool_end' && event.data.artifact) {
+            setArtifact(event.data.artifact);
+          }
           change(answer => withEvent(answer, event));
         }
       };
@@ -362,6 +370,7 @@ export function useAssistantChat(
     confirmations,
     canUndo,
     budget,
+    artifact,
     send,
     decide,
     undo,

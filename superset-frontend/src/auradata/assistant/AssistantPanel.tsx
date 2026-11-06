@@ -41,6 +41,7 @@ import { hasPendingFields } from '../format/chartFields';
 import { usePhoneScreen } from '../format/mobile';
 import { selectedVisuals } from '../format/selection';
 import { AnswerActions } from './AnswerActions';
+import { ArtifactPanel } from './ArtifactPanel';
 import { AssistantFigure } from './AssistantFigure';
 import { AssistantMarkdown } from './AssistantMarkdown';
 import { ComposerImages, MessageImages } from './AttachedImages';
@@ -61,6 +62,7 @@ import { isLongConversation, stepsOf } from './transcript';
 import { PrivacyNotice } from './PrivacyNotice';
 import type {
   AnswerStep,
+  ArtifactRef,
   AssistantAccess,
   AssistantBudget,
   ChatMessage,
@@ -112,6 +114,9 @@ const toolLabel = (name: string) =>
     get_chart_data: t('Reading a chart'),
     get_dashboard_screenshot: t('Looking at the report'),
     get_visual_screenshot: t('Looking at a chart'),
+    create_artifact: t('Writing the document'),
+    change_artifact: t('Changing the document'),
+    read_artifact: t('Reading the document'),
   })[name] ?? confirmationTitle({ name, title: t('Working on the report') });
 
 const budgetMessage = ({ level, scope }: AssistantBudget) => {
@@ -283,6 +288,75 @@ const Bubble = styled.div<{ fromUser: boolean }>`
     th {
       font-weight: ${theme.fontWeightStrong};
       color: ${theme.colorTextSecondary};
+    }
+  `}
+`;
+
+const DocumentCard = styled.button`
+  ${({ theme }) => css`
+    display: flex;
+    align-items: center;
+    gap: ${theme.sizeUnit * 3}px;
+    width: 100%;
+    margin-top: ${theme.sizeUnit * 3}px;
+    padding: ${theme.sizeUnit * 3}px;
+    border: 1px solid ${theme.colorBorderSecondary};
+    border-radius: ${theme.sizeUnit * 3}px;
+    background: ${theme.colorBgContainer};
+    color: ${theme.colorText};
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: border-color ${theme.motionDurationFast};
+
+    &:hover {
+      border-color: ${theme.colorPrimary};
+    }
+    &:focus-visible {
+      outline: 2px solid ${theme.colorPrimary};
+      outline-offset: 2px;
+    }
+    .title {
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-weight: ${theme.fontWeightStrong};
+    }
+    .version {
+      flex: none;
+      font-family: ${theme.fontFamilyCode};
+      font-size: ${theme.fontSizeXS ?? theme.fontSizeSM}px;
+      color: ${theme.colorTextTertiary};
+    }
+  `}
+`;
+
+const Aimed = styled.div`
+  ${({ theme }) => css`
+    display: flex;
+    align-items: center;
+    gap: ${theme.sizeUnit}px;
+    padding: 0 ${theme.sizeUnit}px;
+    font-size: ${theme.fontSizeSM}px;
+    color: ${theme.colorPrimaryText};
+
+    span {
+      flex: 1;
+      min-width: 0;
+    }
+    button {
+      display: inline-flex;
+      padding: ${theme.sizeUnit}px;
+      border: 0;
+      border-radius: ${theme.sizeUnit}px;
+      background: none;
+      color: inherit;
+      cursor: pointer;
+    }
+    button:focus-visible {
+      outline: 2px solid ${theme.colorPrimary};
     }
   `}
 `;
@@ -598,10 +672,12 @@ function Answer({
   finished,
   onVote,
   onNewConversation,
+  onOpenArtifact,
 }: {
   message: ChatMessage;
   dashboardId: number;
   writing: boolean;
+  onOpenArtifact: (artifact: ArtifactRef) => void;
   /** Nothing more can join this answer: no stream and no card waiting. */
   finished: boolean;
   onVote: (feedback: Feedback | null) => Promise<void>;
@@ -623,6 +699,19 @@ function Answer({
       {message.text && <AssistantMarkdown text={message.text} />}
       {message.figure && (
         <AssistantFigure figure={message.figure} dashboardId={dashboardId} />
+      )}
+      {message.artifact && (
+        <DocumentCard
+          type="button"
+          onClick={() => onOpenArtifact(message.artifact as ArtifactRef)}
+          data-test="auradata-assistant-document"
+        >
+          <Icons.FileTextOutlined iconSize="l" />
+          <span className="title">{message.artifact.title}</span>
+          <span className="version">
+            {t('Version %s', message.artifact.version)}
+          </span>
+        </DocumentCard>
       )}
       {message.problem && (
         <Alert
@@ -674,6 +763,9 @@ function Conversations({
   const [conversations, setConversations] = useState<ListedConversation[]>([]);
   const [listOpen, setListOpen] = useState(false);
   const [draft, setDraft] = useState('');
+  const [openArtifact, setOpenArtifact] = useState<string | null>(null);
+  const [selectedBlock, setSelectedBlock] = useState<string | null>(null);
+  const [column, setColumn] = useState<HTMLDivElement | null>(null);
   const [dropping, setDropping] = useState(false);
   const picker = useRef<HTMLInputElement>(null);
   const question = useRef<ComponentRef<typeof Input.TextArea>>(null);
@@ -741,6 +833,12 @@ function Conversations({
       leave();
     }
   }, [active, leave, loadConversations, rejoin]);
+
+  // A document shows as soon as an answer writes it, and follows its versions
+  useEffect(() => {
+    setOpenArtifact(chat.artifact?.id ?? null);
+    setSelectedBlock(null);
+  }, [chat.artifact?.id, chat.artifact?.version]);
 
   // A reload comes back to the conversation it left, and to its answer if it is running
   const toRestore = useRef(rememberedConversation(dashboardId, mode));
@@ -841,10 +939,17 @@ function Conversations({
     addSuccessToast(t('Conversation deleted.'));
   };
 
-  const contextNow = () =>
-    editing
+  const contextNow = () => ({
+    ...(editing
       ? editorContext(store.getState(), dashboardId, selectedVisuals())
-      : pageContext(store.getState(), dashboardId);
+      : pageContext(store.getState(), dashboardId)),
+    ...(openArtifact && {
+      artifact: {
+        id: openArtifact,
+        ...(selectedBlock && { block_id: selectedBlock }),
+      },
+    }),
+  });
 
   const canSend = !chat.busy && !!model && !blocked && !stopped;
   const attached = composerImages.images;
@@ -872,6 +977,7 @@ function Conversations({
       contextNow(),
       attached.map(image => image.id as string),
     );
+    setSelectedBlock(null);
   };
 
   const decide = (id: string, approved: boolean) => {
@@ -989,7 +1095,35 @@ function Conversations({
   };
 
   return (
-    <Column onDragOver={onDragOver} onDragLeave={onDragLeave} onDrop={onDrop}>
+    <Column
+      ref={setColumn}
+      onDragOver={onDragOver}
+      onDragLeave={onDragLeave}
+      onDrop={onDrop}
+    >
+      {active && openArtifact && (
+        <ArtifactPanel
+          artifactId={openArtifact}
+          liveVersion={
+            chat.artifact?.id === openArtifact
+              ? chat.artifact.version
+              : undefined
+          }
+          anchor={column}
+          dashboardId={dashboardId}
+          busy={chat.busy}
+          canAsk={canSend}
+          selected={selectedBlock}
+          onSelect={setSelectedBlock}
+          onRefresh={() =>
+            ask(t('Refresh the text of this document with the current figures'))
+          }
+          onClose={() => {
+            setOpenArtifact(null);
+            setSelectedBlock(null);
+          }}
+        />
+      )}
       {conversations.length + chat.messages.length > 0 && (
         <Controls>
           <History>
@@ -1082,6 +1216,7 @@ function Conversations({
                 }
                 onVote={feedback => vote(message, feedback)}
                 onNewConversation={startNew}
+                onOpenArtifact={artifact => setOpenArtifact(artifact.id)}
               />
             ),
           )}
@@ -1194,6 +1329,19 @@ function Conversations({
             />
           )}
           <ComposerImages images={attached} onRemove={composerImages.remove} />
+          {selectedBlock && (
+            <Aimed data-test="auradata-assistant-aimed">
+              <Icons.AimOutlined iconSize="s" />
+              <span>{t('About the selected block')}</span>
+              <button
+                type="button"
+                aria-label={t('Clear the selection')}
+                onClick={() => setSelectedBlock(null)}
+              >
+                <Icons.CloseOutlined iconSize="xs" />
+              </button>
+            </Aimed>
+          )}
           <Input.TextArea
             ref={question}
             aria-label={t('Your question')}
@@ -1207,7 +1355,9 @@ function Conversations({
             placeholder={
               chat.confirmations.length
                 ? t('If you write, the actions above are dropped')
-                : t('Ask something')
+                : selectedBlock
+                  ? t('Say what to change in this block')
+                  : t('Ask something')
             }
             value={draft}
             onChange={event => setDraft(event.target.value)}

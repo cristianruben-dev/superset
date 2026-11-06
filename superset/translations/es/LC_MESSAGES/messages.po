@@ -27511,3 +27511,81 @@ msgstr "Se perdió la conexión. Abre de nuevo esta conversación para ver la re
 
 msgid "This version cannot be restored: it uses data you can no longer reach, or the document has too many versions."
 msgstr "No se puede volver a esta versión: usa datos a los que ya no llegas, o el documento tiene demasiadas versiones."
+
+msgid "Writing the document"
+msgstr "Escribiendo el documento"
+
+msgid "Changing the document"
+msgstr "Cambiando el documento"
+
+msgid "Reading the document"
+msgstr "Leyendo el documento"
+
+msgid "About the selected block"
+msgstr "Sobre el bloque seleccionado"
+
+msgid "Clear the selection"
+msgstr "Quitar la selección"
+
+msgid "Say what to change in this block"
+msgstr "Di qué cambiar en este bloque"
+
+msgid "Refresh the text of this document with the current figures"
+msgstr "Actualiza el texto de este documento con las cifras de hoy"
+
+msgid "Version %s"
+msgstr "Versión %s"
+
+msgid "Back to version %s"
+msgstr "Vuelta a la versión %s"
+
+msgid "Back to version %s."
+msgstr "Volviste a la versión %s."
+
+msgid "Changed by the assistant"
+msgstr "Cambiado por el asistente"
+
+msgid "This version could not be restored."
+msgstr "No se pudo volver a esta versión."
+
+msgid "This document could not be opened."
+msgstr "No se pudo abrir este documento."
+
+msgid "You are reading version %s."
+msgstr "Estás leyendo la versión %s."
+
+msgid "See the last one"
+msgstr "Ver la última"
+
+msgid "Go back to this version"
+msgstr "Volver a esta versión"
+
+msgid "Text written on"
+msgstr "Texto escrito el"
+
+msgid "Figures are read as you open it; the text stays as written."
+msgstr "Las cifras se leen al abrirlo; el texto queda como se escribió."
+
+msgid "Figures are read as you open it."
+msgstr "Las cifras se leen al abrirlo."
+
+msgid "Refresh the text"
+msgstr "Actualizar el texto"
+
+msgid "Document"
+msgstr "Documento"
+
+msgid "Close the document"
+msgstr "Cerrar el documento"
+
+msgid "You do not have access to this data."
+msgstr "No tienes acceso a estos datos."
+
+msgid "This data could not be read."
+msgstr "No se pudieron leer estos datos."
+
+msgid "Try again"
+msgstr "Reintentar"
+
+msgid "No data for these filters."
+msgstr "No hay datos con estos filtros."

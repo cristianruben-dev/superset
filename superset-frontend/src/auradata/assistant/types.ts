@@ -89,6 +89,90 @@ export interface AssistantContext {
   page_id?: string;
   selection?: SelectedObject[];
   filters?: Record<string, unknown>;
+  /** The document open beside the chat, by name: the server reads what it holds. */
+  artifact?: { id: string; block_id?: string };
+}
+
+/** What a block of data asks for, in the words of `query_dataset`. */
+export interface ArtifactQuery {
+  dataset_id: number;
+  columns?: string[];
+  metrics?: string[];
+  aggregates?: { column: string; aggregate: string }[];
+  filters?: FigureFilter[];
+  time_range?: string;
+  time_column?: string;
+  order_by?: string[];
+  order_desc?: boolean;
+  row_limit?: number;
+}
+
+/** Paragraphs in Markdown, stamped by the server with when they were written. */
+export interface TextBlock {
+  id: string;
+  type: 'text';
+  text: string;
+  written_on: string;
+}
+
+export type FigureFormat = 'number' | 'compact' | 'percent' | 'currency';
+
+/** One number that stands out, read from its query. */
+export interface FigureBlock {
+  id: string;
+  type: 'figure';
+  label: string;
+  format?: FigureFormat;
+  query: ArtifactQuery;
+}
+
+export type ChartKind = 'bar' | 'line' | 'area' | 'pie';
+
+/** A chart drawn from its query. */
+export interface ChartBlock {
+  id: string;
+  type: 'chart';
+  title: string;
+  chart: ChartKind;
+  query: ArtifactQuery;
+}
+
+/** Rows read from its query. */
+export interface TableBlock {
+  id: string;
+  type: 'table';
+  title: string;
+  query: ArtifactQuery;
+}
+
+export type DataBlock = FigureBlock | ChartBlock | TableBlock;
+export type ArtifactBlock = TextBlock | DataBlock;
+
+/** What the chat says about a document. */
+export interface ArtifactRef {
+  id: string;
+  title: string;
+  version: number;
+}
+
+/** A line of the history of a document. */
+export interface ArtifactVersion {
+  number: number;
+  title: string;
+  origin: 'created' | 'changed' | 'restored';
+  restored_from: number | null;
+  created_on: string;
+}
+
+/** A version of a document, as its owner reads it. */
+export interface Artifact extends ArtifactRef {
+  conversation_id: string;
+  dashboard_id: number;
+  blocks: ArtifactBlock[];
+  /** The names of the datasets this reader reaches, by id. */
+  sources: Record<string, string>;
+  created_on: string;
+  versions: ArtifactVersion[];
 }
 
 /** An object the user has selected in the editor, for the assistant to read. */
@@ -170,6 +254,10 @@ export interface StoredMessage {
 export interface StoredConversation extends Conversation {
   messages: StoredMessage[];
   figures: Record<string, Figure>;
+  /** What each call wrote, by the id of the call. */
+  artifact_calls?: Record<string, ArtifactRef>;
+  /** The documents of this conversation, the oldest first. */
+  artifacts?: ArtifactRef[];
   context_tokens: number;
   pending: Confirmation[];
   rejected: string[];
@@ -223,6 +311,8 @@ export interface ChatMessage {
   storedId?: string;
   feedback?: Feedback | null;
   figure?: Figure;
+  /** The document this answer wrote. */
+  artifact?: ArtifactRef;
   /** A notice of the service in place of the rest of the answer. */
   problem?: string;
   refused?: boolean;
@@ -248,6 +338,7 @@ export type AssistantEvent =
         name: string;
         is_error: boolean;
         figure?: Figure;
+        artifact?: ArtifactRef;
         changed?: boolean;
         rejected?: boolean;
       };

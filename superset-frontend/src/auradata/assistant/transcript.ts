@@ -146,6 +146,8 @@ export function transcriptOf(stored: StoredConversation): ChatMessage[] {
         steps.set(block.id, step);
         current.tools.push(step);
         current.figure = stored.figures[block.id] ?? current.figure;
+        current.artifact =
+          stored.artifact_calls?.[block.id] ?? current.artifact;
       }
     });
   });
@@ -230,6 +232,7 @@ export function withEvent(
       return {
         ...answer,
         figure: data.figure ?? answer.figure,
+        artifact: data.artifact ?? answer.artifact,
         tools: answer.tools.map(step =>
           step.id === data.id
             ? {

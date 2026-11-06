@@ -35,7 +35,7 @@ const looksLikeDate = (value: unknown) =>
     ? /^\d{4}-\d{2}-\d{2}/.test(value)
     : typeof value === 'number' && value >= EPOCH_MS_FROM;
 
-const adhocFilter = ({ col, op, val }: FigureFilter) =>
+export const adhocFilter = ({ col, op, val }: FigureFilter) =>
   ({
     expressionType: 'SIMPLE',
     clause: 'WHERE',
@@ -104,7 +104,9 @@ const filterText = ({ col, op, val }: FigureFilter) => {
 };
 
 /** Which dataset and filters a figure comes from, in one line. */
-export function figureSource(figure: Figure): string {
+export function figureSource(
+  figure: Pick<Figure, 'dataset_name' | 'filters'>,
+): string {
   const dataset = t('Dataset: %s', figure.dataset_name);
   return figure.filters.length
     ? `${dataset} · ${figure.filters.map(filterText).join(' · ')}`

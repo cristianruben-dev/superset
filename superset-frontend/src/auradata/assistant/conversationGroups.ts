@@ -33,7 +33,7 @@ const groupLabels = () => [
 ];
 
 /** The server stamps dates without a zone, in UTC. */
-const parseServerDate = (value: string) =>
+export const parseServerDate = (value: string) =>
   new Date(/[zZ]|[+-]\d\d:\d\d$/.test(value) ? value : `${value}Z`);
 
 const startOfDay = (date: Date) =>

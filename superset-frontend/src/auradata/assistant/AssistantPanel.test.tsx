@@ -33,6 +33,7 @@ import {
   AssistantError,
   clearFeedback,
   decideCall,
+  fetchArtifact,
   readTurn,
   stopTurn,
   deleteConversation,
@@ -69,6 +70,7 @@ jest.mock('./client', () => ({
   undoTurn: jest.fn(),
   uploadAttachment: jest.fn(),
   deleteAttachment: jest.fn(() => Promise.resolve()),
+  fetchArtifact: jest.fn(),
 }));
 
 jest.mock('./editorActions', () => ({
@@ -1442,4 +1444,148 @@ test('a click on a command runs it', async () => {
 
   await waitFor(() => expect(ask).toHaveBeenCalledTimes(1));
   expect(ask.mock.calls[0][0].message).toBe('Summarize this page');
+});
+
+// The document beside the chat
+
+const DOCUMENT = {
+  id: 'doc',
+  title: 'Resumen ejecutivo',
+  version: 1,
+  conversation_id: 'c1',
+  dashboard_id: 3,
+  blocks: [
+    {
+      id: 'b1',
+      type: 'text',
+      text: 'Las ventas subieron.',
+      written_on: '2026-11-06T10:00:00',
+    },
+  ],
+  sources: {},
+  created_on: '2026-11-06T10:00:00',
+  versions: [
+    {
+      number: 1,
+      title: 'Resumen ejecutivo',
+      origin: 'created',
+      restored_from: null,
+      created_on: '2026-11-06T10:00:00',
+    },
+  ],
+};
+const REF = { id: 'doc', title: 'Resumen ejecutivo', version: 1 };
+
+const writeDocument = async () => {
+  (fetchArtifact as jest.Mock).mockReset().mockResolvedValue(DOCUMENT);
+  const stream = heldStream();
+  setup();
+  await sendQuestion('Hazme el resumen');
+  stream.emit({
+    event: 'conversation',
+    data: { id: 'c1', model: SONNET.id, mode: 'read' },
+  });
+  stream.emit({
+    event: 'tool_start',
+    data: { id: 't1', name: 'create_artifact' },
+  });
+  stream.emit({
+    event: 'tool_end',
+    data: {
+      id: 't1',
+      name: 'create_artifact',
+      is_error: false,
+      artifact: REF,
+    },
+  });
+  return stream;
+};
+
+test('a document opens beside the chat as the answer writes it', async () => {
+  const stream = await writeDocument();
+
+  expect(
+    await screen.findByTestId('auradata-artifact-panel'),
+  ).toBeInTheDocument();
+  expect(screen.getByText('Writing the document')).toBeInTheDocument();
+  expect(await screen.findByText('Las ventas subieron.')).toBeInTheDocument();
+  expect(screen.getByTestId('auradata-assistant-document')).toHaveTextContent(
+    'Version 1',
+  );
+  await stream.end();
+});
+
+test('a closed document opens again from its card', async () => {
+  const stream = await writeDocument();
+  await stream.end();
+  fireEvent.click(await screen.findByTestId('auradata-artifact-close'));
+  expect(
+    screen.queryByTestId('auradata-artifact-panel'),
+  ).not.toBeInTheDocument();
+
+  fireEvent.click(screen.getByTestId('auradata-assistant-document'));
+
+  expect(
+    await screen.findByTestId('auradata-artifact-panel'),
+  ).toBeInTheDocument();
+});
+
+test('the selected block travels by name and the selection ends with it', async () => {
+  const stream = await writeDocument();
+  await stream.end();
+  fireEvent.click(await screen.findByTestId('auradata-artifact-pick'));
+  expect(
+    await screen.findByTestId('auradata-assistant-aimed'),
+  ).toBeInTheDocument();
+  ask.mockReset().mockResolvedValue(undefined);
+
+  await sendQuestion('acorta este párrafo');
+
+  expect(ask.mock.calls[0][0].context.artifact).toEqual({
+    id: 'doc',
+    block_id: 'b1',
+  });
+  expect(
+    screen.queryByTestId('auradata-assistant-aimed'),
+  ).not.toBeInTheDocument();
+});
+
+test('refreshing the text is a question about the open document', async () => {
+  const stream = await writeDocument();
+  await stream.end();
+  ask.mockReset().mockResolvedValue(undefined);
+
+  fireEvent.click(await screen.findByTestId('auradata-artifact-refresh'));
+
+  await waitFor(() => expect(ask).toHaveBeenCalled());
+  expect(ask.mock.calls[0][0].context.artifact).toEqual({ id: 'doc' });
+});
+
+test('opening a conversation brings its last document back', async () => {
+  (fetchArtifact as jest.Mock).mockReset().mockResolvedValue(DOCUMENT);
+  window.sessionStorage.clear();
+  conversations.mockResolvedValue([
+    {
+      id: 'c1',
+      dashboard_id: 3,
+      mode: 'read',
+      model: SONNET.id,
+      title: 'Hola',
+      changed_on: '2026-11-06',
+      last_message_on: '2026-11-06',
+    },
+  ]);
+  conversation.mockResolvedValue({
+    ...storedConversation('c1', null),
+    artifacts: [REF],
+    artifact_calls: {},
+  });
+  setup();
+
+  await openFromList('Hola');
+
+  expect(
+    await screen.findByTestId('auradata-artifact-panel'),
+  ).toBeInTheDocument();
+  expect(fetchArtifact).toHaveBeenCalledWith('doc', undefined);
 });

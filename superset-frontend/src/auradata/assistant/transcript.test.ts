@@ -427,3 +427,22 @@ test('a turn that stopped without an ending says so where its answer went', () =
   expect(messages[3].problem).toContain('stopped before finishing');
   expect(messages[3].storedId).toBeUndefined();
 });
+
+test('an answer knows the document it wrote, stored or streaming', () => {
+  const artifact = { id: 'doc', title: 'Resumen', version: 2 };
+  const conversation = {
+    ...stored([row('assistant', [{ type: 'tool_use', id: 't', name: 'x' }])]),
+    artifact_calls: { t: artifact },
+  };
+
+  expect(transcriptOf(conversation)[0].artifact).toBe(artifact);
+  expect(
+    withEvent(
+      { id: 'x', role: 'assistant', text: '', tools: [] },
+      {
+        event: 'tool_end',
+        data: { id: 't', name: 'create_artifact', is_error: false, artifact },
+      },
+    ).artifact,
+  ).toBe(artifact);
+});

@@ -21,6 +21,7 @@ import { t } from '@apache-superset/core/translation';
 import { ensureAppRoot } from 'src/utils/pathUtils';
 import { sseParser } from './sse';
 import type {
+  Artifact,
   AssistantContext,
   AssistantEvent,
   AssistantModels,
@@ -99,6 +100,33 @@ export async function deleteConversation(id: string): Promise<void> {
       response,
       t('This conversation could not be deleted.'),
     );
+  }
+}
+
+/** A document of this person, as it stands or at a version of its history. */
+export const fetchArtifact = (
+  id: string,
+  version?: number,
+): Promise<Artifact> =>
+  SupersetClient.get({
+    endpoint: `${CHAT_URL}artifacts/${id}/${
+      version === undefined ? '' : `versions/${version}/`
+    }`,
+  }).then(({ json }) => json.result);
+
+/** Goes back to a version, which adds a new one. */
+export async function restoreArtifact(
+  id: string,
+  version: number,
+): Promise<Artifact> {
+  try {
+    const { json } = await SupersetClient.post({
+      endpoint: `${CHAT_URL}artifacts/${id}/restore/`,
+      jsonPayload: { version },
+    });
+    return json.result;
+  } catch (response) {
+    throw await refusedWith(response, t('This version could not be restored.'));
   }
 }
 
