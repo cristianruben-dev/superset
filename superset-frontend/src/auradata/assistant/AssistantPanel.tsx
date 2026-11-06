@@ -714,9 +714,9 @@ function Conversations({
   };
 
   const vote = (message: ChatMessage, feedback: Feedback | null) =>
-    chat
-      .vote(message, feedback)
-      .catch(() => addDangerToast(t('Your vote could not be saved.')));
+    chat.vote(message, feedback).catch(() => {
+      addDangerToast(t('Your vote could not be saved.'));
+    });
 
   const undo = async () => {
     try {
