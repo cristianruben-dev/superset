@@ -67,7 +67,7 @@ def _granted_dataset_ids(user_id: int) -> Any:
     )
 
 
-def _edited_dataset_ids(user_id: int) -> Any:
+def _edited_dataset_ids(user_id: int | None) -> Any:
     editable_workspaces = sa.select(WorkspaceMember.workspace_id).where(
         WorkspaceMember.user_id == user_id,
         WorkspaceMember.role.in_(workspace_access.EDITOR_ROLES),
