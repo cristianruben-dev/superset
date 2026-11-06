@@ -93,8 +93,8 @@ This repository is **AuraData BI**, a fork of Apache Superset 7.0 shaped like Po
 - **The in-app AI assistant** (`superset/auradata/assistant/`, plan in `docs/plans/2026-11-05-plan-asistente-ia.md`):
   `models.py` is the catalog (live list from the Models API, plus `MODEL_TABLE`, by exact id, with what the API does not
   say); code reads a `ModelSpec` and never asks which model it is. `settings.py` overlays the admin's choices, kept under
-  one `SharedKey` of the key-value store (no table), on the `AURADATA_ASSISTANT_*` config; `AURADATA_ASSISTANT_ENABLED` is
-  a hard gate too, so the admin's switch does nothing while it is off. Administration › AI assistant
+  one `SharedKey` of the key-value store (no table), on the `AURADATA_ASSISTANT_*` config; `AURADATA_ASSISTANT_ENABLED` only
+  sets the switch until the admin saves it. The admin's effort and thinking reach a model through `tuned_spec`. Administration › AI assistant
   (`/assistant/settings/`, `/api/v1/auradata_assistant/settings/`) is admin only. `ANTHROPIC_API_KEY` stays on the server:
   no response carries it. `anthropic` is imported only where the client is built, so a process without it still starts.
   The chat is `POST /api/v1/auradata/assistant/` (SSE, `api.py`), for browser sessions only. `agent.py` is the loop, written

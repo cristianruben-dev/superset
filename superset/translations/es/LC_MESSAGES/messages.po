@@ -27061,6 +27061,33 @@ msgstr "Cambiar una métrica"
 msgid "Go back to an earlier version"
 msgstr "Volver a una versión anterior"
 
+msgid "Let the model think"
+msgstr "Dejar que el modelo razone"
+
+msgid "The default of each model"
+msgstr "El de cada modelo"
+
+msgid "More effort gives more careful answers and costs more. A model that lacks the level you choose uses the closest one below. Some models always think: on those, only the effort lowers it."
+msgstr "Con más esfuerzo, las respuestas son más cuidadas y cuestan más. Un modelo que no tenga el nivel elegido usa el más cercano por debajo. Algunos modelos siempre razonan: en esos, solo el esfuerzo lo baja."
+
+msgid "Effort"
+msgstr "Esfuerzo"
+
+msgid "Low effort"
+msgstr "Esfuerzo bajo"
+
+msgid "Medium effort"
+msgstr "Esfuerzo medio"
+
+msgid "High effort"
+msgstr "Esfuerzo alto"
+
+msgid "Very high effort"
+msgstr "Esfuerzo muy alto"
+
+msgid "Maximum effort"
+msgstr "Esfuerzo máximo"
+
 msgid "Restore a chart from the trash"
 msgstr "Restaurar un gráfico de la papelera"
 

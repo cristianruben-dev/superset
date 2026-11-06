@@ -43,11 +43,12 @@ from __future__ import annotations
 
 import logging
 from collections.abc import Callable, Iterator
+from dataclasses import replace
 from datetime import datetime
 from typing import Any
 from uuid import UUID
 
-from flask import abort, current_app, g, request, Response, stream_with_context
+from flask import abort, g, request, Response, stream_with_context
 from flask_appbuilder import expose
 from flask_appbuilder.api import protect, safe
 from flask_appbuilder.security.decorators import has_access, permission_name
@@ -92,8 +93,10 @@ from superset.auradata.assistant.governance import (
 from superset.auradata.assistant.models import (
     Catalog,
     CatalogModel,
+    EFFORTS,
     get_catalog,
     relative_price,
+    tuned_spec,
 )
 from superset.auradata.assistant.prompt import context_block, system_prompt
 from superset.auradata.assistant.settings import (
@@ -156,6 +159,8 @@ class AssistantSettingsSchema(Schema):
         fields.String(validate=validate.Length(min=1, max=128)),
         allow_none=True,
     )
+    effort = fields.String(allow_none=True, validate=validate.OneOf(EFFORTS))
+    thinking = fields.Boolean()
     monthly_budget_usd = fields.Float(
         allow_none=True,
         allow_nan=False,
@@ -281,6 +286,8 @@ def _settings_json(settings: AssistantSettings, catalog: Catalog) -> dict[str, A
         ),
         "monthly_budget_usd": settings.monthly_budget_usd,
         "edit_enabled": settings.edit_enabled,
+        "effort": settings.effort,
+        "thinking": settings.thinking,
         "has_api_key": has_api_key(),
         "models": [_model_json(model, offered) for model in catalog.models],
         "models_source": catalog.source,
@@ -319,17 +326,13 @@ def _workspace_json(
         "edit_enabled": own.edit_enabled,
         "monthly_budget_usd": own.monthly_budget_usd,
         "spent_usd": float(spent_usd(month_start(datetime.now()), workspace_id)),
-        "global_enabled": _is_on(settings),
+        "global_enabled": settings.enabled,
         "global_edit_enabled": settings.edit_enabled,
     }
 
 
-def _is_on(settings: AssistantSettings) -> bool:
-    return bool(current_app.config["AURADATA_ASSISTANT_ENABLED"] and settings.enabled)
-
-
 def _is_available(settings: AssistantSettings) -> bool:
-    return _is_on(settings) and has_api_key()
+    return settings.enabled and has_api_key()
 
 
 def _event_stream(events: Iterator[str]) -> Response:
@@ -822,7 +825,7 @@ class AssistantRestApi(BaseSupersetApi):
         return None
 
     def _turned_off(self, settings: AssistantSettings) -> Response | None:
-        if not _is_on(settings):
+        if not settings.enabled:
             return self.response(403, message=_("The AI assistant is turned off."))
         return None
 
@@ -881,7 +884,12 @@ class AssistantRestApi(BaseSupersetApi):
         settings: AssistantSettings, model_id: str
     ) -> CatalogModel | None:
         offered = offered_models(settings, get_catalog())
-        return next((item for item in offered if item.id == model_id), None)
+        model = next((item for item in offered if item.id == model_id), None)
+        if model is None:
+            return None
+        return replace(
+            model, spec=tuned_spec(model.spec, settings.effort, settings.thinking)
+        )
 
     @staticmethod
     def _prepare(

@@ -68,6 +68,8 @@ def store(mocker: Any) -> Iterator[dict[SharedKey, Any]]:
         AURADATA_ASSISTANT_ALLOWED_MODELS=None,
         AURADATA_ASSISTANT_MONTHLY_BUDGET_USD=None,
         AURADATA_ASSISTANT_EDIT_ENABLED=True,
+        AURADATA_ASSISTANT_EFFORT=None,
+        AURADATA_ASSISTANT_THINKING=True,
     )
     with app.app_context():
         yield values

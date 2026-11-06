@@ -30,8 +30,11 @@ from superset.auradata.assistant import models as catalog_module
 from superset.auradata.assistant.models import (
     cost_of_message,
     cost_of_tokens,
+    EFFORTS_WITHOUT_XHIGH,
     get_catalog,
     MODEL_TABLE,
+    ModelPrice,
+    ModelSpec,
     PROBLEM_NO_API_KEY,
     PROBLEM_REJECTED_KEY,
     PROBLEM_UNAVAILABLE,
@@ -41,7 +44,9 @@ from superset.auradata.assistant.models import (
     SOURCE_LIVE,
     SOURCE_TABLE,
     spec_of,
+    STATUS_CURRENT,
     TokenUsage,
+    tuned_spec,
 )
 
 
@@ -137,7 +142,6 @@ def test_an_unknown_model_is_offered_with_prudent_values(
     assert model.spec.thinking_off is None
     assert model.spec.efforts == ()
     assert model.spec.default_effort is None
-    assert model.spec.forced_tool_choice is False
     assert model.spec.refusal_fallback_params() == {}
 
 
@@ -258,18 +262,9 @@ def test_a_failure_is_cached_for_a_short_while(
     assert client.calls == 2
 
 
-@pytest.mark.parametrize(
-    "model_id",
-    ["claude-sonnet-5-5", "claude-opus-5-5", "claude-fable-5-1", "claude-mythos-5-1"],
-)
-def test_models_that_reject_a_forced_tool(model_id: str) -> None:
-    assert MODEL_TABLE[model_id].forced_tool_choice is False
-
-
-def test_haiku_5_5_takes_a_forced_tool_and_has_no_server_fallback() -> None:
+def test_haiku_5_5_has_no_server_fallback() -> None:
     spec = MODEL_TABLE["claude-haiku-5-5"]
 
-    assert spec.forced_tool_choice is True
     assert spec.refusal_fallback_params() == {}
     assert spec.price.long_prompt_tokens == 100_000
     assert (spec.price.long_input, spec.price.long_output) == (0.50, 2.50)
@@ -363,3 +358,53 @@ def test_a_model_the_table_does_not_know_sends_nothing_optional() -> None:
 
 def test_every_model_of_the_table_finds_tools_with_tool_search() -> None:
     assert all(spec.tool_search for spec in MODEL_TABLE.values())
+
+
+@pytest.mark.parametrize(
+    ("model_id", "effort", "thinking", "expected_thinking", "expected_effort"),
+    [
+        # Left alone, each model answers as its row says
+        ("claude-sonnet-5-5", None, True, {"type": "adaptive"}, "high"),
+        ("claude-opus-5-5", None, True, {"type": "adaptive"}, "medium"),
+        ("claude-sonnet-5-5", "low", True, {"type": "adaptive"}, "low"),
+        # Off, each model in its own terms
+        ("claude-sonnet-5-5", None, False, {"type": "between_tools"}, "high"),
+        ("claude-haiku-5-5", None, False, {"type": "disabled"}, "medium"),
+        # Past the highest effort that takes it off
+        ("claude-sonnet-5-5", "max", False, {"type": "between_tools"}, "high"),
+        ("claude-haiku-5-5", "xhigh", False, {"type": "disabled"}, "high"),
+        # Thinking that cannot stop stays on, and the effort is kept
+        ("claude-opus-5-5", "low", False, {"type": "adaptive"}, "low"),
+        ("claude-fable-5-1", "max", False, {"type": "adaptive"}, "max"),
+    ],
+)
+def test_tuning_a_model_speaks_its_own_terms(
+    model_id: str,
+    effort: str | None,
+    thinking: bool,
+    expected_thinking: dict[str, str],
+    expected_effort: str,
+) -> None:
+    tuned = tuned_spec(MODEL_TABLE[model_id], effort, thinking)
+
+    assert tuned.thinking_on == expected_thinking
+    assert tuned.default_effort == expected_effort
+
+
+def test_an_effort_the_model_lacks_takes_the_closest_below() -> None:
+    spec = ModelSpec(
+        display_name="Test",
+        family="opus",
+        status=STATUS_CURRENT,
+        price=ModelPrice(1.0, 1.0, 0.1),
+        efforts=EFFORTS_WITHOUT_XHIGH,
+    )
+
+    assert tuned_spec(spec, "xhigh", True).default_effort == "high"
+
+
+def test_a_model_without_effort_or_a_way_to_stop_thinking_leaves_both_out() -> None:
+    tuned = tuned_spec(MODEL_TABLE["claude-haiku-4-5"], "low", False)
+
+    assert tuned.thinking_on is None
+    assert tuned.default_effort is None

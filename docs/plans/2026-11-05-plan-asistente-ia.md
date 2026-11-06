@@ -246,7 +246,7 @@ con el de arriba» funciona, se ve en el editor y se deshace con un clic.
 >   viaja a Anthropic.
 > - **E1 a E7 los revisa una persona:** no hay puntaje automático para un informe.
 > - **Un visor sin permisos de datos no recibe cifras,** y su tablero tampoco se dibuja: es la regla de `workspace_grants.py`.
-> - **Las reglas de las tarjetas no se tocaron:** 29 herramientas la piden, y la batería cuenta tarjetas por tarea.
+> - **Las reglas de las tarjetas no se tocaron:** 32 herramientas la piden, y la batería cuenta tarjetas por tarea.
 > - Los tests de Playwright están escritos y sin correr, porque piden `npm run build`.
 
 ## 6. Documentación (S–M)
@@ -259,11 +259,10 @@ con el de arriba» funciona, se ve en el editor y se deshace con un clic.
 > **Hecho (2026-11-05), leyendo el código.** Capítulo 10 del manual, `docs/auradata/asistente/administracion.md` y la sección 6
 > de `docs/auradata/arquitectura.md`. Sin capturas: ninguna pantalla se ha visto en un navegador y ningún modelo real se ha
 > llamado, y los documentos lo dicen. Donde el plan y el código difieren, manda el código:
-> - **Encender pide dos cosas:** `AURADATA_ASSISTANT_ENABLED` y el interruptor de la pantalla.
+> - **Encender pedía dos cosas** (resuelto): `AURADATA_ASSISTANT_ENABLED` quedó como valor inicial, y manda la pantalla.
 > - **Guardar la pantalla fija la lista de modelos:** uno nuevo hay que marcarlo.
-> - **El bucle usa solo parte de la tabla de modelos:** `thinking_off`, `thinking_always_on`, `thinking_off_max_effort` y
->   `forced_tool_choice` están anotados y nadie los lee (principio 3).
-> - **32 herramientas piden tarjeta, no 29:** la nota de la fase 5 es anterior a `540f29ab1a`.
+> - **El bucle usaba solo parte de la tabla de modelos** (resuelto): el admin elige esfuerzo y razonamiento, y `tuned_spec`
+>   los traduce para cada modelo. `forced_tool_choice` se quitó, porque nunca se fuerza una herramienta.
 
 ## Riesgo
 

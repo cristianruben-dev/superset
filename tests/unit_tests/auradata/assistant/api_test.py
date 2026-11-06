@@ -203,6 +203,7 @@ def test_a_default_outside_the_allowed_models_is_refused(
         {"monthly_budget_usd": -1},
         {"enabled": "maybe"},
         {"default_model": ""},
+        {"effort": "huge"},
         {"unexpected": True},
     ],
 )

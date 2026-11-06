@@ -321,13 +321,14 @@ Un modelo fuera de la tabla usa `PRUDENT_SPEC`: nada opcional en la petición, e
 | Campo de `ModelSpec` | Quién lo lee |
 | --- | --- |
 | `thinking_on`, `efforts`, `default_effort`, `automatic_cache` | `request_params` |
+| `thinking_off`, `thinking_always_on`, `thinking_off_max_effort` | `tuned_spec`, antes del bucle |
 | `refusal_fallback` | `refusal_fallback_params`, desde `request_params` |
 | `tool_search` | `run_conversation`, `api.py` y `system_prompt` |
 | `price`, `family`, `status`, `display_name` | Costos, orden y lo que muestran las pantallas |
-| `thinking_off`, `thinking_always_on`, `thinking_off_max_effort`, `forced_tool_choice` | **Nadie todavía.** Solo los fijan los tests de `models_test.py` |
 
-El bucle nunca apaga el razonamiento, siempre deja elegir la herramienta (`tool_choice: auto`) y usa el esfuerzo de la tabla:
-ni el admin ni el panel tienen perilla para eso.
+El bucle siempre deja elegir la herramienta (`tool_choice: auto`), así que la tabla no guarda si un modelo acepta forzarla.
+El esfuerzo y el razonamiento que elige el admin pasan por `tuned_spec`, que devuelve la fila del modelo con lo que ese modelo
+acepta, y `request_params` la lee sin saber cuál es.
 
 ### Cómo se añade un modelo de Anthropic
 

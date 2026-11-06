@@ -21,11 +21,10 @@ interruptor de la pantalla se puede ver encendido y el asistente sigue apagado.
    | Entorno | Archivo |
    | --- | --- |
    | Desarrollo | `docker/.env-local`, que git ignora |
-   | Producción | `docker/.env-prod`. `docker/.env-prod.example` trae `ANTHROPIC_API_KEY`, pero no el encendido: agrégalo a mano |
+   | Producción | `docker/.env-prod`. `docker/.env-prod.example` trae `ANTHROPIC_API_KEY` |
 
    ```bash
    ANTHROPIC_API_KEY=tu-clave
-   AURADATA_ASSISTANT_ENABLED=true
    ```
 
 2. **Reconstruye las imágenes,** para que todos los contenedores tengan el SDK `anthropic` y lean el entorno nuevo.
@@ -54,7 +53,9 @@ La clave se queda en el servidor: ninguna respuesta de la API la devuelve y el n
 
 | Ajuste | Variable de entorno | Pantalla |
 | --- | --- | --- |
-| Encendido | `AURADATA_ASSISTANT_ENABLED` | **Encender el asistente**. Tienen que estar los dos |
+| Encendido | `AURADATA_ASSISTANT_ENABLED`, solo como valor inicial | **Encender el asistente**. Una vez guardada, la pantalla manda |
+| Esfuerzo | `AURADATA_ASSISTANT_EFFORT` (solo en `auradata_config.py`) | **Esfuerzo** |
+| Razonamiento | `AURADATA_ASSISTANT_THINKING` (solo en `auradata_config.py`) | **Dejar que el modelo razone** |
 | Cambiar informes | `AURADATA_ASSISTANT_EDIT_ENABLED` (solo en `auradata_config.py`) | **Dejar que cambie informes** |
 | Modelo por defecto | `AURADATA_ASSISTANT_DEFAULT_MODEL` | **Modelo por defecto** |
 | Modelos ofrecidos | `AURADATA_ASSISTANT_ALLOWED_MODELS`, separados por comas | Casillas de **Modelos** |
@@ -85,8 +86,17 @@ En el panel, cada modelo lleva una etiqueta según su precio de entrada por mill
 | **Máximo** | $4 o más |
 
 El modelo por defecto de fábrica es Claude Sonnet 5.5. Que sea el de fábrica no significa que esté medido: la
-[comparación](evaluacion.md) está pendiente. Nadie, ni en el panel ni aquí, puede cambiar el esfuerzo del modelo: sale de
-la tabla.
+[comparación](evaluacion.md) está pendiente.
+
+**Esfuerzo y razonamiento** valen para todos los modelos, y cada uno los traduce a lo que acepta:
+
+- Por defecto, cada modelo usa el esfuerzo de su fila en la tabla.
+- Un modelo que no tenga el nivel elegido usa el más cercano por debajo.
+- Apagar el razonamiento baja el esfuerzo si el modelo no acepta ese nivel sin razonar: en Sonnet 5.5, por ejemplo, llega
+  hasta alto.
+- Opus 5.5 y Fable 5.1 siempre razonan: en ellos, solo el esfuerzo lo baja.
+
+Ninguna combinación se probó con un modelo real.
 
 ## Topes de gasto
 
@@ -209,7 +219,7 @@ Si instalaste `anthropic` a mano en un contenedor, lo pierdes al recrearlo. La s
 
 | Síntoma | Causa | Arreglo |
 | --- | --- | --- |
-| La pantalla dice encendido y no sale el botón | Falta `AURADATA_ASSISTANT_ENABLED=true`, o falta la clave | Agrégalos y recrea los contenedores |
+| La pantalla dice encendido y no sale el botón | Falta la clave | Agrégala y recrea los contenedores |
 | Aviso de que no hay clave de Anthropic | `ANTHROPIC_API_KEY` no llegó al proceso | Revisa el archivo de entorno |
 | Aviso de que Anthropic rechazó la clave | Clave mala o revocada | Cámbiala en el entorno |
 | Aviso de que falta el SDK, o chat con 503 | Imagen vieja | Reconstruye |

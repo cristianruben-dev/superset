@@ -289,13 +289,18 @@ EXTRA_CATEGORICAL_COLOR_SCHEMES: list[dict[str, Any]] = [
 ]
 
 # --- AI assistant -----------------------------------------------------------
-# Static defaults: what the admin picks in Administration wins over them. The key
-# stays on the server, and the data a user asks about travels to Anthropic, so the
-# assistant starts off.
+# Static defaults: what the admin picks in Administration wins over them, the switch
+# included. The key stays on the server, and the data a user asks about travels to
+# Anthropic, so the assistant starts off.
 
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY") or None
 AURADATA_ASSISTANT_ENABLED = False
 AURADATA_ASSISTANT_EDIT_ENABLED = True
+# Effort of every answer, None for the default of each model. A model that lacks it
+# takes the closest below
+AURADATA_ASSISTANT_EFFORT: str | None = None
+# False stops thinking on the models that can; on the others only effort lowers it
+AURADATA_ASSISTANT_THINKING = True
 AURADATA_ASSISTANT_DEFAULT_MODEL = "claude-sonnet-5-5"
 # None offers the current model of each family
 AURADATA_ASSISTANT_ALLOWED_MODELS: list[str] | None = None

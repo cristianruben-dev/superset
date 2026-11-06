@@ -156,13 +156,13 @@ comprueba que hay clave, tablas, modelos y personas, y que las respuestas guarda
    Primero lo barato: datos, inyección en modo lectura y el visor, con Haiku y Sonnet a esfuerzo bajo.
 
    ```bash
-   docker exec -i -e ANTHROPIC_API_KEY -e AURADATA_ASSISTANT_ENABLED=true superset-superset-1 sh -c 'cd /app && python - --tasks D I1 E8 --models claude-haiku-5-5 claude-sonnet-5-5 --efforts low --limit-usd 5 --i-accept-the-spend' < scripts/auradata/assistant_eval.py
+   docker exec -i -e ANTHROPIC_API_KEY superset-superset-1 sh -c 'cd /app && python - --tasks D I1 E8 --models claude-haiku-5-5 claude-sonnet-5-5 --efforts low --limit-usd 5 --i-accept-the-spend' < scripts/auradata/assistant_eval.py
    ```
 
    Si eso sale bien, la batería entera. El tope es tu decisión.
 
    ```bash
-   docker exec -i -e ANTHROPIC_API_KEY -e AURADATA_ASSISTANT_ENABLED=true superset-superset-1 sh -c 'cd /app && python - --limit-usd 30 --i-accept-the-spend' < scripts/auradata/assistant_eval.py
+   docker exec -i -e ANTHROPIC_API_KEY superset-superset-1 sh -c 'cd /app && python - --limit-usd 30 --i-accept-the-spend' < scripts/auradata/assistant_eval.py
    ```
 
 4. Traer el informe. El runner dice su carpeta.

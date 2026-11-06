@@ -50,6 +50,9 @@ class AssistantSettings:
     monthly_budget_usd: float | None
     # The editor's copilot, apart from the read panel
     edit_enabled: bool = True
+    # None is the default of each model
+    effort: str | None = None
+    thinking: bool = True
 
 
 class AssistantSettingsError(ValueError):
@@ -69,6 +72,8 @@ def _config_defaults() -> dict[str, Any]:
         "allowed_models": config["AURADATA_ASSISTANT_ALLOWED_MODELS"],
         "monthly_budget_usd": config["AURADATA_ASSISTANT_MONTHLY_BUDGET_USD"],
         "edit_enabled": bool(config["AURADATA_ASSISTANT_EDIT_ENABLED"]),
+        "effort": config["AURADATA_ASSISTANT_EFFORT"],
+        "thinking": bool(config["AURADATA_ASSISTANT_THINKING"]),
     }
 
 
@@ -80,6 +85,8 @@ def _settings_from(values: dict[str, Any]) -> AssistantSettings:
         allowed_models=None if allowed is None else tuple(allowed),
         monthly_budget_usd=values["monthly_budget_usd"],
         edit_enabled=values["edit_enabled"],
+        effort=values["effort"],
+        thinking=values["thinking"],
     )
 
 

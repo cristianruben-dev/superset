@@ -57,10 +57,17 @@ type ModelsProblem =
   | 'unreachable'
   | 'unavailable';
 
+type Effort = 'low' | 'medium' | 'high' | 'xhigh' | 'max';
+
+/** The choice that leaves the effort to each model. */
+const MODEL_EFFORT = 'model';
+
 /** Answer of the settings API. */
 interface AssistantSettings {
   enabled: boolean;
   edit_enabled: boolean;
+  effort: Effort | null;
+  thinking: boolean;
   default_model: string;
   allowed_models: string[] | null;
   monthly_budget_usd: number | null;
@@ -74,6 +81,8 @@ interface AssistantSettings {
 interface Draft {
   enabled: boolean;
   editEnabled: boolean;
+  effort: Effort | null;
+  thinking: boolean;
   defaultModel: string;
   allowed: string[];
   budget: number | null;
@@ -82,6 +91,8 @@ interface Draft {
 const draftOf = (settings: AssistantSettings): Draft => ({
   enabled: settings.enabled,
   editEnabled: settings.edit_enabled,
+  effort: settings.effort,
+  thinking: settings.thinking,
   defaultModel: settings.default_model,
   allowed:
     settings.allowed_models ??
@@ -92,9 +103,20 @@ const draftOf = (settings: AssistantSettings): Draft => ({
 const sameDraft = (a: Draft, b: Draft) =>
   a.enabled === b.enabled &&
   a.editEnabled === b.editEnabled &&
+  a.effort === b.effort &&
+  a.thinking === b.thinking &&
   a.defaultModel === b.defaultModel &&
   a.budget === b.budget &&
   [...a.allowed].sort().join() === [...b.allowed].sort().join();
+
+const effortOptions = () => [
+  { value: MODEL_EFFORT, label: t('The default of each model') },
+  { value: 'low', label: t('Low effort') },
+  { value: 'medium', label: t('Medium effort') },
+  { value: 'high', label: t('High effort') },
+  { value: 'xhigh', label: t('Very high effort') },
+  { value: 'max', label: t('Maximum effort') },
+];
 
 const problemMessage = (problem: ModelsProblem) =>
   ({
@@ -211,6 +233,8 @@ export default function AssistantSettingsPage() {
       jsonPayload: {
         enabled: draft.enabled,
         edit_enabled: draft.editEnabled,
+        effort: draft.effort,
+        thinking: draft.thinking,
         default_model: draft.defaultModel,
         allowed_models: draft.allowed,
         monthly_budget_usd: draft.budget,
@@ -408,6 +432,40 @@ export default function AssistantSettingsPage() {
                           }
                         />
                       </Setting>
+                      <Setting>
+                        {t('Effort')}
+                        <Select
+                          ariaLabel={t('Effort')}
+                          value={draft.effort ?? MODEL_EFFORT}
+                          options={effortOptions()}
+                          onChange={value =>
+                            setDraft({
+                              ...draft,
+                              effort:
+                                value === MODEL_EFFORT
+                                  ? null
+                                  : (value as Effort),
+                            })
+                          }
+                        />
+                      </Setting>
+                      <Setting>
+                        <span>
+                          <Switch
+                            aria-label={t('Let the model think')}
+                            checked={draft.thinking}
+                            onChange={thinking =>
+                              setDraft({ ...draft, thinking })
+                            }
+                          />{' '}
+                          {t('Let the model think')}
+                        </span>
+                      </Setting>
+                      <p>
+                        {t(
+                          'More effort gives more careful answers and costs more. A model that lacks the level you choose uses the closest one below. Some models always think: on those, only the effort lowers it.',
+                        )}
+                      </p>
                     </Section>
 
                     <Section>

@@ -58,6 +58,8 @@ const unknown = {
 const settings = {
   enabled: false,
   edit_enabled: true,
+  effort: null,
+  thinking: true,
   default_model: 'claude-sonnet-5-5',
   allowed_models: null,
   monthly_budget_usd: null,
@@ -147,6 +149,8 @@ test('starts from the offered models and saves the changes', async () => {
   const [call] = fetchMock.callHistory.calls(SETTINGS, { method: 'PUT' });
   expect(JSON.parse(call.options.body as string)).toEqual({
     edit_enabled: true,
+    effort: null,
+    thinking: true,
     enabled: true,
     default_model: 'claude-sonnet-5-5',
     allowed_models: ['claude-haiku-5-5', 'claude-sonnet-5-5', 'claude-new'],
@@ -236,6 +240,26 @@ test('the copilot has a switch of its own', async () => {
           ?.body as string,
       ).edit_enabled,
     ).toBe(false),
+  );
+});
+
+test('thinking is saved with the rest of the settings', async () => {
+  fetchMock.get(SETTINGS, { result: settings });
+  fetchMock.put(SETTINGS, { result: { ...settings, thinking: false } });
+
+  await renderPage();
+  await userEvent.click(
+    screen.getByRole('switch', { name: 'Let the model think' }),
+  );
+  await userEvent.click(saveButton());
+
+  await waitFor(() =>
+    expect(
+      JSON.parse(
+        fetchMock.callHistory.lastCall(SETTINGS, { method: 'PUT' })?.options
+          ?.body as string,
+      ),
+    ).toMatchObject({ thinking: false, effort: null }),
   );
 });
 

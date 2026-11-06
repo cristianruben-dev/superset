@@ -125,8 +125,6 @@ class ModelSpec:
     # Values of ``output_config.effort``; empty when the model rejects the parameter
     efforts: tuple[str, ...] = EFFORTS
     default_effort: str | None = "high"
-    # Whether ``tool_choice`` accepts ``any`` and a named tool
-    forced_tool_choice: bool = True
     # Value of ``fallbacks`` that retries a refused request; None when there is none
     refusal_fallback: str | None = None
     # Whether the model finds deferred tools with the tool search tool
@@ -200,7 +198,6 @@ MODEL_TABLE: Mapping[str, ModelSpec] = MappingProxyType(
             price=_cached_at_a_tenth(2.00, 10.00),
             thinking_off=_BETWEEN_TOOLS,
             thinking_off_max_effort="high",
-            forced_tool_choice=False,
             refusal_fallback="default",
         ),
         "claude-opus-5-5": ModelSpec(
@@ -211,7 +208,6 @@ MODEL_TABLE: Mapping[str, ModelSpec] = MappingProxyType(
             thinking_off=None,
             thinking_always_on=True,
             default_effort="medium",
-            forced_tool_choice=False,
             refusal_fallback="default",
         ),
         "claude-fable-5-1": ModelSpec(
@@ -221,7 +217,6 @@ MODEL_TABLE: Mapping[str, ModelSpec] = MappingProxyType(
             price=ModelPrice(10.00, 50.00, 0.25),
             thinking_off=None,
             thinking_always_on=True,
-            forced_tool_choice=False,
             refusal_fallback="default",
         ),
         "claude-haiku-4-5": ModelSpec(
@@ -291,7 +286,6 @@ MODEL_TABLE: Mapping[str, ModelSpec] = MappingProxyType(
             price=ModelPrice(10.00, 50.00, 0.25),
             thinking_off=None,
             thinking_always_on=True,
-            forced_tool_choice=False,
             refusal_fallback="default",
         ),
         "claude-mythos-5": ModelSpec(
@@ -320,10 +314,38 @@ PRUDENT_SPEC = ModelSpec(
     thinking_off=None,
     efforts=(),
     default_effort=None,
-    forced_tool_choice=False,
     tool_search=False,
     automatic_cache=False,
 )
+
+
+def _effort_for(spec: ModelSpec, wanted: str | None) -> str | None:
+    """
+    The effort of a request: the one wanted, or the closest below it that the model
+    takes, or the first it takes. None wanted is the default of the model.
+    """
+    if wanted is None or not spec.efforts:
+        return spec.default_effort
+    reachable = [
+        effort
+        for effort in spec.efforts
+        if EFFORTS.index(effort) <= EFFORTS.index(wanted)
+    ]
+    return reachable[-1] if reachable else spec.efforts[0]
+
+
+def tuned_spec(spec: ModelSpec, effort: str | None, thinking: bool) -> ModelSpec:
+    """
+    A model as the admin wants it to answer, in the terms it accepts. Where thinking
+    cannot be stopped it stays on and the effort is the only control.
+    """
+    chosen = _effort_for(spec, effort)
+    if thinking or spec.thinking_always_on:
+        return replace(spec, default_effort=chosen)
+    limit = spec.thinking_off_max_effort
+    if limit and chosen and EFFORTS.index(chosen) > EFFORTS.index(limit):
+        chosen = limit
+    return replace(spec, thinking_on=spec.thinking_off, default_effort=chosen)
 
 
 @dataclass(frozen=True)

@@ -436,7 +436,6 @@ def test_a_conversation_keeps_its_mode_and_its_dashboard(
 @pytest.mark.parametrize(
     ("config", "enabled", "status"),
     [
-        ({"AURADATA_ASSISTANT_ENABLED": False}, True, 403),
         ({}, False, 403),
         ({"ANTHROPIC_API_KEY": None}, True, 503),
     ],
@@ -460,6 +459,40 @@ def test_the_chat_needs_to_be_on_and_to_have_a_key(
 
     assert ask(client, world["dashboard"]).status_code == status
     assert fake.requests == []
+
+
+def test_the_switch_of_the_screen_wins_over_the_configuration(
+    client: Any, world: dict[str, Any], mocker: MockerFixture
+) -> None:
+    login(world, "Root")
+    mocker.patch.dict(current_app.config, {"AURADATA_ASSISTANT_ENABLED": False})
+    fake = use_model(mocker)
+    mocker.patch.object(
+        api_module,
+        "get_assistant_settings",
+        return_value=AssistantSettings(True, SONNET, None, None),
+    )
+
+    assert ask(client, world["dashboard"]).status_code == 200
+    assert fake.requests
+
+
+def test_the_request_follows_the_effort_and_thinking_of_the_admin(
+    client: Any, world: dict[str, Any], mocker: MockerFixture
+) -> None:
+    login(world, "Root")
+    fake = use_model(mocker)
+    mocker.patch.object(
+        api_module,
+        "get_assistant_settings",
+        return_value=AssistantSettings(
+            True, SONNET, None, None, effort="max", thinking=False
+        ),
+    )
+
+    assert ask(client, world["dashboard"]).status_code == 200
+    assert fake.requests[0]["thinking"] == {"type": "between_tools"}
+    assert fake.requests[0]["output_config"] == {"effort": "high"}
 
 
 def test_a_model_that_is_not_offered_is_refused(
@@ -1135,7 +1168,7 @@ def test_any_user_reads_the_models_and_never_the_key(
 
 @pytest.mark.parametrize(
     "config",
-    [{"AURADATA_ASSISTANT_ENABLED": False}, {"ANTHROPIC_API_KEY": ""}],
+    [{"ANTHROPIC_API_KEY": ""}],
 )
 def test_the_models_say_when_the_assistant_cannot_answer(
     client: Any,

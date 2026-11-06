@@ -759,7 +759,7 @@ def problems_before_spending(
         problems.append("ANTHROPIC_API_KEY is not set")
     settings = get_assistant_settings()
     if not settings.enabled:
-        problems.append("The assistant is off: see AURADATA_ASSISTANT_ENABLED")
+        problems.append("The assistant is off: turn it on in Administration")
     if not inspect(db.engine).has_table(CONVERSATION_TABLE):
         problems.append(
             f"{CONVERSATION_TABLE} is missing: run `superset db upgrade` first"
