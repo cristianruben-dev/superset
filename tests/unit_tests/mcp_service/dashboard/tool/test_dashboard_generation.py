@@ -104,6 +104,13 @@ def mock_workspace_datasets() -> Iterator[Mock]:
         yield foreign
 
 
+@pytest.fixture(autouse=True)
+def mock_user_subject() -> Iterator[None]:
+    """Prevent Subject DB queries during dashboard creation."""
+    with patch("superset.subjects.utils.get_user_subject", return_value=None):
+        yield
+
+
 def _mock_chart(id: int = 1, slice_name: str = "Test Chart") -> Mock:
     """Create a mock chart object."""
     chart = Mock()
@@ -204,11 +211,6 @@ def _setup_generate_dashboard_mocks(
     mock_dashboard_cls.slices = _RealDashboard.slices
     mock_dashboard_cls.editors = _RealDashboard.editors
     mock_dashboard_cls.tags = _RealDashboard.tags
-
-    # Prevent Subject DB queries during dashboard creation.
-    # The mock is started here and will be cleaned up by patch.stopall()
-    # or when the test process ends.
-    patch("superset.subjects.utils.get_user_subject", return_value=None).start()
 
 
 class TestGenerateDashboard:
