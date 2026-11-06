@@ -54,3 +54,9 @@ test('joins the lines of a long data field', () => {
     { event: 'message', data: 'one\ntwo' },
   ]);
 });
+
+test('keeps the number of an event', () => {
+  expect(sseParser()('id: 7\nevent: text\ndata: {}\n\n')).toEqual([
+    { event: 'text', data: '{}', id: 7 },
+  ]);
+});

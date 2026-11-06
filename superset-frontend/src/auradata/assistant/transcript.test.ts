@@ -399,3 +399,31 @@ test('a message keeps its images, also one that holds nothing else', () => {
   });
   expect(alone).toMatchObject({ text: '', attachments: ['i2', 'i3'] });
 });
+
+test('a turn that stopped without an ending says so where its answer went', () => {
+  const row = (seq: number, role: 'user' | 'assistant', value: string) => ({
+    id: `m${seq}`,
+    seq,
+    role,
+    stop_reason: null,
+    content: [{ type: 'text', text: value }],
+  });
+  const stored = {
+    id: 'c1',
+    messages: [row(0, 'user', 'Hola'), row(3, 'user', 'Sigue')],
+    figures: {},
+    interrupted: [1, 4],
+  } as unknown as StoredConversation;
+
+  const messages = transcriptOf(stored);
+
+  expect(messages.map(item => item.role)).toEqual([
+    'user',
+    'assistant',
+    'user',
+    'assistant',
+  ]);
+  expect(messages[1].problem).toContain('stopped before finishing');
+  expect(messages[3].problem).toContain('stopped before finishing');
+  expect(messages[3].storedId).toBeUndefined();
+});
