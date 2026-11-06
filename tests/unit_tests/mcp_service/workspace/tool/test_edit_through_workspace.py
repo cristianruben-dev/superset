@@ -289,13 +289,10 @@ async def test_copying_a_dashboard_follows_the_workspace_role(
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("name", ["Ana", "Ada"])
-async def test_certifying_needs_real_editorship(
-    world: dict[str, Any], name: str
-) -> None:
-    """Certification and who edits or views stay with the real editors."""
+async def test_a_contributor_does_not_certify(world: dict[str, Any]) -> None:
+    """A contributor edits the report but does not certify it."""
     pk = world["dashboard"].id
-    as_user(world, name)
+    as_user(world, "Ana")
 
     result = await call(
         "manage_dashboard_certification",
@@ -304,6 +301,21 @@ async def test_certifying_needs_real_editorship(
 
     assert result["permission_denied"] is True
     assert fresh(world, Dashboard, pk).certified_by is None
+
+
+@pytest.mark.asyncio
+async def test_an_admin_of_the_workspace_certifies(world: dict[str, Any]) -> None:
+    """The admins of its workspace certify a report without being its editors."""
+    pk = world["dashboard"].id
+    as_user(world, "Ada")
+
+    result = await call(
+        "manage_dashboard_certification",
+        {"identifier": pk, "certified_by": "Finanzas"},
+    )
+
+    assert not result.get("permission_denied")
+    assert fresh(world, Dashboard, pk).certified_by == "Finanzas"
 
 
 @pytest.fixture
