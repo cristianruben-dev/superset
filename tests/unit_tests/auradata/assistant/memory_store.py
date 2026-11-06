@@ -31,6 +31,7 @@ class MemoryTurnStore:
 
     def __init__(self) -> None:
         self.locks: dict[str, str] = {}
+        self.locked_at: dict[str, float] = {}
         self.counts: dict[str, int] = {}
         self.events: dict[str, list[tuple[int, str, str]]] = {}
         self.tickets: dict[str, TurnTicket] = {}
@@ -40,7 +41,12 @@ class MemoryTurnStore:
         self.settling: set[str] = set()
 
     def acquire(self, conversation_id: UUID | str, turn_id: str) -> bool:
-        return self.locks.setdefault(str(conversation_id), turn_id) == turn_id
+        key = str(conversation_id)
+        if key in self.locks:
+            return False
+        self.locks[key] = turn_id
+        self.locked_at[key] = time.time()
+        return True
 
     def release(self, conversation_id: UUID | str, turn_id: str) -> None:
         if self.locks.get(str(conversation_id)) == turn_id:
@@ -48,6 +54,9 @@ class MemoryTurnStore:
 
     def holder(self, conversation_id: UUID | str) -> str | None:
         return self.locks.get(str(conversation_id))
+
+    def lock_age(self, conversation_id: UUID | str) -> float:
+        return time.time() - self.locked_at[str(conversation_id)]
 
     def last_event(self, conversation_id: UUID | str) -> int:
         return self.counts.get(str(conversation_id), 0)

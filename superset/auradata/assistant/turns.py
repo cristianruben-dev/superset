@@ -129,6 +129,8 @@ LIMIT_MARGIN_SECONDS = 60
 # How a turn listens while it waits on the model or a tool
 WATCH_SECONDS = 1.0
 BEATS_EVERY = 5
+# Longer than a request takes between taking a turn and writing its ticket
+TICKET_GRACE_SECONDS = 60
 
 # A connection ends after this and the panel opens the next, with access read again
 CONNECTION_SECONDS = 45.0
@@ -655,8 +657,11 @@ def settle_turn(store: TurnStore, conversation_id: UUID | str) -> None:
         return
     ticket = store.ticket(turn_id)
     if ticket is None:
-        # Its ticket expired or Redis lost it: nothing can run under this lock
-        store.release(conversation_id, turn_id)
+        # A request takes the lock first and writes the ticket once the message is
+        # stored. Past that moment the ticket expired or Redis lost it, and nothing can
+        # run under this lock
+        if store.lock_age(conversation_id) >= TICKET_GRACE_SECONDS:
+            store.release(conversation_id, turn_id)
         return
     code = _why_dead(store, ticket)
     if code is not None and store.take_settling(turn_id):

@@ -111,6 +111,8 @@ class TurnStore(Protocol):
 
     def holder(self, conversation_id: UUID | str) -> str | None: ...
 
+    def lock_age(self, conversation_id: UUID | str) -> float: ...
+
     def last_event(self, conversation_id: UUID | str) -> int: ...
 
     def save_ticket(self, ticket: TurnTicket) -> None: ...
@@ -174,6 +176,10 @@ class RedisTurnStore:
 
     def holder(self, conversation_id: UUID | str) -> str | None:
         return self._redis.get(self._keys(conversation_id)[0])
+
+    def lock_age(self, conversation_id: UUID | str) -> float:
+        """How long ago the lock was taken: its time to live says, as it never moves."""
+        return LOCK_TTL - self._redis.ttl(self._keys(conversation_id)[0])
 
     def last_event(self, conversation_id: UUID | str) -> int:
         return int(self._redis.get(self._keys(conversation_id)[1]) or 0)

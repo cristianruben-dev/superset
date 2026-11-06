@@ -215,6 +215,36 @@ def test_forget_leaves_nothing_of_a_conversation(
     assert store.holder(conversation) is None
 
 
+def test_a_long_stream_keeps_its_last_events_and_says_where_it_starts(
+    store: Any, ids: tuple[str, str], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    conversation, turn = ids
+    monkeypatch.setattr(turn_store_module, "MAX_EVENTS", 10)
+    store.acquire(conversation, turn)
+
+    for _ in range(500):
+        store.publish(conversation, turn, "text", {})
+
+    first = store.first_event(conversation)
+    assert first > 1
+    kept = [number for number, _event, _data in store.read(conversation, 0, 0)]
+    assert kept == list(range(first, 501))
+    assert len(kept) >= 10
+
+
+def test_a_conversation_without_events_has_no_first(
+    store: Any, ids: tuple[str, str]
+) -> None:
+    assert store.first_event(ids[0]) is None
+
+
+def test_the_age_of_a_lock(store: Any, ids: tuple[str, str]) -> None:
+    conversation, turn = ids
+    store.acquire(conversation, turn)
+
+    assert 0 <= store.lock_age(conversation) < 5
+
+
 def test_every_key_of_a_turn_expires() -> None:
     store = _redis_store()
     conversation, turn = str(uuid4()), str(uuid4())

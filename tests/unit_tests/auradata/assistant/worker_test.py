@@ -541,6 +541,37 @@ def test_a_delivery_after_the_reader_gave_up_does_not_run(
     assert fake.requests == []
 
 
+def test_a_lock_without_a_ticket_yet_is_left_alone(
+    world: dict[str, Any],  # noqa: F811
+    turn_memory: Any,
+) -> None:
+    """A request between taking the turn and writing the ticket, and a reader."""
+    conversation = create_conversation(
+        world["users"]["Ana"].id, world["dashboard"].id, MODE_READ, SONNET, "Hola"
+    )
+    assert turn_memory.acquire(conversation.id, "turn")
+
+    settle_turn(turn_memory, conversation.id)
+
+    assert turn_memory.holder(conversation.id) == "turn"
+
+
+def test_a_lock_that_never_got_its_ticket_lets_go_after_the_grace(
+    world: dict[str, Any],  # noqa: F811
+    mocker: MockerFixture,
+    turn_memory: Any,
+) -> None:
+    conversation = create_conversation(
+        world["users"]["Ana"].id, world["dashboard"].id, MODE_READ, SONNET, "Hola"
+    )
+    assert turn_memory.acquire(conversation.id, "turn")
+    mocker.patch.object(turns_module, "TICKET_GRACE_SECONDS", 0)
+
+    settle_turn(turn_memory, conversation.id)
+
+    assert turn_memory.holder(conversation.id) is None
+
+
 def test_a_task_without_a_ticket_does_nothing(
     mocker: MockerFixture, turn_memory: Any, app_context: None
 ) -> None:
