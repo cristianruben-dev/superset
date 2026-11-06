@@ -250,6 +250,9 @@ class _Watch:
                 logger.warning("The watch of a turn could not reach Redis")
 
     def __enter__(self) -> "_Watch":
+        # A stop that came first is heard before the first step of the turn
+        if self._store.stop_asked(self._turn_id):
+            self.stop_asked.set()
         self._thread.start()
         return self
 
@@ -439,6 +442,8 @@ def _send_all(
     """
     deadline = time.monotonic() + turn_seconds()
     try:
+        if watch.stop_asked.is_set():
+            return STOP_INTERRUPTED
         for event, payload in events:
             if event != "done":
                 if watch.stop_asked.is_set():

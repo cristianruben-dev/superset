@@ -26,14 +26,18 @@ checks and the database are real.
 
 import time
 from typing import Any
+from unittest.mock import patch
 from uuid import UUID, uuid4
 
 import pytest
-from flask import current_app, g, has_request_context
+from flask import current_app, g, has_request_context, request, session
 from pytest_mock import MockerFixture
 
 from superset import security_manager
-from superset.auradata.assistant import turns as turns_module
+from superset.auradata.assistant import (
+    turn_store as turn_store_module,
+    turns as turns_module,
+)
 from superset.auradata.assistant.conversations import (
     ConversationLog,
     create_conversation,
@@ -45,7 +49,12 @@ from superset.auradata.assistant.conversations import (
     turn_is_running,
 )
 from superset.auradata.assistant.tools import MODE_EDIT, MODE_READ, ToolBox
-from superset.auradata.assistant.turn_store import ABANDONED, TurnTicket
+from superset.auradata.assistant.turn_store import (
+    ABANDONED,
+    TAKEN,
+    TURN_END,
+    TurnTicket,
+)
 from superset.auradata.assistant.turns import (
     KIND_CHAT,
     KIND_DECIDE,
@@ -55,6 +64,7 @@ from superset.auradata.assistant.turns import (
     WORKER_LOST,
 )
 from superset.auradata.models import AssistantMessage
+from superset.db_engine_specs.snowflake import SnowflakeEngineSpec
 from superset.mcp_service.auth import (
     get_user_from_request,
     InProcessPrincipal,
@@ -487,23 +497,14 @@ def test_a_stop_before_the_turn_starts_sends_nothing_to_the_model(
     mocker: MockerFixture,
     turn_memory: Any,
 ) -> None:
-    mocker.patch.object(turns_module, "WATCH_SECONDS", 0.001)
     fake = use_model(mocker, reply(text("Hola, hola")))
     ticket = open_turn(world, turn_memory, "Ana")
     turn_memory.ask_to_stop(ticket.turn_id)
-    # A stop is heard by the watch, which runs beside the turn
-    send_all = turns_module._send_all
-
-    def after_the_watch_heard(store: Any, seen: Any, events: Any, watch: Any) -> Any:
-        assert watch.stop_asked.wait(1)
-        return send_all(store, seen, events, watch)
-
-    mocker.patch.object(turns_module, "_send_all", side_effect=after_the_watch_heard)
 
     in_worker(turn_memory, ticket)
 
     events = written(turn_memory, ticket)
-    assert fake.requests == [] or named(events, "text") == []
+    assert fake.requests == []
     assert named(events, "done")[0]["stop_reason"] == "interrupted"
     assert events[-1][0] == "turn_end"
 
