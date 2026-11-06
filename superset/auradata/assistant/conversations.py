@@ -34,7 +34,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from decimal import Decimal
 from typing import Any
-from uuid import UUID
+from uuid import UUID, uuid4
 
 from sqlalchemy.exc import IntegrityError
 
@@ -386,6 +386,8 @@ class ConversationLog:
         self._conversation_id = conversation.id
         self._dashboard_id = conversation.dashboard_id
         self._user_id = user_id
+        # The first answer this request stored, which the panel votes on
+        self.answer_id: UUID | None = None
         last = (
             db.session.query(db.func.max(AssistantMessage.seq))
             .filter(AssistantMessage.conversation_id == conversation.id)
@@ -395,6 +397,7 @@ class ConversationLog:
 
     def _row(self, role: str, content: list[dict[str, Any]]) -> AssistantMessage:
         row = AssistantMessage(
+            id=uuid4(),
             conversation_id=self._conversation_id,
             seq=self._next_seq,
             role=role,
@@ -472,6 +475,7 @@ class ConversationLog:
         record that makes the turn pending.
         """
         row = self._row("assistant", turn.content)
+        self.answer_id = self.answer_id or row.id
         row.model = turn.model
         row.stop_reason = turn.stop_reason
         row.user_id = self._user_id

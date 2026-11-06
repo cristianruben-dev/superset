@@ -37,7 +37,8 @@ from typing import Any
 import sqlalchemy as sa
 
 from superset import security_manager
-from superset.auradata.models import AssistantMessage, Workspace
+from superset.auradata.assistant.feedback import VOTE_DOWN, VOTE_UP
+from superset.auradata.models import AssistantFeedback, AssistantMessage, Workspace
 from superset.extensions import db
 
 USD_STEP = Decimal("0.000001")
@@ -185,6 +186,36 @@ def _amounts(row: Any) -> dict[str, Any]:
     }
 
 
+def _votes_by(start: datetime, column: Any) -> dict[Any, dict[str, int]]:
+    """
+    Votes on the answers of a month by ``column``, so they read beside those answers
+    whenever they were cast. Only counts: reasons and text stay out of the report.
+    """
+    rows = (
+        db.session.query(
+            column,
+            AssistantFeedback.vote,
+            sa.func.count(AssistantFeedback.id),
+        )
+        .join(AssistantMessage, AssistantFeedback.message_id == AssistantMessage.id)
+        .filter(*_answers_of(start))
+        .group_by(column, AssistantFeedback.vote)
+        .all()
+    )
+    votes: dict[Any, dict[str, int]] = {}
+    for key, vote, count in rows:
+        votes.setdefault(key, {})[vote] = count
+    return votes
+
+
+def _vote_amounts(votes: dict[Any, dict[str, int]], key: Any) -> dict[str, int]:
+    counted = votes.get(key, {})
+    return {
+        "votes_up": counted.get(VOTE_UP, 0),
+        "votes_down": counted.get(VOTE_DOWN, 0),
+    }
+
+
 def _full_name(user: Any) -> str:
     return " ".join(part for part in (user.first_name, user.last_name) if part) or (
         user.username
@@ -195,6 +226,7 @@ def usage_report(start: datetime, now: datetime | None = None) -> dict[str, Any]
     """
     The usage of a month by model, workspace and user, and the total of the last months.
     A user or a workspace that no longer exists comes with a ``null`` id and name.
+    Models and workspaces also carry the votes on those answers.
     """
     user_model = security_manager.user_model
     by_workspace = _grouped(start, AssistantMessage.workspace_id)
@@ -210,6 +242,8 @@ def usage_report(start: datetime, now: datetime | None = None) -> dict[str, Any]
         .filter(user_model.id.in_([row.user_id for row in by_user]))
         .all()
     }
+    votes_by_model = _votes_by(start, AssistantMessage.model)
+    votes_by_workspace = _votes_by(start, AssistantMessage.workspace_id)
     months = []
     moment = month_start(now or datetime.now())
     for _ in range(MONTHS_SHOWN):
@@ -220,7 +254,11 @@ def usage_report(start: datetime, now: datetime | None = None) -> dict[str, Any]
         "total_usd": _money(spent_usd(start)),
         "months": months,
         "by_model": [
-            {"model": row.model, **_amounts(row)}
+            {
+                "model": row.model,
+                **_amounts(row),
+                **_vote_amounts(votes_by_model, row.model),
+            }
             for row in _grouped(start, AssistantMessage.model)
         ],
         "by_workspace": [
@@ -228,6 +266,7 @@ def usage_report(start: datetime, now: datetime | None = None) -> dict[str, Any]
                 "workspace_id": row.workspace_id,
                 "name": names.get(row.workspace_id),
                 **_amounts(row),
+                **_vote_amounts(votes_by_workspace, row.workspace_id),
             }
             for row in by_workspace
         ],

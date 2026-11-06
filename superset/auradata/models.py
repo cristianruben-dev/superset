@@ -35,6 +35,7 @@ WORKSPACE_MEMBERS_TABLE = "auradata_workspace_members"
 WORKSPACE_DATASETS_TABLE = "auradata_workspace_datasets"
 ASSISTANT_CONVERSATIONS_TABLE = "auradata_assistant_conversations"
 ASSISTANT_MESSAGES_TABLE = "auradata_assistant_messages"
+ASSISTANT_FEEDBACK_TABLE = "auradata_assistant_feedback"
 
 # Workspace roles, from the least to the most rights
 ROLE_VIEWER = "viewer"
@@ -283,3 +284,49 @@ class AssistantMessage(Model):
     )
 
     conversation = relationship("AssistantConversation", back_populates="messages")
+
+
+class AssistantFeedback(Model):
+    """
+    What a person thought of an answer: one row per message and user, and a vote that
+    can change. It lives beside the conversation, which only grows, so voting never
+    touches a message.
+
+    ``message_id`` is the first row of the answer, the one the panel shows it under.
+    Both keys cascade: a row goes with its conversation, even if the rows of its
+    messages stay for what they cost. Deleting the user keeps the vote, without owner,
+    for the totals.
+    """
+
+    __tablename__ = ASSISTANT_FEEDBACK_TABLE
+    __table_args__ = (
+        sa.UniqueConstraint(
+            "message_id", "user_id", name="uq_auradata_assistant_feedback_vote"
+        ),
+    )
+
+    id = sa.Column(UUIDType(binary=True), primary_key=True, default=uuid.uuid4)
+    message_id = sa.Column(
+        UUIDType(binary=True),
+        sa.ForeignKey(f"{ASSISTANT_MESSAGES_TABLE}.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    conversation_id = sa.Column(
+        UUIDType(binary=True),
+        sa.ForeignKey(f"{ASSISTANT_CONVERSATIONS_TABLE}.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    user_id = sa.Column(
+        sa.Integer,
+        sa.ForeignKey("ab_user.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+    )
+    vote = sa.Column(sa.String(8), nullable=False)
+    # One of a fixed list, never free text: nothing a person pastes ends up here
+    reason = sa.Column(sa.String(32), nullable=True)
+    created_on = sa.Column(sa.DateTime, nullable=False, default=datetime.now)
+    changed_on = sa.Column(
+        sa.DateTime, nullable=False, default=datetime.now, onupdate=datetime.now
+    )

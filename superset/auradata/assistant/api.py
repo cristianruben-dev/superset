@@ -33,6 +33,10 @@ limits. A decision goes on with a turn already running, so the limits do not sto
 and an undo costs nothing, so they do not stop that either; the switches stop both.
 Figures in dollars are for admins: a person using the panel only learns the level.
 
+A vote is for an answer of the voter's own conversation, and anything else is a 404.
+Votes live beside the conversation, which they never touch, and admins only read their
+totals.
+
 A decision on a pending call names only the call: what runs is what the conversation
 stored, and it is checked again for the person deciding, at that moment. The context of
 a message is read by the model as data, and ``dashboard_id`` is the only part of it that
@@ -78,6 +82,14 @@ from superset.auradata.assistant.conversations import (
     rejected_calls,
     uses_tool_search,
     workspace_id_of,
+)
+from superset.auradata.assistant.feedback import (
+    answer_of,
+    clear_vote,
+    feedback_of,
+    REASONS,
+    save_vote,
+    VOTES,
 )
 from superset.auradata.assistant.figures import figures_in
 from superset.auradata.assistant.governance import (
@@ -125,7 +137,7 @@ from superset.auradata.assistant.undo import (
     UndoError,
     UNDONE_NOTE,
 )
-from superset.auradata.models import ROLE_ADMIN
+from superset.auradata.models import AssistantMessage, ROLE_ADMIN
 from superset.auradata.workspaces import (
     find_workspace,
     WorkspaceForbiddenError,
@@ -226,6 +238,15 @@ class AssistantDecisionSchema(Schema):
     tool_use_id = fields.String(required=True, validate=validate.Length(min=1, max=128))
     approved = fields.Boolean(required=True)
     model = fields.String(load_default=None, validate=validate.Length(max=128))
+
+
+class AssistantFeedbackSchema(Schema):
+    """A vote on an answer. A reason only stays with a vote against."""
+
+    vote = fields.String(required=True, validate=validate.OneOf(VOTES))
+    reason = fields.String(
+        load_default=None, allow_none=True, validate=validate.OneOf(REASONS)
+    )
 
 
 def _sse(event: str, data: dict[str, Any]) -> str:
@@ -397,6 +418,7 @@ def _turn_stream(
                     "can_undo": mode == MODE_EDIT
                     and can_undo(find_conversation(conversation_id, user_id)),
                     "budget": _budget_json(budget()),
+                    "message_id": str(log.answer_id) if log.answer_id else None,
                 }
             yield _sse(event, payload)
     except ConversationBusyError:
@@ -667,6 +689,8 @@ class AssistantRestApi(BaseSupersetApi):
         "decide": "read",
         "undo": "read",
         "privacy": "read",
+        "feedback": "read",
+        "clear_feedback": "read",
     }
     openapi_spec_tag = "AuraData BI"
 
@@ -1306,8 +1330,118 @@ class AssistantRestApi(BaseSupersetApi):
                 "pending": pending_json(pending_turn(conversation)),
                 "rejected": rejected_calls(conversation),
                 "can_undo": conversation.mode == MODE_EDIT and can_undo(conversation),
+                "feedback": feedback_of(conversation, get_user_id()),
             },
         )
+
+    def _answer_to_vote(
+        self, conversation_id: UUID, message_id: UUID
+    ) -> AssistantMessage | None:
+        """An answer of a conversation of this person, on a report they can open."""
+        conversation = find_conversation(conversation_id, get_user_id())
+        if conversation is None or _open_dashboard(conversation.dashboard_id) is None:
+            return None
+        return answer_of(conversation, message_id)
+
+    @expose(
+        "/conversations/<uuid:conversation_id>/messages/<uuid:message_id>/feedback/",
+        methods=("PUT",),
+    )
+    @protect()
+    @safe
+    @statsd_metrics
+    def feedback(self, conversation_id: UUID, message_id: UUID) -> Response:
+        """Vote on an answer, or change the vote.
+        ---
+        put:
+          summary: Vote on an answer of the AI assistant
+          parameters:
+          - in: path
+            name: conversation_id
+            required: true
+            schema:
+              type: string
+              format: uuid
+          - in: path
+            name: message_id
+            required: true
+            schema:
+              type: string
+              format: uuid
+          requestBody:
+            required: true
+            content:
+              application/json:
+                schema:
+                  type: object
+          responses:
+            200:
+              description: The vote as it stands
+            400:
+              $ref: '#/components/responses/400'
+            401:
+              $ref: '#/components/responses/401'
+            403:
+              $ref: '#/components/responses/403'
+            404:
+              $ref: '#/components/responses/404'
+        """
+        if not _session_user_only():
+            return self.response_403()
+        answer = self._answer_to_vote(conversation_id, message_id)
+        if answer is None:
+            return self.response_404()
+        try:
+            values = AssistantFeedbackSchema().load(request.json or {})
+        except ValidationError as error:
+            return self.response_400(message=error.messages)
+        return self.response(
+            200,
+            result=save_vote(answer, get_user_id(), values["vote"], values["reason"]),
+        )
+
+    @expose(
+        "/conversations/<uuid:conversation_id>/messages/<uuid:message_id>/feedback/",
+        methods=("DELETE",),
+    )
+    @protect()
+    @safe
+    @statsd_metrics
+    def clear_feedback(self, conversation_id: UUID, message_id: UUID) -> Response:
+        """Take a vote back.
+        ---
+        delete:
+          summary: Remove a vote on an answer of the AI assistant
+          parameters:
+          - in: path
+            name: conversation_id
+            required: true
+            schema:
+              type: string
+              format: uuid
+          - in: path
+            name: message_id
+            required: true
+            schema:
+              type: string
+              format: uuid
+          responses:
+            200:
+              description: There is no vote any more
+            401:
+              $ref: '#/components/responses/401'
+            403:
+              $ref: '#/components/responses/403'
+            404:
+              $ref: '#/components/responses/404'
+        """
+        if not _session_user_only():
+            return self.response_403()
+        answer = self._answer_to_vote(conversation_id, message_id)
+        if answer is None:
+            return self.response_404()
+        clear_vote(answer, get_user_id())
+        return self.response(200, message="OK")
 
 
 class AssistantSettingsView(BaseSupersetView):
