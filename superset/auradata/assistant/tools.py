@@ -33,8 +33,10 @@ the assistant leaves its mark: the saves of a call say which model made them
 that writes those rows for an outside AI does not run here.
 
 Besides those, every person gets the tools of the assistant's own documents
-(``artifact_tools.py``), in both modes and outside the MCP catalog: they change no
-report and need no card, and ``call`` runs them here, as the person of the turn.
+(``artifact_tools.py``), outside the MCP catalog, and ``call`` runs them here, as the
+person of the turn. They change no report and need no card, in both modes, but for the
+one that saves a document as pages: that one is for edit mode and waits for a card, and
+what the person approved there runs through the tools of the report, one by one.
 
 The FastMCP middleware does not run in-process, so this module caps the size
 of results and hides internal errors, as the size guard and the error handler do on
@@ -57,7 +59,7 @@ from flask import current_app, g
 
 from superset import security_manager
 from superset.auradata.action_log import ASSISTANT_TOOL_CALL
-from superset.auradata.assistant.artifacts import ARTIFACT_TOOLS
+from superset.auradata.assistant.artifacts import ARTIFACT_TOOLS, EDIT_ONLY_TOOLS
 from superset.extensions import db, event_logger
 from superset.security.api_key_scopes import METHOD_PERMISSION_SCOPE_ACTION
 from superset.utils.core import get_user_id, override_user
@@ -143,7 +145,6 @@ def run_coroutine(coroutine: Coroutine[Any, Any, Any]) -> Any:
     context = contextvars.copy_context()
     with ThreadPoolExecutor(max_workers=1) as pool:
         return pool.submit(context.run, asyncio.run, coroutine).result()
-
 
 
 def _text_block(text: str) -> dict[str, Any]:
@@ -298,7 +299,12 @@ class ToolBox:
     @property
     def names(self) -> frozenset[str]:
         """Every tool name this request accepts."""
-        return frozenset(self._tools) | ARTIFACT_TOOLS
+        own = ARTIFACT_TOOLS if self._editing else ARTIFACT_TOOLS - EDIT_ONLY_TOOLS
+        return frozenset(self._tools) | own
+
+    @property
+    def _editing(self) -> bool:
+        return self._mode == MODE_EDIT
 
     def definitions(self, tool_search: bool) -> list[dict[str, Any]]:
         """
@@ -314,7 +320,7 @@ class ToolBox:
                 for name in FIXED_TOOLS
                 if name in self._tools
             ),
-            *own_definitions(),
+            *own_definitions(self._editing),
         ]
         if not tool_search:
             return fixed
@@ -327,20 +333,30 @@ class ToolBox:
 
     def needs_confirmation(self, name: str) -> bool:
         """Whether this tool waits for a decision of the person before it runs."""
+        if name in EDIT_ONLY_TOOLS:
+            return True
         tool = self._tools.get(name)
         return tool is not None and _needs_confirmation(tool)
 
     def changes_something(self, name: str) -> bool:
         """Whether a successful call to this tool may have changed a report."""
+        if name in EDIT_ONLY_TOOLS:
+            return True
         tool = self._tools.get(name)
         return tool is not None and not _is_read_tool(tool)
 
-    def title(self, name: str) -> str:
-        """The name of a tool for a person."""
+    def title(self, name: str, arguments: Any = None) -> str:
+        """The name of a tool for a person. A card can say what this very call does."""
         if name in ARTIFACT_TOOLS:
-            from superset.auradata.assistant.artifact_tools import OWN_TOOLS
+            from superset.auradata.assistant.artifact_tools import card_title, OWN_TOOLS
 
-            return OWN_TOOLS[name].title
+            context = self._context() if name in EDIT_ONLY_TOOLS else None
+            specific = (
+                card_title(arguments, context)
+                if context and isinstance(arguments, dict)
+                else None
+            )
+            return specific or OWN_TOOLS[name].title
         tool = self._tools.get(name)
         annotations = tool.annotations if tool is not None else None
         return (annotations.title if annotations else None) or name
@@ -353,6 +369,9 @@ class ToolBox:
         reads their stored decision passes it; nothing the model says can set it.
         """
         if name in ARTIFACT_TOOLS:
+            if name in EDIT_ONLY_TOOLS and not (self._editing and approved):
+                logger.warning("Assistant refused an unapproved call to %r", name)
+                return _error(f"The tool {name!r} needs the approval of the user.")
             return self._call_own(name, arguments)
         if name not in self._tools:
             logger.warning("Assistant refused a tool it does not offer: %r", name)
@@ -384,28 +403,41 @@ class ToolBox:
         blocks = [_block_of(item) for item in result.content]
         return ToolOutcome(blocks or [_text_block("")])
 
+    def _context(self) -> Any | None:
+        """Who a tool of the assistant acts for, or None when that is not known."""
+        from superset.auradata.assistant.artifact_tools import OwnToolContext
+
+        user_id = self._user_id if self._user_id is not None else get_user_id()
+        if user_id is None or self.conversation_id is None or not self._dashboard_id:
+            return None
+        return OwnToolContext(
+            user_id,
+            UUID(self.conversation_id),
+            self._dashboard_id,
+            self._model,
+            # The person approved the whole of it on the card of the call that runs this
+            lambda name, arguments: self.call(name, arguments, approved=True),
+        )
+
     def _call_own(self, name: str, arguments: Any) -> ToolOutcome:
         """
         Run a tool of the assistant's own documents, as the person of this turn. An MCP
         call ends the session it shares with the turn, so the person is read again, and
         whatever is not known stops here: there is nobody else to act as.
         """
-        from superset.auradata.assistant.artifact_tools import (
-            OwnToolContext,
-            run_own_tool,
-        )
+        from superset.auradata.assistant.artifact_tools import run_own_tool
 
         if not isinstance(arguments, dict):
             return _error("The input of a tool must be an object.")
-        user_id = self._user_id if self._user_id is not None else get_user_id()
-        if user_id is None or self.conversation_id is None or not self._dashboard_id:
-            return _error("Documents are not available here.")
-        user = db.session.get(security_manager.user_model, user_id)
-        if user is None:
-            return _error("Documents are not available here.")
-        context = OwnToolContext(
-            user_id, UUID(self.conversation_id), self._dashboard_id, self._model
+        context = self._context()
+        user = (
+            db.session.get(security_manager.user_model, context.user_id)
+            if context
+            else None
         )
+        if context is None or user is None:
+            return _error("Documents are not available here.")
+        user_id = context.user_id
         previous_login = g.get("_login_user")
         started = time.monotonic()
         try:

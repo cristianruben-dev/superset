@@ -331,6 +331,7 @@ async def create_visual(request: CreateVisualRequest, ctx: Context) -> VisualRes
             request.dataset_id,
             request.config.model_dump(),
             request.chart_name,
+            [item.model_dump() for item in request.time_filters or []],
         )
         if error := validate_chart_dataset(
             prepared.dataset.id, "table", [report.dashboard.id]

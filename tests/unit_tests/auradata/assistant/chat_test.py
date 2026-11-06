@@ -46,7 +46,7 @@ from superset.auradata.assistant import (
     undo as undo_module,
 )
 from superset.auradata.assistant.artifact_tools import OWN_TOOLS
-from superset.auradata.assistant.artifacts import ARTIFACT_TOOLS
+from superset.auradata.assistant.artifacts import ARTIFACT_TOOLS, EDIT_ONLY_TOOLS
 from superset.auradata.assistant.conversations import (
     AssistantTurn,
     ConversationBusyError,
@@ -778,7 +778,7 @@ def test_the_request_is_stable_and_the_prefix_is_cached(
     fixed = [tool["name"] for tool in tools[1:] if not tool.get("defer_loading")]
     assert fixed == [
         *(name for name in FIXED_TOOLS if name in fixed),
-        *OWN_TOOLS,
+        *(name for name in OWN_TOOLS if name not in EDIT_ONLY_TOOLS),
     ]
     assert "query_dataset" in fixed
     deferred = [tool["name"] for tool in tools if tool.get("defer_loading")]

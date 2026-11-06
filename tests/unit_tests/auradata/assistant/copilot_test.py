@@ -36,6 +36,7 @@ import superset
 from superset import security_manager
 from superset.auradata import models as auradata_models
 from superset.auradata.assistant import agent, api as api_module, undo as undo_module
+from superset.auradata.assistant.artifacts import EDIT_ONLY_TOOLS
 from superset.auradata.assistant.conversations import (
     ConversationBusyError,
     ConversationLog,
@@ -181,7 +182,11 @@ def test_every_destructive_or_sharing_tool_needs_a_card(
 def test_every_card_has_its_title_for_a_person(
     world: dict[str, Any],  # noqa: F811
 ) -> None:
-    """The titles of the tools are in English: the panel names each one in Spanish."""
+    """
+    The titles of the tools are in English: the panel names each one in Spanish. The
+    card of saving a document says what that very call creates, in the language of the
+    turn, so its title comes from the server.
+    """
     login(world, "Ada")
     box = ToolBox("ada", MODE_EDIT)
     titles = (
@@ -191,7 +196,7 @@ def test_every_card_has_its_title_for_a_person(
 
     missing = {
         name
-        for name in box.names
+        for name in box.names - EDIT_ONLY_TOOLS
         if box.needs_confirmation(name) and f"{name}:" not in titles
     }
 

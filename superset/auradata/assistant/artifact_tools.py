@@ -24,6 +24,12 @@ them and no card is asked for. The person is not named in any input: ``OwnToolCo
 carries the owner, conversation and report of the turn, the model only names a document
 by id, and any other person's or conversation's reads as one that does not exist.
 
+The exception is ``save_artifact_as_page``, which writes to the report: it is offered in
+edit mode only, ``ToolBox`` holds it for a card like any other tool that needs one, and
+it reaches a document of this person on this report from any of their conversations, so
+one written while reading can be saved from the editor. The work is in
+``artifact_pages.py``, through the tools of the report.
+
 Results stay short, with what the model needs to go on, and what it wrote comes back
 only when it asks. What a tool returns is data like any other: a text a dataset put in a
 block reaches the model as a result, and ``read_artifact`` adds nothing to the prompt.
@@ -39,7 +45,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, ValidationError
 
-from superset.auradata.assistant import artifacts
+from superset.auradata.assistant import artifact_pages, artifacts
 from superset.auradata.assistant.artifact_blocks import (
     AddBlock,
     ChangeArtifact,
@@ -49,6 +55,7 @@ from superset.auradata.assistant.artifact_blocks import (
     ReadArtifact,
     RemoveBlock,
     ReplaceBlock,
+    SaveArtifactAsPage,
     stored_block,
 )
 from superset.auradata.assistant.artifacts import (
@@ -57,6 +64,7 @@ from superset.auradata.assistant.artifacts import (
     DATA_BLOCKS,
     find_artifact,
     ORIGIN_CHANGED,
+    others_on_report,
     query_problem,
     version_of,
 )
@@ -81,6 +89,8 @@ class OwnToolContext:
     conversation_id: UUID
     dashboard_id: int
     model: str | None
+    # Runs a tool of the report, for the one that writes through them
+    run_tool: artifact_pages.ToolCall | None = None
 
 
 def _validation_text(ex: ValidationError) -> str:
@@ -225,7 +235,12 @@ def _change(request: ChangeArtifact, context: OwnToolContext) -> dict[str, Any]:
 
 def _read(request: ReadArtifact, context: OwnToolContext) -> dict[str, Any]:
     if request.artifact_id is None:
-        return {"artifacts": artifacts.summaries_of(context.conversation_id)}
+        return {
+            "artifacts": artifacts.summaries_of(context.conversation_id),
+            "other_conversations": others_on_report(
+                context.user_id, context.dashboard_id, context.conversation_id
+            ),
+        }
     artifact = _own(request.artifact_id, context)
     version = version_of(artifact.id, request.version)
     if version is None:
@@ -236,6 +251,58 @@ def _read(request: ReadArtifact, context: OwnToolContext) -> dict[str, Any]:
         "version": version.number,
         "blocks": artifacts.blocks_of(version),
     }
+
+
+def _on_this_report(artifact_id: str, context: OwnToolContext) -> AssistantArtifact:
+    """A document of this person on this report, from any of their conversations."""
+    try:
+        artifact = find_artifact(UUID(artifact_id), context.user_id)
+    except ValueError:
+        artifact = None
+    if artifact is None or artifact.dashboard_id != context.dashboard_id:
+        raise ArtifactRefusedError(NOT_FOUND)
+    return artifact
+
+
+def _save(request: SaveArtifactAsPage, context: OwnToolContext) -> dict[str, Any]:
+    artifact = _on_this_report(request.artifact_id, context)
+    latest = version_of(artifact.id)
+    if latest is None:
+        raise ArtifactRefusedError(NOT_FOUND)
+    if latest.number != request.version:
+        raise ArtifactRefusedError(MOVED.format(version=latest.number))
+    if context.run_tool is None:
+        raise ArtifactRefusedError("This cannot run here.")
+    try:
+        return artifact_pages.save_pages(
+            context.run_tool,
+            context.dashboard_id,
+            latest.title,
+            artifacts.blocks_of(latest),
+        )
+    except artifact_pages.PageSaveError as ex:
+        raise ArtifactRefusedError(str(ex)) from ex
+
+
+def card_title(arguments: dict[str, Any], context: OwnToolContext) -> str | None:
+    """
+    What the card of ``save_artifact_as_page`` says it will create, or None for a call
+    that will be refused anyway. A page of the report sets the size of the pages.
+    """
+    # pylint: disable=import-outside-toplevel
+    from superset.mcp_service.report_layout.editing import LayoutEditError, open_report
+
+    try:
+        request = SaveArtifactAsPage.model_validate(_unwrapped(arguments))
+        latest = version_of(_on_this_report(request.artifact_id, context).id)
+        report = open_report(context.dashboard_id)
+    except (ValidationError, ArtifactRefusedError, LayoutEditError):
+        return None
+    if latest is None:
+        return None
+    blocks = artifacts.blocks_of(latest)
+    plan = artifact_pages.page_plan(blocks, report.columns, report.rows)
+    return artifact_pages.save_title(latest.title, blocks, len(plan))
 
 
 @dataclass(frozen=True)
@@ -279,11 +346,21 @@ OWN_TOOLS = {
             ReadArtifact,
             _read,
         ),
+        _OwnTool(
+            artifacts.SAVE_ARTIFACT,
+            "Save a document as a page",
+            "Save a document as pages of this report: text blocks become text "
+            "elements and the others real charts, in the free space of new pages. "
+            "Works on any document of this user on this report. The user approves it "
+            "on a card, and can undo it. Returns the pages and what stayed out.",
+            SaveArtifactAsPage,
+            _save,
+        ),
     )
 }
 
 
-def own_definitions() -> list[dict[str, Any]]:
+def own_definitions(editing: bool) -> list[dict[str, Any]]:
     """The tools of the assistant for a request, always in this order."""
     return [
         {
@@ -292,6 +369,7 @@ def own_definitions() -> list[dict[str, Any]]:
             "input_schema": tool.schema.model_json_schema(),
         }
         for tool in OWN_TOOLS.values()
+        if editing or tool.name not in artifacts.EDIT_ONLY_TOOLS
     ]
 
 

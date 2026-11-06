@@ -158,6 +158,32 @@ async def test_viewers_and_strangers_cannot_create_a_visual(
 
 
 @pytest.mark.asyncio
+async def test_a_visual_keeps_its_time_ranges_with_its_filters(
+    world: dict[str, Any],
+) -> None:
+    result = ok(
+        await tool(
+            world,
+            "create_visual",
+            "Ana",
+            dataset_id=world["ventas"].id,
+            config=BIG_NUMBER,
+            chart_name="Total",
+            time_filters=[{"column": "fecha", "range": "Last quarter"}],
+        )
+    )
+
+    chart = world["session"].get(Slice, result["chart_id"])
+    assert json.loads(chart.params)["adhoc_filters"][-1] == {
+        "clause": "WHERE",
+        "expressionType": "SIMPLE",
+        "subject": "fecha",
+        "operator": "TEMPORAL_RANGE",
+        "comparator": "Last quarter",
+    }
+
+
+@pytest.mark.asyncio
 async def test_a_refused_place_leaves_no_chart_behind(world: dict[str, Any]) -> None:
     """Chart and layout save in one transaction: a refused place undoes both."""
     before = (chart_count(world), layout(world))

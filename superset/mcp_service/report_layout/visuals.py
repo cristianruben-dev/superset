@@ -92,13 +92,27 @@ def describe_error(error: Any) -> str:
     return " ".join(parts)
 
 
+def _time_filter(item: dict[str, str]) -> dict[str, Any]:
+    return {
+        "clause": "WHERE",
+        "expressionType": "SIMPLE",
+        "subject": item["column"],
+        "operator": "TEMPORAL_RANGE",
+        "comparator": item["range"],
+    }
+
+
 def prepare_chart(
-    dataset_id: int | str, config: dict[str, Any], chart_name: str | None
+    dataset_id: int | str,
+    config: dict[str, Any],
+    chart_name: str | None,
+    time_filters: list[dict[str, str]] | None = None,
 ) -> PreparedChart:
     """
     Check a chart spec as ``generate_chart`` does before saving: the validation
     pipeline, the mapping to form data, the user's access to the dataset and a
-    compile check of its query, so a broken chart is never saved.
+    compile check of its query, so a broken chart is never saved. ``time_filters``
+    join the filters of the chart, as the Filters well holds a time range.
     """
     from superset.mcp_service.chart.chart_utils import (
         find_accessible_dataset,
@@ -132,6 +146,11 @@ def prepare_chart(
         )
     form_data = map_config_to_form_data(request.config, dataset_id=dataset.id)
     warnings += form_data.pop("_mcp_warnings", [])
+    if time_filters:
+        form_data["adhoc_filters"] = [
+            *form_data.get("adhoc_filters", []),
+            *(_time_filter(item) for item in time_filters),
+        ]
     compiled = _compile_chart(form_data, dataset.id)
     if not compiled.success:
         raise LayoutEditError(

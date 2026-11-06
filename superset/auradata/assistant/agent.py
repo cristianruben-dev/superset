@@ -96,8 +96,8 @@ TICK = "tick"
 CONTEXT_EXCEEDED = "context_exceeded"
 # Error code of a history the API will not read back: it needs a new conversation too
 HISTORY_REFUSED = "history_refused"
-# What the API says of a thinking block it cannot verify. A block of another conversation
-# never reaches this: the request drops it
+# What the API says of a thinking block it cannot verify. A block of another
+# conversation never reaches this: the request drops it
 BROKEN_SIGNATURE = "invalid `signature`"
 STOP_CONTEXT_WINDOW = "model_context_window_exceeded"
 OVER_CONTEXT_PHRASES = ("prompt is too long", "exceed context limit")
@@ -580,7 +580,10 @@ def run_conversation(  # noqa: C901
 
         tool_uses = tool_uses_of(turn.content)
         awaiting = [
-            {"id": block["id"], "title": toolbox.title(block["name"])}
+            {
+                "id": block["id"],
+                "title": toolbox.title(block["name"], block.get("input")),
+            }
             for block in tool_uses
             if toolbox.needs_confirmation(block["name"])
         ]

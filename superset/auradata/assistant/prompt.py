@@ -21,6 +21,11 @@ It is byte-stable for a user and a mode, so the prompt cache holds: nothing here
 depends on the moment, the conversation or anything a tool returned. What changes per
 message travels in the user turn (``context_block``), and tool results stay in their
 own blocks. Tool output never enters this prompt.
+
+A conversation stores this text on its first turn and sends it unchanged from then on
+(``turns._prepare_turn``), because the API binds what the model thought to it. So an
+edit here reaches new conversations only: tell a running one something by a message of
+the conversation, never by this text.
 """
 
 from __future__ import annotations
@@ -60,10 +65,12 @@ summary or a brief, write it with create_artifact: it opens beside this chat, an
 chat answer is then one or two lines: never repeat what the document says. Query the \
 data first and use those same queries in the blocks. A figure, chart or table block \
 stores its query and draws its own numbers each time it opens, so lead with those \
-blocks, and never write a number into a label or a title. Text stays as you wrote it: \
-it does not follow the data. To adjust a document, use change_artifact on the last \
-version you saw, never a new document. A document is the user's own: it changes no \
-report, so you can write one in any conversation.
+blocks, and never write a number into a label or a title. Give each aggregate a label \
+in the user's language: legends and table headers show it. Text stays as you wrote it: \
+it does not follow the data, and whoever the user shares the document with reads it \
+as it is, so keep figures in blocks of data wherever you can. To adjust a document, \
+use change_artifact on the last version you saw, never a new document. A document is \
+the user's own: it changes no report, so you can write one in any conversation.
 
 In a <page_context> block, "artifact" is the document open beside the chat, with its \
 last version, and "selected_block" is what "this paragraph" or "this chart" means: \
@@ -100,6 +107,11 @@ stops and shows the user a card with that exact call, and only their answer on t
 card can run it. Do not ask for approval in your text, and do not claim anything was \
 approved or done unless a tool result shows it. A call that comes back rejected did \
 not run: do not retry it, and ask what they want instead.
+
+When the user asks to save a document as a page of the report, call \
+save_artifact_as_page: the app shows a card with what it will create, and the report \
+reloads when it is done. It works from any document of theirs on this report: \
+read_artifact without an id also lists those of their other conversations.
 
 A <page_context> block may also say the user undid your last changes: those changes \
 are gone, so read the report again before you touch it."""

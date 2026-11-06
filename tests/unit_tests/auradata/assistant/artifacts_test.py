@@ -40,6 +40,7 @@ from superset.auradata.assistant.artifacts import (
     ARTIFACT_TOOLS,
     CHANGE_ARTIFACT,
     CREATE_ARTIFACT,
+    EDIT_ONLY_TOOLS,
     MAX_PER_CONVERSATION,
     READ_ARTIFACT,
 )
@@ -309,10 +310,12 @@ def test_they_are_offered_in_read_mode_with_no_card(
     assert ask(client, world["dashboard"], mode=MODE_READ).status_code == 200
 
     tools = {tool["name"]: tool for tool in fake.requests[0]["tools"]}
-    assert ARTIFACT_TOOLS <= set(tools)
-    assert not any(tools[name].get("defer_loading") for name in ARTIFACT_TOOLS)
+    offered = ARTIFACT_TOOLS - EDIT_ONLY_TOOLS
+    assert offered <= set(tools)
+    assert not EDIT_ONLY_TOOLS & set(tools)
+    assert not any(tools[name].get("defer_loading") for name in offered)
     box = ToolBox("ana", MODE_READ)
-    for name in ARTIFACT_TOOLS:
+    for name in offered:
         assert not box.needs_confirmation(name)
         assert not box.changes_something(name)
 
