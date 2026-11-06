@@ -21,8 +21,11 @@ import { t } from '@apache-superset/core/translation';
 import { Icons } from '@superset-ui/core/components/Icons';
 import type { MenuItem } from '@superset-ui/core/components/Menu';
 import copyTextToClipboard from 'src/utils/copy';
-import { ensureAppRoot } from 'src/utils/pathUtils';
-import { navigateTo } from 'src/utils/navigationUtils';
+import {
+  ensureAppRoot,
+  navigateTo,
+  openInNewTab,
+} from 'src/utils/navigationUtils';
 import {
   fetchWorkspaces,
   moveDashboards,
@@ -109,8 +112,7 @@ export function useDashboardRowMenu<T extends DashboardRow>({
           key: 'open-tab',
           icon: <Icons.ExportOutlined iconSize="m" />,
           label: t('Open in a new tab'),
-          onClick: () =>
-            window.open(absoluteUrl(row.url), '_blank', 'noopener'),
+          onClick: () => openInNewTab(row.url),
         },
         {
           key: 'copy-link',

@@ -23,7 +23,7 @@ import { css, styled, useTheme } from '@apache-superset/core/theme';
 import { Tooltip } from '@superset-ui/core/components';
 import { Icons } from '@superset-ui/core/components/Icons';
 import { ensureStaticPrefix } from 'src/utils/assetUrl';
-import { ensureAppRoot } from 'src/utils/pathUtils';
+import { ensureAppRoot, redirect } from 'src/utils/navigationUtils';
 import { AURA_GRADIENT, PRODUCT_TAG } from './brand';
 import { isNavItemActive, type NavItem, type NavSection } from './navigation';
 
@@ -279,7 +279,7 @@ export function Sidebar({
           // Backend-rendered pages need a full page load
           if (!isFrontendRoute(item.url)) {
             event.preventDefault();
-            window.location.href = ensureAppRoot(item.url);
+            redirect(item.url);
           }
         }}
         $active={active}

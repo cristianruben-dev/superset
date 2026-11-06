@@ -24,7 +24,7 @@ import { css, styled } from '@apache-superset/core/theme';
 import { SupersetClient } from '@superset-ui/core';
 import { Modal } from '@superset-ui/core/components';
 import { Icons } from '@superset-ui/core/components/Icons';
-import { ensureAppRoot } from 'src/utils/pathUtils';
+import { redirect } from 'src/utils/navigationUtils';
 import type { NavIconName, NavSection } from './navigation';
 
 interface Result {
@@ -210,7 +210,7 @@ export function CommandPalette({
     if (isFrontendRoute(result.url)) {
       history.push(result.url);
     } else {
-      window.location.href = ensureAppRoot(result.url);
+      redirect(result.url);
     }
   };
 

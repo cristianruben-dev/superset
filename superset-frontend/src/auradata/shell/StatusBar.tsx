@@ -19,7 +19,7 @@
 import { useEffect, useState } from 'react';
 import { t } from '@apache-superset/core/translation';
 import { css, styled, ThemeMode } from '@apache-superset/core/theme';
-import { ensureAppRoot } from 'src/utils/pathUtils';
+import { ensureAppRoot } from 'src/utils/navigationUtils';
 import { useThemeContext } from 'src/theme/ThemeProvider';
 import { usePageStatusItems } from './pageStatus';
 

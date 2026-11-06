@@ -23,6 +23,7 @@ import { t } from '@apache-superset/core/translation';
 import { Button, Dropdown, Modal } from '@superset-ui/core/components';
 import { Icons } from '@superset-ui/core/components/Icons';
 import { refreshChart } from 'src/components/Chart/chartAction';
+import { openInNewTab } from 'src/utils/navigationUtils';
 import type { CanvasSizeMode, CanvasFormat } from 'src/auradata/format/types';
 import { CANVAS_PRESETS } from 'src/auradata/format/types';
 import type { RootState } from 'src/dashboard/types';
@@ -279,7 +280,7 @@ export function Ribbon({
     const workspace = await fetchDashboardWorkspace(dashboardId).catch(
       () => null,
     );
-    if (workspace) window.open(workspaceUrl(workspace.id), '_blank');
+    if (workspace) openInNewTab(workspaceUrl(workspace.id));
     else onProperties();
   };
 

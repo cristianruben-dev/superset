@@ -31,7 +31,7 @@ import type {
   UserWithPermissionsAndRoles,
 } from 'src/types/bootstrapTypes';
 import { findPermission } from 'src/utils/findPermission';
-import { navigateTo } from 'src/utils/navigationUtils';
+import { navigateTo, openInNewTab } from 'src/utils/navigationUtils';
 import { MenuBar, withShortcut } from './MenuBar';
 import { useRecentDashboards } from './recentDashboards';
 import { recentMenuItem } from './recentMenu';
@@ -245,8 +245,7 @@ export function AppMenuBar({
             key: 'docs',
             icon: <Icons.BookOutlined iconSize="m" />,
             label: navbar.documentation_text || t('Documentation'),
-            onClick: () =>
-              window.open(navbar.documentation_url, '_blank', 'noopener'),
+            onClick: () => openInNewTab(navbar.documentation_url!),
           },
         ]
       : []),
@@ -254,7 +253,7 @@ export function AppMenuBar({
       key: 'website',
       icon: <Icons.GlobalOutlined iconSize="m" />,
       label: t('AuraData website'),
-      onClick: () => window.open('https://auradata.mx', '_blank', 'noopener'),
+      onClick: () => openInNewTab('https://auradata.mx'),
     },
     {
       key: 'about',

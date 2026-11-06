@@ -45,7 +45,7 @@ import {
   NEW_CHART_ID,
   NEW_COMPONENTS_SOURCE_ID,
 } from 'src/dashboard/util/constants';
-import { ensureAppRoot } from 'src/utils/pathUtils';
+import { ensureAppRoot } from 'src/utils/navigationUtils';
 import {
   isChartFormDataMessage,
   isChartSavedMessage,

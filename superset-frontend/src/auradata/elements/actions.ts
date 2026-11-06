@@ -33,6 +33,7 @@ import {
 } from 'src/auradata/report/drillthrough';
 import { DRILLTHROUGH_ID } from 'src/auradata/report/drillthroughScope';
 import { goBackTo } from 'src/auradata/report/pageHistory';
+import { navigateTo } from 'src/utils/navigationUtils';
 import { isSafeUrl } from './render';
 import { ELEMENT_KEY, type ElementAction, type ElementConfig } from './types';
 
@@ -92,9 +93,10 @@ export function runElementAction(
       window.scrollTo(0, 0);
     }
   } else if (action.type === 'url' && isSafeUrl(action.url)) {
-    const url = action.url!.trim();
-    if (action.newTab) window.open(url, '_blank', 'noopener,noreferrer');
-    else window.location.assign(url);
+    navigateTo(action.url!.trim(), {
+      newWindow: !!action.newTab,
+      assign: !action.newTab,
+    });
   } else if (action.type === 'reset-filters') {
     Object.values(state.nativeFilters?.filters ?? {}).forEach(filter => {
       if (!filter || !('defaultDataMask' in filter)) return;
