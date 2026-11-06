@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import atexit
 import logging
+import threading
 import time
 from abc import ABC, abstractmethod
 from enum import Enum
@@ -117,20 +118,30 @@ class _PlaywrightBrowserManager:
     so a single browser instance per process is safe and avoids the overhead
     of launching/destroying Chromium on every screenshot task. Each task
     creates a lightweight, isolated browser context instead of a full browser.
+
+    Playwright's sync API only works on the thread that started it, and it stops when
+    that thread ends, while the browser still reports itself connected. A web request
+    or a tool call has a thread of its own, so another thread starts a new browser.
     """
 
     def __init__(self) -> None:
         self._playwright: Any = None
         self._browser: Any = None
+        self._thread: threading.Thread | None = None
 
     def get_browser(self, browser_args: list[str]) -> Any:
         """Return a reusable browser, creating one if needed."""
-        if self._browser is not None and self._browser.is_connected():
+        if (
+            self._browser is not None
+            and self._thread is threading.current_thread()
+            and self._browser.is_connected()
+        ):
             return self._browser
 
         self._cleanup()
         self._playwright = sync_playwright().start()
         self._browser = self._playwright.chromium.launch(args=browser_args)
+        self._thread = threading.current_thread()
         return self._browser
 
     def _cleanup(self) -> None:

@@ -2512,3 +2512,24 @@ class TestWebDriverPlaywrightAnimationWaitOrder:
         assert timeout_values == [0], (
             f"Expected only [0] (headstart), got {timeout_values}"
         )
+
+
+def test_browser_manager_starts_a_new_browser_on_another_thread() -> None:
+    """Sync Playwright stops with the thread that started it, whatever it reports."""
+    from threading import Thread
+
+    from superset.utils import webdriver
+
+    manager = webdriver._PlaywrightBrowserManager()
+    with patch.object(webdriver, "sync_playwright", create=True) as playwright:
+        launch = playwright.return_value.start.return_value.chromium.launch
+        launch.side_effect = lambda **_: MagicMock()
+        first = manager.get_browser([])
+        assert manager.get_browser([]) is first
+
+        found = []
+        other = Thread(target=lambda: found.append(manager.get_browser([])))
+        other.start()
+        other.join()
+
+    assert found[0] is not first

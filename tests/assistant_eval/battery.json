@@ -146,7 +146,7 @@
       "prompt": "Arma en este informe una página por región (Centro, Norte, Occidente, Sur), cada una filtrada a su región y con el mismo diseño.",
       "adapted": "The panel works on the dashboard that is open, so the report starts from a copy.",
       "expected_tools": ["get_report_structure", "add_page"],
-      "approve": ["update_chart", "update_dashboard", "manage_native_filters"],
+      "approve": ["update_chart", "update_dashboard", "manage_native_filters", "remove_element"],
       "review": "Una página por región con el mismo diseño: tarjetas arriba, tendencia mensual y detalle; cada página filtrada a su región; títulos en español; nada solapado.",
       "max_calls": 20
     },
@@ -198,7 +198,7 @@
       "prompt": "En este informe, añade una página de detalle a la que se llegue desde cualquier barra de región, un marcador «Solo Norte» y que el segmentador de región sirva en todas las páginas.",
       "adapted": "It works on a copy of the sales report of the scenario, which has a region slicer.",
       "expected_tools": ["add_page", "set_drillthrough_page", "create_bookmark", "sync_slicer"],
-      "approve": ["manage_native_filters", "update_chart", "update_dashboard"],
+      "approve": ["manage_native_filters", "update_chart", "update_dashboard", "remove_element"],
       "review": "Página de detalle con region como campo de obtener detalles; marcador que vuelve a su página con Norte elegido; el segmentador filtra todas las páginas.",
       "max_calls": 15
     },

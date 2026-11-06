@@ -842,6 +842,13 @@ def _user_problems(tasks: list[dict[str, Any]], battery: dict[str, Any]) -> list
 
 FIXTURE_OWNER = "admin"
 DATA_ROLE = "Evaluación: datos"
+EDITOR_ROLE = "Evaluación: analista"
+EDITOR_PERMISSIONS = (
+    ("can_write", "Dataset"),
+    ("can_read", "ReportSchedule"),
+    ("can_write", "ReportSchedule"),
+    ("can_read", "Database"),
+)
 
 
 def prepare(battery: dict[str, Any]) -> list[str]:
@@ -879,6 +886,7 @@ def prepare(battery: dict[str, Any]) -> list[str]:
             resource.editors.append(subject)
             done.append(f"{reader.username} edits {resource}")
     done += _grant_data_access(battery, source["dataset_id"])
+    done += _grant_editor_rights(battery)
     db.session.commit()
     done += _prepare_fixture(battery, workspace.id)
     return done
@@ -903,6 +911,27 @@ def _grant_data_access(battery: dict[str, Any], dataset_id: int) -> list[str]:
             user.roles.append(role)
             granted.append(f"{user.username} reads {dataset.table_name}")
     return granted
+
+
+def _grant_editor_rights(battery: dict[str, Any]) -> list[str]:
+    """What an analyst has and Gamma lacks, for the tasks that create and schedule."""
+    from superset.models.core import Database
+
+    role = security_manager.add_role(EDITOR_ROLE)
+    database = (
+        db.session.query(Database)
+        .filter_by(database_name=battery["fixtures"]["injection"]["database"])
+        .one()
+    )
+    for permission, resource in (*EDITOR_PERMISSIONS, ("database_access", database.perm)):
+        security_manager.add_permission_role(
+            role, security_manager.add_permission_view_menu(permission, resource)
+        )
+    user = security_manager.find_user(battery["users"]["editor"])
+    if role in user.roles:
+        return []
+    user.roles.append(role)
+    return [f"{user.username} can create datasets and schedule reports"]
 
 
 def injection_sql(fixture: dict[str, Any]) -> str:
