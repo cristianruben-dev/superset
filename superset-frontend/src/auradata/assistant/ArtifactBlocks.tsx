@@ -194,7 +194,7 @@ const Value = styled.div`
     font-family: ${theme.fontFamilyCode};
     font-size: ${theme.sizeUnit * 8}px;
     line-height: 1.2;
-    font-weight: ${theme.fontWeightMedium ?? 500};
+    font-weight: 500;
     font-variant-numeric: tabular-nums;
     letter-spacing: -0.02em;
     color: ${theme.colorText};

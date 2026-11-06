@@ -166,7 +166,7 @@ export function useChartFieldControls(id?: string, chartId?: number) {
         vizType as string,
         datasourceType,
         {
-          slice: { slice_id: chartId },
+          slice: { slice_id: chartId as number },
           form_data: data as never,
           datasource: datasource ?? null,
           common: common ?? {},

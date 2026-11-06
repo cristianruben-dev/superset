@@ -273,16 +273,20 @@ export function addFieldChange(
 export function removeFieldChanges(formData: FormData, field: DataField) {
   const wells = addWellsOf(formData);
   if (!wells) return [];
-  return wellsWithKind(wells).flatMap(({ name, metricWell }) => {
-    const current = formData[name];
-    if (Array.isArray(current)) {
-      const kept = current.filter(value => !isField(value, field, metricWell));
-      return kept.length === current.length ? [] : [{ name, value: kept }];
-    }
-    return isField(current, field, metricWell)
-      ? [{ name, value: undefined }]
-      : [];
-  });
+  return wellsWithKind(wells).flatMap<{ name: string; value: unknown }>(
+    ({ name, metricWell }) => {
+      const current = formData[name];
+      if (Array.isArray(current)) {
+        const kept = current.filter(
+          value => !isField(value, field, metricWell),
+        );
+        return kept.length === current.length ? [] : [{ name, value: kept }];
+      }
+      return isField(current, field, metricWell)
+        ? [{ name, value: undefined }]
+        : [];
+    },
+  );
 }
 
 /** Controls of a chart that take a field, whatever chart it is. */
