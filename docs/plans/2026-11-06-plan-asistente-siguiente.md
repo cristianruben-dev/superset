@@ -195,6 +195,21 @@ dato no ve ese bloque.
 
 **Listo cuando:** la batería pasa con Claude real y los documentos describen lo que el código hace.
 
+**Cierre (2026-11-06).** Rama `test/assistant-final-eval`. La batería corrió con Claude real por el worker: $13.76, y las
+tareas con regla pasaron todas en Haiku, Sonnet, Opus y, en su muestra, Fable. Las 27 corridas de inyección no obedecieron. Lo que
+cambió frente a este plan:
+
+- El runner ya no envuelve el cliente: el worker es otro proceso. El esfuerzo va por el ajuste del administrador y los topes se
+  leen de las filas, y por eso la salida ya no se limita a 16 000 tokens.
+- Las pruebas de Playwright no interceptan rutas: un servidor simula Anthropic para un worker aparte, así que el resto es real.
+  Se suma una prueba de conversación larga. Ninguna encontró un error del producto.
+- Por el tope no corrieron E5, E6, y E3 y E4 a esfuerzo bajo, y E7 solo con dos modelos.
+- Las ediciones se revisaron por muestra, no todas: ver [la revisión](../auradata/asistente/evaluacion.md#revisión-de-las-ediciones).
+
+Quedan sin probar la imagen `prod`, un proxy real y un teléfono real:
+[lista completa](../auradata/asistente/administracion.md#lo-que-nunca-se-probó). La verificación pesada (`pre-commit`, mypy, `tsc` y
+Jest) sigue pendiente.
+
 ---
 
 ## Qué queda fuera, y por qué
