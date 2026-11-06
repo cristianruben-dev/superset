@@ -21,7 +21,7 @@ import { t } from '@apache-superset/core/translation';
 import { css, styled } from '@apache-superset/core/theme';
 import { Button } from '@superset-ui/core/components';
 import getBootstrapData from 'src/utils/getBootstrapData';
-import { ensureAppRoot } from 'src/utils/pathUtils';
+import { ensureAppRoot } from 'src/utils/navigationUtils';
 import {
   fetchSharedDocuments,
   unshareArtifact,

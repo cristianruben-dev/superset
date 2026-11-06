@@ -22,7 +22,7 @@ import { css, styled } from '@apache-superset/core/theme';
 import { Button, Loading } from '@superset-ui/core/components';
 import { Icons } from '@superset-ui/core/components/Icons';
 import { useToasts } from 'src/components/MessageToasts/withToasts';
-import { ensureAppRoot } from 'src/utils/pathUtils';
+import { ensureAppRoot } from 'src/utils/navigationUtils';
 import {
   AssistantError,
   fetchShareCard,
