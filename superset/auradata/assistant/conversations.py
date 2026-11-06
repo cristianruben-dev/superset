@@ -157,7 +157,7 @@ def create_conversation(
         title=title[:TITLE_LENGTH],
     )
     db.session.add(conversation)
-    db.session.commit()
+    db.session.commit()  # pylint: disable=consider-using-transaction
     return conversation
 
 
@@ -212,7 +212,7 @@ def list_conversations(
 def rename_conversation(conversation: AssistantConversation, title: str) -> None:
     """Change the title of a conversation. Nothing it holds changes."""
     conversation.title = title[:TITLE_LENGTH]
-    db.session.commit()
+    db.session.commit()  # pylint: disable=consider-using-transaction
 
 
 def lock_conversations(
@@ -269,11 +269,11 @@ def delete_conversation(conversation: AssistantConversation) -> None:
     """
     locked = lock_conversations([conversation.id])
     if locked and turn_is_running(locked[0]):
-        db.session.rollback()
+        db.session.rollback()  # pylint: disable=consider-using-transaction
         raise ConversationBusyError
     if locked:
         erase_conversations([conversation.id])
-    db.session.commit()
+    db.session.commit()  # pylint: disable=consider-using-transaction
 
 
 def _messages_of(conversation: AssistantConversation) -> list[AssistantMessage]:
@@ -618,9 +618,9 @@ class ConversationLog:
 
     def _commit(self) -> None:
         try:
-            db.session.commit()
+            db.session.commit()  # pylint: disable=consider-using-transaction
         except IntegrityError as ex:
-            db.session.rollback()
+            db.session.rollback()  # pylint: disable=consider-using-transaction
             raise ConversationBusyError from ex
 
     def add_user_message(
@@ -633,9 +633,9 @@ class ConversationLog:
                 attachments, self._conversation_id, self._user_id
             ):
                 raise ConversationBusyError
-            db.session.commit()
+            db.session.commit()  # pylint: disable=consider-using-transaction
         except (IntegrityError, ConversationBusyError) as ex:
-            db.session.rollback()
+            db.session.rollback()  # pylint: disable=consider-using-transaction
             raise ConversationBusyError from ex
 
     def add_results(self, tool_results: list[dict[str, Any]]) -> None:

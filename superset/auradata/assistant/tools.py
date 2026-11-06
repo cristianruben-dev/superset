@@ -477,7 +477,7 @@ class ToolBox:
                 g._login_user = user  # pylint: disable=protected-access
                 text, failed = run_own_tool(name, arguments, context)
         except Exception:  # pylint: disable=broad-except
-            db.session.rollback()
+            db.session.rollback()  # pylint: disable=consider-using-transaction
             logger.exception("Assistant tool %s failed", name)
             text, failed = "The tool failed. Try again or ask for something else.", True
         finally:

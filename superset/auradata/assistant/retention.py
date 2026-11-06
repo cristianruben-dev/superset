@@ -141,14 +141,14 @@ def _purge_batch(
             doomed.append(row.id)
     if report.dry_run:
         report.would_delete += len(doomed)
-        db.session.rollback()
+        db.session.rollback()  # pylint: disable=consider-using-transaction
         return
     if doomed:
         erase_conversations(doomed)
     if held:
         # It stays for its card, not for anyone else to go on reading it
         end_shares_of_conversations(held)
-    db.session.commit()
+    db.session.commit()  # pylint: disable=consider-using-transaction
     report.deleted += len(doomed)
     forget_streams(turn_store(), doomed)
 
@@ -175,7 +175,7 @@ def purge_conversations(
         expired=sum(1 for _, orphaned in found if not orphaned),
         orphaned=sum(1 for _, orphaned in found if orphaned),
     )
-    db.session.rollback()
+    db.session.rollback()  # pylint: disable=consider-using-transaction
     logger.info(
         "assistant retention: found %s expired and %s orphaned conversations "
         "(retention %s days, dry run %s)",
@@ -188,7 +188,7 @@ def purge_conversations(
         try:
             _purge_batch(batch, cutoff, moment, report)
         except Exception:  # pylint: disable=broad-except
-            db.session.rollback()
+            db.session.rollback()  # pylint: disable=consider-using-transaction
             report.failed += len(batch)
             logger.exception("assistant retention: a batch failed and stayed as it was")
     logger.info("assistant retention: %s", report)

@@ -106,15 +106,15 @@ def save_vote(
     row.vote = vote
     row.reason = kept
     try:
-        db.session.commit()
+        db.session.commit()  # pylint: disable=consider-using-transaction
     except IntegrityError:
-        db.session.rollback()
+        db.session.rollback()  # pylint: disable=consider-using-transaction
         row = _find_vote(message_id, user_id)
         if row is None:
             raise
         row.vote = vote
         row.reason = kept
-        db.session.commit()
+        db.session.commit()  # pylint: disable=consider-using-transaction
     return _vote_json(row)
 
 
@@ -122,4 +122,4 @@ def clear_vote(answer: AssistantMessage, user_id: int) -> None:
     """Take back the vote of this person, if there is one."""
     if (row := _find_vote(answer.id, user_id)) is not None:
         db.session.delete(row)
-        db.session.commit()
+        db.session.commit()  # pylint: disable=consider-using-transaction

@@ -172,7 +172,7 @@ def add_version(  # pylint: disable=too-many-arguments
     try:
         db.session.flush()
     except IntegrityError as ex:
-        db.session.rollback()
+        db.session.rollback()  # pylint: disable=consider-using-transaction
         raise ArtifactMovedError from ex
     return version
 
@@ -199,7 +199,7 @@ def create_artifact(  # pylint: disable=too-many-arguments
     db.session.add(artifact)
     db.session.flush()
     version = add_version(artifact.id, 1, title, blocks, ORIGIN_CREATED, model=model)
-    db.session.commit()
+    db.session.commit()  # pylint: disable=consider-using-transaction
     return artifact, version
 
 
@@ -229,7 +229,7 @@ def restore_version(
         restored_from=number,
         model=source.model,
     )
-    db.session.commit()
+    db.session.commit()  # pylint: disable=consider-using-transaction
     return version
 
 

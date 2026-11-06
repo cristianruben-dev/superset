@@ -68,7 +68,7 @@ class RestoreChartVersionCommand(BaseRestoreVersionCommand):
         if error := validate_chart_dataset(
             chart.datasource_id, chart.datasource_type, dashboard_ids()
         ):
-            db.session.rollback()
+            db.session.rollback()  # pylint: disable=consider-using-transaction
             reasons = error.normalized_messages().values()
             raise ChartUpdateFailedError(
                 _(

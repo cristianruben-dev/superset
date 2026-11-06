@@ -69,7 +69,7 @@ class RestoreDashboardVersionCommand(BaseRestoreVersionCommand):
         except ChartInMultipleDashboardsError as ex:
             # The failed flush leaves the session unusable until it is rolled
             # back, and the message names the charts and dashboards from it
-            db.session.rollback()
+            db.session.rollback()  # pylint: disable=consider-using-transaction
             raise DashboardUpdateFailedError(
                 _(
                     "This version can't be restored because some of its charts now "
@@ -85,7 +85,7 @@ class RestoreDashboardVersionCommand(BaseRestoreVersionCommand):
         if added and (
             foreign := chart_datasets_of_other_workspaces(added, dashboard_id)
         ):
-            db.session.rollback()
+            db.session.rollback()  # pylint: disable=consider-using-transaction
             raise DashboardUpdateFailedError(
                 _(
                     "This version can't be restored because some of its charts use "

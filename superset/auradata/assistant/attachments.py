@@ -191,7 +191,7 @@ def save_draft(user_id: int, image: CleanImage) -> AssistantAttachment:
         height=image.height,
     )
     db.session.add(draft)
-    db.session.commit()
+    db.session.commit()  # pylint: disable=consider-using-transaction
     return draft
 
 
@@ -214,7 +214,7 @@ def delete_draft(attachment_id: UUID, user_id: int) -> bool:
         .filter(AssistantAttachment.id == attachment_id)
         .delete(synchronize_session=False)
     )
-    db.session.commit()
+    db.session.commit()  # pylint: disable=consider-using-transaction
     return bool(deleted)
 
 
@@ -312,6 +312,6 @@ def purge_drafts(dry_run: bool = False, now: datetime | None = None) -> int:
     count = stale.count()
     if not dry_run and count:
         stale.delete(synchronize_session=False)
-    db.session.commit()
+    db.session.commit()  # pylint: disable=consider-using-transaction
     logger.info("assistant retention: %s unsent images (dry run %s)", count, dry_run)
     return count

@@ -231,7 +231,7 @@ def _change(request: ChangeArtifact, context: OwnToolContext) -> dict[str, Any]:
         )
     except ArtifactMovedError as ex:
         raise ArtifactRefusedError(MOVED.format(version="a newer one")) from ex
-    db.session.commit()
+    db.session.commit()  # pylint: disable=consider-using-transaction
     return _written(artifact, version)
 
 
@@ -407,10 +407,10 @@ def run_own_tool(
         request = tool.schema.model_validate(arguments)
         return json.dumps(tool.run(request, context)), False
     except ValidationError as ex:
-        db.session.rollback()
+        db.session.rollback()  # pylint: disable=consider-using-transaction
         return _validation_text(ex), True
     except ArtifactRefusedError as ex:
-        db.session.rollback()
+        db.session.rollback()  # pylint: disable=consider-using-transaction
         return str(ex), True
 
 
