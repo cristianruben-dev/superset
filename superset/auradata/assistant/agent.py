@@ -213,14 +213,24 @@ def error_event(ex: Exception) -> Event:
     return "error", {"code": code, "message": message}
 
 
+def _note_of(event: Any) -> Event:
+    """
+    A piece of what the model shows of its thinking. ``starts`` opens a new note: only
+    the first text of a block makes up all that the block holds.
+    """
+    return "note", {"text": event.thinking, "starts": event.snapshot == event.thinking}
+
+
 class ModelCall:
     """
     One call to the model, read from a thread of its own.
 
-    While the model thinks nothing arrives: the thinking is not displayed and the SDK
-    drops the pings. So the call waits in that thread, and ``events`` yields
-    ``KEEP_ALIVE`` when the wait gets long. That thread only runs the HTTP call of the
-    SDK: the session, ``g`` and the tools stay in the thread of the request.
+    While the model thinks little or nothing arrives: only its notes have text, it can
+    go long without one, and the SDK drops the pings. So the call waits in that thread,
+    and ``events`` yields ``KEEP_ALIVE`` when the wait gets long. A thinking event with
+    no text never reaches the queue: it would restart that wait with nothing for the
+    panel, and nothing would keep the connection open. That thread only runs the HTTP
+    call of the SDK: the session, ``g`` and the tools stay in the thread of the request.
     """
 
     def __init__(self, client: Any, params: dict[str, Any]) -> None:
@@ -239,13 +249,15 @@ class ModelCall:
                 for event in stream:
                     if event.type == "text":
                         self._items.put(("item", ("text", {"text": event.text})))
+                    elif event.type == "thinking" and event.thinking:
+                        self._items.put(("item", _note_of(event)))
                 self._items.put(("item", stream.get_final_message()))
             self._items.put(("end", None))
         except Exception as ex:  # pylint: disable=broad-except
             self._items.put(("failed", ex))
 
     def events(self) -> Iterator[Event | Any]:
-        """Text as it arrives, as events, and the final message last."""
+        """Text and notes as they arrive, as events, and the final message last."""
         threading.Thread(target=self._read, daemon=True, name="assistant-model").start()
         try:
             while True:

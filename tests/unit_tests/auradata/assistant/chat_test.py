@@ -1221,6 +1221,106 @@ def test_a_silent_model_keeps_the_stream_open(
     assert "event: done" in body
 
 
+def test_the_notes_of_the_model_stream_and_only_the_blocks_keep_them(
+    client: Any, world: dict[str, Any], mocker: MockerFixture
+) -> None:
+    login(world, "Ana")
+    fake = use_model(
+        mocker,
+        reply(
+            thinking("", "sig-reasoning"),
+            thinking("Miro los tableros.", "sig-note"),
+            tool_use("list_dashboards", {"request": {}}),
+            stop_reason="tool_use",
+        ),
+        reply(thinking("Ya los tengo.", "sig-other"), text("Dos tableros")),
+    )
+
+    response = ask(client, world["dashboard"])
+
+    # Blocks without text say nothing, and the order among the steps is the model's
+    assert [event for event, _ in events_of(response)] == [
+        "conversation",
+        "note",
+        "tool_start",
+        "tool_end",
+        "note",
+        "text",
+        "done",
+    ]
+    assert payloads(response, "note") == [
+        {"text": "Miro los tableros.", "starts": True},
+        {"text": "Ya los tengo.", "starts": True},
+    ]
+    stored = client.get(f"{URL}conversations/{conversation_id_of(response)}/").json[
+        "result"
+    ]
+    assert stored["messages"][1]["content"][:2] == [
+        {"type": "thinking", "thinking": "", "signature": "sig-reasoning"},
+        {"type": "thinking", "thinking": "Miro los tableros.", "signature": "sig-note"},
+    ]
+    assert [block["type"] for block in stored["messages"][3]["content"]] == [
+        "thinking",
+        "text",
+    ]
+    sent_back = fake.requests[1]["messages"][1]["content"]
+    assert sent_back[1]["thinking"] == "Miro los tableros."
+    assert sent_back[1]["signature"] == "sig-note"
+
+
+def test_a_note_in_pieces_opens_once() -> None:
+    pieces = [
+        SimpleNamespace(type="thinking", thinking="Mi", snapshot="Mi"),
+        SimpleNamespace(type="thinking", thinking="ro.", snapshot="Miro."),
+    ]
+
+    assert [agent._note_of(piece) for piece in pieces] == [
+        ("note", {"text": "Mi", "starts": True}),
+        ("note", {"text": "ro.", "starts": False}),
+    ]
+
+
+class _QuietStream:
+    """A model that sends empty thinking events while it thinks, and then answers."""
+
+    def __init__(self, gap: threading.Event) -> None:
+        self._gap = gap
+
+    def __enter__(self) -> Any:
+        return self
+
+    def __exit__(self, *details: Any) -> None:
+        return None
+
+    def __iter__(self) -> Any:
+        for _ in range(20):
+            self._gap.wait(0.005)
+            yield SimpleNamespace(type="thinking", thinking="", snapshot="")
+        yield SimpleNamespace(type="thinking", thinking="Miro.", snapshot="Miro.")
+
+    def get_final_message(self) -> str:
+        return "final"
+
+
+def test_thinking_without_text_does_not_hold_the_stream_alive(
+    mocker: MockerFixture,
+) -> None:
+    mocker.patch.object(agent, "KEEP_ALIVE_SECONDS", 0.01)
+    client = SimpleNamespace(
+        beta=SimpleNamespace(
+            messages=SimpleNamespace(
+                stream=lambda **params: _QuietStream(threading.Event())
+            )
+        )
+    )
+
+    items = list(agent.ModelCall(client, {}).events())
+
+    assert (agent.KEEP_ALIVE, {}) in items
+    assert items[-2:] == [("note", {"text": "Miro.", "starts": True}), "final"]
+    assert len([item for item in items if item[0] == "note"]) == 1
+
+
 def test_a_failed_call_still_arrives_through_the_waiting_side(
     client: Any, world: dict[str, Any], mocker: MockerFixture
 ) -> None:
