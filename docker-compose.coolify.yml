@@ -1,0 +1,141 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+# AuraData BI on Coolify. Coolify builds this file and generates every SERVICE_* secret
+# once; only ANTHROPIC_API_KEY is set by hand. Its proxy reaches `superset` and
+# `superset-mcp`, so nothing here publishes a port.
+
+x-auradata-env: &auradata-env
+  SUPERSET_SECRET_KEY: ${SERVICE_BASE64_64_SECRETKEY}
+  POSTGRES_DB: auradata
+  POSTGRES_USER: ${SERVICE_USER_POSTGRES}
+  POSTGRES_PASSWORD: ${SERVICE_PASSWORD_POSTGRES}
+  ADMIN_USERNAME: admin
+  ADMIN_PASSWORD: ${SERVICE_PASSWORD_ADMIN}
+  AURADATA_PUBLIC_URL: ${AURADATA_PUBLIC_URL:-https://bi.auradata.mx}
+  AURADATA_HTTPS: "true"
+  AURADATA_SEND_REPORTS: ${AURADATA_SEND_REPORTS:-false}
+  MCP_SERVICE_URL: ${MCP_SERVICE_URL:-https://mcp-bi.auradata.mx/mcp}
+  ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+
+x-auradata-image: &auradata-image
+  image: auradata-bi:coolify
+  build:
+    context: .
+    target: prod
+  restart: unless-stopped
+  volumes:
+    - superset_home:/app/superset_home
+
+x-auradata-depends: &auradata-depends
+  db:
+    condition: service_healthy
+  redis:
+    condition: service_healthy
+  superset-init:
+    condition: service_completed_successfully
+
+services:
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      retries: 5
+
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: auradata
+      POSTGRES_USER: ${SERVICE_USER_POSTGRES}
+      POSTGRES_PASSWORD: ${SERVICE_PASSWORD_POSTGRES}
+    volumes:
+      - db_home:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      retries: 5
+
+  superset-init:
+    <<: *auradata-image
+    command: ["/app/docker/auradata/docker-init-prod.sh"]
+    environment: *auradata-env
+    restart: "no"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  superset:
+    <<: *auradata-image
+    command: ["/app/docker/entrypoints/run-server.sh"]
+    environment:
+      <<: *auradata-env
+      SERVER_WORKER_AMOUNT: ${SERVER_WORKER_AMOUNT:-2}
+    expose:
+      - "8088"
+    depends_on: *auradata-depends
+
+  superset-worker:
+    <<: *auradata-image
+    command: ["/app/docker/docker-bootstrap.sh", "worker"]
+    environment:
+      <<: *auradata-env
+      CELERY_QUEUES: celery
+    healthcheck:
+      disable: true
+    depends_on: *auradata-depends
+
+  superset-worker-assistant:
+    <<: *auradata-image
+    command: ["/app/docker/docker-bootstrap.sh", "worker"]
+    environment:
+      <<: *auradata-env
+      CELERY_QUEUES: auradata_assistant
+      CELERYD_CONCURRENCY: ${ASSISTANT_WORKER_CONCURRENCY:-2}
+    healthcheck:
+      disable: true
+    depends_on: *auradata-depends
+
+  superset-worker-beat:
+    <<: *auradata-image
+    command: ["/app/docker/docker-bootstrap.sh", "beat"]
+    environment: *auradata-env
+    healthcheck:
+      disable: true
+    depends_on: *auradata-depends
+
+  superset-mcp:
+    <<: *auradata-image
+    command: ["superset", "mcp", "run", "--host", "0.0.0.0", "--port", "5008"]
+    environment: *auradata-env
+    healthcheck:
+      disable: true
+    expose:
+      - "5008"
+    depends_on: *auradata-depends
+
+volumes:
+  superset_home:
+  db_home:
+  redis:
