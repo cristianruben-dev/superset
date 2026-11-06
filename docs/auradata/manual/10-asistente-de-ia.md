@@ -110,8 +110,8 @@ en el suyo: **Económico**, **Equilibrado** o **Máximo**. Puedes cambiarlo cuan
 - **Cambiar de modelo a mitad de conversación** funciona, pero esa respuesta tarda más y cuesta más, porque el modelo lee
   todo desde cero. El panel te lo avisa.
 - **Un modelo gris** no puede seguir esa conversación. Empieza una **Nueva conversación**.
-- **Todavía no hay una comparación real** de los modelos, así que este manual no recomienda ninguno. Si dudas, usa el que
-  viene por defecto.
+- **Si dudas,** usa el que viene por defecto: en la [comparación real](../asistente/evaluacion.md#recomendación-por-modo) fue el mejor
+  equilibrio para editar informes. Para preguntas sobre los datos, un modelo económico también acertó.
 
 Las conversaciones quedan en **Conversaciones de este informe**, separadas por modo. Si una se hace demasiado larga para el
 modelo, el panel te pide empezar otra.
