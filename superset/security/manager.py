@@ -2552,6 +2552,13 @@ class SupersetSecurityManager(  # pylint: disable=too-many-public-methods
 
         return grants_dataset(datasource)
 
+    @staticmethod
+    def _workspace_hides_chart(chart: Any, datasource: Any) -> bool:
+        """AuraData BI: whether a chart stays closed to a workspace viewer."""
+        from superset.auradata.workspace_grants import hides_chart
+
+        return hides_chart(chart, datasource)
+
     def can_access_datasource(self, datasource: "BaseDatasource") -> bool:
         """
         Return True if the user can access the specified datasource, False otherwise.
@@ -5724,7 +5731,11 @@ class SupersetSecurityManager(  # pylint: disable=too-many-public-methods
                 # SqlaTable-only, which silently denied entitled users of
                 # semantic-view charts here.
                 chart_datasource := chart.resolved_datasource
-            ) is not None and self.can_access_datasource(chart_datasource):
+            ) is not None and (
+                self.can_access_datasource(chart_datasource)
+                # AuraData BI: the grant of a workspace viewer stops at drafts
+                and not self._workspace_hides_chart(chart, chart_datasource)
+            ):
                 return
 
             # An embedded guest may access a member chart of a dashboard their

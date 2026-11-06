@@ -26,7 +26,8 @@ grant is narrow on purpose:
   with it. Nothing is cached, so removing a member also removes the access.
 * Only reading. It never makes anyone an editor: viewers keep their role, and
   drafts and every edit point keep asking for a contributor or admin
-  (``workspace_access``).
+  (``workspace_access``). A viewer reaches the charts of published dashboards
+  only: one chart lives in one dashboard, so the charts of a draft are the draft.
 * Only the object checks of charts, dashboards and datasets (``raise_for_access``
   and the list filters). Raw SQL (SQL Lab, MetaDB, MCP ``execute_sql``), schema
   and database listings and editing a dataset keep following real permissions,
@@ -47,7 +48,8 @@ import sqlalchemy as sa
 
 from superset import db, security_manager
 from superset.auradata import workspace_access, workspace_datasets
-from superset.auradata.models import WorkspaceDataset
+from superset.auradata.models import WorkspaceDataset, WorkspaceMember
+from superset.exceptions import SupersetSecurityException
 from superset.utils.core import get_user_id
 
 
@@ -61,6 +63,33 @@ def _granted_dataset_ids(user_id: int) -> Any:
         WorkspaceDataset.workspace_id.in_(
             workspace_access.member_workspace_ids(user_id)
         )
+    )
+
+
+def _edited_dataset_ids(user_id: int) -> Any:
+    editable_workspaces = sa.select(WorkspaceMember.workspace_id).where(
+        WorkspaceMember.user_id == user_id,
+        WorkspaceMember.role.in_(workspace_access.EDITOR_ROLES),
+    )
+    return sa.select(WorkspaceDataset.dataset_id).where(
+        WorkspaceDataset.workspace_id.in_(editable_workspaces)
+    )
+
+
+def _published_chart_ids() -> Any:
+    from superset.models.dashboard import Dashboard, dashboard_slices
+
+    return (
+        sa.select(dashboard_slices.c.slice_id)
+        .join(Dashboard, Dashboard.id == dashboard_slices.c.dashboard_id)
+        .where(Dashboard.published.is_(True), Dashboard.deleted_at.is_(None))
+    )
+
+
+def _is_in(value: int, subquery: Any) -> bool:
+    return (
+        db.session.query(sa.literal(1)).filter(sa.literal(value).in_(subquery)).first()
+        is not None
     )
 
 
@@ -87,13 +116,35 @@ def grants_dataset(datasource: Any) -> bool:
     if not isinstance(datasource, SqlaTable) or datasource.id is None:
         return False
     granted = granted_dataset_ids()
-    if granted is None:
+    return granted is not None and _is_in(datasource.id, granted)
+
+
+def _reads_outside_the_grant(datasource: Any) -> bool:
+    if security_manager.is_editor(datasource):
+        return True
+    try:
+        # ``allow_editorship=False`` leaves the workspace grant out too
+        security_manager.raise_for_access(datasource=datasource, allow_editorship=False)
+    except SupersetSecurityException:
+        return False
+    return True
+
+
+def hides_chart(chart: Any, datasource: Any) -> bool:
+    """
+    Whether a chart stays closed although its dataset opens: only the grant opens
+    the dataset, the user does not edit that workspace, and no published dashboard
+    shows the chart.
+
+    :param chart: The chart
+    :param datasource: The dataset of the chart, which the user can access
+    """
+    if not grants_dataset(datasource):
         return False
     return (
-        db.session.query(sa.literal(1))
-        .filter(sa.literal(datasource.id).in_(granted))
-        .first()
-        is not None
+        not _is_in(datasource.id, _edited_dataset_ids(get_user_id()))
+        and not _is_in(chart.id, _published_chart_ids())
+        and not _reads_outside_the_grant(datasource)
     )
 
 
@@ -113,4 +164,8 @@ def grant_clause(base_model: Any) -> sa.sql.elements.ColumnElement[bool] | None:
     return sa.and_(
         base_model.datasource_type == DatasourceType.TABLE,
         base_model.datasource_id.in_(granted),
+        sa.or_(
+            base_model.datasource_id.in_(_edited_dataset_ids(get_user_id())),
+            base_model.id.in_(_published_chart_ids()),
+        ),
     )

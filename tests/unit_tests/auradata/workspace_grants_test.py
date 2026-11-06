@@ -22,6 +22,7 @@ No role here has data permissions of its own, so every grant seen is the one of
 the workspace.
 """
 
+from datetime import datetime
 from typing import Any
 
 import pytest
@@ -41,6 +42,7 @@ from superset.auradata.models import (
     WorkspaceDataset,
     WorkspaceMember,
 )
+from superset.charts.filters import ChartFilter
 from superset.connectors.sqla.models import (
     RLSFilterSubjects,
     RLSFilterTables,
@@ -294,6 +296,75 @@ def test_a_draft_stays_hidden_from_a_viewer(
     as_user(world, "Ana")
     assert allowed(check, dashboard=world["dashboard"])
     assert listed() == {"Ventas"}
+
+
+def listed_charts(session: Session) -> set[str]:
+    access = ChartFilter("id", SQLAInterface(Slice))
+    return {chart.slice_name for chart in access.apply(session.query(Slice), None)}
+
+
+def test_the_charts_of_a_published_dashboard_open_to_a_viewer(
+    session: Session, world: dict[str, Any]
+) -> None:
+    as_user(world, "Vera")
+
+    assert allowed(security_manager.raise_for_access, chart=world["chart"])
+    assert listed_charts(session) == {"kpi"}
+
+
+def test_the_charts_of_a_draft_stay_hidden_from_a_viewer(
+    session: Session, world: dict[str, Any]
+) -> None:
+    """One chart lives in one dashboard: a draft's charts are the draft."""
+    world["dashboard"].published = False
+    session.flush()
+    check = security_manager.raise_for_access
+
+    as_user(world, "Vera")
+    assert not allowed(check, chart=world["chart"])
+    assert listed_charts(session) == set()
+    # The dataset itself stays open: the grant is on the data
+    assert allowed(check, datasource=world["ventas"])
+
+    # The control: a contributor of the workspace opens them
+    as_user(world, "Ana")
+    assert allowed(check, chart=world["chart"])
+    assert listed_charts(session) == {"kpi"}
+
+
+def test_a_chart_on_no_dashboard_stays_hidden_from_a_viewer(
+    session: Session, world: dict[str, Any]
+) -> None:
+    session.commit()  # version history takes one change per link and transaction
+    world["dashboard"].slices = []
+    session.commit()
+    as_user(world, "Vera")
+
+    assert not allowed(security_manager.raise_for_access, chart=world["chart"])
+    assert listed_charts(session) == set()
+
+
+def test_a_soft_deleted_dashboard_does_not_publish_its_charts(
+    session: Session, world: dict[str, Any]
+) -> None:
+    world["dashboard"].deleted_at = datetime(2026, 1, 1)
+    session.flush()
+    as_user(world, "Vera")
+
+    assert not allowed(security_manager.raise_for_access, chart=world["chart"])
+    assert listed_charts(session) == set()
+
+
+def test_a_real_data_permission_keeps_opening_the_chart_of_a_draft(
+    session: Session, world: dict[str, Any]
+) -> None:
+    """The rule narrows the grant only: a role keeps what it gave before."""
+    world["dashboard"].published = False
+    session.flush()
+    as_user(world, "Vera")
+    security_manager.can_access.return_value = True
+
+    assert allowed(security_manager.raise_for_access, chart=world["chart"])
 
 
 def test_the_lists_show_the_datasets_of_the_workspace_only(
