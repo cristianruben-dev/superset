@@ -27004,6 +27004,136 @@ msgstr "No se pudo guardar tu voto."
 msgid "This conversation is too long for the model. Start a new one to keep going."
 msgstr "Esta conversación es demasiado larga para el modelo. Empieza una nueva para seguir."
 
+msgid "The document changed. Read the card again."
+msgstr "El documento cambió. Vuelve a leer la tarjeta."
+
+msgid "Only a member of the workspace of this report can share this."
+msgstr "Solo un miembro del workspace de este informe puede compartirlo."
+
+msgid "Export is not available here."
+msgstr "Exportar no está disponible aquí."
+
+msgid "The PDF could not be made."
+msgstr "No se pudo crear el PDF."
+
+msgid "A text"
+msgstr "Un texto"
+
+msgid "A part of this document is hidden: it uses data you do not have access to."
+msgstr "Una parte de este documento está oculta: usa datos a los que no tienes acceso."
+
+msgid "Made by the assistant (model %s)"
+msgstr "Hecho por el asistente (modelo %s)"
+
+msgid "Made by the assistant"
+msgstr "Hecho por el asistente"
+
+msgid "Written by %s on %s, with the access %s had. Figures in charts and tables are read with your permissions; the text stays as it was written, and it may mention data you cannot see."
+msgstr "Lo escribió %s el %s, con el acceso de %s. Las cifras de gráficos y tablas se leen con tus permisos; el texto queda como se escribió y puede mencionar datos que tú no puedes ver."
+
+msgid "its author"
+msgstr "su autor"
+
+msgid "This report is in no workspace, so there is nobody to share with."
+msgstr "Este informe no está en ningún workspace, así que no hay con quién compartirlo."
+
+msgid "Its text mentions no figures."
+msgstr "Su texto no menciona cifras."
+
+msgid "It has no text: every figure is read by whoever opens it."
+msgstr "No tiene texto: cada cifra la lee quien lo abre."
+
+msgid "Each reader also sees what the blocks filter by:"
+msgstr "Cada lector también ve por qué filtran los bloques:"
+
+msgid "Some members may not reach %s: they will read a note where those blocks go."
+msgstr "Algunos miembros quizá no lleguen a %s: leerán un aviso en lugar de esos bloques."
+
+msgid "This report is a draft: only members who can see the draft will read the document."
+msgstr "Este informe es un borrador: solo leerán el documento los miembros que puedan ver el borrador."
+
+msgid "Link copied."
+msgstr "Enlace copiado."
+
+msgid "Share this document"
+msgstr "Compartir este documento"
+
+msgid "Shared with «%s», version %s"
+msgstr "Compartido con «%s», versión %s"
+
+msgid "Readers see this version, each with their own permissions."
+msgstr "Los lectores ven esta versión, cada uno con sus permisos."
+
+msgid "Readers still see version %s. Share this one if it should reach them."
+msgstr "Los lectores siguen viendo la versión %s. Comparte esta si quieres que les llegue."
+
+msgid "Charts, tables and figures are read with the permissions of each reader, but the text is not: it stays as the assistant wrote it with your access, and row level security does not reach it. Everyone who opens the document reads it. Check that it says nothing they should not see."
+msgstr "Los gráficos, las tablas y las cifras se leen con los permisos de cada lector, pero el texto no: queda como lo escribió el asistente con tu acceso, y la seguridad por filas no lo alcanza. Lo lee todo el que abra el documento. Revisa que no diga nada que no deban ver."
+
+msgid "No longer shared."
+msgstr "Ya no está compartido."
+
+msgid "Stop sharing"
+msgstr "Dejar de compartir"
+
+msgid "Shared with the workspace."
+msgstr "Compartido con el workspace."
+
+msgid "Share version %s"
+msgstr "Compartir la versión %s"
+
+msgid "This document could not be shared."
+msgstr "No se pudo compartir este documento."
+
+msgid "This document does not exist, or it is not shared with you. Ask its author."
+msgstr "Este documento no existe o no está compartido contigo. Pregúntale a su autor."
+
+msgid "Go to the report"
+msgstr "Ir al informe"
+
+msgid "Shared documents"
+msgstr "Documentos compartidos"
+
+msgid "Save as a page of the report"
+msgstr "Guardar como página del informe"
+
+msgid "Open the editor and ask the assistant to save this document as a page"
+msgstr "Abre el editor y pídele al asistente que guarde este documento como página"
+
+msgid "Share with the workspace"
+msgstr "Compartir con el workspace"
+
+msgid "Shared with «%s»"
+msgstr "Compartido con «%s»"
+
+msgid "Save this document as a page of the report"
+msgstr "Guarda este documento como página del informe"
+
+msgid "%s part is hidden from you."
+msgid_plural "%s parts are hidden from you."
+msgstr[0] "%s parte está oculta para ti."
+msgstr[1] "%s partes están ocultas para ti."
+
+msgid "Its text mentions %s figure:"
+msgid_plural "Its text mentions %s figures:"
+msgstr[0] "Su texto menciona %s cifra:"
+msgstr[1] "Su texto menciona %s cifras:"
+
+msgid "And %s more passage."
+msgid_plural "And %s more passages."
+msgstr[0] "Y %s pasaje más."
+msgstr[1] "Y %s pasajes más."
+
+msgid "Share version %s with «%s» (%s member)"
+msgid_plural "Share version %s with «%s» (%s members)"
+msgstr[0] "Compartir la versión %s con «%s» (%s miembro)"
+msgstr[1] "Compartir la versión %s con «%s» (%s miembros)"
+
+msgid "Save «%(title)s» as %(pages)d page of this report, with %(count)d new object"
+msgid_plural "Save «%(title)s» as %(pages)d pages of this report, with %(count)d new objects"
+msgstr[0] "Guardar «%(title)s» en %(pages)d página(s) de este informe, con %(count)d objeto nuevo"
+msgstr[1] "Guardar «%(title)s» en %(pages)d página(s) de este informe, con %(count)d objetos nuevos"
+
 msgid "This conversation can't go on after an update of the assistant. Start a new one to keep going."
 msgstr "Esta conversación no puede seguir tras una actualización del asistente. Empieza una nueva para seguir."
 

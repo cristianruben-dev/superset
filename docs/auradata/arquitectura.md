@@ -212,11 +212,14 @@ como la persona que tiene la sesión. Las reglas están en `AGENTS.md`; para el 
 | `turns.py` | Un turno de la petición al worker y de vuelta: identidad, cierre, turnos muertos y relevo de eventos |
 | `turn_store.py` | Lo que un turno guarda en Redis: stream numerado, candado, boleto y marcas |
 | `tools.py` | `ToolBox`: las herramientas exactas de una persona en un modo |
-| `prompt.py` | Instrucciones de sistema, fijas por persona y modo, y el bloque de contexto |
+| `prompt.py` | Instrucciones de sistema, fijas por persona y modo, y el bloque de contexto. Cada conversación guarda las de su primer turno |
 | `conversations.py` | Conversaciones que solo crecen; el estado pendiente se deduce de lo guardado |
 | `attachments.py` | Imágenes adjuntas: limpiarlas al subirlas y ponerlas en cada petición |
 | `undo.py` | Deshacer un turno con los comandos de restaurar |
 | `artifacts.py`, `artifact_blocks.py`, `artifact_tools.py` | Documentos: versiones, forma de los bloques y herramientas propias |
+| `sharing.py` | Compartir un documento en su workspace: quién lee qué, y qué dice la tarjeta |
+| `exports.py` | Un documento como PDF, en el worker |
+| `artifact_pages.py` | Un documento como páginas del informe, por las herramientas normales |
 | `figures.py` | El gráfico de una respuesta, sacado de la última `query_dataset` |
 | `models.py`, `settings.py` | Catálogo de modelos y ajustes del admin |
 | `governance.py`, `spending.py` | Interruptores, aviso de privacidad, topes y uso |
@@ -428,7 +431,68 @@ vieja, por ejemplo tras volver atrás, se rechaza y el modelo lee otra vez.
 el panel muestra la más antigua, con un botón que manda un mensaje normal para actualizarlo.
 
 **Retención:** un documento se borra con su conversación, en `erase_conversations`, porque repite lo que dijeron sus respuestas.
-Volver a una versión deja una fila `record`, que cuenta como actividad para la retención.
+Volver a una versión deja una fila `record`, que cuenta como actividad para la retención. Un documento compartido también se va
+con ella: quien lo leía encuentra un 404.
+
+#### Compartir
+
+Compartir no copia nada: tres columnas de `auradata_assistant_artifacts` dicen en qué workspace y qué versión. Es la versión que
+mostró la tarjeta, y el servidor rechaza otra (409), así que lo que el asistente escriba después no llega a nadie hasta compartir
+de nuevo.
+
+`sharing.reads_share` decide en cada lectura, sin caché:
+
+| Condición | Si falla |
+| --- | --- |
+| El informe sigue en ese workspace | Se cierra. `move_dashboards` además borra las columnas: volver no lo reabre |
+| El autor sigue activo y es miembro | Se cierra. `remove_member` borra las columnas |
+| El lector tiene fila en `auradata_workspace_members` | 404. Un admin de Superset no es la excepción |
+| El lector abre el informe (`open_dashboard`) | 404. Por eso un documento de un borrador se queda con quien ve el borrador |
+
+`GET /documents/<id>/` no lleva `protect()`: revisa la sesión y el permiso por su cuenta para responder 404 también a un visitante
+anónimo, que de otro modo recibiría un 401 y sabría que la ruta distingue.
+
+Lo que recibe un lector lo arma `reader_json`: una versión, sin conversación ni historial. Un bloque de un dataset al que no llega
+sale como `{id, type: "refused"}`, porque su título, su etiqueta y sus filtros dicen lo que dirían las cifras. Si llega, el bloque
+trae su consulta y el navegador la corre por la API de datos de gráficos, con sus permisos y RLS.
+
+**Lo que esto no resuelve:** el texto lo escribió el autor con su acceso, y RLS no alcanza a un texto. Por eso `share_card` lista
+los pasajes con números y los valores de los filtros, y la vista del lector dice de quién es ese acceso. Es decisión del autor.
+
+El lector no escribe nada y su asistente no lee documentos compartidos: `read_artifact` sigue siendo del dueño, así que un texto
+compartido con órdenes dentro no entra a ninguna conversación ajena. Para su dueño, lo que devuelve es dato, como cualquier
+herramienta.
+
+#### Exportar a PDF
+
+El navegador vive en los workers y tarda segundos, así que `POST .../export/` solo deja un ticket en Redis y encola una tarea con
+su id, que no tiene argumento para un usuario, como un turno. El panel pregunta por `GET .../export/<job>/` hasta recibir el
+archivo, que espera 15 minutos en Redis solo para quien lo pidió.
+
+El worker abre `/assistant/document/<id>/` como esa persona con `capture_raw`, la misma captura de las exportaciones de informes.
+En modo `standalone` la página espera a todos sus bloques y a la animación de ECharts, reparte sus piezas en hojas A4 para que
+ninguna quede partida (`sheets.ts`) y solo entonces agrega `auradata-document-ready`, que es lo que espera el driver.
+`exports.sheets_of` corta la imagen en páginas.
+
+Corre en un hilo propio porque el Playwright síncrono deja un loop corriendo en el suyo mientras viva su navegador. Un `asyncio.run`
+posterior en ese hilo falla, y es lo que pasaba con un turno en un worker que acababa de hacer miniaturas. Por eso las llamadas de
+`ToolBox` pasan por `run_coroutine`.
+
+#### Guardar como página
+
+`save_artifact_as_page` es la única herramienta propia con tarjeta: solo en modo edición, y con `changes_something` para que el
+turno registre `turn_start` y `turn_end`, así que deshacer funciona igual que siempre. No escribe nada por sí misma:
+`artifact_pages.py` pide `add_page`, `add_element` y `create_visual` a `ToolBox`, con `approved=True` porque la persona aprobó el
+conjunto en la tarjeta. Una gráfica por tablero, las celdas del lienzo, los permisos y el historial valen porque esas herramientas
+los cumplen.
+
+`page_plan` reparte los bloques en páginas del tamaño del lienzo: lo que no cabe pasa a otra, hasta 5. Un bloque de datos se
+convierte en un gráfico solo si dice exactamente lo mismo. Si un filtro no tiene equivalente, el bloque queda fuera y el resultado
+lo nombra, en vez de guardar un gráfico sin ese filtro. Los rangos de tiempo llegan por `time_filters`, un campo de
+`create_visual`.
+
+Un documento se escribe a menudo leyendo, y leer nunca cambia un informe. Por eso la herramienta acepta cualquier documento de esa
+persona en ese informe, y `read_artifact` sin id lista también los de sus otras conversaciones: se guarda desde el editor.
 
 ### Deshacer
 

@@ -244,8 +244,39 @@ This repository is **AuraData BI**, a fork of Apache Superset 7.0 shaped like Po
   the data, so a block of text carries `written_on`, the document shows its oldest date and refreshing it is a message.
   `erase_conversations` deletes the documents of a conversation, retention included; a restore leaves a `record` row, which
   counts as activity. `ArtifactPanel` is a portal next to the chat (`useDockBox`), in the drawer and in the editor's pane alike.
-- **The system prompt binds a conversation:** a stored thinking block is signed against it, so changing `prompt.py` makes the
-  API refuse (400) the next message of any conversation that holds one. Those conversations must be started again.
+  Each version keeps the `model` that wrote it (a restore copies it); `DocumentMark` shows it as «made by the assistant (model X)».
+  `query.aggregates[].label` names a number in legends and table headers instead of `SUM(ventas)`.
+- **A document on its page, exported and shared** (`sharing.py`, `exports.py`, `artifact_pages.py`, `superset/tasks/assistant_export.py`;
+  `DocumentPage.tsx`, `ShareCard.tsx`, `sheets.ts`, `WorkspaceDocuments.tsx`). `/assistant/document/<id>/` is the reading view, only a
+  shell: `GET /api/v1/auradata/assistant/documents/<id>/` decides. It gives the owner the last version and a member of the workspace
+  the shared one, and anyone else a 404, an anonymous visitor too, which is why that route has no `protect()`. A share is three columns of
+  the document (`shared_workspace_id`, `shared_version`, `shared_on`), never a copy, and `sharing.reads_share` decides on every read:
+  the report is still in that workspace, its author is still an active member, the reader has a `WorkspaceMember` row (a Superset
+  admin is no exception) and opens the report as themselves, so a document of a draft stays with those who see the draft. Leaving a workspace
+  and moving a report also clear the columns (`end_shares_of_member`, `end_moved_shares`), so coming back reopens nothing. The owner
+  shares the version the card showed (409 otherwise), so what the assistant writes later reaches no reader until shared again. `reader_json`
+  builds what a reader gets: no conversation, no history, and a data block they do not reach is `{id, type: "refused"}`: its query,
+  title and label stay on the server. A block they reach runs its query in their browser, with their permissions and row level security. Text
+  reaches nobody's permissions, so `share_card` lists the numbers it holds and the warning is plain. A reader writes nothing, and a
+  shared text never reaches the model of a reader: `read_artifact` stays with the owner. Sharing and exporting are of the person: no
+  tool of the model does either. Each leaves an `assistant_document` row in the action log, with the model.
+  **PDF:** `POST .../artifacts/<id>/export/` writes a ticket in Redis and queues a task with its id; the panel asks until
+  `GET .../export/<job>/` gives the file. The worker opens the reading view as the person with `capture_raw`, as report exports do. Captured
+  (`standalone`), the page waits for every block (`useSettled`) and for ECharts, lays its pieces out on sheets (`sheets.ts`), and only then
+  adds `auradata-document-ready`, the element the driver waits for; `exports.py` cuts the picture into PDF pages. It runs in a
+  thread of its own, because sync Playwright leaves a loop running on its thread, which is also why tools go through `run_coroutine`.
+  **Save as a page:** `save_artifact_as_page` is the one own tool with a card: edit mode only, `needs_confirmation` and `changes_something`
+  True, so the turn records an undo like any other. `artifact_pages.py` plans the pages (`page_plan`, what does not fit goes on to more
+  pages) and calls `add_page`, `add_element` and `create_visual` through `ToolBox`, so every rule of those tools holds. It reaches any
+  document of the person on that report, so one written while reading can be saved from the editor. A query that no chart says
+  exactly stays out of the report and the result names it: never a chart without one of its filters. `create_visual` takes `time_filters`.
+- **The system prompt binds a conversation:** a stored thinking block is signed against the system prompt, the tools and the
+  history. `conversation.system_prompt` holds the prompt of its first turn and every later turn resends it (`_prepare_turn`), so editing
+  `prompt.py` reaches new conversations only; to tell a running one something, write a message of the conversation. Tools still change, with
+  a person's permissions or a deployment, so every request sends `block_binding: {prefix_mismatch_behavior: "drop_block"}`
+  (`THINKING_BINDING_BETA`, only with `adaptive` or `enabled`, which `between_tools` and `disabled` refuse): that conversation loses
+  its reasoning and goes on, and `_note_dropped_thinking` logs it. A conversation older than the column takes the prompt of its next turn.
+  What not even that saves (a signature the API cannot verify) is `history_refused`, and the panel offers a new conversation.
 - **Privacy notice** (`PrivacyNotice.tsx`, `accept_privacy`): until a person accepts, per user on the server, chat and decide
   answer 403 (`reason: privacy`) and nothing reaches Anthropic. A change to what the notice says raises
   `PRIVACY_NOTICE_VERSION`, and everyone is asked again.

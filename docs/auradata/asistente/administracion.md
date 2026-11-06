@@ -191,7 +191,7 @@ AURADATA_ASSISTANT_RETENTION_DAYS = None  # conservar todo, para siempre
 | Conversación con un turno en marcha | Se queda |
 | Conversación de un informe en la papelera | Sigue su retención normal: el informe puede volver |
 | Imagen subida que ningún mensaje envió, con más de un día | Se borra, aunque no haya retención configurada |
-| Documento del asistente | Se borra con su conversación, con todas sus versiones |
+| Documento del asistente | Se borra con su conversación, con todas sus versiones. Si estaba compartido, deja de verse |
 
 - **Con `None` no se borra nada,** tampoco lo huérfano. Lo mismo con un valor que no tenga sentido, como `0` o `"90"`: el log lo
   avisa y la tarea no toca nada.
@@ -226,6 +226,9 @@ votos. `e5a7c3f19d42` deja vacío `conversation_id` en las dos tablas de filas q
 esas filas, y con ellas el gasto y los votos de las conversaciones ya borradas. `c8f2d6b4a917` agrega
 `auradata_assistant_attachments`, con las imágenes. Revertirla las borra, y las conversaciones que las nombran dejan de poder
 enviarse al modelo: elimínalas antes.
+
+`b1d7e4f2a856` agrega `system_prompt` a las conversaciones. Las que ya existen lo llenan en su siguiente turno. `c4e8a1f6d392`
+agrega a los documentos las columnas de compartir. Revertirla cierra todo lo compartido; los documentos se quedan con sus dueños.
 
 Sin ella, el asistente no puede guardar conversaciones. En una base que ya existe, respáldala antes, como con cualquier
 migración.
@@ -319,7 +322,12 @@ La [retención](#retención) corre aparte: `superset-worker-beat` la dispara y u
 | Cerrar sesión no detiene un turno | El turno ya corre como esa persona y termina, con su identidad y sus permisos del momento, aunque se cierre la sesión. Desactivar al usuario sí lo frena en la siguiente herramienta | Pulsa **Detener** antes de salir |
 | Un turno con más de 50.000 eventos | `MAX_EVENTS` recorta los más viejos del stream. Un lector que se había quedado atrás recibe `trimmed` y, al terminar, el panel lee la respuesta guardada, que está entera | Nada |
 | Muchas herramientas piden tarjeta | [32 de 146](evaluacion.md#herramientas-detrás-de-una-tarjeta), incluidas `update_chart` y `update_dashboard`. Puede cansar en el uso real | Se revisa con los datos de la evaluación |
-| Capturas (`get_dashboard_screenshot`) desde el worker | Funcionan en desarrollo | Sin probar en producción |
+| Capturas (`get_dashboard_screenshot`) y PDF de documentos desde el worker | Funcionan en desarrollo | Sin probar en producción |
+| Cambiar las instrucciones no llega a las conversaciones abiertas | Cada conversación guarda las instrucciones de su primer turno, porque la API ata a ellas el razonamiento del modelo | Las conversaciones nuevas ya las usan |
+| Cambian las herramientas de una conversación en marcha | Un despliegue o un cambio de permisos cambia lo que se le ofrece al modelo. La API descarta el razonamiento guardado de esa conversación y sigue; el log del worker dice `dropped thinking blocks`. Cuesta algo de calidad y una caché nueva | Nada. Si ese aviso sale sin despliegue de por medio, algo está editando el historial: repórtalo |
+| Un PDF espera si los workers están ocupados | En un worker compartido con miniaturas, la tarea espera en la cola hasta 3 minutos | En producción va por `superset-worker-assistant` |
+| Un PDF queda en Redis 15 minutos | Con las cifras de quien lo pidió, solo para esa persona | Nada |
+| El texto de un documento compartido no respeta RLS | Lo escribió el autor con su acceso. La tarjeta lo avisa y la vista del lector lo dice | Es decisión del autor. Compartir queda en el registro de acciones |
 | Rutas `undo/`, `stop/` y `models/` | Sin bloque propio en el proxy: son respuestas cortas | Nada |
 
 ## Si algo falla
@@ -335,5 +343,6 @@ La [retención](#retención) corre aparte: `superset-worker-beat` la dispara y u
 | «No hay ningún worker del asistente libre» | Ningún worker atiende `auradata_assistant`, o todos sus puestos están ocupados | `celery inspect active_queues`. Sube los puestos si está lleno |
 | Chat con 503 «no tiene dónde ejecutar sus respuestas» | Falta `AURADATA_ASSISTANT_REDIS_URL` | Agrégala a la configuración |
 | La respuesta se corta a los 60 s | Falta el bloque del proxy, o el worker es `sync` con `SERVER_THREADS_AMOUNT=1` | Mira [tiempos del proxy](#tiempos-del-proxy) |
+| «Esta conversación no puede seguir tras una actualización del asistente» | La API no pudo verificar lo guardado de esa conversación | Empieza una nueva. El panel lo ofrece |
 | «El servicio de IA falló» en una conversación muy larga | Excedió el contexto del modelo. El panel avisa desde el 80% | Empieza una conversación nueva |
 | El tope cortó el mes | Llegó al 100% | Súbelo o espera al mes siguiente |

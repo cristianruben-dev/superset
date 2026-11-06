@@ -136,7 +136,8 @@ con **Solo lo que hizo el asistente**. En el registro de acciones, cada herramie
 ## Pedir un documento
 
 Pide un entregable, como «hazme el resumen ejecutivo de este informe», y el asistente lo escribe en un documento al lado del chat.
-Funciona también mientras lees, porque un documento es tuyo y no cambia el informe. Solo tú lo ves.
+Funciona también mientras lees, porque un documento es tuyo y no cambia el informe. Solo tú lo ves, hasta que lo compartes.
+Bajo el título dice qué modelo lo hizo.
 
 Un documento tiene texto, cifras destacadas, gráficos y tablas. Las cifras, gráficos y tablas guardan su consulta, no el número: se
 leen cada vez que lo abres, con tus permisos, y debajo dicen de qué dataset y filtros salen. Si ya no tienes acceso a un dato, ese
@@ -150,7 +151,47 @@ bloque lo dice.
 - **Actualizar el texto.** El texto queda como se escribió, aunque las cifras cambien. Bajo el título ves su fecha, y **Actualizar
   el texto** le pide al asistente que lo reescriba con las cifras de hoy.
 
-Si borras la conversación, su documento se borra con ella, y lo mismo ocurre cuando vence la retención.
+Si borras la conversación, su documento se borra con ella, y lo mismo ocurre cuando vence la retención. Si estaba compartido,
+deja de verse.
+
+### Exportarlo a PDF
+
+Pulsa **Exportar a PDF** en la barra del documento. Tarda unos segundos y se descarga solo. Sale tal como lo ves, con tus cifras y
+en hojas A4.
+
+### Guardarlo como página del informe
+
+El documento se convierte en páginas de verdad: el texto en elementos de texto, y las cifras, gráficos y tablas en gráficos del
+informe.
+
+1. Abre el informe en el editor y, en una conversación de la pestaña **Asistente**, pulsa **Guardar como página del informe** o
+   pídeselo.
+2. Lee la tarjeta: dice cuántas páginas y cuántos objetos va a crear. Pulsa **Aprobar**.
+3. El informe se recarga con las páginas nuevas. Si no te gusta, **Deshacer lo del asistente** las quita con un clic.
+
+Si el documento lo escribiste mientras leías, ábrelo desde el editor pidiéndolo por su nombre: «guarda mi documento Resumen como
+página». Si no cabe en una página sigue en otra, y si un bloque no se puede convertir exactamente, el asistente te dice cuál quedó
+fuera.
+
+### Compartirlo con tu área de trabajo
+
+Compartes con todas las personas del área de trabajo del informe, y solo con ellas.
+
+1. Pulsa **Compartir con el workspace** en la barra del documento.
+2. Lee la tarjeta. Muestra las frases con cifras y por qué valores filtran los bloques.
+3. Pulsa **Compartir la versión N**, y usa **Copiar enlace** si quieres mandarlo. También aparece en la página del área de trabajo,
+   en **Documentos compartidos**.
+
+**Lo que debes saber antes de compartir:**
+
+- Los gráficos, las tablas y las cifras se leen con los permisos de cada persona. Si no llega a un dato, ve un aviso en su lugar.
+- **El texto no.** Queda como lo escribió el asistente con tu acceso, y la seguridad por filas no lo alcanza. Si el texto dice
+  «el Norte vendió 9 millones», eso lo lee todo el que abra el documento. Revísalo, o deja esas cifras en bloques de datos.
+- Comparte una versión. Lo que cambies después no llega a nadie hasta que compartas otra vez.
+- Quien lo lee no puede cambiarlo, ni ver la conversación ni las versiones, y ve una nota con quién lo escribió y cuándo.
+
+Se deja de compartir con **Dejar de compartir**, y también cuando sales del área de trabajo o el informe pasa a otra. Si lo
+compartes de un borrador, solo lo leen quienes pueden ver ese borrador.
 
 ## Elegir el modelo
 
