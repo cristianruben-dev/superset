@@ -63,7 +63,7 @@ import logging
 import time
 from collections.abc import Iterator
 from datetime import datetime
-from typing import Any
+from typing import Any, cast
 from uuid import UUID, uuid4
 
 from flask import abort, request, Response, stream_with_context
@@ -349,6 +349,16 @@ def _session_user_only() -> bool:
         and not security_manager.is_guest_user()
         and security_manager.extract_api_key_from_request() is None
     )
+
+
+def _user_id() -> int:
+    """The current user of a request that ``_session_user_only`` let through."""
+    return cast(int, get_user_id())
+
+
+def _open_store() -> TurnStore:
+    """The turn store of a request that ``_refused_by_settings`` let through."""
+    return cast(TurnStore, turn_store())
 
 
 def _model_json(model: CatalogModel, offered: set[str]) -> dict[str, Any]:
@@ -777,8 +787,8 @@ class AssistantRestApi(BaseSupersetApi):
         dashboard = open_dashboard(context["dashboard_id"])
         if dashboard is None:
             return self.response_404()
-        store = turn_store()
-        user_id = get_user_id()
+        store = _open_store()
+        user_id = _user_id()
         conversation = None
         log = None
         mode = data["mode"]
@@ -809,7 +819,11 @@ class AssistantRestApi(BaseSupersetApi):
         if _no_tool_search_for(model, history):
             return self.response_422(message=self._tool_search_needed())
         pending = pending_turn(conversation) if conversation else None
-        if pending is not None and not pending.undecided:
+        if (
+            conversation is not None
+            and pending is not None
+            and not pending.undecided
+        ):
             # Every call is decided and no turn holds them: what ran them is gone
             repair_conversation(conversation, user_id)
             pending = None
@@ -892,7 +906,7 @@ class AssistantRestApi(BaseSupersetApi):
         """Why these images cannot join this conversation, if they cannot."""
         if not attachments:
             return None
-        if not has_drafts(attachments, get_user_id()):
+        if not has_drafts(attachments, _user_id()):
             return self.response_422(message=_("Attach your images again."))
         held = attachments_in(conversation.id) if conversation else 0
         if held + len(attachments) > MAX_PER_CONVERSATION:
@@ -960,7 +974,7 @@ class AssistantRestApi(BaseSupersetApi):
 
     def _refused_by_privacy(self) -> Response | None:
         """Nothing travels to Anthropic for someone who has not read what travels."""
-        if accepted_privacy(get_user_id()):
+        if accepted_privacy(_user_id()):
             return None
         return self.response(
             403,
@@ -1059,11 +1073,11 @@ class AssistantRestApi(BaseSupersetApi):
         except ValidationError as ex:
             return self.response_400(message=ex.messages)
 
-        user_id = get_user_id()
+        user_id = _user_id()
         conversation = find_conversation(conversation_id, user_id)
         if conversation is None:
             return self.response_404()
-        store = turn_store()
+        store = _open_store()
         settle_turn(store, conversation_id)
         # Before anything is read: a decision that lands after this collides with
         # this one, however long the checks below take
@@ -1179,7 +1193,7 @@ class AssistantRestApi(BaseSupersetApi):
             return self.response(
                 503, message=_("The AI assistant has no place to run its answers.")
             )
-        conversation = find_conversation(conversation_id, get_user_id())
+        conversation = find_conversation(conversation_id, _user_id())
         if conversation is None or open_dashboard(conversation.dashboard_id) is None:
             return self.response_404()
         after = max(request.args.get("after", 0, type=int), 0)
@@ -1217,11 +1231,11 @@ class AssistantRestApi(BaseSupersetApi):
         if not _session_user_only():
             return self.response_403()
         store = turn_store()
-        conversation = find_conversation(conversation_id, get_user_id())
+        conversation = find_conversation(conversation_id, _user_id())
         if conversation is None:
             return self.response_404()
         turn_id = store.holder(conversation_id) if store else None
-        if turn_id is not None:
+        if store is not None and turn_id is not None:
             store.ask_to_stop(turn_id)
         return self.response(200, result={"stopping": turn_id is not None})
 
@@ -1260,12 +1274,12 @@ class AssistantRestApi(BaseSupersetApi):
         settings = get_assistant_settings()
         if (refused := self._turned_off(settings)) is not None:
             return refused
-        conversation = find_conversation(conversation_id, get_user_id())
+        conversation = find_conversation(conversation_id, _user_id())
         if conversation is None:
             return self.response_404()
         if self._turn_runs(conversation_id):
             return self._busy()
-        log = ConversationLog(conversation, get_user_id())
+        log = ConversationLog(conversation, _user_id())
         dashboard = open_dashboard(conversation.dashboard_id)
         if dashboard is None:
             return self.response_404()
@@ -1349,7 +1363,7 @@ class AssistantRestApi(BaseSupersetApi):
                 "available": bool(offered),
                 "edit_available": bool(offered)
                 and switched_off(settings, workspace_id, MODE_EDIT) is None,
-                "privacy_accepted": accepted_privacy(get_user_id()),
+                "privacy_accepted": accepted_privacy(_user_id()),
                 "budget": _budget_json(budget_of(settings, workspace_id)),
                 "models": [
                     _offered_model_json(model, settings.default_model)
@@ -1377,7 +1391,7 @@ class AssistantRestApi(BaseSupersetApi):
         """
         if not _session_user_only():
             return self.response_403()
-        accept_privacy(get_user_id())
+        accept_privacy(_user_id())
         return self.response(200, result={"privacy_accepted": True})
 
     @expose("/conversations/", methods=("GET",))
@@ -1418,7 +1432,7 @@ class AssistantRestApi(BaseSupersetApi):
             200,
             result=[
                 {**conversation_json(item), "last_message_on": last.isoformat()}
-                for item, last in list_conversations(get_user_id(), dashboard_id)
+                for item, last in list_conversations(_user_id(), dashboard_id)
             ],
         )
 
@@ -1450,7 +1464,7 @@ class AssistantRestApi(BaseSupersetApi):
         """
         if not _session_user_only():
             return self.response_403()
-        conversation = find_conversation(conversation_id, get_user_id())
+        conversation = find_conversation(conversation_id, _user_id())
         if conversation is None or open_dashboard(conversation.dashboard_id) is None:
             return self.response_404()
         running = self._running(conversation)
@@ -1472,7 +1486,7 @@ class AssistantRestApi(BaseSupersetApi):
                 "can_undo": not running
                 and conversation.mode == MODE_EDIT
                 and can_undo(conversation),
-                "feedback": feedback_of(conversation, get_user_id()),
+                "feedback": feedback_of(conversation, _user_id()),
                 "interrupted": lost_turns(conversation),
                 "running": {"after": running.after} if running else None,
             },
@@ -1514,7 +1528,7 @@ class AssistantRestApi(BaseSupersetApi):
         """
         if not _session_user_only():
             return self.response_403()
-        conversation = find_conversation(conversation_id, get_user_id())
+        conversation = find_conversation(conversation_id, _user_id())
         if conversation is None or open_dashboard(conversation.dashboard_id) is None:
             return self.response_404()
         try:
@@ -1559,7 +1573,7 @@ class AssistantRestApi(BaseSupersetApi):
         """
         if not _session_user_only():
             return self.response_403()
-        conversation = find_conversation(conversation_id, get_user_id())
+        conversation = find_conversation(conversation_id, _user_id())
         if conversation is None:
             return self.response_404()
         if self._turn_runs(conversation_id):
@@ -1623,7 +1637,7 @@ class AssistantRestApi(BaseSupersetApi):
             return self.response_400(message="Missing image")
         try:
             draft = save_draft(
-                get_user_id(), clean_image(upload.read(MAX_UPLOAD_BYTES + 1))
+                _user_id(), clean_image(upload.read(MAX_UPLOAD_BYTES + 1))
             )
         except ImageRefusedError as ex:
             return self.response(422, message=str(ex))
@@ -1670,7 +1684,7 @@ class AssistantRestApi(BaseSupersetApi):
         """
         if not _session_user_only():
             return self.response_403()
-        user_id = get_user_id()
+        user_id = _user_id()
         found = find_attachment(attachment_id, user_id)
         if found is None:
             return self.response_404()
@@ -1714,13 +1728,13 @@ class AssistantRestApi(BaseSupersetApi):
         """
         if not _session_user_only():
             return self.response_403()
-        if not delete_draft(attachment_id, get_user_id()):
+        if not delete_draft(attachment_id, _user_id()):
             return self.response_404()
         return self.response(200, message="OK")
 
     def _open_artifact(self, artifact_id: UUID) -> AssistantArtifact | None:
         """A document of this person, on a report they can still open."""
-        artifact = find_artifact(artifact_id, get_user_id())
+        artifact = find_artifact(artifact_id, _user_id())
         if artifact is None or open_dashboard(artifact.dashboard_id) is None:
             return None
         return artifact
@@ -1850,7 +1864,7 @@ class AssistantRestApi(BaseSupersetApi):
             number = AssistantRestoreSchema().load(request.json)["version"]
         except ValidationError as ex:
             return self.response_400(message=ex.messages)
-        user_id = get_user_id()
+        user_id = _user_id()
         artifact = self._open_artifact(artifact_id)
         conversation = (
             find_conversation(artifact.conversation_id, user_id) if artifact else None
@@ -1858,6 +1872,10 @@ class AssistantRestApi(BaseSupersetApi):
         if artifact is None or conversation is None:
             return self.response_404()
         store = turn_store()
+        if store is None:
+            return self.response(
+                503, message=_("The AI assistant has no place to run its answers.")
+            )
         settle_turn(store, conversation.id)
         if store.holder(conversation.id) is not None:
             return self._busy()
@@ -1909,7 +1927,7 @@ class AssistantRestApi(BaseSupersetApi):
             "can_read", "Dashboard"
         ):
             return self.response_404()
-        user_id = get_user_id()
+        user_id = _user_id()
         artifact = self._open_artifact(artifact_id)
         version = version_of(artifact.id) if artifact else None
         if artifact is not None and version is not None:
@@ -1956,7 +1974,7 @@ class AssistantRestApi(BaseSupersetApi):
         if not _session_user_only():
             return self.response_403()
         workspace_id = request.args.get("workspace_id", type=int)
-        if workspace_id is None or not sharing.is_member(workspace_id, get_user_id()):
+        if workspace_id is None or not sharing.is_member(workspace_id, _user_id()):
             return self.response_404()
         return self.response(200, result=sharing.shared_in(workspace_id))
 
@@ -1965,7 +1983,9 @@ class AssistantRestApi(BaseSupersetApi):
     ) -> tuple[AssistantArtifact, AssistantArtifactVersion] | None:
         artifact = self._open_artifact(artifact_id)
         version = version_of(artifact.id) if artifact else None
-        return (artifact, version) if version is not None else None
+        if artifact is None or version is None:
+            return None
+        return artifact, version
 
     @expose("/artifacts/<uuid:artifact_id>/share/", methods=("GET",))
     @protect()
@@ -2097,7 +2117,7 @@ class AssistantRestApi(BaseSupersetApi):
             return self.response_403()
         # Not ``_open_artifact``: this only takes access away, so an author who lost the
         # report can still do it
-        artifact = find_artifact(artifact_id, get_user_id())
+        artifact = find_artifact(artifact_id, _user_id())
         version = version_of(artifact.id) if artifact else None
         if artifact is None or version is None:
             return self.response_404()
@@ -2144,7 +2164,7 @@ class AssistantRestApi(BaseSupersetApi):
         store = turn_store()
         if store is None:
             return self.response_422(message=_("Export is not available here."))
-        job_id = start_export(store, found[0], get_user_id(), _locale())
+        job_id = start_export(store, found[0], _user_id(), _locale())
         return self.response(202, result={"job_id": job_id})
 
     @expose("/artifacts/<uuid:artifact_id>/export/<string:job_id>/", methods=("GET",))
@@ -2194,8 +2214,11 @@ class AssistantRestApi(BaseSupersetApi):
             return self.response_403()
         store = turn_store()
         # The file holds what the document says, so it is read as the document is
-        allowed = store is not None and self._last_version_of(artifact_id) is not None
-        job = job_of(store, job_id, artifact_id, get_user_id()) if allowed else None
+        job = (
+            job_of(store, job_id, artifact_id, _user_id())
+            if store is not None and self._last_version_of(artifact_id) is not None
+            else None
+        )
         if job is None:
             return self.response_404()
         if job["status"] == FAILED:
@@ -2214,7 +2237,7 @@ class AssistantRestApi(BaseSupersetApi):
         self, conversation_id: UUID, message_id: UUID
     ) -> AssistantMessage | None:
         """An answer of a conversation of this person, on a report they can open."""
-        conversation = find_conversation(conversation_id, get_user_id())
+        conversation = find_conversation(conversation_id, _user_id())
         if conversation is None or open_dashboard(conversation.dashboard_id) is None:
             return None
         return answer_of(conversation, message_id)
@@ -2273,7 +2296,7 @@ class AssistantRestApi(BaseSupersetApi):
             return self.response_400(message=error.messages)
         return self.response(
             200,
-            result=save_vote(answer, get_user_id(), values["vote"], values["reason"]),
+            result=save_vote(answer, _user_id(), values["vote"], values["reason"]),
         )
 
     @expose(
@@ -2316,7 +2339,7 @@ class AssistantRestApi(BaseSupersetApi):
         answer = self._answer_to_vote(conversation_id, message_id)
         if answer is None:
             return self.response_404()
-        clear_vote(answer, get_user_id())
+        clear_vote(answer, _user_id())
         return self.response(200, message="OK")
 
 
