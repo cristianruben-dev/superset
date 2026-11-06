@@ -212,7 +212,7 @@ def test_a_person_can_delete_what_they_said_on_a_report_they_lost(
     mocker: MockerFixture,
 ) -> None:
     conversation, _ = answered(client, world, mocker)
-    mocker.patch("superset.auradata.assistant.api._open_dashboard", return_value=None)
+    mocker.patch("superset.auradata.assistant.api.open_dashboard", return_value=None)
 
     assert client.put(url_of(conversation), json={"title": "x"}).status_code == 404
     assert client.delete(url_of(conversation)).status_code == 200

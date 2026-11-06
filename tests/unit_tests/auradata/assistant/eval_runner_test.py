@@ -544,7 +544,7 @@ def test_cards_are_counted_and_only_the_expected_ones_approved(
         reply(delete, stop_reason="tool_use"),
         reply(text("No lo borré.")),
     )
-    mocker.patch.object(runner.api_module, "build_client", return_value=fake.client)
+    mocker.patch.object(runner.turns_module, "build_client", return_value=fake.client)
     driver = runner.Driver(current_app.test_client())
     task = task_of(kind="edit", mode="edit", approve=["publish_dashboard"])
 

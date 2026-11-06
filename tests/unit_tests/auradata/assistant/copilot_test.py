@@ -52,12 +52,12 @@ from superset.mcp_service.app import mcp
 from superset.models.slice import Slice
 from superset.utils import json
 from tests.unit_tests.auradata.assistant.chat_test import (  # noqa: F401
-    lose_the_session_before_streaming,
     ask,
     catalog_model,
     conversation_id_of,
     HAIKU,
     login,
+    lose_the_session_before_streaming,
     payloads,
     session_engine,
     SONNET,
@@ -914,7 +914,7 @@ def test_stopping_while_the_model_thinks_closes_the_call_and_keeps_its_cost(
     mocker: MockerFixture,
 ) -> None:
     login(world, "Ana")
-    mocker.patch.object(agent, "KEEP_ALIVE_SECONDS", 0.01)
+    mocker.patch.object(agent, "TICK_SECONDS", 0.01)
     user_id = world["users"]["Ana"].id
     conversation = create_conversation(
         user_id, world["dashboard"].id, MODE_EDIT, SONNET, "Hola"
@@ -945,7 +945,7 @@ def test_stopping_while_the_model_thinks_closes_the_call_and_keeps_its_cost(
         history_of(conversation),
     )
 
-    assert next(events)[0] == agent.KEEP_ALIVE
+    assert next(events)[0] == agent.TICK
     # Let the first events reach the snapshot of the stream
     body.closed.wait(0.1)
     events.close()

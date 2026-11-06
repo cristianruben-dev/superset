@@ -53,7 +53,7 @@ from flask import current_app, Flask, g
 from sqlalchemy import inspect, text
 
 from superset import db, security_manager
-from superset.auradata.assistant import api as api_module
+from superset.auradata.assistant import api as api_module, turns as turns_module
 from superset.auradata.assistant.governance import budget_of, switched_off
 from superset.auradata.assistant.models import (
     _table_models,
@@ -296,12 +296,13 @@ class Transcript:
 
 
 def sse_events(body: str) -> Iterator[tuple[str, dict[str, Any]]]:
-    """The events of a stream, without the comments that keep it open."""
+    """The events of a stream, without their numbers or the comments keeping it open."""
     for chunk in body.split("\n\n"):
-        lines = [line for line in chunk.split("\n") if line and line[0] != ":"]
-        if len(lines) == 2:
-            event = lines[0].removeprefix("event: ")
-            yield event, json.loads(lines[1].removeprefix("data: "))
+        fields = dict(
+            line.split(": ", 1) for line in chunk.split("\n") if line and line[0] != ":"
+        )
+        if "event" in fields:
+            yield fields["event"], json.loads(fields["data"])
 
 
 class Driver:
@@ -553,7 +554,14 @@ def run_battery(
     give or take the task under way: the comparison stays fair.
     """
     results: list[TaskResult] = []
-    original = api_module.build_client
+    original = turns_module.build_client
+    original_enqueue = turns_module.enqueue
+
+    def run_here(ticket: Any) -> None:
+        # The runner reads a stream whole: the turn runs in its request
+        turns_module.run_turn(api_module.turn_store(), ticket.turn_id)
+
+    turns_module.enqueue = run_here
     try:
         for _round in range(repeat):
             for task in tasks:
@@ -561,7 +569,7 @@ def run_battery(
                     if ledger.stopped == "spend_limit":
                         return results
                     guarded = GuardedClient(client_for(task, model), ledger, effort)
-                    api_module.build_client = lambda client=guarded: client
+                    turns_module.build_client = lambda client=guarded: client
                     results.append(
                         _run_task(
                             task,
@@ -575,7 +583,8 @@ def run_battery(
                         )
                     )
     finally:
-        api_module.build_client = original
+        turns_module.build_client = original
+        turns_module.enqueue = original_enqueue
     return results
 
 
@@ -1079,6 +1088,7 @@ def _work_offline(app: Flask) -> None:
     app.config["ANTHROPIC_API_KEY"] = "dry-run"  # noqa: S105
     app.config["AURADATA_ASSISTANT_ENABLED"] = True
     api_module.get_catalog = lambda: Catalog(_table_models(), SOURCE_TABLE)
+    turns_module.get_catalog = api_module.get_catalog
 
 
 def parse_args(argv: list[str]) -> argparse.Namespace:

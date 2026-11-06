@@ -27,7 +27,11 @@ from typing import Any
 import pytest
 from pytest_mock import MockerFixture
 
-from superset.auradata.assistant import api as api_module, governance
+from superset.auradata.assistant import (
+    api as api_module,
+    governance,
+    turns as turns_module,
+)
 from superset.auradata.assistant.conversations import (
     AssistantTurn,
     ConversationLog,
@@ -354,7 +358,7 @@ def test_turning_it_off_stops_a_card_that_was_waiting(
     conversation_id = payloads(
         ask(client, world["dashboard"], mode=MODE_EDIT), "conversation"
     )[0]["id"]
-    run = mocker.spy(api_module.ToolBox, "call")
+    run = mocker.spy(turns_module.ToolBox, "call")
     save_workspace_settings(world["ventas_ws"].id, {"edit_enabled": False})
 
     response = decide(client, conversation_id)

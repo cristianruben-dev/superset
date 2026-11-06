@@ -47,31 +47,32 @@ A decision on a pending call names only the call: what runs is what the conversa
 stored, and it is checked again for the person deciding, at that moment. The context of
 a message is read by the model as data, and ``dashboard_id`` is the only part of it that
 the server acts on.
+
+An answer runs in a worker (``turns.py``). Chat and decide check all this, store what
+the person said, take the turn of the conversation and read its stream. Anyone who may
+read the conversation may read that stream, on each connection, and anyone else gets a
+404: the same rules as the conversation, a report they can still open included. A stream
+is found through the conversation, so its address names nothing else. Stopping is one
+more request, and the owner of a conversation can always stop what it runs.
 """
 
 from __future__ import annotations
 
 import logging
-from collections.abc import Callable, Iterator
-from dataclasses import replace
+import time
+from collections.abc import Iterator
 from datetime import datetime
 from typing import Any
-from uuid import UUID
+from uuid import UUID, uuid4
 
-from flask import abort, g, request, Response, stream_with_context
+from flask import abort, request, Response, stream_with_context
 from flask_appbuilder import expose
 from flask_appbuilder.api import protect, safe
 from flask_appbuilder.security.decorators import has_access, permission_name
-from flask_babel import gettext as _
+from flask_babel import get_locale, gettext as _
 from marshmallow import fields, Schema, validate, ValidationError
 
 from superset import security_manager
-from superset.auradata.assistant.agent import (
-    build_client,
-    KEEP_ALIVE,
-    resume_after_decisions,
-    run_conversation,
-)
 from superset.auradata.assistant.attachments import (
     attachment_block,
     attachments_in,
@@ -84,7 +85,6 @@ from superset.auradata.assistant.attachments import (
     MAX_PER_MESSAGE,
     MAX_UPLOAD_BYTES,
     save_draft,
-    with_images,
 )
 from superset.auradata.assistant.conversations import (
     context_tokens_of,
@@ -97,6 +97,7 @@ from superset.auradata.assistant.conversations import (
     find_conversation,
     history_of,
     list_conversations,
+    lost_turns,
     not_run_results,
     pending_json,
     pending_turn,
@@ -131,9 +132,8 @@ from superset.auradata.assistant.models import (
     EFFORTS,
     get_catalog,
     relative_price,
-    tuned_spec,
 )
-from superset.auradata.assistant.prompt import context_block, system_prompt
+from superset.auradata.assistant.prompt import context_block
 from superset.auradata.assistant.settings import (
     AssistantSettings,
     AssistantSettingsError,
@@ -151,10 +151,25 @@ from superset.auradata.assistant.spending import (
     spent_usd,
     usage_report,
 )
-from superset.auradata.assistant.tools import MODE_EDIT, MODE_READ, MODES, ToolBox
+from superset.auradata.assistant.tools import MODE_EDIT, MODE_READ, MODES
+from superset.auradata.assistant.turn_store import (
+    turn_store,
+    TurnStore,
+    TurnTicket,
+)
+from superset.auradata.assistant.turns import (
+    answered_at_once,
+    KIND_CHAT,
+    KIND_DECIDE,
+    offered_model,
+    open_dashboard,
+    relay,
+    repair_conversation,
+    settle_turn,
+    start_turn,
+)
 from superset.auradata.assistant.undo import (
     can_undo,
-    report_versions,
     undo_last_turn,
     UndoConflictError,
     UndoError,
@@ -171,13 +186,6 @@ from superset.auradata.workspaces import (
     WorkspaceForbiddenError,
     WorkspaceNotFoundError,
 )
-from superset.commands.dashboard.exceptions import (
-    DashboardAccessDeniedError,
-    DashboardNotFoundError,
-)
-from superset.daos.dashboard import DashboardDAO
-from superset.exceptions import SupersetSecurityException
-from superset.models.dashboard import Dashboard
 from superset.superset_typing import FlaskResponse
 from superset.utils import json
 from superset.utils.core import get_user_id
@@ -290,27 +298,10 @@ class AssistantFeedbackSchema(Schema):
     )
 
 
-def _sse(event: str, data: dict[str, Any]) -> str:
-    return f"event: {event}\ndata: {json.dumps(data)}\n\n"
-
-
-def _keep_alive() -> str:
-    """A comment of the SSE format: proxies count it, and readers skip it."""
-    return ": keep-alive\n\n"
-
-
-def _open_dashboard(dashboard_id: int | None) -> Dashboard | None:
-    """The dashboard if this user can open it. None hides whether it exists."""
-    if dashboard_id is None:
-        return None
-    try:
-        return DashboardDAO.get_by_id_or_slug(dashboard_id)
-    except (
-        DashboardNotFoundError,
-        DashboardAccessDeniedError,
-        SupersetSecurityException,
-    ):
-        return None
+def _locale() -> str | None:
+    """The language of the request: a worker has no session to read it from."""
+    locale = get_locale()
+    return str(locale) if locale is not None else None
 
 
 def _session_user_only() -> bool:
@@ -408,82 +399,6 @@ def _event_stream(events: Iterator[str]) -> Response:
 def _no_tool_search_for(model: CatalogModel, history: list[dict[str, Any]]) -> bool:
     """A model without tool search cannot read a history of tools found by it."""
     return not model.spec.tool_search and uses_tool_search(history)
-
-
-def _turn_stream(
-    conversation_id: UUID,
-    user_id: int,
-    log: ConversationLog,
-    dashboard_id: int,
-    mode: str,
-    turn: Iterator[tuple[str, dict[str, Any]]],
-    budget: Callable[[], BudgetState],
-    continues: bool = False,
-) -> Iterator[str]:
-    """
-    The events of a turn, as server-sent events. A turn that changes something records
-    the versions right before its first change and where it ended, even when the
-    browser left first, so it can be undone, and ``done`` says so. The first record
-    waits for that change: what anyone saved while the model thought, or while a card
-    waited, is not part of the turn and an undo keeps it. ``continues`` says this
-    stream goes on with a turn stopped by a card. ``done`` also says where the month
-    stands, so the panel warns without asking again. A stream runs after the session
-    of the view ended, so it takes ids and reads what it needs again.
-    """
-    changed = False
-    started = False
-
-    def end_turn() -> None:
-        nonlocal changed
-        versions = report_versions(dashboard_id) if changed else None
-        changed = False
-        if versions is not None:
-            log.add_turn_end(versions)
-
-    try:
-        for event, payload in turn:
-            if event == KEEP_ALIVE:
-                yield _keep_alive()
-                continue
-            if event == "tool_start" and payload.get("changes") and not started:
-                # The tool has not run: this generator waits at that yield
-                started = True
-                versions = report_versions(dashboard_id)
-                if versions is not None:
-                    log.add_turn_start(versions, continues)
-            changed = changed or (event == "tool_end" and payload.get("changed", False))
-            if event == "done":
-                end_turn()
-                payload = {
-                    **payload,
-                    "can_undo": mode == MODE_EDIT
-                    and can_undo(find_conversation(conversation_id, user_id)),
-                    "budget": _budget_json(budget()),
-                    "message_id": str(log.answer_id) if log.answer_id else None,
-                }
-            yield _sse(event, payload)
-    except ConversationBusyError:
-        yield _sse(
-            "error",
-            {
-                "code": "busy",
-                "message": _("This conversation is answering another message."),
-            },
-        )
-    except Exception:  # pylint: disable=broad-except
-        # The stream is open: a status code can no longer say this
-        logger.exception("The assistant failed in the middle of a stream")
-        yield _sse(
-            "error",
-            {
-                "code": "failed",
-                "message": _(
-                    "The AI service failed. Start a new conversation if this repeats."
-                ),
-            },
-        )
-    finally:
-        end_turn()
 
 
 class AssistantAdminRestApi(BaseSupersetApi):
@@ -730,6 +645,8 @@ class AssistantRestApi(BaseSupersetApi):
         "rename": "read",
         "remove": "read",
         "decide": "read",
+        "stream": "read",
+        "stop": "read",
         "undo": "read",
         "privacy": "read",
         "feedback": "read",
@@ -751,9 +668,11 @@ class AssistantRestApi(BaseSupersetApi):
           summary: Send a message to the AI assistant
           description: >-
             Answers with server-sent events: conversation, model_changed, text,
-            tool_start, tool_end, confirm, refusal, error and done. Comment lines only
-            keep the connection open. A confirm event means a call waits for a
-            decision: send it to the decide endpoint of the conversation.
+            tool_start, tool_end, confirm, refusal, error, done and turn_end, the last
+            one, each with its number as the id of the event. Comment lines only keep
+            the connection open. A connection that ends without turn_end goes on at the
+            stream endpoint of the conversation. A confirm event means a call waits for
+            a decision: send it to the decide endpoint of the conversation.
           requestBody:
             required: true
             content:
@@ -803,13 +722,14 @@ class AssistantRestApi(BaseSupersetApi):
         if len(json.dumps(context)) > MAX_CONTEXT_CHARS:
             return self.response_400(message="The context is too long")
 
-        model = self._offered_model(settings, data["model"] or settings.default_model)
+        model = offered_model(settings, data["model"] or settings.default_model)
         if model is None:
             return self.response_422(message=_("This model is not available."))
 
-        dashboard = _open_dashboard(context["dashboard_id"])
+        dashboard = open_dashboard(context["dashboard_id"])
         if dashboard is None:
             return self.response_404()
+        store = turn_store()
         user_id = get_user_id()
         conversation = None
         log = None
@@ -818,6 +738,9 @@ class AssistantRestApi(BaseSupersetApi):
             conversation = find_conversation(data["conversation_id"], user_id)
             if conversation is None:
                 return self.response_404()
+            settle_turn(store, conversation.id)
+            if store.holder(conversation.id) is not None:
+                return self._busy()
             # Before anything is read: what lands after this makes the write collide
             log = ConversationLog(conversation, user_id)
             if conversation.dashboard_id != dashboard.id or conversation.mode != mode:
@@ -839,13 +762,10 @@ class AssistantRestApi(BaseSupersetApi):
             return self.response_422(message=self._tool_search_needed())
         pending = pending_turn(conversation) if conversation else None
         if pending is not None and not pending.undecided:
-            # Every call is decided: its tools are running in another request
-            return self._busy()
-
-        prepared = self._prepare(model, mode, dashboard_id)
-        if prepared is None:
-            return self.response(503, message=_("The AI assistant is not installed."))
-        client, toolbox, system = prepared
+            # Every call is decided and no turn holds them: what ran them is gone
+            repair_conversation(conversation, user_id)
+            pending = None
+            log = ConversationLog(conversation, user_id)
 
         previous_model = conversation.model if conversation else model.id
         if conversation is None:
@@ -853,7 +773,6 @@ class AssistantRestApi(BaseSupersetApi):
                 user_id, dashboard_id, mode, model.id, question or _("Image")
             )
         conversation.model = model.id
-        toolbox.conversation_id = str(conversation.id)
         log = log or ConversationLog(conversation, user_id)
         # A person who writes instead of deciding has moved on: those calls never run,
         # and their answers go first, as the API asks of a user turn. Images go before
@@ -864,38 +783,53 @@ class AssistantRestApi(BaseSupersetApi):
             context_block(context),
             *([{"type": "text", "text": question}] if question else []),
         ]
+        conversation_id = conversation.id
+        turn_id = str(uuid4())
+        if not store.acquire(conversation_id, turn_id):
+            return self._busy()
         try:
             log.add_user_message(message, attachments)
         except ConversationBusyError:
-            return self.response(
-                409, message=_("This conversation is answering another message.")
-            )
-        # The same blocks a later request reads from the database
-        history.extend(with_images([{"role": "user", "content": message}]))
-        conversation_id = conversation.id
-
-        def turn() -> Iterator[tuple[str, dict[str, Any]]]:
-            yield from run_conversation(client, model, system, toolbox, log, history)
-
-        def events() -> Iterator[str]:
-            yield _sse(
+            store.release(conversation_id, turn_id)
+            return self._busy()
+        opening = [
+            (
                 "conversation",
                 {"id": str(conversation_id), "mode": mode, "model": model.id},
             )
-            if previous_model != model.id:
-                # Prompt caches belong to one model: this turn starts them again
-                yield _sse("model_changed", {"from": previous_model, "to": model.id})
-            yield from _turn_stream(
-                conversation_id,
-                user_id,
-                log,
-                dashboard_id,
-                mode,
-                turn(),
-                lambda: budget_of(settings, workspace_id),
-            )
+        ]
+        if previous_model != model.id:
+            # Prompt caches belong to one model: this turn starts them again
+            opening.append(("model_changed", {"from": previous_model, "to": model.id}))
+        return self._run(
+            store,
+            log,
+            TurnTicket(
+                turn_id=turn_id,
+                conversation_id=str(conversation_id),
+                user_id=user_id,
+                kind=KIND_CHAT,
+                mode=mode,
+                model=model.id,
+                dashboard_id=dashboard_id,
+                locale=_locale(),
+                after=store.last_event(conversation_id),
+                seq=log.next_seq,
+                opened_at=time.time(),
+            ),
+            opening,
+        )
 
-        return _event_stream(events())
+    @staticmethod
+    def _run(
+        store: TurnStore,
+        log: ConversationLog,
+        ticket: TurnTicket,
+        opening: list[tuple[str, dict[str, Any]]],
+    ) -> Response:
+        """Hand a turn to the workers and start reading it."""
+        start_turn(store, ticket, opening)
+        return _event_stream(relay(store, ticket.conversation_id, ticket.after))
 
     def _refused_images(
         self, attachments: list[UUID], conversation: AssistantConversation | None
@@ -918,6 +852,10 @@ class AssistantRestApi(BaseSupersetApi):
             return refused
         if not has_api_key():
             return self.response(503, message=_("The AI assistant has no API key."))
+        if turn_store() is None:
+            return self.response(
+                503, message=_("The AI assistant has no place to run its answers.")
+            )
         return None
 
     def _turned_off(self, settings: AssistantSettings) -> Response | None:
@@ -976,35 +914,6 @@ class AssistantRestApi(BaseSupersetApi):
         )
 
     @staticmethod
-    def _offered_model(
-        settings: AssistantSettings, model_id: str
-    ) -> CatalogModel | None:
-        offered = offered_models(settings, get_catalog())
-        model = next((item for item in offered if item.id == model_id), None)
-        if model is None:
-            return None
-        return replace(
-            model, spec=tuned_spec(model.spec, settings.effort, settings.thinking)
-        )
-
-    @staticmethod
-    def _prepare(
-        model: CatalogModel, mode: str, dashboard_id: int
-    ) -> tuple[Any, ToolBox, str] | None:
-        """The client, the tools of the person asking and the system prompt."""
-        try:
-            client = build_client()
-            toolbox = ToolBox(g.user.username, mode, model.id, dashboard_id)
-            return (
-                client,
-                toolbox,
-                system_prompt(mode, toolbox.unavailable, model.spec.tool_search),
-            )
-        except ImportError:
-            logger.warning("The assistant needs the anthropic and fastmcp packages")
-            return None
-
-    @staticmethod
     def _tool_search_needed() -> str:
         return _("This conversation needs a model that can search for tools.")
 
@@ -1012,6 +921,25 @@ class AssistantRestApi(BaseSupersetApi):
         return self.response(
             409, message=_("This conversation is answering another message.")
         )
+
+    @staticmethod
+    def _turn_runs(conversation_id: UUID) -> bool:
+        """Whether a live turn holds a conversation. A dead one is closed here."""
+        store = turn_store()
+        if store is None:
+            return False
+        settle_turn(store, conversation_id)
+        return store.holder(conversation_id) is not None
+
+    @staticmethod
+    def _running(conversation: AssistantConversation) -> TurnTicket | None:
+        """The live turn of a conversation, if any. A dead one is closed here."""
+        store = turn_store()
+        if store is None:
+            return None
+        settle_turn(store, conversation.id)
+        turn_id = store.holder(conversation.id)
+        return store.ticket(turn_id) if turn_id else None
 
     @expose("/conversations/<uuid:conversation_id>/decide/", methods=("POST",))
     @protect()
@@ -1024,8 +952,9 @@ class AssistantRestApi(BaseSupersetApi):
           summary: Decide on a pending call of the AI assistant
           description: >-
             Takes the id of the call and the decision. The tool and its arguments are
-            the stored ones. Answers with the events of the chat. Once every pending
-            call of the turn is decided, its tools run and the model goes on.
+            the stored ones. Answers with the events of the chat, and goes on at the
+            stream endpoint the same way. Once every pending call of the turn is
+            decided, its tools run and the model goes on.
           parameters:
           - in: path
             name: conversation_id
@@ -1079,10 +1008,12 @@ class AssistantRestApi(BaseSupersetApi):
         conversation = find_conversation(conversation_id, user_id)
         if conversation is None:
             return self.response_404()
+        store = turn_store()
+        settle_turn(store, conversation_id)
         # Before anything is read: a decision that lands after this collides with
         # this one, however long the checks below take
         log = ConversationLog(conversation, user_id)
-        dashboard = _open_dashboard(conversation.dashboard_id)
+        dashboard = open_dashboard(conversation.dashboard_id)
         if dashboard is None:
             return self.response_404()
         # Checked again here: rights can change while a card waits
@@ -1103,62 +1034,141 @@ class AssistantRestApi(BaseSupersetApi):
             return self.response(
                 409, message=_("This action is no longer waiting for a decision.")
             )
-        model = self._offered_model(settings, data["model"] or conversation.model)
+        model = offered_model(settings, data["model"] or conversation.model)
         if model is None:
             return self.response_422(message=_("This model is not available."))
         if _no_tool_search_for(model, history_of(conversation)):
             return self.response_422(message=self._tool_search_needed())
-        prepared = self._prepare(model, MODE_EDIT, dashboard_id)
-        if prepared is None:
-            return self.response(503, message=_("The AI assistant is not installed."))
-        client, toolbox, system = prepared
-
         conversation.model = model.id
-        toolbox.conversation_id = str(conversation.id)
+        turn_id = str(uuid4())
+        if not store.acquire(conversation_id, turn_id):
+            return self._busy()
         try:
             # Stored before anything runs: of two racing requests one stops here
             log.add_decision(tool_use_id, data["approved"])
         except ConversationBusyError:
+            store.release(conversation_id, turn_id)
             return self._busy()
         decided = pending_turn(conversation)
-        if decided is None:
-            return self._busy()
-
-        def turn() -> Iterator[tuple[str, dict[str, Any]]]:
-            if decided.undecided:
-                # The rest of the cards are still up: nothing runs until they answer
-                yield (
-                    "done",
-                    {
-                        "stop_reason": "tool_use",
-                        "context_tokens": context_tokens_of(
-                            find_conversation(conversation_id, user_id)
-                        ),
-                    },
-                )
-                return
-            yield from resume_after_decisions(
-                client,
-                model,
-                system,
-                toolbox,
-                log,
-                lambda: find_conversation(conversation_id, user_id),
-                decided,
-            )
-
-        return _event_stream(
-            _turn_stream(
-                conversation_id,
-                user_id,
-                log,
-                dashboard_id,
-                MODE_EDIT,
-                turn(),
-                lambda: budget_of(settings, workspace_id),
-                continues=True,
-            )
+        if decided is None or decided.undecided:
+            # The rest of the cards are still up: nothing runs until they answer
+            store.release(conversation_id, turn_id)
+            if decided is None:
+                return self._busy()
+            return _event_stream(answered_at_once(context_tokens_of(conversation)))
+        return self._run(
+            store,
+            log,
+            TurnTicket(
+                turn_id=turn_id,
+                conversation_id=str(conversation_id),
+                user_id=user_id,
+                kind=KIND_DECIDE,
+                mode=MODE_EDIT,
+                model=model.id,
+                dashboard_id=dashboard_id,
+                locale=_locale(),
+                after=store.last_event(conversation_id),
+                seq=log.next_seq,
+                opened_at=time.time(),
+            ),
+            [],
         )
+
+    @expose("/conversations/<uuid:conversation_id>/stream/", methods=("GET",))
+    @protect()
+    @safe
+    @statsd_metrics
+    def stream(self, conversation_id: UUID) -> Response:
+        """The events of a conversation past a number, as they arrive.
+        ---
+        get:
+          summary: Read the answer of the AI assistant, from where it was left
+          description: >-
+            The events of the chat with a number greater than after, for the owner of
+            the conversation. Answers one connection: it ends with turn_end when the
+            turn is over, and otherwise goes on in another request from the last
+            number.
+          parameters:
+          - in: path
+            name: conversation_id
+            required: true
+            schema:
+              type: string
+              format: uuid
+          - in: query
+            name: after
+            description: The number of the last event read
+            schema:
+              type: integer
+          responses:
+            200:
+              description: The stream of the answer
+              content:
+                text/event-stream:
+                  schema:
+                    type: string
+            401:
+              $ref: '#/components/responses/401'
+            403:
+              $ref: '#/components/responses/403'
+            404:
+              $ref: '#/components/responses/404'
+            503:
+              description: The assistant cannot run on this server
+        """
+        if not _session_user_only():
+            return self.response_403()
+        store = turn_store()
+        if store is None:
+            return self.response(
+                503, message=_("The AI assistant has no place to run its answers.")
+            )
+        conversation = find_conversation(conversation_id, get_user_id())
+        if conversation is None or open_dashboard(conversation.dashboard_id) is None:
+            return self.response_404()
+        after = max(request.args.get("after", 0, type=int), 0)
+        return _event_stream(relay(store, conversation_id, after))
+
+    @expose("/conversations/<uuid:conversation_id>/stop/", methods=("POST",))
+    @protect()
+    @safe
+    @statsd_metrics
+    def stop(self, conversation_id: UUID) -> Response:
+        """Ask the turn of a conversation to stop.
+        ---
+        post:
+          summary: Stop the answer of the AI assistant
+          description: >-
+            The turn stops at its next step, a running tool first finishes, and its
+            stream ends as usual. With nothing running it does nothing.
+          parameters:
+          - in: path
+            name: conversation_id
+            required: true
+            schema:
+              type: string
+              format: uuid
+          responses:
+            200:
+              description: Whether a turn was asked to stop
+            401:
+              $ref: '#/components/responses/401'
+            403:
+              $ref: '#/components/responses/403'
+            404:
+              $ref: '#/components/responses/404'
+        """
+        if not _session_user_only():
+            return self.response_403()
+        store = turn_store()
+        conversation = find_conversation(conversation_id, get_user_id())
+        if conversation is None:
+            return self.response_404()
+        turn_id = store.holder(conversation_id) if store else None
+        if turn_id is not None:
+            store.ask_to_stop(turn_id)
+        return self.response(200, result={"stopping": turn_id is not None})
 
     @expose("/conversations/<uuid:conversation_id>/undo/", methods=("POST",))
     @protect()
@@ -1198,8 +1208,10 @@ class AssistantRestApi(BaseSupersetApi):
         conversation = find_conversation(conversation_id, get_user_id())
         if conversation is None:
             return self.response_404()
+        if self._turn_runs(conversation_id):
+            return self._busy()
         log = ConversationLog(conversation, get_user_id())
-        dashboard = _open_dashboard(conversation.dashboard_id)
+        dashboard = open_dashboard(conversation.dashboard_id)
         if dashboard is None:
             return self.response_404()
         if conversation.mode != MODE_EDIT or not security_manager.can_edit_resource(
@@ -1269,7 +1281,7 @@ class AssistantRestApi(BaseSupersetApi):
         workspace_id = None
         dashboard_id = request.args.get("dashboard_id", type=int)
         if dashboard_id is not None:
-            dashboard = _open_dashboard(dashboard_id)
+            dashboard = open_dashboard(dashboard_id)
             if dashboard is None:
                 return self.response(200, result=not_here)
             workspace_id = workspace_id_of(dashboard.id)
@@ -1345,7 +1357,7 @@ class AssistantRestApi(BaseSupersetApi):
         dashboard_id = request.args.get("dashboard_id", type=int)
         if dashboard_id is None:
             return self.response_400(message="dashboard_id is required")
-        if _open_dashboard(dashboard_id) is None:
+        if open_dashboard(dashboard_id) is None:
             return self.response_404()
         return self.response(
             200,
@@ -1384,9 +1396,13 @@ class AssistantRestApi(BaseSupersetApi):
         if not _session_user_only():
             return self.response_403()
         conversation = find_conversation(conversation_id, get_user_id())
-        if conversation is None or _open_dashboard(conversation.dashboard_id) is None:
+        if conversation is None or open_dashboard(conversation.dashboard_id) is None:
             return self.response_404()
-        messages = conversation_messages(conversation)
+        running = self._running(conversation)
+        # Read after that: what a running turn stored comes again through its stream
+        messages = conversation_messages(
+            conversation, before=running.seq if running else None
+        )
         return self.response(
             200,
             result={
@@ -1394,10 +1410,14 @@ class AssistantRestApi(BaseSupersetApi):
                 "messages": messages,
                 "figures": figures_in(messages),
                 "context_tokens": context_tokens_of(conversation),
-                "pending": pending_json(pending_turn(conversation)),
+                "pending": [] if running else pending_json(pending_turn(conversation)),
                 "rejected": rejected_calls(conversation),
-                "can_undo": conversation.mode == MODE_EDIT and can_undo(conversation),
+                "can_undo": not running
+                and conversation.mode == MODE_EDIT
+                and can_undo(conversation),
                 "feedback": feedback_of(conversation, get_user_id()),
+                "interrupted": lost_turns(conversation),
+                "running": {"after": running.after} if running else None,
             },
         )
 
@@ -1438,7 +1458,7 @@ class AssistantRestApi(BaseSupersetApi):
         if not _session_user_only():
             return self.response_403()
         conversation = find_conversation(conversation_id, get_user_id())
-        if conversation is None or _open_dashboard(conversation.dashboard_id) is None:
+        if conversation is None or open_dashboard(conversation.dashboard_id) is None:
             return self.response_404()
         try:
             title = AssistantRenameSchema().load(request.json or {})["title"].strip()
@@ -1485,10 +1505,14 @@ class AssistantRestApi(BaseSupersetApi):
         conversation = find_conversation(conversation_id, get_user_id())
         if conversation is None:
             return self.response_404()
+        if self._turn_runs(conversation_id):
+            return self._busy()
         try:
             delete_conversation(conversation)
         except ConversationBusyError:
             return self._busy()
+        if (store := turn_store()) is not None:
+            store.forget(conversation_id)
         return self.response(200, message="OK")
 
     @expose("/attachments/", methods=("POST",))
@@ -1598,7 +1622,7 @@ class AssistantRestApi(BaseSupersetApi):
             conversation = find_conversation(found.conversation_id, user_id)
             if (
                 conversation is None
-                or _open_dashboard(conversation.dashboard_id) is None
+                or open_dashboard(conversation.dashboard_id) is None
             ):
                 return self.response_404()
         response = image_response(found.image, found.image_type)
@@ -1643,7 +1667,7 @@ class AssistantRestApi(BaseSupersetApi):
     ) -> AssistantMessage | None:
         """An answer of a conversation of this person, on a report they can open."""
         conversation = find_conversation(conversation_id, get_user_id())
-        if conversation is None or _open_dashboard(conversation.dashboard_id) is None:
+        if conversation is None or open_dashboard(conversation.dashboard_id) is None:
             return None
         return answer_of(conversation, message_id)
 

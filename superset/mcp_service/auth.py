@@ -101,14 +101,17 @@ class InProcessPrincipal:
     """The user an in-process tool call runs as, and what it may do.
 
     ``scopes`` narrow the tools exactly as the scopes of an API key do; None adds
-    no restriction beyond what the user already has.
+    no restriction beyond what the user already has. ``user_id``, when given, must be
+    the id of the user that name loads: a turn in a worker holds on to who asked, and
+    a call never runs as someone who took that name meanwhile.
     """
 
     username: str
     scopes: frozenset[str] | None = None
+    user_id: int | None = None
 
 
-# Set only by ``run_as``, around tools called inside a web request of that user.
+# Set only by ``run_as``, around tools called for that user by the assistant.
 # A ContextVar and not ``g``: tool calls may push their own application context.
 _in_process_principal: ContextVar[InProcessPrincipal | None] = ContextVar(
     "mcp_in_process_principal", default=None
@@ -870,6 +873,8 @@ def get_user_from_request() -> MCPUser:
         user = load_user_with_relationships(username=principal.username)
         if user is None:
             raise PermissionError(f"User '{principal.username}' not found.")
+        if principal.user_id is not None and user.id != principal.user_id:
+            raise PermissionError(f"User '{principal.username}' is someone else.")
         return user
 
     # Priority 1: JWT context (per-request safe via ContextVar)

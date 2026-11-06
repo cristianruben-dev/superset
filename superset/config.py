@@ -1807,10 +1807,16 @@ class CeleryConfig:  # pylint: disable=too-few-public-methods
         "superset.tasks.export_dashboard_excel",
         "superset.tasks.version_history_retention",
         "superset.tasks.assistant_retention",
+        "superset.tasks.assistant_turn",
     )
     result_backend = "db+sqlite:///celery_results.sqlite"
     worker_prefetch_multiplier = 1
     task_acks_late = False
+    # A turn of the AI assistant lasts minutes: its own queue keeps it from the slots
+    # of reports and alerts, in a worker with `-Q auradata_assistant`
+    task_routes = {
+        "auradata_assistant.run_turn": {"queue": "auradata_assistant"},
+    }
     task_annotations = {
         "sql_lab.get_sql_results": {
             "rate_limit": "100/s",

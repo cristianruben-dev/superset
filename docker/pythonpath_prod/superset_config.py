@@ -67,6 +67,7 @@ REDIS_HOST = os.getenv("REDIS_HOST", "redis")
 REDIS_PORT = int(os.getenv("REDIS_PORT", "6379"))
 REDIS_CELERY_DB = os.getenv("REDIS_CELERY_DB", "0")
 REDIS_RESULTS_DB = int(os.getenv("REDIS_RESULTS_DB", "1"))
+REDIS_ASSISTANT_DB = os.getenv("REDIS_ASSISTANT_DB", "2")
 
 
 def _cache(prefix: str, timeout: int) -> dict[str, object]:
@@ -107,6 +108,9 @@ class CeleryConfig(DefaultCeleryConfig):  # pylint: disable=too-few-public-metho
 
 
 CELERY_CONFIG = CeleryConfig
+
+# Where the answers of the AI assistant wait for whoever reads them
+AURADATA_ASSISTANT_REDIS_URL = f"redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_ASSISTANT_DB}"
 
 # --- Alerts and scheduled reports --------------------------------------------
 

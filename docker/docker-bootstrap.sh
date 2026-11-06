@@ -71,7 +71,8 @@ case "${1}" in
   worker)
     echo "Starting Celery worker..."
     # setting up only 2 workers by default to contain memory usage in dev environments
-    celery --app=superset.tasks.celery_app:app worker -O fair -l INFO --concurrency=${CELERYD_CONCURRENCY:-2} ${WORKER_LOG_FILE:+--logfile=$WORKER_LOG_FILE}
+    # the default queues share those slots; production gives the AI assistant its own worker
+    celery --app=superset.tasks.celery_app:app worker -O fair -l INFO -Q ${CELERY_QUEUES:-celery,auradata_assistant} --concurrency=${CELERYD_CONCURRENCY:-2} ${WORKER_LOG_FILE:+--logfile=$WORKER_LOG_FILE}
     ;;
   beat)
     echo "Starting Celery beat..."

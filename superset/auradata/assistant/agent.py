@@ -78,11 +78,11 @@ logger = logging.getLogger(__name__)
 MAX_OUTPUT_TOKENS = 64_000
 # Calls to the API for one message of the user
 MAX_MODEL_CALLS = 25
-INTERRUPTED = "The tool did not run: the request ended first."
-# Seconds without a byte before the stream says it is alive: under the 60 of a proxy
-KEEP_ALIVE_SECONDS = 15.0
-# An event with no meaning for the panel: it only keeps the connection open
-KEEP_ALIVE = "keep_alive"
+INTERRUPTED = "The tool did not run: the turn ended first."
+# How often a wait on the model gives the turn a chance to stop
+TICK_SECONDS = 1.0
+# An event with no meaning for the panel: the turn looks at its marks and goes on
+TICK = "tick"
 
 # Error code of a conversation too long for the model: the panel offers a new one
 CONTEXT_EXCEEDED = "context_exceeded"
@@ -235,10 +235,10 @@ class ModelCall:
 
     While the model thinks little or nothing arrives: only its notes have text, it can
     go long without one, and the SDK drops the pings. So the call waits in that thread,
-    and ``events`` yields ``KEEP_ALIVE`` when the wait gets long. A thinking event with
-    no text never reaches the queue: it would restart that wait with nothing for the
-    panel, and nothing would keep the connection open. That thread only runs the HTTP
-    call of the SDK: the session, ``g`` and the tools stay in the thread of the request.
+    and ``events`` yields ``TICK`` every so often while it does, which is where a person
+    who asked to stop is heard. A thinking event with no text never reaches the queue:
+    it would restart that wait with nothing for the panel. That thread only runs the
+    HTTP call of the SDK: the session, ``g`` and the tools stay in the turn's thread.
     """
 
     def __init__(self, client: Any, params: dict[str, Any]) -> None:
@@ -270,9 +270,9 @@ class ModelCall:
         try:
             while True:
                 try:
-                    kind, value = self._items.get(timeout=KEEP_ALIVE_SECONDS)
+                    kind, value = self._items.get(timeout=TICK_SECONDS)
                 except queue.Empty:
-                    yield KEEP_ALIVE, {}
+                    yield TICK, {}
                     continue
                 if kind == "end":
                     return
@@ -280,7 +280,7 @@ class ModelCall:
                     raise value
                 yield value
         finally:
-            # The browser left: stop the model instead of waiting for its next event
+            # The turn stopped: end the model call instead of waiting for its next event
             self._leaving.set()
             self._hang_up()
 
@@ -534,7 +534,7 @@ def run_conversation(  # noqa: C901
             try:
                 yield from _run_tools(tool_uses, toolbox, results)
             finally:
-                # Also when the browser leaves: the tools have run
+                # Also when the turn stops here: the tools have run
                 results = _with_missing_results(tool_uses, results)
                 log.add_turn(turn, results)
             history.append(

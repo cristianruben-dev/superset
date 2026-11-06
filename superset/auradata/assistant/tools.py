@@ -17,7 +17,7 @@
 """
 The tools of the assistant: those of the MCP, in this process, as the person asking.
 
-``ToolBox`` builds, once per request, the exact set of tools a user gets in a mode,
+``ToolBox`` builds, once per turn, the exact set of tools a user gets in a mode,
 and that set is the only gate for a tool name: what the model asks for outside it
 never reaches the MCP. Each call then goes through the real tool, in a real MCP
 session held in memory, under ``run_as``: the wrapper of the tool checks permissions
@@ -32,7 +32,7 @@ the assistant leaves its mark: the saves of a call say which model made them
 (``acting_model``), and each call is a row of the action log, because the MCP service
 that writes those rows for an outside AI does not run here.
 
-The FastMCP middleware does not run in the web process, so this module caps the size
+The FastMCP middleware does not run in-process, so this module caps the size
 of results and hides internal errors, as the size guard and the error handler do on
 the MCP server.
 """
@@ -221,7 +221,7 @@ def _safe_error_text(content: list[Any]) -> str:
 
 
 class ToolBox:
-    """The tools one user has in one mode, for the length of one request."""
+    """The tools one user has in one mode, for the length of one turn."""
 
     def __init__(
         self,
@@ -229,16 +229,18 @@ class ToolBox:
         mode: str,
         model: str | None = None,
         dashboard_id: int | None = None,
+        user_id: int | None = None,
     ) -> None:
         from superset.mcp_service.auth import InProcessPrincipal
 
+        self._user_id = user_id
         self._mode = mode
         self._model = model
         self._dashboard_id = dashboard_id
         # Known once the conversation exists, after the tools are built
         self.conversation_id: str | None = None
         self._principal = InProcessPrincipal(
-            username, READ_SCOPES if mode == MODE_READ else None
+            username, READ_SCOPES if mode == MODE_READ else None, user_id
         )
         registered = self._registered()
         self._tools = {tool.name: tool for tool in self._offered(registered)}
@@ -326,7 +328,7 @@ class ToolBox:
         from superset.mcp_service.auth import run_as
 
         previous_user = g.get("user")
-        user_id = get_user_id()
+        user_id = self._user_id if self._user_id is not None else get_user_id()
         started = time.monotonic()
         try:
             with run_as(self._principal), acting_model(self._model):

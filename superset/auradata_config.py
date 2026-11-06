@@ -309,3 +309,10 @@ AURADATA_ASSISTANT_MONTHLY_BUDGET_USD: float | None = None
 # Days a conversation is kept after its last message. None keeps every conversation
 # forever, also those of reports or people deleted. What they cost is kept either way
 AURADATA_ASSISTANT_RETENTION_DAYS: int | None = 90
+# Where a worker leaves the events of an answer for whoever reads them. Without it, the
+# assistant does not answer
+AURADATA_ASSISTANT_REDIS_URL: str | None = None
+# How long one answer may run
+AURADATA_ASSISTANT_TURN_SECONDS = 1200
+# How long an answer waits for a free worker before the panel says so
+AURADATA_ASSISTANT_QUEUE_SECONDS = 30

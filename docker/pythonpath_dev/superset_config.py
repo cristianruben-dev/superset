@@ -67,6 +67,7 @@ REDIS_HOST = os.getenv("REDIS_HOST", "redis")
 REDIS_PORT = os.getenv("REDIS_PORT", "6379")
 REDIS_CELERY_DB = os.getenv("REDIS_CELERY_DB", "0")
 REDIS_RESULTS_DB = os.getenv("REDIS_RESULTS_DB", "1")
+REDIS_ASSISTANT_DB = os.getenv("REDIS_ASSISTANT_DB", "2")
 
 RESULTS_BACKEND = FileSystemCache("/app/superset_home/sqllab")
 
@@ -94,6 +95,9 @@ class CeleryConfig(DefaultCeleryConfig):
 
 
 CELERY_CONFIG = CeleryConfig
+
+# Where the answers of the AI assistant wait for whoever reads them
+AURADATA_ASSISTANT_REDIS_URL = f"redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_ASSISTANT_DB}"
 
 FEATURE_FLAGS = {
     "ALERT_REPORTS": True,

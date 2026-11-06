@@ -27482,3 +27482,29 @@ msgstr "Comandos"
 
 msgid "This command is not available right now."
 msgstr "Este comando no está disponible ahora."
+
+msgid "The AI assistant has no place to run its answers."
+msgstr "El asistente de IA no tiene dónde ejecutar sus respuestas."
+
+msgid ""
+"No worker of the assistant is free. Try again in a moment, and tell your "
+"administrator if this repeats."
+msgstr ""
+"No hay ningún worker del asistente libre. Vuelve a intentarlo en un momento y"
+" avísale a tu administrador si se repite."
+
+msgid ""
+"The assistant stopped before finishing, and this answer is incomplete. If"
+" it was changing the report, check it before asking again."
+msgstr ""
+"El asistente se detuvo antes de terminar y esta respuesta está incompleta. Si"
+" estaba cambiando el informe, revísalo antes de volver a pedirlo."
+
+msgid "This took too long and was stopped. Ask for less."
+msgstr "Esto tardó demasiado y se detuvo. Pide menos."
+
+msgid "You can no longer use the assistant on this report."
+msgstr "Ya no puedes usar el asistente en este informe."
+
+msgid "The connection was lost. Open this conversation again to see the answer."
+msgstr "Se perdió la conexión. Abre de nuevo esta conversación para ver la respuesta."

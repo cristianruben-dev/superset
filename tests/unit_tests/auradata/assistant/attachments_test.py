@@ -363,7 +363,7 @@ def test_an_image_of_a_report_that_cannot_be_opened_is_not_found(
     identifier = attached(client)
     ask(client, world["dashboard"], attachments=[identifier])
 
-    mocker.patch("superset.auradata.assistant.api._open_dashboard", return_value=None)
+    mocker.patch("superset.auradata.assistant.api.open_dashboard", return_value=None)
     assert client.get(f"{UPLOADS}{identifier}/").status_code == 404
 
 

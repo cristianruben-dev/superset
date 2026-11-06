@@ -42,6 +42,7 @@ from superset.auradata.assistant import (
     agent,
     api as api_module,
     attachments as attachments_module,
+    turns as turns_module,
     undo as undo_module,
 )
 from superset.auradata.assistant.conversations import (
@@ -163,17 +164,23 @@ def login(world: dict[str, Any], name: str) -> None:
 
 def use_model(mocker: MockerFixture, *script: Any) -> FakeAnthropic:
     fake = FakeAnthropic(*script)
-    mocker.patch.object(api_module, "build_client", return_value=fake.client)
+    mocker.patch.object(turns_module, "build_client", return_value=fake.client)
     return fake
 
 
 def events_of(response: Any) -> list[tuple[str, dict[str, Any]]]:
     found = []
     for chunk in response.text.strip().split("\n\n"):
-        event, data = chunk.split("\n", 1)
-        found.append(
-            (event.removeprefix("event: "), json.loads(data.removeprefix("data: ")))
-        )
+        lines = {
+            key: value
+            for key, _sep, value in (
+                line.partition(": ")
+                for line in chunk.split("\n")
+                if not line.startswith(":")
+            )
+        }
+        if lines:
+            found.append((lines["event"], json.loads(lines["data"])))
     return found
 
 
@@ -362,9 +369,9 @@ def test_a_dashboard_the_user_cannot_open_is_not_found(
     login(world, "Dani")
     fake = use_model(mocker)
     mocker.patch.object(
-        api_module.DashboardDAO,
+        turns_module.DashboardDAO,
         "get_by_id_or_slug",
-        side_effect=api_module.DashboardAccessDeniedError(),
+        side_effect=turns_module.DashboardAccessDeniedError(),
     )
 
     assert ask(client, world["dashboard"]).status_code == 404
@@ -934,7 +941,7 @@ def test_something_unexpected_in_the_stream_is_an_error_event(
 ) -> None:
     login(world, "Ana")
     use_model(mocker)
-    mocker.patch.object(api_module, "run_conversation", side_effect=RuntimeError("x"))
+    mocker.patch.object(turns_module, "run_conversation", side_effect=RuntimeError("x"))
 
     response = ask(client, world["dashboard"])
 
@@ -1266,29 +1273,18 @@ def test_a_request_with_a_fallback_sends_its_beta_once() -> None:
     assert params["betas"].count(REFUSAL_FALLBACK_BETA) == 1
 
 
-def test_a_silent_model_keeps_the_stream_open(
-    client: Any, world: dict[str, Any], mocker: MockerFixture
+def test_a_silent_stretch_keeps_the_connection_open(
+    mocker: MockerFixture, turn_memory: Any
 ) -> None:
-    login(world, "Ana")
-    fake = use_model(mocker, reply(text("Listo")))
-    mocker.patch.object(agent, "KEEP_ALIVE_SECONDS", 0.01)
-    answer = fake._answer
-    release = threading.Event()
+    mocker.patch.object(turns_module, "CONNECTION_SECONDS", 0.05)
+    mocker.patch.object(turns_module, "KEEP_ALIVE_SECONDS", 0.001)
+    mocker.patch.object(turns_module, "settle_turn")
+    turn_memory.acquire("c", "t")
 
-    def slow_answer(request: Any) -> Any:
-        release.wait(0.2)
-        return answer(request)
-
-    fake.client._client._transport.handler = slow_answer
-
-    response = client.post(
-        URL,
-        json={"message": "Hola", "context": {"dashboard_id": world["dashboard"].id}},
-    )
-    body = response.get_data(as_text=True)
+    body = "".join(turns_module.relay(turn_memory, "c", 0))
 
     assert ": keep-alive\n\n" in body
-    assert "event: done" in body
+    assert "event:" not in body
 
 
 def test_the_notes_of_the_model_stream_and_only_the_blocks_keep_them(
@@ -1317,6 +1313,7 @@ def test_the_notes_of_the_model_stream_and_only_the_blocks_keep_them(
         "note",
         "text",
         "done",
+        "turn_end",
     ]
     assert payloads(response, "note") == [
         {"text": "Miro los tableros.", "starts": True},
@@ -1375,7 +1372,7 @@ class _QuietStream:
 def test_thinking_without_text_does_not_hold_the_stream_alive(
     mocker: MockerFixture,
 ) -> None:
-    mocker.patch.object(agent, "KEEP_ALIVE_SECONDS", 0.01)
+    mocker.patch.object(agent, "TICK_SECONDS", 0.01)
     client = SimpleNamespace(
         beta=SimpleNamespace(
             messages=SimpleNamespace(
@@ -1386,7 +1383,7 @@ def test_thinking_without_text_does_not_hold_the_stream_alive(
 
     items = list(agent.ModelCall(client, {}).events())
 
-    assert (agent.KEEP_ALIVE, {}) in items
+    assert (agent.TICK, {}) in items
     assert items[-2:] == [("note", {"text": "Miro.", "starts": True}), "final"]
     assert len([item for item in items if item[0] == "note"]) == 1
 
@@ -1479,6 +1476,7 @@ def test_every_message_of_the_chat_has_its_spanish_translation() -> None:
         api_module.__file__,
         undo_module.__file__,
         attachments_module.__file__,
+        turns_module.__file__,
     ]
     catalog_path = Path(api_module.__file__).parents[2] / (
         "translations/es/LC_MESSAGES/messages.po"
@@ -1495,6 +1493,7 @@ def test_every_message_of_the_chat_has_its_spanish_translation() -> None:
         ast.parse(Path(sources[0]).read_text()),
         ast.parse(Path(sources[2]).read_text()),
         ast.parse(Path(sources[3]).read_text()),
+        ast.parse(Path(sources[4]).read_text()),
         chat_class,
     ]
     wanted = {

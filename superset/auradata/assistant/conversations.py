@@ -66,8 +66,8 @@ from superset.utils import json
 TITLE_LENGTH = 80
 # What the row of an answer holds once its conversation is deleted
 ERASED_CONTENT = "[]"
-# A turn writes more often than this while it runs. One that never finished, because its
-# worker died, stops counting as running when this passes
+# A turn writes more often than this while it runs. One that never finished stops
+# counting as running when this passes, also if nobody came back to record it as lost
 TURN_WINDOW = timedelta(minutes=10)
 
 STOP_REFUSAL = "refusal"
@@ -81,11 +81,17 @@ RECORD_DECISION = "decision"
 RECORD_TURN_START = "turn_start"
 RECORD_TURN_END = "turn_end"
 RECORD_UNDONE = "undone"
+# A turn that never finished: its worker died, or no worker took it
+RECORD_TURN_LOST = "turn_lost"
 
 # Why a call did not run, for the model. Each one answers its tool_use
 REJECTED = "The user rejected this action. It did not run. Do not retry it."
 HELD_BACK = "Not run: the user rejected another action of this same step."
 MOVED_ON = "Not run: the user wrote a new message instead of deciding on it."
+LOST = (
+    "This call was interrupted: the worker running it stopped. It may or may not have "
+    "taken effect. Check before doing it again."
+)
 
 # What stays of a declined model's output, along with its finished server tool calls
 _KEPT_BEFORE_FALLBACK = {"text", "fallback"}
@@ -293,6 +299,12 @@ def _is_undone(message: AssistantMessage) -> bool:
     )
 
 
+def _is_lost(message: AssistantMessage) -> bool:
+    return message.role == ROLE_RECORD and any(
+        block["type"] == RECORD_TURN_LOST for block in _blocks(message)
+    )
+
+
 def tool_uses_of(blocks: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """The tool calls of a stored turn that count, in order."""
     return [block for block in content_to_send(blocks) if block["type"] == "tool_use"]
@@ -337,10 +349,13 @@ def turn_is_running(
     """
     Whether a request is working on this conversation: the model owes an answer to the
     last message, or the tools of a decided turn are running. A card waiting for a
-    person is not a running turn, and neither is the note an undo leaves for the model.
+    person is not a running turn, and neither is the note an undo leaves for the model
+    or a turn recorded as lost.
     """
     rows = _messages_of(conversation)
     if not rows or rows[-1].created_on < (now or datetime.now()) - TURN_WINDOW:
+        return False
+    if _is_lost(rows[-1]):
         return False
     pending = pending_turn(conversation)
     if pending is not None:
@@ -384,6 +399,21 @@ def records_of(conversation: AssistantConversation) -> list[dict[str, Any]]:
     ]
 
 
+def lost_turns(conversation: AssistantConversation) -> list[int]:
+    """Where a turn stopped without an ending, by the position of its record."""
+    return [row.seq for row in _messages_of(conversation) if _is_lost(row)]
+
+
+def turn_left_open(conversation: AssistantConversation) -> bool:
+    """Whether the last turn that started changing the report has no end on record."""
+    records = [
+        block["type"]
+        for block in records_of(conversation)
+        if block["type"] in (RECORD_TURN_START, RECORD_TURN_END)
+    ]
+    return bool(records) and records[-1] == RECORD_TURN_START
+
+
 def rejected_calls(conversation: AssistantConversation) -> list[str]:
     """The calls the person rejected, by id."""
     return [
@@ -418,11 +448,17 @@ def conversation_json(conversation: AssistantConversation) -> dict[str, Any]:
     }
 
 
-def conversation_messages(conversation: AssistantConversation) -> list[dict[str, Any]]:
+def conversation_messages(
+    conversation: AssistantConversation, before: int | None = None
+) -> list[dict[str, Any]]:
+    """
+    The rows a person reads. ``before`` leaves out what a running turn has stored: its
+    stream brings that again, whole, and a row would show it twice.
+    """
     return [
         message_json(message)
         for message in _messages_of(conversation)
-        if message.role != ROLE_RECORD
+        if message.role != ROLE_RECORD and (before is None or message.seq < before)
     ]
 
 
@@ -496,17 +532,26 @@ def uses_tool_search(history: list[dict[str, Any]]) -> bool:
     )
 
 
-def not_run_results(pending: PendingTurn) -> list[dict[str, Any]]:
-    """Answers for a turn the person left behind: none of its calls ran."""
+def _not_run(pending: PendingTurn, text: str) -> list[dict[str, Any]]:
     return [
         {
             "type": "tool_result",
             "tool_use_id": call["id"],
-            "content": [{"type": "text", "text": MOVED_ON}],
+            "content": [{"type": "text", "text": text}],
             "is_error": True,
         }
         for call in pending.calls
     ]
+
+
+def not_run_results(pending: PendingTurn) -> list[dict[str, Any]]:
+    """Answers for a turn the person left behind: none of its calls ran."""
+    return _not_run(pending, MOVED_ON)
+
+
+def lost_results(pending: PendingTurn) -> list[dict[str, Any]]:
+    """Answers for a decided turn whose worker died: nobody can say what ran."""
+    return _not_run(pending, LOST)
 
 
 class ConversationLog:
@@ -529,6 +574,11 @@ class ConversationLog:
             .scalar()
         )
         self._next_seq = 0 if last is None else last + 1
+
+    @property
+    def next_seq(self) -> int:
+        """The position the next row takes."""
+        return self._next_seq
 
     def _row(self, role: str, content: list[dict[str, Any]]) -> AssistantMessage:
         row = AssistantMessage(
@@ -602,6 +652,11 @@ class ConversationLog:
 
     def add_turn_end(self, versions: dict[str, Any]) -> None:
         self._row(ROLE_RECORD, [{"type": RECORD_TURN_END, "versions": versions}])
+        self._commit()
+
+    def add_turn_lost(self, code: str) -> None:
+        """A turn that ended without an ending. The model never reads this."""
+        self._row(ROLE_RECORD, [{"type": RECORD_TURN_LOST, "code": code}])
         self._commit()
 
     def add_undone(self, versions: dict[str, Any], note: dict[str, Any]) -> None:

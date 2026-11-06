@@ -30,8 +30,8 @@ server {
         proxy_set_header Host $host;
     }
 
-    # The answers of the AI assistant stream, and a tool can run for minutes in silence
-    location ~ /api/v1/auradata/assistant/(conversations/[^/]+/decide/)?$ {
+    # The answers of the AI assistant stream
+    location ~ /api/v1/auradata/assistant/(conversations/[^/]+/(decide|stream)/)?$ {
         proxy_pass http://superset_app;
         proxy_set_header Host $http_host;
         proxy_set_header X-Real-IP $remote_addr;
