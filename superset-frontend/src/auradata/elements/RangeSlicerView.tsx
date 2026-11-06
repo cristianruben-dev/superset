@@ -69,7 +69,6 @@ const Box = styled.div`
     .slicer-fields select {
       width: 100%;
       box-sizing: border-box;
-      padding: ${theme.sizeUnit}px ${theme.sizeUnit * 2}px;
       border: 1px solid
         var(--mb-s-search-border, var(--mb-f-box-border, ${theme.colorBorder}));
       border-radius: var(
