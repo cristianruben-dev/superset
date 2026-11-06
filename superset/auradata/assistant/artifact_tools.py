@@ -290,9 +290,10 @@ def save_card(
     arguments: dict[str, Any], context: OwnToolContext
 ) -> dict[str, Any] | None:
     """
-    What the card of ``save_artifact_as_page`` says and the version it describes, or None
-    for a call that gets no card: the version it names is not the last one, so what the
-    person read would not be what gets saved. A page of the report sets the page size.
+    What the card of ``save_artifact_as_page`` says and the version it describes, or
+    None for a call that gets no card: the version it names is not the last one, so what
+    the person read would not be what gets saved. A page of the report sets the page
+    size.
     """
     # pylint: disable=import-outside-toplevel
     from superset.mcp_service.report_layout.editing import LayoutEditError, open_report

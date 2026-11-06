@@ -341,7 +341,7 @@ def end_shares_of_conversations(conversation_ids: Sequence[UUID]) -> None:
 def shared_in(workspace_id: int) -> list[dict[str, Any]]:
     """
     What the current user reads as shared in a workspace, the last shared first. An
-    author who lost the report still finds theirs, to stop sharing it: ``opens`` says so.
+    author who lost the report still finds theirs, to stop sharing it: see ``opens``.
     """
     # pylint: disable=import-outside-toplevel
     from superset.auradata.assistant.turns import open_dashboard
