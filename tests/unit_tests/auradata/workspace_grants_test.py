@@ -15,8 +15,8 @@
 # specific language governing permissions and limitations
 # under the License.
 """
-Data access through a workspace: contributors and admins query the datasets of
-their workspace, and nobody else gains anything.
+Data access through a workspace: its members query the datasets of the workspace,
+viewers included, and nobody else gains anything.
 
 No role here has data permissions of its own, so every grant seen is the one of
 the workspace.
@@ -162,8 +162,8 @@ def query_context_of(world: dict[str, Any], dataset: str = "ventas") -> Any:
     )
 
 
-@pytest.mark.parametrize("name", ["Ana", "Ada"])
-def test_contributors_and_admins_query_the_datasets_of_their_workspace(
+@pytest.mark.parametrize("name", ["Ana", "Ada", "Vera"])
+def test_members_query_the_datasets_of_their_workspace(
     world: dict[str, Any], name: str
 ) -> None:
     as_user(world, name)
@@ -176,8 +176,8 @@ def test_contributors_and_admins_query_the_datasets_of_their_workspace(
     assert security_manager.can_access_datasource(world["ventas"])
 
 
-@pytest.mark.parametrize("name", ["Vera", "Carlos", "Dani"])
-def test_viewers_and_outsiders_gain_nothing(world: dict[str, Any], name: str) -> None:
+@pytest.mark.parametrize("name", ["Carlos", "Dani"])
+def test_outsiders_gain_nothing(world: dict[str, Any], name: str) -> None:
     as_user(world, name)
     check = security_manager.raise_for_access
 
@@ -187,8 +187,9 @@ def test_viewers_and_outsiders_gain_nothing(world: dict[str, Any], name: str) ->
     assert not allowed(check, dashboard=world["dashboard"])
 
 
-def test_a_shared_dataset_grants_nothing(world: dict[str, Any]) -> None:
-    as_user(world, "Ana")
+@pytest.mark.parametrize("name", ["Ana", "Vera"])
+def test_a_shared_dataset_grants_nothing(world: dict[str, Any], name: str) -> None:
+    as_user(world, name)
     check = security_manager.raise_for_access
 
     assert not allowed(check, datasource=world["compartido"])
@@ -196,8 +197,9 @@ def test_a_shared_dataset_grants_nothing(world: dict[str, Any]) -> None:
     assert not allowed(check, dashboard=world["shared_dashboard"])
 
 
-def test_raw_sql_and_strict_paths_stay_closed(world: dict[str, Any]) -> None:
-    as_user(world, "Ana")
+@pytest.mark.parametrize("name", ["Ana", "Vera"])
+def test_raw_sql_and_strict_paths_stay_closed(world: dict[str, Any], name: str) -> None:
+    as_user(world, name)
     check = security_manager.raise_for_access
 
     # SQL Lab, MetaDB and MCP execute_sql ask for a strict match of the dataset
@@ -236,7 +238,7 @@ def test_the_grant_follows_membership_and_workspace(
     session.flush()
     assert allowed(check, datasource=world["ventas"])
 
-    # Removing the member, or lowering them to viewer, takes it away
+    # Lowering the member to viewer keeps it, and removing them takes it away
     member = (
         session.query(WorkspaceMember)
         .filter(WorkspaceMember.user_id == world["users"]["Ana"].id)
@@ -244,22 +246,54 @@ def test_the_grant_follows_membership_and_workspace(
     )
     member.role = ROLE_VIEWER
     session.flush()
-    assert not allowed(check, datasource=world["ventas"])
-    member.role = ROLE_CONTRIBUTOR
-    session.flush()
     assert allowed(check, datasource=world["ventas"])
     session.delete(member)
     session.flush()
     assert not allowed(check, datasource=world["ventas"])
 
 
-def test_a_workspace_role_does_not_edit_a_dataset(world: dict[str, Any]) -> None:
+@pytest.mark.parametrize("name", ["Ana", "Vera"])
+def test_a_workspace_role_does_not_edit_a_dataset(
+    world: dict[str, Any], name: str
+) -> None:
     """Editing it could repoint it to any table, and the grant would follow."""
-    as_user(world, "Ana")
+    as_user(world, name)
 
     assert not security_manager.can_edit_resource(world["ventas"])
     with pytest.raises(SupersetSecurityException):
         security_manager.raise_for_editorship(world["ventas"])
+
+
+def test_a_viewer_stays_a_viewer(world: dict[str, Any]) -> None:
+    """Reading the dataset opens nothing to edit, whatever is built on it."""
+    as_user(world, "Vera")
+
+    for resource in ("chart", "dashboard"):
+        assert not security_manager.can_edit_resource(world[resource])
+        assert not security_manager.is_editor(world[resource])
+        with pytest.raises(SupersetSecurityException):
+            security_manager.raise_for_editorship(world[resource])
+
+
+def test_a_draft_stays_hidden_from_a_viewer(
+    session: Session, world: dict[str, Any]
+) -> None:
+    def listed() -> set[str]:
+        access = DashboardAccessFilter("id", SQLAInterface(Dashboard))
+        return {d.dashboard_title for d in access.apply(session.query(Dashboard), None)}
+
+    world["dashboard"].published = False
+    session.flush()
+    check = security_manager.raise_for_access
+
+    as_user(world, "Vera")
+    assert not allowed(check, dashboard=world["dashboard"])
+    assert listed() == set()
+
+    # The control: the same draft is open to a contributor of the workspace
+    as_user(world, "Ana")
+    assert allowed(check, dashboard=world["dashboard"])
+    assert listed() == {"Ventas"}
 
 
 def test_the_lists_show_the_datasets_of_the_workspace_only(
@@ -272,7 +306,7 @@ def test_the_lists_show_the_datasets_of_the_workspace_only(
 
     assert listed("Ana") == {"ventas"}
     assert listed("Ada") == {"ventas"}
-    assert listed("Vera") == set()
+    assert listed("Vera") == {"ventas"}
     assert listed("Carlos") == set()
     assert listed("Dani") == set()
 
@@ -286,20 +320,20 @@ def test_the_dashboard_list_follows_the_grant(
         return {d.dashboard_title for d in access.apply(session.query(Dashboard), None)}
 
     assert listed("Ana") == {"Ventas"}
-    # Viewers keep what they already saw: no dataset access, no dashboard
-    assert listed("Vera") == set()
+    assert listed("Vera") == {"Ventas"}
     assert listed("Carlos") == set()
     assert listed("Dani") == set()
 
 
-def test_row_level_security_still_filters_a_contributor(
-    mocker: MockerFixture, session: Session, world: dict[str, Any]
+@pytest.mark.parametrize("name", ["Ana", "Vera"])
+def test_row_level_security_still_filters_a_member(
+    mocker: MockerFixture, session: Session, world: dict[str, Any], name: str
 ) -> None:
     from superset.subjects.utils import get_or_create_user_subject
 
-    ana = world["users"]["Ana"]
-    as_user(world, "Ana")
-    subject = get_or_create_user_subject(ana.id)
+    member = world["users"][name]
+    as_user(world, name)
+    subject = get_or_create_user_subject(member.id)
     assert subject
     rule = RowLevelSecurityFilter(
         name="solo norte",
@@ -319,13 +353,13 @@ def test_row_level_security_still_filters_a_contributor(
         )
     )
     session.flush()
-    g.user = ana
+    g.user = member
     g.pop("_rls_filter_cache", None)
     mocker.patch(
         "superset.subjects.utils.get_current_user_subject_ids",
         return_value=[subject.id],
     )
-    mocker.patch("superset.security.manager.get_username", return_value="ana")
+    mocker.patch("superset.security.manager.get_username", return_value=name.lower())
 
     # The workspace opens the dataset, and its rows are still filtered
     assert allowed(security_manager.raise_for_access, datasource=world["ventas"])
@@ -339,6 +373,8 @@ def test_row_level_security_still_filters_a_contributor(
         ("Ana", "compartido"),  # a shared dataset she cannot read
         ("Ana", "ventas"),  # one she reads through the workspace: not hers to move
         ("Ada", "compartido"),
+        ("Vera", "ventas"),  # a viewer reads it, and moves nothing
+        ("Vera", "compartido"),
         ("Carlos", "ventas"),  # a dataset of another workspace
     ],
 )

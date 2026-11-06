@@ -16,9 +16,9 @@
 # under the License.
 """
 Dataset reads through the MCP follow the workspace rules of the REST dataset API:
-the datasets of a workspace are for its members (``WorkspaceDatasetFilter``), and
-its contributors and admins read them without data permissions of their own
-(``workspace_grants``). Viewers gain nothing.
+the datasets of a workspace are for its members (``WorkspaceDatasetFilter``), who
+read them without data permissions of their own (``workspace_grants``). Nobody
+else gains anything.
 """
 
 from typing import Any
@@ -123,8 +123,8 @@ async def test_members_with_data_access_see_their_workspace(
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("name", ["Ana", "Ada"])
-async def test_contributors_read_their_workspace_without_data_access(
+@pytest.mark.parametrize("name", ["Ana", "Ada", "Vera"])
+async def test_members_read_their_workspace_without_data_access(
     no_data_world: dict[str, Any], name: str
 ) -> None:
     assert await listed(name, no_data_world) == ["ventas"]
@@ -134,8 +134,8 @@ async def test_contributors_read_their_workspace_without_data_access(
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("name", ["Vera", "Carlos", "Dani"])
-async def test_viewers_and_others_read_nothing_without_data_access(
+@pytest.mark.parametrize("name", ["Carlos", "Dani"])
+async def test_others_read_nothing_without_data_access(
     no_data_world: dict[str, Any], name: str
 ) -> None:
     assert await listed(name, no_data_world) == []

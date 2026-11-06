@@ -893,8 +893,7 @@ class DatasourceFilter(BaseFilter):  # pylint: disable=too-few-public-methods
             models.Database,
             models.Database.id == self.model.database_id,
         )
-        # AuraData BI: the datasets of the workspaces where the user is a
-        # contributor or admin
+        # AuraData BI: the datasets of the workspaces of the user
         from superset.auradata.workspace_grants import grant_clause
 
         workspace_grant = grant_clause(self.model)

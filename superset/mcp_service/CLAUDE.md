@@ -67,7 +67,7 @@ lets them do, no more:
   as a custom filter, and `get_dataset_info`/`query_dataset` treat a hidden dataset as not found
   (`dataset/dataset_utils.py:visible_in_workspaces`). The workspace grant
   (`superset/auradata/workspace_grants.py`) is part of `DatasourceFilter` and `raise_for_access`:
-  contributors and admins read their workspace's datasets, viewers gain nothing.
+  the members of a workspace, viewers included, read its datasets.
 - **Tests** run on a real in-memory database with every role: viewer, contributor, workspace
   admin, a member of another workspace and a Superset admin
   (`tests/unit_tests/mcp_service/workspace/world.py`). Tools that run work in a thread need the

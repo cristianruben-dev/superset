@@ -75,9 +75,10 @@ This repository is **AuraData BI**, a fork of Apache Superset 7.0 shaped like Po
   `security_manager.can_edit_resource` (used by `raise_for_editorship` and the edit points) and
   never become editors (`keep_subjects` in `compute_subjects`). A new edit point asks
   `can_edit_resource` (`tests/unit_tests/auradata/workspace_security_test.py`). Data access has one
-  narrow grant (`superset/auradata/workspace_grants.py`): contributors and admins of a workspace read the
+  narrow grant (`superset/auradata/workspace_grants.py`): the members of a workspace, viewers included, read the
   datasets that belong to it (`raise_for_access`, `DatasourceFilter`, `ChartFilter`,
-  `DashboardAccessFilter`), never viewers, other workspaces or shared datasets. RLS still applies;
+  `DashboardAccessFilter`), never other workspaces or shared datasets. A viewer stays a viewer: no editing and no
+  drafts. RLS still applies;
   SQL Lab, database schemas and editing a dataset keep their normal permissions. A new data-access
   check keeps `is_editor` and adds this grant only where the dataset is the thing read
   (`tests/unit_tests/auradata/workspace_grants_test.py`). Certifying a dashboard or chart (`certified_by`,

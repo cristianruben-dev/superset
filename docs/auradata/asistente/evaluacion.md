@@ -204,27 +204,15 @@ INCLUDE_EXPERIMENTAL=1 PLAYWRIGHT_BASE_URL=http://localhost:8188 PLAYWRIGHT_ADMI
 
 ## Hallazgos sin gasto
 
-### Un visor sin permisos de datos no recibe cifras
+### Un visor lee los datasets de su workspace
 
 Probado por la ruta real (`viewer_test.py`), con los permisos de clase del rol Gamma y sin ningún `datasource_access`:
 
-- **El panel se ofrece:** `query_dataset` y `get_chart_data` están entre sus herramientas.
-- **Las dos fallan igual, con `NotFound`.** Los filtros de lista esconden el dataset y el gráfico antes de cualquier
-  comprobación de acceso, así que la respuesta llega sin cifras y dice que no los encuentra.
-- **El tablero tampoco le dibuja nada:** la consulta de un gráfico, con su `slice_id` y su `dashboardId`, también se
-  rechaza. El panel no se queda atrás de la página: los dos fallan por lo mismo.
-- **El control:** un colaborador pasa el acceso por el permiso del workspace, y un visor cuyo rol tiene
-  `datasource_access` sobre el dataset también.
-
-O sea que un visor de un workspace solo ve datos si su rol de Superset se los da, y el «listo cuando» de la fase 2 («un
-visor pregunta… y recibe la respuesta») depende de eso. Es la regla escrita en `workspace_grants.py`, no un error del
-asistente. Opciones, ninguna aplicada:
-
-| Opción | Qué implica |
-| --- | --- |
-| Dar `datasource_access` al rol de los visores | Sin código. Es lo que ya funciona (`viewer_test.py`), dataset por dataset |
-| `ENABLE_VIEWERS` y `VIEWER_PROMISCUOUS_MODE` | Por el código, dejaría pasar los gráficos de un tablero publicado donde la persona sea visor del tablero. La figura del panel y `query_dataset` no llevan `slice_id`, así que seguirían rechazadas. Leído, no probado |
-| Ampliar el permiso del workspace a visores | Lo resuelve de raíz y cambia una regla del producto: hoy `workspace_grants.py` dice que un visor no gana nada |
+- **El panel y el tablero responden:** `query_dataset` y `get_chart_data` llegan a la consulta, y la consulta de un gráfico del
+  tablero pasa, porque el dataset pertenece al workspace del visor (`workspace_grants.py`).
+- **Lo que queda fuera:** los datasets compartidos y los de otro workspace, SQL Lab, los esquemas, editar y los borradores.
+- **El control:** alguien fuera del workspace recibe `NotFound`: los filtros de lista esconden el dataset y el gráfico antes de
+  cualquier comprobación de acceso.
 
 ### Las preguntas de datos corren sobre el dataset 41
 

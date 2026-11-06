@@ -17,14 +17,16 @@
 """
 Data access through a workspace, like the semantic models of a Power BI workspace.
 
-The contributors and admins of a workspace can query the datasets that belong to
-it (``WorkspaceDataset``), whatever data permissions their roles have. The grant
-is narrow on purpose:
+The members of a workspace, viewers included, can query the datasets that belong
+to it (``WorkspaceDataset``), whatever data permissions their roles have. The
+grant is narrow on purpose:
 
 * Only datasets of the workspace. A shared dataset (no workspace) keeps the
   permissions it had, and a dataset moved to another workspace takes its access
   with it. Nothing is cached, so removing a member also removes the access.
-* Only contributors and admins. A viewer of the workspace gains nothing.
+* Only reading. It never makes anyone an editor: viewers keep their role, and
+  drafts and every edit point keep asking for a contributor or admin
+  (``workspace_access``).
 * Only the object checks of charts, dashboards and datasets (``raise_for_access``
   and the list filters). Raw SQL (SQL Lab, MetaDB, MCP ``execute_sql``), schema
   and database listings and editing a dataset keep following real permissions,
@@ -45,7 +47,7 @@ import sqlalchemy as sa
 
 from superset import db, security_manager
 from superset.auradata import workspace_access, workspace_datasets
-from superset.auradata.models import WorkspaceDataset, WorkspaceMember
+from superset.auradata.models import WorkspaceDataset
 from superset.utils.core import get_user_id
 
 
@@ -55,12 +57,10 @@ def enabled() -> bool:
 
 
 def _granted_dataset_ids(user_id: int) -> Any:
-    editable_workspaces = sa.select(WorkspaceMember.workspace_id).where(
-        WorkspaceMember.user_id == user_id,
-        WorkspaceMember.role.in_(workspace_access.EDITOR_ROLES),
-    )
     return sa.select(WorkspaceDataset.dataset_id).where(
-        WorkspaceDataset.workspace_id.in_(editable_workspaces)
+        WorkspaceDataset.workspace_id.in_(
+            workspace_access.member_workspace_ids(user_id)
+        )
     )
 
 
@@ -79,8 +79,8 @@ def granted_dataset_ids() -> Any | None:
 
 def grants_dataset(datasource: Any) -> bool:
     """
-    Whether the current user may query a dataset because they are a contributor or
-    admin of its workspace.
+    Whether the current user may query a dataset because they are a member of its
+    workspace.
     """
     from superset.connectors.sqla.models import SqlaTable
 

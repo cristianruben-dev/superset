@@ -5483,8 +5483,8 @@ class SupersetSecurityManager(  # pylint: disable=too-many-public-methods
                 # rather than the flag silently applying only to the
                 # database+table / query branch above.
                 or (allow_editorship and self.is_editor(datasource))
-                # AuraData BI: the contributors and admins of the workspace of a
-                # dataset query it. Never for raw SQL (``force_dataset_match``).
+                # AuraData BI: the members of the workspace of a dataset query
+                # it. Never for raw SQL (``force_dataset_match``).
                 or (
                     allow_editorship
                     and not force_dataset_match
@@ -5654,7 +5654,7 @@ class SupersetSecurityManager(  # pylint: disable=too-many-public-methods
 
             # AuraData BI: workspace contributors also open the drafts of their
             # workspace, under the same viewer and datasource rules as published
-            # dashboards (contributors read the workspace's datasets: see
+            # dashboards (members read the workspace's datasets: see
             # workspace_grants).
             def published_for_user() -> bool:
                 return bool(dashboard.published) or edits_as_workspace_member(dashboard)

@@ -361,9 +361,9 @@ con valores prudentes y sin búsqueda de herramientas, así que no puede seguir 
 
 - **Probar de verdad:** la corrida de la [evaluación](asistente/evaluacion.md), el panel en un navegador y las capturas desde
   el proceso web.
-- **Visores:** un visor de un workspace sin `datasource_access` no recibe cifras, y su tablero tampoco se dibuja. Es la regla de
-  `workspace_grants.py`, y lo fija `tests/unit_tests/auradata/assistant/viewer_test.py`. Las opciones están en la
-  [evaluación](asistente/evaluacion.md#un-visor-sin-permisos-de-datos-no-recibe-cifras).
+- **Visores:** un visor de un workspace lee los datasets de ese workspace, así que el panel le da cifras y su tablero se
+  dibuja. Fuera de ellos sigue sin datos. Es la regla de `workspace_grants.py`, y lo fija
+  `tests/unit_tests/auradata/assistant/viewer_test.py`.
 - **Deshacer** no toca los datasets.
 - **Topes:** un turno en marcha puede pasarse hasta terminar.
 - **Procesos:** uno que muere con una herramienta en marcha deja su conversación en 409. Se sigue en una nueva.

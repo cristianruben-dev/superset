@@ -27,8 +27,8 @@ def workspace_filtered(query: Any) -> Any:
 
     AuraData BI: the datasets of a workspace are for its members, its editors
     and admins, as in the REST dataset API, which adds ``WorkspaceDatasetFilter``
-    to the ``DatasourceFilter`` of ``DatasetDAO``. The workspace grant of
-    contributors and admins is part of ``DatasourceFilter`` already.
+    to the ``DatasourceFilter`` of ``DatasetDAO``. The workspace grant of its
+    members is part of ``DatasourceFilter`` already.
     """
     from flask_appbuilder.models.sqla.interface import SQLAInterface
 

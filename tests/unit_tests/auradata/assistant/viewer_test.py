@@ -124,39 +124,49 @@ def error_type_of(outcome: Any) -> str:
     return json.loads(outcome.content[0]["text"])["error_type"]
 
 
-def test_a_viewer_without_data_permissions_gets_no_rows_from_any_tool(
+def test_a_viewer_reaches_the_figures_through_the_workspace_grant(
     world: dict[str, Any],
 ) -> None:
     """
-    The dataset and the chart look missing: the list filters hide them before any
-    access check, as they do for anyone without access. So the answer has no figure.
+    The tools get past every access check: the table does not exist in the test
+    database, so the only thing left to fail is the query itself.
     """
-    assert error_type_of(query(world, "Vera")) == "NotFound"
-    assert error_type_of(chart_data(world, "Vera")) == "NotFound"
+    assert error_type_of(query(world, "Vera")) == "QueryError"
+    assert error_type_of(chart_data(world, "Vera")) != "NotFound"
 
 
-def test_the_charts_of_the_dashboard_are_refused_to_that_viewer_too(
+def test_the_charts_of_the_dashboard_open_to_that_viewer_too(
     world: dict[str, Any],
 ) -> None:
-    """The panel is not behind the page: this person sees no chart there either."""
-    assert not chart_query_is_allowed(world, "Vera")
+    """The panel is not ahead of the page: this person sees the same charts there."""
+    assert chart_query_is_allowed(world, "Vera")
+
+
+def test_someone_outside_the_workspace_gets_no_rows_from_any_tool(
+    world: dict[str, Any],
+) -> None:
+    """
+    The control: the dataset and the chart look missing, because the list filters
+    hide them before any access check. So the answer has no figure.
+    """
+    assert error_type_of(query(world, "Dani")) == "NotFound"
+    assert error_type_of(chart_data(world, "Dani")) == "NotFound"
+    assert not chart_query_is_allowed(world, "Dani")
 
 
 def test_a_contributor_reaches_the_query_through_the_workspace_grant(
     world: dict[str, Any],
 ) -> None:
-    """The control: the refusal above comes from the viewer role, not from the setup."""
     assert error_type_of(query(world, "Ana")) == "QueryError"
     assert chart_query_is_allowed(world, "Ana")
 
 
-def test_a_viewer_whose_role_reads_the_dataset_queries_it(
+def test_a_role_with_access_to_the_dataset_opens_the_chart_query(
     world: dict[str, Any],
 ) -> None:
-    """What a viewer needs today: ``datasource_access`` from a role, nothing else."""
+    """A role still opens a dataset to someone outside its workspace's grant."""
     perm = world["ventas"].perm
     world["granted"].add(("datasource_access", perm))
     security_manager.user_view_menu_names.return_value = {perm}
 
-    assert error_type_of(query(world, "Vera")) == "QueryError"
-    assert chart_query_is_allowed(world, "Vera")
+    assert chart_query_is_allowed(world, "Dani")

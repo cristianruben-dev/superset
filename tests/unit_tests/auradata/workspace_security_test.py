@@ -15,12 +15,15 @@
 # specific language governing permissions and limitations
 # under the License.
 """
-A workspace role edits dashboards and charts but never grants access to data.
+A workspace role edits dashboards and charts but never grants access to data
+outside the workspace.
 
 Superset 7.0 counts editorship (``is_editor``) as data access in several places:
 the chart branch of ``raise_for_access``, promiscuous viewer mode and guest token
 minting. These tests prove that a workspace viewer and a workspace contributor,
-neither with access to the dataset, get no data access through their role.
+neither with access to a dataset that does not belong to the workspace, get no
+data access through their role. ``workspace_grants_test.py`` covers the datasets
+that do belong to it.
 """
 
 from typing import Any

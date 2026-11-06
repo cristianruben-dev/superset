@@ -206,7 +206,7 @@ Si instalaste `anthropic` a mano en un contenedor, lo pierdes al recrearlo. La s
 
 | Límite | Qué pasa | Qué hacer |
 | --- | --- | --- |
-| Un visor de un área sin `datasource_access` no recibe cifras | `query_dataset` y `get_chart_data` responden `NotFound`, y los gráficos de su tablero también se rechazan. Es la regla de `workspace_grants.py`: un visor no gana acceso a datos | Dale `datasource_access` a su rol, dataset por dataset. Hay [más opciones](evaluacion.md#un-visor-sin-permisos-de-datos-no-recibe-cifras), ninguna aplicada |
+| Un visor no recibe cifras de un dataset | El dataset no pertenece a su área: es compartido o de otra área. Los miembros de un área leen solo los datasets de esa área (`workspace_grants.py`) | Agrega el dataset al área, o dale `datasource_access` a su rol |
 | Deshacer no toca los datasets | Un dataset cambiado por un turno se queda así. Un gráfico creado queda fuera del informe sin borrarse, y uno borrado sigue en la papelera | Revísalo a mano. Otros informes leen el mismo dataset |
 | Un turno puede pasarse del tope | Nada limita el gasto de un solo turno, salvo las 25 llamadas al modelo por tramo, que vuelven a contar después de una tarjeta | Deja margen en el tope |
 | Un proceso que muere con una herramienta en marcha | Esa conversación queda ocupada y responde 409 | Empezar una conversación nueva funciona |

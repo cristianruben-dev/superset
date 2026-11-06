@@ -20,8 +20,8 @@ semantic model, and the charts of that workspace's dashboards use it.
 
 * A dataset without a workspace is shared: any dashboard can use it.
 * A dataset of a workspace is listed for that workspace's members, its editors and
-  Superset admins. Contributors and admins of the workspace also read its datasets
-  (``workspace_grants``); viewers gain nothing.
+  Superset admins. The members of the workspace also read its datasets
+  (``workspace_grants``).
 * A chart can only use a dataset of its dashboard's workspace, or a shared one.
 
 ``AURADATA_WORKSPACE_DATASETS = False`` turns these rules off.

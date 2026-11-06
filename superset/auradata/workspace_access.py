@@ -21,8 +21,8 @@ Membership is the privacy boundary of a workspace, as in Power BI:
 
 * A workspace is visible to its members and to Superset admins.
 * A dashboard inside a workspace is hidden from users who are neither members of
-  that workspace nor editors of the dashboard. Membership never grants data access:
-  the charts still need access to their datasets.
+  that workspace nor editors of the dashboard. Membership grants data access only
+  to the datasets of the workspace (``workspace_grants``).
 * Contributors and admins of a workspace edit its dashboards and their charts
   (``SupersetSecurityManager.can_edit_resource``), but are not their editors:
   editorship grants data access in Superset, so a workspace role never changes
