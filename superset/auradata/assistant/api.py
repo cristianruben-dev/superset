@@ -73,12 +73,15 @@ from flask_babel import get_locale, gettext as _
 from marshmallow import fields, Schema, validate, ValidationError
 
 from superset import security_manager
+from superset.auradata.assistant import sharing
 from superset.auradata.assistant.artifacts import (
     artifact_calls,
     artifact_json,
     ArtifactMovedError,
     ArtifactRefusedError,
+    blocks_of,
     find_artifact,
+    oldest_text,
     restore_version,
     selected_context,
     summaries_of,
@@ -190,6 +193,7 @@ from superset.auradata.assistant.undo import (
 from superset.auradata.backgrounds import image_response
 from superset.auradata.models import (
     AssistantArtifact,
+    AssistantArtifactVersion,
     AssistantConversation,
     AssistantMessage,
     ROLE_ADMIN,
@@ -308,6 +312,12 @@ class AssistantRenameSchema(Schema):
     title = fields.String(
         required=True, validate=validate.Length(min=1, max=TITLE_LENGTH)
     )
+
+
+class AssistantShareSchema(Schema):
+    """The version a person read on the card."""
+
+    version = fields.Integer(required=True, validate=validate.Range(min=1))
 
 
 class AssistantRestoreSchema(Schema):
@@ -684,6 +694,11 @@ class AssistantRestApi(BaseSupersetApi):
         "artifact": "read",
         "artifact_version": "read",
         "restore_artifact": "read",
+        "document": "read",
+        "documents": "read",
+        "share_card": "read",
+        "share_artifact": "read",
+        "unshare_artifact": "read",
     }
     openapi_spec_tag = "AuraData BI"
 
@@ -1860,6 +1875,231 @@ class AssistantRestApi(BaseSupersetApi):
             )
         return self.response(200, result=artifact_json(artifact, version))
 
+    @expose("/documents/<uuid:artifact_id>/", methods=("GET",))
+    @safe
+    @statsd_metrics
+    def document(self, artifact_id: UUID) -> Response:
+        """A document as it reads on its page, for its owner or who it is shared with.
+        ---
+        get:
+          summary: The reading view of a document
+          description: >-
+            Its owner gets the last version. A member of the workspace it is shared
+            with gets the shared version, without its conversation or its history, and
+            of a block they do not reach only that it is there. Anyone else gets a 404,
+            an anonymous visitor too, so nothing tells whether it exists: that is why
+            this route has no protect(), whose 401 would come first.
+          parameters:
+          - in: path
+            name: artifact_id
+            required: true
+            schema:
+              type: string
+              format: uuid
+          responses:
+            200:
+              description: The document
+            404:
+              $ref: '#/components/responses/404'
+        """
+        if not _session_user_only() or not security_manager.can_access(
+            "can_read", "Dashboard"
+        ):
+            return self.response_404()
+        user_id = get_user_id()
+        artifact = self._open_artifact(artifact_id)
+        version = version_of(artifact.id) if artifact else None
+        if artifact is not None and version is not None:
+            return self.response(
+                200,
+                result={
+                    **artifact_json(artifact, version),
+                    "author": None,
+                    "written_on": oldest_text(blocks_of(version)),
+                    "reader": False,
+                },
+            )
+        shared = sharing.find_shared(artifact_id, user_id)
+        document = sharing.reader_json(shared) if shared else None
+        if document is None:
+            return self.response_404()
+        return self.response(200, result=document)
+
+    @expose("/documents/", methods=("GET",))
+    @protect()
+    @safe
+    @statsd_metrics
+    def documents(self) -> Response:
+        """The documents shared in a workspace, for one of its members.
+        ---
+        get:
+          summary: The documents shared in a workspace
+          parameters:
+          - in: query
+            name: workspace_id
+            required: true
+            schema:
+              type: integer
+          responses:
+            200:
+              description: What the current user reads there
+            401:
+              $ref: '#/components/responses/401'
+            403:
+              $ref: '#/components/responses/403'
+            404:
+              $ref: '#/components/responses/404'
+        """
+        if not _session_user_only():
+            return self.response_403()
+        workspace_id = request.args.get("workspace_id", type=int)
+        if workspace_id is None or not sharing.is_member(workspace_id, get_user_id()):
+            return self.response_404()
+        return self.response(200, result=sharing.shared_in(workspace_id))
+
+    def _last_version_of(
+        self, artifact_id: UUID
+    ) -> tuple[AssistantArtifact, AssistantArtifactVersion] | None:
+        artifact = self._open_artifact(artifact_id)
+        version = version_of(artifact.id) if artifact else None
+        return (artifact, version) if version is not None else None
+
+    @expose("/artifacts/<uuid:artifact_id>/share/", methods=("GET",))
+    @protect()
+    @safe
+    @statsd_metrics
+    def share_card(self, artifact_id: UUID) -> Response:
+        """What a person reads before sharing their document.
+        ---
+        get:
+          summary: The card shown before sharing a document
+          parameters:
+          - in: path
+            name: artifact_id
+            required: true
+            schema:
+              type: string
+              format: uuid
+          responses:
+            200:
+              description: What a reader would get, and what its text holds
+            401:
+              $ref: '#/components/responses/401'
+            403:
+              $ref: '#/components/responses/403'
+            404:
+              $ref: '#/components/responses/404'
+        """
+        if not _session_user_only():
+            return self.response_403()
+        found = self._last_version_of(artifact_id)
+        if found is None:
+            return self.response_404()
+        return self.response(200, result=sharing.share_card(*found))
+
+    @expose("/artifacts/<uuid:artifact_id>/share/", methods=("POST",))
+    @protect()
+    @safe
+    @statsd_metrics
+    def share_artifact(self, artifact_id: UUID) -> Response:
+        """Share a document inside the workspace of its report.
+        ---
+        post:
+          summary: Share the version a person read on the card
+          parameters:
+          - in: path
+            name: artifact_id
+            required: true
+            schema:
+              type: string
+              format: uuid
+          requestBody:
+            required: true
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    version:
+                      type: integer
+          responses:
+            200:
+              description: The document
+            400:
+              $ref: '#/components/responses/400'
+            401:
+              $ref: '#/components/responses/401'
+            403:
+              $ref: '#/components/responses/403'
+            404:
+              $ref: '#/components/responses/404'
+            409:
+              description: The document moved on after the card
+            422:
+              $ref: '#/components/responses/422'
+        """
+        if not _session_user_only():
+            return self.response_403()
+        if not request.is_json:
+            return self.response_400(message="Request is not JSON")
+        try:
+            number = AssistantShareSchema().load(request.json)["version"]
+        except ValidationError as ex:
+            return self.response_400(message=ex.messages)
+        found = self._last_version_of(artifact_id)
+        if found is None:
+            return self.response_404()
+        artifact, version = found
+        if version.number != number:
+            return self.response(
+                409, message=_("The document changed. Read the card again.")
+            )
+        if sharing.share_card(artifact, version)["problem"] is not None:
+            return self.response_422(
+                message=_(
+                    "Only a member of the workspace of this report can share this."
+                )
+            )
+        sharing.share(artifact, version)
+        sharing.log_document(sharing.ACTION_SHARE, artifact, version)
+        return self.response(200, result=artifact_json(artifact, version))
+
+    @expose("/artifacts/<uuid:artifact_id>/share/", methods=("DELETE",))
+    @protect()
+    @safe
+    @statsd_metrics
+    def unshare_artifact(self, artifact_id: UUID) -> Response:
+        """Close the share of a document, at once.
+        ---
+        delete:
+          summary: Stop sharing a document
+          parameters:
+          - in: path
+            name: artifact_id
+            required: true
+            schema:
+              type: string
+              format: uuid
+          responses:
+            200:
+              description: The document
+            401:
+              $ref: '#/components/responses/401'
+            403:
+              $ref: '#/components/responses/403'
+            404:
+              $ref: '#/components/responses/404'
+        """
+        if not _session_user_only():
+            return self.response_403()
+        found = self._last_version_of(artifact_id)
+        if found is None:
+            return self.response_404()
+        artifact, version = found
+        sharing.log_document(sharing.ACTION_UNSHARE, artifact, version)
+        sharing.unshare(artifact)
+        return self.response(200, result=artifact_json(artifact, version))
+
     def _answer_to_vote(
         self, conversation_id: UUID, message_id: UUID
     ) -> AssistantMessage | None:
@@ -1982,4 +2222,14 @@ class AssistantSettingsView(BaseSupersetView):
     def settings(self) -> FlaskResponse:
         if not security_manager.is_admin():
             abort(403)
+        return super().render_app_template()
+
+    @expose("/document/<uuid:artifact_id>/")
+    @has_access
+    @permission_name("read")
+    def document(
+        self,
+        artifact_id: UUID,  # pylint: disable=unused-argument
+    ) -> FlaskResponse:
+        """The reading view of a document, a shell: its data decides who reads."""
         return super().render_app_template()

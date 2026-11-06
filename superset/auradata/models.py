@@ -386,10 +386,11 @@ class AssistantArtifact(Model):
     """
     A document the assistant wrote for one person, over one report, in one conversation.
 
-    The row only says whose it is and where it lives: what it holds is in its versions,
-    and the last one is the document. It goes with its conversation
-    (``conversations.erase_conversations``), and like one it is unreadable once it loses
-    its owner or its report, until the retention task removes that conversation.
+    The row only says whose it is, where it lives and who else may read which version:
+    what it holds is in its versions, and the last one is the document. It goes with its
+    conversation (``conversations.erase_conversations``), and like one it is unreadable
+    once it loses its owner or its report, until the retention task removes that
+    conversation.
     """
 
     __tablename__ = ASSISTANT_ARTIFACTS_TABLE
@@ -414,6 +415,16 @@ class AssistantArtifact(Model):
         index=True,
     )
     created_on = sa.Column(sa.DateTime, nullable=False, default=datetime.now)
+    # Shared inside this workspace, at this version, which the owner read on a card.
+    # ``sharing.py`` decides on every read whether it still holds
+    shared_workspace_id = sa.Column(
+        sa.Integer,
+        sa.ForeignKey(f"{WORKSPACES_TABLE}.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+    )
+    shared_version = sa.Column(sa.Integer, nullable=True)
+    shared_on = sa.Column(sa.DateTime, nullable=True)
 
 
 class AssistantArtifactVersion(Model):

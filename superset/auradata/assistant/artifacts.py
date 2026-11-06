@@ -18,9 +18,10 @@
 Documents of the assistant: a person's own, over one report, inside one conversation.
 
 An artifact is written by the assistant through its own tools (``artifact_tools.py``)
-and only read by its owner in this phase, so ``find_artifact`` is the only way to one
-and answers None for anybody else's, an admin too. Each change is a new row of versions;
-the last one is the document, and going back copies an earlier one as a new one.
+and belongs to its owner: ``find_artifact`` is the way to one and answers None for
+anybody else's, an admin too. The only other way in is a share (``sharing.py``), which
+shows one version and changes nothing here. Each change is a new row of versions; the
+last one is the document, and going back copies an earlier one as a new one.
 
 A block of data stores a query and nothing it returned, and ``query_problem`` holds that
 query against the dataset as the person, on every write. Its numbers are read when the
@@ -49,8 +50,13 @@ from superset.utils import json
 CREATE_ARTIFACT = "create_artifact"
 CHANGE_ARTIFACT = "change_artifact"
 READ_ARTIFACT = "read_artifact"
-ARTIFACT_TOOLS = frozenset({CREATE_ARTIFACT, CHANGE_ARTIFACT, READ_ARTIFACT})
+SAVE_ARTIFACT = "save_artifact_as_page"
+ARTIFACT_TOOLS = frozenset(
+    {CREATE_ARTIFACT, CHANGE_ARTIFACT, READ_ARTIFACT, SAVE_ARTIFACT}
+)
 WRITING_TOOLS = frozenset({CREATE_ARTIFACT, CHANGE_ARTIFACT})
+# It changes a report: only edit mode offers it, and a person approves it on a card
+EDIT_ONLY_TOOLS = frozenset({SAVE_ARTIFACT})
 
 ORIGIN_CREATED = "created"
 ORIGIN_CHANGED = "changed"
@@ -220,6 +226,7 @@ def restore_version(
         blocks,
         ORIGIN_RESTORED,
         restored_from=number,
+        model=source.model,
     )
     db.session.commit()
     return version
@@ -270,7 +277,10 @@ def _unknown_names(dataset: Any, query: dict[str, Any]) -> list[str]:
     columns = {column.column_name for column in dataset.columns}
     metrics = {metric.metric_name for metric in dataset.metrics}
     aggregates = [
-        aggregate_metric(item["column"], item["aggregate"])
+        {
+            **aggregate_metric(item["column"], item["aggregate"]),
+            **({"label": item["label"]} if item.get("label") else {}),
+        }
         for item in query.get("aggregates", [])
     ]
     return validate_query_names(
@@ -333,6 +343,23 @@ def sources_of(blocks: Iterable[dict[str, Any]]) -> dict[str, str]:
     return sources
 
 
+def model_name(model_id: str | None) -> str | None:
+    """How a person reads the name of a model: an id only if it left the catalog."""
+    # pylint: disable=import-outside-toplevel
+    from superset.auradata.assistant.models import MODEL_TABLE
+
+    if model_id is None:
+        return None
+    spec = MODEL_TABLE.get(model_id)
+    return spec.display_name if spec else model_id
+
+
+def oldest_text(blocks: Iterable[dict[str, Any]]) -> str | None:
+    """When the oldest text of a document was written: its numbers are from then."""
+    dates = [block["written_on"] for block in blocks if block["type"] == "text"]
+    return min(dates) if dates else None
+
+
 def version_json(version: AssistantArtifactVersion) -> dict[str, Any]:
     """A line of the history of a document."""
     return {
@@ -341,6 +368,7 @@ def version_json(version: AssistantArtifactVersion) -> dict[str, Any]:
         "origin": version.origin,
         "restored_from": version.restored_from,
         "model": version.model,
+        "model_name": model_name(version.model),
         "created_on": version.created_on.isoformat(),
     }
 
@@ -360,6 +388,9 @@ def artifact_json(
     artifact: AssistantArtifact, version: AssistantArtifactVersion
 ) -> dict[str, Any]:
     """A version of a document, for its owner."""
+    # pylint: disable=import-outside-toplevel
+    from superset.auradata.assistant.sharing import share_json
+
     blocks = blocks_of(version)
     return {
         **artifact_summary(artifact, version),
@@ -368,8 +399,29 @@ def artifact_json(
         "blocks": blocks,
         "sources": sources_of(blocks),
         "created_on": version.created_on.isoformat(),
+        "model_name": model_name(version.model),
         "versions": [version_json(item) for item in versions_of(artifact.id)],
+        "share": share_json(artifact),
     }
+
+
+def others_on_report(
+    user_id: int, dashboard_id: int, conversation_id: UUID
+) -> list[dict[str, Any]]:
+    """The documents of this person on a report, out of this conversation."""
+    found = []
+    for artifact in (
+        db.session.query(AssistantArtifact)
+        .filter(
+            AssistantArtifact.user_id == user_id,
+            AssistantArtifact.dashboard_id == dashboard_id,
+            AssistantArtifact.conversation_id != conversation_id,
+        )
+        .order_by(AssistantArtifact.created_on)
+    ):
+        if version := version_of(artifact.id):
+            found.append(artifact_summary(artifact, version))
+    return found
 
 
 def summaries_of(conversation_id: UUID) -> list[dict[str, Any]]:

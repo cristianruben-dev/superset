@@ -125,6 +125,13 @@ class ArtifactAggregate(QueryDatasetAggregate):
     model_config = ConfigDict(extra="forbid")
 
     column: Name
+    label: Label | None = Field(
+        default=None,
+        description=(
+            "What a person calls this number, in their language, such as Ventas. "
+            "Legends and table headers show it instead of SUM(ventas)."
+        ),
+    )
 
 
 class ArtifactQuery(_Strict):
@@ -337,6 +344,13 @@ class ChangeArtifact(_Strict):
     version: int = Field(..., ge=1, description="The version these changes start from.")
     title: Title | None = Field(default=None, description="A new title, if it changes.")
     changes: list[Change] = Field(default_factory=list, max_length=MAX_CHANGES)
+
+
+class SaveArtifactAsPage(_Strict):
+    """A document of this person on this report, as new pages of the report."""
+
+    artifact_id: str = Field(..., description="Id of the document.")
+    version: int = Field(..., ge=1, description="The last version you saw.")
 
 
 class ReadArtifact(_Strict):

@@ -430,6 +430,9 @@ def move_dashboards(pk: int, payload: Any) -> Workspace:
             workspace_id=workspace.id, dashboard_id=dashboard_id
         ),
     )
+    from superset.auradata.assistant.sharing import end_moved_shares
+
+    end_moved_shares(requested)
     db.session.commit()  # pylint: disable=consider-using-transaction
     db.session.refresh(workspace)
     return workspace
@@ -588,6 +591,9 @@ def remove_member(pk: int, user_id: int) -> tuple[Workspace, str | None]:
     if is_last_admin(workspace, member):
         raise WorkspaceInvalidError("A workspace needs at least one admin")
     workspace.members.remove(member)
+    from superset.auradata.assistant.sharing import end_shares_of_member
+
+    end_shares_of_member(workspace.id, user_id)
     db.session.commit()  # pylint: disable=consider-using-transaction
     db.session.refresh(workspace)
     return workspace, workspace_role(workspace.id)

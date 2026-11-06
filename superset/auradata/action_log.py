@@ -25,7 +25,8 @@ views the "Recent" section of the home page is built from.
 The MCP service writes its own records (`mcp_tool_call` and friends) straight
 to the logger, outside this filter, so what an AI does stays in the log. The
 in-app assistant runs the same tools without that service, so it writes one
-`assistant_tool_call` per call, which this filter keeps by name.
+`assistant_tool_call` per call, and one `assistant_document` for what a person does
+with a document, which this filter keeps by name.
 """
 
 from __future__ import annotations
@@ -37,6 +38,9 @@ CLIENT_ACTION = "log"
 
 # One tool call of the in-app assistant. Its JSON names the tool and the model.
 ASSISTANT_TOOL_CALL = "assistant_tool_call"
+# What a person did with a document of the assistant: shared it, closed a share or
+# took it out as a PDF. Its JSON names the document and the model that wrote it.
+ASSISTANT_DOCUMENT = "assistant_document"
 
 # Browser events that are kept. `mount_dashboard` and `mount_explorer` feed the
 # "Recent" section of the home page.
@@ -121,7 +125,7 @@ def select_records(action: str, records: list[dict[str, Any]]) -> list[dict[str,
     dropped whole. Actions outside the Superset API naming (`Class.method`)
     and the browser batch, such as internal steps, are dropped.
     """
-    if action == ASSISTANT_TOOL_CALL:
+    if action in (ASSISTANT_TOOL_CALL, ASSISTANT_DOCUMENT):
         return records
     if action == CLIENT_ACTION:
         return [
