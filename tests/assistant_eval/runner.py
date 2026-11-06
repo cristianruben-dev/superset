@@ -840,6 +840,10 @@ def _user_problems(tasks: list[dict[str, Any]], battery: dict[str, Any]) -> list
     return problems
 
 
+FIXTURE_OWNER = "admin"
+DATA_ROLE = "Evaluación: datos"
+
+
 def prepare(battery: dict[str, Any]) -> list[str]:
     """
     What a real run needs in the metadata and does not come with it, once. It says
@@ -874,9 +878,31 @@ def prepare(battery: dict[str, Any]) -> list[str]:
         if subject not in resource.editors:
             resource.editors.append(subject)
             done.append(f"{reader.username} edits {resource}")
+    done += _grant_data_access(battery, source["dataset_id"])
     db.session.commit()
     done += _prepare_fixture(battery, workspace.id)
     return done
+
+
+def _grant_data_access(battery: dict[str, Any], dataset_id: int) -> list[str]:
+    """
+    Read access to the dataset of the data tasks for the reader and the viewer, as an
+    admin gives it. Being its editor is not enough: tools find a dataset through the
+    list filter, which does not count editors.
+    """
+    dataset = db.session.get(SqlaTable, dataset_id)
+    role = security_manager.add_role(DATA_ROLE)
+    permission = security_manager.add_permission_view_menu(
+        "datasource_access", dataset.perm
+    )
+    security_manager.add_permission_role(role, permission)
+    granted = []
+    for key in ("reader", "viewer"):
+        user = security_manager.find_user(battery["users"][key])
+        if role not in user.roles:
+            user.roles.append(role)
+            granted.append(f"{user.username} reads {dataset.table_name}")
+    return granted
 
 
 def injection_sql(fixture: dict[str, Any]) -> str:
@@ -895,7 +921,9 @@ def _prepare_fixture(battery: dict[str, Any], workspace_id: int) -> list[str]:
     title = fixture["dashboard_title"]
     if db.session.query(Dashboard).filter_by(dashboard_title=title).first():
         return []
-    username = battery["users"]["editor"]
+    # A Gamma user cannot create datasets, and only this setup needs to: the tasks reach
+    # the fixture through its workspace
+    username = FIXTURE_OWNER
     g.user = security_manager.find_user(username)
     box = ToolBox(username, MODE_EDIT)
     database = (
