@@ -50,12 +50,12 @@ const NUMBER_FORMATS: Record<FigureFormat, string> = {
 const DEFAULT_ROW_LIMIT = 30;
 
 /** An aggregate over a column, as the server names it when it reads the query. */
-const aggregateMetric = (column: string, aggregate: string) =>
+const aggregateMetric = (column: string, aggregate: string, label?: string) =>
   ({
     expressionType: 'SIMPLE',
     column: { column_name: column },
     aggregate,
-    label: `${aggregate}(${column})`,
+    label: label ?? `${aggregate}(${column})`,
   }) as AdhocMetric;
 
 /** The numbers a query asks for, saved metrics and aggregates alike. */
@@ -64,8 +64,8 @@ export const metricsOf = ({
   aggregates = [],
 }: ArtifactQuery): QueryFormMetric[] => [
   ...metrics,
-  ...aggregates.map(({ column, aggregate }) =>
-    aggregateMetric(column, aggregate),
+  ...aggregates.map(({ column, aggregate, label }) =>
+    aggregateMetric(column, aggregate, label),
   ),
 ];
 
@@ -190,6 +190,13 @@ export const blockSource = (block: DataBlock, datasetName: string) =>
     dataset_name: datasetName,
     filters: filtersOf(block.query),
   });
+
+/** The blocks of a document that read data on opening. */
+export const dataBlocks = (blocks: ArtifactBlock[]) =>
+  blocks.filter(
+    (block): block is DataBlock =>
+      block.type !== 'text' && block.type !== 'refused',
+  );
 
 /**
  * The date of the oldest text of a document: its numbers are read on opening, and that

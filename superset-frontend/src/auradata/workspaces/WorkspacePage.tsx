@@ -55,6 +55,7 @@ import { AddDashboardsModal } from './AddDashboardsModal';
 import { MemberAvatars, RoleBadge, roleLabel } from './roles';
 import { WorkspaceAccessModal } from './WorkspaceAccessModal';
 import { WorkspaceAvatar, workspaceGradient } from './WorkspaceAvatar';
+import { WorkspaceDocuments } from './WorkspaceDocuments';
 import { WorkspaceDatasets } from './WorkspaceDatasets';
 import { Grid, Page } from './WorkspaceListPage';
 import { WorkspaceAssistantModal } from './WorkspaceAssistantModal';
@@ -685,6 +686,20 @@ export default function WorkspacePage() {
         datasets={datasets}
         canContribute={canContribute}
         onShare={shareDataset}
+      />
+
+      <WorkspaceDocuments
+        workspaceId={id}
+        title={count => (
+          <SectionTitle
+            css={css`
+              margin-top: 40px !important;
+            `}
+          >
+            {t('Shared documents')}
+            <span className="count">{count}</span>
+          </SectionTitle>
+        )}
       />
 
       {canContribute && (

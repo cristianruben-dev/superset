@@ -22,6 +22,7 @@ import { ensureAppRoot } from 'src/utils/pathUtils';
 import { sseParser } from './sse';
 import type {
   Artifact,
+  ArtifactDocument,
   AssistantContext,
   AssistantEvent,
   AssistantModels,
@@ -30,6 +31,8 @@ import type {
   Conversation,
   Feedback,
   ListedConversation,
+  ShareCardData,
+  SharedDocument,
   StoredConversation,
   UndoResult,
 } from './types';
@@ -128,6 +131,85 @@ export async function restoreArtifact(
   } catch (response) {
     throw await refusedWith(response, t('This version could not be restored.'));
   }
+}
+
+/** A document as it reads on its page. Whoever may not read it gets a 404. */
+export const fetchDocument = (id: string): Promise<ArtifactDocument> =>
+  SupersetClient.get({ endpoint: `${CHAT_URL}documents/${id}/` }).then(
+    ({ json }) => json.result,
+  );
+
+/** What a workspace has shared for this person. */
+export const fetchSharedDocuments = (
+  workspaceId: number,
+): Promise<SharedDocument[]> =>
+  SupersetClient.get({
+    endpoint: `${CHAT_URL}documents/?workspace_id=${workspaceId}`,
+  }).then(({ json }) => json.result);
+
+export const fetchShareCard = (id: string): Promise<ShareCardData> =>
+  SupersetClient.get({ endpoint: `${CHAT_URL}artifacts/${id}/share/` }).then(
+    ({ json }) => json.result,
+  );
+
+/** Shares the version the card showed. */
+export async function shareArtifact(
+  id: string,
+  version: number,
+): Promise<Artifact> {
+  try {
+    const { json } = await SupersetClient.post({
+      endpoint: `${CHAT_URL}artifacts/${id}/share/`,
+      jsonPayload: { version },
+    });
+    return json.result;
+  } catch (response) {
+    throw await refusedWith(response, t('This document could not be shared.'));
+  }
+}
+
+export const unshareArtifact = (id: string): Promise<Artifact> =>
+  SupersetClient.delete({
+    endpoint: `${CHAT_URL}artifacts/${id}/share/`,
+  }).then(({ json }) => json.result);
+
+const EXPORT_WAIT_MS = 2000;
+const EXPORT_TRIES = 180;
+
+const fileNameOf = (response: Response) =>
+  /filename="([^"]+)"/.exec(
+    response.headers.get('Content-Disposition') ?? '',
+  )?.[1] ?? 'document.pdf';
+
+/**
+ * A document as a PDF: the workers take its picture, so this asks until it is ready.
+ * Says the file and the name to save it with.
+ */
+export async function exportArtifact(
+  id: string,
+): Promise<{ blob: Blob; name: string }> {
+  const url = `${CHAT_URL}artifacts/${id}/export/`;
+  try {
+    const { json } = await SupersetClient.post({ endpoint: url });
+    for (let attempt = 0; attempt < EXPORT_TRIES; attempt += 1) {
+      // eslint-disable-next-line no-await-in-loop
+      await new Promise(done => {
+        setTimeout(done, EXPORT_WAIT_MS);
+      });
+      // eslint-disable-next-line no-await-in-loop
+      const response = await SupersetClient.get({
+        endpoint: `${url}${json.result.job_id}/`,
+        parseMethod: 'raw',
+      });
+      if (response.status === 200) {
+        // eslint-disable-next-line no-await-in-loop
+        return { blob: await response.blob(), name: fileNameOf(response) };
+      }
+    }
+  } catch (response) {
+    throw await refusedWith(response, t('The PDF could not be made.'));
+  }
+  throw new AssistantError(t('The PDF could not be made.'));
 }
 
 const feedbackUrl = (conversationId: string, messageId: string) =>

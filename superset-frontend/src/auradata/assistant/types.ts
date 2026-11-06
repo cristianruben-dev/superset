@@ -98,7 +98,7 @@ export interface ArtifactQuery {
   dataset_id: number;
   columns?: string[];
   metrics?: string[];
-  aggregates?: { column: string; aggregate: string }[];
+  aggregates?: { column: string; aggregate: string; label?: string }[];
   filters?: FigureFilter[];
   time_range?: string;
   time_column?: string;
@@ -145,8 +145,14 @@ export interface TableBlock {
   query: ArtifactQuery;
 }
 
+/** A block a reader does not reach: of it they only learn that it is there. */
+export interface RefusedBlock {
+  id: string;
+  type: 'refused';
+}
+
 export type DataBlock = FigureBlock | ChartBlock | TableBlock;
-export type ArtifactBlock = TextBlock | DataBlock;
+export type ArtifactBlock = TextBlock | DataBlock | RefusedBlock;
 
 /** What the chat says about a document. */
 export interface ArtifactRef {
@@ -161,7 +167,15 @@ export interface ArtifactVersion {
   title: string;
   origin: 'created' | 'changed' | 'restored';
   restored_from: number | null;
+  model_name?: string | null;
   created_on: string;
+}
+
+/** Where a document is shared, for its owner. */
+export interface ArtifactShare {
+  version: number;
+  shared_on: string;
+  workspace: string | null;
 }
 
 /** A version of a document, as its owner reads it. */
@@ -172,7 +186,50 @@ export interface Artifact extends ArtifactRef {
   /** The names of the datasets this reader reaches, by id. */
   sources: Record<string, string>;
   created_on: string;
+  model_name?: string | null;
   versions: ArtifactVersion[];
+  share?: ArtifactShare | null;
+}
+
+/** A document on its own page, for its owner or who it is shared with. */
+export interface ArtifactDocument {
+  id: string;
+  title: string;
+  version: number;
+  dashboard_id: number;
+  blocks: ArtifactBlock[];
+  sources: Record<string, string>;
+  created_on: string;
+  model_name?: string | null;
+  reader: boolean;
+  author: string | null;
+  written_on: string | null;
+  shared_on?: string;
+}
+
+/** What an owner reads before sharing a document. */
+export interface ShareCardData {
+  version: number;
+  title: string;
+  workspace: string | null;
+  members: number;
+  draft: boolean;
+  text_blocks: number;
+  numbers: number;
+  passages: string[];
+  more_passages: number;
+  filters: { column: string; values: unknown[] }[];
+  datasets: { name: string; for_every_member: boolean }[];
+  problem: 'no_workspace' | 'not_a_member' | null;
+}
+
+/** A document a workspace lists for one of its members. */
+export interface SharedDocument {
+  id: string;
+  title: string;
+  author: string | null;
+  dashboard_id: number;
+  shared_on: string;
 }
 
 /** An object the user has selected in the editor, for the assistant to read. */

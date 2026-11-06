@@ -1133,6 +1133,11 @@ function Conversations({
           onRefresh={() =>
             ask(t('Refresh the text of this document with the current figures'))
           }
+          onSaveAsPage={
+            editing
+              ? () => ask(t('Save this document as a page of the report'))
+              : undefined
+          }
           onClose={() => {
             setArtifactShown(false);
             setSelectedBlock(null);

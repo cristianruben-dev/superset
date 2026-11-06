@@ -19,16 +19,18 @@
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { t } from '@apache-superset/core/translation';
-import { css, styled } from '@apache-superset/core/theme';
+import { css, styled, useTheme } from '@apache-superset/core/theme';
 import { Button, Loading } from '@superset-ui/core/components';
 import { Icons } from '@superset-ui/core/components/Icons';
 import getBootstrapData from 'src/utils/getBootstrapData';
 import { useToasts } from 'src/components/MessageToasts/withToasts';
 import { usePhoneScreen } from '../format/mobile';
+import { DocumentMark } from './DocumentNotes';
 import { oldestText } from './artifact';
 import { ArtifactBlocks } from './ArtifactBlocks';
-import { AssistantError } from './client';
+import { AssistantError, exportArtifact } from './client';
 import { parseServerDate } from './conversationGroups';
+import { ShareCard } from './ShareCard';
 import type { ArtifactVersion } from './types';
 import { useArtifact } from './useArtifact';
 
@@ -47,6 +49,16 @@ const dateText = (value: string) => dateFormat().format(parseServerDate(value));
 const originText = ({ origin, restored_from: from }: ArtifactVersion) => {
   if (origin === 'restored') return t('Back to version %s', from);
   return origin === 'created' ? t('Created') : t('Changed by the assistant');
+};
+
+/** Hands a file to the browser, as a link the person clicked. */
+const saveFile = (blob: Blob, name: string) => {
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = name;
+  link.click();
+  URL.revokeObjectURL(url);
 };
 
 interface DockBox {
@@ -294,7 +306,9 @@ const Problem = styled.p`
  * goes back to any version, which adds a new one. Selecting a block aims the next message
  * at it. Figures are read here, as the person looking, and their date differs from that of
  * the text, which stays as it was written: that is what the line under the title says,
- * and refreshing it is a message like any other.
+ * and refreshing it is a message like any other. Saving it as a page is one too, in the
+ * editor, so it gets the card and the undo of any change of the assistant. Exporting and
+ * sharing are of the person alone: no model hears of them.
  */
 export function ArtifactPanel({
   artifactId,
@@ -306,6 +320,7 @@ export function ArtifactPanel({
   selected,
   onSelect,
   onRefresh,
+  onSaveAsPage,
   onClose,
 }: {
   artifactId: string;
@@ -318,17 +333,22 @@ export function ArtifactPanel({
   selected: string | null;
   onSelect: (id: string | null) => void;
   onRefresh: () => void;
+  /** Absent in a conversation that cannot change the report. */
+  onSaveAsPage?: () => void;
   onClose: () => void;
 }) {
+  const theme = useTheme();
   const phone = usePhoneScreen();
   const box = useDockBox(anchor);
   const { addDangerToast, addSuccessToast } = useToasts();
-  const { artifact, viewing, failed, view, restore } = useArtifact(
+  const { artifact, viewing, failed, view, restore, replace } = useArtifact(
     artifactId,
     liveVersion,
   );
   const [showHistory, setShowHistory] = useState(false);
   const [restoring, setRestoring] = useState(false);
+  const [exporting, setExporting] = useState(false);
+  const [sharing, setSharing] = useState(false);
   const last = artifact?.versions[artifact.versions.length - 1]?.number;
   const old = viewing !== null;
   const written = artifact ? oldestText(artifact.blocks) : null;
@@ -347,6 +367,22 @@ export function ArtifactPanel({
       );
     } finally {
       setRestoring(false);
+    }
+  };
+
+  const exportPdf = async () => {
+    setExporting(true);
+    try {
+      const { blob, name } = await exportArtifact(artifactId);
+      saveFile(blob, name);
+    } catch (error) {
+      addDangerToast(
+        error instanceof AssistantError
+          ? error.message
+          : t('The PDF could not be made.'),
+      );
+    } finally {
+      setExporting(false);
     }
   };
 
@@ -388,7 +424,19 @@ export function ArtifactPanel({
             </Button>
           </OldVersion>
         )}
+        {sharing && !old && (
+          <ShareCard
+            artifact={artifact}
+            onChange={replace}
+            onClose={() => setSharing(false)}
+          />
+        )}
         <Title>{artifact.title}</Title>
+        <DocumentMark
+          model={
+            artifact.model_name ?? artifact.versions.at(-1)?.model_name ?? null
+          }
+        />
         <Written data-test="auradata-artifact-written">
           {written ? (
             <>
@@ -435,6 +483,53 @@ export function ArtifactPanel({
           {artifact &&
             `${t('Version %s', artifact.version)} · ${dateText(artifact.created_on)}`}
         </span>
+        {artifact && !old && (
+          <>
+            <Button
+              buttonStyle="tertiary"
+              onClick={onSaveAsPage}
+              disabled={!onSaveAsPage || busy || !canAsk}
+              aria-label={t('Save as a page of the report')}
+              tooltip={
+                onSaveAsPage
+                  ? t('Save as a page of the report')
+                  : t(
+                      'Open the editor and ask the assistant to save this document as a page',
+                    )
+              }
+              icon={<Icons.PlusSquareOutlined iconSize="m" />}
+              data-test="auradata-artifact-save-page"
+            />
+            <Button
+              buttonStyle="tertiary"
+              onClick={exportPdf}
+              loading={exporting}
+              disabled={exporting}
+              aria-label={t('Export to PDF')}
+              tooltip={t('Export to PDF')}
+              icon={<Icons.FilePdfOutlined iconSize="m" />}
+              data-test="auradata-artifact-export"
+            />
+            <Button
+              buttonStyle="tertiary"
+              onClick={() => setSharing(!sharing)}
+              aria-pressed={sharing}
+              aria-label={t('Share with the workspace')}
+              tooltip={
+                artifact.share
+                  ? t('Shared with «%s»', artifact.share.workspace ?? '')
+                  : t('Share with the workspace')
+              }
+              icon={
+                <Icons.TeamOutlined
+                  iconSize="m"
+                  iconColor={artifact.share ? theme.colorPrimary : undefined}
+                />
+              }
+              data-test="auradata-artifact-share"
+            />
+          </>
+        )}
         <Button
           buttonStyle="tertiary"
           onClick={() => setShowHistory(!showHistory)}

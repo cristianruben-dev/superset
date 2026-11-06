@@ -65,5 +65,12 @@ export function useArtifact(id: string | null, live: number | undefined) {
     [id],
   );
 
-  return { artifact, viewing, failed, view: setViewing, restore };
+  return {
+    artifact,
+    viewing,
+    failed,
+    view: setViewing,
+    restore,
+    replace: setArtifact,
+  };
 }

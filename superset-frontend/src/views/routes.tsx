@@ -184,6 +184,12 @@ const AssistantSettingsPage = lazy(
       /* webpackChunkName: "AssistantSettingsPage" */ 'src/auradata/assistant/AssistantSettingsPage'
     ),
 );
+const DocumentPage = lazy(
+  () =>
+    import(
+      /* webpackChunkName: "DocumentPage" */ 'src/auradata/assistant/DocumentPage'
+    ),
+);
 const ActionLogList: LazyExoticComponent<any> = lazy(
   () => import(/* webpackChunkName: "ActionLogList" */ 'src/pages/ActionLog'),
 );
@@ -301,6 +307,10 @@ export const routes: Routes = [
   {
     path: RoutePaths.CONNECT_AI,
     Component: ConnectAiPage,
+  },
+  {
+    path: RoutePaths.ASSISTANT_DOCUMENT,
+    Component: DocumentPage,
     mobileSupported: true,
   },
   { path: RoutePaths.ACTION_LOG, Component: ActionLogList },

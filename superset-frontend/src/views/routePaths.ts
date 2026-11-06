@@ -47,6 +47,7 @@ export const RoutePaths = {
   USER_INFO: '/user_info/',
   CONNECT_AI: '/connect-ai/',
   ASSISTANT_SETTINGS: '/assistant/settings/',
+  ASSISTANT_DOCUMENT: '/assistant/document/:id/',
   ACTION_LOG: '/actionlog/list',
   REGISTRATIONS: '/registrations/',
   ALL_ENTITIES: '/all_entities/',

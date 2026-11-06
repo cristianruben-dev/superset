@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import type { ReactNode } from 'react';
+import { createContext, useContext, useEffect, type ReactNode } from 'react';
 import { SuperChart } from '@superset-ui/core';
 import { t } from '@apache-superset/core/translation';
 import { css, styled } from '@apache-superset/core/theme';
@@ -275,11 +275,37 @@ const cellText = (value: unknown) => {
     : String(value);
 };
 
+/** Tells a page that a block of data has what it will show. */
+const SettledContext = createContext<((id: string) => void) | undefined>(
+  undefined,
+);
+
+function useSettled(id: string, settled: boolean) {
+  const report = useContext(SettledContext);
+  useEffect(() => {
+    if (settled) report?.(id);
+  }, [id, settled, report]);
+}
+
 function Refused() {
   return (
     <Notice data-test="auradata-artifact-refused">
       <Icons.LockOutlined iconSize="s" />
       <span>{t('You do not have access to this data.')}</span>
+    </Notice>
+  );
+}
+
+/** A block of the author that this reader does not reach. */
+function Withheld() {
+  return (
+    <Notice data-test="auradata-artifact-withheld">
+      <Icons.LockOutlined iconSize="s" />
+      <span>
+        {t(
+          'A part of this document is hidden: it uses data you do not have access to.',
+        )}
+      </span>
     </Notice>
   );
 }
@@ -323,13 +349,16 @@ interface DataProps<Block extends DataBlock> {
 
 /** What every block of data shows until it has numbers to draw. */
 function BlockState({
+  id,
   data,
   draw,
 }: {
+  id: string;
   data: ReturnType<typeof useBlockData>;
   draw: (rows: Record<string, unknown>[]) => ReactNode;
 }) {
   const { state, retry } = data;
+  useSettled(id, state.status !== 'loading');
   if (state.status === 'loading') {
     return <Loading position="inline-centered" size="s" />;
   }
@@ -349,6 +378,7 @@ function FigureView({ block, dashboardId, sources }: DataProps<FigureBlock>) {
     <>
       <Label>{block.label}</Label>
       <BlockState
+        id={block.id}
         data={data}
         draw={rows => (
           <Value data-test="auradata-artifact-value">
@@ -371,6 +401,7 @@ function TableView({ block, dashboardId, sources }: DataProps<TableBlock>) {
     <>
       <BlockTitle>{block.title}</BlockTitle>
       <BlockState
+        id={block.id}
         data={data}
         draw={rows => {
           const columns = Object.keys(rows[0]);
@@ -425,6 +456,7 @@ function ChartView({ block, dashboardId, sources }: DataProps<ChartBlock>) {
       <BlockTitle>{block.title}</BlockTitle>
       <div ref={ref}>
         <BlockState
+          id={block.id}
           data={data}
           draw={() =>
             state.status === 'ready' && (
@@ -457,10 +489,12 @@ function BlockView({
   switch (block.type) {
     case 'text':
       return (
-        <Prose>
+        <Prose data-sheet-text>
           <AssistantMarkdown text={block.text} />
         </Prose>
       );
+    case 'refused':
+      return <Withheld />;
     case 'figure':
       return (
         <FigureView block={block} dashboardId={dashboardId} sources={sources} />
@@ -491,7 +525,13 @@ function Picked({
   onSelect?: (id: string) => void;
   children: ReactNode;
 }) {
-  if (!onSelect) return <ReadOnly>{children}</ReadOnly>;
+  if (!onSelect) {
+    return (
+      <ReadOnly data-sheet-unit={block.type === 'text' ? undefined : true}>
+        {children}
+      </ReadOnly>
+    );
+  }
   return (
     <Selectable
       data-selected={selected}
@@ -521,7 +561,8 @@ function Picked({
  * The blocks of a document. Text goes through `AssistantMarkdown`, as anything the model
  * writes, and cells and labels are plain text. Numbers come from the query of each block,
  * with the permissions of the person looking, and a block that gets refused says so.
- * Without `onSelect` it is an earlier version, only to read.
+ * Without `onSelect` it is only to read. `onSettled` hears when a block of data has what it
+ * will show, which is how a page knows it can be captured.
  */
 export function ArtifactBlocks({
   blocks,
@@ -529,48 +570,52 @@ export function ArtifactBlocks({
   dashboardId,
   selected,
   onSelect,
+  onSettled,
 }: {
   blocks: ArtifactBlock[];
   sources: Record<string, string>;
   dashboardId: number;
   selected?: string | null;
   onSelect?: (id: string) => void;
+  onSettled?: (id: string) => void;
 }) {
   return (
-    <Flow>
-      {grouped(blocks).map(group =>
-        group.length > 1 ? (
-          <Figures key={group[0].id}>
-            {group.map(block => (
-              <Picked
-                key={block.id}
-                block={block}
-                selected={block.id === selected}
-                onSelect={onSelect}
-              >
-                <BlockView
+    <SettledContext.Provider value={onSettled}>
+      <Flow>
+        {grouped(blocks).map(group =>
+          group.length > 1 ? (
+            <Figures key={group[0].id} data-sheet-unit>
+              {group.map(block => (
+                <Picked
+                  key={block.id}
                   block={block}
-                  dashboardId={dashboardId}
-                  sources={sources}
-                />
-              </Picked>
-            ))}
-          </Figures>
-        ) : (
-          <Picked
-            key={group[0].id}
-            block={group[0]}
-            selected={group[0].id === selected}
-            onSelect={onSelect}
-          >
-            <BlockView
+                  selected={block.id === selected}
+                  onSelect={onSelect}
+                >
+                  <BlockView
+                    block={block}
+                    dashboardId={dashboardId}
+                    sources={sources}
+                  />
+                </Picked>
+              ))}
+            </Figures>
+          ) : (
+            <Picked
+              key={group[0].id}
               block={group[0]}
-              dashboardId={dashboardId}
-              sources={sources}
-            />
-          </Picked>
-        ),
-      )}
-    </Flow>
+              selected={group[0].id === selected}
+              onSelect={onSelect}
+            >
+              <BlockView
+                block={group[0]}
+                dashboardId={dashboardId}
+                sources={sources}
+              />
+            </Picked>
+          ),
+        )}
+      </Flow>
+    </SettledContext.Provider>
   );
 }

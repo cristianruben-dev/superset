@@ -25,7 +25,7 @@ import {
 } from 'spec/helpers/testing-library';
 import { requestChartDataResolved } from 'src/components/Chart/chartAction';
 import { ArtifactPanel } from './ArtifactPanel';
-import { fetchArtifact, restoreArtifact } from './client';
+import { exportArtifact, fetchArtifact, restoreArtifact } from './client';
 import type { Artifact, ArtifactBlock } from './types';
 
 jest.unmock('react-markdown');
@@ -38,6 +38,7 @@ jest.mock('./client', () => ({
   ...jest.requireActual('./client'),
   fetchArtifact: jest.fn(),
   restoreArtifact: jest.fn(),
+  exportArtifact: jest.fn(),
 }));
 
 jest.mock('@superset-ui/core', () => ({
@@ -108,10 +109,12 @@ const document_ = (fields: Partial<Artifact> = {}): Artifact => ({
 
 function Harness({
   onRefresh = () => {},
+  onSaveAsPage,
   liveVersion,
   canAsk = true,
 }: {
   onRefresh?: () => void;
+  onSaveAsPage?: () => void;
   liveVersion?: number;
   canAsk?: boolean;
 }) {
@@ -127,6 +130,7 @@ function Harness({
       selected={selected}
       onSelect={setSelected}
       onRefresh={onRefresh}
+      onSaveAsPage={onSaveAsPage}
       onClose={() => {}}
     />
   );
@@ -300,4 +304,43 @@ test('a document that cannot be opened says so', async () => {
   expect(
     await screen.findByTestId('auradata-artifact-problem'),
   ).toBeInTheDocument();
+});
+
+test('saving as a page is a message, and only where a report can change', async () => {
+  const onSaveAsPage = jest.fn();
+  const { unmount } = show({ onSaveAsPage });
+
+  const button = await screen.findByTestId('auradata-artifact-save-page');
+  fireEvent.click(button);
+
+  expect(onSaveAsPage).toHaveBeenCalled();
+  unmount();
+  show();
+  expect(
+    await screen.findByTestId('auradata-artifact-save-page'),
+  ).toBeDisabled();
+});
+
+test('a person takes it out as a PDF', async () => {
+  (exportArtifact as jest.Mock).mockResolvedValue({
+    blob: new Blob(['x']),
+    name: 'a.pdf',
+  });
+  URL.createObjectURL = jest.fn(() => 'blob:x');
+  URL.revokeObjectURL = jest.fn();
+  show();
+
+  fireEvent.click(await screen.findByTestId('auradata-artifact-export'));
+
+  await waitFor(() => expect(URL.createObjectURL).toHaveBeenCalled());
+  expect(exportArtifact).toHaveBeenCalled();
+});
+
+test('it says who made it', async () => {
+  fetched.mockResolvedValue(document_({ model_name: 'Claude Opus 5.5' }));
+  show();
+
+  expect(await screen.findByTestId('auradata-document-mark')).toHaveTextContent(
+    'Claude Opus 5.5',
+  );
 });
