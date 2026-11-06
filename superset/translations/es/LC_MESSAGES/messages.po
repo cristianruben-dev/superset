@@ -27134,6 +27134,15 @@ msgid_plural "Save «%(title)s» as %(pages)d pages of this report, with %(count
 msgstr[0] "Guardar «%(title)s» en %(pages)d página(s) de este informe, con %(count)d objeto nuevo"
 msgstr[1] "Guardar «%(title)s» en %(pages)d página(s) de este informe, con %(count)d objetos nuevos"
 
+msgid "Shared a document"
+msgstr "Compartió un documento"
+
+msgid "Stopped sharing a document"
+msgstr "Dejó de compartir un documento"
+
+msgid "Exported a document to PDF"
+msgstr "Exportó un documento a PDF"
+
 msgid "This conversation can't go on after an update of the assistant. Start a new one to keep going."
 msgstr "Esta conversación no puede seguir tras una actualización del asistente. Empieza una nueva para seguir."
 

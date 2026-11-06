@@ -21,23 +21,41 @@ import { t } from '@apache-superset/core/translation';
 /** The action of the log for a tool the assistant ran. */
 export const ASSISTANT_ACTION = 'assistant_tool_call';
 
-/** The model that made a call of the log, from the JSON of its row. */
-function modelOf(json: string | null | undefined): string | null {
+/** The action of the log for what a person did with a document of the assistant. */
+export const DOCUMENT_ACTION = 'assistant_document';
+
+/** The JSON of a row of the log. */
+function detailsOf(json: string | null | undefined): {
+  model?: string;
+  action?: string;
+} {
   try {
-    return JSON.parse(json ?? '')?.model ?? null;
+    return JSON.parse(json ?? '') ?? {};
   } catch {
-    return null;
+    return {};
   }
 }
 
-/** How the action log names an action. A call of the assistant says its model. */
+const documentAction = (action?: string) => {
+  if (action === 'share') return t('Shared a document');
+  if (action === 'unshare') return t('Stopped sharing a document');
+  return t('Exported a document to PDF');
+};
+
+/**
+ * How the action log names an action. A call of the assistant says its model, and so
+ * does what a person did with a document, which is the model that wrote it.
+ */
 export function actionLabel(
   action: string,
   json: string | null | undefined,
 ): string {
+  const { model, action: done } = detailsOf(json);
+  if (action === DOCUMENT_ACTION) {
+    return `${documentAction(done)} · ${t('Made by the assistant (model %s)', model ?? '-')}`;
+  }
   if (action !== ASSISTANT_ACTION) {
     return action;
   }
-  const model = modelOf(json);
   return model ? t('Done by the assistant (%s)', model) : t('The assistant');
 }
