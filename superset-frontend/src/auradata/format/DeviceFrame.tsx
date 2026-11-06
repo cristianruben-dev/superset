@@ -28,20 +28,28 @@ import { Icons } from '@superset-ui/core/components/Icons';
 import { CLOSED_FILTER_BAR_WIDTH } from 'src/dashboard/constants';
 import { pixelsOf, safeHeightOf, type MobileDevice } from './mobileDevices';
 
+/** The hour every phone picture shows: a drawing, never translated. */
+const STATUS_BAR_TIME = '9:41';
+
 /**
  * Colors of the phone itself: hardware, the same in light and dark themes.
  */
-/* eslint-disable theme-colors/no-literal-colors */
 const HARDWARE = {
+  // eslint-disable-next-line theme-colors/no-literal-colors
   body: '#1c1c1e',
+  // eslint-disable-next-line theme-colors/no-literal-colors
   edge: '#3a3a3c',
+  // eslint-disable-next-line theme-colors/no-literal-colors
   inner: '#111111',
+  // eslint-disable-next-line theme-colors/no-literal-colors
   key: '#2c2c2e',
+  // eslint-disable-next-line theme-colors/no-literal-colors
   glass: '#000000',
+  // eslint-disable-next-line theme-colors/no-literal-colors
   shadow: 'rgba(0, 0, 0, 0.45)',
+  // eslint-disable-next-line theme-colors/no-literal-colors
   outline: 'rgba(0, 0, 0, 0.35)',
 };
-/* eslint-enable theme-colors/no-literal-colors */
 
 /**
  * What the app takes of a phone screen around a report, as measured on a
@@ -337,7 +345,7 @@ function StatusBar({ device }: { device: MobileDevice }) {
         font-family: -apple-system, 'SF Pro Text', ${theme.fontFamily};
       `}
     >
-      <span>9:41</span>
+      <span>{STATUS_BAR_TIME}</span>
       <svg
         width={compact ? 56 : 68}
         height={compact ? 10 : 12}

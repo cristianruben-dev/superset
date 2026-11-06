@@ -94,6 +94,10 @@ type Palette = {
   surface: string;
 };
 
+/** Sample marks of the drawings, the same in every language. */
+const SAMPLE_FIGURE = '1.2M';
+const SAMPLE_TEXT = 'Aa';
+
 const usePalette = (): Palette => {
   const theme = useTheme();
   return {
@@ -618,7 +622,7 @@ const DRAWINGS: Record<HelpIllustrationKind, (c: Palette) => ReactElement> = {
         className="hl"
       />
       <Label x={184} y={53} fill={c.accent} size={15} weight={700}>
-        1.2M
+        {SAMPLE_FIGURE}
       </Label>
       <Label x={184} y={78} fill={c.ink} size={9} weight={500}>
         .2s
@@ -656,7 +660,7 @@ const DRAWINGS: Record<HelpIllustrationKind, (c: Palette) => ReactElement> = {
         weight={700}
         className="hl"
       >
-        Aa
+        {SAMPLE_TEXT}
       </Label>
       <line x1="112" x2="112" y1="28" y2="84" stroke={c.faint} />
       {[0, 1, 2].map(i => (
