@@ -26,16 +26,10 @@ import {
 } from 'react';
 import { useDispatch, useSelector, useStore } from 'react-redux';
 import { useHistory } from 'react-router-dom';
-import { t } from '@apache-superset/core/translation';
+import { t, tn } from '@apache-superset/core/translation';
 import { css, styled } from '@apache-superset/core/theme';
 import { Alert } from '@apache-superset/core/components';
-import {
-  Button,
-  Drawer,
-  Input,
-  Loading,
-  Select,
-} from '@superset-ui/core/components';
+import { Button, Drawer, Input, Select } from '@superset-ui/core/components';
 import { Icons } from '@superset-ui/core/components/Icons';
 import { useToasts } from 'src/components/MessageToasts/withToasts';
 import type { RootState } from 'src/dashboard/types';
@@ -65,6 +59,18 @@ import { useAssistantChat } from './useAssistantChat';
 
 const PANEL_WIDTH = 440;
 
+const readSuggestions = () => [
+  t('Summarize this report'),
+  t('What stands out the most?'),
+  t('Compare the main categories'),
+];
+
+const editSuggestions = () => [
+  t('Review this report and improve it'),
+  t('Align the objects of this page'),
+  t('Make it look good on a phone'),
+];
+
 const priceLabel = (price: ModelPrice) =>
   ({
     economy: t('Economical'),
@@ -83,7 +89,7 @@ const toolLabel = (name: string) =>
     get_chart_data: t('Reading a chart'),
     get_dashboard_screenshot: t('Looking at the report'),
     get_visual_screenshot: t('Looking at a chart'),
-  })[name] ?? confirmationTitle({ name, title: t('Using %s', name) });
+  })[name] ?? confirmationTitle({ name, title: t('Working on the report') });
 
 const budgetMessage = ({ level, scope }: AssistantBudget) => {
   if (level === 'stopped') {
@@ -109,26 +115,25 @@ const canContinue = (model: OfferedModel, current?: OfferedModel) =>
   !current?.tool_search || model.tool_search;
 
 const Column = styled.div`
-  ${({ theme }) => css`
-    display: flex;
-    flex-direction: column;
-    gap: ${theme.sizeUnit * 2}px;
-    height: 100%;
-    padding: ${theme.sizeUnit * 3}px;
-    box-sizing: border-box;
-  `}
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
 `;
 
 const Controls = styled.div`
   ${({ theme }) => css`
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
+    display: flex;
+    align-items: center;
     gap: ${theme.sizeUnit * 2}px;
+    padding: ${theme.sizeUnit * 3}px ${theme.sizeUnit * 4}px;
+    border-bottom: 1px solid ${theme.colorBorderSecondary};
   `}
 `;
 
 const History = styled.div`
-  grid-column: 1 / -1;
+  flex: 1;
+  min-width: 0;
 `;
 
 const Messages = styled.div`
@@ -136,8 +141,9 @@ const Messages = styled.div`
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: ${theme.sizeUnit * 3}px;
+    gap: ${theme.sizeUnit * 4}px;
     min-height: 0;
+    padding: ${theme.sizeUnit * 4}px;
     overflow-y: auto;
   `}
 `;
@@ -147,43 +153,132 @@ const Bubble = styled.div<{ fromUser: boolean }>`
     align-self: ${fromUser ? 'flex-end' : 'stretch'};
     max-width: ${fromUser ? '85%' : '100%'};
     padding: ${fromUser ? `${theme.sizeUnit * 2}px ${theme.sizeUnit * 3}px` : 0};
-    border-radius: ${theme.borderRadius}px;
-    background: ${fromUser ? theme.colorFillTertiary : 'transparent'};
+    border-radius: ${theme.sizeUnit * 3}px;
+    background: ${fromUser ? theme.colorFillSecondary : 'transparent'};
+    line-height: 1.6;
     overflow-wrap: anywhere;
     white-space: ${fromUser ? 'pre-wrap' : 'normal'};
 
-    p {
+    p,
+    ul,
+    ol {
       margin: 0 0 ${theme.sizeUnit * 2}px;
     }
-    p:last-child {
+    p:last-child,
+    ul:last-child,
+    ol:last-child {
       margin-bottom: 0;
+    }
+    ul,
+    ol {
+      padding-left: ${theme.sizeUnit * 5}px;
+    }
+    li + li {
+      margin-top: ${theme.sizeUnit}px;
+    }
+    h1,
+    h2,
+    h3,
+    h4 {
+      margin: ${theme.sizeUnit * 3}px 0 ${theme.sizeUnit}px;
+      font-size: ${theme.fontSize}px;
+      font-weight: ${theme.fontWeightStrong};
+    }
+    strong {
+      font-weight: ${theme.fontWeightStrong};
+    }
+    code {
+      padding: 0 ${theme.sizeUnit}px;
+      border-radius: ${theme.sizeUnit}px;
+      background: ${theme.colorFillTertiary};
+      font-family: ${theme.fontFamilyCode};
+      font-size: ${theme.fontSizeSM}px;
     }
     table {
       display: block;
       max-width: 100%;
+      margin-bottom: ${theme.sizeUnit * 2}px;
       overflow-x: auto;
       border-collapse: collapse;
       font-size: ${theme.fontSizeSM}px;
+      font-variant-numeric: tabular-nums;
     }
     th,
     td {
-      padding: ${theme.sizeUnit}px ${theme.sizeUnit * 2}px;
+      padding: ${theme.sizeUnit}px ${theme.sizeUnit * 3}px ${theme.sizeUnit}px 0;
       border-bottom: 1px solid ${theme.colorBorderSecondary};
+      text-align: left;
+    }
+    th {
+      font-weight: ${theme.fontWeightStrong};
+      color: ${theme.colorTextSecondary};
     }
   `}
 `;
 
-const Steps = styled.ul`
+const StepList = styled.ul`
   ${({ theme }) => css`
-    margin: 0 0 ${theme.sizeUnit}px;
+    display: flex;
+    flex-direction: column;
+    gap: ${theme.sizeUnit}px;
+    margin: 0;
     padding: 0;
     list-style: none;
     font-size: ${theme.fontSizeSM}px;
     color: ${theme.colorTextTertiary};
 
+    li {
+      display: flex;
+      align-items: center;
+      gap: ${theme.sizeUnit * 2}px;
+      margin: 0;
+    }
     li.failed {
       color: ${theme.colorError};
     }
+  `}
+`;
+
+const StepsFold = styled.details`
+  ${({ theme }) => css`
+    margin-bottom: ${theme.sizeUnit * 2}px;
+    font-size: ${theme.fontSizeSM}px;
+    color: ${theme.colorTextTertiary};
+
+    summary {
+      display: inline-flex;
+      align-items: center;
+      gap: ${theme.sizeUnit}px;
+      border-radius: ${theme.sizeUnit}px;
+      cursor: pointer;
+      list-style: none;
+      transition: color ${theme.motionDurationFast};
+    }
+    summary::-webkit-details-marker {
+      display: none;
+    }
+    summary:hover {
+      color: ${theme.colorText};
+    }
+    summary:focus-visible {
+      outline: 2px solid ${theme.colorPrimary};
+      outline-offset: 2px;
+    }
+    summary .anticon {
+      transition: transform ${theme.motionDurationFast};
+    }
+    &[open] summary .anticon {
+      transform: rotate(90deg);
+    }
+    &[open] summary {
+      margin-bottom: ${theme.sizeUnit}px;
+    }
+  `}
+`;
+
+const Running = styled.div`
+  ${({ theme }) => css`
+    margin-bottom: ${theme.sizeUnit * 2}px;
   `}
 `;
 
@@ -191,36 +286,216 @@ const Hint = styled.p`
   ${({ theme }) => css`
     margin: 0;
     font-size: ${theme.fontSizeSM}px;
+    line-height: 1.5;
     color: ${theme.colorTextTertiary};
+  `}
+`;
+
+const Empty = styled.div`
+  ${({ theme }) => css`
+    display: flex;
+    flex-direction: column;
+    gap: ${theme.sizeUnit * 3}px;
+    margin: auto 0;
+
+    h3 {
+      margin: 0;
+      font-size: ${theme.fontSizeLG}px;
+      font-weight: ${theme.fontWeightStrong};
+    }
+    p {
+      margin: 0;
+      color: ${theme.colorTextSecondary};
+    }
+  `}
+`;
+
+const Suggestions = styled.div`
+  ${({ theme }) => css`
+    display: flex;
+    flex-direction: column;
+    gap: ${theme.sizeUnit * 2}px;
+
+    button {
+      padding: ${theme.sizeUnit * 2}px ${theme.sizeUnit * 3}px;
+      border: 1px solid ${theme.colorBorder};
+      border-radius: ${theme.sizeUnit * 2}px;
+      background: transparent;
+      color: ${theme.colorText};
+      font: inherit;
+      text-align: left;
+      cursor: pointer;
+      transition:
+        background ${theme.motionDurationFast},
+        border-color ${theme.motionDurationFast};
+    }
+    button:hover:not(:disabled) {
+      border-color: ${theme.colorPrimary};
+      background: ${theme.colorFillTertiary};
+    }
+    button:focus-visible {
+      outline: 2px solid ${theme.colorPrimary};
+      outline-offset: 2px;
+    }
+    button:disabled {
+      color: ${theme.colorTextDisabled};
+      cursor: not-allowed;
+    }
+  `}
+`;
+
+const QuietAction = styled.button`
+  ${({ theme }) => css`
+    display: inline-flex;
+    align-items: center;
+    align-self: flex-start;
+    gap: ${theme.sizeUnit}px;
+    padding: ${theme.sizeUnit}px ${theme.sizeUnit * 2}px;
+    border: 1px solid ${theme.colorBorderSecondary};
+    border-radius: ${theme.sizeUnit * 2}px;
+    background: transparent;
+    color: ${theme.colorTextSecondary};
+    font: inherit;
+    font-size: ${theme.fontSizeSM}px;
+    cursor: pointer;
+    transition:
+      background ${theme.motionDurationFast},
+      color ${theme.motionDurationFast};
+
+    &:hover:not(:disabled) {
+      background: ${theme.colorFillTertiary};
+      color: ${theme.colorText};
+    }
+    &:focus-visible {
+      outline: 2px solid ${theme.colorPrimary};
+      outline-offset: 2px;
+    }
+    &:disabled {
+      color: ${theme.colorTextDisabled};
+      cursor: not-allowed;
+    }
+  `}
+`;
+
+const Footer = styled.div`
+  ${({ theme }) => css`
+    display: flex;
+    flex-direction: column;
+    gap: ${theme.sizeUnit * 2}px;
+    padding: ${theme.sizeUnit * 3}px ${theme.sizeUnit * 4}px;
+    border-top: 1px solid ${theme.colorBorderSecondary};
   `}
 `;
 
 const Composer = styled.form`
   ${({ theme }) => css`
     display: flex;
-    align-items: flex-end;
-    gap: ${theme.sizeUnit * 2}px;
+    flex-direction: column;
+    gap: ${theme.sizeUnit}px;
+    padding: ${theme.sizeUnit * 2}px;
+    border: 1px solid ${theme.colorBorder};
+    border-radius: ${theme.sizeUnit * 3}px;
+    background: ${theme.colorBgContainer};
+    transition:
+      border-color ${theme.motionDurationFast},
+      box-shadow ${theme.motionDurationFast};
+
+    &:focus-within {
+      border-color: ${theme.colorPrimary};
+      box-shadow: 0 0 0 2px ${theme.colorPrimaryBg};
+    }
+    textarea.ant-input {
+      padding: ${theme.sizeUnit}px;
+      line-height: 1.5;
+    }
   `}
 `;
 
-/** The tools of an answer, once each: the one in use shows while it runs. */
-function ToolSteps({ tools }: { tools: ToolStep[] }) {
+const ComposerBar = styled.div`
+  ${({ theme }) => css`
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: ${theme.sizeUnit * 2}px;
+
+    > div:first-of-type {
+      flex: 0 1 auto;
+      width: auto;
+      min-width: 0;
+    }
+    .ant-select {
+      width: auto !important;
+      max-width: 240px;
+    }
+    .ant-select-selector {
+      padding-inline: ${theme.sizeUnit}px !important;
+      background: transparent !important;
+      font-size: ${theme.fontSizeSM}px;
+      color: ${theme.colorTextSecondary};
+    }
+    button {
+      flex: none;
+      min-width: ${theme.sizeUnit * 8}px;
+      width: ${theme.sizeUnit * 8}px;
+      height: ${theme.sizeUnit * 8}px;
+      padding: 0;
+      border-radius: ${theme.sizeUnit * 2}px;
+    }
+    .send .anticon {
+      transform: rotate(-90deg);
+    }
+  `}
+`;
+
+function StepIcon({ step }: { step: ToolStep }) {
+  if (step.running) return <Icons.LoadingOutlined iconSize="s" />;
+  return step.failed ? (
+    <Icons.CloseOutlined iconSize="s" />
+  ) : (
+    <Icons.CheckOutlined iconSize="s" />
+  );
+}
+
+/**
+ * The tools of an answer, once each. They show as it works, and fold into one line when
+ * it ends, unless one of them failed.
+ */
+function ToolSteps({
+  tools,
+  writing,
+}: {
+  tools: ToolStep[];
+  writing: boolean;
+}) {
   const steps = [
     ...new Map(tools.map(step => [toolLabel(step.name), step])).entries(),
   ];
-  return (
-    <Steps aria-label={t('Steps of the answer')}>
+  const list = (
+    <StepList aria-label={t('Steps of the answer')}>
       {steps.map(([label, step]) => (
         <li
           key={label}
           className={step.failed ? 'failed' : undefined}
           data-test="auradata-assistant-step"
         >
-          {step.running ? `${label}…` : label}
-          {step.rejected && ` (${t('rejected')})`}
+          <StepIcon step={step} />
+          <span>
+            {step.running ? `${label}…` : label}
+            {step.rejected && ` (${t('rejected')})`}
+          </span>
         </li>
       ))}
-    </Steps>
+    </StepList>
+  );
+  if (writing) return <Running>{list}</Running>;
+  return (
+    <StepsFold open={tools.some(step => step.failed)}>
+      <summary>
+        <Icons.RightOutlined iconSize="xs" />
+        {tn('%s step', '%s steps', steps.length, steps.length)}
+      </summary>
+      {list}
+    </StepsFold>
   );
 }
 
@@ -236,8 +511,17 @@ function Answer({
   const waiting = writing && !message.text && !message.tools.length;
   return (
     <Bubble fromUser={false} data-test="auradata-assistant-answer">
-      {waiting && <Loading position="inline" size="s" />}
-      {message.tools.length > 0 && <ToolSteps tools={message.tools} />}
+      {waiting && (
+        <StepList aria-label={t('Steps of the answer')}>
+          <li>
+            <Icons.LoadingOutlined iconSize="s" />
+            <span>{t('Thinking…')}</span>
+          </li>
+        </StepList>
+      )}
+      {message.tools.length > 0 && (
+        <ToolSteps tools={message.tools} writing={writing} />
+      )}
       {message.text && <AssistantMarkdown text={message.text} />}
       {message.figure && (
         <AssistantFigure figure={message.figure} dashboardId={dashboardId} />
@@ -356,6 +640,19 @@ function Conversations({
     [models, current],
   );
 
+  // A conversation that just started is not on the list until its answer ends
+  const historyOptions = useMemo(() => {
+    const options = conversations.map(item => ({
+      value: item.id,
+      label: item.title,
+    }));
+    const { conversationId, messages } = chat;
+    return !conversationId ||
+      options.some(item => item.value === conversationId)
+      ? options
+      : [{ value: conversationId, label: messages[0]?.text ?? '' }, ...options];
+  }, [conversations, chat.conversationId, chat.messages]);
+
   const startNew = () => {
     reset();
     setChosenModel(undefined);
@@ -371,12 +668,16 @@ function Conversations({
       ? editorContext(store.getState(), dashboardId, selectedVisuals())
       : pageContext(store.getState(), dashboardId);
 
-  const submit = () => {
-    const message = draft.trim();
-    if (!message || chat.busy || !model || blocked || stopped) return;
+  const canSend = !chat.busy && !!model && !blocked && !stopped;
+
+  const ask = (text: string) => {
+    const message = text.trim();
+    if (!message || !model || !canSend) return;
     setDraft('');
     chat.send(message, model, contextNow());
   };
+
+  const submit = () => ask(draft);
 
   const decide = (id: string, approved: boolean) => {
     if (model) chat.decide(id, approved, model);
@@ -413,54 +714,63 @@ function Conversations({
 
   return (
     <Column>
-      <Controls>
-        <Select
-          ariaLabel={t('Model')}
-          value={model}
-          options={modelOptions}
-          onChange={value => setChosenModel(String(value))}
-          disabled={chat.busy}
-          showSearch={false}
-          data-test="auradata-assistant-model"
-        />
-        <Button
-          buttonStyle="secondary"
-          onClick={startNew}
-          disabled={chat.busy || !chat.messages.length}
-          data-test="auradata-assistant-new"
-        >
-          {t('New conversation')}
-        </Button>
-        {conversations.length > 0 && (
+      {historyOptions.length + chat.messages.length > 0 && (
+        <Controls>
           <History>
-            <Select
-              ariaLabel={t('Conversations of this report')}
-              placeholder={t('Conversations of this report')}
-              value={chat.conversationId ?? undefined}
-              options={conversations.map(item => ({
-                value: item.id,
-                label: item.title,
-              }))}
-              onChange={value => openConversation(String(value))}
-              disabled={chat.busy}
-              showSearch={false}
-              data-test="auradata-assistant-history"
-            />
+            {historyOptions.length > 0 && (
+              <Select
+                ariaLabel={t('Conversations of this report')}
+                placeholder={t('Conversations of this report')}
+                value={chat.conversationId ?? undefined}
+                options={historyOptions}
+                onChange={value => openConversation(String(value))}
+                disabled={chat.busy}
+                showSearch={false}
+                data-test="auradata-assistant-history"
+              />
+            )}
           </History>
-        )}
-      </Controls>
+          <Button
+            buttonStyle="secondary"
+            onClick={startNew}
+            disabled={chat.busy || !chat.messages.length}
+            icon={<Icons.PlusOutlined iconSize="m" />}
+            tooltip={t('New conversation')}
+            aria-label={t('New conversation')}
+            data-test="auradata-assistant-new"
+          />
+        </Controls>
+      )}
 
       <Messages aria-live="polite" data-test="auradata-assistant-messages">
         {chat.messages.length === 0 && (
-          <Hint>
-            {editing
-              ? t(
-                  'Ask for changes to this report. The assistant knows the page and what you have selected, and it asks you before it deletes, publishes, shares or schedules anything.',
-                )
-              : t(
-                  'Ask about this report. The assistant answers about the page and filters on your screen, and it cannot change anything.',
-                )}
-          </Hint>
+          <Empty>
+            <h3>
+              {editing ? t('What do we change?') : t('Ask about your data')}
+            </h3>
+            <p>
+              {editing
+                ? t(
+                    'The assistant knows the page and what you have selected, and it asks you before it deletes, publishes, shares or schedules anything.',
+                  )
+                : t(
+                    'The assistant answers about the page and filters on your screen, and it cannot change anything.',
+                  )}
+            </p>
+            <Suggestions>
+              {(editing ? editSuggestions() : readSuggestions()).map(text => (
+                <button
+                  key={text}
+                  type="button"
+                  disabled={!canSend}
+                  onClick={() => ask(text)}
+                  data-test="auradata-assistant-suggestion"
+                >
+                  {text}
+                </button>
+              ))}
+            </Suggestions>
+          </Empty>
         )}
         {chat.messages.map((message, index) =>
           message.role === 'user' ? (
@@ -484,128 +794,150 @@ function Conversations({
             onDecide={approved => decide(confirmation.id, approved)}
           />
         ))}
+        {editing && chat.canUndo && !chat.busy && (
+          <QuietAction
+            type="button"
+            onClick={undo}
+            disabled={blocked}
+            data-test="auradata-assistant-undo"
+          >
+            <Icons.Undo iconSize="s" />
+            {t('Undo the assistant’s changes')}
+          </QuietAction>
+        )}
         <div ref={end} />
       </Messages>
 
-      {blocked && (
-        <Alert
-          type="warning"
-          showIcon
-          message={t(
-            'The assistant works on the saved report. Save your changes or discard them first.',
-          )}
-          action={
-            <>
-              <Button
-                buttonSize="small"
-                buttonStyle="secondary"
-                onClick={reload}
-                disabled={saving}
-                data-test="auradata-assistant-discard"
-              >
-                {t('Discard')}
-              </Button>
-              <Button
-                buttonSize="small"
-                onClick={() => dispatch(saveReport() as never)}
-                disabled={saving}
-                data-test="auradata-assistant-save"
-              >
-                {t('Save')}
-              </Button>
-            </>
-          }
-          data-test="auradata-assistant-unsaved"
-        />
-      )}
-      {editing && chat.canUndo && !chat.busy && (
-        <Button
-          buttonStyle="secondary"
-          onClick={undo}
-          disabled={blocked}
-          icon={<Icons.Undo iconSize="m" />}
-          data-test="auradata-assistant-undo"
-        >
-          {t('Undo the assistant’s changes')}
-        </Button>
-      )}
-
-      {chat.cacheLost && (
-        <Alert
-          type="info"
-          showIcon
-          message={t(
-            'You changed the model, so it reads this conversation from scratch: this answer takes longer and costs more than usual.',
-          )}
-          data-test="auradata-assistant-model-changed"
-        />
-      )}
-      {long && (
-        <Alert
-          type="warning"
-          showIcon
-          message={t(
-            'This conversation is getting too long for the model. Start a new one to keep going.',
-          )}
-          action={
-            <Button buttonSize="small" onClick={startNew}>
-              {t('New conversation')}
-            </Button>
-          }
-          data-test="auradata-assistant-long"
-        />
-      )}
-
-      {budget.level !== 'ok' && (
-        <Alert
-          type={stopped ? 'error' : 'warning'}
-          showIcon
-          message={budgetMessage(budget)}
-          data-test="auradata-assistant-budget"
-        />
-      )}
-
-      <Composer
-        onSubmit={event => {
-          event.preventDefault();
-          submit();
-        }}
-      >
-        <Input.TextArea
-          aria-label={t('Your question')}
-          placeholder={
-            chat.confirmations.length
-              ? t('If you write, the actions above are dropped')
-              : t('Your question')
-          }
-          value={draft}
-          onChange={event => setDraft(event.target.value)}
-          onKeyDown={onKeyDown}
-          disabled={stopped}
-          autoSize={{ minRows: 1, maxRows: 5 }}
-          data-test="auradata-assistant-input"
-        />
-        {chat.busy ? (
-          <Button
-            buttonStyle="secondary"
-            onClick={stop}
-            icon={<Icons.StopOutlined iconSize="m" />}
-            data-test="auradata-assistant-stop"
-          >
-            {t('Stop')}
-          </Button>
-        ) : (
-          <Button
-            buttonStyle="primary"
-            htmlType="submit"
-            disabled={!draft.trim() || blocked || stopped}
-            data-test="auradata-assistant-send"
-          >
-            {t('Send')}
-          </Button>
+      <Footer>
+        {blocked && (
+          <Alert
+            type="warning"
+            showIcon
+            message={t(
+              'The assistant works on the saved report. Save your changes or discard them first.',
+            )}
+            action={
+              <>
+                <Button
+                  buttonSize="small"
+                  buttonStyle="secondary"
+                  onClick={reload}
+                  disabled={saving}
+                  data-test="auradata-assistant-discard"
+                >
+                  {t('Discard')}
+                </Button>
+                <Button
+                  buttonSize="small"
+                  onClick={() => dispatch(saveReport() as never)}
+                  disabled={saving}
+                  data-test="auradata-assistant-save"
+                >
+                  {t('Save')}
+                </Button>
+              </>
+            }
+            data-test="auradata-assistant-unsaved"
+          />
         )}
-      </Composer>
-      <Hint>{t('What you ask, and the data it reads, go to Anthropic.')}</Hint>
+        {chat.cacheLost && (
+          <Alert
+            type="info"
+            showIcon
+            message={t(
+              'You changed the model, so it reads this conversation from scratch: this answer takes longer and costs more than usual.',
+            )}
+            data-test="auradata-assistant-model-changed"
+          />
+        )}
+        {long && (
+          <Alert
+            type="warning"
+            showIcon
+            message={t(
+              'This conversation is getting too long for the model. Start a new one to keep going.',
+            )}
+            action={
+              <Button buttonSize="small" onClick={startNew}>
+                {t('New conversation')}
+              </Button>
+            }
+            data-test="auradata-assistant-long"
+          />
+        )}
+
+        {budget.level !== 'ok' && (
+          <Alert
+            type={stopped ? 'error' : 'warning'}
+            showIcon
+            message={budgetMessage(budget)}
+            data-test="auradata-assistant-budget"
+          />
+        )}
+
+        <Composer
+          onSubmit={event => {
+            event.preventDefault();
+            submit();
+          }}
+        >
+          <Input.TextArea
+            aria-label={t('Your question')}
+            placeholder={
+              chat.confirmations.length
+                ? t('If you write, the actions above are dropped')
+                : t('Ask something')
+            }
+            value={draft}
+            onChange={event => setDraft(event.target.value)}
+            onKeyDown={onKeyDown}
+            disabled={stopped}
+            variant="borderless"
+            autoSize={{ minRows: 1, maxRows: 6 }}
+            data-test="auradata-assistant-input"
+          />
+          <ComposerBar>
+            <Select
+              ariaLabel={t('Model')}
+              value={model}
+              options={modelOptions}
+              onChange={value => setChosenModel(String(value))}
+              disabled={chat.busy}
+              showSearch={false}
+              variant="borderless"
+              size="small"
+              popupMatchSelectWidth={false}
+              labelRender={({ value }) =>
+                models.find(item => item.id === value)?.name ?? value
+              }
+              data-test="auradata-assistant-model"
+            />
+            {chat.busy ? (
+              <Button
+                buttonStyle="secondary"
+                onClick={stop}
+                icon={<Icons.StopOutlined iconSize="m" />}
+                tooltip={t('Stop')}
+                aria-label={t('Stop')}
+                data-test="auradata-assistant-stop"
+              />
+            ) : (
+              <Button
+                className="send"
+                buttonStyle="primary"
+                htmlType="submit"
+                disabled={!draft.trim() || blocked || stopped}
+                icon={<Icons.ArrowRightOutlined iconSize="m" />}
+                aria-label={t('Send')}
+                data-test="auradata-assistant-send"
+              />
+            )}
+          </ComposerBar>
+        </Composer>
+        <Hint>
+          {t('What you ask, and the data it reads, go to Anthropic.')}
+        </Hint>
+      </Footer>
     </Column>
   );
 }

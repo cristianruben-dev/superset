@@ -27088,6 +27088,53 @@ msgstr "Esfuerzo muy alto"
 msgid "Maximum effort"
 msgstr "Esfuerzo máximo"
 
+msgid "Summarize this report"
+msgstr "Resume este informe"
+
+msgid "What stands out the most?"
+msgstr "¿Qué es lo que más destaca?"
+
+msgid "Compare the main categories"
+msgstr "Compara las categorías principales"
+
+msgid "Review this report and improve it"
+msgstr "Revisa este informe y mejóralo"
+
+msgid "Align the objects of this page"
+msgstr "Alinea los objetos de esta página"
+
+msgid "Make it look good on a phone"
+msgstr "Haz que se vea bien en el teléfono"
+
+msgid "What do we change?"
+msgstr "¿Qué cambiamos?"
+
+msgid "Ask about your data"
+msgstr "Pregúntale a tus datos"
+
+msgid "Ask something"
+msgstr "Pregunta algo"
+
+msgid "Thinking…"
+msgstr "Pensando…"
+
+msgid "The exact call"
+msgstr "La llamada exacta"
+
+msgid "The assistant knows the page and what you have selected, and it asks you before it deletes, publishes, shares or schedules anything."
+msgstr "El asistente conoce la página y lo que tienes seleccionado, y te pregunta antes de borrar, publicar, compartir o programar algo."
+
+msgid "The assistant answers about the page and filters on your screen, and it cannot change anything."
+msgstr "El asistente responde sobre la página y los filtros que tienes en pantalla, y no puede cambiar nada."
+
+msgid "%s step"
+msgid_plural "%s steps"
+msgstr[0] "%s paso"
+msgstr[1] "%s pasos"
+
+msgid "Working on the report"
+msgstr "Trabajando en el informe"
+
 msgid "Restore a chart from the trash"
 msgstr "Restaurar un gráfico de la papelera"
 

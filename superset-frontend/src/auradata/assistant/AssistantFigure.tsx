@@ -21,6 +21,7 @@ import { type QueryData, SuperChart } from '@superset-ui/core';
 import { t, tn } from '@apache-superset/core/translation';
 import { css, styled } from '@apache-superset/core/theme';
 import { Loading } from '@superset-ui/core/components';
+import { Icons } from '@superset-ui/core/components/Icons';
 import { useResizeDetector } from 'react-resize-detector';
 import { requestChartDataResolved } from 'src/components/Chart/chartAction';
 import { chartFormData, figureSource } from './figure';
@@ -32,15 +33,22 @@ const DEFAULT_WIDTH = 360;
 
 const Card = styled.figure`
   ${({ theme }) => css`
-    margin: ${theme.sizeUnit * 2}px 0 0;
-    padding: ${theme.sizeUnit * 2}px;
+    margin: ${theme.sizeUnit * 3}px 0 0;
+    padding: ${theme.sizeUnit * 3}px;
     border: 1px solid ${theme.colorBorderSecondary};
-    border-radius: ${theme.borderRadius}px;
+    border-radius: ${theme.sizeUnit * 3}px;
     background: ${theme.colorBgContainer};
 
     figcaption {
-      margin-top: ${theme.sizeUnit * 2}px;
-      font-size: ${theme.fontSizeSM}px;
+      display: flex;
+      align-items: baseline;
+      gap: ${theme.sizeUnit}px;
+      margin-top: ${theme.sizeUnit * 3}px;
+      padding-top: ${theme.sizeUnit * 2}px;
+      border-top: 1px solid ${theme.colorBorderSecondary};
+      font-family: ${theme.fontFamilyCode};
+      font-size: ${theme.fontSizeXS ?? theme.fontSizeSM}px;
+      line-height: 1.5;
       color: ${theme.colorTextTertiary};
     }
   `}
@@ -48,30 +56,49 @@ const Card = styled.figure`
 
 const Note = styled.p`
   ${({ theme }) => css`
-    margin: 0 0 ${theme.sizeUnit}px;
+    margin: ${theme.sizeUnit * 2}px 0 0;
     font-size: ${theme.fontSizeSM}px;
-    color: ${theme.colorTextSecondary};
+    color: ${theme.colorTextTertiary};
   `}
 `;
 
 const Rows = styled.div`
   ${({ theme }) => css`
-    overflow-x: auto;
+    max-height: ${theme.sizeUnit * 60}px;
+    overflow: auto;
 
     table {
+      display: table;
       width: 100%;
+      margin: 0;
       border-collapse: collapse;
       font-size: ${theme.fontSizeSM}px;
     }
     th,
     td {
-      padding: ${theme.sizeUnit}px ${theme.sizeUnit * 2}px;
+      padding: ${theme.sizeUnit}px ${theme.sizeUnit * 3}px ${theme.sizeUnit}px 0;
       border-bottom: 1px solid ${theme.colorBorderSecondary};
       text-align: left;
       white-space: nowrap;
     }
-    td.figure {
+    th {
+      position: sticky;
+      top: 0;
+      background: ${theme.colorBgContainer};
+      font-weight: ${theme.fontWeightStrong};
+      color: ${theme.colorTextSecondary};
+    }
+    th:last-child,
+    td:last-child {
+      padding-right: 0;
+    }
+    tr:last-child td {
+      border-bottom: 0;
+    }
+    td.figure,
+    th.figure {
       font-family: ${theme.fontFamilyCode};
+      font-variant-numeric: tabular-nums;
       text-align: right;
     }
   `}
@@ -91,7 +118,14 @@ function FigureRows({ figure }: { figure: Figure }) {
         <thead>
           <tr>
             {columns.map(column => (
-              <th key={column}>{column}</th>
+              <th
+                key={column}
+                className={
+                  typeof figure.rows[0]?.[column] === 'number' ? 'figure' : ''
+                }
+              >
+                {column}
+              </th>
             ))}
           </tr>
         </thead>
@@ -189,9 +223,12 @@ export function AssistantFigure({
     <Card data-test="auradata-assistant-figure">
       <div ref={ref}>{content}</div>
       <figcaption>
-        {figureSource(figure)}
-        {figure.row_count > 1 &&
-          ` · ${tn('%s row', '%s rows', figure.row_count, figure.row_count)}`}
+        <Icons.DatabaseOutlined iconSize="xs" />
+        <span>
+          {figureSource(figure)}
+          {figure.row_count > 1 &&
+            ` · ${tn('%s row', '%s rows', figure.row_count, figure.row_count)}`}
+        </span>
       </figcaption>
     </Card>
   );

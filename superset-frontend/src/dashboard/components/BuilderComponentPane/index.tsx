@@ -185,6 +185,16 @@ const BuilderComponentPane = ({ topOffset = 0, pageTop = 0 }) => {
               line-height: inherit;
               height: 100%;
 
+              /* The tabs share the width, so none is cut off */
+              & .ant-tabs-nav-list {
+                flex: 1;
+              }
+              & .ant-tabs-tab {
+                flex: 1;
+                justify-content: center;
+                padding-inline: 0;
+              }
+
               /* The fold button sits at the start of the tabs */
               & .ant-tabs-nav {
                 padding-left: 32px;
