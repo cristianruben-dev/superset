@@ -44,9 +44,11 @@ the MCP server.
 from __future__ import annotations
 
 import asyncio
+import contextvars
 import logging
 import time
-from collections.abc import Sequence
+from collections.abc import Coroutine, Sequence
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from typing import Any
 from uuid import UUID
@@ -125,6 +127,23 @@ class ToolOutcome:
 
     content: list[dict[str, Any]]
     is_error: bool = False
+
+
+def run_coroutine(coroutine: Coroutine[Any, Any, Any]) -> Any:
+    """
+    Run an MCP call and wait for it. Sync Playwright leaves a loop running on the thread
+    that took a screenshot, for as long as its browser lives, so a worker that served
+    thumbnails cannot start one here: the call then takes a thread of its own, with the
+    Flask context and the identity of this one, while this one waits.
+    """
+    try:
+        asyncio.get_running_loop()
+    except RuntimeError:
+        return asyncio.run(coroutine)
+    context = contextvars.copy_context()
+    with ThreadPoolExecutor(max_workers=1) as pool:
+        return pool.submit(context.run, asyncio.run, coroutine).result()
+
 
 
 def _text_block(text: str) -> dict[str, Any]:
@@ -259,7 +278,7 @@ class ToolBox:
     def _registered() -> Sequence[Any]:
         from superset.mcp_service.app import mcp
 
-        return asyncio.run(mcp.list_tools(run_middleware=False))
+        return run_coroutine(mcp.list_tools(run_middleware=False))
 
     def _offered(self, registered: Sequence[Any]) -> list[Any]:
         from superset.mcp_service.app import feature_disabled_tools
@@ -351,7 +370,7 @@ class ToolBox:
         started = time.monotonic()
         try:
             with run_as(self._principal), acting_model(self._model):
-                result = asyncio.run(self._call_tool(name, arguments))
+                result = run_coroutine(self._call_tool(name, arguments))
         except Exception:  # pylint: disable=broad-except
             logger.exception("Assistant tool %s failed", name)
             self._log_call(name, arguments, user_id, started, success=False)
