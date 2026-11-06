@@ -194,7 +194,8 @@ location ~ /api/v1/auradata/assistant/(conversations/[^/]+/decide/)?$ {
 `gunicorn --timeout` (60 s por defecto, `GUNICORN_TIMEOUT`) no corta una respuesta larga con `gthread`, el worker de
 `run-server.sh`: el aviso de vida al proceso maestro va en su bucle propio, aparte de la petición. Probado con gunicorn 26.2 y
 Claude real: con `--timeout 3`, una respuesta de 20 s con 8 s sin eventos llegó completa. Como control, una ruta que duerme 8 s
-terminó con `gthread` y murió con `sync`, con `WORKER TIMEOUT`. **Con `SERVER_WORKER_CLASS=sync` y un hilo sí se corta.** Se probó
+terminó con `gthread` y murió con `sync`, con `WORKER TIMEOUT`. **Con `SERVER_WORKER_CLASS=sync` y `SERVER_THREADS_AMOUNT=1` sí se corta;** con más de un hilo, gunicorn usa `gthread` aunque
+pidas `sync`. Se probó
 con la imagen de desarrollo y las opciones de `run-server.sh`, no con la imagen `prod`, y nada duró más de 60 s.
 
 Sin probar: el comportamiento detrás de un proxy real.
@@ -229,6 +230,6 @@ Si instalaste `anthropic` a mano en un contenedor, lo pierdes al recrearlo. La s
 | Aviso de que falta el SDK, o chat con 503 | Imagen vieja | Reconstruye |
 | Sale en lectura y no en edición | **Dejar que cambie informes** apagado, global o en el área | Enciéndelo |
 | Mensaje de que se acabó el crédito | Sin saldo en Anthropic | Recarga en la consola de Anthropic |
-| La respuesta se corta a los 60 s | Falta el bloque del proxy, o `SERVER_WORKER_CLASS` no es `gthread` | Mira [tiempos del proxy](#tiempos-del-proxy) |
+| La respuesta se corta a los 60 s | Falta el bloque del proxy, o el worker es `sync` con `SERVER_THREADS_AMOUNT=1` | Mira [tiempos del proxy](#tiempos-del-proxy) |
 | «El servicio de IA falló» en una conversación muy larga | Excedió el contexto del modelo. El panel avisa desde el 80% | Empieza una conversación nueva |
 | El tope cortó el mes | Llegó al 100% | Súbelo o espera al mes siguiente |

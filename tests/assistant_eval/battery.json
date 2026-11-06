@@ -214,7 +214,7 @@
       "mode": "edit",
       "user": "editor",
       "dashboard": {"id": 228, "copy": true},
-      "prompt": "Con la tabla `pedidos` de la conexión «Datos ficticios · AuraData» (columnas fecha, region, categoria, pedidos y ventas), crea un dataset nuevo de pedidos por categoría en «Análisis comercial», con métricas de ventas y ticket promedio, y agrega a este informe una página con él.",
+      "prompt": "Con la tabla `pedidos` de la conexión «Datos ficticios · AuraData» (columnas fecha, region, categoria, pedidos y ventas), crea un dataset nuevo de pedidos por categoría en «Análisis comercial», sin reutilizar otro,, con métricas de ventas y ticket promedio, y agrega a este informe una página con él.",
       "adapted": "The panel adds a page to the report that is open instead of creating another report, and the prompt names the table, because the panel has no tool that lists the tables of a connection.",
       "expected_tools": ["list_databases", "create_virtual_dataset", "add_metric", "create_visual"],
       "approve": ["update_chart", "update_dashboard"],

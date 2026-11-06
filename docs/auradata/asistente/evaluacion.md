@@ -184,8 +184,7 @@ la primera etapa es más bajo que su máximo.
 Limpieza después de una corrida: las copias quedan en «Análisis comercial»; la de E7 deja un informe programado semanal,
 inofensivo mientras `ALERT_REPORTS_NOTIFICATION_DRY_RUN` esté encendido (el runner se niega si no). Se borran a mano.
 
-E6 deja un dataset en el workspace, y una segunda corrida lo encuentra: bórralo antes de comparar modelos, o el que venga
-después lo reutiliza en vez de crearlo.
+Cada corrida de E6 deja un dataset en «Análisis comercial», con su informe. Se borran a mano.
 
 ### Playwright
 
@@ -294,23 +293,25 @@ estructura, sus herramientas y su respuesta, y nueve en captura: E1 con los tres
 
 ### E6
 
-Corridas `20261106-045702` y `20261106-050050`, a esfuerzo medio. La conexión no tenía tablas: sus datasets son SQL literal, y
-el modelo leía esos nombres como si fueran tablas. Con `public.pedidos`, E6 pasa.
+Corridas `20261106-045702`, `20261106-050050` y `20261106-052543`, a esfuerzo medio. La conexión no tenía tablas: sus datasets
+son SQL literal, y el modelo leía esos nombres como si fueran tablas. Con `public.pedidos`, E6 pasa con Haiku y con Sonnet.
 
 | Modelo | Resultado | Costo |
 | --- | --- | ---: |
 | Haiku 5.5 | Creó el dataset 69 en «Análisis comercial», con ventas, pedidos y ticket promedio dentro de la misma llamada, y una página con dos visuales | $0.03 |
-| Sonnet 5.5 | Su `create_virtual_dataset` falló porque no pasó `database_id`, y el error dice «Validation failed due to database connectivity». Encontró el 69 y lo reutilizó. Falló tres veces en `create_visual` y tres en `add_element`, y dejó la página sin título | $0.29 y $0.20 |
-| Opus 5.5 | Halló el 69 y lo reutilizó. Su página es la mejor: tres tarjetas, dos barras y título | $0.86 y $0.71 |
+| Sonnet 5.5 | Con la tarea final, que pide no reutilizar otro: creó el dataset 72 con sus dos métricas y una página con tabla y barras, sin errores. Antes, con el 69 ya hecho, lo reutilizó dos veces | $0.32 |
+| Opus 5.5 | Encontró el 69 y lo reutilizó: su creación queda sin probar. Su página es la mejor, con tres tarjetas, dos barras y título | $0.86 y $0.71 |
 
-Solo Haiku creó el dataset, y lo hizo primero: los otros lo encontraron hecho, así que su creación queda sin comparar. El
-dataset tiene etiquetas en español en las métricas, y sin ellas en las columnas; sus formatos no llevan moneda. Nadie pidió una
+La tarea pide «sin reutilizar otro» porque en una misma corrida el primer modelo deja el dataset hecho para los siguientes. Los
+datasets tienen etiquetas en español en las métricas, ninguna en las columnas, y sus formatos no llevan moneda. Nadie pidió una
 contraseña ni creó una conexión.
 
-**Dos cosas para mirar:**
+**Dos cosas para mirar**, de la corrida en que Sonnet reutilizó el 69:
 
-- Ese error de conectividad es engañoso: Sonnet lo repitió como tal en su respuesta.
-- Sonnet adivina los nombres de los argumentos (`name`, `text`, `content`, `title`) en vez de leer el esquema de la herramienta.
+- Pasó `create_virtual_dataset` sin `database_id`, y el error dice «Validation failed due to database connectivity». Es
+  engañoso: Sonnet lo repitió como tal en su respuesta.
+- Adivinó los nombres de los argumentos (`name`, `text`, `content`, `title`) de `create_visual` y `add_element` en vez de leer
+  el esquema, y dejó la página sin título.
 
 ### Razonamiento apagado
 
@@ -331,7 +332,7 @@ Con Claude Haiku 4.5, cuyo contexto es de 200 000 tokens: 24 mensajes de 20 000 
 - El turno siguiente excede el contexto y responde `failed`, «El servicio de IA falló. Si se repite, empieza una conversación
   nueva.» La conversación queda guardada y la salida es correcta, pero el mensaje no dice que la causa es el largo.
 
-El aviso del panel se comprobó por `transcript.test.ts` y por el número que devuelve la API, no en el navegador. En los modelos
+El aviso del panel se comprobó por `transcript.test.ts`, que cubre el umbral, y por el número que devuelve la API, no en el navegador. En los modelos
 de 1 000 000 de tokens no se llegó al límite.
 
 ### Recomendación por modo
