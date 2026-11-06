@@ -72,9 +72,11 @@ def object_kind(item: dict[str, Any]) -> str:
 
 
 def _title(
-    item: dict[str, Any], chart_names: dict[int, str], filter_names: dict[str, str]
+    item: dict[str, Any],
+    chart_names: dict[int, str],
+    filter_names: dict[str, str | None],
 ) -> str | None:
-    meta = item.get("meta") or {}
+    meta: Any = item.get("meta") or {}
     kind = object_kind(item)
     if kind == "chart":
         return (
@@ -84,7 +86,7 @@ def _title(
         )
     if kind == "text_box":
         return _short(meta.get("code"))
-    element = meta.get(keys.ELEMENT_KEY) or {}
+    element: Any = meta.get(keys.ELEMENT_KEY) or {}
     if kind == "slicer":
         return filter_names.get(element.get("filterId"))
     return _short(element.get("label") or element.get("text") or element.get("html"))

@@ -102,7 +102,7 @@ async def get_dashboard_screenshot(
             picture = await capture.capture(url, "standalone", window)
     except LayoutEditError as ex:
         await ctx.warning(f"Screenshot refused: {ex.error_type}: {ex.message}")
-        return _error(ex)  # type: ignore[return-value]
+        return _error(ex)
     info = ScreenshotResponse(
         dashboard_id=dashboard_id,
         page=page_id,
@@ -113,7 +113,7 @@ async def get_dashboard_screenshot(
         height=picture.height,
         mime_type=picture.mime_type,
     )
-    return _result(info, picture)  # type: ignore[return-value]
+    return _result(info, picture)
 
 
 @tool(
@@ -149,7 +149,7 @@ async def get_visual_screenshot(
             picture = await capture.capture(url, element, capture.window_for(report))
     except LayoutEditError as ex:
         await ctx.warning(f"Screenshot refused: {ex.error_type}: {ex.message}")
-        return _error(ex)  # type: ignore[return-value]
+        return _error(ex)
     info = ScreenshotResponse(
         dashboard_id=dashboard_id,
         page=page_id,
@@ -159,4 +159,4 @@ async def get_visual_screenshot(
         height=picture.height,
         mime_type=picture.mime_type,
     )
-    return _result(info, picture)  # type: ignore[return-value]
+    return _result(info, picture)

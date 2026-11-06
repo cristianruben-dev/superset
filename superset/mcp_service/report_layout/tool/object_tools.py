@@ -31,6 +31,7 @@ from superset.auradata.layout import (
     align_cells,
     distribute_cells,
     free_cell,
+    Pos,
     keys,
     layer_order,
 )
@@ -139,7 +140,7 @@ async def move_object(request: MoveObjectRequest, ctx: Context) -> LayoutChangeR
         refuse_locked(report, cid)
         page_id = page_of_object(report, cid)
         x, y, _, _ = box(report, cid)
-        cell = {
+        cell: Pos = {
             "x": max(0, (request.x if request.x is not None else x) + request.dx),
             "y": max(0, (request.y if request.y is not None else y) + request.dy),
         }

@@ -73,9 +73,10 @@ def _first_and_cards(report: Report, ids: list[str]) -> tuple[set[str], set[str]
     first: set[str] = set()
     for component_id in ids:
         item = report.layout.get(component_id) or {}
-        meta = item.get("meta") or {}
+        meta: Any = item.get("meta") or {}
         if item.get("type") == keys.CHART_TYPE:
-            if viz_types.get(meta.get("chartId")) in CARD_VIZ_TYPES:
+            viz_type = viz_types.get(meta.get("chartId"))
+            if viz_type is not None and viz_type in CARD_VIZ_TYPES:
                 cards.add(component_id)
                 first.add(component_id)
         elif keys.element_kind(meta.get("componentKey")) == "filter":

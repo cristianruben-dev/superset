@@ -136,7 +136,7 @@ async def export_dashboard_image(
     size of its canvas (1920 x 1088 px for 16:9). Hidden and tooltip pages are
     left out unless named. At most 10 pages and 20 MB per export.
     """
-    return await _export(request, ctx, "png")  # type: ignore[return-value]
+    return await _export(request, ctx, "png")
 
 
 @tool(
@@ -154,4 +154,4 @@ async def export_dashboard_pdf(
     unless named. At most 10 pages and 20 MB per export. The file comes as an
     embedded resource (application/pdf, base64).
     """
-    return await _export(request, ctx, "pdf")  # type: ignore[return-value]
+    return await _export(request, ctx, "pdf")

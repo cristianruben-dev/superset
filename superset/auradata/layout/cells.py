@@ -110,7 +110,7 @@ def _fit_columns(layout: dict[str, Any], widths: dict[str, int]) -> None:
         if not widths.get(column_id):
             continue
 
-        def visit(component_id: str, column: str = column_id) -> None:
+        def visit(component_id: str, column: str) -> None:
             if component_id in widths:
                 widths[component_id] = min(widths[component_id], widths[column])
             child = layout.get(component_id)
@@ -118,7 +118,7 @@ def _fit_columns(layout: dict[str, Any], widths: dict[str, int]) -> None:
                 visit(grandchild, column)
 
         for child_id in item.get("children") or []:
-            visit(child_id)
+            visit(child_id, column_id)
 
 
 def layout_to_cells(layout: dict[str, Any]) -> dict[str, Any]:

@@ -87,7 +87,7 @@ def size_of(meta: Any) -> tuple[Any, Any]:
 def clamp_to_page(layout: dict[str, Any], meta: Any, cell: Pos) -> Pos:
     """The cell nearest to ``cell`` where an object of this width fits the page."""
     columns = column_count_of(layout)
-    width = number_or(as_dict(meta).get("width"), 1)
+    width: Any = number_or(as_dict(meta).get("width"), 1)
     return {"x": max(0, min(cell["x"], columns - width)), "y": max(0, cell["y"])}
 
 
@@ -201,7 +201,7 @@ def layout_to_positions(layout: dict[str, Any]) -> dict[str, Any]:  # noqa: C901
         if item.get("type") == HEADER_TYPE:
             return HEADER_ROWS.get(_js_string(meta.get("headerSize")), 2)
         if item.get("type") == ROW_TYPE:
-            cursor = x
+            cursor: Any = x
             tallest: Any = 0
             for child_id in item.get("children") or []:
                 child_meta = as_dict(as_dict(layout.get(child_id)).get("meta"))

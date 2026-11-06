@@ -54,7 +54,7 @@ class ReportRefs:
     """Ids of the report a format may point at (pages and bookmarks)."""
 
     pages: set[str] = field(default_factory=set)
-    bookmarks: set[str] = field(default_factory=set)
+    bookmarks: set[str | None] = field(default_factory=set)
     #: Pages that are tooltips, the only ones a chart's tooltip shows
     tooltip_pages: set[str] | None = None
 

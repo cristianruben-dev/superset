@@ -84,7 +84,7 @@ def cross_filter_scope(metadata: Any, chart_id: int) -> dict[str, Any]:
     metadata = as_dict(metadata)
     config = as_dict(as_dict(metadata.get("chart_configuration")).get(str(chart_id)))
     scope = as_dict(config.get("crossFilters")).get("scope")
-    if truthy(scope) and scope != GLOBAL_SCOPE_POINTER:
+    if scope is not None and truthy(scope) and scope != GLOBAL_SCOPE_POINTER:
         return scope
     global_scope = as_dict(metadata.get("global_chart_configuration")).get("scope")
     if global_scope is not None:

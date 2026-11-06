@@ -133,7 +133,8 @@ def _viz_type_of(report: Report, component_id: str) -> str | None:
     item = report.layout.get(component_id) or {}
     if item.get("type") != keys.CHART_TYPE:
         return None
-    return _viz_types(report).get((item.get("meta") or {}).get("chartId"))
+    meta: Any = item.get("meta") or {}
+    return _viz_types(report).get(meta.get("chartId"))
 
 
 def _refs(report: Report) -> ReportRefs:

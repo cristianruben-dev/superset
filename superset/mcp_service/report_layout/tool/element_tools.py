@@ -283,7 +283,7 @@ async def remove_element(
             and request.remove_filter
             and not _other_slicers(report, component_id, filter_id)
         )
-        if removes_filter:
+        if filter_id and removes_filter:
             _save_without_filter(report, filter_id)
         else:
             save_report(report)

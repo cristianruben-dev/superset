@@ -122,7 +122,7 @@ async def _run(
     name: str,
     ctx: Context,
     change: Callable[[], Response],
-    response: type[Response] = InteractivityResponse,  # type: ignore[assignment]
+    response: type[Response] = InteractivityResponse,
 ) -> Response:
     """Run a change, turning refusals into an error response."""
     await ctx.info(f"{name}: starting")
@@ -588,17 +588,17 @@ async def make_tooltip_page(
                 page=page_id,
             )
         current = meta.get(keys.TOOLTIP_PAGE_KEY) or {}
+        width = request.width or current.get("width") or 10
+        height = request.height or current.get("height") or 8
         setting = {
-            "width": request.width or current.get("width") or 10,
-            "height": request.height or current.get("height") or 8,
+            "width": width,
+            "height": height,
             "columns": check_columns(report.dashboard, request.columns)
             if request.columns is not None
             else list(current.get("columns") or []),
         }
         meta[keys.TOOLTIP_PAGE_KEY] = setting
-        if clipped := clipped_objects(
-            report, page_id, setting["width"], setting["height"]
-        ):
+        if clipped := clipped_objects(report, page_id, width, height):
             report.warnings.append(
                 f"Objects past the {setting['width']} x {setting['height']} tooltip "
                 f"area are cut off: {clipped}."

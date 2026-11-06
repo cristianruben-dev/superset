@@ -145,7 +145,7 @@ def default_data_mask(conf: dict[str, Any], value: Any) -> dict[str, Any]:
                 "'2024-01-01 : 2024-12-31'."
             )
         return time_data_mask(value.strip())
-    column = ((conf.get("targets") or [{}])[0].get("column") or {}).get("name")
+    column: Any = ((conf.get("targets") or [{}])[0].get("column") or {}).get("name")
     if filter_type == "filter_range":
         if (
             not isinstance(value, list)
