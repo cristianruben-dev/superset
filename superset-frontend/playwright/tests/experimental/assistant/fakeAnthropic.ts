@@ -307,6 +307,18 @@ export async function copyReport(page: Page, title: string): Promise<number> {
   return result.id;
 }
 
+export async function acceptPrivacy(page: Page): Promise<void> {
+  const panel = page.getByTestId('auradata-assistant-panel');
+  await expect(panel).toBeVisible();
+  const accept = page.getByTestId('auradata-assistant-accept');
+  await expect(
+    accept.or(page.getByTestId('auradata-assistant-input')),
+  ).toBeVisible();
+  if (await accept.isVisible()) {
+    await accept.click();
+  }
+}
+
 /** Opens the panel on a report, past the privacy notice. */
 export async function openPanel(page: Page, dashboard = REPORT): Promise<void> {
   await page.goto(`dashboard/${dashboard}/`);
@@ -325,18 +337,6 @@ export async function panelAfterReload(page: Page): Promise<void> {
     await button.click();
   }
   await expect(page.getByTestId('auradata-assistant-input')).toBeVisible();
-}
-
-export async function acceptPrivacy(page: Page): Promise<void> {
-  const panel = page.getByTestId('auradata-assistant-panel');
-  await expect(panel).toBeVisible();
-  const accept = page.getByTestId('auradata-assistant-accept');
-  await expect(
-    accept.or(page.getByTestId('auradata-assistant-input')),
-  ).toBeVisible();
-  if (await accept.isVisible()) {
-    await accept.click();
-  }
 }
 
 export async function ask(page: Page, message: string): Promise<void> {

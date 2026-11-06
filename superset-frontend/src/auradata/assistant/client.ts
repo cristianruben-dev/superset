@@ -37,6 +37,9 @@ import type {
   UndoResult,
 } from './types';
 
+/** The server refused the message, or the stream ended before its answer. */
+export class AssistantError extends Error {}
+
 const CHAT_URL = '/api/v1/auradata/assistant/';
 /** Tries in a row, each one waiting a step longer, before saying the line is down. */
 const RECONNECTS = 6;
@@ -272,9 +275,6 @@ export interface AssistantDecision {
   approved: boolean;
   model: string;
 }
-
-/** The server refused the message, or the stream ended before its answer. */
-export class AssistantError extends Error {}
 
 async function post(
   endpoint: string,

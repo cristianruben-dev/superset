@@ -342,13 +342,6 @@ const timers = new Map<number, ReturnType<typeof setTimeout>>();
 export const hasPendingFields = (chartId?: number) =>
   chartId === undefined ? pending.size > 0 : pending.has(chartId);
 
-/** Forgets the changes waiting, as leaving the editor without saving does. */
-export function clearPendingFields() {
-  pending.clear();
-  steps.clear();
-  shownStep = 0;
-}
-
 const chartOf = (getState: GetState, chartId: number) =>
   (getState().charts as Record<number, ChartState>)[chartId];
 
@@ -400,6 +393,13 @@ type FieldStep = {
 const steps = new Map<number, FieldStep>();
 /** The step the charts show; undo and redo move the layout away from it. */
 let shownStep = 0;
+
+/** Forgets the changes waiting, as leaving the editor without saving does. */
+export function clearPendingFields() {
+  pending.clear();
+  steps.clear();
+  shownStep = 0;
+}
 
 const stepOf = (getState: GetState) =>
   Number(
