@@ -282,6 +282,11 @@ class AssistantMessage(Model):
     output_tokens = sa.Column(sa.Integer, nullable=False, default=0)
     cache_read_input_tokens = sa.Column(sa.Integer, nullable=False, default=0)
     cache_creation_input_tokens = sa.Column(sa.Integer, nullable=False, default=0)
+    # What the model read the last time it ran for this answer. The token columns add
+    # up every time, which is what it costs and not how long the conversation is
+    context_tokens = sa.Column(
+        sa.Integer, nullable=False, default=0, server_default="0"
+    )
     cost_usd = sa.Column(sa.Numeric(14, 6), nullable=False, default=0)
     created_on = sa.Column(
         sa.DateTime, nullable=False, default=datetime.now, index=True

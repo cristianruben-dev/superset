@@ -737,7 +737,7 @@ def test_each_model_gets_what_its_row_says(
     assert sonnet["max_tokens"] == 64000
     assert "fallbacks" not in haiku
     assert haiku["thinking"] == {"type": "adaptive"}
-    assert "anthropic-beta" not in haiku_headers
+    assert haiku_headers["anthropic-beta"] == REFUSAL_FALLBACK_BETA
     assert haiku["output_config"] == {"effort": "medium"}
     for key in ("thinking", "output_config", "fallbacks", "cache_control"):
         assert key not in unknown
@@ -1199,6 +1199,71 @@ def test_a_query_gives_the_same_figure_live_and_when_read_later(
     # What the last call to the API read, not what the turn added up
     assert payloads(response, "done")[0]["context_tokens"] == 100
     assert stored["context_tokens"] == 100
+
+
+def test_a_tool_search_counts_once_in_the_context_of_a_conversation(
+    client: Any, world: dict[str, Any], mocker: MockerFixture
+) -> None:
+    """A search runs the model twice in one response, and the top level adds both."""
+    login(world, "Ana")
+
+    def search_pass(read: int, written: int) -> dict[str, Any]:
+        return {
+            "type": "message",
+            "input_tokens": 2,
+            "output_tokens": 10,
+            "cache_read_input_tokens": read,
+            "cache_creation_input_tokens": written,
+        }
+
+    use_model(
+        mocker,
+        reply(
+            text("Listo"),
+            usage={
+                "input_tokens": 4,
+                "output_tokens": 20,
+                "cache_read_input_tokens": 147_000,
+                "cache_creation_input_tokens": 8_000,
+                "iterations": [search_pass(72_000, 2_000), search_pass(75_000, 6_000)],
+            },
+        ),
+    )
+
+    response = ask(client, world["dashboard"])
+
+    done = payloads(response, "done")[0]
+    assert done["context_tokens"] == 81_002
+    # What it cost still adds up both runs of the model
+    assert done["cache_read_input_tokens"] == 147_000
+    stored = client.get(f"{URL}conversations/{conversation_id_of(response)}/").json
+    assert stored["result"]["context_tokens"] == 81_002
+
+
+@pytest.mark.parametrize("model_id", ["claude-haiku-5-5", "claude-opus-4-8"])
+def test_a_request_with_tool_search_asks_for_the_usage_of_each_pass(
+    model_id: str,
+) -> None:
+    params = agent.request_params(
+        CatalogModel(model_id, MODEL_TABLE[model_id], True),
+        "system",
+        [{"type": "tool_search_tool_bm25_20251119", "name": "search"}],
+        [],
+    )
+
+    assert params["betas"] == [REFUSAL_FALLBACK_BETA]
+    assert "fallbacks" not in params
+
+
+def test_a_request_with_a_fallback_sends_its_beta_once() -> None:
+    params = agent.request_params(
+        CatalogModel(SONNET, MODEL_TABLE[SONNET], True),
+        "system",
+        [{"type": "tool_search_tool_bm25_20251119", "name": "search"}],
+        [],
+    )
+
+    assert params["betas"].count(REFUSAL_FALLBACK_BETA) == 1
 
 
 def test_a_silent_model_keeps_the_stream_open(

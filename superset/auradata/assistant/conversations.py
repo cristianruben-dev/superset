@@ -104,6 +104,8 @@ class AssistantTurn:
     stop_reason: str | None
     usage: TokenUsage
     cost_usd: Decimal
+    # What the model read the last time it ran: ``usage`` adds up every time
+    context_tokens: int = 0
 
 
 @dataclass(frozen=True)
@@ -435,13 +437,7 @@ def context_tokens_of(conversation: AssistantConversation) -> int:
         .order_by(AssistantMessage.seq.desc())
         .first()
     )
-    if last is None:
-        return 0
-    return (
-        last.input_tokens
-        + last.cache_read_input_tokens
-        + last.cache_creation_input_tokens
-    )
+    return last.context_tokens if last is not None else 0
 
 
 def content_to_send(blocks: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -545,6 +541,7 @@ class ConversationLog:
             output_tokens=0,
             cache_read_input_tokens=0,
             cache_creation_input_tokens=0,
+            context_tokens=0,
             cost_usd=0,
         )
         self._next_seq += 1
@@ -638,6 +635,7 @@ class ConversationLog:
         row.output_tokens = turn.usage.output_tokens
         row.cache_read_input_tokens = turn.usage.cache_read_input_tokens
         row.cache_creation_input_tokens = turn.usage.cache_creation_input_tokens
+        row.context_tokens = turn.context_tokens
         row.cost_usd = turn.cost_usd
         if tool_results:
             self._row("user", tool_results)

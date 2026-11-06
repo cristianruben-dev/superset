@@ -63,8 +63,10 @@ from superset.auradata.assistant.conversations import (
 from superset.auradata.assistant.figures import figure_of
 from superset.auradata.assistant.models import (
     CatalogModel,
+    context_of_message,
     cost_of_message,
     DISPLAY_UPDATES,
+    REFUSAL_FALLBACK_BETA,
     THINKING_UPDATES_BETA,
     TokenUsage,
 )
@@ -86,6 +88,9 @@ KEEP_ALIVE = "keep_alive"
 CONTEXT_EXCEEDED = "context_exceeded"
 STOP_CONTEXT_WINDOW = "model_context_window_exceeded"
 OVER_CONTEXT_PHRASES = ("prompt is too long", "exceed context limit")
+# With this beta a response lists the usage of each time the model ran for it, also
+# without a fallback. It does not change the prompt cache
+USAGE_PER_PASS_BETA = REFUSAL_FALLBACK_BETA
 
 Event = tuple[str, dict[str, Any]]
 
@@ -135,6 +140,9 @@ def request_params(
             params["thinking"]["display"] = spec.thinking_display
         if spec.thinking_display == DISPLAY_UPDATES:
             params["betas"] = [*params.get("betas", []), THINKING_UPDATES_BETA]
+    betas = params.get("betas", [])
+    if tools and spec.tool_search and USAGE_PER_PASS_BETA not in betas:
+        params["betas"] = [USAGE_PER_PASS_BETA, *betas]
     if spec.efforts and spec.default_effort:
         params["output_config"] = {"effort": spec.default_effort}
     if spec.automatic_cache:
@@ -317,6 +325,7 @@ def _turn_of(message: Any) -> AssistantTurn:
         stop_reason=message.stop_reason,
         usage=usage,
         cost_usd=cost,
+        context_tokens=context_of_message(message.usage),
     )
 
 
@@ -327,7 +336,16 @@ def _store_what_it_cost(call: ModelCall, log: ConversationLog) -> None:
         return
     usage, cost = cost_of_message(message.model, message.usage)
     try:
-        log.add_turn(AssistantTurn([], message.model, STOP_INTERRUPTED, usage, cost))
+        log.add_turn(
+            AssistantTurn(
+                [],
+                message.model,
+                STOP_INTERRUPTED,
+                usage,
+                cost,
+                context_of_message(message.usage),
+            )
+        )
     except ConversationBusyError:
         logger.warning("The cost of a call that stopped was not stored")
 
@@ -482,7 +500,7 @@ def run_conversation(  # noqa: C901
         total_usage += turn.usage
         total_cost += turn.cost_usd
         stop_reason = turn.stop_reason
-        context_tokens = turn.usage.context_tokens
+        context_tokens = turn.context_tokens
 
         if stop_reason == STOP_REFUSAL:
             log.add_turn(turn)

@@ -28,6 +28,7 @@ from flask import Flask
 
 from superset.auradata.assistant import models as catalog_module
 from superset.auradata.assistant.models import (
+    context_of_message,
     cost_of_message,
     cost_of_tokens,
     EFFORTS_WITHOUT_XHIGH,
@@ -336,6 +337,68 @@ def test_a_message_without_iterations_uses_its_top_level_usage() -> None:
 
     assert tokens == TokenUsage(1_000_000, 0, 0, 0)
     assert cost == Decimal(2)
+
+
+def _pass(kind: str = "message", **tokens: int) -> SimpleNamespace:
+    return SimpleNamespace(
+        type=kind,
+        model=None,
+        input_tokens=tokens.get("input", 0),
+        output_tokens=0,
+        cache_read_input_tokens=tokens.get("read", 0),
+        cache_creation_input_tokens=tokens.get("written", 0),
+    )
+
+
+def test_the_context_of_a_response_is_its_last_pass_and_its_cost_all_of_them() -> None:
+    usage = SimpleNamespace(
+        input_tokens=20,
+        output_tokens=0,
+        cache_read_input_tokens=147_000,
+        cache_creation_input_tokens=8_000,
+        iterations=[
+            _pass(input=10, read=72_000, written=2_000),
+            _pass(input=10, read=75_000, written=6_000),
+        ],
+    )
+
+    assert context_of_message(usage) == 81_010
+    assert cost_of_message("claude-sonnet-5-5", usage)[0] == TokenUsage(
+        20, 0, 147_000, 8_000
+    )
+
+
+def test_the_context_of_a_response_never_comes_from_a_compaction() -> None:
+    usage = SimpleNamespace(
+        input_tokens=500,
+        cache_read_input_tokens=0,
+        cache_creation_input_tokens=0,
+        iterations=[_pass(input=500), _pass("compaction", input=3)],
+    )
+
+    assert context_of_message(usage) == 500
+
+
+def test_the_context_after_a_fallback_is_what_the_second_model_read() -> None:
+    usage = SimpleNamespace(
+        input_tokens=10,
+        cache_read_input_tokens=0,
+        cache_creation_input_tokens=0,
+        iterations=[_pass(input=1_000), _pass("fallback_message", input=1_200)],
+    )
+
+    assert context_of_message(usage) == 1_200
+
+
+def test_the_context_of_a_response_without_iterations_is_its_top_level() -> None:
+    usage = SimpleNamespace(
+        input_tokens=4,
+        cache_read_input_tokens=70,
+        cache_creation_input_tokens=None,
+        iterations=None,
+    )
+
+    assert context_of_message(usage) == 74
 
 
 def test_an_unknown_model_costs_the_most_expensive_price() -> None:

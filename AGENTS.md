@@ -118,7 +118,11 @@ This repository is **AuraData BI**, a fork of Apache Superset 7.0 shaped like Po
   is shut down because closing a socket does not wake its reader) and what the API already reported stays as a row with
   `stop_reason: interrupted`, kept for its cost and never sent. `docker/nginx` gives the chat and decide routes 300 s for
   tools that run long; a production proxy needs the same. A model without tool search is refused (422) for a history that
-  used it.
+  used it. How long a conversation is comes from `context_tokens` of its last answer (`context_of_message`), which the too-long
+  warning reads: what the model read the last time it ran. A tool search runs the model several times inside one response and
+  the top level of `usage` adds them up, which is right for the cost and about double for the length, so never measure the
+  context from the token columns. `usage.iterations` only comes with the fallback beta, so a request with tool search always
+  sends it (`USAGE_PER_PASS_BETA`), without `fallbacks` on a model that has none; it leaves the prompt cache as it was.
 - **The editor's copilot** (mode `edit`, the Assistant tab of `BuilderComponentPane`, Home › Assistant in the ribbon,
   `AssistantChat` in `AssistantPanel.tsx`). It works on the saved report: with unsaved changes the panel asks to save
   (`saveReport`, which stays in the editor through `keepEditingOnSave`) or discard, and after an answer that changed
@@ -512,8 +516,9 @@ themes and CSS templates) → `d3f9a2b17c64` (workspace datasets). The chain end
 one head and a database at `d3f9a2b17c64` still runs the 41 migrations of 7.0 on `db upgrade`. After the merge comes
 `a7e3c91d4b60` (renames the persisted `mibi` names to `auradata`).
 After it comes `c6a1f4e09b27` (conversations of the assistant), then `b2d58e7a13c4` (votes on its answers),
-`e5a7c3f19d42` (rows that outlive a deleted conversation) and `c8f2d6b4a917` (images attached to the assistant).
-- A new fork migration revises the current head (`c8f2d6b4a917` until the next one).
+`e5a7c3f19d42` (rows that outlive a deleted conversation), `c8f2d6b4a917` (images attached to the assistant) and
+`d47b1e9a6c30` (how much of the context each answer took).
+- A new fork migration revises the current head (`d47b1e9a6c30` until the next one).
 - Each new Superset release follows the same rule: add another merge revision of its head and the fork head.
   Never repoint `8bc9e5b95335` (or any fork revision) to the new upstream head: a database that already ran the
   fork migrations would skip the new upstream ones.

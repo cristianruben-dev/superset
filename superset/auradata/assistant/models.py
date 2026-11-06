@@ -168,15 +168,6 @@ class TokenUsage:
             self.cache_creation_input_tokens + other.cache_creation_input_tokens,
         )
 
-    @property
-    def context_tokens(self) -> int:
-        """Everything the model read in this call, cached or not."""
-        return (
-            self.input_tokens
-            + self.cache_read_input_tokens
-            + self.cache_creation_input_tokens
-        )
-
 
 def _cached_at_a_tenth(input_price: float, output_price: float) -> ModelPrice:
     """The usual price: cache reads at a tenth of the input price."""
@@ -454,6 +445,30 @@ def _usage_of(attempt: Any) -> TokenUsage:
     )
 
 
+def _attempts_of(usage: Any) -> list[Any]:
+    """The times the model ran for one response. Empty if the API does not say."""
+    return [
+        attempt
+        for attempt in getattr(usage, "iterations", None) or ()
+        if attempt.type in BILLED_ITERATIONS
+    ]
+
+
+def context_of_message(usage: Any) -> int:
+    """
+    How much of the model's context a response took: what the model read the last time
+    it ran. The top level adds up every time, so one tool search counts the conversation
+    twice, and it is only this figure when the model ran once.
+    """
+    attempts = _attempts_of(usage)
+    last = attempts[-1] if attempts else usage
+    return (
+        (last.input_tokens or 0)
+        + (last.cache_read_input_tokens or 0)
+        + (last.cache_creation_input_tokens or 0)
+    )
+
+
 def cost_of_message(model_id: str, usage: Any) -> tuple[TokenUsage, Decimal]:
     """
     Tokens and dollars of one API response.
@@ -463,11 +478,7 @@ def cost_of_message(model_id: str, usage: Any) -> tuple[TokenUsage, Decimal]:
     counts too, so a spending limit errs on the side of stopping early. A model the
     table does not know is priced with ``PRUDENT_SPEC``.
     """
-    attempts = [
-        attempt
-        for attempt in getattr(usage, "iterations", None) or ()
-        if attempt.type in BILLED_ITERATIONS
-    ]
+    attempts = _attempts_of(usage)
     total = TokenUsage()
     cost = Decimal(0)
     for attempt in attempts or [usage]:
