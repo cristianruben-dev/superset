@@ -199,9 +199,13 @@ como la persona que tiene la sesión. Las reglas están en `AGENTS.md`; para el 
 [capítulo 10 del manual](manual/10-asistente-de-ia.md); para operarlo, en
 [asistente/administracion.md](asistente/administracion.md).
 
-**Nada de esto se ha probado contra la API real ni en un navegador.** Las pruebas usan el SDK real sobre un transporte falso
-(`tests/unit_tests/auradata/assistant/fake_anthropic.py`). La evaluación con modelos está en
-[asistente/evaluacion.md](asistente/evaluacion.md), sin resultados todavía.
+Hay tres niveles de prueba, y cada uno ve algo que el anterior no:
+
+| Nivel | Qué es real | Dónde |
+| --- | --- | --- |
+| Unitarias | El SDK, sobre un transporte falso | `tests/unit_tests/auradata/assistant/`, con `fake_anthropic.py` |
+| Playwright | Navegador, web, Redis, worker, herramientas y base. Solo Anthropic es simulado | `superset-frontend/playwright/tests/experimental/assistant/` |
+| Evaluación | Todo, con Claude real y gasto real | [asistente/evaluacion.md](asistente/evaluacion.md) |
 
 ### Las piezas
 
@@ -565,13 +569,8 @@ con valores prudentes y sin búsqueda de herramientas, así que no puede seguir 
 
 ### Pendiente
 
-- **Probar de verdad:** la corrida de la [evaluación](asistente/evaluacion.md), el panel en un navegador y las capturas desde
-  el proceso web.
-- **Visores:** un visor de un workspace lee los datasets de ese workspace, así que el panel le da cifras y su tablero se
-  dibuja. Fuera de ellos sigue sin datos. Es la regla de `workspace_grants.py`, y lo fija
-  `tests/unit_tests/auradata/assistant/viewer_test.py`.
+- **Sin probar:** la imagen `prod`, un proxy real y un teléfono real. Detalle en
+  [lo que nunca se probó](asistente/administracion.md#lo-que-nunca-se-probó).
 - **Deshacer** no toca los datasets.
 - **Topes:** un turno en marcha puede pasarse hasta terminar.
-- **Procesos:** uno que muere con una herramienta en marcha deja su conversación en 409. Se sigue en una nueva.
-- **Segunda versión del copiloto,** anotada en el plan: cambios como acciones del editor, con el deshacer normal y sin guardar
-  antes.
+- **Segunda versión del copiloto:** cambios como acciones del editor, con el deshacer normal y sin guardar antes.

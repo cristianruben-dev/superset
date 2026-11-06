@@ -6,9 +6,9 @@ consulta viajan a Anthropic, y eso lo decides tú.
 Para quien usa el panel está el [capítulo 10 del manual](../manual/10-asistente-de-ia.md). Para quien cambia el código,
 [arquitectura.md](../arquitectura.md#6-el-asistente-de-ia).
 
-> **Lo que se ha comprobado.** El asistente se probó con Claude real en desarrollo y sus dos paneles se vieron en un
-> navegador: ver la [evaluación](evaluacion.md#resultados). Falta probarlo detrás de un proxy real y en producción: empieza
-> con un tope bajo.
+> **Lo que se ha comprobado.** El asistente se probó en desarrollo con Claude real, por el worker, y en un navegador con
+> Anthropic simulado: ver la [evaluación](evaluacion.md#resultados). Nunca corrió en la imagen de producción, detrás de un proxy
+> real ni en un teléfono real: ver [lo que nunca se probó](#lo-que-nunca-se-probó). Empieza con un tope bajo.
 
 ## Puesta en marcha
 
@@ -64,6 +64,53 @@ La clave se queda en el servidor: ninguna respuesta de la API la devuelve y el n
 
 Menos en el encendido, **lo guardado en la pantalla gana** al entorno: las variables solo son valores de partida.
 
+Estos otros no tienen pantalla. Se cambian en la configuración del servidor y piden reiniciar la web y los workers:
+
+| Ajuste | Dónde | Por defecto | Qué hace |
+| --- | --- | ---: | --- |
+| `ANTHROPIC_API_KEY` | Entorno | Vacío | Sin ella, el chat responde 503 |
+| `AURADATA_ASSISTANT_REDIS_URL` | `superset_config.py`, de `docker/` | Vacío en `auradata_config.py`; lo llenan los dos `superset_config.py` | Sin ella, el chat responde 503 |
+| `REDIS_ASSISTANT_DB` | Entorno | 2 | Base de Redis de los turnos |
+| `AURADATA_ASSISTANT_TURN_SECONDS` | `auradata_config.py` | 1200 | Lo que puede durar un turno |
+| `AURADATA_ASSISTANT_QUEUE_SECONDS` | `auradata_config.py` | 30 | Lo que un turno espera un worker libre |
+| `AURADATA_ASSISTANT_RETENTION_DAYS` | `auradata_config.py` | 90 | Ver [retención](#retención) |
+| `ASSISTANT_WORKER_CONCURRENCY` | Entorno, en producción | 4 | Turnos a la vez por réplica de `superset-worker-assistant` |
+| `CELERY_QUEUES` | Entorno | `celery,auradata_assistant` | Las colas de un worker |
+| `PRIVACY_NOTICE_VERSION` | `governance.py` | 2 | Se sube al cambiar el aviso, y todos lo aceptan de nuevo |
+
+### Servicios que necesita
+
+| Servicio | Para qué | Si falta |
+| --- | --- | --- |
+| Web | Comprueba, guarda y relee los eventos | Nada funciona |
+| Worker con la cola `auradata_assistant` | Corre cada turno y exporta los PDF | «No hay ningún worker del asistente libre» |
+| Redis | Eventos, candado y boletos de cada turno | 503 |
+| Base de metadatos | Conversaciones, votos, imágenes y documentos | Nada funciona |
+| `superset-worker-beat` | Dispara la retención | No se borra nada, sin aviso |
+| Salida a `api.anthropic.com` | Desde el worker para responder, y desde la web para la lista de modelos | La pantalla usa la tabla interna y los turnos fallan con un aviso |
+
+### Límites fijos
+
+Son constantes del código, no ajustes.
+
+| Límite | Valor | Dónde |
+| --- | ---: | --- |
+| Largo de un mensaje | 20 000 caracteres | `api.py` |
+| Contexto de la página | 8 000 caracteres | `api.py` |
+| Llamadas al modelo por tramo de un turno | 25 | `agent.py` |
+| Salida por llamada | 64 000 tokens, o menos si el modelo lo pide | `agent.py` |
+| Imágenes | Ver [Imágenes adjuntas](#imágenes-adjuntas) | `attachments.py` |
+| Documentos por conversación | 10 | `artifacts.py` |
+| Versiones por documento | 200 | `artifacts.py` |
+| Bloques por documento | 40 | `artifact_blocks.py` |
+| Texto por bloque | 8 000 caracteres | `artifact_blocks.py` |
+| Filas de un bloque de datos | 100 | `artifact_blocks.py` |
+| Hojas de un PDF | 30 | `exports.py` |
+| Tiempo de un PDF | 180 s | `exports.py` |
+| Páginas que crea «Guardar como página» | 5 | `artifact_pages.py` |
+| Filas del gráfico de una respuesta | 30 | `figures.py` |
+| Eventos de un turno en Redis | 50 000 | `turn_store.py` |
+
 ## Modelos
 
 La lista sale de la API de modelos de Anthropic y se recuerda una hora; **Actualizar lista** la vuelve a pedir. Si no se
@@ -86,8 +133,8 @@ En el panel, cada modelo lleva una etiqueta según su precio de entrada por mill
 | **Equilibrado** | De $2 a menos de $4 |
 | **Máximo** | $4 o más |
 
-El modelo por defecto de fábrica es Claude Sonnet 5.5. Que sea el de fábrica no significa que esté medido: la
-[comparación](evaluacion.md) está pendiente.
+El modelo por defecto de fábrica es Claude Sonnet 5.5. La [comparación](evaluacion.md#recomendación-por-modo) dice para qué
+conviene cada uno.
 
 **Esfuerzo y razonamiento** valen para todos los modelos, y cada uno los traduce a lo que acepta:
 
@@ -125,7 +172,8 @@ del voto. Son solo totales: ni quién votó, ni el motivo, ni el texto de la con
 
 **Son estimaciones, no la factura.** Cada costo se calcula con los tokens que informa la API y los precios de
 `MODEL_TABLE`. Compáralo con la consola de Anthropic. Los turnos rechazados o interrumpidos también cuentan, porque la API
-los cobró. Las corridas de la [evaluación](evaluacion.md) cuentan igual, y su modo sin gasto también suma costos simulados.
+los cobró. Las corridas de la [evaluación](evaluacion.md) cuentan igual, y su modo sin gasto y las pruebas de Playwright también suman costos
+simulados.
 
 ## Interruptores por área de trabajo
 
@@ -321,7 +369,7 @@ La [retención](#retención) corre aparte: `superset-worker-beat` la dispara y u
 | Un corte de Redis de unos 30 s | Un turno vivo pierde su latido y se da por muerto: el panel avisa, pero la herramienta que estaba corriendo termina igual y su cambio queda. El turno ya no escribe más. Su costo de ese momento puede no registrarse | Revisa el informe, como con un worker muerto |
 | Cerrar sesión no detiene un turno | El turno ya corre como esa persona y termina, con su identidad y sus permisos del momento, aunque se cierre la sesión. Desactivar al usuario sí lo frena en la siguiente herramienta | Pulsa **Detener** antes de salir |
 | Un turno con más de 50.000 eventos | `MAX_EVENTS` recorta los más viejos del stream. Un lector que se había quedado atrás recibe `trimmed` y, al terminar, el panel lee la respuesta guardada, que está entera | Nada |
-| Muchas herramientas piden tarjeta | [32 de 146](evaluacion.md#herramientas-detrás-de-una-tarjeta), incluidas `update_chart` y `update_dashboard`. Puede cansar en el uso real | Se revisa con los datos de la evaluación |
+| Muchas herramientas piden tarjeta | [32 de 146](evaluacion.md#herramientas-detrás-de-una-tarjeta), incluidas `update_chart` y `update_dashboard`. En la [evaluación](evaluacion.md#resultados) fueron 5 tarjetas en E1 a esfuerzo medio, y hasta 13 a esfuerzo bajo | Evita fijar el esfuerzo bajo |
 | Capturas (`get_dashboard_screenshot`) y PDF de documentos desde el worker | Funcionan en desarrollo | Sin probar en producción |
 | Cambiar las instrucciones no llega a las conversaciones abiertas | Cada conversación guarda las instrucciones de su primer turno, porque la API ata a ellas el razonamiento del modelo | Las conversaciones nuevas ya las usan |
 | Cambian las herramientas de una conversación en marcha | Un despliegue o un cambio de permisos cambia lo que se le ofrece al modelo. La API descarta el razonamiento guardado de esa conversación y sigue; el log del worker dice `dropped thinking blocks`. Cuesta algo de calidad y una caché nueva | Nada. Si ese aviso sale sin despliegue de por medio, algo está editando el historial: repórtalo |
@@ -329,6 +377,20 @@ La [retención](#retención) corre aparte: `superset-worker-beat` la dispara y u
 | Un PDF queda en Redis 15 minutos | Con las cifras de quien lo pidió, solo para esa persona | Nada |
 | El texto de un documento compartido no respeta RLS | Lo escribió el autor con su acceso. La tarjeta lo avisa y la vista del lector lo dice | Es decisión del autor. Compartir queda en el registro de acciones |
 | Rutas `undo/`, `stop/` y `models/` | Sin bloque propio en el proxy: son respuestas cortas | Nada |
+
+## Lo que nunca se probó
+
+Nada de esto se ha comprobado. No quiere decir que falle, sino que nadie lo vio funcionar.
+
+| Qué | Qué se sabe | Qué falta |
+| --- | --- | --- |
+| La imagen `prod` | Todo corrió en la imagen de desarrollo. `superset-worker-assistant` nunca arrancó | Un turno, una captura y un PDF en esa imagen |
+| Un proxy real | Las pruebas fueron contra la app en el puerto 8188, sin proxy delante | Una respuesta larga detrás de tu proxy, con el buffering apagado |
+| Un teléfono real | Todo se vio en un navegador de escritorio | Abrirlo en un iPhone y un Android |
+| Un documento compartido, visto por otra persona en el navegador | `sharing_test.py` cubre al lector por la API. Playwright solo lo abre como su autor | Abrirlo con una segunda sesión |
+| Modelos de 1 000 000 de tokens al límite | L1 usa Haiku 4.5, de 200 000 | Es caro y poco probable |
+| Varias personas a la vez | Los turnos corrieron de a uno | Una prueba con varios turnos reales en paralelo |
+| La factura de Anthropic | Los costos salen de `MODEL_TABLE` | Compararlos con la consola al cerrar un mes |
 
 ## Si algo falla
 
@@ -344,5 +406,5 @@ La [retención](#retención) corre aparte: `superset-worker-beat` la dispara y u
 | Chat con 503 «no tiene dónde ejecutar sus respuestas» | Falta `AURADATA_ASSISTANT_REDIS_URL` | Agrégala a la configuración |
 | La respuesta se corta a los 60 s | Falta el bloque del proxy, o el worker es `sync` con `SERVER_THREADS_AMOUNT=1` | Mira [tiempos del proxy](#tiempos-del-proxy) |
 | «Esta conversación no puede seguir tras una actualización del asistente» | La API no pudo verificar lo guardado de esa conversación | Empieza una nueva. El panel lo ofrece |
-| «El servicio de IA falló» en una conversación muy larga | Excedió el contexto del modelo. El panel avisa desde el 80% | Empieza una conversación nueva |
+| «Esta conversación es demasiado larga para el modelo» | Excedió el contexto del modelo. El panel avisa desde el 80% | Empieza una conversación nueva. El panel lo ofrece |
 | El tope cortó el mes | Llegó al 100% | Súbelo o espera al mes siguiente |
