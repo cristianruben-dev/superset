@@ -56,8 +56,9 @@ REFUSAL_FALLBACK_BETA = "server-side-fallback-2026-07-01"  # noqa: S105
 # Without this header the API rejects ``display: "updates"`` as an unknown value
 THINKING_UPDATES_BETA = "thinking-display-updates-2026-08-18"  # noqa: S105
 
-# Values of ``thinking.display``: the notes the model writes for the person between
-# tools with the reasoning hidden, or those notes mixed with summaries of the reasoning
+# Value of ``thinking.display``: the notes the model writes for the person between
+# tools, with the reasoning hidden. Summaries are left out: they arrive in English and
+# with internal details
 DISPLAY_UPDATES = "updates"
 
 # Multipliers of the input price for prompt cache writes, by time to live
