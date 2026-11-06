@@ -617,6 +617,9 @@ After it comes `c6a1f4e09b27` (conversations of the assistant), then `b2d58e7a13
 - Backend: `pytest tests/unit_tests/auradata/`.
 - Browser: `superset-frontend/playwright/tests/experimental/` (dashboard format, export,
   theme, stress), run with `INCLUDE_EXPERIMENTAL=1`.
+- Assistant in the browser: `tests/experimental/assistant/`, with only Anthropic simulated (`fakeAnthropic.ts`). Run
+  `scripts/auradata/assistant_fake_worker.sh start` first, or a turn reaches the real API, and `stop` after.
+- Assistant with real Claude: `tests/assistant_eval/`, which spends money. See `docs/auradata/asistente/evaluacion.md`.
 
 ## ⚠️ CRITICAL: Ongoing Refactors (What NOT to Do)
 

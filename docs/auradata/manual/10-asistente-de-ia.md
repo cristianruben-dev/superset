@@ -10,8 +10,8 @@ cambios mientras lo editas. Corre sobre Claude, de Anthropic, y trabaja siempre 
 
 ![El asistente respondiendo mientras lees un informe](img/asistente-lectura.jpg)
 
-> **Sobre las capturas.** Son de la aplicación real, con el texto de una respuesta real, repetido sin llamar al modelo para que no
-> gasten.
+> **Sobre las capturas.** Son de la aplicación real, sobre una copia de evaluación, y se tomaron sin llamar al modelo. La respuesta
+> de esta primera es la de una corrida real, acortada. Los textos de las otras se escribieron para la captura.
 
 ¿Buscas usar tu propia IA, como Claude Code o Claude Desktop? Eso es otra cosa: mira
 [9. Conectar IA](09-conectar-ia.md#asistente-o-conectar-ia).
