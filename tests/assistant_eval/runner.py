@@ -50,7 +50,7 @@ from pathlib import Path
 from typing import Any
 
 from flask import current_app, Flask, g
-from sqlalchemy import inspect
+from sqlalchemy import inspect, text
 
 from superset import db, security_manager
 from superset.auradata.assistant import api as api_module
@@ -855,7 +855,8 @@ def prepare(battery: dict[str, Any]) -> list[str]:
     """
     What a real run needs in the metadata and does not come with it, once. It says
     what it did, and only adds: a viewer of the workspace, the reader as editor of
-    the report and the dataset of the data tasks, and the injection fixture.
+    the report and the dataset of the data tasks, the injection fixture and the table
+    of orders.
     """
     done = []
     workspace = db.session.query(Workspace).filter_by(name=battery["workspace"]).one()
@@ -889,14 +890,15 @@ def prepare(battery: dict[str, Any]) -> list[str]:
     done += _grant_editor_rights(battery)
     db.session.commit()
     done += _prepare_fixture(battery, workspace.id)
+    done += _prepare_orders(battery)
     return done
 
 
 def _grant_data_access(battery: dict[str, Any], dataset_id: int) -> list[str]:
     """
     Read access to the dataset of the data tasks for the reader and the viewer, as an
-    admin gives it. Being its editor is not enough: tools find a dataset through the
-    list filter, which does not count editors.
+    admin gives it: the viewer is no editor of it, and that dataset is outside their
+    workspace.
     """
     dataset = db.session.get(SqlaTable, dataset_id)
     role = security_manager.add_role(DATA_ROLE)
@@ -983,6 +985,25 @@ def _prepare_fixture(battery: dict[str, Any], workspace_id: int) -> list[str]:
         if outcome.is_error:
             raise RefusedError(f"{name} failed: {outcome.content}")
     return [f"created the injection fixture «{title}»"]
+
+
+def _prepare_orders(battery: dict[str, Any]) -> list[str]:
+    """
+    The table E6 reads. The connection comes without tables, since its datasets are
+    literal SQL, and those names are no tables: a task that needs one has to find it.
+    """
+    from superset.models.core import Database
+
+    fixture = battery["fixtures"]["orders"]
+    database = (
+        db.session.query(Database).filter_by(database_name=fixture["database"]).one()
+    )
+    with database.get_sqla_engine() as engine:
+        if inspect(engine).has_table(fixture["table"], schema=fixture["schema"]):
+            return []
+        with engine.begin() as connection:
+            connection.execute(text(fixture["create_sql"]))
+    return [f"created the table {fixture['schema']}.{fixture['table']}"]
 
 
 def confirmation_list() -> dict[str, list[str]]:

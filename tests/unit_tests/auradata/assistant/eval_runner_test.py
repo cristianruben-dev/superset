@@ -602,8 +602,10 @@ def test_prepare_only_adds_and_can_run_twice(
     built["users"]["viewer"] = "nuevo_visor"
     built["data_source"]["dashboard_id"] = world["dashboard"].id
     built["data_source"]["dataset_id"] = world["ventas"].id
-    built["fixtures"]["injection"]["database"] = "almacen"
-    mocker.patch.object(runner, "injection_sql", return_value="SELECT 1 AS region")
+    # They use the permission catalog and the tools of the real application
+    mocker.patch.object(runner, "_prepare_fixture", return_value=[])
+    mocker.patch.object(runner, "_prepare_orders", return_value=[])
+    mocker.patch.object(runner, "_grant_editor_rights", return_value=[])
     mocker.patch.object(
         security_manager, "add_user", wraps=_stored_user(world["session"])
     )
@@ -612,7 +614,7 @@ def test_prepare_only_adds_and_can_run_twice(
     first = runner.prepare(built)
     second = runner.prepare(built)
 
-    assert len(first) == 4
+    assert len(first) == 5
     assert second == []
     member = (
         world["session"]
@@ -621,6 +623,26 @@ def test_prepare_only_adds_and_can_run_twice(
         .all()
     )
     assert len(member) == 2
+
+
+def test_the_table_of_orders_is_created_once(
+    world: dict[str, Any],  # noqa: F811
+    mocker: MockerFixture,
+    tmp_path: Path,
+) -> None:
+    built = battery_for(world, mocker, task_of())
+    database = world["ventas"].database
+    database.sqlalchemy_uri = f"sqlite:///{tmp_path / 'datos.db'}"
+    world["session"].flush()
+    built["fixtures"]["orders"] = {
+        "database": database.database_name,
+        "schema": None,
+        "table": "pedidos",
+        "create_sql": "CREATE TABLE pedidos (ventas INT)",
+    }
+
+    assert runner._prepare_orders(built) == ["created the table None.pedidos"]
+    assert runner._prepare_orders(built) == []
 
 
 def _stored_user(session: Any) -> Any:
