@@ -32,6 +32,12 @@ web process. There is no other identity to fall back on: never a system user, an
 or ``MCP_DEV_USERNAME``. What the person may do on the report is read again at the
 start.
 
+A turn runs inside an empty POST request of its own, like the one that used to carry it:
+per-user OAuth2, ``SavedQueryFilter`` and other code ask whether there is a request, and
+must answer as they do in the web process. That request has no cookies and adds no
+identity: Flask-Login is told who it is from the same user, in ``g``, so its session is
+never read or written.
+
 **One run.** A repeated turn repeats writes and spending, so the task takes no retries,
 is acknowledged as it starts (``acks_late`` off: a dead worker loses the turn, which is
 then reported, instead of running it twice) and first takes the claim of its turn, which
@@ -59,7 +65,7 @@ from dataclasses import replace
 from typing import Any
 from uuid import UUID
 
-from flask import current_app
+from flask import current_app, g, has_request_context
 from flask_babel import force_locale, gettext as _
 
 from superset import security_manager
@@ -472,6 +478,8 @@ def _answer(store: TurnStore, ticket: TurnTicket, watch: _Watch) -> None:
         return
     conversation, user = owner
     with override_user(user):
+        # Where Flask-Login looks first: ``login_user`` would write a session
+        g._login_user = user  # pylint: disable=protected-access
         if not _may_still_run(ticket):
             logger.warning("A turn of the assistant was refused: access changed")
             say("error", _refused())
@@ -525,8 +533,14 @@ def run_turn(store: TurnStore, turn_id: str) -> None:
     if not store.claim(turn_id):
         logger.info("A turn of the assistant was taken already: it does not run twice")
         return
-    context = force_locale(ticket.locale) if ticket.locale else nullcontext()
-    with _Watch(store, turn_id) as watch, context:
+    language = force_locale(ticket.locale) if ticket.locale else nullcontext()
+    # A worker has none. The eager mode of a test already runs inside one
+    request_context = (
+        nullcontext()
+        if has_request_context()
+        else current_app.test_request_context(method="POST")
+    )
+    with _Watch(store, turn_id) as watch, request_context, language:
         try:
             _answer(store, ticket, watch)
         except _FencedError:

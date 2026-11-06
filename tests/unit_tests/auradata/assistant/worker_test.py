@@ -430,6 +430,77 @@ def test_a_user_who_loses_the_report_stops_at_the_worker(
     assert fake.requests == []
 
 
+def test_a_turn_runs_in_an_empty_post_request_as_the_web_does(
+    world: dict[str, Any],  # noqa: F811
+    mocker: MockerFixture,
+    turn_memory: Any,
+) -> None:
+    """
+    Code asks ``has_request_context``: without one, Snowflake drops per-user OAuth2 for
+    shared credentials and ``SavedQueryFilter`` opens up. A session here could only be
+    an identity nobody checked, so it must stay empty.
+    """
+    seen: dict[str, Any] = {}
+    original = ToolBox._call_tool
+
+    async def spy(name: str, arguments: dict[str, Any]) -> Any:
+        seen.update(
+            has_request=has_request_context(),
+            method=request.method,
+            cookies=dict(request.cookies),
+            session=dict(session),
+            user=g.user.username,
+            login_user=g._login_user.username,
+        )
+        return await original(name, arguments)
+
+    mocker.patch.object(ToolBox, "_call_tool", side_effect=spy)
+    use_model(
+        mocker,
+        reply(tool_use("list_dashboards", {"request": {}}), stop_reason="tool_use"),
+        reply(text("Listo")),
+    )
+
+    in_worker(
+        turn_memory,
+        open_turn(world, turn_memory, "Ana"),
+        world["users"]["Root"],
+    )
+
+    assert seen == {
+        "has_request": True,
+        "method": "POST",
+        "cookies": {},
+        "session": {},
+        "user": "ana",
+        "login_user": "ana",
+    }
+
+
+def test_oauth2_of_a_database_stays_on_in_the_worker(
+    world: dict[str, Any],  # noqa: F811
+    mocker: MockerFixture,
+    turn_memory: Any,
+) -> None:
+    seen: list[bool] = []
+    fake = use_model(mocker, reply(text("Listo")))
+    mocker.patch.dict(
+        current_app.config, {"DATABASE_OAUTH2_CLIENTS": {"Snowflake": {}}}
+    )
+    prepare = turns_module._prepare_turn
+
+    def check(*args: Any) -> Any:
+        seen.append(SnowflakeEngineSpec.is_oauth2_enabled())
+        return prepare(*args)
+
+    mocker.patch.object(turns_module, "_prepare_turn", side_effect=check)
+
+    in_worker(turn_memory, open_turn(world, turn_memory, "Ana"))
+
+    assert seen == [SnowflakeEngineSpec.supports_oauth2]
+    assert fake.requests
+
+
 def test_a_name_taken_by_someone_else_never_runs_a_tool(
     world: dict[str, Any],  # noqa: F811
 ) -> None:
