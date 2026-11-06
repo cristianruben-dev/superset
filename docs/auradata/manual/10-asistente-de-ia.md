@@ -154,6 +154,7 @@ acciones sí guarda qué herramientas usó el asistente y con qué parámetros.
 | No deja escribir y habla del presupuesto | Se acabó el tope del mes | Espera al mes siguiente o pídeselo a un administrador |
 | Dice que no encuentra el dataset, o no da cifras | Tu rol no tiene acceso a esos datos | Pídele acceso a un administrador |
 | Mensaje de que el servicio de IA falló | Saturación, sin saldo, clave rechazada o sin conexión | Reintenta; si dice que avises, avísale a un administrador |
+| Dice que la conversación es demasiado larga | Ya no cabe en lo que el modelo puede leer | Pulsa **Nueva conversación** en ese aviso. La anterior sigue guardada |
 | La conversación dice estar ocupada | Otra petición la está usando, o se cortó a mitad de una herramienta | Espera un momento; si sigue, empieza una nueva |
 
 La guía para administradores está en [asistente/administracion.md](../asistente/administracion.md).

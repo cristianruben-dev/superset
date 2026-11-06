@@ -26968,6 +26968,9 @@ msgstr "Pregunta sobre este informe. El asistente responde sobre la página y lo
 msgid "You changed the model, so it reads this conversation from scratch: this answer takes longer and costs more than usual."
 msgstr "Cambiaste de modelo, así que lee esta conversación desde cero: esta respuesta tarda más y cuesta más de lo normal."
 
+msgid "This conversation is too long for the model. Start a new one to keep going."
+msgstr "Esta conversación es demasiado larga para el modelo. Empieza una nueva para seguir."
+
 msgid "This conversation is getting too long for the model. Start a new one to keep going."
 msgstr "Esta conversación se está haciendo demasiado larga para el modelo. Empieza una nueva para seguir."
 

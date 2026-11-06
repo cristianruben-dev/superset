@@ -798,6 +798,42 @@ def test_a_failing_api_is_a_clear_error_event(
     assert kind not in error["message"]
 
 
+TOO_LONG = "prompt is too long: 2250056 tokens > 1000000 maximum"
+CONTEXT_MESSAGE = (
+    "This conversation is too long for the model. Start a new one to keep going."
+)
+
+
+def test_a_conversation_too_long_for_the_model_says_so(
+    client: Any, world: dict[str, Any], mocker: MockerFixture
+) -> None:
+    login(world, "Ana")
+    use_model(mocker, (400, TOO_LONG))
+
+    response = ask(client, world["dashboard"])
+
+    assert payloads(response, "error") == [
+        {"code": "context_exceeded", "message": CONTEXT_MESSAGE}
+    ]
+
+
+def test_an_answer_stopped_by_the_context_window_says_so_too(
+    client: Any, world: dict[str, Any], mocker: MockerFixture
+) -> None:
+    login(world, "Ana")
+    use_model(
+        mocker,
+        reply(text("Empecé a"), stop_reason="model_context_window_exceeded"),
+    )
+
+    response = ask(client, world["dashboard"])
+
+    assert payloads(response, "error")[0]["code"] == "context_exceeded"
+    assert payloads(response, "done")[0]["stop_reason"] == (
+        "model_context_window_exceeded"
+    )
+
+
 def test_a_paused_turn_is_resumed_without_a_new_user_turn(
     client: Any, world: dict[str, Any], mocker: MockerFixture
 ) -> None:

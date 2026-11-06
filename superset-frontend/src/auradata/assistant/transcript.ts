@@ -29,6 +29,7 @@ import type {
 const LONG_CONVERSATION = 0.8;
 const FALLBACK_CONTEXT_TOKENS = 200_000;
 const PAGE_CONTEXT = '<page_context>';
+const CONTEXT_EXCEEDED = 'context_exceeded';
 
 const emptyAnswer = (id: string): ChatMessage => ({
   id,
@@ -160,7 +161,11 @@ export function withEvent(
     case 'refusal':
       return { ...answer, refused: true, problem: data.message };
     case 'error':
-      return { ...answer, problem: data.message };
+      return {
+        ...answer,
+        problem: data.message,
+        contextExceeded: data.code === CONTEXT_EXCEEDED,
+      };
     default:
       return answer;
   }

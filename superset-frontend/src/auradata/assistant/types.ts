@@ -173,6 +173,8 @@ export interface ChatMessage {
   problem?: string;
   refused?: boolean;
   stopped?: boolean;
+  /** The conversation no longer fits in what the model can read. */
+  contextExceeded?: boolean;
   /** A tool ran since the last text: the next text starts a paragraph. */
   pause?: boolean;
 }

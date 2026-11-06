@@ -311,6 +311,27 @@ test('asks for a new conversation when this one gets long', async () => {
   expect(screen.getByTestId('auradata-assistant-long')).toBeInTheDocument();
 });
 
+test('a conversation too long for the model names the cause and offers a new one', async () => {
+  const stream = heldStream();
+  setup();
+  await sendQuestion();
+
+  stream.emit({
+    event: 'error',
+    data: {
+      code: 'context_exceeded',
+      message: 'This conversation is too long for the model.',
+    },
+  });
+  await stream.end();
+
+  expect(
+    screen.getByText('This conversation is too long for the model.'),
+  ).toBeInTheDocument();
+  await userEvent.click(screen.getByTestId('auradata-assistant-context-new'));
+  expect(screen.getByText('Ask about your data')).toBeInTheDocument();
+});
+
 test('lists only the read conversations and opens one', async () => {
   conversations.mockResolvedValue([
     { id: 'c1', mode: 'read', title: 'Ventas de marzo', model: SONNET.id },

@@ -503,10 +503,12 @@ function Answer({
   message,
   dashboardId,
   writing,
+  onNewConversation,
 }: {
   message: ChatMessage;
   dashboardId: number;
   writing: boolean;
+  onNewConversation: () => void;
 }) {
   const waiting = writing && !message.text && !message.tools.length;
   return (
@@ -531,6 +533,17 @@ function Answer({
           type={message.refused ? 'info' : 'error'}
           message={message.problem}
           showIcon
+          action={
+            message.contextExceeded && (
+              <Button
+                buttonSize="small"
+                onClick={onNewConversation}
+                data-test="auradata-assistant-context-new"
+              >
+                {t('New conversation')}
+              </Button>
+            )
+          }
         />
       )}
       {message.stopped && <Hint>{t('You stopped this answer.')}</Hint>}
@@ -783,6 +796,7 @@ function Conversations({
               message={message}
               dashboardId={dashboardId}
               writing={chat.busy && index === chat.messages.length - 1}
+              onNewConversation={startNew}
             />
           ),
         )}

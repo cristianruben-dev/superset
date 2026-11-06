@@ -80,6 +80,11 @@ KEEP_ALIVE_SECONDS = 15.0
 # An event with no meaning for the panel: it only keeps the connection open
 KEEP_ALIVE = "keep_alive"
 
+# Error code of a conversation too long for the model: the panel offers a new one
+CONTEXT_EXCEEDED = "context_exceeded"
+STOP_CONTEXT_WINDOW = "model_context_window_exceeded"
+OVER_CONTEXT_PHRASES = ("prompt is too long", "exceed context limit")
+
 Event = tuple[str, dict[str, Any]]
 
 
@@ -139,10 +144,30 @@ def _is_out_of_credit(ex: Any) -> bool:
     )
 
 
+def _is_over_context(ex: Any) -> bool:
+    """The API has no type for this: a 400 says it in its message."""
+    text = str(ex).lower()
+    return any(phrase in text for phrase in OVER_CONTEXT_PHRASES)
+
+
 def _is_kind(ex: Any, status: int, kind: str) -> bool:
     """By status or, for an error in the middle of a stream, by its type."""
     return (
         getattr(ex, "status_code", None) == status or getattr(ex, "type", None) == kind
+    )
+
+
+def context_exceeded_event() -> Event:
+    """A conversation that no longer fits in what the model can read."""
+    return (
+        "error",
+        {
+            "code": CONTEXT_EXCEEDED,
+            "message": _(
+                "This conversation is too long for the model. "
+                "Start a new one to keep going."
+            ),
+        },
     )
 
 
@@ -155,6 +180,8 @@ def error_event(ex: Exception) -> Event:
         type(ex).__name__,
         getattr(ex, "request_id", None),
     )
+    if _is_over_context(ex):
+        return context_exceeded_event()
     if _is_kind(ex, 429, "rate_limit_error"):
         code = "rate_limited"
         message = _("The AI service has too many requests. Wait a moment and retry.")
@@ -500,6 +527,8 @@ def run_conversation(  # noqa: C901
                     "message": _("The answer was too long and was cut. Ask for less."),
                 },
             )
+        if stop_reason == STOP_CONTEXT_WINDOW:
+            yield context_exceeded_event()
         break
     else:
         yield (

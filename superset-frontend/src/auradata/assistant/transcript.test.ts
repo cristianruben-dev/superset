@@ -220,3 +220,18 @@ test('an answer stopped in the middle says so when read later', () => {
 
   expect(stopped.stopped).toBe(true);
 });
+
+test('an answer that no longer fits says so, and no other failure does', () => {
+  expect(
+    withEvent(answer(), {
+      event: 'error',
+      data: { code: 'context_exceeded', message: 'Too long' },
+    }),
+  ).toMatchObject({ problem: 'Too long', contextExceeded: true });
+  expect(
+    withEvent(answer(), {
+      event: 'error',
+      data: { code: 'failed', message: 'Failed' },
+    }),
+  ).toMatchObject({ problem: 'Failed', contextExceeded: false });
+});
