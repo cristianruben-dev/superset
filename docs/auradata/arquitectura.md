@@ -271,6 +271,10 @@ corre nada. Después todo va bajo `override_user`, y cada herramienta bajo `run_
 nombre siga siendo de esa persona. Antes de empezar se lee otra vez si puede abrir el tablero y, en edición, editarlo. El idioma
 también viaja en el boleto, porque un worker no tiene sesión de donde leerlo.
 
+**Una petición vacía.** El turno corre dentro de `test_request_context(method="POST")`, como la petición que lo llevaba: OAuth2
+por persona, `SavedQueryFilter` y otras partes preguntan si hay petición. No trae cookies ni aporta identidad: Flask-Login recibe
+al mismo usuario en `g._login_user`, y su sesión nunca se lee ni se escribe.
+
 **Una sola vez.** Repetir un turno repite cambios y gasto. La tarea no tiene reintentos, va con `acks_late` apagado y lo primero
 que hace es tomar el `claim` del turno con `SET NX`: una segunda entrega no lo consigue. Un lector que se cansa de esperar a un
 worker toma el mismo `claim`, así que un worker tardío lo encuentra ocupado.
@@ -288,7 +292,8 @@ que siguiera vivo ya no puede escribir, y oye la marca de detenerse en su siguie
 **Leer otra vez.** Una conexión dura 45 s como mucho y lee desde `after`. Cada conexión nueva vuelve a comprobar la sesión, el
 dueño y que el tablero se pueda abrir: el stream se encuentra a través de la conversación, y otra persona recibe un 404. Mientras
 corre un turno, `GET .../conversations/<id>/` entrega las filas anteriores a él y `running.after`, y el panel lee el turno entero
-desde ese número: las filas que el turno ya guardó llegarían dos veces.
+desde ese número: las filas que el turno ya guardó llegarían dos veces. El stream guarda al menos `MAX_EVENTS`; a un lector
+que pide lo ya recortado se le avisa con `trimmed` y sigue desde lo más viejo, y el panel termina leyendo las filas guardadas.
 
 ### `run_as` y `ToolBox`
 

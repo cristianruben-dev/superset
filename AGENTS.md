@@ -130,9 +130,11 @@ This repository is **AuraData BI**, a fork of Apache Superset 7.0 shaped like Po
   read from its session: no client writes it and the task has no argument for a user. `_owner_of` holds it against the owner,
   mode and dashboard of the conversation and fails closed for a user who is gone or inactive; the turn then runs under
   `override_user`, each tool under `run_as` with that `user_id` (`InProcessPrincipal.user_id` refuses a name that became someone
-  else), and what the person may do on the report is read again. Never a system user. The language travels in the ticket: a worker has no session. A turn
+  else), and what the person may do on the report is read again. Never a system user. The language travels in the ticket: a worker has no session. It
+  runs inside an empty `test_request_context(method="POST")`, because per-user OAuth2 and `SavedQueryFilter` ask for a request;
+  that adds no identity, and Flask-Login gets the same user in `g._login_user`, never through a session. A turn
   runs once or never: `acks_late` off, no retries, and an atomic `claim`, which a reader giving up on a queued turn takes too.
-  Each event goes to a numbered stream of the conversation; only the holder of the lock writes, in one Lua step, and `turn_end` lets go in that step, so a worker
+  Each event goes to a numbered stream of the conversation (`MAX_EVENTS`, and a reader behind its start gets `trimmed`); only the holder of the lock writes, in one Lua step, and `turn_end` lets go in that step, so a worker
   given up for dead cannot write. `GET .../conversations/<id>/stream/?after=<n>` (`relay`) lasts 45 s at most, with
   `: keep-alive` through silence, and each connection reads the session, the owner and the report again; anyone else gets a 404, a
   key or guest a 403. `POST .../stop/` leaves a mark a thread of the turn reads every second, and stopping closes the generator, the path that stores what was paid; a running tool finishes. A turn has its own deadline (`AURADATA_ASSISTANT_TURN_SECONDS`), because `SoftTimeLimitExceeded` is an `Exception` that the handlers around tools would swallow; Celery's `time_limit` is the last resort. `settle_turn`

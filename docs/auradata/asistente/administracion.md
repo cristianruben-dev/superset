@@ -314,6 +314,9 @@ La [retención](#retención) corre aparte: `superset-worker-beat` la dispara y u
 | Un turno puede pasarse del tope | Nada limita el gasto de un solo turno, salvo las 25 llamadas al modelo por tramo, que vuelven a contar después de una tarjeta | Deja margen en el tope |
 | Un worker que muere con una herramienta en marcha | No se sabe si esa herramienta hizo su cambio, y el costo de esa llamada al modelo se pierde | El panel avisa. Revisa el informe |
 | Detener con una herramienta en marcha | La herramienta termina primero: cortarla dejaría un cambio a medias | Nada |
+| Un corte de Redis de unos 30 s | Un turno vivo pierde su latido y se da por muerto: el panel avisa, pero la herramienta que estaba corriendo termina igual y su cambio queda. El turno ya no escribe más. Su costo de ese momento puede no registrarse | Revisa el informe, como con un worker muerto |
+| Cerrar sesión no detiene un turno | El turno ya corre como esa persona y termina, con su identidad y sus permisos del momento, aunque se cierre la sesión. Desactivar al usuario sí lo frena en la siguiente herramienta | Pulsa **Detener** antes de salir |
+| Un turno con más de 50.000 eventos | `MAX_EVENTS` recorta los más viejos del stream. Un lector que se había quedado atrás recibe `trimmed` y, al terminar, el panel lee la respuesta guardada, que está entera | Nada |
 | Muchas herramientas piden tarjeta | [32 de 146](evaluacion.md#herramientas-detrás-de-una-tarjeta), incluidas `update_chart` y `update_dashboard`. Puede cansar en el uso real | Se revisa con los datos de la evaluación |
 | Capturas (`get_dashboard_screenshot`) desde el worker | Funcionan en desarrollo | Sin probar en producción |
 | Rutas `undo/`, `stop/` y `models/` | Sin bloque propio en el proxy: son respuestas cortas | Nada |
