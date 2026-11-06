@@ -40,7 +40,7 @@ documents (``artifacts.py``) go with it too: they say what its answers said.
 from __future__ import annotations
 
 from collections.abc import Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from decimal import Decimal
 from typing import Any
@@ -129,6 +129,8 @@ class PendingTurn:
     # The calls a person must decide on, by id, with the title of their tool
     titles: dict[str, str]
     decisions: dict[str, bool]
+    # The version of a document a card described, by the id of its call
+    card_versions: dict[str, int] = field(default_factory=dict)
 
     @property
     def undecided(self) -> list[str]:
@@ -340,6 +342,12 @@ def pending_turn(conversation: AssistantConversation) -> PendingTurn | None:
     }
     return PendingTurn(
         calls=tool_uses_of(_blocks(rows[awaiting - 1])),
+        card_versions={
+            call["id"]: call["version"]
+            for block in _blocks(rows[awaiting])
+            for call in block["calls"]
+            if "version" in call
+        },
         titles={
             call["id"]: call["title"]
             for block in _blocks(rows[awaiting])
@@ -694,12 +702,12 @@ class ConversationLog:
         self,
         turn: AssistantTurn,
         tool_results: list[dict[str, Any]] | None = None,
-        awaiting: list[dict[str, str]] | None = None,
+        awaiting: list[dict[str, Any]] | None = None,
     ) -> None:
         """
         Store a response of the API and, in the same commit, its tool results or, if
-        some of its calls need a decision (``awaiting``, their id and title), the
-        record that makes the turn pending.
+        some of its calls need a decision (``awaiting``, their id, title and the version
+        of a document the card describes), the record that makes the turn pending.
         """
         row = self._row("assistant", turn.content)
         self.answer_id = self.answer_id or row.id

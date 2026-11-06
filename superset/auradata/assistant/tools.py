@@ -345,34 +345,53 @@ class ToolBox:
         tool = self._tools.get(name)
         return tool is not None and not _is_read_tool(tool)
 
-    def title(self, name: str, arguments: Any = None) -> str:
-        """The name of a tool for a person. A card can say what this very call does."""
-        if name in ARTIFACT_TOOLS:
-            from superset.auradata.assistant.artifact_tools import card_title, OWN_TOOLS
+    def card(self, name: str, arguments: Any) -> dict[str, Any] | None:
+        """
+        What the record of a card keeps of this call, or None for a call that gets no
+        card: it stays unapproved, so it is refused when its turn runs it.
+        """
+        if name not in EDIT_ONLY_TOOLS:
+            return {"title": self.title(name)}
+        from superset.auradata.assistant.artifact_tools import save_card
 
-            context = self._context() if name in EDIT_ONLY_TOOLS else None
-            specific = (
-                card_title(arguments, context)
-                if context and isinstance(arguments, dict)
-                else None
-            )
-            return specific or OWN_TOOLS[name].title
+        context = self._context()
+        if context is None or not isinstance(arguments, dict):
+            return None
+        return save_card(arguments, context)
+
+    def title(self, name: str) -> str:
+        """The name of a tool for a person."""
+        if name in ARTIFACT_TOOLS:
+            from superset.auradata.assistant.artifact_tools import OWN_TOOLS
+
+            return OWN_TOOLS[name].title
         tool = self._tools.get(name)
         annotations = tool.annotations if tool is not None else None
         return (annotations.title if annotations else None) or name
 
-    def call(self, name: str, arguments: Any, *, approved: bool = False) -> ToolOutcome:
+    def call(
+        self,
+        name: str,
+        arguments: Any,
+        *,
+        approved: bool = False,
+        card_version: int | None = None,
+    ) -> ToolOutcome:
         """
         Run a tool the model asked for, as the user. Failures become a result.
 
         ``approved`` says the person approved this very call. Only the code that
-        reads their stored decision passes it; nothing the model says can set it.
+        reads their stored decision passes it; nothing the model says can set it, and
+        ``card_version`` is the version of a document their card described.
         """
         if name in ARTIFACT_TOOLS:
             if name in EDIT_ONLY_TOOLS and not (self._editing and approved):
                 logger.warning("Assistant refused an unapproved call to %r", name)
-                return _error(f"The tool {name!r} needs the approval of the user.")
-            return self._call_own(name, arguments)
+                return _error(
+                    f"The tool {name!r} needs the approval of the user, on a call that "
+                    "names the last version of the document."
+                )
+            return self._call_own(name, arguments, card_version)
         if name not in self._tools:
             logger.warning("Assistant refused a tool it does not offer: %r", name)
             return _error(f"The tool {name!r} is not available here.")
@@ -403,7 +422,7 @@ class ToolBox:
         blocks = [_block_of(item) for item in result.content]
         return ToolOutcome(blocks or [_text_block("")])
 
-    def _context(self) -> Any | None:
+    def _context(self, card_version: int | None = None) -> Any | None:
         """Who a tool of the assistant acts for, or None when that is not known."""
         from superset.auradata.assistant.artifact_tools import OwnToolContext
 
@@ -416,6 +435,7 @@ class ToolBox:
             self._dashboard_id,
             self._model,
             self._call_page_tool,
+            card_version,
         )
 
     def _call_page_tool(self, name: str, arguments: dict[str, Any]) -> ToolOutcome:
@@ -429,7 +449,9 @@ class ToolBox:
             return _error(f"The tool {name!r} needs the approval of the user.")
         return self.call(name, arguments, approved=True)
 
-    def _call_own(self, name: str, arguments: Any) -> ToolOutcome:
+    def _call_own(
+        self, name: str, arguments: Any, card_version: int | None = None
+    ) -> ToolOutcome:
         """
         Run a tool of the assistant's own documents, as the person of this turn. An MCP
         call ends the session it shares with the turn, so the person is read again, and
@@ -439,7 +461,7 @@ class ToolBox:
 
         if not isinstance(arguments, dict):
             return _error("The input of a tool must be an object.")
-        context = self._context()
+        context = self._context(card_version)
         user = (
             db.session.get(security_manager.user_model, context.user_id)
             if context

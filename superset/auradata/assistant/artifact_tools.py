@@ -91,6 +91,8 @@ class OwnToolContext:
     model: str | None
     # Runs a tool of the report, for the one that writes through them
     run_tool: artifact_pages.ToolCall | None = None
+    # The version of a document the card of this call described
+    card_version: int | None = None
 
 
 def _validation_text(ex: ValidationError) -> str:
@@ -269,7 +271,7 @@ def _save(request: SaveArtifactAsPage, context: OwnToolContext) -> dict[str, Any
     latest = version_of(artifact.id)
     if latest is None:
         raise ArtifactRefusedError(NOT_FOUND)
-    if latest.number != request.version:
+    if latest.number != request.version or latest.number != context.card_version:
         raise ArtifactRefusedError(MOVED.format(version=latest.number))
     if context.run_tool is None:
         raise ArtifactRefusedError("This cannot run here.")
@@ -284,10 +286,13 @@ def _save(request: SaveArtifactAsPage, context: OwnToolContext) -> dict[str, Any
         raise ArtifactRefusedError(str(ex)) from ex
 
 
-def card_title(arguments: dict[str, Any], context: OwnToolContext) -> str | None:
+def save_card(
+    arguments: dict[str, Any], context: OwnToolContext
+) -> dict[str, Any] | None:
     """
-    What the card of ``save_artifact_as_page`` says it will create, or None for a call
-    that will be refused anyway. A page of the report sets the size of the pages.
+    What the card of ``save_artifact_as_page`` says and the version it describes, or None
+    for a call that gets no card: the version it names is not the last one, so what the
+    person read would not be what gets saved. A page of the report sets the page size.
     """
     # pylint: disable=import-outside-toplevel
     from superset.mcp_service.report_layout.editing import LayoutEditError, open_report
@@ -298,11 +303,14 @@ def card_title(arguments: dict[str, Any], context: OwnToolContext) -> str | None
         report = open_report(context.dashboard_id)
     except (ValidationError, ArtifactRefusedError, LayoutEditError):
         return None
-    if latest is None:
+    if latest is None or latest.number != request.version:
         return None
     blocks = artifacts.blocks_of(latest)
     plan = artifact_pages.page_plan(blocks, report.columns, report.rows)
-    return artifact_pages.save_title(latest.title, blocks, len(plan))
+    return {
+        "title": artifact_pages.save_title(latest.title, blocks, len(plan)),
+        "version": latest.number,
+    }
 
 
 @dataclass(frozen=True)

@@ -444,12 +444,15 @@ def _run_tools(
     toolbox: ToolBox,
     results: list[dict[str, Any]],
     decisions: dict[str, bool] | None = None,
+    card_versions: dict[str, int] | None = None,
 ) -> Iterator[Event]:
     """
     Run the calls of a turn in order. ``decisions`` are the stored decisions of the
-    person: the only thing that approves a call.
+    person: the only thing that approves a call. ``card_versions`` say which version of
+    a document their cards described.
     """
     decisions = decisions or {}
+    card_versions = card_versions or {}
     for block in tool_uses:
         reason = _why_not_run(block, decisions)
         yield (
@@ -476,6 +479,7 @@ def _run_tools(
             block["name"],
             block.get("input"),
             approved=decisions.get(block["id"]) is True,
+            card_version=card_versions.get(block["id"]),
         )
         result = _result_block(block["id"], outcome)
         results.append(result)
@@ -580,12 +584,10 @@ def run_conversation(  # noqa: C901
 
         tool_uses = tool_uses_of(turn.content)
         awaiting = [
-            {
-                "id": block["id"],
-                "title": toolbox.title(block["name"], block.get("input")),
-            }
+            {"id": block["id"], **card}
             for block in tool_uses
             if toolbox.needs_confirmation(block["name"])
+            and (card := toolbox.card(block["name"], block.get("input"))) is not None
         ]
         if stop_reason == "tool_use" and awaiting:
             # Nothing of this turn runs yet: the calls of one turn answer together
@@ -660,7 +662,9 @@ def resume_after_decisions(  # pylint: disable=too-many-arguments
     """
     results: list[dict[str, Any]] = []
     try:
-        yield from _run_tools(pending.calls, toolbox, results, pending.decisions)
+        yield from _run_tools(
+            pending.calls, toolbox, results, pending.decisions, pending.card_versions
+        )
     finally:
         log.add_results(_with_missing_results(pending.calls, results))
     yield from run_conversation(

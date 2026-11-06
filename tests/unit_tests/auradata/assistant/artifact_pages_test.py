@@ -20,11 +20,13 @@ whole of it runs through the tools of the report, after a card and only after on
 """
 
 from typing import Any
+from uuid import UUID
 
 import pytest
 from pytest_mock import MockerFixture
 
-from superset.auradata.assistant import artifact_pages
+from superset.auradata.assistant import artifact_pages, artifact_tools
+from superset.auradata.assistant.artifact_blocks import SaveArtifactAsPage
 from superset.auradata.assistant.artifact_pages import (
     NotAChartError,
     page_plan,
@@ -33,12 +35,22 @@ from superset.auradata.assistant.artifact_pages import (
     text_settings,
     visual_of,
 )
-from superset.auradata.assistant.artifacts import SAVE_ARTIFACT
+from superset.auradata.assistant.artifact_tools import OwnToolContext, save_card
+from superset.auradata.assistant.artifacts import (
+    ArtifactRefusedError,
+    CHANGE_ARTIFACT,
+    SAVE_ARTIFACT,
+)
+from superset.auradata.assistant.conversations import find_conversation, pending_turn
 from superset.auradata.assistant.tools import MODE_EDIT, MODE_READ, ToolBox, ToolOutcome
+from superset.auradata.models import AssistantArtifactVersion
 from superset.utils import json
 from tests.unit_tests.auradata.assistant.artifacts_test import (
+    change_call,
+    create,
     document,
     figure_block,
+    run,
     text_block,
 )
 from tests.unit_tests.auradata.assistant.chat_test import (  # noqa: F401
@@ -317,6 +329,152 @@ def test_it_waits_for_a_card_that_says_what_it_creates(
     assert "2" in card["title"]
     saved.assert_not_called()
     assert conversation_id_of(response) != conversation
+
+
+def _document_in_the_editor(
+    client: Any,
+    world: dict[str, Any],  # noqa: F811
+    mocker: MockerFixture,
+) -> tuple[dict[str, Any], str]:
+    login(world, "Ana")
+    ended, conversation = run(
+        client, world, mocker, create(text_block("Primera")), mode=MODE_EDIT
+    )
+    return ended["artifact"], conversation
+
+
+def _rewrite(client: Any, artifact: dict[str, Any]) -> dict[str, Any]:
+    blocks = client.get(f"{URL}artifacts/{artifact['id']}/").json["result"]["blocks"]
+    return change_call(
+        artifact,
+        {
+            "action": "replace",
+            "block_id": blocks[0]["id"],
+            "block": text_block("Otra que nadie leyó en la tarjeta"),
+        },
+    )
+
+
+def _versions(world: dict[str, Any]) -> int:  # noqa: F811
+    return world["session"].query(AssistantArtifactVersion).count()
+
+
+def test_a_save_of_a_version_that_does_not_exist_yet_gets_no_card(
+    client: Any,
+    world: dict[str, Any],  # noqa: F811
+    mocker: MockerFixture,
+) -> None:
+    artifact, conversation = _document_in_the_editor(client, world, mocker)
+    saved = mocker.spy(artifact_pages, "save_pages")
+    use_model(
+        mocker,
+        reply(
+            _rewrite(client, artifact),
+            tool_use(SAVE_ARTIFACT, {"artifact_id": artifact["id"], "version": 2}),
+            stop_reason="tool_use",
+        ),
+        reply(text("No pude")),
+    )
+
+    response = ask(
+        client,
+        world["dashboard"],
+        mode=MODE_EDIT,
+        message="Cámbialo y guárdalo",
+        conversation_id=conversation,
+    )
+
+    assert payloads(response, "confirm") == []
+    ended = {item["name"]: item for item in payloads(response, "tool_end")}
+    assert ended[SAVE_ARTIFACT]["is_error"] is True
+    assert ended[CHANGE_ARTIFACT]["is_error"] is False
+    saved.assert_not_called()
+    assert _versions(world) == 2
+
+
+def test_a_save_approved_on_a_version_that_moved_before_it_runs_is_refused(
+    client: Any,
+    world: dict[str, Any],  # noqa: F811
+    mocker: MockerFixture,
+) -> None:
+    artifact, conversation = _document_in_the_editor(client, world, mocker)
+    saved = mocker.spy(artifact_pages, "save_pages")
+    use_model(
+        mocker,
+        reply(
+            _rewrite(client, artifact),
+            tool_use(SAVE_ARTIFACT, {"artifact_id": artifact["id"], "version": 1}),
+            stop_reason="tool_use",
+        ),
+        reply(text("No pude")),
+    )
+    response = ask(
+        client,
+        world["dashboard"],
+        mode=MODE_EDIT,
+        message="Cámbialo y guárdalo",
+        conversation_id=conversation,
+    )
+    card = payloads(response, "confirm")[0]
+    stored = find_conversation(UUID(conversation), world["users"]["Ana"].id)
+    assert pending_turn(stored).card_versions == {card["id"]: 1}
+
+    decided = client.post(
+        f"{URL}conversations/{conversation}/decide/",
+        json={"tool_use_id": card["id"], "approved": True},
+    )
+
+    ended = {item["name"]: item for item in payloads(decided, "tool_end")}
+    assert ended[CHANGE_ARTIFACT]["is_error"] is False
+    assert ended[SAVE_ARTIFACT]["is_error"] is True
+    saved.assert_not_called()
+
+
+def test_a_save_runs_only_on_the_version_its_card_described(
+    world: dict[str, Any],  # noqa: F811
+    mocker: MockerFixture,
+) -> None:
+    latest = mocker.MagicMock(number=2)
+    mocker.patch.object(artifact_tools, "version_of", return_value=latest)
+    mocker.patch.object(artifact_tools, "_on_this_report")
+    saved = mocker.patch.object(artifact_pages, "save_pages", return_value={})
+    request = SaveArtifactAsPage(artifact_id="x", version=2)
+    mocker.patch.object(artifact_tools.artifacts, "blocks_of", return_value=[])
+
+    def context(card_version: int | None) -> OwnToolContext:
+        return OwnToolContext(1, UUID(int=1), 1, None, mocker.MagicMock(), card_version)
+
+    for card_version in (None, 1):
+        with pytest.raises(ArtifactRefusedError):
+            artifact_tools._save(request, context(card_version))
+    saved.assert_not_called()
+
+    artifact_tools._save(request, context(2))
+    saved.assert_called_once()
+
+
+def test_the_card_describes_the_last_version_or_there_is_no_card(
+    mocker: MockerFixture,
+) -> None:
+    latest = mocker.MagicMock(number=3, title="Resumen")
+    mocker.patch.object(artifact_tools, "version_of", return_value=latest)
+    mocker.patch.object(artifact_tools, "_on_this_report")
+    mocker.patch.object(
+        artifact_tools.artifacts, "blocks_of", return_value=[paragraph()]
+    )
+    mocker.patch(
+        "superset.mcp_service.report_layout.editing.open_report",
+        return_value=mocker.MagicMock(columns=COLUMNS, rows=ROWS),
+    )
+    context = OwnToolContext(1, UUID(int=1), 1, None)
+
+    card = save_card({"artifact_id": "x", "version": 3}, context)
+
+    assert card is not None
+    assert card["version"] == 3
+    assert "Resumen" in card["title"]
+    assert save_card({"artifact_id": "x", "version": 2}, context) is None
+    assert save_card({"artifact_id": "x", "version": 4}, context) is None
 
 
 def test_an_unapproved_call_never_runs_whatever_the_model_says(
