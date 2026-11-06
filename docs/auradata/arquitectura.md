@@ -242,9 +242,17 @@ El bucle está escrito a mano y no usa el *tool runner* del SDK, por tres reglas
 Un mensaje admite hasta `MAX_MODEL_CALLS` (25) llamadas al modelo. Nada acota lo que gasta cada una, así que un turno puede
 pasarse del tope: los topes solo se miran antes de empezar.
 
-**Keep-alive.** El SDK descarta los `ping`, y el razonamiento no se muestra, así que mientras el modelo piensa no llega nada.
-`ModelCall` hace solo la llamada HTTP en un hilo propio, y el stream manda `: keep-alive` cada 15 s. La sesión, `g` y las
-herramientas se quedan en el hilo de la petición. Las herramientas no mandan nada: por eso el proxy da 300 s a estas rutas.
+**Notas del modelo.** El texto de los bloques de razonamiento llega como eventos `note` (`text` y `starts`, que abre una nota
+nueva). Con `display: "updates"` son las notas que el modelo escribe para quien mira entre una herramienta y otra; con
+`"summarized"`, esas notas mezcladas con resúmenes de su razonamiento. Pueden ser cero en toda una respuesta, y un comentario
+corto del modelo sigue llegando como texto. El panel las pinta entre los pasos, como texto plano: vienen del modelo. No se
+guardan aparte: los bloques siguen guardándose y reenviándose tal como llegaron, y una conversación leída después muestra lo
+que ellos tengan, o nada. La frase fija que la API pone cuando corta una respuesta se esconde en `stepsOf`.
+
+**Keep-alive.** El SDK descarta los `ping`, y el razonamiento puede pasar mucho tiempo sin texto, así que mientras el modelo
+piensa casi no llega nada. `ModelCall` hace solo la llamada HTTP en un hilo propio, y el stream manda `: keep-alive` cuando pasan
+15 s sin nada. Un evento de razonamiento sin texto no entra a la cola: reiniciaría esa espera sin mandar un byte. La sesión, `g`
+y las herramientas se quedan en el hilo de la petición. Las herramientas no mandan nada: por eso el proxy da 300 s a estas rutas.
 Si la persona se va, `ModelCall` cierra la conexión y lo gastado queda en una fila `interrupted`, que nunca se envía.
 
 ### `run_as` y `ToolBox`
@@ -328,6 +336,7 @@ Un modelo fuera de la tabla usa `PRUDENT_SPEC`: nada opcional en la petición, e
 | Campo de `ModelSpec` | Quién lo lee |
 | --- | --- |
 | `thinking_on`, `efforts`, `default_effort`, `automatic_cache` | `request_params` |
+| `thinking_display` | `request_params`, que agrega la cabecera beta de `updates`. `tuned_spec` lo vacía si el admin apaga el razonamiento |
 | `thinking_off`, `thinking_always_on`, `thinking_off_max_effort` | `tuned_spec`, antes del bucle |
 | `refusal_fallback` | `refusal_fallback_params`, desde `request_params` |
 | `tool_search` | `run_conversation`, `api.py` y `system_prompt` |
@@ -342,11 +351,12 @@ acepta, y `request_params` la lee sin saber cuál es.
 Un modelo nuevo aparece solo en Administración si la API lo lista, con valores prudentes. Para usarlo bien hay que darle fila.
 
 1. **Saca los datos** de la referencia de la API de Claude, no de memoria: precios (entrada, salida, lectura de caché, y el
-   tramo de prompt largo si lo tiene), cómo se pide el razonamiento, esfuerzos válidos, respaldo ante un rechazo y si tiene
-   búsqueda de herramientas.
+   tramo de prompt largo si lo tiene), cómo se pide el razonamiento, qué `thinking.display` acepta, esfuerzos válidos, respaldo
+   ante un rechazo y si tiene búsqueda de herramientas.
 2. **Agrega la fila** a `MODEL_TABLE`, con el id exacto y sin sufijo de fecha (`spec_of` lo quita). Si la caché vale una décima de
    la entrada, `_cached_at_a_tenth` ahorra escribirla. Llena también los campos que nadie lee todavía: costarán menos el día
-   que se usen.
+   que se usen. `thinking_display` es `DISPLAY_UPDATES` si el modelo tiene notas de progreso y `DISPLAY_SUMMARIZED` si no: un
+   valor que el modelo no conoce es un 400 en todas sus peticiones, así que pruébalo con una petición real.
 3. **Elige `status`:** `STATUS_CURRENT` si es de los que se ofrecen por defecto, y pasa el anterior de su familia a
    `STATUS_AVAILABLE`. `STATUS_RESTRICTED` es para modelos de programas especiales, que solo salen si la API los lista.
 4. **Una familia nueva** va en `FAMILIES`, que da el orden y la lectura del id.

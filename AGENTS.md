@@ -108,8 +108,13 @@ This repository is **AuraData BI**, a fork of Apache Superset 7.0 shaped like Po
   (`conversations.py`, tables `auradata_assistant_conversations` and `auradata_assistant_messages`): `content` is sent
   back unchanged, except the blocks the API says to omit before a `fallback` block, and refused turns stay for their cost
   but are not sent. What a tool returns never enters the system prompt (`prompt.py`). The model call waits in a thread of
-  its own (`_call_model`, HTTP only, never the session, `g` or the tools) so the stream can send a `: keep-alive` comment:
-  the SDK drops the pings and thinking is not displayed. A person who leaves closes that call (`ModelCall`, the connection
+  its own (`ModelCall`, HTTP only, never the session, `g` or the tools) so the stream can send a `: keep-alive` comment:
+  the SDK drops the pings and long stretches of thinking have no text. Each `ModelSpec` says its `thinking_display`
+  (`updates`, or `summarized` where that does not exist; `tuned_spec` clears it when the admin stops thinking, because
+  `disabled` and `between_tools` refuse a `display`), and the text of thinking blocks streams as `note` events, among the
+  steps of the answer and always as plain text. A note is not stored apart: the blocks stay as they came, and a
+  conversation read later shows what they hold (`transcriptOf`). Thinking events without text never reach the queue of
+  `ModelCall`: they would restart its wait with nothing sent. A person who leaves closes that call (`ModelCall`, the connection
   is shut down because closing a socket does not wake its reader) and what the API already reported stays as a row with
   `stop_reason: interrupted`, kept for its cost and never sent. `docker/nginx` gives the chat and decide routes 300 s for
   tools that run long; a production proxy needs the same. A model without tool search is refused (422) for a history that
