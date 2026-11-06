@@ -20,6 +20,7 @@ import { t } from '@apache-superset/core/translation';
 import type {
   AssistantEvent,
   ChatMessage,
+  Feedback,
   StoredBlock,
   StoredConversation,
   ToolStep,
@@ -31,11 +32,13 @@ const FALLBACK_CONTEXT_TOKENS = 200_000;
 const PAGE_CONTEXT = '<page_context>';
 const CONTEXT_EXCEEDED = 'context_exceeded';
 
-const emptyAnswer = (id: string): ChatMessage => ({
+const emptyAnswer = (id: string, feedback?: Feedback): ChatMessage => ({
   id,
   role: 'assistant',
   text: '',
   tools: [],
+  storedId: id,
+  feedback,
 });
 
 /** What the user wrote, without what the app added to the message. */
@@ -79,7 +82,7 @@ export function transcriptOf(stored: StoredConversation): ChatMessage[] {
       return;
     }
     if (!answer) {
-      answer = emptyAnswer(row.id);
+      answer = emptyAnswer(row.id, stored.feedback?.[row.id]);
       messages.push(answer);
     }
     if (row.stop_reason === 'refusal') {

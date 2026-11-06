@@ -25,6 +25,7 @@ import type {
   AssistantModels,
   ChatMode,
   Conversation,
+  Feedback,
   StoredConversation,
   UndoResult,
 } from './types';
@@ -51,6 +52,27 @@ export const fetchConversation = (id: string): Promise<StoredConversation> =>
   SupersetClient.get({ endpoint: `${CHAT_URL}conversations/${id}/` }).then(
     ({ json }) => json.result,
   );
+
+const feedbackUrl = (conversationId: string, messageId: string) =>
+  `${CHAT_URL}conversations/${conversationId}/messages/${messageId}/feedback/`;
+
+/** Stores a vote on an answer, in place of the one this person had. */
+export const saveFeedback = (
+  conversationId: string,
+  messageId: string,
+  feedback: Feedback,
+): Promise<unknown> =>
+  SupersetClient.put({
+    endpoint: feedbackUrl(conversationId, messageId),
+    jsonPayload: feedback,
+  });
+
+/** Takes back the vote of this person on an answer. */
+export const clearFeedback = (
+  conversationId: string,
+  messageId: string,
+): Promise<unknown> =>
+  SupersetClient.delete({ endpoint: feedbackUrl(conversationId, messageId) });
 
 /** A question for the assistant. */
 export interface AssistantQuestion {

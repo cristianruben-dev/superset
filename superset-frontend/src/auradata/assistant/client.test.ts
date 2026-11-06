@@ -17,7 +17,14 @@
  * under the License.
  */
 import { SupersetClient } from '@superset-ui/core';
-import { askAssistant, AssistantError, decideCall, undoTurn } from './client';
+import {
+  askAssistant,
+  AssistantError,
+  clearFeedback,
+  decideCall,
+  saveFeedback,
+  undoTurn,
+} from './client';
 import type { AssistantEvent } from './types';
 
 const QUESTION = {
@@ -167,6 +174,23 @@ test('a decision names the call and goes to its conversation', async () => {
     model: 'm',
   });
   expect(events).toHaveLength(1);
+});
+
+test('a vote goes to the answer, and taking it back too', async () => {
+  const put = jest.spyOn(SupersetClient, 'put').mockResolvedValue({} as never);
+  const remove = jest
+    .spyOn(SupersetClient, 'delete')
+    .mockResolvedValue({} as never);
+  const url = '/api/v1/auradata/assistant/conversations/c/messages/m/feedback/';
+
+  await saveFeedback('c', 'm', { vote: 'down', reason: 'other' });
+  await clearFeedback('c', 'm');
+
+  expect(put).toHaveBeenCalledWith({
+    endpoint: url,
+    jsonPayload: { vote: 'down', reason: 'other' },
+  });
+  expect(remove).toHaveBeenCalledWith({ endpoint: url });
 });
 
 test('a refused undo brings the reason of the server', async () => {

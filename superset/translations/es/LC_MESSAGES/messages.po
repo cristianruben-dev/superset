@@ -26968,6 +26968,39 @@ msgstr "Pregunta sobre este informe. El asistente responde sobre la página y lo
 msgid "You changed the model, so it reads this conversation from scratch: this answer takes longer and costs more than usual."
 msgstr "Cambiaste de modelo, así que lee esta conversación desde cero: esta respuesta tarda más y cuesta más de lo normal."
 
+msgid "Copy answer"
+msgstr "Copiar respuesta"
+
+msgid "Copied"
+msgstr "Copiado"
+
+msgid "Could not copy"
+msgstr "No se pudo copiar"
+
+msgid "Helpful"
+msgstr "Útil"
+
+msgid "Not helpful"
+msgstr "No útil"
+
+msgid "What went wrong?"
+msgstr "¿Qué falló?"
+
+msgid "Wrong figures"
+msgstr "Cifras incorrectas"
+
+msgid "Not what I asked"
+msgstr "No es lo que pregunté"
+
+msgid "Incomplete"
+msgstr "Incompleta"
+
+msgid "Something else"
+msgstr "Otra cosa"
+
+msgid "Your vote could not be saved."
+msgstr "No se pudo guardar tu voto."
+
 msgid "This conversation is too long for the model. Start a new one to keep going."
 msgstr "Esta conversación es demasiado larga para el modelo. Empieza una nueva para seguir."
 

@@ -151,6 +151,15 @@ This repository is **AuraData BI**, a fork of Apache Superset 7.0 shaped like Po
   limit, and `undo` costs nothing. A person using the panel only learns a level (`budget` in `models/` and `done`), never an
   amount. Figures in dollars: Administration › AI assistant › Usage (`/api/v1/auradata_assistant/usage/`, admins) and the
   month of one workspace for its admins.
+- **Votes on answers** (`feedback.py`, table `auradata_assistant_feedback`, `AnswerActions.tsx`): under a finished answer,
+  never one streaming or with a card waiting, the panel copies it (`figureAsText` adds its rows, separated by tabs) and takes
+  a thumbs up or down, plus an optional reason of a fixed list (`REASONS`), never free text.
+  `PUT`/`DELETE /conversations/<id>/messages/<id>/feedback/` answer 404 for anything but an answer of the voter's own
+  conversation. A vote goes on the first row of the answer: `ConversationLog.answer_id` reaches the panel as `message_id` in
+  `done` (a stream that fails before that has none), and a turn resumed from a card keeps the first. One row per message
+  and user, in a table of its own, so a vote never touches a message or the conversation; both keys cascade, so a vote goes
+  with its conversation, and `conversation_id` deletes it even if message rows stay for their cost. Only totals leave the table for others: `usage_report` counts them
+  by model and workspace, in the month of the answer, for admins, without reasons or text.
 - **Privacy notice** (`PrivacyNotice.tsx`, `accept_privacy`): until a person accepts, per user on the server, chat and decide
   answer 403 (`reason: privacy`) and nothing reaches Anthropic. A change to what the notice says raises
   `PRIVACY_NOTICE_VERSION`, and everyone is asked again.
@@ -467,8 +476,8 @@ themes and CSS templates) → `d3f9a2b17c64` (workspace datasets). The chain end
 `f1c7a9e2b305`, whose `down_revision` is the Superset 7.0 head (`88a01c781622`) and the fork head, so there is
 one head and a database at `d3f9a2b17c64` still runs the 41 migrations of 7.0 on `db upgrade`. After the merge comes
 `a7e3c91d4b60` (renames the persisted `mibi` names to `auradata`).
-After it comes `c6a1f4e09b27` (conversations of the assistant).
-- A new fork migration revises the current head (`c6a1f4e09b27` until the next one).
+After it comes `c6a1f4e09b27` (conversations of the assistant), then `b2d58e7a13c4` (votes on its answers).
+- A new fork migration revises the current head (`b2d58e7a13c4` until the next one).
 - Each new Superset release follows the same rule: add another merge revision of its head and the fork head.
   Never repoint `8bc9e5b95335` (or any fork revision) to the new upstream head: a database that already ran the
   fork migrations would skip the new upstream ones.

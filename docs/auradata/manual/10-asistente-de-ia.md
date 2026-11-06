@@ -38,6 +38,20 @@ Una respuesta con cifras dice de qué dataset y con qué filtros salen. Si consu
 gráfico chico con esa consulta, y si no se puede dibujar deja las filas en una tabla. Esa consulta la repite AuraData BI
 con tus permisos, así que si no tienes acceso a esos datos, no se dibuja.
 
+## Copiar y votar una respuesta
+
+Debajo de cada respuesta terminada hay tres botones pequeños. Mientras escribe o espera una tarjeta, no aparecen.
+
+- **Copiar** lleva el texto de la respuesta y, si trae una tabla, sus filas separadas por tabuladores, para pegarlas en
+  una hoja de cálculo. El botón dice **Copiado**.
+- **Útil** y **No útil** son tu voto. Se guarda al instante, sigue ahí cuando recargas y puedes cambiarlo. Otro clic en el
+  mismo botón lo quita.
+- Con **No útil** puedes decir **qué falló**: cifras incorrectas, no es lo que preguntaste, incompleta u otra cosa. Es
+  opcional.
+
+Solo votas en tus propias conversaciones. Los administradores ven cuántos votos hubo por modelo y por área de trabajo,
+nunca quién votó qué ni el texto de la conversación.
+
 ## Pedir cambios mientras editas
 
 Abre el informe en modo edición y entra por **Inicio › Asistente** en la cinta, o por la pestaña **Asistente** de los
@@ -128,7 +142,7 @@ Ve lo que tú ves y nada más. Por eso conviene pensar qué consultas: si tu acc
 también puede leerlos, y entonces viajan a Anthropic.
 
 Las conversaciones se guardan en el servidor de AuraData BI, y en el panel solo tú puedes abrirlas. No hay botón para
-borrarlas. La pantalla de uso de los administradores muestra cuánto gastó cada persona, no lo que preguntó; el registro de
+borrarlas. La pantalla de uso de los administradores muestra cuánto gastó cada persona y los totales de votos, no lo que preguntó; el registro de
 acciones sí guarda qué herramientas usó el asistente y con qué parámetros.
 
 ## Lo que no puede hacer

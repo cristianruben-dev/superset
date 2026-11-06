@@ -31,11 +31,34 @@ const report = (month: string, total: number) => ({
     { month: '2026-10', cost_usd: 3, tokens: 90, answers: 1 },
   ],
   by_model: [
-    { model: 'claude-sonnet-5-5', cost_usd: total, tokens: 1200, answers: 7 },
+    {
+      model: 'claude-sonnet-5-5',
+      cost_usd: total,
+      tokens: 1200,
+      answers: 7,
+      votes_up: 31,
+      votes_down: 12,
+    },
   ],
   by_workspace: [
-    { workspace_id: 1, name: 'Ventas', cost_usd: 40, tokens: 900, answers: 5 },
-    { workspace_id: null, name: null, cost_usd: 2.5, tokens: 300, answers: 2 },
+    {
+      workspace_id: 1,
+      name: 'Ventas',
+      cost_usd: 40,
+      tokens: 900,
+      answers: 5,
+      votes_up: 21,
+      votes_down: 11,
+    },
+    {
+      workspace_id: null,
+      name: null,
+      cost_usd: 2.5,
+      tokens: 300,
+      answers: 2,
+      votes_up: 0,
+      votes_down: 0,
+    },
   ],
   by_user: [{ user_id: null, name: null, cost_usd: 1, tokens: 3, answers: 1 }],
 });
@@ -61,6 +84,24 @@ test('it breaks the month down and names what no longer exists', async () => {
   expect(screen.getByText('No workspace')).toBeInTheDocument();
   expect(screen.getByText('Deleted user')).toBeInTheDocument();
   expect(screen.getAllByText('$40.00')[0].closest('td')).toHaveClass(
+    'auradata-figure',
+  );
+});
+
+test('models and workspaces show their votes, and users do not', async () => {
+  fetchMock.get(USAGE, { result: report('2026-11', 42.5) });
+
+  render(<AssistantUsage />);
+  await screen.findByTestId('assistant-usage-total');
+
+  expect(screen.getAllByRole('columnheader', { name: 'Helpful' })).toHaveLength(
+    2,
+  );
+  expect(
+    screen.getAllByRole('columnheader', { name: 'Not helpful' }),
+  ).toHaveLength(2);
+  expect(screen.getByRole('cell', { name: '31' })).toBeInTheDocument();
+  expect(screen.getByRole('cell', { name: '11' })).toHaveClass(
     'auradata-figure',
   );
 });

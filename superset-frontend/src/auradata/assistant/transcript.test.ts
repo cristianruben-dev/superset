@@ -235,3 +235,18 @@ test('an answer that no longer fits says so, and no other failure does', () => {
     }),
   ).toMatchObject({ problem: 'Failed', contextExceeded: false });
 });
+
+test('an answer keeps the id of its first row and the vote stored on it', () => {
+  const first = row('assistant', [{ type: 'text', text: 'Primero' }]);
+  const second = row('assistant', [{ type: 'text', text: 'Segundo' }]);
+
+  const [, shown] = transcriptOf({
+    ...stored([question('¿Cuánto?'), first, second]),
+    feedback: { [first.id]: { vote: 'down', reason: 'other' } },
+  });
+
+  expect(shown).toMatchObject({
+    storedId: first.id,
+    feedback: { vote: 'down', reason: 'other' },
+  });
+});

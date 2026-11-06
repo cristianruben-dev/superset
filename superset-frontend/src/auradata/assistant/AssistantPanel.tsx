@@ -36,6 +36,7 @@ import type { RootState } from 'src/dashboard/types';
 import { hasPendingFields } from '../format/chartFields';
 import { usePhoneScreen } from '../format/mobile';
 import { selectedVisuals } from '../format/selection';
+import { AnswerActions } from './AnswerActions';
 import { AssistantFigure } from './AssistantFigure';
 import { AssistantMarkdown } from './AssistantMarkdown';
 import { AssistantError, fetchConversations } from './client';
@@ -51,6 +52,7 @@ import type {
   ChatMessage,
   ChatMode,
   Conversation,
+  Feedback,
   ModelPrice,
   OfferedModel,
   ToolStep,
@@ -503,11 +505,16 @@ function Answer({
   message,
   dashboardId,
   writing,
+  finished,
+  onVote,
   onNewConversation,
 }: {
   message: ChatMessage;
   dashboardId: number;
   writing: boolean;
+  /** Nothing more can join this answer: no stream and no card waiting. */
+  finished: boolean;
+  onVote: (feedback: Feedback | null) => Promise<void>;
   onNewConversation: () => void;
 }) {
   const waiting = writing && !message.text && !message.tools.length;
@@ -547,6 +554,7 @@ function Answer({
         />
       )}
       {message.stopped && <Hint>{t('You stopped this answer.')}</Hint>}
+      {finished && <AnswerActions message={message} onVote={onVote} />}
     </Bubble>
   );
 }
@@ -696,6 +704,11 @@ function Conversations({
     if (model) chat.decide(id, approved, model);
   };
 
+  const vote = (message: ChatMessage, feedback: Feedback | null) =>
+    chat
+      .vote(message, feedback)
+      .catch(() => addDangerToast(t('Your vote could not be saved.')));
+
   const undo = async () => {
     try {
       const result = await chat.undo();
@@ -796,6 +809,11 @@ function Conversations({
               message={message}
               dashboardId={dashboardId}
               writing={chat.busy && index === chat.messages.length - 1}
+              finished={
+                index < chat.messages.length - 1 ||
+                (!chat.busy && !chat.confirmations.length)
+              }
+              onVote={feedback => vote(message, feedback)}
               onNewConversation={startNew}
             />
           ),

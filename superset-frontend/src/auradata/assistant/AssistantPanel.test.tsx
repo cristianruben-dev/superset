@@ -31,9 +31,11 @@ import { AssistantChat, AssistantPanel } from './AssistantPanel';
 import {
   askAssistant,
   AssistantError,
+  clearFeedback,
   decideCall,
   fetchConversation,
   fetchConversations,
+  saveFeedback,
   undoTurn,
 } from './client';
 import { reloadReport, saveReport } from './editorActions';
@@ -52,6 +54,8 @@ jest.mock('./client', () => ({
   decideCall: jest.fn(),
   fetchConversation: jest.fn(),
   fetchConversations: jest.fn(),
+  saveFeedback: jest.fn(),
+  clearFeedback: jest.fn(),
   undoTurn: jest.fn(),
 }));
 
@@ -69,6 +73,8 @@ const decide = decideCall as jest.Mock;
 const undo = undoTurn as jest.Mock;
 const conversations = fetchConversations as jest.Mock;
 const conversation = fetchConversation as jest.Mock;
+const feedback = saveFeedback as jest.Mock;
+const clearVote = clearFeedback as jest.Mock;
 
 const SONNET: OfferedModel = {
   id: 'claude-sonnet-5-5',
@@ -180,6 +186,8 @@ beforeEach(() => {
   ask.mockReset();
   decide.mockReset().mockResolvedValue(undefined);
   undo.mockReset();
+  feedback.mockReset().mockResolvedValue(undefined);
+  clearVote.mockReset().mockResolvedValue(undefined);
   (reloadReport as jest.Mock).mockClear();
   (saveReport as jest.Mock).mockClear();
   conversation.mockReset();
@@ -330,6 +338,114 @@ test('a conversation too long for the model names the cause and offers a new one
   ).toBeInTheDocument();
   await userEvent.click(screen.getByTestId('auradata-assistant-context-new'));
   expect(screen.getByText('Ask about your data')).toBeInTheDocument();
+});
+
+test('the actions wait for the answer to end', async () => {
+  const stream = heldStream();
+  setup();
+  await sendQuestion();
+
+  stream.emit({ event: 'text', data: { text: 'Vendimos' } });
+  expect(
+    screen.queryByTestId('auradata-assistant-actions'),
+  ).not.toBeInTheDocument();
+
+  stream.emit({
+    event: 'done',
+    data: { context_tokens: 10, message_id: 'stored-1' },
+  });
+  await stream.end();
+
+  expect(screen.getByTestId('auradata-assistant-actions')).toBeInTheDocument();
+});
+
+test('a card pending under an answer keeps its actions away', async () => {
+  const stream = heldStream();
+  setup();
+  await sendQuestion();
+
+  stream.emit({ event: 'text', data: { text: 'Voy a borrar' } });
+  stream.emit({
+    event: 'confirm',
+    data: { id: 't1', name: 'delete_chart', title: 'Borrar', input: {} },
+  });
+  stream.emit({
+    event: 'done',
+    data: { context_tokens: 10, message_id: 'stored-1' },
+  });
+  await stream.end();
+
+  expect(
+    screen.queryByTestId('auradata-assistant-actions'),
+  ).not.toBeInTheDocument();
+});
+
+test('a vote goes on the stored answer, and a refused one goes back', async () => {
+  const stream = heldStream();
+  feedback.mockRejectedValueOnce(new Error('500'));
+  setup();
+  await sendQuestion();
+  stream.emit({
+    event: 'conversation',
+    data: { id: 'c1', model: SONNET.id, mode: 'read' },
+  });
+  stream.emit({ event: 'text', data: { text: 'Vendimos' } });
+  stream.emit({
+    event: 'done',
+    data: { context_tokens: 10, message_id: 'stored-1' },
+  });
+  await stream.end();
+
+  const up = screen.getByRole('button', { name: 'Helpful' });
+  await userEvent.click(up);
+
+  expect(feedback).toHaveBeenCalledWith('c1', 'stored-1', { vote: 'up' });
+  await waitFor(() => expect(up).toHaveAttribute('aria-pressed', 'false'));
+
+  await userEvent.click(up);
+
+  await waitFor(() => expect(up).toHaveAttribute('aria-pressed', 'true'));
+  await userEvent.click(up);
+  expect(clearVote).toHaveBeenCalledWith('c1', 'stored-1');
+});
+
+test('a stored vote comes back with its conversation', async () => {
+  conversations.mockResolvedValue([
+    { id: 'c1', mode: 'read', title: 'Ventas de marzo', model: SONNET.id },
+  ]);
+  conversation.mockResolvedValue({
+    id: 'c1',
+    model: SONNET.id,
+    figures: {},
+    context_tokens: 10,
+    feedback: { m2: { vote: 'up', reason: null } },
+    messages: [
+      {
+        id: 'm1',
+        role: 'user',
+        stop_reason: null,
+        content: [{ type: 'text', text: 'Hola' }],
+      },
+      {
+        id: 'm2',
+        role: 'assistant',
+        stop_reason: 'end_turn',
+        content: [{ type: 'text', text: 'Buenas' }],
+      },
+    ],
+  });
+  setup();
+
+  await userEvent.click(
+    await screen.findByRole('combobox', {
+      name: 'Conversations of this report',
+    }),
+  );
+  await userEvent.click(await screen.findByText('Ventas de marzo'));
+
+  expect(
+    await screen.findByRole('button', { name: 'Helpful' }),
+  ).toHaveAttribute('aria-pressed', 'true');
 });
 
 test('lists only the read conversations and opens one', async () => {

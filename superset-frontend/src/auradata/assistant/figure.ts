@@ -110,3 +110,33 @@ export function figureSource(figure: Figure): string {
     ? `${dataset} · ${figure.filters.map(filterText).join(' · ')}`
     : `${dataset} · ${t('no filters')}`;
 }
+
+const TSV_BREAKS = /[\t\r\n]+/g;
+/** A spreadsheet runs a pasted cell that starts like this as a formula. */
+const FORMULA_START = /^[=+\-@]/;
+
+const tsvCell = (value: unknown) => {
+  if (value === null || value === undefined) return '';
+  if (typeof value === 'number') return String(value);
+  const text = String(value).replace(TSV_BREAKS, ' ');
+  return FORMULA_START.test(text) ? `'${text}` : text;
+};
+
+/**
+ * The rows of a figure, separated by tabs so they paste as a table. Numbers stay as
+ * they came, without the separators of a language. Nothing when it has no rows.
+ */
+export function figureAsText(figure: Figure): string {
+  const columns = Object.keys(figure.rows[0] ?? {});
+  if (!columns.length) return '';
+  const lines = [
+    columns.map(tsvCell),
+    ...figure.rows.map(row => columns.map(column => tsvCell(row[column]))),
+  ].map(cells => cells.join('\t'));
+  if (figure.row_count > figure.rows.length) {
+    lines.push(
+      t('Showing %s of %s rows.', figure.rows.length, figure.row_count),
+    );
+  }
+  return lines.join('\n');
+}

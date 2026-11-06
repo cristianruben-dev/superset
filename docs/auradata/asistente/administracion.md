@@ -118,6 +118,9 @@ Hay un tope **global**, en **Tope mensual (USD)**, y uno **por área de trabajo*
 **Administración › Asistente de IA › Uso** muestra el gasto de un mes por modelo, área de trabajo y persona, más el total de
 los últimos 12 meses. Una persona o un área que ya no existe sale con una etiqueta genérica.
 
+Las tablas por modelo y por área suman también los votos **Útil** y **No útil**. Cuentan en el mes de la respuesta, no en el
+del voto. Son solo totales: ni quién votó, ni el motivo, ni el texto de la conversación.
+
 **Son estimaciones, no la factura.** Cada costo se calcula con los tokens que informa la API y los precios de
 `MODEL_TABLE`. Compáralo con la consola de Anthropic. Los turnos rechazados o interrumpidos también cuentan, porque la API
 los cobró. Las corridas de la [evaluación](evaluacion.md) cuentan igual, y su modo sin gasto también suma costos simulados.
@@ -156,7 +159,8 @@ También muestra **Gastado este mes**, en dólares, a los administradores del á
 ## La migración
 
 `c6a1f4e09b27` crea `auradata_assistant_conversations` y `auradata_assistant_messages`. Solo agrega tablas. Corre con
-`superset db upgrade`, que `superset-init` ejecuta al arrancar.
+`superset db upgrade`, que `superset-init` ejecuta al arrancar. `b2d58e7a13c4` agrega `auradata_assistant_feedback`, con los
+votos, que se borran junto con su conversación.
 
 Sin ella, el asistente no puede guardar conversaciones. En una base que ya existe, respáldala antes, como con cualquier
 migración.

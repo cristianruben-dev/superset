@@ -22,8 +22,10 @@ import { logging } from '@apache-superset/core/utils';
 import {
   askAssistant,
   AssistantError,
+  clearFeedback,
   decideCall,
   fetchConversation,
+  saveFeedback,
   undoTurn,
 } from './client';
 import { transcriptOf, withEvent } from './transcript';
@@ -34,6 +36,7 @@ import type {
   ChatMessage,
   ChatMode,
   Confirmation,
+  Feedback,
   StoredConversation,
   UndoResult,
 } from './types';
@@ -128,6 +131,14 @@ export function useAssistantChat(
           setContextTokens(event.data.context_tokens);
           setCanUndo(event.data.can_undo ?? false);
           if (event.data.budget) setBudget(event.data.budget);
+          // A turn resumed from a card keeps the id of the answer that asked
+          const storedId = event.data.message_id;
+          if (storedId) {
+            change(answer => ({
+              ...answer,
+              storedId: answer.storedId ?? storedId,
+            }));
+          }
         } else {
           changed =
             changed || (event.event === 'tool_end' && !!event.data.changed);
@@ -214,6 +225,32 @@ export function useAssistantChat(
     [conversationId, follow, messages],
   );
 
+  /**
+   * Changes the vote on an answer, or takes it back with null. It shows at once and
+   * goes back if the server refuses.
+   */
+  const vote = useCallback(
+    async ({ id, storedId, feedback }: ChatMessage, next: Feedback | null) => {
+      if (!conversationId || !storedId) return;
+      const show = (value?: Feedback | null) =>
+        setMessages(current =>
+          current.map(item =>
+            item.id === id ? { ...item, feedback: value } : item,
+          ),
+        );
+      show(next);
+      try {
+        await (next
+          ? saveFeedback(conversationId, storedId, next)
+          : clearFeedback(conversationId, storedId));
+      } catch (error) {
+        show(feedback);
+        throw error;
+      }
+    },
+    [conversationId],
+  );
+
   /** Goes back to before the last turn that changed the report. */
   const undo = useCallback(async (): Promise<UndoResult | null> => {
     if (!conversationId) return null;
@@ -236,6 +273,7 @@ export function useAssistantChat(
     send,
     decide,
     undo,
+    vote,
     stop,
     open,
     reset,

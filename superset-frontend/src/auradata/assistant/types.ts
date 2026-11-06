@@ -118,6 +118,19 @@ export interface Conversation {
   changed_on: string;
 }
 
+/** Why an answer got a thumbs down. The server only takes these. */
+export type FeedbackReason =
+  | 'wrong_data'
+  | 'off_topic'
+  | 'incomplete'
+  | 'other';
+
+/** What a person thought of an answer. */
+export interface Feedback {
+  vote: 'up' | 'down';
+  reason?: FeedbackReason | null;
+}
+
 /** A block of a stored message, as the API of Anthropic gave it. */
 export interface StoredBlock {
   type: string;
@@ -144,6 +157,8 @@ export interface StoredConversation extends Conversation {
   pending: Confirmation[];
   rejected: string[];
   can_undo: boolean;
+  /** The votes of this person, by the id of the answer. */
+  feedback: Record<string, Feedback>;
 }
 
 /** Answer of the undo of a conversation. */
@@ -168,6 +183,9 @@ export interface ChatMessage {
   role: 'user' | 'assistant';
   text: string;
   tools: ToolStep[];
+  /** The id on the server of an answer, what a vote goes on. */
+  storedId?: string;
+  feedback?: Feedback | null;
   figure?: Figure;
   /** A notice of the service in place of the rest of the answer. */
   problem?: string;
@@ -206,5 +224,6 @@ export type AssistantEvent =
         context_tokens: number;
         can_undo?: boolean;
         budget?: AssistantBudget;
+        message_id?: string | null;
       };
     };

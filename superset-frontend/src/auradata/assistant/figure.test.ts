@@ -18,7 +18,7 @@
  */
 import { VizType } from '@superset-ui/core';
 import buildBarQuery from '../../../plugins/plugin-chart-echarts/src/Timeseries/buildQuery';
-import { chartFormData, figureSource } from './figure';
+import { chartFormData, figureAsText, figureSource } from './figure';
 import type { Figure } from './types';
 
 const figure = (changes: Partial<Figure> = {}): Figure => ({
@@ -112,4 +112,41 @@ test('the source says the dataset and each filter that ran', () => {
 
 test('the source says when no filter ran', () => {
   expect(figureSource(figure())).toBe('Dataset: ventas · no filters');
+});
+
+test('the rows of a figure paste as a table, with their numbers as they came', () => {
+  expect(
+    figureAsText(
+      figure({ rows: [{ region: 'Norte', total: 1234.5 }], row_count: 1 }),
+    ),
+  ).toBe('region\ttotal\nNorte\t1234.5');
+});
+
+test('a cell cannot break a row, and an empty one stays empty', () => {
+  expect(
+    figureAsText(
+      figure({ rows: [{ region: 'Nor\tte\nSur', total: null }], row_count: 1 }),
+    ),
+  ).toBe('region\ttotal\nNor te Sur\t');
+});
+
+test('a text that looks like a formula pastes as text, and a negative number stays', () => {
+  expect(
+    figureAsText(
+      figure({
+        rows: [{ region: '=HYPERLINK("https://x.test")', total: -4 }],
+        row_count: 1,
+      }),
+    ),
+  ).toBe(`region\ttotal\n'=HYPERLINK("https://x.test")\t-4`);
+});
+
+test('rows cut by the limit say so', () => {
+  expect(figureAsText(figure({ row_count: 9 }))).toContain(
+    'Showing 2 of 9 rows.',
+  );
+});
+
+test('a figure without rows copies nothing', () => {
+  expect(figureAsText(figure({ rows: [], row_count: 0 }))).toBe('');
 });

@@ -32,22 +32,29 @@ interface Amounts {
   answers: number;
 }
 
+/** How people voted on those answers. */
+interface Votes {
+  votes_up: number;
+  votes_down: number;
+}
+
 /** Answer of the usage API. */
 interface Usage {
   month: string;
   total_usd: number;
   monthly_budget_usd: number | null;
   months: (Amounts & { month: string })[];
-  by_model: (Amounts & { model: string | null })[];
-  by_workspace: (Amounts & {
-    workspace_id: number | null;
-    name: string | null;
-  })[];
+  by_model: (Amounts & Votes & { model: string | null })[];
+  by_workspace: (Amounts &
+    Votes & {
+      workspace_id: number | null;
+      name: string | null;
+    })[];
   by_user: (Amounts & { user_id: number | null; name: string | null })[];
 }
 
 /** One row of a table on this page, whatever it breaks down. */
-interface Row extends Amounts {
+interface Row extends Amounts, Partial<Votes> {
   key: string;
   name: string;
 }
@@ -86,7 +93,15 @@ const Page = styled.div`
 
 const FIGURE = { align: 'right' as const, className: 'auradata-figure' };
 
-function Breakdown({ title, rows }: { title: string; rows: Row[] }) {
+function Breakdown({
+  title,
+  rows,
+  votes = false,
+}: {
+  title: string;
+  rows: Row[];
+  votes?: boolean;
+}) {
   const columns = useMemo(
     () => [
       { title, dataIndex: 'name', key: 'name' },
@@ -99,8 +114,24 @@ function Breakdown({ title, rows }: { title: string; rows: Row[] }) {
       },
       { ...FIGURE, title: t('Answers'), dataIndex: 'answers', key: 'answers' },
       { ...FIGURE, title: t('Tokens'), dataIndex: 'tokens', key: 'tokens' },
+      ...(votes
+        ? [
+            {
+              ...FIGURE,
+              title: t('Helpful'),
+              dataIndex: 'votes_up',
+              key: 'votes_up',
+            },
+            {
+              ...FIGURE,
+              title: t('Not helpful'),
+              dataIndex: 'votes_down',
+              key: 'votes_down',
+            },
+          ]
+        : []),
     ],
-    [title],
+    [title, votes],
   );
   return (
     <section>
@@ -121,7 +152,8 @@ function Breakdown({ title, rows }: { title: string; rows: Row[] }) {
 
 /**
  * «Usage» in the page of the assistant: what it spent by month, model, workspace and
- * user. Admins only, like the API behind it.
+ * user, and the votes on those answers by model and workspace, as totals only. Admins
+ * only, like the API behind it.
  */
 export function AssistantUsage() {
   const [month, setMonth] = useState<string>();
@@ -190,6 +222,7 @@ export function AssistantUsage() {
         }))}
       />
       <Breakdown
+        votes
         title={t('Model')}
         rows={usage.by_model.map(row => ({
           ...row,
@@ -198,6 +231,7 @@ export function AssistantUsage() {
         }))}
       />
       <Breakdown
+        votes
         title={t('Workspace')}
         rows={usage.by_workspace.map(row => ({
           ...row,
