@@ -63,14 +63,6 @@ La prueba corre sin ventana (`headless`), así que basta con el navegador `chrom
 versión de Playwright instalada (`node_modules/.bin/playwright install chromium-headless-shell`). Cierra antes
 cualquier pestaña con un tablero abierto: el servidor de desarrollo atiende una petición a la vez.
 
-### Resultado de referencia
-
-![Página «Resumen» del escenario](evaluacion/escenario-resumen.jpg)
-
-![Página «Detalle» del escenario](evaluacion/escenario-detalle.jpg)
-
-![«Resumen» en el teléfono](evaluacion/escenario-movil.jpg)
-
 ## 2. Encargos
 
 Cada encargo se le da a la IA con estas palabras, en una conversación nueva. Al terminar se revisa:
@@ -88,7 +80,7 @@ Anota en cada corrida la fecha, el commit, el cliente y el resultado (bien, con 
 
 | Herramientas esperadas | Un buen resultado |
 | --- | --- |
-| `list_workspaces`, `get_workspace`, `get_dataset_info`, `generate_dashboard`, `rename_page`, `add_page` o `duplicate_page`, `create_visual`, `add_slicer` o filtros por página, `get_dashboard_screenshot` | Una página por región (Centro, Norte, Occidente, Sur) con el mismo diseño: tarjetas arriba, tendencia mensual y detalle; cada página filtrada a su región; títulos en español que dicen medida y corte; nada solapado. Se parece a la referencia de arriba. |
+| `list_workspaces`, `get_workspace`, `get_dataset_info`, `generate_dashboard`, `rename_page`, `add_page` o `duplicate_page`, `create_visual`, `add_slicer` o filtros por página, `get_dashboard_screenshot` | Una página por región (Centro, Norte, Occidente, Sur) con el mismo diseño: tarjetas arriba, tendencia mensual y detalle; cada página filtrada a su región; títulos en español que dicen medida y corte; nada solapado. |
 
 ### E2. Replicar una página de Power BI
 
@@ -112,7 +104,7 @@ Anota en cada corrida la fecha, el commit, el cliente y el resultado (bien, con 
 
 | Herramientas esperadas | Un buen resultado |
 | --- | --- |
-| Prompt `diseno_movil`, `generate_mobile_layout`, `set_mobile_layout`, `get_dashboard_screenshot` con `device: "phone"` | Cada página con su diseño móvil: segmentadores y tarjetas primero, gráficos a todo el ancho, nada cortado; captura del teléfono de cada página. Como en la referencia móvil. |
+| Prompt `diseno_movil`, `generate_mobile_layout`, `set_mobile_layout`, `get_dashboard_screenshot` con `device: "phone"` | Cada página con su diseño móvil: segmentadores y tarjetas primero, gráficos a todo el ancho, nada cortado; captura del teléfono de cada página. |
 
 ### E5. Interactividad
 
