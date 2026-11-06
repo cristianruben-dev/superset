@@ -144,6 +144,38 @@ def test_an_expired_conversation_goes_and_the_month_does_not_change(
     assert report["by_model"][0]["votes_up"] == 1
 
 
+def test_a_purge_leaves_nothing_of_a_conversation_in_redis(
+    client: Any,
+    world: dict[str, Any],  # noqa: F811
+    mocker: MockerFixture,
+    turn_memory: Any,
+) -> None:
+    expired, _message = answered(client, world, mocker)
+    age(world, expired, DAYS + 1)
+    assert turn_memory.read(expired, 0, 0)
+
+    result = purge_conversations(DAYS)
+
+    assert result["deleted"] == 1
+    assert turn_memory.read(expired, 0, 0) == []
+
+
+def test_a_redis_failure_does_not_undo_or_stop_a_purge(
+    client: Any,
+    world: dict[str, Any],  # noqa: F811
+    mocker: MockerFixture,
+    turn_memory: Any,
+) -> None:
+    expired, _message = answered(client, world, mocker)
+    age(world, expired, DAYS + 1)
+    mocker.patch.object(turn_memory, "forget", side_effect=ConnectionError("down"))
+
+    result = purge_conversations(DAYS)
+
+    assert result["deleted"] == 1
+    assert not exists(world, expired)
+
+
 def test_a_recent_conversation_stays(
     client: Any,
     world: dict[str, Any],  # noqa: F811

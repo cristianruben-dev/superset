@@ -23,7 +23,11 @@ from typing import Any
 import pytest
 from pytest_mock import MockerFixture
 
-from superset.auradata.assistant import api as api_module, turns as turns_module
+from superset.auradata.assistant import (
+    api as api_module,
+    retention as retention_module,
+    turns as turns_module,
+)
 from superset.auradata.assistant.turn_store import TurnTicket
 from tests.unit_tests.auradata.assistant.memory_store import MemoryTurnStore
 
@@ -40,6 +44,7 @@ def turn_memory(mocker: MockerFixture) -> MemoryTurnStore:
         turns_module.run_turn(store, ticket.turn_id)
 
     mocker.patch.object(api_module, "turn_store", return_value=store)
+    mocker.patch.object(retention_module, "turn_store", return_value=store)
     mocker.patch.object(turns_module, "enqueue", side_effect=run_now)
     # What a test sets for the request, the worker reads too
     for name in ("get_assistant_settings", "get_catalog", "offered_models"):

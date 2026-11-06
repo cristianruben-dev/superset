@@ -37,6 +37,8 @@ Nothing here decides who may read what: that is ``api.py``, on each connection.
 
 from __future__ import annotations
 
+import logging
+from collections.abc import Iterable
 from dataclasses import asdict, dataclass
 from typing import Any, Protocol
 from uuid import UUID
@@ -44,6 +46,8 @@ from uuid import UUID
 from flask import current_app
 
 from superset.utils import json
+
+logger = logging.getLogger(__name__)
 
 # A turn nobody heard from for this long is dead
 HEARTBEAT_TTL = 30
@@ -259,6 +263,20 @@ class RedisTurnStore:
 
     def forget(self, conversation_id: UUID | str) -> None:
         self._redis.delete(*self._keys(conversation_id))
+
+
+def forget_streams(store: TurnStore | None, ids: Iterable[UUID | str]) -> None:
+    """
+    Remove what Redis holds of deleted conversations. It expires by itself anyway, so a
+    failure here never undoes or spoils a deletion that was already committed.
+    """
+    if store is None:
+        return
+    try:
+        for conversation_id in ids:
+            store.forget(conversation_id)
+    except Exception:  # pylint: disable=broad-except
+        logger.warning("Redis still holds the stream of a deleted conversation")
 
 
 _stores: dict[str, RedisTurnStore] = {}

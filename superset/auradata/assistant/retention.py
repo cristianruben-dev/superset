@@ -50,6 +50,7 @@ from superset.auradata.assistant.conversations import (
     pending_turn,
     turn_is_running,
 )
+from superset.auradata.assistant.turn_store import forget_streams, turn_store
 from superset.auradata.models import AssistantConversation
 from superset.extensions import db
 
@@ -143,6 +144,7 @@ def _purge_batch(
         erase_conversations(doomed)
     db.session.commit()
     report.deleted += len(doomed)
+    forget_streams(turn_store(), doomed)
 
 
 def purge_conversations(

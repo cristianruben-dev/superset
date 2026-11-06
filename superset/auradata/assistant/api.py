@@ -153,6 +153,7 @@ from superset.auradata.assistant.spending import (
 )
 from superset.auradata.assistant.tools import MODE_EDIT, MODE_READ, MODES
 from superset.auradata.assistant.turn_store import (
+    forget_streams,
     turn_store,
     TurnStore,
     TurnTicket,
@@ -1511,8 +1512,7 @@ class AssistantRestApi(BaseSupersetApi):
             delete_conversation(conversation)
         except ConversationBusyError:
             return self._busy()
-        if (store := turn_store()) is not None:
-            store.forget(conversation_id)
+        forget_streams(turn_store(), [conversation_id])
         return self.response(200, message="OK")
 
     @expose("/attachments/", methods=("POST",))

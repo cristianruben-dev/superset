@@ -1124,6 +1124,23 @@ def test_a_stream_gives_what_is_missing_after_a_number(
     assert "event: turn_end" in rest
 
 
+def test_a_redis_failure_does_not_spoil_a_deleted_conversation(
+    client: Any,
+    world: dict[str, Any],  # noqa: F811
+    mocker: MockerFixture,
+    turn_memory: Any,
+) -> None:
+    login(world, "Ana")
+    use_model(mocker, reply(text("Hola")))
+    conversation_id = conversation_id_of(ask(client, world["dashboard"]))
+    mocker.patch.object(turn_memory, "forget", side_effect=ConnectionError("down"))
+
+    response = client.delete(f"{URL}conversations/{conversation_id}/")
+
+    assert response.status_code == 200
+    assert client.get(f"{URL}conversations/{conversation_id}/").status_code == 404
+
+
 def test_a_connection_with_nothing_to_read_says_so(
     client: Any,
     world: dict[str, Any],  # noqa: F811
