@@ -159,6 +159,8 @@ export interface StoredBlock {
 /** A row of a stored conversation. */
 export interface StoredMessage {
   id: string;
+  /** Its position in the conversation. */
+  seq: number;
   role: 'user' | 'assistant';
   content: StoredBlock[];
   stop_reason: string | null;
@@ -174,6 +176,10 @@ export interface StoredConversation extends Conversation {
   can_undo: boolean;
   /** The votes of this person, by the id of the answer. */
   feedback: Record<string, Feedback>;
+  /** Where a turn stopped without an ending, by position. */
+  interrupted?: number[];
+  /** A turn running now: `messages` stop before it, and its stream from `after` has it. */
+  running?: { after: number } | null;
 }
 
 /** Answer of the undo of a conversation. */
@@ -253,9 +259,12 @@ export type AssistantEvent =
       event: 'done';
       data: {
         model?: string;
+        stop_reason?: string | null;
         context_tokens: number;
         can_undo?: boolean;
         budget?: AssistantBudget;
         message_id?: string | null;
       };
-    };
+    }
+  /** The last event of a turn. `gone` says there was nothing left to read. */
+  | { event: 'turn_end'; data: { gone?: boolean } };

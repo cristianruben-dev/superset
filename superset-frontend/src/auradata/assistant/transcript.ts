@@ -36,6 +36,12 @@ const CONTEXT_EXCEEDED = 'context_exceeded';
 /** What the API writes in place of a note when a response is cut: not for the person. */
 const CUT_NOTE =
   'This part of the response was interrupted before it finished.';
+const STOPPED_BY_THE_SERVER = 'interrupted';
+
+const INCOMPLETE = () =>
+  t(
+    'The assistant stopped before finishing, and this answer is incomplete. If it was changing the report, check it before asking again.',
+  );
 
 const emptyAnswer = (id: string, feedback?: Feedback): ChatMessage => ({
   id,
@@ -71,8 +77,21 @@ const failedTools = (blocks: StoredBlock[]) =>
 export function transcriptOf(stored: StoredConversation): ChatMessage[] {
   const messages: ChatMessage[] = [];
   const steps = new Map<string, ToolStep>();
+  const lost = [...(stored.interrupted ?? [])];
   let answer: ChatMessage | null = null;
+  /** A turn lost before this position says so where its answer went. */
+  const markLost = (before: number) => {
+    while (lost.length && lost[0] < before) {
+      const seq = lost.shift();
+      if (!answer) {
+        answer = { id: `lost-${seq}`, role: 'assistant', text: '', tools: [] };
+        messages.push(answer);
+      }
+      answer.problem = INCOMPLETE();
+    }
+  };
   stored.messages.forEach(row => {
+    markLost(row.seq);
     if (row.role === 'user') {
       const failed = failedTools(row.content);
       failed.forEach(id => {
@@ -102,7 +121,7 @@ export function transcriptOf(stored: StoredConversation): ChatMessage[] {
       answer.problem = t('The AI declined to answer this.');
       return;
     }
-    if (row.stop_reason === 'interrupted') answer.stopped = true;
+    if (row.stop_reason === STOPPED_BY_THE_SERVER) answer.stopped = true;
     const current = answer;
     row.content.forEach(block => {
       if (block.type === 'text' && block.text) {
@@ -130,6 +149,7 @@ export function transcriptOf(stored: StoredConversation): ChatMessage[] {
       }
     });
   });
+  markLost(Number.POSITIVE_INFINITY);
   return messages;
 }
 
@@ -167,6 +187,10 @@ export function stepsOf(
   addNotes(tools.length);
   return steps;
 }
+
+/** Whether a turn ended because someone asked it to stop. */
+export const wasStopped = (stopReason?: string | null) =>
+  stopReason === STOPPED_BY_THE_SERVER;
 
 /** What an event changes in the answer being written. */
 export function withEvent(

@@ -71,6 +71,11 @@ import type {
   OfferedModel,
   ToolStep,
 } from './types';
+import {
+  forgetConversation,
+  rememberConversation,
+  rememberedConversation,
+} from './remembered';
 import { useAssistantChat } from './useAssistantChat';
 import { useCommandMenu } from './useCommandMenu';
 import { ACCEPTED_IMAGES, useComposerImages } from './useComposerImages';
@@ -717,7 +722,7 @@ function Conversations({
     loadConversations,
     editing ? afterChange : undefined,
   );
-  const { stop, reset } = chat;
+  const { leave, rejoin, reset, open: openStored } = chat;
   const current = models.find(item => item.id === chat.conversationModel);
   const model = chosenModel ?? current?.id ?? fallbackModel;
   const selected = models.find(item => item.id === model);
@@ -729,9 +734,27 @@ function Conversations({
   const stopped = budget.level === 'stopped';
 
   useEffect(() => {
-    if (active) loadConversations();
-    else stop();
-  }, [active, loadConversations, stop]);
+    if (active) {
+      loadConversations();
+      rejoin();
+    } else {
+      leave();
+    }
+  }, [active, leave, loadConversations, rejoin]);
+
+  // A reload comes back to the conversation it left, and to its answer if it is running
+  const toRestore = useRef(rememberedConversation(dashboardId, mode));
+  useEffect(() => {
+    const id = toRestore.current;
+    if (!active || !id) return;
+    toRestore.current = null;
+    openStored(id).catch(() => forgetConversation(dashboardId, mode));
+  }, [active, dashboardId, mode, openStored]);
+  useEffect(() => {
+    if (chat.conversationId) {
+      rememberConversation(dashboardId, mode, chat.conversationId);
+    }
+  }, [chat.conversationId, dashboardId, mode]);
 
   // Follows what the answer writes, and stays put when a vote changes an old one
   const end = useRef<HTMLDivElement>(null);
@@ -775,6 +798,7 @@ function Conversations({
   const showList = listOpen && !chat.busy && conversations.length > 0;
 
   const startNew = () => {
+    forgetConversation(dashboardId, mode);
     reset();
     setChosenModel(undefined);
     setListOpen(false);
@@ -809,6 +833,7 @@ function Conversations({
       throw error;
     }
     if (id === chat.conversationId) {
+      forgetConversation(dashboardId, mode);
       reset();
       setChosenModel(undefined);
     }
@@ -1234,7 +1259,7 @@ function Conversations({
             {chat.busy ? (
               <Button
                 buttonStyle="secondary"
-                onClick={stop}
+                onClick={chat.stop}
                 icon={<Icons.StopOutlined iconSize="m" />}
                 tooltip={t('Stop')}
                 aria-label={t('Stop')}

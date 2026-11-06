@@ -24,6 +24,7 @@ import { Button } from '@superset-ui/core/components';
 import { Icons } from '@superset-ui/core/components/Icons';
 import type { RootState } from 'src/dashboard/types';
 import { AssistantPanel } from '../assistant/AssistantPanel';
+import { rememberedPanel, rememberPanel } from '../assistant/remembered';
 import { useAssistantAccess } from '../assistant/useAssistant';
 import { usePhoneScreen } from '../format/mobile';
 import { setPresenting } from '../present/presentation';
@@ -145,16 +146,23 @@ export function ReadingBar({
   const dashboardId = useSelector((state: RootState) => state.dashboardInfo.id);
   const assistant = useAssistantAccess(dashboardId);
   const assistantModels = assistant.models;
-  const [assistantOpen, setAssistantOpen] = useState(false);
-  const [assistantUsed, setAssistantUsed] = useState(false);
+  // A reload finds the panel as it was: an answer may be running there
+  const [assistantOpen, setAssistantOpen] = useState(() =>
+    rememberedPanel(dashboardId),
+  );
+  const [assistantUsed, setAssistantUsed] = useState(assistantOpen);
+  const showAssistant = (open: boolean) => {
+    rememberPanel(dashboardId, open);
+    setAssistantOpen(open);
+  };
   const openAssistant = () => {
     setAssistantUsed(true);
-    setAssistantOpen(true);
+    showAssistant(true);
   };
-  const assistantPanel = assistantUsed && (
+  const assistantPanel = assistantUsed && assistantModels.length > 0 && (
     <AssistantPanel
       open={assistantOpen}
-      onClose={() => setAssistantOpen(false)}
+      onClose={() => showAssistant(false)}
       access={assistant}
     />
   );
@@ -250,7 +258,7 @@ export function ReadingBar({
             icon={<Icons.CommentOutlined iconSize="m" />}
             pressed={assistantOpen}
             onClick={() =>
-              assistantOpen ? setAssistantOpen(false) : openAssistant()
+              assistantOpen ? showAssistant(false) : openAssistant()
             }
             data-test="auradata-assistant-button"
           />

@@ -25,10 +25,12 @@ import {
   clearFeedback,
   decideCall,
   fetchConversation,
+  readTurn,
   saveFeedback,
+  stopTurn,
   undoTurn,
 } from './client';
-import { transcriptOf, withEvent } from './transcript';
+import { transcriptOf, wasStopped, withEvent } from './transcript';
 import type {
   AssistantContext,
   AssistantBudget,
@@ -55,9 +57,10 @@ type StreamStart = (
 ) => Promise<void>;
 
 /**
- * One conversation of the panel: what it shows, and sending to the server. A question
- * in the air is aborted by `stop`, and by leaving: closing the panel ends its stream.
- * `onChanged` runs when an answer ended after changing the report.
+ * One conversation of the panel: what it shows, and sending to the server. An answer
+ * runs on the server: leaving only stops reading it, and opening its conversation reads
+ * it from where it is, also after a reload. Only `stop` stops it, and its stream then
+ * ends as any other. `onChanged` runs when an answer ended after changing the report.
  */
 export function useAssistantChat(
   mode: ChatMode,
@@ -77,68 +80,100 @@ export function useAssistantChat(
   // Fresher than what the panel read when it opened
   const [budget, setBudget] = useState<AssistantBudget | null>(null);
   const inFlight = useRef<AbortController | null>(null);
+  const currentId = useRef<string | null>(null);
+  const stopWanted = useRef(false);
+  const leftAnswer = useRef(false);
 
-  const stop = useCallback(() => inFlight.current?.abort(), []);
-  useEffect(() => stop, [stop]);
+  const select = useCallback((id: string | null) => {
+    currentId.current = id;
+    setConversationId(id);
+  }, []);
+
+  /** Stops reading. The answer goes on, and it can be read again. */
+  const leave = useCallback(() => {
+    if (inFlight.current) leftAnswer.current = true;
+    inFlight.current?.abort();
+  }, []);
+  useEffect(() => leave, [leave]);
+
+  const stop = useCallback(() => {
+    if (!inFlight.current) return;
+    if (currentId.current) {
+      stopTurn(currentId.current).catch(logging.error);
+    } else {
+      // The server has not said which conversation this is yet
+      stopWanted.current = true;
+    }
+  }, []);
 
   const reset = useCallback(() => {
-    stop();
+    leave();
+    leftAnswer.current = false;
     setMessages([]);
-    setConversationId(null);
+    select(null);
     setConversationModel(null);
     setContextTokens(0);
     setCacheLost(false);
     setConfirmations([]);
     setCanUndo(false);
-  }, [stop]);
+  }, [leave, select]);
 
-  const show = useCallback((stored: StoredConversation) => {
-    setMessages(transcriptOf(stored));
-    setConversationId(stored.id);
-    setConversationModel(stored.model);
-    setContextTokens(stored.context_tokens);
-    setCacheLost(false);
-    setConfirmations(stored.pending ?? []);
-    setCanUndo(stored.can_undo ?? false);
-  }, []);
-
-  const open = useCallback(
-    async (id: string) => {
-      stop();
-      show(await fetchConversation(id));
+  const show = useCallback(
+    (stored: StoredConversation) => {
+      const transcript = transcriptOf(stored);
+      setMessages(transcript);
+      select(stored.id);
+      setConversationModel(stored.model);
+      setContextTokens(stored.context_tokens);
+      setCacheLost(false);
+      setConfirmations(stored.pending ?? []);
+      setCanUndo(stored.can_undo ?? false);
+      return transcript;
     },
-    [show, stop],
+    [select],
   );
 
   /** Reads a stream into one answer, from its first event to its last. */
   const follow = useCallback(
     async (answerId: string, start: StreamStart) => {
       let changed = false;
+      let gone = false;
       const change = (update: (answer: ChatMessage) => ChatMessage) =>
         setMessages(current =>
           current.map(item => (item.id === answerId ? update(item) : item)),
         );
       const onEvent = (event: AssistantEvent) => {
         if (event.event === 'conversation') {
-          setConversationId(event.data.id);
+          select(event.data.id);
           setConversationModel(event.data.model);
           setCacheLost(false);
+          if (stopWanted.current) {
+            stopWanted.current = false;
+            stopTurn(event.data.id).catch(logging.error);
+          }
         } else if (event.event === 'model_changed') {
           setCacheLost(true);
         } else if (event.event === 'confirm') {
-          setConfirmations(current => [...current, event.data]);
+          // Reading a turn again brings its cards again
+          setConfirmations(current =>
+            current.some(item => item.id === event.data.id)
+              ? current
+              : [...current, event.data],
+          );
         } else if (event.event === 'done') {
           setContextTokens(event.data.context_tokens);
           setCanUndo(event.data.can_undo ?? false);
           if (event.data.budget) setBudget(event.data.budget);
           // A turn resumed from a card keeps the id of the answer that asked
           const storedId = event.data.message_id;
-          if (storedId) {
-            change(answer => ({
-              ...answer,
-              storedId: answer.storedId ?? storedId,
-            }));
-          }
+          const stopped = wasStopped(event.data.stop_reason);
+          change(answer => ({
+            ...answer,
+            storedId: answer.storedId ?? storedId ?? undefined,
+            stopped: answer.stopped || stopped,
+          }));
+        } else if (event.event === 'turn_end') {
+          gone = !!event.data.gone;
         } else {
           changed =
             changed || (event.event === 'tool_end' && !!event.data.changed);
@@ -148,13 +183,16 @@ export function useAssistantChat(
 
       const controller = new AbortController();
       inFlight.current = controller;
+      leftAnswer.current = false;
       setBusy(true);
       try {
         await start(onEvent, controller.signal);
+        // The turn ended and left nothing to read: what it stored tells how
+        if (gone && currentId.current) {
+          show(await fetchConversation(currentId.current));
+        }
       } catch (error) {
-        if (controller.signal.aborted) {
-          change(answer => ({ ...answer, stopped: true }));
-        } else {
+        if (!controller.signal.aborted) {
           if (!(error instanceof AssistantError)) logging.error(error);
           const problem =
             error instanceof AssistantError ? error.message : NOT_ANSWERED();
@@ -165,14 +203,48 @@ export function useAssistantChat(
           ...answer,
           tools: answer.tools.map(step => ({ ...step, running: false })),
         }));
-        if (inFlight.current === controller) inFlight.current = null;
-        setBusy(false);
+        if (inFlight.current === controller) {
+          inFlight.current = null;
+          stopWanted.current = false;
+          setBusy(false);
+        }
         onAnswered();
         if (changed) onChanged?.();
       }
     },
-    [onAnswered, onChanged],
+    [onAnswered, onChanged, select, show],
   );
+
+  const open = useCallback(
+    async (id: string) => {
+      leave();
+      const stored = await fetchConversation(id);
+      leftAnswer.current = false;
+      const transcript = show(stored);
+      if (!stored.running) return;
+      const { after } = stored.running;
+      const last = transcript[transcript.length - 1];
+      const answerId = last?.role === 'assistant' ? last.id : localId();
+      if (last?.role !== 'assistant') {
+        setMessages(current => [
+          ...current,
+          { id: answerId, role: 'assistant', text: '', tools: [] },
+        ]);
+      }
+      follow(answerId, (onEvent, signal) =>
+        readTurn(id, after, onEvent, signal),
+      );
+    },
+    [follow, leave, show],
+  );
+
+  /** Reads again the answer the panel left when it closed, if any. */
+  const rejoin = useCallback(() => {
+    if (leftAnswer.current && currentId.current) {
+      leftAnswer.current = false;
+      open(currentId.current).catch(logging.error);
+    }
+  }, [open]);
 
   const send = useCallback(
     (
@@ -293,6 +365,8 @@ export function useAssistantChat(
     undo,
     vote,
     stop,
+    leave,
+    rejoin,
     open,
     reset,
   };

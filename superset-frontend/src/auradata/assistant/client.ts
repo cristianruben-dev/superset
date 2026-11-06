@@ -34,6 +34,9 @@ import type {
 } from './types';
 
 const CHAT_URL = '/api/v1/auradata/assistant/';
+/** Tries in a row, each one waiting a step longer, before saying the line is down. */
+const RECONNECTS = 6;
+const RECONNECT_MS = 1000;
 
 export const fetchModels = (dashboardId: number): Promise<AssistantModels> =>
   SupersetClient.get({
@@ -193,16 +196,113 @@ async function refusalOf(response: Response): Promise<string> {
   }
 }
 
+/** Reads one connection. Says whether it reached the end of its turn. */
+async function readEvents(
+  response: Response,
+  onEvent: (event: AssistantEvent, id?: number) => void,
+): Promise<boolean> {
+  if (!response.body) return false;
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  const parse = sseParser();
+  let ended = false;
+  const emit = (text: string) =>
+    parse(text).forEach(({ event, data, id }) => {
+      ended = ended || event === 'turn_end';
+      onEvent({ event, data: JSON.parse(data) } as AssistantEvent, id);
+    });
+
+  let chunk = await reader.read();
+  while (!chunk.done) {
+    emit(decoder.decode(chunk.value, { stream: true }));
+    // eslint-disable-next-line no-await-in-loop
+    chunk = await reader.read();
+  }
+  return ended;
+}
+
+const pause = (milliseconds: number, signal: AbortSignal) =>
+  new Promise<void>(resolve => {
+    const timer = setTimeout(resolve, milliseconds);
+    signal.addEventListener(
+      'abort',
+      () => {
+        clearTimeout(timer);
+        resolve();
+      },
+      { once: true },
+    );
+  });
+
+const isRefused = (status: number) => status >= 400 && status < 500;
+
+/**
+ * Reads the turn of a conversation from the event after `after` until it ends. A
+ * connection lasts under a minute and then the next goes on from the last number, so
+ * this is also what a dropped one does. Only a refusal or a long silence stop it.
+ */
+export async function readTurn(
+  conversationId: string,
+  after: number,
+  onEvent: (event: AssistantEvent) => void,
+  signal: AbortSignal,
+): Promise<void> {
+  let last = after;
+  let failures = 0;
+  const onNumbered = (event: AssistantEvent, id?: number) => {
+    if (id !== undefined) {
+      last = id;
+      failures = 0;
+    }
+    onEvent(event);
+  };
+  /* eslint-disable no-await-in-loop */
+  while (!signal.aborted) {
+    try {
+      const response = await fetch(
+        SupersetClient.getUrl({
+          endpoint: `${CHAT_URL}conversations/${conversationId}/stream/?after=${last}`,
+        }),
+        {
+          credentials: 'same-origin',
+          headers: { Accept: 'text/event-stream' },
+          signal,
+        },
+      );
+      if (isRefused(response.status)) {
+        throw new AssistantError(await refusalOf(response));
+      }
+      if (response.ok && (await readEvents(response, onNumbered))) return;
+      if (!response.ok) failures += 1;
+    } catch (error) {
+      if (signal.aborted || error instanceof AssistantError) throw error;
+      failures += 1;
+    }
+    if (failures > RECONNECTS) {
+      throw new AssistantError(
+        t(
+          'The connection was lost. Open this conversation again to see the answer.',
+        ),
+      );
+    }
+    await pause(Math.min(failures, RECONNECTS) * RECONNECT_MS, signal);
+  }
+  /* eslint-enable no-await-in-loop */
+}
+
 /**
  * Sends a request and hands over each event as it arrives. `SupersetClient` waits
  * for whole responses, so this reads the body of a `fetch` with the same token. A
- * token that went stale gets one new try. It rejects when the answer never came.
+ * token that went stale gets one new try. The answer runs in a worker, so a connection
+ * that ends early only means reading it from another. `known` is the conversation, when
+ * it does not come in the answer.
  */
 async function streamAnswer(
   endpoint: string,
   body: AssistantQuestion | AssistantDecision,
   onEvent: (event: AssistantEvent) => void,
   signal: AbortSignal,
+  known: string | null,
 ): Promise<void> {
   let response = await post(endpoint, body, signal);
   if (response.status === 400) {
@@ -213,32 +313,31 @@ async function streamAnswer(
     throw new AssistantError(await refusalOf(response));
   }
 
-  const reader = response.body.getReader();
-  const decoder = new TextDecoder();
-  const parse = sseParser();
-  let finished = false;
-  const emit = (text: string) =>
-    parse(text).forEach(({ event, data }) => {
-      finished = finished || event === 'done' || event === 'error';
-      onEvent({ event, data: JSON.parse(data) } as AssistantEvent);
+  let conversationId = known;
+  let last = 0;
+  let ended = false;
+  try {
+    ended = await readEvents(response, (event, id) => {
+      if (id !== undefined) last = id;
+      if (event.event === 'conversation') conversationId = event.data.id;
+      onEvent(event);
     });
-
-  let chunk = await reader.read();
-  while (!chunk.done) {
-    emit(decoder.decode(chunk.value, { stream: true }));
-    // eslint-disable-next-line no-await-in-loop
-    chunk = await reader.read();
+  } catch (error) {
+    if (signal.aborted || !conversationId) throw error;
   }
-  if (!finished) {
+  if (ended) return;
+  if (!conversationId) {
     throw new AssistantError(t('The answer was cut off. Try again.'));
   }
+  await readTurn(conversationId, last, onEvent, signal);
 }
 
 export const askAssistant = (
   question: AssistantQuestion,
   onEvent: (event: AssistantEvent) => void,
   signal: AbortSignal,
-): Promise<void> => streamAnswer(CHAT_URL, question, onEvent, signal);
+): Promise<void> =>
+  streamAnswer(CHAT_URL, question, onEvent, signal, question.conversation_id);
 
 /** Approves or rejects a pending call, and reads what the assistant does next. */
 export const decideCall = (
@@ -252,7 +351,14 @@ export const decideCall = (
     decision,
     onEvent,
     signal,
+    conversationId,
   );
+
+/** Asks the server to stop the turn of a conversation. Its stream says when it did. */
+export const stopTurn = (conversationId: string): Promise<unknown> =>
+  SupersetClient.post({
+    endpoint: `${CHAT_URL}conversations/${conversationId}/stop/`,
+  });
 
 /** Goes back to before the last turn that changed the report. */
 export async function undoTurn(conversationId: string): Promise<UndoResult> {

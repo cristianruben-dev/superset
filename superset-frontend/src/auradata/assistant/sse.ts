@@ -20,10 +20,13 @@
 export interface SseEvent {
   event: string;
   data: string;
+  /** Its number in the stream, to go on after it. */
+  id?: number;
 }
 
 function eventOf(lines: string[]): SseEvent | null {
   let event = 'message';
+  let id: number | undefined;
   const data: string[] = [];
   lines.forEach(line => {
     // A comment only keeps the connection open
@@ -33,8 +36,11 @@ function eventOf(lines: string[]): SseEvent | null {
     const value = colon < 0 ? '' : line.slice(colon + 1).replace(/^ /, '');
     if (field === 'event') event = value;
     if (field === 'data') data.push(value);
+    if (field === 'id') id = Number(value);
   });
-  return data.length ? { event, data: data.join('\n') } : null;
+  if (!data.length) return null;
+  const found = { event, data: data.join('\n') };
+  return id === undefined ? found : { ...found, id };
 }
 
 /**

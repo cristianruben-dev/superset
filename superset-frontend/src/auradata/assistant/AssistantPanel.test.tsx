@@ -33,6 +33,8 @@ import {
   AssistantError,
   clearFeedback,
   decideCall,
+  readTurn,
+  stopTurn,
   deleteConversation,
   fetchConversation,
   fetchConversations,
@@ -56,6 +58,8 @@ jest.mock('./client', () => ({
   ...jest.requireActual('./client'),
   askAssistant: jest.fn(),
   decideCall: jest.fn(),
+  readTurn: jest.fn(),
+  stopTurn: jest.fn(() => Promise.resolve()),
   fetchConversation: jest.fn(),
   fetchConversations: jest.fn(),
   renameConversation: jest.fn(),
@@ -179,6 +183,31 @@ const sendQuestion = async (text = '¿Cuánto vendimos?') => {
 };
 
 /** A stream the test feeds by hand. */
+const storedConversation = (id: string, running: { after: number } | null) => ({
+  id,
+  dashboard_id: 3,
+  mode: 'read',
+  model: SONNET.id,
+  title: 'Hola',
+  changed_on: '2026-11-06',
+  messages: [
+    {
+      id: 'm1',
+      seq: 0,
+      role: 'user',
+      content: [{ type: 'text', text: 'Hola' }],
+      stop_reason: null,
+    },
+  ],
+  figures: {},
+  context_tokens: 0,
+  pending: [],
+  rejected: [],
+  can_undo: false,
+  feedback: {},
+  running,
+});
+
 const heldStream = () => {
   let emit: (event: AssistantEvent) => void = () => {};
   let signal: AbortSignal | undefined;
@@ -202,6 +231,9 @@ const heldStream = () => {
 };
 
 beforeEach(() => {
+  window.sessionStorage.clear();
+  (readTurn as jest.Mock).mockReset().mockResolvedValue(undefined);
+  (stopTurn as jest.Mock).mockClear();
   ask.mockReset();
   decide.mockReset().mockResolvedValue(undefined);
   undo.mockReset();
@@ -275,19 +307,42 @@ test('the next question goes on in the same conversation', async () => {
   await stream.end();
 });
 
-test('stopping aborts the stream, and so does closing the panel', async () => {
+test('stopping asks the server and keeps reading until the answer says so', async () => {
   const stream = heldStream();
-  const { rerender } = setup();
+  setup();
   await sendQuestion();
+  stream.emit({
+    event: 'conversation',
+    data: { id: 'c1', model: SONNET.id, mode: 'read' },
+  });
 
   await userEvent.click(screen.getByTestId('auradata-assistant-stop'));
 
-  expect(stream.signal()?.aborted).toBe(true);
+  expect(stopTurn).toHaveBeenCalledWith('c1');
+  expect(stream.signal()?.aborted).toBe(false);
+
+  stream.emit({
+    event: 'done',
+    data: { context_tokens: 0, stop_reason: 'interrupted' },
+  });
+  stream.emit({ event: 'turn_end', data: {} });
+  await stream.end();
+
   expect(
     await screen.findByText('You stopped this answer.'),
   ).toBeInTheDocument();
+});
 
+test('closing the panel only stops reading, and opening it reads on', async () => {
+  const stream = heldStream();
+  const { rerender } = setup();
   await sendQuestion();
+  stream.emit({
+    event: 'conversation',
+    data: { id: 'c1', model: SONNET.id, mode: 'read' },
+  });
+  conversation.mockResolvedValue(storedConversation('c1', { after: 2 }));
+
   rerender(
     <AssistantPanel
       open={false}
@@ -297,6 +352,30 @@ test('stopping aborts the stream, and so does closing the panel', async () => {
   );
 
   await waitFor(() => expect(stream.signal()?.aborted).toBe(true));
+  expect(stopTurn).not.toHaveBeenCalled();
+
+  rerender(
+    <AssistantPanel open onClose={jest.fn()} access={accessOf([SONNET])} />,
+  );
+
+  await waitFor(() =>
+    expect(readTurn).toHaveBeenCalledWith(
+      'c1',
+      2,
+      expect.any(Function),
+      expect.any(AbortSignal),
+    ),
+  );
+});
+
+test('a reload comes back to the conversation that was open', async () => {
+  window.sessionStorage.setItem('auradata.assistant.conversation.3.read', 'c7');
+  conversation.mockResolvedValue(storedConversation('c7', null));
+
+  setup();
+
+  await waitFor(() => expect(conversation).toHaveBeenCalledWith('c7'));
+  expect(readTurn).not.toHaveBeenCalled();
 });
 
 test('a stream that ends early shows why', async () => {

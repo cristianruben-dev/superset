@@ -23,6 +23,7 @@ import {
   attachmentUrl,
   clearFeedback,
   decideCall,
+  readTurn,
   deleteConversation,
   renameConversation,
   saveFeedback,
@@ -93,6 +94,7 @@ test('posts with the token and the session, and passes events on as they come', 
       'event: text\ndata: {"text":"Ho',
       'la"}\n\n: keep-alive\n\n',
       'event: done\ndata: {"context_tokens":5,"model":"m"}\n\n',
+      'event: turn_end\ndata: {}\n\n',
     ),
   );
 
@@ -101,6 +103,7 @@ test('posts with the token and the session, and passes events on as they come', 
   expect(events).toEqual([
     { event: 'text', data: { text: 'Hola' } },
     { event: 'done', data: { context_tokens: 5, model: 'm' } },
+    { event: 'turn_end', data: {} },
   ]);
   const [url, init] = fetchMock.mock.calls[0];
   expect(url).toBe('http://app/api/v1/auradata/assistant/');
@@ -110,22 +113,71 @@ test('posts with the token and the session, and passes events on as they come', 
   expect(JSON.parse(init.body)).toEqual(QUESTION);
 });
 
-test('a stream that ends without its answer is an error', async () => {
+test('a connection that ends before its turn goes on from its last number', async () => {
+  fetchMock
+    .mockResolvedValueOnce(
+      stream(
+        'id: 4\nevent: conversation\ndata: {"id":"c9","model":"m","mode":"read"}\n\n',
+        'id: 5\nevent: text\ndata: {"text":"Ho"}\n\n',
+      ),
+    )
+    .mockResolvedValueOnce(
+      stream(
+        'id: 6\nevent: text\ndata: {"text":"la"}\n\n',
+        'id: 7\nevent: turn_end\ndata: {}\n\n',
+      ),
+    );
+
+  const events = await ask();
+
+  expect(events.filter(item => item.event === 'text')).toHaveLength(2);
+  expect(fetchMock).toHaveBeenCalledTimes(2);
+  const [url, init] = fetchMock.mock.calls[1];
+  expect(String(url)).toContain('/conversations/c9/stream/?after=5');
+  expect(init.method).toBeUndefined();
+});
+
+test('a stream that ends before saying its conversation is an error', async () => {
   fetchMock.mockResolvedValue(stream('event: text\ndata: {"text":"Ho"}\n\n'));
 
   await expect(ask()).rejects.toThrow(AssistantError);
 });
 
-test('an error of the service ends the stream without a done', async () => {
+test('a refused connection says why and does not try again', async () => {
+  fetchMock.mockResolvedValue(refused(404, { message: 'No existe' }));
+  const reading = readTurn('c1', 3, () => {}, new AbortController().signal);
+
+  await expect(reading).rejects.toThrow('No existe');
+  expect(fetchMock).toHaveBeenCalledTimes(1);
+});
+
+test('leaving a stream ends it without an error', async () => {
+  const controller = new AbortController();
+  fetchMock.mockImplementation(async () => {
+    controller.abort();
+    throw new Error('aborted');
+  });
+
+  await expect(readTurn('c1', 0, () => {}, controller.signal)).rejects.toThrow(
+    'aborted',
+  );
+  expect(fetchMock).toHaveBeenCalledTimes(1);
+});
+
+test('an error of the service still waits for the end of its turn', async () => {
   fetchMock.mockResolvedValue(
-    stream('event: error\ndata: {"code":"failed","message":"Falló"}\n\n'),
+    stream(
+      'event: error\ndata: {"code":"failed","message":"Falló"}\n\n',
+      'event: turn_end\ndata: {}\n\n',
+    ),
   );
 
   const events = await ask();
 
-  expect(events).toEqual([
-    { event: 'error', data: { code: 'failed', message: 'Falló' } },
-  ]);
+  expect(events[0]).toEqual({
+    event: 'error',
+    data: { code: 'failed', message: 'Falló' },
+  });
 });
 
 test('a refused message says why', async () => {
@@ -137,7 +189,7 @@ test('a refused message says why', async () => {
 test('a stale token gets one new try', async () => {
   fetchMock
     .mockResolvedValueOnce(refused(400, { message: 'CSRF' }))
-    .mockResolvedValueOnce(stream('event: done\ndata: {}\n\n'));
+    .mockResolvedValueOnce(stream('event: turn_end\ndata: {}\n\n'));
 
   await ask();
 
@@ -159,9 +211,7 @@ test('a refusal without a body has a message of its own', async () => {
 });
 
 test('a decision names the call and goes to its conversation', async () => {
-  fetchMock.mockResolvedValue(
-    stream('event: done\ndata: {"context_tokens": 1}\n\n'),
-  );
+  fetchMock.mockResolvedValue(stream('event: turn_end\ndata: {}\n\n'));
   const events: unknown[] = [];
 
   await decideCall(
