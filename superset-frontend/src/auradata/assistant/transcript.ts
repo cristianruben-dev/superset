@@ -32,7 +32,8 @@ const LONG_CONVERSATION = 0.8;
 const FALLBACK_CONTEXT_TOKENS = 200_000;
 const PAGE_CONTEXT = '<page_context>';
 const ATTACHMENT_BLOCK = 'auradata_attachment';
-const CONTEXT_EXCEEDED = 'context_exceeded';
+/** What only a new conversation gets past: the panel offers one. */
+const NEEDS_NEW_CONVERSATION = ['context_exceeded', 'history_refused'];
 /** What the API writes in place of a note when a response is cut: not for the person. */
 const CUT_NOTE =
   'This part of the response was interrupted before it finished.';
@@ -250,7 +251,7 @@ export function withEvent(
       return {
         ...answer,
         problem: data.message,
-        contextExceeded: data.code === CONTEXT_EXCEEDED,
+        contextExceeded: NEEDS_NEW_CONVERSATION.includes(data.code),
       };
     default:
       return answer;

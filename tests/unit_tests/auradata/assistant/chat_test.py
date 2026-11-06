@@ -29,7 +29,7 @@ from decimal import Decimal
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 import pytest
 from babel.messages.pofile import read_po
@@ -62,8 +62,10 @@ from superset.auradata.assistant.models import (
     PRUDENT_SPEC,
     REFUSAL_FALLBACK_BETA,
     SOURCE_TABLE,
+    THINKING_BINDING_BETA,
     THINKING_UPDATES_BETA,
     TokenUsage,
+    tuned_spec,
 )
 from superset.auradata.assistant.settings import AssistantSettings
 from superset.auradata.assistant.tools import (
@@ -78,7 +80,7 @@ from superset.auradata.assistant.tools import (
     ToolBox,
     ToolOutcome,
 )
-from superset.auradata.models import AssistantMessage
+from superset.auradata.models import AssistantConversation, AssistantMessage
 from superset.extensions import db
 from superset.mcp_service.app import mcp
 from superset.mcp_service.auth import METHOD_PERMISSION_ATTR
@@ -520,14 +522,19 @@ def test_the_request_asks_for_the_notes_of_the_model(
     fake = use_model(mocker)
 
     assert ask(client, world["dashboard"]).status_code == 200
-    assert fake.requests[0]["thinking"] == {"type": "adaptive", "display": "updates"}
+    assert fake.requests[0]["thinking"] == {
+        "type": "adaptive",
+        "display": "updates",
+        "block_binding": {"prefix_mismatch_behavior": "drop_block"},
+    }
     assert fake.headers[0]["anthropic-beta"].split(",") == [
         REFUSAL_FALLBACK_BETA,
         THINKING_UPDATES_BETA,
+        THINKING_BINDING_BETA,
     ]
 
 
-def test_a_summary_of_the_thinking_needs_no_beta_header() -> None:
+def test_a_summary_of_the_thinking_needs_no_header_for_its_display() -> None:
     params = agent.request_params(
         CatalogModel("claude-opus-4-8", MODEL_TABLE["claude-opus-4-8"], True),
         "system",
@@ -535,8 +542,104 @@ def test_a_summary_of_the_thinking_needs_no_beta_header() -> None:
         [],
     )
 
-    assert params["thinking"] == {"type": "adaptive"}
-    assert "betas" not in params
+    assert params["thinking"] == {
+        "type": "adaptive",
+        "block_binding": {"prefix_mismatch_behavior": "drop_block"},
+    }
+    assert params["betas"] == [THINKING_BINDING_BETA]
+
+
+def test_every_model_sends_block_binding_only_with_thinking_that_takes_it() -> None:
+    for model_id, spec in MODEL_TABLE.items():
+        for tuned in (spec, tuned_spec(spec, None, False)):
+            params = agent.request_params(
+                CatalogModel(model_id, tuned, True), "system", [], []
+            )
+            thinking = params.get("thinking")
+            sends = thinking is not None and "block_binding" in thinking
+            assert sends == (
+                thinking is not None and thinking["type"] in ("adaptive", "enabled")
+            )
+            assert (THINKING_BINDING_BETA in params.get("betas", [])) == sends
+
+
+def test_a_conversation_keeps_the_prompt_it_started_with_across_a_change(
+    client: Any, world: dict[str, Any], mocker: MockerFixture
+) -> None:
+    login(world, "Ana")
+    fake = use_model(
+        mocker,
+        reply(thinking("primero miro", "sig-abc"), text("Hola")),
+        reply(text("Sigo")),
+        reply(text("Otra")),
+    )
+    first = ask(client, world["dashboard"])
+    conversation = conversation_id_of(first)
+
+    mocker.patch.object(turns_module, "system_prompt", return_value="An edited prompt")
+    ask(client, world["dashboard"], message="Sigue", conversation_id=conversation)
+    other = ask(client, world["dashboard"], message="Empiezo otra")
+
+    started, kept, fresh = (request["system"][0]["text"] for request in fake.requests)
+    assert started != "An edited prompt"
+    assert kept == started
+    assert fresh == "An edited prompt"
+    assert conversation_id_of(other) != conversation
+
+
+def test_a_conversation_without_a_stored_prompt_takes_the_one_of_its_next_turn(
+    client: Any, world: dict[str, Any], session: Any, mocker: MockerFixture
+) -> None:
+    login(world, "Ana")
+    fake = use_model(
+        mocker, reply(text("Hola")), reply(text("Sigo")), reply(text("Y sigo"))
+    )
+    conversation = conversation_id_of(ask(client, world["dashboard"]))
+    stored = session.get(AssistantConversation, UUID(conversation))
+    stored.system_prompt = None
+    session.commit()
+
+    mocker.patch.object(
+        turns_module, "system_prompt", return_value="The prompt of the day"
+    )
+    ask(client, world["dashboard"], message="Sigue", conversation_id=conversation)
+    mocker.patch.object(turns_module, "system_prompt", return_value="A later one")
+    ask(client, world["dashboard"], message="Sigue", conversation_id=conversation)
+
+    assert [r["system"][0]["text"] for r in fake.requests[1:]] == [
+        "The prompt of the day",
+        "The prompt of the day",
+    ]
+
+
+def test_dropped_thinking_is_logged_and_a_change_of_model_is_not(
+    mocker: MockerFixture,
+) -> None:
+    warning = mocker.patch.object(agent.logger, "warning")
+    message = SimpleNamespace(
+        input_transformations=[
+            SimpleNamespace(reason="model_binding_mismatch"),
+        ]
+    )
+    agent._note_dropped_thinking(message, "conversation")
+    warning.assert_not_called()
+
+    message.input_transformations.append(
+        SimpleNamespace(reason="prefix_binding_mismatch")
+    )
+    agent._note_dropped_thinking(message, "conversation")
+    warning.assert_called_once()
+    assert warning.call_args.args[1] == 1
+
+
+def test_a_history_the_api_cannot_verify_offers_a_new_conversation() -> None:
+    event, data = agent.error_event(
+        Exception("messages.1.content.0: Invalid `signature` in `thinking` block.")
+    )
+
+    assert event == "error"
+    assert data["code"] == "history_refused"
+    assert "new one" in data["message"]
 
 
 def lose_the_session_before_streaming(mocker: MockerFixture) -> None:
@@ -744,12 +847,16 @@ def test_each_model_gets_what_its_row_says(
 
     assert sonnet["fallbacks"] == "default"
     assert "server-side-fallback-2026-07-01" in sonnet_headers["anthropic-beta"]
-    assert sonnet["thinking"] == {"type": "adaptive", "display": "updates"}
+    binding = {"block_binding": {"prefix_mismatch_behavior": "drop_block"}}
+    assert sonnet["thinking"] == {"type": "adaptive", "display": "updates", **binding}
     assert sonnet["output_config"] == {"effort": "high"}
     assert sonnet["max_tokens"] == 64000
     assert "fallbacks" not in haiku
-    assert haiku["thinking"] == {"type": "adaptive"}
-    assert haiku_headers["anthropic-beta"] == REFUSAL_FALLBACK_BETA
+    assert haiku["thinking"] == {"type": "adaptive", **binding}
+    assert haiku_headers["anthropic-beta"].split(",") == [
+        REFUSAL_FALLBACK_BETA,
+        THINKING_BINDING_BETA,
+    ]
     assert haiku["output_config"] == {"effort": "medium"}
     for key in ("thinking", "output_config", "fallbacks", "cache_control"):
         assert key not in unknown
@@ -1263,7 +1370,7 @@ def test_a_request_with_tool_search_asks_for_the_usage_of_each_pass(
         [],
     )
 
-    assert params["betas"] == [REFUSAL_FALLBACK_BETA]
+    assert params["betas"] == [REFUSAL_FALLBACK_BETA, THINKING_BINDING_BETA]
     assert "fallbacks" not in params
 
 

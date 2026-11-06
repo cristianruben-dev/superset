@@ -27004,6 +27004,9 @@ msgstr "No se pudo guardar tu voto."
 msgid "This conversation is too long for the model. Start a new one to keep going."
 msgstr "Esta conversación es demasiado larga para el modelo. Empieza una nueva para seguir."
 
+msgid "This conversation can't go on after an update of the assistant. Start a new one to keep going."
+msgstr "Esta conversación no puede seguir tras una actualización del asistente. Empieza una nueva para seguir."
+
 msgid "This conversation is getting too long for the model. Start a new one to keep going."
 msgstr "Esta conversación se está haciendo demasiado larga para el modelo. Empieza una nueva para seguir."
 

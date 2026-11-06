@@ -30,6 +30,12 @@ call. What the model writes and what tools return have no way to.
 Tool inputs are not streamed eagerly: with that option the API stops checking them,
 and these tools write as the user.
 
+What the model thought is bound to the system prompt, the tools and the history that
+produced it. ``turns.py`` sends a conversation the prompt it started with, and the
+history only grows, but its tools follow the person and the deployment: a request says
+to drop thinking that no longer matches, so a conversation loses that reasoning and
+goes on, and the log says it happened. ``error_event`` names what even that cannot save.
+
 ``anthropic`` is imported where it is used: the web app must start without it.
 """
 
@@ -68,6 +74,7 @@ from superset.auradata.assistant.models import (
     cost_of_message,
     DISPLAY_UPDATES,
     REFUSAL_FALLBACK_BETA,
+    THINKING_BINDING_BETA,
     THINKING_UPDATES_BETA,
     TokenUsage,
 )
@@ -87,11 +94,20 @@ TICK = "tick"
 
 # Error code of a conversation too long for the model: the panel offers a new one
 CONTEXT_EXCEEDED = "context_exceeded"
+# Error code of a history the API will not read back: it needs a new conversation too
+HISTORY_REFUSED = "history_refused"
+# What the API says of a thinking block it cannot verify. A block of another conversation
+# never reaches this: the request drops it
+BROKEN_SIGNATURE = "invalid `signature`"
 STOP_CONTEXT_WINDOW = "model_context_window_exceeded"
 OVER_CONTEXT_PHRASES = ("prompt is too long", "exceed context limit")
 # With this beta a response lists the usage of each time the model ran for it, also
 # without a fallback. It does not change the prompt cache
 USAGE_PER_PASS_BETA = REFUSAL_FALLBACK_BETA
+
+# Kinds of ``thinking`` that take ``block_binding``: the others refuse the field
+THINKING_WITH_BLOCKS = ("adaptive", "enabled")
+_DROP_WHAT_NO_LONGER_MATCHES = {"prefix_mismatch_behavior": "drop_block"}
 
 Event = tuple[str, dict[str, Any]]
 
@@ -141,6 +157,9 @@ def request_params(
             params["thinking"]["display"] = spec.thinking_display
         if spec.thinking_display == DISPLAY_UPDATES:
             params["betas"] = [*params.get("betas", []), THINKING_UPDATES_BETA]
+        if params["thinking"]["type"] in THINKING_WITH_BLOCKS:
+            params["thinking"]["block_binding"] = dict(_DROP_WHAT_NO_LONGER_MATCHES)
+            params["betas"] = [*params.get("betas", []), THINKING_BINDING_BETA]
     betas = params.get("betas", [])
     if tools and spec.tool_search and USAGE_PER_PASS_BETA not in betas:
         params["betas"] = [USAGE_PER_PASS_BETA, *betas]
@@ -186,6 +205,24 @@ def context_exceeded_event() -> Event:
     )
 
 
+def _is_history_refused(ex: Any) -> bool:
+    return BROKEN_SIGNATURE in str(ex).lower()
+
+
+def history_refused_event() -> Event:
+    """A stored conversation the API no longer accepts, whatever is sent."""
+    return (
+        "error",
+        {
+            "code": HISTORY_REFUSED,
+            "message": _(
+                "This conversation can't go on after an update of the assistant. "
+                "Start a new one to keep going."
+            ),
+        },
+    )
+
+
 def error_event(ex: Exception) -> Event:
     """What the user reads when a call to the API fails."""
     import anthropic  # pylint: disable=import-outside-toplevel
@@ -197,6 +234,8 @@ def error_event(ex: Exception) -> Event:
     )
     if _is_over_context(ex):
         return context_exceeded_event()
+    if _is_history_refused(ex):
+        return history_refused_event()
     if _is_kind(ex, 429, "rate_limit_error"):
         code = "rate_limited"
         message = _("The AI service has too many requests. Wait a moment and retry.")
@@ -328,6 +367,26 @@ def _turn_of(message: Any) -> AssistantTurn:
         cost_usd=cost,
         context_tokens=context_of_message(message.usage),
     )
+
+
+def _note_dropped_thinking(message: Any, conversation_id: Any) -> None:
+    """
+    Say so when the API dropped thinking: a turn that changes neither prompt nor tools
+    never should, so a line here points at an edit of the history. A change of model
+    drops it as well, on purpose, and is left out.
+    """
+    dropped = [
+        item
+        for item in getattr(message, "input_transformations", None) or ()
+        if getattr(item, "reason", None) != "model_binding_mismatch"
+    ]
+    if dropped:
+        logger.warning(
+            "The API dropped %d thinking blocks of conversation %s: %s",
+            len(dropped),
+            conversation_id,
+            sorted({str(getattr(item, "reason", None)) for item in dropped}),
+        )
 
 
 def _store_what_it_cost(call: ModelCall, log: ConversationLog) -> None:
@@ -500,6 +559,7 @@ def run_conversation(  # noqa: C901
             if message is None:
                 _store_what_it_cost(call, log)
 
+        _note_dropped_thinking(message, log.conversation_id)
         turn = _turn_of(message)
         total_usage += turn.usage
         total_cost += turn.cost_usd

@@ -237,6 +237,12 @@ test('an answer that no longer fits says so, and no other failure does', () => {
   expect(
     withEvent(answer(), {
       event: 'error',
+      data: { code: 'history_refused', message: 'Updated' },
+    }),
+  ).toMatchObject({ problem: 'Updated', contextExceeded: true });
+  expect(
+    withEvent(answer(), {
+      event: 'error',
       data: { code: 'failed', message: 'Failed' },
     }),
   ).toMatchObject({ problem: 'Failed', contextExceeded: false });

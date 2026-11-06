@@ -427,7 +427,14 @@ def _prepare_turn(
             {"code": "failed", "message": _("The AI assistant is not installed.")},
         )
     toolbox.conversation_id = ticket.conversation_id
-    system = system_prompt(ticket.mode, toolbox.unavailable, model.spec.tool_search)
+    if conversation.system_prompt is None:
+        # Sent as it is on every later turn: its thinking is bound to this text, so a
+        # change of the prompt reaches new conversations and leaves this one alone
+        conversation.system_prompt = system_prompt(
+            ticket.mode, toolbox.unavailable, model.spec.tool_search
+        )
+        db.session.commit()  # pylint: disable=consider-using-transaction
+    system = conversation.system_prompt
     log = ConversationLog(conversation, ticket.user_id)
     if ticket.kind == KIND_DECIDE:
         turn = _decided_turn(ticket, client, model, system, toolbox, log, conversation)

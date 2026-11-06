@@ -223,6 +223,9 @@ class AssistantConversation(Model):
     mode = sa.Column(sa.String(16), nullable=False)
     model = sa.Column(sa.String(128), nullable=False)
     title = sa.Column(sa.String(250), nullable=False)
+    # The system prompt of its first turn, sent unchanged from then on: what the model
+    # thought is bound to it. Empty until that turn, or in a conversation older than this
+    system_prompt = sa.Column(MediumText(), nullable=True)
     created_on = sa.Column(sa.DateTime, nullable=False, default=datetime.now)
     changed_on = sa.Column(
         sa.DateTime, nullable=False, default=datetime.now, onupdate=datetime.now

@@ -582,6 +582,11 @@ class ConversationLog:
         self._next_seq = 0 if last is None else last + 1
 
     @property
+    def conversation_id(self) -> UUID:
+        """The conversation these rows go to."""
+        return self._conversation_id
+
+    @property
     def next_seq(self) -> int:
         """The position the next row takes."""
         return self._next_seq

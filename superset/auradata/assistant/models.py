@@ -55,6 +55,8 @@ EFFORTS_WITHOUT_XHIGH = ("low", "medium", "high", "max")
 REFUSAL_FALLBACK_BETA = "server-side-fallback-2026-07-01"  # noqa: S105
 # Without this header the API rejects ``display: "updates"`` as an unknown value
 THINKING_UPDATES_BETA = "thinking-display-updates-2026-08-18"  # noqa: S105
+# Lets a request say what to do with thinking its conversation no longer vouches for
+THINKING_BINDING_BETA = "thinking-binding-controls-2026-08-01"  # noqa: S105
 
 # Value of ``thinking.display``: the notes the model writes for the person between
 # tools, with the reasoning hidden. Summaries are left out: they arrive in English and
