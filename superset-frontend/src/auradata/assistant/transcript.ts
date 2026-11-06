@@ -31,6 +31,7 @@ import type {
 const LONG_CONVERSATION = 0.8;
 const FALLBACK_CONTEXT_TOKENS = 200_000;
 const PAGE_CONTEXT = '<page_context>';
+const ATTACHMENT_BLOCK = 'auradata_attachment';
 const CONTEXT_EXCEEDED = 'context_exceeded';
 /** What the API writes in place of a note when a response is cut: not for the person. */
 const CUT_NOTE =
@@ -54,6 +55,11 @@ function questionOf(blocks: StoredBlock[]) {
     .join('\n\n');
 }
 
+const attachmentsOf = (blocks: StoredBlock[]) =>
+  blocks
+    .filter(block => block.type === ATTACHMENT_BLOCK && block.id)
+    .map(block => block.id as string);
+
 const failedTools = (blocks: StoredBlock[]) =>
   blocks.filter(block => block.is_error).map(block => block.tool_use_id);
 
@@ -74,13 +80,15 @@ export function transcriptOf(stored: StoredConversation): ChatMessage[] {
         if (step) step.failed = true;
       });
       const question = questionOf(row.content);
-      if (question) {
+      const attachments = attachmentsOf(row.content);
+      if (question || attachments.length) {
         answer = null;
         messages.push({
           id: row.id,
           role: 'user',
           text: question,
           tools: [],
+          ...(attachments.length ? { attachments } : {}),
         });
       }
       return;

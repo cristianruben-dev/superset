@@ -27013,8 +27013,8 @@ msgstr "Tu pregunta"
 msgid "Send"
 msgstr "Enviar"
 
-msgid "What you ask, and the data it reads, go to Anthropic."
-msgstr "Lo que preguntas y los datos que consulta se envían a Anthropic."
+msgid "What you ask, the images you attach and the data it reads go to Anthropic."
+msgstr "Lo que preguntas, las imágenes que adjuntas y los datos que lee van a Anthropic."
 
 msgid "The assistant could not answer. Try again."
 msgstr "El asistente no pudo responder. Vuelve a intentarlo."
@@ -27411,9 +27411,6 @@ msgstr "No se pudo abrir esta conversación."
 msgid "Conversation deleted."
 msgstr "Conversación eliminada."
 
-msgid "Image"
-msgstr "Imagen"
-
 msgid "This image is larger than 8 MB."
 msgstr "Esta imagen pesa más de 8 MB."
 
@@ -27431,3 +27428,27 @@ msgstr "Vuelve a adjuntar tus imágenes."
 
 msgid "This conversation cannot take more images. Start a new one."
 msgstr "Esta conversación ya no admite más imágenes. Empieza una nueva."
+
+msgid "The images you attach, without their metadata."
+msgstr "Las imágenes que adjuntes, sin sus metadatos."
+
+msgid "A message takes up to %s images."
+msgstr "Un mensaje admite hasta %s imágenes."
+
+msgid "This image could not be attached."
+msgstr "No se pudo adjuntar esta imagen."
+
+msgid "Images of this message"
+msgstr "Imágenes de este mensaje"
+
+msgid "Remove image %s"
+msgstr "Quitar la imagen %s"
+
+msgid "Uploading %s"
+msgstr "Subiendo %s"
+
+msgid "Attached image"
+msgstr "Imagen adjunta"
+
+msgid "Attach images"
+msgstr "Adjuntar imágenes"

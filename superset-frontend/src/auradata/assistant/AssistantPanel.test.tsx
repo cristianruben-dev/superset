@@ -20,6 +20,7 @@ import reducerIndex from 'spec/helpers/reducerIndex';
 import {
   act,
   createStore,
+  fireEvent,
   render,
   screen,
   userEvent,
@@ -38,6 +39,8 @@ import {
   renameConversation,
   saveFeedback,
   undoTurn,
+  uploadAttachment,
+  deleteAttachment,
 } from './client';
 import { reloadReport, saveReport } from './editorActions';
 import type {
@@ -60,6 +63,8 @@ jest.mock('./client', () => ({
   saveFeedback: jest.fn(),
   clearFeedback: jest.fn(),
   undoTurn: jest.fn(),
+  uploadAttachment: jest.fn(),
+  deleteAttachment: jest.fn(() => Promise.resolve()),
 }));
 
 jest.mock('./editorActions', () => ({
@@ -87,6 +92,8 @@ const conversations = fetchConversations as jest.Mock;
 const conversation = fetchConversation as jest.Mock;
 const feedback = saveFeedback as jest.Mock;
 const clearVote = clearFeedback as jest.Mock;
+const upload = uploadAttachment as jest.Mock;
+const removeUpload = deleteAttachment as jest.Mock;
 
 const SONNET: OfferedModel = {
   id: 'claude-sonnet-5-5',
@@ -204,6 +211,8 @@ beforeEach(() => {
   (saveReport as jest.Mock).mockClear();
   conversation.mockReset();
   conversations.mockReset().mockResolvedValue([]);
+  upload.mockReset();
+  removeUpload.mockClear();
 });
 
 test('sends the question with the page, the filters and the default model', async () => {
@@ -1003,4 +1012,170 @@ test('what the model writes in a note stays plain text', async () => {
   const note = screen.getByTestId('auradata-assistant-note');
   expect(note.textContent).toBe(markup);
   expect(note.children).toHaveLength(0);
+});
+
+const image = (name = 'captura.png', type = 'image/png') =>
+  new File(['pixels'], name, { type });
+
+const uploaded = (id: string) => ({
+  id,
+  media_type: 'image/png',
+  width: 10,
+  height: 10,
+});
+
+const composer = async () =>
+  (await screen.findByTestId('auradata-assistant-input')).closest(
+    'form',
+  ) as HTMLFormElement;
+
+const paste = async (files: File[], text = '') =>
+  fireEvent.paste(await composer(), {
+    clipboardData: { files, getData: () => text },
+  });
+
+test('a pasted image shows from the server and goes with the message', async () => {
+  upload.mockResolvedValue(uploaded('i1'));
+  ask.mockImplementation(async (_question, onEvent) => {
+    onEvent({ event: 'text', data: { text: 'Es azul' } });
+    onEvent({ event: 'done', data: { context_tokens: 1 } });
+  });
+  setup();
+
+  await paste([image()]);
+
+  const thumbnail = await screen.findByRole('img', { name: 'captura.png' });
+  expect(thumbnail.getAttribute('src')).toContain(
+    '/api/v1/auradata/assistant/attachments/i1/',
+  );
+
+  await userEvent.type(
+    screen.getByTestId('auradata-assistant-input'),
+    '¿Qué ves?',
+  );
+  await userEvent.click(screen.getByTestId('auradata-assistant-send'));
+
+  expect(ask.mock.calls[0][0]).toMatchObject({
+    message: '¿Qué ves?',
+    attachments: ['i1'],
+  });
+  expect(screen.queryByTestId('auradata-assistant-image')).toBeNull();
+  const sent = await screen.findByRole('img', { name: 'Attached image' });
+  expect(sent.getAttribute('src')).toContain('/attachments/i1/');
+});
+
+test('text pasted with a picture of it stays text', async () => {
+  setup();
+
+  await paste([image()], 'Norte\t10');
+
+  expect(upload).not.toHaveBeenCalled();
+});
+
+test('an image dropped on the panel uploads, and other drags are left alone', async () => {
+  upload.mockResolvedValue(uploaded('i2'));
+  setup();
+  const form = await composer();
+
+  fireEvent.drop(form, {
+    dataTransfer: { types: ['text/plain'], files: [] },
+  });
+  expect(upload).not.toHaveBeenCalled();
+
+  fireEvent.dragOver(form, {
+    dataTransfer: { types: ['Files'], files: [] },
+  });
+  expect(form).toHaveAttribute('data-dropping', 'true');
+  fireEvent.drop(form, {
+    dataTransfer: { types: ['Files'], files: [image()] },
+  });
+
+  expect(form).toHaveAttribute('data-dropping', 'false');
+  expect(upload).toHaveBeenCalledTimes(1);
+  expect(
+    await screen.findByRole('img', { name: 'captura.png' }),
+  ).toBeInTheDocument();
+});
+
+test('a chosen file uploads', async () => {
+  upload.mockResolvedValue(uploaded('i3'));
+  setup();
+
+  await userEvent.upload(
+    await screen.findByTestId('auradata-assistant-file'),
+    image(),
+  );
+
+  expect(
+    await screen.findByRole('img', { name: 'captura.png' }),
+  ).toBeInTheDocument();
+});
+
+test('removing an image takes it out of the message and off the server', async () => {
+  upload.mockResolvedValue(uploaded('i4'));
+  setup();
+  await paste([image()]);
+
+  await userEvent.click(
+    await screen.findByRole('button', { name: 'Remove image captura.png' }),
+  );
+
+  expect(screen.queryByTestId('auradata-assistant-image')).toBeNull();
+  expect(removeUpload).toHaveBeenCalledWith('i4');
+  expect(screen.getByTestId('auradata-assistant-send')).toBeDisabled();
+});
+
+test('an image alone can be sent, but not while it uploads', async () => {
+  let finish: (value: ReturnType<typeof uploaded>) => void = () => undefined;
+  upload.mockReturnValue(
+    new Promise(resolve => {
+      finish = resolve;
+    }),
+  );
+  ask.mockImplementation(async (_question, onEvent) => {
+    onEvent({ event: 'done', data: { context_tokens: 1 } });
+  });
+  setup();
+  await paste([image()]);
+
+  expect(
+    await screen.findByLabelText('Uploading captura.png'),
+  ).toBeInTheDocument();
+  expect(screen.getByTestId('auradata-assistant-send')).toBeDisabled();
+
+  await act(async () => finish(uploaded('i5')));
+  await userEvent.click(screen.getByTestId('auradata-assistant-send'));
+
+  expect(ask.mock.calls[0][0]).toMatchObject({
+    message: '',
+    attachments: ['i5'],
+  });
+});
+
+test('a conversation read later shows its images', async () => {
+  conversations.mockResolvedValue([
+    { id: 'c1', mode: 'read', title: 'Ventas', model: SONNET.id },
+  ]);
+  conversation.mockResolvedValue({
+    id: 'c1',
+    model: SONNET.id,
+    figures: {},
+    context_tokens: 10,
+    messages: [
+      {
+        id: 'u1',
+        role: 'user',
+        content: [
+          { type: 'auradata_attachment', id: 'i6' },
+          { type: 'text', text: '<page_context>{}</page_context>' },
+        ],
+      },
+    ],
+  });
+  setup();
+
+  await openFromList('Ventas');
+
+  const sent = await screen.findByRole('img', { name: 'Attached image' });
+  expect(sent.getAttribute('src')).toContain('/attachments/i6/');
 });

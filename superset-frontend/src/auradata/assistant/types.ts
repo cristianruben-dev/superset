@@ -108,6 +108,14 @@ export interface Confirmation {
   input: Record<string, unknown>;
 }
 
+/** An image the server took: it joins a message by its id. */
+export interface AttachedImage {
+  id: string;
+  media_type: string;
+  width: number;
+  height: number;
+}
+
 /** A conversation as the list gives it. */
 export interface Conversation {
   id: string;
@@ -202,6 +210,8 @@ export interface ChatMessage {
   role: 'user' | 'assistant';
   text: string;
   tools: ToolStep[];
+  /** The images a person sent with this message, by their id on the server. */
+  attachments?: string[];
   notes?: StepNote[];
   /** The id on the server of an answer, what a vote goes on. */
   storedId?: string;

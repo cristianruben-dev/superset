@@ -175,19 +175,37 @@ export function useAssistantChat(
   );
 
   const send = useCallback(
-    (message: string, model: string, context: AssistantContext) => {
+    (
+      message: string,
+      model: string,
+      context: AssistantContext,
+      attachments: string[] = [],
+    ) => {
       const answerId = localId();
       // Writing instead of answering a card drops its calls, on the server too
       setConfirmations([]);
       setCanUndo(false);
       setMessages(current => [
         ...current,
-        { id: localId(), role: 'user', text: message, tools: [] },
+        {
+          id: localId(),
+          role: 'user',
+          text: message,
+          tools: [],
+          ...(attachments.length ? { attachments } : {}),
+        },
         { id: answerId, role: 'assistant', text: '', tools: [] },
       ]);
       return follow(answerId, (onEvent, signal) =>
         askAssistant(
-          { message, model, mode, conversation_id: conversationId, context },
+          {
+            message,
+            attachments,
+            model,
+            mode,
+            conversation_id: conversationId,
+            context,
+          },
           onEvent,
           signal,
         ),

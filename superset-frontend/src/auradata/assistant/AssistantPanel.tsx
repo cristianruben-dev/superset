@@ -17,6 +17,9 @@
  * under the License.
  */
 import {
+  type ChangeEvent,
+  type ClipboardEvent,
+  type DragEvent,
   type KeyboardEvent,
   useCallback,
   useEffect,
@@ -39,6 +42,7 @@ import { selectedVisuals } from '../format/selection';
 import { AnswerActions } from './AnswerActions';
 import { AssistantFigure } from './AssistantFigure';
 import { AssistantMarkdown } from './AssistantMarkdown';
+import { ComposerImages, MessageImages } from './AttachedImages';
 import {
   AssistantError,
   deleteConversation,
@@ -65,6 +69,7 @@ import type {
   ToolStep,
 } from './types';
 import { useAssistantChat } from './useAssistantChat';
+import { ACCEPTED_IMAGES, useComposerImages } from './useComposerImages';
 
 const PANEL_WIDTH = 440;
 
@@ -462,7 +467,8 @@ const Composer = styled.form`
       border-color ${theme.motionDurationFast},
       box-shadow ${theme.motionDurationFast};
 
-    &:focus-within {
+    &:focus-within,
+    &[data-dropping='true'] {
       border-color: ${theme.colorPrimary};
       box-shadow: 0 0 0 2px ${theme.colorPrimaryBg};
     }
@@ -484,6 +490,10 @@ const ComposerBar = styled.div`
       flex: 0 1 auto;
       width: auto;
       min-width: 0;
+      margin-right: auto;
+    }
+    input[type='file'] {
+      display: none;
     }
     .ant-select {
       width: auto !important;
@@ -654,6 +664,9 @@ function Conversations({
   const [conversations, setConversations] = useState<ListedConversation[]>([]);
   const [listOpen, setListOpen] = useState(false);
   const [draft, setDraft] = useState('');
+  const [dropping, setDropping] = useState(false);
+  const picker = useRef<HTMLInputElement>(null);
+  const composerImages = useComposerImages();
   const fallbackModel =
     models.find(model => model.default)?.id ?? models[0]?.id;
   const [chosenModel, setChosenModel] = useState<string>();
@@ -714,10 +727,15 @@ function Conversations({
 
   // Follows what the answer writes, and stays put when a vote changes an old one
   const end = useRef<HTMLDivElement>(null);
+  const toEnd = useCallback(
+    () => end.current?.scrollIntoView?.({ block: 'end' }),
+    [],
+  );
   const latest = chat.messages[chat.messages.length - 1];
   useEffect(() => {
-    end.current?.scrollIntoView?.({ block: 'end' });
+    toEnd();
   }, [
+    toEnd,
     chat.conversationId,
     chat.messages.length,
     latest?.text,
@@ -745,7 +763,7 @@ function Conversations({
   // A conversation that just started is not on the list until its answer ends
   const currentTitle =
     conversations.find(item => item.id === chat.conversationId)?.title ??
-    (chat.conversationId ? chat.messages[0]?.text : undefined);
+    (chat.conversationId ? chat.messages[0]?.text || undefined : undefined);
   const showList = listOpen && !chat.busy && conversations.length > 0;
 
   const startNew = () => {
@@ -796,13 +814,23 @@ function Conversations({
       : pageContext(store.getState(), dashboardId);
 
   const canSend = !chat.busy && !!model && !blocked && !stopped;
+  const attached = composerImages.images;
+  const uploading = attached.some(image => !image.id);
 
   const ask = (text: string) => {
     const message = text.trim();
-    if (!message || !model || !canSend) return;
+    if ((!message && !attached.length) || uploading || !model || !canSend) {
+      return;
+    }
     setDraft('');
     setListOpen(false);
-    chat.send(message, model, contextNow());
+    composerImages.clear();
+    chat.send(
+      message,
+      model,
+      contextNow(),
+      attached.map(image => image.id as string),
+    );
   };
 
   const submit = () => ask(draft);
@@ -845,8 +873,48 @@ function Conversations({
     }
   };
 
+  const onPaste = (event: ClipboardEvent<HTMLFormElement>) => {
+    const files = Array.from(event.clipboardData.files);
+    // Spreadsheets paste a picture of their cells next to the text: the text wins
+    if (files.length && !event.clipboardData.getData('text/plain')) {
+      event.preventDefault();
+      composerImages.add(files);
+    }
+  };
+
+  const onPick = (event: ChangeEvent<HTMLInputElement>) => {
+    composerImages.add(Array.from(event.target.files ?? []));
+    // The same file can be chosen again
+    event.target.value = '';
+  };
+
+  const holdsFiles = (event: DragEvent) =>
+    Array.from(event.dataTransfer.types).includes('Files');
+
+  const onDragOver = (event: DragEvent<HTMLDivElement>) => {
+    if (!holdsFiles(event) || stopped) return;
+    event.preventDefault();
+    event.stopPropagation();
+    event.dataTransfer.dropEffect = 'copy';
+    setDropping(true);
+  };
+
+  const onDragLeave = (event: DragEvent<HTMLDivElement>) => {
+    if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
+      setDropping(false);
+    }
+  };
+
+  const onDrop = (event: DragEvent<HTMLDivElement>) => {
+    setDropping(false);
+    if (!holdsFiles(event) || stopped) return;
+    event.preventDefault();
+    event.stopPropagation();
+    composerImages.add(Array.from(event.dataTransfer.files));
+  };
+
   return (
-    <Column>
+    <Column onDragOver={onDragOver} onDragLeave={onDragLeave} onDrop={onDrop}>
       {conversations.length + chat.messages.length > 0 && (
         <Controls>
           <History>
@@ -922,6 +990,9 @@ function Conversations({
           {chat.messages.map((message, index) =>
             message.role === 'user' ? (
               <Bubble key={message.id} fromUser>
+                {message.attachments && (
+                  <MessageImages ids={message.attachments} onLoad={toEnd} />
+                )}
                 {message.text}
               </Bubble>
             ) : (
@@ -1034,7 +1105,10 @@ function Conversations({
             event.preventDefault();
             submit();
           }}
+          onPaste={onPaste}
+          data-dropping={dropping}
         >
+          <ComposerImages images={attached} onRemove={composerImages.remove} />
           <Input.TextArea
             aria-label={t('Your question')}
             placeholder={
@@ -1051,6 +1125,24 @@ function Conversations({
             data-test="auradata-assistant-input"
           />
           <ComposerBar>
+            <input
+              ref={picker}
+              type="file"
+              accept={ACCEPTED_IMAGES.join(',')}
+              multiple
+              onChange={onPick}
+              aria-label={t('Attach images')}
+              data-test="auradata-assistant-file"
+            />
+            <Button
+              buttonStyle="tertiary"
+              onClick={() => picker.current?.click()}
+              disabled={stopped}
+              icon={<Icons.FileImageOutlined iconSize="m" />}
+              tooltip={t('Attach images')}
+              aria-label={t('Attach images')}
+              data-test="auradata-assistant-attach"
+            />
             <Select
               ariaLabel={t('Model')}
               value={model}
@@ -1080,7 +1172,12 @@ function Conversations({
                 className="send"
                 buttonStyle="primary"
                 htmlType="submit"
-                disabled={!draft.trim() || blocked || stopped}
+                disabled={
+                  (!draft.trim() && !attached.length) ||
+                  uploading ||
+                  blocked ||
+                  stopped
+                }
                 icon={<Icons.ArrowRightOutlined iconSize="m" />}
                 aria-label={t('Send')}
                 data-test="auradata-assistant-send"
@@ -1089,7 +1186,9 @@ function Conversations({
           </ComposerBar>
         </Composer>
         <Hint>
-          {t('What you ask, and the data it reads, go to Anthropic.')}
+          {t(
+            'What you ask, the images you attach and the data it reads go to Anthropic.',
+          )}
         </Hint>
       </Footer>
     </Column>

@@ -366,3 +366,36 @@ test('a conversation whose blocks hold no text shows no notes', () => {
 
   expect(read.notes).toBeUndefined();
 });
+
+test('a message keeps its images, also one that holds nothing else', () => {
+  const [withText, alone] = transcriptOf({
+    id: 'c1',
+    figures: {},
+    messages: [
+      {
+        id: 'm1',
+        role: 'user',
+        content: [
+          { type: 'auradata_attachment', id: 'i1' },
+          { type: 'text', text: '<page_context>{}</page_context>' },
+          { type: 'text', text: '¿Qué ves?' },
+        ],
+      },
+      {
+        id: 'm2',
+        role: 'user',
+        content: [
+          { type: 'auradata_attachment', id: 'i2' },
+          { type: 'auradata_attachment', id: 'i3' },
+          { type: 'text', text: '<page_context>{}</page_context>' },
+        ],
+      },
+    ],
+  } as unknown as StoredConversation);
+
+  expect(withText).toMatchObject({
+    text: '¿Qué ves?',
+    attachments: ['i1'],
+  });
+  expect(alone).toMatchObject({ text: '', attachments: ['i2', 'i3'] });
+});

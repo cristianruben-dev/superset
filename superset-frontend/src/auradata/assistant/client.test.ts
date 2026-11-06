@@ -20,17 +20,20 @@ import { SupersetClient } from '@superset-ui/core';
 import {
   askAssistant,
   AssistantError,
+  attachmentUrl,
   clearFeedback,
   decideCall,
   deleteConversation,
   renameConversation,
   saveFeedback,
   undoTurn,
+  uploadAttachment,
 } from './client';
 import type { AssistantEvent } from './types';
 
 const QUESTION = {
   message: 'Hola',
+  attachments: [],
   conversation_id: null,
   model: 'claude-sonnet-5-5',
   mode: 'read' as const,
@@ -232,4 +235,29 @@ test('a refused undo brings the reason of the server', async () => {
   );
 
   await expect(undoTurn('c1')).rejects.toThrow('Cambió después');
+});
+
+test('an image goes alone in a form, and a refusal says why', async () => {
+  const post = jest
+    .spyOn(SupersetClient, 'post')
+    .mockRejectedValue(
+      new Response(
+        JSON.stringify({ message: 'Use a PNG, JPEG or WEBP image.' }),
+        { status: 422 },
+      ),
+    );
+
+  await expect(
+    uploadAttachment(new File(['x'], 'a.png', { type: 'image/png' })),
+  ).rejects.toThrow('Use a PNG, JPEG or WEBP image.');
+
+  const { endpoint, postPayload } = post.mock.calls[0][0];
+  expect(endpoint).toBe('/api/v1/auradata/assistant/attachments/');
+  expect((postPayload as FormData).get('image')).toBeInstanceOf(File);
+});
+
+test('an image is read from its own address', () => {
+  expect(attachmentUrl('i1')).toContain(
+    '/api/v1/auradata/assistant/attachments/i1/',
+  );
 });

@@ -74,6 +74,7 @@ export function PrivacyNotice({ onAccept }: { onAccept: () => Promise<void> }) {
       </p>
       <ul>
         <li>{t('What you write, and the conversation so far.')}</li>
+        <li>{t('The images you attach, without their metadata.')}</li>
         <li>
           {t('The report, page, filters and selection you have on screen.')}
         </li>

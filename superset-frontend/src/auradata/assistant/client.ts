@@ -18,11 +18,13 @@
  */
 import { getClientErrorObject, SupersetClient } from '@superset-ui/core';
 import { t } from '@apache-superset/core/translation';
+import { ensureAppRoot } from 'src/utils/pathUtils';
 import { sseParser } from './sse';
 import type {
   AssistantContext,
   AssistantEvent,
   AssistantModels,
+  AttachedImage,
   ChatMode,
   Conversation,
   Feedback,
@@ -118,9 +120,33 @@ export const clearFeedback = (
 ): Promise<unknown> =>
   SupersetClient.delete({ endpoint: feedbackUrl(conversationId, messageId) });
 
+/** Where a page reads an image the person attached, with their session. */
+export const attachmentUrl = (id: string) =>
+  ensureAppRoot(`${CHAT_URL}attachments/${id}/`);
+
+/** Hands an image to the server, which refuses it or keeps a clean copy. */
+export async function uploadAttachment(file: File): Promise<AttachedImage> {
+  const postPayload = new FormData();
+  postPayload.append('image', file);
+  try {
+    const { json } = await SupersetClient.post({
+      endpoint: `${CHAT_URL}attachments/`,
+      postPayload,
+    });
+    return json.result;
+  } catch (response) {
+    throw await refusedWith(response, t('This image could not be attached.'));
+  }
+}
+
+/** Drops an image that no message sent. */
+export const deleteAttachment = (id: string): Promise<unknown> =>
+  SupersetClient.delete({ endpoint: `${CHAT_URL}attachments/${id}/` });
+
 /** A question for the assistant. */
 export interface AssistantQuestion {
   message: string;
+  attachments: string[];
   conversation_id: string | null;
   model: string;
   mode: ChatMode;
