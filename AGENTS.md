@@ -202,6 +202,12 @@ This repository is **AuraData BI**, a fork of Apache Superset 7.0 shaped like Po
 - **Privacy notice** (`PrivacyNotice.tsx`, `accept_privacy`): until a person accepts, per user on the server, chat and decide
   answer 403 (`reason: privacy`) and nothing reaches Anthropic. A change to what the notice says raises
   `PRIVACY_NOTICE_VERSION`, and everyone is asked again.
+- **Commands of the panel** (`commands.ts`, `useCommandMenu.ts`, `CommandMenu.tsx`): `/` in the composer opens a list that `aria-activedescendant`
+  keeps from the keyboard, with the focus in the text (a `textarea` keeps its `textbox` role). Each command has an English and a
+  Spanish name, both always valid, and shows the one of the language (`t('/new')`). They are shortcuts: `commandCanRun` in
+  `AssistantPanel.tsx` shares its conditions with the buttons they stand for, they add no permission, and the model only
+  sees the plain question of `/summary`. A whole message naming a command never goes to the model, also after Escape or when it
+  cannot run (a toast says so); anything else that starts with `/` is a question. A new command goes in `COMMANDS` and `commandCanRun`.
 - **The mark of the AI:** the MCP middleware does not run in the web process, so `ToolBox.call` writes one
   `assistant_tool_call` per call to the action log (`action_log.py` keeps it; the page names the model and has a «Done by»
   filter). A save made inside a tool carries a `__agent__` record first on each entity (`acting_model` in

@@ -145,6 +145,25 @@ en el suyo: **Económico**, **Equilibrado** o **Máximo**. Puedes cambiarlo cuan
 
 Si una conversación se hace demasiado larga para el modelo, el panel te pide empezar otra.
 
+## Comandos con /
+
+Escribe `/` en la caja de preguntas y se abre una lista de atajos del panel. Muévete con las flechas, elige con Enter y
+ciérrala con Escape. También funcionan con el ratón, y puedes escribir el nombre completo.
+
+| Comando | En inglés | Qué hace |
+| --- | --- | --- |
+| `/nuevo` | `/new` | Abre una conversación nueva. La anterior sigue guardada |
+| `/modelo` | `/model` | Abre el selector de modelo. Elige con las flechas y Enter, y vuelves a la caja de preguntas |
+| `/resumen` | `/summary` | Pregunta «Resume esta página», como si la hubieras escrito tú |
+| `/deshacer` | `/undo` | Lo mismo que **Deshacer lo del asistente**. Solo aparece cuando se puede deshacer |
+
+Los dos nombres funcionan en cualquier idioma, y la lista muestra el de tu idioma. Un comando solo sale en la lista cuando se
+puede usar: mientras el asistente responde no hay ninguno. Si escribes entero uno que ahora no se puede usar, el panel te lo
+dice y no le pregunta nada al modelo.
+
+Los comandos no te dan permisos nuevos y el modelo nunca los recibe: solo le llega la pregunta de `/resumen`. Un mensaje que
+empieza con `/` pero no es un comando, como `/ventas del mes`, se envía como una pregunta normal.
+
 ## Tus conversaciones
 
 Arriba del panel está la conversación abierta. Púlsala para ver **Conversaciones de este informe**, agrupadas por fecha y
