@@ -77,6 +77,7 @@ RECORDED_API_METHODS = frozenset(
         "delete",
         "bulk_delete",
         "import_",
+        "oauth2",
         "export",
         "export_as_example",
         "copy_dash",
