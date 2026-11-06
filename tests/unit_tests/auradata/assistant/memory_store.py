@@ -40,6 +40,7 @@ class MemoryTurnStore:
         self.beats: set[str] = set()
         self.stops: set[str] = set()
         self.settling: set[str] = set()
+        self.exports: dict[str, dict[str, Any]] = {}
 
     def acquire(self, conversation_id: UUID | str, turn_id: str) -> bool:
         key = str(conversation_id)
@@ -130,6 +131,12 @@ class MemoryTurnStore:
             return False
         self.settling.add(turn_id)
         return True
+
+    def save_export(self, job_id: str, job: dict[str, Any]) -> None:
+        self.exports[job_id] = job
+
+    def export(self, job_id: str) -> dict[str, Any] | None:
+        return self.exports.get(job_id)
 
     def forget(self, conversation_id: UUID | str) -> None:
         key = str(conversation_id)

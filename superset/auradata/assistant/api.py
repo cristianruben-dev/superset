@@ -58,6 +58,7 @@ more request, and the owner of a conversation can always stop what it runs.
 
 from __future__ import annotations
 
+import base64
 import logging
 import time
 from collections.abc import Iterator
@@ -699,6 +700,8 @@ class AssistantRestApi(BaseSupersetApi):
         "share_card": "read",
         "share_artifact": "read",
         "unshare_artifact": "read",
+        "export_artifact": "read",
+        "exported_artifact": "read",
     }
     openapi_spec_tag = "AuraData BI"
 
@@ -2099,6 +2102,108 @@ class AssistantRestApi(BaseSupersetApi):
         sharing.log_document(sharing.ACTION_UNSHARE, artifact, version)
         sharing.unshare(artifact)
         return self.response(200, result=artifact_json(artifact, version))
+
+    @expose("/artifacts/<uuid:artifact_id>/export/", methods=("POST",))
+    @protect()
+    @safe
+    @statsd_metrics
+    def export_artifact(self, artifact_id: UUID) -> Response:
+        """Ask for a document as a PDF, as the user of the session.
+        ---
+        post:
+          summary: Queue the export of a document of the current user
+          parameters:
+          - in: path
+            name: artifact_id
+            required: true
+            schema:
+              type: string
+              format: uuid
+          responses:
+            202:
+              description: Queued, with the id to ask for it by
+            401:
+              $ref: '#/components/responses/401'
+            403:
+              $ref: '#/components/responses/403'
+            404:
+              $ref: '#/components/responses/404'
+            422:
+              $ref: '#/components/responses/422'
+        """
+        # pylint: disable=import-outside-toplevel
+        from superset.auradata.assistant.exports import start_export
+
+        if not _session_user_only():
+            return self.response_403()
+        if self._last_version_of(artifact_id) is None:
+            return self.response_404()
+        store = turn_store()
+        if store is None:
+            return self.response_422(message=_("Export is not available here."))
+        job_id = start_export(store, artifact_id, get_user_id(), _locale())
+        return self.response(202, result={"job_id": job_id})
+
+    @expose("/artifacts/<uuid:artifact_id>/export/<string:job_id>/", methods=("GET",))
+    @protect()
+    @safe
+    @statsd_metrics
+    def exported_artifact(self, artifact_id: UUID, job_id: str) -> Response:
+        """The PDF of a document, once it is ready.
+        ---
+        get:
+          summary: Ask for an export of the current user
+          parameters:
+          - in: path
+            name: artifact_id
+            required: true
+            schema:
+              type: string
+              format: uuid
+          - in: path
+            name: job_id
+            required: true
+            schema:
+              type: string
+          responses:
+            200:
+              description: The file
+              content:
+                application/pdf:
+                  schema:
+                    type: string
+                    format: binary
+            202:
+              description: Still working
+            401:
+              $ref: '#/components/responses/401'
+            403:
+              $ref: '#/components/responses/403'
+            404:
+              $ref: '#/components/responses/404'
+            422:
+              $ref: '#/components/responses/422'
+        """
+        # pylint: disable=import-outside-toplevel
+        from superset.auradata.assistant.exports import DONE, FAILED, job_of
+
+        if not _session_user_only():
+            return self.response_403()
+        store = turn_store()
+        job = job_of(store, job_id, artifact_id, get_user_id()) if store else None
+        if job is None:
+            return self.response_404()
+        if job["status"] == FAILED:
+            return self.response_422(message=_("The PDF could not be made."))
+        if job["status"] != DONE:
+            return self.response(202, message="Working")
+        return Response(
+            base64.b64decode(job["pdf"]),
+            mimetype="application/pdf",
+            headers={
+                "Content-Disposition": f'attachment; filename="{job["file_name"]}"'
+            },
+        )
 
     def _answer_to_vote(
         self, conversation_id: UUID, message_id: UUID

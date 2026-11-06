@@ -111,15 +111,15 @@ def build_png(pages: list[Any]) -> bytes:
     return out.getvalue()
 
 
-def build_pdf(pages: list[Any], title: str) -> bytes:
-    """One PDF page per report page, of its size (96 px to the inch)."""
+def build_pdf(pages: list[Any], title: str, resolution: float = 96.0) -> bytes:
+    """One PDF page per picture, of its size at this resolution, in px to the inch."""
     out = io.BytesIO()
     pages[0].save(
         out,
         format="PDF",
         save_all=True,
         append_images=pages[1:],
-        resolution=96.0,
+        resolution=resolution,
         title=title,
         creator="AuraData BI",
     )

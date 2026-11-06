@@ -54,6 +54,8 @@ HEARTBEAT_TTL = 30
 LOCK_TTL = 24 * 3600
 TICKET_TTL = 24 * 3600
 EVENTS_TTL = 3600
+# An exported document waits this long for whoever asked for it
+EXPORT_TTL = 15 * 60
 # Longer than a stream, so numbers never start over under a reader that came back
 COUNT_TTL = 7 * 24 * 3600
 
@@ -163,6 +165,10 @@ class TurnStore(Protocol):
     def take_settling(self, turn_id: str) -> bool: ...
 
     def forget(self, conversation_id: UUID | str) -> None: ...
+
+    def save_export(self, job_id: str, job: dict[str, Any]) -> None: ...
+
+    def export(self, job_id: str) -> dict[str, Any] | None: ...
 
 
 class RedisTurnStore:
@@ -281,6 +287,13 @@ class RedisTurnStore:
 
     def forget(self, conversation_id: UUID | str) -> None:
         self._redis.delete(*self._keys(conversation_id))
+
+    def save_export(self, job_id: str, job: dict[str, Any]) -> None:
+        self._redis.set(f"{_PREFIX}:export:{job_id}", json.dumps(job), ex=EXPORT_TTL)
+
+    def export(self, job_id: str) -> dict[str, Any] | None:
+        job = self._redis.get(f"{_PREFIX}:export:{job_id}")
+        return json.loads(job) if job else None
 
 
 def forget_streams(store: TurnStore | None, ids: Iterable[UUID | str]) -> None:

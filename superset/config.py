@@ -1807,6 +1807,7 @@ class CeleryConfig:  # pylint: disable=too-few-public-methods
         "superset.tasks.export_dashboard_excel",
         "superset.tasks.version_history_retention",
         "superset.tasks.assistant_retention",
+        "superset.tasks.assistant_export",
         "superset.tasks.assistant_turn",
     )
     result_backend = "db+sqlite:///celery_results.sqlite"
