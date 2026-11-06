@@ -53,6 +53,13 @@ EFFORTS_WITHOUT_XHIGH = ("low", "medium", "high", "max")
 
 # Beta header of the ``fallbacks: "default"`` form; the array form takes another one
 REFUSAL_FALLBACK_BETA = "server-side-fallback-2026-07-01"  # noqa: S105
+# Without this header the API rejects ``display: "updates"`` as an unknown value
+THINKING_UPDATES_BETA = "thinking-display-updates-2026-08-18"  # noqa: S105
+
+# Values of ``thinking.display``: the notes the model writes for the person between
+# tools with the reasoning hidden, or those notes mixed with summaries of the reasoning
+DISPLAY_UPDATES = "updates"
+DISPLAY_SUMMARIZED = "summarized"
 
 # Multipliers of the input price for prompt cache writes, by time to live
 CACHE_WRITE_5M = 1.25
@@ -122,6 +129,8 @@ class ModelSpec:
     thinking_always_on: bool = False
     # Highest effort that accepts ``thinking_off``; None when any effort does
     thinking_off_max_effort: str | None = None
+    # Value of ``thinking.display`` while it thinks; None leaves it out
+    thinking_display: str | None = None
     # Values of ``output_config.effort``; empty when the model rejects the parameter
     efforts: tuple[str, ...] = EFFORTS
     default_effort: str | None = "high"
@@ -180,6 +189,7 @@ MODEL_TABLE: Mapping[str, ModelSpec] = MappingProxyType(
             display_name="Claude Haiku 5.5",
             family="haiku",
             status=STATUS_CURRENT,
+            thinking_display=DISPLAY_SUMMARIZED,
             price=ModelPrice(
                 0.10,
                 0.50,
@@ -195,6 +205,7 @@ MODEL_TABLE: Mapping[str, ModelSpec] = MappingProxyType(
             display_name="Claude Sonnet 5.5",
             family="sonnet",
             status=STATUS_CURRENT,
+            thinking_display=DISPLAY_UPDATES,
             price=_cached_at_a_tenth(2.00, 10.00),
             thinking_off=_BETWEEN_TOOLS,
             thinking_off_max_effort="high",
@@ -204,6 +215,7 @@ MODEL_TABLE: Mapping[str, ModelSpec] = MappingProxyType(
             display_name="Claude Opus 5.5",
             family="opus",
             status=STATUS_CURRENT,
+            thinking_display=DISPLAY_UPDATES,
             price=ModelPrice(4.00, 20.00, 0.20),
             thinking_off=None,
             thinking_always_on=True,
@@ -214,6 +226,7 @@ MODEL_TABLE: Mapping[str, ModelSpec] = MappingProxyType(
             display_name="Claude Fable 5.1",
             family="fable",
             status=STATUS_CURRENT,
+            thinking_display=DISPLAY_UPDATES,
             price=ModelPrice(10.00, 50.00, 0.25),
             thinking_off=None,
             thinking_always_on=True,
@@ -223,6 +236,7 @@ MODEL_TABLE: Mapping[str, ModelSpec] = MappingProxyType(
             display_name="Claude Haiku 4.5",
             family="haiku",
             status=STATUS_AVAILABLE,
+            thinking_display=DISPLAY_SUMMARIZED,
             price=_cached_at_a_tenth(1.00, 5.00),
             thinking_on=MappingProxyType({"type": "enabled", "budget_tokens": 4096}),
             thinking_off=None,
@@ -233,12 +247,14 @@ MODEL_TABLE: Mapping[str, ModelSpec] = MappingProxyType(
             display_name="Claude Sonnet 5",
             family="sonnet",
             status=STATUS_AVAILABLE,
+            thinking_display=DISPLAY_SUMMARIZED,
             price=_cached_at_a_tenth(2.00, 10.00),
         ),
         "claude-sonnet-4-6": ModelSpec(
             display_name="Claude Sonnet 4.6",
             family="sonnet",
             status=STATUS_AVAILABLE,
+            thinking_display=DISPLAY_SUMMARIZED,
             price=_cached_at_a_tenth(3.00, 15.00),
             efforts=EFFORTS_WITHOUT_XHIGH,
         ),
@@ -246,6 +262,7 @@ MODEL_TABLE: Mapping[str, ModelSpec] = MappingProxyType(
             display_name="Claude Opus 5",
             family="opus",
             status=STATUS_AVAILABLE,
+            thinking_display=DISPLAY_SUMMARIZED,
             price=_cached_at_a_tenth(5.00, 25.00),
             thinking_off_max_effort="high",
             refusal_fallback="default",
@@ -254,18 +271,21 @@ MODEL_TABLE: Mapping[str, ModelSpec] = MappingProxyType(
             display_name="Claude Opus 4.8",
             family="opus",
             status=STATUS_AVAILABLE,
+            thinking_display=DISPLAY_SUMMARIZED,
             price=_cached_at_a_tenth(5.00, 25.00),
         ),
         "claude-opus-4-7": ModelSpec(
             display_name="Claude Opus 4.7",
             family="opus",
             status=STATUS_AVAILABLE,
+            thinking_display=DISPLAY_SUMMARIZED,
             price=_cached_at_a_tenth(5.00, 25.00),
         ),
         "claude-opus-4-6": ModelSpec(
             display_name="Claude Opus 4.6",
             family="opus",
             status=STATUS_AVAILABLE,
+            thinking_display=DISPLAY_SUMMARIZED,
             price=_cached_at_a_tenth(5.00, 25.00),
             efforts=EFFORTS_WITHOUT_XHIGH,
         ),
@@ -273,6 +293,7 @@ MODEL_TABLE: Mapping[str, ModelSpec] = MappingProxyType(
             display_name="Claude Fable 5",
             family="fable",
             status=STATUS_AVAILABLE,
+            thinking_display=DISPLAY_UPDATES,
             price=ModelPrice(10.00, 50.00, 1.00),
             thinking_off=None,
             thinking_always_on=True,
@@ -283,6 +304,7 @@ MODEL_TABLE: Mapping[str, ModelSpec] = MappingProxyType(
             display_name="Claude Mythos 5.1",
             family="mythos",
             status=STATUS_RESTRICTED,
+            thinking_display=DISPLAY_UPDATES,
             price=ModelPrice(10.00, 50.00, 0.25),
             thinking_off=None,
             thinking_always_on=True,
@@ -292,6 +314,7 @@ MODEL_TABLE: Mapping[str, ModelSpec] = MappingProxyType(
             display_name="Claude Mythos 5",
             family="mythos",
             status=STATUS_RESTRICTED,
+            thinking_display=DISPLAY_SUMMARIZED,
             price=ModelPrice(10.00, 50.00, 1.00),
             thinking_off=None,
             thinking_always_on=True,
@@ -337,7 +360,8 @@ def _effort_for(spec: ModelSpec, wanted: str | None) -> str | None:
 def tuned_spec(spec: ModelSpec, effort: str | None, thinking: bool) -> ModelSpec:
     """
     A model as the admin wants it to answer, in the terms it accepts. Where thinking
-    cannot be stopped it stays on and the effort is the only control.
+    cannot be stopped it stays on and the effort is the only control. Stopped thinking
+    takes no ``display``: the API refuses it with ``disabled`` and ``between_tools``.
     """
     chosen = _effort_for(spec, effort)
     if thinking or spec.thinking_always_on:
@@ -345,7 +369,12 @@ def tuned_spec(spec: ModelSpec, effort: str | None, thinking: bool) -> ModelSpec
     limit = spec.thinking_off_max_effort
     if limit and chosen and EFFORTS.index(chosen) > EFFORTS.index(limit):
         chosen = limit
-    return replace(spec, thinking_on=spec.thinking_off, default_effort=chosen)
+    return replace(
+        spec,
+        thinking_on=spec.thinking_off,
+        thinking_display=None,
+        default_effort=chosen,
+    )
 
 
 @dataclass(frozen=True)

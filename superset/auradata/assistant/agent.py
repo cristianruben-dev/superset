@@ -64,6 +64,8 @@ from superset.auradata.assistant.figures import figure_of
 from superset.auradata.assistant.models import (
     CatalogModel,
     cost_of_message,
+    DISPLAY_UPDATES,
+    THINKING_UPDATES_BETA,
     TokenUsage,
 )
 from superset.auradata.assistant.tools import ToolBox
@@ -129,6 +131,10 @@ def request_params(
         params["tool_choice"] = {"type": "auto"}
     if spec.thinking_on is not None:
         params["thinking"] = dict(spec.thinking_on)
+        if spec.thinking_display is not None:
+            params["thinking"]["display"] = spec.thinking_display
+        if spec.thinking_display == DISPLAY_UPDATES:
+            params["betas"] = [*params.get("betas", []), THINKING_UPDATES_BETA]
     if spec.efforts and spec.default_effort:
         params["output_config"] = {"effort": spec.default_effort}
     if spec.automatic_cache:

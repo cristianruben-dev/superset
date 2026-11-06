@@ -52,7 +52,9 @@ from superset.auradata.assistant.models import (
     CatalogModel,
     MODEL_TABLE,
     PRUDENT_SPEC,
+    REFUSAL_FALLBACK_BETA,
     SOURCE_TABLE,
+    THINKING_UPDATES_BETA,
     TokenUsage,
 )
 from superset.auradata.assistant.settings import AssistantSettings
@@ -69,9 +71,9 @@ from superset.auradata.assistant.tools import (
     ToolOutcome,
 )
 from superset.auradata.models import AssistantMessage
+from superset.extensions import db
 from superset.mcp_service.app import mcp
 from superset.mcp_service.auth import METHOD_PERMISSION_ATTR
-from superset.extensions import db
 from superset.utils import json
 from tests.unit_tests.auradata.assistant.fake_anthropic import (
     FakeAnthropic,
@@ -494,6 +496,33 @@ def test_the_request_follows_the_effort_and_thinking_of_the_admin(
     assert ask(client, world["dashboard"]).status_code == 200
     assert fake.requests[0]["thinking"] == {"type": "between_tools"}
     assert fake.requests[0]["output_config"] == {"effort": "high"}
+    assert THINKING_UPDATES_BETA not in fake.headers[0]["anthropic-beta"]
+
+
+def test_the_request_asks_for_the_notes_of_the_model(
+    client: Any, world: dict[str, Any], mocker: MockerFixture
+) -> None:
+    login(world, "Root")
+    fake = use_model(mocker)
+
+    assert ask(client, world["dashboard"]).status_code == 200
+    assert fake.requests[0]["thinking"] == {"type": "adaptive", "display": "updates"}
+    assert fake.headers[0]["anthropic-beta"].split(",") == [
+        REFUSAL_FALLBACK_BETA,
+        THINKING_UPDATES_BETA,
+    ]
+
+
+def test_a_summary_of_the_thinking_needs_no_beta_header() -> None:
+    params = agent.request_params(
+        CatalogModel("claude-opus-4-8", MODEL_TABLE["claude-opus-4-8"], True),
+        "system",
+        [],
+        [],
+    )
+
+    assert params["thinking"] == {"type": "adaptive", "display": "summarized"}
+    assert "betas" not in params
 
 
 def lose_the_session_before_streaming(mocker: MockerFixture) -> None:
@@ -698,10 +727,11 @@ def test_each_model_gets_what_its_row_says(
 
     assert sonnet["fallbacks"] == "default"
     assert "server-side-fallback-2026-07-01" in sonnet_headers["anthropic-beta"]
-    assert sonnet["thinking"] == {"type": "adaptive"}
+    assert sonnet["thinking"] == {"type": "adaptive", "display": "updates"}
     assert sonnet["output_config"] == {"effort": "high"}
     assert sonnet["max_tokens"] == 64000
     assert "fallbacks" not in haiku
+    assert haiku["thinking"] == {"type": "adaptive", "display": "summarized"}
     assert "anthropic-beta" not in haiku_headers
     assert haiku["output_config"] == {"effort": "medium"}
     for key in ("thinking", "output_config", "fallbacks", "cache_control"):

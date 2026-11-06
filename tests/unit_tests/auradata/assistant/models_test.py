@@ -408,3 +408,43 @@ def test_a_model_without_effort_or_a_way_to_stop_thinking_leaves_both_out() -> N
 
     assert tuned.thinking_on is None
     assert tuned.default_effort is None
+
+
+@pytest.mark.parametrize(
+    ("model_id", "display"),
+    [
+        ("claude-fable-5-1", "updates"),
+        ("claude-fable-5", "updates"),
+        ("claude-mythos-5-1", "updates"),
+        ("claude-opus-5-5", "updates"),
+        ("claude-sonnet-5-5", "updates"),
+        ("claude-haiku-5-5", "summarized"),
+        ("claude-opus-5", "summarized"),
+        ("claude-sonnet-5", "summarized"),
+        ("claude-opus-4-8", "summarized"),
+        ("claude-opus-4-7", "summarized"),
+        ("claude-mythos-5", "summarized"),
+    ],
+)
+def test_each_model_shows_what_it_has_of_its_thinking(
+    model_id: str, display: str
+) -> None:
+    assert MODEL_TABLE[model_id].thinking_display == display
+
+
+def test_a_model_nobody_knows_asks_to_see_nothing() -> None:
+    assert PRUDENT_SPEC.thinking_display is None
+
+
+@pytest.mark.parametrize(
+    "model_id", ["claude-sonnet-5-5", "claude-haiku-5-5", "claude-opus-5"]
+)
+def test_stopped_thinking_has_nothing_to_display(model_id: str) -> None:
+    assert tuned_spec(MODEL_TABLE[model_id], None, False).thinking_display is None
+
+
+@pytest.mark.parametrize("model_id", ["claude-opus-5-5", "claude-fable-5-1"])
+def test_thinking_that_cannot_stop_keeps_its_display(model_id: str) -> None:
+    tuned = tuned_spec(MODEL_TABLE[model_id], "low", False)
+
+    assert tuned.thinking_display == "updates"
