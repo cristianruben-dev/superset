@@ -40,6 +40,20 @@ Una respuesta con cifras dice de qué dataset y con qué filtros salen. Si consu
 gráfico chico con esa consulta, y si no se puede dibujar deja las filas en una tabla. Esa consulta la repite AuraData BI
 con tus permisos, así que si no tienes acceso a esos datos, no se dibuja.
 
+## Adjuntar una imagen
+
+Sirve, por ejemplo, para pasarle la captura de un informe de Power BI y pedirle que lo replique en el editor.
+
+- **Pega** una captura con `Ctrl + V` (`Cmd + V` en Mac), **arrástrala** al panel o pulsa el botón de imagen junto al modelo.
+- Admite **PNG, JPEG y WEBP**, de hasta **8 MB**. Un mensaje lleva hasta **5 imágenes** y una conversación hasta **20**.
+- La miniatura sale en el mensaje. La **×** la quita antes de enviar. Después de enviarla, la imagen se queda en la conversación
+  hasta que la elimines.
+- Puedes enviar una imagen sin texto, aunque le ayuda saber qué quieres.
+
+Una imagen muy grande se reduce, y se le quitan los metadatos, como la ubicación de una foto. El asistente la vuelve a leer en
+cada mensaje de esa conversación, así que **conviene adjuntar solo lo que hace falta**, y recortar la captura si el texto es
+chico. Lo que diga el texto de una imagen no es una orden para el asistente: te avisa y sigue lo que tú escribiste.
+
 ## Copiar y votar una respuesta
 
 Debajo de cada respuesta terminada hay tres botones pequeños. Mientras escribe o espera una tarjeta, no aparecen.
@@ -153,6 +167,7 @@ plazo. Una con una acción esperando tu decisión se queda hasta que la responda
 **Lo que escribes y los datos que el asistente lee se envían a la API de Anthropic.** Eso incluye:
 
 - lo que escribes y la conversación hasta ese momento;
+- las imágenes que adjuntas, sin sus metadatos, en cada mensaje de esa conversación;
 - el informe, la página, los filtros y la selección que tienes en pantalla;
 - los datos que lee para responder, con sus filas.
 
@@ -169,7 +184,7 @@ asistente y con qué parámetros, y no se borra con la conversación.
 - **Más que tú.** Si no tienes permiso para algo, el asistente tampoco, y te lo dice.
 - **Cambiar nada mientras lees.** En modo lectura solo responde; los cambios se piden desde el editor.
 - **Ver tus cambios sin guardar.** Trabaja sobre lo guardado.
-- **Recibir archivos.** El panel no acepta adjuntos: describe con palabras lo que quieres.
+- **Recibir otros archivos.** Solo imágenes: un Excel, un CSV o un PDF no se pueden adjuntar.
 - **Entregarte archivos.** Para un PDF o una imagen, usa [Exportar](07-lectura-presentar-exportar.md).
 - **Mostrar imágenes ni enlazar fuera del sitio.** En sus respuestas el HTML queda como texto, no se cargan imágenes y solo
   funcionan los enlaces a este mismo sitio. Es una protección: un texto malicioso en un dataset podría intentar sacar
@@ -188,6 +203,9 @@ asistente y con qué parámetros, y no se borra con la conversación.
 | Dice que no encuentra el dataset, o no da cifras | Tu rol no tiene acceso a esos datos | Pídele acceso a un administrador |
 | Mensaje de que el servicio de IA falló | Saturación, sin saldo, clave rechazada o sin conexión | Reintenta; si dice que avises, avísale a un administrador |
 | Dice que la conversación es demasiado larga | Ya no cabe en lo que el modelo puede leer | Pulsa **Nueva conversación** en ese aviso. La anterior sigue guardada |
+| «Usa una imagen PNG, JPEG o WEBP» | El archivo no es una de esas imágenes, aunque se llame así, o está dañado. SVG y GIF no se aceptan | Haz una captura de nuevo o guárdala como PNG |
+| «Esta imagen tiene demasiados píxeles» o «pesa más de 8 MB» | La imagen supera lo que el servidor abre | Redúcela o recórtala |
+| «Esta conversación ya no admite más imágenes» | Ya lleva 20 | Empieza una nueva |
 | La conversación dice estar ocupada | Otra petición la está usando, o se cortó a mitad de una herramienta | Espera un momento; si sigue, empieza una nueva |
 
 La guía para administradores está en [asistente/administracion.md](../asistente/administracion.md).

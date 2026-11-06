@@ -212,6 +212,7 @@ como la persona que tiene la sesión. Las reglas están en `AGENTS.md`; para el 
 | `tools.py` | `ToolBox`: las herramientas exactas de una persona en un modo |
 | `prompt.py` | Instrucciones de sistema, fijas por persona y modo, y el bloque de contexto |
 | `conversations.py` | Conversaciones que solo crecen; el estado pendiente se deduce de lo guardado |
+| `attachments.py` | Imágenes adjuntas: limpiarlas al subirlas y ponerlas en cada petición |
 | `undo.py` | Deshacer un turno con los comandos de restaurar |
 | `figures.py` | El gráfico de una respuesta, sacado de la última `query_dataset` |
 | `models.py`, `settings.py` | Catálogo de modelos y ajustes del admin |
@@ -228,7 +229,7 @@ el estado y `AssistantPanel.tsx` pinta los dos modos.
    que la persona aceptó el aviso. Una clave `sst_…` o un invitado reciben 403.
 2. **Valida** el modelo, abre el tablero con los permisos de la persona y, en modo edición, pide `can_edit_resource`.
 3. **Mira** los interruptores del workspace y los topes. Estos se leen en cada petición.
-4. **Construye** el `ToolBox` y las instrucciones, y guarda el mensaje con el contexto de la página en un bloque
+4. **Construye** el `ToolBox` y las instrucciones, y guarda el mensaje con sus imágenes y el contexto de la página en un bloque
    `<page_context>`.
 5. **Llama al modelo** (`run_conversation`). Cada respuesta se guarda con su costo antes de la siguiente.
 6. **Termina** con `done`, que trae tokens, costo, `can_undo` y el nivel del tope.
@@ -316,6 +317,41 @@ es de una persona, un tablero y un modo: otra combinación responde 422, y la de
   pendiente o un turno en marcha (`turn_is_running`). El `DELETE` de la API responde 409 durante un turno: su escritura final ya
   no tendría dónde guardar el costo.
 - **Costos.** Solo las filas `assistant` tienen costo. `spending.py` es el único sitio del mes, el redondeo y los topes.
+
+### Las imágenes adjuntas
+
+Un archivo subido es hostil hasta que se demuestre lo contrario, y lo que se guarda se reenvía para siempre en un historial que
+solo crece: **una imagen que la API rechazara rompería su conversación.** Por eso todo se resuelve al subirla.
+
+`POST .../attachments/` recibe una imagen por petición, para responder al momento y no pasar del `client_max_body_size` del
+proxy, que un mensaje con cinco capturas en JSON sí pasaría. `clean_image` es la única entrada:
+
+1. **El tipo sale de los bytes.** `Image.open` va con `formats` limitado a PNG, JPEG y WEBP. El nombre y la cabecera no se leen,
+   y sin ese límite Pillow probaría todos sus decodificadores.
+2. **El tamaño se mira antes de decodificar.** La cabecera basta, y es lo que para una bomba de descompresión. El límite propio
+   es de 40 MP, por debajo del de Pillow.
+3. **Solo quedan los píxeles.** La imagen se endereza con su EXIF y se reconstruye con `Image.frombytes`: guardar lee `info`, así
+   que una copia conservaría el perfil ICC o el EXIF.
+4. **Se ajusta a la API.** Hasta 2576 px de lado y 4784 tokens visuales, lo que leen los modelos grandes y por debajo de los 3000 px
+   que la API exige en una petición con más de 20 imágenes, que cuenta también las de las herramientas. Y hasta 5 MB en base64.
+5. **Conserva su formato.** Una captura en PNG mantiene el texto nítido, y una foto en JPEG (calidad 90) su peso.
+
+El mensaje guarda `{"type": "auradata_attachment", "id": …}`, no los bytes: el historial se lee varias veces por turno. `with_images`
+arma el bloque `image`, antes del texto, donde el modelo lo lee mejor. La llaman `history_of` y el chat para el turno nuevo, y debe
+dar lo mismo byte a byte: es lo que mantiene el prefijo de la caché. Ese tipo propio hace además que un camino que olvide
+expandirlo reciba un 400 de la API en vez de perder la imagen en silencio. Medido con Claude real en una conversación de 75 000
+tokens: el turno siguiente lee 74 898 de la caché, y un turno que agrega otra imagen lee 81 078 y escribe 865.
+
+Una subida es un borrador de `user_id`, sin `conversation_id`. La reclama `add_user_message`, en el mismo commit del mensaje, y de
+dos mensajes con el mismo borrador solo gana uno (409). La lectura pide ser el dueño y poder abrir el informe, y responde 404
+también a un admin: `Uso` no ve imágenes. `erase_conversations` las borra por su nombre, y `purge_drafts` borra los borradores
+de más de un día.
+
+Modelo y datos no llegan a imágenes: `AssistantMarkdown` sigue sin cargarlas, y el único camino a esa ruta son ids que el
+servidor escribió en un mensaje de la persona. Lo escrito dentro de una imagen es dato (`RULES`), aunque llegue en un turno de
+usuario.
+
+### Deshacer
 
 Deshacer se apoya en `turn_start`, escrito justo antes del primer cambio, y `turn_end`. Lo guardado mientras el modelo pensaba
 no entra en el turno. `undo.py` corre los comandos de restaurar como la persona, gráficos incluidos, porque una versión de

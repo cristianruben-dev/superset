@@ -177,6 +177,24 @@ This repository is **AuraData BI**, a fork of Apache Superset 7.0 shaped like Po
   what is past `AURADATA_ASSISTANT_RETENTION_DAYS` (90; None or a nonsensical value keeps everything, orphans too), by last
   message, and orphans (`dashboard_id` or `user_id` empty; a report in the trash keeps its id). It counts and logs first, takes
   `dry_run`, works in batches judged again under `FOR UPDATE SKIP LOCKED`, and never touches a pending card or a running turn.
+- **Attached images** (`attachments.py`, table `auradata_assistant_attachments`, `AttachedImages.tsx`, `useComposerImages.ts`).
+  An upload is hostile. `POST /api/v1/auradata/assistant/attachments/` (one `image` per form, 8 MB, under the 10 MB of the proxy)
+  goes through `clean_image`, the only way in: `Image.open` with `formats` limited to PNG, JPEG and WEBP, so the type comes from
+  the bytes and SVG or GIF never decode; the size is read from the header and refused past 40 MP before a pixel is decoded; the
+  result is a new image built from pixels (`Image.frombytes`, because saving reads `info` and a copy would keep the ICC profile
+  or EXIF), upright, fit to 2576 px and 4784 visual tokens and to the 5 MB of `MAX_IMAGE_BASE64_CHARS`. Anything stored must
+  stay acceptable to the API forever: the history only grows and is resent, so one bad image would break its conversation. A
+  message holds `{"type": "auradata_attachment", "id"}` and `with_images`, called by `history_of` and by the chat for the new
+  turn, makes the `image` block from the stored bytes, the same on every request, so the prompt cache holds. That custom type
+  also means a path that forgets `with_images` gets a 400 instead of a silent loss. An upload is a draft of its `user_id` until
+  `add_user_message` claims it, in the commit of the message (a lost race is a 409); `MAX_DRAFTS` and `purge_drafts` (nightly,
+  after a day, also with no retention) keep them from piling up, and only a draft can be deleted. 5 per message and 20 per
+  conversation (`MAX_PER_MESSAGE`, `MAX_PER_CONVERSATION`). `GET .../attachments/<id>/` answers 404 to anyone but the owner, an
+  admin too, and for a report the owner can no longer open, with a fixed type, `nosniff` and `no-store`. `erase_conversations`
+  deletes them. The panel shows only that endpoint, never a local preview, and `AssistantMarkdown` still loads no pictures: only
+  a person attaches an image. Text inside an image is data (`RULES`), though it arrives in a user turn. Tokens of images are in
+  `usage`, so limits and the context warning need nothing more. Paste leaves text alone when the clipboard also has it (Excel
+  adds a picture of the cells), and drop stops propagation for the editor's react-dnd.
 - **Privacy notice** (`PrivacyNotice.tsx`, `accept_privacy`): until a person accepts, per user on the server, chat and decide
   answer 403 (`reason: privacy`) and nothing reaches Anthropic. A change to what the notice says raises
   `PRIVACY_NOTICE_VERSION`, and everyone is asked again.
@@ -283,7 +301,7 @@ This repository is **AuraData BI**, a fork of Apache Superset 7.0 shaped like Po
 | Presentation mode, PDF/PNG export | - | `auradata/present`, `auradata/export` |
 | Ribbon and lineage | - | `auradata/ribbon` |
 | Selection pane, locked and hidden objects, page menu | - | `auradata/format/SelectionPane.tsx`, `auradata/format/lock.ts`, `auradata/report/PageMenu.tsx`, `auradata/report/pageActions.ts` |
-| AI assistant, editor's copilot | `superset/auradata/assistant/` | `auradata/assistant` |
+| AI assistant, editor's copilot, attached images | `superset/auradata/assistant/` | `auradata/assistant` |
 | Report interactivity (edit interactions, drill through, sync slicers, bookmarks, Back/bookmark buttons, tooltip pages, reset filters) | - | `auradata/report` |
 | Chart type icons | - | `auradata/vizIcons` |
 | Layout model in Python, format catalog | `superset/auradata/layout/`, `superset/auradata/catalog/` | `auradata/format/layoutDrift.test.ts`, `formatCatalog.test.ts` write their fixtures |
@@ -292,7 +310,7 @@ This repository is **AuraData BI**, a fork of Apache Superset 7.0 shaped like Po
 AuraData BI APIs: `/api/v1/workspace/` (with `<id>/dashboards/` and `<id>/datasets/`),
 `/api/v1/dashboard_background/<dashboard>/`, `/api/v1/dashboard_image/<dashboard>/<image>/`,
 `/api/v1/auradata/dashboard_previews/`, `/api/v1/auradata_assistant/` (`settings/`, `usage/`, `workspace/<id>/`),
-`/api/v1/auradata/assistant/` (with `models/`, `privacy/` and `conversations/`). Each new API is registered in `superset/initialization/__init__.py`.
+`/api/v1/auradata/assistant/` (with `models/`, `privacy/`, `conversations/` and `attachments/`). Each new API is registered in `superset/initialization/__init__.py`.
 
 ### Dashboard formatting lives in the layout
 Formats are stored in `position_json`, so they save, undo and export with the dashboard:
@@ -493,9 +511,9 @@ themes and CSS templates) → `d3f9a2b17c64` (workspace datasets). The chain end
 `f1c7a9e2b305`, whose `down_revision` is the Superset 7.0 head (`88a01c781622`) and the fork head, so there is
 one head and a database at `d3f9a2b17c64` still runs the 41 migrations of 7.0 on `db upgrade`. After the merge comes
 `a7e3c91d4b60` (renames the persisted `mibi` names to `auradata`).
-After it comes `c6a1f4e09b27` (conversations of the assistant), then `b2d58e7a13c4` (votes on its answers) and
-`e5a7c3f19d42` (rows that outlive a deleted conversation).
-- A new fork migration revises the current head (`e5a7c3f19d42` until the next one).
+After it comes `c6a1f4e09b27` (conversations of the assistant), then `b2d58e7a13c4` (votes on its answers),
+`e5a7c3f19d42` (rows that outlive a deleted conversation) and `c8f2d6b4a917` (images attached to the assistant).
+- A new fork migration revises the current head (`c8f2d6b4a917` until the next one).
 - Each new Superset release follows the same rule: add another merge revision of its head and the fork head.
   Never repoint `8bc9e5b95335` (or any fork revision) to the new upstream head: a database that already ran the
   fork migrations would skip the new upstream ones.

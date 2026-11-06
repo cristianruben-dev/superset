@@ -144,15 +144,32 @@ También muestra **Gastado este mes**, en dólares, a los administradores del á
 
 ## Privacidad
 
-- **Qué viaja a Anthropic:** lo que la persona escribe, la conversación, el informe, la página, los filtros y la selección en
-  pantalla, y los datos que el asistente lee, con sus filas. El asistente ve lo que ve la persona: **da acceso al panel
+- **Qué viaja a Anthropic:** lo que la persona escribe, las imágenes que adjunta, la conversación, el informe, la página, los
+  filtros y la selección en pantalla, y los datos que el asistente lee, con sus filas. El asistente ve lo que ve la persona: **da acceso al panel
   pensando en a qué datos llega cada rol.**
 - **El aviso:** hasta que cada persona lo acepta, el chat y las decisiones responden 403 y nada llega a Anthropic. Se guarda
   por persona. Cambiar su texto obliga a subir `PRIVACY_NOTICE_VERSION`, y todos lo aceptan de nuevo.
 - **Qué se guarda aquí:** las conversaciones completas, con los resultados de las herramientas y sus filas de datos, quedan en
-  la base de metadatos (`auradata_assistant_messages`) hasta que su dueño las elimina o vence su [retención](#retención).
+  la base de metadatos (`auradata_assistant_messages`) hasta que su dueño las elimina o vence su [retención](#retención). Las
+  imágenes también, en `auradata_assistant_attachments`, nunca en la Files API de Anthropic.
 - **Quién lee qué:** en la aplicación, cada conversación es de su dueño. Quien tenga acceso a la base de metadatos las puede
   leer. **Uso** no muestra contenido. El registro de acciones guarda cada herramienta con sus parámetros.
+
+## Imágenes adjuntas
+
+Cada persona puede adjuntar hasta 5 imágenes PNG, JPEG o WEBP por mensaje y 20 por conversación, de hasta 8 MB cada una. El
+servidor mira el tipo real del contenido, rechaza lo que no decodifique, y más de 40 millones de píxeles sin abrirlo, y guarda
+una imagen nueva sin metadatos, de hasta 2576 px y 4784 tokens visuales. Los límites son constantes de `attachments.py`, no
+ajustes. Un archivo que supere los 10 MB de `client_max_body_size` lo corta el proxy.
+
+- **Espacio.** Cada imagen ocupa unos pocos MB en la base de metadatos, y se va con su conversación. Mira el tamaño de la tabla
+  si tus personas adjuntan mucho: `Uso` no lo muestra.
+- **Costo.** Una imagen cuesta `⌈ancho/28⌉ × ⌈alto/28⌉` tokens, 4784 como mucho, y se reenvía en cada petición de esa
+  conversación, igual byte a byte. Por eso casi todo se lee de la caché: en Sonnet 5.5 una captura de Full HD cuesta unos
+  $0.007 la primera vez y $0.0005 por cada petición siguiente. Esos tokens entran en `usage`, así que cuentan en los topes, en
+  **Uso** y en el aviso de conversación larga, sin nada aparte.
+- **Sin enviar.** Una imagen subida y nunca enviada se borra sola a las 24 horas, en la tarea de retención, y cada persona puede
+  tener 20 esperando.
 
 ## Retención
 
@@ -171,6 +188,7 @@ AURADATA_ASSISTANT_RETENTION_DAYS = None  # conservar todo, para siempre
 | Conversación con una tarjeta de confirmación esperando | **Se queda**, aunque esté vencida |
 | Conversación con un turno en marcha | Se queda |
 | Conversación de un informe en la papelera | Sigue su retención normal: el informe puede volver |
+| Imagen subida que ningún mensaje envió, con más de un día | Se borra, aunque no haya retención configurada |
 
 - **Con `None` no se borra nada,** tampoco lo huérfano. Lo mismo con un valor que no tenga sentido, como `0` o `"90"`: el log lo
   avisa y la tarea no toca nada.
@@ -190,7 +208,7 @@ AURADATA_ASSISTANT_RETENTION_DAYS = None  # conservar todo, para siempre
 
 Los topes de gasto y **Uso** siguen dando lo mismo después de borrar: **borrar una conversación no devuelve presupuesto.**
 
-- **Se borra:** el título, los mensajes de la persona, los resultados de las herramientas con sus filas de datos, los registros
+- **Se borra:** el título, los mensajes de la persona, sus imágenes, los resultados de las herramientas con sus filas de datos, los registros
   de lo que hizo y el texto de cada respuesta.
 - **Queda:** una fila por respuesta, vacía y sin relación con la conversación, con su modelo, tokens, costo, fecha, persona y
   área de trabajo, más su voto sin el motivo. Sin eso, el mes cambiaría al borrar.
@@ -202,7 +220,9 @@ Los topes de gasto y **Uso** siguen dando lo mismo después de borrar: **borrar 
 `c6a1f4e09b27` crea `auradata_assistant_conversations` y `auradata_assistant_messages`. Solo agrega tablas. Corre con
 `superset db upgrade`, que `superset-init` ejecuta al arrancar. `b2d58e7a13c4` agrega `auradata_assistant_feedback`, con los
 votos. `e5a7c3f19d42` deja vacío `conversation_id` en las dos tablas de filas que sobreviven a su conversación. Revertirla borra
-esas filas, y con ellas el gasto y los votos de las conversaciones ya borradas.
+esas filas, y con ellas el gasto y los votos de las conversaciones ya borradas. `c8f2d6b4a917` agrega
+`auradata_assistant_attachments`, con las imágenes. Revertirla las borra, y las conversaciones que las nombran dejan de poder
+enviarse al modelo: elimínalas antes.
 
 Sin ella, el asistente no puede guardar conversaciones. En una base que ya existe, respáldala antes, como con cualquier
 migración.
