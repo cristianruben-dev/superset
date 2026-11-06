@@ -27362,3 +27362,51 @@ msgstr "Un admin de la plataforma apagó el asistente para todos."
 
 msgid "Spent this month:"
 msgstr "Gastado este mes:"
+
+msgid "Today"
+msgstr "Hoy"
+
+msgid "Yesterday"
+msgstr "Ayer"
+
+msgid "Older"
+msgstr "Más antiguas"
+
+msgid "Rename"
+msgstr "Cambiar nombre"
+
+msgid "Rename «%s»"
+msgstr "Cambiar el nombre de «%s»"
+
+msgid "Delete «%s»"
+msgstr "Eliminar «%s»"
+
+msgid "Delete conversation"
+msgstr "Eliminar conversación"
+
+msgid "Conversation title"
+msgstr "Título de la conversación"
+
+msgid "Save title"
+msgstr "Guardar título"
+
+msgid "Search conversations"
+msgstr "Buscar conversaciones"
+
+msgid "No conversation has that title."
+msgstr "Ninguna conversación tiene ese título."
+
+msgid "Delete «%s»? What was said and the data it read are erased, and you cannot get them back."
+msgstr "¿Eliminar «%s»? Se borra lo que se dijo y los datos que leyó, y no podrás recuperarlos."
+
+msgid "The title could not be changed."
+msgstr "No se pudo cambiar el título."
+
+msgid "This conversation could not be deleted."
+msgstr "No se pudo eliminar esta conversación."
+
+msgid "This conversation could not be opened."
+msgstr "No se pudo abrir esta conversación."
+
+msgid "Conversation deleted."
+msgstr "Conversación eliminada."

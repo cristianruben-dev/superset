@@ -22,6 +22,8 @@ import {
   AssistantError,
   clearFeedback,
   decideCall,
+  deleteConversation,
+  renameConversation,
   saveFeedback,
   undoTurn,
 } from './client';
@@ -191,6 +193,35 @@ test('a vote goes to the answer, and taking it back too', async () => {
     jsonPayload: { vote: 'down', reason: 'other' },
   });
   expect(remove).toHaveBeenCalledWith({ endpoint: url });
+});
+
+test('a rename sends the title, and a delete only the conversation', async () => {
+  const put = jest
+    .spyOn(SupersetClient, 'put')
+    .mockResolvedValue({ json: { result: { id: 'c' } } } as never);
+  const remove = jest
+    .spyOn(SupersetClient, 'delete')
+    .mockResolvedValue({} as never);
+  const url = '/api/v1/auradata/assistant/conversations/c/';
+
+  await renameConversation('c', 'Marzo');
+  await deleteConversation('c');
+
+  expect(put).toHaveBeenCalledWith({
+    endpoint: url,
+    jsonPayload: { title: 'Marzo' },
+  });
+  expect(remove).toHaveBeenCalledWith({ endpoint: url });
+});
+
+test('a refused delete brings the reason of the server', async () => {
+  jest.spyOn(SupersetClient, 'delete').mockRejectedValue(
+    new Response(JSON.stringify({ message: 'Está respondiendo' }), {
+      status: 409,
+    }),
+  );
+
+  await expect(deleteConversation('c')).rejects.toThrow('Está respondiendo');
 });
 
 test('a refused undo brings the reason of the server', async () => {

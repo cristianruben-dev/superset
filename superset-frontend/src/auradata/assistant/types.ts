@@ -118,6 +118,12 @@ export interface Conversation {
   changed_on: string;
 }
 
+/** A row of the list of conversations of a report. */
+export interface ListedConversation extends Conversation {
+  /** When it last grew: a rename does not move it. */
+  last_message_on: string;
+}
+
 /** Why an answer got a thumbs down. The server only takes these. */
 export type FeedbackReason =
   | 'wrong_data'

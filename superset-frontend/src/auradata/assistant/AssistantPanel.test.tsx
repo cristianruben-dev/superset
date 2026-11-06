@@ -22,7 +22,6 @@ import {
   createStore,
   render,
   screen,
-  selectOption,
   userEvent,
   waitFor,
 } from 'spec/helpers/testing-library';
@@ -33,8 +32,10 @@ import {
   AssistantError,
   clearFeedback,
   decideCall,
+  deleteConversation,
   fetchConversation,
   fetchConversations,
+  renameConversation,
   saveFeedback,
   undoTurn,
 } from './client';
@@ -54,6 +55,8 @@ jest.mock('./client', () => ({
   decideCall: jest.fn(),
   fetchConversation: jest.fn(),
   fetchConversations: jest.fn(),
+  renameConversation: jest.fn(),
+  deleteConversation: jest.fn(),
   saveFeedback: jest.fn(),
   clearFeedback: jest.fn(),
   undoTurn: jest.fn(),
@@ -67,6 +70,15 @@ jest.mock('./editorActions', () => ({
 jest.mock('src/components/Chart/chartAction', () => ({
   requestChartDataResolved: jest.fn(() => Promise.reject(new Error('403'))),
 }));
+
+const openFromList = async (title: string) => {
+  await userEvent.click(
+    await screen.findByRole('button', {
+      name: 'Conversations of this report',
+    }),
+  );
+  await userEvent.click(await screen.findByRole('button', { name: title }));
+};
 
 const ask = askAssistant as jest.Mock;
 const decide = decideCall as jest.Mock;
@@ -463,12 +475,7 @@ test('a stored vote comes back with its conversation', async () => {
   });
   setup();
 
-  await userEvent.click(
-    await screen.findByRole('combobox', {
-      name: 'Conversations of this report',
-    }),
-  );
-  await userEvent.click(await screen.findByText('Ventas de marzo'));
+  await openFromList('Ventas de marzo');
 
   expect(
     await screen.findByRole('button', { name: 'Helpful' }),
@@ -502,10 +509,11 @@ test('lists only the read conversations and opens one', async () => {
   });
   setup();
 
-  const history = await screen.findByRole('combobox', {
-    name: 'Conversations of this report',
-  });
-  await userEvent.click(history);
+  await userEvent.click(
+    await screen.findByRole('button', {
+      name: 'Conversations of this report',
+    }),
+  );
   expect(await screen.findByText('Ventas de marzo')).toBeInTheDocument();
   expect(screen.queryByText('Del editor')).not.toBeInTheDocument();
 
@@ -513,6 +521,91 @@ test('lists only the read conversations and opens one', async () => {
 
   expect(await screen.findByText('Buenas')).toBeInTheDocument();
   expect(conversation).toHaveBeenCalledWith('c1');
+});
+
+test('deleting the open conversation goes back to an empty one', async () => {
+  conversations.mockResolvedValue([
+    { id: 'c1', mode: 'read', title: 'Ventas de marzo', model: SONNET.id },
+    { id: 'c3', mode: 'read', title: 'Otra', model: SONNET.id },
+  ]);
+  conversation.mockResolvedValue({
+    id: 'c1',
+    model: SONNET.id,
+    figures: {},
+    context_tokens: 10,
+    messages: [
+      {
+        id: 'm1',
+        role: 'user',
+        stop_reason: null,
+        content: [{ type: 'text', text: 'Hola' }],
+      },
+    ],
+  });
+  (deleteConversation as jest.Mock).mockResolvedValue(undefined);
+  setup();
+  await openFromList('Ventas de marzo');
+  expect(await screen.findByText('Hola')).toBeInTheDocument();
+
+  await userEvent.click(
+    screen.getByRole('button', { name: 'Conversations of this report' }),
+  );
+  await userEvent.click(
+    await screen.findByRole('button', { name: 'Delete «Ventas de marzo»' }),
+  );
+  await userEvent.click(
+    await screen.findByTestId('auradata-assistant-delete-confirm'),
+  );
+
+  await waitFor(() => expect(deleteConversation).toHaveBeenCalledWith('c1'));
+  expect(
+    await screen.findByRole('button', { name: 'Otra' }),
+  ).toBeInTheDocument();
+  await userEvent.type(
+    screen.getByRole('textbox', { name: 'Search conversations' }),
+    '{esc}',
+  );
+  expect(screen.queryByText('Hola')).not.toBeInTheDocument();
+  expect(screen.getByText('Ask about your data')).toBeInTheDocument();
+});
+
+test('a rename shows in the list and over the open conversation', async () => {
+  conversations.mockResolvedValue([
+    { id: 'c1', mode: 'read', title: 'Ventas de marzo', model: SONNET.id },
+  ]);
+  (renameConversation as jest.Mock).mockResolvedValue({});
+  setup();
+  await userEvent.click(
+    await screen.findByRole('button', {
+      name: 'Conversations of this report',
+    }),
+  );
+
+  await userEvent.click(
+    await screen.findByRole('button', { name: 'Rename «Ventas de marzo»' }),
+  );
+  const title = screen.getByRole('textbox', { name: 'Conversation title' });
+  await userEvent.clear(title);
+  await userEvent.type(title, 'Abril{enter}');
+
+  expect(
+    await screen.findByRole('button', { name: 'Abril' }),
+  ).toBeInTheDocument();
+  expect(renameConversation).toHaveBeenCalledWith('c1', 'Abril');
+});
+
+test('a conversation that no longer opens says so and leaves the list', async () => {
+  conversations.mockResolvedValue([
+    { id: 'c1', mode: 'read', title: 'Ventas de marzo', model: SONNET.id },
+  ]);
+  conversation.mockRejectedValue(new Response(null, { status: 404 }));
+  setup();
+
+  await openFromList('Ventas de marzo');
+
+  await waitFor(() =>
+    expect(conversations.mock.calls.length).toBeGreaterThan(1),
+  );
 });
 
 test('the model selector marks the price and the default', async () => {
@@ -631,7 +724,7 @@ test('a card of a stored conversation comes back', async () => {
   });
   setupEditor();
 
-  await selectOption('Del editor', 'Conversations of this report');
+  await openFromList('Del editor');
 
   expect(
     await screen.findByTestId('auradata-assistant-confirmation'),
@@ -669,7 +762,7 @@ test('a card waits for the changes to be saved too', async () => {
   });
   setupEditor(true);
 
-  await selectOption('Del editor', 'Conversations of this report');
+  await openFromList('Del editor');
 
   expect(
     await screen.findByTestId('auradata-assistant-approve'),
@@ -758,7 +851,7 @@ test('a refused undo shows why', async () => {
   });
   undo.mockRejectedValue(new AssistantError('Cambió después'));
   setupEditor();
-  await selectOption('Del editor', 'Conversations of this report');
+  await openFromList('Del editor');
 
   await userEvent.click(await screen.findByTestId('auradata-assistant-undo'));
 

@@ -26,6 +26,7 @@ import type {
   ChatMode,
   Conversation,
   Feedback,
+  ListedConversation,
   StoredConversation,
   UndoResult,
 } from './types';
@@ -43,7 +44,7 @@ export const acceptPrivacy = (): Promise<unknown> =>
 
 export const fetchConversations = (
   dashboardId: number,
-): Promise<Conversation[]> =>
+): Promise<ListedConversation[]> =>
   SupersetClient.get({
     endpoint: `${CHAT_URL}conversations/?dashboard_id=${dashboardId}`,
   }).then(({ json }) => json.result);
@@ -52,6 +53,49 @@ export const fetchConversation = (id: string): Promise<StoredConversation> =>
   SupersetClient.get({ endpoint: `${CHAT_URL}conversations/${id}/` }).then(
     ({ json }) => json.result,
   );
+
+/** Why the server refused, in its words when it gave them. */
+async function refusedWith(
+  response: unknown,
+  fallback: string,
+): Promise<AssistantError> {
+  const { message, error } = await getClientErrorObject(
+    response as Parameters<typeof getClientErrorObject>[0],
+  );
+  return new AssistantError(
+    typeof message === 'string' ? message : (error ?? fallback),
+  );
+}
+
+/** Changes the title of a conversation, and nothing it holds. */
+export async function renameConversation(
+  id: string,
+  title: string,
+): Promise<Conversation> {
+  try {
+    const { json } = await SupersetClient.put({
+      endpoint: `${CHAT_URL}conversations/${id}/`,
+      jsonPayload: { title },
+    });
+    return json.result;
+  } catch (response) {
+    throw await refusedWith(response, t('The title could not be changed.'));
+  }
+}
+
+/** Deletes a conversation and all it holds. */
+export async function deleteConversation(id: string): Promise<void> {
+  try {
+    await SupersetClient.delete({
+      endpoint: `${CHAT_URL}conversations/${id}/`,
+    });
+  } catch (response) {
+    throw await refusedWith(
+      response,
+      t('This conversation could not be deleted.'),
+    );
+  }
+}
 
 const feedbackUrl = (conversationId: string, messageId: string) =>
   `${CHAT_URL}conversations/${conversationId}/messages/${messageId}/feedback/`;
@@ -192,11 +236,6 @@ export async function undoTurn(conversationId: string): Promise<UndoResult> {
     });
     return json.result;
   } catch (response) {
-    const { message, error } = await getClientErrorObject(
-      response as Parameters<typeof getClientErrorObject>[0],
-    );
-    throw new AssistantError(
-      message ?? error ?? t('This could not be undone.'),
-    );
+    throw await refusedWith(response, t('This could not be undone.'));
   }
 }

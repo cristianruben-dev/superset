@@ -39,10 +39,16 @@ import { selectedVisuals } from '../format/selection';
 import { AnswerActions } from './AnswerActions';
 import { AssistantFigure } from './AssistantFigure';
 import { AssistantMarkdown } from './AssistantMarkdown';
-import { AssistantError, fetchConversations } from './client';
+import {
+  AssistantError,
+  deleteConversation,
+  fetchConversations,
+  renameConversation,
+} from './client';
 import { ConfirmationCard } from './ConfirmationCard';
 import { confirmationTitle } from './confirmations';
 import { editorContext, pageContext } from './context';
+import { ConversationList } from './ConversationList';
 import { reloadReport, saveReport } from './editorActions';
 import { isLongConversation } from './transcript';
 import { PrivacyNotice } from './PrivacyNotice';
@@ -51,8 +57,8 @@ import type {
   AssistantBudget,
   ChatMessage,
   ChatMode,
-  Conversation,
   Feedback,
+  ListedConversation,
   ModelPrice,
   OfferedModel,
   ToolStep,
@@ -136,6 +142,54 @@ const Controls = styled.div`
 const History = styled.div`
   flex: 1;
   min-width: 0;
+`;
+
+const HistoryToggle = styled.button`
+  ${({ theme }) => css`
+    display: flex;
+    align-items: center;
+    gap: ${theme.sizeUnit * 2}px;
+    width: 100%;
+    min-height: ${theme.sizeUnit * 8}px;
+    padding: ${theme.sizeUnit}px ${theme.sizeUnit * 2}px;
+    border: 0;
+    border-radius: ${theme.sizeUnit}px;
+    background: transparent;
+    color: ${theme.colorTextSecondary};
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition:
+      background ${theme.motionDurationFast},
+      color ${theme.motionDurationFast};
+
+    &:hover:not(:disabled) {
+      background: ${theme.colorFillTertiary};
+      color: ${theme.colorText};
+    }
+    &:focus-visible {
+      outline: 2px solid ${theme.colorPrimary};
+      outline-offset: 2px;
+    }
+    &:disabled {
+      color: ${theme.colorTextDisabled};
+      cursor: not-allowed;
+    }
+    .title {
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .chevron {
+      flex: none;
+      transition: transform ${theme.motionDurationFast};
+    }
+    &[aria-expanded='true'] .chevron {
+      transform: rotate(180deg);
+    }
+  `}
 `;
 
 const Messages = styled.div`
@@ -582,7 +636,8 @@ function Conversations({
   );
   const editing = mode === 'edit';
   const blocked = editing && (unsaved || hasPendingFields());
-  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [conversations, setConversations] = useState<ListedConversation[]>([]);
+  const [listOpen, setListOpen] = useState(false);
   const [draft, setDraft] = useState('');
   const fallbackModel =
     models.find(model => model.default)?.id ?? models[0]?.id;
@@ -654,6 +709,7 @@ function Conversations({
     latest?.tools,
     latest?.figure,
     latest?.problem,
+    listOpen,
   ]);
 
   const modelOptions = useMemo(
@@ -671,26 +727,51 @@ function Conversations({
   );
 
   // A conversation that just started is not on the list until its answer ends
-  const historyOptions = useMemo(() => {
-    const options = conversations.map(item => ({
-      value: item.id,
-      label: item.title,
-    }));
-    const { conversationId, messages } = chat;
-    return !conversationId ||
-      options.some(item => item.value === conversationId)
-      ? options
-      : [{ value: conversationId, label: messages[0]?.text ?? '' }, ...options];
-  }, [conversations, chat.conversationId, chat.messages]);
+  const currentTitle =
+    conversations.find(item => item.id === chat.conversationId)?.title ??
+    (chat.conversationId ? chat.messages[0]?.text : undefined);
+  const showList = listOpen && !chat.busy && conversations.length > 0;
 
   const startNew = () => {
     reset();
     setChosenModel(undefined);
+    setListOpen(false);
   };
 
   const openConversation = (id: string) => {
     setChosenModel(undefined);
-    chat.open(id);
+    setListOpen(false);
+    chat.open(id).catch(() => {
+      addDangerToast(t('This conversation could not be opened.'));
+      loadConversations();
+    });
+  };
+
+  const renameFromList = async (id: string, title: string) => {
+    try {
+      await renameConversation(id, title);
+      setConversations(current =>
+        current.map(item => (item.id === id ? { ...item, title } : item)),
+      );
+    } catch (error) {
+      addDangerToast((error as Error).message);
+      throw error;
+    }
+  };
+
+  const deleteFromList = async (id: string) => {
+    try {
+      await deleteConversation(id);
+    } catch (error) {
+      addDangerToast((error as Error).message);
+      throw error;
+    }
+    if (id === chat.conversationId) {
+      reset();
+      setChosenModel(undefined);
+    }
+    setConversations(current => current.filter(item => item.id !== id));
+    addSuccessToast(t('Conversation deleted.'));
   };
 
   const contextNow = () =>
@@ -704,6 +785,7 @@ function Conversations({
     const message = text.trim();
     if (!message || !model || !canSend) return;
     setDraft('');
+    setListOpen(false);
     chat.send(message, model, contextNow());
   };
 
@@ -749,20 +831,24 @@ function Conversations({
 
   return (
     <Column>
-      {historyOptions.length + chat.messages.length > 0 && (
+      {conversations.length + chat.messages.length > 0 && (
         <Controls>
           <History>
-            {historyOptions.length > 0 && (
-              <Select
-                ariaLabel={t('Conversations of this report')}
-                placeholder={t('Conversations of this report')}
-                value={chat.conversationId ?? undefined}
-                options={historyOptions}
-                onChange={value => openConversation(String(value))}
-                disabled={chat.busy}
-                showSearch={false}
+            {(conversations.length > 0 || currentTitle) && (
+              <HistoryToggle
+                type="button"
+                aria-label={t('Conversations of this report')}
+                aria-expanded={showList}
+                onClick={() => setListOpen(!listOpen)}
+                disabled={chat.busy || !conversations.length}
                 data-test="auradata-assistant-history"
-              />
+              >
+                <Icons.HistoryOutlined iconSize="s" />
+                <span className="title">
+                  {currentTitle ?? t('Conversations of this report')}
+                </span>
+                <Icons.DownOutlined className="chevron" iconSize="xs" />
+              </HistoryToggle>
             )}
           </History>
           <Button
@@ -777,77 +863,88 @@ function Conversations({
         </Controls>
       )}
 
-      <Messages aria-live="polite" data-test="auradata-assistant-messages">
-        {chat.messages.length === 0 && (
-          <Empty>
-            <h3>
-              {editing ? t('What do we change?') : t('Ask about your data')}
-            </h3>
-            <p>
-              {editing
-                ? t(
-                    'The assistant knows the page and what you have selected, and it asks you before it deletes, publishes, shares or schedules anything.',
-                  )
-                : t(
-                    'The assistant answers about the page and filters on your screen, and it cannot change anything.',
-                  )}
-            </p>
-            <Suggestions>
-              {(editing ? editSuggestions() : readSuggestions()).map(text => (
-                <button
-                  key={text}
-                  type="button"
-                  disabled={!canSend}
-                  onClick={() => ask(text)}
-                  data-test="auradata-assistant-suggestion"
-                >
-                  {text}
-                </button>
-              ))}
-            </Suggestions>
-          </Empty>
-        )}
-        {chat.messages.map((message, index) =>
-          message.role === 'user' ? (
-            <Bubble key={message.id} fromUser>
-              {message.text}
-            </Bubble>
-          ) : (
-            <Answer
-              key={message.id}
-              message={message}
-              dashboardId={dashboardId}
-              writing={chat.busy && index === chat.messages.length - 1}
-              finished={
-                index < chat.messages.length - 1 ||
-                (!chat.busy && !chat.confirmations.length)
-              }
-              onVote={feedback => vote(message, feedback)}
-              onNewConversation={startNew}
+      {showList ? (
+        <ConversationList
+          conversations={conversations}
+          currentId={chat.conversationId}
+          onOpen={openConversation}
+          onRename={renameFromList}
+          onDelete={deleteFromList}
+          onClose={() => setListOpen(false)}
+        />
+      ) : (
+        <Messages aria-live="polite" data-test="auradata-assistant-messages">
+          {chat.messages.length === 0 && (
+            <Empty>
+              <h3>
+                {editing ? t('What do we change?') : t('Ask about your data')}
+              </h3>
+              <p>
+                {editing
+                  ? t(
+                      'The assistant knows the page and what you have selected, and it asks you before it deletes, publishes, shares or schedules anything.',
+                    )
+                  : t(
+                      'The assistant answers about the page and filters on your screen, and it cannot change anything.',
+                    )}
+              </p>
+              <Suggestions>
+                {(editing ? editSuggestions() : readSuggestions()).map(text => (
+                  <button
+                    key={text}
+                    type="button"
+                    disabled={!canSend}
+                    onClick={() => ask(text)}
+                    data-test="auradata-assistant-suggestion"
+                  >
+                    {text}
+                  </button>
+                ))}
+              </Suggestions>
+            </Empty>
+          )}
+          {chat.messages.map((message, index) =>
+            message.role === 'user' ? (
+              <Bubble key={message.id} fromUser>
+                {message.text}
+              </Bubble>
+            ) : (
+              <Answer
+                key={message.id}
+                message={message}
+                dashboardId={dashboardId}
+                writing={chat.busy && index === chat.messages.length - 1}
+                finished={
+                  index < chat.messages.length - 1 ||
+                  (!chat.busy && !chat.confirmations.length)
+                }
+                onVote={feedback => vote(message, feedback)}
+                onNewConversation={startNew}
+              />
+            ),
+          )}
+          {chat.confirmations.map(confirmation => (
+            <ConfirmationCard
+              key={confirmation.id}
+              confirmation={confirmation}
+              disabled={chat.busy || blocked}
+              onDecide={approved => decide(confirmation.id, approved)}
             />
-          ),
-        )}
-        {chat.confirmations.map(confirmation => (
-          <ConfirmationCard
-            key={confirmation.id}
-            confirmation={confirmation}
-            disabled={chat.busy || blocked}
-            onDecide={approved => decide(confirmation.id, approved)}
-          />
-        ))}
-        {editing && chat.canUndo && !chat.busy && (
-          <QuietAction
-            type="button"
-            onClick={undo}
-            disabled={blocked}
-            data-test="auradata-assistant-undo"
-          >
-            <Icons.Undo iconSize="s" />
-            {t('Undo the assistant’s changes')}
-          </QuietAction>
-        )}
-        <div ref={end} />
-      </Messages>
+          ))}
+          {editing && chat.canUndo && !chat.busy && (
+            <QuietAction
+              type="button"
+              onClick={undo}
+              disabled={blocked}
+              data-test="auradata-assistant-undo"
+            >
+              <Icons.Undo iconSize="s" />
+              {t('Undo the assistant’s changes')}
+            </QuietAction>
+          )}
+          <div ref={end} />
+        </Messages>
+      )}
 
       <Footer>
         {blocked && (
