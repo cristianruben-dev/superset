@@ -27739,3 +27739,6 @@ msgstr "Reintentar"
 
 msgid "No data for these filters."
 msgstr "No hay datos con estos filtros."
+
+msgid "Gives the selected object the format copied last"
+msgstr "Da al objeto seleccionado el último formato copiado"
