@@ -57,6 +57,14 @@ def test_dashboard_purge_removes_its_format_and_workspace_link() -> None:
     } <= owned_tables(Dashboard)
 
 
+def test_dashboard_purge_leaves_the_assistant_records_to_their_retention() -> None:
+    """Their dashboard goes NULL and the assistant's retention erases them."""
+    assert not {
+        "auradata_assistant_artifacts",
+        "auradata_assistant_conversations",
+    } & owned_tables(Dashboard)
+
+
 def test_dataset_purge_removes_its_workspace_link() -> None:
     """A dataset takes its workspace link with it."""
     assert "auradata_workspace_datasets" in owned_tables(SqlaTable)

@@ -773,6 +773,21 @@ def purge_policy_registry() -> Mapping[type[Any], PurgeEntityPolicy]:
                         "id",
                         "outbound",
                     ),
+                    # AuraData BI: what the assistant said about the dashboard
+                    fk(
+                        "dashboards",
+                        "auradata_assistant_artifacts",
+                        "id",
+                        "dashboard_id",
+                        "inbound",
+                    ),
+                    fk(
+                        "dashboards",
+                        "auradata_assistant_conversations",
+                        "id",
+                        "dashboard_id",
+                        "inbound",
+                    ),
                 ),
                 (
                     DependencyClassification.PRESERVE,
@@ -799,6 +814,10 @@ def purge_policy_registry() -> Mapping[type[Any], PurgeEntityPolicy]:
                     DependencyClassification.OWNED,
                     DependencyClassification.PRESERVE,
                     DependencyClassification.PRESERVE,
+                    DependencyClassification.PRESERVE,
+                    DependencyClassification.PRESERVE,
+                    # AuraData BI: the database sets their dashboard to NULL, and
+                    # the retention of the assistant erases them as orphans
                     DependencyClassification.PRESERVE,
                     DependencyClassification.PRESERVE,
                 ),
