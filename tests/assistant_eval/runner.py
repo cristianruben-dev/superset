@@ -714,6 +714,9 @@ def _block_change_gaps(task: dict[str, Any], run: Transcript) -> list[str]:
     return gaps
 
 
+DOCUMENT_RULES = {"document": _document_gaps, "block_change": _block_change_gaps}
+
+
 def score(
     task: dict[str, Any],
     run: Transcript,
@@ -733,11 +736,8 @@ def score(
         return (VERDICT_HIT, []) if run.errors == wanted else (VERDICT_MISS, run.errors)
     if run.errors:
         return VERDICT_ERROR, run.errors
-    if kind == "document":
-        gaps = _document_gaps(task, run)
-        return (VERDICT_MISS, gaps) if gaps else (VERDICT_HIT, [])
-    if kind == "block_change":
-        gaps = _block_change_gaps(task, run)
+    if kind in DOCUMENT_RULES:
+        gaps = DOCUMENT_RULES[kind](task, run)
         return (VERDICT_MISS, gaps) if gaps else (VERDICT_HIT, [])
     if kind == "data":
         missing = _has_all(task, run.text)
@@ -858,7 +858,11 @@ class Workbench:
         return Opening(str(conversation.id), artifact)
 
     def _seed_document(
-        self, seed: dict[str, Any], conversation_id: UUID, user_id: int, dashboard_id: int
+        self,
+        seed: dict[str, Any],
+        conversation_id: UUID,
+        user_id: int,
+        dashboard_id: int,
     ) -> dict[str, Any]:
         """A document of the conversation, as the tool of the model would write it."""
         answer, is_error = run_own_tool(
@@ -878,18 +882,20 @@ class Workbench:
         return reference
 
 
-def _fill_history(
-    conversation: Any, user_id: int, model: str, characters: int
-) -> None:
+def _fill_history(conversation: Any, user_id: int, model: str, characters: int) -> None:
     """
     A conversation too long for the model, stored by hand: reaching it turn by turn
     costs dollars, and a request that does not fit costs nothing. The rows cost nothing
     either, so they count for no budget.
     """
     log = ConversationLog(conversation, user_id)
-    words = " ".join(f"registro{number * 7919 % 100003}" for number in range(characters))
+    words = " ".join(
+        f"registro{number * 7919 % 100003}" for number in range(characters)
+    )
     size = characters // (2 * HISTORY_PAIRS)
-    chunks = [words[start * size : (start + 1) * size] for start in range(HISTORY_PAIRS * 2)]
+    chunks = [
+        words[start * size : (start + 1) * size] for start in range(HISTORY_PAIRS * 2)
+    ]
     for question, answer in zip(chunks[0::2], chunks[1::2], strict=True):
         log.add_user_message([{"type": "text", "text": question}])
         log.add_turn(
@@ -903,9 +909,7 @@ def _fill_history(
         )
 
 
-def _document_states(
-    conversation_id: str | None, seeded: bool
-) -> list[dict[str, Any]]:
+def _document_states(conversation_id: str | None, seeded: bool) -> list[dict[str, Any]]:
     """
     The documents of a conversation, as they stand and as they started. What the task
     wrote itself into a document is no words of the model.
@@ -959,9 +963,7 @@ def _read_blocks(run: Transcript, username: str) -> None:
 
 def _turn_off_schedules(dashboard_id: int) -> None:
     """A report a task scheduled stays on record, and never runs."""
-    charts = select(Slice.id).where(
-        Slice.dashboards.any(Dashboard.id == dashboard_id)
-    )
+    charts = select(Slice.id).where(Slice.dashboards.any(Dashboard.id == dashboard_id))
     db.session.query(ReportSchedule).filter(
         ReportSchedule.active,
         or_(
@@ -1007,7 +1009,9 @@ def run_battery(
             guarded = GuardedClient(client_for(task, model), ledger, effort)
             turns_module.build_client = lambda client=guarded: client
             results.append(
-                _run_task(task, model, effort, ledger, driver, login, workbench, battery)
+                _run_task(
+                    task, model, effort, ledger, driver, login, workbench, battery
+                )
             )
     finally:
         turns_module.build_client = original
@@ -1056,9 +1060,7 @@ def runs_of(
 
 def _store_settings(**changes: Any) -> None:
     stored = get_shared_value(SharedKey.AURADATA_ASSISTANT_SETTINGS) or {}
-    upsert_shared_value(
-        SharedKey.AURADATA_ASSISTANT_SETTINGS, {**stored, **changes}
-    )
+    upsert_shared_value(SharedKey.AURADATA_ASSISTANT_SETTINGS, {**stored, **changes})
     db.session.commit()  # pylint: disable=consider-using-transaction
 
 

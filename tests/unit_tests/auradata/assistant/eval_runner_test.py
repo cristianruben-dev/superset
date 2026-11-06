@@ -806,9 +806,13 @@ def event(number: int, name: str, data: str = "{}") -> str:
 
 
 def test_a_connection_that_ends_first_goes_on_from_its_last_number() -> None:
-    http = FakeHttp(Stream(event(3, "text", '{"text": " mundo"}'), event(4, "turn_end")))
+    http = FakeHttp(
+        Stream(event(3, "text", '{"text": " mundo"}'), event(4, "turn_end"))
+    )
     run = Transcript(conversation_id="c")
-    first = Stream(event(1, "text", '{"text": "Hola"}'), event(2, "text", '{"text": ","}'))
+    first = Stream(
+        event(1, "text", '{"text": "Hola"}'), event(2, "text", '{"text": ","}')
+    )
 
     runner.Driver(http)._read(first, run)
 
@@ -896,14 +900,17 @@ def test_the_settings_of_a_run_are_put_back(
     )
     tasks = [task_of(model="claude-haiku-4-5")]
 
-    with pytest.raises(ValueError):
+    def fail_inside() -> None:
         with runner.run_settings(tasks, [(SONNET, "low")], Decimal(5)):
             assert stored["values"]["allowed_models"] == [
                 "claude-haiku-4-5",
                 SONNET,
             ]
             assert stored["values"]["monthly_budget_usd"] == 5.0
-            raise ValueError
+            raise RefusedError
+
+    with pytest.raises(RefusedError):
+        fail_inside()
 
     assert stored["values"] == {"effort": "high"}
 
@@ -957,7 +964,9 @@ def test_a_change_to_a_block_leaves_the_others_as_they_were() -> None:
     task = task_of(**BLOCK_TASK)
 
     assert score(task, changed_run("line", "Hola"), {}, False) == (VERDICT_HIT, [])
-    assert score(task, changed_run("line", "Adiós"), {}, False)[1] == ["block t changed"]
+    assert score(task, changed_run("line", "Adiós"), {}, False)[1] == [
+        "block t changed"
+    ]
     assert score(task, changed_run("bar", "Hola"), {}, False)[1] == [
         "selected block has chart=bar"
     ]
