@@ -81,7 +81,7 @@ test('saving from the panel stays in the editor, once', () => {
   const actions: { type: string }[] = [];
   setReportSave(save);
 
-  saveReport()(action => actions.push(action as never) as never);
+  saveReport()((action: unknown) => actions.push(action as never) as never);
 
   expect(save).toHaveBeenCalledTimes(1);
   const asked = dashboardStateReducer(editing, actions[0] as never);

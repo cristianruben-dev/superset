@@ -48,7 +48,7 @@ const row = (
   stop_reason: string | null = null,
 ): StoredMessage => {
   rowId += 1;
-  return { id: `row-${rowId}`, role, content, stop_reason };
+  return { id: `row-${rowId}`, seq: rowId, role, content, stop_reason };
 };
 
 const stored = (
@@ -202,9 +202,11 @@ test('a rejected call says so, live and when read later', () => {
     pending: [],
     can_undo: false,
     rejected: ['t'],
+    feedback: {},
     messages: [
       {
         id: 'r',
+        seq: 1,
         role: 'assistant',
         stop_reason: 'tool_use',
         content: [{ type: 'tool_use', id: 't', name: 'delete_page' }],

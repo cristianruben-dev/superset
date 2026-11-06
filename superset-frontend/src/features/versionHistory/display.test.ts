@@ -25,7 +25,7 @@ import {
   groupHeadline,
   relatedHeadline,
 } from './display';
-import type { ActivityRecord, SaveGroup } from './types';
+import type { ActivityOperation, ActivityRecord, SaveGroup } from './types';
 
 const record = (overrides: Partial<ActivityRecord> = {}): ActivityRecord => ({
   version_uuid: 'v-1',
@@ -147,7 +147,7 @@ test('describeRecord labels dashboard layout changes', () => {
 });
 
 test('describeRecord names report settings, interactions and elements', () => {
-  const report = (path: string[], operation = 'edit') =>
+  const report = (path: string[], operation: ActivityOperation = 'edit') =>
     describeRecord(
       record({ kind: 'report', operation, path, to_value: { items: [] } }),
     );

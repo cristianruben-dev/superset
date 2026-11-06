@@ -172,11 +172,13 @@ test('filters leave room for the selection under what the server accepts', () =>
     {
       ...filteredState,
       dashboardLayout: {
+        ...filteredState.dashboardLayout,
         present: {
           ...filteredState.dashboardLayout.present,
           [CHART]: {
             id: CHART,
             type: 'CHART',
+            children: [],
             meta: { chartId: 8, sliceName: 'n'.repeat(240) },
           },
         },
