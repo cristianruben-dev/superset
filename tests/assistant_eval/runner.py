@@ -925,7 +925,10 @@ def _grant_editor_rights(battery: dict[str, Any]) -> list[str]:
         .filter_by(database_name=battery["fixtures"]["injection"]["database"])
         .one()
     )
-    for permission, resource in (*EDITOR_PERMISSIONS, ("database_access", database.perm)):
+    for permission, resource in (
+        *EDITOR_PERMISSIONS,
+        ("database_access", database.perm),
+    ):
         security_manager.add_permission_role(
             role, security_manager.add_permission_view_menu(permission, resource)
         )
