@@ -43,8 +43,10 @@ interruptor de la pantalla se puede ver encendido y el asistente sigue apagado.
 3. **Abre Administración › Asistente de IA** (`/assistant/settings/`, solo administradores) y comprueba que **Modelos** no
    muestra ningún aviso.
 4. **Elige los modelos y el modelo por defecto, pon un tope mensual,** activa **Encender el asistente** y pulsa **Guardar**.
-5. **Si hay proxy delante,** dale [los tiempos](#tiempos-del-proxy) de las rutas del chat.
-6. **Comprueba:** abre un informe y busca **Pregúntale a tus datos**. Acepta el aviso y pregunta algo.
+5. **Comprueba que hay un worker para el asistente.** Las respuestas corren en la cola `auradata_assistant` y usan Redis:
+   mira [Dónde corre una respuesta](#dónde-corre-una-respuesta).
+6. **Si hay proxy delante,** dale [los tiempos](#tiempos-del-proxy) de las rutas del chat.
+7. **Comprueba:** abre un informe y busca **Pregúntale a tus datos**. Acepta el aviso y pregunta algo.
 
 La clave se queda en el servidor: ninguna respuesta de la API la devuelve y el navegador nunca habla con Anthropic.
 
@@ -229,27 +231,54 @@ migración.
 
 Los ajustes globales, los de cada área y la aceptación del aviso no piden tablas: viven en el almacén clave-valor.
 
+## Dónde corre una respuesta
+
+Una respuesta no corre en la petición web, sino en un worker de Celery. La web comprueba todo, guarda el mensaje y encola
+la tarea; cada evento queda en Redis con su número, y el panel lo lee desde ahí. Por eso cerrar o recargar no corta nada.
+
+| Qué | Dónde | Por qué |
+| --- | --- | --- |
+| Cola | `auradata_assistant` | Un turno dura minutos. Con su propia cola, nunca ocupa los puestos de informes y alertas |
+| Worker en producción | `superset-worker-assistant` en `docker-compose-prod.yml`, `ASSISTANT_WORKER_CONCURRENCY` puestos (4) | Cada puesto atiende un turno a la vez. El worker normal corre con `CELERY_QUEUES=celery` |
+| Worker en desarrollo | `superset-worker`, que atiende las dos colas (`CELERY_QUEUES` por defecto) | Un solo contenedor gasta menos memoria, pero los dos puestos se comparten con los informes |
+| Redis | `AURADATA_ASSISTANT_REDIS_URL`, base `REDIS_ASSISTANT_DB` (2) | Sin esta opción el chat responde 503 |
+| Tiempo de un turno | `AURADATA_ASSISTANT_TURN_SECONDS` (1200) | Pasado eso el turno se detiene entre dos pasos. Celery lo mata 60 s después, como último recurso |
+| Espera por un worker | `AURADATA_ASSISTANT_QUEUE_SECONDS` (30) | Pasada, el panel avisa, y la tarea en cola caduca |
+
+**Si cambias a más réplicas,** cada una suma puestos: no hay más configuración, y un turno solo corre en una.
+
+**Qué guarda Redis:** los eventos de un turno, con su texto y las filas de datos que devolvieron las herramientas, durante
+una hora desde el último evento. Borrar una conversación los borra. Redis queda dentro de tu frontera de confianza, igual que la
+base de metadatos.
+
+**Si un worker muere** a mitad de un turno, el panel lo dice en unos 30 s y la conversación sigue utilizable. El turno no
+se repite, porque repetirlo repetiría cambios y gasto. Lo que había pagado la llamada al modelo en curso no queda registrado:
+un proceso muerto no alcanza a guardar el costo. Una herramienta que estaba corriendo pudo haber hecho su cambio, y el modelo
+recibe ese aviso. `docker restart` da 10 s y luego mata: para un despliegue sin cortes, deja terminar los turnos con
+`celery control cancel_consumer auradata_assistant` antes de reiniciar.
+
 ## Tiempos del proxy
 
-Las respuestas llegan en streaming, y una herramienta puede pasar minutos en silencio. El modelo pensando no corta la
-conexión, porque el servidor manda un `keep-alive` cada 15 segundos, pero **una herramienta en marcha no manda nada**.
+Las respuestas llegan en streaming. Cada conexión dura como mucho 45 s y el panel abre la siguiente desde el último evento, y
+un `keep-alive` cada 15 s cubre los silencios, también cuando una herramienta trabaja.
 
-Solo estas dos rutas lo necesitan:
+Estas tres rutas necesitan el buffering apagado:
 
 ```text
 POST /api/v1/auradata/assistant/
 POST /api/v1/auradata/assistant/conversations/<id>/decide/
+GET  /api/v1/auradata/assistant/conversations/<id>/stream/
 ```
 
 | Dónde | Qué hacer |
 | --- | --- |
-| Desarrollo | Ya está en `docker/nginx/templates/superset.conf.template`: 300 s y sin buffering. Toma efecto al reiniciar nginx |
-| Producción | `docker-compose-prod.yml` no trae nginx. Tu proxy necesita lo mismo: 300 s de lectura y **buffering apagado** |
+| Desarrollo | Ya está en `docker/nginx/templates/superset.conf.template`. Toma efecto al reiniciar nginx |
+| Producción | `docker-compose-prod.yml` no trae nginx. Tu proxy necesita **buffering apagado** y más de 60 s de lectura |
 
 Con nginx, un bloque como el de desarrollo, con tu propio `proxy_pass` y tus cabeceras:
 
 ```nginx
-location ~ /api/v1/auradata/assistant/(conversations/[^/]+/decide/)?$ {
+location ~ /api/v1/auradata/assistant/(conversations/[^/]+/(decide|stream)/)?$ {
     proxy_pass http://superset_app;
     proxy_http_version 1.1;
     proxy_buffering off;
@@ -257,7 +286,7 @@ location ~ /api/v1/auradata/assistant/(conversations/[^/]+/decide/)?$ {
 }
 ```
 
-`gunicorn --timeout` (60 s por defecto, `GUNICORN_TIMEOUT`) no corta una respuesta larga con `gthread`, el worker de
+`gunicorn --timeout` (60 s por defecto, `GUNICORN_TIMEOUT`) no afecta a un turno, que corre en el worker. Tampoco corta una conexión larga con `gthread`, el worker de
 `run-server.sh`: el aviso de vida al proceso maestro va en su bucle propio, aparte de la petición. Probado con gunicorn 26.2 y
 Claude real: con `--timeout 3`, una respuesta de 20 s con 8 s sin eventos llegó completa. Como control, una ruta que duerme 8 s
 terminó con `gthread` y murió con `sync`, con `WORKER TIMEOUT`. **Con `SERVER_WORKER_CLASS=sync` y `SERVER_THREADS_AMOUNT=1` sí se corta;** con más de un hilo, gunicorn usa `gthread` aunque
@@ -268,9 +297,9 @@ Sin probar: el comportamiento detrás de un proxy real.
 
 ## Qué proceso necesita qué
 
-El bucle corre solo en el proceso web, que necesita los paquetes `anthropic` y `fastmcp`. Las imágenes `dev` y `prod` traen los
-dos. Sin ellos, la pantalla avisa que falta el SDK y el chat responde 503. Todos los servicios se construyen del mismo
-`Dockerfile`, así que al reconstruir todos quedan con el SDK.
+El bucle corre en el worker, que necesita los paquetes `anthropic` y `fastmcp`, la clave y el navegador de las capturas. El
+proceso web solo necesita Redis y la clave. Las imágenes `dev` y `prod` traen todo. Sin el SDK, el turno termina con un aviso
+en el panel. Todos los servicios se construyen del mismo `Dockerfile`, así que al reconstruir todos quedan con el SDK.
 
 Si instalaste `anthropic` a mano en un contenedor, lo pierdes al recrearlo. La solución es reconstruir.
 
@@ -283,10 +312,11 @@ La [retención](#retención) corre aparte: `superset-worker-beat` la dispara y u
 | Un visor no recibe cifras de un dataset | El dataset no pertenece a su área: es compartido o de otra área. Los miembros de un área leen solo los datasets de esa área (`workspace_grants.py`) | Agrega el dataset al área, o dale `datasource_access` a su rol |
 | Deshacer no toca los datasets | Un dataset cambiado por un turno se queda así. Un gráfico creado queda fuera del informe sin borrarse, y uno borrado sigue en la papelera | Revísalo a mano. Otros informes leen el mismo dataset |
 | Un turno puede pasarse del tope | Nada limita el gasto de un solo turno, salvo las 25 llamadas al modelo por tramo, que vuelven a contar después de una tarjeta | Deja margen en el tope |
-| Un proceso que muere con una herramienta en marcha | Esa conversación queda ocupada y responde 409 | Empezar una conversación nueva funciona |
+| Un worker que muere con una herramienta en marcha | No se sabe si esa herramienta hizo su cambio, y el costo de esa llamada al modelo se pierde | El panel avisa. Revisa el informe |
+| Detener con una herramienta en marcha | La herramienta termina primero: cortarla dejaría un cambio a medias | Nada |
 | Muchas herramientas piden tarjeta | [32 de 146](evaluacion.md#herramientas-detrás-de-una-tarjeta), incluidas `update_chart` y `update_dashboard`. Puede cansar en el uso real | Se revisa con los datos de la evaluación |
-| Capturas (`get_dashboard_screenshot`) desde el proceso web | Funcionan en desarrollo | Sin probar en producción |
-| Rutas `undo/` y `models/` | Sin bloque propio en el proxy: son respuestas cortas | Nada |
+| Capturas (`get_dashboard_screenshot`) desde el worker | Funcionan en desarrollo | Sin probar en producción |
+| Rutas `undo/`, `stop/` y `models/` | Sin bloque propio en el proxy: son respuestas cortas | Nada |
 
 ## Si algo falla
 
@@ -298,6 +328,8 @@ La [retención](#retención) corre aparte: `superset-worker-beat` la dispara y u
 | Aviso de que falta el SDK, o chat con 503 | Imagen vieja | Reconstruye |
 | Sale en lectura y no en edición | **Dejar que cambie informes** apagado, global o en el área | Enciéndelo |
 | Mensaje de que se acabó el crédito | Sin saldo en Anthropic | Recarga en la consola de Anthropic |
+| «No hay ningún worker del asistente libre» | Ningún worker atiende `auradata_assistant`, o todos sus puestos están ocupados | `celery inspect active_queues`. Sube los puestos si está lleno |
+| Chat con 503 «no tiene dónde ejecutar sus respuestas» | Falta `AURADATA_ASSISTANT_REDIS_URL` | Agrégala a la configuración |
 | La respuesta se corta a los 60 s | Falta el bloque del proxy, o el worker es `sync` con `SERVER_THREADS_AMOUNT=1` | Mira [tiempos del proxy](#tiempos-del-proxy) |
 | «El servicio de IA falló» en una conversación muy larga | Excedió el contexto del modelo. El panel avisa desde el 80% | Empieza una conversación nueva |
 | El tope cortó el mes | Llegó al 100% | Súbelo o espera al mes siguiente |

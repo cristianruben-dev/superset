@@ -99,30 +99,49 @@ This repository is **AuraData BI**, a fork of Apache Superset 7.0 shaped like Po
   sets the switch until the admin saves it. The admin's effort and thinking reach a model through `tuned_spec`. Administration › AI assistant
   (`/assistant/settings/`, `/api/v1/auradata_assistant/settings/`) is admin only. `ANTHROPIC_API_KEY` stays on the server:
   no response carries it. `anthropic` is imported only where the client is built, so a process without it still starts.
-  The chat is `POST /api/v1/auradata/assistant/` (SSE, `api.py`), for browser sessions only. `agent.py` is the loop, written
+  The chat is `POST /api/v1/auradata/assistant/` (SSE, `api.py`), for browser sessions only, and a turn runs in a worker (see
+  **A turn in a worker** below). `agent.py` is the loop, written
   out instead of using the SDK's tool runner because each response is stored with its cost before the next, and a refused
   or cut response never runs tools. `tools.py` builds `ToolBox`, the exact tools of a user in a mode and the only gate for
-  a tool name; each call runs the real tool in an in-memory MCP session under `run_as`, because the web config may set
+  a tool name; each call runs the real tool in an in-memory MCP session under `run_as`, because the config may set
   `MCP_DEV_USERNAME`, which user resolution reads before `g.user`. Read mode also carries the `superset:read` scope, so
   the tool wrapper refuses writes by itself. A conversation belongs to one user, dashboard and mode, and only grows
   (`conversations.py`, tables `auradata_assistant_conversations` and `auradata_assistant_messages`): `content` is sent
   back unchanged, except the blocks the API says to omit before a `fallback` block, and refused turns stay for their cost
   but are not sent. What a tool returns never enters the system prompt (`prompt.py`). The model call waits in a thread of
-  its own (`ModelCall`, HTTP only, never the session, `g` or the tools) so the stream can send a `: keep-alive` comment:
-  the SDK drops the pings and long stretches of thinking have no text. Each `ModelSpec` says its `thinking_display`
+  its own (`ModelCall`, HTTP only, never the session, `g` or the tools) and yields a `TICK` every second, unwritten, which is
+  where a turn hears it must stop: the SDK drops the pings and long stretches of thinking have no text. Each `ModelSpec` says its `thinking_display`
   (`updates`, or None: `summarized` arrives in English with internal details; `tuned_spec` clears it when the admin stops thinking, because
   `disabled` and `between_tools` refuse a `display`), and the text of thinking blocks streams as `note` events, among the
   steps of the answer and always as plain text. A note is not stored apart: the blocks stay as they came, and a
   conversation read later shows what they hold (`transcriptOf`). Thinking events without text never reach the queue of
-  `ModelCall`: they would restart its wait with nothing sent. A person who leaves closes that call (`ModelCall`, the connection
+  `ModelCall`: they would restart its wait with nothing sent. A turn that stops closes that call (`ModelCall`, the connection
   is shut down because closing a socket does not wake its reader) and what the API already reported stays as a row with
-  `stop_reason: interrupted`, kept for its cost and never sent. `docker/nginx` gives the chat and decide routes 300 s for
-  tools that run long; a production proxy needs the same. A model without tool search is refused (422) for a history that
+  `stop_reason: interrupted`, kept for its cost and never sent. A proxy needs buffering off on the chat, decide and stream
+  routes (`docker/nginx`). A model without tool search is refused (422) for a history that
   used it. How long a conversation is comes from `context_tokens` of its last answer (`context_of_message`), which the too-long
   warning reads: what the model read the last time it ran. A tool search runs the model several times inside one response and
   the top level of `usage` adds them up, which is right for the cost and about double for the length, so never measure the
   context from the token columns. `usage.iterations` does not come without a beta header, so a request with tool search always
   sends the fallback one (`USAGE_PER_PASS_BETA`), without `fallbacks` on a model that has none; it leaves the prompt cache as it was.
+- **A turn in a worker** (`turns.py`, `turn_store.py`, `superset/tasks/assistant_turn.py`, queue `auradata_assistant`). Chat and
+  decide check everything in the request as ever, store what the person said, take the lock of the conversation (one turn per
+  conversation) and queue a task that only carries `turn_id`. The ticket in Redis (`TurnTicket`) holds the user the request
+  read from its session: no client writes it and the task has no argument for a user. `_owner_of` holds it against the owner,
+  mode and dashboard of the conversation and fails closed for a user who is gone or inactive; the turn then runs under
+  `override_user`, each tool under `run_as` with that `user_id` (`InProcessPrincipal.user_id` refuses a name that became someone
+  else), and what the person may do on the report is read again. Never a system user. The language travels in the ticket: a worker has no session. A turn
+  runs once or never: `acks_late` off, no retries, and an atomic `claim`, which a reader giving up on a queued turn takes too.
+  Each event goes to a numbered stream of the conversation; only the holder of the lock writes, in one Lua step, and `turn_end` lets go in that step, so a worker
+  given up for dead cannot write. `GET .../conversations/<id>/stream/?after=<n>` (`relay`) lasts 45 s at most, with
+  `: keep-alive` through silence, and each connection reads the session, the owner and the report again; anyone else gets a 404, a
+  key or guest a 403. `POST .../stop/` leaves a mark a thread of the turn reads every second, and stopping closes the generator, the path that stores what was paid; a running tool finishes. A turn has its own deadline (`AURADATA_ASSISTANT_TURN_SECONDS`), because `SoftTimeLimitExceeded` is an `Exception` that the handlers around tools would swallow; Celery's `time_limit` is the last resort. `settle_turn`
+  runs wherever the owner comes back: a turn without a heartbeat, or queued past `AURADATA_ASSISTANT_QUEUE_SECONDS`, is closed
+  once (answers for decided calls, the end of an open change, a `turn_lost` record that `lost_turns` gives the panel). Without `AURADATA_ASSISTANT_REDIS_URL` the chat answers 503. While a turn
+  runs, `GET .../conversations/<id>/` leaves out what it stored and gives `running.after`: the panel reads the turn whole from
+  that number (rows would show twice). Leaving the panel only stops reading (`leave`, `rejoin`); `remembered.ts` brings a reload
+  back. A reports worker never takes this queue in production: `superset-worker-assistant` has its own slots, with
+  `CELERY_QUEUES`; dev shares them to save memory. Undo stays in the request, and answers 409 during a turn.
 - **The editor's copilot** (mode `edit`, the Assistant tab of `BuilderComponentPane`, Home › Assistant in the ribbon,
   `AssistantChat` in `AssistantPanel.tsx`). It works on the saved report: with unsaved changes the panel asks to save
   (`saveReport`, which stays in the editor through `keepEditingOnSave`) or discard, and after an answer that changed
@@ -172,7 +191,7 @@ This repository is **AuraData BI**, a fork of Apache Superset 7.0 shaped like Po
 - **Managing conversations** (`ConversationList.tsx`, a view of the panel opened from its top row; `conversationGroups.ts`):
   search by title in the browser, groups by date of the last message (`last_message_on`, since `changed_on` moves on a rename
   and not on a message). `PUT`/`DELETE /conversations/<id>/` answer 404 to anyone but the owner. A rename changes `title` only.
-  Delete needs no switch or report, and answers 409 during a turn (`turn_is_running`), whose last write would lose its cost.
+  Delete needs no switch or report, and answers 409 during a turn, whose last write would lose its cost; it deletes the stream too.
 - **Deleting and retention** (`conversations.py`, `retention.py`, `superset/tasks/assistant_retention.py`): `erase_conversations`
   is the only way to delete. It removes all a conversation holds and keeps the `assistant` rows, with `content` set to `[]` and
   no `conversation_id`, and their votes, so `spending.py` sums the same rows before and after and a deletion never refills a

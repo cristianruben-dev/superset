@@ -194,7 +194,7 @@ la suite de Jest y `tsc` (tras `npm run plugins:build`).
 
 ## 6. El asistente de IA
 
-Un panel dentro de la aplicación que habla con Claude desde el servidor y usa las herramientas del MCP en el mismo proceso,
+Un panel dentro de la aplicación que habla con Claude desde un worker y usa las herramientas del MCP en ese mismo proceso,
 como la persona que tiene la sesión. Las reglas están en `AGENTS.md`; para el usuario, en el
 [capítulo 10 del manual](manual/10-asistente-de-ia.md); para operarlo, en
 [asistente/administracion.md](asistente/administracion.md).
@@ -209,6 +209,8 @@ como la persona que tiene la sesión. Las reglas están en `AGENTS.md`; para el 
 | --- | --- |
 | `api.py` | Rutas de chat, decisión, deshacer, modelos, privacidad, conversaciones y ajustes; decide quién pasa |
 | `agent.py` | El bucle y la llamada al modelo |
+| `turns.py` | Un turno de la petición al worker y de vuelta: identidad, cierre, turnos muertos y relevo de eventos |
+| `turn_store.py` | Lo que un turno guarda en Redis: stream numerado, candado, boleto y marcas |
 | `tools.py` | `ToolBox`: las herramientas exactas de una persona en un modo |
 | `prompt.py` | Instrucciones de sistema, fijas por persona y modo, y el bloque de contexto |
 | `conversations.py` | Conversaciones que solo crecen; el estado pendiente se deduce de lo guardado |
@@ -218,8 +220,9 @@ como la persona que tiene la sesión. Las reglas están en `AGENTS.md`; para el 
 | `models.py`, `settings.py` | Catálogo de modelos y ajustes del admin |
 | `governance.py`, `spending.py` | Interruptores, aviso de privacidad, topes y uso |
 
-El panel vive en `superset-frontend/src/auradata/assistant/`: `client.ts` lee el SSE de un `fetch`, `useAssistantChat.ts` lleva
-el estado y `AssistantPanel.tsx` pinta los dos modos.
+El panel vive en `superset-frontend/src/auradata/assistant/`: `client.ts` lee el SSE de un `fetch` y se reconecta,
+`useAssistantChat.ts` lleva el estado, `remembered.ts` recuerda en la pestaña qué estaba abierto y `AssistantPanel.tsx` pinta los
+dos modos.
 
 ### Un mensaje, paso a paso
 
@@ -229,10 +232,12 @@ el estado y `AssistantPanel.tsx` pinta los dos modos.
    que la persona aceptó el aviso. Una clave `sst_…` o un invitado reciben 403.
 2. **Valida** el modelo, abre el tablero con los permisos de la persona y, en modo edición, pide `can_edit_resource`.
 3. **Mira** los interruptores del workspace y los topes. Estos se leen en cada petición.
-4. **Construye** el `ToolBox` y las instrucciones, y guarda el mensaje con sus imágenes y el contexto de la página en un bloque
-   `<page_context>`.
-5. **Llama al modelo** (`run_conversation`). Cada respuesta se guarda con su costo antes de la siguiente.
-6. **Termina** con `done`, que trae tokens, costo, `can_undo` y el nivel del tope.
+4. **Toma el turno** de la conversación (el candado de Redis), y guarda el mensaje con sus imágenes y el contexto de la página
+   en un bloque `<page_context>`.
+5. **Encola la tarea** `auradata_assistant.run_turn`, que solo lleva el id del turno, y empieza a leer su stream.
+6. **En el worker,** `run_turn` construye el `ToolBox` y las instrucciones y llama al modelo (`run_conversation`). Cada respuesta
+   se guarda con su costo antes de la siguiente.
+7. **Termina** con `done`, que trae tokens, costo, `can_undo` y el nivel del tope, y con `turn_end`, que suelta el candado.
 
 El bucle está escrito a mano y no usa el *tool runner* del SDK, por tres reglas:
 
@@ -250,11 +255,40 @@ corto del modelo sigue llegando como texto. El panel las pinta entre los pasos, 
 guardan aparte: los bloques siguen guardándose y reenviándose tal como llegaron, y una conversación leída después muestra lo
 que ellos tengan, o nada. La frase fija que la API pone cuando corta una respuesta se esconde en `stepsOf`.
 
-**Keep-alive.** El SDK descarta los `ping`, y el razonamiento puede pasar mucho tiempo sin texto, así que mientras el modelo
-piensa casi no llega nada. `ModelCall` hace solo la llamada HTTP en un hilo propio, y el stream manda `: keep-alive` cuando pasan
-15 s sin nada. Un evento de razonamiento sin texto no entra a la cola: reiniciaría esa espera sin mandar un byte. La sesión, `g`
-y las herramientas se quedan en el hilo de la petición. Las herramientas no mandan nada: por eso el proxy da 300 s a estas rutas.
-Si la persona se va, `ModelCall` cierra la conexión y lo gastado queda en una fila `interrupted`, que nunca se envía.
+**Keep-alive.** El SDK descarta los `ping`, y el razonamiento puede pasar mucho tiempo sin texto. El turno y quien lo lee ya
+no comparten proceso, así que es la conexión la que manda `: keep-alive` cuando pasan 15 s sin nada (`relay`), también con una
+herramienta en marcha. `ModelCall` hace solo la llamada HTTP en un hilo propio y entrega un `TICK` por segundo, que no se escribe
+y es donde el turno oye que debe parar. La sesión, `g` y las herramientas se quedan en el hilo del turno.
+
+### Un turno en el worker
+
+Cada conversación tiene un stream de Redis con eventos numerados y, como mucho, un turno que lo posee. Solo quien tiene el
+candado escribe, en un paso atómico (script de Lua), y `turn_end` suelta el candado en ese mismo paso.
+
+**Identidad.** El boleto lo escribe la petición, con `get_user_id()` de la sesión. La tarea no recibe un usuario: recibe el id del
+boleto. `_owner_of` exige que el dueño de la conversación, su modo y su tablero coincidan, y que el usuario siga activo, o no
+corre nada. Después todo va bajo `override_user`, y cada herramienta bajo `run_as` con ese id, que comprueba también que el
+nombre siga siendo de esa persona. Antes de empezar se lee otra vez si puede abrir el tablero y, en edición, editarlo. El idioma
+también viaja en el boleto, porque un worker no tiene sesión de donde leerlo.
+
+**Una sola vez.** Repetir un turno repite cambios y gasto. La tarea no tiene reintentos, va con `acks_late` apagado y lo primero
+que hace es tomar el `claim` del turno con `SET NX`: una segunda entrega no lo consigue. Un lector que se cansa de esperar a un
+worker toma el mismo `claim`, así que un worker tardío lo encuentra ocupado.
+
+**Detener y tiempo.** `POST .../stop/` deja una marca que un hilo del turno lee cada segundo. Detener y agotar el tiempo cierran
+el generador del turno, el camino que guarda lo gastado en una fila `interrupted` y responde las llamadas sin ejecutar. No se usa
+`soft_time_limit`: su excepción es un `Exception` y los manejadores de las herramientas se la tragarían. Una herramienta en
+marcha termina siempre.
+
+**Un turno muerto.** El hilo refresca un latido con 30 s de vida. `settle_turn` corre donde el dueño vuelva: al leer el stream,
+la conversación, al escribir, deshacer o borrar. Un turno sin latido, o sin worker tras 30 s, se cierra una sola vez (`take_settling`):
+responde sus llamadas, anota el fin de un cambio abierto, añade un registro `turn_lost`, avisa y suelta el candado. Un worker
+que siguiera vivo ya no puede escribir, y oye la marca de detenerse en su siguiente paso.
+
+**Leer otra vez.** Una conexión dura 45 s como mucho y lee desde `after`. Cada conexión nueva vuelve a comprobar la sesión, el
+dueño y que el tablero se pueda abrir: el stream se encuentra a través de la conversación, y otra persona recibe un 404. Mientras
+corre un turno, `GET .../conversations/<id>/` entrega las filas anteriores a él y `running.after`, y el panel lee el turno entero
+desde ese número: las filas que el turno ya guardó llegarían dos veces.
 
 ### `run_as` y `ToolBox`
 
