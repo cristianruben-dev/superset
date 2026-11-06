@@ -572,6 +572,36 @@ def test_a_lock_that_never_got_its_ticket_lets_go_after_the_grace(
     assert turn_memory.holder(conversation.id) is None
 
 
+def test_a_failed_queueing_leaves_alone_a_turn_a_worker_took(
+    client: Any,
+    world: dict[str, Any],  # noqa: F811
+    mocker: MockerFixture,
+    turn_memory: Any,
+) -> None:
+    """The broker can take a message and still answer with an error."""
+    login(world, "Ana")
+
+    def taken_then_refused(ticket: TurnTicket) -> None:
+        assert turn_memory.claim(ticket.turn_id)
+        turn_memory.beat(ticket.turn_id)
+        turn_memory.publish(
+            ticket.conversation_id, ticket.turn_id, TURN_END, {}, last=True
+        )
+        raise ConnectionError("down")
+
+    mocker.patch.object(turns_module, "enqueue", side_effect=taken_then_refused)
+
+    response = ask(client, world["dashboard"])
+
+    assert payloads(response, "error") == []
+    ticket = next(iter(turn_memory.tickets.values()))
+    conversation = find_conversation(
+        UUID(ticket.conversation_id), world["users"]["Ana"].id
+    )
+    assert lost_turns(conversation) == []
+    assert turn_memory.claimed(ticket.turn_id) == TAKEN
+
+
 def test_a_task_without_a_ticket_does_nothing(
     mocker: MockerFixture, turn_memory: Any, app_context: None
 ) -> None:

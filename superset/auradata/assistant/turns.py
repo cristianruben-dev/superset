@@ -222,8 +222,9 @@ def start_turn(store: TurnStore, ticket: TurnTicket, opening: list[Event]) -> No
         enqueue(ticket)
     except Exception:  # pylint: disable=broad-except
         logger.exception("The turn of the assistant could not be queued")
-        store.claim(ticket.turn_id, ABANDONED)
-        _close_dead_turn(store, ticket, NO_WORKER)
+        # The broker may have taken it after all: then a worker has it, and it goes on
+        if store.claim(ticket.turn_id, ABANDONED):
+            _close_dead_turn(store, ticket, NO_WORKER)
 
 
 # In the worker
