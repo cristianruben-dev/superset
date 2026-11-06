@@ -1806,6 +1806,7 @@ class CeleryConfig:  # pylint: disable=too-few-public-methods
         "superset.tasks.slack",
         "superset.tasks.export_dashboard_excel",
         "superset.tasks.version_history_retention",
+        "superset.tasks.assistant_retention",
     )
     result_backend = "db+sqlite:///celery_results.sqlite"
     worker_prefetch_multiplier = 1
@@ -1835,6 +1836,12 @@ class CeleryConfig:  # pylint: disable=too-few-public-methods
         "deletion_retention.purge_soft_deleted": {
             "task": "deletion_retention.purge_soft_deleted",
             "schedule": crontab(minute=0, hour=0),
+        },
+        # Conversations of the AI assistant past AURADATA_ASSISTANT_RETENTION_DAYS,
+        # and those of reports or people deleted. None in that setting keeps them.
+        "auradata_assistant.purge_conversations": {
+            "task": "auradata_assistant.purge_conversations",
+            "schedule": crontab(minute=30, hour=3),
         },
         # Uncomment to enable pruning of the query table
         # "prune_query": {

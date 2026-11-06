@@ -306,3 +306,6 @@ AURADATA_ASSISTANT_DEFAULT_MODEL = "claude-sonnet-5-5"
 AURADATA_ASSISTANT_ALLOWED_MODELS: list[str] | None = None
 # None sets no limit
 AURADATA_ASSISTANT_MONTHLY_BUDGET_USD: float | None = None
+# Days a conversation is kept after its last message. None keeps every conversation
+# forever, also those of reports or people deleted. What they cost is kept either way
+AURADATA_ASSISTANT_RETENTION_DAYS: int | None = 90
