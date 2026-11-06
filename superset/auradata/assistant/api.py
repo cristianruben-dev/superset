@@ -37,6 +37,9 @@ A vote is for an answer of the voter's own conversation, and anything else is a 
 Votes live beside the conversation, which they never touch, and admins only read their
 totals.
 
+A conversation is renamed or deleted by its owner alone: anyone else gets a 404.
+Deleting asks for no switch and no report: people can always remove what they said.
+
 A decision on a pending call names only the call: what runs is what the conversation
 stored, and it is checked again for the person deciding, at that moment. The context of
 a message is read by the model as data, and ``dashboard_id`` is the only part of it that
@@ -73,6 +76,7 @@ from superset.auradata.assistant.conversations import (
     ConversationBusyError,
     ConversationLog,
     create_conversation,
+    delete_conversation,
     find_conversation,
     history_of,
     list_conversations,
@@ -80,6 +84,8 @@ from superset.auradata.assistant.conversations import (
     pending_json,
     pending_turn,
     rejected_calls,
+    rename_conversation,
+    TITLE_LENGTH,
     uses_tool_search,
     workspace_id_of,
 )
@@ -238,6 +244,14 @@ class AssistantDecisionSchema(Schema):
     tool_use_id = fields.String(required=True, validate=validate.Length(min=1, max=128))
     approved = fields.Boolean(required=True)
     model = fields.String(load_default=None, validate=validate.Length(max=128))
+
+
+class AssistantRenameSchema(Schema):
+    """A new title for a conversation."""
+
+    title = fields.String(
+        required=True, validate=validate.Length(min=1, max=TITLE_LENGTH)
+    )
 
 
 class AssistantFeedbackSchema(Schema):
@@ -686,6 +700,8 @@ class AssistantRestApi(BaseSupersetApi):
         "models": "read",
         "conversations": "read",
         "conversation": "read",
+        "rename": "read",
+        "remove": "read",
         "decide": "read",
         "undo": "read",
         "privacy": "read",
@@ -1283,8 +1299,8 @@ class AssistantRestApi(BaseSupersetApi):
         return self.response(
             200,
             result=[
-                conversation_json(item)
-                for item in list_conversations(get_user_id(), dashboard_id)
+                {**conversation_json(item), "last_message_on": last.isoformat()}
+                for item, last in list_conversations(get_user_id(), dashboard_id)
             ],
         )
 
@@ -1333,6 +1349,96 @@ class AssistantRestApi(BaseSupersetApi):
                 "feedback": feedback_of(conversation, get_user_id()),
             },
         )
+
+    @expose("/conversations/<uuid:conversation_id>/", methods=("PUT",))
+    @protect()
+    @safe
+    @statsd_metrics
+    def rename(self, conversation_id: UUID) -> Response:
+        """Change the title of one of the user's conversations.
+        ---
+        put:
+          summary: Rename a conversation of the current user
+          parameters:
+          - in: path
+            name: conversation_id
+            required: true
+            schema:
+              type: string
+              format: uuid
+          requestBody:
+            required: true
+            content:
+              application/json:
+                schema:
+                  type: object
+          responses:
+            200:
+              description: The conversation with its new title
+            400:
+              $ref: '#/components/responses/400'
+            401:
+              $ref: '#/components/responses/401'
+            403:
+              $ref: '#/components/responses/403'
+            404:
+              $ref: '#/components/responses/404'
+        """
+        if not _session_user_only():
+            return self.response_403()
+        conversation = find_conversation(conversation_id, get_user_id())
+        if conversation is None or _open_dashboard(conversation.dashboard_id) is None:
+            return self.response_404()
+        try:
+            title = AssistantRenameSchema().load(request.json or {})["title"].strip()
+        except ValidationError as ex:
+            return self.response_400(message=ex.messages)
+        if not title:
+            return self.response_400(message="The title is empty")
+        rename_conversation(conversation, title)
+        return self.response(200, result=conversation_json(conversation))
+
+    @expose("/conversations/<uuid:conversation_id>/", methods=("DELETE",))
+    @protect()
+    @safe
+    @statsd_metrics
+    def remove(self, conversation_id: UUID) -> Response:
+        """Delete one of the user's conversations and all it holds.
+        ---
+        delete:
+          summary: Delete a conversation of the current user
+          description: >-
+            Removes what was said and the data it read. What its answers cost stays,
+            without content, for the spending limits and the usage report.
+          parameters:
+          - in: path
+            name: conversation_id
+            required: true
+            schema:
+              type: string
+              format: uuid
+          responses:
+            200:
+              description: The conversation is gone
+            401:
+              $ref: '#/components/responses/401'
+            403:
+              $ref: '#/components/responses/403'
+            404:
+              $ref: '#/components/responses/404'
+            409:
+              description: The assistant is answering in this conversation
+        """
+        if not _session_user_only():
+            return self.response_403()
+        conversation = find_conversation(conversation_id, get_user_id())
+        if conversation is None:
+            return self.response_404()
+        try:
+            delete_conversation(conversation)
+        except ConversationBusyError:
+            return self._busy()
+        return self.response(200, message="OK")
 
     def _answer_to_vote(
         self, conversation_id: UUID, message_id: UUID

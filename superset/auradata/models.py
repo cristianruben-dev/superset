@@ -197,7 +197,9 @@ class AssistantConversation(Model):
 
     Its mode never changes: a conversation holds references to the tools it found,
     and another mode offers other tools. Deleting the user or the dashboard leaves
-    the row without an owner, unreadable, so what it cost still counts.
+    the row without an owner, unreadable, until the retention task removes it. Delete
+    one with ``conversations.erase_conversations``, which keeps what its answers cost:
+    the keys that point here cascade, so any other way takes those totals with it.
     """
 
     __tablename__ = ASSISTANT_CONVERSATIONS_TABLE
@@ -240,7 +242,8 @@ class AssistantMessage(Model):
 
     Assistant messages carry what they cost, with the user and the workspace of that
     moment, so spending adds up by user and by workspace without walking back to a
-    dashboard that may have moved.
+    dashboard that may have moved. When their conversation is deleted these rows stay
+    with no content and no ``conversation_id``, for those totals.
     """
 
     __tablename__ = ASSISTANT_MESSAGES_TABLE
@@ -254,7 +257,7 @@ class AssistantMessage(Model):
     conversation_id = sa.Column(
         UUIDType(binary=True),
         sa.ForeignKey(f"{ASSISTANT_CONVERSATIONS_TABLE}.id", ondelete="CASCADE"),
-        nullable=False,
+        nullable=True,
     )
     seq = sa.Column(sa.Integer, nullable=False)
     role = sa.Column(sa.String(16), nullable=False)
@@ -293,9 +296,9 @@ class AssistantFeedback(Model):
     touches a message.
 
     ``message_id`` is the first row of the answer, the one the panel shows it under.
-    Both keys cascade: a row goes with its conversation, even if the rows of its
-    messages stay for what they cost. Deleting the user keeps the vote, without owner,
-    for the totals.
+    A vote outlives its conversation like the cost of that answer, detached and without
+    its reason, for the totals of the usage report. Deleting the user keeps the vote,
+    without owner, for the same reason.
     """
 
     __tablename__ = ASSISTANT_FEEDBACK_TABLE
@@ -314,7 +317,7 @@ class AssistantFeedback(Model):
     conversation_id = sa.Column(
         UUIDType(binary=True),
         sa.ForeignKey(f"{ASSISTANT_CONVERSATIONS_TABLE}.id", ondelete="CASCADE"),
-        nullable=False,
+        nullable=True,
         index=True,
     )
     user_id = sa.Column(

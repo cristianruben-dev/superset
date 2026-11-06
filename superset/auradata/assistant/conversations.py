@@ -27,20 +27,30 @@ is stored without results and with an ``awaiting`` record, and that is the whole
 state. The arguments that run later are the stored ones, so nothing a request says can
 change them. Rows of the role ``record`` hold what the app itself must remember
 (decisions and the versions around a turn). They are never sent to the model.
+
+The content of a conversation is never rewritten, and it goes as a whole: a rename
+changes the title and nothing else, and ``erase_conversations`` is the one way to
+delete. It removes everything that was said, and leaves behind what the limits of
+spending and the usage report need: the rows of the answers, empty and detached, and
+their votes.
 """
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import dataclass
+from datetime import datetime, timedelta
 from decimal import Decimal
 from typing import Any
 from uuid import UUID, uuid4
 
+import sqlalchemy as sa
 from sqlalchemy.exc import IntegrityError
 
 from superset.auradata.assistant.models import TokenUsage
 from superset.auradata.models import (
     AssistantConversation,
+    AssistantFeedback,
     AssistantMessage,
     WorkspaceDashboard,
 )
@@ -48,6 +58,12 @@ from superset.extensions import db
 from superset.utils import json
 
 TITLE_LENGTH = 80
+# What the row of an answer holds once its conversation is deleted
+ERASED_CONTENT = "[]"
+# A turn writes more often than this while it runs. One that never finished, because its
+# worker died, stops counting as running when this passes
+TURN_WINDOW = timedelta(minutes=10)
+
 STOP_REFUSAL = "refusal"
 # A response the person left in the middle: kept for what it cost, and never sent
 STOP_INTERRUPTED = "interrupted"
@@ -70,7 +86,7 @@ _KEPT_BEFORE_FALLBACK = {"text", "fallback"}
 
 
 class ConversationBusyError(Exception):
-    """Another request wrote to this conversation first."""
+    """Another request wrote to this conversation first, or is still writing to it."""
 
 
 @dataclass(frozen=True)
@@ -139,17 +155,101 @@ def find_conversation(
     )
 
 
-def list_conversations(user_id: int, dashboard_id: int) -> list[AssistantConversation]:
-    """The conversations of a user over a dashboard, the latest first."""
-    return (
-        db.session.query(AssistantConversation)
+def last_activity() -> Any:
+    """
+    When a conversation last grew, for a query over conversations. ``changed_on``
+    cannot say: storing a message leaves the row of the conversation alone, and a
+    rename moves it.
+    """
+    latest = (
+        sa.select(sa.func.max(AssistantMessage.created_on))
+        .where(AssistantMessage.conversation_id == AssistantConversation.id)
+        .scalar_subquery()
+    )
+    return sa.func.coalesce(latest, AssistantConversation.created_on)
+
+
+def list_conversations(
+    user_id: int, dashboard_id: int
+) -> list[tuple[AssistantConversation, datetime]]:
+    """
+    The conversations of a user over a dashboard, each with when it last grew, the
+    latest first.
+    """
+    activity = last_activity()
+    return [
+        (conversation, last)
+        for conversation, last in db.session.query(AssistantConversation, activity)
         .filter(
             AssistantConversation.user_id == user_id,
             AssistantConversation.dashboard_id == dashboard_id,
         )
-        .order_by(AssistantConversation.changed_on.desc())
+        .order_by(activity.desc())
+        .all()
+    ]
+
+
+def rename_conversation(conversation: AssistantConversation, title: str) -> None:
+    """Change the title of a conversation. Nothing it holds changes."""
+    conversation.title = title[:TITLE_LENGTH]
+    db.session.commit()
+
+
+def lock_conversations(
+    ids: Sequence[UUID], wait: bool = True
+) -> list[AssistantConversation]:
+    """
+    These conversations, kept out of reach of other writers until the transaction
+    ends: a message stored meanwhile waits and then fails, which ``ConversationLog``
+    reports as busy. Without ``wait``, the ones someone is writing to are left out.
+    """
+    return (
+        db.session.query(AssistantConversation)
+        .filter(AssistantConversation.id.in_(ids))
+        .with_for_update(skip_locked=not wait)
+        .populate_existing()
         .all()
     )
+
+
+def erase_conversations(ids: Sequence[UUID]) -> None:
+    """
+    Delete conversations and all they hold, in the transaction of the caller.
+
+    Only what accounting needs stays, with no tie to the conversation: the rows of the
+    answers, emptied, and their votes, without a reason. The keys that point at a
+    conversation cascade, so these rows are detached before it goes.
+    """
+    db.session.query(AssistantMessage).filter(
+        AssistantMessage.conversation_id.in_(ids),
+        AssistantMessage.role != "assistant",
+    ).delete(synchronize_session=False)
+    db.session.query(AssistantMessage).filter(
+        AssistantMessage.conversation_id.in_(ids)
+    ).update(
+        {"content": ERASED_CONTENT, "conversation_id": None},
+        synchronize_session=False,
+    )
+    db.session.query(AssistantFeedback).filter(
+        AssistantFeedback.conversation_id.in_(ids)
+    ).update({"conversation_id": None, "reason": None}, synchronize_session=False)
+    db.session.query(AssistantConversation).filter(
+        AssistantConversation.id.in_(ids)
+    ).delete(synchronize_session=False)
+
+
+def delete_conversation(conversation: AssistantConversation) -> None:
+    """
+    Delete a conversation for its owner. A turn under way is refused with
+    ``ConversationBusyError``: it could no longer store what it costs.
+    """
+    locked = lock_conversations([conversation.id])
+    if locked and turn_is_running(locked[0]):
+        db.session.rollback()
+        raise ConversationBusyError
+    if locked:
+        erase_conversations([conversation.id])
+    db.session.commit()
 
 
 def _messages_of(conversation: AssistantConversation) -> list[AssistantMessage]:
@@ -174,6 +274,12 @@ def _holds_results(message: AssistantMessage) -> bool:
 def _is_awaiting(message: AssistantMessage) -> bool:
     return message.role == ROLE_RECORD and any(
         block["type"] == RECORD_AWAITING for block in _blocks(message)
+    )
+
+
+def _is_undone(message: AssistantMessage) -> bool:
+    return message.role == ROLE_RECORD and any(
+        block["type"] == RECORD_UNDONE for block in _blocks(message)
     )
 
 
@@ -213,6 +319,29 @@ def pending_turn(conversation: AssistantConversation) -> PendingTurn | None:
         },
         decisions=decisions,
     )
+
+
+def turn_is_running(
+    conversation: AssistantConversation, now: datetime | None = None
+) -> bool:
+    """
+    Whether a request is working on this conversation: the model owes an answer to the
+    last message, or the tools of a decided turn are running. A card waiting for a
+    person is not a running turn, and neither is the note an undo leaves for the model.
+    """
+    rows = _messages_of(conversation)
+    if not rows or rows[-1].created_on < (now or datetime.now()) - TURN_WINDOW:
+        return False
+    pending = pending_turn(conversation)
+    if pending is not None:
+        return not pending.undecided
+    last = max(
+        (index for index, row in enumerate(rows) if row.role != ROLE_RECORD),
+        default=None,
+    )
+    if last is None or rows[last].role != "user":
+        return False
+    return last == 0 or not _is_undone(rows[last - 1])
 
 
 def pending_json(pending: PendingTurn | None) -> list[dict[str, Any]]:
