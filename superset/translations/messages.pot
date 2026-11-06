@@ -25,7 +25,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Superset VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-11-04 10:28-0600\n"
+"POT-Creation-Date: 2026-11-06 21:43+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -207,6 +207,12 @@ msgstr[0] ""
 msgstr[1] ""
 
 #, python-format
+msgid "%(num)d new object"
+msgid_plural "%(num)d new objects"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-format
 msgid "%(num)d second"
 msgid_plural "%(num)d seconds"
 msgstr[0] ""
@@ -322,6 +328,12 @@ msgstr ""
 #, python-format
 msgid "%s Virtual"
 msgstr ""
+
+#, python-format
+msgid "%s active key"
+msgid_plural "%s active keys"
+msgstr[0] ""
+msgstr[1] ""
 
 #, python-format
 msgid "%s additional restricted chart"
@@ -506,6 +518,12 @@ msgstr[0] ""
 msgstr[1] ""
 
 #, python-format
+msgid "%s model offered"
+msgid_plural "%s models offered"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-format
 msgid "%s object changed. Ctrl+Z undoes it."
 msgid_plural "%s objects changed. Ctrl+Z undoes it."
 msgstr[0] ""
@@ -566,6 +584,12 @@ msgid "%s out of %s selected"
 msgstr ""
 
 #, python-format
+msgid "%s part is hidden from you."
+msgid_plural "%s parts are hidden from you."
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-format
 msgid "%s pt"
 msgstr ""
 
@@ -624,6 +648,12 @@ msgstr ""
 #, python-format
 msgid "%s shown"
 msgid_plural "%s shown"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-format
+msgid "%s step"
+msgid_plural "%s steps"
 msgstr[0] ""
 msgstr[1] ""
 
@@ -796,6 +826,18 @@ msgstr[1] ""
 
 #, python-format
 msgid "... and %s others"
+msgstr ""
+
+msgid "/model"
+msgstr ""
+
+msgid "/new"
+msgstr ""
+
+msgid "/summary"
+msgstr ""
+
+msgid "/undo"
 msgstr ""
 
 msgid "0 Selected"
@@ -1156,6 +1198,10 @@ msgid ""
 "longitude coordinates"
 msgstr ""
 
+#, python-format
+msgid "A message takes up to %s images."
+msgstr ""
+
 msgid "A metric to use for color"
 msgstr ""
 
@@ -1176,6 +1222,10 @@ msgstr ""
 msgid ""
 "A number format such as \",.0f\" or \"$,.2f\". It wins over units and "
 "decimals."
+msgstr ""
+
+msgid ""
+"A part of this document is hidden: it uses data you do not have access to."
 msgstr ""
 
 msgid "A product of"
@@ -1223,6 +1273,9 @@ msgid ""
 "upload to a different table name."
 msgstr ""
 
+msgid "A text"
+msgstr ""
+
 msgid "A timeout occurred while executing the query."
 msgstr ""
 
@@ -1261,6 +1314,12 @@ msgstr ""
 msgid "A-Z"
 msgstr ""
 
+msgid "AI assistant"
+msgstr ""
+
+msgid "AI assistant in this workspace"
+msgstr ""
+
 msgid "AND"
 msgstr ""
 
@@ -1280,6 +1339,9 @@ msgid "API key revoked successfully"
 msgstr ""
 
 msgid "API keys allow scoped programmatic access to Superset."
+msgstr ""
+
+msgid "API keys are turned off"
 msgstr ""
 
 msgid "APR"
@@ -1303,6 +1365,9 @@ msgstr ""
 msgid "About AuraData BI"
 msgstr ""
 
+msgid "About the selected block"
+msgstr ""
+
 msgid "Above"
 msgstr ""
 
@@ -1316,6 +1381,18 @@ msgid "Absolute difference"
 msgstr ""
 
 msgid "Accent"
+msgstr ""
+
+msgid "Accent bar"
+msgstr ""
+
+msgid "Accent bar on"
+msgstr ""
+
+msgid "Accent bar position"
+msgstr ""
+
+msgid "Accept the privacy notice of the assistant first."
 msgstr ""
 
 msgid "Access"
@@ -1585,6 +1662,11 @@ msgid "Add the name of the chart"
 msgstr ""
 
 msgid "Add the name of the dashboard"
+msgstr ""
+
+msgid ""
+"Add this to claude_desktop_config.json (Settings › Developer › Edit config) "
+"and restart Claude Desktop. It needs Node.js."
 msgstr ""
 
 msgid "Add to dashboard"
@@ -1872,6 +1954,9 @@ msgstr ""
 msgid "Align right"
 msgstr ""
 
+msgid "Align the objects of this page"
+msgstr ""
+
 msgid "Align top"
 msgstr ""
 
@@ -2040,7 +2125,21 @@ msgstr ""
 msgid "Always filter main datetime column"
 msgstr ""
 
+msgid ""
+"An AI assistant such as Claude can build and change your reports through the "
+"MCP service of AuraData BI. It signs in with a personal key that you create "
+"here."
+msgstr ""
+
 msgid "An Error Occurred"
+msgstr ""
+
+msgid "An admin of the platform turned the assistant off for everyone."
+msgstr ""
+
+msgid ""
+"An administrator turns them on with FAB_API_KEY_ENABLED and "
+"MCP_API_KEY_ENABLED in the configuration."
 msgstr ""
 
 #, python-format
@@ -2334,6 +2433,12 @@ msgstr ""
 msgid "Anchor to"
 msgstr ""
 
+#, python-format
+msgid "And %s more passage."
+msgid_plural "And %s more passages."
+msgstr[0] ""
+msgstr[1] ""
+
 msgid "Angle"
 msgstr ""
 
@@ -2358,6 +2463,21 @@ msgid "Another metric has this name"
 msgstr ""
 
 msgid "Another save is in progress for this dataset. Retry the same request."
+msgstr ""
+
+msgid "Answer the pending action before undoing."
+msgstr ""
+
+msgid "Answers"
+msgstr ""
+
+msgid "Anthropic could not be reached from this server."
+msgstr ""
+
+msgid "Anthropic did not return its list of models."
+msgstr ""
+
+msgid "Anthropic rejected the key of this server. Check ANTHROPIC_API_KEY."
 msgstr ""
 
 msgid "Any"
@@ -2465,6 +2585,9 @@ msgid "Apply to total"
 msgstr ""
 
 msgid "Apply to values"
+msgstr ""
+
+msgid "Approve"
 msgstr ""
 
 msgid "April"
@@ -2594,19 +2717,54 @@ msgstr ""
 msgid "Ascending"
 msgstr ""
 
+msgid "Ask"
+msgstr ""
+
+msgid "Ask about your data"
+msgstr ""
+
+msgid "Ask for a summary of this page"
+msgstr ""
+
+msgid "Ask something"
+msgstr ""
+
+msgid "Ask the assistant to change this report"
+msgstr ""
+
+msgid "Ask your data"
+msgstr ""
+
 msgid "Assign a set of parameters as"
 msgstr ""
 
 msgid "Assist"
 msgstr ""
 
+msgid "Assistant"
+msgstr ""
+
 msgid "Asynchronous query execution"
+msgstr ""
+
+msgid "Attach images"
+msgstr ""
+
+msgid "Attach your images again."
+msgstr ""
+
+msgid "Attached image"
 msgstr ""
 
 msgid "Attribution"
 msgstr ""
 
 msgid "August"
+msgstr ""
+
+msgid ""
+"AuraData BI does not know this model yet: it runs with cautious settings and "
+"this price is an upper estimate."
 msgstr ""
 
 msgid "AuraData website"
@@ -2680,6 +2838,9 @@ msgstr ""
 msgid "Autosize all columns"
 msgstr ""
 
+msgid "Availability"
+msgstr ""
+
 msgid "Available sorting modes:"
 msgstr ""
 
@@ -2749,6 +2910,14 @@ msgstr ""
 msgid "Back to the saved filters, slicers and cross-filters"
 msgstr ""
 
+#, python-format
+msgid "Back to version %s"
+msgstr ""
+
+#, python-format
+msgid "Back to version %s."
+msgstr ""
+
 msgid "Back to workspaces"
 msgstr ""
 
@@ -2795,6 +2964,9 @@ msgid "Bad"
 msgstr ""
 
 msgid "Bad color"
+msgstr ""
+
+msgid "Balanced"
 msgstr ""
 
 msgid "Banded row headers"
@@ -2887,6 +3059,9 @@ msgid "Before the line"
 msgstr ""
 
 msgid "Before value"
+msgstr ""
+
+msgid "Before you start"
 msgstr ""
 
 msgid "Behind the marks"
@@ -3012,6 +3187,9 @@ msgid "Bottom left corner"
 msgstr ""
 
 msgid "Bottom margin, in pixels, allowing for more room for axis labels"
+msgstr ""
+
+msgid "Bottom padding"
 msgstr ""
 
 msgid "Bottom right"
@@ -3486,6 +3664,21 @@ msgstr ""
 msgid "Change"
 msgstr ""
 
+msgid "Change a calculated column"
+msgstr ""
+
+msgid "Change a chart"
+msgstr ""
+
+msgid "Change a member of a workspace"
+msgstr ""
+
+msgid "Change a metric"
+msgstr ""
+
+msgid "Change a scheduled report"
+msgstr ""
+
 msgid "Change chart type"
 msgstr ""
 
@@ -3507,6 +3700,18 @@ msgid "Change order of rows."
 msgstr ""
 
 msgid "Change the fill color"
+msgstr ""
+
+msgid "Change the filters of this report"
+msgstr ""
+
+msgid "Change this report"
+msgstr ""
+
+msgid "Change who can see this report"
+msgstr ""
+
+msgid "Change who edits this report"
 msgstr ""
 
 #, python-format
@@ -3532,10 +3737,25 @@ msgstr ""
 msgid "Changed a dimension"
 msgstr ""
 
+msgid "Changed a drill through page"
+msgstr ""
+
 msgid "Changed a filter"
 msgstr ""
 
 msgid "Changed a metric"
+msgstr ""
+
+msgid "Changed a tooltip page"
+msgstr ""
+
+msgid "Changed bookmarks"
+msgstr ""
+
+msgid "Changed by the assistant"
+msgstr ""
+
+msgid "Changed canvas format"
 msgstr ""
 
 msgid "Changed color palette"
@@ -3551,11 +3771,20 @@ msgstr ""
 msgid "Changed on"
 msgstr ""
 
+msgid "Changed report settings"
+msgstr ""
+
+msgid "Changed the mobile layout"
+msgstr ""
+
 msgid "Changed the time range"
 msgstr ""
 
 #, python-format
 msgid "Changed time range to '%s'"
+msgstr ""
+
+msgid "Changed visual interactions"
 msgstr ""
 
 msgid "Changes not applied"
@@ -3573,6 +3802,9 @@ msgstr ""
 msgid ""
 "Changing the dataset may break the chart if the chart relies on columns or "
 "metadata that does not exist in the target dataset"
+msgstr ""
+
+msgid "Changing the document"
 msgstr ""
 
 msgid ""
@@ -3791,6 +4023,13 @@ msgid ""
 "layout."
 msgstr ""
 
+msgid ""
+"Charts, tables and figures are read with the permissions of each reader, but "
+"the text is not: it stays as the assistant wrote it with your access, and "
+"row level security does not reach it. Everyone who opens the document reads "
+"it. Check that it says nothing they should not see."
+msgstr ""
+
 msgid "Check for sorting ascending"
 msgstr ""
 
@@ -3869,6 +4108,9 @@ msgstr ""
 msgid "Choose already exists"
 msgstr ""
 
+msgid "Choose at least one model."
+msgstr ""
+
 msgid "Choose chart type"
 msgstr ""
 
@@ -3919,6 +4161,14 @@ msgstr ""
 msgid "Choose the format for legend values"
 msgstr ""
 
+msgid "Choose the model"
+msgstr ""
+
+msgid ""
+"Choose the models users can pick. Prices are in dollars per million tokens, "
+"input / output."
+msgstr ""
+
 msgid "Choose the position of the legend"
 msgstr ""
 
@@ -3967,6 +4217,18 @@ msgid ""
 "showcase a view into the underlying data or to show aggregated metrics."
 msgstr ""
 
+msgid "Claude Code"
+msgstr ""
+
+msgid "Claude Code command"
+msgstr ""
+
+msgid "Claude Desktop"
+msgstr ""
+
+msgid "Claude Desktop configuration"
+msgstr ""
+
 msgid "Clause"
 msgstr ""
 
@@ -4009,6 +4271,9 @@ msgid "Clear selections"
 msgstr ""
 
 msgid "Clear the drill through"
+msgstr ""
+
+msgid "Clear the selection"
 msgstr ""
 
 #, python-format
@@ -4119,6 +4384,9 @@ msgid "Close preview"
 msgstr ""
 
 msgid "Close tab"
+msgstr ""
+
+msgid "Close the document"
 msgstr ""
 
 msgid "Close version history"
@@ -4495,6 +4763,9 @@ msgstr ""
 msgid "Comma-separated text labels, one per range value"
 msgstr ""
 
+msgid "Commands"
+msgstr ""
+
 msgid "Common (unit per pixel at zoom 0)"
 msgstr ""
 
@@ -4502,6 +4773,9 @@ msgid "Comparator option"
 msgstr ""
 
 msgid "Compare results with other time periods."
+msgstr ""
+
+msgid "Compare the main categories"
 msgstr ""
 
 msgid "Comparison"
@@ -4604,7 +4878,13 @@ msgstr ""
 msgid "Connect"
 msgstr ""
 
+msgid "Connect AI"
+msgstr ""
+
 msgid "Connect Google Sheets as tables to this database"
+msgstr ""
+
+msgid "Connect a client"
 msgstr ""
 
 msgid "Connect a database"
@@ -4736,6 +5016,15 @@ msgstr ""
 msgid "Controls labeled "
 msgstr ""
 
+msgid "Conversation deleted."
+msgstr ""
+
+msgid "Conversation title"
+msgstr ""
+
+msgid "Conversations of this report"
+msgstr ""
+
 msgid "Conversion background"
 msgstr ""
 
@@ -4751,6 +5040,12 @@ msgstr ""
 #, python-format
 msgid ""
 "Converted %s @import rule(s) to inline CSS. Review the result before saving."
+msgstr ""
+
+msgid "Copied"
+msgstr ""
+
+msgid "Copied to clipboard"
 msgstr ""
 
 msgid "Copied to clipboard!"
@@ -4783,6 +5078,9 @@ msgstr ""
 msgid "Copy and Paste JSON credentials"
 msgstr ""
 
+msgid "Copy answer"
+msgstr ""
+
 msgid "Copy as an image"
 msgstr ""
 
@@ -4790,9 +5088,6 @@ msgid "Copy code to clipboard"
 msgstr ""
 
 msgid "Copy column name"
-msgstr ""
-
-msgid "Copy format"
 msgstr ""
 
 msgid "Copy image icon"
@@ -4853,6 +5148,9 @@ msgstr ""
 msgid "Correlation"
 msgstr ""
 
+msgid "Cost"
+msgstr ""
+
 msgid "Cost estimate"
 msgstr ""
 
@@ -4866,6 +5164,12 @@ msgstr ""
 msgid ""
 "Could not check which charts and dashboards depend on the selected %s. "
 "Deleting them may break charts and dashboards."
+msgstr ""
+
+msgid "Could not copy"
+msgstr ""
+
+msgid "Could not copy to the clipboard"
 msgstr ""
 
 msgid "Could not fetch all saved charts"
@@ -4942,6 +5246,12 @@ msgstr ""
 msgid ""
 "Create a dataset to begin visualizing your data as a chart or go to\n"
 "          SQL Lab to query your data."
+msgstr ""
+
+#, python-format
+msgid ""
+"Create a key, then replace %s with it. The configuration with your key also "
+"shows when you create one."
 msgstr ""
 
 msgid "Create a new Tag"
@@ -5629,6 +5939,10 @@ msgid_plural "Dataset used by %s charts updated: %s"
 msgstr[0] ""
 msgstr[1] ""
 
+#, python-format
+msgid "Dataset: %s"
+msgstr ""
+
 msgid "Datasets"
 msgstr ""
 
@@ -5788,6 +6102,9 @@ msgid ""
 "than this if other columns don't need much space"
 msgstr ""
 
+msgid "Default model"
+msgstr ""
+
 msgid "Default value must be set when \"Filter has default value\" is checked"
 msgstr ""
 
@@ -5857,6 +6174,9 @@ msgstr ""
 msgid "Degrees each marker turns"
 msgstr ""
 
+msgid "Del"
+msgstr ""
+
 #, python-format
 msgid "Delayed (missed %s refresh)"
 msgid_plural "Delayed (missed %s refreshes)"
@@ -5895,10 +6215,34 @@ msgstr ""
 msgid "Delete User?"
 msgstr ""
 
+msgid "Delete a bookmark"
+msgstr ""
+
+msgid "Delete a calculated column"
+msgstr ""
+
+msgid "Delete a chart"
+msgstr ""
+
+msgid "Delete a metric"
+msgstr ""
+
+msgid "Delete a page"
+msgstr ""
+
+msgid "Delete a scheduled report"
+msgstr ""
+
+msgid "Delete a workspace"
+msgstr ""
+
 msgid "Delete all Really?"
 msgstr ""
 
 msgid "Delete component"
+msgstr ""
+
+msgid "Delete conversation"
 msgstr ""
 
 msgid "Delete dashboard tab?"
@@ -5937,7 +6281,13 @@ msgstr ""
 msgid "Delete role"
 msgstr ""
 
+msgid "Delete the mobile layout"
+msgstr ""
+
 msgid "Delete this container and save to remove this message."
+msgstr ""
+
+msgid "Delete this report"
 msgstr ""
 
 msgid "Delete user"
@@ -5953,6 +6303,16 @@ msgid "Delete workspace"
 msgstr ""
 
 msgid "Delete workspace?"
+msgstr ""
+
+#, python-format
+msgid "Delete «%s»"
+msgstr ""
+
+#, python-format
+msgid ""
+"Delete «%s»? What was said and the data it read are erased, and you cannot "
+"get them back."
 msgstr ""
 
 msgid "Deleted"
@@ -6022,6 +6382,9 @@ msgstr ""
 
 #, python-format
 msgid "Deleted roles: %s"
+msgstr ""
+
+msgid "Deleted user"
 msgstr ""
 
 #, python-format
@@ -6361,6 +6724,9 @@ msgstr ""
 msgid "Do you want a donut or a pie?"
 msgstr ""
 
+msgid "Document"
+msgstr ""
+
 msgid "Documentation"
 msgstr ""
 
@@ -6371,6 +6737,17 @@ msgid "Don't refresh"
 msgstr ""
 
 msgid "Done"
+msgstr ""
+
+msgid "Done by"
+msgstr ""
+
+#, python-format
+msgid "Done by the assistant (%s)"
+msgstr ""
+
+#, python-format
+msgid "Done, except for %s charts that no longer exist."
 msgstr ""
 
 msgid "Donut"
@@ -6553,6 +6930,9 @@ msgstr ""
 msgid "Drop columns/metrics here or click"
 msgstr ""
 
+msgid "Drop to add it to this chart"
+msgstr ""
+
 msgid "Drop visuals here"
 msgstr ""
 
@@ -6686,6 +7066,12 @@ msgid "ERROR: %s"
 msgstr ""
 
 msgid "Each metric's own"
+msgstr ""
+
+msgid "Each reader also sees what the blocks filter by:"
+msgstr ""
+
+msgid "Economical"
 msgstr ""
 
 msgid "Edge length"
@@ -6853,6 +7239,9 @@ msgid "Effect"
 msgstr ""
 
 msgid "Effects"
+msgstr ""
+
+msgid "Effort"
 msgstr ""
 
 msgid "Either the database is spelled incorrectly or does not exist."
@@ -7289,6 +7678,9 @@ msgstr ""
 msgid "Every"
 msgstr ""
 
+msgid "Every value"
+msgstr ""
+
 msgid "Evolution"
 msgstr ""
 
@@ -7450,6 +7842,9 @@ msgstr ""
 msgid "Export failed: %s"
 msgstr ""
 
+msgid "Export is not available here."
+msgstr ""
+
 msgid "Export query"
 msgstr ""
 
@@ -7494,6 +7889,9 @@ msgid "Export to original .CSV"
 msgstr ""
 
 msgid "Export to pivoted .CSV"
+msgstr ""
+
+msgid "Exported a document to PDF"
 msgstr ""
 
 #, python-format
@@ -7812,8 +8210,14 @@ msgid "Fields and type of the chart, in the side panel"
 msgstr ""
 
 msgid ""
-"Fields are saved with the report. Undo does not change them: use the button "
-"below."
+"Fields are saved with the report. Undo takes back each change; the button "
+"below takes back all of them."
+msgstr ""
+
+msgid "Figures are read as you open it."
+msgstr ""
+
+msgid "Figures are read as you open it; the text stays as written."
 msgstr ""
 
 msgid "File"
@@ -8425,7 +8829,16 @@ msgstr ""
 msgid "Gives each category its own color."
 msgstr ""
 
+msgid "Gives the selected object the format copied last"
+msgstr ""
+
 msgid "Go back"
+msgstr ""
+
+msgid "Go back to an earlier version"
+msgstr ""
+
+msgid "Go back to this version"
 msgstr ""
 
 msgid "Go to"
@@ -8447,6 +8860,9 @@ msgid "Go to the action of this slicer"
 msgstr ""
 
 msgid "Go to the edit mode to configure the dashboard and add charts"
+msgstr ""
+
+msgid "Go to the report"
 msgstr ""
 
 msgid "Goal"
@@ -8653,6 +9069,9 @@ msgstr ""
 msgid "Help"
 msgstr ""
 
+msgid "Helpful"
+msgstr ""
+
 msgid "Hexagon"
 msgstr ""
 
@@ -8723,6 +9142,9 @@ msgid "High color"
 msgstr ""
 
 msgid "High density sampling"
+msgstr ""
+
+msgid "High effort"
 msgstr ""
 
 msgid "Higher is better"
@@ -8834,6 +9256,9 @@ msgstr ""
 msgid "Huge"
 msgstr ""
 
+msgid "I understand, continue"
+msgstr ""
+
 msgid "ISO 3166-2 Codes"
 msgstr ""
 
@@ -8919,6 +9344,9 @@ msgstr ""
 msgid "If you don't save, changes will be lost."
 msgstr ""
 
+msgid "If you write, the actions above are dropped"
+msgstr ""
+
 msgid "Ignore cache when generating report"
 msgstr ""
 
@@ -8950,6 +9378,9 @@ msgid "Image transparency"
 msgstr ""
 
 msgid "Image width"
+msgstr ""
+
+msgid "Images of this message"
 msgstr ""
 
 msgid ""
@@ -9047,6 +9478,9 @@ msgstr ""
 msgid "Include time"
 msgstr ""
 
+msgid "Incomplete"
+msgstr ""
+
 msgid "Increase"
 msgstr ""
 
@@ -9073,6 +9507,9 @@ msgid "Indexes (%s)"
 msgstr ""
 
 msgid "Individual corners"
+msgstr ""
+
+msgid "Individual padding"
 msgstr ""
 
 msgid "Info"
@@ -9383,7 +9820,15 @@ msgstr ""
 msgid "It covers part of another visual"
 msgstr ""
 
+msgid "It has no text: every figure is read by whoever opens it."
+msgstr ""
+
 msgid "It runs the action of the chart, set above."
+msgstr ""
+
+msgid ""
+"It sees and changes only what you can: your workspaces, your roles and your "
+"data access apply to it too."
 msgstr ""
 
 msgid ""
@@ -9405,6 +9850,15 @@ msgid "Item updated: %s"
 msgstr ""
 
 msgid "Its dashboards will show up here."
+msgstr ""
+
+#, python-format
+msgid "Its text mentions %s figure:"
+msgid_plural "Its text mentions %s figures:"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "Its text mentions no figures."
 msgstr ""
 
 msgid "It’s not recommended to truncate Y axis in Bar chart."
@@ -9466,6 +9920,9 @@ msgid "Key Prefix"
 msgstr ""
 
 msgid "Keyboard shortcuts"
+msgstr ""
+
+msgid "Keys"
 msgstr ""
 
 msgid "Keys are shown only once at creation. Store them securely."
@@ -9739,6 +10196,9 @@ msgstr ""
 msgid "Left metric"
 msgstr ""
 
+msgid "Left padding"
+msgstr ""
+
 msgid "Left series setting"
 msgstr ""
 
@@ -9827,6 +10287,12 @@ msgid "Less or equal (<=)"
 msgstr ""
 
 msgid "Less than (<)"
+msgstr ""
+
+msgid "Let it change reports"
+msgstr ""
+
+msgid "Let the model think"
 msgstr ""
 
 msgid "Lets viewers zoom into a range of the chart."
@@ -10000,16 +10466,13 @@ msgstr ""
 msgid "Link copied to clipboard"
 msgstr ""
 
+msgid "Link copied."
+msgstr ""
+
 msgid "List"
 msgstr ""
 
 msgid "List Groups"
-msgstr ""
-
-msgid "List Roles"
-msgstr ""
-
-msgid "List Users"
 msgstr ""
 
 msgid ""
@@ -10138,12 +10601,24 @@ msgstr ""
 msgid "Longitude of default viewport"
 msgstr ""
 
+msgid "Looking at a chart"
+msgstr ""
+
+msgid "Looking at the datasets"
+msgstr ""
+
+msgid "Looking at the report"
+msgstr ""
+
 msgid "Low color"
 msgstr ""
 
 #, python-format
 msgid ""
 "Low contrast (%s:1): the text may be hard to read. Aim for 4.5:1 or more."
+msgstr ""
+
+msgid "Low effort"
 msgstr ""
 
 msgid "Lower Threshold"
@@ -10175,10 +10650,20 @@ msgstr ""
 msgid "MAY"
 msgstr ""
 
+msgid "MCP address"
+msgstr ""
+
 msgid "MCP scopes"
 msgstr ""
 
 msgid "MON"
+msgstr ""
+
+msgid "Made by the assistant"
+msgstr ""
+
+#, python-format
+msgid "Made by the assistant (model %s)"
 msgstr ""
 
 msgid "Main"
@@ -10188,6 +10673,9 @@ msgid "Main navigation"
 msgstr ""
 
 msgid "Maintain layer order"
+msgstr ""
+
+msgid "Make it look good on a phone"
 msgstr ""
 
 msgid ""
@@ -10395,6 +10883,9 @@ msgstr ""
 msgid "Maximum dot size"
 msgstr ""
 
+msgid "Maximum effort"
+msgstr ""
+
 msgid "Maximum folder nesting depth reached"
 msgstr ""
 
@@ -10452,6 +10943,9 @@ msgid "Median values"
 msgstr ""
 
 msgid "Medium"
+msgstr ""
+
+msgid "Medium effort"
 msgstr ""
 
 msgid "Members"
@@ -10764,6 +11258,12 @@ msgstr ""
 msgid "Mode"
 msgstr ""
 
+msgid "Model"
+msgstr ""
+
+msgid "Models"
+msgstr ""
+
 msgid "Modified"
 msgstr ""
 
@@ -10794,6 +11294,12 @@ msgstr ""
 msgid "Month"
 msgstr ""
 
+msgid "Monthly budget"
+msgstr ""
+
+msgid "Monthly budget (USD)"
+msgstr ""
+
 msgid "Months"
 msgstr ""
 
@@ -10813,6 +11319,12 @@ msgstr ""
 msgid "More data options"
 msgstr ""
 
+msgid ""
+"More effort gives more careful answers and costs more. A model that lacks "
+"the level you choose uses the closest one below. Some models always think: "
+"on those, only the effort lowers it."
+msgstr ""
+
 msgid "More filters"
 msgstr ""
 
@@ -10820,6 +11332,9 @@ msgid "More options"
 msgstr ""
 
 msgid "MotherDuck token"
+msgstr ""
+
+msgid "Move a dataset to another workspace"
 msgstr ""
 
 msgid "Move down"
@@ -10835,6 +11350,9 @@ msgid "Move only"
 msgstr ""
 
 msgid "Move right"
+msgstr ""
+
+msgid "Move this report to another workspace"
 msgstr ""
 
 msgid "Move to workspace"
@@ -11013,6 +11531,9 @@ msgstr ""
 msgid "New chart"
 msgstr ""
 
+msgid "New conversation"
+msgstr ""
+
 msgid "New dashboard"
 msgstr ""
 
@@ -11023,6 +11544,9 @@ msgid "New dataset name"
 msgstr ""
 
 msgid "New header"
+msgstr ""
+
+msgid "New key"
 msgstr ""
 
 msgid "New metric"
@@ -11134,6 +11658,9 @@ msgstr ""
 msgid "No connection"
 msgstr ""
 
+msgid "No conversation has that title."
+msgstr ""
+
 msgid "No dashboard uses it yet."
 msgstr ""
 
@@ -11144,6 +11671,9 @@ msgid "No data"
 msgstr ""
 
 msgid "No data after filtering or data is NULL for the latest time record"
+msgstr ""
+
+msgid "No data for these filters."
 msgstr ""
 
 msgid "No data found"
@@ -11207,6 +11737,12 @@ msgid "No icon"
 msgstr ""
 
 msgid "No items"
+msgstr ""
+
+msgid "No longer shared."
+msgstr ""
+
+msgid "No mark"
 msgstr ""
 
 msgid "No matching records found"
@@ -11312,6 +11848,14 @@ msgstr ""
 msgid "No visual matches the search."
 msgstr ""
 
+msgid ""
+"No worker of the assistant is free. Try again in a moment, and tell your "
+"administrator if this repeats."
+msgstr ""
+
+msgid "No workspace"
+msgstr ""
+
 msgid "Node label position"
 msgstr ""
 
@@ -11384,6 +11928,9 @@ msgstr ""
 msgid "Not found"
 msgstr ""
 
+msgid "Not helpful"
+msgstr ""
+
 msgid "Not in"
 msgstr ""
 
@@ -11399,10 +11946,16 @@ msgstr ""
 msgid "Not up to date"
 msgstr ""
 
+msgid "Not what I asked"
+msgstr ""
+
 msgid "Nothing"
 msgstr ""
 
 msgid "Nothing here yet"
+msgstr ""
+
+msgid "Nothing this month"
 msgstr ""
 
 msgid "Nothing to change: they are already like that."
@@ -11560,6 +12113,9 @@ msgstr ""
 msgid "Offline"
 msgstr ""
 
+msgid "Older"
+msgstr ""
+
 msgid "Older history exists but is beyond what can be shown here."
 msgstr ""
 
@@ -11661,10 +12217,16 @@ msgstr ""
 msgid "Only `SELECT` statements are allowed"
 msgstr ""
 
+msgid "Only a member of the workspace of this report can share this."
+msgstr ""
+
 msgid "Only applies when \"Label Type\" is not set to a percentage."
 msgstr ""
 
 msgid "Only applies when \"Label Type\" is set to show values."
+msgstr ""
+
+msgid "Only editors and workspace admins can certify."
 msgstr ""
 
 msgid "Only exact match is available for non-string columns."
@@ -11707,6 +12269,9 @@ msgstr ""
 msgid ""
 "Only the first %s values are listed. Type to search all of them, or enter a "
 "value that is not listed."
+msgstr ""
+
+msgid "Only what the assistant did"
 msgstr ""
 
 #, python-format
@@ -11787,6 +12352,9 @@ msgstr ""
 msgid "Open list"
 msgstr ""
 
+msgid "Open navigation"
+msgstr ""
+
 msgid "Open page"
 msgstr ""
 
@@ -11794,6 +12362,9 @@ msgid "Open query in SQL Lab"
 msgstr ""
 
 msgid "Open recent"
+msgstr ""
+
+msgid "Open the editor and ask the assistant to save this document as a page"
 msgstr ""
 
 msgid "Open the panel"
@@ -12730,6 +13301,9 @@ msgstr ""
 msgid "Publicly shared sheets only"
 msgstr ""
 
+msgid "Publish this report"
+msgstr ""
+
 msgid "Published"
 msgstr ""
 
@@ -12814,6 +13388,9 @@ msgid "Query was stopped"
 msgstr ""
 
 msgid "Query was stopped."
+msgstr ""
+
+msgid "Querying the data"
 msgstr ""
 
 msgid "Quote"
@@ -12912,7 +13489,23 @@ msgstr ""
 msgid "Reach the edges of the card"
 msgstr ""
 
+msgid "Readers see this version, each with their own permissions."
+msgstr ""
+
+#, python-format
+msgid "Readers still see version %s. Share this one if it should reach them."
+msgstr ""
+
 msgid "Reading"
+msgstr ""
+
+msgid "Reading a chart"
+msgstr ""
+
+msgid "Reading the document"
+msgstr ""
+
+msgid "Reading the report"
 msgstr ""
 
 msgid "Rearranged layout"
@@ -13013,6 +13606,9 @@ msgstr ""
 msgid "Refresh interval set for this session"
 msgstr ""
 
+msgid "Refresh list"
+msgstr ""
+
 msgid "Refresh settings"
 msgstr ""
 
@@ -13020,6 +13616,12 @@ msgid "Refresh table schema"
 msgstr ""
 
 msgid "Refresh the default values"
+msgstr ""
+
+msgid "Refresh the text"
+msgstr ""
+
+msgid "Refresh the text of this document with the current figures"
 msgstr ""
 
 msgid "Refresh visual"
@@ -13048,6 +13650,9 @@ msgid ""
 "referenced in the filter. Base filters apply filters to all queries except "
 "the subjects defined in the filter, and can be used to define what users can "
 "see if no RLS filters within a filter group apply to them."
+msgstr ""
+
+msgid "Reject"
 msgstr ""
 
 msgid "Related items only"
@@ -13091,6 +13696,15 @@ msgstr ""
 msgid "Remove %s from the mobile layout"
 msgstr ""
 
+msgid "Remove a chart from this report"
+msgstr ""
+
+msgid "Remove a member of a workspace"
+msgstr ""
+
+msgid "Remove an element"
+msgstr ""
+
 msgid "Remove cross-filter"
 msgstr ""
 
@@ -13118,7 +13732,17 @@ msgstr ""
 msgid "Remove from workspace"
 msgstr ""
 
+#, python-format
+msgid "Remove image %s"
+msgstr ""
+
 msgid "Remove item"
+msgstr ""
+
+msgid "Remove mark"
+msgstr ""
+
+msgid "Remove mark position"
 msgstr ""
 
 msgid "Remove notification method"
@@ -13165,20 +13789,36 @@ msgstr ""
 msgid "Removed a dimension"
 msgstr ""
 
+msgid "Removed a drill through page"
+msgstr ""
+
 msgid "Removed a filter"
 msgstr ""
 
 msgid "Removed a metric"
 msgstr ""
 
+msgid "Removed a tooltip page"
+msgstr ""
+
 #, python-format
 msgid "Removed filter on '%s'"
+msgstr ""
+
+msgid "Removed the mobile layout"
 msgstr ""
 
 msgid "Removes the chart background so it sits directly on the page."
 msgstr ""
 
+msgid "Rename"
+msgstr ""
+
 msgid "Rename tab"
+msgstr ""
+
+#, python-format
+msgid "Rename «%s»"
 msgstr ""
 
 msgid "Renamed chart"
@@ -13445,6 +14085,15 @@ msgstr ""
 msgid "Restore"
 msgstr ""
 
+msgid "Restore a chart from the trash"
+msgstr ""
+
+msgid "Restore a dataset from the trash"
+msgstr ""
+
+msgid "Restore a report from the trash"
+msgstr ""
+
 msgid "Restore colors"
 msgstr ""
 
@@ -13535,6 +14184,9 @@ msgstr ""
 msgid "Reverse the overlap"
 msgstr ""
 
+msgid "Review this report and improve it"
+msgstr ""
+
 msgid "Revoke"
 msgstr ""
 
@@ -13572,6 +14224,9 @@ msgid "Right label"
 msgstr ""
 
 msgid "Right metric"
+msgstr ""
+
+msgid "Right padding"
 msgstr ""
 
 msgid "Right series setting"
@@ -13761,6 +14416,9 @@ msgstr ""
 msgid "Run"
 msgstr ""
 
+msgid "Run a SQL statement"
+msgstr ""
+
 msgid "Run a new query using the \"Update chart\" button or"
 msgstr ""
 
@@ -13792,6 +14450,9 @@ msgid "Run the chart to list its series"
 msgstr ""
 
 msgid "Run the chart to list its series, or add one by name"
+msgstr ""
+
+msgid "Run this command in a terminal:"
 msgstr ""
 
 msgid "Running"
@@ -13985,6 +14646,9 @@ msgstr ""
 msgid "Save as Dataset"
 msgstr ""
 
+msgid "Save as a page of the report"
+msgstr ""
+
 msgid "Save as new"
 msgstr ""
 
@@ -14033,8 +14697,20 @@ msgstr ""
 msgid "Save this API key securely"
 msgstr ""
 
+msgid "Save this document as a page of the report"
+msgstr ""
+
 msgid "Save this query as a virtual dataset to continue exploring"
 msgstr ""
+
+msgid "Save title"
+msgstr ""
+
+#, python-format
+msgid "Save «%(title)s» as %(num)d page of this report"
+msgid_plural "Save «%(title)s» as %(num)d pages of this report"
+msgstr[0] ""
+msgstr[1] ""
 
 msgid "Saved"
 msgstr ""
@@ -14066,6 +14742,9 @@ msgstr ""
 msgid "Saving..."
 msgstr ""
 
+msgid "Say what to change in this block"
+msgstr ""
+
 msgid "Scale and Move"
 msgstr ""
 
@@ -14094,6 +14773,12 @@ msgid "Schedule"
 msgstr ""
 
 msgid "Schedule a new email report"
+msgstr ""
+
+msgid "Schedule a report"
+msgstr ""
+
+msgid "Schedule an alert"
 msgstr ""
 
 msgid "Schedule query"
@@ -14213,6 +14898,9 @@ msgid "Search columns by name"
 msgstr ""
 
 msgid "Search columns..."
+msgstr ""
+
+msgid "Search conversations"
 msgstr ""
 
 msgid "Search dashboards"
@@ -14344,6 +15032,9 @@ msgid "See query details"
 msgstr ""
 
 msgid "See the data"
+msgstr ""
+
+msgid "See the last one"
 msgstr ""
 
 msgid "Sees the workspace and its dashboards"
@@ -14812,6 +15503,9 @@ msgstr ""
 msgid "Semibold"
 msgstr ""
 
+msgid "Send"
+msgstr ""
+
 msgid "Send Failed Reports"
 msgstr ""
 
@@ -15012,16 +15706,52 @@ msgstr ""
 msgid "Share permalink by email"
 msgstr ""
 
+msgid "Share this document"
+msgstr ""
+
+msgid "Share this report"
+msgstr ""
+
+#, python-format
+msgid "Share version %s"
+msgstr ""
+
+#, python-format
+msgid "Share version %s with «%s» (%s member)"
+msgid_plural "Share version %s with «%s» (%s members)"
+msgstr[0] ""
+msgstr[1] ""
+
 msgid "Share with every workspace"
 msgstr ""
 
+msgid "Share with the workspace"
+msgstr ""
+
 msgid "Shared"
+msgstr ""
+
+msgid "Shared a document"
+msgstr ""
+
+msgid "Shared documents"
 msgstr ""
 
 msgid "Shared query"
 msgstr ""
 
 msgid "Shared query fields"
+msgstr ""
+
+msgid "Shared with the workspace."
+msgstr ""
+
+#, python-format
+msgid "Shared with «%s»"
+msgstr ""
+
+#, python-format
+msgid "Shared with «%s», version %s"
 msgstr ""
 
 msgid "Sheet name"
@@ -15060,6 +15790,10 @@ msgstr ""
 
 #, python-format
 msgid "Show %s entries"
+msgstr ""
+
+#, python-format
+msgid "Show %s in the chart"
 msgstr ""
 
 #, python-format
@@ -15263,6 +15997,9 @@ msgstr ""
 msgid "Show minor ticks on axes."
 msgstr ""
 
+msgid "Show on"
+msgstr ""
+
 msgid ""
 "Show one total for the positive values and another for the negative ones"
 msgstr ""
@@ -15331,6 +16068,9 @@ msgid "Show summary"
 msgstr ""
 
 msgid "Show target"
+msgstr ""
+
+msgid "Show the accent bar"
 msgstr ""
 
 msgid "Show the background"
@@ -15452,6 +16192,10 @@ msgstr ""
 
 #, python-format
 msgid "Showing %s of %s items"
+msgstr ""
+
+#, python-format
+msgid "Showing %s of %s rows."
 msgstr ""
 
 msgid ""
@@ -15639,6 +16383,11 @@ msgstr ""
 msgid "Some layers could not be loaded"
 msgstr ""
 
+#, python-format
+msgid ""
+"Some members may not reach %s: they will read a note where those blocks go."
+msgstr ""
+
 msgid "Some of its charts now belong to another dashboard"
 msgstr ""
 
@@ -15655,6 +16404,9 @@ msgid ""
 "Someone else, or another one of your browser tabs, saved this dataset after "
 "you opened it. Saving now would undo those changes, so it was cancelled. "
 "Copy your edits, close this dialog, and reopen the dataset to reapply them."
+msgstr ""
+
+msgid "Something else"
 msgstr ""
 
 msgid ""
@@ -15910,6 +16662,9 @@ msgid ""
 "estimation, and Dremio for syntax changes, among others."
 msgstr ""
 
+msgid "Spent this month:"
+msgstr ""
+
 msgid "Split number"
 msgstr ""
 
@@ -15977,6 +16732,9 @@ msgid "Start Longitude & Latitude"
 msgstr ""
 
 msgid "Start Time"
+msgstr ""
+
+msgid "Start a new conversation"
 msgstr ""
 
 msgid "Start a report and add charts to it"
@@ -16056,6 +16814,9 @@ msgid ""
 "intervals."
 msgstr ""
 
+msgid "Steps of the answer"
+msgstr ""
+
 msgid "Steps, after the point"
 msgstr ""
 
@@ -16080,7 +16841,13 @@ msgstr ""
 msgid "Stop running (Ctrl + x)"
 msgstr ""
 
+msgid "Stop sharing"
+msgstr ""
+
 msgid "Stopped an unsafe database connection"
+msgstr ""
+
+msgid "Stopped sharing a document"
 msgstr ""
 
 #, python-format
@@ -16228,6 +16995,12 @@ msgid "Sum"
 msgstr ""
 
 msgid "Sum values"
+msgstr ""
+
+msgid "Summarize this page"
+msgstr ""
+
+msgid "Summarize this report"
 msgstr ""
 
 msgid "Summary"
@@ -16597,6 +17370,12 @@ msgstr ""
 msgid "Text style"
 msgstr ""
 
+msgid "Text transparency"
+msgstr ""
+
+msgid "Text written on"
+msgstr ""
+
 #, python-format
 msgid "The %(aggregate)s aggregate is not supported on this database"
 msgstr ""
@@ -16617,8 +17396,50 @@ msgstr ""
 msgid "The %s linked to this chart may have been deleted."
 msgstr ""
 
+msgid "The AI assistant has no API key."
+msgstr ""
+
+msgid "The AI assistant has no place to run its answers."
+msgstr ""
+
+msgid "The AI assistant is not installed."
+msgstr ""
+
+msgid "The AI assistant is turned off in this workspace."
+msgstr ""
+
+msgid "The AI assistant is turned off."
+msgstr ""
+
+msgid "The AI declined to answer this."
+msgstr ""
+
+msgid "The AI declined to answer this. Try asking in another way."
+msgstr ""
+
+msgid "The AI service cannot be reached. Try again later."
+msgstr ""
+
+msgid "The AI service failed. Start a new conversation if this repeats."
+msgstr ""
+
+msgid "The AI service has run out of credit. Tell your administrator."
+msgstr ""
+
+msgid "The AI service has too many requests. Wait a moment and retry."
+msgstr ""
+
+msgid "The AI service is overloaded. Wait a moment and retry."
+msgstr ""
+
+msgid "The AI service rejected the server's key. Tell your administrator."
+msgstr ""
+
 #, python-format
 msgid "The API response from %s does not match the IDatabaseTable interface."
+msgstr ""
+
+msgid "The Anthropic SDK is not installed on this server."
 msgstr ""
 
 msgid "The CSRF token could not be validated."
@@ -16665,6 +17486,9 @@ msgstr ""
 msgid "The Length filter requires a numeric value."
 msgstr ""
 
+msgid "The PDF could not be made."
+msgstr ""
+
 msgid ""
 "The SQL query mutator removed all executable statements from this query."
 msgstr ""
@@ -16699,6 +17523,72 @@ msgid ""
 "type DELETE again to continue."
 msgstr ""
 
+msgid "The answer was cut off. Try again."
+msgstr ""
+
+msgid "The answer was too long and was cut. Ask for less."
+msgstr ""
+
+msgid "The assistant"
+msgstr ""
+
+msgid ""
+"The assistant answers about the page and filters on your screen, and it "
+"cannot change anything."
+msgstr ""
+
+msgid "The assistant cannot change reports here. It can still answer."
+msgstr ""
+
+msgid ""
+"The assistant changed the saved report while you were editing. Discard your "
+"changes to see it."
+msgstr ""
+
+msgid "The assistant could not answer. Try again."
+msgstr ""
+
+msgid ""
+"The assistant is close to its budget for the month. It stops when it runs "
+"out."
+msgstr ""
+
+msgid ""
+"The assistant knows the page and what you have selected, and it asks you "
+"before it deletes, publishes, shares or schedules anything."
+msgstr ""
+
+msgid ""
+"The assistant runs on Claude, from Anthropic. To answer you, this travels to "
+"the Anthropic API:"
+msgstr ""
+
+msgid ""
+"The assistant sees what each user sees, data rows included. What they ask "
+"and the data it reads travel to the Anthropic API."
+msgstr ""
+
+msgid "The assistant settings could not be loaded."
+msgstr ""
+
+msgid ""
+"The assistant stopped before finishing, and this answer is incomplete. If it "
+"was changing the report, check it before asking again."
+msgstr ""
+
+msgid ""
+"The assistant used up its budget for the month. Ask an admin, or wait for "
+"next month."
+msgstr ""
+
+msgid ""
+"The assistant works on the saved report. Save your changes or discard them "
+"first."
+msgstr ""
+
+msgid "The assistant’s changes were undone."
+msgstr ""
+
 msgid "The axis scrolls when the categories do not fit at this width"
 msgstr ""
 
@@ -16725,6 +17615,9 @@ msgstr ""
 msgid ""
 "The chart changed and is not saved. Use Save in the editor to keep the "
 "changes."
+msgstr ""
+
+msgid "The chart could not be drawn."
 msgstr ""
 
 msgid ""
@@ -16803,6 +17696,10 @@ msgstr ""
 msgid "The configuration for the map layers"
 msgstr ""
 
+msgid ""
+"The connection was lost. Open this conversation again to see the answer."
+msgstr ""
+
 msgid "The corner radius of the chart background"
 msgstr ""
 
@@ -16842,12 +17739,20 @@ msgstr ""
 msgid "The dashboards could not be added"
 msgstr ""
 
+msgid ""
+"The data it reads to answer, data rows included. It sees what you can see, "
+"and nothing more."
+msgstr ""
+
 msgid "The data source seems to have been deleted"
 msgstr ""
 
 msgid ""
 "The data this version was built on is no longer available, so it cannot be "
 "previewed"
+msgstr ""
+
+msgid "The data you query is sent to Anthropic"
 msgstr ""
 
 msgid "The database columns that contains lines information"
@@ -16931,6 +17836,12 @@ msgstr ""
 msgid "The default catalog that should be used for the connection."
 msgstr ""
 
+msgid "The default model must be an allowed model."
+msgstr ""
+
+msgid "The default of each model"
+msgstr ""
+
 msgid "The default schema that should be used for the connection."
 msgstr ""
 
@@ -16950,6 +17861,9 @@ msgstr ""
 msgid "The distance between cells, in pixels"
 msgstr ""
 
+msgid "The document changed. Read the card again."
+msgstr ""
+
 msgid ""
 "The duration of time in seconds before the cache is invalidated. Set to -1 "
 "to bypass the cache."
@@ -16961,6 +17875,9 @@ msgstr ""
 msgid ""
 "The engine_params object gets unpacked into the sqlalchemy.create_engine "
 "call."
+msgstr ""
+
+msgid "The exact call"
 msgstr ""
 
 msgid "The exponent to compute all sizes from. \"EXP\" only"
@@ -17087,6 +18004,9 @@ msgstr ""
 msgid "The images of a row are described by the value of this column"
 msgstr ""
 
+msgid "The images you attach, without their metadata."
+msgstr ""
+
 msgid ""
 "The initial level (depth) of the tree. If set as -1 all nodes are expanded."
 msgstr ""
@@ -17141,6 +18061,12 @@ msgstr ""
 msgid ""
 "The minimum value of metrics. It is an optional configuration. If not set, "
 "it will be the minimum value of the data"
+msgstr ""
+
+msgid ""
+"The most the assistant may spend in a month, in dollars. People get a notice "
+"at 80% and it stops at 100%, once the answer under way ends. Leave it empty "
+"for no limit. A workspace can set its own limit too."
 msgstr ""
 
 msgid "The name of each series, at the end of its line"
@@ -17252,6 +18178,11 @@ msgstr ""
 msgid "The pattern of timestamp format. For strings use "
 msgstr ""
 
+msgid ""
+"The permissions of a key only narrow that. A read-only key can look at "
+"reports but not change them."
+msgstr ""
+
 msgid "The picture could not be loaded"
 msgstr ""
 
@@ -17339,10 +18270,21 @@ msgstr ""
 msgid "The remaining %s will be moved to Recently Archived."
 msgstr ""
 
+msgid ""
+"The report changed after the assistant's turn. Go back from its version "
+"history instead."
+msgstr ""
+
+msgid "The report could not be reloaded. Refresh the page."
+msgstr ""
+
 msgid "The report has been created"
 msgstr ""
 
 msgid "The report will be sent to your email at"
+msgstr ""
+
+msgid "The report, page, filters and selection you have on screen."
 msgstr ""
 
 msgid ""
@@ -17440,7 +18382,23 @@ msgstr ""
 msgid "The selected filter no longer exists"
 msgstr ""
 
+msgid ""
+"The server has no Anthropic key. Set ANTHROPIC_API_KEY in its configuration."
+msgstr ""
+
+msgid "The server refused the fields of a chart: it keeps its saved fields."
+msgstr ""
+
 msgid "The service url of the layer"
+msgstr ""
+
+msgid "The settings could not be loaded."
+msgstr ""
+
+msgid "The settings could not be saved."
+msgstr ""
+
+msgid "The settings were saved."
 msgstr ""
 
 msgid "The share of the points that show their label: 50 shows every other one"
@@ -17523,6 +18481,9 @@ msgstr ""
 msgid "The time unit used for the grouping of blocks"
 msgstr ""
 
+msgid "The title could not be changed."
+msgstr ""
+
 msgid "The total of each stack, above it"
 msgstr ""
 
@@ -17550,6 +18511,9 @@ msgid "The unit of measure for the specified point radius"
 msgstr ""
 
 msgid "The upper limit of the threshold range of the Isoband"
+msgstr ""
+
+msgid "The usage could not be loaded."
 msgstr ""
 
 msgid "The user has been created successfully."
@@ -17662,6 +18626,9 @@ msgstr ""
 msgid ""
 "There is not enough space for this component. Try decreasing its width, or "
 "increasing the destination width."
+msgstr ""
+
+msgid "There is nothing of the assistant to undo."
 msgstr ""
 
 #, python-format
@@ -17902,6 +18869,9 @@ msgstr ""
 msgid "Thickness of the outline drawn around the chart."
 msgstr ""
 
+msgid "Thinking…"
+msgstr ""
+
 #, python-format
 msgid ""
 "This %(type)s will be moved to Recently Archived in the Settings menu. You "
@@ -17930,6 +18900,9 @@ msgid ""
 "This JSON object is generated dynamically when clicking the save or "
 "overwrite button in the dashboard view. It is exposed here for reference and "
 "for power users who may want to alter specific parameters."
+msgstr ""
+
+msgid "This action is no longer waiting for a decision."
 msgstr ""
 
 msgid "This action is not available"
@@ -18006,6 +18979,9 @@ msgstr ""
 msgid "This chart type is no longer available"
 msgstr ""
 
+msgid "This chart uses another table"
+msgstr ""
+
 msgid "This chart will be restored to the following version:"
 msgstr ""
 
@@ -18016,6 +18992,9 @@ msgstr ""
 msgid "This column might be incompatible with current dataset"
 msgstr ""
 
+msgid "This command is not available right now."
+msgstr ""
+
 msgid ""
 "This control filters the whole chart based on the selected time range. All "
 "relative times, e.g. \"Last month\", \"Last 7 days\", \"now\", etc. are "
@@ -18024,6 +19003,41 @@ msgid ""
 "timestamps are then evaluated by the database using the engine's local "
 "timezone. Note one can explicitly set the timezone per the ISO 8601 format "
 "if specifying either the start and/or end time."
+msgstr ""
+
+msgid "This conversation belongs to another report or mode."
+msgstr ""
+
+msgid ""
+"This conversation can't go on after an update of the assistant. Start a new "
+"one to keep going."
+msgstr ""
+
+msgid "This conversation cannot take more images. Start a new one."
+msgstr ""
+
+msgid "This conversation could not be deleted."
+msgstr ""
+
+msgid "This conversation could not be opened."
+msgstr ""
+
+msgid "This conversation is answering another message."
+msgstr ""
+
+msgid ""
+"This conversation is getting too long for the model. Start a new one to keep "
+"going."
+msgstr ""
+
+msgid ""
+"This conversation is too long for the model. Start a new one to keep going."
+msgstr ""
+
+msgid "This conversation needs a model that can search for tools."
+msgstr ""
+
+msgid "This could not be undone."
 msgstr ""
 
 msgid "This dashboard does not exist"
@@ -18064,6 +19078,9 @@ msgid "This dashboard was saved successfully."
 msgstr ""
 
 msgid "This dashboard will be restored to the following version:"
+msgstr ""
+
+msgid "This data could not be read."
 msgstr ""
 
 msgid ""
@@ -18109,6 +19126,16 @@ msgstr ""
 msgid "This defines the element to be plotted on the chart"
 msgstr ""
 
+msgid "This document could not be opened."
+msgstr ""
+
+msgid "This document could not be shared."
+msgstr ""
+
+msgid ""
+"This document does not exist, or it is not shared with you. Ask its author."
+msgstr ""
+
 msgid ""
 "This email is already associated with an account. Please choose another one."
 msgstr ""
@@ -18147,6 +19174,15 @@ msgid "This folder only supports columns"
 msgstr ""
 
 msgid "This folder only supports metrics"
+msgstr ""
+
+msgid "This image could not be attached."
+msgstr ""
+
+msgid "This image has too many pixels."
+msgstr ""
+
+msgid "This image is larger than 8 MB."
 msgstr ""
 
 msgid ""
@@ -18197,6 +19233,9 @@ msgid ""
 "safety of external destinations."
 msgstr ""
 
+msgid "This list is the one built into AuraData BI and may be out of date."
+msgstr ""
+
 msgid "This markdown component has an error."
 msgstr ""
 
@@ -18220,6 +19259,9 @@ msgstr ""
 
 #, python-format
 msgid "This metric might be incompatible with current %s"
+msgstr ""
+
+msgid "This model is not available."
 msgstr ""
 
 msgid "This name is already taken. Please choose another one."
@@ -18258,6 +19300,14 @@ msgid "This report has no pages"
 msgstr ""
 
 msgid ""
+"This report is a draft: only members who can see the draft will read the "
+"document."
+msgstr ""
+
+msgid "This report is in no workspace, so there is nobody to share with."
+msgstr ""
+
+msgid ""
 "This section contains options that allow for advanced analytical post "
 "processing of query results"
 msgstr ""
@@ -18282,6 +19332,12 @@ msgid ""
 "one dataset with a table.\n"
 msgstr ""
 
+msgid "This took too long and was stopped. Ask for less."
+msgstr ""
+
+msgid "This took too many steps. Ask for something smaller."
+msgstr ""
+
 msgid ""
 "This update would change the connection's effective destination (host/port, "
 "engine parameters, SSH tunnel endpoint, or OAuth2 endpoint URIs) while "
@@ -18304,9 +19360,30 @@ msgid ""
 "another dashboard: %(details)s"
 msgstr ""
 
+#, python-format
+msgid ""
+"This version can't be restored because some of its charts use datasets of "
+"another workspace: %(datasets)s"
+msgstr ""
+
+#, python-format
+msgid "This version can't be restored: %(reason)s"
+msgstr ""
+
+msgid ""
+"This version cannot be restored: it uses data you can no longer reach, or "
+"the document has too many versions."
+msgstr ""
+
+msgid "This version could not be restored."
+msgstr ""
+
 msgid ""
 "This version does not record a visualization type and dataset, so it cannot "
 "be previewed"
+msgstr ""
+
+msgid "This version of the report no longer exists."
 msgstr ""
 
 msgid "This view isn't available on mobile"
@@ -18358,6 +19435,16 @@ msgid "This workspace does not exist"
 msgstr ""
 
 msgid "This workspace has no dashboards yet"
+msgstr ""
+
+msgid ""
+"This workspace is close to its assistant budget for the month. The assistant "
+"stops when it runs out."
+msgstr ""
+
+msgid ""
+"This workspace used up its assistant budget for the month. Ask an admin of "
+"the workspace, or wait for next month."
 msgstr ""
 
 msgid "Thousands"
@@ -18574,7 +19661,13 @@ msgid_plural "To request access, reach out to the chart owners: %s."
 msgstr[0] ""
 msgstr[1] ""
 
+msgid "Today"
+msgstr ""
+
 msgid "Token Request URI"
+msgstr ""
+
+msgid "Tokens"
 msgstr ""
 
 #, python-brace-format
@@ -18652,6 +19745,9 @@ msgstr ""
 msgid "Top n"
 msgstr ""
 
+msgid "Top padding"
+msgstr ""
+
 msgid "Top right"
 msgstr ""
 
@@ -18724,6 +19820,12 @@ msgid "Transpose pivot"
 msgstr ""
 
 msgid "Trash"
+msgstr ""
+
+msgid ""
+"Treat a key like your password: whoever holds it acts as you. The "
+"permissions limit what the AI does through MCP, not the other uses of the "
+"key. Revoke it when you no longer use it."
 msgstr ""
 
 msgid "Treat values as categorical."
@@ -18830,6 +19932,9 @@ msgstr ""
 msgid "Try a different search term"
 msgstr ""
 
+msgid "Try again"
+msgstr ""
+
 msgid "Try another search or connection."
 msgstr ""
 
@@ -18851,6 +19956,9 @@ msgid ""
 msgstr ""
 
 msgid "Turn off the logarithmic axis before stacking bars"
+msgstr ""
+
+msgid "Turn on the assistant"
 msgstr ""
 
 msgid "Type"
@@ -19050,6 +20158,9 @@ msgstr ""
 msgid "Undo (Ctrl+Z)"
 msgstr ""
 
+msgid "Undo the assistant’s changes"
+msgstr ""
+
 msgid "Undo?"
 msgstr ""
 
@@ -19108,6 +20219,14 @@ msgid "Unknown error"
 msgstr ""
 
 msgid "Unknown input format"
+msgstr ""
+
+#, python-format
+msgid "Unknown model: %(model)s"
+msgstr ""
+
+#, python-format
+msgid "Unknown models: %(models)s"
 msgstr ""
 
 msgid "Unknown type"
@@ -19254,6 +20373,10 @@ msgstr ""
 msgid "Upload image"
 msgstr ""
 
+#, python-format
+msgid "Uploading %s"
+msgstr ""
+
 msgid "Uploading a file is required"
 msgstr ""
 
@@ -19294,6 +20417,9 @@ msgid ""
 "based on your tooltip contents selection above."
 msgstr ""
 
+msgid "Use a PNG, JPEG or WEBP image."
+msgstr ""
+
 msgid "Use a PNG, JPEG, GIF or WebP image"
 msgstr ""
 
@@ -19331,6 +20457,9 @@ msgid "Use this section if you want a query that aggregates"
 msgstr ""
 
 msgid "Use this section if you want to query atomic rows"
+msgstr ""
+
+msgid "Use this table in the chart"
 msgstr ""
 
 msgid "Use this to define a static color for all circles"
@@ -19551,6 +20680,10 @@ msgstr ""
 msgid "Version"
 msgstr ""
 
+#, python-format
+msgid "Version %s"
+msgstr ""
+
 msgid "Version history"
 msgstr ""
 
@@ -19579,6 +20712,9 @@ msgid "Vertical position"
 msgstr ""
 
 msgid "Vertically"
+msgstr ""
+
+msgid "Very high effort"
 msgstr ""
 
 msgid "View"
@@ -19895,6 +21031,9 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
+msgid "What do we change?"
+msgstr ""
+
 msgid "What happens to a label longer than its maximum width"
 msgstr ""
 
@@ -19913,9 +21052,22 @@ msgstr ""
 msgid "What should happen if the table already exists"
 msgstr ""
 
+msgid "What stands out the most?"
+msgstr ""
+
 msgid ""
 "What the categories are ordered by. When empty, the \"Sort by metric\" "
 "setting applies."
+msgstr ""
+
+msgid "What went wrong?"
+msgstr ""
+
+msgid ""
+"What you ask, the images you attach and the data it reads go to Anthropic."
+msgstr ""
+
+msgid "What you write, and the conversation so far."
 msgstr ""
 
 msgid ""
@@ -20169,6 +21321,11 @@ msgstr ""
 msgid "Which relatives to highlight on hover"
 msgstr ""
 
+msgid ""
+"While it is off, nobody can open the assistant. The key of Anthropic stays "
+"on the server."
+msgstr ""
+
 msgid "Whisker/outlier options"
 msgstr ""
 
@@ -20218,6 +21375,11 @@ msgstr ""
 msgid "With the color of the lowest, colors each bar by its value"
 msgstr ""
 
+msgid ""
+"Without this, the assistant only answers questions. A workspace can turn off "
+"the assistant or this option for itself, never turn them on."
+msgstr ""
+
 msgid "Word Cloud"
 msgstr ""
 
@@ -20228,6 +21390,9 @@ msgid "Word wrap"
 msgstr ""
 
 msgid "Working"
+msgstr ""
+
+msgid "Working on the report"
 msgstr ""
 
 msgid "Working timeout"
@@ -20291,6 +21456,19 @@ msgid "Write the name of each series at the end of its line"
 msgstr ""
 
 msgid "Write the total of each stack above it"
+msgstr ""
+
+msgid "Writing the document"
+msgstr ""
+
+#, python-format
+msgid ""
+"Written by %s on %s, with the access %s had. Figures in charts and tables "
+"are read with your permissions; the text stays as it was written, and it may "
+"mention data you cannot see."
+msgstr ""
+
+msgid "Wrong figures"
 msgstr ""
 
 msgid "X Axis"
@@ -20433,6 +21611,9 @@ msgstr ""
 msgid "Yes, overwrite changes"
 msgstr ""
 
+msgid "Yesterday"
+msgstr ""
+
 #, python-format
 msgid "You are adding tags to %s %ss"
 msgstr ""
@@ -20461,6 +21642,10 @@ msgid ""
 "You are importing one or more saved queries that already exist. Overwriting "
 "might cause you to lose some of your work. Are you sure you want to "
 "overwrite?"
+msgstr ""
+
+#, python-format
+msgid "You are reading version %s."
 msgstr ""
 
 msgid ""
@@ -20494,6 +21679,9 @@ msgstr ""
 msgid "You can enter a value that is not listed."
 msgstr ""
 
+msgid "You can no longer use the assistant on this report."
+msgstr ""
+
 msgid "You can preview the list of dashboards in the chart settings dropdown."
 msgstr ""
 
@@ -20505,9 +21693,17 @@ msgid ""
 "fields."
 msgstr ""
 
+msgid "You can't restore this report."
+msgstr ""
+
 msgid ""
 "You cannot delete the last temporal filter as it's used for time range "
 "filters in dashboards."
+msgstr ""
+
+msgid ""
+"You changed the model, so it reads this conversation from scratch: this "
+"answer takes longer and costs more than usual."
 msgstr ""
 
 #, python-format
@@ -20516,6 +21712,9 @@ msgstr ""
 
 #, python-format
 msgid "You do not have access to the following tables: %s."
+msgstr ""
+
+msgid "You do not have access to this data."
 msgstr ""
 
 msgid "You do not have permission to access this datasource"
@@ -20620,6 +21819,9 @@ msgstr ""
 msgid "You have removed this filter."
 msgstr ""
 
+msgid "You have too many images waiting. Send or remove some first."
+msgstr ""
+
 msgid "You have unsaved changes."
 msgstr ""
 
@@ -20691,6 +21893,9 @@ msgstr ""
 msgid "You need to"
 msgstr ""
 
+msgid "You stopped this answer."
+msgstr ""
+
 msgid ""
 "You updated the values in the control panel, but the chart was not updated "
 "automatically. Run the query by clicking on the \"Update chart\" button or"
@@ -20707,7 +21912,13 @@ msgid ""
 "match this new dataset have been retained."
 msgstr ""
 
+msgid "Your AI works as you"
+msgstr ""
+
 msgid "Your account is activated. You can log in with your credentials."
+msgstr ""
+
+msgid "Your answer could not be saved. Try again."
 msgstr ""
 
 msgid "Your chart is not up to date"
@@ -20717,6 +21928,11 @@ msgid "Your chart is ready to go!"
 msgstr ""
 
 msgid "Your connections and the datasets your charts are built on."
+msgstr ""
+
+msgid ""
+"Your conversations are kept on this server, and only you can open them. "
+"Nothing is sent until you accept."
 msgstr ""
 
 #, python-format
@@ -20749,6 +21965,9 @@ msgstr ""
 msgid "Your export of \"%(title)s\" is ready."
 msgstr ""
 
+msgid "Your keys"
+msgstr ""
+
 msgid "Your query could not be saved"
 msgstr ""
 
@@ -20772,6 +21991,9 @@ msgstr ""
 msgid "Your query was updated"
 msgstr ""
 
+msgid "Your question"
+msgstr ""
+
 msgid "Your report could not be deleted"
 msgstr ""
 
@@ -20779,6 +22001,9 @@ msgid "Your session has ended. Please sign in again."
 msgstr ""
 
 msgid "Your user information"
+msgstr ""
+
+msgid "Your vote could not be saved."
 msgstr ""
 
 msgid "Z-A"
@@ -21145,6 +22370,9 @@ msgid "descendant"
 msgstr ""
 
 msgid "description"
+msgstr ""
+
+msgid "design element"
 msgstr ""
 
 msgid "deviation"
