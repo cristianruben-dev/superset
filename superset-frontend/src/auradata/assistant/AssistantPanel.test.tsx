@@ -368,6 +368,23 @@ test('closing the panel only stops reading, and opening it reads on', async () =
   );
 });
 
+test('a reader the stream left behind ends with what the server stored', async () => {
+  const stream = heldStream();
+  setup();
+  await sendQuestion();
+  stream.emit({
+    event: 'conversation',
+    data: { id: 'c1', model: SONNET.id, mode: 'read' },
+  });
+  conversation.mockResolvedValue(storedConversation('c1', null));
+
+  stream.emit({ event: 'trimmed', data: {} });
+  stream.emit({ event: 'turn_end', data: {} });
+  await stream.end();
+
+  await waitFor(() => expect(conversation).toHaveBeenCalledWith('c1'));
+});
+
 test('a reload comes back to the conversation that was open', async () => {
   window.sessionStorage.setItem('auradata.assistant.conversation.3.read', 'c7');
   conversation.mockResolvedValue(storedConversation('c7', null));

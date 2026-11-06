@@ -29,6 +29,7 @@ from uuid import uuid4
 
 import pytest
 
+from superset.auradata.assistant import turn_store as turn_store_module
 from superset.auradata.assistant.turn_store import (
     ABANDONED,
     RedisTurnStore,

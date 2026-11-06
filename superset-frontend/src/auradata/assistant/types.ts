@@ -267,4 +267,6 @@ export type AssistantEvent =
       };
     }
   /** The last event of a turn. `gone` says there was nothing left to read. */
-  | { event: 'turn_end'; data: { gone?: boolean } };
+  | { event: 'turn_end'; data: { gone?: boolean } }
+  /** The stream no longer keeps what this reader missed: the stored rows have it. */
+  | { event: 'trimmed'; data: Record<string, never> };

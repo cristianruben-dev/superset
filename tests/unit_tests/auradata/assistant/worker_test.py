@@ -1124,6 +1124,32 @@ def test_a_stream_gives_what_is_missing_after_a_number(
     assert "event: turn_end" in rest
 
 
+def test_a_reader_behind_the_start_of_the_stream_is_told_and_goes_on(
+    turn_memory: Any,
+) -> None:
+    turn_memory.acquire("c", "t")
+    with_limit = patch.object(turn_store_module, "MAX_EVENTS", 3)
+    with with_limit:
+        for letter in "abcde":
+            turn_memory.publish("c", "t", "text", {"text": letter})
+    turn_memory.publish("c", "t", TURN_END, {}, last=True)
+
+    body = "".join(turns_module.relay(turn_memory, "c", 1))
+
+    assert "event: trimmed" in body
+    assert "id: 2\n" not in body
+    assert body.index("event: trimmed") < body.index("id: 3\n")
+    assert "event: turn_end" in body
+
+
+def test_a_reader_inside_the_stream_is_told_nothing(turn_memory: Any) -> None:
+    turn_memory.acquire("c", "t")
+    turn_memory.publish("c", "t", "text", {"text": "a"})
+    turn_memory.publish("c", "t", TURN_END, {}, last=True)
+
+    assert "trimmed" not in "".join(turns_module.relay(turn_memory, "c", 0))
+
+
 def test_a_redis_failure_does_not_spoil_a_deleted_conversation(
     client: Any,
     world: dict[str, Any],  # noqa: F811

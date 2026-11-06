@@ -57,12 +57,19 @@ EVENTS_TTL = 3600
 # Longer than a stream, so numbers never start over under a reader that came back
 COUNT_TTL = 7 * 24 * 3600
 
+# Events a conversation keeps at least. A stream only grows while a turn writes it, and
+# the longest turn fits in this unless the model outruns about 40 events per second. If
+# it does, a reader behind the start is told so with ``TRIMMED``, and the rows have it
+MAX_EVENTS = 50_000
+
 # The value of the claim of a turn no worker took
 ABANDONED = "abandoned"
 TAKEN = "taken"
 
 # The last event of every turn, written with the release of the lock
 TURN_END = "turn_end"
+# For a reader who asked for events no longer kept
+TRIMMED = "trimmed"
 
 _PREFIX = "auradata:assistant"
 
@@ -70,7 +77,10 @@ _PREFIX = "auradata:assistant"
 _PUBLISH = """
 if redis.call('GET', KEYS[1]) ~= ARGV[1] then return 0 end
 local number = redis.call('INCR', KEYS[2])
-redis.call('XADD', KEYS[3], number .. '-0', 'event', ARGV[2], 'data', ARGV[3])
+redis.call(
+  'XADD', KEYS[3], 'MAXLEN', '~', ARGV[7], number .. '-0',
+  'event', ARGV[2], 'data', ARGV[3]
+)
 redis.call('EXPIRE', KEYS[3], ARGV[4])
 redis.call('EXPIRE', KEYS[2], ARGV[5])
 if ARGV[6] == '1' then redis.call('DEL', KEYS[1]) end
@@ -118,6 +128,8 @@ class TurnStore(Protocol):
     def lock_age(self, conversation_id: UUID | str) -> float: ...
 
     def last_event(self, conversation_id: UUID | str) -> int: ...
+
+    def first_event(self, conversation_id: UUID | str) -> int | None: ...
 
     def save_ticket(self, ticket: TurnTicket) -> None: ...
 
@@ -188,6 +200,11 @@ class RedisTurnStore:
     def last_event(self, conversation_id: UUID | str) -> int:
         return int(self._redis.get(self._keys(conversation_id)[1]) or 0)
 
+    def first_event(self, conversation_id: UUID | str) -> int | None:
+        """The number of the oldest event kept, if any."""
+        found = self._redis.xrange(self._keys(conversation_id)[2], count=1)
+        return int(found[0][0].split("-")[0]) if found else None
+
     def save_ticket(self, ticket: TurnTicket) -> None:
         self._redis.set(
             self._key(ticket.turn_id, "ticket"),
@@ -218,6 +235,7 @@ class RedisTurnStore:
                     EVENTS_TTL,
                     COUNT_TTL,
                     "1" if last else "0",
+                    MAX_EVENTS,
                 ],
             )
         )

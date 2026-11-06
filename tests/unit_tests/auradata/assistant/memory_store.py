@@ -22,6 +22,7 @@ import time
 from typing import Any
 from uuid import UUID
 
+from superset.auradata.assistant import turn_store
 from superset.auradata.assistant.turn_store import TAKEN, TurnTicket
 from superset.utils import json
 
@@ -61,6 +62,10 @@ class MemoryTurnStore:
     def last_event(self, conversation_id: UUID | str) -> int:
         return self.counts.get(str(conversation_id), 0)
 
+    def first_event(self, conversation_id: UUID | str) -> int | None:
+        events = self.events.get(str(conversation_id))
+        return events[0][0] if events else None
+
     def save_ticket(self, ticket: TurnTicket) -> None:
         self.tickets[ticket.turn_id] = ticket
 
@@ -80,7 +85,9 @@ class MemoryTurnStore:
             return 0
         number = self.counts.get(key, 0) + 1
         self.counts[key] = number
-        self.events.setdefault(key, []).append((number, event, json.dumps(data)))
+        events = self.events.setdefault(key, [])
+        events.append((number, event, json.dumps(data)))
+        del events[: -turn_store.MAX_EVENTS]
         if last:
             del self.locks[key]
         return number

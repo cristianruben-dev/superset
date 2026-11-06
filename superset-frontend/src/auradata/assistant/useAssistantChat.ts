@@ -137,7 +137,7 @@ export function useAssistantChat(
   const follow = useCallback(
     async (answerId: string, start: StreamStart) => {
       let changed = false;
-      let gone = false;
+      let readStored = false;
       const change = (update: (answer: ChatMessage) => ChatMessage) =>
         setMessages(current =>
           current.map(item => (item.id === answerId ? update(item) : item)),
@@ -173,7 +173,9 @@ export function useAssistantChat(
             stopped: answer.stopped || stopped,
           }));
         } else if (event.event === 'turn_end') {
-          gone = !!event.data.gone;
+          readStored = readStored || !!event.data.gone;
+        } else if (event.event === 'trimmed') {
+          readStored = true;
         } else {
           changed =
             changed || (event.event === 'tool_end' && !!event.data.changed);
@@ -187,8 +189,8 @@ export function useAssistantChat(
       setBusy(true);
       try {
         await start(onEvent, controller.signal);
-        // The turn ended and left nothing to read: what it stored tells how
-        if (gone && currentId.current) {
+        // Its stream left something out: what it stored has it all
+        if (readStored && currentId.current) {
           show(await fetchConversation(currentId.current));
         }
       } catch (error) {

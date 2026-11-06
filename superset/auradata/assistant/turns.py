@@ -101,6 +101,7 @@ from superset.auradata.assistant.spending import BudgetState
 from superset.auradata.assistant.tools import MODE_EDIT, ToolBox
 from superset.auradata.assistant.turn_store import (
     ABANDONED,
+    TRIMMED,
     TURN_END,
     TurnStore,
     TurnTicket,
@@ -674,11 +675,17 @@ def relay(store: TurnStore, conversation_id: UUID | str, after: int) -> Iterator
     One connection to a stream: the events past ``after`` in the format of server-sent
     events, each with its number, until its turn ends or the connection has lasted
     enough. Without ``turn_end`` the reader opens another from its last number, and that
-    is when its access is read again. Comments keep it open through silent gaps.
+    is when its access is read again. Comments keep it open through silent gaps. A
+    reader behind the start of the stream first gets ``trimmed``.
     """
     deadline = time.monotonic() + CONNECTION_SECONDS
     last_byte = time.monotonic()
     yield ": connected\n\n"
+    first = store.first_event(conversation_id)
+    if first is not None and first > after + 1:
+        # What was asked for is gone. The reader goes on, and says it must read the rows
+        yield _sse(TRIMMED, json.dumps({}))
+        after = first - 1
     while time.monotonic() < deadline:
         entries = store.read(conversation_id, after, READ_BLOCK_MS)
         for number, event, data in entries:
