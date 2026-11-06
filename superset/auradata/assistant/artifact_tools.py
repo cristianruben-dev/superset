@@ -295,6 +295,15 @@ def own_definitions() -> list[dict[str, Any]]:
     ]
 
 
+def _unwrapped(arguments: dict[str, Any]) -> dict[str, Any]:
+    """
+    The input of a call. The model sees every MCP tool take its arguments under
+    ``request``, and writes these the same way.
+    """
+    inner = arguments.get("request")
+    return inner if len(arguments) == 1 and isinstance(inner, dict) else arguments
+
+
 def run_own_tool(
     name: str, arguments: dict[str, Any], context: OwnToolContext
 ) -> tuple[str, bool]:
@@ -303,6 +312,7 @@ def run_own_tool(
     result and whether it is an error. What is refused stores nothing.
     """
     tool = OWN_TOOLS[name]
+    arguments = _unwrapped(arguments)
     conversation = find_conversation(context.conversation_id, context.user_id)
     if conversation is None or conversation.dashboard_id != context.dashboard_id:
         return NOT_FOUND, True
@@ -322,6 +332,7 @@ def log_params(arguments: dict[str, Any]) -> dict[str, Any]:
     What the action log keeps of a call: never the blocks. The log outlives a deleted
     conversation, and a document must not.
     """
+    arguments = _unwrapped(arguments)
     changes = arguments.get("changes")
     return {
         "artifact_id": arguments.get("artifact_id"),

@@ -202,8 +202,7 @@ def restore_version(
     """
     Go back to a version by copying it as a new one, blocks and dates of its text as
     they were: that text was written then. None when the version does not exist. Its
-    queries are stored again, so they are held again: a dataset the person no longer
-    reaches is refused.
+    queries are stored again, so they are held again as on any write.
     """
     source = version_of(artifact.id, number)
     latest = version_of(artifact.id)
@@ -211,10 +210,9 @@ def restore_version(
         return None
     blocks = blocks_of(source)
     for block in blocks:
-        if block["type"] in DATA_BLOCKS and not can_reach(block["query"]["dataset_id"]):
-            raise ArtifactRefusedError(
-                "This version uses data you can no longer reach."
-            )
+        if block["type"] in DATA_BLOCKS:
+            if problem := query_problem(dict(block["query"]), artifact.dashboard_id):
+                raise ArtifactRefusedError(problem)
     version = add_version(
         artifact.id,
         latest.number + 1,
@@ -261,11 +259,6 @@ def _dataset(dataset_id: int) -> Any | None:
     except SupersetSecurityException:
         return None
     return dataset
-
-
-def can_reach(dataset_id: int) -> bool:
-    """Whether this user reaches a dataset, as ``query_dataset`` would."""
-    return _dataset(dataset_id) is not None
 
 
 def _unknown_names(dataset: Any, query: dict[str, Any]) -> list[str]:
@@ -454,6 +447,8 @@ def selected_context(
     if version is None:
         return None
     context = artifact_summary(artifact, version)
+    if version.restored_from is not None:
+        context["restored_from"] = version.restored_from
     selected = next(
         (block for block in blocks_of(version) if block["id"] == block_id), None
     )

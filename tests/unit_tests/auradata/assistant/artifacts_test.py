@@ -354,6 +354,27 @@ def test_a_document_is_created_from_a_turn_of_read_mode(
     assert [item["origin"] for item in found["versions"]] == ["created"]
 
 
+def test_an_input_under_request_works_as_in_the_mcp_tools(
+    client: Any,
+    world: dict[str, Any],  # noqa: F811
+    mocker: MockerFixture,
+) -> None:
+    """Real Claude wrote it this way the first time: every other tool takes one."""
+    login(world, "Ana")
+
+    ended, _ = run(
+        client,
+        world,
+        mocker,
+        tool_use(
+            CREATE_ARTIFACT,
+            {"request": {"title": "Resumen", "blocks": [text_block()]}},
+        ),
+    )
+
+    assert not ended["is_error"], stored_result(world)
+
+
 def test_a_data_block_stores_its_query_and_no_number(
     client: Any,
     world: dict[str, Any],  # noqa: F811
@@ -699,6 +720,7 @@ def test_the_action_log_keeps_no_content() -> None:
     )
 
     assert "secreto" not in json.dumps(params)
+    assert "secreto" not in json.dumps(log_params({"request": {"title": "secreto"}}))
     assert params["changes"] == [{"action": "replace", "block_id": "b"}]
 
 
@@ -875,7 +897,27 @@ def test_going_back_to_data_out_of_reach_is_refused(
 ) -> None:
     login(world, "Ana")
     artifact, _ = document(client, world, mocker, figure_block(world["ventas"].id))
-    mocker.patch.object(artifacts_module, "can_reach", return_value=False)
+    refuse_datasets(mocker)
+
+    response = client.post(
+        f"{URL}artifacts/{artifact['id']}/restore/", json={"version": 1}
+    )
+
+    assert response.status_code == 422
+    assert world["session"].query(AssistantArtifactVersion).count() == 1
+
+
+def test_going_back_keeps_a_chart_to_the_workspace_of_its_report(
+    client: Any,
+    world: dict[str, Any],  # noqa: F811
+    mocker: MockerFixture,
+) -> None:
+    login(world, "Ana")
+    artifact, _ = document(client, world, mocker, figure_block(world["ventas"].id))
+    mocker.patch(
+        "superset.auradata.workspace_datasets.validate_chart_dataset",
+        return_value=ValidationError.from_exception_data("x", []),
+    )
 
     response = client.post(
         f"{URL}artifacts/{artifact['id']}/restore/", json={"version": 1}
@@ -951,6 +993,34 @@ def test_the_selected_block_reaches_the_model_from_what_is_stored(
     assert context["id"] == artifact["id"]
     assert context["version"] == 1
     assert context["selected_block"] == block
+
+
+def test_the_model_hears_that_a_document_went_back(
+    client: Any,
+    world: dict[str, Any],  # noqa: F811
+    mocker: MockerFixture,
+) -> None:
+    login(world, "Ana")
+    artifact, conversation_id = document(client, world, mocker, text_block())
+    client.post(f"{URL}artifacts/{artifact['id']}/restore/", json={"version": 1})
+    fake = use_model(mocker, reply(text("Hecho")))
+
+    client.post(
+        URL,
+        json={
+            "message": "sigue",
+            "conversation_id": conversation_id,
+            "context": {
+                "dashboard_id": world["dashboard"].id,
+                "artifact": {"id": artifact["id"]},
+            },
+        },
+    ).get_data()
+
+    context = page_context_of(fake)["artifact"]
+    assert context["version"] == 2
+    assert context["restored_from"] == 1
+    assert "selected_block" not in context
 
 
 def test_a_context_cannot_bring_in_a_document_of_someone_else(
