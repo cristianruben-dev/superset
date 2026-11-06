@@ -409,6 +409,33 @@ test('a vote goes on the stored answer, and a refused one goes back', async () =
   expect(clearVote).toHaveBeenCalledWith('c1', 'stored-1');
 });
 
+test('voting leaves the conversation where it was scrolled', async () => {
+  const stream = heldStream();
+  const scroll = jest.fn();
+  Element.prototype.scrollIntoView = scroll;
+  setup();
+  await sendQuestion();
+  stream.emit({
+    event: 'conversation',
+    data: { id: 'c1', model: SONNET.id, mode: 'read' },
+  });
+  stream.emit({ event: 'text', data: { text: 'Vendimos' } });
+  stream.emit({
+    event: 'done',
+    data: { context_tokens: 10, message_id: 'stored-1' },
+  });
+  await stream.end();
+  expect(scroll).toHaveBeenCalled();
+  scroll.mockClear();
+
+  const up = screen.getByRole('button', { name: 'Helpful' });
+  await userEvent.click(up);
+  await waitFor(() => expect(up).toHaveAttribute('aria-pressed', 'true'));
+
+  expect(scroll).not.toHaveBeenCalled();
+  delete (Element.prototype as Partial<Element>).scrollIntoView;
+});
+
 test('a stored vote comes back with its conversation', async () => {
   conversations.mockResolvedValue([
     { id: 'c1', mode: 'read', title: 'Ventas de marzo', model: SONNET.id },

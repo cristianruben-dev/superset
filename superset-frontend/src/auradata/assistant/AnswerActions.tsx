@@ -186,6 +186,11 @@ export function AnswerActions({
 }) {
   const [saving, setSaving] = useState(false);
   const [asking, setAsking] = useState(false);
+  const reasonsRef = useRef<HTMLDivElement>(null);
+  const showReasons = asking && message.feedback?.vote === 'down';
+  useEffect(() => {
+    if (showReasons) reasonsRef.current?.scrollIntoView?.({ block: 'nearest' });
+  }, [showReasons]);
   const canCopy = !!(message.text || message.figure);
   const canVote = !!message.storedId && !message.stopped;
   const { feedback } = message;
@@ -242,8 +247,9 @@ export function AnswerActions({
         )}
         {canCopy && <CopyButton message={message} />}
       </Bar>
-      {asking && feedback?.vote === 'down' && (
+      {showReasons && (
         <Reasons
+          ref={reasonsRef}
           role="group"
           aria-label={t('What went wrong?')}
           data-test="auradata-assistant-reasons"
@@ -254,11 +260,11 @@ export function AnswerActions({
               key={key}
               type="button"
               disabled={saving}
-              aria-pressed={feedback.reason === key}
+              aria-pressed={feedback?.reason === key}
               onClick={() =>
                 save({
                   vote: 'down',
-                  reason: feedback.reason === key ? null : key,
+                  reason: feedback?.reason === key ? null : key,
                 })
               }
             >

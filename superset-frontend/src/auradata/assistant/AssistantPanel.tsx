@@ -642,10 +642,19 @@ function Conversations({
     else stop();
   }, [active, loadConversations, stop]);
 
+  // Follows what the answer writes, and stays put when a vote changes an old one
   const end = useRef<HTMLDivElement>(null);
+  const latest = chat.messages[chat.messages.length - 1];
   useEffect(() => {
     end.current?.scrollIntoView?.({ block: 'end' });
-  }, [chat.messages]);
+  }, [
+    chat.conversationId,
+    chat.messages.length,
+    latest?.text,
+    latest?.tools,
+    latest?.figure,
+    latest?.problem,
+  ]);
 
   const modelOptions = useMemo(
     () =>
