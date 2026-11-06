@@ -2193,7 +2193,9 @@ class AssistantRestApi(BaseSupersetApi):
         if not _session_user_only():
             return self.response_403()
         store = turn_store()
-        job = job_of(store, job_id, artifact_id, get_user_id()) if store else None
+        # The file holds what the document says, so it is read as the document is
+        allowed = store is not None and self._last_version_of(artifact_id) is not None
+        job = job_of(store, job_id, artifact_id, get_user_id()) if allowed else None
         if job is None:
             return self.response_404()
         if job["status"] == FAILED:

@@ -285,11 +285,22 @@ class RedisTurnStore:
             self._redis.set(self._key(turn_id, "settling"), "1", nx=True, ex=60)
         )
 
+    @staticmethod
+    def _exports_key(conversation_id: UUID | str) -> str:
+        return f"{_PREFIX}:{{{conversation_id}}}:exports"
+
     def forget(self, conversation_id: UUID | str) -> None:
-        self._redis.delete(*self._keys(conversation_id))
+        """Whatever Redis holds of a conversation, the files it exported too."""
+        listed = self._exports_key(conversation_id)
+        for job_id in self._redis.smembers(listed):
+            self._redis.delete(f"{_PREFIX}:export:{job_id}")
+        self._redis.delete(*self._keys(conversation_id), listed)
 
     def save_export(self, job_id: str, job: dict[str, Any]) -> None:
         self._redis.set(f"{_PREFIX}:export:{job_id}", json.dumps(job), ex=EXPORT_TTL)
+        listed = self._exports_key(job["conversation_id"])
+        self._redis.sadd(listed, job_id)
+        self._redis.expire(listed, EXPORT_TTL)
 
     def export(self, job_id: str) -> dict[str, Any] | None:
         job = self._redis.get(f"{_PREFIX}:export:{job_id}")

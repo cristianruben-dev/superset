@@ -203,6 +203,19 @@ def test_marks_of_a_turn(store: Any, ids: tuple[str, str]) -> None:
     assert not store.take_settling(turn)
 
 
+def test_forget_takes_the_exports_of_a_conversation(store: Any) -> None:
+    conversation = str(uuid4())
+    job = {"status": "done", "conversation_id": conversation}
+    other = {"status": "done", "conversation_id": str(uuid4())}
+    store.save_export(f"{conversation}-mine", job)
+    store.save_export(f"{conversation}-theirs", other)
+
+    store.forget(conversation)
+
+    assert store.export(f"{conversation}-mine") is None
+    assert store.export(f"{conversation}-theirs") == other
+
+
 def test_forget_leaves_nothing_of_a_conversation(
     store: Any, ids: tuple[str, str]
 ) -> None:

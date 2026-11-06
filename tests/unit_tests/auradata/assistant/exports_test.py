@@ -23,6 +23,7 @@ import asyncio
 import base64
 import io
 import time
+from types import SimpleNamespace
 from typing import Any
 from uuid import UUID
 
@@ -93,7 +94,9 @@ def test_the_task_only_carries_the_id_of_a_ticket(
 ) -> None:
     store = MemoryTurnStore()
 
-    job_id = start_export(store, UUID(int=1), world["users"]["Ana"].id, "es")
+    artifact = SimpleNamespace(id=UUID(int=1), conversation_id=UUID(int=2))
+
+    job_id = start_export(store, artifact, world["users"]["Ana"].id, "es")
 
     assert queued.call_args.kwargs["args"] == [job_id]
     assert store.export(job_id)["user_id"] == world["users"]["Ana"].id
@@ -132,6 +135,49 @@ def test_only_the_owner_exports_and_gets_the_file(
     assert client.post(url).status_code == 404
 
 
+def test_a_file_is_served_only_while_its_owner_reaches_the_document(
+    client: Any,
+    world: dict[str, Any],  # noqa: F811
+    mocker: MockerFixture,
+    turn_memory: MemoryTurnStore,
+    queued: Any,
+) -> None:
+    login(world, "Ana")
+    artifact, _ = document(client, world, mocker, text_block())
+    url = f"{URL}artifacts/{artifact['id']}/export/"
+    job = client.post(url).json["result"]["job_id"]
+    mocker.patch.object(exports, "document_pdf", return_value=b"%PDF-1.4")
+    mocker.patch.object(exports, "log_document")
+    run_export(turn_memory, job)
+    assert client.get(f"{url}{job}/").status_code == 200
+
+    mocker.patch("superset.auradata.assistant.api.open_dashboard", return_value=None)
+
+    assert client.get(f"{url}{job}/").status_code == 404
+
+
+def test_a_deleted_conversation_takes_its_exports_with_it(
+    client: Any,
+    world: dict[str, Any],  # noqa: F811
+    mocker: MockerFixture,
+    turn_memory: MemoryTurnStore,
+    queued: Any,
+) -> None:
+    login(world, "Ana")
+    artifact, conversation = document(client, world, mocker, text_block())
+    url = f"{URL}artifacts/{artifact['id']}/export/"
+    job = client.post(url).json["result"]["job_id"]
+    mocker.patch.object(exports, "document_pdf", return_value=b"%PDF-1.4")
+    mocker.patch.object(exports, "log_document")
+    run_export(turn_memory, job)
+    assert turn_memory.export(job) is not None
+
+    assert client.delete(f"{URL}conversations/{conversation}/").status_code == 200
+
+    assert turn_memory.export(job) is None
+    assert client.get(f"{url}{job}/").status_code == 404
+
+
 def test_a_ticket_is_held_against_the_document_again(
     client: Any,
     world: dict[str, Any],  # noqa: F811
@@ -147,6 +193,7 @@ def test_a_ticket_is_held_against_the_document_again(
         {
             "status": exports.PENDING,
             "artifact_id": artifact["id"],
+            "conversation_id": str(UUID(int=9)),
             "user_id": world["users"]["Vera"].id,
             "locale": "es",
             "opened_at": time.time(),

@@ -140,6 +140,11 @@ class MemoryTurnStore:
 
     def forget(self, conversation_id: UUID | str) -> None:
         key = str(conversation_id)
+        self.exports = {
+            job_id: job
+            for job_id, job in self.exports.items()
+            if job.get("conversation_id") != key
+        }
         self.locks.pop(key, None)
         self.counts.pop(key, None)
         self.events.pop(key, None)

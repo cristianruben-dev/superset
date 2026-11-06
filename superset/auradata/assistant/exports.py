@@ -24,7 +24,8 @@ and opening one takes seconds, so a web request only queues the export, with a t
 in Redis that says who asked (``save_export``), and the panel asks until it is done. The
 task has no argument for a user, and the ticket is held against the owner of the
 document again, as a turn does. The file stays in Redis for a few minutes, for whoever
-asked.
+asked: deleting the conversation deletes it too (``forget``), and serving it reads the
+document again.
 
 The reading view knows it is being captured: it lays its blocks out on sheets of
 ``SHEET_WIDTH`` by ``SHEET_HEIGHT`` so that none falls across two, and only then adds
@@ -50,6 +51,7 @@ from superset.auradata.assistant.artifacts import find_artifact, version_of
 from superset.auradata.assistant.sharing import log_document
 from superset.auradata.assistant.tools import run_coroutine
 from superset.auradata.assistant.turn_store import TurnStore
+from superset.auradata.models import AssistantArtifact
 from superset.extensions import db
 from superset.mcp_service.report_layout.editing import LayoutEditError
 from superset.mcp_service.screenshot.capture import capture_raw
@@ -77,7 +79,7 @@ ACTION_EXPORT = "export_pdf"
 
 
 def start_export(
-    store: TurnStore, artifact_id: UUID, user_id: int, locale: str | None
+    store: TurnStore, artifact: AssistantArtifact, user_id: int, locale: str | None
 ) -> str:
     """Write the ticket of an export and queue it. Says the id to ask for it by."""
     # pylint: disable=import-outside-toplevel
@@ -89,7 +91,8 @@ def start_export(
         job_id,
         {
             "status": PENDING,
-            "artifact_id": str(artifact_id),
+            "artifact_id": str(artifact.id),
+            "conversation_id": str(artifact.conversation_id),
             "user_id": user_id,
             "locale": locale,
             "opened_at": time.time(),
