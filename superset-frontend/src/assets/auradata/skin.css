@@ -378,11 +378,6 @@ table,
   gap: 12px var(--mb-space-section) !important;
 }
 
-/* "More filters" takes a cell of the grid, level with the fields */
-.superset-list-view > .header > .controls > .more-filters {
-  align-self: end;
-}
-
 .superset-list-view > .header > .controls > * {
   width: auto !important;
   min-width: 0;

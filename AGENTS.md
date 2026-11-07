@@ -351,7 +351,7 @@ This repository is **AuraData BI**, a fork of Apache Superset 7.0 shaped like Po
 - **A report's title and actions sit in the top bar** (`useReportHeaderSlot`, `src/auradata/shell/reportHeader.ts`): `Header`
   portals them there, and keeps them over the page without a top bar (standalone, embedded, phones).
 - **Pages share one margin:** `--mb-space-gutter`, `--mb-space-page-top` and `--mb-space-section` (`ThemeVariables`), tighter in
-  the side panel (`body.auradata-panel`). A list shows one row of filters and folds the rest under «Más filtros» (`ListView`).
+  the side panel (`body.auradata-panel`). A list always shows all its filters (`ListView`).
 - **Pages out of a report share one chrome:** the shell draws the breadcrumbs (`ShellCrumbs`, from the navigation plus
   `usePageCrumbs`), and each page a title row with its commands in groups (`PageHeader`, `CommandGroup` in
   `src/auradata/shell/PageHeader.tsx`; the `.menu` header of the lists matches it in `skin.css`). Lists are dense tables with

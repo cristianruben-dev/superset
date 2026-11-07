@@ -611,42 +611,13 @@ test('forceViewMode table shows table view', () => {
   expect(screen.getByRole('table')).toBeInTheDocument();
 });
 
-const withMeasuredGrid = () => {
-  global.ResizeObserver = class {
-    observe() {}
-
-    unobserve() {}
-
-    disconnect() {}
-  } as unknown as typeof ResizeObserver;
-  return jest.spyOn(window, 'getComputedStyle').mockImplementation(
-    () =>
-      ({
-        gridTemplateColumns: '200px 200px',
-        getPropertyValue: () => '',
-      }) as unknown as CSSStyleDeclaration,
-  );
-};
-
-test('keeps every filter in view without a measured grid', () => {
+test('keeps every filter in view, with nothing to fold', () => {
   factory();
 
   expect(screen.queryByTestId('more-filters')).not.toBeInTheDocument();
-});
-
-test('offers the filters that do not fit in one row, and folds them back', async () => {
-  const spy = withMeasuredGrid();
-  factory();
-
-  const button = screen.getByTestId('more-filters');
-  expect(button).toHaveTextContent('More filters');
-  expect(button).toHaveAttribute('aria-expanded', 'false');
-
-  await userEvent.click(button);
-
-  expect(button).toHaveTextContent('Fewer filters');
-  expect(button).toHaveAttribute('aria-expanded', 'true');
-  spy.mockRestore();
+  expect(screen.getByTestId('filters-select').children.length).toBeGreaterThan(
+    1,
+  );
 });
 
 test('a right click on a row opens the menu of that row', async () => {

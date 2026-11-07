@@ -26,7 +26,6 @@ import {
   useRef,
   useState,
   ReactNode,
-  RefObject,
 } from 'react';
 import cx from 'classnames';
 import TableCollection from '@superset-ui/core/components/TableCollection';
@@ -139,15 +138,6 @@ const ListViewStyles = styled.div`
       text-align: center;
     }
   `}
-`;
-
-/** Hides the filters from a position on; they stay mounted, keeping their values. */
-const FilterGrid = styled.div<{ $hideFrom?: number; $hideTo: number }>`
-  ${({ $hideFrom, $hideTo }) =>
-    $hideFrom !== undefined &&
-    `& > :nth-of-type(n + ${$hideFrom}):nth-of-type(-n + ${$hideTo}) {
-      display: none;
-    }`}
 `;
 
 const FullPageLoadingWrapper = styled.div`
@@ -266,32 +256,6 @@ const EmptyWrapper = styled.div`
     }
   `}
 `;
-
-/** A cleared range keeps its empty ends, so an array counts by what it holds. */
-const hasFilterValue = (value: unknown): boolean =>
-  Array.isArray(value)
-    ? value.some(hasFilterValue)
-    : value !== undefined && value !== null && value !== '';
-
-/** The columns the stylesheet gives an element laid out as a grid, if any. */
-const useGridColumnCount = (ref: RefObject<HTMLDivElement>) => {
-  const [columns, setColumns] = useState<number>();
-  useLayoutEffect(() => {
-    const element = ref.current;
-    if (!element || typeof ResizeObserver === 'undefined') return undefined;
-    const measure = () => {
-      const template = getComputedStyle(element).gridTemplateColumns;
-      const count =
-        !template || template === 'none' ? 0 : template.split(' ').length;
-      setColumns(count || undefined);
-    };
-    measure();
-    const observer = new ResizeObserver(measure);
-    observer.observe(element);
-    return () => observer.disconnect();
-  }, [ref]);
-  return columns;
-};
 
 const MobileFilterDrawerContent = styled.div`
   ${({ theme }) => `
@@ -529,27 +493,6 @@ export function ListView<T extends object = any>({
     }
   }, [query.filters]);
 
-  const controlsRef = useRef<HTMLDivElement>(null);
-  const columnCount = useGridColumnCount(controlsRef);
-  const [filtersExpanded, setFiltersExpanded] = useState(false);
-  // Filters inside the mobile drawer do not take the row
-  const inlineFilters = !setMobileFiltersOpen;
-  const showsCardSort =
-    inlineFilters && viewMode === 'card' && Boolean(cardSortSelectOptions);
-  const showsClearAll = inlineFilters && filterable;
-  // The sort and "Clear all" keep their place in the row
-  const fixedControls = (showsCardSort ? 1 : 0) + (showsClearAll ? 1 : 0);
-  const controlCount = filters.length + fixedControls;
-  const filtersOverflow =
-    inlineFilters && columnCount !== undefined && controlCount > columnCount;
-  // One row: the filters that fit next to the fixed controls and the button
-  const visibleFilters = filtersOverflow
-    ? Math.max(columnCount - fixedControls - 1, 1)
-    : filters.length;
-  const hiddenFilterValues = (internalFilters as { value?: unknown }[])
-    .slice(visibleFilters)
-    .filter(filter => hasFilterValue(filter.value)).length;
-
   const cardViewEnabled = Boolean(renderCard);
   const [showBulkTagModal, setShowBulkTagModal] = useState<boolean>(false);
 
@@ -583,17 +526,7 @@ export function ListView<T extends object = any>({
           {cardViewEnabled && !forceViewMode && (
             <ViewModeToggle mode={viewMode} setMode={setViewMode} />
           )}
-          <FilterGrid
-            ref={controlsRef}
-            className="controls"
-            data-test="filters-select"
-            $hideFrom={
-              filtersOverflow && !filtersExpanded
-                ? visibleFilters + 1
-                : undefined
-            }
-            $hideTo={filters.length}
-          >
+          <div className="controls" data-test="filters-select">
             {/* When a mobile drawer callback is provided, filters and sort
                 render inside the drawer instead of inline. Only one
                 FilterControls instance is ever mounted, so filtersRef and
@@ -630,24 +563,7 @@ export function ListView<T extends object = any>({
                 </span>
               </Tooltip>
             )}
-            {filtersOverflow && (
-              <div className="more-filters">
-                <Button
-                  buttonStyle="secondary"
-                  icon={<Icons.FilterOutlined />}
-                  aria-expanded={filtersExpanded}
-                  data-test="more-filters"
-                  onClick={() => setFiltersExpanded(value => !value)}
-                >
-                  {filtersExpanded
-                    ? t('Fewer filters')
-                    : hiddenFilterValues
-                      ? `${t('More filters')} (${hiddenFilterValues})`
-                      : t('More filters')}
-                </Button>
-              </div>
-            )}
-          </FilterGrid>
+          </div>
         </div>
         {headerContent}
         <div className={`body ${rows.length === 0 ? 'empty' : ''} `}>
