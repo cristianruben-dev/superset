@@ -280,12 +280,6 @@ const EmptyDashboards = styled.div`
       color: ${theme.colorText};
       font-size: ${theme.fontSizeLG}px;
     }
-
-    .buttons {
-      display: flex;
-      gap: ${theme.sizeUnit * 2}px;
-      margin-top: ${theme.sizeUnit * 2}px;
-    }
   `}
 `;
 
@@ -616,12 +610,6 @@ export default function WorkspacePage() {
                 ? t('Create a dashboard here or bring existing ones.')
                 : t('Its dashboards will show up here.')}
             </span>
-            {canContribute && (
-              <div className="buttons">
-                {addButton}
-                {newDashboardButton}
-              </div>
-            )}
           </EmptyDashboards>
         )}
         {dashboards?.map(dashboard => (
