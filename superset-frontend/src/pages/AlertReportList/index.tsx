@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
+import { useState, useMemo, useCallback, useRef } from 'react';
 import { useHistory } from 'react-router-dom';
 import { t } from '@apache-superset/core/translation';
 import {
@@ -143,14 +143,12 @@ function AlertList({
       loading,
       resourceCount: alertsCount,
       resourceCollection: alerts,
-      bulkSelectEnabled,
       lastFetched,
     },
     hasPerm,
     fetchData,
     setResourceCollection,
     refreshData,
-    toggleBulkSelect,
   } = useListViewResource<AlertObject>(
     'report',
     t('report'),
@@ -231,12 +229,6 @@ function AlertList({
   const canEdit = hasPerm('can_write');
   const canDelete = hasPerm('can_write');
   const canCreate = hasPerm('can_write');
-
-  useEffect(() => {
-    if (bulkSelectEnabled && canDelete) {
-      toggleBulkSelect();
-    }
-  }, [isReportEnabled]);
 
   const handleAlertDelete = ({ id, name }: AlertObject) => {
     SupersetClient.delete({
@@ -507,15 +499,6 @@ function AlertList({
 
   const subMenuButtons: SubMenuProps['buttons'] = [];
 
-  if (canDelete) {
-    subMenuButtons.push({
-      name: t('Bulk select'),
-      onClick: toggleBulkSelect,
-      buttonStyle: 'secondary',
-      'data-test': 'bulk-select-toggle',
-    });
-  }
-
   if (canCreate) {
     subMenuButtons.push({
       icon: <Icons.PlusOutlined iconSize="m" />,
@@ -722,8 +705,6 @@ function AlertList({
                 initialSort={initialSort}
                 loading={loading}
                 bulkActions={bulkActions}
-                bulkSelectEnabled={bulkSelectEnabled}
-                disableBulkSelect={toggleBulkSelect}
                 refreshData={refreshData}
                 addDangerToast={addDangerToast}
                 addSuccessToast={addSuccessToast}

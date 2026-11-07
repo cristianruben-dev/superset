@@ -75,15 +75,9 @@ enum ModalType {
 
 function RolesList({ addDangerToast, addSuccessToast, user }: RolesListProps) {
   const {
-    state: {
-      loading,
-      resourceCount: rolesCount,
-      resourceCollection: roles,
-      bulkSelectEnabled,
-    },
+    state: { loading, resourceCount: rolesCount, resourceCollection: roles },
     fetchData,
     refreshData,
-    toggleBulkSelect,
   } = useListViewResource<RoleObject>(
     'security/roles/search',
     t('Role'),
@@ -235,22 +229,15 @@ function RolesList({ addDangerToast, addSuccessToast, user }: RolesListProps) {
   const subMenuButtons: SubMenuProps['buttons'] = [];
 
   if (isAdmin) {
-    subMenuButtons.push(
-      {
-        name: t('Bulk select'),
-        onClick: toggleBulkSelect,
-        buttonStyle: 'secondary',
+    subMenuButtons.push({
+      icon: <Icons.PlusOutlined iconSize="m" />,
+      name: t('Role'),
+      buttonStyle: 'primary',
+      onClick: () => {
+        openModal(ModalType.ADD);
       },
-      {
-        icon: <Icons.PlusOutlined iconSize="m" />,
-        name: t('Role'),
-        buttonStyle: 'primary',
-        onClick: () => {
-          openModal(ModalType.ADD);
-        },
-        'data-test': 'add-role-button',
-      },
-    );
+      'data-test': 'add-role-button',
+    });
   }
 
   const filters: ListViewFilters = useMemo(
@@ -391,8 +378,6 @@ function RolesList({ addDangerToast, addSuccessToast, user }: RolesListProps) {
               loading={loading}
               pageSize={PAGE_SIZE}
               bulkActions={bulkActions}
-              bulkSelectEnabled={bulkSelectEnabled}
-              disableBulkSelect={toggleBulkSelect}
               addDangerToast={addDangerToast}
               addSuccessToast={addSuccessToast}
               emptyState={emptyState}

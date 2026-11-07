@@ -202,12 +202,10 @@ function DashboardList(props: DashboardListProps) {
       loading,
       resourceCount: dashboardCount,
       resourceCollection: dashboards,
-      bulkSelectEnabled,
     },
     setResourceCollection: setDashboards,
     hasPerm,
     fetchData,
-    toggleBulkSelect,
     refreshData,
   } = useListViewResource<Dashboard>(
     'dashboard',
@@ -820,7 +818,6 @@ function DashboardList(props: DashboardListProps) {
       <DashboardCard
         dashboard={dashboard}
         hasPerm={hasPerm}
-        bulkSelectEnabled={bulkSelectEnabled}
         showThumbnails={
           userKey
             ? userKey.thumbnails
@@ -838,7 +835,6 @@ function DashboardList(props: DashboardListProps) {
     ),
     [
       previews,
-      bulkSelectEnabled,
       favoriteStatus,
       hasPerm,
       loading,
@@ -865,15 +861,6 @@ function DashboardList(props: DashboardListProps) {
       ),
       buttonStyle: 'link',
       onClick: openDashboardImportModal,
-    });
-  }
-
-  if (canDelete || canExport) {
-    subMenuButtons.push({
-      name: t('Bulk select'),
-      buttonStyle: 'secondary',
-      'data-test': 'bulk-select',
-      onClick: toggleBulkSelect,
     });
   }
 
@@ -978,13 +965,11 @@ function DashboardList(props: DashboardListProps) {
               )}
               <ListView<Dashboard>
                 bulkActions={bulkActions}
-                bulkSelectEnabled={bulkSelectEnabled}
                 cardSortSelectOptions={sortTypes}
                 className="dashboard-list-view"
                 columns={columns}
                 count={dashboardCount}
                 data={dashboards}
-                disableBulkSelect={toggleBulkSelect}
                 fetchData={fetchData}
                 refreshData={refreshData}
                 filters={filters}

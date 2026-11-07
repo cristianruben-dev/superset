@@ -65,15 +65,9 @@ const isActiveOptions = () => [
 function UsersList({ user }: UsersListProps) {
   const { addDangerToast, addSuccessToast } = useToasts();
   const {
-    state: {
-      loading,
-      resourceCount: usersCount,
-      resourceCollection: users,
-      bulkSelectEnabled,
-    },
+    state: { loading, resourceCount: usersCount, resourceCollection: users },
     fetchData,
     refreshData,
-    toggleBulkSelect,
   } = useListViewResource<UserObject>(
     'security/users',
     t('User'),
@@ -370,23 +364,16 @@ function UsersList({ user }: UsersListProps) {
   const subMenuButtons: SubMenuProps['buttons'] = [];
 
   if (isAdmin) {
-    subMenuButtons.push(
-      {
-        name: t('Bulk select'),
-        onClick: toggleBulkSelect,
-        buttonStyle: 'secondary',
+    subMenuButtons.push({
+      icon: <Icons.PlusOutlined iconSize="m" />,
+      name: t('User'),
+      buttonStyle: 'primary',
+      onClick: () => {
+        openModal(ModalType.ADD);
       },
-      {
-        icon: <Icons.PlusOutlined iconSize="m" />,
-        name: t('User'),
-        buttonStyle: 'primary',
-        onClick: () => {
-          openModal(ModalType.ADD);
-        },
-        loading: loadingState.roles || loadingState.groups,
-        'data-test': 'add-user-button',
-      },
-    );
+      loading: loadingState.roles || loadingState.groups,
+      'data-test': 'add-user-button',
+    });
   }
 
   const filters: ListViewFilters = useMemo(
@@ -593,8 +580,6 @@ function UsersList({ user }: UsersListProps) {
               loading={loading}
               pageSize={PAGE_SIZE}
               bulkActions={bulkActions}
-              bulkSelectEnabled={bulkSelectEnabled}
-              disableBulkSelect={toggleBulkSelect}
               addDangerToast={addDangerToast}
               addSuccessToast={addSuccessToast}
               emptyState={emptyState}

@@ -119,15 +119,9 @@ function SavedQueryList({
   user,
 }: SavedQueryListProps) {
   const {
-    state: {
-      loading,
-      resourceCount: queryCount,
-      resourceCollection: queries,
-      bulkSelectEnabled,
-    },
+    state: { loading, resourceCount: queryCount, resourceCollection: queries },
     hasPerm,
     fetchData,
-    toggleBulkSelect,
     refreshData,
   } = useListViewResource<SavedQueryObject>(
     'saved_query',
@@ -216,14 +210,6 @@ function SavedQueryList({
       buttonStyle: 'link',
       onClick: openSavedQueryImportModal,
       'data-test': 'import-button',
-    });
-  }
-
-  if (canDelete) {
-    subMenuButtons.push({
-      name: t('Bulk select'),
-      onClick: toggleBulkSelect,
-      buttonStyle: 'secondary',
     });
   }
 
@@ -708,8 +694,6 @@ function SavedQueryList({
               bulkActions={bulkActions}
               addSuccessToast={addSuccessToast}
               addDangerToast={addDangerToast}
-              bulkSelectEnabled={bulkSelectEnabled}
-              disableBulkSelect={toggleBulkSelect}
               highlightRowId={savedQueryCurrentlyPreviewing?.id}
               enableBulkTag={enableBulkTag}
               bulkTagResourceName="query"

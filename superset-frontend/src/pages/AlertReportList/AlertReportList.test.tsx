@@ -450,22 +450,7 @@ test('bulk select shows selected count and enables bulk actions after row select
   // Bulk select controls not visible initially
   expect(screen.queryByTestId('bulk-select-controls')).not.toBeInTheDocument();
 
-  // Toggle bulk select
-  const bulkSelectButton = screen.getByTestId('bulk-select-toggle');
-  fireEvent.click(bulkSelectButton);
-
-  // Controls appear with "0 Selected" text
-  await screen.findByTestId('bulk-select-controls');
-  expect(screen.getByTestId('bulk-select-copy')).toHaveTextContent(
-    '0 Selected',
-  );
-
-  // Deselect-all and action button not yet visible (nothing selected)
-  expect(
-    screen.queryByTestId('bulk-select-deselect-all'),
-  ).not.toBeInTheDocument();
-
-  // Select all rows via checkboxes that appear in bulk mode
+  // Select all rows through the checkboxes that are always there
   const checkboxes = screen.getAllByRole('checkbox');
   // First checkbox is the header "select all" toggle
   fireEvent.click(checkboxes[0]);
@@ -508,8 +493,8 @@ test('read-only users do not see delete and bulk select controls', async () => {
   // No delete action buttons
   expect(screen.queryAllByTestId('delete-action')).toHaveLength(0);
 
-  // No bulk select toggle
-  expect(screen.queryByTestId('bulk-select-toggle')).not.toBeInTheDocument();
+  // No checkboxes to select rows
+  expect(screen.queryByRole('checkbox')).not.toBeInTheDocument();
 
   // Switches are all disabled because user 99 is not an editor of any alert.
   const switches = screen.getAllByRole('switch');

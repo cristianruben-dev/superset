@@ -88,7 +88,6 @@ test('useListViewResource: initial state has loading true and empty collection',
   expect(result.current.state.loading).toBe(true);
   expect(result.current.state.resourceCollection).toEqual([]);
   expect(result.current.state.resourceCount).toBe(0);
-  expect(result.current.state.bulkSelectEnabled).toBe(false);
 });
 
 test('useListViewResource: fetches permissions on mount', async () => {
@@ -498,30 +497,6 @@ test('useListViewResource: refreshData returns null when no cached config', () =
 
   const returnValue = result.current.refreshData();
   expect(returnValue).toBeNull();
-});
-
-test('useListViewResource: toggleBulkSelect toggles bulkSelectEnabled', async () => {
-  jest.spyOn(SupersetClient, 'get').mockResolvedValue({
-    json: {},
-  } as unknown as JsonResponse);
-
-  const { result } = renderHook(() =>
-    useListViewResource('chart', 'Charts', jest.fn()),
-  );
-
-  expect(result.current.state.bulkSelectEnabled).toBe(false);
-
-  act(() => {
-    result.current.toggleBulkSelect();
-  });
-
-  expect(result.current.state.bulkSelectEnabled).toBe(true);
-
-  act(() => {
-    result.current.toggleBulkSelect();
-  });
-
-  expect(result.current.state.bulkSelectEnabled).toBe(false);
 });
 
 test('useListViewResource: setResourceCollection updates the collection', async () => {

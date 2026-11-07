@@ -337,8 +337,6 @@ export interface ListViewProps<T extends object = any> {
     type?: 'primary' | 'secondary' | 'danger';
     hidden?: (rows: any[]) => boolean;
   }>;
-  bulkSelectEnabled?: boolean;
-  disableBulkSelect?: () => void;
   renderBulkSelectCopy?: (selects: any[]) => ReactNode;
   renderCard?: (row: T & { loading: boolean }) => ReactNode;
   cardSortSelectOptions?: Array<CardSortSelectOption>;
@@ -383,8 +381,6 @@ export function ListView<T extends object = any>({
   className = '',
   filters = [],
   bulkActions = [],
-  bulkSelectEnabled = false,
-  disableBulkSelect = () => {},
   renderBulkSelectCopy = selected => t('%s Selected', selected.length),
   renderCard,
   showThumbnails,
@@ -445,9 +441,11 @@ export function ListView<T extends object = any>({
         count,
         count.toLocaleString(getBootstrapData().common?.locale),
       ),
-    bulkSelectEnabled && t('%s selected', selectedFlatRows.length),
+    selectedFlatRows.length > 0 && t('%s selected', selectedFlatRows.length),
   ]);
   const allowBulkTagActions = bulkTagResourceName && enableBulkTag;
+  // Rows show their checkbox whenever there is something to do with a selection
+  const selectable = bulkActions.length > 0 || Boolean(allowBulkTagActions);
   const filterable = Boolean(filters.length);
   if (filterable) {
     const columnAccessors = columns.reduce(
@@ -495,11 +493,6 @@ export function ListView<T extends object = any>({
 
   const cardViewEnabled = Boolean(renderCard);
   const [showBulkTagModal, setShowBulkTagModal] = useState<boolean>(false);
-
-  useEffect(() => {
-    // discard selections if bulk select is disabled
-    if (!bulkSelectEnabled) toggleAllRowsSelected(false);
-  }, [bulkSelectEnabled, toggleAllRowsSelected]);
 
   useEffect(() => {
     if (!loading && pageIndex > pageCount - 1 && pageCount > 0) {
@@ -567,65 +560,72 @@ export function ListView<T extends object = any>({
         </div>
         {headerContent}
         <div className={`body ${rows.length === 0 ? 'empty' : ''} `}>
-          {bulkSelectEnabled && (
+          {selectedFlatRows.length > 0 && (
             <BulkSelectWrapper
               data-test="bulk-select-controls"
               type="info"
-              closable
+              closable={false}
               showIcon={false}
-              onClose={disableBulkSelect}
               message={
                 <>
                   <div className="selectedCopy" data-test="bulk-select-copy">
                     {renderBulkSelectCopy(selectedFlatRows)}
                   </div>
-                  {Boolean(selectedFlatRows.length) && (
-                    <>
+                  {viewMode === 'card' &&
+                    selectedFlatRows.length < rows.length && (
                       <button
                         type="button"
-                        data-test="bulk-select-deselect-all"
+                        data-test="bulk-select-all"
                         css={inlineTextButtonCss}
                         className="deselect-all"
-                        onClick={() => toggleAllRowsSelected(false)}
+                        onClick={() => toggleAllRowsSelected(true)}
                       >
-                        {t('Deselect all')}
+                        {t('Select all')}
                       </button>
-                      <div className="divider" />
-                      {bulkActions
-                        .filter(
-                          action =>
-                            !action.hidden?.(
-                              selectedFlatRows.map((r: any) => r.original),
-                            ),
-                        )
-                        .map(action => (
-                          <Button
-                            data-test="bulk-select-action"
-                            data-test-action-key={action.key}
-                            key={action.key}
-                            buttonStyle={action.type}
-                            cta
-                            onClick={() =>
-                              action.onSelect(
-                                selectedFlatRows.map((r: any) => r.original),
-                              )
-                            }
-                          >
-                            {action.name}
-                          </Button>
-                        ))}
-                      {enableBulkTag && (
-                        <button
-                          type="button"
-                          data-test="bulk-select-tag-btn"
-                          css={inlineTextButtonCss}
-                          className="tag-btn"
-                          onClick={() => setShowBulkTagModal(true)}
-                        >
-                          {t('Add Tag')}
-                        </button>
-                      )}
-                    </>
+                    )}
+                  <button
+                    type="button"
+                    data-test="bulk-select-deselect-all"
+                    css={inlineTextButtonCss}
+                    className="deselect-all"
+                    onClick={() => toggleAllRowsSelected(false)}
+                  >
+                    {t('Deselect all')}
+                  </button>
+                  <div className="divider" />
+                  {bulkActions
+                    .filter(
+                      action =>
+                        !action.hidden?.(
+                          selectedFlatRows.map((r: any) => r.original),
+                        ),
+                    )
+                    .map(action => (
+                      <Button
+                        data-test="bulk-select-action"
+                        data-test-action-key={action.key}
+                        key={action.key}
+                        buttonStyle={action.type}
+                        cta
+                        onClick={() =>
+                          action.onSelect(
+                            selectedFlatRows.map((r: any) => r.original),
+                          )
+                        }
+                      >
+                        {action.name}
+                      </Button>
+                    ))}
+                  {enableBulkTag && (
+                    <button
+                      type="button"
+                      data-test="bulk-select-tag-btn"
+                      css={inlineTextButtonCss}
+                      className="tag-btn"
+                      onClick={() => setShowBulkTagModal(true)}
+                    >
+                      {t('Add Tag')}
+                    </button>
                   )}
                 </>
               }
@@ -634,12 +634,18 @@ export function ListView<T extends object = any>({
           {viewMode === 'card' && (
             <>
               <CardCollection
-                bulkSelectEnabled={bulkSelectEnabled}
+                selectable={selectable}
                 prepareRow={prepareRow}
                 renderCard={renderCard}
                 rows={rows}
                 loading={loading}
                 showThumbnails={showThumbnails}
+                onCardContextMenu={
+                  rowMenu
+                    ? (record, event) =>
+                        contextMenu.open(event, rowMenu(record as T))
+                    : undefined
+                }
               />
               {count > 0 && (
                 <div className="pagination-container">
@@ -687,7 +693,7 @@ export function ListView<T extends object = any>({
                   isRowHighlighted={isRowHighlighted}
                   columnsForWrapText={columnsForWrapText}
                   expandable={expandable}
-                  bulkSelectEnabled={bulkSelectEnabled}
+                  bulkSelectEnabled={selectable}
                   selectedFlatRows={selectedFlatRows}
                   toggleRowSelected={(rowId, value) => {
                     const row = rows.find((r: any) => r.id === rowId);

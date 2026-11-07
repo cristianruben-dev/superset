@@ -317,11 +317,7 @@ const DatasetList: FunctionComponent<DatasetListProps> = ({
 }) => {
   const history = useHistory();
   const theme = useTheme();
-  const {
-    state: { bulkSelectEnabled },
-    hasPerm,
-    toggleBulkSelect,
-  } = useListViewResource<Dataset>(
+  const { hasPerm } = useListViewResource<Dataset>(
     'dataset',
     datasetLabelLower(),
     addDangerToast,
@@ -1332,14 +1328,6 @@ const DatasetList: FunctionComponent<DatasetListProps> = ({
     });
   }
 
-  if (canDelete || canExport) {
-    buttonArr.push({
-      name: t('Bulk select'),
-      onClick: toggleBulkSelect,
-      buttonStyle: 'secondary',
-    });
-  }
-
   if (canCreate) {
     if (isFeatureEnabled(SEMANTIC_LAYERS_FLAG)) {
       buttonArr.push({
@@ -1748,8 +1736,6 @@ const DatasetList: FunctionComponent<DatasetListProps> = ({
               loading={loading}
               initialSort={initialSort}
               bulkActions={bulkActions}
-              bulkSelectEnabled={bulkSelectEnabled}
-              disableBulkSelect={toggleBulkSelect}
               addDangerToast={addDangerToast}
               addSuccessToast={addSuccessToast}
               refreshData={refreshData}

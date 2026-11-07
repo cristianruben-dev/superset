@@ -18,16 +18,21 @@
  */
 import { ReactNode, MouseEvent as ReactMouseEvent } from 'react';
 import { TableInstance, Row, UseRowSelectRowProps } from 'react-table';
+import { t } from '@apache-superset/core/translation';
 import { styled } from '@apache-superset/core/theme';
+import { Checkbox } from '@superset-ui/core/components';
 import cx from 'classnames';
 
 interface CardCollectionProps {
-  bulkSelectEnabled?: boolean;
+  /** Each card shows its checkbox; a click on the card still opens it */
+  selectable?: boolean;
   loading: boolean;
   prepareRow: TableInstance['prepareRow'];
   renderCard?: (row: any) => ReactNode;
   rows: TableInstance['rows'];
   showThumbnails?: boolean;
+  /** A right click on a card */
+  onCardContextMenu?: (record: any, event: ReactMouseEvent<HTMLElement>) => void;
 }
 
 const CardContainer = styled.div<{ showThumbnails?: boolean }>`
@@ -40,34 +45,33 @@ const CardContainer = styled.div<{ showThumbnails?: boolean }>`
 `;
 
 const CardWrapper = styled.div`
+  position: relative;
   border: 2px solid transparent;
   &.card-selected {
     border: 2px solid ${({ theme }) => theme.colorPrimary};
   }
-  &.bulk-select {
-    cursor: pointer;
+  .card-checkbox {
+    position: absolute;
+    top: ${({ theme }) => theme.sizeUnit * 2}px;
+    left: ${({ theme }) => theme.sizeUnit * 2}px;
+    z-index: 1;
+    display: flex;
+    padding: ${({ theme }) => theme.sizeUnit}px;
+    border-radius: ${({ theme }) => theme.borderRadiusSM}px;
+    background: ${({ theme }) => theme.colorBgContainer};
+    box-shadow: ${({ theme }) => theme.boxShadowTertiary};
   }
 `;
 
 export default function CardCollection({
-  bulkSelectEnabled,
+  selectable,
   loading,
   prepareRow,
   renderCard,
   rows,
   showThumbnails,
+  onCardContextMenu,
 }: CardCollectionProps) {
-  function handleClick(
-    event: ReactMouseEvent<HTMLDivElement, MouseEvent>,
-    toggleRowSelected: (value?: boolean) => void,
-  ) {
-    if (bulkSelectEnabled) {
-      event.preventDefault();
-      event.stopPropagation();
-      toggleRowSelected();
-    }
-  }
-
   if (!renderCard) return null;
   return (
     <CardContainer showThumbnails={showThumbnails}>
@@ -80,23 +84,29 @@ export default function CardCollection({
         rows.map(row => {
           if (!renderCard) return null;
           prepareRow(row);
+          const { isSelected, toggleRowSelected } = row as Row &
+            UseRowSelectRowProps<any>;
           return (
             <CardWrapper
-              className={cx({
-                'card-selected':
-                  bulkSelectEnabled &&
-                  (row as Row & UseRowSelectRowProps<any>).isSelected,
-                'bulk-select': bulkSelectEnabled,
-              })}
+              className={cx({ 'card-selected': selectable && isSelected })}
               key={row.id}
-              onClick={e =>
-                handleClick(
-                  e,
-                  (row as Row & UseRowSelectRowProps<any>).toggleRowSelected,
-                )
+              onContextMenu={
+                onCardContextMenu
+                  ? event => onCardContextMenu(row.original, event)
+                  : undefined
               }
               role="none"
             >
+              {selectable && (
+                <span className="card-checkbox">
+                  <Checkbox
+                    aria-label={t('Select')}
+                    checked={!!isSelected}
+                    data-test="card-select-checkbox"
+                    onChange={event => toggleRowSelected(event.target.checked)}
+                  />
+                </span>
+              )}
               {renderCard({ ...row.original, loading })}
             </CardWrapper>
           );

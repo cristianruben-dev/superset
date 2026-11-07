@@ -78,15 +78,9 @@ enum ModalType {
 function GroupsList({ user }: GroupsListProps) {
   const { addDangerToast, addSuccessToast } = useToasts();
   const {
-    state: {
-      loading,
-      resourceCount: groupsCount,
-      resourceCollection: groups,
-      bulkSelectEnabled,
-    },
+    state: { loading, resourceCount: groupsCount, resourceCollection: groups },
     fetchData,
     refreshData,
-    toggleBulkSelect,
   } = useListViewResource<GroupObject>(
     'security/groups',
     t('Group'),
@@ -272,23 +266,16 @@ function GroupsList({ user }: GroupsListProps) {
   const subMenuButtons: SubMenuProps['buttons'] = [];
 
   if (isAdmin) {
-    subMenuButtons.push(
-      {
-        name: t('Bulk select'),
-        onClick: toggleBulkSelect,
-        buttonStyle: 'secondary',
+    subMenuButtons.push({
+      name: t('Group'),
+      icon: <Icons.PlusOutlined iconSize="m" />,
+      buttonStyle: 'primary',
+      onClick: () => {
+        openModal(ModalType.ADD);
       },
-      {
-        name: t('Group'),
-        icon: <Icons.PlusOutlined iconSize="m" />,
-        buttonStyle: 'primary',
-        onClick: () => {
-          openModal(ModalType.ADD);
-        },
-        loading: loadingState.roles,
-        'data-test': 'add-group-button',
-      },
-    );
+      loading: loadingState.roles,
+      'data-test': 'add-group-button',
+    });
   }
 
   const filters: ListViewFilters = useMemo(
@@ -423,8 +410,6 @@ function GroupsList({ user }: GroupsListProps) {
               loading={loading}
               pageSize={PAGE_SIZE}
               bulkActions={bulkActions}
-              bulkSelectEnabled={bulkSelectEnabled}
-              disableBulkSelect={toggleBulkSelect}
               addDangerToast={addDangerToast}
               addSuccessToast={addSuccessToast}
               emptyState={emptyState}

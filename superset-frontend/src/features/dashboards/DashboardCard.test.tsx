@@ -79,7 +79,6 @@ beforeEach(() => {
       <DashboardCard
         dashboard={mockDashboard}
         hasPerm={mockHasPerm}
-        bulkSelectEnabled={false}
         loading={false}
         openDashboardEditModal={mockOpenDashboardEditModal}
         saveFavoriteStatus={mockSaveFavoriteStatus}
@@ -127,7 +126,6 @@ test('clicking the thumbnail navigates to the dashboard exactly once', () => {
       <DashboardCard
         dashboard={mockDashboard}
         hasPerm={mockHasPerm}
-        bulkSelectEnabled={false}
         loading={false}
         showThumbnails
         openDashboardEditModal={mockOpenDashboardEditModal}
@@ -170,7 +168,6 @@ describe('thumbnail URL construction', () => {
         <DashboardCard
           dashboard={dashboard as any}
           hasPerm={() => true}
-          bulkSelectEnabled={false}
           loading={false}
           showThumbnails
           saveFavoriteStatus={() => {}}

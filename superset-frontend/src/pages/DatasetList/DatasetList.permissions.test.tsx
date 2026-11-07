@@ -71,9 +71,7 @@ test('admin users see all UI elements', async () => {
       screen.getByRole('button', { name: /(?:plus\s*)?Dataset$/i }),
     ).toBeInTheDocument();
     expect(screen.getByTestId('import-button')).toBeInTheDocument();
-    expect(
-      screen.getByRole('button', { name: /bulk select/i }),
-    ).toBeInTheDocument();
+    expect(screen.getByTestId('header-toggle-all')).toBeInTheDocument();
   });
 });
 
@@ -94,7 +92,7 @@ test('read-only users cannot see Actions column', async () => {
   });
 });
 
-test('read-only users cannot see bulk select button', async () => {
+test('read-only users cannot select rows', async () => {
   // Setup API with read-only permissions
   setupApiPermissions(['can_read']);
 
@@ -104,10 +102,8 @@ test('read-only users cannot see bulk select button', async () => {
     expect(screen.getByText('Datasets')).toBeInTheDocument();
   });
 
-  // Bulk select should not be visible
-  expect(
-    screen.queryByRole('button', { name: /bulk select/i }),
-  ).not.toBeInTheDocument();
+  // The selection column should not be there
+  expect(screen.queryByTestId('header-toggle-all')).not.toBeInTheDocument();
 });
 
 test('read-only users cannot see Create/Import buttons', async () => {
@@ -149,7 +145,7 @@ test('write users see Actions column', async () => {
   });
 });
 
-test('write users see bulk select button', async () => {
+test('write users can select rows', async () => {
   // Setup API with write permissions
   setupApiPermissions(['can_read', 'can_write', 'can_export']);
 
@@ -159,9 +155,7 @@ test('write users see bulk select button', async () => {
     expect(screen.getByText('Datasets')).toBeInTheDocument();
   });
 
-  expect(
-    screen.getByRole('button', { name: /bulk select/i }),
-  ).toBeInTheDocument();
+  expect(await screen.findByTestId('header-toggle-all')).toBeInTheDocument();
 });
 
 test('write users see Create/Import buttons', async () => {
@@ -185,7 +179,7 @@ test('write users see Create/Import buttons', async () => {
   expect(screen.getByTestId('import-button')).toBeInTheDocument();
 });
 
-test('export-only users see bulk select (for export only)', async () => {
+test('export-only users can select rows (for export only)', async () => {
   // Setup API with export-only permissions
   setupApiPermissions(['can_read', 'can_export']);
 
@@ -195,10 +189,8 @@ test('export-only users see bulk select (for export only)', async () => {
     expect(screen.getByText('Datasets')).toBeInTheDocument();
   });
 
-  // Export users should see bulk select for export functionality
-  expect(
-    screen.getByRole('button', { name: /bulk select/i }),
-  ).toBeInTheDocument();
+  // Export users select rows to export them
+  expect(await screen.findByTestId('header-toggle-all')).toBeInTheDocument();
 });
 
 test('export-only users cannot see Create/Import buttons', async () => {

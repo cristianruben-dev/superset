@@ -66,7 +66,6 @@ interface ListViewResourceState<D extends object = any> {
   count: number;
   permissions: string[];
   lastFetchDataConfig: FetchDataConfig | null;
-  bulkSelectEnabled: boolean;
   lastFetched?: string;
 }
 
@@ -115,7 +114,6 @@ export function useListViewResource<D extends object = any>(
     loading: initialLoadingState,
     lastFetchDataConfig: null,
     permissions: [],
-    bulkSelectEnabled: false,
   });
 
   const updateState = useCallback(
@@ -124,10 +122,6 @@ export function useListViewResource<D extends object = any>(
     },
     [],
   );
-
-  function toggleBulkSelect() {
-    updateState({ bulkSelectEnabled: !state.bulkSelectEnabled });
-  }
 
   const handleErrorMsgRef = useRef(handleErrorMsg);
   useEffect(() => {
@@ -385,7 +379,6 @@ export function useListViewResource<D extends object = any>(
       loading: state.loading,
       resourceCount: state.count,
       resourceCollection: state.collection,
-      bulkSelectEnabled: state.bulkSelectEnabled,
       lastFetched: state.lastFetched,
     },
     setResourceCollection: (update: D[]) =>
@@ -394,7 +387,6 @@ export function useListViewResource<D extends object = any>(
       }),
     hasPerm,
     fetchData,
-    toggleBulkSelect,
     refreshData,
   };
 }

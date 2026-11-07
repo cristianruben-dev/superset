@@ -159,26 +159,22 @@ test('"Import" button opens import modal', async () => {
   expect(screen.getByText('Import dataset')).toBeInTheDocument();
 });
 
-test('"Bulk select" button exists (when canDelete || canExport)', async () => {
+test('selection checkboxes show when canDelete || canExport', async () => {
   renderDatasetList(mockAdminUser);
 
-  expect(
-    await screen.findByRole('button', { name: /bulk select/i }),
-  ).toBeInTheDocument();
+  expect(await screen.findByTestId('header-toggle-all')).toBeInTheDocument();
 });
 
-test('"Bulk select" button exists for export-only users', async () => {
+test('selection checkboxes show for export-only users', async () => {
   renderDatasetList(mockExportOnlyUser);
 
   // Wait for table to render first (deterministic readiness check)
   await screen.findByTestId('listview-table');
 
-  expect(
-    await screen.findByRole('button', { name: /bulk select/i }),
-  ).toBeInTheDocument();
+  expect(await screen.findByTestId('header-toggle-all')).toBeInTheDocument();
 });
 
-test('"Bulk select" button hidden for read-only users', async () => {
+test('there is no selection toggle button for read-only users', async () => {
   renderDatasetList(mockReadOnlyUser);
 
   await waitFor(() => {
@@ -343,19 +339,11 @@ test('typing in name filter updates input value and triggers API with decoded se
   );
 });
 
-test('toggling bulk select mode shows checkboxes', async () => {
+test('rows show their checkboxes without a toggle', async () => {
   renderDatasetList(mockAdminUser);
 
-  const bulkSelectButton = await screen.findByRole('button', {
-    name: /bulk select/i,
-  });
-
-  await userEvent.click(bulkSelectButton);
-
   await waitFor(() => {
-    // When bulk select is active, checkboxes should appear
-    const checkboxes = screen.queryAllByRole('checkbox');
-    expect(checkboxes.length).toBeGreaterThan(0);
+    expect(screen.queryAllByRole('checkbox').length).toBeGreaterThan(0);
   });
 }, 30000);
 
@@ -389,11 +377,8 @@ test('handles 403 error on _info endpoint and disables create actions', async ()
 
   // Verify bulk actions are disabled/hidden when permissions fail
   await waitFor(() => {
-    const bulkSelectButton = screen.queryByRole('button', {
-      name: /bulk select/i,
-    });
-    // Bulk select should not appear without proper permissions
-    expect(bulkSelectButton).not.toBeInTheDocument();
+    // Selection should not appear without proper permissions
+    expect(screen.queryByTestId('header-toggle-all')).not.toBeInTheDocument();
   });
 });
 

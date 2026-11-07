@@ -58,15 +58,9 @@ function ActionLogList() {
   const subMenuButtons: SubMenuProps['buttons'] = [];
 
   const {
-    state: {
-      loading,
-      resourceCount: LogsCount,
-      resourceCollection: Logs,
-      bulkSelectEnabled,
-    },
+    state: { loading, resourceCount: LogsCount, resourceCollection: Logs },
     fetchData,
     refreshData,
-    toggleBulkSelect,
   } = useListViewResource<ActionLogObject>(
     'log',
     t('Log'),
@@ -307,8 +301,6 @@ function ActionLogList() {
         initialSort={initialSort}
         loading={loading}
         pageSize={PAGE_SIZE}
-        bulkSelectEnabled={bulkSelectEnabled}
-        disableBulkSelect={toggleBulkSelect}
         addDangerToast={addDangerToast}
         addSuccessToast={addSuccessToast}
         emptyState={emptyState}

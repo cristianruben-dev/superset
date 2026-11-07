@@ -80,7 +80,7 @@ function ChartTable({
   const filteredOtherTabData = otherTabData?.filter(obj => 'viz_type' in obj);
 
   const {
-    state: { loading, resourceCollection: charts, bulkSelectEnabled },
+    state: { loading, resourceCollection: charts },
     setResourceCollection: setCharts,
     hasPerm,
     refreshData,
@@ -231,7 +231,7 @@ function ChartTable({
               user={user}
               hasPerm={hasPerm}
               showThumbnails={showThumbnails}
-              bulkSelectEnabled={bulkSelectEnabled}
+              bulkSelectEnabled={false}
               refreshData={refreshData}
               addDangerToast={addDangerToast}
               addSuccessToast={addSuccessToast}

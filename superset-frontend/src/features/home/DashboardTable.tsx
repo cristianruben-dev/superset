@@ -268,7 +268,6 @@ function DashboardTable({
               key={e.id}
               dashboard={e}
               hasPerm={hasPerm}
-              bulkSelectEnabled={false}
               showThumbnails={showThumbnails}
               user={user}
               loading={loading}

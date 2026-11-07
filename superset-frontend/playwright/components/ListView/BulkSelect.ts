@@ -56,29 +56,10 @@ export class BulkSelect {
   }
 
   /**
-   * Gets the "Bulk select" toggle button
-   */
-  getToggleButton(): Button {
-    return new Button(
-      this.page,
-      this.page.getByRole('button', { name: 'Bulk select' }),
-    );
-  }
-
-  /**
-   * Enables bulk selection mode by clicking the toggle button.
-   *
-   * Waits for the bulk-select column header to render so the next row
-   * interaction does not race the table re-render that adds the checkbox
-   * column. The `data-test="header-toggle-all"` attribute is on the
-   * select-all `<th>` itself (see `TableCollection`'s `components.header.cell`
-   * slot, which keys on antd's `ant-table-selection-column` className).
-   * It deliberately is NOT injected via `rowSelection.columnTitle` because
-   * rc-table's measure row in `<tbody>` clones `columnTitle` and any
-   * `data-test` would duplicate, breaking Playwright strict mode.
+   * Waits for the checkbox column of the list, which is always there for a
+   * user who can act on a selection.
    */
   async enable(): Promise<void> {
-    await this.getToggleButton().click();
     await this.page.locator(BULK_SELECT_SELECTORS.HEADER_TOGGLE).waitFor();
   }
 

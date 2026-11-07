@@ -49,7 +49,6 @@ interface DashboardCardProps {
   isChart?: boolean;
   dashboard: Dashboard;
   hasPerm: (name: string) => boolean;
-  bulkSelectEnabled: boolean;
   loading: boolean;
   openDashboardEditModal?: (d: Dashboard) => void;
   saveFavoriteStatus: (id: number, isStarred: boolean) => void;
@@ -65,7 +64,6 @@ interface DashboardCardProps {
 function DashboardCard({
   dashboard,
   hasPerm,
-  bulkSelectEnabled,
   user,
   openDashboardEditModal,
   favoriteStatus,
@@ -178,8 +176,6 @@ function DashboardCard({
       certifiedBy={dashboard.certified_by}
       certificationDetails={dashboard.certification_details}
       thumbnailUrl={showThumbnails && thumbnailUrl ? thumbnailUrl : null}
-      // In bulk select mode a click selects the card instead of opening it
-      onSelect={bulkSelectEnabled ? () => {} : undefined}
       actions={
         <>
           {userId && (

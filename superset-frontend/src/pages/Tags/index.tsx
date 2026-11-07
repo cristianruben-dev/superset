@@ -76,15 +76,9 @@ function TagList(props: TagListProps) {
   );
 
   const {
-    state: {
-      loading,
-      resourceCount: tagCount,
-      resourceCollection: tags,
-      bulkSelectEnabled,
-    },
+    state: { loading, resourceCount: tagCount, resourceCollection: tags },
     hasPerm,
     fetchData,
-    toggleBulkSelect,
     refreshData,
   } = useListViewResource<Tag>(
     'tag',
@@ -334,15 +328,6 @@ function TagList(props: TagListProps) {
 
   const subMenuButtons: SubMenuProps['buttons'] = [];
 
-  if (canDelete) {
-    subMenuButtons.push({
-      name: t('Bulk select'),
-      buttonStyle: 'secondary',
-      'data-test': 'bulk-select',
-      onClick: toggleBulkSelect,
-    });
-  }
-
   // render new 'New Tag' btn
   subMenuButtons.push({
     icon: <Icons.PlusOutlined iconSize="m" />,
@@ -389,13 +374,11 @@ function TagList(props: TagListProps) {
             <>
               <ListView<Tag>
                 bulkActions={bulkActions}
-                bulkSelectEnabled={bulkSelectEnabled}
                 cardSortSelectOptions={sortTypes}
                 className="tags-list-view"
                 columns={columns}
                 count={tagCount}
                 data={tags}
-                disableBulkSelect={toggleBulkSelect}
                 refreshData={refreshData}
                 emptyState={emptyState}
                 fetchData={fetchData}

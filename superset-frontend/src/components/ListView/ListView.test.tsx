@@ -40,14 +40,12 @@ type MockedListViewProps = Omit<
   | 'refreshData'
   | 'addSuccessToast'
   | 'addDangerToast'
-  | 'disableBulkSelect'
   | 'bulkActions'
 > & {
   fetchData: jest.Mock<unknown[], [ListViewFetchDataConfig]>;
   refreshData: jest.Mock;
   addSuccessToast: jest.Mock;
   addDangerToast: jest.Mock;
-  disableBulkSelect: jest.Mock;
   bulkActions: Array<{
     key: string;
     name: ReactNode;
@@ -132,8 +130,6 @@ const mockedPropsComprehensive: MockedListViewProps = {
   refreshData: jest.fn(),
   addSuccessToast: jest.fn(),
   addDangerToast: jest.fn(),
-  bulkSelectEnabled: true,
-  disableBulkSelect: jest.fn(),
   bulkActions: [
     {
       key: 'something',
@@ -609,6 +605,47 @@ test('forceViewMode table shows table view', () => {
   expect(screen.queryByTestId('card')).not.toBeInTheDocument();
   // Table should be present
   expect(screen.getByRole('table')).toBeInTheDocument();
+});
+
+test('shows the checkboxes without being asked, and the bar once there is a selection', async () => {
+  factory({ renderCard: undefined });
+
+  expect(screen.queryByTestId('bulk-select-controls')).not.toBeInTheDocument();
+  await userEvent.click(screen.getAllByRole('checkbox')[1]);
+
+  expect(screen.getByTestId('bulk-select-controls')).toBeInTheDocument();
+  await userEvent.click(screen.getByTestId('bulk-select-deselect-all'));
+  expect(screen.queryByTestId('bulk-select-controls')).not.toBeInTheDocument();
+});
+
+test('has no checkboxes when nothing can be done with a selection', () => {
+  factory({ renderCard: undefined, bulkActions: [] });
+
+  expect(screen.queryByRole('checkbox')).not.toBeInTheDocument();
+});
+
+test('a card has its checkbox, its right click menu, and a click does not select it', async () => {
+  factory({
+    defaultViewMode: 'card',
+    forceViewMode: 'card',
+    cardSortSelectOptions: undefined,
+    renderCard: ({ name }: { name: string }) => (
+      <span data-test="a-card">{name}</span>
+    ),
+    rowMenu: (row: { name: string }) => [
+      { key: 'open', label: `Open ${row.name}` },
+    ],
+  });
+
+  const card = (await screen.findAllByTestId('a-card'))[0];
+  await userEvent.click(card);
+  expect(screen.queryByTestId('bulk-select-controls')).not.toBeInTheDocument();
+
+  await userEvent.click(screen.getAllByTestId('card-select-checkbox')[0]);
+  expect(screen.getByTestId('bulk-select-controls')).toBeInTheDocument();
+
+  fireEvent.contextMenu(card);
+  expect(await screen.findByText('Open data 1')).toBeInTheDocument();
 });
 
 test('keeps every filter in view, with nothing to fold', () => {

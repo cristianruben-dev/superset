@@ -65,16 +65,10 @@ function RowLevelSecurityList(props: RLSProps) {
   const [currentRule, setCurrentRule] = useState<RLSObject | null>(null);
 
   const {
-    state: {
-      loading,
-      resourceCount: rulesCount,
-      resourceCollection: rules,
-      bulkSelectEnabled,
-    },
+    state: { loading, resourceCount: rulesCount, resourceCollection: rules },
     hasPerm,
     fetchData,
     refreshData,
-    toggleBulkSelect,
   } = useListViewResource<RLSObject>(
     'rowlevelsecurity',
     t('Row Level Security'),
@@ -357,12 +351,6 @@ function RowLevelSecurityList(props: RLSProps) {
 
   if (canWrite) {
     subMenuButtons.push({
-      name: t('Bulk select'),
-      buttonStyle: 'secondary',
-      'data-test': 'bulk-select',
-      onClick: toggleBulkSelect,
-    });
-    subMenuButtons.push({
       name: t('Rule'),
       icon: <Icons.PlusOutlined iconSize="m" data-test="add-rule" />,
       buttonStyle: 'primary',
@@ -400,8 +388,6 @@ function RowLevelSecurityList(props: RLSProps) {
               <ListView<RLSObject>
                 className="rls-list-view"
                 bulkActions={bulkActions}
-                bulkSelectEnabled={bulkSelectEnabled}
-                disableBulkSelect={toggleBulkSelect}
                 columns={columns}
                 count={rulesCount}
                 data={rules}
