@@ -189,10 +189,14 @@ describe('DashboardList - Permission-based UI Tests', () => {
       screen.getByRole('button', { name: /dashboard$/i }),
     ).toBeInTheDocument();
     expect(screen.getByTestId('import-button')).toBeInTheDocument();
-    expect(screen.getByTestId('bulk-select')).toBeInTheDocument();
+    expect((await screen.findAllByTestId('card-select-checkbox')).length).toBe(
+      mockDashboards.length,
+    );
 
-    // Verify Actions column is visible
-    expect(screen.getByTitle('Actions')).toBeInTheDocument();
+    // Verify the menu of each card is there
+    expect(screen.getAllByLabelText('more')).toHaveLength(
+      mockDashboards.length,
+    );
 
     // Verify favorite stars are rendered
     const favoriteStars = screen.getAllByTestId('fave-unfave-icon');
@@ -207,11 +211,8 @@ describe('DashboardList - Permission-based UI Tests', () => {
     expect(screen.getByTestId('dashboard-list-view')).toBeInTheDocument();
     expect(screen.getByText('Dashboards')).toBeInTheDocument();
 
-    // Verify view toggles are available (not permission-gated)
-    expect(screen.getByRole('img', { name: 'appstore' })).toBeInTheDocument();
-    expect(
-      screen.getByRole('img', { name: 'unordered-list' }),
-    ).toBeInTheDocument();
+    // Dashboards are cards for everyone: there is no view selector
+    expect(screen.queryByRole('img', { name: 'appstore' })).toBeNull();
 
     // Verify permission-gated elements are hidden
     expect(
@@ -220,82 +221,57 @@ describe('DashboardList - Permission-based UI Tests', () => {
     expect(screen.queryByTestId('import-button')).not.toBeInTheDocument();
   });
 
-  test('shows Actions column for users with admin permissions', async () => {
-    await renderWithPermissions(PERMISSIONS.ADMIN);
-    await screen.findByTestId('dashboard-list-view');
-
-    expect(screen.getByTitle('Actions')).toBeInTheDocument();
-
-    await waitFor(() => {
-      expect(
-        screen.getByText(mockDashboards[0].dashboard_title),
-      ).toBeInTheDocument();
-    });
-  });
-
-  test('hides Actions column for users with read-only permissions', async () => {
+  test('hides the menu of the cards for users with read-only permissions', async () => {
     await renderWithPermissions(PERMISSIONS.READ_ONLY);
-    await screen.findByTestId('dashboard-list-view');
+    await screen.findByText(mockDashboards[0].dashboard_title);
 
-    expect(screen.queryByTitle('Actions')).not.toBeInTheDocument();
     expect(screen.queryAllByLabelText('more')).toHaveLength(0);
   });
 
-  test('shows Actions column for users with export-only permissions', async () => {
-    // DashboardList shows Actions column when canExport is true
-    await renderWithPermissions(PERMISSIONS.EXPORT_ONLY);
-    await screen.findByTestId('dashboard-list-view');
+  test.each([
+    ['admin', PERMISSIONS.ADMIN],
+    ['export-only', PERMISSIONS.EXPORT_ONLY],
+    ['write-only', PERMISSIONS.WRITE_ONLY],
+  ])('%s users can open the menu of the cards', async (_, permissions) => {
+    await renderWithPermissions(permissions);
 
-    expect(screen.getByTitle('Actions')).toBeInTheDocument();
+    expect((await screen.findAllByLabelText('more')).length).toBe(
+      mockDashboards.length,
+    );
   });
 
-  test('shows Actions column for users with write-only permissions', async () => {
-    await renderWithPermissions(PERMISSIONS.WRITE_ONLY);
-    await screen.findByTestId('dashboard-list-view');
-
-    expect(screen.getByTitle('Actions')).toBeInTheDocument();
-  });
-
-  test('shows Tags column when TAGGING_SYSTEM feature flag is enabled', async () => {
+  test('shows the tags of a dashboard when TAGGING_SYSTEM is enabled', async () => {
     await renderWithPermissions(PERMISSIONS.ADMIN, 1, { tagging: true });
-    await screen.findByTestId('dashboard-list-view');
 
-    expect(screen.getByTitle('Tags')).toBeInTheDocument();
+    expect(await screen.findByText('production')).toBeInTheDocument();
   });
 
-  test('hides Tags column when TAGGING_SYSTEM feature flag is disabled', async () => {
+  test('hides the tags of a dashboard when TAGGING_SYSTEM is disabled', async () => {
     await renderWithPermissions(PERMISSIONS.ADMIN, 1, { tagging: false });
-    await screen.findByTestId('dashboard-list-view');
+    await screen.findByText(mockDashboards[0].dashboard_title);
 
-    expect(screen.queryByText('Tags')).not.toBeInTheDocument();
+    expect(screen.queryByText('production')).not.toBeInTheDocument();
   });
 
-  test('shows bulk select button for users with admin permissions', async () => {
-    await renderWithPermissions(PERMISSIONS.ADMIN);
-    await screen.findByTestId('dashboard-list-view');
+  test.each([
+    ['admin', PERMISSIONS.ADMIN],
+    ['export-only', PERMISSIONS.EXPORT_ONLY],
+    ['write-only', PERMISSIONS.WRITE_ONLY],
+  ])('%s users can select cards', async (_, permissions) => {
+    await renderWithPermissions(permissions);
 
-    expect(screen.getByTestId('bulk-select')).toBeInTheDocument();
+    expect((await screen.findAllByTestId('card-select-checkbox')).length).toBe(
+      mockDashboards.length,
+    );
   });
 
-  test('shows bulk select button for users with export-only permissions', async () => {
-    await renderWithPermissions(PERMISSIONS.EXPORT_ONLY);
-    await screen.findByTestId('dashboard-list-view');
-
-    expect(screen.getByTestId('bulk-select')).toBeInTheDocument();
-  });
-
-  test('shows bulk select button for users with write-only permissions', async () => {
-    await renderWithPermissions(PERMISSIONS.WRITE_ONLY);
-    await screen.findByTestId('dashboard-list-view');
-
-    expect(screen.getByTestId('bulk-select')).toBeInTheDocument();
-  });
-
-  test('hides bulk select button for users with read-only permissions', async () => {
+  test('read-only users cannot select cards', async () => {
     await renderWithPermissions(PERMISSIONS.READ_ONLY);
-    await screen.findByTestId('dashboard-list-view');
+    await screen.findByText(mockDashboards[0].dashboard_title);
 
-    expect(screen.queryByTestId('bulk-select')).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId('card-select-checkbox'),
+    ).not.toBeInTheDocument();
   });
 
   test('shows Create and Import buttons for users with write permissions', async () => {

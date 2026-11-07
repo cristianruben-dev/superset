@@ -32,7 +32,10 @@ interface CardCollectionProps {
   rows: TableInstance['rows'];
   showThumbnails?: boolean;
   /** A right click on a card */
-  onCardContextMenu?: (record: any, event: ReactMouseEvent<HTMLElement>) => void;
+  onCardContextMenu?: (
+    record: any,
+    event: ReactMouseEvent<HTMLElement>,
+  ) => void;
 }
 
 const CardContainer = styled.div<{ showThumbnails?: boolean }>`

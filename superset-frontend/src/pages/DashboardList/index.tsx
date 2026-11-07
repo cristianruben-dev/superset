@@ -22,10 +22,9 @@ import {
   FeatureFlag,
   SupersetClient,
 } from '@superset-ui/core';
-import { styled, css, useTheme } from '@apache-superset/core/theme';
+import { css, useTheme } from '@apache-superset/core/theme';
 import { useSelector } from 'react-redux';
 import { useState, useMemo, useCallback, useRef } from 'react';
-import { Link } from 'react-router-dom';
 import rison from 'rison';
 import {
   createFetchRelated,
@@ -36,25 +35,17 @@ import {
 } from 'src/views/CRUD/utils';
 import Subject from 'src/types/Subject';
 import { SUBJECT_OPTION_FILTER_PROPS } from 'src/features/subjects/SubjectSelectLabel';
-import { SubjectPile } from 'src/features/subjects/SubjectPile';
 import { useListViewResource, useFavoriteStatus } from 'src/views/CRUD/hooks';
 import { useIsMobile } from 'src/hooks/useIsMobile';
 import {
-  ActionButton,
   Button,
-  CertifiedBadge,
   ConfirmStatusChange,
   DeleteModal,
-  FaveStar,
-  InfoTooltip,
   Loading,
-  PublishedLabel,
   Tooltip,
 } from '@superset-ui/core/components';
 import {
   TagType,
-  TagsList,
-  ModifiedInfo,
   ImportModal as ImportModelsModal,
   ListView,
   ListViewFilterOperator as FilterOperator,
@@ -78,18 +69,14 @@ import {
   Dashboard as CRUDDashboard,
   QueryObjectColumns,
 } from 'src/views/CRUD/types';
-import { TagTypeEnum } from 'src/components/Tag/TagType';
 import { loadTags } from 'src/components/Tag/utils';
 import DashboardCard from 'src/features/dashboards/DashboardCard';
 import { useDashboardPreviews } from 'src/auradata/dashboards';
-import { DashboardStatus } from 'src/features/dashboards/types';
 import { UserWithPermissionsAndRoles } from 'src/types/bootstrapTypes';
 import { findPermission } from 'src/utils/findPermission';
 import { navigateTo } from 'src/utils/navigationUtils';
 import { useDashboardRowMenu } from 'src/auradata/dashboards/rowMenu';
 import { WIDER_DROPDOWN_WIDTH } from 'src/components/ListView/utils';
-import { isUserEditorOrAdmin } from 'src/dashboard/util/permissionUtils';
-import type { CellProps } from 'react-table';
 
 const PAGE_SIZE = 25;
 const PASSWORDS_NEEDED_MESSAGE = t(
@@ -130,28 +117,6 @@ export interface Dashboard {
   tags: TagType[];
   created_by: object;
 }
-
-const Actions = styled.div`
-  color: ${({ theme }) => theme.colorIcon};
-`;
-
-const FlexRowContainer = styled.div`
-  align-items: center;
-  display: flex;
-  gap: ${({ theme }) => theme.sizeUnit}px;
-
-  a {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    line-height: 1.2;
-    min-width: 0;
-  }
-
-  svg {
-    margin-right: ${({ theme }) => theme.sizeUnit}px;
-  }
-`;
 
 const DASHBOARD_COLUMNS_TO_FETCH = [
   'id',
@@ -380,259 +345,18 @@ function DashboardList(props: DashboardListProps) {
   }
 
   const columns = useMemo(
-    () => [
-      {
-        Cell: ({
-          row: {
-            original: { id },
-          },
-        }: any) =>
-          user?.userId && (
-            <FaveStar
-              itemId={id}
-              saveFaveStar={saveFavoriteStatus}
-              isStarred={favoriteStatus[id]}
-            />
-          ),
-        Header: '',
-        id: 'id',
-        disableSortBy: true,
-        size: 'xs',
-        hidden: !user?.userId,
-      },
-      {
-        Cell: ({
-          row: {
-            original: {
-              url,
-              dashboard_title: dashboardTitle,
-              certified_by: certifiedBy,
-              certification_details: certificationDetails,
-              description,
-            },
-          },
-        }: any) => (
-          <FlexRowContainer>
-            <Link to={url} title={dashboardTitle}>
-              {certifiedBy && (
-                <>
-                  <CertifiedBadge
-                    certifiedBy={certifiedBy}
-                    details={certificationDetails}
-                  />{' '}
-                </>
-              )}
-              {dashboardTitle}
-            </Link>
-            {description && <InfoTooltip tooltip={description} />}
-          </FlexRowContainer>
-        ),
-        Header: t('Name'),
-        accessor: 'dashboard_title',
-        id: 'dashboard_title',
-      },
-      {
-        Cell: ({
-          row: {
-            original: { status },
-          },
-        }: any) => (
-          <PublishedLabel isPublished={status === DashboardStatus.PUBLISHED} />
-        ),
-        Header: t('Status'),
-        accessor: 'published',
-        size: 'sm',
-        id: 'published',
-        className: 'no-ellipsis',
-      },
-      {
-        Cell: ({
-          row: {
-            original: { tags = [] },
-          },
-        }: {
-          row: {
-            original: {
-              tags: TagType[];
-            };
-          };
-        }) => (
-          // Only show custom type tags
-          <TagsList
-            tags={tags.filter(
-              (tag: TagType) =>
-                tag.type === 'TagTypes.custom' ||
-                tag.type === TagTypeEnum.Custom,
-            )}
-            maxTags={3}
-          />
-        ),
-        Header: t('Tags'),
-        accessor: 'tags',
-        disableSortBy: true,
-        hidden: !isFeatureEnabled(FeatureFlag.TaggingSystem),
-        id: 'tags',
-      },
-      {
-        Cell: ({
-          row: {
-            original: { editors = [] },
-          },
-        }: any) => <SubjectPile subjects={editors} />,
-        Header: t('Editors'),
-        accessor: 'editors',
-        disableSortBy: true,
-        id: 'editors',
-      },
-      ...(isFeatureEnabled(FeatureFlag.EnableViewers)
-        ? [
-            {
-              Cell: ({
-                row: {
-                  original: { viewers = [] },
-                },
-              }: any) => <SubjectPile subjects={viewers} />,
-              Header: t('Viewers'),
-              accessor: 'viewers',
-              disableSortBy: true,
-              id: 'viewers',
-            },
-          ]
-        : []),
-      {
-        Cell: ({
-          row: {
-            original: {
-              changed_on_delta_humanized: changedOn,
-              changed_by: changedBy,
-            },
-          },
-        }: any) => <ModifiedInfo date={changedOn} user={changedBy} />,
-        Header: t('Last modified'),
-        accessor: 'changed_on_delta_humanized',
-        id: 'changed_on_delta_humanized',
-      },
-      {
-        Cell: ({ row: { original } }: CellProps<Dashboard>) => {
-          const allowEdit = isUserEditorOrAdmin(
-            user,
-            original.editors,
-            original.extra_editors,
-          );
-          const handleDelete = () =>
-            handleDashboardDelete(
-              original,
-              refreshData,
-              addSuccessToast,
-              addDangerToast,
-            );
-          const handleEdit = () => openDashboardEditModal(original);
-          const handleExport = () => handleBulkDashboardExport([original]);
-
-          return (
-            <Actions className="actions">
-              {canEdit && (
-                <ActionButton
-                  label={t('Edit')}
-                  tooltip={
-                    allowEdit
-                      ? t('Edit')
-                      : t(
-                          'You must be a dashboard editor in order to edit. Please reach out to a dashboard editor to request modifications or edit access.',
-                        )
-                  }
-                  placement="bottom"
-                  icon={
-                    <Icons.EditOutlined data-test="edit-alt" iconSize="l" />
-                  }
-                  dataTest="dashboard-row-edit"
-                  disabled={!allowEdit}
-                  onClick={handleEdit}
-                />
-              )}
-              {canExport && (
-                <ActionButton
-                  label={t('Export')}
-                  tooltip={t('Export')}
-                  placement="bottom"
-                  icon={<Icons.UploadOutlined iconSize="l" />}
-                  dataTest="dashboard-row-export"
-                  onClick={handleExport}
-                />
-              )}
-              {canDelete && (
-                <ConfirmStatusChange
-                  recoverable={softDelete}
-                  title={
-                    softDelete
-                      ? t('Archive %(name)s?', {
-                          name: original.dashboard_title,
-                        })
-                      : t('Please confirm')
-                  }
-                  description={
-                    softDelete ? (
-                      archiveConfirmDescription(t('dashboard'))
-                    ) : (
-                      <>
-                        {t('Are you sure you want to delete')}{' '}
-                        <b>{original.dashboard_title}</b>?
-                      </>
-                    )
-                  }
-                  onConfirm={handleDelete}
-                >
-                  {confirmDelete => (
-                    <ActionButton
-                      label={deleteActionLabel()}
-                      tooltip={
-                        allowEdit
-                          ? deleteActionLabel()
-                          : t(
-                              'You must be a dashboard editor in order to delete. Please reach out to a dashboard editor to request modifications or edit access.',
-                            )
-                      }
-                      placement="bottom"
-                      icon={
-                        <Icons.DeleteOutlined
-                          iconSize="l"
-                          data-test="dashboard-list-trash-icon"
-                        />
-                      }
-                      dataTest="dashboard-row-delete"
-                      disabled={!allowEdit}
-                      onClick={confirmDelete}
-                    />
-                  )}
-                </ConfirmStatusChange>
-              )}
-            </Actions>
-          );
-        },
-        Header: t('Actions'),
-        id: 'actions',
-        hidden: !canEdit && !canDelete && !canExport,
-        disableSortBy: true,
-      },
-      {
-        accessor: QueryObjectColumns.ChangedBy,
-        hidden: true,
-        id: QueryObjectColumns.ChangedBy,
-      },
-    ],
-    [
-      user,
-      canEdit,
-      canDelete,
-      canExport,
-      saveFavoriteStatus,
-      favoriteStatus,
-      refreshData,
-      addSuccessToast,
-      addDangerToast,
-      handleBulkDashboardExport,
-      openDashboardEditModal,
-    ],
+    () =>
+      [
+        'id',
+        'dashboard_title',
+        'published',
+        'tags',
+        'editors',
+        'viewers',
+        'changed_on_delta_humanized',
+        QueryObjectColumns.ChangedBy,
+      ].map(id => ({ id, accessor: id, hidden: true })),
+    [],
   );
 
   const favoritesFilter: ListViewFilter = useMemo(
@@ -984,9 +708,8 @@ function DashboardList(props: DashboardListProps) {
                     : isFeatureEnabled(FeatureFlag.Thumbnails)
                 }
                 renderCard={renderCard}
-                // AuraData BI: a dense table first, as the Power BI workspace list
-                defaultViewMode="table"
-                forceViewMode={isMobile ? 'card' : undefined}
+                // AuraData BI: dashboards are always a grid of cards
+                forceViewMode="card"
                 enableBulkTag={enableBulkTag}
                 bulkTagResourceName="dashboard"
                 mobileFiltersOpen={mobileFiltersOpen}

@@ -17,17 +17,13 @@
  * under the License.
  */
 import fetchMock from 'fetch-mock';
-import {
-  fireEvent,
-  screen,
-  waitFor,
-  within,
-} from 'spec/helpers/testing-library';
+import { fireEvent, screen, waitFor } from 'spec/helpers/testing-library';
 import userEvent from '@testing-library/user-event';
 import { isFeatureEnabled } from '@superset-ui/core';
 import {
   mockDashboards,
   mockHandleResourceExport,
+  renderDashboardList,
   renderDashboardListAsCards,
   setupMocks,
   getLatestDashboardApiCall,
@@ -72,37 +68,32 @@ describe('DashboardList Card View Tests', () => {
 
   afterEach(() => fetchMock.clearHistory().removeRoutes());
 
-  test('renders cards instead of table', async () => {
+  test('renders cards, with no table and no view selector', async () => {
     renderDashboardListAsCards(mockUser);
 
     await screen.findByTestId('dashboard-list-view');
 
-    // Verify no table in card view
     expect(screen.queryByTestId('listview-table')).not.toBeInTheDocument();
-
-    // Verify card view toggle is active
-    const cardViewToggle = screen.getByRole('img', { name: 'appstore' });
-    const cardViewButton = cardViewToggle.closest('button');
-    expect(cardViewButton).toHaveClass('active');
+    expect(screen.queryByRole('img', { name: 'appstore' })).toBeNull();
+    expect(screen.queryByRole('img', { name: 'unordered-list' })).toBeNull();
   });
 
-  test('switches from card view to list view', async () => {
-    renderDashboardListAsCards(mockUser);
-    await screen.findByTestId('dashboard-list-view');
+  test('stays on the cards when the address asks for a table', async () => {
+    renderDashboardList(mockUser, {}, {}, '/?viewMode=table');
+
+    await screen.findByText(mockDashboards[0].dashboard_title);
 
     expect(screen.queryByTestId('listview-table')).not.toBeInTheDocument();
+  });
 
-    // Switch to list view
-    const listViewToggle = screen.getByRole('img', {
-      name: 'unordered-list',
-    });
-    const listViewButton = listViewToggle.closest('button');
-    expect(listViewButton).not.toBeNull();
-    fireEvent.click(listViewButton!);
+  test('cards show the editors of each dashboard', async () => {
+    renderDashboardListAsCards(mockUser);
 
-    await waitFor(() => {
-      expect(screen.getByTestId('listview-table')).toBeInTheDocument();
-    });
+    await screen.findByText(mockDashboards[0].dashboard_title);
+
+    expect(screen.getAllByTestId('dashboard-card-people')).toHaveLength(
+      mockDashboards.length,
+    );
   });
 
   test('displays dashboard data correctly in cards', async () => {
@@ -178,99 +169,60 @@ describe('DashboardList Card View Tests', () => {
     });
   });
 
-  test('can bulk deselect all dashboards', async () => {
+  const waitForCards = async () => {
     renderDashboardListAsCards(mockUser);
+    await screen.findByText(mockDashboards[0].dashboard_title);
+    return screen.getAllByTestId('card-select-checkbox');
+  };
 
-    await screen.findByTestId('dashboard-list-view');
-    await waitFor(() => {
-      expect(
-        screen.getByText(mockDashboards[0].dashboard_title),
-      ).toBeInTheDocument();
-    });
+  test('cards have their checkbox, without a bulk select button', async () => {
+    const checkboxes = await waitForCards();
 
-    // Enable bulk select mode
-    const bulkSelectButton = screen.getByTestId('bulk-select');
-    fireEvent.click(bulkSelectButton);
+    expect(checkboxes).toHaveLength(mockDashboards.length);
+    expect(screen.queryByTestId('bulk-select')).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId('bulk-select-controls'),
+    ).not.toBeInTheDocument();
+  });
 
-    await waitFor(() => {
-      expect(screen.getByTestId('bulk-select-controls')).toBeInTheDocument();
-    });
+  test('can select all and deselect all dashboards', async () => {
+    const checkboxes = await waitForCards();
 
-    // Select first card
-    const firstDashboardName = screen.getByText(
-      mockDashboards[0].dashboard_title,
+    fireEvent.click(checkboxes[0]);
+
+    expect(await screen.findByTestId('bulk-select-copy')).toHaveTextContent(
+      '1 Selected',
     );
-    fireEvent.click(firstDashboardName);
-
-    await waitFor(() => {
-      expect(screen.getByTestId('bulk-select-copy')).toHaveTextContent(
-        '1 Selected',
-      );
-    });
-
-    // Select second card
-    const secondDashboardName = screen.getByText(
-      mockDashboards[1].dashboard_title,
-    );
-    fireEvent.click(secondDashboardName);
-
-    await waitFor(() => {
-      expect(screen.getByTestId('bulk-select-copy')).toHaveTextContent(
-        '2 Selected',
-      );
-    });
-
-    // Verify Delete and Export buttons appear
     const bulkActions = screen.getAllByTestId('bulk-select-action');
     expect(bulkActions.find(btn => btn.textContent === 'Delete')).toBeTruthy();
     expect(bulkActions.find(btn => btn.textContent === 'Export')).toBeTruthy();
 
-    // Click deselect all
-    const deselectAllButton = screen.getByTestId('bulk-select-deselect-all');
-    fireEvent.click(deselectAllButton);
-
-    await waitFor(() => {
-      expect(screen.getByTestId('bulk-select-copy')).toHaveTextContent(
-        '0 Selected',
-      );
-    });
-
-    // Bulk action buttons should disappear
-    expect(screen.queryByTestId('bulk-select-action')).not.toBeInTheDocument();
-  });
-
-  test('can bulk export selected dashboards', async () => {
-    renderDashboardListAsCards(mockUser);
-
-    await screen.findByTestId('dashboard-list-view');
-    await waitFor(() => {
-      expect(
-        screen.getByText(mockDashboards[0].dashboard_title),
-      ).toBeInTheDocument();
-    });
-
-    // Enable bulk select mode
-    const bulkSelectButton = screen.getByTestId('bulk-select');
-    fireEvent.click(bulkSelectButton);
-
-    await waitFor(() => {
-      expect(screen.getByTestId('bulk-select-controls')).toBeInTheDocument();
-    });
-
-    // Select dashboards by clicking on each card
-    for (let i = 0; i < mockDashboards.length; i += 1) {
-      const dashboardName = screen.getByText(mockDashboards[i].dashboard_title);
-      fireEvent.click(dashboardName);
-    }
-
+    fireEvent.click(screen.getByTestId('bulk-select-all'));
     await waitFor(() => {
       expect(screen.getByTestId('bulk-select-copy')).toHaveTextContent(
         `${mockDashboards.length} Selected`,
       );
     });
 
-    const bulkExportButton = screen.getByText('Export');
-    fireEvent.click(bulkExportButton);
+    fireEvent.click(screen.getByTestId('bulk-select-deselect-all'));
+    await waitFor(() => {
+      expect(
+        screen.queryByTestId('bulk-select-controls'),
+      ).not.toBeInTheDocument();
+    });
+  });
+
+  test('can bulk export selected dashboards', async () => {
+    const checkboxes = await waitForCards();
+
+    checkboxes.forEach(checkbox => fireEvent.click(checkbox));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('bulk-select-copy')).toHaveTextContent(
+        `${mockDashboards.length} Selected`,
+      );
+    });
+    fireEvent.click(screen.getByText('Export'));
 
     expect(mockHandleResourceExport).toHaveBeenCalledWith(
       'dashboard',
@@ -280,56 +232,24 @@ describe('DashboardList Card View Tests', () => {
   });
 
   test('can bulk delete selected dashboards', async () => {
-    renderDashboardListAsCards(mockUser);
+    const checkboxes = await waitForCards();
 
-    await screen.findByTestId('dashboard-list-view');
-    await waitFor(() => {
-      expect(
-        screen.getByText(mockDashboards[0].dashboard_title),
-      ).toBeInTheDocument();
-    });
-
-    // Enable bulk select mode
-    const bulkSelectButton = screen.getByTestId('bulk-select');
-    fireEvent.click(bulkSelectButton);
-
-    await waitFor(() => {
-      expect(screen.getByTestId('bulk-select-controls')).toBeInTheDocument();
-    });
-
-    // Select dashboards
-    for (let i = 0; i < mockDashboards.length; i += 1) {
-      const dashboardName = screen.getByText(mockDashboards[i].dashboard_title);
-      fireEvent.click(dashboardName);
-    }
+    checkboxes.forEach(checkbox => fireEvent.click(checkbox));
 
     await waitFor(() => {
       expect(screen.getByTestId('bulk-select-copy')).toHaveTextContent(
         `${mockDashboards.length} Selected`,
       );
     });
+    fireEvent.click(screen.getByText('Delete'));
+    await screen.findByText('Please confirm');
 
-    const bulkDeleteButton = screen.getByText('Delete');
-    fireEvent.click(bulkDeleteButton);
-
-    await waitFor(() => {
-      expect(screen.getByText('Please confirm')).toBeInTheDocument();
-    });
-
-    // Type DELETE in the confirmation input
-    const deleteInput = screen.getByTestId('delete-modal-input');
-    await userEvent.type(deleteInput, 'DELETE');
-
-    // Mock the bulk DELETE endpoint
+    await userEvent.type(screen.getByTestId('delete-modal-input'), 'DELETE');
     fetchMock.delete('glob:*/api/v1/dashboard/?*', {
       message: 'Dashboards deleted',
     });
+    fireEvent.click(screen.getByTestId('modal-confirm-button'));
 
-    // Click confirm button
-    const confirmButton = screen.getByTestId('modal-confirm-button');
-    fireEvent.click(confirmButton);
-
-    // Verify bulk delete API was called
     await waitFor(() => {
       const deleteCalls = fetchMock.callHistory.calls(
         /api\/v1\/dashboard\/\?/,
@@ -339,77 +259,21 @@ describe('DashboardList Card View Tests', () => {
     });
   });
 
-  test('exit bulk select by hitting x on bulk select bar', async () => {
-    renderDashboardListAsCards(mockUser);
+  test('a click on a card still opens it', async () => {
+    await waitForCards();
 
-    await screen.findByTestId('dashboard-list-view');
-    await waitFor(() => {
-      expect(
-        screen.getByText(mockDashboards[0].dashboard_title),
-      ).toBeInTheDocument();
-    });
-
-    const bulkSelectButton = screen.getByTestId('bulk-select');
-    fireEvent.click(bulkSelectButton);
-
-    await waitFor(() => {
-      expect(screen.getByTestId('bulk-select-controls')).toBeInTheDocument();
-    });
-
-    // Click the X button to close bulk select
-    const bulkSelectBar = screen.getByTestId('bulk-select-controls');
-    const closeButton = within(bulkSelectBar).getByRole('button', {
-      name: /close/i,
-    });
-    fireEvent.click(closeButton);
-
-    await waitFor(() => {
-      expect(
-        screen.queryByTestId('bulk-select-controls'),
-      ).not.toBeInTheDocument();
-    });
-  });
-
-  test('card click behavior changes in bulk select mode', async () => {
-    renderDashboardListAsCards(mockUser);
-
-    await screen.findByTestId('dashboard-list-view');
-    await waitFor(() => {
-      expect(
-        screen.getByText(mockDashboards[0].dashboard_title),
-      ).toBeInTheDocument();
-    });
+    fireEvent.click(screen.getByText(mockDashboards[0].dashboard_title));
 
     expect(
       screen.queryByTestId('bulk-select-controls'),
     ).not.toBeInTheDocument();
+  });
 
-    const bulkSelectButton = screen.getByTestId('bulk-select');
-    fireEvent.click(bulkSelectButton);
+  test('a right click on a card opens its menu', async () => {
+    await waitForCards();
 
-    await waitFor(() => {
-      expect(screen.getByTestId('bulk-select-controls')).toBeInTheDocument();
-    });
+    fireEvent.contextMenu(screen.getByText(mockDashboards[0].dashboard_title));
 
-    // Clicking on cards should select them
-    const firstDashboardName = screen.getByText(
-      mockDashboards[0].dashboard_title,
-    );
-    fireEvent.click(firstDashboardName);
-
-    await waitFor(() => {
-      expect(screen.getByTestId('bulk-select-copy')).toHaveTextContent(
-        '1 Selected',
-      );
-    });
-
-    // Clicking the same card again should deselect it
-    fireEvent.click(firstDashboardName);
-
-    await waitFor(() => {
-      expect(screen.getByTestId('bulk-select-copy')).toHaveTextContent(
-        '0 Selected',
-      );
-    });
+    expect(await screen.findByText('Open in a new tab')).toBeInTheDocument();
   });
 });

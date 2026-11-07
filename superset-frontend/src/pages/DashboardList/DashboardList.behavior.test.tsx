@@ -25,7 +25,6 @@ import {
   API_ENDPOINTS,
   mockDashboards,
   setupMocks,
-  renderDashboardList,
   renderDashboardListAsCards,
   waitForDashboardsPageReady,
 } from './DashboardList.testHelpers';
@@ -334,62 +333,6 @@ test('can edit dashboard title via properties modal', async () => {
   await waitFor(() => {
     expect(
       screen.queryByTestId('dashboard-title-input'),
-    ).not.toBeInTheDocument();
-  });
-});
-
-test('opens delete confirmation from list view trash icon', async () => {
-  // Switch to list view
-  mockIsFeatureEnabled.mockReturnValue(false);
-
-  renderDashboardList(mockUser);
-
-  await waitFor(() => {
-    expect(screen.getByTestId('listview-table')).toBeInTheDocument();
-  });
-
-  await waitFor(() => {
-    expect(
-      screen.getByText(mockDashboards[0].dashboard_title),
-    ).toBeInTheDocument();
-  });
-
-  // Click the delete icon in the actions column
-  const trashIcons = screen.getAllByTestId('dashboard-list-trash-icon');
-  fireEvent.click(trashIcons[0]);
-
-  // Should open confirmation dialog
-  await waitFor(() => {
-    expect(
-      screen.getByText(/Are you sure you want to delete/i),
-    ).toBeInTheDocument();
-  });
-
-  // Type DELETE in the confirmation input
-  const deleteInput = screen.getByTestId('delete-modal-input');
-  await userEvent.type(deleteInput, 'DELETE');
-
-  // Mock the DELETE endpoint
-  fetchMock.delete('glob:*/api/v1/dashboard/*', {
-    message: 'Dashboard deleted',
-  });
-
-  // Click confirm button
-  const confirmButton = screen.getByTestId('modal-confirm-button');
-  fireEvent.click(confirmButton);
-
-  // Verify delete API was called
-  await waitFor(() => {
-    const deleteCalls = fetchMock.callHistory.calls(/api\/v1\/dashboard\//, {
-      method: 'DELETE',
-    });
-    expect(deleteCalls).toHaveLength(1);
-  });
-
-  // Verify the delete confirmation dialog closes
-  await waitFor(() => {
-    expect(
-      screen.queryByText(/Are you sure you want to delete/i),
     ).not.toBeInTheDocument();
   });
 });

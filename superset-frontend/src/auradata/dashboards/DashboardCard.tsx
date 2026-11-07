@@ -103,8 +103,26 @@ const Card = styled.div`
     }
 
     .body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
       padding: ${theme.sizeUnit * 3}px ${theme.sizeUnit * 4}px
         ${theme.sizeUnit * 3.5}px;
+    }
+
+    .details {
+      flex: 1;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: ${theme.sizeUnit * 2}px;
+      margin-top: ${theme.sizeUnit * 2.5}px;
+      padding-top: ${theme.sizeUnit * 2.5}px;
+      border-top: 1px solid ${theme.colorBorderSecondary};
+
+      > * {
+        min-width: 0;
+      }
     }
 
     .title-row {
@@ -179,13 +197,17 @@ export interface DashboardCardProps {
   title: string;
   url: string;
   published: boolean;
-  modified: string;
+  modified: ReactNode;
   /** Layout preview; undefined while it loads */
   preview?: PreviewRows;
   /** Thumbnail endpoint of the dashboard, when thumbnails are enabled */
   thumbnailUrl?: string | null;
   /** Favorite star, menus... shown next to the title */
   actions?: ReactNode;
+  /** Help next to the title, such as the description of the dashboard */
+  titleHint?: ReactNode;
+  /** Tags, editors... under the title and the status */
+  details?: ReactNode;
   selected?: boolean;
   certifiedBy?: string | null;
   certificationDetails?: string | null;
@@ -203,6 +225,8 @@ export function DashboardCard({
   preview,
   thumbnailUrl,
   actions,
+  titleHint,
+  details,
   selected,
   certifiedBy,
   certificationDetails,
@@ -259,6 +283,7 @@ export function DashboardCard({
           <Link className="title" {...linkProps} title={title}>
             {title}
           </Link>
+          {titleHint}
           {actions && (
             <span
               className="card-actions"
@@ -275,6 +300,7 @@ export function DashboardCard({
             {published ? t('Published') : t('Draft')}
           </span>
         </div>
+        {details && <div className="details">{details}</div>}
       </div>
     </Card>
   );

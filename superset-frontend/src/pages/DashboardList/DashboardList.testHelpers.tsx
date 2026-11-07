@@ -274,10 +274,7 @@ export const renderDashboardList = (
   );
 };
 
-/**
- * AuraData BI: the list opens as a table; the card tests open it as cards
- * through the view mode of the address.
- */
+/** AuraData BI: dashboards are always cards; the address changes nothing. */
 export const renderDashboardListAsCards = (
   user: any,
   props: Record<string, any> = {},

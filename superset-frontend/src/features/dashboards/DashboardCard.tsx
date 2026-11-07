@@ -18,15 +18,24 @@
  */
 import { t } from '@apache-superset/core/translation';
 import { isFeatureEnabled, FeatureFlag } from '@superset-ui/core';
-import { css } from '@apache-superset/core/theme';
+import { css, styled } from '@apache-superset/core/theme';
 import {
   Button,
   Dropdown,
   FaveStar,
   Icons,
+  InfoTooltip,
   Tooltip,
 } from '@superset-ui/core/components';
 import { MenuItem } from '@superset-ui/core/components/Menu';
+import {
+  ModifiedInfo,
+  TagsList,
+  type AuditInfoProps,
+  type TagType,
+} from 'src/components';
+import { TagTypeEnum } from 'src/components/Tag/TagType';
+import { SubjectPile } from 'src/features/subjects/SubjectPile';
 import { Dashboard } from 'src/views/CRUD/types';
 import { isUserEditorOrAdmin } from 'src/dashboard/util/permissionUtils';
 import type { UserWithPermissionsAndRoles } from 'src/types/bootstrapTypes';
@@ -43,6 +52,14 @@ const menuItemButtonCss = css`
   font: inherit;
   text-align: left;
   cursor: pointer;
+`;
+
+const People = styled.span`
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: ${({ theme }) => theme.sizeUnit * 2}px;
+  margin-left: auto;
 `;
 
 interface DashboardCardProps {
@@ -165,13 +182,41 @@ function DashboardCard({
     });
   }
 
+  const customTags = (dashboard.tags ?? []).filter(
+    (tag: TagType) =>
+      tag.type === 'TagTypes.custom' || tag.type === TagTypeEnum.Custom,
+  );
+  const showTags =
+    isFeatureEnabled(FeatureFlag.TaggingSystem) && customTags.length > 0;
+  const showViewers =
+    isFeatureEnabled(FeatureFlag.EnableViewers) && !!dashboard.viewers?.length;
+
   return (
     <AuraDataDashboardCard
       id={dashboard.id}
       title={dashboard.dashboard_title}
       url={dashboard.url}
       published={dashboard.published}
-      modified={t('Modified %s', dashboard.changed_on_delta_humanized)}
+      modified={
+        <ModifiedInfo
+          date={t('Modified %s', dashboard.changed_on_delta_humanized)}
+          user={dashboard.changed_by as unknown as AuditInfoProps['user']}
+        />
+      }
+      titleHint={
+        dashboard.description ? (
+          <InfoTooltip tooltip={dashboard.description} />
+        ) : undefined
+      }
+      details={
+        <>
+          {showTags && <TagsList tags={customTags} maxTags={3} />}
+          <People data-test="dashboard-card-people">
+            {showViewers && <SubjectPile subjects={dashboard.viewers ?? []} />}
+            <SubjectPile subjects={dashboard.editors ?? []} />
+          </People>
+        </>
+      }
       preview={preview}
       certifiedBy={dashboard.certified_by}
       certificationDetails={dashboard.certification_details}

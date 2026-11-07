@@ -17,6 +17,7 @@
  * under the License.
  */
 import { QueryState } from '@superset-ui/core';
+import type { TagType } from 'src/components';
 import { UserWithPermissionsAndRoles } from 'src/types/bootstrapTypes';
 import Database from 'src/types/Database';
 import User from 'src/types/User';
@@ -70,6 +71,8 @@ export interface Dashboard {
   // Bare subject ids from a deployment's EXTRA_EDITORS_RESOLVER.
   extra_editors?: number[];
   viewers?: Subject[];
+  description?: string;
+  tags?: TagType[];
   loading?: boolean;
 }
 
