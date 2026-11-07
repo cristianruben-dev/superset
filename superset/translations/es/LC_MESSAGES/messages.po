@@ -26815,12 +26815,6 @@ msgstr "Modelos"
 msgid "Refresh list"
 msgstr "Actualizar lista"
 
-msgid "The data you query is sent to Anthropic"
-msgstr "Los datos que consultes se envían a Anthropic"
-
-msgid "The assistant sees what each user sees, data rows included. What they ask and the data it reads travel to the Anthropic API."
-msgstr "El asistente ve lo que ve cada usuario, incluidas las filas de datos. Lo que pregunta y los datos que lee viajan a la API de Anthropic."
-
 msgid "Availability"
 msgstr "Disponibilidad"
 

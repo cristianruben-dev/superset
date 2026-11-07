@@ -66,7 +66,6 @@ const Page = styled.div`
     display: grid;
     gap: var(--mb-space-section);
     width: 100%;
-    max-width: 1040px;
     padding: var(--mb-space-page-top) var(--mb-space-gutter)
       ${theme.sizeUnit * 8}px;
 

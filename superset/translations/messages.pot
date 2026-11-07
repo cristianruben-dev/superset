@@ -17752,9 +17752,6 @@ msgid ""
 "previewed"
 msgstr ""
 
-msgid "The data you query is sent to Anthropic"
-msgstr ""
-
 msgid "The database columns that contains lines information"
 msgstr ""
 

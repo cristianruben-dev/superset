@@ -138,7 +138,6 @@ const Page = styled.div`
     display: grid;
     gap: var(--mb-space-section);
     width: 100%;
-    max-width: 1040px;
     padding: var(--mb-space-page-top) var(--mb-space-gutter)
       ${theme.sizeUnit * 8}px;
   `}
@@ -328,17 +327,6 @@ export default function AssistantSettingsPage() {
                 )}
                 {settings && draft && (
                   <>
-                    <Alert
-                      type="info"
-                      showIcon
-                      closable={false}
-                      data-test="assistant-privacy-notice"
-                      title={t('The data you query is sent to Anthropic')}
-                      description={t(
-                        'The assistant sees what each user sees, data rows included. What they ask and the data it reads travel to the Anthropic API.',
-                      )}
-                    />
-
                     <Section>
                       <h2>{t('Availability')}</h2>
                       <p>

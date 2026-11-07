@@ -71,7 +71,7 @@ const settings = {
 
 const renderPage = async () => {
   render(<AssistantSettingsPage />, { useRedux: true });
-  await screen.findByTestId('assistant-privacy-notice');
+  await screen.findByText('Availability');
 };
 
 const saveButton = () => screen.getByRole('button', { name: 'Save' });
@@ -80,14 +80,11 @@ beforeEach(() => {
   fetchMock.clearHistory().removeRoutes();
 });
 
-test('shows the privacy notice and the live models with their prices', async () => {
+test('shows the live models with their prices', async () => {
   fetchMock.get(SETTINGS, { result: settings });
 
   await renderPage();
 
-  expect(screen.getByTestId('assistant-privacy-notice')).toHaveTextContent(
-    'The data you query is sent to Anthropic',
-  );
   expect(
     screen.getByRole('checkbox', { name: 'Claude Sonnet 5.5' }),
   ).toBeChecked();
