@@ -82,7 +82,9 @@ export class DashboardListPage {
     dashboardName: string,
     testId: string,
   ): Promise<void> {
-    await this.getCard(dashboardName).getByRole('img', { name: 'more' }).click();
+    await this.getCard(dashboardName)
+      .getByRole('img', { name: 'more' })
+      .click();
     await this.page.getByTestId(testId).click();
   }
 
