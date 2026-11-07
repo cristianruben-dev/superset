@@ -513,6 +513,18 @@ body:not(.auradata-panel)
   border-bottom: 0 !important;
 }
 
+/* antd's row of column measures has no height: the padding above would open a gap under the header */
+.superset-list-view .ant-table-tbody > tr.ant-table-measure-row > td,
+body.auradata-panel
+  .superset-list-view
+  .ant-table-tbody
+  > tr.ant-table-measure-row
+  > td {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  border-bottom: 0 !important;
+}
+
 .superset-list-view .ant-table-tbody > tr:hover > td {
   background: var(--mb-fill) !important;
 }
