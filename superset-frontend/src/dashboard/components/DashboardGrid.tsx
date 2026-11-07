@@ -22,7 +22,7 @@ import { t } from '@apache-superset/core/translation';
 import { css, styled, useTheme } from '@apache-superset/core/theme';
 import { EmptyState } from '@superset-ui/core/components';
 import { Icons } from '@superset-ui/core/components/Icons';
-import { navigateTo } from 'src/utils/navigationUtils';
+import { openChartEditor } from 'src/auradata/chartEditor';
 import type { LayoutItem } from 'src/dashboard/types';
 import type { DropResult } from 'src/dashboard/components/dnd/dragDroppableConfig';
 import DashboardComponent from '../containers/DashboardComponent';
@@ -225,9 +225,7 @@ function DashboardGrid({
         </>
       }
       buttonAction={() => {
-        navigateTo(`/chart/add?dashboard_id=${dashboardId}`, {
-          newWindow: true,
-        });
+        openChartEditor({ url: `/chart/add?dashboard_id=${dashboardId}` });
       }}
       image="chart.svg"
     />
@@ -247,9 +245,7 @@ function DashboardGrid({
         </>
       }
       buttonAction={() => {
-        navigateTo(`/chart/add?dashboard_id=${dashboardId}`, {
-          newWindow: true,
-        });
+        openChartEditor({ url: `/chart/add?dashboard_id=${dashboardId}` });
       }}
       image="chart.svg"
     />

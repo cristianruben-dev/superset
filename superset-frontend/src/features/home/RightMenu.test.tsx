@@ -34,6 +34,7 @@ import {
 import { isFeatureEnabled, FeatureFlag, CACHE_KEY } from '@superset-ui/core';
 import { isEmbedded } from 'src/dashboard/util/isEmbedded';
 import * as getBootstrapData from 'src/utils/getBootstrapData';
+import { OPEN_CHART_EDITOR } from 'src/auradata/chartEditor';
 import RightMenu from './RightMenu';
 import { RightMenuProps } from './types';
 
@@ -132,7 +133,7 @@ const resetUseSelectorMock = () => {
       username: 'admin',
     },
     // The dashboard the menu is on
-    dashboardInfo: { id: 1 },
+    dashboardInfo: { id: 1, dash_edit_perm: true },
     common: { conf: {} },
   };
   useSelectorMock.mockImplementation(selector => selector(mockState));
@@ -155,6 +156,7 @@ test('renders', async () => {
 test('the New menu leaves data and SQL Lab to the dashboard', async () => {
   const mockedProps = createProps();
   resetUseSelectorMock();
+  window.history.pushState({}, '', '/dashboard/1/');
   render(<RightMenu {...mockedProps} />, {
     useRedux: true,
     useRouter: true,
@@ -166,6 +168,42 @@ test('the New menu leaves data and SQL Lab to the dashboard', async () => {
   expect(screen.queryByText('Data')).not.toBeInTheDocument();
   expect(screen.queryByText('SQL query')).not.toBeInTheDocument();
   expect(fetchMock.callHistory.calls(/database\/\?q/)).toHaveLength(0);
+});
+
+test('a new chart opens in the side panel of the report, without leaving it', async () => {
+  const listener = jest.fn();
+  window.addEventListener(OPEN_CHART_EDITOR, listener);
+  resetUseSelectorMock();
+  window.history.pushState({}, '', '/dashboard/1/');
+  render(<RightMenu {...createProps()} />, {
+    useRedux: true,
+    useRouter: true,
+    useTheme: true,
+  });
+  await userEvent.hover(screen.getByTestId('new-dropdown-icon'));
+
+  const chart = await screen.findByText('Chart');
+  expect(chart.closest('a')).toBeNull();
+  await userEvent.click(chart);
+
+  expect((listener.mock.calls[0][0] as CustomEvent).detail).toEqual({
+    url: '/chart/add?dashboard_id=1',
+  });
+  window.removeEventListener(OPEN_CHART_EDITOR, listener);
+  window.history.pushState({}, '', '/');
+});
+
+test('the New menu offers no chart out of a report', async () => {
+  resetUseSelectorMock();
+  window.history.pushState({}, '', '/dashboard/list/');
+  render(<RightMenu {...createProps()} />, {
+    useRedux: true,
+    useRouter: true,
+    useTheme: true,
+  });
+  await userEvent.hover(screen.getByTestId('new-dropdown-icon'));
+  expect(screen.queryByText('Chart')).not.toBeInTheDocument();
+  window.history.pushState({}, '', '/');
 });
 
 test('the New menu creates workspaces for users who write dashboards', async () => {

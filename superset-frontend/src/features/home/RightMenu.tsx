@@ -18,7 +18,7 @@
  */
 import { useState, useMemo } from 'react';
 import { useSelector } from 'react-redux';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { t } from '@apache-superset/core/translation';
 import {
   getExtensionsRegistry,
@@ -42,6 +42,8 @@ import {
   Button,
 } from '@superset-ui/core/components';
 import type { ItemType, MenuItem } from '@superset-ui/core/components/Menu';
+import { openChartEditor } from 'src/auradata/chartEditor';
+import { isReportRoute } from 'src/auradata/shell/navigation';
 import {
   ensureAppRoot,
   navigateTo,
@@ -103,6 +105,13 @@ const RightMenu = ({
   const dashboardId = useSelector<RootState, number | undefined>(
     state => state.dashboardInfo?.id,
   );
+  const canEditDashboard = useSelector<RootState, boolean>(
+    state =>
+      Number.isInteger(state.dashboardInfo?.id) &&
+      !!state.dashboardInfo?.dash_edit_perm,
+  );
+  // The store keeps the last dashboard after leaving it
+  const onReport = isReportRoute(useLocation().pathname);
   const userValues = user || {};
   const { roles } = userValues;
   const scarfAnalytics = useSelector<any, boolean | undefined>(
@@ -117,12 +126,16 @@ const RightMenu = ({
   // AuraData BI: connections, datasets, uploads and SQL Lab open from the
   // "Data" menu of a dashboard, where the report is built
   const dropdownItems: MenuObjectProps[] = [
-    // Charts belong to a single dashboard (AuraData BI): only offered inside one
-    ...(Number.isInteger(dashboardId)
+    // Charts belong to a single dashboard (AuraData BI): only offered inside
+    // one the user can edit, and they open in its side panel
+    ...(onReport && canEditDashboard
       ? [
           {
             label: t('Chart'),
-            url: `/chart/add?dashboard_id=${dashboardId}`,
+            onClick: () =>
+              openChartEditor({
+                url: `/chart/add?dashboard_id=${dashboardId}`,
+              }),
             icon: (
               <Icons.BarChartOutlined data-test={`menu-item-${t('Chart')}`} />
             ),
@@ -205,6 +218,17 @@ const RightMenu = ({
       const items: MenuItem[] = [];
 
       dropdownItems?.forEach(menu => {
+        if (menu.onClick) {
+          if (findPermission(menu.perm as string, menu.view as string, roles)) {
+            items.push({
+              key: menu.label,
+              label: menu.label,
+              icon: menu.icon,
+              onClick: menu.onClick,
+            });
+          }
+          return;
+        }
         const canShowChild = menu.childs?.some(
           item => typeof item === 'object' && !!item.perm,
         );

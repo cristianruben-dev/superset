@@ -27,7 +27,7 @@ import {
 import DashboardComponent from 'src/dashboard/containers/DashboardComponent';
 import { EditableTitle } from '@superset-ui/core/components';
 import { setEditMode, onRefresh } from 'src/dashboard/actions/dashboardState';
-import * as getBootstrapData from 'src/utils/getBootstrapData';
+import { OPEN_CHART_EDITOR } from 'src/auradata/chartEditor';
 
 import type { FC } from 'react';
 import ActualTab from './Tab';
@@ -481,42 +481,18 @@ test('Render tab content with no children, editMode: true, canEdit: true', () =>
     screen.getByText('Drag and drop components to this tab'),
   ).toBeVisible();
   expect(screen.getByRole('img', { name: 'empty' })).toBeVisible();
-  expect(
-    screen.getByRole('link', { name: 'create a new chart' }),
-  ).toBeVisible();
-  expect(
-    screen.getByRole('link', { name: 'create a new chart' }),
-  ).toHaveAttribute('href', '/chart/add?dashboard_id=23');
-});
+  const listener = jest.fn();
+  window.addEventListener(OPEN_CHART_EDITOR, listener);
+  const link = screen.getByText('create a new chart');
+  expect(link).toBeVisible();
+  expect(link).not.toHaveAttribute('href');
 
-test('empty-tab "create a new chart" link is single-prefixed under subdirectory deployment', () => {
-  // The empty-tab CTA composes the chart-add URL via ensureAppRoot. Under
-  // SUPERSET_APP_ROOT=/superset the rendered href must be exactly
-  // `/superset/chart/add?dashboard_id=23` — not `/chart/add?…` (no prefix)
-  // and not `/superset/superset/chart/add?…` (double prefix). The link uses
-  // target="_blank", so basename routing does NOT re-apply the prefix.
-  const applicationRootSpy = jest
-    .spyOn(getBootstrapData, 'applicationRoot')
-    .mockReturnValue('/superset');
+  fireEvent.click(link);
 
-  try {
-    const props = createProps();
-    props.editMode = true;
-    props.component.children = [];
-    render(<Tab {...props} />, {
-      useRedux: true,
-      useDnd: true,
-      initialState: {
-        dashboardInfo: { dash_edit_perm: true },
-      },
-    });
-
-    expect(
-      screen.getByRole('link', { name: 'create a new chart' }),
-    ).toHaveAttribute('href', '/superset/chart/add?dashboard_id=23');
-  } finally {
-    applicationRootSpy.mockRestore();
-  }
+  expect((listener.mock.calls[0][0] as CustomEvent).detail).toEqual({
+    url: '/chart/add?dashboard_id=23',
+  });
+  window.removeEventListener(OPEN_CHART_EDITOR, listener);
 });
 
 test('Drag to empty state, editMode: true, canEdit: true', async () => {

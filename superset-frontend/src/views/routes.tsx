@@ -38,6 +38,8 @@ import Home from 'src/pages/Home';
 // The pages that build a report open from the side panel of a dashboard
 const DATA_FALLBACK = '/workspace/list/';
 const SQL_FALLBACK = '/dashboard/list/';
+// Charts are created from the side panel of their dashboard
+const CHART_FALLBACK = '/dashboard/list/';
 
 const ChartCreation = lazy(
   () =>
@@ -259,7 +261,10 @@ export const routes: Routes = [
     mobileSupported: true,
   },
   { path: RoutePaths.DASHBOARD, Component: Dashboard, mobileSupported: true },
-  { path: RoutePaths.CHART_ADD, Component: ChartCreation },
+  {
+    path: RoutePaths.CHART_ADD,
+    Component: panelOnly(ChartCreation, CHART_FALLBACK),
+  },
   {
     // Charts live inside their dashboard, so the chart list goes to dashboards
     path: RoutePaths.CHART_LIST,
