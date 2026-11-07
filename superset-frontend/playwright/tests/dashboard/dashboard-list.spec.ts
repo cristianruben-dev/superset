@@ -46,7 +46,7 @@ const test = testWithAssets.extend<{ dashboardListPage: DashboardListPage }>({
   dashboardListPage: async ({ page }, use) => {
     const dashboardListPage = new DashboardListPage(page);
     await dashboardListPage.goto();
-    await dashboardListPage.waitForTableLoad();
+    await dashboardListPage.waitForListLoad();
     await use(dashboardListPage);
   },
 });
@@ -66,15 +66,15 @@ test('should delete a dashboard with confirmation', async ({
 
   // Refresh to see the new dashboard (created via API)
   await dashboardListPage.goto();
-  await dashboardListPage.waitForTableLoad();
+  await dashboardListPage.waitForListLoad();
 
   // The list query is asynchronous; allow extra time on slow CI before the
   // freshly-created dashboard appears.
-  await expect(dashboardListPage.getDashboardRow(dashboardName)).toBeVisible({
+  await expect(dashboardListPage.getCard(dashboardName)).toBeVisible({
     timeout: TIMEOUT.API_RESPONSE,
   });
 
-  // Click delete action button
+  // Click delete in the menu of the card
   await dashboardListPage.clickDeleteAction(dashboardName);
 
   // Delete confirmation modal should appear
@@ -96,12 +96,9 @@ test('should delete a dashboard with confirmation', async ({
   // Verify dashboard is removed from list (extended timeout for slow CI
   // post-delete propagation — the default 8s expect.timeout intermittently
   // expires before the listview re-fetch lands).
-  await expect(dashboardListPage.getDashboardRow(dashboardName)).toHaveCount(
-    0,
-    {
-      timeout: TIMEOUT.API_RESPONSE,
-    },
-  );
+  await expect(dashboardListPage.getCard(dashboardName)).toHaveCount(0, {
+    timeout: TIMEOUT.API_RESPONSE,
+  });
 
   // Backend verification: API returns 404
   await expectDeleted(page, ENDPOINTS.DASHBOARD, dashboardId, {
@@ -124,18 +121,18 @@ test('should export a dashboard as a zip file', async ({
 
   // Refresh to see the new dashboard
   await dashboardListPage.goto();
-  await dashboardListPage.waitForTableLoad();
+  await dashboardListPage.waitForListLoad();
 
   // The list query is asynchronous; allow extra time on slow CI before the
   // freshly-created dashboard appears.
-  await expect(dashboardListPage.getDashboardRow(dashboardName)).toBeVisible({
+  await expect(dashboardListPage.getCard(dashboardName)).toBeVisible({
     timeout: TIMEOUT.API_RESPONSE,
   });
 
   // Set up API response intercept for export endpoint
   const exportResponsePromise = waitForGet(page, ENDPOINTS.DASHBOARD_EXPORT);
 
-  // Click export action button
+  // Click export in the menu of the card
   await dashboardListPage.clickExportAction(dashboardName);
 
   // Wait for export API response and validate zip contents
@@ -165,19 +162,16 @@ test('should bulk delete multiple dashboards', async ({
 
   // Refresh to see new dashboards
   await dashboardListPage.goto();
-  await dashboardListPage.waitForTableLoad();
+  await dashboardListPage.waitForListLoad();
 
   // The list query is asynchronous; allow extra time on slow CI before the
   // freshly-created dashboards appear.
-  await expect(dashboardListPage.getDashboardRow(dashboard1.name)).toBeVisible({
+  await expect(dashboardListPage.getCard(dashboard1.name)).toBeVisible({
     timeout: TIMEOUT.API_RESPONSE,
   });
-  await expect(dashboardListPage.getDashboardRow(dashboard2.name)).toBeVisible({
+  await expect(dashboardListPage.getCard(dashboard2.name)).toBeVisible({
     timeout: TIMEOUT.API_RESPONSE,
   });
-
-  // Enable bulk select mode
-  await dashboardListPage.clickBulkSelectButton();
 
   // Select both dashboards
   await dashboardListPage.selectDashboardCheckbox(dashboard1.name);
@@ -201,15 +195,13 @@ test('should bulk delete multiple dashboards', async ({
   const toast = new Toast(page);
   await expect(toast.getSuccess()).toBeVisible();
 
-  // Verify both dashboards are removed from list (deleted rows are removed from the DOM, so assert count rather than visibility)
-  await expect(dashboardListPage.getDashboardRow(dashboard1.name)).toHaveCount(
-    0,
-    { timeout: TIMEOUT.API_RESPONSE },
-  );
-  await expect(dashboardListPage.getDashboardRow(dashboard2.name)).toHaveCount(
-    0,
-    { timeout: TIMEOUT.API_RESPONSE },
-  );
+  // Verify both dashboards are removed from list (deleted cards are removed from the DOM, so assert count rather than visibility)
+  await expect(dashboardListPage.getCard(dashboard1.name)).toHaveCount(0, {
+    timeout: TIMEOUT.API_RESPONSE,
+  });
+  await expect(dashboardListPage.getCard(dashboard2.name)).toHaveCount(0, {
+    timeout: TIMEOUT.API_RESPONSE,
+  });
 
   // Backend verification: Both return 404
   for (const dashboard of [dashboard1, dashboard2]) {
@@ -241,19 +233,16 @@ test('should bulk export multiple dashboards', async ({
 
   // Refresh to see new dashboards
   await dashboardListPage.goto();
-  await dashboardListPage.waitForTableLoad();
+  await dashboardListPage.waitForListLoad();
 
   // The list query is asynchronous; allow extra time on slow CI before the
   // freshly-created dashboards appear.
-  await expect(dashboardListPage.getDashboardRow(dashboard1.name)).toBeVisible({
+  await expect(dashboardListPage.getCard(dashboard1.name)).toBeVisible({
     timeout: TIMEOUT.API_RESPONSE,
   });
-  await expect(dashboardListPage.getDashboardRow(dashboard2.name)).toBeVisible({
+  await expect(dashboardListPage.getCard(dashboard2.name)).toBeVisible({
     timeout: TIMEOUT.API_RESPONSE,
   });
-
-  // Enable bulk select mode (waits for the checkbox column to render)
-  await dashboardListPage.clickBulkSelectButton();
 
   // Select both dashboards (each call asserts the checkbox is checked)
   await dashboardListPage.selectDashboardCheckbox(dashboard1.name);
@@ -315,13 +304,12 @@ test.describe('import dashboard', () => {
       label: `Dashboard ${dashboardId}`,
     });
 
-    // Refresh to confirm dashboard is no longer in the list (deleted rows are removed from the DOM, so assert count rather than visibility)
+    // Refresh to confirm dashboard is no longer in the list (deleted cards are removed from the DOM, so assert count rather than visibility)
     await dashboardListPage.goto();
-    await dashboardListPage.waitForTableLoad();
-    await expect(dashboardListPage.getDashboardRow(dashboardName)).toHaveCount(
-      0,
-      { timeout: TIMEOUT.API_RESPONSE },
-    );
+    await dashboardListPage.waitForListLoad();
+    await expect(dashboardListPage.getCard(dashboardName)).toHaveCount(0, {
+      timeout: TIMEOUT.API_RESPONSE,
+    });
 
     // Click the import button
     await dashboardListPage.clickImportButton();
@@ -381,11 +369,11 @@ test.describe('import dashboard', () => {
 
     // Refresh to see the imported dashboard
     await dashboardListPage.goto();
-    await dashboardListPage.waitForTableLoad();
+    await dashboardListPage.waitForListLoad();
 
     // The list query is asynchronous; allow extra time on slow CI before the
     // freshly-imported dashboard appears.
-    await expect(dashboardListPage.getDashboardRow(dashboardName)).toBeVisible({
+    await expect(dashboardListPage.getCard(dashboardName)).toBeVisible({
       timeout: TIMEOUT.API_RESPONSE,
     });
 
