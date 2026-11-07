@@ -359,8 +359,8 @@ This repository is **AuraData BI**, a fork of Apache Superset 7.0 shaped like Po
   commands under the top bar (`src/auradata/report/ReadingBar.tsx`: view, filters, export); the editor keeps the ribbon.
   The first row of the window, above the top bar and the sidebar, is a desktop-style menu bar (`MenuBar` in
   `src/auradata/shell/MenuBar.tsx`, the `auradata-menubar-row` slot of `AppShell`, `menuBarSlot.ts`): File, View, Go to and Help
-  on every page (`AppMenuBar`), File, View, Filters, Export and Share on a report (`ReportMenuBar`, the actions of its
-  "⋯" menu, which stays, and hidden on phones and while editing).
+  on every page (`AppMenuBar`), File, View, Go to, Filters, Export, Share and Help on a report (`ReportMenuBar`, the actions of its
+  "⋯" menu, which stays, plus the menus every page shares from `appMenus.tsx`; hidden on phones; in the editor it sits above the ribbon).
   The last row is a status bar (`StatusBar`: server state, page figures from `usePageStatus`, language, theme; not on
   reports, which have the page bar). File › Open recent lists the dashboards opened in this browser
   (`recentDashboards.ts`, kept by `ReportMenuBar`). A ListView takes `rowMenu` for a right click on a row

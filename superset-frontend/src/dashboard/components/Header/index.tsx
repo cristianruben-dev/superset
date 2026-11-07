@@ -816,9 +816,10 @@ const Header = ({ onOpenMobileFilters }: HeaderComponentProps): JSX.Element => {
             reportHeaderSlot,
           )
         : pageHeader}
-      {/* AuraData BI: the commands of a viewer, in one row under the top bar */}
-      {!editMode && !isEmbedded && (
+      {/* AuraData BI: the menu bar of the report, in the first row of the window */}
+      {!isEmbedded && (
         <ReportMenuBar
+          editing={editMode}
           dashboardId={dashboardInfo.id}
           dashboardTitle={dashboardTitle}
           isLoading={isLoading}

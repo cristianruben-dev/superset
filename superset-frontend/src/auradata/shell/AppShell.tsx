@@ -31,6 +31,7 @@ import { usePhoneScreen } from '../format/mobile';
 import { CommandPalette } from './CommandPalette';
 import { buildNavSections, isReportRoute } from './navigation';
 import { AppMenuBar } from './AppMenuBar';
+import { AppMenusHost } from './appMenus';
 import { MENU_BAR_HEIGHT } from './MenuBar';
 import { setMenuBarSlot } from './menuBarSlot';
 import { STATUS_BAR_HEIGHT, StatusBar } from './StatusBar';
@@ -138,6 +139,7 @@ export function AppShell({ data, isFrontendRoute, children }: AppShellProps) {
   const collapsed = preferCollapsed || narrow;
   const sidebarWidth = collapsed ? SIDEBAR_COLLAPSED_WIDTH : SIDEBAR_WIDTH;
   const [searching, setSearching] = useState(false);
+  const openSearch = useCallback(() => setSearching(true), []);
   const sections = useMemo(
     () =>
       buildNavSections(data.menu, {
@@ -208,15 +210,18 @@ export function AppShell({ data, isFrontendRoute, children }: AppShellProps) {
   return (
     <>
       <ThemeVariables />
+      <AppMenusHost
+        data={data}
+        sections={sections}
+        isFrontendRoute={isFrontendRoute}
+        onSearch={openSearch}
+      />
       <Frame>
         {/* The menu bar of the page; a report puts its own here */}
         <MenuRow ref={setMenuBarSlot} data-test="auradata-menubar-row">
           {!report && (
             <AppMenuBar
               data={data}
-              sections={sections}
-              isFrontendRoute={isFrontendRoute}
-              onSearch={() => setSearching(true)}
               sidebarCollapsed={phone ? !navOpen : collapsed}
               onToggleSidebar={phone ? toggleNav : toggleCollapsed}
             />
@@ -247,7 +252,7 @@ export function AppShell({ data, isFrontendRoute, children }: AppShellProps) {
           <TopBar
             data={data}
             isFrontendRoute={isFrontendRoute}
-            onSearch={() => setSearching(true)}
+            onSearch={openSearch}
             showBrand={report || phone}
             compactBrand={narrow}
             onOpenNav={!report && phone ? toggleNav : undefined}

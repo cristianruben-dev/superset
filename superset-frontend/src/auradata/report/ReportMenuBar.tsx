@@ -31,6 +31,7 @@ import { useHeaderReportMenuItems } from 'src/features/reports/ReportModal/Heade
 import { setCanvasView, useCanvasView } from '../format/canvasView';
 import { usePhoneScreen } from '../format/mobile';
 import { setPresenting } from '../present/presentation';
+import { useAppMenus } from '../shell/appMenus';
 import { MenuBar } from '../shell/MenuBar';
 import { useMenuBarSlot } from '../shell/menuBarSlot';
 import {
@@ -69,6 +70,8 @@ export interface ReportMenuBarProps {
   userCanShare?: boolean;
   userCanCurate?: boolean;
   userCanExport?: boolean;
+  /** The report is open in the editor: what only reading needs leaves the menus */
+  editing?: boolean;
   /** When it changed last, already in words ("2 hours ago") */
   modified?: string;
   logEvent?: Function;
@@ -84,9 +87,10 @@ export interface ReportMenuBarProps {
 }
 
 /**
- * The menu bar of a report in reading view (File, View, Filters, Export,
- * Share), on the first row of the window, as a desktop application. It gathers
- * the actions of the "⋯" menu, which stays too. The editor has the ribbon.
+ * The menu bar of a report (File, View, Go to, Filters, Export, Share, Help), on
+ * the first row of the window, as a desktop application, in reading view and in
+ * the editor, under which the ribbon goes on. It gathers the actions of the "⋯"
+ * menu, which stays too, and the menus every other page has.
  */
 export function ReportMenuBar({
   dashboardId,
@@ -96,6 +100,7 @@ export function ReportMenuBar({
   userCanShare,
   userCanCurate,
   userCanExport,
+  editing,
   modified,
   logEvent,
   addSuccessToast,
@@ -118,6 +123,7 @@ export function ReportMenuBar({
   // The first row of the window; without the app frame there is no menu bar
   const slot = useMenuBarSlot();
   const recent = useRecentDashboards();
+  const app = useAppMenus();
 
   // The report goes first in "Open recent" of every File menu
   useEffect(() => {
@@ -170,6 +176,13 @@ export function ReportMenuBar({
   if (phone || !slot) return null;
 
   const file: MenuItem[] = [
+    ...app.create,
+    recentMenuItem(
+      recent,
+      url => navigateTo(url, { assign: true }),
+      dashboardId,
+    ),
+    { type: 'divider' },
     {
       key: 'refresh',
       icon: <Icons.SyncOutlined iconSize="m" />,
@@ -184,15 +197,8 @@ export function ReportMenuBar({
       disabled: isLoading,
       onClick: onAutoRefresh,
     },
-    { type: 'divider' },
-    recentMenuItem(
-      recent,
-      url => navigateTo(url, { assign: true }),
-      dashboardId,
-    ),
-    ...(userCanEdit
+    ...(userCanEdit && !editing
       ? [
-          { type: 'divider' as const },
           {
             key: 'edit',
             icon: <Icons.EditOutlined iconSize="m" />,
@@ -201,15 +207,21 @@ export function ReportMenuBar({
           },
         ]
       : []),
+    ...(app.account.length ? [{ type: 'divider' as const }] : []),
+    ...app.account,
   ];
 
   const viewMenu: MenuItem[] = [
-    {
-      key: 'present',
-      icon: <Icons.FundProjectionScreenOutlined iconSize="m" />,
-      label: t('Present'),
-      onClick: () => setPresenting(true),
-    },
+    ...(editing
+      ? []
+      : [
+          {
+            key: 'present',
+            icon: <Icons.FundProjectionScreenOutlined iconSize="m" />,
+            label: t('Present'),
+            onClick: () => setPresenting(true),
+          },
+        ]),
     {
       key: 'fullscreen',
       icon: <Icons.FullscreenOutlined iconSize="m" />,
@@ -242,6 +254,7 @@ export function ReportMenuBar({
         },
       ],
     },
+    ...app.appearance,
   ];
 
   const filters: MenuItem[] = [
@@ -252,7 +265,7 @@ export function ReportMenuBar({
       disabled: !filtersChanged,
       onClick: () => dispatch(resetFilters() as never),
     },
-    ...(bookmarks.length
+    ...(bookmarks.length && !editing
       ? [
           { type: 'divider' as const },
           {
@@ -303,9 +316,11 @@ export function ReportMenuBar({
       menus={[
         { key: 'file', label: t('File'), items: file },
         { key: 'view', label: t('View'), items: viewMenu },
+        { key: 'go', label: t('Go to'), items: app.goTo },
         { key: 'filters', label: t('Filters'), items: filters },
         { key: 'export', label: t('Export'), items: exportMenu },
         { key: 'share', label: t('Share'), items: shareMenu },
+        { key: 'help', label: t('Help'), items: app.help },
       ]}
       end={modified ? t('Modified %s', modified) : undefined}
     />,
