@@ -2158,9 +2158,77 @@ body.auradata-moving * {
 }
 
 .auradata-canvas .resizable-container:hover .resize-handle,
-.auradata-canvas .auradata-selected .resize-handle,
+.auradata-canvas .resizable-container:has(> .auradata-selected) .resize-handle,
 .auradata-canvas .resizable-container--resizing .resize-handle {
   opacity: 1;
+}
+
+/* Where a handle takes the pointer stays inside its object, so two objects that
+   touch never take each other's edge (re-resizable reaches 5 to 10 px out) */
+.auradata-canvas .resizable-container > * > .resizable-container-handle--right,
+.auradata-canvas .resizable-container > .resizable-container-handle--right {
+  right: 0 !important;
+  width: 8px !important;
+}
+
+.auradata-canvas .resizable-container > * > .resizable-container-handle--left,
+.auradata-canvas .resizable-container > .resizable-container-handle--left {
+  left: 0 !important;
+  width: 8px !important;
+}
+
+.auradata-canvas .resizable-container > * > .resizable-container-handle--top,
+.auradata-canvas .resizable-container > .resizable-container-handle--top {
+  top: 0 !important;
+  height: 8px !important;
+}
+
+.auradata-canvas .resizable-container > * > .resizable-container-handle--bottom,
+.auradata-canvas .resizable-container > .resizable-container-handle--bottom {
+  bottom: 0 !important;
+  height: 8px !important;
+}
+
+.auradata-canvas [class*='resizable-container-handle--top-'],
+.auradata-canvas [class*='resizable-container-handle--bottom-'] {
+  width: 14px !important;
+  height: 14px !important;
+}
+
+.auradata-canvas [class*='resizable-container-handle--top-'] {
+  top: 0 !important;
+}
+
+.auradata-canvas [class*='resizable-container-handle--bottom-'] {
+  bottom: 0 !important;
+}
+
+.auradata-canvas [class*='resizable-container-handle--'][class*='-left'] {
+  left: 0 !important;
+}
+
+.auradata-canvas [class*='resizable-container-handle--'][class*='-right'] {
+  right: 0 !important;
+}
+
+/* With an object selected, only the selection resizes: the handles of the
+   others neither show nor take the pointer until one of them is clicked */
+.auradata-canvas:has(.auradata-selected)
+  .resizable-container:has(
+    > .dashboard-component-chart-holder:not(.auradata-selected),
+    > .auradata-element:not(.auradata-selected)
+  )
+  .resize-handle {
+  opacity: 0 !important;
+}
+
+.auradata-canvas:has(.auradata-selected)
+  .resizable-container:has(
+    > .dashboard-component-chart-holder:not(.auradata-selected),
+    > .auradata-element:not(.auradata-selected)
+  )
+  [class*='resizable-container-handle'] {
+  pointer-events: none;
 }
 
 .auradata-canvas .resize-handle--right {
