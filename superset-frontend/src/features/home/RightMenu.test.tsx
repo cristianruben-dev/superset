@@ -35,6 +35,7 @@ import { isFeatureEnabled, FeatureFlag, CACHE_KEY } from '@superset-ui/core';
 import { isEmbedded } from 'src/dashboard/util/isEmbedded';
 import * as getBootstrapData from 'src/utils/getBootstrapData';
 import { OPEN_CHART_EDITOR } from 'src/auradata/chartEditor';
+import { navigateTo } from 'src/utils/navigationUtils';
 import RightMenu from './RightMenu';
 import { RightMenuProps } from './types';
 
@@ -46,6 +47,11 @@ jest.mock('@superset-ui/core', () => ({
 const mockIsFeatureEnabled = isFeatureEnabled as jest.MockedFunction<
   typeof isFeatureEnabled
 >;
+
+jest.mock('src/utils/navigationUtils', () => ({
+  ...jest.requireActual('src/utils/navigationUtils'),
+  navigateTo: jest.fn(),
+}));
 
 jest.mock('src/dashboard/util/isEmbedded', () => ({
   isEmbedded: jest.fn(() => false),
@@ -255,7 +261,7 @@ test('renders the down-chevron caret icon on the "+" and Settings dropdowns, not
   );
 });
 
-test('Logs out and clears local storage item redux', async () => {
+test('Logs out after confirming and clears local storage item redux', async () => {
   const mockedProps = createProps();
   resetUseSelectorMock();
   render(<RightMenu {...mockedProps} />, {
@@ -283,6 +289,8 @@ test('Logs out and clears local storage item redux', async () => {
     // Simulate user clicking the logout button
     const logoutButton = await screen.findByText('Logout');
     await userEvent.click(logoutButton);
+    expect(localStorage.getItem('redux')).not.toBeNull();
+    await userEvent.click(await screen.findByRole('button', { name: 'Log out' }));
 
     // Wait for local and session storage to be cleared
     await waitFor(() => {
@@ -291,6 +299,7 @@ test('Logs out and clears local storage item redux', async () => {
     });
     // The namespaced Cache API store is purged on logout.
     expect(deleteMock).toHaveBeenCalledWith(CACHE_KEY);
+    expect(navigateTo).toHaveBeenCalledWith('/logout/', { assign: true });
   } finally {
     // Restore the global so an early assertion failure cannot leak the mock
     // into other tests.
@@ -300,6 +309,27 @@ test('Logs out and clears local storage item redux', async () => {
       cacheGlobal.caches = priorCaches;
     }
   }
+});
+
+test('Logout asks first and cancelling keeps the session', async () => {
+  (navigateTo as jest.Mock).mockClear();
+  localStorage.setItem('redux', JSON.stringify({ test: 'test' }));
+  resetUseSelectorMock();
+  render(<RightMenu {...createProps()} />, {
+    useRedux: true,
+    useQueryParams: true,
+    useRouter: true,
+    useTheme: true,
+  });
+
+  await userEvent.hover(await screen.findByText(/Settings/i));
+  await userEvent.click(await screen.findByText('Logout'));
+  expect(await screen.findByRole('dialog')).toHaveTextContent('Log out?');
+  await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+
+  expect(localStorage.getItem('redux')).not.toBeNull();
+  expect(navigateTo).not.toHaveBeenCalled();
+  localStorage.removeItem('redux');
 });
 
 test('shows logout button when not embedded', async () => {

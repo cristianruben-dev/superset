@@ -24,7 +24,6 @@ import {
   getExtensionsRegistry,
   isFeatureEnabled,
   FeatureFlag,
-  CACHE_KEY,
 } from '@superset-ui/core';
 import {
   styled,
@@ -43,6 +42,7 @@ import {
 } from '@superset-ui/core/components';
 import type { ItemType, MenuItem } from '@superset-ui/core/components/Menu';
 import { openChartEditor } from 'src/auradata/chartEditor';
+import { useConfirmLogout } from 'src/auradata/shell/logout';
 import { isReportRoute } from 'src/auradata/shell/navigation';
 import {
   ensureAppRoot,
@@ -182,22 +182,9 @@ const RightMenu = ({
     'navbar.right-menu.item.icon',
   );
 
-  const handleLogout = () => {
-    try {
-      window.localStorage.removeItem('redux');
-      window.sessionStorage.removeItem('login_attempted');
-      // Purge the namespaced Cache API store so cached GET responses are not
-      // retained on the device after the session ends. Best-effort: the
-      // returned promise is not awaited since logout navigates away.
-      if (typeof caches !== 'undefined') {
-        caches.delete(CACHE_KEY).catch(() => {
-          /* best-effort: ignore cache deletion failures */
-        });
-      }
-    } catch (error) {
-      console.warn('Failed to clear storage on logout:', error);
-    }
-  };
+  const [confirmLogout, logoutHolder] = useConfirmLogout(
+    navbarRight.user_logout_url,
+  );
 
   // Use the theme menu hook
   const themeMenuItem = useThemeMenuItems({
@@ -375,11 +362,18 @@ const RightMenu = ({
           userItems.push({
             key: 'logout',
             label: (
-              <Typography.Link href={navbarRight.user_logout_url}>
+              <Typography.Link
+                href={navbarRight.user_logout_url}
+                onClick={event => {
+                  // The link keeps its address for assistive tech and a
+                  // middle click; a plain click asks first.
+                  event.preventDefault();
+                  confirmLogout();
+                }}
+              >
                 {t('Logout')}
               </Typography.Link>
             ),
-            onClick: handleLogout,
           });
         }
 
@@ -486,7 +480,7 @@ const RightMenu = ({
     settings,
     RightMenuItemIconExtension,
     buildMenuItem,
-    handleLogout,
+    confirmLogout,
     newLabel,
     settingsLabel,
   ]);
@@ -551,6 +545,7 @@ const RightMenu = ({
 
   return (
     <StyledDiv align={align}>
+      {logoutHolder}
       {environmentTag?.text &&
         (() => {
           // Map color values to Ant Design semantic colors
@@ -614,7 +609,8 @@ const RightMenu = ({
                   return;
                 }
                 if (info.key === 'logout' && navbarRight.user_logout_url) {
-                  navigateTo(navbarRight.user_logout_url);
+                  setMobileMenuOpen(false);
+                  confirmLogout();
                   return;
                 }
                 setMobileMenuOpen(false);

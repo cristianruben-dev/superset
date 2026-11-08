@@ -27736,3 +27736,12 @@ msgstr "No hay datos con estos filtros."
 
 msgid "Gives the selected object the format copied last"
 msgstr "Da al objeto seleccionado el último formato copiado"
+
+msgid "Log out?"
+msgstr "¿Cerrar sesión?"
+
+msgid "You will need to sign in again to keep working."
+msgstr "Tendrás que volver a iniciar sesión para seguir trabajando."
+
+msgid "Log out"
+msgstr "Cerrar sesión"

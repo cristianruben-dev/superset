@@ -32,6 +32,7 @@ import type {
 } from 'src/types/bootstrapTypes';
 import { findPermission } from 'src/utils/findPermission';
 import { navigateTo, openInNewTab } from 'src/utils/navigationUtils';
+import { useConfirmLogout } from './logout';
 import { withShortcut } from './MenuBar';
 import type { NavSection } from './navigation';
 
@@ -113,6 +114,9 @@ export function AppMenusHost({
     useThemeContext();
   const [dialog, setDialog] = useState<'about' | 'shortcuts' | null>(null);
   const { navbar_right: navbar } = data;
+  const [confirmLogout, logoutHolder] = useConfirmLogout(
+    navbar.user_logout_url,
+  );
   const canWriteDashboards = findPermission(
     'can_write',
     'Dashboard',
@@ -173,7 +177,7 @@ export function AppMenusHost({
         key: 'logout',
         icon: <Icons.ExportOutlined iconSize="m" />,
         label: t('Logout'),
-        onClick: () => navigateTo(navbar.user_logout_url, { assign: true }),
+        onClick: confirmLogout,
       },
     ];
 
@@ -296,6 +300,7 @@ export function AppMenusHost({
     return { create, account, appearance, goTo, help, open };
   }, [
     canWriteDashboards,
+    confirmLogout,
     followsSystem,
     history,
     isFrontendRoute,
@@ -327,6 +332,8 @@ export function AppMenusHost({
   const rows = dialog === 'about' ? facts : shortcuts;
 
   return (
+    <>
+      {logoutHolder}
     <Modal
       show={!!dialog}
       onHide={() => setDialog(null)}
@@ -357,5 +364,6 @@ export function AppMenusHost({
           ))}
       </dl>
     </Modal>
+    </>
   );
 }
