@@ -114,7 +114,12 @@ AURADATA_ASSISTANT_REDIS_URL = f"redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_ASSIST
 
 # --- Alerts and scheduled reports --------------------------------------------
 
-FEATURE_FLAGS = {"ALERT_REPORTS": True}
+FEATURE_FLAGS = {
+    "ALERT_REPORTS": True,
+    # Dashboard cards show a screenshot taken by the worker's Chromium (the prod
+    # image installs it), as the person who views them, cached for a day
+    "THUMBNAILS": True,
+}
 ALERT_REPORTS_NOTIFICATION_DRY_RUN = not _flag("AURADATA_SEND_REPORTS", False)
 
 # Address the Celery workers use to reach the web app, and the one users see in
