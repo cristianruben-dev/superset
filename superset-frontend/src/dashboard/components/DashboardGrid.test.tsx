@@ -155,3 +155,38 @@ test('should render empty state in both edit and view modes', () => {
   expect(editEmptyState).toBeInTheDocument();
   expect(viewEmptyState).toBeInTheDocument();
 });
+
+test('an empty dashboard says so on its page in reading view', () => {
+  const setEditMode = jest.fn();
+  const { container, getByText, getByRole } = setup({
+    gridComponent: { ...props.gridComponent, children: [] },
+    editMode: false,
+    canEdit: true,
+    setEditMode,
+    dashboardId: 1,
+  });
+
+  const message = getByText('There are no charts added to this dashboard');
+  // Inside the grid's own holder, not above the page
+  expect(
+    container.querySelector('.dashboard-grid')?.previousElementSibling,
+  ).toContainElement(message);
+  getByRole('button', { name: 'Edit the dashboard' }).click();
+  expect(setEditMode).toHaveBeenCalledWith(true);
+});
+
+test('a viewer of an empty dashboard gets no edit button', () => {
+  const { getByText, queryByRole } = setup({
+    gridComponent: { ...props.gridComponent, children: [] },
+    editMode: false,
+    canEdit: false,
+    dashboardId: 1,
+  });
+
+  expect(
+    getByText('There are no charts added to this dashboard'),
+  ).toBeInTheDocument();
+  expect(
+    queryByRole('button', { name: 'Edit the dashboard' }),
+  ).not.toBeInTheDocument();
+});

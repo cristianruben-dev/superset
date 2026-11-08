@@ -211,7 +211,7 @@ function DashboardGrid({
   const shouldDisplayTopLevelTabEmptyState =
     shouldDisplayEmptyState && gridComponent?.type === TAB_TYPE;
 
-  const dashboardEmptyState = editMode && (
+  const dashboardEmptyState = editMode ? (
     <EmptyState
       title={t('Drag and drop components and charts to the dashboard')}
       description={t(
@@ -228,6 +228,25 @@ function DashboardGrid({
         openChartEditor({ url: `/chart/add?dashboard_id=${dashboardId}` });
       }}
       image="chart.svg"
+    />
+  ) : (
+    // Drawn on the page itself, so the page keeps its size and its bars
+    <EmptyState
+      title={t('There are no charts added to this dashboard')}
+      size="large"
+      description={
+        canEdit &&
+        t('Go to the edit mode to configure the dashboard and add charts')
+      }
+      buttonText={canEdit ? t('Edit the dashboard') : undefined}
+      buttonAction={
+        canEdit
+          ? () => {
+              setEditMode?.(true);
+            }
+          : undefined
+      }
+      image="dashboard.svg"
     />
   );
 

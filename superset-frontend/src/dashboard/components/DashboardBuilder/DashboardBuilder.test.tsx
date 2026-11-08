@@ -1233,26 +1233,13 @@ const renderEmptyDashboard = (
   });
 };
 
-test('offers the empty-state edit action to an editor', async () => {
-  const { findByRole } = renderEmptyDashboard();
+test('draws no empty-state message of its own above the page', async () => {
+  // The grid draws it on the page, so the page keeps its place and its bars
+  const { findByTestId, queryByText } = renderEmptyDashboard();
 
+  await findByTestId('dashboard-content-wrapper');
   expect(
-    await findByRole('button', { name: 'Edit the dashboard' }),
-  ).toBeVisible();
-});
-
-test('withholds the empty-state edit action while previewing a version', async () => {
-  const { findByText, queryByRole } = renderEmptyDashboard(
-    dashboardPreviewState,
-  );
-
-  // The empty-state message itself still describes what is on screen; only the
-  // edit affordance is withdrawn.
-  expect(
-    await findByText('There are no charts added to this dashboard'),
-  ).toBeInTheDocument();
-  expect(
-    queryByRole('button', { name: 'Edit the dashboard' }),
+    queryByText('There are no charts added to this dashboard'),
   ).not.toBeInTheDocument();
 });
 

@@ -26,11 +26,16 @@ import {
 } from '../actions/dashboardLayout';
 import { setDirectPathToChild, setEditMode } from '../actions/dashboardState';
 import { RootState } from 'src/dashboard/types';
+import { selectIsDashboardVersionPreviewActive } from 'src/features/versionHistory/reducer';
 
-function mapStateToProps({ dashboardState, dashboardInfo }: RootState) {
+function mapStateToProps(state: RootState) {
+  const { dashboardState, dashboardInfo } = state;
   return {
     editMode: dashboardState.editMode,
-    canEdit: dashboardInfo.dash_edit_perm,
+    // A previewed version is not the dashboard: its empty states offer no edit
+    canEdit:
+      dashboardInfo.dash_edit_perm &&
+      !selectIsDashboardVersionPreviewActive(state),
     dashboardId: dashboardInfo.id,
   };
 }

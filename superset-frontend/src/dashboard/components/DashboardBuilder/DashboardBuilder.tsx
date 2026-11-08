@@ -41,7 +41,7 @@ import {
 } from '@superset-ui/core';
 import { css, styled, useTheme } from '@apache-superset/core/theme';
 import { useDispatch, useSelector } from 'react-redux';
-import { Drawer, EmptyState, Loading } from '@superset-ui/core/components';
+import { Drawer, Loading } from '@superset-ui/core/components';
 import { ErrorBoundary, BasicErrorAlert } from 'src/components';
 import BuilderComponentPane from 'src/dashboard/components/BuilderComponentPane';
 import { ExploreDndContextProvider } from 'src/explore/components/ExploreContainer/ExploreDndContext';
@@ -64,14 +64,10 @@ import {
   FilterBarOrientation,
   RootState,
 } from 'src/dashboard/types';
-import {
-  setDirectPathToChild,
-  setEditMode,
-} from 'src/dashboard/actions/dashboardState';
+import { setDirectPathToChild } from 'src/dashboard/actions/dashboardState';
 import {
   deleteTopLevelTabs,
   handleComponentDrop,
-  clearDashboardHistory,
 } from 'src/dashboard/actions/dashboardLayout';
 import { DropResult } from 'src/dashboard/components/dnd/dragDroppableConfig';
 import {
@@ -577,10 +573,7 @@ const DashboardBuilder = () => {
       dispatch(closeVersionHistoryPanel());
     }
   }, [dispatch, editMode]);
-  const canEdit = useSelector<RootState, boolean>(
-    ({ dashboardInfo }) => dashboardInfo.dash_edit_perm,
-  );
-  // Deliberately not canEdit: restoring an externally managed dashboard would
+  // Deliberately not dash_edit_perm: restoring an externally managed dashboard would
   // be undone by the next sync, and unlike editing there is no server-side
   // check to fall back on. Shared with the history panel so the two cannot
   // drift.
@@ -597,11 +590,6 @@ const DashboardBuilder = () => {
   const isVersionPreviewActive = useSelector(
     selectIsDashboardVersionPreviewActive,
   );
-  // The empty-state call to action sits outside the preview gate below, so it
-  // needs its own term: a previewed version whose layout happens to be empty
-  // would otherwise offer "Edit the dashboard" over a historical snapshot and
-  // clear the undo history on the way in. Mirrors userCanEdit in the Header.
-  const canEnterEditMode = canEdit && !isVersionPreviewActive;
 
   const handleChangeTab = useCallback(
     ({ pathToTabIndex }: { pathToTabIndex: string[] }) => {
@@ -1020,26 +1008,6 @@ const DashboardBuilder = () => {
                   />
                 </Suspense>
               )}
-              {!editMode &&
-                !topLevelTabs &&
-                dashboardLayout[DASHBOARD_GRID_ID]?.children?.length === 0 && (
-                  <EmptyState
-                    title={t('There are no charts added to this dashboard')}
-                    size="large"
-                    description={
-                      canEnterEditMode &&
-                      t(
-                        'Go to the edit mode to configure the dashboard and add charts',
-                      )
-                    }
-                    buttonText={canEnterEditMode && t('Edit the dashboard')}
-                    buttonAction={() => {
-                      dispatch(setEditMode(true));
-                      dispatch(clearDashboardHistory());
-                    }}
-                    image="dashboard.svg"
-                  />
-                )}
               <DashboardContentWrapper
                 data-test="dashboard-content-wrapper"
                 className={cx('dashboard', editMode && 'dashboard--editing')}
