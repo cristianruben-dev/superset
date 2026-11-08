@@ -186,3 +186,18 @@ test('falls back to the top-right default when position is unset', () => {
 
   expect(screen.getByText('Alpha')).toBeInTheDocument();
 });
+
+test('draws above the deck.gl points canvas, whose container has z-index 2', () => {
+  const { container } = renderWithTheme(
+    <Legend
+      format={null}
+      position="tr"
+      categories={{ Alpha: { enabled: true, color: [0, 0, 0] } }}
+    />,
+  );
+
+  const legend = container.querySelector('ul')?.parentElement;
+  expect(legend).toBeTruthy();
+  const zIndex = Number(getComputedStyle(legend as HTMLElement).zIndex);
+  expect(zIndex).toBeGreaterThan(2);
+});
