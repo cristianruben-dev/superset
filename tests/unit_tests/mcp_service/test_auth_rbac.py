@@ -328,6 +328,44 @@ def test_visibility_hides_permissionless_tool_from_resource_scoped_token(
         assert is_tool_visible_to_current_user(tool) is True
 
 
+def _search_proxies() -> list:
+    """Build the ``search_tools`` and ``call_tool`` of the search transform."""
+    from superset.mcp_service.server import _apply_tool_search_transform
+
+    mock_mcp = MagicMock()
+    _apply_tool_search_transform(mock_mcp, {"strategy": "bm25"})
+    transform = mock_mcp.add_transform.call_args[0][0]
+    return [transform._make_search_tool(), transform._make_call_tool()]
+
+
+def test_search_proxies_visible_to_resource_scoped_token(app_context) -> None:
+    """A key scoped to some resources still lists the search proxies.
+
+    With tool search on, ``tools/list`` only offers the pinned tools and the
+    proxies. Keys made in «Conectar IA» carry resource scopes only, so hiding
+    the proxies from them left those keys with an empty tool list. Each proxy
+    still checks the tools it reaches.
+    """
+    g.user = MagicMock(username="viewer")
+    proxies = _search_proxies()
+
+    with _patch_token_scopes(["superset:dashboard:read"]):
+        assert [is_tool_visible_to_current_user(tool) for tool in proxies] == [
+            True,
+            True,
+        ]
+
+
+def test_search_proxies_hidden_without_user(app_context) -> None:
+    """The search proxies still need an authenticated user."""
+    g.user = None
+
+    with _patch_token_scopes(["superset:dashboard:read"]):
+        assert [
+            is_tool_visible_to_current_user(tool) for tool in _search_proxies()
+        ] == [False, False]
+
+
 def test_visibility_allowed_tool(app_context) -> None:
     """Tools where security_manager grants access are visible."""
     g.user = MagicMock(username="admin")

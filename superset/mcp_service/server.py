@@ -33,6 +33,7 @@ from fastmcp.server.middleware import Middleware
 from starlette.requests import ClientDisconnect
 
 from superset.mcp_service.app import create_mcp_app, init_fastmcp_server
+from superset.mcp_service.auth import SEARCH_PROXY_ATTR
 from superset.mcp_service.jwt_verifier import BrowserHelloMiddleware
 from superset.mcp_service.mcp_config import (
     get_mcp_factory_config,
@@ -597,6 +598,7 @@ def _apply_tool_search_transform(mcp_instance: Any, config: dict[str, Any]) -> N
                     )
             return await ctx.fastmcp.call_tool(name, arguments)
 
+        setattr(call_tool, SEARCH_PROXY_ATTR, True)
         tool = Tool.from_function(fn=call_tool, name=transform._call_tool_name)
         return _fix_call_tool_arguments(tool)
 
@@ -647,6 +649,7 @@ def _create_search_transform(  # noqa: C901
                 results = await transform._search(hidden, query)
             return await transform._render_results(results)
 
+        setattr(search_tools, SEARCH_PROXY_ATTR, True)
         tool = Tool.from_function(fn=search_tools, name=transform._search_tool_name)
         return _fix_search_tool_query(tool)
 

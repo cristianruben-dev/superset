@@ -142,6 +142,9 @@ MCPUser: TypeAlias = User | GuestUser
 PERMISSION_PREFIX = "can_"
 CLASS_PERMISSION_ATTR = "_class_permission_name"
 METHOD_PERMISSION_ATTR = "_method_permission_name"
+# Marks ``search_tools`` and ``call_tool`` of the tool search transform. They
+# reach other tools, each checked on its own, so they take no scope themselves.
+SEARCH_PROXY_ATTR = "_mcp_search_proxy"
 
 # Tools already warned about for declaring no class_permission_name, so the
 # warning surfaces once per tool instead of on every protected-tool call.
@@ -435,6 +438,14 @@ def check_tool_permission(  # noqa: C901
                     func.__name__,
                 )
             return False
+
+        if getattr(func, SEARCH_PROXY_ATTR, False):
+            # A key limited to some resources has no flat scope; requiring one
+            # here would hide the proxies and leave tools/list empty. What they
+            # reach is filtered (search_tools) and checked (call_tool) per tool.
+            if not current_app.config.get("MCP_RBAC_ENABLED", True):
+                return True
+            return bool(getattr(g, "user", None))
 
         method_permission_name = getattr(func, METHOD_PERMISSION_ATTR, "read")
         class_permission_name = getattr(func, CLASS_PERMISSION_ATTR, None)
