@@ -39,8 +39,11 @@ import { SubjectPile } from 'src/features/subjects/SubjectPile';
 import { Dashboard } from 'src/views/CRUD/types';
 import { isUserEditorOrAdmin } from 'src/dashboard/util/permissionUtils';
 import type { UserWithPermissionsAndRoles } from 'src/types/bootstrapTypes';
-import { DashboardCard as AuraDataDashboardCard } from 'src/auradata/dashboards';
-import type { PreviewRows } from 'src/auradata/dashboards';
+import {
+  DashboardCard as AuraDataDashboardCard,
+  dashboardThumbnailUrl,
+  type PreviewRows,
+} from 'src/auradata/dashboards';
 
 const menuItemButtonCss = css`
   appearance: none;
@@ -99,11 +102,10 @@ function DashboardCard({
     dashboard.editors,
     dashboard.extra_editors,
   );
-  const digest = dashboard.changed_on_utc || dashboard.changed_on;
-  const thumbnailUrl =
-    isFeatureEnabled(FeatureFlag.Thumbnails) && dashboard.id && digest
-      ? `/api/v1/dashboard/${dashboard.id}/thumbnail/${encodeURIComponent(digest)}/`
-      : '';
+  const thumbnailUrl = dashboardThumbnailUrl(
+    dashboard.id,
+    dashboard.changed_on_utc || dashboard.changed_on,
+  );
 
   const menuItems: MenuItem[] = [];
 

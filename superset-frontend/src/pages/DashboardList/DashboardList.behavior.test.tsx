@@ -365,3 +365,32 @@ test('shows a loading state on the + Dashboard button while navigating', async (
   });
   locationSpy.mockRestore();
 });
+
+test('asks each card for its screenshot by the dashboard change time', async () => {
+  // Since 7.0 the list returns changed_on_utc and no thumbnail_url, so the
+  // card builds the thumbnail address from it.
+  mockIsFeatureEnabled.mockImplementation(
+    (feature: string) =>
+      feature === 'LISTVIEWS_DEFAULT_CARD_VIEW' || feature === 'THUMBNAILS',
+  );
+  fetchMock.get('glob:*/api/v1/dashboard/*/thumbnail/*', {
+    status: 202,
+    body: { message: 'OK Async' },
+  });
+
+  renderDashboardListAsCards(mockUser);
+  await waitForDashboardsPageReady();
+
+  const listCall = fetchMock.callHistory
+    .calls(/api\/v1\/dashboard\/\?q=/)
+    .at(-1);
+  expect(decodeURIComponent(listCall!.url)).toContain('changed_on_utc');
+  const expected = `/api/v1/dashboard/${mockDashboards[0].id}/thumbnail/${encodeURIComponent(mockDashboards[0].changed_on_utc)}/`;
+  await waitFor(() =>
+    expect(
+      fetchMock.callHistory
+        .calls(/\/thumbnail\//)
+        .some(call => call.url.endsWith(expected)),
+    ).toBe(true),
+  );
+});

@@ -27,11 +27,7 @@ import { Link, useHistory } from 'react-router-dom';
 import rison from 'rison';
 import { t, tn } from '@apache-superset/core/translation';
 import { css, styled } from '@apache-superset/core/theme';
-import {
-  FeatureFlag,
-  isFeatureEnabled,
-  SupersetClient,
-} from '@superset-ui/core';
+import { SupersetClient } from '@superset-ui/core';
 import { Button, FaveStar, Skeleton } from '@superset-ui/core/components';
 import { Icons } from '@superset-ui/core/components/Icons';
 import { useToasts } from 'src/components/MessageToasts/withToasts';
@@ -41,7 +37,11 @@ import { AURA_TONES, type AuraTone } from '../shell/brand';
 import { CommandGroup, PageHeader } from '../shell/PageHeader';
 import { usePageStatus } from '../shell/pageStatus';
 import { relativeTime } from '../time';
-import { DashboardCard, useDashboardPreviews } from '../dashboards';
+import {
+  DashboardCard,
+  dashboardThumbnailUrl,
+  useDashboardPreviews,
+} from '../dashboards';
 import {
   fetchWorkspaces,
   WorkspaceAvatar,
@@ -55,7 +55,7 @@ export interface DashboardCardData {
   url: string;
   published: boolean;
   changed_on_delta_humanized: string;
-  thumbnail_url?: string | null;
+  changed_on_utc?: string | null;
 }
 
 type DashboardTab = 'recent' | 'favorite';
@@ -381,7 +381,7 @@ const fetchDashboards = async (tab: DashboardTab) => {
         'url',
         'published',
         'changed_on_delta_humanized',
-        'thumbnail_url',
+        'changed_on_utc',
       ],
     })}`,
   });
@@ -558,11 +558,10 @@ export function HomeContent() {
                   dashboard.changed_on_delta_humanized,
                 )}
                 preview={previews[dashboard.id]}
-                thumbnailUrl={
-                  isFeatureEnabled(FeatureFlag.Thumbnails)
-                    ? dashboard.thumbnail_url
-                    : null
-                }
+                thumbnailUrl={dashboardThumbnailUrl(
+                  dashboard.id,
+                  dashboard.changed_on_utc,
+                )}
                 actions={
                   <FaveStar
                     itemId={dashboard.id}

@@ -17,7 +17,28 @@
  * under the License.
  */
 import { useEffect, useState } from 'react';
-import { SupersetClient } from '@superset-ui/core';
+import {
+  FeatureFlag,
+  isFeatureEnabled,
+  SupersetClient,
+} from '@superset-ui/core';
+
+/**
+ * The thumbnail endpoint of a dashboard, or null when thumbnails are off. The
+ * digest only has to change with the dashboard: the endpoint answers a stale
+ * one with a redirect to the current screenshot. Since 7.0 the dashboard list
+ * returns neither ``thumbnail_url`` nor ``changed_on``, so the change time
+ * comes from ``changed_on_utc``.
+ */
+export function dashboardThumbnailUrl(
+  id: number | undefined,
+  changedOnUtc: string | undefined | null,
+): string | null {
+  if (!isFeatureEnabled(FeatureFlag.Thumbnails) || !id || !changedOnUtc) {
+    return null;
+  }
+  return `/api/v1/dashboard/${id}/thumbnail/${encodeURIComponent(changedOnUtc)}/`;
+}
 
 /** Waits between checks while the worker renders a thumbnail. */
 export const THUMBNAIL_RETRY_DELAYS = [2000, 3000, 5000, 8000, 10000];

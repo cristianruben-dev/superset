@@ -18,7 +18,17 @@
  */
 import { renderHook, waitFor } from '@testing-library/react';
 import fetchMock from 'fetch-mock';
-import { THUMBNAIL_MAX_ATTEMPTS, useThumbnail } from './useThumbnail';
+import { isFeatureEnabled } from '@superset-ui/core';
+import {
+  dashboardThumbnailUrl,
+  THUMBNAIL_MAX_ATTEMPTS,
+  useThumbnail,
+} from './useThumbnail';
+
+jest.mock('@superset-ui/core', () => ({
+  ...jest.requireActual('@superset-ui/core'),
+  isFeatureEnabled: jest.fn(),
+}));
 
 const THUMB = 'glob:*/api/v1/dashboard/1/thumbnail/abc/';
 const URL_PATH = '/api/v1/dashboard/1/thumbnail/abc/';
@@ -101,4 +111,15 @@ test('gives up after the last attempt', async () => {
 
   expect(calls).toBe(THUMBNAIL_MAX_ATTEMPTS);
   expect(result.current).toBeNull();
+});
+
+test('dashboardThumbnailUrl builds the address from the change time', () => {
+  (isFeatureEnabled as jest.Mock).mockReturnValue(true);
+  expect(dashboardThumbnailUrl(7, '2026-11-06T18:09:07.843542+0000')).toBe(
+    '/api/v1/dashboard/7/thumbnail/2026-11-06T18%3A09%3A07.843542%2B0000/',
+  );
+  expect(dashboardThumbnailUrl(7, undefined)).toBeNull();
+
+  (isFeatureEnabled as jest.Mock).mockReturnValue(false);
+  expect(dashboardThumbnailUrl(7, '2026-11-06T18:09:07+0000')).toBeNull();
 });
