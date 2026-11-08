@@ -41,7 +41,10 @@ from superset.mcp_service.chart.schemas import (
     ChartConfig,
     ChartSemantics,
     ColumnRef,
+    CountryMapChartConfig,
     CurrencyFormat,
+    DeckHeatmapChartConfig,
+    DeckScatterChartConfig,
     FilterConfig,
     GaugeChartConfig,
     HandlebarsChartConfig,
@@ -49,6 +52,8 @@ from superset.mcp_service.chart.schemas import (
     MixedTimeseriesChartConfig,
     PieChartConfig,
     PivotTableChartConfig,
+    PointClusterMapChartConfig,
+    PointMapBaseConfig,
     SortByConfig,
     TableChartConfig,
     TreemapChartConfig,
@@ -1393,6 +1398,217 @@ def map_waterfall_config(config: WaterfallChartConfig) -> Dict[str, Any]:
     if config.time_grain:
         form_data["time_grain_sqla"] = config.time_grain
         form_data["granularity_sqla"] = config.x_axis.name
+    add_currency_format(form_data, config.currency_format)
+    _add_adhoc_filters(form_data, config.filters)
+    return form_data
+
+
+# OpenStreetMap base of the point cluster map: MapLibre needs no API key.
+POINT_CLUSTER_MAP_STYLE = "https://tiles.openfreemap.org/styles/liberty"
+
+# MapLibre styles of the point maps' map_style choices. "light" is not listed:
+# the deck.gl maps then keep the frontend's own default (Carto Positron), and the
+# cluster map keeps POINT_CLUSTER_MAP_STYLE.
+POINT_MAP_STYLES: Dict[str, str] = {
+    "dark": "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json",
+    "streets": "https://tiles.openfreemap.org/styles/liberty",
+}
+
+
+def _rgba(hex_color: str, alpha: float = 1) -> Dict[str, Any]:
+    """Turn ``#RRGGBB`` into the ``{r, g, b, a}`` of the Deck.gl color pickers."""
+    value = hex_color.lstrip("#")
+    return {
+        "r": int(value[0:2], 16),
+        "g": int(value[2:4], 16),
+        "b": int(value[4:6], 16),
+        "a": alpha,
+    }
+
+
+def _add_coordinate_filters(
+    form_data: Dict[str, Any], config: PointMapBaseConfig
+) -> None:
+    """Keep the rows a point map can place.
+
+    Rows without coordinates never draw, and a row at 0, 0 is nearly always a
+    missing location: one is enough to fit the view to the whole world.
+    """
+    _add_adhoc_filters(form_data, config.filters)
+    filters = form_data.setdefault("adhoc_filters", [])
+    for column in (config.latitude.name, config.longitude.name):
+        filters.append(
+            {
+                "clause": "WHERE",
+                "expressionType": "SIMPLE",
+                "subject": column,
+                "operator": "IS NOT NULL",
+            }
+        )
+        if config.exclude_zero_coordinates:
+            filters.append(
+                {
+                    "clause": "WHERE",
+                    "expressionType": "SIMPLE",
+                    "subject": column,
+                    "operator": "!=",
+                    "comparator": 0,
+                }
+            )
+
+
+def map_point_cluster_map_config(
+    config: PointClusterMapChartConfig,
+) -> Dict[str, Any]:
+    """Map a point cluster map config to form_data (viz ``point_cluster_map``).
+
+    Matches the frontend buildQuery: ``all_columns_x`` is the longitude,
+    ``all_columns_y`` the latitude and ``map_label`` the optional column each
+    cluster aggregates with ``pandas_aggfunc``. No viewport is stored, so the
+    map fits itself to the points.
+    """
+    form_data: Dict[str, Any] = {
+        "viz_type": "point_cluster_map",
+        "all_columns_x": config.longitude.name,
+        "all_columns_y": config.latitude.name,
+        "clustering_radius": str(config.clustering_radius),
+        "point_radius": "Auto",
+        "point_radius_unit": "Pixels",
+        "map_label": [config.label.name] if config.label else [],
+        "pandas_aggfunc": config.label_aggregate,
+        "map_renderer": "maplibre",
+        "maplibre_style": POINT_MAP_STYLES.get(
+            config.map_style, POINT_CLUSTER_MAP_STYLE
+        ),
+        "map_color": config.color,
+        "global_opacity": config.opacity,
+        "render_while_dragging": True,
+        "groupby": [],
+        "row_limit": config.row_limit,
+    }
+    _add_coordinate_filters(form_data, config)
+    return form_data
+
+
+def _deck_spatial(config: PointMapBaseConfig) -> Dict[str, Any]:
+    return {
+        "type": "latlong",
+        "latCol": config.latitude.name,
+        "lonCol": config.longitude.name,
+    }
+
+
+def _deck_map_style(form_data: Dict[str, Any], config: PointMapBaseConfig) -> None:
+    """Set the base map of a deck.gl map; "light" keeps the frontend default."""
+    if url := POINT_MAP_STYLES.get(config.map_style):
+        form_data["maplibre_style"] = url
+
+
+def _tooltip_contents(fields: list[ColumnRef] | None) -> list[Dict[str, str]]:
+    """The tooltip items the deck.gl controls store for dataset columns."""
+    return [
+        {"item_type": "column", "column_name": ref.name}
+        for ref in fields or []
+        if ref.name
+    ]
+
+
+def map_deck_scatter_config(config: DeckScatterChartConfig) -> Dict[str, Any]:
+    """Map a scatter map config to form_data (viz ``deck_scatter``).
+
+    ``point_radius_fixed`` holds either a fixed radius in meters or the metric
+    that sizes each point; ``dimension`` with a categorical palette colors by
+    category. ``autozoom`` fits the view to the points.
+    """
+    if config.point_size is not None:
+        radius: Dict[str, Any] = {
+            "type": "metric",
+            "value": create_metric_object(config.point_size),
+        }
+    else:
+        radius = {"type": "fix", "value": config.point_radius}
+    form_data: Dict[str, Any] = {
+        "viz_type": "deck_scatter",
+        "spatial": _deck_spatial(config),
+        "point_radius_fixed": radius,
+        "point_unit": "radius_m",
+        "min_radius": config.min_radius,
+        "max_radius": config.max_radius,
+        "multiplier": 1,
+        "color_picker": _rgba(config.color),
+        "color_scheme_type": (
+            "categorical_palette" if config.color_by else "fixed_color"
+        ),
+        "map_renderer": "maplibre",
+        "autozoom": True,
+        "filter_nulls": True,
+        "row_limit": config.row_limit,
+    }
+    if config.color_by:
+        form_data["dimension"] = config.color_by.name
+        form_data["legend_position"] = "tr"
+    if config.tooltip_fields:
+        form_data["tooltip_contents"] = _tooltip_contents(config.tooltip_fields)
+    _deck_map_style(form_data, config)
+    _add_coordinate_filters(form_data, config)
+    return form_data
+
+
+# Every row weighs one point when a heatmap has no weight of its own.
+_COUNT_ROWS: Dict[str, Any] = {
+    "expressionType": "SQL",
+    "sqlExpression": "COUNT(*)",
+    "label": "COUNT(*)",
+    "hasCustomLabel": False,
+}
+
+
+def map_deck_heatmap_config(config: DeckHeatmapChartConfig) -> Dict[str, Any]:
+    """Map a heatmap config to form_data (viz ``deck_heatmap``).
+
+    ``size`` is the metric that weighs each point (a row count by default);
+    ``autozoom`` fits the view to the points.
+    """
+    form_data: Dict[str, Any] = {
+        "viz_type": "deck_heatmap",
+        "spatial": _deck_spatial(config),
+        "size": (
+            create_metric_object(config.weight)
+            if config.weight is not None
+            else dict(_COUNT_ROWS)
+        ),
+        "aggregation": config.aggregation,
+        "radius_pixels": config.radius_pixels,
+        "intensity": config.intensity,
+        "color_scheme_type": "linear_palette",
+        "map_renderer": "maplibre",
+        "autozoom": True,
+        "filter_nulls": True,
+        "row_limit": config.row_limit,
+    }
+    if config.color_scheme:
+        form_data["linear_color_scheme"] = config.color_scheme
+    if config.tooltip_fields:
+        form_data["tooltip_contents"] = _tooltip_contents(config.tooltip_fields)
+    _deck_map_style(form_data, config)
+    _add_coordinate_filters(form_data, config)
+    return form_data
+
+
+def map_country_map_config(config: CountryMapChartConfig) -> Dict[str, Any]:
+    """Map a country map config to form_data (viz ``country_map``).
+
+    Matches the frontend buildQuery: one query grouped by ``entity`` (a column of
+    ISO 3166-2 codes) with the single ``metric``.
+    """
+    form_data: Dict[str, Any] = {
+        "viz_type": "country_map",
+        "select_country": config.country,
+        "entity": config.region.name,
+        "metric": create_metric_object(config.metric),
+        "number_format": config.number_format,
+        "row_limit": config.row_limit,
+    }
     add_currency_format(form_data, config.currency_format)
     _add_adhoc_filters(form_data, config.filters)
     return form_data

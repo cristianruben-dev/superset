@@ -138,7 +138,7 @@ TOOL_BUDGETS = {
     "upload_dashboard_background": 1_300,
     "upload_dashboard_image": 1_300,
     "change_visual_dataset": 1_700,
-    "create_visual": 50_000,
+    "create_visual": 51_000,
     "get_visual_fields": 1_100,
     "set_visual_fields": 1_800,
     "set_visual_sort": 1_500,

@@ -213,7 +213,10 @@ antes de seguir.
    barras o columnas → `xy` `kind: "bar"`; área → `xy` `kind: "area"`; anillo o
    circular → `pie` (`donut: true` para anillo); tabla → `table`; matriz →
    `pivot_table`; medidor → `gauge`; cascada → `waterfall`; combinado →
-   `mixed_timeseries`. Si algo no tiene equivalente, usa el más cercano y dilo.
+   `mixed_timeseries`; mapa de puntos → `deck_scatter` (o `point_cluster_map`,
+   `deck_heatmap`), con columnas de latitud y longitud; mapa por estados →
+   `country_map`, con una columna de códigos ISO como `MX-QUE`. Si algo no
+   tiene equivalente, usa el más cercano y dilo.
 4. Datos: busca el dataset con `list_workspaces`, `get_workspace` y
    `get_dataset_info`, y empareja cada campo de la captura con una columna o
    métrica por su etiqueta. Muestra la tabla de correspondencias y pregunta solo

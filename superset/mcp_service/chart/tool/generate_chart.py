@@ -88,7 +88,9 @@ async def generate_chart(  # noqa: C901
     - MUST include chart_type in config (one of: 'xy', 'table', 'pie',
       'gauge', 'treemap_v2', 'pivot_table', 'mixed_timeseries',
       'handlebars',
-      'big_number', 'histogram', 'box_plot', 'waterfall', plus host-gated
+      'big_number', 'histogram', 'box_plot', 'waterfall',
+      'point_cluster_map', 'deck_scatter', 'deck_heatmap', 'country_map',
+      plus host-gated
       types returned by get_chart_type_schema such as 'interactive_pivot')
 
     IMPORTANT: The 'chart_type' field in the config is a DISCRIMINATOR that determines
@@ -143,6 +145,12 @@ async def generate_chart(  # noqa: C901
     - Use chart_type='waterfall' for cumulative increase/decrease breakdowns
       Required fields: x_axis, metric; optional: breakdown (single category
       column, alias: groupby), show_total
+    - Maps need no API key and fit their view to the points:
+      chart_type='deck_scatter' (a circle per row; optional color_by, point_size),
+      'point_cluster_map' (points grouped into clusters) and 'deck_heatmap'
+      (density) take numeric latitude and longitude columns;
+      'country_map' colors one country's regions (country, region column of
+      ISO 3166-2 codes such as 'MX-QUE', metric)
 
     Quick lookup — natural-language ask -> chart_type (+ kind if applicable):
     - "bar chart" / "line chart" / "area chart" / "scatter plot"
@@ -159,6 +167,10 @@ async def generate_chart(  # noqa: C901
     - "custom HTML template" -> chart_type='handlebars'
     - "histogram" / "distribution" -> chart_type='histogram'
     - "box plot" / "box and whisker" -> chart_type='box_plot'
+    - "map" / "points on a map" -> chart_type='deck_scatter'
+    - "heat map of locations" -> chart_type='deck_heatmap'
+    - "clustered map" -> chart_type='point_cluster_map'
+    - "map by state" / "choropleth" -> chart_type='country_map'
 
     Example usage for XY chart (bar/line/area/scatter):
     ```json

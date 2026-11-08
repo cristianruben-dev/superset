@@ -89,6 +89,10 @@ async def test_prompts_carry_the_conventions_and_name_real_tools(name: str) -> N
         "chart_type",
         "dataset_id",
         "show_trendline",
+        "deck_scatter",
+        "point_cluster_map",
+        "deck_heatmap",
+        "country_map",
     }, unknown
 
 

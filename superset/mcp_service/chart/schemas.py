@@ -2669,6 +2669,238 @@ class WaterfallChartConfig(BaseChartConfig):
         return self
 
 
+_HEX_COLOR_PATTERN = r"^#[0-9a-fA-F]{6}$"
+
+
+def _require_metric(ref: ColumnRef | None, field_name: str) -> None:
+    """Raise unless ``ref`` is a metric (aggregate, saved metric or SQL)."""
+    if ref is not None and not ref.is_metric:
+        raise ValueError(
+            f"{field_name} is a metric: give it an 'aggregate' (e.g. SUM), "
+            "saved_metric=True or a 'sql_expression' with a 'label'"
+        )
+
+
+def _require_dimension(ref: ColumnRef | None, field_name: str) -> None:
+    """Raise if a column position carries a metric shape."""
+    if ref is None:
+        return
+    _reject_sql_expression_on_dimension(ref, field_name)
+    if ref.saved_metric or ref.aggregate:
+        raise ValueError(
+            f"{field_name} is a column of the dataset, not a metric: "
+            "pass only its 'name'"
+        )
+
+
+class PointMapBaseConfig(BaseChartConfig):
+    # Fields shared by maps that place one point per row by its coordinates.
+    # Comments, not a docstring: pydantic would repeat it in every map's schema.
+
+    model_config = ConfigDict(extra="ignore", populate_by_name=True)
+
+    latitude: ColumnRef = Field(
+        ...,
+        validation_alias=AliasChoices("latitude", "lat"),
+        description="Numeric latitude column",
+    )
+    longitude: ColumnRef = Field(
+        ...,
+        validation_alias=AliasChoices("longitude", "lon", "lng"),
+        description="Numeric longitude column",
+    )
+    exclude_zero_coordinates: bool = Field(
+        True,
+        description="Drop rows at latitude or longitude 0 (missing locations "
+        "that zoom the map out to the whole world)",
+    )
+    filters: List[FilterConfig] | None = Field(
+        None,
+        description="Structured filters (column/op/value)",
+    )
+    row_limit: int = Field(10000, ge=1, le=50000)
+    map_style: Literal["light", "dark", "streets"] = "light"
+
+    @model_validator(mode="after")
+    def coordinates_are_columns(self) -> Self:
+        """Latitude and longitude are plain columns of the dataset."""
+        _require_dimension(self.latitude, "latitude")
+        _require_dimension(self.longitude, "longitude")
+        return self
+
+
+def _require_dimensions(refs: List[ColumnRef] | None, field_name: str) -> None:
+    """Raise if any column of a list carries a metric shape."""
+    for ref in refs or []:
+        _require_dimension(ref, field_name)
+
+
+# Linear palettes of the heatmap: sequential schemes of the frontend registry
+HeatmapColorScheme = Literal[
+    "schemeBlues",
+    "schemeYlOrRd",
+    "schemeViridis",
+    "schemeInferno",
+    "deck_gl_heatmap_gradient",
+]
+
+
+class PointClusterMapChartConfig(PointMapBaseConfig):
+    """Points grouped into clusters on a map; no API key, fits to the points."""
+
+    chart_type: Literal["point_cluster_map"] = "point_cluster_map"
+    clustering_radius: Literal[0, 20, 40, 60, 80, 100, 200, 500, 1000] = Field(
+        60,
+        description="Cluster radius in pixels; 0 draws every point",
+    )
+    label: ColumnRef | None = Field(
+        None,
+        description="Numeric column each cluster shows (by label_aggregate) "
+        "instead of its point count",
+    )
+    label_aggregate: Literal["sum", "mean", "min", "max", "std", "var"] = Field("sum")
+    color: str = Field(
+        "#2563EB",
+        pattern=_HEX_COLOR_PATTERN,
+    )
+    opacity: float = Field(1, ge=0, le=1)
+
+    @model_validator(mode="after")
+    def label_is_a_column(self) -> Self:
+        """The cluster label is a column the map aggregates itself."""
+        _require_dimension(self.label, "label")
+        return self
+
+
+class DeckScatterChartConfig(PointMapBaseConfig):
+    """A circle per row on a map; no API key, fits to the points."""
+
+    chart_type: Literal["deck_scatter"] = "deck_scatter"
+    color_by: ColumnRef | None = Field(
+        None,
+        validation_alias=AliasChoices("color_by", "dimension"),
+        description="Category column that colors the points",
+    )
+    color: str = Field(
+        "#2563EB",
+        pattern=_HEX_COLOR_PATTERN,
+        description="Color without color_by",
+    )
+    point_size: ColumnRef | None = Field(
+        None,
+        description="Metric that sizes each point; else point_radius",
+    )
+    point_radius: int = Field(
+        300,
+        ge=1,
+        le=1_000_000,
+        description="Fixed radius in meters",
+    )
+    min_radius: int = Field(3, ge=0, le=100, description="Pixels")
+    max_radius: int = Field(40, ge=1, le=500, description="Pixels")
+    tooltip_fields: List[ColumnRef] | None = Field(None, max_length=10)
+
+    @model_validator(mode="after")
+    def check_size_and_color(self) -> Self:
+        """color_by is a column and point_size a metric."""
+        _require_dimension(self.color_by, "color_by")
+        _require_metric(self.point_size, "point_size")
+        _require_dimensions(self.tooltip_fields, "tooltip_fields")
+        if self.min_radius > self.max_radius:
+            raise ValueError("min_radius cannot be larger than max_radius")
+        return self
+
+
+class DeckHeatmapChartConfig(PointMapBaseConfig):
+    """Density of points on a map; no API key, fits to the points."""
+
+    chart_type: Literal["deck_heatmap"] = "deck_heatmap"
+    weight: ColumnRef | None = Field(
+        None,
+        description="Metric that weighs each point; else rows count once",
+    )
+    aggregation: Literal["sum", "mean"] = "sum"
+    radius_pixels: int = Field(
+        30,
+        ge=5,
+        le=70,
+        multiple_of=5,
+        description="Glow radius in pixels",
+    )
+    intensity: float = Field(1, ge=0.1, le=1)
+    tooltip_fields: List[ColumnRef] | None = Field(None, max_length=10)
+    color_scheme: HeatmapColorScheme | None = None
+
+    @model_validator(mode="after")
+    def weight_is_a_metric(self) -> Self:
+        """The weight is aggregated, so it is a metric."""
+        _require_metric(self.weight, "weight")
+        _require_dimensions(self.tooltip_fields, "tooltip_fields")
+        return self
+
+
+# Common ways to write a country whose key in the map is different
+_COUNTRY_SYNONYMS = {
+    "méxico": "mexico",
+    "us": "usa",
+    "united_states": "usa",
+    "united_states_of_america": "usa",
+    "united_kingdom": "uk",
+    "great_britain": "uk",
+}
+
+
+class CountryMapChartConfig(BaseChartConfig):
+    """A country's states or provinces colored by a metric, matched by ISO
+    3166-2 code (MX-QUE), never by name; no municipalities."""
+
+    model_config = ConfigDict(extra="ignore", populate_by_name=True)
+
+    chart_type: Literal["country_map"] = "country_map"
+    country: str = Field(
+        ...,
+        validation_alias=AliasChoices("country", "select_country"),
+        description="Lowercase English key: 'mexico', 'spain', 'usa', 'uk'",
+    )
+    region: ColumnRef = Field(
+        ...,
+        validation_alias=AliasChoices("region", "entity"),
+        description="Column of ISO 3166-2 codes (MX-QUE); turn names into "
+        "codes with a calculated column",
+    )
+    metric: ColumnRef
+    number_format: str = Field("SMART_NUMBER", max_length=50)
+    currency_format: CurrencyFormat | None = None
+    filters: List[FilterConfig] | None = Field(
+        None,
+        description="Structured filters (column/op/value)",
+    )
+    row_limit: int = Field(10000, ge=1, le=50000)
+
+    @field_validator("country", mode="before")
+    @classmethod
+    def known_country(cls, value: Any) -> Any:
+        """Accept the frontend's country keys, written loosely."""
+        from superset.mcp_service.chart.map_countries import COUNTRY_MAP_COUNTRIES
+
+        if not isinstance(value, str):
+            return value
+        key = re.sub(r"[\s-]+", "_", value.strip().lower())
+        key = _COUNTRY_SYNONYMS.get(key, key)
+        if key not in COUNTRY_MAP_COUNTRIES:
+            close = difflib.get_close_matches(key, sorted(COUNTRY_MAP_COUNTRIES), 3)
+            hint = f" Did you mean: {', '.join(close)}?" if close else ""
+            raise ValueError(f"The country map has no country {value!r}.{hint}")
+        return key
+
+    @model_validator(mode="after")
+    def check_region_and_metric(self) -> Self:
+        """The region is a column of codes and the metric an aggregate."""
+        _require_dimension(self.region, "region")
+        _require_metric(self.metric, "metric")
+        return self
+
+
 # Discriminated union for runtime validation (not exposed in JSON Schema)
 ChartConfig = Annotated[
     XYChartConfig
@@ -2683,14 +2915,19 @@ ChartConfig = Annotated[
     | BigNumberChartConfig
     | HistogramChartConfig
     | BoxPlotChartConfig
-    | WaterfallChartConfig,
+    | WaterfallChartConfig
+    | PointClusterMapChartConfig
+    | DeckScatterChartConfig
+    | DeckHeatmapChartConfig
+    | CountryMapChartConfig,
     Field(
         discriminator="chart_type",
         description=(
             "Chart configuration - specify chart_type as 'xy', 'table', "
             "'pie', 'gauge', 'treemap_v2', 'pivot_table', 'interactive_pivot', "
             "'mixed_timeseries', 'handlebars', "
-            "'big_number', 'histogram', 'box_plot', or 'waterfall'"
+            "'big_number', 'histogram', 'box_plot', 'waterfall', "
+            "'point_cluster_map', 'deck_scatter', 'deck_heatmap' or 'country_map'"
         ),
     ),
 ]

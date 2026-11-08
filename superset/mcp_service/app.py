@@ -192,7 +192,9 @@ Visuals:
 - generate_explore_link: An interactive Explore URL to explore data without saving
 - generate_chart / update_chart_preview: Previews; a saved chart outside a report is an orphan here
 chart_type values: xy (kind line, bar, area or scatter), big_number, table, pie,
-gauge, pivot_table, mixed_timeseries, handlebars, histogram, box_plot, waterfall.
+gauge, pivot_table, mixed_timeseries, handlebars, histogram, box_plot, waterfall,
+point_cluster_map, deck_scatter, deck_heatmap (maps of latitude and longitude
+columns) and country_map (regions of a country by ISO 3166-2 code).
 
 Format:
 - get_format_options: Format keys of a chart type or element by level (visual, general, analytics); read before formatting

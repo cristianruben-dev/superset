@@ -144,7 +144,11 @@ def prepare_chart(
             f"Dataset not found: {request.dataset_id!r}. Use list_datasets.",
             "NotFound",
         )
-    form_data = map_config_to_form_data(request.config, dataset_id=dataset.id)
+    try:
+        form_data = map_config_to_form_data(request.config, dataset_id=dataset.id)
+    except ValueError as exc:
+        # A chart type's own check on the data (post_map_validate), with its fix
+        raise LayoutEditError(str(exc), "InvalidChart") from exc
     warnings += form_data.pop("_mcp_warnings", [])
     if time_filters:
         form_data["adhoc_filters"] = [

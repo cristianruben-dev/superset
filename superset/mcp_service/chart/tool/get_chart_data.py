@@ -122,6 +122,10 @@ _VIZ_CATEGORY: dict[str, str] = {
     "histogram_v2": "histogram",
     "box_plot": "box_plot",
     "world_map": "map",
+    "country_map": "map",
+    "point_cluster_map": "map",
+    "deck_scatter": "map",
+    "deck_heatmap": "map",
     "pivot_table_v2": "table",
     "ag-grid-pivot-table": "table",
     # Own category: cumulative-flow semantics differ from a plain bar, like

@@ -480,6 +480,25 @@ def resolve_deck_gl_columns(form_data: dict[str, Any]) -> list[str]:
     for field in ("line_column", "geojson", "dimension"):
         _add(form_data.get(field))
 
+    # Tooltip columns are read by the frontend buildQuery of the same charts
+    for item in form_data.get("tooltip_contents") or []:
+        if isinstance(item, dict) and item.get("item_type") == "column":
+            _add(item.get("column_name"))
+
+    return columns
+
+
+def point_cluster_map_columns(form_data: dict[str, Any]) -> list[str]:
+    """Columns of a point cluster map: longitude, latitude, cluster label."""
+    columns: list[str] = []
+    for value in (
+        form_data.get("all_columns_x"),
+        form_data.get("all_columns_y"),
+        *(form_data.get("map_label") or [])[:1],
+    ):
+        if isinstance(value, str) and value and value != "count":
+            if value not in columns:
+                columns.append(value)
     return columns
 
 
@@ -665,6 +684,19 @@ def build_query_dicts_from_form_data(
         or (getattr(chart, "viz_type", "") if chart else "")
         or ""
     )
+
+    # The point cluster map reads one row per point, by its coordinates and the
+    # column its clusters aggregate, as its frontend buildQuery does.
+    if viz_type == "point_cluster_map":
+        return [
+            _build_single_query_dict(
+                form_data,
+                point_cluster_map_columns(form_data),
+                [],
+                row_limit=row_limit,
+                order_desc=order_desc,
+            )
+        ]
 
     # Deck.gl charts use spatial column configs rather than the standard
     # metrics / groupby fields. Extract columns from the spatial controls.

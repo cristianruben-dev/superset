@@ -32,6 +32,9 @@ from superset.extensions import event_logger
 from superset.mcp_service.chart.schemas import (
     BigNumberChartConfig,
     BoxPlotChartConfig,
+    CountryMapChartConfig,
+    DeckHeatmapChartConfig,
+    DeckScatterChartConfig,
     GaugeChartConfig,
     HandlebarsChartConfig,
     HistogramChartConfig,
@@ -39,6 +42,7 @@ from superset.mcp_service.chart.schemas import (
     MixedTimeseriesChartConfig,
     PieChartConfig,
     PivotTableChartConfig,
+    PointClusterMapChartConfig,
     TableChartConfig,
     TreemapChartConfig,
     WaterfallChartConfig,
@@ -73,6 +77,10 @@ _CHART_TYPE_ADAPTERS: Dict[str, TypeAdapter[Any]] = {
     "histogram": TypeAdapter(HistogramChartConfig),
     "box_plot": TypeAdapter(BoxPlotChartConfig),
     "waterfall": TypeAdapter(WaterfallChartConfig),
+    "point_cluster_map": TypeAdapter(PointClusterMapChartConfig),
+    "deck_scatter": TypeAdapter(DeckScatterChartConfig),
+    "deck_heatmap": TypeAdapter(DeckHeatmapChartConfig),
+    "country_map": TypeAdapter(CountryMapChartConfig),
 }
 
 VALID_CHART_TYPES = sorted(_CHART_TYPE_ADAPTERS.keys())
@@ -218,6 +226,58 @@ _CHART_EXAMPLES: Dict[str, list[Dict[str, Any]]] = {
             "metric": {"name": "profit", "aggregate": "SUM"},
             "breakdown": {"name": "region"},
             "show_total": True,
+        },
+    ],
+    "point_cluster_map": [
+        {
+            "chart_type": "point_cluster_map",
+            "latitude": {"name": "latitude"},
+            "longitude": {"name": "longitude"},
+        },
+        {
+            "chart_type": "point_cluster_map",
+            "latitude": {"name": "latitude"},
+            "longitude": {"name": "longitude"},
+            "label": {"name": "staff"},
+            "label_aggregate": "sum",
+            "clustering_radius": 80,
+        },
+    ],
+    "deck_scatter": [
+        {
+            "chart_type": "deck_scatter",
+            "latitude": {"name": "latitude"},
+            "longitude": {"name": "longitude"},
+            "color_by": {"name": "facility_type"},
+        },
+        {
+            "chart_type": "deck_scatter",
+            "latitude": {"name": "latitude"},
+            "longitude": {"name": "longitude"},
+            "point_size": {"name": "staff", "aggregate": "SUM"},
+            "color": "#10B981",
+        },
+    ],
+    "deck_heatmap": [
+        {
+            "chart_type": "deck_heatmap",
+            "latitude": {"name": "latitude"},
+            "longitude": {"name": "longitude"},
+        },
+        {
+            "chart_type": "deck_heatmap",
+            "latitude": {"name": "latitude"},
+            "longitude": {"name": "longitude"},
+            "weight": {"name": "staff", "aggregate": "SUM"},
+            "radius_pixels": 40,
+        },
+    ],
+    "country_map": [
+        {
+            "chart_type": "country_map",
+            "country": "mexico",
+            "region": {"name": "state_iso_code"},
+            "metric": {"name": "revenue", "aggregate": "SUM"},
         },
     ],
     "gauge": [
