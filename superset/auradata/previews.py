@@ -19,14 +19,16 @@ Compact layout previews of dashboards, for the dashboard cards.
 
 A preview is the first rows of the dashboard grid (or of its first tab): each row
 is a list of cells with their grid width and height and what they hold (a chart's
-viz type, a column of stacked cells, markdown...). The frontend draws it as a
-miniature of the real dashboard, so cards show a preview without screenshots.
+viz type, a column of stacked cells, markdown, a design element...). The frontend
+draws it as a miniature of the real dashboard, so cards show a preview without
+screenshots.
 """
 
 from __future__ import annotations
 
 from typing import Any, TypedDict
 
+from superset.auradata.layout.keys import element_kind
 from superset.models.dashboard import Dashboard
 from superset.utils import json
 
@@ -77,6 +79,14 @@ def _cell(
             "width": int(meta.get("width") or 4),
             "height": int(meta.get("height") or 50),
             "kind": viz_types.get(meta.get("chartId") or 0, "chart"),
+        }
+    if kind == "DYNAMIC" and (element := element_kind(meta.get("componentKey"))):
+        # Design elements (shapes, images, text, buttons, slicers) are content
+        # too: a page holding only them is not an empty dashboard
+        return {
+            "width": int(meta.get("width") or 4),
+            "height": int(meta.get("height") or 4),
+            "kind": element,
         }
     if kind == "MARKDOWN":
         return {

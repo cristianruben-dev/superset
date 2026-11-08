@@ -27,9 +27,13 @@ export type Glyph =
   | 'table'
   | 'map'
   | 'text'
+  | 'block'
   | 'chart';
 
 const GLYPHS: [RegExp, Glyph][] = [
+  // Design elements of a report page
+  [/^text$/, 'text'],
+  [/^(shape|image|button|filter|navigator)$/, 'block'],
   [/big_number|kpi|gauge/, 'number'],
   [/pie|sunburst|donut|treemap|funnel/, 'pie'],
   [/table|pivot|ag_grid|ag-grid/, 'table'],
@@ -300,6 +304,20 @@ function GlyphSvg({ glyph, seed }: { glyph: Glyph; seed: number }) {
               opacity={index === 0 ? 0.6 : 0.35}
             />
           ))}
+        </svg>
+      );
+    case 'block':
+      return (
+        <svg viewBox="0 0 100 60" preserveAspectRatio="none" aria-hidden>
+          <rect
+            x={4}
+            y={6}
+            width={92}
+            height={48}
+            rx={6}
+            fill={primary}
+            opacity={0.18}
+          />
         </svg>
       );
     default:

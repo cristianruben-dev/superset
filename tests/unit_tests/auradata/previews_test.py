@@ -137,3 +137,50 @@ def test_unreadable_layouts():
     assert dashboard_preview(make_dashboard("not json", {})) == []
     assert dashboard_preview(make_dashboard("[]", {})) == []
     assert dashboard_preview(make_dashboard({"CHART-1": {}}, {})) == []
+
+
+def element(id_: str, kind: str, width: int = 4, height: int = 6):
+    return {
+        id_: {
+            "type": "DYNAMIC",
+            "id": id_,
+            "meta": {
+                "componentKey": f"auradata-{kind}",
+                "width": width,
+                "height": height,
+            },
+        }
+    }
+
+
+def test_design_elements_are_content():
+    """A page with only a shape, an image and text is not an empty dashboard."""
+    layout = {
+        "ROOT_ID": {"type": "ROOT", "children": ["TABS-1"]},
+        "TABS-1": {"type": "TABS", "children": ["TAB-1"]},
+        "TAB-1": {"type": "TAB", "children": ["ROW-1", "DYNAMIC-text"]},
+        "ROW-1": {"type": "ROW", "children": ["DYNAMIC-shape", "DYNAMIC-image"]},
+        **element("DYNAMIC-shape", "shape", 10, 8),
+        **element("DYNAMIC-image", "image", 6, 4),
+        **element("DYNAMIC-text", "text", 20, 2),
+    }
+
+    assert dashboard_preview(make_dashboard(layout, {})) == [
+        [
+            {"width": 10, "height": 8, "kind": "shape"},
+            {"width": 6, "height": 4, "kind": "image"},
+        ],
+        [{"width": 20, "height": 2, "kind": "text"}],
+    ]
+
+
+def test_other_dynamic_components_and_empty_pages():
+    """Unknown dynamic components add nothing; an empty page stays empty."""
+    layout = {
+        "ROOT_ID": {"type": "ROOT", "children": ["GRID_ID"]},
+        "GRID_ID": {"type": "GRID", "children": ["ROW-1"]},
+        "ROW-1": {"type": "ROW", "children": ["DYNAMIC-x"]},
+        "DYNAMIC-x": {"type": "DYNAMIC", "meta": {"componentKey": "plugin-x"}},
+    }
+
+    assert dashboard_preview(make_dashboard(layout, {})) == []
