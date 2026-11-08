@@ -15,6 +15,7 @@ Actualizado: 2026-11-03, con las fases 7, 8, 9 y 10 hechas. Falta sobre todo la 
 | Todo junto, para filtrar en una hoja de cálculo | [`opciones.csv`](powerbi-format-inventory/opciones.csv), 13,853 filas |
 | Detalle, resultados y decisiones de cada fase | [`2026-11-02-plan-formato-powerbi.md`](2026-11-02-plan-formato-powerbi.md) |
 | De dónde sale el inventario y sus límites | [`powerbi-format-inventory/README.md`](powerbi-format-inventory/README.md) |
+| Plan de mapas | [`2026-11-08-plan-mapas.md`](2026-11-08-plan-mapas.md) |
 | Comparación de experiencia con Power BI | [`2026-11-02-investigacion-ux-powerbi.md`](2026-11-02-investigacion-ux-powerbi.md) |
 
 `cobertura.md`, `pendientes.md`, `por-grafico/` y `opciones.csv` los genera `scripts/mibi/format_inventory.py`.
@@ -34,7 +35,7 @@ Actualizado: 2026-11-03, con las fases 7, 8, 9 y 10 hechas. Falta sobre todo la 
 | 8 | Análisis y tooltips | **Hecha con límites** | 57 |
 | 9 | Páginas tooltip y restablecer filtros | **Hecha con límites** | Fuera del inventario |
 | 10 | Campos y panel de datos | **Hecha con límites** | Fuera del inventario |
-| 11 | Mapas | Sin decidir el motor | 429 |
+| 11 | Mapas | Plan hecho: [`2026-11-08-plan-mapas.md`](2026-11-08-plan-mapas.md) (deck.gl + MapLibre) | 429 |
 | 12 | Resto de P3 y gráficos nuevos | Opcional | 927 |
 
 **Hecha no significa cero.** Las opciones abiertas de una fase hecha son las que el motor de gráficos no permite, las
@@ -122,7 +123,7 @@ Tarjeta de varias filas y la tarjeta nueva están en `cobertura.md`.
 - **8, hecha:** deslizadores en las categorías, los valores y el eje secundario, con límites en porcentaje o en valores; los múltiplos tienen separación, bordes, fondo, esquinas y encabezados propios; los campos de tooltip están en barras, líneas, áreas, dispersión y el combinado.
 - **9, hecha con límites:** una página se marca «Usar como información sobre herramientas» (tamaño y campos propios; se edita a ese tamaño) y un gráfico la elige en General › Información sobre herramientas, o «Automático» por campos comunes. Al pasar sobre una marca de un gráfico ECharts, una fila de una tabla o una tarjeta, se dibuja flotando, filtrada por ella (una fecha con grano filtra su periodo), con espera de 250 ms, caché por valor y cancelación al salir. Dibuja gráficos, cuadros de texto, imágenes, formas, botones y textos; no segmentadores ni navegadores. También sobre las celdas de valor de la matriz. Fuera: mapas (fase 11). Restablecer filtros vuelve a los valores por defecto de filtros y segmentadores, quita filtros cruzados y la obtención de detalles, y olvida la visibilidad de un marcador. Las pestañas de página van en una barra abajo, con el zoom, y el panel de filtros sigue junto a la página al editar.
 - **10, hecha con límites:** Deshacer y Rehacer recorren los cambios de campos junto con los del diseño (cada cambio, y «Volver a los campos guardados», es un paso). Un campo se añade también marcando su casilla en Datos o soltándolo sobre el gráfico del lienzo, y va al pozo que elegiría Power BI (`addFieldChange`); una columna numérica entra como suma. «Usar esta tabla en el gráfico» (Datos) cambia el conjunto de datos de un gráfico en un paso de Deshacer, quitando los campos y filtros que el nuevo no tiene; al guardar se envía `datasource_id` y el servidor aplica `validate_chart_dataset`, y si lo rechaza el gráfico vuelve a sus campos guardados. Probado en el tablero 147 con el dataset sintético 62 «QA referencia por zona» (compartido), sin guardar. Datos lista todos los conjuntos que los gráficos del tablero pueden usar (los de su espacio de trabajo y los compartidos, filtro `dataset_usable_in_dashboard`) y carga los campos de uno no usado al abrirlo. Los gráficos sin tabla de roles, como mapas, muestran el nombre original de cada control. Abrir el editor de un gráfico con campos pendientes los guarda primero. Solo el propietario de un gráfico o un administrador cambia sus campos, y no se probó con un usuario sin permisos.
-- **11, mapas:** decidir el motor antes de nada.
+- **11, mapas:** motor decidido (deck.gl + MapLibre); fases en [`2026-11-08-plan-mapas.md`](2026-11-08-plan-mapas.md).
 - **12, opcional:** barras de error, anomalías, pronóstico, y gráficos por construir como Ribbon.
 
 ## Decisiones pendientes
