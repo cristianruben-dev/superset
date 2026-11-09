@@ -137,6 +137,39 @@ test('reattaches detached markdown to a row and a header to the grid', () => {
   });
 });
 
+test('reattaches a detached dynamic design element to a row', () => {
+  const layout = {
+    ...reachableLayout(),
+    'COLUMN-orphan': component('COLUMN-orphan', 'COLUMN', [
+      'DYNAMIC-shape',
+      'ROW-orphan',
+    ]),
+    'ROW-orphan': component('ROW-orphan', 'ROW', ['COLUMN-orphan']),
+    'DYNAMIC-shape': component('DYNAMIC-shape', 'DYNAMIC', [], {
+      meta: {
+        componentKey: 'auradata-shape',
+        width: 4,
+        auradataElement: { kind: 'shape', shape: 'rectangle' },
+      },
+    }),
+  };
+
+  const repaired = removeUnreachableComponents(layout);
+
+  const [, newRowId] = repaired.GRID_ID.children;
+  expect(repaired[newRowId]).toMatchObject({
+    type: 'ROW',
+    children: ['DYNAMIC-shape'],
+  });
+  expect(repaired['DYNAMIC-shape']).toMatchObject({
+    parents: ['ROOT_ID', 'GRID_ID', newRowId],
+    meta: {
+      componentKey: 'auradata-shape',
+      width: 4,
+    },
+  });
+});
+
 test('reattaches a detached chart to the first tab of top-level tabs', () => {
   const layout = withVersionKey({
     ROOT_ID: component('ROOT_ID', 'ROOT', ['TABS-t']),

@@ -260,6 +260,9 @@ export async function embedDashboard({
       });
       iframe.src = `${supersetDomain}/embedded/${id}${urlParamsString}`;
       iframe.title = iframeTitle;
+      iframe.style.width = "100%";
+      iframe.style.height = "100%";
+      iframe.style.border = "0";
       iframe.style.background = "transparent";
       // Permissions Policy features the embedded dashboard relies on. Modern
       // browsers gate these APIs on the iframe's `allow` attribute regardless

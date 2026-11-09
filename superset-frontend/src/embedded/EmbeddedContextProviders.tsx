@@ -26,6 +26,7 @@ import { DynamicPluginProvider } from 'src/components';
 import { EmbeddedUiConfigProvider } from 'src/components/UiConfigContext';
 import { SupersetThemeProvider } from 'src/theme/ThemeProvider';
 import { ThemeController } from 'src/theme/ThemeController';
+import { ThemeVariables } from 'src/auradata/shell/ThemeVariables';
 import { type ThemeStorage } from '@apache-superset/core/theme';
 import { store } from 'src/views/store';
 import querystring from 'query-string';
@@ -69,6 +70,7 @@ export const EmbeddedContextProviders: React.FC<{
 
   return (
     <SupersetThemeProvider themeController={themeController}>
+      <ThemeVariables />
       <ReduxProvider store={store}>
         {/* @ts-expect-error react-dnd types not updated for React 18 */}
         <DndProvider backend={HTML5Backend}>

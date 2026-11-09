@@ -109,6 +109,10 @@ describe("embedDashboard", () => {
 
     dashboard.setDataMask(testDataMask);
 
+    const iframe = mountPoint.querySelector("iframe");
+    expect(iframe?.style.width).toBe("100%");
+    expect(iframe?.style.height).toBe("100%");
+
     expect(mockSwitchboard.get).toHaveBeenCalledWith("setDataMask", {
       dataMask: testDataMask,
     });

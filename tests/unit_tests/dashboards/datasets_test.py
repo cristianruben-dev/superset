@@ -335,6 +335,54 @@ def test_dashboard_table_serialization_includes_capabilities_and_parent() -> Non
     assert serialized["supports_drill_to_detail"] is True
 
 
+@pytest.mark.parametrize("allowed_by_token", [True, False])
+def test_dashboard_table_serialization_for_embedded_guest(
+    allowed_by_token: bool,
+) -> None:
+    """Embedded guest users receive chart-rendering metadata for allowed member tables
+    while sensitive connection and SQL fields remain stripped."""
+    database: Database = Database(
+        id=1, database_name="Warehouse", sqlalchemy_uri="sqlite://"
+    )
+    table: SqlaTable = SqlaTable(id=2, table_name="orders", database=database)
+    chart: Slice = Slice(datasource_id=2, datasource_type="table", params="{}")
+    payload: dict[str, Any] = table.data_for_slices([chart])
+    api: DashboardRestApi = DashboardRestApi()
+    with (
+        patch(
+            "superset.dashboards.api.security_manager.can_access_datasource",
+            return_value=False,
+        ),
+        patch("superset.dashboards.api.is_feature_enabled", return_value=True),
+        patch(
+            "superset.dashboards.api.security_manager.is_guest_user",
+            return_value=True,
+        ),
+        patch(
+            "superset.dashboards.api.security_manager._guest_token_allows_dataset",
+            return_value=allowed_by_token,
+        ),
+        patch(
+            "superset.dashboards.schemas.security_manager.is_guest_user",
+            return_value=True,
+        ),
+    ):
+        serialized: dict[str, Any] = api._serialize_dashboard_dataset(table, payload)
+
+    assert "database" not in serialized
+    assert "parent" not in serialized
+    assert "sql" not in serialized
+    assert "perm" not in serialized
+    if allowed_by_token:
+        assert "columns" in serialized
+        assert "metrics" in serialized
+        assert "verbose_map" in serialized
+    else:
+        assert "columns" not in serialized
+        assert "metrics" not in serialized
+        assert "verbose_map" not in serialized
+
+
 def test_dashboard_table_serialization_failure_is_not_suppressed() -> None:
     """Provider isolation must not swallow table errors."""
     table: SqlaTable = SqlaTable(id=2, table_name="orders")

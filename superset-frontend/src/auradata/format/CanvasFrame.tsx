@@ -30,6 +30,7 @@ import { useDispatch, useSelector, useStore } from 'react-redux';
 import cx from 'classnames';
 import { fitToCanvas } from './actions';
 import { setMobileEditing, useMobileEditing, usePhoneScreen } from './mobile';
+import { useAuthenticatedImageUrl } from './useAuthenticatedImageUrl';
 import {
   CanvasReadOnlyProvider,
   MOBILE_COLUMNS,
@@ -268,6 +269,24 @@ export function CanvasFrame({ children }: { children: ReactNode }) {
         ? { ...baseCanvas, background: pageBackground }
         : baseCanvas,
     [baseCanvas, pageBackground],
+  );
+  const rawBackgroundImage =
+    canvas?.background?.type === 'image' ? canvas.background.image : undefined;
+  const { url: resolvedBackgroundImage } =
+    useAuthenticatedImageUrl(rawBackgroundImage);
+  const styledCanvas = useMemo(
+    () =>
+      canvas?.background?.type === 'image' &&
+      resolvedBackgroundImage !== rawBackgroundImage
+        ? {
+            ...canvas,
+            background: {
+              ...canvas.background,
+              image: resolvedBackgroundImage,
+            },
+          }
+        : canvas,
+    [canvas, rawBackgroundImage, resolvedBackgroundImage],
   );
   const store = useStore<RootState>();
   useEffect(() => {
@@ -677,7 +696,7 @@ export function CanvasFrame({ children }: { children: ReactNode }) {
       ...(look && !hasOwnBackground(canvas)
         ? { backgroundColor: theme.colorBgLayout }
         : undefined),
-      ...canvasStyle(canvas, theme),
+      ...canvasStyle(styledCanvas, theme),
       ...(size
         ? {
             width: size.width,
@@ -695,6 +714,7 @@ export function CanvasFrame({ children }: { children: ReactNode }) {
     }),
     [
       canvas,
+      styledCanvas,
       theme,
       look,
       size,

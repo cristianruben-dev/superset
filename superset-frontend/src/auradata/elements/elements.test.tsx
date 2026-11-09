@@ -17,18 +17,21 @@
  * under the License.
  */
 import { supersetTheme } from '@apache-superset/core/theme';
+import { SupersetClient } from '@superset-ui/core';
 import {
   act,
   createStore,
   fireEvent,
   render,
   screen,
+  waitFor,
 } from 'spec/helpers/testing-library';
 import reducerIndex from 'spec/helpers/reducerIndex';
 import type { DashboardLayout, RootState } from 'src/dashboard/types';
 import newEntitiesFromDrop from 'src/dashboard/util/newEntitiesFromDrop';
 import { FormatPane } from 'src/auradata/format/FormatPane';
 import { selectVisual } from 'src/auradata/format/selection';
+import { resetAuthenticatedImageCache } from 'src/auradata/format/useAuthenticatedImageUrl';
 import { runElementAction, setElementConfig } from './actions';
 import {
   fillBackground,
@@ -109,7 +112,11 @@ const stateOf = (store: ReturnType<typeof makeStore>) =>
 const dispatcher = (store: ReturnType<typeof makeStore>) =>
   store.dispatch as unknown as (action: unknown) => void;
 
-afterEach(() => selectVisual(null));
+afterEach(() => {
+  selectVisual(null);
+  resetAuthenticatedImageCache();
+  jest.restoreAllMocks();
+});
 
 // Built in pieces: linters reject the literal
 const SCRIPT_SCHEME = ['java', 'script:'].join('');
@@ -347,4 +354,40 @@ test('long words inside a shape wrap and stay inside it', () => {
     overflowWrap: 'anywhere',
     overflow: 'hidden',
   });
+});
+
+test('fetches uploaded dashboard images with the guest token in embedded mode', async () => {
+  jest.spyOn(SupersetClient, 'getGuestToken').mockReturnValue('guest-jwt');
+  const getSpy = jest.spyOn(SupersetClient, 'get').mockResolvedValue({
+    blob: async () => new Blob(['png-bytes'], { type: 'image/png' }),
+  } as unknown as Response);
+  const originalCreateObjectURL = URL.createObjectURL;
+  URL.createObjectURL = jest.fn(() => 'blob:https://bi.example.com/img-1');
+
+  try {
+    render(
+      <ImageView
+        editMode={false}
+        config={{
+          kind: 'image',
+          src: '/api/v1/dashboard_image/7/a1b2c3d4e5f60718/',
+          alt: 'Embedded logo',
+        }}
+      />,
+      { useRedux: true },
+    );
+
+    await waitFor(() => {
+      expect(screen.getByAltText('Embedded logo')).toHaveAttribute(
+        'src',
+        'blob:https://bi.example.com/img-1',
+      );
+    });
+    expect(getSpy).toHaveBeenCalledWith({
+      endpoint: '/api/v1/dashboard_image/7/a1b2c3d4e5f60718/',
+      parseMethod: 'raw',
+    });
+  } finally {
+    URL.createObjectURL = originalCreateObjectURL;
+  }
 });

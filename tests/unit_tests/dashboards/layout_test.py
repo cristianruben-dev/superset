@@ -134,6 +134,38 @@ def test_detached_markdown_and_header_are_reattached() -> None:
     assert cleaned["MARKDOWN-trapped"]["meta"] == {"code": "# Notes", "width": 4}
 
 
+def test_detached_dynamic_element_is_reattached() -> None:
+    position = reachable_position() | {
+        "COLUMN-orphan": {
+            "id": "COLUMN-orphan",
+            "type": "COLUMN",
+            "children": ["DYNAMIC-trapped", "ROW-orphan"],
+        },
+        "ROW-orphan": {
+            "id": "ROW-orphan",
+            "type": "ROW",
+            "children": ["COLUMN-orphan"],
+        },
+        "DYNAMIC-trapped": {
+            "id": "DYNAMIC-trapped",
+            "type": "DYNAMIC",
+            "children": [],
+            "meta": {"componentKey": "auradata-shape", "width": 4},
+        },
+    }
+
+    cleaned, removed = remove_unreachable_components(position)
+
+    assert sorted(removed) == ["COLUMN-orphan", "DYNAMIC-trapped", "ROW-orphan"]
+    new_row_id = cleaned["GRID_ID"]["children"][-1]
+    assert cleaned[new_row_id]["children"] == ["DYNAMIC-trapped"]
+    assert cleaned["DYNAMIC-trapped"]["parents"] == ["ROOT_ID", "GRID_ID", new_row_id]
+    assert cleaned["DYNAMIC-trapped"]["meta"] == {
+        "componentKey": "auradata-shape",
+        "width": 4,
+    }
+
+
 def test_detached_chart_is_reattached_to_the_first_tab() -> None:
     position = {
         "DASHBOARD_VERSION_KEY": "v2",

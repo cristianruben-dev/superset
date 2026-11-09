@@ -170,6 +170,7 @@ from superset.tasks.thumbnails import (
 from superset.tasks.utils import get_current_user
 from superset.utils import json
 from superset.utils.core import (
+    DatasourceType,
     parse_boolean_string,
     send_export_zip,
     write_zip_entry,
@@ -786,10 +787,25 @@ class DashboardRestApi(
             # Redux keys dashboard datasets by Slice.form_data["datasource"],
             # whereas SemanticView.uid is the provider's independent identity.
             serialized["uid"] = f"{datasource.id}__{datasource.type}"
-        if not security_manager.can_access_datasource(datasource):
+        if not self._can_access_dashboard_dataset(datasource):
             for key in DASHBOARD_DATASET_INACCESSIBLE_FIELDS:
                 serialized.pop(key, None)
         return serialized
+
+    @staticmethod
+    def _can_access_dashboard_dataset(datasource: Any) -> bool:
+        """Whether the caller can receive chart-rendering metadata for a member
+        dataset of an already-authorized dashboard."""
+        if security_manager.can_access_datasource(datasource):
+            return True
+        return bool(
+            is_feature_enabled("EMBEDDED_SUPERSET")
+            and security_manager.is_guest_user()
+            and getattr(datasource, "type", None) == DatasourceType.TABLE
+            and security_manager._guest_token_allows_dataset(
+                getattr(datasource, "id", None)
+            )
+        )
 
     def _serialize_dashboard_chart(self, chart: Any) -> dict[str, Any]:
         """Dump a member chart, narrowed when the caller cannot access it."""

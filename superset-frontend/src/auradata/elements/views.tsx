@@ -34,6 +34,7 @@ import { visibleTabs } from 'src/auradata/present/dashboardTabs';
 import { t } from '@apache-superset/core/translation';
 import { css, styled, useTheme } from '@apache-superset/core/theme';
 import { Icons } from '@superset-ui/core/components/Icons';
+import { useAuthenticatedImageUrl } from 'src/auradata/format/useAuthenticatedImageUrl';
 import { useElementAction } from './actions';
 import {
   boxShadow,
@@ -128,10 +129,15 @@ export function ImageView({
   editMode: boolean;
 }) {
   const run = useElementAction(config.action, !editMode);
+  const {
+    url: resolvedSrc,
+    loading: loadingSrc,
+    broken: brokenSrc,
+  } = useAuthenticatedImageUrl(config.src);
   // A picture that does not load shows the placeholder, never its alt text
   const [broken, setBroken] = useState(false);
-  useEffect(() => setBroken(false), [config.src]);
-  if (broken && config.src) {
+  useEffect(() => setBroken(false), [config.src, resolvedSrc]);
+  if ((broken || brokenSrc) && config.src) {
     return editMode ? (
       <Placeholder data-test="auradata-image-broken">
         <Icons.WarningOutlined iconSize="xl" />
@@ -146,6 +152,17 @@ export function ImageView({
         {t('Add a picture in the Format pane')}
       </Placeholder>
     ) : null;
+  }
+  if (loadingSrc || !resolvedSrc) {
+    return (
+      <Interactive config={config} editMode={editMode}>
+        <Fill
+          $clickable={!!run}
+          className="auradata-hoverable"
+          {...activate(run)}
+        />
+      </Interactive>
+    );
   }
   const transforms = [
     config.rotation ? `rotate(${config.rotation}deg)` : '',
@@ -167,7 +184,7 @@ export function ImageView({
         {...activate(run)}
       >
         <img
-          src={config.src}
+          src={resolvedSrc}
           alt={config.alt ?? ''}
           data-test="auradata-image"
           draggable={false}

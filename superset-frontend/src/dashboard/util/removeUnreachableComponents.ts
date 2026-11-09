@@ -20,6 +20,7 @@ import { DashboardComponent } from '../types';
 import {
   CHART_TYPE,
   DASHBOARD_GRID_TYPE,
+  DYNAMIC_TYPE,
   HEADER_TYPE,
   MARKDOWN_TYPE,
   ROW_TYPE,
@@ -128,7 +129,11 @@ export default function removeUnreachableComponents<
   const rescued: [string, T][] = [];
   unreachable.forEach(id => {
     const component = layout[id];
-    if (component.type === MARKDOWN_TYPE || component.type === HEADER_TYPE) {
+    if (
+      component.type === MARKDOWN_TYPE ||
+      component.type === HEADER_TYPE ||
+      component.type === DYNAMIC_TYPE
+    ) {
       rescued.push([id, component]);
       return;
     }

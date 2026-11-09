@@ -27,6 +27,7 @@ logger = logging.getLogger(__name__)
 
 ROOT_ID = "ROOT_ID"
 CHART_TYPE = "CHART"
+DYNAMIC_TYPE = "DYNAMIC"
 HEADER_TYPE = "HEADER"
 MARKDOWN_TYPE = "MARKDOWN"
 ROW_TYPE = "ROW"
@@ -223,7 +224,7 @@ def remove_unreachable_components(
     for component_id in removed:
         component = position[component_id]
         component_type = component.get("type")
-        if component_type in (MARKDOWN_TYPE, HEADER_TYPE):
+        if component_type in (MARKDOWN_TYPE, HEADER_TYPE, DYNAMIC_TYPE):
             rescued.append((component_id, component))
             continue
         chart_id = _chart_id(component)
