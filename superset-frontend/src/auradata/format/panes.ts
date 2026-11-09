@@ -72,7 +72,7 @@ export type BuilderTab =
   | 'ASSISTANT';
 
 const TAB_EVENT = 'auradata:builder-tab';
-let builderTab: BuilderTab = 'CHARTS';
+let builderTab: BuilderTab = 'FORMAT';
 
 export function setBuilderTab(tab: BuilderTab) {
   if (builderTab === tab) return;

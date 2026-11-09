@@ -21,12 +21,11 @@ import {
   clearPendingFields,
   useFollowFieldSteps,
 } from 'src/auradata/format/chartFields';
-import { memo, useCallback, useEffect, type ReactNode } from 'react';
+import { memo, useCallback, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import tinycolor from 'tinycolor2';
-import Tabs from '@superset-ui/core/components/Tabs';
 import { t } from '@apache-superset/core/translation';
-import { css, SupersetTheme } from '@apache-superset/core/theme';
+import { css, useTheme } from '@apache-superset/core/theme';
 import { Icons } from '@superset-ui/core/components/Icons';
 import {
   BUILDER_SIDEPANEL_RAIL_WIDTH,
@@ -57,35 +56,16 @@ import { selectVisual, useOnOpenFormat } from 'src/auradata/format/selection';
 import { useObjectShortcuts } from 'src/auradata/format/useObjectCommands';
 
 const TABS_KEYS = {
-  CHARTS: 'CHARTS',
-  LAYOUT_ELEMENTS: 'LAYOUT_ELEMENTS',
   FORMAT: 'FORMAT',
   SELECTION: 'SELECTION',
   BOOKMARKS: 'BOOKMARKS',
   ASSISTANT: 'ASSISTANT',
+  CHARTS: 'CHARTS',
+  LAYOUT_ELEMENTS: 'LAYOUT_ELEMENTS',
 } as const;
 
-/** The label of a pane tab: an icon over a short name, so six fit side by side. */
-const paneLabel = (icon: ReactNode, label: string) => (
-  <span
-    css={css`
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 2px;
-      font-size: 11px;
-      line-height: 1.2;
-      .anticon {
-        margin: 0;
-      }
-    `}
-  >
-    {icon}
-    {label}
-  </span>
-);
-
 const BuilderComponentPane = ({ topOffset = 0, pageTop = 0 }) => {
+  const theme = useTheme();
   // The header is sticky and the app bar is not: the pane fills what they leave
   const occupied = topOffset + pageTop;
   const activeKey = useBuilderTab();
@@ -95,6 +75,7 @@ const BuilderComponentPane = ({ topOffset = 0, pageTop = 0 }) => {
   const width = collapsed
     ? BUILDER_SIDEPANEL_RAIL_WIDTH
     : BUILDER_SIDEPANEL_WIDTH;
+
   // Choosing an object to format opens the pane
   useOnOpenFormat(
     useCallback(() => {
@@ -113,6 +94,127 @@ const BuilderComponentPane = ({ topOffset = 0, pageTop = 0 }) => {
   useObjectShortcuts();
   useFollowFieldSteps();
 
+  const tabItems = [
+    {
+      key: TABS_KEYS.FORMAT,
+      label: t('Format'),
+      icon: <Icons.BgColorsOutlined iconSize="m" />,
+      content: (
+        <div
+          css={css`
+            height: calc(100vh - ${occupied}px);
+          `}
+        >
+          <FormatPane />
+        </div>
+      ),
+    },
+    {
+      key: TABS_KEYS.SELECTION,
+      label: t('Selection'),
+      icon: <Icons.OrderedListOutlined iconSize="m" />,
+      content: (
+        <div
+          css={css`
+            height: calc(100vh - ${occupied}px);
+          `}
+        >
+          <SelectionPane />
+        </div>
+      ),
+    },
+    {
+      key: TABS_KEYS.BOOKMARKS,
+      label: t('Bookmarks'),
+      icon: <Icons.BookOutlined iconSize="m" />,
+      content: (
+        <div
+          css={css`
+            height: calc(100vh - ${occupied}px);
+            overflow-y: auto;
+          `}
+        >
+          <BookmarksPane />
+        </div>
+      ),
+    },
+    ...(assistant.editModels.length
+      ? [
+          {
+            key: TABS_KEYS.ASSISTANT,
+            label: t('Assistant'),
+            icon: <Icons.CommentOutlined iconSize="m" />,
+            content: (
+              <div
+                css={css`
+                  height: calc(100vh - ${occupied}px);
+                `}
+              >
+                <AssistantChat
+                  mode="edit"
+                  access={{
+                    ...assistant,
+                    models: assistant.editModels,
+                  }}
+                  active
+                />
+              </div>
+            ),
+          },
+        ]
+      : []),
+    ...(activeKey === TABS_KEYS.CHARTS
+      ? [
+          {
+            key: TABS_KEYS.CHARTS,
+            label: t('Charts'),
+            icon: <Icons.BarChartOutlined iconSize="m" />,
+            content: (
+              <div
+                css={css`
+                  height: calc(100vh - ${occupied}px);
+                `}
+              >
+                <SliceAdder />
+              </div>
+            ),
+          },
+        ]
+      : []),
+    ...(activeKey === TABS_KEYS.LAYOUT_ELEMENTS
+      ? [
+          {
+            key: TABS_KEYS.LAYOUT_ELEMENTS,
+            label: t('Elements'),
+            icon: <Icons.AppstoreOutlined iconSize="m" />,
+            content: (
+              <div
+                css={css`
+                  height: calc(100vh - ${occupied}px);
+                  overflow-y: auto;
+                `}
+              >
+                <NewElements />
+                <NewTabs />
+                <NewHeader />
+                <NewMarkdown />
+                <NewDivider />
+                {dashboardComponents
+                  .getAll()
+                  .map(({ key: componentKey, metadata }) => (
+                    <NewDynamicComponent
+                      key={componentKey}
+                      metadata={metadata}
+                      componentKey={componentKey}
+                    />
+                  ))}
+              </div>
+            ),
+          },
+        ]
+      : []),
+  ];
+
   return (
     <div
       data-test="dashboard-builder-sidepane"
@@ -122,16 +224,43 @@ const BuilderComponentPane = ({ topOffset = 0, pageTop = 0 }) => {
         top: ${topOffset}px;
         height: calc(100vh - ${occupied}px);
         width: ${width}px;
+        display: flex;
+        flex-direction: row;
+        box-shadow: -${theme.sizeUnit}px 0 ${theme.sizeUnit}px 0
+          ${tinycolor(theme.colorBorder).setAlpha(0.1).toRgbString()};
+        background-color: ${theme.colorBgContainer};
+        transition: width 0.15s ease-in-out;
       `}
     >
+      {/* Pane Content */}
       <div
-        css={(theme: SupersetTheme) => css`
-          position: absolute;
+        css={css`
+          display: ${collapsed ? 'none' : 'block'};
+          flex: 1;
+          min-width: 0;
           height: 100%;
-          width: ${width}px;
-          box-shadow: -${theme.sizeUnit}px 0 ${theme.sizeUnit}px 0
-            ${tinycolor(theme.colorBorder).setAlpha(0.1).toRgbString()};
-          background-color: ${theme.colorBgContainer};
+          border-right: 1px solid ${theme.colorBorderSecondary};
+          overflow: hidden;
+        `}
+      >
+        {tabItems.find(item => item.key === activeKey)?.content ??
+          tabItems[0]?.content}
+      </div>
+
+      {/* Power BI Style Vertical Pane Switcher Rail */}
+      <div
+        role="tablist"
+        aria-orientation="vertical"
+        data-test="dashboard-builder-component-pane-tabs-navigation"
+        css={css`
+          width: ${BUILDER_SIDEPANEL_RAIL_WIDTH}px;
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          padding-top: ${theme.sizeUnit * 2}px;
+          background: ${theme.colorBgContainer};
+          user-select: none;
         `}
       >
         <button
@@ -140,13 +269,9 @@ const BuilderComponentPane = ({ topOffset = 0, pageTop = 0 }) => {
           aria-label={collapsed ? t('Open the panel') : t('Fold the panel')}
           title={collapsed ? t('Open the panel') : t('Fold the panel')}
           onClick={() => setPaneCollapsed('builder', !collapsed)}
-          css={(theme: SupersetTheme) => css`
-            position: absolute;
-            top: ${theme.sizeUnit * 2}px;
-            left: ${theme.sizeUnit * 1.5}px;
-            z-index: 2;
-            width: ${theme.sizeUnit * 6}px;
-            height: ${theme.sizeUnit * 6}px;
+          css={css`
+            width: ${theme.sizeUnit * 8}px;
+            height: ${theme.sizeUnit * 8}px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -155,6 +280,7 @@ const BuilderComponentPane = ({ topOffset = 0, pageTop = 0 }) => {
             background: transparent;
             color: ${theme.colorTextSecondary};
             cursor: pointer;
+            margin-bottom: ${theme.sizeUnit * 2}px;
             &:hover {
               background: ${theme.colorFillTertiary};
             }
@@ -166,171 +292,75 @@ const BuilderComponentPane = ({ topOffset = 0, pageTop = 0 }) => {
             <Icons.MenuFoldOutlined iconSize="m" />
           )}
         </button>
-        <div
-          css={(theme: SupersetTheme) => css`
-            display: ${collapsed ? 'none' : 'block'};
-            height: 100%;
-            padding: ${theme.sizeUnit * 2}px 0 0;
-            box-sizing: border-box;
-          `}
-        >
-          <Tabs
-            data-test="dashboard-builder-component-pane-tabs-navigation"
-            id="tabs"
-            activeKey={activeKey}
-            onChange={key => setBuilderTab(key as BuilderTab)}
-            // AuraData BI: six tabs fit side by side
-            tabBarGutter={4}
-            css={css`
-              line-height: inherit;
-              height: 100%;
 
-              /* The tabs share the width, so none is cut off */
-              & .ant-tabs-nav-list {
-                flex: 1;
-              }
-              & .ant-tabs-tab {
-                flex: 1;
-                justify-content: center;
-                padding-inline: 0;
-              }
-
-              /* The fold button sits at the start of the tabs */
-              & .ant-tabs-nav {
-                padding-left: 32px;
-              }
-
-              & .ant-tabs-body-holder {
-                height: 100%;
-                & .ant-tabs-body {
-                  height: 100%;
+        {tabItems.map(item => {
+          const isSelected = !collapsed && activeKey === item.key;
+          return (
+            <button
+              key={item.key}
+              type="button"
+              role="tab"
+              aria-selected={isSelected}
+              data-test={`builder-tab-${item.key.toLowerCase()}`}
+              title={item.label}
+              onClick={() => {
+                if (activeKey === item.key && !collapsed) {
+                  setPaneCollapsed('builder', true);
+                } else {
+                  setBuilderTab(item.key as BuilderTab);
+                  setPaneCollapsed('builder', false);
                 }
-              }
-            `}
-            items={[
-              {
-                key: TABS_KEYS.CHARTS,
-                label: paneLabel(
-                  <Icons.BarChartOutlined iconSize="m" />,
-                  t('Charts'),
-                ),
-                children: (
-                  <div
-                    css={css`
-                      height: calc(100vh - ${occupied + 77}px);
-                    `}
-                  >
-                    <SliceAdder />
-                  </div>
-                ),
-              },
-              {
-                key: TABS_KEYS.LAYOUT_ELEMENTS,
-                label: paneLabel(
-                  <Icons.AppstoreOutlined iconSize="m" />,
-                  t('Elements'),
-                ),
-                children:
-                  !collapsed && activeKey === TABS_KEYS.LAYOUT_ELEMENTS ? (
-                    <>
-                      <NewElements />
-                      <NewTabs />
-                      <NewHeader />
-                      <NewMarkdown />
-                      <NewDivider />
-                      {dashboardComponents
-                        .getAll()
-                        .map(({ key: componentKey, metadata }) => (
-                          <NewDynamicComponent
-                            key={componentKey}
-                            metadata={metadata}
-                            componentKey={componentKey}
-                          />
-                        ))}
-                    </>
-                  ) : null,
-              },
-              {
-                key: TABS_KEYS.FORMAT,
-                label: paneLabel(
-                  <Icons.BgColorsOutlined iconSize="m" />,
-                  t('Format'),
-                ),
-                children: (
-                  <div
-                    css={css`
-                      height: calc(100vh - ${occupied + 77}px);
-                    `}
-                  >
-                    <FormatPane />
-                  </div>
-                ),
-              },
-              {
-                key: TABS_KEYS.SELECTION,
-                label: paneLabel(
-                  <Icons.OrderedListOutlined iconSize="m" />,
-                  t('Selection'),
-                ),
-                children:
-                  !collapsed && activeKey === TABS_KEYS.SELECTION ? (
-                    <div
-                      css={css`
-                        height: calc(100vh - ${occupied + 77}px);
-                      `}
-                    >
-                      <SelectionPane />
-                    </div>
-                  ) : null,
-              },
-              {
-                key: TABS_KEYS.BOOKMARKS,
-                label: paneLabel(
-                  <Icons.BookOutlined iconSize="m" />,
-                  t('Bookmarks'),
-                ),
-                children:
-                  !collapsed && activeKey === TABS_KEYS.BOOKMARKS ? (
-                    <div
-                      css={css`
-                        height: calc(100vh - ${occupied + 77}px);
-                        overflow-y: auto;
-                      `}
-                    >
-                      <BookmarksPane />
-                    </div>
-                  ) : null,
-              },
-              ...(assistant.editModels.length
-                ? [
-                    {
-                      key: TABS_KEYS.ASSISTANT,
-                      label: paneLabel(
-                        <Icons.CommentOutlined iconSize="m" />,
-                        t('Assistant'),
-                      ),
-                      children: (
-                        <div
-                          css={css`
-                            height: calc(100vh - ${occupied + 77}px);
-                          `}
-                        >
-                          <AssistantChat
-                            mode="edit"
-                            access={{
-                              ...assistant,
-                              models: assistant.editModels,
-                            }}
-                            active
-                          />
-                        </div>
-                      ),
-                    },
-                  ]
-                : []),
-            ]}
-          />
-        </div>
+              }}
+              css={css`
+                all: unset;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                gap: 2px;
+                width: 100%;
+                padding: ${theme.sizeUnit * 2}px 0;
+                cursor: pointer;
+                font-size: 10px;
+                line-height: 1.1;
+                text-align: center;
+                color: ${isSelected
+                  ? theme.colorPrimary
+                  : theme.colorTextSecondary};
+                background: ${isSelected
+                  ? theme.colorPrimaryBg
+                  : 'transparent'};
+                border-right: ${isSelected
+                  ? `3px solid ${theme.colorPrimary}`
+                  : '3px solid transparent'};
+                transition: all 0.15s ease;
+
+                &:hover {
+                  background: ${isSelected
+                    ? theme.colorPrimaryBg
+                    : theme.colorFillTertiary};
+                  color: ${theme.colorText};
+                }
+
+                .anticon {
+                  margin: 0;
+                }
+              `}
+            >
+              {item.icon}
+              <span
+                css={css`
+                  max-width: 40px;
+                  overflow: hidden;
+                  text-overflow: ellipsis;
+                  white-space: nowrap;
+                `}
+              >
+                {item.label}
+              </span>
+            </button>
+          );
+        })}
       </div>
     </div>
   );

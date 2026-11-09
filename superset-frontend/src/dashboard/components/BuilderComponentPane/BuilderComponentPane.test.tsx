@@ -40,14 +40,12 @@ test('BuilderComponentPane has correct tabs in correct order', () => {
     },
   });
   const tabs = screen.getAllByRole('tab');
-  expect(tabs).toHaveLength(5);
-  expect(tabs[0]).toHaveTextContent('Charts');
-  expect(tabs[1]).toHaveTextContent('Elements');
-  expect(tabs[2]).toHaveTextContent('Format');
-  expect(tabs[3]).toHaveTextContent('Selection');
-  expect(tabs[4]).toHaveTextContent('Bookmarks');
+  expect(tabs).toHaveLength(3);
+  expect(tabs[0]).toHaveTextContent('Format');
+  expect(tabs[1]).toHaveTextContent('Selection');
+  expect(tabs[2]).toHaveTextContent('Bookmarks');
   expect(screen.getByRole('tab', { selected: true })).toHaveTextContent(
-    'Charts',
+    'Format',
   );
 });
 
@@ -82,8 +80,8 @@ test('BuilderComponentPane has the assistant only when it answers', () => {
   });
 
   const tabs = screen.getAllByRole('tab');
-  expect(tabs).toHaveLength(6);
-  expect(tabs[5]).toHaveTextContent('Assistant');
+  expect(tabs).toHaveLength(4);
+  expect(tabs[3]).toHaveTextContent('Assistant');
   (useAssistantAccess as jest.Mock).mockReturnValue({
     models: [],
     editModels: [],

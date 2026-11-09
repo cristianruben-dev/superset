@@ -42,7 +42,7 @@ export const FILTER_BAR_HEADER_HEIGHT = 80;
 export const FILTER_BAR_TABS_HEIGHT = 46;
 export const BUILDER_SIDEPANEL_WIDTH = 374;
 /** Width of the edit pane while it is folded into a rail */
-export const BUILDER_SIDEPANEL_RAIL_WIDTH = 32;
+export const BUILDER_SIDEPANEL_RAIL_WIDTH = 44;
 export const OVERWRITE_INSPECT_FIELDS = ['css', 'json_metadata.filter_scopes'];
 export const EMPTY_CONTAINER_Z_INDEX = 10;
 // A grid component's hover menu floats outside the component's own box, so it
