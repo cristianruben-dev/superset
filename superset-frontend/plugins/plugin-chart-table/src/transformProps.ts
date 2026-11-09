@@ -532,6 +532,7 @@ const transformProps = (
     show_cell_bars: showCellBars = true,
     include_search: includeSearch = false,
     page_length: pageLength,
+    page_size_selector: pageSizePlacement = 'footer',
     server_pagination: serverPagination = false,
     server_page_length: serverPageLength = 10,
     order_desc: sortDesc = true,
@@ -823,6 +824,7 @@ const transformProps = (
     sortDesc,
     includeSearch,
     rowCount,
+    pageSizePlacement,
     pageSize: serverPagination
       ? serverPaginationData?.pageSize
         ? serverPaginationData?.pageSize

@@ -17,7 +17,7 @@
  * under the License.
  */
 import '@testing-library/jest-dom';
-import { Component, type ReactNode } from 'react';
+import { Component, type ComponentProps, type ReactNode } from 'react';
 import { render, screen } from '@superset-ui/core/spec';
 import { CellProps, Column, HeaderProps } from 'react-table';
 import DataTable from '../../src/DataTable/DataTable';
@@ -85,7 +85,10 @@ class RenderErrorBoundary extends Component<
   }
 }
 
-const renderDataTable = (tableColumns: Column<DataRow>[]) => (
+const renderDataTable = (
+  tableColumns: Column<DataRow>[],
+  extra: Partial<ComponentProps<typeof DataTable<DataRow>>> = {},
+) => (
   <ProviderWrapper>
     <RenderErrorBoundary>
       <DataTable<DataRow>
@@ -101,6 +104,7 @@ const renderDataTable = (tableColumns: Column<DataRow>[]) => (
         searchOptions={[]}
         onFilteredRowsChange={jest.fn()}
         sticky={false}
+        {...extra}
       />
     </RenderErrorBoundary>
   </ProviderWrapper>
@@ -126,4 +130,33 @@ test('keeps the hook order stable when the columns appear', () => {
 
   expect(screen.queryByTestId('render-error')).not.toBeInTheDocument();
   expect(screen.getByText('Michael')).toBeInTheDocument();
+});
+
+const sizeSelector = () =>
+  document.querySelector<HTMLElement>('.dt-select-page-size');
+
+test('draws the rows-per-page selector in the footer by default placement', () => {
+  render(
+    renderDataTable(columns, { pageSize: 2, pageSizePlacement: 'footer' }),
+  );
+
+  const selector = sizeSelector();
+  expect(selector).toBeInTheDocument();
+  expect(selector?.closest('.dt-footer')).toBeInTheDocument();
+  expect(selector?.closest('.dt-controls')).not.toBeInTheDocument();
+});
+
+test('draws the rows-per-page selector above the table on request', () => {
+  render(renderDataTable(columns, { pageSize: 2, pageSizePlacement: 'top' }));
+
+  expect(sizeSelector()?.closest('.dt-controls')).toBeInTheDocument();
+  expect(document.querySelector('.dt-footer')).not.toBeInTheDocument();
+});
+
+test('hides the rows-per-page selector on request', () => {
+  render(
+    renderDataTable(columns, { pageSize: 2, pageSizePlacement: 'hidden' }),
+  );
+
+  expect(sizeSelector()).not.toBeInTheDocument();
 });

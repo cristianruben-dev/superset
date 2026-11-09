@@ -63,6 +63,8 @@ export interface DataTableProps<D extends object> extends TableOptions<D> {
   searchInput?: boolean | GlobalFilterProps<D>['searchInput'];
   selectPageSize?: boolean | SelectPageSizeProps['selectRenderer'];
   pageSizeOptions?: SizeOption[]; // available page size options
+  /** Where the rows-per-page selector sits */
+  pageSizePlacement?: 'footer' | 'top' | 'hidden';
   maxPageItemCount?: number;
   hooks?: PluginHook<D>[]; // any additional hooks
   width?: string | number;
@@ -150,6 +152,7 @@ export default typedMemo(function DataTable<D extends object>({
   pageSize: initialPageSize = 0,
   initialState: initialState_ = {},
   pageSizeOptions = PAGE_SIZE_OPTIONS,
+  pageSizePlacement = 'top',
   maxPageItemCount = 9,
   sticky: doSticky,
   searchInput = true,
@@ -208,8 +211,10 @@ export default typedMemo(function DataTable<D extends object>({
   const sortByRef = useRef([]); // cache initial `sortby` so sorting doesn't trigger page reset
   const pageSizeRef = useRef([initialPageSize, resultsSize]);
   const hasPagination = initialPageSize > 0 && resultsSize > 0; // pageSize == 0 means no pagination
+  const showSizeAtTop = hasPagination && pageSizePlacement === 'top';
+  const showSizeAtFooter = hasPagination && pageSizePlacement === 'footer';
   const hasGlobalControl =
-    hasPagination || !!searchInput || renderTimeComparisonDropdown;
+    showSizeAtTop || !!searchInput || renderTimeComparisonDropdown;
   const initialState = {
     ...initialState_,
     // zero length means all pages, the `usePagination` plugin does not
@@ -577,7 +582,7 @@ export default typedMemo(function DataTable<D extends object>({
               font-size: ${theme.fontSizeSM}px;
             `}
           >
-            {hasPagination ? (
+            {showSizeAtTop ? (
               <SelectPageSize
                 total={resultsSize}
                 current={resultCurrentPageSize}
@@ -626,7 +631,38 @@ export default typedMemo(function DataTable<D extends object>({
         </div>
       ) : null}
       {wrapStickyTable ? wrapStickyTable(renderTable) : renderTable()}
-      {hasPagination && resultPageCount > 1 ? (
+      {showSizeAtFooter ? (
+        <div
+          ref={paginationRef}
+          className="dt-footer"
+          style={paginationStyle}
+          css={(theme: SupersetTheme) => css`
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: ${theme.sizeUnit * 4}px;
+            font-size: ${theme.fontSizeSM}px;
+          `}
+        >
+          <SelectPageSize
+            total={resultsSize}
+            current={resultCurrentPageSize}
+            options={pageSizeOptions}
+            selectRenderer={
+              typeof selectPageSize === 'boolean' ? undefined : selectPageSize
+            }
+            onChange={setPageSize}
+          />
+          {resultPageCount > 1 ? (
+            <SimplePagination
+              maxPageItemCount={maxPageItemCount}
+              pageCount={resultPageCount}
+              currentPage={resultCurrentPage}
+              onPageChange={resultOnPageChange}
+            />
+          ) : null}
+        </div>
+      ) : hasPagination && resultPageCount > 1 ? (
         <SimplePagination
           ref={paginationRef}
           style={paginationStyle}

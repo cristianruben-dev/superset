@@ -27751,3 +27751,15 @@ msgstr "Tendrás que volver a iniciar sesión para seguir trabajando."
 
 msgid "Log out"
 msgstr "Cerrar sesión"
+
+msgid "Rows-per-page selector"
+msgstr "Selector de filas por página"
+
+msgid "Next to the pagination"
+msgstr "Junto a la paginación"
+
+msgid "Above the table"
+msgstr "Encima de la tabla"
+
+msgid "Where the selector of rows per page is drawn, if anywhere"
+msgstr "Dónde se dibuja el selector de filas por página, si se dibuja"

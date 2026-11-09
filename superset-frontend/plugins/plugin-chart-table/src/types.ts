@@ -61,6 +61,7 @@ export type TableChartFormData = QueryFormData & {
   include_search?: boolean;
   query_mode?: QueryMode;
   page_length?: string | number | null; // null means auto-paginate
+  page_size_selector?: 'footer' | 'top' | 'hidden';
   metrics?: QueryFormMetric[] | null;
   percent_metrics?: QueryFormMetric[] | null;
   timeseries_limit_metric?: QueryFormMetric[] | QueryFormMetric | null;
@@ -100,6 +101,8 @@ export interface TableChartTransformedProps<D extends DataRecord = DataRecord> {
   metrics?: (keyof D)[];
   percentMetrics?: (keyof D)[];
   pageSize?: number;
+  /** Where the rows-per-page selector goes; the pagination row by default */
+  pageSizePlacement?: 'footer' | 'top' | 'hidden';
   showCellBars?: boolean;
   sortDesc?: boolean;
   includeSearch?: boolean;

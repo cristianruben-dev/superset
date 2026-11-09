@@ -430,6 +430,7 @@ export default function TableChart<D extends DataRecord = DataRecord>(
     colorPositiveNegative: defaultColorPN = false,
     includeSearch = false,
     pageSize = 0,
+    pageSizePlacement = 'footer',
     serverPagination = false,
     serverPaginationData,
     setDataMask,
@@ -1883,6 +1884,7 @@ export default function TableChart<D extends DataRecord = DataRecord>(
         rowCount={rowCount}
         tableClassName={getTableClassName(tableFormat?.preset)}
         pageSize={pageSize}
+        pageSizePlacement={pageSizePlacement}
         serverPaginationData={serverPaginationData}
         pageSizeOptions={pageSizeOptions}
         width={Math.max(0, widthFromState)}

@@ -542,7 +542,24 @@ const config: ControlPanelConfig = {
                 !controls?.server_pagination?.value,
             },
           },
-          null,
+          {
+            name: 'page_size_selector',
+            config: {
+              type: 'SelectControl',
+              renderTrigger: true,
+              label: t('Rows-per-page selector'),
+              default: 'footer',
+              clearable: false,
+              choices: [
+                ['footer', t('Next to the pagination')],
+                ['top', t('Above the table')],
+                ['hidden', t('Hidden')],
+              ],
+              description: t(
+                'Where the selector of rows per page is drawn, if anywhere',
+              ),
+            },
+          },
         ],
         [
           {
