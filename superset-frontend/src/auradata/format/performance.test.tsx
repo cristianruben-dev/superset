@@ -42,6 +42,7 @@ import { BookmarksPane } from 'src/auradata/report/BookmarksPane';
 import { Ribbon } from 'src/auradata/ribbon/Ribbon';
 import { moveObject, setVisualFormat } from './actions';
 import { CanvasFrame } from './CanvasFrame';
+import { SelectionPane } from './SelectionPane';
 import { selectVisual } from './selection';
 import { useCellMove } from './useCellMove';
 
@@ -276,6 +277,12 @@ describe('Edit Mode UI Performance Benchmarks', () => {
         >
           <BookmarksPane />
         </Profiler>
+        <Profiler
+          id="SelectionPane"
+          onRender={() => recordCommit('SelectionPane')}
+        >
+          <SelectionPane />
+        </Profiler>
         {[...CHART_IDS, ...ELEMENT_IDS].map((id, index) => (
           <Profiler key={id} id={id} onRender={() => recordCommit(id)}>
             <DashboardComponent
@@ -312,6 +319,7 @@ describe('Edit Mode UI Performance Benchmarks', () => {
     const unrelatedChartCommits = sumCommits(CHART_IDS);
     const unrelatedElementCommits = sumCommits(ELEMENT_IDS);
     const unrelatedBookmarksCommits = commits.BookmarksPane ?? 0;
+    const unrelatedSelectionPaneCommits = commits.SelectionPane ?? 0;
 
     // 2. Formatting a single chart (CHART-1): untouched charts (CHART-2..6) and elements should not re-render
     resetCommits();
@@ -325,6 +333,7 @@ describe('Edit Mode UI Performance Benchmarks', () => {
       ...ELEMENT_IDS,
     ]);
     const ribbonAfterFormatCommits = commits.Ribbon ?? 0;
+    const selectionPaneAfterFormatCommits = commits.SelectionPane ?? 0;
 
     // 3. Moving a single chart (CHART-1): untouched charts (CHART-2..6) and elements should not re-render
     resetCommits();
@@ -337,6 +346,7 @@ describe('Edit Mode UI Performance Benchmarks', () => {
       ...CHART_IDS.slice(1),
       ...ELEMENT_IDS,
     ]);
+    const selectionPaneAfterMoveCommits = commits.SelectionPane ?? 0;
 
     // 4. Selecting CHART-1 on the canvas: untouched charts (CHART-2..6) and elements should not re-render
     resetCommits();
@@ -404,9 +414,12 @@ describe('Edit Mode UI Performance Benchmarks', () => {
     expect(unrelatedChartCommits).toBe(0);
     expect(unrelatedElementCommits).toBe(0);
     expect(unrelatedBookmarksCommits).toBe(0);
+    expect(unrelatedSelectionPaneCommits).toBe(0);
     expect(untouchedAfterFormatCommits).toBe(0);
     expect(ribbonAfterFormatCommits).toBe(0);
+    expect(selectionPaneAfterFormatCommits).toBe(0);
     expect(untouchedAfterMoveCommits).toBe(0);
+    expect(selectionPaneAfterMoveCommits).toBe(0);
     expect(untouchedAfterSelectCommits).toBe(0);
     expect(untouchedAfterSwitchSelectCommits).toBe(0);
     expect(cellMoveRenders).toBeLessThanOrEqual(6);

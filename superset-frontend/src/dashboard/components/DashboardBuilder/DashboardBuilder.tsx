@@ -40,7 +40,7 @@ import {
   useElementOnScreen,
 } from '@superset-ui/core';
 import { css, styled, useTheme } from '@apache-superset/core/theme';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch, useSelector, useStore } from 'react-redux';
 import { Drawer, Loading } from '@superset-ui/core/components';
 import { ErrorBoundary, BasicErrorAlert } from 'src/components';
 import BuilderComponentPane from 'src/dashboard/components/BuilderComponentPane';
@@ -60,8 +60,8 @@ import getDirectPathToTabIndex from 'src/dashboard/util/getDirectPathToTabIndex'
 import { URL_PARAMS } from 'src/constants';
 import { getUrlParam } from 'src/utils/urlUtils';
 import {
-  DashboardLayout,
   FilterBarOrientation,
+  LayoutItem,
   RootState,
 } from 'src/dashboard/types';
 import { setDirectPathToChild } from 'src/dashboard/actions/dashboardState';
@@ -562,9 +562,17 @@ const DashboardBuilder = () => {
     }
   }, [isNotMobile]);
 
-  const dashboardLayout = useSelector<RootState, DashboardLayout>(
-    state => state.dashboardLayout.present,
+  const store = useStore<RootState>();
+  const dashboardRoot = useSelector<RootState, LayoutItem | undefined>(
+    state => state.dashboardLayout.present[DASHBOARD_ROOT_ID],
   );
+  const topLevelTabs = useSelector<RootState, LayoutItem | undefined>(state => {
+    const rootChildId =
+      state.dashboardLayout.present[DASHBOARD_ROOT_ID]?.children?.[0];
+    return rootChildId && rootChildId !== DASHBOARD_GRID_ID
+      ? state.dashboardLayout.present[rootChildId]
+      : undefined;
+  });
   const editMode = useSelector<RootState, boolean>(
     state => state.dashboardState.editMode,
   );
@@ -603,11 +611,11 @@ const DashboardBuilder = () => {
     dispatch(deleteTopLevelTabs());
 
     const firstTab = getDirectPathToTabIndex(
-      getRootLevelTabsComponent(dashboardLayout),
+      getRootLevelTabsComponent(store.getState().dashboardLayout.present),
       0,
     );
     dispatch(setDirectPathToChild(firstTab));
-  }, [dashboardLayout, dispatch]);
+  }, [dispatch, store]);
 
   const handleDrop = useCallback(
     (dropResult: DropResult) => dispatch(handleComponentDrop(dropResult)),
@@ -615,12 +623,6 @@ const DashboardBuilder = () => {
   );
 
   const headerRef = useRef<HTMLDivElement>(null);
-  const dashboardRoot = dashboardLayout[DASHBOARD_ROOT_ID];
-  const rootChildId = dashboardRoot?.children[0];
-  const topLevelTabs =
-    rootChildId !== DASHBOARD_GRID_ID
-      ? dashboardLayout[rootChildId]
-      : undefined;
   const isReport = standaloneMode === DashboardStandaloneMode.Report;
   const presenting = usePresenting() && !editMode;
   // Report mode (standalone=3) hides the filter bar by default, since it's used
@@ -739,14 +741,14 @@ const DashboardBuilder = () => {
       newTabsLength > currentTabsLength
     ) {
       const lastTab = getDirectPathToTabIndex(
-        getRootLevelTabsComponent(dashboardLayout),
+        getRootLevelTabsComponent(store.getState().dashboardLayout.present),
         newTabsLength - 1,
       );
       dispatch(setDirectPathToChild(lastTab));
     }
 
     currentTopLevelTabs.current = topLevelTabs;
-  }, [topLevelTabs]);
+  }, [dispatch, store, topLevelTabs]);
 
   const headerContent = useMemo(
     () => (

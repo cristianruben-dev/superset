@@ -16,8 +16,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { useMemo, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { memo, useCallback, useState } from 'react';
+import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { t } from '@apache-superset/core/translation';
 import { css, styled } from '@apache-superset/core/theme';
 import { Button, Input, Tooltip } from '@superset-ui/core/components';
@@ -124,46 +124,138 @@ function RowButton({
   );
 }
 
+const SelectionRow = memo(function SelectionRow({
+  id,
+  pageId,
+  selected,
+  filters,
+  onSetHidden,
+}: {
+  id: string;
+  pageId: string;
+  selected: boolean;
+  filters?: Record<string, { name?: string }>;
+  onSetHidden: (id: string, hidden: boolean) => void;
+}) {
+  const dispatch = useDispatch();
+  const row = useSelector((state: RootState) => {
+    const item = state.dashboardLayout.present[id];
+    if (!item) return null;
+    const { meta } = item;
+    return {
+      hidden: !!meta?.auradataHidden,
+      locked: !!meta?.auradataLocked,
+      grouped: !!meta?.[GROUP_KEY],
+      label: objectName(item, filters),
+    };
+  }, shallowEqual);
+  if (!row) return null;
+  const { hidden, locked, grouped, label } = row;
+
+  return (
+    <Row
+      data-test="auradata-selection-row"
+      $selected={selected}
+      $hidden={hidden}
+      onClick={event =>
+        selectVisual(id, event.shiftKey || event.metaKey || event.ctrlKey)
+      }
+    >
+      <span className="name" title={label}>
+        {grouped ? '▣ ' : ''}
+        {label}
+      </span>
+      <RowButton
+        title={t('Bring forward')}
+        icon={<Icons.ArrowUpOutlined iconSize="s" />}
+        onClick={() => dispatch(arrangeLayer(pageId, id, 'forward') as never)}
+      />
+      <RowButton
+        title={t('Send backward')}
+        icon={<Icons.ArrowDownOutlined iconSize="s" />}
+        onClick={() => dispatch(arrangeLayer(pageId, id, 'backward') as never)}
+      />
+      <RowButton
+        title={locked ? t('Unlock') : t('Lock')}
+        active={locked}
+        icon={
+          locked ? (
+            <Icons.LockOutlined iconSize="s" />
+          ) : (
+            <Icons.UnlockOutlined iconSize="s" />
+          )
+        }
+        onClick={() =>
+          dispatch(
+            setComponentMeta(
+              id,
+              'auradataLocked',
+              locked ? undefined : true,
+              `lock:${id}:${Date.now()}`,
+            ),
+          )
+        }
+      />
+      <RowButton
+        title={hidden ? t('Show') : t('Hide')}
+        active={hidden}
+        icon={
+          hidden ? (
+            <Icons.EyeInvisibleOutlined iconSize="s" />
+          ) : (
+            <Icons.EyeOutlined iconSize="s" />
+          )
+        }
+        onClick={() => onSetHidden(id, !hidden)}
+      />
+    </Row>
+  );
+});
+
 /**
  * The Selection pane: every object of the open page, front to back, to pick
  * it, hide it from viewers, lock it or change its stacking order.
  */
 export function SelectionPane() {
   const dispatch = useDispatch();
-  const layout = useSelector(
-    (state: RootState) => state.dashboardLayout.present,
-  );
-  const activeTabs = useSelector(
-    (state: RootState) => state.dashboardState.activeTabs,
+  const pageId = useSelector((state: RootState) =>
+    activePageId(
+      state.dashboardLayout.present,
+      state.dashboardState.activeTabs,
+    ),
   );
   const filters = useSelector(
     (state: RootState) =>
-      state.nativeFilters?.filters as Record<string, { name?: string }>,
+      state.nativeFilters?.filters as
+        | Record<string, { name?: string }>
+        | undefined,
   );
   const picked = useSelectedVisuals();
   const [query, setQuery] = useState('');
+  const normalizedQuery = query.trim().toLowerCase();
 
-  const pageId = activePageId(layout, activeTabs);
-  const order = useMemo(
-    () => pageObjects(layout, pageId).reverse(),
-    [layout, pageId],
+  const order = useSelector(
+    (state: RootState) =>
+      pageObjects(state.dashboardLayout.present, pageId).reverse(),
+    shallowEqual,
   );
-  const shown = order.filter(id =>
-    objectName(layout[id], filters)
-      .toLowerCase()
-      .includes(query.trim().toLowerCase()),
-  );
-
-  const setHidden = (
-    id: string,
-    hidden: boolean,
-    group = `hide:${id}:${Date.now()}`,
-  ) => {
-    clearVisibilityOverride(id);
-    dispatch(
-      setComponentMeta(id, 'auradataHidden', hidden || undefined, group),
+  const shown = useSelector((state: RootState) => {
+    if (!normalizedQuery) return order;
+    const layout = state.dashboardLayout.present;
+    return order.filter(id =>
+      objectName(layout[id], filters).toLowerCase().includes(normalizedQuery),
     );
-  };
+  }, shallowEqual);
+
+  const setHidden = useCallback(
+    (id: string, hidden: boolean, group = `hide:${id}:${Date.now()}`) => {
+      clearVisibilityOverride(id);
+      dispatch(
+        setComponentMeta(id, 'auradataHidden', hidden || undefined, group),
+      );
+    },
+    [dispatch],
+  );
   // One undo step for the whole page
   const setAllHidden = (hidden: boolean) => {
     const group = `hide-all:${Date.now()}`;
@@ -203,77 +295,16 @@ export function SelectionPane() {
         {!shown.length && (
           <div className="empty">{t('No objects on this page')}</div>
         )}
-        {shown.map(id => {
-          const { meta } = layout[id];
-          const hidden = !!meta?.auradataHidden;
-          const locked = !!meta?.auradataLocked;
-          return (
-            <Row
-              key={id}
-              data-test="auradata-selection-row"
-              $selected={picked.includes(id)}
-              $hidden={hidden}
-              onClick={event =>
-                selectVisual(
-                  id,
-                  event.shiftKey || event.metaKey || event.ctrlKey,
-                )
-              }
-            >
-              <span className="name" title={objectName(layout[id], filters)}>
-                {meta?.[GROUP_KEY] ? '▣ ' : ''}
-                {objectName(layout[id], filters)}
-              </span>
-              <RowButton
-                title={t('Bring forward')}
-                icon={<Icons.ArrowUpOutlined iconSize="s" />}
-                onClick={() =>
-                  dispatch(arrangeLayer(pageId, id, 'forward') as never)
-                }
-              />
-              <RowButton
-                title={t('Send backward')}
-                icon={<Icons.ArrowDownOutlined iconSize="s" />}
-                onClick={() =>
-                  dispatch(arrangeLayer(pageId, id, 'backward') as never)
-                }
-              />
-              <RowButton
-                title={locked ? t('Unlock') : t('Lock')}
-                active={locked}
-                icon={
-                  locked ? (
-                    <Icons.LockOutlined iconSize="s" />
-                  ) : (
-                    <Icons.UnlockOutlined iconSize="s" />
-                  )
-                }
-                onClick={() =>
-                  dispatch(
-                    setComponentMeta(
-                      id,
-                      'auradataLocked',
-                      locked ? undefined : true,
-                      `lock:${id}:${Date.now()}`,
-                    ),
-                  )
-                }
-              />
-              <RowButton
-                title={hidden ? t('Show') : t('Hide')}
-                active={hidden}
-                icon={
-                  hidden ? (
-                    <Icons.EyeInvisibleOutlined iconSize="s" />
-                  ) : (
-                    <Icons.EyeOutlined iconSize="s" />
-                  )
-                }
-                onClick={() => setHidden(id, !hidden)}
-              />
-            </Row>
-          );
-        })}
+        {shown.map(id => (
+          <SelectionRow
+            key={id}
+            id={id}
+            pageId={pageId}
+            selected={picked.includes(id)}
+            filters={filters}
+            onSetHidden={setHidden}
+          />
+        ))}
       </div>
     </Pane>
   );

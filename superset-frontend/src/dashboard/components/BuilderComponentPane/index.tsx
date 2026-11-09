@@ -21,7 +21,7 @@ import {
   clearPendingFields,
   useFollowFieldSteps,
 } from 'src/auradata/format/chartFields';
-import { useCallback, useEffect, type ReactNode } from 'react';
+import { memo, useCallback, useEffect, type ReactNode } from 'react';
 import { useSelector } from 'react-redux';
 import tinycolor from 'tinycolor2';
 import Tabs from '@superset-ui/core/components/Tabs';
@@ -230,24 +230,25 @@ const BuilderComponentPane = ({ topOffset = 0, pageTop = 0 }) => {
                   <Icons.AppstoreOutlined iconSize="m" />,
                   t('Elements'),
                 ),
-                children: (
-                  <>
-                    <NewElements />
-                    <NewTabs />
-                    <NewHeader />
-                    <NewMarkdown />
-                    <NewDivider />
-                    {dashboardComponents
-                      .getAll()
-                      .map(({ key: componentKey, metadata }) => (
-                        <NewDynamicComponent
-                          key={componentKey}
-                          metadata={metadata}
-                          componentKey={componentKey}
-                        />
-                      ))}
-                  </>
-                ),
+                children:
+                  !collapsed && activeKey === TABS_KEYS.LAYOUT_ELEMENTS ? (
+                    <>
+                      <NewElements />
+                      <NewTabs />
+                      <NewHeader />
+                      <NewMarkdown />
+                      <NewDivider />
+                      {dashboardComponents
+                        .getAll()
+                        .map(({ key: componentKey, metadata }) => (
+                          <NewDynamicComponent
+                            key={componentKey}
+                            metadata={metadata}
+                            componentKey={componentKey}
+                          />
+                        ))}
+                    </>
+                  ) : null,
               },
               {
                 key: TABS_KEYS.FORMAT,
@@ -271,15 +272,16 @@ const BuilderComponentPane = ({ topOffset = 0, pageTop = 0 }) => {
                   <Icons.OrderedListOutlined iconSize="m" />,
                   t('Selection'),
                 ),
-                children: (
-                  <div
-                    css={css`
-                      height: calc(100vh - ${occupied + 77}px);
-                    `}
-                  >
-                    <SelectionPane />
-                  </div>
-                ),
+                children:
+                  !collapsed && activeKey === TABS_KEYS.SELECTION ? (
+                    <div
+                      css={css`
+                        height: calc(100vh - ${occupied + 77}px);
+                      `}
+                    >
+                      <SelectionPane />
+                    </div>
+                  ) : null,
               },
               {
                 key: TABS_KEYS.BOOKMARKS,
@@ -287,16 +289,17 @@ const BuilderComponentPane = ({ topOffset = 0, pageTop = 0 }) => {
                   <Icons.BookOutlined iconSize="m" />,
                   t('Bookmarks'),
                 ),
-                children: (
-                  <div
-                    css={css`
-                      height: calc(100vh - ${occupied + 77}px);
-                      overflow-y: auto;
-                    `}
-                  >
-                    <BookmarksPane />
-                  </div>
-                ),
+                children:
+                  !collapsed && activeKey === TABS_KEYS.BOOKMARKS ? (
+                    <div
+                      css={css`
+                        height: calc(100vh - ${occupied + 77}px);
+                        overflow-y: auto;
+                      `}
+                    >
+                      <BookmarksPane />
+                    </div>
+                  ) : null,
               },
               ...(assistant.editModels.length
                 ? [
@@ -333,4 +336,4 @@ const BuilderComponentPane = ({ topOffset = 0, pageTop = 0 }) => {
   );
 };
 
-export default BuilderComponentPane;
+export default memo(BuilderComponentPane);
