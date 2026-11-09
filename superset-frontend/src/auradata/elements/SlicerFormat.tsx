@@ -46,7 +46,12 @@ import {
 } from 'src/auradata/format/GeneralSections';
 import { TitleSections } from 'src/auradata/format/TitleSections';
 import { SyncSlicers } from 'src/auradata/report/SyncSlicers';
-import { contrastRatio, slicerText, slicerValueKey } from './slicer';
+import {
+  contrastRatio,
+  matchesText,
+  slicerText,
+  slicerValueKey,
+} from './slicer';
 import { useFilterRows } from './SlicerView';
 import type {
   AccentBar,
@@ -461,17 +466,19 @@ function SettingsSection({
   config,
   update,
   kind,
+  drawn,
   multiSelect,
 }: {
   config: FilterElement;
   update: Update;
   kind: ReturnType<typeof kindOf>;
+  /** Whether the slicer draws its values itself, not the filter's control */
+  drawn: boolean;
   /** Whether the filter itself takes more than one value */
   multiSelect: boolean;
 }) {
   const { toggle, range } = useFields(config, update);
   const variant = config.variant ?? 'dropdown';
-  const drawn = kind === 'list' && variant !== 'dropdown';
   const fromList = drawn && variant !== 'input';
   return (
     <Section data-test="auradata-slicer-settings">
@@ -589,7 +596,11 @@ function SettingsSection({
           {multiSelect &&
             config.selection !== 'single' &&
             toggle('showSelectAll', t('Show «Select all»'))}
-          {toggle('showSearch', t('Show the search box'))}
+          {toggle(
+            'showSearch',
+            t('Show the search box'),
+            variant === 'dropdown',
+          )}
           <Field label={t('Order of the values')} stacked>
             <Segments<'query' | 'asc' | 'desc'>
               name={t('Order of the values')}
@@ -951,11 +962,16 @@ function VisualLevel({
     : undefined;
   const kind = kindOf(chosen);
   const variant = config.variant ?? 'dropdown';
-  const drawn = kind === 'list' && variant !== 'dropdown';
+  // The slicer draws a list of values itself, its dropdown too; a filter
+  // that matches text keeps its own text box as the dropdown
+  const drawn =
+    kind === 'list' &&
+    (variant !== 'dropdown' || !(chosen && matchesText(chosen)));
   const fromList = drawn && variant !== 'input';
+  const searchShown = config.showSearch ?? variant === 'dropdown';
   // Lists show their mark unless it is turned off; buttons only when asked
   const markShown =
-    variant === 'list' ? config.showIcon !== false : !!config.showIcon;
+    variant === 'buttons' ? !!config.showIcon : config.showIcon !== false;
   const ownFields =
     (kind === 'range' && !!config.rangeStyle) ||
     (kind === 'date' && !!config.dateStyle);
@@ -996,6 +1012,7 @@ function VisualLevel({
         config={config}
         update={update}
         kind={kind}
+        drawn={drawn}
         multiSelect={
           (chosen?.controlValues as { multiSelect?: boolean } | undefined)
             ?.multiSelect !== false
@@ -1042,7 +1059,7 @@ function VisualLevel({
           </>
         </Section>
       )}
-      {((fromList && config.showSearch) || variant === 'input') && drawn && (
+      {((fromList && searchShown) || variant === 'input') && drawn && (
         <SearchBoxSection
           config={config}
           update={update}
@@ -1121,7 +1138,7 @@ function VisualLevel({
           {color('applyColor', t('Text color'), theme.colorTextLightSolid)}
         </Section>
       )}
-      {!drawn && !ownFields && (
+      {(!drawn || variant === 'dropdown') && !ownFields && (
         <DropdownSection
           config={config}
           update={update}

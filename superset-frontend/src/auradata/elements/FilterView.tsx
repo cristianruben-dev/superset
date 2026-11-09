@@ -25,6 +25,7 @@ import type { VisualFormat } from 'src/auradata/format/types';
 import CanvasFilterControl from './CanvasFilterControl';
 import { ElementTitle } from './ElementTitle';
 import { DateSlicerView, RangeSlicerView } from './RangeSlicerView';
+import { matchesText } from './slicer';
 import { SlicerIcons } from './SlicerIcons';
 import { SlicerView } from './SlicerView';
 import type { FilterElement } from './types';
@@ -60,23 +61,6 @@ const Body = styled.div`
   &.has-icons .ant-form-item-label {
     padding-right: 52px;
   }
-  /* The open list of the dropdown is drawn inside the element */
-  &.has-menu .ant-select-dropdown.ant-select-dropdown {
-    background: var(--mb-f-menu-fill);
-    border: var(--mb-f-menu-border, 0);
-    border-radius: var(--mb-f-menu-radius) !important;
-    box-shadow: var(--mb-f-menu-shadow) !important;
-  }
-  &.has-menu .ant-select-dropdown .rc-virtual-list-holder {
-    max-height: var(--mb-f-menu-height) !important;
-  }
-  &.has-menu .ant-select-dropdown .ant-select-item {
-    color: var(--mb-f-menu-color);
-  }
-  &.has-menu .ant-select-dropdown .ant-select-item-option-selected {
-    background: var(--mb-f-menu-selected);
-  }
-
   &.hide-label .ant-form-item-label,
   &.hide-label label[for] {
     display: none;
@@ -180,10 +164,12 @@ export function FilterView({
     if (config.labelFill) style['--mb-f-label-fill'] = config.labelFill;
     if (config.labelDivider)
       style['--mb-f-label-divider'] = '1px solid currentColor';
-    // Only a list of values can be drawn as other than its filter
-    const variant = config.variant ?? 'dropdown';
+    // A list of values is drawn by the slicer itself, its dropdown too: the
+    // list of the filter plugin opens outside the page and would not scale
+    // with it. A filter that matches text keeps the text box of the plugin.
     const drawn =
-      variant !== 'dropdown' && filter.filterType === 'filter_select';
+      filter.filterType === 'filter_select' &&
+      ((config.variant ?? 'dropdown') !== 'dropdown' || !matchesText(filter));
     const range = !!config.rangeStyle && filter.filterType === 'filter_range';
     const date = !!config.dateStyle && filter.filterType === 'filter_time';
     let control = <CanvasFilterControl filter={filter} />;

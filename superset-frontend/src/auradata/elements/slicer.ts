@@ -323,3 +323,14 @@ export function contrastRatio(text?: string, background?: string) {
   if (!fg.isValid() || !bg.isValid()) return undefined;
   return Math.round(tinycolor.readability(fg, bg) * 10) / 10;
 }
+
+/**
+ * Whether a filter of a list matches text instead of whole values. Such a
+ * filter has no list to open: its dropdown stays the text box of the filter.
+ */
+export const matchesText = (filter: {
+  controlValues?: Record<string, unknown>;
+}) => {
+  const operator = filter.controlValues?.operatorType;
+  return !!operator && operator !== 'exact';
+};

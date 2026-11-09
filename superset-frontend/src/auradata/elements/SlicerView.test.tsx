@@ -335,3 +335,63 @@ test('buttons take the font of the slicer, not the system one', async () => {
   expect(item.tagName).toBe('BUTTON');
   expect(item).toHaveStyle('font-family: inherit');
 });
+
+test('a dropdown keeps its list closed until its box is clicked', async () => {
+  await renderSlicer({ variant: 'dropdown' });
+  const box = screen.getByTestId('auradata-slicer-trigger');
+  expect(box).toHaveAttribute('aria-expanded', 'false');
+  expect(box).toHaveTextContent('All values');
+  expect(screen.queryByRole('button', { name: 'North' })).toBeNull();
+
+  fireEvent.click(box);
+  expect(box).toHaveAttribute('aria-expanded', 'true');
+  fireEvent.click(await screen.findByRole('button', { name: 'North' }));
+  expect(
+    await screen.findByRole('button', { name: 'North', pressed: true }),
+  ).toBeInTheDocument();
+  expect(box).toHaveTextContent('North');
+});
+
+test('the list of a dropdown opens inside the slicer, so it scales with the page', async () => {
+  await renderSlicer({ variant: 'dropdown' });
+  fireEvent.click(screen.getByTestId('auradata-slicer-trigger'));
+  expect(screen.getByTestId('auradata-slicer')).toContainElement(
+    screen.getByTestId('auradata-slicer-menu'),
+  );
+  expect(document.querySelector('.ant-select-dropdown')).toBeNull();
+});
+
+test('a dropdown of one value closes on a choice', async () => {
+  const { store } = await renderSlicer({
+    variant: 'dropdown',
+    selection: 'single',
+  });
+  fireEvent.click(screen.getByTestId('auradata-slicer-trigger'));
+  fireEvent.click(await screen.findByRole('button', { name: 'South' }));
+  expect(screen.queryByTestId('auradata-slicer-menu')).toBeNull();
+  expect(dataMaskOf(store, filter.id)?.filterState?.value).toEqual(['South']);
+});
+
+test('Escape and a click outside close a dropdown', async () => {
+  await renderSlicer({ variant: 'dropdown' });
+  const box = screen.getByTestId('auradata-slicer-trigger');
+  fireEvent.click(box);
+  fireEvent.keyDown(screen.getByTestId('auradata-slicer-menu'), {
+    key: 'Escape',
+  });
+  expect(screen.queryByTestId('auradata-slicer-menu')).toBeNull();
+
+  fireEvent.click(box);
+  fireEvent.mouseDown(document.body);
+  expect(screen.queryByTestId('auradata-slicer-menu')).toBeNull();
+});
+
+test('a dropdown searches its values', async () => {
+  await renderSlicer({ variant: 'dropdown' });
+  fireEvent.click(screen.getByTestId('auradata-slicer-trigger'));
+  fireEvent.change(screen.getByTestId('auradata-slicer-search'), {
+    target: { value: 'sou' },
+  });
+  expect(screen.queryByRole('button', { name: 'North' })).toBeNull();
+  expect(screen.getByRole('button', { name: 'South' })).toBeInTheDocument();
+});

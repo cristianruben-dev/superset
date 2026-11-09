@@ -20,6 +20,7 @@ import {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type CSSProperties,
 } from 'react';
@@ -184,6 +185,73 @@ const Box = styled.div`
       background: var(--mb-s-selected, ${theme.colorPrimary});
       color: var(--mb-s-selected-color, ${theme.colorTextLightSolid});
       border-color: var(--mb-s-selected-border, ${theme.colorPrimary});
+    }
+
+    /* A dropdown: a box that opens the list over what is under the slicer.
+       The list is drawn here, inside the page, so it scales with the page
+       and takes the format of the slicer. */
+    .slicer-dropdown {
+      position: relative;
+    }
+    .slicer-trigger {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: ${theme.sizeUnit * 2}px;
+      width: 100%;
+      box-sizing: border-box;
+      padding: ${theme.sizeUnit}px ${theme.sizeUnit * 2}px;
+      border: 1px solid var(--mb-f-box-border, ${theme.colorBorder});
+      border-radius: var(--mb-f-box-radius, ${theme.borderRadius}px);
+      background: var(--mb-f-box-fill, ${theme.colorBgContainer});
+      color: var(--mb-f-text-color, ${theme.colorText});
+      font: inherit;
+      font-size: var(--mb-s-size, inherit);
+      text-align: left;
+      cursor: pointer;
+
+      &:focus-visible {
+        outline: 2px solid ${theme.colorPrimary};
+        outline-offset: 1px;
+      }
+    }
+    .slicer-caret {
+      flex: none;
+      width: 0;
+      height: 0;
+      border-left: 4px solid transparent;
+      border-right: 4px solid transparent;
+      border-top: 5px solid currentColor;
+      opacity: 0.6;
+    }
+    .slicer-trigger[aria-expanded='true'] .slicer-caret {
+      transform: rotate(180deg);
+    }
+    .slicer-menu {
+      position: absolute;
+      top: calc(100% + ${theme.sizeUnit}px);
+      left: 0;
+      right: 0;
+      z-index: ${theme.zIndexPopupBase};
+      display: flex;
+      flex-direction: column;
+      gap: var(--mb-s-gap, ${theme.sizeUnit}px);
+      max-height: var(--mb-f-menu-height, 256px);
+      box-sizing: border-box;
+      padding: ${theme.sizeUnit}px;
+      border: var(--mb-f-menu-border, 1px solid ${theme.colorBorderSecondary});
+      border-radius: var(--mb-f-menu-radius, ${theme.borderRadiusLG}px);
+      background: var(--mb-f-menu-fill, ${theme.colorBgElevated});
+      box-shadow: var(--mb-f-menu-shadow, ${theme.boxShadowSecondary});
+    }
+    .slicer-menu .slicer-item {
+      color: var(--mb-s-color, var(--mb-f-menu-color, ${theme.colorText}));
+    }
+    .slicer-menu .slicer-item[aria-pressed='true'] {
+      background: var(
+        --mb-s-selected,
+        var(--mb-f-menu-selected, ${theme.controlItemBgActive})
+      );
     }
 
     .slicer-mark {
@@ -541,9 +609,9 @@ export function SlicerHeader({
 const EMPTY_SLICER_VALUES: SlicerValue[] = [];
 
 /**
- * A slicer of the canvas drawn as a list, buttons or a text box. Choices apply
- * right away, through the same data mask as the filter bar, or wait for an
- * Apply button when the slicer has one.
+ * A slicer of the canvas drawn as a dropdown, a list, buttons or a text box.
+ * Choices apply right away, through the same data mask as the filter bar, or
+ * wait for an Apply button when the slicer has one.
  */
 export function SlicerView({
   filter,
@@ -565,7 +633,10 @@ export function SlicerView({
   const [text, setText] = useState('');
   const { multiSelect = true, inverseSelection } = (filter.controlValues ??
     {}) as { multiSelect?: boolean; inverseSelection?: boolean };
-  const variant = config.variant ?? 'list';
+  const variant = config.variant ?? 'dropdown';
+  const dropdown = variant === 'dropdown';
+  const [open, setOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const mode = selectionMode(config, multiSelect);
   const selected = pending ?? applied;
   const waiting = !!pending && !sameValues(pending, applied);
@@ -628,6 +699,16 @@ export function SlicerView({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [applied.join('|'), variant]);
 
+  // A click anywhere else closes the open list
+  useEffect(() => {
+    if (!open) return undefined;
+    const close = (event: MouseEvent) => {
+      if (!dropdownRef.current?.contains(event.target as Node)) setOpen(false);
+    };
+    document.addEventListener('mousedown', close);
+    return () => document.removeEventListener('mousedown', close);
+  }, [open]);
+
   // Values the editor left out are not offered, nor chosen by «Select all»
   const offered = useMemo(
     () => values && visibleValues(values, config.hiddenValues),
@@ -645,13 +726,109 @@ export function SlicerView({
   const placeholder = config.searchPlaceholder || t('Search');
   // Lists show their mark unless it is turned off; buttons only when asked
   const showMark =
-    variant === 'list' ? config.showIcon !== false : !!config.showIcon;
+    variant === 'buttons' ? !!config.showIcon : config.showIcon !== false;
+  // A closed list has to be searched: it has no other way to its values
+  const showSearch = config.showSearch ?? dropdown;
   const markClass = mode === 'single' ? 'slicer-mark is-single' : 'slicer-mark';
   const dismiss = (
     <span className="slicer-pill-dismiss" aria-hidden>
       ×
     </span>
   );
+
+  const list = (
+    <>
+      {showSearch && (
+        <input
+          className="slicer-search"
+          data-test="auradata-slicer-search"
+          aria-label={t('Search %s', filter.name)}
+          placeholder={placeholder}
+          value={search}
+          onChange={event => setSearch(event.target.value)}
+        />
+      )}
+      <div
+        className={[
+          'slicer-items',
+          variant === 'buttons' && 'is-buttons',
+          config.layout === 'horizontal' && 'is-row',
+          config.iconPosition === 'right' && 'is-mark-right',
+          config.iconOverlay && 'is-mark-overlay',
+        ]
+          .filter(Boolean)
+          .join(' ')}
+        role="group"
+        aria-label={filter.name}
+      >
+        {values === undefined && (
+          <span className="slicer-hint">{t('Loading...')}</span>
+        )}
+        {offered?.length === 0 && (
+          <span className="slicer-hint">{t('No data')}</span>
+        )}
+        {mode !== 'single' && config.showSelectAll && !!offered?.length && (
+          <button
+            type="button"
+            className="slicer-item"
+            aria-pressed={all}
+            data-test="auradata-slicer-all"
+            onClick={() => choose(all ? [] : (offered ?? []))}
+          >
+            {showMark && <span className="slicer-mark" />}
+            <span className="slicer-text">{t('Select all')}</span>
+          </button>
+        )}
+        {shown.map(value => (
+          <button
+            type="button"
+            key={slicerValueKey(value)}
+            className="slicer-item"
+            aria-pressed={selected.includes(value)}
+            title={slicerText(value, config)}
+            data-test="auradata-slicer-item"
+            onClick={event => {
+              choose(
+                nextSelection(
+                  selected,
+                  value,
+                  mode,
+                  event.ctrlKey || event.metaKey,
+                ),
+              );
+              // One value was the whole choice
+              if (dropdown && mode === 'single') setOpen(false);
+            }}
+          >
+            {showMark && <span className={markClass} />}
+            <span className="slicer-text">{slicerText(value, config)}</span>
+          </button>
+        ))}
+      </div>
+      {config.applyButton && (
+        <div className="slicer-apply">
+          <button
+            type="button"
+            data-test="auradata-slicer-reset"
+            disabled={!waiting}
+            onClick={() => setPending(undefined)}
+          >
+            {t('Reset')}
+          </button>
+          <button
+            type="button"
+            className="is-primary"
+            data-test="auradata-slicer-apply"
+            disabled={!waiting}
+            onClick={() => apply(selected)}
+          >
+            {t('Apply')}
+          </button>
+        </div>
+      )}
+    </>
+  );
+  const summary = selectionSummary(selected, config);
 
   return (
     <Box style={boxStyle} data-test="auradata-slicer">
@@ -701,95 +878,36 @@ export function SlicerView({
             if (event.key === 'Enter') applyText(text);
           }}
         />
-      ) : (
-        <>
-          {config.showSearch && (
-            <input
-              className="slicer-search"
-              data-test="auradata-slicer-search"
-              aria-label={t('Search %s', filter.name)}
-              placeholder={placeholder}
-              value={search}
-              onChange={event => setSearch(event.target.value)}
-            />
-          )}
-          <div
-            className={[
-              'slicer-items',
-              variant === 'buttons' && 'is-buttons',
-              config.layout === 'horizontal' && 'is-row',
-              config.iconPosition === 'right' && 'is-mark-right',
-              config.iconOverlay && 'is-mark-overlay',
-            ]
-              .filter(Boolean)
-              .join(' ')}
-            role="group"
-            aria-label={filter.name}
+      ) : dropdown ? (
+        <div
+          className="slicer-dropdown"
+          ref={dropdownRef}
+          onKeyDown={event => {
+            if (event.key === 'Escape' && open) {
+              event.stopPropagation();
+              setOpen(false);
+            }
+          }}
+        >
+          <button
+            type="button"
+            className="slicer-trigger"
+            data-test="auradata-slicer-trigger"
+            aria-expanded={open}
+            aria-label={`${filter.name}: ${summary}`}
+            onClick={() => setOpen(!open)}
           >
-            {values === undefined && (
-              <span className="slicer-hint">{t('Loading...')}</span>
-            )}
-            {offered?.length === 0 && (
-              <span className="slicer-hint">{t('No data')}</span>
-            )}
-            {mode !== 'single' && config.showSelectAll && !!offered?.length && (
-              <button
-                type="button"
-                className="slicer-item"
-                aria-pressed={all}
-                data-test="auradata-slicer-all"
-                onClick={() => choose(all ? [] : (offered ?? []))}
-              >
-                {showMark && <span className="slicer-mark" />}
-                <span className="slicer-text">{t('Select all')}</span>
-              </button>
-            )}
-            {shown.map(value => (
-              <button
-                type="button"
-                key={slicerValueKey(value)}
-                className="slicer-item"
-                aria-pressed={selected.includes(value)}
-                title={slicerText(value, config)}
-                data-test="auradata-slicer-item"
-                onClick={event =>
-                  choose(
-                    nextSelection(
-                      selected,
-                      value,
-                      mode,
-                      event.ctrlKey || event.metaKey,
-                    ),
-                  )
-                }
-              >
-                {showMark && <span className={markClass} />}
-                <span className="slicer-text">{slicerText(value, config)}</span>
-              </button>
-            ))}
-          </div>
-          {config.applyButton && (
-            <div className="slicer-apply">
-              <button
-                type="button"
-                data-test="auradata-slicer-reset"
-                disabled={!waiting}
-                onClick={() => setPending(undefined)}
-              >
-                {t('Reset')}
-              </button>
-              <button
-                type="button"
-                className="is-primary"
-                data-test="auradata-slicer-apply"
-                disabled={!waiting}
-                onClick={() => apply(selected)}
-              >
-                {t('Apply')}
-              </button>
+            <span className="slicer-text">{summary}</span>
+            <span className="slicer-caret" aria-hidden />
+          </button>
+          {open && (
+            <div className="slicer-menu" data-test="auradata-slicer-menu">
+              {list}
             </div>
           )}
-        </>
+        </div>
+      ) : (
+        list
       )}
     </Box>
   );

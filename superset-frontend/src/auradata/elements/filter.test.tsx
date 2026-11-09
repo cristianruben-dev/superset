@@ -115,13 +115,42 @@ test('recognises the filter element', () => {
   });
 });
 
-test('shows the chosen dashboard filter', () => {
+test('draws a list of values as its own dropdown', () => {
   render(
     <FilterView
       editMode={false}
       config={{ kind: 'filter', filterId: region.id }}
     />,
     { store: makeStore() },
+  );
+  expect(screen.getByTestId('auradata-slicer-trigger')).toBeInTheDocument();
+  expect(screen.queryByTestId('canvas-filter-control')).toBeNull();
+});
+
+test('a filter that matches text keeps the control of the filter', () => {
+  const store = makeStore();
+  const matching = {
+    ...region,
+    controlValues: { operatorType: 'ilike_contains' },
+  };
+  render(
+    <FilterView
+      editMode={false}
+      config={{ kind: 'filter', filterId: region.id }}
+    />,
+    {
+      store: createStore(
+        {
+          ...(store.getState() as object),
+          dashboardInfo: {
+            id: 7,
+            metadata: { native_filter_configuration: [matching] },
+          },
+          nativeFilters: { filters: { [region.id]: matching } },
+        },
+        reducerIndex,
+      ),
+    },
   );
   expect(screen.getByTestId('canvas-filter-control')).toHaveTextContent(
     'Región',
@@ -170,6 +199,13 @@ test('the Format pane picks the filter and its filter bar visibility', async () 
     screen.getByRole('switch', { name: 'Also show in the filter bar' }),
   );
   expect(elementOf(store).showInFilterBar).toBe(false);
+});
+
+test('a dropdown has the settings of a list, searched unless turned off', () => {
+  render(<FormatPane />, { store: makeStore({ filterId: region.id }) });
+  act(() => selectVisual('DYNAMIC-filter'));
+  expect(screen.getByTestId('auradata-slicer-showSearch')).toBeChecked();
+  expect(screen.getByTestId('auradata-slicer-sort')).toBeInTheDocument();
 });
 
 test('filters kept only on the canvas are left out of the filter bar', () => {
