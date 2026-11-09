@@ -135,7 +135,7 @@ def _token_steps(uuid: str, domain: str, expires: int) -> list[str]:
         f"A token lasts {expires} s. The guest sees what the service account "
         "sees of the report, narrowed by the rls clauses.",
         "The host page's address must be one of allowed_domains (when any are "
-        "set), and the site must be allowed to frame AuraData BI.",
+        "set): those sites, and only those, may frame the report.",
     ]
 
 

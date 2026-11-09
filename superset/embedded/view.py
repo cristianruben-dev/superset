@@ -22,6 +22,7 @@ from flask_login import AnonymousUserMixin, login_user
 from flask_wtf.csrf import same_origin
 
 from superset import event_logger, is_feature_enabled
+from superset.auradata.embed_frames import allow_framing_by
 from superset.daos.dashboard import EmbeddedDashboardDAO
 from superset.superset_typing import FlaskResponse
 from superset.utils import json
@@ -83,6 +84,9 @@ class EmbeddedView(BaseSupersetView):
             "empty",
         }:
             abort(403)
+
+        # AuraData BI: the sites this report allows are the ones that may frame it
+        allow_framing_by(embedded.allowed_domains)
 
         # Log in as an anonymous user, just for this view.
         # This view needs to be visible to all users,

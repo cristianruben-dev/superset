@@ -1531,6 +1531,12 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
         )
         csp_warning = self.config["CONTENT_SECURITY_POLICY_WARNING"]
 
+        # AuraData BI: an embedded report sets who may frame it. Registered before
+        # Talisman so it runs after Talisman writes the policy.
+        from superset.auradata import embed_frames
+
+        embed_frames.init_app(self.superset_app)
+
         if talisman_enabled:
             talisman.init_app(self.superset_app, **talisman_config)
 

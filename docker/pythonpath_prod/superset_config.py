@@ -137,18 +137,14 @@ GUEST_TOKEN_JWT_AUDIENCE = os.getenv("GUEST_TOKEN_JWT_AUDIENCE", "auradata-bi")
 # Guests see only the dashboards their token names; this role gives them the
 # routes to read them
 GUEST_ROLE_NAME = "Gamma"
-# Sites allowed to frame AuraData BI, comma separated (https://intranet.example.com).
-# Without them only AuraData BI itself frames its pages.
-_embed_origins = [
-    origin.strip()
-    for origin in os.getenv("AURADATA_EMBED_ORIGINS", "").split(",")
-    if origin.strip()
-]
+# Only AuraData BI frames its own pages. The embedded page of a report lets in the
+# sites its embedding allows (superset/auradata/embed_frames.py), so a new site is
+# a change to the report, never to this file.
 TALISMAN_CONFIG = {
     **DEFAULT_TALISMAN_CONFIG,
     "content_security_policy": {
         **DEFAULT_TALISMAN_CONFIG["content_security_policy"],
-        "frame-ancestors": ["'self'", *_embed_origins],
+        "frame-ancestors": ["'self'"],
     },
 }
 

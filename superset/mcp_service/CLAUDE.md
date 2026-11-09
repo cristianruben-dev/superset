@@ -198,7 +198,8 @@ The `@tool` and `@prompt` decorators are defined as stubs in the `superset-core`
   origins. `create_embed_guest_token` runs the checks of `POST /security/guest_token/` (`grant_guest_token`,
   `validate_guest_token_resources`, the validator hook, the hashed audit log) and never reaches the in-app assistant
   (`HIDDEN_TOOLS`). With `EMBEDDED_SUPERSET` off they answer `EmbeddingDisabled`; the prod config turns it on only
-  with `GUEST_TOKEN_JWT_SECRET`, and `AURADATA_EMBED_ORIGINS` sets `frame-ancestors`.
+  with `GUEST_TOKEN_JWT_SECRET`. A report's `allowed_domains` are also the sites that may frame its embedded page
+  (`superset/auradata/embed_frames.py` sets `frame-ancestors` per report), so no deployment setting lists them.
 
 ## AuraData BI: Connections and Data Model
 
