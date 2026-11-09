@@ -42,12 +42,7 @@ import { useParentSize } from '@visx/responsive';
 import { CanvasFrame } from 'src/auradata/format/CanvasFrame';
 import Tabs from '@superset-ui/core/components/Tabs';
 import DashboardGrid from 'src/dashboard/containers/DashboardGrid';
-import {
-  DashboardInfo,
-  DashboardLayout,
-  LayoutItem,
-  RootState,
-} from 'src/dashboard/types';
+import { DashboardInfo, LayoutItem, RootState } from 'src/dashboard/types';
 import {
   DASHBOARD_GRID_ID,
   DASHBOARD_ROOT_DEPTH,
@@ -65,7 +60,10 @@ import {
 } from 'src/dashboard/actions/dashboardState';
 import { getColorNamespace, resetColors } from 'src/utils/colorScheme';
 import { calculateScopes } from 'src/dashboard/util/calculateScopes';
-import { createChartLayoutItemMap } from 'src/dashboard/util/getChartIdsInFilterScope';
+import {
+  type ChartLayoutItemMap,
+  createChartLayoutItemMap,
+} from 'src/dashboard/util/getChartIdsInFilterScope';
 import {
   isLegacyChartCustomizationFormat,
   migrateChartCustomization,
@@ -141,11 +139,29 @@ const useRenderedChartIds = () => {
 
 const TOP_OF_PAGE_RANGE = 220;
 
+function sameChartLayoutItemMap(
+  prev: ChartLayoutItemMap,
+  next: ChartLayoutItemMap,
+): boolean {
+  if (prev === next) return true;
+  if (prev.size !== next.size) return false;
+  for (const [chartId, prevItems] of prev) {
+    const nextItems = next.get(chartId);
+    if (!nextItems || prevItems.length !== nextItems.length) return false;
+    for (let i = 0; i < prevItems.length; i += 1) {
+      const a = prevItems[i];
+      const b = nextItems[i];
+      if (a.id !== b.id || !shallowEqual(a.parents, b.parents)) return false;
+    }
+  }
+  return true;
+}
+
 const DashboardContainer: FC<DashboardContainerProps> = ({ topLevelTabs }) => {
   const dispatch = useDispatch();
 
-  const dashboardLayout = useSelector<RootState, DashboardLayout>(
-    state => state.dashboardLayout.present,
+  const rootTabsComponent = useSelector<RootState, LayoutItem | undefined>(
+    state => getRootLevelTabsComponent(state.dashboardLayout.present),
   );
   const dashboardInfo = useSelector<RootState, DashboardInfo>(
     state => state.dashboardInfo,
@@ -175,7 +191,7 @@ const DashboardContainer: FC<DashboardContainerProps> = ({ topLevelTabs }) => {
   const prevCustomizationScopesRef = useRef<CustomizationScopeData[]>([]);
   const tabIndex = useMemo(() => {
     const nextTabIndex = findTabIndexByComponentId({
-      currentComponent: getRootLevelTabsComponent(dashboardLayout),
+      currentComponent: rootTabsComponent,
       directPathToChild,
     });
 
@@ -184,7 +200,7 @@ const DashboardContainer: FC<DashboardContainerProps> = ({ topLevelTabs }) => {
     }
     prevTabIndexRef.current = nextTabIndex;
     return nextTabIndex;
-  }, [dashboardLayout, directPathToChild]);
+  }, [rootTabsComponent, directPathToChild]);
   // when all charts have rendered, enforce fresh shared labels
   const shouldForceFreshSharedLabelsColors =
     dashboardLabelsColorInitiated &&
@@ -198,9 +214,10 @@ const DashboardContainer: FC<DashboardContainerProps> = ({ topLevelTabs }) => {
     prevRenderedChartIds.current = [];
   }, [dashboardInfo?.metadata?.color_namespace, dispatch]);
 
-  const chartLayoutItemMap = useMemo(
-    () => createChartLayoutItemMap(Object.values(dashboardLayout)),
-    [dashboardLayout],
+  const chartLayoutItemMap = useSelector<RootState, ChartLayoutItemMap>(
+    state =>
+      createChartLayoutItemMap(Object.values(state.dashboardLayout.present)),
+    sameChartLayoutItemMap,
   );
 
   useEffect(() => {
@@ -258,6 +275,10 @@ const DashboardContainer: FC<DashboardContainerProps> = ({ topLevelTabs }) => {
   const childIds: string[] = useMemo(
     () => (topLevelTabs ? topLevelTabs.children : [DASHBOARD_GRID_ID]),
     [topLevelTabs],
+  );
+  const gridComponents = useSelector<RootState, (LayoutItem | undefined)[]>(
+    state => childIds.map(id => state.dashboardLayout.present[id]),
+    shallowEqual,
   );
   const min = Math.min(tabIndex, childIds.length - 1);
   const activeKey = min === 0 ? DASHBOARD_GRID_ID : min.toString();
@@ -351,7 +372,7 @@ const DashboardContainer: FC<DashboardContainerProps> = ({ topLevelTabs }) => {
         label: null,
         children: (
           <DashboardGrid
-            gridComponent={dashboardLayout[id]}
+            gridComponent={gridComponents[index]}
             depth={DASHBOARD_ROOT_DEPTH + 1}
             width={width}
             isComponentVisible={index === tabIndex}
@@ -373,7 +394,7 @@ const DashboardContainer: FC<DashboardContainerProps> = ({ topLevelTabs }) => {
         />
       );
     },
-    [activeKey, childIds, dashboardLayout, handleFocus, renderTabBar, tabIndex],
+    [activeKey, childIds, gridComponents, handleFocus, renderTabBar, tabIndex],
   );
 
   // Hook form, not <ParentSize>: @visx 4.0.0's component clips content taller

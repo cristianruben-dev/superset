@@ -17,7 +17,7 @@
  * under the License.
  */
 import { CSSProperties, ReactNode, useMemo } from 'react';
-import { useSelector } from 'react-redux';
+import { shallowEqual, useSelector } from 'react-redux';
 import { ConfigProvider } from 'antd';
 import tinycolor from 'tinycolor2';
 import {
@@ -95,13 +95,15 @@ export const useReportAppearance = (): ReportAppearance =>
   });
 
 const useAreaStyle = (area: ReportArea): AreaStyle | undefined =>
-  useSelector((state: RootState) =>
-    area === 'page'
-      ? undefined
-      : (
-          state.dashboardLayout?.present?.[DASHBOARD_ROOT_ID]?.meta
-            ?.auradataCanvas as CanvasFormat | undefined
-        )?.[area],
+  useSelector(
+    (state: RootState) =>
+      area === 'page'
+        ? undefined
+        : (
+            state.dashboardLayout?.present?.[DASHBOARD_ROOT_ID]?.meta
+              ?.auradataCanvas as CanvasFormat | undefined
+          )?.[area],
+    shallowEqual,
   );
 
 type Built = {
@@ -109,6 +111,35 @@ type Built = {
   antd: ReturnType<typeof normalizeThemeConfig>;
   dark: boolean;
 };
+
+const builtLookCache = new WeakMap<object, Map<string, Built>>();
+
+function getCachedBuiltLook(dark: boolean, style?: AreaStyle): Built | null {
+  const {
+    common: { theme },
+  } = getBootstrapData();
+  const base = (dark ? theme?.dark : theme?.default) as
+    | AnyThemeConfig
+    | undefined;
+  if (!base || typeof base !== 'object') return null;
+  let byStyle = builtLookCache.get(base);
+  if (!byStyle) {
+    byStyle = new Map<string, Built>();
+    builtLookCache.set(base, byStyle);
+  }
+  const key = `${dark ? '1' : '0'}|${style?.background ?? ''}|${style?.text ?? ''}|${style?.accent ?? ''}`;
+  const cached = byStyle.get(key);
+  if (cached) return cached;
+  const config = reportThemeConfig(dark, style);
+  if (!config) return null;
+  const built: Built = {
+    theme: Theme.fromConfig(config).theme,
+    antd: normalizeThemeConfig(config),
+    dark,
+  };
+  byStyle.set(key, built);
+  return built;
+}
 
 /**
  * The look of a part of the report: the app's light or dark theme as the
@@ -131,13 +162,7 @@ export function useReportLook(area: ReportArea = 'page'): Built | null {
 
   return useMemo(() => {
     if (follows) return null;
-    const config = reportThemeConfig(dark, style);
-    if (!config) return null;
-    return {
-      theme: Theme.fromConfig(config).theme,
-      antd: normalizeThemeConfig(config),
-      dark,
-    };
+    return getCachedBuiltLook(dark, style);
   }, [follows, dark, style]);
 }
 

@@ -870,92 +870,103 @@ const DashboardBuilder = () => {
   // The page offers a dock for the filter pane: it sits against the page
   const filterDock = useFilterDockState();
   const filterDocked = !!filterDock.slot;
+  const filterBarWidth = dashboardFiltersOpen
+    ? OPEN_FILTER_BAR_WIDTH
+    : CLOSED_FILTER_BAR_WIDTH;
+  const dockedVerticalConfig = useMemo(
+    () => ({
+      filtersOpen: dashboardFiltersOpen,
+      toggleFiltersBar: toggleDashboardFiltersOpen,
+      width: filterBarWidth,
+      height: '100%',
+      offset: 0,
+    }),
+    [dashboardFiltersOpen, filterBarWidth, toggleDashboardFiltersOpen],
+  );
+  const panelVerticalConfig = useMemo(
+    () => ({
+      filtersOpen: dashboardFiltersOpen,
+      toggleFiltersBar: toggleDashboardFiltersOpen,
+      width: filterBarWidth,
+      height: filterBarHeight,
+      offset: filterBarOffset,
+    }),
+    [
+      dashboardFiltersOpen,
+      filterBarHeight,
+      filterBarOffset,
+      filterBarWidth,
+      toggleDashboardFiltersOpen,
+    ],
+  );
 
-  const renderChild = useCallback(
-    (adjustedWidth: number) => {
-      const filterBarWidth = dashboardFiltersOpen
-        ? adjustedWidth
-        : CLOSED_FILTER_BAR_WIDTH;
-      if (filterDocked) {
-        // Report mode (screenshots, embeds) has no filter pane unless asked for
-        if (hideFilterBar) return null;
-        return (
-          <InFilterDock width={filterBarWidth}>
-            <ErrorBoundary>
+  const renderChild = useCallback(() => {
+    if (filterDocked) {
+      // Report mode (screenshots, embeds) has no filter pane unless asked for
+      if (hideFilterBar) return null;
+      return (
+        <InFilterDock width={filterBarWidth}>
+          <ErrorBoundary>
+            <ReportTheme area="filterBar">
+              <FilterBar
+                orientation={FilterBarOrientation.Vertical}
+                verticalConfig={dockedVerticalConfig}
+              />
+            </ReportTheme>
+          </ErrorBoundary>
+        </InFilterDock>
+      );
+    }
+    return (
+      <FiltersPanel
+        width={filterBarWidth}
+        hidden={hideFilterBar}
+        data-test="dashboard-filters-panel"
+      >
+        <StickyPanel
+          ref={containerRef}
+          width={filterBarWidth}
+          top={barTopOffset}
+        >
+          <ErrorBoundary>
+            <div
+              data-test="dashboard-filter-bar-gate"
+              aria-disabled={isVersionPreviewActive}
+              css={css`
+                height: 100%;
+                ${
+                  isVersionPreviewActive
+                    ? `
+                    pointer-events: none;
+                    opacity: 0.5;
+                  `
+                    : ''
+                }
+              `}
+              // inert blocks keyboard focus too; React 18 needs the spread form
+              {...(isVersionPreviewActive ? { inert: '' } : {})}
+            >
               <ReportTheme area="filterBar">
                 <FilterBar
                   orientation={FilterBarOrientation.Vertical}
-                  verticalConfig={{
-                    filtersOpen: dashboardFiltersOpen,
-                    toggleFiltersBar: toggleDashboardFiltersOpen,
-                    width: filterBarWidth,
-                    height: '100%',
-                    offset: 0,
-                  }}
+                  verticalConfig={panelVerticalConfig}
                 />
               </ReportTheme>
-            </ErrorBoundary>
-          </InFilterDock>
-        );
-      }
-      return (
-        <FiltersPanel
-          width={filterBarWidth}
-          hidden={hideFilterBar}
-          data-test="dashboard-filters-panel"
-        >
-          <StickyPanel
-            ref={containerRef}
-            width={filterBarWidth}
-            top={barTopOffset}
-          >
-            <ErrorBoundary>
-              <div
-                data-test="dashboard-filter-bar-gate"
-                aria-disabled={isVersionPreviewActive}
-                css={css`
-                  height: 100%;
-                  ${
-                    isVersionPreviewActive
-                      ? `
-                      pointer-events: none;
-                      opacity: 0.5;
-                    `
-                      : ''
-                  }
-                `}
-                // inert blocks keyboard focus too; React 18 needs the spread form
-                {...(isVersionPreviewActive ? { inert: '' } : {})}
-              >
-                <ReportTheme area="filterBar">
-                  <FilterBar
-                    orientation={FilterBarOrientation.Vertical}
-                    verticalConfig={{
-                      filtersOpen: dashboardFiltersOpen,
-                      toggleFiltersBar: toggleDashboardFiltersOpen,
-                      width: filterBarWidth,
-                      height: filterBarHeight,
-                      offset: filterBarOffset,
-                    }}
-                  />
-                </ReportTheme>
-              </div>
-            </ErrorBoundary>
-          </StickyPanel>
-        </FiltersPanel>
-      );
-    },
-    [
-      filterDocked,
-      dashboardFiltersOpen,
-      toggleDashboardFiltersOpen,
-      filterBarHeight,
-      filterBarOffset,
-      hideFilterBar,
-      isVersionPreviewActive,
-      barTopOffset,
-    ],
-  );
+            </div>
+          </ErrorBoundary>
+        </StickyPanel>
+      </FiltersPanel>
+    );
+  }, [
+    barTopOffset,
+    containerRef,
+    dockedVerticalConfig,
+    filterBarWidth,
+    filterDocked,
+    hideFilterBar,
+    isVersionPreviewActive,
+    panelVerticalConfig,
+  ]);
 
   const isVerticalFilterBarVisible =
     showFilterBar && filterBarOrientation === FilterBarOrientation.Vertical;
@@ -973,7 +984,7 @@ const DashboardBuilder = () => {
           <DashboardWrapper>
             {presenting && <PresentationControls />}
             {/* The filter panel has a fixed width: it is shown or hidden */}
-            {isVerticalFilterBarVisible && renderChild(OPEN_FILTER_BAR_WIDTH)}
+            {isVerticalFilterBarVisible && renderChild()}
             <StyledHeader data-test="dashboard-header-wrapper" ref={headerRef}>
               {headerContent}
               <InTabsDock>
