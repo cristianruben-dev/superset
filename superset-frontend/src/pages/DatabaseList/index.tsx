@@ -31,11 +31,7 @@ import { useSelector } from 'react-redux';
 import { useQueryParams, BooleanParam } from 'use-query-params';
 import { LocalStorageKeys, setItem } from 'src/utils/localStorageHelpers';
 import { useListViewResource } from 'src/views/CRUD/hooks';
-import {
-  createErrorHandler,
-  createFetchRelated,
-  uploadUserPerms,
-} from 'src/views/CRUD/utils';
+import { createErrorHandler, uploadUserPerms } from 'src/views/CRUD/utils';
 import withToasts from 'src/components/MessageToasts/withToasts';
 import SubMenu, { SubMenuProps } from 'src/features/home/SubMenu';
 import {
@@ -70,7 +66,6 @@ import UploadDataModal from 'src/features/databases/UploadDataModel';
 import SemanticLayerModal from 'src/features/semanticLayers/SemanticLayerModal';
 import { DatabaseObject } from 'src/features/databases/types';
 import { QueryObjectColumns } from 'src/views/CRUD/types';
-import { WIDER_DROPDOWN_WIDTH } from 'src/components/ListView/utils';
 import { ModalTitleWithIcon } from 'src/components/ModalTitleWithIcon';
 import type User from 'src/types/User';
 import {
@@ -266,7 +261,6 @@ function DatabaseList({
   addDangerToast,
   addInfoToast,
   addSuccessToast,
-  user,
 }: DatabaseListProps) {
   const theme = useTheme();
   const showSemanticLayers = isFeatureEnabled(SEMANTIC_LAYERS_FLAG);
@@ -1081,28 +1075,6 @@ function DatabaseList({
             { label: t('Yes'), value: true },
             { label: t('No'), value: false },
           ],
-        },
-        {
-          Header: t('Modified by'),
-          key: 'changed_by',
-          id: 'changed_by',
-          input: 'select',
-          operator: FilterOperator.RelationOneMany,
-          unfilteredLabel: t('All'),
-          fetchSelects: createFetchRelated(
-            'database',
-            'changed_by',
-            createErrorHandler(errMsg =>
-              t(
-                'An error occurred while fetching %s values: %s',
-                databaseLabelLower(),
-                errMsg,
-              ),
-            ),
-            user,
-          ),
-          paginate: true,
-          popupStyle: { minWidth: WIDER_DROPDOWN_WIDTH },
         },
       );
     }

@@ -289,20 +289,6 @@ function GroupsList({ user }: GroupsListProps) {
         inputName: 'group_list_search',
       },
       {
-        Header: t('Label'),
-        key: 'label',
-        id: 'label',
-        input: 'search',
-        operator: ListViewFilterOperator.Contains,
-      },
-      {
-        Header: t('Description'),
-        key: 'description',
-        id: 'description',
-        input: 'search',
-        operator: ListViewFilterOperator.Contains,
-      },
-      {
         Header: t('Roles'),
         key: 'roles',
         id: 'roles',

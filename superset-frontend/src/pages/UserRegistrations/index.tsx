@@ -150,20 +150,6 @@ export default function UserRegistrations() {
         operator: ListViewFilterOperator.Contains,
       },
       {
-        Header: t('First name'),
-        key: 'first_name',
-        id: 'first_name',
-        input: 'search',
-        operator: ListViewFilterOperator.Contains,
-      },
-      {
-        Header: t('Last name'),
-        key: 'last_name',
-        id: 'last_name',
-        input: 'search',
-        operator: ListViewFilterOperator.Contains,
-      },
-      {
         Header: t('Email'),
         key: 'email',
         id: 'email',

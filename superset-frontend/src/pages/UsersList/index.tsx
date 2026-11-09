@@ -379,20 +379,6 @@ function UsersList({ user }: UsersListProps) {
   const filters: ListViewFilters = useMemo(
     () => [
       {
-        Header: t('First name'),
-        key: 'first_name',
-        id: 'first_name',
-        input: 'search',
-        operator: ListViewFilterOperator.Contains,
-      },
-      {
-        Header: t('Last name'),
-        key: 'last_name',
-        id: 'last_name',
-        input: 'search',
-        operator: ListViewFilterOperator.Contains,
-      },
-      {
         Header: t('Username'),
         key: 'username',
         id: 'username',
@@ -443,46 +429,6 @@ function UsersList({ user }: UsersListProps) {
           value: group.id,
         })),
         loading: loadingState.groups,
-      },
-      {
-        Header: t('Created on'),
-        key: 'created_on',
-        id: 'created_on',
-        input: 'datetime_range',
-        operator: ListViewFilterOperator.Between,
-        dateFilterValueType: 'iso',
-      },
-      {
-        Header: t('Changed on'),
-        key: 'changed_on',
-        id: 'changed_on',
-        input: 'datetime_range',
-        operator: ListViewFilterOperator.Between,
-        dateFilterValueType: 'iso',
-      },
-      {
-        Header: t('Last login'),
-        key: 'last_login',
-        id: 'last_login',
-        input: 'datetime_range',
-        operator: ListViewFilterOperator.Between,
-        dateFilterValueType: 'iso',
-      },
-      {
-        Header: t('Login count'),
-        key: 'login_count',
-        id: 'login_count',
-        input: 'numerical_range',
-        operator: ListViewFilterOperator.Between,
-        min: loginCountStats.min,
-        max: loginCountStats.max,
-      },
-      {
-        Header: t('Fail login count'),
-        key: 'fail_login_count',
-        id: 'fail_login_count',
-        input: 'numerical_range',
-        operator: ListViewFilterOperator.Between,
       },
     ],
     [

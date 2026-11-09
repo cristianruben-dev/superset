@@ -27,9 +27,7 @@ import { useSelector } from 'react-redux';
 import { useState, useMemo, useCallback, useRef } from 'react';
 import rison from 'rison';
 import {
-  createFetchRelated,
   createFetchEditors,
-  createFetchViewers,
   createErrorHandler,
   handleDashboardDelete,
 } from 'src/views/CRUD/utils';
@@ -69,7 +67,6 @@ import {
   Dashboard as CRUDDashboard,
   QueryObjectColumns,
 } from 'src/views/CRUD/types';
-import { loadTags } from 'src/components/Tag/utils';
 import DashboardCard from 'src/features/dashboards/DashboardCard';
 import { useDashboardPreviews } from 'src/auradata/dashboards';
 import { UserWithPermissionsAndRoles } from 'src/types/bootstrapTypes';
@@ -397,19 +394,6 @@ function DashboardList(props: DashboardListProps) {
           { label: t('Draft'), value: false },
         ],
       },
-      ...(isFeatureEnabled(FeatureFlag.TaggingSystem) && canReadTag
-        ? [
-            {
-              Header: t('Tag'),
-              key: 'tags',
-              id: 'tags',
-              input: 'select',
-              operator: FilterOperator.DashboardTagById,
-              unfilteredLabel: t('All'),
-              fetchSelects: loadTags,
-            },
-          ]
-        : []),
       {
         Header: t('Editor'),
         key: 'editor',
@@ -433,33 +417,6 @@ function DashboardList(props: DashboardListProps) {
         paginate: true,
         popupStyle: { minWidth: WIDER_DROPDOWN_WIDTH },
       },
-      ...(isFeatureEnabled(FeatureFlag.EnableViewers)
-        ? [
-            {
-              Header: t('Viewer'),
-              key: 'viewer',
-              id: 'viewers',
-              input: 'select',
-              operator: FilterOperator.RelationManyMany,
-              unfilteredLabel: t('All'),
-              fetchSelects: createFetchViewers(
-                'dashboard',
-                createErrorHandler(errMsg =>
-                  addDangerToast(
-                    t(
-                      'An error occurred while fetching dashboard viewer values: %s',
-                      errMsg,
-                    ),
-                  ),
-                ),
-                user,
-              ),
-              optionFilterProps: SUBJECT_OPTION_FILTER_PROPS,
-              paginate: true,
-              popupStyle: { minWidth: WIDER_DROPDOWN_WIDTH },
-            },
-          ]
-        : []),
       ...(user?.userId ? [favoritesFilter] : []),
       {
         Header: t('Certified'),
@@ -473,27 +430,6 @@ function DashboardList(props: DashboardListProps) {
           { label: t('Yes'), value: true },
           { label: t('No'), value: false },
         ],
-      },
-      {
-        Header: t('Modified by'),
-        key: 'changed_by',
-        id: 'changed_by',
-        input: 'select',
-        operator: FilterOperator.RelationOneMany,
-        unfilteredLabel: t('All'),
-        fetchSelects: createFetchRelated(
-          'dashboard',
-          'changed_by',
-          createErrorHandler(errMsg =>
-            t(
-              'An error occurred while fetching dataset datasource values: %s',
-              errMsg,
-            ),
-          ),
-          user,
-        ),
-        paginate: true,
-        popupStyle: { minWidth: WIDER_DROPDOWN_WIDTH },
       },
     ] as ListViewFilters;
     return filtersList;

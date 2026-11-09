@@ -39,10 +39,7 @@ import { UserObject } from 'src/features/roles/types';
 import { isUserAdmin } from 'src/dashboard/util/permissionUtils';
 import { Icons } from '@superset-ui/core/components/Icons';
 import { fetchUserOptions } from 'src/features/groups/utils';
-import {
-  fetchGroupOptions,
-  fetchPermissionOptions,
-} from 'src/features/roles/utils';
+import {} from 'src/features/roles/utils';
 import { WIDER_DROPDOWN_WIDTH } from 'src/components/ListView/utils';
 
 const PAGE_SIZE = 25;
@@ -259,28 +256,6 @@ function RolesList({ addDangerToast, addSuccessToast, user }: RolesListProps) {
         unfilteredLabel: t('All'),
         fetchSelects: async (filterValue, page, pageSize) =>
           fetchUserOptions(filterValue, page, pageSize, addDangerToast),
-        popupStyle: { minWidth: WIDER_DROPDOWN_WIDTH },
-      },
-      {
-        Header: t('Permissions'),
-        key: 'permission_ids',
-        id: 'permission_ids',
-        input: 'select',
-        operator: FilterOperator.RelationOneMany,
-        unfilteredLabel: t('All'),
-        fetchSelects: async (filterValue, page, pageSize) =>
-          fetchPermissionOptions(filterValue, page, pageSize, addDangerToast),
-        popupStyle: { minWidth: WIDER_DROPDOWN_WIDTH },
-      },
-      {
-        Header: t('Groups'),
-        key: 'group_ids',
-        id: 'group_ids',
-        input: 'select',
-        operator: FilterOperator.RelationOneMany,
-        unfilteredLabel: t('All'),
-        fetchSelects: async (filterValue, page, pageSize) =>
-          fetchGroupOptions(filterValue, page, pageSize, addDangerToast),
         popupStyle: { minWidth: WIDER_DROPDOWN_WIDTH },
       },
     ],

@@ -45,11 +45,7 @@ import { Icons } from '@superset-ui/core/components/Icons';
 import withToasts from 'src/components/MessageToasts/withToasts';
 import SubMenu from 'src/features/home/SubMenu';
 import { useListViewResource } from 'src/views/CRUD/hooks';
-import {
-  createErrorHandler,
-  createFetchDistinct,
-  createFetchRelated,
-} from 'src/views/CRUD/utils';
+import { createErrorHandler, createFetchDistinct } from 'src/views/CRUD/utils';
 import TaskStatusIcon from 'src/features/tasks/TaskStatusIcon';
 import TaskPayloadPopover from 'src/features/tasks/TaskPayloadPopover';
 import TaskStackTracePopover from 'src/features/tasks/TaskStackTracePopover';
@@ -700,39 +696,6 @@ function TaskList({ addDangerToast, addSuccessToast, user }: TaskListProps) {
         id: 'task_name',
         input: 'search',
         operator: FilterOperator.Contains,
-      },
-      {
-        Header: t('Scope'),
-        key: 'scope',
-        id: 'scope',
-        input: 'select',
-        operator: FilterOperator.Equals,
-        unfilteredLabel: t('Any'),
-        selects: [
-          { label: t('Private'), value: TaskScope.Private },
-          { label: t('Shared'), value: TaskScope.Shared },
-          { label: t('System'), value: TaskScope.System },
-        ],
-      },
-      {
-        Header: t('Created by'),
-        key: 'created_by',
-        id: 'created_by',
-        input: 'select',
-        operator: FilterOperator.RelationOneMany,
-        unfilteredLabel: t('All'),
-        fetchSelects: createFetchRelated(
-          'task',
-          'created_by',
-          createErrorHandler(errMsg =>
-            addDangerToast(
-              t(
-                'An error occurred while fetching created by values: %s',
-                errMsg,
-              ),
-            ),
-          ),
-        ),
       },
     ],
     [addDangerToast],

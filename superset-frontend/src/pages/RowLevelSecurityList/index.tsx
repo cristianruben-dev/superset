@@ -34,20 +34,14 @@ import {
 import { Icons } from '@superset-ui/core/components/Icons';
 import withToasts from 'src/components/MessageToasts/withToasts';
 import { SubjectPile } from 'src/features/subjects/SubjectPile';
-import { SUBJECT_OPTION_FILTER_PROPS } from 'src/features/subjects/SubjectSelectLabel';
 import SubMenu, { SubMenuProps } from 'src/features/home/SubMenu';
 import rison from 'rison';
 import { useListViewResource } from 'src/views/CRUD/hooks';
 import RowLevelSecurityModal from 'src/features/rls/RowLevelSecurityModal';
 import { RLSObject } from 'src/features/rls/types';
 import type Subject from 'src/types/Subject';
-import {
-  createErrorHandler,
-  createFetchRelated,
-  createFetchSubjects,
-} from 'src/views/CRUD/utils';
+import { createErrorHandler } from 'src/views/CRUD/utils';
 import { QueryObjectColumns } from 'src/views/CRUD/types';
-import { WIDER_DROPDOWN_WIDTH } from 'src/components/ListView/utils';
 
 interface RLSProps {
   addDangerToast: (msg: string) => void;
@@ -291,54 +285,6 @@ function RowLevelSecurityList(props: RLSProps) {
           { label: t('Regular'), value: 'Regular' },
           { label: t('Base'), value: 'Base' },
         ],
-      },
-      {
-        Header: t('Subject'),
-        key: 'subject',
-        id: 'subjects',
-        input: 'select',
-        operator: FilterOperator.RelationManyMany,
-        unfilteredLabel: t('All'),
-        fetchSelects: createFetchSubjects(
-          'rowlevelsecurity',
-          createErrorHandler(errMsg =>
-            t(
-              'An error occurred while fetching row level security subject values: %s',
-              errMsg,
-            ),
-          ),
-          user,
-        ),
-        optionFilterProps: SUBJECT_OPTION_FILTER_PROPS,
-        paginate: true,
-        popupStyle: { minWidth: WIDER_DROPDOWN_WIDTH },
-      },
-      {
-        Header: t('Group Key'),
-        key: 'search',
-        id: 'group_key',
-        input: 'search',
-        operator: FilterOperator.StartsWith,
-      },
-      {
-        Header: t('Modified by'),
-        key: 'changed_by',
-        id: 'changed_by',
-        input: 'select',
-        operator: FilterOperator.RelationOneMany,
-        unfilteredLabel: t('All'),
-        fetchSelects: createFetchRelated(
-          'rowlevelsecurity',
-          'changed_by',
-          createErrorHandler(errMsg =>
-            t(
-              'An error occurred while fetching dataset datasource values: %s',
-              errMsg,
-            ),
-          ),
-          user,
-        ),
-        paginate: true,
       },
     ],
     [user],

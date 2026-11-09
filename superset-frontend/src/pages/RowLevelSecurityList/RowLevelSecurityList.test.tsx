@@ -219,35 +219,12 @@ describe('RuleList RTL', () => {
   test('renders filter options', async () => {
     await renderAndWait();
 
-    // Compact filter UI: only the first search filter renders (Name),
-    // subsequent search filters (Group Key) are hidden — one search box per page.
+    // Compact filter UI: one search box (Name) and one select pill (Filter Type)
     const searchFilters = screen.queryAllByTestId('filters-search');
     expect(searchFilters).toHaveLength(1);
 
-    // Select filters render as compact pill buttons (Filter Type, Subject, Modified by)
     const selectContainers = screen.queryAllByTestId('select-filter-container');
-    expect(selectContainers).toHaveLength(3);
-  });
-
-  test('selecting Subject filter encodes rel_m_m subjects in API call', async () => {
-    await renderAndWait();
-    await screen.findByTestId('rls-list-view');
-
-    await selectPillOption('Alpha', 'Subject');
-
-    await waitFor(() => {
-      const latest = getLatestRuleApiCall();
-      expect(latest).not.toBeNull();
-      expect(latest!.query.filters).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({
-            col: 'subjects',
-            opr: 'rel_m_m',
-            value: 10,
-          }),
-        ]),
-      );
-    });
+    expect(selectContainers).toHaveLength(1);
   });
 
   test('renders correct list columns', async () => {

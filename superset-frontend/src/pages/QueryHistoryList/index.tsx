@@ -453,24 +453,6 @@ function QueryList({ addDangerToast }: QueryListProps) {
         paginate: true,
       },
       {
-        Header: t('User'),
-        key: 'user',
-        id: 'user',
-        input: 'select',
-        operator: FilterOperator.RelationOneMany,
-        unfilteredLabel: 'All',
-        fetchSelects: createFetchRelated(
-          'query',
-          'user',
-          createErrorHandler(errMsg =>
-            addDangerToast(
-              t('An error occurred while fetching user values: %s', errMsg),
-            ),
-          ),
-        ),
-        paginate: true,
-      },
-      {
         Header: t('Time range'),
         key: 'start_time',
         id: 'start_time',

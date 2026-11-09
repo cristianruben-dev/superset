@@ -151,11 +151,10 @@ describe('RolesList', () => {
   test('renders filters options', async () => {
     await renderAndWait();
 
-    // Compact filter UI: one search input for "Name" and 3 select pills
-    // (Users, Permissions, Groups).
+    // Compact filter UI: one search input for "Name" and one select pill (Users).
     expect(screen.getByTestId('filters-search')).toBeInTheDocument();
     const selectContainers = screen.getAllByTestId('select-filter-container');
-    expect(selectContainers).toHaveLength(3);
+    expect(selectContainers).toHaveLength(1);
   });
 
   test('renders correct list columns', async () => {

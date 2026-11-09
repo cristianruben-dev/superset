@@ -27,12 +27,7 @@ import { styled } from '@apache-superset/core/theme';
 import { useCallback, useMemo, useState, MouseEvent } from 'react';
 import { Link, useHistory } from 'react-router-dom';
 import rison from 'rison';
-import {
-  createErrorHandler,
-  createFetchDistinct,
-  createFetchRelated,
-} from 'src/views/CRUD/utils';
-import { useSelector } from 'react-redux';
+import { createErrorHandler, createFetchRelated } from 'src/views/CRUD/utils';
 import {
   ConfirmStatusChange,
   DeleteModal,
@@ -59,12 +54,9 @@ import SubMenu, { ButtonProps, SubMenuProps } from 'src/features/home/SubMenu';
 import { commonMenuData } from 'src/features/home/commonMenuData';
 import { QueryObjectColumns, SavedQueryObject } from 'src/views/CRUD/types';
 import { TagTypeEnum } from 'src/components/Tag/TagType';
-import { loadTags } from 'src/components/Tag/utils';
 import { Icons } from '@superset-ui/core/components/Icons';
 import type User from 'src/types/User';
-import { UserWithPermissionsAndRoles } from 'src/types/bootstrapTypes';
 import SavedQueryPreviewModal from 'src/features/queries/SavedQueryPreviewModal';
-import { findPermission } from 'src/utils/findPermission';
 import { openInNewTab } from 'src/utils/navigationUtils';
 
 const PAGE_SIZE = 25;
@@ -116,7 +108,6 @@ const StyledPopoverItem = styled.div`
 function SavedQueryList({
   addDangerToast,
   addSuccessToast,
-  user,
 }: SavedQueryListProps) {
   const {
     state: { loading, resourceCount: queryCount, resourceCollection: queries },
@@ -128,10 +119,6 @@ function SavedQueryList({
     t('Saved queries'),
     addDangerToast,
   );
-  const { roles } = useSelector<any, UserWithPermissionsAndRoles>(
-    state => state.user,
-  );
-  const canReadTag = findPermission('can_read', 'Tag', roles);
   const [queryCurrentlyDeleting, setQueryCurrentlyDeleting] =
     useState<SavedQueryObject | null>(null);
   const [savedQueryCurrentlyPreviewing, setSavedQueryCurrentlyPreviewing] =
@@ -549,78 +536,6 @@ function SavedQueryList({
               ),
             ),
           ),
-        ),
-        paginate: true,
-      },
-      {
-        Header: t('Schema'),
-        id: 'schema',
-        key: 'schema',
-        input: 'select',
-        operator: FilterOperator.Equals,
-        unfilteredLabel: 'All',
-        fetchSelects: createFetchDistinct(
-          'saved_query',
-          'schema',
-          createErrorHandler(errMsg =>
-            addDangerToast(
-              t('An error occurred while fetching schema values: %s', errMsg),
-            ),
-          ),
-        ),
-        paginate: true,
-      },
-      ...((isFeatureEnabled(FeatureFlag.TaggingSystem) && canReadTag
-        ? [
-            {
-              Header: t('Tag'),
-              id: 'tags',
-              key: 'tags',
-              input: 'select',
-              operator: FilterOperator.SavedQueryTagById,
-              fetchSelects: loadTags,
-            },
-          ]
-        : []) as ListViewFilters),
-      {
-        Header: t('Modified by'),
-        key: 'changed_by',
-        id: 'changed_by',
-        input: 'select',
-        operator: FilterOperator.RelationOneMany,
-        unfilteredLabel: t('All'),
-        fetchSelects: createFetchRelated(
-          'saved_query',
-          'changed_by',
-          createErrorHandler(errMsg =>
-            t(
-              'An error occurred while fetching dataset datasource values: %s',
-              errMsg,
-            ),
-          ),
-          user,
-        ),
-        paginate: true,
-      },
-      {
-        Header: t('Created by'),
-        key: 'created_by',
-        id: 'created_by',
-        input: 'select',
-        operator: FilterOperator.RelationOneMany,
-        unfilteredLabel: t('All'),
-        fetchSelects: createFetchRelated(
-          'saved_query',
-          'created_by',
-          createErrorHandler(errMsg =>
-            addDangerToast(
-              t(
-                'An error occurred while fetching created by values: %s',
-                errMsg,
-              ),
-            ),
-          ),
-          user,
         ),
         paginate: true,
       },

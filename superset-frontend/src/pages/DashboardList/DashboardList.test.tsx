@@ -170,7 +170,7 @@ test('renders all standard filters', async () => {
   // Verify filter labels exist
   expect(screen.getByText('Editor')).toBeInTheDocument();
   expect(screen.getByText('Status')).toBeInTheDocument();
-  expect(screen.getByText('Modified by')).toBeInTheDocument();
+  expect(screen.queryByText('Modified by')).not.toBeInTheDocument();
   expect(screen.getByText('Certified')).toBeInTheDocument();
 });
 
@@ -236,51 +236,6 @@ test('selecting Editor filter encodes rel_m_m editors in API call', async () => 
         expect.objectContaining({
           col: 'editors',
           opr: 'rel_m_m',
-          value: 1,
-        }),
-      ]),
-    );
-  });
-});
-
-test('selecting Modified by filter encodes rel_o_m changed_by in API call', async () => {
-  // Replace the changed_by route to return a selectable option
-  fetchMock.removeRoutes({
-    names: [
-      API_ENDPOINTS.DASHBOARD_RELATED_CHANGED_BY,
-      API_ENDPOINTS.CATCH_ALL,
-    ],
-  });
-  fetchMock.get(
-    API_ENDPOINTS.DASHBOARD_RELATED_CHANGED_BY,
-    { result: [{ value: 1, text: 'Admin User' }], count: 1 },
-    { name: API_ENDPOINTS.DASHBOARD_RELATED_CHANGED_BY },
-  );
-  fetchMock.get(API_ENDPOINTS.CATCH_ALL, (callLog: any) => {
-    const reqUrl =
-      typeof callLog === 'string' ? callLog : callLog?.url || callLog;
-    throw new Error(`[fetchMock catch-all] Unmatched GET: ${reqUrl}`);
-  });
-
-  renderDashboardList(mockAdminUser);
-  await screen.findByTestId('dashboard-list-view');
-
-  await waitFor(() => {
-    expect(
-      screen.getByText(mockDashboards[0].dashboard_title),
-    ).toBeInTheDocument();
-  });
-
-  await selectPillOption('Admin User', 'Modified by');
-
-  await waitFor(() => {
-    const latest = getLatestDashboardApiCall();
-    expect(latest).not.toBeNull();
-    expect(latest!.query!.filters).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          col: 'changed_by',
-          opr: 'rel_o_m',
           value: 1,
         }),
       ]),

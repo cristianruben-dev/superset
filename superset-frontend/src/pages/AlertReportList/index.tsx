@@ -52,11 +52,7 @@ import {
   useListViewResource,
   useSingleViewResource,
 } from 'src/views/CRUD/hooks';
-import {
-  createErrorHandler,
-  createFetchRelated,
-  createFetchEditors,
-} from 'src/views/CRUD/utils';
+import { createErrorHandler, createFetchEditors } from 'src/views/CRUD/utils';
 import { SUBJECT_OPTION_FILTER_PROPS } from 'src/features/subjects/SubjectSelectLabel';
 import { SubjectPile } from 'src/features/subjects/SubjectPile';
 import { isUserAdmin } from 'src/dashboard/util/permissionUtils';
@@ -573,27 +569,6 @@ function AlertList({
           { label: AlertStateLabel[AlertState.Noop], value: AlertState.Noop },
           { label: AlertStateLabel[AlertState.Grace], value: AlertState.Grace },
         ],
-      },
-      {
-        Header: t('Modified by'),
-        key: 'changed_by',
-        id: 'changed_by',
-        input: 'select',
-        operator: FilterOperator.RelationOneMany,
-        unfilteredLabel: t('All'),
-        fetchSelects: createFetchRelated(
-          'report',
-          'changed_by',
-          createErrorHandler(errMsg =>
-            t(
-              'An error occurred while fetching dataset datasource values: %s',
-              errMsg,
-            ),
-          ),
-          user,
-        ),
-        paginate: true,
-        popupStyle: { minWidth: WIDER_DROPDOWN_WIDTH },
       },
     ],
     [],
