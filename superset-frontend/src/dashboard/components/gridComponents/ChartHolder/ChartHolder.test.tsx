@@ -447,7 +447,7 @@ describe('ChartHolder', () => {
     });
 
     const holder = screen.getByTestId('dashboard-component-chart-holder');
-    expect(holder).toHaveStyle({ backgroundColor: 'transparent' });
+    expect(holder.style.backgroundColor).toBe('transparent');
     expect(holder.style.getPropertyValue('--mb-v-radius')).toBe('4px');
     expect(holder).toHaveClass('auradata-title-hidden');
     expect(

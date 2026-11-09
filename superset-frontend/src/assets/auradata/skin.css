@@ -1316,8 +1316,16 @@ body.auradata-dock .controls-column .ant-tabs-nav {
 }
 
 /* Format pane: hidden titles, spacing between visuals and the selection */
+.dashboard-component-chart-holder.auradata-title-hidden [data-test='slice-header'] {
+  display: none !important;
+  min-height: 0 !important;
+  height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
 .dashboard-component-chart-holder.auradata-title-hidden .header-title {
-  visibility: hidden;
+  display: none !important;
 }
 
 .dashboard-component-chart-holder.auradata-selected {

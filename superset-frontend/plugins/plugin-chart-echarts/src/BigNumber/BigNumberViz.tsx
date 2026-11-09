@@ -17,8 +17,6 @@
  * under the License.
  */
 import {
-  useState,
-  useEffect,
   useRef,
   MouseEvent,
   type CSSProperties,
@@ -101,24 +99,12 @@ function BigNumberVis({
       : {}),
   };
 
-  // Convert state to hooks
-  const [elementsRendered, setElementsRendered] = useState(false);
-
   // Create refs for each component to measure heights
   const metricNameRef = useRef<HTMLDivElement>(null);
   const kickerRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
   const subheaderRef = useRef<HTMLDivElement>(null);
   const subtitleRef = useRef<HTMLDivElement>(null);
-
-  // Convert componentDidMount
-  useEffect(() => {
-    // Wait for elements to render and then calculate heights
-    const timeout = setTimeout(() => {
-      setElementsRendered(true);
-    }, 0);
-    return () => clearTimeout(timeout);
-  }, []);
 
   const getClassName = () => {
     const names = `superset-legacy-chart-big-number ${className} ${
@@ -507,59 +493,22 @@ function BigNumberVis({
     );
   };
 
-  const getTotalElementsHeight = () => {
-    const marginPerElement = 8; // theme.sizeUnit = 4, so margin-bottom = 8px
-
-    const refs = [
-      metricNameRef,
-      kickerRef,
-      headerRef,
-      subheaderRef,
-      subtitleRef,
-    ];
-
-    // Filter refs to only those with a current element
-    const visibleRefs = refs.filter(ref => ref.current);
-
-    const totalHeight = visibleRefs.reduce((sum, ref, index) => {
-      const height = ref.current?.offsetHeight || 0;
-      const margin = index < visibleRefs.length - 1 ? marginPerElement : 0;
-      return sum + height + margin;
-    }, 0);
-
-    return totalHeight;
-  };
-
-  const shouldApplyOverflow = (availableHeight: number) => {
-    if (!elementsRendered) return false;
-    const totalHeight = getTotalElementsHeight();
-    return totalHeight > availableHeight;
-  };
-
   const { height } = props;
   const componentClassName = getClassName();
 
   if (showTrendLine) {
     const chartHeight = Math.floor(PROPORTION.TRENDLINE * height);
     const allTextHeight = height - chartHeight;
-    const overflow = shouldApplyOverflow(allTextHeight);
-
     return (
-      <div className={componentClassName}>
+      <div className={componentClassName} style={{ height, width: '100%', overflow: 'hidden' }}>
         <div
           className="text-container"
           style={{
             height: allTextHeight,
+            width: '100%',
+            overflow: 'hidden',
+            boxSizing: 'border-box',
             ...textLayout,
-            ...(overflow
-              ? {
-                  display: 'block',
-                  boxSizing: 'border-box',
-                  overflowX: 'hidden',
-                  overflowY: 'auto',
-                  width: '100%',
-                }
-              : {}),
           }}
         >
           {renderFallbackWarning()}
@@ -590,24 +539,28 @@ function BigNumberVis({
       </div>
     );
   }
-  const overflow = shouldApplyOverflow(height);
-  return (
-    <div
-      className={componentClassName}
-      style={{
-        height,
-        ...(overflow
-          ? {
-              display: 'block',
-              boxSizing: 'border-box',
-              overflowX: 'hidden',
-              overflowY: 'auto',
-              width: '100%',
-            }
-          : {}),
-      }}
-    >
-      <div className="text-container" style={textLayout}>
+    return (
+      <div
+        className={componentClassName}
+        style={{
+          height,
+          width: '100%',
+          overflow: 'hidden',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+        }}
+      >
+        <div
+          className="text-container"
+          style={{
+            height: '100%',
+            width: '100%',
+            overflow: 'hidden',
+            boxSizing: 'border-box',
+            ...textLayout,
+          }}
+        >
         {renderFallbackWarning()}
         {format.cardLabelPosition !== 'after' &&
           renderMetricName((metricNameFontSize || 0) * height)}
@@ -650,34 +603,45 @@ const StyledBigNumberVis = styled(BigNumberVis)`
     }
 
     .kicker {
-      line-height: 1em;
-      margin-bottom: ${theme.sizeUnit * 2}px;
+      line-height: 1.1em;
+      margin-bottom: ${theme.sizeUnit}px;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .metric-name {
-      line-height: 1em;
-      margin-bottom: ${theme.sizeUnit * 2}px;
+      line-height: 1.1em;
+      margin-bottom: ${theme.sizeUnit}px;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .header-line {
       position: relative;
-      line-height: 1em;
+      line-height: 1.1em;
       white-space: nowrap;
-      margin-bottom:${theme.sizeUnit * 2}px;
-      span {
-        position: absolute;
-        bottom: 0;
-      }
+      margin-bottom: ${theme.sizeUnit}px;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .subheader-line {
-      line-height: 1em;
-      margin-bottom: ${theme.sizeUnit * 2}px;
+      line-height: 1.1em;
+      margin-bottom: ${theme.sizeUnit}px;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .subtitle-line {
-      line-height: 1em;
-      margin-bottom: ${theme.sizeUnit * 2}px;
+      line-height: 1.1em;
+      margin-bottom: ${theme.sizeUnit}px;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     &.is-fallback-value {
