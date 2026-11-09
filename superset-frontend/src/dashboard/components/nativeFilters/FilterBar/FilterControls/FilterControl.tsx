@@ -56,6 +56,7 @@ const FilterControl = ({
   overflow = false,
   clearAllTrigger,
   onClearAllComplete,
+  bare = false,
 }: FilterControlProps) => {
   const portalNode = useMemo(() => createHtmlPortalNode(), []);
   const [clearing, setClearing] = useState(false);
@@ -168,6 +169,13 @@ const FilterControl = ({
     );
   }
 
+  // A list of values on the canvas shows one line of tags and a count, so
+  // choosing values never makes the slicer taller
+  const valueOrientation =
+    bare && filter.filterType === 'filter_select'
+      ? FilterBarOrientation.Horizontal
+      : orientation;
+
   const valuePortal = (
     <InPortal node={portalNode}>
       <FilterValue
@@ -177,7 +185,7 @@ const FilterControl = ({
         onFilterSelectionChange={onFilterSelectionChange}
         inView={inView}
         parentRef={parentRef}
-        orientation={orientation}
+        orientation={valueOrientation}
         overflow={overflow}
         validateStatus={validateStatus}
         clearAllTrigger={clearAllTrigger || clearing}
@@ -188,6 +196,23 @@ const FilterControl = ({
       />
     </InPortal>
   );
+
+  if (bare) {
+    return (
+      <>
+        {valuePortal}
+        <FilterControlContainer layout="vertical">
+          <FormItem
+            htmlFor={filter.id}
+            required={filter?.controlValues?.enableEmptyFilter}
+            validateStatus={validateStatus}
+          >
+            <OutPortal node={portalNode} />
+          </FormItem>
+        </FilterControlContainer>
+      </>
+    );
+  }
 
   // AuraData BI: in the filter pane, each filter is a card with what it
   // selects, as in Power BI

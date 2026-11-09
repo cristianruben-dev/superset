@@ -55,4 +55,10 @@ export interface FilterControlProps extends BaseFilterProps {
   validateStatus?: string;
   clearAllTrigger?: boolean;
   onClearAllComplete?: () => void;
+  /**
+   * Draws only the value control: no card and no label. A slicer on the
+   * canvas has its own title, and a card inside it would nest a second
+   * dropdown in the first.
+   */
+  bare?: boolean;
 }

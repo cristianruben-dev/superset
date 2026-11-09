@@ -94,6 +94,7 @@ const CanvasFilterControl = ({ filter }: CanvasFilterControlProps) => {
       onFilterSelectionChange={handleSelectionChange}
       orientation={FilterBarOrientation.Vertical}
       inView
+      bare
     />
   );
 };
