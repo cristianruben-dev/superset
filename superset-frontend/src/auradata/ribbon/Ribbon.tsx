@@ -184,24 +184,28 @@ export function Ribbon({
     onDiscard,
   );
 
-  const layout = useSelector(
-    (state: RootState) => state.dashboardLayout.present,
-  );
-  const activeTabs = useSelector(
-    (state: RootState) => state.dashboardState.activeTabs,
-  );
   const dashboardId = useSelector((state: RootState) => state.dashboardInfo.id);
   const assistantModels = useAssistantAccess(dashboardId).editModels;
   const dashboardPageId = useContext(DashboardPageIdContext);
 
   const primary = useSelectedVisual();
   const ids = useSelectedVisuals();
-  const item = primary ? layout[primary] : undefined;
+  const item = useSelector((state: RootState) =>
+    primary ? state.dashboardLayout.present[primary] : undefined,
+  );
   const isChart = item?.type === CHART_TYPE;
-  const pageId = activePageId(layout, activeTabs);
-  const canvas = layout[DASHBOARD_ROOT_ID]?.meta?.auradataCanvas as
-    | CanvasFormat
-    | undefined;
+  const pageId = useSelector((state: RootState) =>
+    activePageId(
+      state.dashboardLayout.present,
+      state.dashboardState.activeTabs,
+    ),
+  );
+  const canvas = useSelector(
+    (state: RootState) =>
+      state.dashboardLayout.present[DASHBOARD_ROOT_ID]?.meta?.auradataCanvas as
+        | CanvasFormat
+        | undefined,
+  );
 
   const clipboard = useClipboard();
   const { copy, cut, paste, duplicate } = useObjectCommands();
@@ -216,7 +220,9 @@ export function Ribbon({
   const mobileEditing = useMobileEditing();
   const mobileSettings = useMobileViewSettings();
   const mobileDevice = deviceById(mobileSettings.device);
-  const hasMobileLayout = !!mobileLayoutOf(layout, pageId);
+  const hasMobileLayout = useSelector((state: RootState) =>
+    Boolean(mobileLayoutOf(state.dashboardLayout.present, pageId)),
+  );
   const openMobileLayout = () => {
     selectVisual(null);
     setMobileEditing(true);

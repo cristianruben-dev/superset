@@ -20,7 +20,7 @@ import { maxWidthCells } from 'src/auradata/format/positions';
 import { CELL } from 'src/auradata/format/types';
 import { minObjectColumns } from 'src/auradata/format/columns';
 import { memo, useCallback, useMemo } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import cx from 'classnames';
 import type { ResizeCallback, ResizeStartCallback } from 're-resizable';
 import type { ConnectDragSource } from 'react-dnd';
@@ -28,7 +28,7 @@ import { useTheme } from '@apache-superset/core/theme';
 import { ObjectActions } from 'src/auradata/format/ObjectActions';
 import { MovableDraggable } from 'src/auradata/format/MovableDraggable';
 import ResizableContainer from 'src/dashboard/components/resizable/ResizableContainer';
-import type { LayoutItem, RootState } from 'src/dashboard/types';
+import type { LayoutItem } from 'src/dashboard/types';
 import { COLUMN_TYPE, ROW_TYPE } from 'src/dashboard/util/componentTypes';
 import { GRID_MIN_COLUMN_COUNT } from 'src/dashboard/util/constants';
 import {
@@ -119,8 +119,14 @@ function ElementHolder({
     () => visualStyle(component.meta.auradataFormat, theme),
     [component.meta.auradataFormat, theme],
   );
-  // Re-render when the page changes, for buttons that open a page
-  useSelector((state: RootState) => state.dashboardState.activeTabs);
+  const handleDelete = useCallback(
+    () => deleteComponent(id, parentId),
+    [deleteComponent, id, parentId],
+  );
+  const handleOpenFormat = useCallback(
+    () => openFormat(component.id),
+    [component.id],
+  );
 
   const widthMultiple =
     parentComponent.type === COLUMN_TYPE
@@ -236,10 +242,8 @@ function ElementHolder({
             {editMode && (
               <ObjectActions
                 id={component.id}
-                onDelete={
-                  locked ? undefined : () => deleteComponent(id, parentId)
-                }
-                onFormat={() => openFormat(component.id)}
+                onDelete={locked ? undefined : handleDelete}
+                onFormat={handleOpenFormat}
                 formatTestId="auradata-format-element-button"
               />
             )}

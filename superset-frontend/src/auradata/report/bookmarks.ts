@@ -50,10 +50,12 @@ export const DEFAULT_BOOKMARK_OPTIONS: BookmarkOptions = {
   page: true,
 };
 
+const EMPTY_BOOKMARKS: Bookmark[] = [];
+
 export const bookmarksOf = (layout: DashboardLayout | undefined): Bookmark[] =>
   (layout?.[DASHBOARD_ROOT_ID]?.meta?.[BOOKMARKS_KEY] as
     | Bookmark[]
-    | undefined) ?? [];
+    | undefined) ?? EMPTY_BOOKMARKS;
 
 const saveBookmarks =
   (bookmarks: Bookmark[], group: string) => (dispatch: AppDispatch) =>

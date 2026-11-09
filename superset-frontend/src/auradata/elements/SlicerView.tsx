@@ -538,6 +538,8 @@ export function SlicerHeader({
   );
 }
 
+const EMPTY_SLICER_VALUES: SlicerValue[] = [];
+
 /**
  * A slicer of the canvas drawn as a list, buttons or a text box. Choices apply
  * right away, through the same data mask as the filter bar, or wait for an
@@ -554,8 +556,10 @@ export function SlicerView({
   const { column, values } = useSlicerValues(filter);
   const applied = useSelector<RootState, SlicerValue[]>(
     state =>
-      (state.dataMask[filter.id]?.filterState?.value as SlicerValue[]) ?? [],
+      (state.dataMask[filter.id]?.filterState?.value as SlicerValue[]) ??
+      EMPTY_SLICER_VALUES,
   );
+  const boxStyle = useMemo(() => slicerStyle(config), [config]);
   const [pending, setPending] = useState<SlicerValue[]>();
   const [search, setSearch] = useState('');
   const [text, setText] = useState('');
@@ -650,7 +654,7 @@ export function SlicerView({
   );
 
   return (
-    <Box style={slicerStyle(config)} data-test="auradata-slicer">
+    <Box style={boxStyle} data-test="auradata-slicer">
       {!config.hideLabel && (
         <SlicerHeader
           name={filter.name}

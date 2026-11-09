@@ -22,26 +22,31 @@ import { useEffect, useState } from 'react';
 const EVENT = 'auradata:format-selection';
 const OPEN_EVENT = 'auradata:format-open';
 
+const EMPTY_VISUALS: string[] = [];
+
 /** The object the Format pane edits: the last one picked. */
 let selected: string | null = null;
 /** The rest of a multiple selection. */
 let others: string[] = [];
+/** Cached array snapshot of the current selection. */
+let currentVisuals: string[] = EMPTY_VISUALS;
 /** Members of the group an object belongs to (itself included), if any. */
 let groupOf: (id: string) => string[] = id => [id];
 
 export const selectedVisual = () => selected;
 
 /** Every object picked, the one the pane edits last. */
-export const selectedVisuals = (): string[] =>
-  selected ? [...others, selected] : [];
+export const selectedVisuals = (): string[] => currentVisuals;
 
 /** Lets the canvas tell which objects are grouped with another. */
 export function setGroupResolver(resolver: (id: string) => string[]) {
   groupOf = resolver;
 }
 
-const emit = () =>
+const emit = () => {
+  currentVisuals = selected ? [...others, selected] : EMPTY_VISUALS;
   window.dispatchEvent(new CustomEvent(EVENT, { detail: selected }));
+};
 
 /**
  * Picks an object. With `additive` (shift or ctrl/cmd click) it joins or
@@ -101,7 +106,6 @@ export function useSelectedVisual(): string | null {
   useEffect(() => {
     const onChange = () => setValue(selected);
     window.addEventListener(EVENT, onChange);
-    onChange();
     return () => window.removeEventListener(EVENT, onChange);
   }, []);
   return value;
@@ -120,11 +124,10 @@ export function useIsVisualSelected(id: string): boolean {
 
 /** Every object picked on the canvas. */
 export function useSelectedVisuals(): string[] {
-  const [value, setValue] = useState<string[]>(selectedVisuals());
+  const [value, setValue] = useState<string[]>(selectedVisuals);
   useEffect(() => {
     const onChange = () => setValue(selectedVisuals());
     window.addEventListener(EVENT, onChange);
-    onChange();
     return () => window.removeEventListener(EVENT, onChange);
   }, []);
   return value;

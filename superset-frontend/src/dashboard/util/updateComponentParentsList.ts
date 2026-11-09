@@ -30,6 +30,18 @@ interface UpdateComponentParentsListParams {
   layout?: Record<string, LayoutComponent>;
 }
 
+function sameParents(current: string[] | undefined, next: string[]): boolean {
+  if (!Array.isArray(current) || current.length !== next.length) {
+    return false;
+  }
+  for (let i = 0; i < current.length; i += 1) {
+    if (current[i] !== next[i]) {
+      return false;
+    }
+  }
+  return true;
+}
+
 export default function updateComponentParentsList({
   currentComponent,
   layout = {},
@@ -50,11 +62,13 @@ export default function updateComponentParentsList({
               `The component ${childId} is its own ancestor in the current layout.  Skipping this component`,
             );
           } else if (layout[childId]) {
-            // eslint-disable-next-line no-param-reassign
-            layout[childId] = {
-              ...layout[childId],
-              parents: parentsList,
-            };
+            if (!sameParents(layout[childId].parents, parentsList)) {
+              // eslint-disable-next-line no-param-reassign
+              layout[childId] = {
+                ...layout[childId],
+                parents: parentsList,
+              };
+            }
             updateComponentParentsList({
               currentComponent: layout[childId],
               layout,

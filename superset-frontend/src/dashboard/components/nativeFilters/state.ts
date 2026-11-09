@@ -39,6 +39,10 @@ import {
 
 const EMPTY_ARRAY: ChartCustomizationConfiguration = [];
 const EMPTY_ACTIVE_TABS: ActiveTabs = [];
+const EMPTY_FILTERS_MAP: Record<
+  string,
+  Filter | Divider | ChartCustomization | ChartCustomizationDivider
+> = {};
 const defaultFilterConfiguration: (Filter | Divider)[] = [];
 
 export const selectFilterConfiguration: (
@@ -71,14 +75,16 @@ export function useFilterConfiguration() {
 export const selectChartCustomizationFromRedux: (
   state: RootState,
 ) => (ChartCustomization | ChartCustomizationDivider)[] = createSelector(
-  (state: RootState) => state.nativeFilters?.filters || {},
-  (filtersMap): (ChartCustomization | ChartCustomizationDivider)[] =>
-    Object.values(filtersMap).filter(
+  (state: RootState) => state.nativeFilters?.filters || EMPTY_FILTERS_MAP,
+  (filtersMap): (ChartCustomization | ChartCustomizationDivider)[] => {
+    const items = Object.values(filtersMap).filter(
       (
         item: Filter | Divider | ChartCustomization | ChartCustomizationDivider,
       ): item is ChartCustomization | ChartCustomizationDivider =>
         item?.id != null && isChartCustomizationId(item.id),
-    ),
+    );
+    return items.length > 0 ? items : EMPTY_ARRAY;
+  },
 );
 
 export function useChartCustomizationFromRedux() {

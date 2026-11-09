@@ -99,9 +99,6 @@ export function useCellMove(component: LayoutItem, enabled: boolean): CellMove {
       const { clientX, clientY } = event;
       let moved = false;
       let landing: Pos = start;
-      // Aborting removes every listener of this drag at once
-      const listeners = new AbortController();
-      const { signal } = listeners;
 
       const onMove = (move: globalThis.PointerEvent) => {
         const dx = move.clientX - clientX;
@@ -122,10 +119,22 @@ export function useCellMove(component: LayoutItem, enabled: boolean): CellMove {
           x: clamp(start.x + Math.round(dx / unit), 0, columns - width),
           y: clamp(start.y + Math.round(dy / unit), 0, rows - height),
         };
-        setShift({ x: landing.x - start.x, y: landing.y - start.y });
+        const nextX = landing.x - start.x;
+        const nextY = landing.y - start.y;
+        setShift(prev =>
+          prev && prev.x === nextX && prev.y === nextY
+            ? prev
+            : { x: nextX, y: nextY },
+        );
       };
+      let onUp: () => void;
+      let onCancel: () => void;
+      let onKey: (key: KeyboardEvent) => void;
       const end = (commit: boolean) => {
-        listeners.abort();
+        window.removeEventListener('pointermove', onMove);
+        window.removeEventListener('pointerup', onUp);
+        window.removeEventListener('pointercancel', onCancel);
+        window.removeEventListener('keydown', onKey);
         document.body.classList.remove('auradata-moving');
         stop.current = null;
         setShift(null);
@@ -148,16 +157,16 @@ export function useCellMove(component: LayoutItem, enabled: boolean): CellMove {
           }
         }
       };
-      const onUp = () => end(true);
-      const onCancel = () => end(false);
-      const onKey = (key: KeyboardEvent) => {
+      onUp = () => end(true);
+      onCancel = () => end(false);
+      onKey = (key: KeyboardEvent) => {
         if (key.key === 'Escape') end(false);
       };
       stop.current = () => end(false);
-      window.addEventListener('pointermove', onMove, { signal });
-      window.addEventListener('pointerup', onUp, { signal });
-      window.addEventListener('pointercancel', onCancel, { signal });
-      window.addEventListener('keydown', onKey, { signal });
+      window.addEventListener('pointermove', onMove);
+      window.addEventListener('pointerup', onUp);
+      window.addEventListener('pointercancel', onCancel);
+      window.addEventListener('keydown', onKey);
     },
     [component.id, component.meta, dispatch, enabled, zoom],
   );

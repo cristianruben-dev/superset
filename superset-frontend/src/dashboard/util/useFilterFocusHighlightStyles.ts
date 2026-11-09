@@ -21,7 +21,7 @@ import { Filter, ChartCustomization } from '@superset-ui/core';
 import { useTheme } from '@apache-superset/core/theme';
 import { useSelector } from 'react-redux';
 import { RootState } from 'src/dashboard/types';
-import { useChartCustomizationFromRedux } from 'src/dashboard/components/nativeFilters/state';
+import { selectChartCustomizationFromRedux } from 'src/dashboard/components/nativeFilters/state';
 import {
   getRelatedCharts,
   getRelatedChartsForChartCustomization,
@@ -33,6 +33,7 @@ const unfocusedChartStyles = {
 };
 
 const EMPTY = {};
+const EMPTY_SLICES = {};
 
 const useFilterFocusHighlightStyles = (chartId: number) => {
   const theme = useTheme();
@@ -47,47 +48,57 @@ const useFilterFocusHighlightStyles = (chartId: number) => {
     [theme],
   );
 
-  const nativeFilters = useSelector((state: RootState) => state.nativeFilters);
-  const slices =
-    useSelector((state: RootState) => state.sliceEntities.slices) || {};
-  const chartCustomizationItems = useChartCustomizationFromRedux();
+  const isChartFocused = useSelector((state: RootState): boolean | null => {
+    const nativeFilters = state.nativeFilters;
+    const highlightedFilterId =
+      nativeFilters?.focusedFilterId || nativeFilters?.hoveredFilterId;
+    const highlightedChartCustomizationId = (
+      nativeFilters as { hoveredChartCustomizationId?: string } | undefined
+    )?.hoveredChartCustomizationId;
 
-  const highlightedFilterId =
-    nativeFilters?.focusedFilterId || nativeFilters?.hoveredFilterId;
-  const highlightedChartCustomizationId = (nativeFilters as any)
-    ?.hoveredChartCustomizationId;
+    if (!highlightedFilterId && !highlightedChartCustomizationId) {
+      return null;
+    }
 
-  if (!highlightedFilterId && !highlightedChartCustomizationId) {
+    const slices = state.sliceEntities?.slices || EMPTY_SLICES;
+
+    if (highlightedFilterId) {
+      const relatedCharts = getRelatedCharts(
+        highlightedFilterId,
+        nativeFilters.filters[highlightedFilterId] as Filter,
+        slices,
+      );
+      if (relatedCharts.includes(chartId)) {
+        return true;
+      }
+    }
+
+    if (highlightedChartCustomizationId) {
+      const chartCustomizationItems = selectChartCustomizationFromRedux(state);
+      const customizationItem = chartCustomizationItems.find(
+        item => item.id === highlightedChartCustomizationId,
+      );
+
+      if (customizationItem && 'targets' in customizationItem) {
+        const relatedCharts = getRelatedChartsForChartCustomization(
+          customizationItem as ChartCustomization,
+          slices,
+        );
+        if (relatedCharts.includes(chartId)) {
+          return true;
+        }
+      }
+    }
+
+    return false;
+  });
+
+  if (isChartFocused === null) {
     return EMPTY;
   }
 
-  if (highlightedFilterId) {
-    const relatedCharts = getRelatedCharts(
-      highlightedFilterId as string,
-      nativeFilters.filters[highlightedFilterId as string] as Filter,
-      slices,
-    );
-
-    if (relatedCharts.includes(chartId)) {
-      return focusedChartStyles;
-    }
-  }
-
-  if (highlightedChartCustomizationId) {
-    const customizationItem = chartCustomizationItems.find(
-      item => item.id === highlightedChartCustomizationId,
-    );
-
-    if (customizationItem && 'targets' in customizationItem) {
-      const relatedCharts = getRelatedChartsForChartCustomization(
-        customizationItem as ChartCustomization,
-        slices,
-      );
-
-      if (relatedCharts.includes(chartId)) {
-        return focusedChartStyles;
-      }
-    }
+  if (isChartFocused) {
+    return focusedChartStyles;
   }
 
   // inline styles are used here due to a performance issue when adding/changing a class, which causes a reflow

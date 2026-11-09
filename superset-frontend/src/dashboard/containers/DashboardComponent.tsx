@@ -18,7 +18,7 @@
  */
 import { ReactElement, useCallback, memo, useMemo } from 'react';
 import { bindActionCreators } from 'redux';
-import { useSelector, useDispatch } from 'react-redux';
+import { shallowEqual, useSelector, useDispatch, useStore } from 'react-redux';
 import { logEvent } from 'src/logger/actions';
 import { addDangerToast } from 'src/components/MessageToasts/actions';
 import { componentLookup } from 'src/dashboard/components/gridComponents';
@@ -94,12 +94,18 @@ interface ColumnWidthResult {
   minColumnWidth?: number;
 }
 
+const EMPTY_COLUMN_WIDTH_RESULT: ColumnWidthResult = {};
+
 const DashboardComponent = (
   props: DashboardComponentProps,
 ): ReactElement | null => {
   const dispatch = useDispatch();
-  const dashboardLayout = useSelector(
-    (state: RootState) => state.dashboardLayout.present,
+  const store = useStore<RootState>();
+  const layoutComponent = useSelector(
+    (state: RootState) => state.dashboardLayout.present[props.id],
+  );
+  const parentComponent = useSelector(
+    (state: RootState) => state.dashboardLayout.present[props.parentId],
   );
   const dashboardInfo = useSelector((state: RootState) => state.dashboardInfo);
   const editMode = useSelector(
@@ -113,15 +119,14 @@ const DashboardComponent = (
   // leaves out the rest; the canvas shows it as a viewer would
   const mobileView = useMobileView();
   const readOnly = useCanvasReadOnly();
-  const layoutComponent = dashboardLayout[props.id];
   const component = useMemo(
     () => mobileComponent(layoutComponent, mobileView),
     [layoutComponent, mobileView],
   );
-  const parentComponent = dashboardLayout[props.parentId];
   const getComponentById = useCallback(
-    (id: string): LayoutItem => dashboardLayout[id],
-    [dashboardLayout],
+    (id?: string): LayoutItem | undefined =>
+      id ? store.getState().dashboardLayout.present[id] : undefined,
+    [store],
   );
   const { isComponentVisible = true } = props;
   const filters = getActiveFilters();
@@ -148,27 +153,28 @@ const DashboardComponent = (
 
   // rows and columns need more data about their child dimensions
   // doing this allows us to not pass the entire component lookup to all Components
-  const { occupiedColumnCount, minColumnWidth } =
-    useMemo((): ColumnWidthResult => {
-      if (component) {
-        const componentType = component.type;
-        if (componentType === ROW_TYPE || componentType === COLUMN_TYPE) {
-          const { occupiedWidth, minimumWidth } = getDetailedComponentWidth({
-            id: props.id,
-            components: dashboardLayout,
-          });
-
-          if (componentType === ROW_TYPE) {
-            return { occupiedColumnCount: occupiedWidth };
-          }
-          if (componentType === COLUMN_TYPE) {
-            return { minColumnWidth: minimumWidth };
-          }
-        }
-        return {};
+  const isRowOrColumn =
+    component?.type === ROW_TYPE || component?.type === COLUMN_TYPE;
+  const { occupiedColumnCount, minColumnWidth } = useSelector(
+    (state: RootState): ColumnWidthResult => {
+      if (!isRowOrColumn || !component) {
+        return EMPTY_COLUMN_WIDTH_RESULT;
       }
-      return {};
-    }, [component, dashboardLayout, props.id]);
+      const { occupiedWidth, minimumWidth } = getDetailedComponentWidth({
+        id: props.id,
+        components: state.dashboardLayout.present,
+      });
+
+      if (component.type === ROW_TYPE) {
+        return { occupiedColumnCount: occupiedWidth };
+      }
+      if (component.type === COLUMN_TYPE) {
+        return { minColumnWidth: minimumWidth };
+      }
+      return EMPTY_COLUMN_WIDTH_RESULT;
+    },
+    shallowEqual,
+  );
 
   const Component = component
     ? componentLookup[component.type as keyof typeof componentLookup]

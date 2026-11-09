@@ -16,6 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import { memo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { t } from '@apache-superset/core/translation';
 import { css, styled } from '@apache-superset/core/theme';
@@ -75,11 +76,7 @@ const Choice = styled.button<{ $on: boolean }>`
   `}
 `;
 
-/**
- * Shown on every other chart while "Edit interactions" is on: whether the
- * selected chart filters this one or leaves it alone.
- */
-export function InteractionControl({
+function ActiveInteractionControl({
   chartId,
   layoutId,
 }: {
@@ -87,7 +84,6 @@ export function InteractionControl({
   layoutId: string;
 }) {
   const dispatch = useDispatch();
-  const editing = useEditingInteractions();
   const selected = useSelectedVisual();
   const sourceId = useSelector<RootState, number | undefined>(state =>
     selected
@@ -98,7 +94,7 @@ export function InteractionControl({
     RootState,
     RootState['dashboardInfo']['metadata']
   >(state => state.dashboardInfo.metadata);
-  if (!editing || sourceId === undefined || selected === layoutId) return null;
+  if (sourceId === undefined || selected === layoutId) return null;
 
   const mode = interactionMode(metadata, sourceId, chartId);
   const choose = (next: InteractionMode) => () =>
@@ -134,6 +130,22 @@ export function InteractionControl({
     </Bar>
   );
 }
+
+/**
+ * Shown on every other chart while "Edit interactions" is on: whether the
+ * selected chart filters this one or leaves it alone.
+ */
+export const InteractionControl = memo(function InteractionControl({
+  chartId,
+  layoutId,
+}: {
+  chartId: number;
+  layoutId: string;
+}) {
+  const editing = useEditingInteractions();
+  if (!editing) return null;
+  return <ActiveInteractionControl chartId={chartId} layoutId={layoutId} />;
+});
 
 const ModeToggle = styled.button<{ $on: boolean }>`
   ${({ theme, $on }) => css`

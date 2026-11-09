@@ -18,6 +18,7 @@
  */
 
 import {
+  memo,
   useEffect,
   useRef,
   useState,
@@ -28,7 +29,7 @@ import { createPortal } from 'react-dom';
 import { t } from '@apache-superset/core/translation';
 import { css, styled } from '@apache-superset/core/theme';
 import { Icons } from '@superset-ui/core/components/Icons';
-import { useSelectedVisual, useSelectedVisuals } from './selection';
+import { selectedVisual, selectedVisuals } from './selection';
 
 /** Distance to the object and to the edges of the area that scrolls. */
 const GAP = 4;
@@ -104,16 +105,25 @@ const setHovered = (id: string | null) => {
   }
 };
 
-function useHovered() {
-  const [value, setValue] = useState(hovered);
+const isObjectActionsOpen = (id: string): boolean =>
+  hovered === id ||
+  (hovered === null &&
+    selectedVisual() === id &&
+    selectedVisuals().length === 1);
+
+function useIsObjectActionsOpen(id: string): boolean {
+  const [open, setOpen] = useState(() => isObjectActionsOpen(id));
   useEffect(() => {
-    const onChange = () => setValue(hovered);
+    const onChange = () => setOpen(isObjectActionsOpen(id));
+    onChange();
     listeners.add(onChange);
+    window.addEventListener('auradata:format-selection', onChange);
     return () => {
       listeners.delete(onChange);
+      window.removeEventListener('auradata:format-selection', onChange);
     };
-  }, []);
-  return value;
+  }, [id]);
+  return open;
 }
 
 /** Where the buttons go: on the top edge, or inside when there is no room. */
@@ -157,7 +167,7 @@ const stop = (event: SyntheticEvent) => event.stopPropagation();
  * the pointer or, with no pointer on another one, the one selected. They are
  * drawn at one size at any zoom, and stay inside the visible part of the canvas.
  */
-export function ObjectActions({
+export const ObjectActions = memo(function ObjectActions({
   id,
   onDelete,
   onFormat,
@@ -175,12 +185,7 @@ export function ObjectActions({
   const barRef = useRef<HTMLDivElement>(null);
   const leaveTimer = useRef<number>();
   const holderRef = useRef<Element | null>(null);
-  const current = useHovered();
-  const selected = useSelectedVisual();
-  const selectedCount = useSelectedVisuals().length;
-  const open =
-    current === id ||
-    (current === null && selected === id && selectedCount === 1);
+  const open = useIsObjectActionsOpen(id);
 
   useEffect(() => {
     const element = anchorRef.current?.closest(
@@ -289,4 +294,4 @@ export function ObjectActions({
       )}
     </>
   );
-}
+});

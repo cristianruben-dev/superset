@@ -21,9 +21,10 @@ import {
   useCallback,
   useContext,
   useMemo,
+  useRef,
   type ReactNode,
 } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { ResizeCallback, ResizeStartCallback, Resizable } from 're-resizable';
 import { useCanvasZoom } from 'src/auradata/format/CanvasFrame';
 import cx from 'classnames';
@@ -224,11 +225,13 @@ export default function ResizableContainer({
 
   // An object on a cell of the page can also be resized from its left and top
   // edges: it follows the edge so the opposite one stays put
-  const pos = useSelector((state: RootState) =>
-    posOf(state.dashboardLayout?.present?.[id]?.meta),
+  const pos = useSelector(
+    (state: RootState) => posOf(state.dashboardLayout?.present?.[id]?.meta),
+    shallowEqual,
   );
   const dispatch = useDispatch();
   const followEdge = useContext(ObjectShiftContext);
+  const lastEdgeShift = useRef<{ x: number; y: number } | null>(null);
   const cellsOf = useCallback(
     (delta: { width: number; height: number }) => ({
       width: Math.round(delta.width / (widthStep + gutterWidth)),
@@ -240,12 +243,25 @@ export default function ResizableContainer({
   const handleResize = useCallback<ResizeCallback>(
     (event, direction, elementRef, delta) => {
       const grown = cellsOf(delta);
-      setLiveSize([widthMultiple + grown.width, heightMultiple + grown.height]);
+      const nextWidth = widthMultiple + grown.width;
+      const nextHeight = heightMultiple + grown.height;
+      setLiveSize(prev =>
+        prev && prev[0] === nextWidth && prev[1] === nextHeight
+          ? prev
+          : [nextWidth, nextHeight],
+      );
       if (pos) {
-        followEdge?.({
-          x: /left/i.test(direction) ? -grown.width : 0,
-          y: /^top/i.test(direction) ? -grown.height : 0,
-        });
+        const edgeX = /left/i.test(direction) ? -grown.width : 0;
+        const edgeY = /^top/i.test(direction) ? -grown.height : 0;
+        if (
+          !lastEdgeShift.current ||
+          lastEdgeShift.current.x !== edgeX ||
+          lastEdgeShift.current.y !== edgeY
+        ) {
+          const nextShift = { x: edgeX, y: edgeY };
+          lastEdgeShift.current = nextShift;
+          followEdge?.(nextShift);
+        }
       }
       if (onResize) onResize(event, direction, elementRef, delta);
     },
@@ -262,6 +278,7 @@ export default function ResizableContainer({
 
   const handleResizeStop = useCallback<ResizeCallback>(
     (event, direction, elementRef, delta) => {
+      lastEdgeShift.current = null;
       followEdge?.(null);
       const leftward = /left/i.test(direction);
       const upward = /^top/i.test(direction);

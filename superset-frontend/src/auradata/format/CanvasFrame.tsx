@@ -212,7 +212,9 @@ export function useMaxHeightMultiple(
   const room = useContext(CanvasRoomContext);
   const pos = posOf(meta);
   const rowTallest = useSelector((state: RootState) => {
-    if (parent?.type !== ROW_TYPE) return height;
+    if (!Number.isFinite(room) || pos || parent?.type !== ROW_TYPE) {
+      return height;
+    }
     const layout = state.dashboardLayout?.present ?? {};
     return Math.max(
       height,

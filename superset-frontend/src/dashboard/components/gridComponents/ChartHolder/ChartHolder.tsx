@@ -284,19 +284,27 @@ const ChartHolder = ({
     deleteComponent(id, parentId);
   }, [deleteComponent, id, parentId]);
 
+  const handleOpenFormat = useCallback(() => {
+    openFormat(component.id);
+  }, [component.id]);
+
+  const componentRef = useRef(component);
+  componentRef.current = component;
+
   const handleUpdateSliceName = useCallback(
-    (nextName: string) => {
+    (_sliceId: number, nextName: string) => {
+      const current = componentRef.current;
       updateComponents({
-        [component.id]: {
-          ...component,
+        [current.id]: {
+          ...current,
           meta: {
-            ...component.meta,
+            ...current.meta,
             sliceNameOverride: nextName,
           },
         },
       });
     },
-    [component, updateComponents],
+    [updateComponents],
   );
 
   const handleToggleFullSize = useCallback(() => {
@@ -418,9 +426,7 @@ const ChartHolder = ({
                     ''
                   : dynamicName
               }
-              updateSliceName={(_sliceId: number, name: string) =>
-                handleUpdateSliceName(name)
-              }
+              updateSliceName={handleUpdateSliceName}
               isComponentVisible={isComponentVisible}
               handleToggleFullSize={handleToggleFullSize}
               isFullSize={isFullSize}
@@ -440,7 +446,7 @@ const ChartHolder = ({
               <ObjectActions
                 id={component.id}
                 onDelete={locked ? undefined : handleDeleteComponent}
-                onFormat={() => openFormat(component.id)}
+                onFormat={handleOpenFormat}
                 formatTestId="auradata-format-visual-button"
                 deleteTestId="dashboard-delete-component-button"
               />
@@ -485,6 +491,7 @@ const ChartHolder = ({
       extraControls,
       isInView,
       handleDeleteComponent,
+      handleOpenFormat,
       tooltipPage,
     ],
   );

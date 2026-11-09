@@ -257,7 +257,9 @@ const Chart = (props: ChartProps) => {
         state.datasources[chart.form_data.datasource]) ||
       PLACEHOLDER_DATASOURCE,
   );
-  const dashboardInfo = useSelector((state: RootState) => state.dashboardInfo);
+  const dashboardInfoId = useSelector(
+    (state: RootState) => state.dashboardInfo.id,
+  );
   const showChartTimestamps: boolean = useSelector(
     (state: RootState) =>
       (state.dashboardInfo?.metadata as JsonObject)?.show_chart_timestamps ??
@@ -544,7 +546,7 @@ const Chart = (props: ChartProps) => {
     ],
   );
 
-  (formData as JsonObject).dashboardId = dashboardInfo.id;
+  (formData as JsonObject).dashboardId = dashboardInfoId;
 
   // Memoize ownState so it keeps a stable reference across re-renders that
   // don't change its logical value. ViewQueryModal depends on ownState; a fresh
@@ -743,6 +745,49 @@ const Chart = (props: ChartProps) => {
     boundActionCreators.logEvent,
   ]);
 
+  const cachedDttm: string[] = useMemo(
+    () =>
+      queriesResponse?.map(
+        // eslint-disable-next-line camelcase
+        (q: JsonObject) => q.cached_dttm as string,
+      ) || [],
+    [queriesResponse],
+  );
+
+  // Build slice header shape matching SliceHeaderControlsProps
+  const sliceForHeader = useMemo(
+    () => ({
+      description: slice.description || '',
+      viz_type: slice.viz_type,
+      slice_name: slice.slice_name,
+      slice_id: slice.slice_id,
+      slice_description: '',
+      datasource: slice.form_data?.datasource || '',
+    }),
+    [
+      slice.description,
+      slice.viz_type,
+      slice.slice_name,
+      slice.slice_id,
+      slice.form_data?.datasource,
+    ],
+  );
+
+  const handleUpdateSliceName = useCallback(
+    (name: string) => props.updateSliceName(props.id, name),
+    [props.updateSliceName, props.id],
+  );
+
+  const handleExportPivotExcel = useCallback(
+    (tableSelector: string, sliceName: string) =>
+      exportPivotExcel(
+        tableSelector,
+        sliceName,
+        boundActionCreators.addWarningToast,
+      ),
+    [boundActionCreators.addWarningToast],
+  );
+
   if (!chart || (slice as unknown) === EMPTY_OBJECT) {
     return <MissingChart height={getChartHeight()} />;
   }
@@ -753,21 +798,6 @@ const Chart = (props: ChartProps) => {
   const unavailable = isUnavailableChartType(drawnVizType);
   // A chart of a removed type is never drawn, so it never stops loading
   const isLoading = chartStatus === 'loading' && !unavailable;
-  const cachedDttm: string[] =
-    queriesResponse?.map(
-      // eslint-disable-next-line camelcase
-      (q: JsonObject) => q.cached_dttm as string,
-    ) || [];
-
-  // Build slice header shape matching SliceHeaderControlsProps
-  const sliceForHeader = {
-    description: slice.description || '',
-    viz_type: slice.viz_type,
-    slice_name: slice.slice_name,
-    slice_id: slice.slice_id,
-    slice_description: '',
-    datasource: slice.form_data?.datasource || '',
-  };
 
   return (
     <SliceContainer
@@ -796,9 +826,7 @@ const Chart = (props: ChartProps) => {
         exportXLSX={exportXLSX}
         exportFullCSV={exportFullCSV}
         exportFullXLSX={exportFullXLSX}
-        updateSliceName={(name: string) =>
-          props.updateSliceName(props.id, name)
-        }
+        updateSliceName={handleUpdateSliceName}
         sliceName={props.sliceName}
         supersetCanExplore={supersetCanExplore}
         supersetCanShare={supersetCanShare}
@@ -818,12 +846,7 @@ const Chart = (props: ChartProps) => {
         width={width}
         height={getHeaderHeight()}
         exportPivotExcel={
-          ((tableSelector: string, sliceName: string) =>
-            exportPivotExcel(
-              tableSelector,
-              sliceName,
-              boundActionCreators.addWarningToast,
-            )) as unknown as (arg0: string) => void
+          handleExportPivotExcel as unknown as (arg0: string) => void
         }
         chartHolderRef={props.chartHolderRef}
         ownState={ownState}

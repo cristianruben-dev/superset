@@ -79,18 +79,22 @@ export function useDynamicTitle(
   chartId: number,
   empty: string,
 ): string {
-  const rows = useSelector(
-    (state: RootState) =>
-      (
-        state.charts?.[chartId]?.queriesResponse?.[0] as
-          | { data?: Record<string, unknown>[] }
-          | undefined
-      )?.data,
+  const hasTemplate = Boolean(template);
+  const rows = useSelector((state: RootState) =>
+    hasTemplate
+      ? (
+          state.charts?.[chartId]?.queriesResponse?.[0] as
+            | { data?: Record<string, unknown>[] }
+            | undefined
+        )?.data
+      : undefined,
   );
-  const filters = useSelector(
-    (state: RootState) => state.nativeFilters?.filters,
+  const filters = useSelector((state: RootState) =>
+    hasTemplate ? state.nativeFilters?.filters : undefined,
   );
-  const dataMask = useSelector((state: RootState) => state.dataMask);
+  const dataMask = useSelector((state: RootState) =>
+    hasTemplate ? state.dataMask : undefined,
+  );
   return useMemo(() => {
     if (!template) return chartName;
     const first = rows?.[0];

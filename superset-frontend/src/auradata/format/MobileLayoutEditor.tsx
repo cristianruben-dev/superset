@@ -353,7 +353,18 @@ export function MobileLayoutEditor({
   };
 
   const onPointerMove = (event: ReactPointerEvent<HTMLElement>) => {
-    if (gesture) setPreview(shifted(event, gesture));
+    if (!gesture) return;
+    const next = shifted(event, gesture);
+    setPreview(prev =>
+      prev &&
+      prev.id === next.id &&
+      prev.x === next.x &&
+      prev.y === next.y &&
+      prev.width === next.width &&
+      prev.height === next.height
+        ? prev
+        : next,
+    );
   };
 
   const onPointerUp = (event: ReactPointerEvent<HTMLElement>) => {
