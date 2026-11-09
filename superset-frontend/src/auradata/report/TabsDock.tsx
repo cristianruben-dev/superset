@@ -135,16 +135,16 @@ const Dock = styled.div<{ $bar?: boolean }>`
         .ant-tabs-nav-list .ant-tabs-tab {
           position: relative;
           box-sizing: border-box;
-          /* As tall as the bar, so the name sits in its middle */
-          height: ${theme.sizeUnit * 9 - 1}px;
+          /* As tall as its row, so the name sits in its middle */
+          height: ${theme.sizeUnit * 10}px;
           margin: 0 !important;
-          padding: 0 ${theme.sizeUnit * 4}px;
+          padding: 0 ${theme.sizeUnit * 5}px;
           border: 0 !important;
           border-right: 1px solid ${theme.colorSplit} !important;
           border-radius: 0 !important;
           background: transparent !important;
           color: ${theme.colorTextSecondary};
-          font-size: ${theme.fontSizeSM}px;
+          font-size: ${theme.fontSize}px;
           transition:
             background ${theme.motionDurationMid},
             color ${theme.motionDurationMid};
@@ -354,54 +354,94 @@ const Bar = styled.div`
   ${({ theme }) => css`
     flex: none;
     display: flex;
-    align-items: stretch;
+    flex-direction: column;
     box-sizing: border-box;
-    height: ${theme.sizeUnit * 9}px;
     overflow: hidden;
     container-type: inline-size;
     border-top: 1px solid ${theme.colorBorderSecondary};
     background: ${theme.colorBgContainer};
     color: ${theme.colorTextSecondary};
     font-size: ${theme.fontSizeSM}px;
-    /* The zoom gives up its slider, then its fit choice, then the page
-       count, before the tabs give up their room */
-    @container (max-width: 820px) {
+    /* The page count sits in the middle while the zoom fits beside it, and
+       at the start otherwise; then the zoom gives up its slider, then its
+       fit choice */
+    @container (max-width: 1240px) {
+      .auradata-page-status {
+        grid-template-columns: auto minmax(0, 1fr);
+      }
+      .auradata-page-status-start {
+        display: none;
+      }
+    }
+    @container (max-width: 720px) {
       [data-test='auradata-zoom-toolbar'] .ant-slider {
         display: none;
       }
     }
-    @container (max-width: 640px) {
+    @container (max-width: 560px) {
       [data-test='auradata-zoom-toolbar'] .auradata-zoom-fit,
-      .auradata-page-count {
+      [data-test='auradata-zoom-toolbar'] .auradata-zoom-split {
         display: none;
       }
     }
   `}
 `;
 
-const Side = styled.div<{ $end?: boolean }>`
-  ${({ theme, $end }) => css`
-    flex: ${$end ? '0 1 auto' : 'none'};
-    min-width: 0;
+/** The first level of the bar: the page tabs, with the whole width. */
+const TabsRow = styled.div<{ $empty: boolean }>`
+  ${({ theme, $empty }) => css`
+    flex: none;
+    display: ${$empty ? 'none' : 'flex'};
+    align-items: stretch;
+    box-sizing: border-box;
+    height: ${theme.sizeUnit * 10}px;
+    padding: 0 ${theme.sizeUnit * 2}px;
+  `}
+`;
+
+/**
+ * The second level: where the reader is among the pages, in the middle, and
+ * the zoom at the end.
+ */
+const StatusRow = styled.div<{ $split: boolean }>`
+  ${({ theme, $split }) => css`
+    flex: none;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: center;
+    column-gap: ${theme.sizeUnit * 4}px;
+    box-sizing: border-box;
+    height: ${theme.sizeUnit * 10}px;
+    padding: 0 ${theme.sizeUnit * 4}px;
+    border-top: ${$split ? `1px solid ${theme.colorSplit}` : 0};
+    background: ${theme.colorFillQuaternary};
+  `}
+`;
+
+const Pager = styled.div`
+  ${({ theme }) => css`
     display: flex;
     align-items: center;
     gap: ${theme.sizeUnit * 2}px;
-    padding: 0 ${theme.sizeUnit * ($end ? 3 : 1)}px;
-    ${
-      $end
-        ? css`
-            border-left: 1px solid ${theme.colorBorderSecondary};
-          `
-        : css`
-            border-right: 1px solid ${theme.colorBorderSecondary};
-          `
-    }
     .auradata-page-count {
+      min-width: ${theme.sizeUnit * 22}px;
+      text-align: center;
       white-space: nowrap;
       font-family: ${theme.fontFamilyCode};
-      font-size: ${theme.fontSizeSM - 1}px;
-      color: ${theme.colorTextTertiary};
+      font-size: ${theme.fontSizeSM}px;
+      font-variant-numeric: tabular-nums;
+      color: ${theme.colorText};
     }
+  `}
+`;
+
+const End = styled.div`
+  ${({ theme }) => css`
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: ${theme.sizeUnit * 3}px;
+    min-width: 0;
   `}
 `;
 
@@ -429,10 +469,29 @@ const Arrow = styled.button`
   `}
 `;
 
+/** Whether the browser shows the app full screen, and a way to switch it. */
+function useFullScreen() {
+  const [on, setOn] = useState(() => !!document.fullscreenElement);
+  useEffect(() => {
+    const read = () => setOn(!!document.fullscreenElement);
+    document.addEventListener('fullscreenchange', read);
+    return () => document.removeEventListener('fullscreenchange', read);
+  }, []);
+  const toggle = useCallback(() => {
+    // A frame without ``allowfullscreen`` refuses: the page stays as it is
+    const change = document.fullscreenElement
+      ? document.exitFullscreen?.()
+      : document.documentElement.requestFullscreen?.();
+    change?.catch(() => {});
+  }, []);
+  return { on, toggle };
+}
+
 /**
- * The bar at the bottom of a report, as in Power BI: arrows to the previous
- * and next page, the page tabs, and on the right the page count and what
- * ``children`` holds (the zoom).
+ * The bar at the bottom of a report, in two levels: the page tabs, and under
+ * them a status row with the arrows to the previous and next page around the
+ * page count, as in an embedded Power BI report, and what ``children`` holds
+ * (the zoom) at its end, before the full screen button.
  */
 export function PageBar({ children }: { children?: ReactNode }) {
   const dispatch = useDispatch();
@@ -455,33 +514,32 @@ export function PageBar({ children }: { children?: ReactNode }) {
     const page = pages[index + step];
     if (page) dispatch(setDirectPathToChild(page.path));
   };
+  const several = pages.length > 1;
+  const fullScreen = useFullScreen();
   return (
     <Bar data-test="auradata-page-bar">
-      {pages.length > 1 && (
-        <Side>
-          <Arrow
-            type="button"
-            aria-label={t('Previous page')}
-            data-test="auradata-page-previous"
-            disabled={index <= 0}
-            onClick={() => go(-1)}
-          >
-            <Icons.LeftOutlined iconSize="s" />
-          </Arrow>
-          <Arrow
-            type="button"
-            aria-label={t('Next page')}
-            data-test="auradata-page-next"
-            disabled={index < 0 || index >= pages.length - 1}
-            onClick={() => go(1)}
-          >
-            <Icons.RightOutlined iconSize="s" />
-          </Arrow>
-        </Side>
-      )}
-      <TabsDockTarget bar />
-      {(children || pages.length > 0) && (
-        <Side $end>
+      {/* Kept mounted without pages: the tabs dock is where they would go */}
+      <TabsRow $empty={pages.length === 0} data-test="auradata-page-tabs-row">
+        <TabsDockTarget bar />
+      </TabsRow>
+      <StatusRow
+        className="auradata-page-status"
+        data-test="auradata-page-status"
+        $split={pages.length > 0}
+      >
+        <span className="auradata-page-status-start" />
+        <Pager>
+          {several && (
+            <Arrow
+              type="button"
+              aria-label={t('Previous page')}
+              data-test="auradata-page-previous"
+              disabled={index <= 0}
+              onClick={() => go(-1)}
+            >
+              <Icons.LeftOutlined iconSize="s" />
+            </Arrow>
+          )}
           {pages.length > 0 && index >= 0 && (
             <span
               className="auradata-page-count"
@@ -490,9 +548,42 @@ export function PageBar({ children }: { children?: ReactNode }) {
               {t('Page %s of %s', index + 1, pages.length)}
             </span>
           )}
+          {several && (
+            <Arrow
+              type="button"
+              aria-label={t('Next page')}
+              data-test="auradata-page-next"
+              disabled={index < 0 || index >= pages.length - 1}
+              onClick={() => go(1)}
+            >
+              <Icons.RightOutlined iconSize="s" />
+            </Arrow>
+          )}
+        </Pager>
+        <End>
           {children}
-        </Side>
-      )}
+          {/* Not offered where the browser forbids it, as in a frame that
+              was not allowed to go full screen */}
+          {document.fullscreenEnabled && (
+            <Arrow
+              type="button"
+              aria-label={
+                fullScreen.on ? t('Exit full screen') : t('Full screen')
+              }
+              title={fullScreen.on ? t('Exit full screen') : t('Full screen')}
+              aria-pressed={fullScreen.on}
+              data-test="auradata-page-full-screen"
+              onClick={fullScreen.toggle}
+            >
+              {fullScreen.on ? (
+                <Icons.FullscreenExitOutlined iconSize="m" />
+              ) : (
+                <Icons.FullscreenOutlined iconSize="m" />
+              )}
+            </Arrow>
+          )}
+        </End>
+      </StatusRow>
     </Bar>
   );
 }

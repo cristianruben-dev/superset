@@ -37,15 +37,25 @@ const Bar = styled.div<{ $docked?: boolean }>`
       $docked
         ? css`
             padding: 0;
+            gap: ${theme.sizeUnit * 2}px;
             .percent {
               font-family: ${theme.fontFamilyCode};
+              color: ${theme.colorText};
+            }
+            /* A hairline between the zoom and how the page fits */
+            .auradata-zoom-split {
+              align-self: center;
+              width: 1px;
+              height: ${theme.sizeUnit * 4}px;
+              margin: 0 ${theme.sizeUnit}px;
+              background: ${theme.colorSplit};
             }
             .auradata-zoom-step {
               display: flex;
               align-items: center;
               justify-content: center;
-              width: ${theme.sizeUnit * 6}px;
-              height: ${theme.sizeUnit * 6}px;
+              width: ${theme.sizeUnit * 7}px;
+              height: ${theme.sizeUnit * 7}px;
               padding: 0;
               border: 0;
               border-radius: ${theme.borderRadius}px;
@@ -60,21 +70,17 @@ const Bar = styled.div<{ $docked?: boolean }>`
               }
             }
             .ant-slider {
+              width: ${theme.sizeUnit * 36}px;
               margin: 0 ${theme.sizeUnit}px;
             }
             /* A compact choice that keeps to the height of the bar */
             .auradata-zoom-fit {
               width: ${theme.sizeUnit * 44}px;
-              .ant-select-selector {
-                height: ${theme.sizeUnit * 7}px !important;
-                min-height: 0 !important;
-                padding-block: 0 !important;
+              .ant-select.ant-select {
+                height: ${theme.sizeUnit * 7}px;
+                min-height: 0;
+                padding-block: 0;
                 font-size: ${theme.fontSizeSM}px;
-              }
-              .ant-select-selection-item,
-              .ant-select-selection-search-input {
-                height: ${theme.sizeUnit * 7 - 2}px !important;
-                line-height: ${theme.sizeUnit * 7 - 2}px !important;
               }
             }
           `
@@ -152,6 +158,7 @@ export function ZoomToolbar({
           +
         </button>
         <span className="percent">{Math.round(zoom * 100)}%</span>
+        <span className="auradata-zoom-split" aria-hidden />
         <Select
           className="auradata-zoom-fit"
           ariaLabel={t('Fit')}

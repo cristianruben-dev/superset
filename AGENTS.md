@@ -533,9 +533,12 @@ Formats are stored in `position_json`, so they save, undo and export with the da
   - "Reset filters" (`resetFilters.ts`, reading view and ribbon) sets every native filter and slicer to
     its default, clears cross-filters, leaves a drill through and drops bookmark visibility overrides.
 - A fixed page shows a bar at the bottom, as in Power BI (`PageBar` in `auradata/report/TabsDock.tsx`), of a
-  fixed size whatever the zoom: previous/next arrows, flat page tabs split by hairlines with the accent
-  under the active one, "Page 1 of 3" and the zoom with a fit choice (`ZoomToolbar docked`); narrow bars
-  drop the slider, then the fit choice. Presenting and the mobile layout keep the tabs above the page.
+  fixed size whatever the zoom, in two levels: flat page tabs split by hairlines with the accent under the
+  active one, and under them a status row with previous/next arrows around "Page 1 of 3" and the zoom with a
+  fit choice at its end (`ZoomToolbar docked`), then a full screen button, left out where the browser forbids
+  it (a frame without `allowfullscreen`). The page count sits in the middle while the zoom fits beside
+  it; narrower bars move it to the start, then drop the slider, then the fit choice. A report of one page has
+  no tabs level. Presenting and the mobile layout keep the tabs above the page.
 - With the page bar, the vertical filter pane is a pane of the report at its right edge, as tall as the
   page area and out of the page (`FilterDockTarget atEdge` in `CanvasFrame`); the page floats alone and its
   zoom does not count the pane. Presenting keeps the pane beside the page.
