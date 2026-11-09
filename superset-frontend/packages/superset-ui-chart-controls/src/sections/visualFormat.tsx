@@ -715,7 +715,9 @@ export const buildAxesFormatSection = ({
       optionalNumberControl(
         'x_axis_label_max_width',
         t('Maximum label width'),
-        t('Longer labels are cut, in pixels'),
+        t(
+          'Longer labels are cut, in pixels. Bars drawn across default to half of the chart',
+        ),
         0,
         2000,
       ),
@@ -723,8 +725,10 @@ export const buildAxesFormatSection = ({
     [
       optionalNumberControl(
         'x_axis_min_category_width',
-        t('Minimum category width'),
-        t('The axis scrolls when the categories do not fit at this width'),
+        t('Category size'),
+        t(
+          'Pixels each category takes along its axis: the height of a row in bars drawn across. The chart scrolls inside when they do not fit',
+        ),
         0,
         500,
         hasCategoricalXAxis,

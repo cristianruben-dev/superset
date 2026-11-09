@@ -1779,6 +1779,15 @@ export default function transformProps(
     hidden: xAxisHidden,
     ...gridlineFormat,
     ...xAxisFormatOptions(formData, isHorizontal),
+    // Long category names of a chart drawn across never take more than half
+    // of it, so the bars keep their room
+    ...(isHorizontal &&
+    xAxis.type === 'category' &&
+    !(Number(formData.xAxisLabelMaxWidth) > 0) &&
+    !(Number(formData.x_axis_label_max_width) > 0) &&
+    width > 0
+      ? { labelMaxWidth: Math.floor(width / 2) }
+      : {}),
   });
   // A series moved to the second axis draws against a copy of the first one,
   // with its own scale; bars and charts drawn across keep a single axis

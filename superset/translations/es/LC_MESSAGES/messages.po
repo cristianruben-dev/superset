@@ -27763,3 +27763,12 @@ msgstr "Encima de la tabla"
 
 msgid "Where the selector of rows per page is drawn, if anywhere"
 msgstr "Dónde se dibuja el selector de filas por página, si se dibuja"
+
+msgid "Category size"
+msgstr "Tamaño de categoría"
+
+msgid "Longer labels are cut, in pixels. Bars drawn across default to half of the chart"
+msgstr "Las etiquetas más largas se cortan, en píxeles. En barras horizontales, por defecto son la mitad del gráfico"
+
+msgid "Pixels each category takes along its axis: the height of a row in bars drawn across. The chart scrolls inside when they do not fit"
+msgstr "Píxeles que ocupa cada categoría en su eje: la altura de una fila en barras horizontales. El gráfico se desplaza por dentro cuando no caben"
