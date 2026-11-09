@@ -84,4 +84,16 @@ test('getDefaultTooltip computes height and sets scroll styles', () => {
 
   expect(computedMaxHeight).toBe(expectedMaxHeight);
   expect(tooltipDom).toHaveStyle({ overflow: 'auto' });
+
+  // When there is sufficient room above the cursor, it places the tooltip above (Power BI style)
+  const resultAbove = tooltip.position(
+    [200, 600],
+    {} as any,
+    tooltipDom,
+    {} as any,
+    { contentSize: [200, 150], viewSize: [1200, 1000] },
+  );
+  // Cursor at (200, 600). In right half of 100px wide div: left offset = 200 - 10 - 200 = -10 -> clamped to 5.
+  // Vertically: 600 - 10 - 150 = 440 (fits above top boundary, does not flip below).
+  expect(resultAbove).toEqual([5, 440]);
 });

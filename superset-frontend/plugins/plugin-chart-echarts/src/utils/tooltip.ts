@@ -111,43 +111,25 @@ export function getDefaultTooltip(refs: Refs) {
         }
       }
 
-      // Mirror horizontal logic: position tooltip below cursor when in top half of chart,
-      // above cursor when in bottom half. This prevents the tooltip from covering annotation
-      // labels that appear at the top of the chart (markArea/markLine labels).
-      const chartHeight = divRect?.height || viewportHeight;
-      const cursorYInChart = canvasMousePos[1];
-      const isInTopHalfOfChart = cursorYInChart < chartHeight / 2;
+      // Default to positioning above the cursor (Power BI style) so downward and
+      // forward mouse exploration never collides with or enters the tooltip box.
+      // Flip below only when there is insufficient room above the cursor.
+      const topBoundary = divRect
+        ? Math.max(0, divRect.y + TOOLTIP_TOP_CLEARANCE)
+        : 0;
 
-      if (isInTopHalfOfChart) {
+      yPos = mouseY - TOOLTIP_POINTER_MARGIN - effectiveTooltipHeight;
+
+      if (yPos < topBoundary || yPos <= 0) {
+        // Not enough room above, place below cursor
         yPos = mouseY + TOOLTIP_POINTER_MARGIN;
 
         if (yPos + effectiveTooltipHeight >= viewportHeight) {
-          yPos = mouseY - TOOLTIP_POINTER_MARGIN - effectiveTooltipHeight;
-
-          if (yPos <= 0) {
-            yPos = TOOLTIP_OVERFLOW_MARGIN;
-          }
-        }
-      } else {
-        yPos = mouseY - TOOLTIP_POINTER_MARGIN - effectiveTooltipHeight;
-
-        if (yPos <= 0) {
-          yPos = mouseY + TOOLTIP_POINTER_MARGIN;
-
-          if (yPos + effectiveTooltipHeight >= viewportHeight) {
-            yPos = TOOLTIP_OVERFLOW_MARGIN;
-          }
-        }
-      }
-
-      // Clamp tooltip away from the top of the chart to avoid covering annotation labels
-      // (markLine/markArea labels rendered at insideEndTop are within the first ~40px)
-      if (divRect) {
-        yPos = Math.max(yPos, divRect.y + TOOLTIP_TOP_CLEARANCE);
-        // Re-apply bottom overflow check in case top clearance pushed the tooltip off-screen
-        if (yPos + effectiveTooltipHeight >= viewportHeight) {
-          yPos =
-            viewportHeight - effectiveTooltipHeight - TOOLTIP_OVERFLOW_MARGIN;
+          // If it overflows the bottom too, clamp to viewport bottom
+          yPos = Math.max(
+            TOOLTIP_OVERFLOW_MARGIN,
+            viewportHeight - effectiveTooltipHeight - TOOLTIP_OVERFLOW_MARGIN,
+          );
         }
       }
 
