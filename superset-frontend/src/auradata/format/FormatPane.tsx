@@ -193,6 +193,44 @@ const Pane = styled.div`
       min-height: 0;
       overflow-y: auto;
       padding-bottom: ${theme.sizeUnit * 16}px;
+
+      /* Compact styling for Explore controls inside Visual and Analytics tabs */
+      .auradata-chart-format-card,
+      section[data-test^='auradata-chart-format-'] {
+        gap: ${theme.sizeUnit * 1.5}px !important;
+
+        div[class*='StyledControl'],
+        .StyledControl {
+          padding-bottom: ${theme.sizeUnit * 1.5}px !important;
+          margin-bottom: 0 !important;
+        }
+
+        .ControlHeader {
+          margin-bottom: ${theme.sizeUnit * 0.5}px !important;
+          .FormLabel {
+            margin-bottom: ${theme.sizeUnit * 0.5}px !important;
+            font-size: ${theme.fontSizeSM}px !important;
+            font-weight: 500 !important;
+            color: ${theme.colorTextSecondary} !important;
+          }
+        }
+
+        h5 {
+          margin: ${theme.sizeUnit * 2}px 0 ${theme.sizeUnit}px !important;
+          font-size: ${theme.fontSizeSM}px !important;
+          font-weight: 600 !important;
+          color: ${theme.colorText} !important;
+        }
+
+        .ant-select-single:not(.ant-select-customize-input) .ant-select-selector {
+          height: 28px !important;
+          padding: 0 8px !important;
+        }
+
+        .ant-slider {
+          margin: ${theme.sizeUnit}px 0 !important;
+        }
+      }
     }
 
     .tip {

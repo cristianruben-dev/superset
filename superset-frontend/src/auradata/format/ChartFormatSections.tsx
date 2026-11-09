@@ -391,6 +391,7 @@ export function ChartFormatSections({
     return (
       <Section
         key={card.id}
+        className="auradata-chart-format-card"
         collapsedByDefault
         off={toggle ? !on : undefined}
         data-test={`auradata-chart-format-${card.id}`}
