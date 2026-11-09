@@ -15,7 +15,7 @@ salvo las pocas que lo dicen en su ejemplo. La IA actúa como el dueño de la
 clave: una herramienta nunca hace algo que esa persona no pueda hacer en la
 web. Cómo conectar una IA: [conectar.md](conectar.md).
 
-146 herramientas, 6 prompts y 9 recursos.
+150 herramientas, 6 prompts y 9 recursos.
 
 ## Índice
 
@@ -27,7 +27,7 @@ web. Cómo conectar una IA: [conectar.md](conectar.md).
 - **Informe: interactividad:** [`clear_drillthrough_page`](#clear_drillthrough_page), [`create_bookmark`](#create_bookmark), [`delete_bookmark`](#delete_bookmark), [`get_filter_defaults`](#get_filter_defaults), [`list_bookmarks`](#list_bookmarks), [`make_tooltip_page`](#make_tooltip_page), [`set_drillthrough_page`](#set_drillthrough_page), [`set_filter_bar_auto_apply`](#set_filter_bar_auto_apply), [`set_visual_interactions`](#set_visual_interactions), [`set_visual_tooltip`](#set_visual_tooltip), [`sync_slicer`](#sync_slicer), [`update_bookmark`](#update_bookmark)
 - **Informe: diseño móvil:** [`clear_mobile_layout`](#clear_mobile_layout), [`generate_mobile_layout`](#generate_mobile_layout), [`set_mobile_layout`](#set_mobile_layout)
 - **Capturas y exportación:** [`export_dashboard_image`](#export_dashboard_image), [`export_dashboard_pdf`](#export_dashboard_pdf), [`get_dashboard_screenshot`](#get_dashboard_screenshot), [`get_visual_screenshot`](#get_visual_screenshot)
-- **Publicar y compartir:** [`publish_dashboard`](#publish_dashboard), [`share_dashboard`](#share_dashboard)
+- **Publicar y compartir:** [`create_embed_guest_token`](#create_embed_guest_token), [`disable_dashboard_embedding`](#disable_dashboard_embedding), [`get_dashboard_embedding`](#get_dashboard_embedding), [`publish_dashboard`](#publish_dashboard), [`set_dashboard_embedding`](#set_dashboard_embedding), [`share_dashboard`](#share_dashboard)
 - **Informes y alertas programados:** [`create_alert`](#create_alert), [`create_report`](#create_report), [`delete_report`](#delete_report), [`get_report_info`](#get_report_info), [`list_reports`](#list_reports), [`update_report`](#update_report)
 - **Papelera e historial de versiones:** [`get_version_diff`](#get_version_diff), [`list_trash`](#list_trash), [`list_versions`](#list_versions), [`restore_version`](#restore_version)
 - **Tableros (herramientas de Superset):** [`add_chart_to_existing_dashboard`](#add_chart_to_existing_dashboard), [`delete_dashboard`](#delete_dashboard), [`duplicate_dashboard`](#duplicate_dashboard), [`generate_dashboard`](#generate_dashboard), [`get_dashboard_datasets`](#get_dashboard_datasets), [`get_dashboard_info`](#get_dashboard_info), [`get_dashboard_layout`](#get_dashboard_layout), [`list_dashboards`](#list_dashboards), [`manage_dashboard_certification`](#manage_dashboard_certification), [`manage_dashboard_owners`](#manage_dashboard_owners), [`manage_dashboard_roles`](#manage_dashboard_roles), [`manage_native_filters`](#manage_native_filters), [`remove_chart_from_dashboard`](#remove_chart_from_dashboard), [`restore_dashboard`](#restore_dashboard), [`update_dashboard`](#update_dashboard)
@@ -1727,6 +1727,79 @@ Ejemplo:
 
 ## Publicar y compartir
 
+### `create_embed_guest_token`
+
+*Create embed guest token*
+
+- **Permiso:** `SecurityRestApi`, escritura. Scope de la clave: `superset:security:write`.
+- **Cambia datos:** sí.
+- **Etiquetas:** `embedding`, `mutate`, `sharing`
+
+Mint a guest token for an embedded report, to try an embedding or hand to
+a host page: a secret, read-only pass that lasts minutes. A real host mints
+them from its backend for each visitor (get_dashboard_embedding explains
+how). rls narrows the rows the guest sees. Same checks as the web's guest
+token endpoint: the grant_guest_token permission and access to the report.
+
+| Parámetro | Tipo | Obligatorio | Por defecto | Descripción |
+| --- | --- | :---: | --- | --- |
+| `dashboard` | integer o string | sí |  | Dashboard id, uuid or slug |
+| `user` | objeto |  |  | Name the guest shows as |
+| `rls` | lista de objeto |  |  | Row level security rules |
+| `datasets` | lista de integer |  |  | Only these dataset ids; none = all of the report |
+
+Ejemplo:
+
+```json
+{"request": {"dashboard": 1}}
+```
+
+### `disable_dashboard_embedding`
+
+*Disable dashboard embedding*
+
+- **Permiso:** `Dashboard`, escritura. Scope de la clave: `superset:dashboard:write`.
+- **Cambia datos:** sí.
+- **Etiquetas:** `embedding`, `mutate`, `sharing`
+
+Stop a report from being embedded: sites that embed it stop showing it and
+its embedded uuid is gone (enabling it again gives a new one). Takes an
+editor of the report with the permission to embed.
+
+| Parámetro | Tipo | Obligatorio | Por defecto | Descripción |
+| --- | --- | :---: | --- | --- |
+| `dashboard` | integer o string | sí |  | Dashboard id, uuid or slug |
+
+Ejemplo:
+
+```json
+{"request": {"dashboard": 1}}
+```
+
+### `get_dashboard_embedding`
+
+*Get dashboard embedding*
+
+- **Permiso:** `Dashboard`, lectura. Scope de la clave: `superset:dashboard:read`.
+- **Cambia datos:** no.
+- **Etiquetas:** `embedding`
+
+Whether a report can be embedded in another site, and what that site needs:
+its embedded uuid, the allowed domains, the embedded address, the
+@superset-ui/embedded-sdk code for the page and how its backend mints guest
+tokens. Also says whether this installation serves embedded reports and
+whether you may change it (set_dashboard_embedding).
+
+| Parámetro | Tipo | Obligatorio | Por defecto | Descripción |
+| --- | --- | :---: | --- | --- |
+| `dashboard` | integer o string | sí |  | Dashboard id, uuid or slug |
+
+Ejemplo:
+
+```json
+{"request": {"dashboard": 1}}
+```
+
 ### `publish_dashboard`
 
 *Publish dashboard*
@@ -1744,6 +1817,31 @@ whoever edits the report publishes it.
 | --- | --- | :---: | --- | --- |
 | `dashboard` | integer o string | sí |  | Dashboard id, uuid or slug |
 | `published` | boolean |  | `true` | true publishes the report, false turns it into a draft |
+
+Ejemplo:
+
+```json
+{"request": {"dashboard": 1}}
+```
+
+### `set_dashboard_embedding`
+
+*Set dashboard embedding*
+
+- **Permiso:** `Dashboard`, escritura. Scope de la clave: `superset:dashboard:write`.
+- **Cambia datos:** sí.
+- **Etiquetas:** `embedding`, `mutate`, `sharing`
+
+Let a report be embedded in other sites, or change which ones: the origins
+in allowed_domains (allow_any_domain=true with none lets any site). Keeps
+the embedded uuid. Returns what get_dashboard_embedding does, with the SDK
+code. Takes an editor of the report with the permission to embed.
+
+| Parámetro | Tipo | Obligatorio | Por defecto | Descripción |
+| --- | --- | :---: | --- | --- |
+| `dashboard` | integer o string | sí |  | Dashboard id, uuid or slug |
+| `allowed_domains` | lista de string |  |  | Origins of the sites that may embed the report, such as https://intranet.example.com (scheme, host and port; no path) |
+| `allow_any_domain` | boolean |  | `false` | true with no allowed_domains lets any site embed it |
 
 Ejemplo:
 

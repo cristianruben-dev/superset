@@ -87,3 +87,105 @@ class ShareDashboardResponse(SharingOutcome):
     next_steps: list[str] = Field(
         default_factory=list, description="Tools that give more people access"
     )
+
+
+class GetDashboardEmbeddingRequest(DashboardRef):
+    pass
+
+
+class SetDashboardEmbeddingRequest(DashboardRef):
+    allowed_domains: list[str] = Field(
+        default_factory=list,
+        max_length=50,
+        description="Origins of the sites that may embed the report, such as "
+        "https://intranet.example.com (scheme, host and port; no path)",
+    )
+    allow_any_domain: bool = Field(
+        False,
+        description="true with no allowed_domains lets any site embed it",
+    )
+
+
+class DisableDashboardEmbeddingRequest(DashboardRef):
+    pass
+
+
+class GuestUser(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    username: str = Field("guest", max_length=128)
+    first_name: str = Field("Guest", max_length=128)
+    last_name: str = Field("User", max_length=128)
+
+
+class GuestRlsRule(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    clause: str = Field(
+        min_length=1,
+        max_length=2_000,
+        description="SQL WHERE clause applied to the guest's queries",
+    )
+    dataset: int | None = Field(
+        None, ge=1, description="Dataset id it applies to; none = all datasets"
+    )
+
+
+class CreateEmbedGuestTokenRequest(DashboardRef):
+    user: GuestUser = Field(
+        default_factory=GuestUser, description="Name the guest shows as"
+    )
+    rls: list[GuestRlsRule] = Field(
+        default_factory=list, max_length=50, description="Row level security rules"
+    )
+    datasets: list[int] | None = Field(
+        None, description="Only these dataset ids; none = all of the report"
+    )
+
+
+class EmbeddingOutcome(BaseModel):
+    dashboard_id: int | None = None
+    title: str | None = None
+    published: bool | None = None
+    embedding_available: bool = Field(
+        False, description="Whether this installation serves embedded reports"
+    )
+    embedded: bool = Field(False, description="Whether the report can be embedded")
+    embedded_uuid: str | None = Field(
+        None, description="The id the embedding SDK and guest tokens use"
+    )
+    allowed_domains: list[str] = Field(
+        default_factory=list, description="Empty while embedded: any site"
+    )
+    embed_url: str | None = None
+    superset_domain: str | None = None
+    sdk_snippet: str | None = Field(
+        None, description="Frontend code with @superset-ui/embedded-sdk"
+    )
+    guest_token_steps: list[str] = Field(default_factory=list)
+    can_change: bool = Field(
+        False, description="Whether you may enable or disable embedding"
+    )
+    changed: bool = False
+    warnings: list[str] = Field(default_factory=list)
+    error: str | None = None
+    error_type: str | None = None
+    permission_denied: bool = Field(
+        False, description="True when the caller may not do it: do not retry"
+    )
+
+
+class GuestTokenResponse(BaseModel):
+    dashboard_id: int | None = None
+    embedded_uuid: str | None = None
+    token: str | None = Field(
+        None,
+        description="Secret: a read-only pass to the report, hand it only "
+        "to the embedding page",
+    )
+    expires_in_seconds: int | None = None
+    header_name: str | None = Field(None, description="Header the SDK sends it in")
+    warnings: list[str] = Field(default_factory=list)
+    error: str | None = None
+    error_type: str | None = None
+    permission_denied: bool = False

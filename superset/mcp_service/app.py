@@ -218,6 +218,8 @@ Look, export, share and schedule:
 - get_dashboard_screenshot / get_visual_screenshot: See a page (device='phone' too) or a chart as viewers do
 - export_dashboard_image / export_dashboard_pdf
 - publish_dashboard / share_dashboard: Publish, and the link and people who open it
+- get_dashboard_embedding / set_dashboard_embedding / disable_dashboard_embedding: Embed a report in another site (allowed domains, SDK code)
+- create_embed_guest_token: A guest token to try an embedded report (a secret; hosts mint their own)
 - list_reports / get_report_info / create_report / create_alert / update_report / delete_report: Scheduled emails (recipients only as the user gives them)
 
 Trash and version history:
@@ -727,7 +729,11 @@ from superset.mcp_service.semantic_layer.tool import (  # noqa: F401, E402
     list_metrics,
 )
 from superset.mcp_service.sharing.tool import (  # noqa: F401, E402
+    create_embed_guest_token,
+    disable_dashboard_embedding,
+    get_dashboard_embedding,
     publish_dashboard,
+    set_dashboard_embedding,
     share_dashboard,
 )
 from superset.mcp_service.sql_lab.tool import (  # noqa: F401, E402

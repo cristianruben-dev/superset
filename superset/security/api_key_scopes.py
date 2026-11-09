@@ -26,6 +26,9 @@ METHOD_PERMISSION_SCOPE_ACTION: dict[str, str] = {
     "update": "write",
     "delete": "write",
     "execute_sql_query": "write",
+    # Embedding a dashboard and minting guest tokens for it
+    "set_embedded": "write",
+    "grant_guest_token": "write",
 }
 
 # Map MCP/FAB class permission names to stable public resource slugs. These
@@ -43,6 +46,7 @@ RESOURCE_SCOPE_NAME: dict[str, str] = {
     "Role": "role",
     "Row Level Security": "rls",
     "SavedQuery": "savedquery",
+    "SecurityRestApi": "security",
     "SQLLab": "sqllab",
     "Tag": "tag",
     "Task": "task",

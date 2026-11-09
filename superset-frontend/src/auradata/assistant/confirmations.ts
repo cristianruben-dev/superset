@@ -54,6 +54,10 @@ export const confirmationTitle = ({
     delete_page: t('Delete a page'),
     publish_dashboard: t('Publish this report'),
     share_dashboard: t('Share this report'),
+    set_dashboard_embedding: t('Let other sites embed this report'),
+    disable_dashboard_embedding: t(
+      'Stop other sites from embedding this report',
+    ),
     execute_sql: t('Run a SQL statement'),
     delete_workspace: t('Delete a workspace'),
     remove_workspace_member: t('Remove a member of a workspace'),

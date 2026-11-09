@@ -417,14 +417,16 @@ def _spec(
 # with the tool's identifying fields protected from the final "clear
 # everything" phase so the caller can always confirm what was written.
 #
-# This is every mutating MCP tool except three, each excluded for a reason
+# This is every mutating MCP tool except four, each excluded for a reason
 # that is about the invariant above rather than about response size:
 #   - ``execute_sql`` commits against the *analytics* database, not Superset
 #     metadata, and already degrades gracefully via DATA_QUERY_TOOLS row
 #     truncation rather than reaching the hard-error path;
 #   - ``generate_explore_link`` and ``update_chart_preview`` persist nothing
 #     to the metadata database -- they only cache a form_data key -- so a
-#     retry re-caches rather than replaying a mutation.
+#     retry re-caches rather than replaying a mutation;
+#   - ``create_embed_guest_token`` signs a token and stores nothing, so a retry
+#     mints another one.
 COMMITTED_WRITE_SPECS: Dict[str, CommittedWriteSpec] = {
     "add_chart_to_existing_dashboard": _spec("dashboard", "dashboard"),
     "create_dataset": _spec("dataset"),
@@ -514,6 +516,8 @@ COMMITTED_WRITE_SPECS: Dict[str, CommittedWriteSpec] = {
     "update_report": _spec("report", "report", "executor", reports_success=True),
     "publish_dashboard": _spec("dashboard", "dashboard_id", "published"),
     "share_dashboard": _spec("permalink", "dashboard_id", "link"),
+    "set_dashboard_embedding": _spec("dashboard embedding", "allowed_domains"),
+    "disable_dashboard_embedding": _spec("dashboard embedding"),
 }
 
 COMMITTED_WRITE_TOOLS = frozenset(COMMITTED_WRITE_SPECS)

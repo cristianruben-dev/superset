@@ -15,6 +15,19 @@
 # specific language governing permissions and limitations
 # under the License.
 
+from .embedding_tools import (
+    create_embed_guest_token,
+    disable_dashboard_embedding,
+    get_dashboard_embedding,
+    set_dashboard_embedding,
+)
 from .sharing_tools import publish_dashboard, share_dashboard
 
-__all__ = ["publish_dashboard", "share_dashboard"]
+__all__ = [
+    "create_embed_guest_token",
+    "disable_dashboard_embedding",
+    "get_dashboard_embedding",
+    "publish_dashboard",
+    "set_dashboard_embedding",
+    "share_dashboard",
+]

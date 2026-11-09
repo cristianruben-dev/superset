@@ -106,9 +106,11 @@ FIXED_TOOLS = (
     "get_visual_screenshot",
 )
 
-# About the service itself, or a file for a person that the model cannot hand over
+# About the service itself, a file for a person that the model cannot hand over, or a
+# secret that would stay in the conversation and reach the model's provider
 HIDDEN_TOOLS = frozenset(
     {
+        "create_embed_guest_token",
         "export_dashboard_image",
         "export_dashboard_pdf",
         "generate_bug_report",

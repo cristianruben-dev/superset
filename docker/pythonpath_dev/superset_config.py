@@ -109,7 +109,14 @@ FEATURE_FLAGS = {
     # MOBILE_CONSUMPTION_MODE (Superset 7.0) stays off: AuraData BI has its own
     # mobile layout per page (meta.auradataMobile)
     "SEMANTIC_LAYERS": True,
+    # Reports embedded in other sites (Share › Embed dashboard, the MCP's
+    # set_dashboard_embedding). Debug mode accepts the default guest token secret;
+    # the prod config needs GUEST_TOKEN_JWT_SECRET
+    "EMBEDDED_SUPERSET": True,
 }
+# Guests see only the dashboards their token names; this role gives them the
+# routes to read them
+GUEST_ROLE_NAME = "Gamma"
 EXTENSIONS_PATH = "/app/docker/extensions"
 ALERT_REPORTS_NOTIFICATION_DRY_RUN = True
 # The worker's headless browser reaches the app through its compose service name

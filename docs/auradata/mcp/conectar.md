@@ -30,6 +30,8 @@ captura y lo corrige. Entra con una **clave personal** que creas en «Conectar I
    - por defecto vienen marcados todos los de lectura (`…:read`) que tú puedes dar: la IA podrá mirar, no cambiar;
    - para que arme y cambie informes, añade `superset:dashboard:write` y `superset:chart:write`; para que cree
      datasets o métricas, `superset:dataset:write`;
+   - para que inserte informes en otros sitios, `superset:dashboard:write` (activa y quita la inserción, si tu rol
+     puede insertar tableros) y, para que genere tokens de invitado de prueba, `superset:security:write`;
    - si dejas la lista vacía, la clave no tiene más límite que tus propios permisos.
 
    Solo aparecen los ámbitos que tus roles te dejan dar.

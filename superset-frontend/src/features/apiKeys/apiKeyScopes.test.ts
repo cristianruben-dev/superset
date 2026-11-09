@@ -26,7 +26,7 @@ import {
 } from './apiKeyScopes';
 
 test('offers read and write scopes for every supported resource', () => {
-  expect(API_KEY_SCOPE_OPTIONS).toHaveLength(32);
+  expect(API_KEY_SCOPE_OPTIONS).toHaveLength(34);
   expect(API_KEY_SCOPE_OPTIONS).toContainEqual({
     label: 'superset:dashboard:read',
     value: 'superset:dashboard:read',
@@ -86,4 +86,17 @@ test('counts any method of an action as a grant, as the server does', () => {
     grantableApiKeyScopeOptions(roles).map(option => option.value),
   ).toEqual(['superset:sqllab:write']);
   expect(grantableApiKeyScopeOptions(undefined)).toEqual([]);
+});
+
+test('embedding and guest tokens are write scopes, as on the server', () => {
+  const roles: UserRoles = {
+    embedder: [
+      ['can_set_embedded', 'Dashboard'],
+      ['can_grant_guest_token', 'SecurityRestApi'],
+    ],
+  };
+
+  expect(
+    grantableApiKeyScopeOptions(roles).map(option => option.value),
+  ).toEqual(['superset:dashboard:write', 'superset:security:write']);
 });

@@ -31,6 +31,7 @@ const API_KEY_SCOPE_RESOURCES = [
   'role',
   'rls',
   'savedquery',
+  'security',
   'sqllab',
   'tag',
   'task',
@@ -67,6 +68,7 @@ const SCOPE_RESOURCE_CLASS: Record<ApiKeyScopeResource, string> = {
   role: 'Role',
   rls: 'Row Level Security',
   savedquery: 'SavedQuery',
+  security: 'SecurityRestApi',
   sqllab: 'SQLLab',
   tag: 'Tag',
   task: 'Task',
@@ -76,7 +78,14 @@ const SCOPE_RESOURCE_CLASS: Record<ApiKeyScopeResource, string> = {
 
 const SCOPE_ACTION_METHODS: Record<ApiKeyScopeAction, string[]> = {
   read: ['read', 'get'],
-  write: ['write', 'update', 'delete', 'execute_sql_query'],
+  write: [
+    'write',
+    'update',
+    'delete',
+    'execute_sql_query',
+    'set_embedded',
+    'grant_guest_token',
+  ],
 };
 
 /** The scope options a user with these roles may put on a key of their own. */

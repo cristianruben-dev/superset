@@ -126,6 +126,10 @@ EXPECTED_TOOL_OUTPUT_FIELDS = {
     "update_report": "executor",
     "publish_dashboard": "published",
     "share_dashboard": "link",
+    "get_dashboard_embedding": "embedded_uuid",
+    "set_dashboard_embedding": "embedded_uuid",
+    "disable_dashboard_embedding": "embedded",
+    "create_embed_guest_token": "token",
     "export_dashboard_image": "pages",
     "export_dashboard_pdf": "pages",
     "restore_version": "restored_version_number",
@@ -236,6 +240,9 @@ MUTATING_TOOLS = {
     "update_report",
     "publish_dashboard",
     "share_dashboard",
+    "set_dashboard_embedding",
+    "disable_dashboard_embedding",
+    "create_embed_guest_token",
     "save_sql_query",
     "set_object_state",
     "set_page_hidden",
@@ -289,8 +296,10 @@ MUTATING_TOOLS = {
 # execute_sql commits against the analytics database rather than Superset
 # metadata (and degrades via row truncation), while the two preview tools
 # persist nothing to the metadata database -- they only cache a form_data key,
-# so a retry re-caches instead of replaying a mutation.
+# so a retry re-caches instead of replaying a mutation; create_embed_guest_token
+# signs a token and stores nothing.
 NON_COMMITTING_MUTATING_TOOLS = {
+    "create_embed_guest_token",
     "execute_sql",
     "generate_explore_link",
     "update_chart_preview",
@@ -299,6 +308,7 @@ NON_COMMITTING_MUTATING_TOOLS = {
 
 DESTRUCTIVE_TOOLS = {
     "delete_chart",
+    "disable_dashboard_embedding",
     "delete_dashboard",
     "delete_page",
     "delete_report",

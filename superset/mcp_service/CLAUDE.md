@@ -192,6 +192,13 @@ The `@tool` and `@prompt` decorators are defined as stubs in the `superset-core`
 - **Sharing**: `publish_dashboard` runs `UpdateDashboardCommand`; `share_dashboard` creates a page permalink
   (`dashboard/permalink.py:create_page_permalink`) and points at the governance and workspace tools to add
   people instead of re-implementing them.
+- **Embedding** (`sharing/tool/embedding_tools.py`): `get_dashboard_embedding` reads `dashboard.embedded`;
+  `set_dashboard_embedding` and `disable_dashboard_embedding` take the web's `set_embedded` route permission (Admin
+  only by default) plus `can_edit_resource`, keep the uuid (`EmbeddedDashboardDAO.upsert`) and accept only site
+  origins. `create_embed_guest_token` runs the checks of `POST /security/guest_token/` (`grant_guest_token`,
+  `validate_guest_token_resources`, the validator hook, the hashed audit log) and never reaches the in-app assistant
+  (`HIDDEN_TOOLS`). With `EMBEDDED_SUPERSET` off they answer `EmbeddingDisabled`; the prod config turns it on only
+  with `GUEST_TOKEN_JWT_SECRET`, and `AURADATA_EMBED_ORIGINS` sets `frame-ancestors`.
 
 ## AuraData BI: Connections and Data Model
 

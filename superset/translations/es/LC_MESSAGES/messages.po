@@ -27354,6 +27354,12 @@ msgstr "Publicar este informe"
 msgid "Share this report"
 msgstr "Compartir este informe"
 
+msgid "Let other sites embed this report"
+msgstr "Dejar que otros sitios inserten este informe"
+
+msgid "Stop other sites from embedding this report"
+msgstr "Impedir que otros sitios inserten este informe"
+
 msgid "Run a SQL statement"
 msgstr "Ejecutar una sentencia SQL"
 

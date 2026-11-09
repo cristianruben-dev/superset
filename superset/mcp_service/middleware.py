@@ -481,6 +481,8 @@ _SENSITIVE_PARAM_KEYS = frozenset(
         "authorization",
         "cookie",
         "sql",
+        # RLS clauses of guest tokens can carry data values
+        "clause",
     }
 )
 

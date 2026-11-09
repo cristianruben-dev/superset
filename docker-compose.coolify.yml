@@ -16,8 +16,8 @@
 #
 
 # AuraData BI on Coolify. Coolify builds this file and generates every SERVICE_* secret
-# once; only ANTHROPIC_API_KEY is set by hand. Its proxy reaches `superset` and
-# `superset-mcp`, so nothing here publishes a port.
+# once; only ANTHROPIC_API_KEY and AURADATA_EMBED_ORIGINS are set by hand. Its proxy
+# reaches `superset` and `superset-mcp`, so nothing here publishes a port.
 
 x-auradata-env: &auradata-env
   SUPERSET_SECRET_KEY: ${SERVICE_BASE64_64_SECRETKEY}
@@ -31,6 +31,10 @@ x-auradata-env: &auradata-env
   AURADATA_SEND_REPORTS: ${AURADATA_SEND_REPORTS:-false}
   MCP_SERVICE_URL: ${MCP_SERVICE_URL:-https://mcp-bi.auradata.mx/mcp}
   ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+  # Embedding reports in other sites: the guest token secret turns it on, and the
+  # sites allowed to frame AuraData BI are set by hand (comma separated origins)
+  GUEST_TOKEN_JWT_SECRET: ${SERVICE_BASE64_64_GUESTTOKEN}
+  AURADATA_EMBED_ORIGINS: ${AURADATA_EMBED_ORIGINS:-}
 
 x-auradata-image: &auradata-image
   image: auradata-bi:coolify

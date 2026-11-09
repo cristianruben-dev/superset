@@ -29,6 +29,7 @@ from urllib.parse import quote
 from flask_caching.backends.rediscache import RedisCache
 
 from superset.config import CeleryConfig as DefaultCeleryConfig
+from superset.config import TALISMAN_CONFIG as DEFAULT_TALISMAN_CONFIG
 
 
 def _required(name: str) -> str:
@@ -121,6 +122,35 @@ FEATURE_FLAGS = {
     "THUMBNAILS": True,
 }
 ALERT_REPORTS_NOTIFICATION_DRY_RUN = not _flag("AURADATA_SEND_REPORTS", False)
+
+# --- Embedding reports in other sites ------------------------------------------
+
+# Embedding (Share › Embed dashboard, the embedding SDK and guest tokens) turns on
+# with a guest token secret of this installation: Superset refuses to start with the
+# public default. Generate it with `openssl rand -base64 42`.
+if _guest_token_secret := os.getenv("GUEST_TOKEN_JWT_SECRET"):
+    GUEST_TOKEN_JWT_SECRET = _guest_token_secret
+    FEATURE_FLAGS["EMBEDDED_SUPERSET"] = True
+# The audience of guest tokens, the same in the web, the MCP and the workers whatever
+# address each one reaches the app at (by default Superset reads WEBDRIVER_BASEURL)
+GUEST_TOKEN_JWT_AUDIENCE = os.getenv("GUEST_TOKEN_JWT_AUDIENCE", "auradata-bi")
+# Guests see only the dashboards their token names; this role gives them the
+# routes to read them
+GUEST_ROLE_NAME = "Gamma"
+# Sites allowed to frame AuraData BI, comma separated (https://intranet.example.com).
+# Without them only AuraData BI itself frames its pages.
+_embed_origins = [
+    origin.strip()
+    for origin in os.getenv("AURADATA_EMBED_ORIGINS", "").split(",")
+    if origin.strip()
+]
+TALISMAN_CONFIG = {
+    **DEFAULT_TALISMAN_CONFIG,
+    "content_security_policy": {
+        **DEFAULT_TALISMAN_CONFIG["content_security_policy"],
+        "frame-ancestors": ["'self'", *_embed_origins],
+    },
+}
 
 # Address the Celery workers use to reach the web app, and the one users see in
 # the links of the emails

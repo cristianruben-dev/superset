@@ -592,6 +592,14 @@ def test_required_resource_scope_special_names() -> None:
         "superset:sqllab:write"
     )
     assert _required_resource_scope("Chart", "update") == "superset:chart:write"
+    assert (
+        _required_resource_scope("Dashboard", "set_embedded")
+        == "superset:dashboard:write"
+    )
+    assert (
+        _required_resource_scope("SecurityRestApi", "grant_guest_token")
+        == "superset:security:write"
+    )
 
 
 def test_required_resource_scope_unmapped_returns_none() -> None:
@@ -616,6 +624,7 @@ def test_resource_scope_name_covers_all_tool_resource_classes() -> None:
         "Role",
         "Row Level Security",
         "SavedQuery",
+        "SecurityRestApi",
         "SQLLab",
         "Tag",
         "Task",
