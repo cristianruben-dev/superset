@@ -90,6 +90,7 @@ import {
 import {
   fetchCharts,
   fetchFaveStar,
+  keepEditingOnSave,
   maxUndoHistoryToast,
   onChange,
   onRefresh,
@@ -448,8 +449,11 @@ const Header = ({ onOpenMobileFilters }: HeaderComponentProps): JSX.Element => {
         );
       }
 
-      const saveDashboard = () =>
+      // Saving keeps the report in edit mode; leaving is its own command
+      const saveDashboard = () => {
+        dispatch(keepEditingOnSave());
         boundActionCreators.onSave(data, dashboardInfo.id, SAVE_TYPE_OVERWRITE);
+      };
       // Fields belong to the charts: they save first, then the report
       if (hasPendingFields()) {
         (dispatch(saveChartFields() as never) as unknown as Promise<void>).then(
@@ -465,6 +469,7 @@ const Header = ({ onOpenMobileFilters }: HeaderComponentProps): JSX.Element => {
     colorNamespace,
     colorScheme,
     customCss,
+    dispatch,
     dashboardInfo.certification_details,
     dashboardInfo.certified_by,
     dashboardInfo.common?.conf?.SUPERSET_DASHBOARD_POSITION_DATA_LIMIT,
