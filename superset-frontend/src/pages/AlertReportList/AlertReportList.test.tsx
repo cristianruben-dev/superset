@@ -578,3 +578,14 @@ test('trigger-now action does not duplicate in-flight requests', async () => {
     expect(fetchMock.callHistory.calls('execute-report-slow')).toHaveLength(1);
   });
 });
+
+test('renders name as first column and schedule description with wrap class', async () => {
+  renderAlertList({ isReportEnabled: true });
+  await screen.findByText('Weekly Dashboard Report');
+
+  const headers = screen.getAllByRole('columnheader');
+  const headerTexts = headers.map(h => h.textContent);
+  expect(headerTexts).toContain('Name');
+  const scheduleDesc = screen.getByText('Every Monday at 09:00 (UTC)');
+  expect(scheduleDesc).toHaveClass('schedule-description');
+});

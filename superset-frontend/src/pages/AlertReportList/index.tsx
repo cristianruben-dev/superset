@@ -109,6 +109,143 @@ const StyledHeaderWithIcon = styled.div`
   }
 `;
 
+const AlertReportContainer = styled.div`
+  ${({ theme }) => css`
+    width: 100%;
+
+    @media (max-width: 767px) {
+      /* SubMenu header layout: allow wrapping and add gap */
+      .menu {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        align-items: center !important;
+        gap: ${theme.sizeUnit * 2}px !important;
+        row-gap: ${theme.sizeUnit * 2}px !important;
+      }
+
+      .header {
+        font-size: 16px !important;
+        line-height: normal !important;
+        margin-right: ${theme.sizeUnit * 2}px !important;
+        margin-bottom: 0 !important;
+      }
+
+      /* Compact single-row sub-navigation on phones */
+      .menu > .ant-menu {
+        display: inline-flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        border: none !important;
+        border-bottom: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        width: auto !important;
+        height: auto !important;
+        line-height: normal !important;
+
+        .ant-menu-item {
+          display: inline-flex !important;
+          align-items: center !important;
+          height: 28px !important;
+          line-height: 28px !important;
+          padding: 0 ${theme.sizeUnit * 2}px !important;
+          margin-right: ${theme.sizeUnit}px !important;
+          margin-bottom: 0 !important;
+          font-size: ${theme.fontSizeSM}px !important;
+        }
+      }
+
+      ${RefreshContainer} {
+        margin-left: 0 !important;
+      }
+
+      /* Header actions: prevent "+ Alerta" from covering refresh icon */
+      .nav-right,
+      .nav-right-collapse {
+        position: static !important;
+        float: none !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: ${theme.sizeUnit * 2}px !important;
+        margin-left: 0 !important;
+      }
+
+      /* Alerts and Reports table horizontal scroll */
+      .alerts-list-view {
+        .body {
+          overflow-x: auto;
+          -webkit-overflow-scrolling: touch;
+        }
+
+        .ant-table-wrapper {
+          overflow-x: auto;
+        }
+
+        .ant-table table {
+          min-width: 900px;
+        }
+
+        .ant-table-thead > tr > th {
+          white-space: nowrap;
+          word-break: keep-all;
+        }
+      }
+
+      /* Schedule description text wrapping */
+      .schedule-description,
+      td.ant-table-cell:has(.schedule-description) {
+        white-space: normal !important;
+        word-break: break-word !important;
+        min-width: 160px;
+      }
+
+      /* Touch targets: at least 24px on phones */
+      .ant-table-selection-column .ant-checkbox-wrapper,
+      .ant-checkbox-wrapper,
+      .ant-checkbox {
+        min-width: 24px;
+        min-height: 24px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .ant-checkbox-inner {
+        width: 18px;
+        height: 18px;
+      }
+
+      .actions {
+        display: inline-flex;
+        align-items: center;
+        gap: ${theme.sizeUnit}px;
+
+        .action-button,
+        button {
+          min-width: 24px;
+          min-height: 24px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          padding: 2px;
+
+          svg,
+          .anticon {
+            width: 18px;
+            height: 18px;
+            font-size: 18px;
+          }
+        }
+      }
+
+      .ant-switch {
+        min-width: 28px;
+        min-height: 24px;
+      }
+    }
+  `}
+`;
+
 const HeaderExtension = extensionsRegistry.get('alertsreports.header.icon');
 
 function AlertList({
@@ -334,6 +471,7 @@ function AlertList({
         Header: t('Name'),
         size: 'xxl',
         id: 'name',
+        className: 'column-name',
       },
       {
         Header: t('Schedule'),
@@ -348,7 +486,7 @@ function AlertList({
             title={`${crontab_humanized} (${timezone})`}
             placement="topLeft"
           >
-            <span>{`${crontab_humanized} (${timezone})`}</span>
+            <span className="schedule-description">{`${crontab_humanized} (${timezone})`}</span>
           </Tooltip>
         ),
         id: 'crontab_humanized',
@@ -584,7 +722,7 @@ function AlertList({
   );
 
   return (
-    <>
+    <AlertReportContainer>
       <SubMenu
         activeChild={pathName}
         name={header}
@@ -689,7 +827,7 @@ function AlertList({
           );
         }}
       </ConfirmStatusChange>
-    </>
+    </AlertReportContainer>
   );
 }
 
