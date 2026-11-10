@@ -175,18 +175,43 @@ const Hero = styled.header`
       gap: ${theme.sizeUnit * 2}px;
       margin-left: auto;
     }
+
+    @media (max-width: 767px) {
+      padding: ${theme.sizeUnit * 4}px;
+      gap: ${theme.sizeUnit * 3}px;
+
+      .actions {
+        width: 100%;
+        margin-left: 0;
+        flex-direction: column;
+
+        button,
+        .ant-btn {
+          width: 100%;
+          justify-content: center;
+        }
+      }
+    }
   `}
 `;
 
 const Tabs = styled.div`
   ${({ theme }) => css`
     display: flex;
+    max-width: 100%;
     gap: ${theme.sizeUnit * 6}px;
     margin-bottom: ${theme.sizeUnit * 4}px;
     border-bottom: 1px solid ${theme.colorBorderSecondary};
     /* Narrow screens scroll the tabs sideways instead of cutting them */
     overflow-x: auto;
+    overflow-y: hidden;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
+    &::-webkit-scrollbar {
+      display: none;
+    }
+    padding-right: ${theme.sizeUnit * 4}px;
 
     button {
       all: unset;
@@ -281,6 +306,8 @@ const Panel = styled.section`
       .sub {
         font-size: ${theme.fontSizeSM}px;
         color: ${theme.colorTextTertiary};
+        overflow-wrap: break-word;
+        word-break: normal;
       }
     }
 
@@ -462,6 +489,34 @@ const Panel = styled.section`
       padding: ${theme.sizeUnit * 4}px;
       color: ${theme.colorTextTertiary};
       font-size: ${theme.fontSizeSM}px;
+    }
+
+    @media (max-width: 767px) {
+      .item {
+        flex-wrap: wrap;
+        align-items: flex-start;
+        row-gap: ${theme.sizeUnit * 1.5}px;
+      }
+
+      .main {
+        flex: 1 1 140px;
+        min-width: 130px;
+
+        strong {
+          overflow-wrap: anywhere;
+          word-break: normal;
+        }
+      }
+
+      .flags {
+        flex-wrap: wrap;
+      }
+
+      .type {
+        min-width: auto;
+        text-align: left;
+        margin-left: auto;
+      }
     }
   `}
 `;
@@ -742,7 +797,9 @@ export default function DatasetPage() {
             <div className="item" key={column.id}>
               <ColumnTypeLabel type={genericType(column)} />
               <span className="main">
-                <strong>{column.verbose_name || column.column_name}</strong>
+                <strong title={column.verbose_name || column.column_name}>
+                  {column.verbose_name || column.column_name}
+                </strong>
                 {column.verbose_name && (
                   <span className="sub">{column.column_name}</span>
                 )}
