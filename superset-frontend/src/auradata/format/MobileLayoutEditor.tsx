@@ -28,8 +28,8 @@ import { Icons } from '@superset-ui/core/components/Icons';
 import type { LayoutItem, RootState } from 'src/dashboard/types';
 import { updateLayout } from './actions';
 import {
-  mobileLayoutOf,
   moveMobileBox,
+  rawMobileBoxes,
   removeMobileBox,
   resizeMobileBox,
   withMobileLayout,
@@ -59,7 +59,7 @@ export const setMobileBoxes =
     const layout = getState().dashboardLayout.present as Layout;
     const page = layout[pageId];
     if (!page) return;
-    const boxes = mobileLayoutOf(layout, pageId) ?? [];
+    const boxes = rawMobileBoxes(layout, pageId) ?? [];
     const next = change(layout, boxes);
     if (JSON.stringify(next) === JSON.stringify(boxes)) return;
     dispatch(updateLayout({ [pageId]: withMobileLayout(page, next) }, group));

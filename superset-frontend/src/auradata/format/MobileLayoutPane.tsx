@@ -33,6 +33,7 @@ import { elementKind } from 'src/auradata/elements/types';
 import { VizTypeTile } from 'src/auradata/vizIcons/VizTypeIcon';
 import { activePageId } from 'src/auradata/present/dashboardTabs';
 import {
+  MOBILE_BREAKPOINT,
   selectMobileBox,
   setMobileEditing,
   useSelectedMobileBox,
@@ -42,7 +43,7 @@ import {
   addMobileBox,
   mobileCellAt,
   mobileCandidates,
-  mobileLayoutOf,
+  rawMobileBoxes,
   removeMobileBox,
 } from './mobileLayout';
 import { MOBILE_EDITOR_TEST_ID, setMobileBoxes } from './MobileLayoutEditor';
@@ -64,6 +65,24 @@ const Pane = styled.div`
       flex-direction: column;
       gap: ${theme.sizeUnit * 2}px;
       padding: ${theme.sizeUnit * 4}px;
+    }
+    @media (max-width: ${MOBILE_BREAKPOINT - 1}px) {
+      header {
+        padding: ${theme.sizeUnit * 2}px ${theme.sizeUnit * 3}px;
+        gap: ${theme.sizeUnit}px;
+
+        .intro-desc {
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        .actions {
+          display: flex;
+          flex-direction: row;
+          gap: ${theme.sizeUnit}px;
+        }
+      }
     }
     header {
       border-bottom: 1px solid ${theme.colorBorderSecondary};
@@ -250,7 +269,7 @@ export function MobileLayoutPane({ topOffset = 0, pageTop = 0 }) {
   );
   const pageId = activePageId(layout, activeTabs);
   const boxes = useMemo(
-    () => mobileLayoutOf(layout, pageId) ?? [],
+    () => rawMobileBoxes(layout, pageId) ?? [],
     [layout, pageId],
   );
   const candidates = useMemo(
@@ -359,12 +378,17 @@ export function MobileLayoutPane({ topOffset = 0, pageTop = 0 }) {
         height: calc(100vh - ${topOffset + pageTop}px);
         width: ${BUILDER_SIDEPANEL_WIDTH}px;
         flex: none;
+
+        @media (max-width: ${MOBILE_BREAKPOINT - 1}px) {
+          width: 100vw;
+          max-width: 100vw;
+        }
       `}
     >
       <Pane>
         <header>
           <h4>{t('Mobile layout')}</h4>
-          <p>
+          <p className="intro-desc">
             {t(
               'Drag the visuals of this page onto the phone, then move and resize them. Phones show this layout; a page without one shows its canvas.',
             )}

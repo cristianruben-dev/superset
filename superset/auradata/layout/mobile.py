@@ -30,7 +30,12 @@ from superset.auradata.layout.grid import (
     MIN_OBJECT_COLUMNS,
     MIN_OBJECT_ROWS,
 )
-from superset.auradata.layout.keys import CHART_TYPE, MOBILE_LAYOUT_KEY, TABS_TYPE
+from superset.auradata.layout.keys import (
+    CHART_TYPE,
+    HIDDEN_KEY,
+    MOBILE_LAYOUT_KEY,
+    TABS_TYPE,
+)
 from superset.auradata.layout.positions import is_positioned, pos_of
 
 MOBILE_COLUMNS = 12
@@ -106,7 +111,8 @@ def mobile_layout_of(
 ) -> list[MobileBox] | None:
     """
     The mobile layout of a page, back to front, or None when it has none. Boxes
-    of objects that left the page are left out.
+    of objects that left the page are left out, and objects with no box are
+    placed at the end of the layout, as the editor does.
     """
     if not page_id:
         return None
@@ -127,7 +133,19 @@ def mobile_layout_of(
             continue
         seen.add(box_id)
         boxes.append(fit_box(box, layout.get(box_id)))
-    return boxes or None
+    if not boxes:
+        return None
+    for component_id in mobile_candidates(layout, page_id):
+        item = layout.get(component_id)
+        hidden = as_dict(as_dict(item).get("meta")).get(HIDDEN_KEY)
+        if component_id in seen or hidden:
+            continue
+        bottom = max(box["y"] + box["height"] for box in boxes)
+        item = layout.get(component_id)
+        size = mobile_size_of(item)
+        boxes.append(fit_box({"id": component_id, "x": 0, "y": bottom, **size}, item))
+        seen.add(component_id)
+    return boxes
 
 
 def mobile_page_rows(boxes: list[MobileBox] | None) -> int:
@@ -148,8 +166,9 @@ def mobile_size_of(item: Any) -> dict[str, int]:
     }
 
 
-# Proposing a mobile layout. The editor has no automatic layout (the author
-# places each object), so this lives only in Python, for the MCP; what it
+# Proposing a mobile layout. The author places each object in the editor; the
+# editor adds any object left out at the end (``mobile_layout_of``). This
+# proposes the placements a person would make, for the MCP, and what it
 # proposes is a layout ``mobile_layout_of`` reads back unchanged.
 
 # Charts on a phone: never shorter than a readable plot, never taller than

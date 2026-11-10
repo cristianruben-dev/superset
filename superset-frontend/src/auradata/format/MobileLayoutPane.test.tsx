@@ -26,7 +26,7 @@ import reducerIndex from 'spec/helpers/reducerIndex';
 import { DASHBOARD_ROOT_ID } from 'src/dashboard/util/constants';
 import { MobileLayoutEditor } from './MobileLayoutEditor';
 import { MobileLayoutPane } from './MobileLayoutPane';
-import { MOBILE_LAYOUT_KEY, mobileLayoutOf } from './mobileLayout';
+import { MOBILE_LAYOUT_KEY, rawMobileBoxes } from './mobileLayout';
 
 const layout = {
   [DASHBOARD_ROOT_ID]: {
@@ -80,7 +80,7 @@ const storeWith = (gridMeta: Record<string, unknown> = {}) =>
   );
 
 const boxesOf = (store: ReturnType<typeof storeWith>) =>
-  mobileLayoutOf(
+  rawMobileBoxes(
     (
       store.getState() as unknown as {
         dashboardLayout: { present: typeof layout };

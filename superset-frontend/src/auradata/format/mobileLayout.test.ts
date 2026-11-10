@@ -96,20 +96,40 @@ test('the objects of a page can go on its phone page', () => {
 
 test('boxes of objects that left the page are left out', () => {
   const layout = report({
-    items: [box('CHART-a'), box('CHART-b'), box('CHART-gone')],
+    items: [
+      box('CHART-a'),
+      box('MARKDOWN-a'),
+      box('CHART-b'),
+      box('CHART-gone'),
+    ],
   });
-  expect(mobileLayoutOf(layout, 'TAB-a')?.map(b => b.id)).toEqual(['CHART-a']);
+  expect(mobileLayoutOf(layout, 'TAB-a')?.map(b => b.id)).toEqual([
+    'CHART-a',
+    'MARKDOWN-a',
+  ]);
   expect(
     mobileLayoutOf(report({ items: [box('CHART-gone')] }), 'TAB-a'),
   ).toBeNull();
 });
 
+test('objects of the page with no mobile item go at the end of the layout', () => {
+  const layout = report({ items: [box('CHART-a', 0, 0, 12, 6)] });
+  const boxes = mobileLayoutOf(layout, 'TAB-a');
+  expect(boxes?.map(b => b.id)).toEqual(['CHART-a', 'MARKDOWN-a']);
+  expect(boxes?.[1].y).toBeGreaterThanOrEqual(6);
+  expect(boxes?.[1].width).toBe(MOBILE_COLUMNS);
+});
+
 test('boxes stay inside the phone page with whole cells', () => {
   const layout = report({
-    items: [{ id: 'CHART-a', x: 10.4, y: -3, width: 40, height: 1 }],
+    items: [
+      { id: 'CHART-a', x: 10.4, y: -3, width: 40, height: 1 },
+      { id: 'MARKDOWN-a', x: 0, y: 3, width: 12, height: 5 },
+    ],
   });
   expect(mobileLayoutOf(layout, 'TAB-a')).toEqual([
     { id: 'CHART-a', x: 0, y: 0, width: MOBILE_COLUMNS, height: 3 },
+    { id: 'MARKDOWN-a', x: 0, y: 3, width: MOBILE_COLUMNS, height: 5 },
   ]);
 });
 

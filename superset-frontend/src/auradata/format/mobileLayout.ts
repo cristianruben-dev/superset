@@ -113,11 +113,29 @@ export function mobileCandidates(layout: Layout, pageId: string): string[] {
 }
 
 /**
- * The mobile layout of a page: its boxes, from back to front, or null when the
- * page has none. Boxes of objects that left the page (removed, cut, moved to
- * another page) are left out, so nothing else has to keep it in step.
+ * The size an object takes when it is added to the phone page: the full width
+ * and the shape it has on the canvas, within reason.
  */
-export function mobileLayoutOf(
+export function mobileSizeOf(item: LayoutItem | undefined): {
+  width: number;
+  height: number;
+} {
+  const width = Number(item?.meta?.width) || MOBILE_COLUMNS;
+  const height = Number(item?.meta?.height) || MOBILE_DEFAULT_MAX_ROWS;
+  const scaled = Math.round((height * MOBILE_COLUMNS) / width);
+  return {
+    width: MOBILE_COLUMNS,
+    height: Math.max(
+      minHeightOf(item),
+      Math.min(MOBILE_DEFAULT_MAX_ROWS, scaled),
+    ),
+  };
+}
+
+/**
+ * The mobile boxes explicitly placed on a page, or null when the page has none.
+ */
+export function rawMobileBoxes(
   layout: Layout,
   pageId: string | undefined,
 ): MobileBox[] | null {
@@ -138,6 +156,36 @@ export function mobileLayoutOf(
   return boxes.length ? boxes : null;
 }
 
+/**
+ * The mobile layout of a page: its boxes, from back to front, or null when the
+ * page has none. Boxes of objects that left the page (removed, cut, moved to
+ * another page) are left out, and visible candidate objects with no mobile item
+ * are placed at the end of the layout so they are never missing. Hidden objects
+ * stay off the phone, as the proposal of the MCP leaves them out.
+ */
+export function mobileLayoutOf(
+  layout: Layout,
+  pageId: string | undefined,
+): MobileBox[] | null {
+  const boxes = rawMobileBoxes(layout, pageId);
+  if (!boxes || !pageId) return null;
+
+  const candidateList = mobileCandidates(layout, pageId);
+  const seen = new Set(boxes.map(box => box.id));
+
+  candidateList.forEach(id => {
+    if (!seen.has(id) && !layout[id]?.meta?.auradataHidden) {
+      const size = mobileSizeOf(layout[id]);
+      const bottom = Math.max(0, ...boxes.map(box => box.y + box.height));
+      const box = fitBox({ id, x: 0, y: bottom, ...size }, layout[id]);
+      boxes.push(box);
+      seen.add(id);
+    }
+  });
+
+  return boxes;
+}
+
 /** Height of the phone page in cells: down to the lowest box, at least a screen. */
 export function mobilePageRows(boxes: MobileBox[] | null): number {
   const bottom = Math.max(0, ...(boxes ?? []).map(box => box.y + box.height));
@@ -153,26 +201,6 @@ export function withMobileLayout(
   if (boxes.length) meta[MOBILE_LAYOUT_KEY] = { items: boxes };
   else delete meta[MOBILE_LAYOUT_KEY];
   return { ...page, meta: meta as LayoutItem['meta'] };
-}
-
-/**
- * The size an object takes when it is added to the phone page: the full width
- * and the shape it has on the canvas, within reason.
- */
-export function mobileSizeOf(item: LayoutItem | undefined): {
-  width: number;
-  height: number;
-} {
-  const width = Number(item?.meta?.width) || MOBILE_COLUMNS;
-  const height = Number(item?.meta?.height) || MOBILE_DEFAULT_MAX_ROWS;
-  const scaled = Math.round((height * MOBILE_COLUMNS) / width);
-  return {
-    width: MOBILE_COLUMNS,
-    height: Math.max(
-      minHeightOf(item),
-      Math.min(MOBILE_DEFAULT_MAX_ROWS, scaled),
-    ),
-  };
 }
 
 /** The boxes with one of them put on another cell. */
