@@ -24,11 +24,7 @@ import {
   getColumnLabel,
   getMetricLabel,
 } from '@superset-ui/core';
-import {
-  TOOLTIP_OVERFLOW_MARGIN,
-  TOOLTIP_POINTER_MARGIN,
-  TOOLTIP_TOP_CLEARANCE,
-} from '../constants';
+import { TOOLTIP_OVERFLOW_MARGIN } from '../constants';
 import { Refs } from '../types';
 
 export function getDefaultTooltip(refs: Refs) {
@@ -38,12 +34,10 @@ export function getDefaultTooltip(refs: Refs) {
     borderColor: 'transparent',
     // CSS hack applied on this class to resolve https://github.com/apache/superset/issues/30058
     className: 'echarts-tooltip',
-    // allow scrolling inside tooltip without re-triggering the chart
-    enterable: true,
-    // keep within viewport and above header; enable internal scroll
+    // The tooltip is a readout: it is never entered with the pointer
+    enterable: false,
+    // keep within viewport and above header
     confine: true,
-    // optional: reduce flicker when moving in/out of tooltip
-    hideDelay: 50,
     position: (
       canvasMousePos: [number, number],
       params: CallbackDataParams,
@@ -51,90 +45,39 @@ export function getDefaultTooltip(refs: Refs) {
       rect: any,
       sizes: { contentSize: [number, number]; viewSize: [number, number] },
     ) => {
-      // Algorithm partially based on this snippet:
-      // https://github.com/apache/echarts/issues/5004#issuecomment-559668309
-
       const divRect = refs.divRef?.current?.getBoundingClientRect();
-      const mouseX = canvasMousePos[0] + (divRect?.x || 0);
-      const mouseY = canvasMousePos[1] + (divRect?.y || 0);
       const viewportWidth = document.documentElement.clientWidth;
       const viewportHeight = document.documentElement.clientHeight;
-      const tooltipWidth = sizes.contentSize[0];
-      const tooltipHeight = sizes.contentSize[1];
+      const chartWidth = divRect?.width || viewportWidth;
+      const chartHeight = divRect?.height || viewportHeight;
+      const [tooltipWidth, tooltipHeight] = sizes.contentSize;
 
-      // Cap tooltip height to reduce blocking adjacent elements
+      // A long tooltip scrolls inside its own cap instead of covering the screen
       const maxAllowedHeight = Math.min(800, Math.floor(viewportHeight * 0.8));
-      const needsScrolling = tooltipHeight > maxAllowedHeight;
 
       if (tooltipDom) {
         tooltipDom.style.maxHeight = `${maxAllowedHeight}px`;
         tooltipDom.style.overflow = 'auto';
-        // Only enable pointer events when tooltip is scrollable
-        // This prevents blocking adjacent chart elements when scrolling isn't needed
-        tooltipDom.style.pointerEvents = needsScrolling ? 'auto' : 'none';
+        // Never receives the pointer, so it cannot be touched by accident and
+        // clicks and hovers reach the chart underneath
+        tooltipDom.style.pointerEvents = 'none';
       }
 
       const effectiveTooltipHeight = Math.min(tooltipHeight, maxAllowedHeight);
-      let xPos: number;
-      let yPos: number;
+      const margin = TOOLTIP_OVERFLOW_MARGIN;
 
-      // For scrollable tooltips, position further away horizontally to avoid blocking chart navigation
-      const horizontalMargin = needsScrolling
-        ? TOOLTIP_POINTER_MARGIN * 3
-        : TOOLTIP_POINTER_MARGIN;
+      // The corner opposite to the cursor, so the tooltip never sits under the
+      // hand and never blocks what the pointer moves towards
+      const [cursorX, cursorY] = canvasMousePos;
+      const x =
+        cursorX > chartWidth / 2 ? margin : chartWidth - tooltipWidth - margin;
+      const y =
+        cursorY > chartHeight / 2
+          ? margin
+          : chartHeight - effectiveTooltipHeight - margin;
 
-      // Determine if cursor is in the right half of the chart to intelligently position tooltip
-      const chartWidth = divRect?.width || viewportWidth;
-      const cursorXInChart = canvasMousePos[0];
-      const isInRightHalfOfChart = cursorXInChart > chartWidth / 2;
-
-      // Position tooltip on the left when in right half, right when in left half
-      // This prevents blocking chart navigation
-      if (isInRightHalfOfChart) {
-        xPos = mouseX - horizontalMargin - tooltipWidth;
-
-        // If tooltip would go off left edge of viewport, push it back in
-        if (xPos <= 0) {
-          xPos = TOOLTIP_OVERFLOW_MARGIN;
-        }
-      } else {
-        xPos = mouseX + horizontalMargin;
-
-        // If tooltip would go off right edge of viewport, position on left instead
-        if (xPos + tooltipWidth >= viewportWidth) {
-          xPos = mouseX - horizontalMargin - tooltipWidth;
-
-          // If still overflowing left edge, clamp to margin
-          if (xPos <= 0) {
-            xPos = TOOLTIP_OVERFLOW_MARGIN;
-          }
-        }
-      }
-
-      // Default to positioning above the cursor (Power BI style) so downward and
-      // forward mouse exploration never collides with or enters the tooltip box.
-      // Flip below only when there is insufficient room above the cursor.
-      const topBoundary = divRect
-        ? Math.max(0, divRect.y + TOOLTIP_TOP_CLEARANCE)
-        : 0;
-
-      yPos = mouseY - TOOLTIP_POINTER_MARGIN - effectiveTooltipHeight;
-
-      if (yPos < topBoundary || yPos <= 0) {
-        // Not enough room above, place below cursor
-        yPos = mouseY + TOOLTIP_POINTER_MARGIN;
-
-        if (yPos + effectiveTooltipHeight >= viewportHeight) {
-          // If it overflows the bottom too, clamp to viewport bottom
-          yPos = Math.max(
-            TOOLTIP_OVERFLOW_MARGIN,
-            viewportHeight - effectiveTooltipHeight - TOOLTIP_OVERFLOW_MARGIN,
-          );
-        }
-      }
-
-      // Return the position (converted back to a relative position on the canvas)
-      return [xPos - (divRect?.x || 0), yPos - (divRect?.y || 0)];
+      // Returned relative to the chart, which is the frame ECharts expects
+      return [Math.max(margin, x), Math.max(margin, y)];
     },
   };
 }
