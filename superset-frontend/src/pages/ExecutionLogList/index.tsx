@@ -58,6 +58,33 @@ const StyledHeader = styled.div`
   `}
 `;
 
+const ExecutionLogWrapper = styled.div`
+  width: 100%;
+
+  @media (max-width: 767px) {
+    .execution-log-list-view {
+      .body {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .ant-table-wrapper {
+        overflow-x: auto;
+      }
+
+      .ant-table {
+        min-width: 700px;
+      }
+
+      .ant-table-thead > tr > th,
+      .ant-table-tbody > tr > td {
+        white-space: nowrap;
+        word-break: keep-all;
+      }
+    }
+  }
+`;
+
 interface ExecutionLogProps {
   addDangerToast: (msg: string) => void;
   addSuccessToast: (msg: string) => void;
@@ -192,7 +219,7 @@ function ExecutionLog({
   const REPORT_TEXT = t('Report');
 
   return (
-    <>
+    <ExecutionLogWrapper>
       <SubMenu
         name={
           <StyledHeader>
@@ -225,7 +252,7 @@ function ExecutionLog({
         refreshData={() => {}}
         pageSize={PAGE_SIZE}
       />
-    </>
+    </ExecutionLogWrapper>
   );
 }
 

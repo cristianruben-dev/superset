@@ -85,3 +85,16 @@ test('the log can be narrowed to what the assistant did', async () => {
     }),
   );
 });
+
+test('renders action log table headers and content', async () => {
+  setup();
+
+  expect(await screen.findByText('Action')).toBeInTheDocument();
+  expect(screen.getByText('User')).toBeInTheDocument();
+  expect(screen.getByText('Duration Ms')).toBeInTheDocument();
+  expect(screen.getByText('Dashboard Id')).toBeInTheDocument();
+  expect(screen.getByText('Slice Id')).toBeInTheDocument();
+  expect(screen.getByText('JSON')).toBeInTheDocument();
+  expect(screen.getByText('Referrer')).toBeInTheDocument();
+  expect(screen.getByText('Dttm')).toBeInTheDocument();
+});

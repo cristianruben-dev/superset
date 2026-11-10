@@ -18,7 +18,7 @@
  */
 import { useMemo } from 'react';
 import { t } from '@apache-superset/core/translation';
-import { css } from '@apache-superset/core/theme';
+import { css, styled } from '@apache-superset/core/theme';
 import SubMenu, { SubMenuProps } from 'src/features/home/SubMenu';
 import { useListViewResource } from 'src/views/CRUD/hooks';
 import { useToasts } from 'src/components/MessageToasts/withToasts';
@@ -51,6 +51,47 @@ export type ActionLogObject = {
 };
 
 const PAGE_SIZE = 25;
+
+const ActionLogWrapper = styled.div`
+  width: 100%;
+
+  @media (max-width: 767px) {
+    .action-log-view {
+      .body {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .ant-table-wrapper {
+        overflow-x: auto;
+      }
+
+      .ant-table {
+        min-width: 820px;
+      }
+
+      .ant-table table {
+        min-width: 820px;
+      }
+
+      .ant-table-thead > tr > th,
+      .ant-table-tbody > tr > td {
+        white-space: nowrap;
+        word-break: keep-all;
+      }
+
+      .ant-table-thead > tr > th {
+        min-width: 80px;
+      }
+
+      .ant-btn,
+      button {
+        min-height: 24px;
+        min-width: 24px;
+      }
+    }
+  }
+`;
 
 function ActionLogList() {
   const { addDangerToast, addSuccessToast } = useToasts();
@@ -254,7 +295,7 @@ function ActionLogList() {
   };
 
   return (
-    <>
+    <ActionLogWrapper>
       <SubMenu name={t('Action Logs')} buttons={subMenuButtons} />
       <ListView<ActionLogObject>
         className="action-log-view"
@@ -271,7 +312,7 @@ function ActionLogList() {
         emptyState={emptyState}
         refreshData={refreshData}
       />
-    </>
+    </ActionLogWrapper>
   );
 }
 
