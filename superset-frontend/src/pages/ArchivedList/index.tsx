@@ -77,6 +77,32 @@ const StyledActions = styled.div`
     &:focus-within {
       opacity: 1;
     }
+
+    /* On mobile / touchscreens, actions stay visible without hover and icons reach at least 24 px */
+    @media (max-width: 767px) {
+      display: inline-flex;
+      align-items: center;
+      gap: ${theme.sizeUnit * 2}px;
+      white-space: nowrap;
+      opacity: 1 !important;
+
+      .action-button,
+      button,
+      [role='button'] {
+        min-width: 24px;
+        min-height: 24px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        svg,
+        .anticon {
+          width: 24px;
+          height: 24px;
+          font-size: 24px;
+        }
+      }
+    }
   `}
 `;
 
