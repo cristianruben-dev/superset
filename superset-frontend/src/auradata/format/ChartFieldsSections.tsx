@@ -368,7 +368,10 @@ export function ChartFieldsSections({
 
   return (
     <>
-      <Section data-test="auradata-chart-fields">
+      <Section
+        className="auradata-chart-format-card"
+        data-test="auradata-chart-fields"
+      >
         <h4>{t('Fields')}</h4>
         <DirectMetricDropContext.Provider value>
           {fields.map(renderItem)}
@@ -396,13 +399,21 @@ export function ChartFieldsSections({
       </Section>
       <ChartFormatSections id={id} chartId={chartId} level="fields" />
       {!!filters.length && (
-        <Section collapsedByDefault data-test="auradata-chart-fields-filters">
+        <Section
+          className="auradata-chart-format-card"
+          collapsedByDefault
+          data-test="auradata-chart-fields-filters"
+        >
           <h4>{t('Filters on this visual')}</h4>
           {filters.map(renderItem)}
         </Section>
       )}
       {!!others.length && !searching && (
-        <Section collapsedByDefault data-test="auradata-chart-fields-more">
+        <Section
+          className="auradata-chart-format-card"
+          collapsedByDefault
+          data-test="auradata-chart-fields-more"
+        >
           <h4>{t('More data options')}</h4>
           {others.map(renderItem)}
         </Section>

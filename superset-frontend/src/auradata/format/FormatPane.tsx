@@ -19,9 +19,11 @@
 import { setPaneCollapsed } from './panes';
 import { lazy, Suspense, useContext, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { Global } from '@emotion/react';
 import { t } from '@apache-superset/core/translation';
 import { logging } from '@apache-superset/core/utils';
 import { css, styled, useTheme } from '@apache-superset/core/theme';
+import { MOBILE_BREAKPOINT, usePhoneScreen } from './mobile';
 import { getClientErrorObject } from '@superset-ui/core';
 import {
   Button,
@@ -194,19 +196,27 @@ const Pane = styled.div`
       overflow-y: auto;
       padding-bottom: ${theme.sizeUnit * 16}px;
 
-      /* Compact styling for Explore controls inside Visual and Analytics tabs */
+      /* Compact styling for Explore controls inside Fields, Visual and Analytics tabs */
       .auradata-chart-format-card,
-      section[data-test^='auradata-chart-format-'] {
+      section[data-test^='auradata-chart-format-'],
+      section[data-test^='auradata-chart-fields'] {
         gap: ${theme.sizeUnit * 1.5}px !important;
 
+        .Control,
         div[class*='StyledControl'],
         .StyledControl {
-          padding-bottom: ${theme.sizeUnit * 1.5}px !important;
+          padding-bottom: 0 !important;
           margin-bottom: 0 !important;
         }
 
         .ControlHeader {
           margin-bottom: ${theme.sizeUnit * 0.5}px !important;
+
+          .pull-left {
+            display: flex;
+            align-items: center;
+          }
+
           .FormLabel {
             margin-bottom: ${theme.sizeUnit * 0.5}px !important;
             font-size: ${theme.fontSizeSM}px !important;
@@ -222,13 +232,52 @@ const Pane = styled.div`
           color: ${theme.colorText} !important;
         }
 
-        .ant-select-single:not(.ant-select-customize-input) .ant-select-selector {
+        .ant-select-single:not(.ant-select-customize-input)
+          .ant-select-selector {
           height: 28px !important;
           padding: 0 8px !important;
         }
 
+        .ant-select-selection-item,
+        .ant-select-selection-placeholder {
+          line-height: 26px !important;
+          font-size: ${theme.fontSizeSM}px !important;
+        }
+
+        .ant-input,
+        .ant-input-number {
+          font-size: ${theme.fontSizeSM}px !important;
+        }
+
+        .ant-input:not(textarea),
+        .ant-input-affix-wrapper,
+        .ant-input-number {
+          height: 28px !important;
+        }
+
+        .ant-input-number-input {
+          height: 26px !important;
+        }
+
         .ant-slider {
           margin: ${theme.sizeUnit}px 0 !important;
+        }
+
+        .ant-radio-button-wrapper {
+          height: 28px !important;
+          line-height: 26px !important;
+          font-size: ${theme.fontSizeSM}px !important;
+        }
+
+        /* Color pickers: inline layout like General */
+        .Control:has(.ant-color-picker-trigger) > div {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+
+          .ControlHeader {
+            margin-bottom: 0 !important;
+          }
         }
       }
     }
@@ -281,6 +330,24 @@ const Pane = styled.div`
 
     .full-select {
       width: 100%;
+    }
+
+    @media (max-width: ${MOBILE_BREAKPOINT - 1}px) {
+      width: 100vw;
+      height: 100vh;
+      max-width: 100vw;
+
+      .pane-header {
+        padding: ${theme.sizeUnit * 2}px ${theme.sizeUnit * 3}px;
+      }
+
+      .pane-search {
+        padding: ${theme.sizeUnit * 2}px ${theme.sizeUnit * 3}px;
+      }
+
+      .format-level {
+        padding: ${theme.sizeUnit * 2}px ${theme.sizeUnit * 3}px;
+      }
     }
   `}
 `;
@@ -819,6 +886,8 @@ export function FormatPane() {
   const dispatch = useDispatch();
   const { armed } = useFormatPainter();
   const [query, setQuery] = useState('');
+  const theme = useTheme();
+  const phone = usePhoneScreen();
 
   // The format painter gives its format to the next object selected
   useEffect(() => {
@@ -846,77 +915,127 @@ export function FormatPane() {
   useEffect(() => () => setEditingInteractions(false), []);
 
   return (
-    <Pane data-test="auradata-format-pane">
-      <div className="pane-header">
-        {visual && (
-          <button
-            type="button"
-            className="back"
-            aria-label={t('Back to the canvas')}
-            data-test="auradata-format-back"
-            onClick={() => selectVisual(null)}
-          >
-            <Icons.LeftOutlined iconSize="s" />
-          </button>
-        )}
-        <div className="crumbs">
-          {visual && <span className="crumb-parent">{t('Canvas')}</span>}
-          <span className="crumb-current" data-test="auradata-format-title">
-            {visual
-              ? kind
-                ? elementName(kind)
-                : visualName(item?.meta)
-              : t('Canvas')}
-          </span>
+    <>
+      <Global
+        styles={css`
+          @media (max-width: ${MOBILE_BREAKPOINT - 1}px) {
+            .dashboard-builder-sidepane {
+              position: fixed !important;
+              top: 0 !important;
+              left: 0 !important;
+              right: 0 !important;
+              bottom: 0 !important;
+              width: 100vw !important;
+              max-width: 100vw !important;
+              height: 100vh !important;
+              z-index: 1000 !important;
+            }
+
+            .dashboard-builder-sidepane
+              [data-test='dashboard-builder-component-pane-tabs-navigation'] {
+              display: none !important;
+            }
+
+            .auradata-object-actions {
+              position: fixed !important;
+              top: 8px !important;
+              right: 12px !important;
+              left: auto !important;
+              bottom: auto !important;
+              transform: none !important;
+              z-index: 1002 !important;
+              box-shadow: none !important;
+              background: transparent !important;
+              border: 0 !important;
+              padding: 0 !important;
+              gap: 4px !important;
+
+              button {
+                height: 28px !important;
+                padding: 0 8px !important;
+                border-radius: ${theme.borderRadius}px !important;
+                background: ${theme.colorFillTertiary} !important;
+                font-size: 12px !important;
+              }
+            }
+          }
+        `}
+      />
+      <Pane data-test="auradata-format-pane">
+        <div className="pane-header">
+          {(visual || phone) && (
+            <button
+              type="button"
+              className="back"
+              aria-label={t('Back to the canvas')}
+              data-test="auradata-format-back"
+              onClick={() => {
+                selectVisual(null);
+                if (phone) setPaneCollapsed('builder', true);
+              }}
+            >
+              <Icons.LeftOutlined iconSize="s" />
+            </button>
+          )}
+          <div className="crumbs">
+            {visual && <span className="crumb-parent">{t('Canvas')}</span>}
+            <span className="crumb-current" data-test="auradata-format-title">
+              {visual
+                ? kind
+                  ? elementName(kind)
+                  : visualName(item?.meta)
+                : t('Canvas')}
+            </span>
+          </div>
+          {visual && item && (
+            <div className="header-actions">
+              {item.type === CHART_TYPE && (
+                <EditInteractionsToggle chartId={item.meta.chartId} />
+              )}
+            </div>
+          )}
         </div>
-        {visual && item && (
-          <div className="header-actions">
-            {item.type === CHART_TYPE && (
-              <EditInteractionsToggle chartId={item.meta.chartId} />
-            )}
+        {armed && (
+          <div
+            className="painter-tip"
+            role="status"
+            data-test="auradata-painter-tip"
+          >
+            <Icons.FormatPainterOutlined iconSize="m" />
+            {t('Click another object to give it this format. Esc cancels.')}
           </div>
         )}
-      </div>
-      {armed && (
-        <div
-          className="painter-tip"
-          role="status"
-          data-test="auradata-painter-tip"
-        >
-          <Icons.FormatPainterOutlined iconSize="m" />
-          {t('Click another object to give it this format. Esc cancels.')}
+        <div className="pane-search">
+          <Input
+            allowClear
+            size="small"
+            value={query}
+            placeholder={t('Search')}
+            prefix={<Icons.SearchOutlined iconSize="s" />}
+            aria-label={t('Search settings')}
+            data-test="auradata-format-search"
+            onChange={event => setQuery(event.target.value)}
+          />
         </div>
-      )}
-      <div className="pane-search">
-        <Input
-          allowClear
-          size="small"
-          value={query}
-          placeholder={t('Search')}
-          prefix={<Icons.SearchOutlined iconSize="s" />}
-          aria-label={t('Search settings')}
-          data-test="auradata-format-search"
-          onChange={event => setQuery(event.target.value)}
-        />
-      </div>
-      <div className="pane-body">
-        <FormatSearchContext.Provider value={query}>
-          {many && <MultiSection />}
-          {visual && kind ? (
-            <ElementSection id={visual} />
-          ) : visual ? (
-            <VisualSection id={visual} />
-          ) : (
-            <>
-              <div className="tip">
-                <Icons.InfoCircleOutlined iconSize="m" />
-                {t('Select a chart on the canvas to change its style.')}
-              </div>
-              <CanvasSection />
-            </>
-          )}
-        </FormatSearchContext.Provider>
-      </div>
-    </Pane>
+        <div className="pane-body">
+          <FormatSearchContext.Provider value={query}>
+            {many && <MultiSection />}
+            {visual && kind ? (
+              <ElementSection id={visual} />
+            ) : visual ? (
+              <VisualSection id={visual} />
+            ) : (
+              <>
+                <div className="tip">
+                  <Icons.InfoCircleOutlined iconSize="m" />
+                  {t('Select a chart on the canvas to change its style.')}
+                </div>
+                <CanvasSection />
+              </>
+            )}
+          </FormatSearchContext.Provider>
+        </div>
+      </Pane>
+    </>
   );
 }
