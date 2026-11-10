@@ -72,6 +72,34 @@ const Strip = styled.nav`
     [aria-current='page'] {
       color: ${theme.colorTextSecondary};
     }
+
+    @media (max-width: 767px) {
+      height: 36px;
+      padding: 0 ${theme.sizeUnit * 2}px;
+      font-size: 12px;
+      overflow-x: auto;
+      overflow-y: visible;
+
+      ol {
+        height: 100%;
+      }
+
+      li {
+        display: flex;
+        align-items: center;
+        font-size: 12px;
+      }
+
+      a {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 44px;
+        min-width: 44px;
+        padding: 0 ${theme.sizeUnit}px;
+        font-size: 12px;
+      }
+    }
   `}
 `;
 
@@ -167,6 +195,24 @@ const Header = styled.header`
       align-items: center;
       flex-wrap: wrap;
       gap: ${theme.sizeUnit * 2}px;
+    }
+
+    @media (max-width: 767px) {
+      min-height: 40px;
+      padding: ${theme.sizeUnit}px ${theme.sizeUnit * 2}px;
+      gap: ${theme.sizeUnit}px ${theme.sizeUnit * 2}px;
+
+      .titles {
+        gap: ${theme.sizeUnit}px;
+      }
+
+      h1 {
+        font-size: 16px;
+      }
+
+      .meta {
+        font-size: 12px;
+      }
     }
   `}
 `;

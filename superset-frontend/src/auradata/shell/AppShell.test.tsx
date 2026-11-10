@@ -201,9 +201,15 @@ test('a phone opens the navigation as a drawer instead of a rail', () => {
     // The drawer shows the labelled navigation, without touching the
     // collapsed preference of larger screens
     expect(screen.getByTestId('auradata-sidebar')).toBeInTheDocument();
+    expect(screen.getByTestId('auradata-sidebar')).toHaveStyle({
+      bottom: '24px',
+    });
     expect(screen.getByText('Dashboards')).toBeInTheDocument();
     expect(window.localStorage.getItem('auradata.sidebarCollapsed')).toBeNull();
 
+    expect(screen.getByTestId('auradata-nav-backdrop')).toHaveStyle({
+      top: '44px',
+    });
     userEvent.click(screen.getByTestId('auradata-nav-backdrop'));
     expect(screen.queryByTestId('auradata-sidebar')).not.toBeInTheDocument();
 

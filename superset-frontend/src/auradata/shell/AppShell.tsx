@@ -32,7 +32,7 @@ import { CommandPalette } from './CommandPalette';
 import { buildNavSections, isReportRoute } from './navigation';
 import { AppMenuBar } from './AppMenuBar';
 import { AppMenusHost } from './appMenus';
-import { MENU_BAR_HEIGHT } from './MenuBar';
+import { MENU_BAR_HEIGHT, MENU_BAR_PHONE_HEIGHT } from './MenuBar';
 import { setMenuBarSlot } from './menuBarSlot';
 import { STATUS_BAR_HEIGHT, StatusBar } from './StatusBar';
 import { ShellCrumbs } from './PageHeader';
@@ -71,7 +71,10 @@ const Frame = styled.div`
 const Backdrop = styled.div<{ $top: number }>`
   ${({ theme, $top }) => css`
     position: fixed;
-    inset: ${$top}px 0 0 0;
+    top: ${$top}px;
+    bottom: 0;
+    left: 0;
+    right: 0;
     z-index: 99;
     background: ${theme.colorBgMask};
   `}
@@ -233,13 +236,13 @@ export function AppShell({ data, isFrontendRoute, children }: AppShellProps) {
             collapsed={phone ? false : collapsed}
             onToggleCollapsed={phone ? closeNav : toggleCollapsed}
             isFrontendRoute={isFrontendRoute}
-            top={MENU_BAR_HEIGHT}
-            bottom={phone ? 0 : STATUS_BAR_HEIGHT}
+            top={phone ? MENU_BAR_PHONE_HEIGHT : MENU_BAR_HEIGHT}
+            bottom={STATUS_BAR_HEIGHT}
           />
         )}
         {!report && phone && navOpen && (
           <Backdrop
-            $top={MENU_BAR_HEIGHT}
+            $top={phone ? MENU_BAR_PHONE_HEIGHT : MENU_BAR_HEIGHT}
             onClick={closeNav}
             data-test="auradata-nav-backdrop"
           />

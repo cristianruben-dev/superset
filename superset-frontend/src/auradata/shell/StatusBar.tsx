@@ -84,9 +84,16 @@ const Bar = styled.footer`
 
     /* Phones only keep the state of the connection */
     @media (max-width: 767px) {
+      font-size: 12px;
+      padding: 0 ${theme.sizeUnit * 2}px;
+
       .page,
       .end {
         display: none;
+      }
+
+      .state {
+        font-size: 12px;
       }
     }
   `}

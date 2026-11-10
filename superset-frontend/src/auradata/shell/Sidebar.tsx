@@ -39,7 +39,9 @@ const Aside = styled.aside<{
 }>`
   ${({ theme, $collapsed, $top, $bottom }) => css`
     position: fixed;
-    inset: ${$top}px auto ${$bottom}px 0;
+    top: ${$top}px;
+    bottom: ${$bottom}px;
+    left: 0;
     z-index: 100;
     display: flex;
     flex-direction: column;
@@ -143,6 +145,10 @@ const SectionTitle = styled.button<{ $collapsed: boolean }>`
     .anticon {
       font-size: 10px;
     }
+
+    @media (max-width: 767px) {
+      font-size: 12px;
+    }
   `}
 `;
 
@@ -231,6 +237,10 @@ const CollapseButton = styled.button<{ $collapsed: boolean }>`
 
     .anticon {
       font-size: 16px;
+    }
+
+    @media (max-width: 767px) {
+      min-height: 44px;
     }
   `}
 `;

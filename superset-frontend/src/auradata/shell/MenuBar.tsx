@@ -24,6 +24,8 @@ import type { MenuItem } from '@superset-ui/core/components/Menu';
 
 /** The height of a menu bar, which the sidebar leaves above itself. */
 export const MENU_BAR_HEIGHT = 36;
+/** The height of the menu bar on phones, leaving room for 44px touch targets. */
+export const MENU_BAR_PHONE_HEIGHT = 44;
 
 export interface MenuBarMenu {
   key: string;
@@ -58,6 +60,16 @@ const Bar = styled.div`
       color: ${theme.colorTextTertiary};
       white-space: nowrap;
     }
+
+    @media (max-width: 767px) {
+      height: ${MENU_BAR_PHONE_HEIGHT}px;
+      padding: 0 ${theme.sizeUnit * 2}px;
+      font-size: 12px;
+
+      .end {
+        font-size: 12px;
+      }
+    }
   `}
 `;
 
@@ -85,6 +97,15 @@ const Trigger = styled.button`
     &:focus-visible {
       outline: 2px solid ${theme.colorPrimaryBorder};
     }
+
+    @media (max-width: 767px) {
+      min-height: 44px;
+      min-width: 44px;
+      padding: 0 ${theme.sizeUnit * 2}px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
   `}
 `;
 
@@ -97,6 +118,10 @@ const Shortcut = styled.kbd`
     font-family: ${theme.fontFamilyCode};
     font-size: 11px;
     color: ${theme.colorTextTertiary};
+
+    @media (max-width: 767px) {
+      font-size: 12px;
+    }
   `}
 `;
 

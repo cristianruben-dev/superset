@@ -38,6 +38,13 @@ const Bar = styled.header`
     border-bottom: 1px solid ${theme.colorBorderSecondary};
     position: relative;
     z-index: 20;
+
+    @media (max-width: 767px) {
+      height: 44px;
+      padding: 0 ${theme.sizeUnit * 2}px;
+      gap: ${theme.sizeUnit * 2}px;
+      font-size: 12px;
+    }
   `}
 `;
 
@@ -105,6 +112,16 @@ const SearchTrigger = styled.button`
       background: ${theme.colorBgContainer};
       color: ${theme.colorTextSecondary};
     }
+
+    @media (max-width: 767px) {
+      min-height: 44px;
+      min-width: 44px;
+      font-size: 12px;
+
+      kbd {
+        font-size: 12px;
+      }
+    }
   `}
 `;
 
@@ -133,6 +150,13 @@ const SearchIcon = styled.button`
 
     &:focus-visible {
       outline: 2px solid ${theme.colorPrimaryBorder};
+    }
+
+    @media (max-width: 767px) {
+      width: 44px;
+      height: 44px;
+      min-width: 44px;
+      min-height: 44px;
     }
   `}
 `;
