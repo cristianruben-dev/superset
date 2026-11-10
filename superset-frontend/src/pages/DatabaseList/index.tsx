@@ -23,7 +23,7 @@ import {
   isFeatureEnabled,
   FeatureFlag,
 } from '@superset-ui/core';
-import { css, useTheme } from '@apache-superset/core/theme';
+import { css, styled, useTheme } from '@apache-superset/core/theme';
 import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import type { CellProps } from 'react-table';
 import rison from 'rison';
@@ -83,6 +83,90 @@ const dbConfigExtraExtension = extensionsRegistry.get(
 
 const PAGE_SIZE = 25;
 const SEMANTIC_LAYERS_FLAG = 'SEMANTIC_LAYERS' as FeatureFlag;
+
+const DatabaseListWrapper = styled.div`
+  ${({ theme }) => css`
+    width: 100%;
+
+    @media (max-width: 767px) {
+      .database-list-view {
+        .body {
+          overflow-x: auto;
+          -webkit-overflow-scrolling: touch;
+        }
+
+        .ant-table-wrapper {
+          overflow-x: auto;
+        }
+
+        .ant-table table {
+          min-width: 800px;
+        }
+
+        .ant-table-thead > tr > th,
+        .ant-table-tbody > tr > td {
+          white-space: nowrap;
+          word-break: keep-all;
+        }
+
+        /* Action icons at least 24 px on phones */
+        .actions {
+          display: inline-flex;
+          align-items: center;
+          gap: ${theme.sizeUnit}px;
+
+          .action-button,
+          button[type='button'],
+          [role='button'] {
+            min-width: 24px;
+            min-height: 24px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2px;
+
+            svg,
+            .anticon {
+              width: 20px;
+              height: 20px;
+              font-size: 20px;
+            }
+          }
+        }
+
+        /* Touch targets: checkboxes and favorites at least 24 px on phones */
+        .ant-checkbox-wrapper,
+        .ant-checkbox {
+          min-width: 24px;
+          min-height: 24px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .ant-checkbox-inner {
+          width: 18px;
+          height: 18px;
+        }
+
+        [data-test='fave-unfave-icon'],
+        .fave-unfave-icon {
+          min-width: 24px;
+          min-height: 24px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+
+          svg {
+            width: 20px;
+            height: 20px;
+            font-size: 20px;
+          }
+        }
+      }
+    }
+  `}
+`;
 
 type ConnectionItem = DatabaseObject & {
   source_type?: 'database' | 'semantic_layer';
@@ -1083,7 +1167,7 @@ function DatabaseList({
   }, [showSemanticLayers, canReadDatabase, canReadLayer]);
 
   return (
-    <>
+    <DatabaseListWrapper>
       <SubMenu {...menuData} />
       <DatabaseModal
         databaseId={currentDatabase?.id}
@@ -1331,7 +1415,7 @@ function DatabaseList({
       />
 
       {preparingExport && <Loading />}
-    </>
+    </DatabaseListWrapper>
   );
 }
 

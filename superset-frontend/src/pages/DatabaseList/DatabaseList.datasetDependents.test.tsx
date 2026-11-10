@@ -287,3 +287,13 @@ test('the dataset list footer reports dependents beyond the listed page', async 
   expect(within(dialog).queryByText('qa_table_11')).not.toBeInTheDocument();
   expect(within(dialog).getByText('... and 2 others')).toBeInTheDocument();
 });
+
+test('renders database list table with action buttons and headers', async () => {
+  setupMocks({ datasets: [] });
+  renderDatabaseList();
+
+  expect(await screen.findByText('Name')).toBeInTheDocument();
+  expect(screen.getAllByText('Actions').length).toBeGreaterThanOrEqual(1);
+  expect(await screen.findByTestId('database-delete')).toBeInTheDocument();
+  expect(screen.getByTestId('database-edit')).toBeInTheDocument();
+});
