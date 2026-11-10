@@ -32,6 +32,7 @@ import { RibbonButton } from '../ribbon/parts';
 import { applyBookmark, bookmarksOf } from './bookmarks';
 import { useFiltersChanged } from './ResetFiltersButton';
 import { resetFilters } from './resetFilters';
+import { STATUS_BAR_HEIGHT } from '../shell/StatusBar';
 
 const Bar = styled.div`
   ${({ theme }) => css`
@@ -97,10 +98,26 @@ function CommandGroup({
 const PhoneCommand = styled(Button)`
   ${({ theme }) => css`
     position: fixed;
-    right: ${theme.sizeUnit * 4}px;
-    bottom: ${theme.sizeUnit * 20}px;
+    right: ${theme.sizeUnit * 3}px;
+    bottom: calc(
+      ${STATUS_BAR_HEIGHT + theme.sizeUnit * 2}px +
+        env(safe-area-inset-bottom, 0px)
+    );
     z-index: ${theme.zIndexPopupBase - 1};
     box-shadow: ${theme.boxShadowSecondary};
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    .phone-assistant-label {
+      display: none;
+    }
   `}
 `;
 
@@ -175,8 +192,9 @@ export function ReadingBar({
           onClick={openAssistant}
           icon={<Icons.CommentOutlined iconSize="m" />}
           data-test="auradata-assistant-phone-button"
+          aria-label={t('Ask')}
         >
-          {t('Ask')}
+          <span className="phone-assistant-label">{t('Ask')}</span>
         </PhoneCommand>
         {assistantPanel}
       </>
