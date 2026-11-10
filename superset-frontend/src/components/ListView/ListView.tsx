@@ -113,9 +113,30 @@ const ListViewStyles = styled.div`
         margin-bottom: 0;
       }
 
-      .body {
-        overflow-x: auto;
-        overflow-y: hidden;
+      @media (max-width: 767px) {
+        .body {
+          overflow-x: auto;
+          overflow-y: hidden;
+          width: 100%;
+          max-width: 100%;
+          -webkit-overflow-scrolling: touch;
+        }
+
+        .ant-table-wrapper {
+          width: 100%;
+          max-width: 100%;
+        }
+
+        .ant-table {
+          overflow-x: auto;
+          -webkit-overflow-scrolling: touch;
+        }
+
+        .ant-table-container {
+          max-width: 100%;
+          overflow-x: auto;
+          -webkit-overflow-scrolling: touch;
+        }
       }
 
       .ant-empty {
@@ -136,6 +157,105 @@ const ListViewStyles = styled.div`
       margin-top: ${theme.sizeUnit * 2}px;
       color: ${theme.colorText};
       text-align: center;
+    }
+
+    @media (max-width: 767px) {
+      .superset-list-view {
+        margin: 0 ${theme.sizeUnit * 2}px;
+
+        .header {
+          padding-bottom: ${theme.sizeUnit * 2}px;
+
+          & .controls {
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            overflow-y: hidden;
+            width: 100%;
+            max-width: 100%;
+            padding-bottom: ${theme.sizeUnit}px;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            &::-webkit-scrollbar {
+              display: none;
+            }
+
+            [data-test='search-filter-container'] {
+              width: ${theme.sizeUnit * 36}px;
+              min-width: 140px;
+              flex-shrink: 0;
+            }
+
+            [data-test='select-filter-container'] {
+              flex-shrink: 0;
+            }
+
+            > * {
+              flex-shrink: 0;
+            }
+          }
+        }
+      }
+
+      /* Checkboxes and favorite touch targets: at least 24 px on phones */
+      .ant-checkbox-wrapper,
+      .ant-checkbox {
+        min-width: 24px;
+        min-height: 24px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .ant-checkbox-inner {
+        width: 24px !important;
+        height: 24px !important;
+      }
+
+      .ant-checkbox-inner::after {
+        width: 7px;
+        height: 13px;
+        left: 30%;
+        top: 45%;
+      }
+
+      .fave-unfave-icon,
+      [data-test='fave-unfave-icon'] {
+        min-width: 24px;
+        min-height: 24px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+
+        svg,
+        .anticon {
+          width: 24px;
+          height: 24px;
+          font-size: 24px;
+        }
+      }
+
+      /* Action buttons in lists and tables on mobile */
+      .actions {
+        opacity: 1 !important;
+
+        .action-button,
+        button,
+        [role='button'] {
+          min-width: 24px;
+          min-height: 24px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+
+          svg,
+          .anticon {
+            width: 24px;
+            height: 24px;
+            font-size: 24px;
+          }
+        }
+      }
     }
   `}
 `;
