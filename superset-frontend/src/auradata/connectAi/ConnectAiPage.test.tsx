@@ -95,3 +95,30 @@ test('says so when the MCP service takes no API keys', async () => {
   ).toBeInTheDocument();
   expect(screen.queryByTestId('connect-ai-url')).not.toBeInTheDocument();
 });
+
+test('renders keys list inside the keys table wrapper', async () => {
+  fetchMock.removeRoutes();
+  fetchMock.get(CONNECTION, {
+    result: { url: 'https://bi.example.com/mcp', api_keys_enabled: true },
+  });
+  fetchMock.get(KEYS, {
+    result: [
+      {
+        uuid: 'key-1',
+        name: 'My Test Key',
+        key_prefix: 'sst_test',
+        active: true,
+        created_on: '2026-11-09T00:00:00Z',
+        expires_on: null,
+        revoked_on: null,
+        last_used_on: null,
+        scopes: null,
+      },
+    ],
+  });
+  render(<ConnectAiPage user={user} />, { useRedux: true, useRouter: true });
+
+  expect(await screen.findByText('Your keys')).toBeInTheDocument();
+  expect(await screen.findByText('My Test Key')).toBeInTheDocument();
+  expect(screen.getByText('sst_test...')).toBeInTheDocument();
+});

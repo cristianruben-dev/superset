@@ -51,6 +51,39 @@ interface McpConnection {
   api_keys_enabled: boolean;
 }
 
+const KeysTableWrapper = styled.div`
+  width: 100%;
+
+  @media (max-width: 767px) {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+
+    .ant-table-wrapper {
+      overflow-x: auto;
+    }
+
+    .ant-table {
+      min-width: 680px;
+    }
+
+    .ant-table table {
+      min-width: 680px;
+    }
+
+    .ant-table-thead > tr > th,
+    .ant-table-tbody > tr > td {
+      white-space: nowrap;
+      word-break: keep-all;
+    }
+
+    .ant-btn {
+      min-height: 24px;
+      min-width: 24px;
+      padding: 4px 8px;
+    }
+  }
+`;
+
 const Page = styled.div`
   ${({ theme }) => css`
     display: grid;
@@ -311,25 +344,27 @@ export default function ConnectAiPage({
 
             <Section>
               <h2>{t('Your keys')}</h2>
-              <ApiKeyList
-                hideToolbar
-                creating={creating}
-                onCreatingChange={setCreating}
-                onKeysChange={setKeys}
-                createModalProps={{
-                  scopeOptions,
-                  initialScopes: readApiKeyScopes(scopeOptions),
-                  createdKeyExtra: key => (
-                    <div
-                      css={css`
-                        margin-top: 16px;
-                      `}
-                    >
-                      <ClientSetup url={url} apiKey={key} />
-                    </div>
-                  ),
-                }}
-              />
+              <KeysTableWrapper>
+                <ApiKeyList
+                  hideToolbar
+                  creating={creating}
+                  onCreatingChange={setCreating}
+                  onKeysChange={setKeys}
+                  createModalProps={{
+                    scopeOptions,
+                    initialScopes: readApiKeyScopes(scopeOptions),
+                    createdKeyExtra: key => (
+                      <div
+                        css={css`
+                          margin-top: 16px;
+                        `}
+                      >
+                        <ClientSetup url={url} apiKey={key} />
+                      </div>
+                    ),
+                  }}
+                />
+              </KeysTableWrapper>
             </Section>
           </>
         )}
