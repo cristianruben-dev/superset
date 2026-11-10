@@ -17,6 +17,7 @@
  * under the License.
  */
 import { t } from '@apache-superset/core/translation';
+import { styled } from '@apache-superset/core/theme';
 import { SupersetClient } from '@superset-ui/core';
 import { useCallback, useMemo, useState } from 'react';
 import {
@@ -52,6 +53,35 @@ interface RLSProps {
     lastName: string;
   };
 }
+
+const RLSContainer = styled.div`
+  @media (max-width: 767px) {
+    /* + Regla button respects the 48px page margin on mobile */
+    .nav-right {
+      margin-left: 48px !important;
+    }
+
+    /* Title and breadcrumbs in the header row must not be cut */
+    .header {
+      margin-left: 48px !important;
+      white-space: normal;
+      overflow: visible;
+      text-overflow: unset;
+      line-height: 1.3;
+    }
+
+    [data-test='auradata-crumbs'],
+    nav[aria-label='Breadcrumb'] {
+      margin-left: 48px;
+      overflow-x: auto;
+      white-space: nowrap;
+      scrollbar-width: none;
+      &::-webkit-scrollbar {
+        display: none;
+      }
+    }
+  }
+`;
 
 function RowLevelSecurityList(props: RLSProps) {
   const { addDangerToast, addSuccessToast, user } = props;
@@ -305,7 +335,7 @@ function RowLevelSecurityList(props: RLSProps) {
   }
 
   return (
-    <>
+    <RLSContainer>
       <SubMenu name={t('Row Level Security')} buttons={subMenuButtons} />
       <ConfirmStatusChange
         title={t('Please confirm')}
@@ -351,7 +381,7 @@ function RowLevelSecurityList(props: RLSProps) {
           );
         }}
       </ConfirmStatusChange>
-    </>
+    </RLSContainer>
   );
 }
 
