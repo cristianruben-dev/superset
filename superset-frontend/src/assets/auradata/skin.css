@@ -2055,8 +2055,7 @@ body.auradata-presenting-idle * {
   }
 
   [data-test='dashboard-header-container']
-    [data-test='auradata-present-button'],
-  [data-test='dashboard-header-container'] [data-test='edit-dashboard-button'] {
+    [data-test='auradata-present-button'] {
     display: none !important;
   }
 }
