@@ -22,6 +22,7 @@ import { css, styled } from '@apache-superset/core/theme';
 import { Dropdown, Tooltip } from '@superset-ui/core/components';
 import type { MenuProps } from '@superset-ui/core/components/Menu';
 import { Icons } from '@superset-ui/core/components/Icons';
+import { MOBILE_BREAKPOINT } from '../format/mobile';
 
 export const RibbonBar = styled.div`
   ${({ theme }) => css`
@@ -42,6 +43,22 @@ export const RibbonTabs = styled.div`
 
     .spacer {
       flex: 1;
+      min-width: ${theme.sizeUnit}px;
+    }
+
+    @media (max-width: ${MOBILE_BREAKPOINT - 1}px) {
+      overflow-x: auto;
+      overflow-y: hidden;
+      scrollbar-width: none;
+
+      &::-webkit-scrollbar {
+        display: none;
+      }
+
+      button {
+        flex: none;
+        white-space: nowrap;
+      }
     }
   `}
 `;
@@ -51,6 +68,8 @@ export const RibbonTab = styled.button<{
   $contextual?: boolean;
 }>`
   ${({ theme, $active, $contextual }) => css`
+    flex: none;
+    white-space: nowrap;
     height: 100%;
     padding: 0 ${theme.sizeUnit * 3}px;
     border: 0;
