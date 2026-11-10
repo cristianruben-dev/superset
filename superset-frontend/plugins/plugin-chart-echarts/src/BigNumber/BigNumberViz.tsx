@@ -16,11 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import {
-  useRef,
-  MouseEvent,
-  type CSSProperties,
-} from 'react';
+import { useRef, MouseEvent, type CSSProperties } from 'react';
 import { t } from '@apache-superset/core/translation';
 import {
   getNumberFormatter,
@@ -500,7 +496,10 @@ function BigNumberVis({
     const chartHeight = Math.floor(PROPORTION.TRENDLINE * height);
     const allTextHeight = height - chartHeight;
     return (
-      <div className={componentClassName} style={{ height, width: '100%', overflow: 'hidden' }}>
+      <div
+        className={componentClassName}
+        style={{ height, width: '100%', overflow: 'hidden' }}
+      >
         <div
           className="text-container"
           style={{
@@ -539,28 +538,28 @@ function BigNumberVis({
       </div>
     );
   }
-    return (
+  return (
+    <div
+      className={componentClassName}
+      style={{
+        height,
+        width: '100%',
+        overflow: 'hidden',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+      }}
+    >
       <div
-        className={componentClassName}
+        className="text-container"
         style={{
-          height,
+          height: '100%',
           width: '100%',
           overflow: 'hidden',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
+          boxSizing: 'border-box',
+          ...textLayout,
         }}
       >
-        <div
-          className="text-container"
-          style={{
-            height: '100%',
-            width: '100%',
-            overflow: 'hidden',
-            boxSizing: 'border-box',
-            ...textLayout,
-          }}
-        >
         {renderFallbackWarning()}
         {format.cardLabelPosition !== 'after' &&
           renderMetricName((metricNameFontSize || 0) * height)}

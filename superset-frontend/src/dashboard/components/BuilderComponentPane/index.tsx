@@ -324,21 +324,23 @@ const BuilderComponentPane = ({ topOffset = 0, pageTop = 0 }) => {
                 font-size: 10px;
                 line-height: 1.1;
                 text-align: center;
-                color: ${isSelected
-                  ? theme.colorPrimary
-                  : theme.colorTextSecondary};
-                background: ${isSelected
-                  ? theme.colorPrimaryBg
-                  : 'transparent'};
-                border-right: ${isSelected
-                  ? `3px solid ${theme.colorPrimary}`
-                  : '3px solid transparent'};
+                color: ${
+                  isSelected ? theme.colorPrimary : theme.colorTextSecondary
+                };
+                background: ${
+                  isSelected ? theme.colorPrimaryBg : 'transparent'
+                };
+                border-right: ${
+                  isSelected
+                    ? `3px solid ${theme.colorPrimary}`
+                    : '3px solid transparent'
+                };
                 transition: all 0.15s ease;
 
                 &:hover {
-                  background: ${isSelected
-                    ? theme.colorPrimaryBg
-                    : theme.colorFillTertiary};
+                  background: ${
+                    isSelected ? theme.colorPrimaryBg : theme.colorFillTertiary
+                  };
                   color: ${theme.colorText};
                 }
 

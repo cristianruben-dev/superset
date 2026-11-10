@@ -334,36 +334,36 @@ export function AppMenusHost({
   return (
     <>
       {logoutHolder}
-    <Modal
-      show={!!dialog}
-      onHide={() => setDialog(null)}
-      title={
-        dialog === 'shortcuts'
-          ? t('Keyboard shortcuts')
-          : t('About AuraData BI')
-      }
-      hideFooter
-    >
-      <dl
-        data-test="auradata-menu-dialog"
-        css={{
-          display: 'grid',
-          gridTemplateColumns: 'auto 1fr',
-          gap: '6px 16px',
-          margin: 0,
-          fontVariantNumeric: 'tabular-nums',
-        }}
+      <Modal
+        show={!!dialog}
+        onHide={() => setDialog(null)}
+        title={
+          dialog === 'shortcuts'
+            ? t('Keyboard shortcuts')
+            : t('About AuraData BI')
+        }
+        hideFooter
       >
-        {rows
-          .filter(([, value]) => value)
-          .map(([label, value]) => (
-            <div key={label} style={{ display: 'contents' }}>
-              <dt>{label}</dt>
-              <dd style={{ margin: 0 }}>{value}</dd>
-            </div>
-          ))}
-      </dl>
-    </Modal>
+        <dl
+          data-test="auradata-menu-dialog"
+          css={{
+            display: 'grid',
+            gridTemplateColumns: 'auto 1fr',
+            gap: '6px 16px',
+            margin: 0,
+            fontVariantNumeric: 'tabular-nums',
+          }}
+        >
+          {rows
+            .filter(([, value]) => value)
+            .map(([label, value]) => (
+              <div key={label} style={{ display: 'contents' }}>
+                <dt>{label}</dt>
+                <dd style={{ margin: 0 }}>{value}</dd>
+              </div>
+            ))}
+        </dl>
+      </Modal>
     </>
   );
 }

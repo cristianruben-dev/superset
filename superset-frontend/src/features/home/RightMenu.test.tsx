@@ -290,7 +290,9 @@ test('Logs out after confirming and clears local storage item redux', async () =
     const logoutButton = await screen.findByText('Logout');
     await userEvent.click(logoutButton);
     expect(localStorage.getItem('redux')).not.toBeNull();
-    await userEvent.click(await screen.findByRole('button', { name: 'Log out' }));
+    await userEvent.click(
+      await screen.findByRole('button', { name: 'Log out' }),
+    );
 
     // Wait for local and session storage to be cleared
     await waitFor(() => {
