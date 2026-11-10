@@ -104,20 +104,66 @@ const Hero = styled.header`
       padding: 0 ${theme.sizeUnit * 5}px ${theme.sizeUnit * 3}px;
     }
 
-    /* On phones the name goes under the picture instead of being cut off */
+    /* On phones the header is compact so dashboards appear sooner, and actions wrap cleanly */
     @media (max-width: 767px) {
+      margin-bottom: ${theme.sizeUnit * 3}px;
+
+      .cover {
+        height: 52px;
+      }
+
       .content {
         flex-wrap: wrap;
         align-items: flex-start;
-        padding: 0 ${theme.sizeUnit * 5}px ${theme.sizeUnit * 5}px;
+        padding: 0 ${theme.sizeUnit * 4}px ${theme.sizeUnit * 3}px;
+        gap: ${theme.sizeUnit * 3}px;
+      }
+
+      .avatar {
+        margin-top: -20px;
       }
 
       .titles {
         padding-top: 0;
       }
 
+      h1 {
+        font-size: 20px;
+      }
+
+      .description {
+        margin-top: ${theme.sizeUnit * 0.5}px;
+        -webkit-line-clamp: 2;
+      }
+
       .toolbar {
-        padding: ${theme.sizeUnit * 3}px ${theme.sizeUnit * 5}px;
+        padding: ${theme.sizeUnit * 2}px ${theme.sizeUnit * 4}px;
+        gap: ${theme.sizeUnit * 2}px;
+      }
+
+      .meta {
+        gap: ${theme.sizeUnit}px ${theme.sizeUnit * 2.5}px;
+        font-size: 12px;
+      }
+
+      .actions {
+        width: 100%;
+        margin-left: 0;
+        justify-content: flex-start;
+        gap: ${theme.sizeUnit * 1.5}px;
+
+        button,
+        .ant-btn {
+          flex: 1 1 auto;
+          justify-content: center;
+        }
+
+        .more {
+          flex: 0 0 32px;
+          min-width: 32px;
+          width: 32px;
+          padding: 0;
+        }
       }
     }
 

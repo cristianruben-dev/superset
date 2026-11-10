@@ -152,6 +152,24 @@ const Card = styled.div`
         padding: 0 ${theme.sizeUnit}px;
         height: auto;
       }
+
+      @media (max-width: 767px) {
+        .fave-unfave-icon,
+        [data-test='fave-unfave-icon'],
+        .ant-btn {
+          min-width: 24px;
+          min-height: 24px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+
+          svg {
+            width: 24px;
+            height: 24px;
+            font-size: 24px;
+          }
+        }
+      }
     }
 
     .meta {
