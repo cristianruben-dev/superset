@@ -101,6 +101,8 @@ function TaskList({ addDangerToast, addSuccessToast, user }: TaskListProps) {
           css={css`
             height: 50vh;
             color: ${theme.colorTextSecondary};
+            padding: 0 ${theme.sizeUnit * 4}px;
+            text-align: center;
           `}
         >
           <h3>{t('Feature Not Enabled')}</h3>
