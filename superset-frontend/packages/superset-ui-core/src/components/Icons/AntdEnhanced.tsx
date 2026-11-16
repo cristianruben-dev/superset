@@ -196,6 +196,8 @@ import {
   BlockOutlined,
   RotateRightOutlined,
   MobileOutlined,
+  DoubleLeftOutlined,
+  DoubleRightOutlined,
 } from '@ant-design/icons';
 import { ForwardRefExoticComponent, RefAttributes, forwardRef } from 'react';
 import { IconType } from './types';
@@ -381,6 +383,8 @@ const AntdIcons = {
   BlockOutlined,
   RotateRightOutlined,
   MobileOutlined,
+  DoubleLeftOutlined,
+  DoubleRightOutlined,
 } as const;
 
 type AntdIconNames = keyof typeof AntdIcons;

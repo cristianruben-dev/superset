@@ -37,6 +37,7 @@ import {
 import { CanvasFrame, useMaxHeightMultiple } from './CanvasFrame';
 import { FormatPane } from './FormatPane';
 import { selectedVisual, selectVisual } from './selection';
+import { isPaneCollapsed, setPaneCollapsed } from './panes';
 import {
   canvasSize,
   canvasStyle,
@@ -399,3 +400,18 @@ test('objects grow only into the room left on the page', () => {
   );
   expect(screen.getByTestId('max-height')).toHaveTextContent('undefined');
 });
+
+test.each(['Visual', 'Analytics', 'General'])(
+  'the Data pane shows with the Fields level only, folding on %s',
+  level => {
+    setPaneCollapsed('data', true);
+    render(<FormatPane />, { store: makeStore() });
+    act(() => selectVisual('CHART-a'));
+
+    fireEvent.click(screen.getByRole('radio', { name: 'Fields' }));
+    expect(isPaneCollapsed('data')).toBe(false);
+
+    fireEvent.click(screen.getByRole('radio', { name: level }));
+    expect(isPaneCollapsed('data')).toBe(true);
+  },
+);
