@@ -382,7 +382,9 @@ const SliceHeader = forwardRef<HTMLDivElement, SliceHeaderProps>(
             chartId={slice.slice_id}
             format={headerFormat}
             report={reportTitle}
-            showFilters={showBadges && !uiConfig.hideChartControls}
+            // Only for viewers: in the editor every badge would re-render its
+            // chart on each layout change
+            showFilters={!editMode && showBadges && !uiConfig.hideChartControls}
             isFullSize={isFullSize}
             onToggleFullSize={handleToggleFullSize}
             menu={
