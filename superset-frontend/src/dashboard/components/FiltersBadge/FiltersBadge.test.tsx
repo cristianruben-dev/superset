@@ -227,3 +227,21 @@ test('manual refresh: clears indicators during loading state', () => {
   // Badge should disappear during manual refresh loading
   expect(queryByTestId('applied-filter-count')).not.toBeInTheDocument();
 });
+
+test('always shown: keeps the button, without a count, when nothing filters the chart', () => {
+  const store = getMockStoreWithNativeFiltersButNoValues();
+  store.dispatch({
+    type: CHART_UPDATE_SUCCEEDED,
+    key: sliceId,
+    queriesResponse: [
+      { status: 'success', applied_filters: [], rejected_filters: [] },
+    ],
+  });
+  store.dispatch({ type: CHART_RENDERING_SUCCEEDED, key: sliceId });
+  const { getByTestId, queryByTestId } = render(
+    <FiltersBadge chartId={sliceId} alwaysShow />,
+    { store },
+  );
+  expect(getByTestId('applied-filters-button')).toBeInTheDocument();
+  expect(queryByTestId('applied-filter-count')).not.toBeInTheDocument();
+});

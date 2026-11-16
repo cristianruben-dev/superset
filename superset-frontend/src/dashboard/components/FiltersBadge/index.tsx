@@ -53,6 +53,11 @@ import { useIsAutoRefreshing } from '../../contexts/AutoRefreshContext';
 
 export interface FiltersBadgeProps {
   chartId: number;
+  /**
+   * Shows the button with no filter applied too, as the action bar of a chart
+   * does: its list then says that nothing affects the chart.
+   */
+  alwaysShow?: boolean;
 }
 
 const StyledFilterCount = styled.button`
@@ -108,7 +113,7 @@ const sortByStatus = (indicators: Indicator[]): Indicator[] => {
 
 const indicatorsInitialState: Indicator[] = [];
 
-export const FiltersBadge = ({ chartId }: FiltersBadgeProps) => {
+export const FiltersBadge = ({ chartId, alwaysShow }: FiltersBadgeProps) => {
   const dispatch = useDispatch();
   const isAutoRefreshing = useIsAutoRefreshing();
   const datasources = useSelector<RootState, RootState['datasources']>(
@@ -294,7 +299,11 @@ export const FiltersBadge = ({ chartId }: FiltersBadgeProps) => {
   const filterCount =
     appliedIndicators.length + appliedCrossFilterIndicators.length;
 
-  if (!appliedCrossFilterIndicators.length && !appliedIndicators.length) {
+  if (
+    !alwaysShow &&
+    !appliedCrossFilterIndicators.length &&
+    !appliedIndicators.length
+  ) {
     return null;
   }
 
@@ -311,6 +320,7 @@ export const FiltersBadge = ({ chartId }: FiltersBadgeProps) => {
       <StyledFilterCount
         type="button"
         aria-label={t('Applied filters (%s)', filterCount)}
+        data-test="applied-filters-button"
         aria-haspopup="true"
         ref={popoverTriggerRef}
         className={cx(
@@ -320,13 +330,15 @@ export const FiltersBadge = ({ chartId }: FiltersBadgeProps) => {
         onKeyDown={handleKeyDown}
       >
         <Icons.FilterOutlined iconSize="m" />
-        <StyledBadge
-          data-test="applied-filter-count"
-          className="applied-count"
-          count={filterCount}
-          size="small"
-          showZero
-        />
+        {(!alwaysShow || filterCount > 0) && (
+          <StyledBadge
+            data-test="applied-filter-count"
+            className="applied-count"
+            count={filterCount}
+            size="small"
+            showZero
+          />
+        )}
       </StyledFilterCount>
     </DetailsPanelPopover>
   );

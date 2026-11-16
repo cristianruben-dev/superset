@@ -442,15 +442,14 @@ const ChartHolder = ({
               <FieldDropTarget id={component.id} chartId={chartId} />
             )}
             {editMode && <ObjectBadges meta={component.meta} hidden={hidden} />}
-            {editMode && (
-              <ObjectActions
-                id={component.id}
-                onDelete={locked ? undefined : handleDeleteComponent}
-                onFormat={handleOpenFormat}
-                formatTestId="auradata-format-visual-button"
-                deleteTestId="dashboard-delete-component-button"
-              />
-            )}
+            {/* In reading view the bar only holds the buttons of the header */}
+            <ObjectActions
+              id={component.id}
+              onDelete={editMode && !locked ? handleDeleteComponent : undefined}
+              onFormat={editMode ? handleOpenFormat : undefined}
+              formatTestId="auradata-format-visual-button"
+              deleteTestId="dashboard-delete-component-button"
+            />
           </AntdThemeProvider>
         </div>
       </ResizableContainer>

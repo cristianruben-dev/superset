@@ -37,6 +37,8 @@ export interface SliceHeaderControlsProps {
   isExpanded?: boolean;
   updatedDttm: number | null;
   isFullSize?: boolean;
+  /** False when another button leaves the full size chart */
+  showExitButton?: boolean;
   isDescriptionExpanded?: boolean;
   formData: QueryFormData;
   exploreUrl: string;

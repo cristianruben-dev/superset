@@ -221,7 +221,7 @@ export function HeaderIconsFields({ id }: { id: string }) {
       />
       <Toggle
         label={t('Focus mode icon')}
-        checked={!!header.focus}
+        checked={header.focus !== false}
         testId="auradata-format-header-focus"
         onChange={focus => set({ focus }, 'focus')}
       />
@@ -232,7 +232,7 @@ export function HeaderIconsFields({ id }: { id: string }) {
       />
       <Toggle
         label={t('Copy image icon')}
-        checked={!!header.copy}
+        checked={header.copy !== false}
         onChange={copy => set({ copy }, 'copy')}
       />
       <Toggle

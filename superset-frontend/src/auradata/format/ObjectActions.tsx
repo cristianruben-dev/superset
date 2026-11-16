@@ -23,20 +23,24 @@ import {
   useRef,
   useState,
   type MouseEventHandler,
+  type ReactNode,
   type SyntheticEvent,
 } from 'react';
 import { createPortal } from 'react-dom';
 import { t } from '@apache-superset/core/translation';
 import { css, styled } from '@apache-superset/core/theme';
+import { Tooltip } from '@superset-ui/core/components';
 import { Icons } from '@superset-ui/core/components/Icons';
+import { registerActionSlot } from './actionSlots';
 import { selectedVisual, selectedVisuals } from './selection';
 
 /** Distance to the object and to the edges of the area that scrolls. */
 const GAP = 4;
 /** Time to reach the buttons from the object before they go away. */
 const LEAVE_DELAY = 200;
-/** An object narrower than this, on screen, gets the buttons without labels. */
-const COMPACT_WIDTH = 220;
+/** A menu or list opened from the bar keeps it on screen while it is open. */
+const OPEN_POPUP =
+  '.ant-dropdown-open, .ant-popover-open, [aria-expanded="true"]';
 
 /**
  * Lives outside the scaled page, in the coordinates of the window: its size
@@ -56,12 +60,41 @@ const Bar = styled.div`
     border-radius: ${theme.borderRadiusLG}px;
     box-shadow: ${theme.boxShadowSecondary};
 
-    body.auradata-moving & {
+    body.auradata-moving &,
+    &:not(:has(button)) {
       display: none;
     }
 
-    &.compact .label {
-      display: none;
+    /* The buttons a chart header places here (see actionSlots) */
+    .auradata-action-slot {
+      display: contents;
+    }
+
+    .auradata-action-slot button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: ${theme.sizeUnit}px;
+      min-width: 32px;
+      width: auto;
+      height: 32px;
+      margin: 0;
+      padding: 0 ${theme.sizeUnit * 1.5}px;
+      border: 0;
+      border-radius: ${theme.borderRadius}px;
+      background: transparent;
+      color: ${theme.colorText};
+      cursor: pointer;
+    }
+
+    .auradata-action-slot button .anticon,
+    .auradata-action-slot button svg {
+      color: ${theme.colorPrimary};
+    }
+
+    .auradata-action-slot button:hover,
+    .auradata-action-slot button:focus-visible {
+      background: ${theme.colorPrimaryBg};
     }
   `}
 `;
@@ -70,16 +103,14 @@ const ActionButton = styled.button<{ $danger?: boolean }>`
   ${({ theme, $danger }) => css`
     display: flex;
     align-items: center;
-    gap: ${theme.sizeUnit * 1.5}px;
+    justify-content: center;
+    width: 32px;
     height: 32px;
-    padding: 0 ${theme.sizeUnit * 2.5}px;
+    padding: 0;
     border: 0;
     border-radius: ${theme.borderRadius}px;
     background: transparent;
     color: ${theme.colorText};
-    font-size: ${theme.fontSizeSM + 1}px;
-    font-weight: ${theme.fontWeightStrong};
-    white-space: nowrap;
     cursor: pointer;
 
     .anticon {
@@ -93,6 +124,35 @@ const ActionButton = styled.button<{ $danger?: boolean }>`
     }
   `}
 `;
+
+/** A button of the bar: an icon, named by its tooltip and its label. */
+export function ObjectActionButton({
+  label,
+  danger,
+  testId,
+  onClick,
+  children,
+}: {
+  label: string;
+  danger?: boolean;
+  testId?: string;
+  onClick: MouseEventHandler<HTMLButtonElement>;
+  children: ReactNode;
+}) {
+  return (
+    <Tooltip title={label} placement="top">
+      <ActionButton
+        type="button"
+        $danger={danger}
+        aria-label={label}
+        data-test={testId}
+        onClick={onClick}
+      >
+        {children}
+      </ActionButton>
+    </Tooltip>
+  );
+}
 
 // The object under the pointer, shared so that only one set of buttons shows
 let hovered: string | null = null;
@@ -163,9 +223,12 @@ export function placeActions(
 const stop = (event: SyntheticEvent) => event.stopPropagation();
 
 /**
- * The buttons of an object while the report is edited: for the object under
- * the pointer or, with no pointer on another one, the one selected. They are
- * drawn at one size at any zoom, and stay inside the visible part of the canvas.
+ * The floating buttons of an object, icons named by their tooltips: for the
+ * object under the pointer or, while editing with no pointer on another one,
+ * the one selected. The header of a chart adds its own buttons (copy, filters,
+ * focus mode, more options) through the slot of the bar (see actionSlots); a
+ * bar with no button stays hidden. They are drawn at one size at any zoom, and
+ * stay inside the visible part of the canvas.
  */
 export const ObjectActions = memo(function ObjectActions({
   id,
@@ -177,15 +240,36 @@ export const ObjectActions = memo(function ObjectActions({
   id: string;
   /** Left out for a locked object, which cannot be removed */
   onDelete?: MouseEventHandler<HTMLButtonElement>;
-  onFormat: () => void;
-  formatTestId: string;
+  /** Left out outside the editor */
+  onFormat?: () => void;
+  formatTestId?: string;
   deleteTestId?: string;
 }) {
   const anchorRef = useRef<HTMLSpanElement>(null);
   const barRef = useRef<HTMLDivElement>(null);
   const leaveTimer = useRef<number>();
   const holderRef = useRef<Element | null>(null);
+  const slotRef = useRef<HTMLSpanElement>(null);
   const open = useIsObjectActionsOpen(id);
+
+  useEffect(
+    () =>
+      slotRef.current ? registerActionSlot(id, slotRef.current) : undefined,
+    [id],
+  );
+
+  // Leaves the object, unless a menu of the bar is open: its list lives
+  // elsewhere in the page, and closing the bar would orphan it
+  const leaveSoon = () => {
+    window.clearTimeout(leaveTimer.current);
+    leaveTimer.current = window.setTimeout(() => {
+      if (barRef.current?.querySelector(OPEN_POPUP)) {
+        leaveSoon();
+      } else if (hovered === id) {
+        setHovered(null);
+      }
+    }, LEAVE_DELAY);
+  };
 
   useEffect(() => {
     const element = anchorRef.current?.closest(
@@ -197,16 +281,11 @@ export const ObjectActions = memo(function ObjectActions({
       window.clearTimeout(leaveTimer.current);
       setHovered(id);
     };
-    const leave = () => {
-      leaveTimer.current = window.setTimeout(() => {
-        if (hovered === id) setHovered(null);
-      }, LEAVE_DELAY);
-    };
     element.addEventListener('pointerenter', enter);
-    element.addEventListener('pointerleave', leave);
+    element.addEventListener('pointerleave', leaveSoon);
     return () => {
       element.removeEventListener('pointerenter', enter);
-      element.removeEventListener('pointerleave', leave);
+      element.removeEventListener('pointerleave', leaveSoon);
       window.clearTimeout(leaveTimer.current);
       if (hovered === id) setHovered(null);
     };
@@ -221,7 +300,6 @@ export const ObjectActions = memo(function ObjectActions({
     const follow = () => {
       const area = holder.closest('[data-test="auradata-canvas-outer"]');
       const rect = holder.getBoundingClientRect();
-      bar.classList.toggle('compact', rect.width < COMPACT_WIDTH);
       const place = placeActions(
         rect,
         area?.getBoundingClientRect() ?? {
@@ -257,37 +335,30 @@ export const ObjectActions = memo(function ObjectActions({
             window.clearTimeout(leaveTimer.current);
             setHovered(id);
           }}
-          onPointerLeave={() => {
-            leaveTimer.current = window.setTimeout(() => {
-              if (hovered === id) setHovered(null);
-            }, LEAVE_DELAY);
-          }}
+          onPointerLeave={leaveSoon}
           onPointerDown={stop}
           onMouseDown={stop}
           onClick={stop}
         >
-          <ActionButton
-            type="button"
-            title={t('Format')}
-            aria-label={t('Format')}
-            data-test={formatTestId}
-            onClick={onFormat}
-          >
-            <Icons.BgColorsOutlined iconSize="m" />
-            <span className="label">{t('Format')}</span>
-          </ActionButton>
+          <span ref={slotRef} className="auradata-action-slot" />
+          {onFormat && (
+            <ObjectActionButton
+              label={t('Format')}
+              testId={formatTestId}
+              onClick={onFormat}
+            >
+              <Icons.BgColorsOutlined iconSize="m" />
+            </ObjectActionButton>
+          )}
           {onDelete && (
-            <ActionButton
-              type="button"
-              $danger
-              title={t('Delete')}
-              aria-label={t('Delete')}
-              data-test={deleteTestId}
+            <ObjectActionButton
+              label={t('Delete')}
+              danger
+              testId={deleteTestId}
               onClick={onDelete}
             >
               <Icons.DeleteOutlined iconSize="m" />
-              <span className="label">{t('Delete')}</span>
-            </ActionButton>
+            </ObjectActionButton>
           )}
         </Bar>,
         document.body,

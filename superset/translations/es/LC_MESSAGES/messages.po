@@ -27794,3 +27794,15 @@ msgid "Restoring will remove %s chart added after this version from this dashboa
 msgid_plural "Restoring will remove %s charts added after this version from this dashboard. The charts themselves will not be deleted."
 msgstr[0] "Al restaurar se quitará de este tablero %s gráfico añadido después de esta versión. El gráfico no se eliminará."
 msgstr[1] "Al restaurar se quitarán de este tablero %s gráficos añadidos después de esta versión. Los gráficos no se eliminarán."
+
+msgid "Copy as image with caption"
+msgstr "Copiar como imagen con título"
+
+msgid "Report: %s"
+msgstr "Informe: %s"
+
+msgid "Copied on %s"
+msgstr "Copiado el %s"
+
+msgid "No filters or slicers affect this visual"
+msgstr "Ningún filtro ni segmentación afecta a este objeto visual"

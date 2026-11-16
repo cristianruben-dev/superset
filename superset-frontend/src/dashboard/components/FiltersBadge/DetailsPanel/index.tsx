@@ -175,6 +175,11 @@ const DetailsPanelPopover = ({
             </FiltersContainer>
           </div>
         ) : null}
+        {!appliedCrossFilterIndicators.length && !appliedIndicators.length ? (
+          <SectionName data-test="filter-status-empty">
+            {t('No filters or slicers affect this visual')}
+          </SectionName>
+        ) : null}
       </div>
     </FiltersDetailsContainer>
   );

@@ -16,17 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { useEffect, useRef, type CSSProperties, type ReactNode } from 'react';
+import { useRef, type CSSProperties, type ReactNode } from 'react';
 import { t } from '@apache-superset/core/translation';
 import { useTheme } from '@apache-superset/core/theme';
-import { logging } from '@apache-superset/core/utils';
 import { Tooltip } from '@superset-ui/core/components';
 import { Icons } from '@superset-ui/core/components/Icons';
-import { useToasts } from 'src/components/MessageToasts/withToasts';
 import { ResultsPaneOnDashboard } from 'src/explore/components/DataTablesPane';
 import { ViewResultsModalTrigger } from 'src/dashboard/components/SliceHeaderControls/ViewResultsModalTrigger';
 import { useElementAction } from 'src/auradata/elements/actions';
-import { captureDashboard } from 'src/auradata/export/capture';
 import { actionButtonStyles, headerTooltipStyle } from './styles';
 import type { ActionButtonFormat, VisualFormat } from './types';
 
@@ -70,7 +67,6 @@ function HeaderIcon({
 /** The optional icons a report can show in the header of a chart. */
 export function HeaderExtras({
   format,
-  chartId,
   sliceName,
   description,
   failed,
@@ -78,12 +74,8 @@ export function HeaderExtras({
   exploreUrl,
   canExplore,
   canDownload,
-  isFullSize,
-  onToggleFullSize,
-  hasExitButton,
 }: {
   format: VisualFormat | undefined;
-  chartId: number;
   sliceName?: string;
   description?: string;
   failed: boolean;
@@ -91,57 +83,13 @@ export function HeaderExtras({
   exploreUrl: string;
   canExplore: boolean;
   canDownload: boolean;
-  isFullSize?: boolean;
-  onToggleFullSize: () => void;
-  /** The menu of the chart brings its own button to leave a full size chart */
-  hasExitButton: boolean;
 }) {
-  const theme = useTheme();
-  const { addSuccessToast, addDangerToast } = useToasts();
   const resultsRef = useRef<{ close: () => void; open: (e: Event) => void }>(
     null,
   );
   const header = format?.header;
   const link = format?.link;
   const runLink = useElementAction(link?.action, !!link?.show);
-
-  const toggleFocus = () => {
-    // The menu of the chart may have asked the browser for its full screen
-    if (isFullSize && document.fullscreenElement) document.exitFullscreen();
-    else onToggleFullSize();
-  };
-
-  useEffect(() => {
-    if (!isFullSize || !header?.focus) return undefined;
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && !document.fullscreenElement) {
-        onToggleFullSize();
-      }
-    };
-    document.addEventListener('keydown', onKeyDown);
-    return () => document.removeEventListener('keydown', onKeyDown);
-  }, [header?.focus, isFullSize, onToggleFullSize]);
-
-  const copyImage = async () => {
-    try {
-      const { canvas } = await captureDashboard(
-        theme,
-        2,
-        `[data-test-chart-id="${chartId}"]`,
-      );
-      const blob = await new Promise<Blob | null>(resolve =>
-        canvas.toBlob(resolve, 'image/png'),
-      );
-      if (!blob) throw new Error('No image');
-      await navigator.clipboard.write([
-        new ClipboardItem({ 'image/png': blob }),
-      ]);
-      addSuccessToast(t('Image copied'));
-    } catch (error) {
-      logging.error(error);
-      addDangerToast(t('The image could not be copied'));
-    }
-  };
 
   const tooltip = header?.tooltip;
   return (
@@ -210,28 +158,6 @@ export function HeaderExtras({
             />
           }
         />
-      )}
-      {header?.copy && (
-        <HeaderIcon
-          title={t('Copy as an image')}
-          onClick={copyImage}
-          testId="auradata-header-copy"
-        >
-          <Icons.CopyOutlined {...iconProps} />
-        </HeaderIcon>
-      )}
-      {header?.focus && !(isFullSize && hasExitButton) && (
-        <HeaderIcon
-          title={isFullSize ? t('Exit focus mode') : t('Focus mode')}
-          onClick={toggleFocus}
-          testId="auradata-header-focus"
-        >
-          {isFullSize ? (
-            <Icons.FullscreenExitOutlined {...iconProps} />
-          ) : (
-            <Icons.FullscreenOutlined {...iconProps} />
-          )}
-        </HeaderIcon>
       )}
     </>
   );

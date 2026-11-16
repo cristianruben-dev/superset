@@ -46,14 +46,15 @@ import {
   HeaderExtras,
 } from 'src/auradata/format/HeaderExtras';
 import SliceHeaderControls from 'src/dashboard/components/SliceHeaderControls';
+import { ChartBarActions } from 'src/auradata/format/ChartBarActions';
 import { useIsMobile } from 'src/hooks/useIsMobile';
 import { SliceHeaderControlsProps } from 'src/dashboard/components/SliceHeaderControls/types';
-import MemoizedFiltersBadge from 'src/dashboard/components/FiltersBadge';
 import MemoizedCustomizationsBadge from 'src/dashboard/components/CustomizationsBadge';
 import { RootState } from 'src/dashboard/types';
 import { getSliceHeaderTooltip } from 'src/dashboard/util/getSliceHeaderTooltip';
 import { DashboardPageIdContext } from 'src/dashboard/containers/DashboardPage';
 import RowCountLabel from 'src/components/RowCountLabel';
+import { DASHBOARD_HEADER_ID } from 'src/dashboard/util/constants';
 
 const extensionsRegistry = getExtensionsRegistry();
 
@@ -219,6 +220,10 @@ const SliceHeader = forwardRef<HTMLDivElement, SliceHeaderProps>(
     const isCrossFiltersEnabled = useSelector<RootState, boolean>(
       ({ dashboardInfo }) => dashboardInfo.crossFiltersEnabled,
     );
+    const reportTitle = useSelector<RootState, string | undefined>(
+      ({ dashboardLayout }) =>
+        dashboardLayout.present[DASHBOARD_HEADER_ID]?.meta?.text,
+    );
 
     // AuraData BI Format pane: subtitle, divider and which icons viewers see
     const headerFormat = useVisualFormat(componentId);
@@ -371,69 +376,19 @@ const SliceHeader = forwardRef<HTMLDivElement, SliceHeaderProps>(
             enabled={!editMode}
           />
         )}
-        <div className="header-controls">
-          {/* Mi BI: the editor picks the order every viewer sees */}
-          {editMode && <SortAxisButton chartId={slice.slice_id} />}
-          {!editMode && (
-            <>
-              {SliceHeaderExtension && (
-                <SliceHeaderExtension
-                  sliceId={slice.slice_id}
-                  dashboardId={dashboardId}
-                />
-              )}
-              {showBadges && crossFilterValue && (
-                <Tooltip
-                  placement="top"
-                  title={t(
-                    'This chart applies cross-filters to charts whose datasets contain columns with the same name.',
-                  )}
-                >
-                  <CrossFilterIcon iconSize="m" />
-                </Tooltip>
-              )}
-              {showBadges && !uiConfig.hideChartControls && (
-                <MemoizedCustomizationsBadge chartId={slice.slice_id} />
-              )}
-
-              {showBadges && !uiConfig.hideChartControls && (
-                <MemoizedFiltersBadge chartId={slice.slice_id} />
-              )}
-
-              {iconsShown && (
-                <HeaderExtras
-                  format={headerFormat}
-                  chartId={slice.slice_id}
-                  sliceName={slice.slice_name}
-                  description={slice.description}
-                  failed={chartStatus === 'failed'}
-                  formData={formData as never}
-                  exploreUrl={exploreUrl}
-                  canExplore={supersetCanExplore}
-                  canDownload={supersetCanDownload}
-                  isFullSize={isFullSize}
-                  onToggleFullSize={handleToggleFullSize}
-                  hasExitButton={showMenu && !uiConfig.hideChartControls}
-                />
-              )}
-              {iconsShown &&
-                headerFormat?.header?.warning !== false &&
-                showRowLimitWarning && (
-                  <RowCountLabel
-                    rowcount={sqlRowCount}
-                    limit={rowLimit}
-                    label={
-                      <Icons.WarningOutlined
-                        iconSize="l"
-                        iconColor={theme.colorWarning}
-                        css={theme => css`
-                          padding: ${theme.sizeUnit}px;
-                        `}
-                      />
-                    }
-                  />
-                )}
-              {showMenu && !uiConfig.hideChartControls && !isMobile && (
+        {iconsShown && (
+          <ChartBarActions
+            componentId={componentId}
+            chartId={slice.slice_id}
+            format={headerFormat}
+            report={reportTitle}
+            showFilters={showBadges && !uiConfig.hideChartControls}
+            isFullSize={isFullSize}
+            onToggleFullSize={handleToggleFullSize}
+            menu={
+              showMenu &&
+              !uiConfig.hideChartControls &&
+              !isMobile && (
                 <SliceHeaderControls
                   slice={slice}
                   isCached={isCached}
@@ -459,6 +414,7 @@ const SliceHeader = forwardRef<HTMLDivElement, SliceHeaderProps>(
                   addDangerToast={addDangerToast}
                   handleToggleFullSize={handleToggleFullSize}
                   isFullSize={isFullSize}
+                  showExitButton={false}
                   isDescriptionExpanded={isExpanded}
                   chartStatus={chartStatus}
                   formData={formData}
@@ -468,7 +424,64 @@ const SliceHeader = forwardRef<HTMLDivElement, SliceHeaderProps>(
                   chartHolderRef={chartHolderRef}
                   ownState={ownState}
                 />
+              )
+            }
+          />
+        )}
+        <div className="header-controls">
+          {/* Mi BI: the editor picks the order every viewer sees */}
+          {editMode && <SortAxisButton chartId={slice.slice_id} />}
+          {!editMode && (
+            <>
+              {SliceHeaderExtension && (
+                <SliceHeaderExtension
+                  sliceId={slice.slice_id}
+                  dashboardId={dashboardId}
+                />
               )}
+              {showBadges && crossFilterValue && (
+                <Tooltip
+                  placement="top"
+                  title={t(
+                    'This chart applies cross-filters to charts whose datasets contain columns with the same name.',
+                  )}
+                >
+                  <CrossFilterIcon iconSize="m" />
+                </Tooltip>
+              )}
+              {showBadges && !uiConfig.hideChartControls && (
+                <MemoizedCustomizationsBadge chartId={slice.slice_id} />
+              )}
+
+              {iconsShown && (
+                <HeaderExtras
+                  format={headerFormat}
+                  sliceName={slice.slice_name}
+                  description={slice.description}
+                  failed={chartStatus === 'failed'}
+                  formData={formData as never}
+                  exploreUrl={exploreUrl}
+                  canExplore={supersetCanExplore}
+                  canDownload={supersetCanDownload}
+                />
+              )}
+              {iconsShown &&
+                headerFormat?.header?.warning !== false &&
+                showRowLimitWarning && (
+                  <RowCountLabel
+                    rowcount={sqlRowCount}
+                    limit={rowLimit}
+                    label={
+                      <Icons.WarningOutlined
+                        iconSize="l"
+                        iconColor={theme.colorWarning}
+                        css={theme => css`
+                          padding: ${theme.sizeUnit}px;
+                        `}
+                      />
+                    }
+                  />
+                )}
             </>
           )}
         </div>
