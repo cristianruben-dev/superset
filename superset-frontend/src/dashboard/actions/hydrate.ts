@@ -49,6 +49,7 @@ import {
 import findFirstParentContainerId from 'src/dashboard/util/findFirstParentContainer';
 import getDefaultActiveTabs from 'src/dashboard/util/getDefaultActiveTabs';
 import getEmptyLayout from 'src/dashboard/util/getEmptyLayout';
+import { landingPageOf } from 'src/auradata/report/landingPage';
 import {
   DEFAULT_OBJECT_COLUMNS,
   DEFAULT_OBJECT_ROWS,
@@ -385,7 +386,10 @@ export const hydrateDashboard =
         : undefined) ||
       (directPathToChild.length
         ? []
-        : getDefaultActiveTabs(dashboardLayout.present as DashboardLayout));
+        : getDefaultActiveTabs(
+            dashboardLayout.present as DashboardLayout,
+            landingPageOf(dashboardLayout.present as DashboardLayout),
+          ));
 
     return dispatch({
       type: HYDRATE_DASHBOARD,

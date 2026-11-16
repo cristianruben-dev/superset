@@ -141,7 +141,8 @@ async def informe_desde_dataset(
    que devuelve (`dashboard.id`).
    `get_report_structure(request={{"dashboard": <id>}})` da sus páginas;
    renombra la primera con `rename_page` (`"page": 1`) y añade las demás con
-   `add_page`.
+   `add_page`. Si el informe debe abrirse en otra página que no sea la
+   primera, márcala con `set_landing_page`.
 5. Título de la página: `add_element(request={{"dashboard": <id>, "page":
    <página>, "kind": "text", "x": 1, "y": 1, "width": 32, "height": 2,
    "settings": {{"html": "<b>Título</b>", "textStyle": {{"size": 24,
@@ -157,11 +158,13 @@ async def informe_desde_dataset(
    true}}`) para que el formato y la etiqueta salgan de la métrica.
 7. Segmentadores: `add_slicer(request={{"dashboard": <id>, "page": <página>,
    "name": "<Nombre>", "filter_type": "list", "dataset_id": <id>, "column":
-   "<columna>", "x": 35, "y": 1, "width": 11, "height": 2}})`; uno de fechas
-   con `filter_type: "time"`. Unos botones (`"variant": "buttons"`) se apilan
-   en columna salvo `"settings": {{"layout": "horizontal"}}`: en una franja
-   de 2 celdas de alto, ponlos en fila. Con varias páginas, `sync_slicer` los
-   comparte.
+   "<columna>", "x": 35, "y": 1, "width": 11, "height": 2}})`; con
+   `"selected_first": true` lo elegido sube arriba de la lista. Uno de fechas
+   con `filter_type: "time"` y `date_style`: `"relative"` (últimos 3 meses),
+   `"between"` (dos días en un calendario) o `"single"` (un día). Unos
+   botones (`"variant": "buttons"`) se apilan en columna salvo
+   `"settings": {{"layout": "horizontal"}}`: en una franja de 2 celdas de alto,
+   ponlos en fila. Con varias páginas, `sync_slicer` los comparte.
 8. Formato: `get_format_options(request={{"viz_type": "<viz_type>", "level":
    "visual"}})` y `format_visual` para lo que cambie; `set_shared_visual_format`
    para un estilo común (borde, radio, sombra) en todos los gráficos.

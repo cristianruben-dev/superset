@@ -28,7 +28,10 @@ import type { CanvasSizeMode, CanvasFormat } from 'src/auradata/format/types';
 import { CANVAS_PRESETS } from 'src/auradata/format/types';
 import type { RootState } from 'src/dashboard/types';
 import { CHART_TYPE } from 'src/dashboard/util/componentTypes';
-import { DASHBOARD_ROOT_ID } from 'src/dashboard/util/constants';
+import {
+  DASHBOARD_GRID_ID,
+  DASHBOARD_ROOT_ID,
+} from 'src/dashboard/util/constants';
 import { DashboardPageIdContext } from 'src/dashboard/containers/DashboardPage';
 import { openChartEditor } from 'src/auradata/chartEditor';
 import { DataMenu } from 'src/auradata/dashboard/DataMenu';
@@ -86,7 +89,8 @@ import {
 import { insertElement } from './insert';
 import { ArrangeButton } from './ArrangeButton';
 import { LineageModal } from './LineageModal';
-import { insertPage } from 'src/auradata/report/pageActions';
+import { insertPage, setLandingPage } from 'src/auradata/report/pageActions';
+import { savedLandingPage } from 'src/auradata/report/landingPage';
 import { resetFilters } from 'src/auradata/report/resetFilters';
 import { useFiltersChanged } from 'src/auradata/report/ResetFiltersButton';
 import {
@@ -201,6 +205,10 @@ export function Ribbon({
       state.dashboardLayout.present,
       state.dashboardState.activeTabs,
     ),
+  );
+  const isLanding = useSelector(
+    (state: RootState) =>
+      savedLandingPage(state.dashboardLayout.present) === pageId,
   );
   const canvas = useSelector(
     (state: RootState) =>
@@ -522,6 +530,23 @@ export function Ribbon({
             label={t('New page')}
             icon={<Icons.PlusSquareOutlined iconSize="m" />}
             onClick={() => dispatch(insertPage() as never)}
+          />
+          <RibbonButton
+            label={t('Landing page')}
+            hint={
+              isLanding
+                ? t(
+                    'The report opens on this page. Click to open on the first one',
+                  )
+                : t('Viewers open the report on this page')
+            }
+            icon={<Icons.HomeOutlined iconSize="m" />}
+            pressed={isLanding}
+            disabled={pageId === DASHBOARD_GRID_ID}
+            data-test="auradata-ribbon-landing-page"
+            onClick={() =>
+              dispatch(setLandingPage(isLanding ? undefined : pageId) as never)
+            }
           />
         </RibbonGroup>
         <RibbonGroup label={t('Visuals')}>

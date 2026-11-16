@@ -109,12 +109,13 @@ class _SlicerOptions(_Request):
     name: str | None = Field(None, min_length=1, description="Filter name")
     variant: SlicerVariant | None = Field(None, description="List filters only")
     range_style: Literal["between", "slider"] | None = None
-    date_style: Literal["relative", "between"] | None = None
+    date_style: Literal["relative", "between", "single"] | None = None
     selection: SlicerSelection | None = Field(
         None, description="single, multi or ctrl (one per click, more with Ctrl)"
     )
     apply_button: bool | None = Field(None, description="Wait for Apply")
     sort: Literal["asc", "desc"] | None = None
+    selected_first: bool | None = Field(None, description="Chosen values on top")
     hidden_values: list[Any] | None = Field(None, description="Values left out")
     show_in_filter_bar: bool | None = None
     default_value: Any = Field(None, description=_DEFAULT)

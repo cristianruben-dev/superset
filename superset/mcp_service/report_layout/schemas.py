@@ -66,6 +66,7 @@ class PageSummary(BaseModel):
     index: int
     hidden: bool
     shown_to_viewers: bool
+    landing: bool = Field(False, description="The report opens on this page")
     tooltip_page: dict[str, Any] | None = None
     drillthrough_columns: list[str] | None = None
     has_mobile_layout: bool = False
@@ -187,6 +188,12 @@ class DeletePageRequest(_Write):
 class SetPageHiddenRequest(_Write):
     page: PageRef = Field(description=_PAGE)
     hidden: bool = Field(description="Hide the page from viewers' tabs")
+
+
+class SetLandingPageRequest(_Write):
+    page: PageRef | None = Field(
+        description="Page viewers open first; null opens the first page again"
+    )
 
 
 class PlaceObjectRequest(_Write):

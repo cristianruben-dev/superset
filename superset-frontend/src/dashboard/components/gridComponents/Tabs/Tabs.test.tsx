@@ -427,3 +427,59 @@ test('Call "DashboardComponent.onDropOnTab"', async () => {
     expect(props.onChangeTab).toHaveBeenCalled();
   });
 });
+
+test('AuraData BI: without a link or active tab the report opens on its landing page', () => {
+  const props = createProps();
+  props.editMode = false;
+  const landingState = (activeTabs: string[]) => ({
+    dashboardState: { activeTabs },
+    dashboardLayout: {
+      past: [],
+      future: [],
+      present: {
+        ROOT_ID: {
+          id: 'ROOT_ID',
+          type: 'ROOT',
+          children: [props.id],
+          meta: { auradataLandingPage: 'TAB-l_9I0aNYZ' },
+        },
+        [props.id]: { ...props.component, parents: ['ROOT_ID'] },
+        ...Object.fromEntries(
+          props.component.children.map(id => [
+            id,
+            {
+              id,
+              type: 'TAB',
+              children: [],
+              parents: ['ROOT_ID', props.id],
+              meta: { text: id },
+            },
+          ]),
+        ),
+      },
+    },
+  });
+
+  // Active tabs of another report name none of these pages
+  const { unmount } = render(<Tabs {...props} />, {
+    useRedux: true,
+    useDnd: true,
+    initialState: landingState(['TAB-of-another-report']),
+  });
+  expect(screen.getAllByRole('tab')[2]).toHaveAttribute(
+    'aria-selected',
+    'true',
+  );
+  unmount();
+
+  // A page already active wins
+  render(<Tabs {...props} />, {
+    useRedux: true,
+    useDnd: true,
+    initialState: landingState(['TAB-YT6eNksV-']),
+  });
+  expect(screen.getAllByRole('tab')[1]).toHaveAttribute(
+    'aria-selected',
+    'true',
+  );
+});

@@ -519,7 +519,7 @@ function SettingsSection({
       )}
       {kind === 'date' && (
         <Field label={t('Style')} stacked>
-          <Segments<'control' | 'relative' | 'between'>
+          <Segments<'control' | 'relative' | 'between' | 'single'>
             name={t('Date style')}
             testId="auradata-slicer-date-style"
             value={config.dateStyle ?? 'control'}
@@ -533,6 +533,7 @@ function SettingsSection({
               { value: 'control', label: t('Filter control') },
               { value: 'relative', label: t('Relative date') },
               { value: 'between', label: t('Between dates') },
+              { value: 'single', label: t('One day') },
             ]}
           />
         </Field>
@@ -619,6 +620,7 @@ function SettingsSection({
               ]}
             />
           </Field>
+          {toggle('selectedFirst', t('Show selected first'))}
           {toggle('applyButton', t('Apply button'))}
           {toggle('showPills', t('Show the chosen values'))}
         </>

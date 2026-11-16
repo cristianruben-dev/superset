@@ -15,12 +15,12 @@ salvo las pocas que lo dicen en su ejemplo. La IA actúa como el dueño de la
 clave: una herramienta nunca hace algo que esa persona no pueda hacer en la
 web. Cómo conectar una IA: [conectar.md](conectar.md).
 
-150 herramientas, 6 prompts y 9 recursos.
+151 herramientas, 6 prompts y 9 recursos.
 
 ## Índice
 
 - **Workspaces y miembros:** [`create_workspace`](#create_workspace), [`delete_workspace`](#delete_workspace), [`get_workspace`](#get_workspace), [`get_workspace_of_dashboard`](#get_workspace_of_dashboard), [`list_member_candidates`](#list_member_candidates), [`list_workspace_members`](#list_workspace_members), [`list_workspaces`](#list_workspaces), [`move_dashboard_to_workspace`](#move_dashboard_to_workspace), [`move_dataset_to_workspace`](#move_dataset_to_workspace), [`remove_workspace_member`](#remove_workspace_member), [`set_workspace_member`](#set_workspace_member), [`update_workspace`](#update_workspace)
-- **Informe: estructura, páginas y objetos:** [`add_page`](#add_page), [`align_objects`](#align_objects), [`bring_to_front`](#bring_to_front), [`delete_page`](#delete_page), [`distribute_objects`](#distribute_objects), [`duplicate_page`](#duplicate_page), [`get_report_structure`](#get_report_structure), [`move_object`](#move_object), [`place_object`](#place_object), [`rename_page`](#rename_page), [`reorder_pages`](#reorder_pages), [`resize_object`](#resize_object), [`set_object_state`](#set_object_state), [`set_page_hidden`](#set_page_hidden)
+- **Informe: estructura, páginas y objetos:** [`add_page`](#add_page), [`align_objects`](#align_objects), [`bring_to_front`](#bring_to_front), [`delete_page`](#delete_page), [`distribute_objects`](#distribute_objects), [`duplicate_page`](#duplicate_page), [`get_report_structure`](#get_report_structure), [`move_object`](#move_object), [`place_object`](#place_object), [`rename_page`](#rename_page), [`reorder_pages`](#reorder_pages), [`resize_object`](#resize_object), [`set_landing_page`](#set_landing_page), [`set_object_state`](#set_object_state), [`set_page_hidden`](#set_page_hidden)
 - **Informe: visuales:** [`change_visual_dataset`](#change_visual_dataset), [`create_visual`](#create_visual), [`get_visual_fields`](#get_visual_fields), [`set_visual_fields`](#set_visual_fields), [`set_visual_sort`](#set_visual_sort)
 - **Informe: formato:** [`copy_format`](#copy_format), [`format_visual`](#format_visual), [`get_format_options`](#get_format_options), [`set_canvas_format`](#set_canvas_format), [`set_dashboard_css`](#set_dashboard_css), [`set_shared_visual_format`](#set_shared_visual_format), [`upload_dashboard_background`](#upload_dashboard_background), [`upload_dashboard_image`](#upload_dashboard_image)
 - **Informe: elementos y segmentadores:** [`add_element`](#add_element), [`add_slicer`](#add_slicer), [`format_element`](#format_element), [`format_slicer`](#format_slicer), [`remove_element`](#remove_element), [`update_element`](#update_element), [`update_slicer`](#update_slicer)
@@ -619,6 +619,29 @@ Ejemplo:
 {"request": {"dashboard": 1, "object": 1}}
 ```
 
+### `set_landing_page`
+
+*Set the landing page of a report*
+
+- **Permiso:** `Dashboard`, escritura. Scope de la clave: `superset:dashboard:write`.
+- **Cambia datos:** sí.
+- **Etiquetas:** `layout`, `mutate`
+
+Make a page the one viewers open first, as Power BI's "Set as landing
+page"; page null opens the first page again. A link or drill through to
+another page still opens that one. The page must be visible to viewers.
+
+| Parámetro | Tipo | Obligatorio | Por defecto | Descripción |
+| --- | --- | :---: | --- | --- |
+| `dashboard` | integer o string | sí |  | Dashboard id, uuid or slug |
+| `page` | integer o string | sí |  | Page viewers open first; null opens the first page again |
+
+Ejemplo:
+
+```json
+{"request": {"dashboard": 1, "page": 1}}
+```
+
 ### `set_object_state`
 
 *Set object state*
@@ -1086,10 +1109,11 @@ settings {"layout": "horizontal"} for a row of buttons, or "grid" with
 | `name` | string | sí |  | Filter name |
 | `variant` | "dropdown" \| "list" \| "buttons" \| "input" |  |  | List filters only |
 | `range_style` | "between" \| "slider" |  |  |  |
-| `date_style` | "relative" \| "between" |  |  |  |
+| `date_style` | "relative" \| "between" \| "single" |  |  |  |
 | `selection` | "multi" \| "single" \| "ctrl" |  |  | single, multi or ctrl (one per click, more with Ctrl) |
 | `apply_button` | boolean |  |  | Wait for Apply |
 | `sort` | "asc" \| "desc" |  |  |  |
+| `selected_first` | boolean |  |  | Chosen values on top |
 | `hidden_values` | lista |  |  | Values left out |
 | `show_in_filter_bar` | boolean |  |  |  |
 | `default_value` | cualquiera |  |  | Default: a list of values (list), [min, max] (range), or a time range such as 'Last month' (time); null clears it |
@@ -1230,10 +1254,11 @@ show_in_filter_bar). Its look goes with format_slicer.
 | `name` | string |  |  | Filter name |
 | `variant` | "dropdown" \| "list" \| "buttons" \| "input" |  |  | List filters only |
 | `range_style` | "between" \| "slider" |  |  |  |
-| `date_style` | "relative" \| "between" |  |  |  |
+| `date_style` | "relative" \| "between" \| "single" |  |  |  |
 | `selection` | "multi" \| "single" \| "ctrl" |  |  | single, multi or ctrl (one per click, more with Ctrl) |
 | `apply_button` | boolean |  |  | Wait for Apply |
 | `sort` | "asc" \| "desc" |  |  |  |
+| `selected_first` | boolean |  |  | Chosen values on top |
 | `hidden_values` | lista |  |  | Values left out |
 | `show_in_filter_bar` | boolean |  |  |  |
 | `default_value` | cualquiera |  |  | Default: a list of values (list), [min, max] (range), or a time range such as 'Last month' (time); null clears it |
@@ -2616,12 +2641,15 @@ Ejemplo:
 Add or remove dashboard access roles with explicit operations.
 
 Dashboard access roles restrict who can view a dashboard to members of
-the listed roles, on top of normal Superset permissions. An empty roles
-list means "no role restriction" — the dashboard is visible per standard
-permissions instead. This only takes effect when the ``ENABLE_VIEWERS``
-feature flag is enabled; the response's ``viewers_enabled`` field
-reports whether it is, and ``warnings`` notes when a change was applied
-but has no live effect.
+the listed roles, on top of normal Superset permissions. Removing every
+role only restores standard permissions if no USER- or GROUP-type
+viewers remain on the dashboard — ``raise_for_access`` restricts access
+whenever the ``viewers`` list is nonempty, regardless of subject type.
+This applies regardless of the ``ENABLE_VIEWERS`` feature flag. While the
+flag is disabled, roles can only be removed: adding a role not already
+assigned is rejected, since the UI offers no way to see or undo the
+resulting restriction. The response's ``viewers_enabled`` field reports
+the flag's state, and ``warnings`` notes when it is disabled.
 
 Roles are the ROLE-type entries in the dashboard's Subject-based
 ``viewers`` list. Any USER- or GROUP-type viewers already on the

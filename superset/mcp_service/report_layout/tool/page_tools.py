@@ -21,6 +21,7 @@ from typing import Any
 from fastmcp import Context
 from superset_core.mcp.decorators import tool, ToolAnnotations
 
+from superset.auradata.layout import keys
 from superset.mcp_service.report_layout import pages
 from superset.mcp_service.report_layout.editing import (
     LayoutEditError,
@@ -35,6 +36,7 @@ from superset.mcp_service.report_layout.schemas import (
     LayoutChangeResponse,
     RenamePageRequest,
     ReorderPagesRequest,
+    SetLandingPageRequest,
     SetPageHiddenRequest,
 )
 from superset.mcp_service.report_layout.tool.common import run_write
@@ -232,3 +234,29 @@ async def set_page_hidden(
         )
 
     return await run_write("set_page_hidden", ctx, change)
+
+
+@tool(
+    tags=["mutate", "layout"],
+    class_permission_name="Dashboard",
+    method_permission_name="write",
+    annotations=_annotations("Set the landing page of a report"),
+)
+async def set_landing_page(
+    request: SetLandingPageRequest, ctx: Context
+) -> LayoutChangeResponse:
+    """Make a page the one viewers open first, as Power BI's "Set as landing
+    page"; page null opens the first page again. A link or drill through to
+    another page still opens that one. The page must be visible to viewers."""
+
+    def change() -> LayoutChangeResponse:
+        report = open_report(request.dashboard, edit=True)
+        page_id = pages.set_landing_page(report, request.page)
+        saved = save_report(report)
+        return LayoutChangeResponse(
+            dashboard_id=report.dashboard.id,
+            changed=[keys.ROOT_ID] if saved else [],
+            page=page_id,
+        )
+
+    return await run_write("set_landing_page", ctx, change)

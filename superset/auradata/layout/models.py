@@ -293,10 +293,11 @@ class FilterElement(LayoutModel):
     variant: Literal["dropdown", "list", "buttons", "input"] | None = None
     selection: Literal["multi", "single", "ctrl"] | None = None
     range_style: Literal["between", "slider"] | None = None
-    date_style: Literal["relative", "between"] | None = None
+    date_style: Literal["relative", "between", "single"] | None = None
     hidden_values: list[str] | None = None
     apply_button: bool | None = None
     sort_values: Literal["asc", "desc"] | None = None
+    selected_first: bool | None = None
 
 
 class NavigatorElement(LayoutModel):

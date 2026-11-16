@@ -27,6 +27,7 @@ import {
   parseBetweenTimeRange,
   parseRelativeTimeRange,
   relativeTimeRange,
+  selectedFirst,
   selectionMode,
   selectionSummary,
   slicerText,
@@ -124,6 +125,23 @@ test('dates between two days include the last one', () => {
   ]);
   expect(parseBetweenTimeRange('Min : Max')).toEqual([undefined, undefined]);
   expect(parseBetweenTimeRange('Last 3 months')).toBeUndefined();
+});
+
+test('one day is the range from that day to the next', () => {
+  const range = betweenTimeRange('2024-02-29', '2024-02-29');
+  expect(range).toBe('2024-02-29 : 2024-03-01');
+  expect(parseBetweenTimeRange(range)).toEqual(['2024-02-29', '2024-02-29']);
+});
+
+test('the chosen values go first, each part keeping its order', () => {
+  const values = ['b', 3, null, 'a', 1];
+  expect(selectedFirst(values, ['a', null])).toEqual([null, 'a', 'b', 3, 1]);
+  expect(selectedFirst(values, [])).toBe(values);
+  // A chosen value the slicer does not offer changes nothing
+  expect(selectedFirst(values, ['z'])).toBe(values);
+  expect(
+    selectedFirst(sortSlicerValues(['c', 'a', 'b'], 'asc'), ['c']),
+  ).toEqual(['c', 'a', 'b']);
 });
 
 test('values left out by the editor are not offered', () => {

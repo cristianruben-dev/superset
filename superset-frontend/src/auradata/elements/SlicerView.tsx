@@ -45,6 +45,7 @@ import {
   selectionSummary,
   slicerText,
   slicerValueKey,
+  selectedFirst,
   sortSlicerValues,
   visibleValues,
   type SlicerValue,
@@ -714,13 +715,18 @@ export function SlicerView({
     () => values && visibleValues(values, config.hiddenValues),
     [config.hiddenValues, values],
   );
+  // While the pointer is on the values their order stays, so a click never
+  // moves the value under it; they reorder once it leaves
+  const [orderFrozen, setOrderFrozen] = useState<SlicerValue[]>();
+  const orderBy = config.selectedFirst ? (orderFrozen ?? applied) : undefined;
   const shown = useMemo(() => {
     const query = search.trim().toLowerCase();
-    return sortSlicerValues(offered ?? [], config.sortValues).filter(
+    const sorted = sortSlicerValues(offered ?? [], config.sortValues);
+    return (orderBy ? selectedFirst(sorted, orderBy) : sorted).filter(
       value =>
         !query || slicerText(value, config).toLowerCase().includes(query),
     );
-  }, [config, offered, search]);
+  }, [config, offered, orderBy, search]);
 
   const all = !!offered?.length && offered.every(v => selected.includes(v));
   const placeholder = config.searchPlaceholder || t('Search');
@@ -760,6 +766,12 @@ export function SlicerView({
           .join(' ')}
         role="group"
         aria-label={filter.name}
+        onPointerEnter={
+          config.selectedFirst ? () => setOrderFrozen(applied) : undefined
+        }
+        onPointerLeave={
+          config.selectedFirst ? () => setOrderFrozen(undefined) : undefined
+        }
       >
         {values === undefined && (
           <span className="slicer-hint">{t('Loading...')}</span>

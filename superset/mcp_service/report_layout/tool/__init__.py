@@ -73,6 +73,7 @@ from superset.mcp_service.report_layout.tool.page_tools import (
     duplicate_page,
     rename_page,
     reorder_pages,
+    set_landing_page,
     set_page_hidden,
 )
 from superset.mcp_service.report_layout.tool.visual_tools import (
@@ -102,6 +103,7 @@ __all__ = [
     "set_canvas_format",
     "set_dashboard_css",
     "set_object_state",
+    "set_landing_page",
     "set_page_hidden",
     "set_shared_visual_format",
     "upload_dashboard_background",

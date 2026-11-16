@@ -477,6 +477,7 @@ COMMITTED_WRITE_SPECS: Dict[str, CommittedWriteSpec] = {
     "reorder_pages": _spec("dashboard", "dashboard_id"),
     "resize_object": _spec("dashboard", "dashboard_id"),
     "set_object_state": _spec("dashboard", "dashboard_id"),
+    "set_landing_page": _spec("dashboard", "dashboard_id"),
     "set_page_hidden": _spec("dashboard", "dashboard_id"),
     "copy_format": _spec("dashboard", "dashboard_id"),
     "format_visual": _spec("dashboard", "dashboard_id"),

@@ -110,3 +110,18 @@ test('terminates on a cyclic layout, emitting each id at most once', () => {
 
   expect(getDefaultActiveTabs(layout)).toEqual(['TAB-1']);
 });
+
+test('opens the given top-level tab, and the first one for an unknown id', () => {
+  const layout = {
+    [DASHBOARD_ROOT_ID]: layoutItem(DASHBOARD_ROOT_ID, 'ROOT', ['TABS-1']),
+    'TABS-1': layoutItem('TABS-1', 'TABS', ['TAB-1', 'TAB-2']),
+    'TAB-1': layoutItem('TAB-1', 'TAB'),
+    'TAB-2': layoutItem('TAB-2', 'TAB', ['TABS-2']),
+    'TABS-2': layoutItem('TABS-2', 'TABS', ['TAB-2-1']),
+    'TAB-2-1': layoutItem('TAB-2-1', 'TAB'),
+  } as unknown as DashboardLayout;
+
+  expect(getDefaultActiveTabs(layout, 'TAB-2')).toEqual(['TAB-2', 'TAB-2-1']);
+  expect(getDefaultActiveTabs(layout, 'TAB-2-1')).toEqual(['TAB-1']);
+  expect(getDefaultActiveTabs(layout, 'TAB-9')).toEqual(['TAB-1']);
+});

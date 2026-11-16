@@ -27815,3 +27815,33 @@ msgstr "Copiado el %s"
 
 msgid "No filters or slicers affect this visual"
 msgstr "Ningún filtro ni segmentación afecta a este objeto visual"
+
+msgid "Set as landing page"
+msgstr "Establecer como página de inicio"
+
+msgid "Unset as landing page"
+msgstr "Quitar como página de inicio"
+
+msgid "Landing page"
+msgstr "Página de inicio"
+
+msgid "The report opens on this page. Click to open on the first one"
+msgstr "El informe se abre en esta página. Haz clic para que se abra en la primera"
+
+msgid "Viewers open the report on this page"
+msgstr "Los lectores abren el informe en esta página"
+
+msgid "Landing page: the report opens on this page"
+msgstr "Página de inicio: el informe se abre en esta página"
+
+msgid "This page has a mobile layout"
+msgstr "Esta página tiene diseño móvil"
+
+msgid "Show selected first"
+msgstr "Mostrar primero lo seleccionado"
+
+msgid "One day"
+msgstr "Un día"
+
+msgid "Choose a day"
+msgstr "Elige un día"
