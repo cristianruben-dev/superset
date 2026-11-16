@@ -30,10 +30,16 @@ import { useDispatch, useSelector } from 'react-redux';
 import { css, styled } from '@apache-superset/core/theme';
 import { t } from '@apache-superset/core/translation';
 
-import { EditableTitle, EmptyState } from '@superset-ui/core/components';
+import {
+  EditableTitle,
+  EmptyState,
+  Tooltip,
+} from '@superset-ui/core/components';
 import { Icons } from '@superset-ui/core/components/Icons';
 import { isHiddenPage } from 'src/auradata/present/dashboardTabs';
 import { PageMenu } from 'src/auradata/report/PageMenu';
+import { savedLandingPage } from 'src/auradata/report/landingPage';
+import { mobileLayoutOf } from 'src/auradata/format/mobileLayout';
 import { setEditMode, onRefresh } from 'src/dashboard/actions/dashboardState';
 import getChartIdsFromComponent from 'src/dashboard/util/getChartIdsFromComponent';
 import DashboardComponent from 'src/dashboard/containers/DashboardComponent';
@@ -178,6 +184,14 @@ const Tab = (props: TabProps): ReactElement => {
     (state: RootState) => state.dashboardState.tabActivationTimes?.[props.id],
   );
   const dashboardInfo = useSelector((state: RootState) => state.dashboardInfo);
+  // AuraData BI: marks of the page tab for editors
+  const isLandingPage = useSelector(
+    (state: RootState) =>
+      savedLandingPage(state.dashboardLayout.present) === props.id,
+  );
+  const hasMobileLayout = useSelector((state: RootState) =>
+    Boolean(mobileLayoutOf(state.dashboardLayout.present, props.id)),
+  );
   const isAutoRefreshing = useIsAutoRefreshing();
   const isRefreshInFlight = useIsRefreshInFlight();
 
@@ -479,6 +493,15 @@ const Tab = (props: TabProps): ReactElement => {
               data-test="auradata-page-hidden-icon"
             />
           )}
+          {isLandingPage && editMode && (
+            <Tooltip title={t('Landing page: the report opens on this page')}>
+              <Icons.HomeOutlined
+                iconSize="s"
+                aria-label={t('Landing page')}
+                data-test="auradata-page-landing-icon"
+              />
+            </Tooltip>
+          )}
           <EditableTitle
             title={component.meta.text}
             defaultTitle={component.meta.defaultText}
@@ -489,6 +512,15 @@ const Tab = (props: TabProps): ReactElement => {
             editing={editMode && isFocused}
             onEditingChange={onTabTitleEditingChange}
           />
+          {hasMobileLayout && editMode && (
+            <Tooltip title={t('This page has a mobile layout')}>
+              <Icons.MobileOutlined
+                iconSize="s"
+                aria-label={t('Mobile layout')}
+                data-test="auradata-page-mobile-icon"
+              />
+            </Tooltip>
+          )}
           {!editMode && !embeddedMode && (
             <AnchorLink
               id={component.id}
@@ -523,6 +555,8 @@ const Tab = (props: TabProps): ReactElement => {
       props.onTabTitleEditingChange,
       props.onDeletePage,
       handleChangeText,
+      isLandingPage,
+      hasMobileLayout,
     ],
   );
 

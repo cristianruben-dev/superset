@@ -39,6 +39,7 @@ import getDirectPathToTabIndex from '../../../util/getDirectPathToTabIndex';
 import getLeafComponentIdFromPath from '../../../util/getLeafComponentIdFromPath';
 import { NEW_TAB_ID } from '../../../util/constants';
 import { isHiddenPage as isHiddenPageMeta } from 'src/auradata/present/dashboardTabs';
+import { landingPageOf } from 'src/auradata/report/landingPage';
 import { RENDER_TAB, RENDER_TAB_CONTENT } from '../Tab';
 import { TABS_TYPE, TAB_TYPE } from '../../../util/componentTypes';
 import TabsRenderer from '../TabsRenderer';
@@ -155,6 +156,12 @@ const Tabs = (props: TabsProps): ReactElement => {
       });
     }
     const { children: tabIds } = props.component;
+    // AuraData BI: without a link the report opens on its landing page, also
+    // when the active tabs still name another report's pages
+    const landing = landingPageOf(layout);
+    if (linked < 0 && !wasActive && landing && tabIds.includes(landing)) {
+      tabIndex = tabIds.indexOf(landing);
+    }
     // A viewer starts on the first page they can see, unless a link opens another
     if (
       !props.editMode &&

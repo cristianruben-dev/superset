@@ -135,6 +135,24 @@ export function nextSelection(
 export const slicerValueKey = (value: SlicerValue) =>
   value === null ? '\u0000blank' : String(value);
 
+/**
+ * The chosen values first, then the rest, each part in the order it had, as
+ * Power BI's "Show selected first".
+ */
+export function selectedFirst(
+  values: SlicerValue[],
+  chosen: SlicerValue[],
+): SlicerValue[] {
+  if (!chosen.length) return values;
+  const picked = new Set(chosen.map(slicerValueKey));
+  const first = values.filter(value => picked.has(slicerValueKey(value)));
+  if (!first.length) return values;
+  return [
+    ...first,
+    ...values.filter(value => !picked.has(slicerValueKey(value))),
+  ];
+}
+
 /** The values a slicer shows, without those the editor left out. */
 export function visibleValues(
   values: SlicerValue[],
@@ -246,7 +264,8 @@ export function parseRelativeTimeRange(
   };
 }
 
-const isoDate = (date: Date) =>
+/** A day as `YYYY-MM-DD`, in local time. */
+export const isoDate = (date: Date) =>
   `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(
     date.getDate(),
   ).padStart(2, '0')}`;

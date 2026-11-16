@@ -178,6 +178,7 @@ Reports (dashboards):
 Pages and layout:
 - get_report_structure: Pages, objects with their cell boxes, formats, filters and bookmarks; read it first
 - add_page / rename_page / reorder_pages / duplicate_page / delete_page / set_page_hidden
+- set_landing_page: The page viewers open first
 - place_object / move_object / resize_object / align_objects / distribute_objects / bring_to_front
 - set_object_state: Hide, lock or describe (alt text) an object
 Writes keep objects inside the page and off each other unless allow_overlap is set.
@@ -689,6 +690,7 @@ from superset.mcp_service.report_layout.tool import (  # noqa: F401, E402
     set_dashboard_css,
     set_drillthrough_page,
     set_filter_bar_auto_apply,
+    set_landing_page,
     set_mobile_layout,
     set_object_state,
     set_page_hidden,

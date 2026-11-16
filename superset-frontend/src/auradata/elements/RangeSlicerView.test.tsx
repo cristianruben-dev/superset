@@ -22,6 +22,7 @@ import {
   fireEvent,
   render,
   screen,
+  waitFor,
 } from 'spec/helpers/testing-library';
 import reducerIndex from 'spec/helpers/reducerIndex';
 import {
@@ -111,12 +112,38 @@ test('a date slicer between two days includes the last one', async () => {
       config={{ kind: 'filter', dateStyle: 'between' }}
     />,
   );
-  fireEvent.change(screen.getByLabelText('To'), {
-    target: { value: '2024-01-31' },
-  });
-  expect(dataMaskOf(store, filter.id).extraFormData).toEqual({
-    time_range: 'Min : 2024-02-01',
-  });
+  // The day is typed in the box of the calendar, in the order of the language
+  const from = await screen.findByPlaceholderText('From');
+  fireEvent.mouseDown(from);
+  fireEvent.change(from, { target: { value: '01/01/2024' } });
+  fireEvent.keyDown(from, { key: 'Enter', code: 'Enter' });
+  const to = screen.getByPlaceholderText('To');
+  fireEvent.change(to, { target: { value: '01/31/2024' } });
+  fireEvent.keyDown(to, { key: 'Enter', code: 'Enter' });
+  await waitFor(() =>
+    expect(dataMaskOf(store, filter.id)?.extraFormData).toEqual({
+      time_range: '2024-01-01 : 2024-02-01',
+    }),
+  );
+});
+
+test('a date slicer of one day takes that whole day', async () => {
+  const filter = filterOf('NATIVE_FILTER-D', 'filter_time');
+  const { store } = await renderWithStore(
+    <DateSlicerView
+      filter={filter}
+      config={{ kind: 'filter', dateStyle: 'single' }}
+    />,
+  );
+  const day = await screen.findByPlaceholderText('Choose a day');
+  fireEvent.mouseDown(day);
+  fireEvent.change(day, { target: { value: '02/29/2024' } });
+  fireEvent.keyDown(day, { key: 'Enter', code: 'Enter' });
+  await waitFor(() =>
+    expect(dataMaskOf(store, filter.id)?.extraFormData).toEqual({
+      time_range: '2024-02-29 : 2024-03-01',
+    }),
+  );
 });
 
 test('an element title only shows once it is turned on', () => {

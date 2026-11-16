@@ -69,6 +69,7 @@ from superset.auradata.layout.mobile import (
 from superset.auradata.layout.pages import (
     descendants,
     is_hidden_page,
+    landing_page_of,
     page_ids,
     page_objects,
     page_of,
@@ -102,6 +103,7 @@ __all__ = [
     "format_of",
     "free_cell",
     "is_hidden_page",
+    "landing_page_of",
     "is_in_cells",
     "is_locked",
     "is_positioned",

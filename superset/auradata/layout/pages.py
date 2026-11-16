@@ -17,7 +17,8 @@
 """
 Pages of a report: the top level tabs, or the grid of a report of one page.
 Mirrors ``topLevelTabs`` and ``isHiddenPage`` of
-``src/auradata/present/dashboardTabs.ts`` and ``pageObjects`` of
+``src/auradata/present/dashboardTabs.ts``, ``landingPageOf`` of
+``src/auradata/report/landingPage.ts`` and ``pageObjects`` of
 ``src/auradata/format/arrange.ts``.
 """
 
@@ -28,6 +29,7 @@ from superset.auradata.layout._js import as_dict, is_finite, to_number, truthy
 from superset.auradata.layout.keys import (
     GRID_ID,
     HIDDEN_PAGE_KEY,
+    LANDING_PAGE_KEY,
     ROOT_ID,
     TABS_TYPE,
     TOOLTIP_PAGE_KEY,
@@ -60,6 +62,21 @@ def is_hidden_page(meta: Any) -> bool:
     """Whether viewers miss a page in the tabs: hidden, or a tooltip page."""
     meta = as_dict(meta)
     return truthy(meta.get(HIDDEN_PAGE_KEY)) or truthy(meta.get(TOOLTIP_PAGE_KEY))
+
+
+def landing_page_of(layout: dict[str, Any]) -> str | None:
+    """
+    The page the report opens on when the address names none: its landing page
+    while it is a page viewers can see. A deleted, hidden or tooltip page, or a
+    report of one page, opens the first one (None).
+    """
+    page_id = as_dict(as_dict(layout.get(ROOT_ID)).get("meta")).get(LANDING_PAGE_KEY)
+    if not isinstance(page_id, str) or not top_tabs_id(layout):
+        return None
+    if page_id not in page_ids(layout):
+        return None
+    meta = as_dict(layout[page_id]).get("meta")
+    return None if is_hidden_page(meta) else page_id
 
 
 def page_title(layout: dict[str, Any], page_id: str) -> str:

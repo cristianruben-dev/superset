@@ -768,3 +768,64 @@ test('Should use isLazyLoad flag for tab refreshes', async () => {
     true, // isLazyLoad should be true to prevent infinite loops
   );
 });
+
+test('AuraData BI: editors see which page has a mobile layout and which one opens first', () => {
+  const props = createProps();
+  props.renderType = 'RENDER_TAB';
+  const tabId = props.component.id;
+  const layoutState = (editMode: boolean) => ({
+    dashboardState: { editMode },
+    dashboardInfo: { id: 23, dash_edit_perm: true },
+    dashboardLayout: {
+      past: [],
+      future: [],
+      present: {
+        ROOT_ID: {
+          id: 'ROOT_ID',
+          type: 'ROOT',
+          children: [props.parentComponent.id],
+          meta: { auradataLandingPage: tabId },
+        },
+        [tabId]: {
+          ...props.component,
+          children: ['CHART-1'],
+          meta: {
+            ...props.component.meta,
+            auradataMobile: {
+              items: [{ id: 'CHART-1', x: 0, y: 0, width: 12, height: 6 }],
+            },
+          },
+        },
+        'CHART-1': {
+          id: 'CHART-1',
+          type: 'CHART',
+          children: [],
+          parents: [...props.component.parents, tabId],
+          meta: { chartId: 1, width: 4, height: 4 },
+        },
+      },
+    },
+  });
+
+  const { unmount } = render(<Tab {...props} editMode />, {
+    useRedux: true,
+    useDnd: true,
+    initialState: layoutState(true),
+  });
+  expect(screen.getByTestId('auradata-page-mobile-icon')).toBeInTheDocument();
+  expect(screen.getByTestId('auradata-page-landing-icon')).toBeInTheDocument();
+  unmount();
+
+  // Viewers never see them
+  render(<Tab {...props} />, {
+    useRedux: true,
+    useDnd: true,
+    initialState: layoutState(false),
+  });
+  expect(
+    screen.queryByTestId('auradata-page-mobile-icon'),
+  ).not.toBeInTheDocument();
+  expect(
+    screen.queryByTestId('auradata-page-landing-icon'),
+  ).not.toBeInTheDocument();
+});

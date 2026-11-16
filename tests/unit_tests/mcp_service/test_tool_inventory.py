@@ -173,6 +173,7 @@ TOOL_BUDGETS = {
     "list_trash": 1_300,
     "list_versions": 1_200,
     "restore_version": 1_300,
+    "set_landing_page": 1_200,
     "set_page_hidden": 1_100,
     "set_workspace_member": 1_200,
     "update_chart": 55_000,

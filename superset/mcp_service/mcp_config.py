@@ -409,6 +409,7 @@ MCP_CACHE_CONFIG: dict[str, Any] = {
         "set_canvas_format",
         "set_dashboard_css",
         "set_object_state",
+        "set_landing_page",
         "set_page_hidden",
         "set_shared_visual_format",
         "set_workspace_member",

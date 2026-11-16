@@ -44,6 +44,7 @@ WRITES: list[tuple[str, dict[str, Any]]] = [
     ("duplicate_page", {"page": 1}),
     ("delete_page", {"page": 1}),
     ("set_page_hidden", {"page": 1, "hidden": False}),
+    ("set_landing_page", {"page": None}),
     ("place_object", {"object": "MARKDOWN-1", "x": 30, "y": 10}),
     ("move_object", {"object": "MARKDOWN-1", "dx": 2}),
     ("resize_object", {"object": "MARKDOWN-1", "width": 8}),
@@ -200,6 +201,36 @@ async def test_the_last_page_stays(world: dict[str, Any]) -> None:
     ok(await as_editor(world, "set_page_hidden", page=2, hidden=True))
     refused = await as_editor(world, "set_page_hidden", page=1, hidden=True)
     assert "visible page" in refused["error"]
+
+
+@pytest.mark.asyncio
+async def test_landing_page(world: dict[str, Any]) -> None:
+    refused = await as_editor(world, "set_landing_page", page=1)
+    assert "one page" in refused["error"]
+    ok(await as_editor(world, "add_page", name="Detalle"))
+    ok(await as_editor(world, "add_page", name="Oculta"))
+    ok(await as_editor(world, "set_page_hidden", page="Oculta", hidden=True))
+
+    async def landing() -> list[bool]:
+        structure = ok(
+            await call("get_report_structure", {"dashboard": world["dashboard"].id})
+        )
+        return [page["landing"] for page in structure["pages"]]
+
+    assert await landing() == [True, False, False]
+    result = ok(await as_editor(world, "set_landing_page", page="Detalle"))
+    assert layout(world)["ROOT_ID"]["meta"]["auradataLandingPage"] == result["page"]
+    assert await landing() == [False, True, False]
+
+    refused = await as_editor(world, "set_landing_page", page="Oculta")
+    assert "hidden" in refused["error"]
+
+    # A page hidden later stops being the landing page
+    ok(await as_editor(world, "set_page_hidden", page="Detalle", hidden=True))
+    assert await landing() == [True, False, False]
+
+    ok(await as_editor(world, "set_landing_page", page=None))
+    assert "auradataLandingPage" not in layout(world)["ROOT_ID"]["meta"]
 
 
 @pytest.mark.asyncio

@@ -197,6 +197,21 @@ test('values can be sorted', async () => {
   ).toEqual(['South', 'North']);
 });
 
+test('the chosen values go first once the pointer leaves them', async () => {
+  await renderSlicer({ variant: 'list', selectedFirst: true });
+  const order = () =>
+    screen.getAllByTestId('auradata-slicer-item').map(item => item.textContent);
+  const south = await screen.findByRole('button', { name: 'South' });
+  expect(order()).toEqual(['North', 'South']);
+  const list = screen.getByRole('group', { name: 'Region' });
+  // The value under the pointer stays where it was while choosing
+  fireEvent.pointerEnter(list);
+  fireEvent.click(south);
+  expect(order()).toEqual(['North', 'South']);
+  fireEvent.pointerLeave(list);
+  expect(order()).toEqual(['South', 'North']);
+});
+
 test('a text slicer of whole values filters by the list', async () => {
   const { store } = await renderSlicer({
     variant: 'input',

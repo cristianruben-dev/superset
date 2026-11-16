@@ -94,6 +94,7 @@ def element_options(request: Any, element: dict[str, Any]) -> dict[str, Any]:
         ("selection", "selection"),
         ("apply_button", "applyButton"),
         ("sort", "sortValues"),
+        ("selected_first", "selectedFirst"),
         ("show_in_filter_bar", "showInFilterBar"),
     ):
         value = getattr(request, name, None)

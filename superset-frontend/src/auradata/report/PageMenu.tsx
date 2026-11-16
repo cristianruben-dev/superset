@@ -26,11 +26,12 @@ import { useToasts } from 'src/components/MessageToasts/withToasts';
 import type { RootState } from 'src/dashboard/types';
 import { setComponentMeta, updateLayout } from 'src/auradata/format/actions';
 import { HIDDEN_PAGE_KEY } from 'src/auradata/present/dashboardTabs';
-import { duplicatePage } from './pageActions';
+import { savedLandingPage } from './landingPage';
+import { duplicatePage, setLandingPage } from './pageActions';
 
 /**
- * Right click on a page tab while editing: duplicate, hide, move or delete the
- * page, as in Power BI.
+ * Right click on a page tab while editing: duplicate, hide, make it the landing
+ * page, move or delete the page, as in Power BI.
  */
 export function PageMenu({
   pageId,
@@ -52,6 +53,10 @@ export function PageMenu({
       state.dashboardLayout.present[page?.parents?.at(-1) ?? ''],
   );
   const hidden = !!page?.meta?.[HIDDEN_PAGE_KEY];
+  const landing = useSelector(
+    (state: RootState) =>
+      savedLandingPage(state.dashboardLayout.present) === pageId,
+  );
   const index = parent?.children.indexOf(pageId) ?? -1;
   const count = parent?.children.length ?? 0;
 
@@ -101,6 +106,13 @@ export function PageMenu({
               <Icons.EyeInvisibleOutlined iconSize="m" />
             ),
           },
+          {
+            key: 'landing',
+            label: landing
+              ? t('Unset as landing page')
+              : t('Set as landing page'),
+            icon: <Icons.HomeOutlined iconSize="m" />,
+          },
           { type: 'divider' as const },
           {
             key: 'left',
@@ -135,6 +147,9 @@ export function PageMenu({
                 `hide-page:${pageId}:${Date.now()}`,
               ) as never,
             );
+          }
+          if (key === 'landing') {
+            dispatch(setLandingPage(landing ? undefined : pageId) as never);
           }
           if (key === 'left') move(-1);
           if (key === 'right') move(1);

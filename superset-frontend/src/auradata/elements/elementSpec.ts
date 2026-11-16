@@ -244,6 +244,7 @@ const filter: Described<FilterElement> = {
   pillRadius: px,
   showSummary: bool,
   sortValues: enumOf('asc', 'desc'),
+  selectedFirst: bool,
   blankText: text,
   valueUnits: enumOf(
     'none',
@@ -270,7 +271,7 @@ const filter: Described<FilterElement> = {
   menuMaxHeight: px,
   inputMatch: enumOf('contains', 'exact'),
   rangeStyle: enumOf('between', 'slider'),
-  dateStyle: enumOf('relative', 'between'),
+  dateStyle: enumOf('relative', 'between', 'single'),
   hiddenValues: { type: 'array', items: text },
   showClear: bool,
   inputNumeric: bool,

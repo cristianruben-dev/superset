@@ -48,6 +48,8 @@ CANVAS_FORMAT_KEY = "auradataCanvas"
 CELLS_KEY = "auradataCells"
 LEGACY_COLUMN_COUNT_KEY = "auradataColumns"
 BOOKMARKS_KEY = "auradataBookmarks"
+# The page the report opens on (src/auradata/report/landingPage.ts)
+LANDING_PAGE_KEY = "auradataLandingPage"
 FIELD_STEP_KEY = "auradataFieldStep"
 
 # Pages (top level tabs, or the grid of a report of one page)
@@ -75,6 +77,7 @@ LAYOUT_META_KEYS = frozenset(
         CELLS_KEY,
         LEGACY_COLUMN_COUNT_KEY,
         BOOKMARKS_KEY,
+        LANDING_PAGE_KEY,
         FIELD_STEP_KEY,
         MOBILE_LAYOUT_KEY,
         HIDDEN_PAGE_KEY,

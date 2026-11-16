@@ -21,13 +21,24 @@ import { useDispatch, useSelector } from 'react-redux';
 import { t } from '@apache-superset/core/translation';
 import { css, styled } from '@apache-superset/core/theme';
 import { NO_TIME_RANGE, type Filter } from '@superset-ui/core';
-import { InputNumber, Slider } from '@superset-ui/core/components';
+import {
+  AntdThemeProvider,
+  DatePicker,
+  InputNumber,
+  Loading,
+  RangePicker,
+  Slider,
+} from '@superset-ui/core/components';
+import { extendedDayjs as dayjs } from '@superset-ui/core/utils/dates';
+import type { Dayjs } from 'dayjs';
+import { useLocale } from 'src/hooks/useLocale';
 import type { RootState } from 'src/dashboard/types';
 import { updateDataMask } from 'src/dataMask/actions';
 import { getRangeExtraFormData } from 'src/filters/utils';
 import {
   betweenTimeRange,
   formatNumber,
+  isoDate,
   parseBetweenTimeRange,
   parseRelativeTimeRange,
   relativeTimeRange,
@@ -112,6 +123,28 @@ const Box = styled.div`
       border: 0;
       background: transparent;
       box-shadow: none;
+    }
+    .slicer-fields .ant-picker input {
+      border: 0;
+      background: transparent;
+      box-shadow: none;
+      padding: 0;
+    }
+    .slicer-fields .ant-picker {
+      width: 100%;
+      box-shadow: var(--mb-s-search-accent, none);
+      background: var(
+        --mb-s-search-fill,
+        var(--mb-f-box-fill, ${theme.colorBgContainer})
+      );
+      border-color: var(
+        --mb-s-search-border,
+        var(--mb-f-box-border, ${theme.colorBorder})
+      );
+      border-radius: var(
+        --mb-s-search-radius,
+        var(--mb-f-box-radius, ${theme.borderRadius}px)
+      );
     }
     .slicer-dash {
       flex: none;
@@ -256,9 +289,19 @@ const SCOPES = (): { value: RelativeScope; label: string }[] => [
   { value: 'next', label: t('In the next') },
 ];
 
+/** Days typed or picked on the calendar, in the order of the language. */
+const DAY_FORMAT = 'L';
+const toDay = (day: string | undefined) =>
+  day ? dayjs(`${day}T00:00:00`) : null;
+const fromDay = (day: Dayjs | null | undefined) =>
+  day?.isValid() ? isoDate(day.toDate()) : undefined;
+// The calendar opens over the page, not inside the slicer or its zoom
+const popupContainer = () => document.body;
+
 /**
  * A time filter drawn as Power BI's date slicers: a relative date such as
- * "last 3 months", or the days between two dates.
+ * "last 3 months", the days between two dates or one day. Days are typed or
+ * picked on a calendar.
  */
 export function DateSlicerView({
   filter,
@@ -271,6 +314,9 @@ export function DateSlicerView({
   const applied = useSelector<RootState, string | undefined>(
     state => state.dataMask[filter.id]?.filterState?.value as string,
   );
+  const locale = useLocale();
+  const picker =
+    config.dateStyle === 'between' || config.dateStyle === 'single';
   const relative = parseRelativeTimeRange(applied);
   const between = parseBetweenTimeRange(applied) ?? [undefined, undefined];
   const [draft, setDraft] = useState<RelativeDate>(
@@ -303,29 +349,41 @@ export function DateSlicerView({
   return (
     <Box style={slicerStyle(config)} data-test="auradata-date-slicer">
       {!config.hideLabel && <SlicerHeader name={filter.name} />}
-      {config.dateStyle === 'between' ? (
+      {picker ? (
         <div className="slicer-fields">
-          <input
-            type="date"
-            aria-label={t('From')}
-            data-test="auradata-date-slicer-start"
-            value={between[0] ?? ''}
-            max={between[1]}
-            onChange={event =>
-              applyBetween(event.target.value || undefined, between[1])
-            }
-          />
-          <span className="slicer-dash">–</span>
-          <input
-            type="date"
-            aria-label={t('To')}
-            data-test="auradata-date-slicer-end"
-            value={between[1] ?? ''}
-            min={between[0]}
-            onChange={event =>
-              applyBetween(between[0], event.target.value || undefined)
-            }
-          />
+          {locale === null ? (
+            <Loading position="inline-centered" />
+          ) : (
+            <AntdThemeProvider locale={locale}>
+              {config.dateStyle === 'single' ? (
+                <DatePicker
+                  aria-label={t('Day')}
+                  data-test="auradata-date-slicer-day"
+                  format={DAY_FORMAT}
+                  placeholder={t('Choose a day')}
+                  value={toDay(between[0])}
+                  getPopupContainer={popupContainer}
+                  onChange={(day: Dayjs | null) => {
+                    const picked = fromDay(day);
+                    applyBetween(picked, picked);
+                  }}
+                />
+              ) : (
+                <RangePicker
+                  aria-label={t('Between dates')}
+                  data-test="auradata-date-slicer-range"
+                  format={DAY_FORMAT}
+                  placeholder={[t('From'), t('To')]}
+                  allowEmpty={[true, true]}
+                  value={[toDay(between[0]), toDay(between[1])]}
+                  getPopupContainer={popupContainer}
+                  onChange={days =>
+                    applyBetween(fromDay(days?.[0]), fromDay(days?.[1]))
+                  }
+                />
+              )}
+            </AntdThemeProvider>
+          )}
         </div>
       ) : (
         <div className="slicer-fields">
@@ -381,7 +439,8 @@ export function DateSlicerView({
           </select>
         </div>
       )}
-      {applied && (
+      {/* The calendars clear with their own icon */}
+      {applied && !picker && (
         <button
           type="button"
           className="slicer-hint slicer-clear"

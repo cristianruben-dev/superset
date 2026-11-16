@@ -244,6 +244,8 @@ export interface FilterElement {
   showSummary?: boolean;
   /** Order of the values; unset keeps the order of the query */
   sortValues?: 'asc' | 'desc';
+  /** The chosen values go on top of the others ("Show selected first") */
+  selectedFirst?: boolean;
   /** Text shown for an empty value */
   blankText?: string;
   /** Display units and decimals of numeric values */
@@ -270,7 +272,7 @@ export interface FilterElement {
   /** How a range filter is drawn; unset keeps the filter's own control */
   rangeStyle?: 'between' | 'slider';
   /** How a time filter is drawn; unset keeps the filter's own control */
-  dateStyle?: 'relative' | 'between';
+  dateStyle?: 'relative' | 'between' | 'single';
   /** Values left out of the slicer, by `slicerValueKey` */
   hiddenValues?: string[];
   /** An eraser in the corner clears what is chosen (on by default) */

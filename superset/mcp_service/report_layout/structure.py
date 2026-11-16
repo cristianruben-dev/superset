@@ -25,6 +25,7 @@ from superset.auradata.layout import (
     canvas_format,
     is_hidden_page,
     keys,
+    landing_page_of,
     mobile_layout_of,
     page_ids,
     page_objects,
@@ -152,6 +153,7 @@ def build_structure(report: Report, include_format: bool = True) -> ReportStruct
     filter_names = {str(item.get("id")): item.get("name") for item in filters}
 
     pages: list[PageSummary] = []
+    landing = landing_page_of(layout) or next(iter(page_ids(layout)), None)
     for index, page_id in enumerate(page_ids(layout), start=1):
         meta = (layout.get(page_id) or {}).get("meta") or {}
         objects: list[ReportObject] = []
@@ -192,6 +194,7 @@ def build_structure(report: Report, include_format: bool = True) -> ReportStruct
                 if isinstance(drillthrough, dict)
                 else None,
                 has_mobile_layout=bool(mobile_layout_of(layout, page_id)),
+                landing=page_id == landing,
                 objects=objects,
             )
         )

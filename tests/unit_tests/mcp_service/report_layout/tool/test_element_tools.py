@@ -303,6 +303,7 @@ async def test_add_slicer_writes_the_filter_and_its_element(
                 selection="single",
                 apply_button=True,
                 sort="desc",
+                selected_first=True,
                 hidden_values=["Norte", None, True, 2.0],
                 show_in_filter_bar=False,
                 default_value=["Sur"],
@@ -330,6 +331,7 @@ async def test_add_slicer_writes_the_filter_and_its_element(
     assert element["selection"] == "single"
     assert element["applyButton"] is True
     assert element["sortValues"] == "desc"
+    assert element["selectedFirst"] is True
     assert element["showInFilterBar"] is False
     # slicerValueKey writes them as JavaScript's String() does
     assert element["hiddenValues"] == ["Norte", "\u0000blank", "true", "2"]
@@ -407,6 +409,14 @@ async def test_slicer_of_a_page_and_of_a_range(world: dict[str, Any]) -> None:
     assert filters(world)[1]["defaultDataMask"]["extraFormData"] == {
         "time_range": "Last month"
     }
+    # One day on a calendar
+    ok(
+        await as_editor(
+            world, "update_slicer", object=time["object"], date_style="single"
+        )
+    )
+    element = layout(world)[time["object"]]["meta"]["auradataElement"]
+    assert element["dateStyle"] == "single"
 
 
 @pytest.mark.asyncio
@@ -484,7 +494,11 @@ async def test_update_and_format_slicer(world: dict[str, Any]) -> None:
             "format_slicer",
             object=slicer,
             level="visual",
-            patch={"selectedFill": "#2563EB", "itemCorners": [4, 4, 0, 0]},
+            patch={
+                "selectedFill": "#2563EB",
+                "itemCorners": [4, 4, 0, 0],
+                "selectedFirst": True,
+            },
         )
     )
     ok(
@@ -499,6 +513,7 @@ async def test_update_and_format_slicer(world: dict[str, Any]) -> None:
     meta = layout(world)[slicer]["meta"]
     assert meta["auradataElement"]["selectedFill"] == "#2563EB"
     assert meta["auradataElement"]["itemCorners"] == [4, 4, 0, 0]
+    assert meta["auradataElement"]["selectedFirst"] is True
     assert meta["auradataElement"]["filterId"] == conf["id"]
     assert meta["auradataFormat"]["title"]["subtitle"] == "Elige una zona"
     wrong = await as_editor(

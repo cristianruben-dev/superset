@@ -183,6 +183,8 @@ def report_conventions() -> dict[str, Any]:
             "height is in cells from the page's top-left corner.",
             "Objects never get gaps or margins automatically: leave empty cells "
             "yourself.",
+            "A report opens on its first page unless set_landing_page names "
+            "another visible page; a link or drill through opens its own page.",
         ],
         "page": {
             "default_size": DEFAULT_CANVAS_SIZE,

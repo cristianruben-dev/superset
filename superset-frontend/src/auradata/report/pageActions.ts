@@ -46,10 +46,23 @@ import {
 import newComponentFactory from 'src/dashboard/util/newComponentFactory';
 import { cloneChart } from 'src/auradata/format/clipboard';
 import { GROUP_KEY } from 'src/auradata/format/arrange';
-import { updateLayout } from 'src/auradata/format/actions';
+import { setComponentMeta, updateLayout } from 'src/auradata/format/actions';
 import { MOBILE_LAYOUT_KEY } from 'src/auradata/format/mobileLayout';
+import { LANDING_PAGE_KEY } from './landingPage';
 
 type AppDispatch = ThunkDispatch<RootState, undefined, AnyAction>;
+
+/**
+ * Makes a page the one the report opens on, or the first page again when
+ * `pageId` is unset. A report keeps a single landing page.
+ */
+export const setLandingPage = (pageId: string | undefined) =>
+  setComponentMeta(
+    DASHBOARD_ROOT_ID,
+    LANDING_PAGE_KEY,
+    pageId,
+    `landing-page:${Date.now()}`,
+  );
 
 /** Adds a page at the end of the report, making its first tabs if it has none. */
 export const insertPage = () => (dispatch: AppDispatch, getState: GetState) => {

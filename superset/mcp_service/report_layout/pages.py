@@ -22,7 +22,13 @@ report of one page gets its first tabs when a second page is added.
 
 from typing import Any
 
-from superset.auradata.layout import keys, page_ids, page_title, top_tabs_id
+from superset.auradata.layout import (
+    is_hidden_page,
+    keys,
+    page_ids,
+    page_title,
+    top_tabs_id,
+)
 from superset.mcp_service.dashboard.constants import generate_id
 from superset.mcp_service.report_layout.editing import (
     chart_ids_under,
@@ -138,6 +144,27 @@ def set_page_hidden(report: Report, page: Any, hidden: bool) -> str:
         meta[keys.HIDDEN_PAGE_KEY] = True
     else:
         meta.pop(keys.HIDDEN_PAGE_KEY, None)
+    return page_id
+
+
+def set_landing_page(report: Report, page: Any | None) -> str | None:
+    """
+    Makes a page the one the report opens on, or the first page again with
+    None. A report keeps one landing page; viewers need to see it.
+    """
+    root_meta = report.layout[keys.ROOT_ID].setdefault("meta", {})
+    if page is None:
+        root_meta.pop(keys.LANDING_PAGE_KEY, None)
+        return None
+    page_id = resolve_page(report, page)
+    if not top_tabs_id(report.layout):
+        raise LayoutEditError("A report of one page always opens on it.")
+    if is_hidden_page(report.layout[page_id].get("meta")):
+        raise LayoutEditError(
+            "A hidden or tooltip page cannot be the landing page: "
+            "viewers do not see it."
+        )
+    root_meta[keys.LANDING_PAGE_KEY] = page_id
     return page_id
 
 
