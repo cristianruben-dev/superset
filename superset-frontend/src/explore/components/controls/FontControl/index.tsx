@@ -99,7 +99,12 @@ export default function FontControl({
             showSearch
           />
         )}
-        <Flex gap="small" align="center" wrap="wrap">
+        <Flex
+          gap="small"
+          align="center"
+          wrap="wrap"
+          className="font-control-style"
+        >
           <InputNumber
             aria-label={t('%s font size', label)}
             min={6}
@@ -130,6 +135,8 @@ export default function FontControl({
                 buttonSize="small"
                 buttonStyle={bold ? 'primary' : 'tertiary'}
                 tooltip={t('Bold')}
+                // The flex gap spaces the toggles, not the margin between buttons
+                style={{ marginLeft: 0 }}
                 onClick={() => update({ bold: !bold })}
               >
                 <strong>B</strong>
@@ -140,6 +147,7 @@ export default function FontControl({
                 buttonSize="small"
                 buttonStyle={italic ? 'primary' : 'tertiary'}
                 tooltip={t('Italic')}
+                style={{ marginLeft: 0 }}
                 onClick={() => update({ italic: !italic })}
               >
                 <em>I</em>

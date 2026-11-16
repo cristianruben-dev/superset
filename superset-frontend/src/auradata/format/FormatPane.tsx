@@ -263,14 +263,39 @@ const Pane = styled.div`
           margin: ${theme.sizeUnit}px 0 !important;
         }
 
+        /* Toggles and swatches match the 28px inputs of their row */
+        .font-control-style {
+          flex-wrap: nowrap;
+
+          /* The size takes the room the toggles leave: rows end flush */
+          > .ant-space-compact,
+          > .ant-input-number-group-wrapper,
+          > .ant-input-number {
+            flex: 1;
+            width: auto !important;
+            min-width: 0;
+          }
+
+          .superset-button,
+          .ant-color-picker-trigger {
+            flex: none;
+            width: 28px;
+            min-width: 28px;
+            height: 28px !important;
+            padding: 0 !important;
+          }
+        }
+
         .ant-radio-button-wrapper {
           height: 28px !important;
           line-height: 26px !important;
           font-size: ${theme.fontSizeSM}px !important;
         }
 
-        /* Color pickers: inline layout like General */
-        .Control:has(.ant-color-picker-trigger) > div {
+        /* A lone color picker sits beside its label, like General; a control
+           with more inputs (a font) keeps its label above them */
+        .Control:has(.ant-color-picker-trigger)
+          > div:not(:has(.ant-select, .ant-input-number, .ant-input)) {
           display: flex;
           align-items: center;
           justify-content: space-between;
