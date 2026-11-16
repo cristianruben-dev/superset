@@ -23051,3 +23051,25 @@ msgstr ""
 
 msgid "№"
 msgstr ""
+
+msgid "Checking which charts will be removed…"
+msgstr ""
+
+msgid "This chart is archived or unavailable."
+msgstr ""
+
+msgid "This chart is archived or unavailable. An editor can restore archived charts from Recently Archived."
+msgstr ""
+
+#, python-format
+msgid "Unable to find such a country: [%(country)s]"
+msgstr ""
+
+msgid "Viewers cannot be added while the ENABLE_VIEWERS feature flag is disabled"
+msgstr ""
+
+#, python-format
+msgid "Restoring will remove %s chart added after this version from this dashboard. The chart itself will not be deleted."
+msgid_plural "Restoring will remove %s charts added after this version from this dashboard. The charts themselves will not be deleted."
+msgstr[0] ""
+msgstr[1] ""

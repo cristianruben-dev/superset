@@ -163,6 +163,7 @@ from superset.tasks.export_dashboard_excel import (
     export_lock_params,
     EXPORT_LOCK_TTL_SECONDS,
 )
+from superset.tasks.guest import get_current_guest_subscriber_key
 from superset.tasks.thumbnails import (
     cache_dashboard_screenshot,
     cache_dashboard_thumbnail,
@@ -710,10 +711,11 @@ class DashboardRestApi(
             # charts sub-resources. The check reads each chart's editors and
             # viewers, so load them for the whole set first.
             DashboardDAO.prefetch_chart_access(dash)
+            dashboard_grant = security_manager.has_promiscuous_dashboard_access(dash)
             result["charts"] = [
                 slc.chart
                 for slc in dash.slices
-                if security_manager.can_access_chart(slc)
+                if dashboard_grant or security_manager.can_access_chart(slc)
             ]
         if current_app.config.get("EXTRA_EDITORS_RESOLVER"):
             result["extra_editors"] = get_extra_editor_subject_ids(dash)
@@ -769,9 +771,16 @@ class DashboardRestApi(
               $ref: '#/components/responses/404'
         """
         try:
+            # Every dataset here belongs to the dashboard, so a promiscuous
+            # viewer of it may read them all.
+            dashboard_grant = security_manager.has_promiscuous_dashboard_access(
+                DashboardDAO.get_by_id_or_slug(id_or_slug)
+            )
             datasets = DashboardDAO.get_datasets_for_dashboard(id_or_slug)
             result = [
-                self._serialize_dashboard_dataset(datasource, payload)
+                self._serialize_dashboard_dataset(
+                    datasource, payload, dashboard_grant=dashboard_grant
+                )
                 for datasource, payload in datasets
             ]
             return self.response(200, result=result)
@@ -779,15 +788,23 @@ class DashboardRestApi(
             raise DatasetValidationError(err) from err
 
     def _serialize_dashboard_dataset(
-        self, datasource: Any, payload: dict[str, Any]
+        self,
+        datasource: Any,
+        payload: dict[str, Any],
+        *,
+        dashboard_grant: bool = False,
     ) -> dict[str, Any]:
-        """Dump a member dataset, narrowed when the caller cannot access it."""
+        """Dump a member dataset, narrowed when the caller cannot access it.
+
+        :param dashboard_grant: Whether the dashboard grants its member
+            datasets to the caller (``VIEWER_PROMISCUOUS_MODE``)
+        """
         serialized = self.dashboard_dataset_schema.dump(payload)
         if isinstance(datasource, SemanticView):
             # Redux keys dashboard datasets by Slice.form_data["datasource"],
             # whereas SemanticView.uid is the provider's independent identity.
             serialized["uid"] = f"{datasource.id}__{datasource.type}"
-        if not self._can_access_dashboard_dataset(datasource):
+        if not (dashboard_grant or self._can_access_dashboard_dataset(datasource)):
             for key in DASHBOARD_DATASET_INACCESSIBLE_FIELDS:
                 serialized.pop(key, None)
         return serialized
@@ -807,10 +824,16 @@ class DashboardRestApi(
             )
         )
 
-    def _serialize_dashboard_chart(self, chart: Any) -> dict[str, Any]:
-        """Dump a member chart, narrowed when the caller cannot access it."""
+    def _serialize_dashboard_chart(
+        self, chart: Any, *, dashboard_grant: bool = False
+    ) -> dict[str, Any]:
+        """Dump a member chart, narrowed when the caller cannot access it.
+
+        :param dashboard_grant: Whether the dashboard grants its member charts
+            to the caller (``VIEWER_PROMISCUOUS_MODE``)
+        """
         serialized = self.chart_entity_response_schema.dump(chart)
-        if not security_manager.can_access_chart(chart):
+        if not (dashboard_grant or security_manager.can_access_chart(chart)):
             serialized.pop("form_data", None)
         return serialized
 
@@ -917,7 +940,13 @@ class DashboardRestApi(
         """
         try:
             charts = DashboardDAO.get_charts_for_dashboard(id_or_slug)
-            result = [self._serialize_dashboard_chart(chart) for chart in charts]
+            dashboard_grant = security_manager.has_promiscuous_dashboard_access(
+                DashboardDAO.get_by_id_or_slug(id_or_slug)
+            )
+            result = [
+                self._serialize_dashboard_chart(chart, dashboard_grant=dashboard_grant)
+                for chart in charts
+            ]
             return self.response(200, result=result)
         except DashboardAccessDeniedError:
             return self.response_403()
@@ -2037,6 +2066,7 @@ class DashboardRestApi(
             thumb_size,
             permalink_key,
             cache_scope,
+            guest_key=get_current_guest_subscriber_key(),
         )
 
         def build_response(
@@ -2217,14 +2247,11 @@ class DashboardRestApi(
                         )
                         return lock_response
 
+                    guest_user = security_manager.get_current_guest_user_if_guest()
                     try:
                         cache_dashboard_screenshot.delay(
                             username=get_current_user(),
-                            guest_token=(
-                                g.user.guest_token
-                                if get_current_user() and isinstance(g.user, GuestUser)
-                                else None
-                            ),
+                            guest_token=guest_user.guest_token if guest_user else None,
                             dashboard_id=dashboard.id,
                             dashboard_url=dashboard_url,
                             thumb_size=thumb_size,
@@ -3155,6 +3182,12 @@ class DashboardRestApi(
               format: uuid
             name: version_uuid_str
             description: Version UUID as returned by the list endpoint
+          - in: query
+            name: include_restore_impact
+            schema:
+              type: boolean
+              default: false
+            description: Include the current count of charts a restore would detach
           responses:
             200:
               description: Snapshot of the dashboard at the target version
@@ -3170,6 +3203,13 @@ class DashboardRestApi(
                           (entity-specific keys), plus a `_version` block
                           with the version-level metadata.
                         properties:
+                          _restore_impact:
+                            type: object
+                            description: Current membership impact when requested
+                            properties:
+                              removed_chart_count:
+                                type: integer
+                                minimum: 0
                           _version:
                             $ref: '#/components/schemas/VersionListItemSchema'
             400:
@@ -3181,7 +3221,13 @@ class DashboardRestApi(
             404:
               $ref: '#/components/responses/404'
         """
-        return get_version_endpoint(self, Dashboard, uuid_str, version_uuid_str)
+        return get_version_endpoint(
+            self,
+            Dashboard,
+            uuid_str,
+            version_uuid_str,
+            include_restore_impact=request.args.get("include_restore_impact") == "true",
+        )
 
     @expose("/<uuid_str>/activity/", methods=("GET",))
     @protect()

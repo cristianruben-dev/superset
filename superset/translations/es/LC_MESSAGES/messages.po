@@ -6414,7 +6414,7 @@ msgid "Formatted value"
 msgstr "Valor formateado"
 
 msgid "Formatting"
-msgstr "Formateando"
+msgstr "Formato"
 
 msgid "Formula"
 msgstr "Fórmula"
@@ -10320,7 +10320,7 @@ msgid "STEP %(stepCurr)s OF %(stepLast)s"
 msgstr "PASO %(stepCurr)s DE %(stepLast)s"
 
 msgid "STRING"
-msgstr "CADENA"
+msgstr "TEXTO"
 
 msgid "SUN"
 msgstr "DOM"
@@ -27772,3 +27772,25 @@ msgstr "Las etiquetas más largas se cortan, en píxeles. En barras horizontales
 
 msgid "Pixels each category takes along its axis: the height of a row in bars drawn across. The chart scrolls inside when they do not fit"
 msgstr "Píxeles que ocupa cada categoría en su eje: la altura de una fila en barras horizontales. El gráfico se desplaza por dentro cuando no caben"
+
+msgid "Checking which charts will be removed…"
+msgstr "Comprobando qué gráficos se quitarán…"
+
+msgid "This chart is archived or unavailable."
+msgstr "Este gráfico está en la papelera o no está disponible."
+
+msgid "This chart is archived or unavailable. An editor can restore archived charts from Recently Archived."
+msgstr "Este gráfico está en la papelera o no está disponible. Un editor puede restaurarlo desde la papelera."
+
+#, python-format
+msgid "Unable to find such a country: [%(country)s]"
+msgstr "No se ha podido encontrar el país: [%(country)s]"
+
+msgid "Viewers cannot be added while the ENABLE_VIEWERS feature flag is disabled"
+msgstr "No se pueden añadir lectores mientras la opción ENABLE_VIEWERS está desactivada"
+
+#, python-format
+msgid "Restoring will remove %s chart added after this version from this dashboard. The chart itself will not be deleted."
+msgid_plural "Restoring will remove %s charts added after this version from this dashboard. The charts themselves will not be deleted."
+msgstr[0] "Al restaurar se quitará de este tablero %s gráfico añadido después de esta versión. El gráfico no se eliminará."
+msgstr[1] "Al restaurar se quitarán de este tablero %s gráficos añadidos después de esta versión. Los gráficos no se eliminarán."

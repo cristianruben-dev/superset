@@ -257,6 +257,9 @@ def test_copy_dashboard_always_duplicates_charts(
     mocker.patch("superset.daos.dashboard.g", user=None)
     # Copying a dashboard needs editorship of it
     mocker.patch.object(security_manager, "is_editor", return_value=True)
+    # ...and read access to the charts it carries
+    mocker.patch.object(security_manager, "can_access_chart", return_value=True)
+    mocker.patch.object(security_manager, "is_admin", return_value=False)
     chart = make_chart(db_session)
     original = make_dashboard(db_session, "A", [chart])
     positions = {"CHART-1": {"type": "CHART", "meta": {"chartId": chart.id}}}

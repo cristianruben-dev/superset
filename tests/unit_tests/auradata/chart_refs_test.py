@@ -121,6 +121,9 @@ def test_copy_dashboard_points_bookmarks_at_the_copies(
     mocker.patch("superset.daos.dashboard.g", user=None)
     # Copying a dashboard needs editorship of it
     mocker.patch.object(security_manager, "is_editor", return_value=True)
+    # ...and read access to the charts it carries
+    mocker.patch.object(security_manager, "can_access_chart", return_value=True)
+    mocker.patch.object(security_manager, "is_admin", return_value=False)
     chart = Slice(slice_name="chart", viz_type="table", datasource_type="table")
     db_session.add(chart)
     db_session.flush()

@@ -35,7 +35,10 @@ from sqlalchemy.orm.session import Session
 
 from superset import security_manager
 from superset.auradata.models import Workspace, WorkspaceDashboard, WorkspaceMember
-from superset.commands.dashboard.exceptions import DashboardForbiddenError
+from superset.commands.dashboard.exceptions import (
+    DashboardForbiddenError,
+    DashboardLayoutInvalidError,
+)
 from superset.commands.utils import compute_subjects
 from superset.connectors.sqla.models import SqlaTable
 from superset.daos.dashboard import DashboardDAO
@@ -291,6 +294,27 @@ def test_a_contributor_copies_without_becoming_an_editor(
     # ...and sits in the workspace of the original, where Ana edits it
     assert security_manager.can_edit_resource(copy)
     assert raises(security_manager.raise_for_access, chart=copy.slices[0])
+
+
+def test_an_editor_cannot_copy_charts_they_cannot_read(
+    session: Session, world: dict[str, Any]
+) -> None:
+    """A copy made by an editor of the dashboard is theirs, so it only carries
+    the charts they read in their own right."""
+    ajena = world["ajena"]
+    ajena.editors = [*ajena.editors, world["ana_subject"]]
+    session.flush()
+    assert security_manager.is_editor(ajena)
+
+    with pytest.raises(DashboardLayoutInvalidError):
+        DashboardDAO.copy_dashboard(
+            ajena,
+            {
+                "dashboard_title": "Ajena (copia)",
+                "json_metadata": json.dumps({"positions": {}}),
+                "duplicate_slices": True,
+            },
+        )
 
 
 def test_a_viewer_cannot_copy(world: dict[str, Any]) -> None:

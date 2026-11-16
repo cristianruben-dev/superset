@@ -423,3 +423,25 @@ def test_get_available_engine_specs_finds_pymssql(mocker: MockerFixture) -> None
     )
 
     assert get_available_engine_specs() == {MssqlEngineSpec: {"pymssql"}}
+
+
+@pytest.mark.parametrize(
+    "app",
+    [
+        {"DBS_AVAILABLE_DENYLIST": {"databricks": {"databricks-sql-python"}}},
+        {"DBS_AVAILABLE_DENYLIST": {"databricks": {"databricks"}}},
+    ],
+    indirect=True,
+)
+def test_databricks_default_driver_denylist_keeps_legacy_name(
+    mocker: MockerFixture,
+) -> None:
+    """Either name for the native Databricks driver hides its connection option."""
+    from superset.db_engine_specs.databricks import DatabricksPythonConnectorEngineSpec
+
+    mocker.patch(
+        "superset.db_engine_specs.load_engine_specs",
+        return_value=iter([DatabricksPythonConnectorEngineSpec]),
+    )
+
+    assert DatabricksPythonConnectorEngineSpec not in get_available_engine_specs()

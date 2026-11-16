@@ -122,6 +122,12 @@ ColumnTypeMapping = tuple[
     GenericDataType,
 ]
 
+# Trailing ``LIMIT n OFFSET m`` (optionally followed by a semicolon), anchored
+# to the end of the statement so subqueries are never touched.
+_TRAILING_LIMIT_OFFSET = re.compile(
+    r"\s+LIMIT\s+(\d+)\s+OFFSET\s+(\d+)(\s*;?\s*)$", re.IGNORECASE
+)
+
 logger = logging.getLogger()
 
 # When connecting to a database it's hard to catch specific exceptions, since we support
@@ -407,6 +413,8 @@ class BaseEngineSpec:  # pylint: disable=too-many-public-methods
     engine_aliases: set[str] = set()
     drivers: dict[str, str] = {}
     default_driver: str | None = None
+    # Historical default names that must continue to match DBS_AVAILABLE_DENYLIST.
+    default_driver_aliases: tuple[str, ...] = ()
 
     # placeholder with the SQLAlchemy URI template
     sqlalchemy_uri_placeholder = (
@@ -577,6 +585,16 @@ class BaseEngineSpec:  # pylint: disable=too-many-public-methods
     # pagination via another mechanism (e.g. Elasticsearch's cursor API).
     supports_offset = True
 
+    # Whether the engine's SQL grammar requires OFFSET to appear *before* LIMIT
+    # (Presto and Trino), unlike the ANSI ``LIMIT ... OFFSET`` ordering. Most
+    # SQLAlchemy dialects for these engines emit the clauses in the correct
+    # order, but some drivers (notably PyHive's Presto/Trino dialects) inherit
+    # the ANSI ordering, which Presto and Trino reject with a syntax error
+    # (``mismatched input 'OFFSET'``). When True, Superset normalizes compiled
+    # SQL so OFFSET precedes LIMIT, making paginated queries (e.g. Drill to
+    # Detail page 2+) valid regardless of the installed driver.
+    offset_before_limit = False
+
     # Whether ORDER BY clause can use aliases created in SELECT
     # that are the same as a source column
     allows_alias_to_source_column = True
@@ -719,6 +737,14 @@ class BaseEngineSpec:  # pylint: disable=too-many-public-methods
 
     # Does the DB engine spec support cross-catalog queries?
     supports_cross_catalog_queries = False
+
+    # Are catalog names case-insensitive? When True, a catalog can appear in
+    # permissions with different cases (eg, the catalog listing returns `SALES` while
+    # the connection URI says `sales`), and catalog/schema permissions match when only
+    # the case of the catalog differs. Database and schema names still match exactly.
+    # Only set this for engines where catalogs that differ only by case are the same
+    # catalog, otherwise users would be granted access to a different catalog.
+    case_insensitive_catalogs = False
 
     # Does the DB engine support schemas? When set to False the schema selector is
     # hidden in the dataset creation UI and schema is not required for table access.
@@ -1773,6 +1799,30 @@ class BaseEngineSpec:  # pylint: disable=too-many-public-methods
             return None
 
     @classmethod
+    def apply_offset_before_limit(cls, sql: str) -> str:
+        """
+        Reorder a trailing ``LIMIT n OFFSET m`` into ``OFFSET m LIMIT n``
+        for engines whose grammar requires OFFSET to precede LIMIT.
+
+        This is a no-op unless ``offset_before_limit`` is set (Presto/Trino) and
+        the compiled SQL ends in the invalid ANSI order. Some drivers (e.g.
+        PyHive's Presto/Trino dialects) emit ``LIMIT n OFFSET m``, which Presto
+        and Trino reject with ``mismatched input 'OFFSET'``.
+
+        Only the anchored trailing clause is rewritten; the rest of the query is
+        left byte-for-byte unchanged rather than re-rendered, so dialect
+        differences in the rest of the statement (e.g. ``log(10, x)`` becoming
+        ``LOG(x, 10)``) can't leak in.
+
+        :param sql: A single compiled SQL statement
+        :return: The statement with OFFSET before LIMIT when required
+        """
+        if not cls.offset_before_limit:
+            return sql
+
+        return _TRAILING_LIMIT_OFFSET.sub(r" OFFSET \2 LIMIT \1\3", sql, count=1)
+
+    @classmethod
     def get_cte_query(cls, sql: str) -> str | None:
         """
         Convert the input CTE based SQL to the SQL for virtual table conversion
@@ -2051,6 +2101,16 @@ class BaseEngineSpec:  # pylint: disable=too-many-public-methods
                 extra={"engine_name": cls.engine_name},
             )
         ]
+
+    @classmethod
+    def get_catalog_for_connection(  # pylint: disable=unused-argument
+        cls,
+        database: Database,
+        uri: URL,
+        catalog: str | None,
+    ) -> str | None:
+        """Return the selected catalog, allowing engine-specific legacy aliases."""
+        return catalog
 
     @classmethod
     def adjust_engine_params(  # pylint: disable=unused-argument

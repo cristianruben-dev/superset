@@ -240,6 +240,7 @@ export default function Login() {
               >
                 <Input
                   autoFocus
+                  autoComplete="username"
                   prefix={<Icons.UserOutlined iconSize="l" />}
                   data-test="username-input"
                 />
@@ -252,6 +253,7 @@ export default function Login() {
                 ]}
               >
                 <Input.Password
+                  autoComplete="current-password"
                   prefix={<Icons.KeyOutlined iconSize="l" />}
                   data-test="password-input"
                 />

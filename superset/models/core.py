@@ -656,7 +656,9 @@ class Database(CoreDatabase, AuditMixinNullable, ImportExportMixin):  # pylint: 
         sqlalchemy_url, connect_args = self.db_engine_spec.adjust_engine_params(
             uri=sqlalchemy_url,
             connect_args=connect_args,
-            catalog=catalog,
+            catalog=self.db_engine_spec.get_catalog_for_connection(
+                self, sqlalchemy_url, catalog
+            ),
             schema=schema,
         )
         engine_kwargs["connect_args"] = connect_args
@@ -1055,6 +1057,12 @@ class Database(CoreDatabase, AuditMixinNullable, ImportExportMixin):  # pylint: 
             script = SQLScript(sql, self.db_engine_spec.engine).optimize()
             sql = script.format()
 
+        # Presto/Trino require OFFSET before LIMIT; normalize the compiled SQL
+        # so pagination stays valid regardless of the installed driver's dialect
+        # (e.g. PyHive emits the ANSI ``LIMIT ... OFFSET`` order these engines
+        # reject). No-op for engines that don't need it.
+        sql = self.db_engine_spec.apply_offset_before_limit(sql)
+
         return sql
 
     def select_star(  # pylint: disable=too-many-arguments
@@ -1446,15 +1454,15 @@ class Database(CoreDatabase, AuditMixinNullable, ImportExportMixin):  # pylint: 
 
     def has_view(self, table: Table) -> bool:
         with self.get_sqla_engine(catalog=table.catalog, schema=table.schema) as engine:
-            connection = engine.connect()
-            try:
-                views = engine.dialect.get_view_names(
-                    connection=connection,
-                    schema=table.schema,
-                )
-            except Exception:  # pylint: disable=broad-except
-                logger.warning("Has view failed", exc_info=True)
-                views = []
+            with engine.connect() as connection:
+                try:
+                    views = engine.dialect.get_view_names(
+                        connection=connection,
+                        schema=table.schema,
+                    )
+                except Exception:  # pylint: disable=broad-except
+                    logger.warning("Has view failed", exc_info=True)
+                    views = []
 
         return table.table in views
 
