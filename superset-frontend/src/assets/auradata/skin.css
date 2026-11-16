@@ -1901,6 +1901,15 @@ body.auradata-presenting-idle * {
   z-index: 10;
 }
 
+/* An object placed on a cell stacks by its own layer (meta.auradataZ), so a
+   list opened inside it would stay under the objects layered above. While a
+   slicer's list is open, its object goes over every other object of the page;
+   the page is scaled, so this stays inside it. */
+.auradata-positioned:has(.slicer-menu),
+.auradata-positioned:has(.auradata-element-filter .ant-select-open) {
+  z-index: 10000 !important;
+}
+
 .auradata-element-filter {
   overflow: visible;
 }

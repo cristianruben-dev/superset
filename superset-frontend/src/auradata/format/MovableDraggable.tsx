@@ -62,6 +62,7 @@ export function MovableDraggable({
         component={component}
         className={cx(
           className,
+          positioned && 'auradata-positioned',
           move.moving && 'auradata-moving',
           locked && !!props.editMode && 'auradata-locked',
         )}
