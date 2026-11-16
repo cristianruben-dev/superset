@@ -57,9 +57,10 @@ import {
   withPanelParam,
 } from '../chartEditor';
 import {
-  isPaneCollapsed,
+  foldPanes,
   setDockWidth,
-  setPaneCollapsed,
+  unfoldPanes,
+  type PaneName,
 } from '../format/panes';
 import { previewChartFormData } from './previewChart';
 import { DEFAULT_OBJECT_COLUMNS, DEFAULT_OBJECT_ROWS } from '../format/columns';
@@ -184,15 +185,14 @@ export function ChartEditorPanel({
   const needsQuery = useRef(false);
   const lastSeq = useRef(0);
   const queryTimer = useRef<ReturnType<typeof setTimeout>>();
-  const foldedByDock = useRef(false);
+  const foldedByDock = useRef<PaneName[]>([]);
   const [confirming, setConfirming] = useState(false);
 
-  // The report keeps the room: the edit pane folds while the editor is docked
+  // The report keeps the room: the edit panes fold while the editor is docked
   useEffect(() => {
     if (!docked) return undefined;
     setDockWidth(DOCK_WIDTH);
-    foldedByDock.current = !isPaneCollapsed('builder');
-    if (foldedByDock.current) setPaneCollapsed('builder', true);
+    foldedByDock.current = foldPanes();
     const chart = store.getState().charts[dockedChartId ?? 0];
     savedFormData.current = chart?.form_data ?? null;
     edited.current = false;
@@ -200,7 +200,7 @@ export function ChartEditorPanel({
     lastSeq.current = 0;
     return () => {
       setDockWidth(0);
-      if (foldedByDock.current) setPaneCollapsed('builder', false);
+      unfoldPanes(foldedByDock.current);
       clearTimeout(queryTimer.current);
     };
   }, [docked, dockedChartId, store]);

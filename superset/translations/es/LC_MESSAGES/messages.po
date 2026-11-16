@@ -19504,6 +19504,15 @@ msgstr "Abrir el panel"
 msgid "Fold the panel"
 msgstr "Plegar el panel"
 
+msgid "Expand %s"
+msgstr "Expandir %s"
+
+msgid "Collapse %s"
+msgstr "Contraer %s"
+
+msgid "Back to Format"
+msgstr "Volver a Formato"
+
 msgid "Discard the changes?"
 msgstr "¿Descartar los cambios?"
 

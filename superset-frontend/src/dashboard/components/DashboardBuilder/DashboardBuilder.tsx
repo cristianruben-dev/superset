@@ -45,10 +45,9 @@ import { Drawer, Loading } from '@superset-ui/core/components';
 import { ErrorBoundary, BasicErrorAlert } from 'src/components';
 import BuilderComponentPane from 'src/dashboard/components/BuilderComponentPane';
 import { ExploreDndContextProvider } from 'src/explore/components/ExploreContainer/ExploreDndContext';
-import { DataPane, DATA_PANE_WIDTH } from 'src/auradata/format/DataPane';
 import { useMobileEditing } from 'src/auradata/format/mobile';
 import { MobileLayoutPane } from 'src/auradata/format/MobileLayoutPane';
-import { useDockWidth, usePaneCollapsed } from 'src/auradata/format/panes';
+import { useDockWidth, useEditorPanesWidth } from 'src/auradata/format/panes';
 import DashboardHeader from 'src/dashboard/components/Header';
 import HeadlessAutoRefresh from 'src/dashboard/components/Header/HeadlessAutoRefresh';
 import { Icons } from '@superset-ui/core/components/Icons';
@@ -80,7 +79,6 @@ import FilterBar from 'src/dashboard/components/nativeFilters/FilterBar';
 import { useUiConfig } from 'src/components/UiConfigContext';
 import { isMobileConsumptionEnabled, useIsMobile } from 'src/hooks/useIsMobile';
 import {
-  BUILDER_SIDEPANEL_RAIL_WIDTH,
   BUILDER_SIDEPANEL_WIDTH,
   CLOSED_FILTER_BAR_WIDTH,
   FILTER_BAR_HEADER_HEIGHT,
@@ -851,18 +849,10 @@ const DashboardBuilder = () => {
     ],
   );
 
-  const paneCollapsed = usePaneCollapsed('builder');
-  const dataPaneCollapsed = usePaneCollapsed('data');
+  const editorPanesWidth = useEditorPanesWidth();
   const dockWidth = useDockWidth();
-  // The Data pane serves the fields of the edit pane, which folds for the editor
   // The mobile layout has a pane of its own instead of the editing tools
   const mobileEditing = useMobileEditing() && editMode;
-  const showDataPane =
-    editMode &&
-    !mobileEditing &&
-    !dataPaneCollapsed &&
-    !paneCollapsed &&
-    !dockWidth;
   const dashboardContentMarginLeft = !editMode
     ? theme.sizeUnit * 4
     : theme.sizeUnit * 8;
@@ -1030,11 +1020,9 @@ const DashboardBuilder = () => {
                   editMode={editMode}
                   marginLeft={dashboardContentMarginLeft}
                   sidepaneWidth={
-                    (paneCollapsed && !mobileEditing
-                      ? BUILDER_SIDEPANEL_RAIL_WIDTH
-                      : BUILDER_SIDEPANEL_WIDTH) +
-                    (mobileEditing ? 0 : dockWidth) +
-                    (showDataPane ? DATA_PANE_WIDTH : 0)
+                    mobileEditing
+                      ? BUILDER_SIDEPANEL_WIDTH
+                      : editorPanesWidth + dockWidth
                   }
                   data-test="dashboard-grid-gate"
                   aria-disabled={isVersionPreviewActive}
@@ -1115,9 +1103,6 @@ const DashboardBuilder = () => {
                         topOffset={barTopOffset}
                         pageTop={pageTop}
                       />
-                    )}
-                    {showDataPane && (
-                      <DataPane topOffset={barTopOffset} pageTop={pageTop} />
                     )}
                     {editMode && mobileEditing && (
                       <MobileLayoutPane

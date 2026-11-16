@@ -32,32 +32,16 @@ import { DndItemType } from 'src/explore/components/DndItemType';
 import { changeChartDataset, type DataField } from './chartFields';
 import { useChartFieldToggle } from './ChartFieldsSections';
 import { searchable } from './controls';
-import { setPaneCollapsed } from './panes';
 import { useSelectedVisual } from './selection';
 
-export const DATA_PANE_WIDTH = 260;
-
-const Pane = styled.aside<{ $top: number; $pageTop: number }>`
-  ${({ theme, $top, $pageTop }) => css`
-    position: sticky;
-    top: ${$top}px;
-    flex: none;
+const Pane = styled.div`
+  ${({ theme }) => css`
     box-sizing: border-box;
-    width: ${DATA_PANE_WIDTH}px;
-    height: calc(100vh - ${$top + $pageTop}px);
+    height: 100%;
     display: flex;
     flex-direction: column;
     gap: ${theme.sizeUnit * 2}px;
     padding: ${theme.sizeUnit * 3}px;
-    background: ${theme.colorBgContainer};
-    border-left: 1px solid ${theme.colorBorderSecondary};
-
-    .pane-title {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      font-weight: ${theme.fontWeightStrong};
-    }
 
     .pane-list {
       flex: 1;
@@ -260,13 +244,8 @@ const ColumnFieldRow = memo(function ColumnFieldRow({
  * The tables of the report and their fields, beside the canvas as in Power BI, to
  * drag onto the field wells of a chart. A chart only takes fields of its dataset.
  */
-export const DataPane = memo(function DataPane({
-  topOffset = 0,
-  pageTop = 0,
-}: {
-  topOffset?: number;
-  pageTop?: number;
-}) {
+/** The datasets of the report and their fields, to drag into the charts. */
+export const DataPane = memo(function DataPane() {
   const datasources = useSelector(
     (state: RootState) =>
       state.datasources as unknown as Record<string, Dataset>,
@@ -343,18 +322,7 @@ export const DataPane = memo(function DataPane({
   const matches = (text: string) => searchable(text).includes(query);
 
   return (
-    <Pane $top={topOffset} $pageTop={pageTop} data-test="auradata-data-pane">
-      <div className="pane-title">
-        <span>{t('Data')}</span>
-        <Button
-          buttonStyle="link"
-          aria-label={t('Close')}
-          data-test="auradata-data-pane-close"
-          onClick={() => setPaneCollapsed('data', true)}
-        >
-          <Icons.CloseOutlined iconSize="s" />
-        </Button>
-      </div>
+    <Pane data-test="auradata-data-pane">
       <Input
         allowClear
         placeholder={t('Search')}

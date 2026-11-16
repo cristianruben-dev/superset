@@ -113,12 +113,6 @@ test('searching opens the tables with a match and hides the others', async () =>
   expect(screen.queryByText('sales')).not.toBeInTheDocument();
 });
 
-test('closes as a pane the ribbon can bring back', () => {
-  setup();
-  userEvent.click(screen.getByTestId('auradata-data-pane-close'));
-  expect(screen.getByText('closed')).toBeInTheDocument();
-});
-
 test('only the table of the selected chart can be dragged', () => {
   setup();
   act(() => selectVisual('CHART-1'));

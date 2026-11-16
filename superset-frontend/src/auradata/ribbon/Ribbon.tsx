@@ -58,10 +58,12 @@ import {
 import { useGridSettings } from 'src/auradata/format/gridGuides';
 import { setAllLocked, useAllLocked } from 'src/auradata/format/lock';
 import {
+  isTabShown,
   openBuilderTab,
+  paneOfTab,
   setPaneCollapsed,
-  useBuilderTab,
-  usePaneCollapsed,
+  useFormatPaneTab,
+  usePanesCollapsed,
   type BuilderTab,
 } from 'src/auradata/format/panes';
 import {
@@ -213,9 +215,11 @@ export function Ribbon({
   const view = useCanvasView();
   const [grid, updateGrid] = useGridSettings();
   const allLocked = useAllLocked();
-  const paneTab = useBuilderTab();
-  const dataPaneFolded = usePaneCollapsed('data');
-  const paneFolded = usePaneCollapsed('builder');
+  const formatPaneTab = useFormatPaneTab();
+  const foldedPanes = usePanesCollapsed();
+  const dataPaneFolded = foldedPanes.data;
+  const tabShown = (key: BuilderTab) =>
+    isTabShown(key, foldedPanes, formatPaneTab);
   const editingInteractions = useEditingInteractions();
   const mobileEditing = useMobileEditing();
   const mobileSettings = useMobileViewSettings();
@@ -278,7 +282,7 @@ export function Ribbon({
   };
 
   const togglePane = (key: BuilderTab) => {
-    if (paneTab === key && !paneFolded) setPaneCollapsed('builder', true);
+    if (tabShown(key)) setPaneCollapsed(paneOfTab(key), true);
     else openBuilderTab(key);
   };
 
@@ -488,7 +492,7 @@ export function Ribbon({
               label={t('Assistant')}
               hint={t('Ask the assistant to change this report')}
               icon={<Icons.CommentOutlined iconSize="m" />}
-              pressed={paneTab === 'ASSISTANT' && !paneFolded}
+              pressed={tabShown('ASSISTANT')}
               onClick={() => togglePane('ASSISTANT')}
               data-test="auradata-ribbon-assistant"
             />
@@ -804,7 +808,6 @@ export function Ribbon({
             data-test="auradata-ribbon-pane-data"
             onClick={() => {
               setPaneCollapsed('data', !dataPaneFolded);
-              if (dataPaneFolded) setPaneCollapsed('builder', false);
             }}
           />
           {(
@@ -832,7 +835,7 @@ export function Ribbon({
               key={key}
               label={label}
               icon={node}
-              pressed={paneTab === key && !paneFolded}
+              pressed={tabShown(key)}
               data-test={`auradata-ribbon-pane-${key.toLowerCase()}`}
               onClick={() => togglePane(key)}
             />

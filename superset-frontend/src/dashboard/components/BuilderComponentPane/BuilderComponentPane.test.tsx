@@ -17,8 +17,14 @@
  * under the License.
  */
 
-import { act, render, screen } from 'spec/helpers/testing-library';
+import { act, render, screen, userEvent } from 'spec/helpers/testing-library';
 import { openFormat } from 'src/auradata/format/selection';
+import {
+  openBuilderTab,
+  PANE_NAMES,
+  setBuilderTab,
+  setPaneCollapsed,
+} from 'src/auradata/format/panes';
 import { useAssistantAccess } from 'src/auradata/assistant/useAssistant';
 import BuilderComponentPane from '.';
 
@@ -26,30 +32,15 @@ jest.mock('src/auradata/assistant/useAssistant', () => ({
   useAssistantAccess: jest.fn(() => ({ models: [], editModels: [] })),
 }));
 
+jest.mock('src/auradata/assistant/AssistantPanel', () => ({
+  AssistantChat: () => <div data-test="mock-assistant" />,
+}));
+
 jest.mock('src/dashboard/containers/SliceAdder', () => () => (
   <div data-test="mock-slice-adder" />
 ));
 
-test('BuilderComponentPane has correct tabs in correct order', () => {
-  render(<BuilderComponentPane topOffset={115} />, {
-    useRedux: true,
-    initialState: {
-      dashboardState: {
-        nativeFiltersBarOpen: false,
-      },
-    },
-  });
-  const tabs = screen.getAllByRole('tab');
-  expect(tabs).toHaveLength(3);
-  expect(tabs[0]).toHaveTextContent('Format');
-  expect(tabs[1]).toHaveTextContent('Selection');
-  expect(tabs[2]).toHaveTextContent('Bookmarks');
-  expect(screen.getByRole('tab', { selected: true })).toHaveTextContent(
-    'Format',
-  );
-});
-
-test('BuilderComponentPane opens the Format tab when a chart asks for it', () => {
+const renderPane = () =>
   render(<BuilderComponentPane topOffset={115} />, {
     useRedux: true,
     initialState: {
@@ -58,30 +49,80 @@ test('BuilderComponentPane opens the Format tab when a chart asks for it', () =>
       dashboardInfo: { id: 1 },
     },
   });
-  act(() => openFormat(null));
-  expect(screen.getByRole('tab', { selected: true })).toHaveTextContent(
+
+const toggleOf = (pane: string) =>
+  screen.getByTestId(`auradata-pane-${pane}-toggle`);
+
+beforeEach(() => {
+  act(() => {
+    PANE_NAMES.forEach(pane => setPaneCollapsed(pane, pane !== 'builder'));
+    setBuilderTab('FORMAT');
+  });
+});
+
+test('shows each pane side by side, the Format pane open and the rest folded', () => {
+  renderPane();
+  const panes = screen.getAllByRole('region');
+  expect(panes.map(pane => pane.getAttribute('aria-label'))).toEqual([
+    'Bookmarks',
+    'Selection',
     'Format',
-  );
+    'Data',
+  ]);
+  expect(toggleOf('builder')).toHaveAttribute('aria-expanded', 'true');
+  expect(toggleOf('selection')).toHaveAttribute('aria-expanded', 'false');
+  expect(toggleOf('data')).toHaveAttribute('aria-expanded', 'false');
   expect(screen.getByTestId('auradata-format-pane')).toBeInTheDocument();
 });
 
-test('BuilderComponentPane has the assistant only when it answers', () => {
+test('a folded pane is a strip with its name that opens beside the others', () => {
+  renderPane();
+  expect(toggleOf('selection')).toHaveTextContent('Selection');
+  expect(
+    screen.queryByTestId('auradata-selection-pane'),
+  ).not.toBeInTheDocument();
+
+  userEvent.click(toggleOf('selection'));
+  expect(screen.getByTestId('auradata-selection-pane')).toBeInTheDocument();
+  expect(screen.getByTestId('auradata-format-pane')).toBeInTheDocument();
+
+  userEvent.click(toggleOf('builder'));
+  expect(screen.queryByTestId('auradata-format-pane')).not.toBeInTheDocument();
+  expect(screen.getByTestId('auradata-selection-pane')).toBeInTheDocument();
+  expect(toggleOf('builder')).toHaveAttribute('aria-expanded', 'false');
+});
+
+test('opens the Format pane when a chart asks for it', () => {
+  act(() => setPaneCollapsed('builder', true));
+  renderPane();
+  act(() => openFormat(null));
+  expect(toggleOf('builder')).toHaveAttribute('aria-expanded', 'true');
+  expect(screen.getByTestId('auradata-format-pane')).toBeInTheDocument();
+});
+
+test('the ribbon opens a pane, and the galleries in the Format pane', () => {
+  renderPane();
+  act(() => openBuilderTab('BOOKMARKS'));
+  expect(toggleOf('bookmarks')).toHaveAttribute('aria-expanded', 'true');
+
+  act(() => openBuilderTab('CHARTS'));
+  expect(screen.getByTestId('mock-slice-adder')).toBeInTheDocument();
+  expect(screen.getByRole('region', { name: 'Charts' })).toBeInTheDocument();
+
+  userEvent.click(screen.getByTestId('auradata-pane-builder-back'));
+  expect(screen.getByTestId('auradata-format-pane')).toBeInTheDocument();
+});
+
+test('has the assistant only when it answers', () => {
   (useAssistantAccess as jest.Mock).mockReturnValue({
     models: [{ id: 'model' }],
     editModels: [{ id: 'model' }],
   });
-  render(<BuilderComponentPane topOffset={115} />, {
-    useRedux: true,
-    initialState: {
-      dashboardState: { nativeFiltersBarOpen: false, editMode: true },
-      dashboardLayout: { present: {}, past: [], future: [] },
-      dashboardInfo: { id: 1 },
-    },
-  });
+  renderPane();
 
-  const tabs = screen.getAllByRole('tab');
-  expect(tabs).toHaveLength(4);
-  expect(tabs[3]).toHaveTextContent('Assistant');
+  const panes = screen.getAllByRole('region');
+  expect(panes).toHaveLength(5);
+  expect(panes[4]).toHaveAttribute('aria-label', 'Assistant');
   (useAssistantAccess as jest.Mock).mockReturnValue({
     models: [],
     editModels: [],

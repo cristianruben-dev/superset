@@ -415,8 +415,6 @@ function VisualSection({ id }: { id: string }) {
   const setLevel = (next: FormatLevel) => {
     shownLevel = next;
     setLevelState(next);
-    // Fields are dragged from the Data pane
-    if (next === 'fields') setPaneCollapsed('data', false);
   };
   // What only charts have shows their look on any other object
   const level =
@@ -427,6 +425,13 @@ function VisualSection({ id }: { id: string }) {
   const searching = !!useContext(FormatSearchContext).trim();
   const showVisual = searching || level === 'visual';
   const showGeneral = searching || level === 'general';
+  const showFields = level === 'fields' && !searching && chartId !== undefined;
+  // Fields are dragged from the Data pane: it shows beside them, and only them
+  useEffect(() => {
+    if (!showFields) return undefined;
+    setPaneCollapsed('data', false);
+    return () => setPaneCollapsed('data', true);
+  }, [showFields]);
 
   return (
     <>
@@ -448,7 +453,7 @@ function VisualSection({ id }: { id: string }) {
           ]}
         />
       </div>
-      {level === 'fields' && !searching && chartId !== undefined && (
+      {showFields && (
         <Suspense fallback={<Hint>{t('Loading...')}</Hint>}>
           <ChartFieldsSections id={id} chartId={chartId} />
         </Suspense>
