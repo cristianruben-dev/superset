@@ -47,7 +47,8 @@ celda de un mapa de calor, cascada, sankey o árbol, o la fila entera de una tab
 ejemplo para ver la ficha de un empleado al pasar por su fila). En una matriz sirven las celdas de valor, los
 encabezados de fila y de columna y los totales. Las fechas agrupadas (por mes, semana…) filtran su periodo completo.
 Si apagas el tooltip de un visual en **General › Información sobre herramientas**, tampoco se abre su página
-tooltip. Mapas, nube de palabras y otros visuales sin marcas no la muestran.
+tooltip. En un mapa de puntos se abre sobre cada punto, con los valores de su fila (por ejemplo su CLUES);
+la nube de palabras y otros visuales sin marcas no la muestran.
 
 ## Exportar datos de un visual
 
