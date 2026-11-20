@@ -243,6 +243,7 @@ export interface VisualFormat {
     show?: boolean;
     focus?: boolean;
     seeData?: boolean;
+    export?: boolean;
     copy?: boolean;
     info?: boolean;
     warning?: boolean;

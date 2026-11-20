@@ -28,6 +28,7 @@ import {
   isAdhocColumn,
   NumberFormatter,
   rgbToHex,
+  TimeGranularity,
   tooltipHtml,
   isDefined,
 } from '@superset-ui/core';
@@ -38,6 +39,7 @@ import {
   EchartsWaterfallChartProps,
   ISeriesData,
   WaterfallChartTransformedProps,
+  WaterfallDrillTarget,
   ICallbackDataParams,
 } from './types';
 import { getDefaultTooltip } from '../utils/tooltip';
@@ -253,6 +255,10 @@ export default function transformProps(
     : xAxisColumn;
   const metricLabel = getMetricLabel(metric);
 
+  const otherMark =
+    String(
+      (formData as { waterfallOtherLabel?: unknown }).waterfallOtherLabel ?? '',
+    ).trim() || t('Other');
   const transformedData = transformer({
     data,
     breakdown: breakdownName,
@@ -263,11 +269,7 @@ export default function transformProps(
     maxBreakdowns: Number(
       (formData as { waterfallMaxBreakdowns?: unknown }).waterfallMaxBreakdowns,
     ),
-    otherMark:
-      String(
-        (formData as { waterfallOtherLabel?: unknown }).waterfallOtherLabel ??
-          '',
-      ).trim() || t('Other'),
+    otherMark,
   });
 
   const assistData: ISeriesData[] = [];
@@ -525,6 +527,33 @@ export default function transformProps(
     series: barSeries,
   };
 
+  const drillTargets = transformedData.map((row, index) => {
+    const targets: WaterfallDrillTarget[] = [];
+    const xVal = row[xAxisName];
+    if (xAxisName && xVal != null && xVal !== totalMark) {
+      const isTemporal = coltypeMapping[xAxisName] === GenericDataType.Temporal;
+      targets.push({
+        col: xAxisName,
+        val: xVal,
+        formattedVal: xAxisFormatter(xVal as string | number, index),
+        ...(isTemporal && formData.timeGrainSqla
+          ? { grain: formData.timeGrainSqla as TimeGranularity }
+          : {}),
+      });
+    }
+    if (breakdownName) {
+      const bVal = row[breakdownName];
+      if (bVal != null && bVal !== totalMark && bVal !== otherMark) {
+        targets.push({
+          col: breakdownName,
+          val: bVal,
+          formattedVal: String(bVal),
+        });
+      }
+    }
+    return targets;
+  });
+
   return {
     refs,
     formData,
@@ -539,5 +568,6 @@ export default function transformProps(
     setDataMask,
     onContextMenu,
     onLegendStateChanged,
+    drillTargets,
   };
 }

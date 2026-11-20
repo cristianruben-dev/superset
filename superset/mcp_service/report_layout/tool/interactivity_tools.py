@@ -27,7 +27,12 @@ from typing import Any, Callable, TypeVar
 from fastmcp import Context
 from superset_core.mcp.decorators import tool, ToolAnnotations
 
-from superset.auradata.layout import keys, page_ids
+from superset.auradata.layout import keys, page_ids, visual_format_of
+from superset.auradata.layout.format_patch import (
+    FormatPatchError,
+    is_css_color,
+    is_site_image,
+)
 from superset.auradata.layout.interactivity import (
     bookmarks_of,
     filter_scope_level,
@@ -129,6 +134,9 @@ async def _run(
     try:
         with event_logger.log_context(action=f"mcp.{name}"):
             result = change()
+    except FormatPatchError as ex:
+        await ctx.warning(f"{name} refused: {ex}")
+        return response(error=str(ex), error_type="InvalidFormat")
     except LayoutEditError as ex:
         await ctx.warning(f"{name} refused: {ex.error_type}: {ex.message}")
         return response(
@@ -562,6 +570,61 @@ async def sync_slicer(
 
 # Tooltip pages
 
+# Chart types whose marks (or whole card) emit hover events for tooltip pages
+_TOOLTIP_PAGE_VIZ_TYPES = frozenset(
+    {
+        "echarts_timeseries",
+        "echarts_timeseries_line",
+        "echarts_timeseries_bar",
+        "echarts_timeseries_smooth",
+        "echarts_timeseries_step",
+        "echarts_area",
+        "echarts_timeseries_scatter",
+        "mixed_timeseries",
+        "pie",
+        "funnel",
+        "gauge_chart",
+        "radar",
+        "box_plot",
+        "treemap_v2",
+        "sunburst_v2",
+        "graph_chart",
+        "waterfall",
+        "bubble_v2",
+        "heatmap_v2",
+        "histogram_v2",
+        "gantt_chart",
+        "sankey_v2",
+        "tree_chart",
+        "big_number",
+        "big_number_total",
+        "pop_kpi",
+        "table",
+        "pivot_table_v2",
+    }
+)
+
+
+def _page_background(meta: dict[str, Any], bg_input: Any) -> dict[str, Any]:
+    background = bg_input.model_dump(exclude_none=True)
+    color = background.get("color")
+    if color is not None and not is_css_color(color):
+        raise FormatPatchError(["background.color: must be a CSS color"])
+    image = background.get("image")
+    if image is not None and not is_site_image(image):
+        raise FormatPatchError(
+            [
+                "background.image: must be a picture of this site; upload it "
+                "with upload_dashboard_image"
+            ]
+        )
+    if background["type"] == "image" and not image:
+        current = meta.get(keys.PAGE_BACKGROUND_KEY) or {}
+        if not current.get("image"):
+            raise LayoutEditError("An image background needs an image.")
+        background = {**current, **background}
+    return background
+
 
 @tool(**_WRITE, annotations=_annotations("Make a tooltip page"))
 async def make_tooltip_page(
@@ -598,6 +661,14 @@ async def make_tooltip_page(
             else list(current.get("columns") or []),
         }
         meta[keys.TOOLTIP_PAGE_KEY] = setting
+        page_bg: dict[str, Any] | None = meta.get(keys.PAGE_BACKGROUND_KEY)
+        if request.background is not None:
+            page_bg = _page_background(meta, request.background)
+            if page_bg["type"] == "none":
+                meta.pop(keys.PAGE_BACKGROUND_KEY, None)
+                page_bg = None
+            else:
+                meta[keys.PAGE_BACKGROUND_KEY] = page_bg
         if clipped := clipped_objects(report, page_id, width, height):
             report.warnings.append(
                 f"Objects past the {setting['width']} x {setting['height']} tooltip "
@@ -609,10 +680,43 @@ async def make_tooltip_page(
             changed=[page_id],
             page=page_id,
             tooltip_page=setting,
+            page_background=page_bg,
             warnings=report.warnings,
         )
 
     return await _run("make_tooltip_page", ctx, change)
+
+
+def _tooltip_page_warnings(
+    report: Report, component_id: str, chart_id: int, pages: Any
+) -> list[str]:
+    """Why a chart set to show a tooltip page would not show it on hover."""
+    warnings: list[str] = []
+    if not pages:
+        warnings.append(
+            "The report has no tooltip page yet, so the chart keeps its own "
+            "tooltip until one exists."
+        )
+    viz_type = next(
+        (
+            chart.viz_type
+            for chart in getattr(report.dashboard, "slices", None) or []
+            if chart.id == chart_id
+        ),
+        None,
+    )
+    if viz_type and viz_type not in _TOOLTIP_PAGE_VIZ_TYPES:
+        warnings.append(
+            f"Chart type {viz_type!r} does not show report tooltip pages on hover."
+        )
+    resolved = visual_format_of(report.layout, component_id) or {}
+    tooltip = (resolved.get("chart") or {}).get(keys.TOOLTIP_FORMAT_KEY)
+    if isinstance(tooltip, dict) and tooltip.get("show") is False:
+        warnings.append(
+            "Tooltips are turned off for this chart (auradata_tooltip.show is "
+            "false), so the tooltip page will not appear until they are turned on."
+        )
+    return warnings
 
 
 @tool(**_WRITE, annotations=_annotations("Set the tooltip of a visual"))
@@ -627,7 +731,7 @@ async def set_visual_tooltip(
 
     def change() -> InteractivityResponse:
         report = open_report(request.dashboard, edit=True)
-        component_id, _ = chart_object(report, request.object)
+        component_id, chart_id = chart_object(report, request.object)
         pages = tooltip_pages(report.layout)
         setting: dict[str, Any] = {
             "type": "default" if request.mode == "default" else "page"
@@ -644,15 +748,14 @@ async def set_visual_tooltip(
             setting["page"] = page_id
         elif request.page is not None:
             raise LayoutEditError("page only applies to mode page.")
-        if request.mode != "default" and not pages:
-            report.warnings.append(
-                "The report has no tooltip page yet, so the chart keeps its own "
-                "tooltip until one exists."
-            )
         meta = meta_of(report, component_id)
         fmt = dict(meta.get(keys.VISUAL_FORMAT_KEY) or {})
         fmt["tooltipPage"] = setting
         meta[keys.VISUAL_FORMAT_KEY] = fmt
+        if request.mode != "default":
+            report.warnings.extend(
+                _tooltip_page_warnings(report, component_id, chart_id, pages)
+            )
         save_report(report)
         return InteractivityResponse(
             dashboard_id=report.dashboard.id,

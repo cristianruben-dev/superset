@@ -422,6 +422,7 @@ export default function TableChart<D extends DataRecord = DataRecord>(
     height,
     width,
     data,
+    paginationQuery,
     totals,
     isRawRecords,
     rowCount = 0,
@@ -704,6 +705,65 @@ export default function TableChart<D extends DataRecord = DataRecord>(
     selectedComparisonColumns,
   ]);
 
+  const buildRowDrillToDetailFilters = useCallback(
+    (value: D): BinaryQueryObjectFilterClause[] => {
+      const drillToDetailFilters: BinaryQueryObjectFilterClause[] = [];
+      filteredColumnsMeta.forEach(col => {
+        if (isRawRecords || !col.isMetric) {
+          const dataRecordValue = value[col.key];
+
+          // FIX: Explicitly handle NULL values for temporal and non-temporal columns
+          // DateWithFormatter objects wrap nulls, so we must check both
+          if (
+            dataRecordValue == null ||
+            (dataRecordValue instanceof DateWithFormatter &&
+              dataRecordValue.input == null)
+          ) {
+            drillToDetailFilters.push({
+              col: col.key,
+              op: 'IS NULL' as any,
+              val: null,
+            });
+          } else if (col.dataType === GenericDataType.Temporal && timeGrain) {
+            const startTime =
+              dataRecordValue instanceof Date
+                ? dataRecordValue
+                : new Date(dataRecordValue as string | number);
+
+            const [rangeStartTime, rangeEndTime] = getTimeRangeFromGranularity(
+              startTime,
+              timeGrain,
+            );
+            const timeRangeValue = `${rangeStartTime.toISOString()} : ${rangeEndTime.toISOString()}`;
+
+            drillToDetailFilters.push({
+              col: col.key,
+              op: 'TEMPORAL_RANGE',
+              val: timeRangeValue,
+              grain: timeGrain,
+              formattedVal: formatColumnValue(col, dataRecordValue)[1],
+            });
+          } else {
+            // Non-temporal columns use exact match
+            const rawValue =
+              dataRecordValue instanceof DateWithFormatter
+                ? dataRecordValue.input
+                : dataRecordValue;
+            const sanitizedValue = extractTextFromHTML(rawValue);
+            drillToDetailFilters.push({
+              col: col.key,
+              op: '==',
+              val: sanitizedValue as string | number | boolean,
+              formattedVal: formatColumnValue(col, sanitizedValue)[1],
+            });
+          }
+        }
+      });
+      return drillToDetailFilters;
+    },
+    [filteredColumnsMeta, isRawRecords, timeGrain],
+  );
+
   const handleContextMenu = useMemo(() => {
     if (onContextMenu && !isRawRecords) {
       return (
@@ -716,52 +776,7 @@ export default function TableChart<D extends DataRecord = DataRecord>(
         clientX: number,
         clientY: number,
       ) => {
-        const drillToDetailFilters: BinaryQueryObjectFilterClause[] = [];
-        filteredColumnsMeta.forEach(col => {
-          if (!col.isMetric) {
-            const dataRecordValue = value[col.key];
-
-            // FIX: Explicitly handle NULL values for temporal and non-temporal columns
-            // DateWithFormatter objects wrap nulls, so we must check both
-            if (
-              dataRecordValue == null ||
-              (dataRecordValue instanceof DateWithFormatter &&
-                dataRecordValue.input == null)
-            ) {
-              drillToDetailFilters.push({
-                col: col.key,
-                op: 'IS NULL' as any,
-                val: null,
-              });
-            } else if (col.dataType === GenericDataType.Temporal && timeGrain) {
-              const startTime =
-                dataRecordValue instanceof Date
-                  ? dataRecordValue
-                  : new Date(dataRecordValue as string | number);
-
-              const [rangeStartTime, rangeEndTime] =
-                getTimeRangeFromGranularity(startTime, timeGrain);
-              const timeRangeValue = `${rangeStartTime.toISOString()} : ${rangeEndTime.toISOString()}`;
-
-              drillToDetailFilters.push({
-                col: col.key,
-                op: 'TEMPORAL_RANGE',
-                val: timeRangeValue,
-                grain: timeGrain,
-                formattedVal: formatColumnValue(col, dataRecordValue)[1],
-              });
-            } else {
-              // Non-temporal columns use exact match
-              const sanitizedValue = extractTextFromHTML(dataRecordValue);
-              drillToDetailFilters.push({
-                col: col.key,
-                op: '==',
-                val: sanitizedValue as string | number | boolean,
-                formattedVal: formatColumnValue(col, sanitizedValue)[1],
-              });
-            }
-          }
-        });
+        const drillToDetailFilters = buildRowDrillToDetailFilters(value);
         onContextMenu(clientX, clientY, {
           drillToDetail: drillToDetailFilters,
           crossFilter: cellPoint.isMetric
@@ -790,9 +805,8 @@ export default function TableChart<D extends DataRecord = DataRecord>(
   }, [
     onContextMenu,
     isRawRecords,
-    filteredColumnsMeta,
+    buildRowDrillToDetailFilters,
     getCrossFilterDataMask,
-    timeGrain,
   ]);
 
   const getHeaderColumns = useCallback(
@@ -1366,29 +1380,46 @@ export default function TableChart<D extends DataRecord = DataRecord>(
                 : undefined,
             // AuraData BI: with a tooltip page, the row under the pointer is
             // told to the report through the context menu handler, which
-            // the chart renderer reads as a hover while the probe mark is on
+            // the chart renderer reads as a hover while the probe mark is on.
+            // Works for both aggregated and raw-records tables.
             onMouseEnter: (e: MouseEvent<HTMLElement>) => {
               const cell = e.currentTarget;
               if (
-                !handleContextMenu ||
+                !onContextMenu ||
                 !cell.closest('[data-auradata-tooltip-page]')
               ) {
                 return;
               }
+              const nativeTitle = cell.getAttribute('title');
+              if (nativeTitle !== null) {
+                cell.dataset.auradataSavedTitle = nativeTitle;
+                cell.removeAttribute('title');
+              }
               cell.dataset.auradataProbe = 'true';
               try {
-                handleContextMenu(
-                  row.original,
-                  { key, value, isMetric },
-                  e.clientX,
-                  e.clientY,
-                );
+                if (handleContextMenu) {
+                  handleContextMenu(
+                    row.original,
+                    { key, value, isMetric },
+                    e.clientX,
+                    e.clientY,
+                  );
+                } else {
+                  onContextMenu(e.clientX, e.clientY, {
+                    drillToDetail: buildRowDrillToDetailFilters(row.original),
+                  });
+                }
               } finally {
                 delete cell.dataset.auradataProbe;
               }
             },
             onMouseLeave: (e: MouseEvent<HTMLElement>) => {
-              if (e.currentTarget.closest('[data-auradata-tooltip-page]')) {
+              const cell = e.currentTarget;
+              if (cell.dataset.auradataSavedTitle !== undefined) {
+                cell.setAttribute('title', cell.dataset.auradataSavedTitle);
+                delete cell.dataset.auradataSavedTitle;
+              }
+              if (cell.closest('[data-auradata-tooltip-page]')) {
                 window.dispatchEvent(new CustomEvent('auradata:mark-leave'));
               }
             },
@@ -1643,6 +1674,8 @@ export default function TableChart<D extends DataRecord = DataRecord>(
       basicColorColumnFormatters,
       isActiveFilterValue,
       toggleFilter,
+      onContextMenu,
+      buildRowDrillToDetailFilters,
       handleContextMenu,
       allowRearrangeColumns,
       tableFormat,
@@ -1776,6 +1809,7 @@ export default function TableChart<D extends DataRecord = DataRecord>(
       const modifiedOwnState = {
         ...serverPaginationData,
         sortBy,
+        currentPage: 0,
       };
       updateTableOwnState(setDataMask, modifiedOwnState);
     },
@@ -1801,6 +1835,7 @@ export default function TableChart<D extends DataRecord = DataRecord>(
         ...serverPaginationData,
         searchColumn: searchCol,
         searchText: '',
+        currentPage: 0,
       };
       updateTableOwnState(setDataMask, modifiedOwnState);
     }
@@ -1879,6 +1914,7 @@ export default function TableChart<D extends DataRecord = DataRecord>(
   return (
     <Styles css={tableFormatStyles}>
       <DataTable<D>
+        pageResetKey={paginationQuery}
         columns={columns}
         data={data}
         rowCount={rowCount}

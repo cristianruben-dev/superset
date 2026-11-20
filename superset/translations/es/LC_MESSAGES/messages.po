@@ -27845,3 +27845,54 @@ msgstr "Un día"
 
 msgid "Choose a day"
 msgstr "Elige un día"
+
+msgid "you do not have permission to edit this dashboard."
+msgstr "no tienes permiso para editar este tablero."
+
+msgid "this dashboard is unavailable or you no longer have access."
+msgstr "este tablero no está disponible o ya no tienes acceso."
+
+#, python-format
+msgid "Your filter changes were not saved: %s"
+msgstr "No se guardaron tus cambios en los filtros: %s"
+
+#, python-format
+msgid "Your display control changes were not saved: %s"
+msgstr "No se guardaron tus cambios en los controles de visualización: %s"
+
+msgid "Export data"
+msgstr "Exportar datos"
+
+msgid "Export data icon"
+msgstr "Icono de exportar datos"
+
+msgid "Export chart data"
+msgstr "Exportar datos de un gráfico"
+
+msgid "Chart to export"
+msgstr "Gráfico a exportar"
+
+msgid "Choose a chart"
+msgstr "Elige un gráfico"
+
+#, python-format
+msgid "Chart %s"
+msgstr "Gráfico %s"
+
+msgid "Export format"
+msgstr "Formato de exportación"
+
+msgid "Excel (.xlsx)"
+msgstr "Excel (.xlsx)"
+
+msgid "CSV (.csv)"
+msgstr "CSV (.csv)"
+
+msgid "Full Excel (.xlsx)"
+msgstr "Excel completo (.xlsx)"
+
+msgid "Full CSV (.csv)"
+msgstr "CSV completo (.csv)"
+
+msgid "You do not have permission to export data from this report."
+msgstr "No tienes permiso para exportar datos de este informe."

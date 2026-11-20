@@ -45,14 +45,30 @@ from superset.mcp_service.report_layout.editing import (
 )
 
 
+def report_charts(report: Report) -> set[int]:
+    """Chart ids placed on the report."""
+    ids = {
+        meta["chartId"]
+        for item in report.layout.values()
+        if isinstance(item, dict)
+        and item.get("type") == keys.CHART_TYPE
+        and isinstance((meta := item.get("meta") or {}).get("chartId"), int)
+    }
+    for chart in getattr(report.dashboard, "slices", None) or []:
+        if isinstance(getattr(chart, "id", None), int):
+            ids.add(chart.id)
+    return ids
+
+
 def report_refs(report: Report) -> ReportRefs:
-    """Pages and bookmarks a setting of the report may point at."""
+    """Pages, bookmarks and charts a setting of the report may point at."""
     root_meta = (report.layout.get(keys.ROOT_ID) or {}).get("meta") or {}
     bookmarks = root_meta.get(keys.BOOKMARKS_KEY) or []
     return ReportRefs(
         pages={p for p in page_ids(report.layout) if p != keys.GRID_ID},
         bookmarks={b.get("id") for b in bookmarks if isinstance(b, dict)},
         tooltip_pages=set(tooltip_pages(report.layout)),
+        charts=report_charts(report),
     )
 
 
@@ -69,8 +85,9 @@ def element_of(report: Report, ref: str | int) -> tuple[str, str]:
 
 
 def resolve_actions(report: Report, settings: dict[str, Any]) -> dict[str, Any]:
-    """An action that goes to a page names it by id, name or position; the
-    layout stores its tab id (``tabId``)."""
+    """Resolve friendly page and chart references in an action object:
+    ``page``/``tabId`` becomes the tab id, ``chart``/``chartId`` becomes the
+    chart id, and ``format`` maps to ``exportFormat``."""
     action = settings.get("action")
     if not isinstance(action, dict):
         return settings
@@ -86,6 +103,40 @@ def resolve_actions(report: Report, settings: dict[str, Any]) -> dict[str, Any]:
                 "add a page with add_page first."
             )
         action["tabId"] = page_id
+    return resolve_export_action(report, {**settings, "action": action})
+
+
+def resolve_export_action(report: Report, settings: dict[str, Any]) -> dict[str, Any]:
+    """Resolve the chart of an export action: ``chart`` (or a ``chartId`` given
+    as an object reference) becomes the chart id, and ``format`` maps to
+    ``exportFormat``. An action of another type stays as it came, so the patch
+    check refuses those keys there."""
+    action = settings.get("action")
+    if not isinstance(action, dict) or action.get("type", "export") != "export":
+        return settings
+    action = dict(action)
+    chart_number = action.get("chartId")
+    if isinstance(chart_number, float) and chart_number.is_integer():
+        action["chartId"] = int(chart_number)
+    fmt = action.pop("format", None)
+    if fmt is not None and "exportFormat" not in action:
+        action["exportFormat"] = fmt
+    chart_ref = action.pop("chart", None)
+    if (
+        chart_ref is None
+        and action.get("type") == "export"
+        and isinstance(action.get("chartId"), str)
+    ):
+        chart_ref = action.get("chartId")
+    if chart_ref is not None:
+        cid = resolve_object(report, chart_ref)
+        item = report.layout.get(cid) or {}
+        if item.get("type") != keys.CHART_TYPE:
+            raise LayoutEditError(f"{cid} is not a chart and cannot be exported.")
+        chart_id = (item.get("meta") or {}).get("chartId")
+        if not isinstance(chart_id, int):
+            raise LayoutEditError(f"{cid} has no chart id.")
+        action["chartId"] = chart_id
     return {**settings, "action": action}
 
 

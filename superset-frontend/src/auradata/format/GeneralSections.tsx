@@ -231,6 +231,12 @@ export function HeaderIconsFields({ id }: { id: string }) {
         onChange={seeData => set({ seeData }, 'see-data')}
       />
       <Toggle
+        label={t('Export data icon')}
+        checked={!!header.export}
+        testId="auradata-format-header-export"
+        onChange={value => set({ export: value }, 'export')}
+      />
+      <Toggle
         label={t('Copy image icon')}
         checked={header.copy !== false}
         onChange={copy => set({ copy }, 'copy')}
@@ -457,6 +463,10 @@ export function ChartTooltipSection({ id }: { id: string }) {
 /** What a chart does through its link icon or its action button. */
 export function ActionSection({ id }: { id: string }) {
   const { own, format, update } = useFormat(id);
+  const chartId = useSelector((state: RootState) => {
+    const raw = state.dashboardLayout.present[id]?.meta?.chartId;
+    return typeof raw === 'number' ? raw : undefined;
+  });
   const link = format.link ?? {};
   const set = (patch: NonNullable<VisualFormat['link']>, setting: string) =>
     update({ link: { ...own.link, ...patch } }, `link-${setting}`);
@@ -494,6 +504,7 @@ export function ActionSection({ id }: { id: string }) {
           />
           <ActionFields
             action={link.action}
+            defaultChartId={chartId}
             onChange={action => set({ action }, 'action')}
           />
         </>

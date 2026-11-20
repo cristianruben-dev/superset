@@ -125,11 +125,19 @@ export const drillThrough =
     dispatch(
       updateDataMask(DRILLTHROUGH_ID, {
         extraFormData: {
-          filters: fields.map(field => ({
-            col: field.column,
-            op: 'IN' as const,
-            val: [field.value] as (string | number | boolean)[],
-          })),
+          filters: fields.map(field =>
+            field.temporalRange
+              ? {
+                  col: field.column,
+                  op: 'TEMPORAL_RANGE' as const,
+                  val: field.temporalRange,
+                }
+              : {
+                  col: field.column,
+                  op: 'IN' as const,
+                  val: [field.value] as (string | number | boolean)[],
+                },
+          ),
         },
         filterState: {
           value: fields.map(field => field.label),

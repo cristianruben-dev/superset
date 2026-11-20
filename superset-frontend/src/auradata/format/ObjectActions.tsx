@@ -136,7 +136,7 @@ export function ObjectActionButton({
   label: string;
   danger?: boolean;
   testId?: string;
-  onClick: MouseEventHandler<HTMLButtonElement>;
+  onClick?: MouseEventHandler<HTMLButtonElement>;
   children: ReactNode;
 }) {
   return (

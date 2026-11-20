@@ -458,3 +458,41 @@ async def test_format_options_describe_the_shape_of_json_controls(
             "get_format_options", {"viz_type": "mixed_timeseries", "level": level}
         )
         assert len(json.dumps(mixed)) < 50_000, level
+
+
+@pytest.mark.asyncio
+async def test_format_visual_turns_on_export(world: dict[str, Any]) -> None:
+    result = ok(
+        await as_editor(
+            world,
+            "format_visual",
+            object="CHART-1",
+            level="general",
+            patch={
+                "header": {"export": True},
+                "link": {
+                    "show": True,
+                    "action": {"type": "export", "chart": "CHART-1", "format": "xlsx"},
+                },
+            },
+        )
+    )
+    assert result["changed"]
+    own = layout(world)["CHART-1"]["meta"]["auradataFormat"]
+    assert own["header"]["export"] is True
+    assert own["link"]["action"] == {
+        "type": "export",
+        "chartId": world["chart"].id,
+        "exportFormat": "xlsx",
+    }
+    before = layout(world)
+    elsewhere = await as_editor(
+        world,
+        "format_visual",
+        object="CHART-1",
+        level="general",
+        patch={"link": {"action": {"type": "export", "chartId": 987654}}},
+    )
+    assert elsewhere["error_type"] == "InvalidFormat"
+    assert "no chart 987654" in elsewhere["error"]
+    assert layout(world) == before

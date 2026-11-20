@@ -316,6 +316,11 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
         appbuilder.add_api(SubjectRestApi)
         appbuilder.add_api(LogRestApi)
 
+        if self.config.get("WEBSOCKET_ENABLE"):
+            from superset.websocket.api import RealtimeRestApi
+
+            appbuilder.add_api(RealtimeRestApi)
+
         if feature_flag_manager.is_feature_enabled("ENABLE_EXTENSIONS"):
             from superset.extensions.api import ExtensionsRestApi
             from superset.extensions.storage.api import ExtensionStorageRestApi
@@ -1021,7 +1026,6 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
         self.configure_ssh_manager()
         self.configure_stats_manager()
         self.configure_task_manager()
-        self.configure_websocket()
         self.configure_single_dashboard_charts()
 
         # Hook that provides administrators a handle on the Flask APP
@@ -1623,13 +1627,6 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
             from superset.tasks.manager import TaskManager
 
             TaskManager.init_app(self.superset_app)
-
-    def configure_websocket(self) -> None:
-        """Mint the websocket channel-token cookie when the transport is enabled."""
-        if self.config.get("WEBSOCKET_ENABLE"):
-            from superset.websocket.channel import register_ws_channel_cookie
-
-            register_ws_channel_cookie(self.superset_app)
 
     def register_blueprints(self) -> None:
         # Register custom blueprints from config

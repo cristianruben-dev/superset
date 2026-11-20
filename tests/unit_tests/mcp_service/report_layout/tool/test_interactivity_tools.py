@@ -579,6 +579,102 @@ async def test_tooltip_pages(report: dict[str, Any]) -> None:
 
 
 @pytest.mark.asyncio
+async def test_tooltip_page_background(report: dict[str, Any]) -> None:
+    result = ok(
+        await as_editor(
+            report,
+            "make_tooltip_page",
+            page="Detalle",
+            background={"type": "color", "color": "#111117", "opacity": 90},
+        )
+    )
+    expected = {"type": "color", "color": "#111117", "opacity": 90}
+    assert result["page_background"] == expected
+    assert layout(report)["TAB-2"]["meta"]["auradataPageBackground"] == expected
+    before = layout(report)
+    for background in [
+        {"type": "color", "color": "url(x)"},
+        {"type": "image", "image": "https://elsewhere.example/a.png"},
+    ]:
+        refused = await as_editor(
+            report, "make_tooltip_page", page="Detalle", background=background
+        )
+        assert refused["error_type"] == "InvalidFormat", refused
+    no_image = await as_editor(
+        report, "make_tooltip_page", page="Detalle", background={"type": "image"}
+    )
+    assert "needs an image" in no_image["error"]
+    assert layout(report) == before
+    cleared = ok(
+        await as_editor(
+            report, "make_tooltip_page", page="Detalle", background={"type": "none"}
+        )
+    )
+    assert cleared["page_background"] is None
+    assert "auradataPageBackground" not in layout(report)["TAB-2"]["meta"]
+
+
+@pytest.mark.asyncio
+async def test_set_visual_tooltip_warns_when_it_cannot_show(
+    report: dict[str, Any],
+) -> None:
+    ok(await as_editor(report, "make_tooltip_page", page="Detalle"))
+    supported = ok(
+        await as_editor(
+            report,
+            "set_visual_tooltip",
+            object=report["chart"].id,
+            mode="page",
+            page="Detalle",
+        )
+    )
+    assert not supported["warnings"]
+
+    session = report["session"]
+    report["chart"].viz_type = "word_cloud"
+    session.commit()
+    unsupported = ok(
+        await as_editor(
+            report,
+            "set_visual_tooltip",
+            object=report["chart"].id,
+            mode="page",
+            page="Detalle",
+        )
+    )
+    assert any("'word_cloud'" in warning for warning in unsupported["warnings"])
+
+    report["chart"].viz_type = "big_number_total"
+    session.commit()
+    ok(
+        await as_editor(
+            report,
+            "format_visual",
+            object="CHART-1",
+            level="general",
+            patch={"auradata_tooltip": {"show": False}},
+        )
+    )
+    off = ok(
+        await as_editor(
+            report,
+            "set_visual_tooltip",
+            object=report["chart"].id,
+            mode="page",
+            page="Detalle",
+        )
+    )
+    assert any("turned off" in warning for warning in off["warnings"])
+    # Back to the chart's own tooltip: nothing to warn about
+    default = ok(
+        await as_editor(
+            report, "set_visual_tooltip", object=report["chart"].id, mode="default"
+        )
+    )
+    assert not default["warnings"]
+
+
+@pytest.mark.asyncio
 async def test_filter_defaults(report: dict[str, Any]) -> None:
     slicer = await add_slicer(report, default_value=["Norte"])
     defaults = ok(await as_editor(report, "get_filter_defaults"))

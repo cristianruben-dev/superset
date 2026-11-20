@@ -67,8 +67,12 @@ import { handleChartDataResponse } from './chartAction';
 import { AsyncModeOverride, resolveAsyncMode } from 'src/utils/asyncMode';
 import { getTabId } from 'src/hooks/useTabId';
 
-/** Charts without marks, whose tooltip page shows over the whole chart. */
-const WHOLE_CHART_TOOLTIP = new Set(['big_number_total', 'pop_kpi']);
+/** Charts without marks (or with a card value area), whose tooltip page shows over the whole chart. */
+const WHOLE_CHART_TOOLTIP = new Set([
+  'big_number',
+  'big_number_total',
+  'pop_kpi',
+]);
 
 // Types for filter values
 type FilterValue = string | number | boolean | null | undefined;

@@ -16,16 +16,64 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import {
+  BinaryQueryObjectFilterClause,
+  getColumnLabel,
+} from '@superset-ui/core';
 import { BubbleChartTransformedProps } from './types';
 import Echart from '../components/Echart';
+import { EventHandlers } from '../types';
 
 export default function EchartsBubble(props: BubbleChartTransformedProps) {
-  const { height, width, echartOptions, refs, formData } = props;
+  const { height, width, echartOptions, refs, formData, onContextMenu } = props;
+
+  const eventHandlers: EventHandlers = {
+    contextmenu: (eventParams: {
+      data?: unknown[];
+      event?: { stop: () => void; event: PointerEvent };
+    }) => {
+      if (!onContextMenu || !Array.isArray(eventParams.data)) {
+        return;
+      }
+      const drillToDetail: BinaryQueryObjectFilterClause[] = [];
+      const entityCol = formData.entity
+        ? getColumnLabel(formData.entity)
+        : undefined;
+      const seriesCol = formData.series
+        ? getColumnLabel(formData.series)
+        : undefined;
+      if (entityCol && eventParams.data[3] != null) {
+        drillToDetail.push({
+          col: entityCol,
+          op: '==',
+          val: eventParams.data[3] as string | number | boolean,
+          formattedVal: String(eventParams.data[3]),
+        });
+      }
+      if (seriesCol && eventParams.data[4] != null) {
+        drillToDetail.push({
+          col: seriesCol,
+          op: '==',
+          val: eventParams.data[4] as string | number | boolean,
+          formattedVal: String(eventParams.data[4]),
+        });
+      }
+      if (!drillToDetail.length) return;
+      const pointerEvent = eventParams.event?.event;
+      if (!pointerEvent) return;
+      eventParams.event?.stop();
+      onContextMenu(pointerEvent.clientX, pointerEvent.clientY, {
+        drillToDetail,
+      });
+    },
+  };
+
   return (
     <Echart
       height={height}
       width={width}
       echartOptions={echartOptions}
+      eventHandlers={eventHandlers}
       refs={refs}
       vizType={formData.vizType}
     />

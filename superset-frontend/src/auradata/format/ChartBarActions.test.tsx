@@ -110,3 +110,51 @@ test('the caption names the report, the moment and the address', () => {
   ]);
   expect(captionLines({ copiedAt, link: 'https://bi/x' })).toHaveLength(2);
 });
+
+test('the export icon shows only when switched on for someone who may download', async () => {
+  const exportXLSX = jest.fn();
+  const exportCSV = jest.fn();
+  const format = { header: { export: true } } as VisualFormat;
+  const { rerender } = renderActions({
+    format,
+    canDownload: false,
+    exportXLSX,
+    exportCSV,
+  });
+  expect(
+    screen.queryByTestId('auradata-header-export'),
+  ).not.toBeInTheDocument();
+
+  rerender(
+    <ChartBarActions
+      componentId="CHART-1"
+      chartId={7}
+      format={{ header: {} } as VisualFormat}
+      showFilters={false}
+      onToggleFullSize={() => {}}
+      canDownload
+      exportXLSX={exportXLSX}
+      exportCSV={exportCSV}
+    />,
+  );
+  expect(
+    screen.queryByTestId('auradata-header-export'),
+  ).not.toBeInTheDocument();
+
+  rerender(
+    <ChartBarActions
+      componentId="CHART-1"
+      chartId={7}
+      format={format}
+      showFilters={false}
+      onToggleFullSize={() => {}}
+      canDownload
+      exportXLSX={exportXLSX}
+      exportCSV={exportCSV}
+    />,
+  );
+  await userEvent.click(screen.getByRole('button', { name: 'Export data' }));
+  await userEvent.click(await screen.findByText('Export to .CSV'));
+  expect(exportCSV).toHaveBeenCalledWith(7);
+  expect(exportXLSX).not.toHaveBeenCalled();
+});

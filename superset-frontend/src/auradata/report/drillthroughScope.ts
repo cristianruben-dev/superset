@@ -33,6 +33,8 @@ export interface DrillthroughField {
   label: string;
   /** For a date: the time grain the value starts, as P1M */
   grain?: string;
+  /** Pre-formatted temporal range (e.g. from TableChart with a time grain) */
+  temporalRange?: string;
 }
 
 export interface DrillthroughState {
@@ -66,14 +68,28 @@ export function pointFields(
   const fields: DrillthroughField[] = [];
   (clauses ?? []).forEach(clause => {
     if (
-      typeof clause.col === 'string' &&
-      clause.op === '==' &&
-      !fields.some(field => field.column === clause.col)
+      typeof clause.col !== 'string' ||
+      fields.some(field => field.column === clause.col)
     ) {
+      return;
+    }
+    if (clause.op === '==') {
       fields.push({
         column: clause.col,
         value: clause.val,
         label: clause.formattedVal ?? String(clause.val),
+        ...(clause.grain && { grain: String(clause.grain) }),
+      });
+    } else if (
+      clause.op === 'TEMPORAL_RANGE' &&
+      typeof clause.val === 'string' &&
+      clause.val
+    ) {
+      fields.push({
+        column: clause.col,
+        value: clause.val,
+        label: clause.formattedVal ?? clause.val,
+        temporalRange: clause.val,
         ...(clause.grain && { grain: String(clause.grain) }),
       });
     }

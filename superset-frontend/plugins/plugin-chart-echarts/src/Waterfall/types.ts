@@ -19,10 +19,12 @@
 import {
   ChartDataResponseResult,
   ChartProps,
+  DataRecordValue,
   QueryFormColumn,
   QueryFormData,
   QueryFormMetric,
   RgbaColor,
+  TimeGranularity,
 } from '@superset-ui/core';
 import type { BarDataItemOption } from 'echarts/types/src/chart/bar/BarSeries';
 import type { CallbackDataParams } from 'echarts/types/src/util/types';
@@ -77,5 +79,14 @@ export interface EchartsWaterfallChartProps extends ChartProps {
   queriesData: ChartDataResponseResult[];
 }
 
+export type WaterfallDrillTarget = {
+  col: string;
+  val: DataRecordValue;
+  formattedVal?: string;
+  grain?: TimeGranularity;
+};
+
 export type WaterfallChartTransformedProps =
-  BaseTransformedProps<EchartsWaterfallFormData>;
+  BaseTransformedProps<EchartsWaterfallFormData> & {
+    drillTargets?: WaterfallDrillTarget[][];
+  };

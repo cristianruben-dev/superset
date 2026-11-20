@@ -56,8 +56,9 @@ export function formatTooltip({
 export default function transformProps(
   chartProps: EchartsTreeChartProps,
 ): TreeTransformedProps {
-  const { width, height, formData, queriesData, theme, isRefreshing } =
+  const { width, height, formData, hooks, queriesData, theme, isRefreshing } =
     chartProps;
+  const { onContextMenu } = hooks;
   const refs: Refs = {};
   const data: TreeDataRecord[] = queriesData[0].data || [];
 
@@ -108,7 +109,16 @@ export default function transformProps(
 
   function createTree(rootNodeId: DataRecordValue): TreeSeriesNodeItemOption {
     const rootNodeName = findNodeName(rootNodeId);
-    const tree: TreeSeriesNodeItemOption = { name: rootNodeName, children: [] };
+    const rootRow = data.find(
+      node => node[id]?.toString() === String(rootNodeId),
+    );
+    // The id of each node only travels for the context menu (drill to
+    // detail and tooltip pages), so the series stay as they were without it
+    const tree: TreeSeriesNodeItemOption & { nodeId?: DataRecordValue } = {
+      name: rootNodeName,
+      ...(onContextMenu && { nodeId: rootRow ? rootRow[id] : rootNodeId }),
+      children: [],
+    };
     const children: TreeSeriesNodeItemOption[][] = [];
     const indexMap: { [name: string]: number } = {};
 
@@ -129,18 +139,20 @@ export default function transformProps(
       if (node[parent]?.toString() === rootNodeId) {
         tree.children?.push({
           name: node[nameColumn],
+          ...(onContextMenu && { nodeId: node[id] }),
           children: children[i],
           value: node[metricLabel],
-        });
+        } as TreeSeriesNodeItemOption);
       } else {
         const parentId = node[parent];
         if (data[indexMap[parentId]]) {
           const parentIndex = indexMap[parentId];
           children[parentIndex].push({
             name: node[nameColumn],
+            ...(onContextMenu && { nodeId: node[id] }),
             children: children[i],
             value: node[metricLabel],
-          });
+          } as TreeSeriesNodeItemOption);
         }
       }
     }
@@ -236,5 +248,6 @@ export default function transformProps(
     height,
     echartOptions,
     refs,
+    onContextMenu,
   };
 }

@@ -693,25 +693,29 @@ export default function PivotTableChart(props: PivotTableProps) {
         e.preventDefault();
         e.stopPropagation();
         const drillToDetailFilters: BinaryQueryObjectFilterClause[] = [];
-        if (colKey && colKey.length > 1) {
+        if (colKey) {
           colKey.forEach((val, i) => {
             const col = cols[i];
+            if (!col || col === METRIC_KEY) {
+              return;
+            }
             const formatter = dateFormatters[col];
             const formattedVal = getDrillFilterFormattedValue(val, formatter);
-            if (i > 0) {
-              drillToDetailFilters.push({
-                col,
-                op: '==',
-                val: getDrillFilterValue(val, formatter),
-                formattedVal,
-                grain: formatter ? timeGrainSqla : undefined,
-              });
-            }
+            drillToDetailFilters.push({
+              col,
+              op: '==',
+              val: getDrillFilterValue(val, formatter),
+              formattedVal,
+              grain: formatter ? timeGrainSqla : undefined,
+            });
           });
         }
         if (rowKey) {
           rowKey.forEach((val, i) => {
             const col = rows[i];
+            if (!col || col === METRIC_KEY) {
+              return;
+            }
             const formatter = dateFormatters[col];
             const formattedVal = getDrillFilterFormattedValue(val, formatter);
             drillToDetailFilters.push({

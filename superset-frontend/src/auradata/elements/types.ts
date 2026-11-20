@@ -47,13 +47,27 @@ export const elementKind = (componentKey: unknown): ElementKind | null => {
     : null;
 };
 
+export type ExportDataFormat = 'csv' | 'xlsx' | 'full_csv' | 'full_xlsx';
+
 /** What clicking an element does in view mode. */
 export interface ElementAction {
-  type: 'none' | 'page' | 'url' | 'reset-filters' | 'top' | 'bookmark' | 'back';
+  type:
+    | 'none'
+    | 'page'
+    | 'url'
+    | 'reset-filters'
+    | 'top'
+    | 'bookmark'
+    | 'back'
+    | 'export';
   /** Top level tab to open, for 'page' */
   tabId?: string;
   /** Bookmark to apply, for 'bookmark' */
   bookmarkId?: string;
+  /** Chart to export, for 'export' */
+  chartId?: number;
+  /** File format, for 'export' */
+  exportFormat?: ExportDataFormat;
   url?: string;
   newTab?: boolean;
 }

@@ -42,6 +42,20 @@ Una página con **Usar como información sobre herramientas** se convierte en un
 **General › Información sobre herramientas** elige esa página o deja la automática (la que agrupa por las mismas
 columnas).
 
+Los visuales de la página tooltip se filtran con lo que hay bajo el puntero: el punto o la barra de un gráfico, la
+celda de un mapa de calor, cascada, sankey o árbol, o la fila entera de una tabla (también en modo registros, por
+ejemplo para ver la ficha de un empleado al pasar por su fila). En una matriz sirven las celdas de valor, los
+encabezados de fila y de columna y los totales. Las fechas agrupadas (por mes, semana…) filtran su periodo completo.
+Si apagas el tooltip de un visual en **General › Información sobre herramientas**, tampoco se abre su página
+tooltip. Mapas, nube de palabras y otros visuales sin marcas no la muestran.
+
+## Exportar datos de un visual
+
+En **General › Iconos del encabezado**, **Icono de exportar datos** añade al visual un botón que descarga sus datos,
+con los filtros del informe, en Excel o CSV. Un botón, un enlace o el botón de acción de un visual también pueden
+hacerlo: en **Al hacer clic** elige **Exportar datos de un gráfico**, el gráfico y el formato. Solo funciona para
+quien tiene permiso de descargar datos; a los demás no les aparece el icono y el botón les avisa.
+
 ## Restablecer filtros
 
 **Restablecer filtros** (en la barra de lectura y en **Inicio**) deja todos los filtros y segmentadores en su valor

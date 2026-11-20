@@ -21,7 +21,8 @@ import { createPortal } from 'react-dom';
 import { t } from '@apache-superset/core/translation';
 import { useTheme } from '@apache-superset/core/theme';
 import { logging } from '@apache-superset/core/utils';
-import { Tooltip } from '@superset-ui/core/components';
+import { FeatureFlag, isFeatureEnabled, VizType } from '@superset-ui/core';
+import { Dropdown, Tooltip, type MenuItem } from '@superset-ui/core/components';
 import { Icons } from '@superset-ui/core/components/Icons';
 import { useToasts } from 'src/components/MessageToasts/withToasts';
 import MemoizedFiltersBadge from 'src/dashboard/components/FiltersBadge';
@@ -46,6 +47,15 @@ export function ChartBarActions({
   isFullSize,
   onToggleFullSize,
   menu,
+  canDownload,
+  vizType,
+  sliceName,
+  exportCSV,
+  exportXLSX,
+  exportFullCSV,
+  exportFullXLSX,
+  exportPivotCSV,
+  exportPivotExcel,
 }: {
   componentId: string | undefined;
   chartId: number;
@@ -57,6 +67,15 @@ export function ChartBarActions({
   onToggleFullSize: () => void;
   /** The menu of more options, or nothing when it is switched off */
   menu?: ReactNode;
+  canDownload?: boolean;
+  vizType?: string;
+  sliceName?: string;
+  exportCSV?: (sliceId?: number) => void;
+  exportXLSX?: (sliceId?: number) => void;
+  exportFullCSV?: (sliceId?: number) => void;
+  exportFullXLSX?: (sliceId?: number) => void;
+  exportPivotCSV?: (sliceId?: number) => void;
+  exportPivotExcel?: (selector: string, name?: string) => void;
 }) {
   const theme = useTheme();
   const { addSuccessToast, addDangerToast } = useToasts();
@@ -64,6 +83,97 @@ export function ChartBarActions({
   const header = format?.header;
   const showCopy = header?.copy !== false;
   const showFocus = header?.focus !== false;
+  const showExport = Boolean(header?.export && canDownload);
+
+  const isPivot = vizType === VizType.PivotTable;
+  const isTable = vizType === VizType.Table || vizType === VizType.TableAgGrid;
+  const exportMenuItems: MenuItem[] = showExport
+    ? [
+        ...(exportXLSX
+          ? [
+              {
+                key: 'xlsx',
+                label: t('Export to Excel'),
+                icon: <Icons.FileOutlined iconSize="m" />,
+              },
+            ]
+          : []),
+        ...(exportCSV
+          ? [
+              {
+                key: 'csv',
+                label: t('Export to .CSV'),
+                icon: <Icons.FileOutlined iconSize="m" />,
+              },
+            ]
+          : []),
+        ...(isPivot && exportPivotExcel
+          ? [
+              {
+                key: 'pivot_xlsx',
+                label: t('Export to Pivoted Excel'),
+                icon: <Icons.FileOutlined iconSize="m" />,
+              },
+            ]
+          : []),
+        ...(isPivot && exportPivotCSV
+          ? [
+              {
+                key: 'pivot_csv',
+                label: t('Export to Pivoted .CSV'),
+                icon: <Icons.FileOutlined iconSize="m" />,
+              },
+            ]
+          : []),
+        ...(isTable &&
+        isFeatureEnabled(FeatureFlag.AllowFullCsvExport) &&
+        exportFullXLSX
+          ? [
+              {
+                key: 'full_xlsx',
+                label: t('Export to full Excel'),
+                icon: <Icons.FileOutlined iconSize="m" />,
+              },
+            ]
+          : []),
+        ...(isTable &&
+        isFeatureEnabled(FeatureFlag.AllowFullCsvExport) &&
+        exportFullCSV
+          ? [
+              {
+                key: 'full_csv',
+                label: t('Export to full .CSV'),
+                icon: <Icons.FileOutlined iconSize="m" />,
+              },
+            ]
+          : []),
+      ]
+    : [];
+
+  const onExportClick = ({ key }: { key: string }) => {
+    switch (key) {
+      case 'xlsx':
+        exportXLSX?.(chartId);
+        break;
+      case 'csv':
+        exportCSV?.(chartId);
+        break;
+      case 'pivot_xlsx':
+        exportPivotExcel?.(`#chart-id-${chartId} .pvtTable`, sliceName);
+        break;
+      case 'pivot_csv':
+        exportPivotCSV?.(chartId);
+        break;
+      case 'full_xlsx':
+        exportFullXLSX?.(chartId);
+        break;
+      case 'full_csv':
+        exportFullCSV?.(chartId);
+        break;
+      default:
+        break;
+    }
+  };
 
   useEffect(() => {
     if (!isFullSize || !showFocus) return undefined;
@@ -102,6 +212,21 @@ export function ChartBarActions({
 
   const buttons = (
     <>
+      {showExport && exportMenuItems.length > 0 && (
+        <Dropdown
+          trigger={['click']}
+          menu={{ items: exportMenuItems, onClick: onExportClick }}
+        >
+          <span>
+            <ObjectActionButton
+              label={t('Export data')}
+              testId="auradata-header-export"
+            >
+              <Icons.DownloadOutlined iconSize="m" />
+            </ObjectActionButton>
+          </span>
+        </Dropdown>
+      )}
       {showCopy && (
         <ObjectActionButton
           label={t('Copy as image with caption')}

@@ -156,8 +156,9 @@ async def add_element(request: AddElementRequest, ctx: Context) -> ElementRespon
     elements do: image, shape, button, text or page navigator, with its
     settings over the defaults of a new one (get_format_options with element
     lists them). A button acts with action: {type: page, page: <name or id>},
-    {type: bookmark, bookmarkId}, {type: back}, {type: url, url} or
-    reset-filters. An image takes image_base64 (never an address). Without x
+    {type: bookmark, bookmarkId}, {type: back}, {type: url, url},
+    {type: export, chart, exportFormat} or reset-filters. An image takes
+    image_base64 (never an address). Without x
     and y it takes the first free cell of the page for its size.
     """
 

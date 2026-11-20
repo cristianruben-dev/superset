@@ -16,6 +16,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import {
+  BinaryQueryObjectFilterClause,
+  getColumnLabel,
+} from '@superset-ui/core';
 import { HistogramTransformedProps } from './types';
 import Echart from '../components/Echart';
 import { EventHandlers } from '../types';
@@ -27,6 +31,9 @@ export default function Histogram(props: HistogramTransformedProps) {
     echartOptions,
     onFocusedSeries,
     onLegendStateChanged,
+    onContextMenu,
+    groupby,
+    labelMap,
     refs,
     formData,
   } = props;
@@ -46,6 +53,33 @@ export default function Histogram(props: HistogramTransformedProps) {
     },
     mouseover: params => {
       onFocusedSeries(params.seriesIndex);
+    },
+    contextmenu: (eventParams: {
+      seriesName?: string;
+      event?: { stop: () => void; event: PointerEvent };
+    }) => {
+      if (!onContextMenu || !groupby.length || !eventParams.seriesName) return;
+      const values = labelMap[eventParams.seriesName];
+      if (!values?.length) return;
+      const pointerEvent = eventParams.event?.event;
+      if (!pointerEvent) return;
+      const drillToDetail: BinaryQueryObjectFilterClause[] = [];
+      groupby.forEach((col, i) => {
+        const val = values[i];
+        if (val !== null && val !== undefined) {
+          drillToDetail.push({
+            col: getColumnLabel(col),
+            op: '==',
+            val: val as string | number | boolean,
+            formattedVal: String(val),
+          });
+        }
+      });
+      if (!drillToDetail.length) return;
+      eventParams.event?.stop();
+      onContextMenu(pointerEvent.clientX, pointerEvent.clientY, {
+        drillToDetail,
+      });
     },
   };
 

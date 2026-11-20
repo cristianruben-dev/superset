@@ -42,9 +42,7 @@ import type { SeriesOption } from 'echarts';
 import { isEmpty, maxBy, meanBy, minBy, orderBy, sumBy } from 'lodash-es';
 import {
   NULL_STRING,
-  ONE_DAY_MS,
   StackControlsValue,
-  TIMEGRAIN_TO_TIMESTAMP,
   TIMESERIES_CONSTANTS,
   WEEKLY_TIME_GRAINS,
 } from '../constants';
@@ -55,7 +53,7 @@ import {
   StackType,
 } from '../types';
 import { defaultLegendPadding } from '../defaults';
-import { coerceTemporalMs, getXAxisDomain } from './formatters';
+import { coerceTemporalMs } from './formatters';
 
 function isDefined<T>(value: T | undefined | null): boolean {
   return value !== undefined && value !== null;
@@ -506,6 +504,8 @@ const DEFAULT_STACK_GROUP = '__default__';
  * @param opts.legendState     Active legend state (hidden series are skipped).
  * @param opts.seriesStackIds  Optional per-series stack-group key (parallel to
  *                             `series`). Defaults to a single shared group.
+ * @param opts.seriesIndexOffset  Rendered index of `series[0]`, for charts
+ *                             that render other series before these ones.
  * @returns A `Record<stackGroupKey, number[]>` where each inner array maps
  *          `dataIndex → seriesIndex` of the topmost series in that group.
  */
@@ -517,10 +517,18 @@ export function extractShowValueIndexes(
     isHorizontal?: boolean;
     legendState?: LegendState;
     seriesStackIds?: string[];
+    seriesIndexOffset?: number;
   },
 ): Record<string, number[]> {
   const result: Record<string, number[]> = Object.create(null);
-  const { legendState, stack, isHorizontal, onlyTotal, seriesStackIds } = opts;
+  const {
+    legendState,
+    stack,
+    isHorizontal,
+    onlyTotal,
+    seriesStackIds,
+    seriesIndexOffset = 0,
+  } = opts;
   if (!stack) {
     return result;
   }
@@ -551,6 +559,14 @@ export function extractShowValueIndexes(
       }
     });
   });
+
+  if (seriesIndexOffset) {
+    Object.values(result).forEach(showValueIndexes => {
+      showValueIndexes.forEach((seriesIndex, dataIndex) => {
+        showValueIndexes[dataIndex] = seriesIndex + seriesIndexOffset;
+      });
+    });
+  }
 
   return result;
 }
@@ -1283,59 +1299,6 @@ export function getMinAndMaxFromBounds(
     return ret;
   }
   return {};
-}
-
-/**
- * Computes a bar-width cap (px) sized to a temporal x-axis's own resolved
- * time-grain bucket, instead of a flat constant that ignores how many
- * pixels the grain actually spans on the rendered axis. Returns undefined
- * when there isn't enough information to compute a grain-aware width (a
- * non-temporal axis, no resolved grain outside TIMEGRAIN_TO_TIMESTAMP, or
- * no data), so callers can fall back to their own default in that case.
- *
- * Uses getXAxisDomain — the same data-extent estimate the x-axis label
- * spacing formatter already relies on — for the visible axis span. For two
- * or more distinct x-values that's the real ECharts-rendered span (ECharts
- * applies no padding there). For a single distinct value (domainMin ===
- * domainMax), it falls back to 2 * ONE_DAY_MS, mirroring ECharts' own
- * degenerate-domain padding for a time axis exactly (calcNiceForTimeScale
- * in echarts/lib/scale/Time.js pads a single-point extent by ONE_DAY on
- * each side, independent of grain) rather than guessing at a different
- * span. This function does not change what range ECharts decides to
- * render — only how wide a bar is drawn within whatever range that already
- * is.
- *
- * `plotLengthPx` must already be the pixel length of whichever screen
- * dimension the temporal axis actually renders along — callers are
- * responsible for accounting for orientation (a horizontal bar chart swaps
- * the temporal axis onto the chart's vertical/height dimension, not width;
- * see the call sites in Timeseries/transformProps.ts and
- * MixedTimeseries/transformProps.ts) before calling this.
- */
-export function getGrainBarMaxWidth(
-  xAxisType: AxisType,
-  resolvedTimeGrain: string | undefined,
-  dataRecordArrays: Record<string, unknown>[][],
-  xAxisCol: string,
-  plotLengthPx: number,
-): number | undefined {
-  if (xAxisType !== AxisType.Time || !resolvedTimeGrain) {
-    return undefined;
-  }
-  const grainMs =
-    TIMEGRAIN_TO_TIMESTAMP[
-      resolvedTimeGrain as keyof typeof TIMEGRAIN_TO_TIMESTAMP
-    ];
-  if (!grainMs) {
-    return undefined;
-  }
-  const [domainMin, domainMax] = getXAxisDomain(dataRecordArrays, xAxisCol);
-  if (domainMin === undefined || domainMax === undefined) {
-    return undefined;
-  }
-  const domainSpanMs =
-    domainMax > domainMin ? domainMax - domainMin : 2 * ONE_DAY_MS;
-  return (grainMs / domainSpanMs) * Math.max(plotLengthPx, 0);
 }
 
 /**

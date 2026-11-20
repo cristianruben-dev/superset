@@ -16,17 +16,75 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { HeatmapTransformedProps } from './types';
+import {
+  BinaryQueryObjectFilterClause,
+  DataRecordValue,
+} from '@superset-ui/core';
+import { HeatmapAxisDrill, HeatmapTransformedProps } from './types';
+import { EventHandlers } from '../types';
 import Echart from '../components/Echart';
 
 export default function Heatmap(props: HeatmapTransformedProps) {
-  const { height, width, echartOptions, refs } = props;
+  const {
+    height,
+    width,
+    echartOptions,
+    refs,
+    formData,
+    onContextMenu,
+    xAxisColumnName,
+    yAxisColumnName,
+    sortedXAxisValues,
+    sortedYAxisValues,
+    xAxisDrill,
+    yAxisDrill,
+  } = props;
+
+  const eventHandlers: EventHandlers = {
+    contextmenu: (eventParams: {
+      value?: (string | number)[];
+      event?: { stop: () => void; event: PointerEvent };
+    }) => {
+      if (!onContextMenu || !Array.isArray(eventParams.value)) return;
+      const pointerEvent = eventParams.event?.event;
+      if (!pointerEvent) return;
+      const [xIndex, yIndex] = eventParams.value as [number, number];
+      const xVal = sortedXAxisValues[xIndex];
+      const yVal = sortedYAxisValues[yIndex];
+      const drillToDetail: BinaryQueryObjectFilterClause[] = [];
+      const add = (
+        col: string,
+        val: DataRecordValue | undefined,
+        axis: HeatmapAxisDrill,
+      ) => {
+        if (!col || val === null || val === undefined) return;
+        drillToDetail.push({
+          col,
+          op: '==',
+          val: val as string | number | boolean,
+          formattedVal: axis.format(val as string | number),
+          // A date of a grain stands for its whole period
+          ...(axis.grain && { grain: axis.grain }),
+        });
+      };
+      add(xAxisColumnName, xVal, xAxisDrill);
+      add(yAxisColumnName, yVal, yAxisDrill);
+      if (!drillToDetail.length) return;
+      eventParams.event?.stop();
+      onContextMenu(pointerEvent.clientX, pointerEvent.clientY, {
+        drillToDetail,
+      });
+    },
+  };
+
   return (
     <Echart
       refs={refs}
       height={height}
       width={width}
       echartOptions={echartOptions}
+      eventHandlers={eventHandlers}
+      vizType={formData.vizType}
     />
   );
 }

@@ -26,6 +26,7 @@ import {
   addAlpha,
   tooltipHtml,
   DataRecordValue,
+  TimeGranularity,
 } from '@superset-ui/core';
 import { logging } from '@apache-superset/core/utils';
 import { GenericDataType } from '@apache-superset/core/common';
@@ -174,8 +175,9 @@ export default function transformProps(
   chartProps: HeatmapChartProps,
 ): HeatmapTransformedProps {
   const refs: Refs = {};
-  const { width, height, formData, queriesData, datasource, theme } =
+  const { width, height, formData, hooks, queriesData, datasource, theme } =
     chartProps;
+  const { onContextMenu } = hooks;
   const {
     bottomMargin,
     linearColorScheme,
@@ -224,6 +226,15 @@ export default function transformProps(
       return String(value);
     };
 
+  const axisDrill = (
+    colType: GenericDataType,
+    format: (value: number | string) => string,
+  ) => ({
+    format,
+    ...(colType === GenericDataType.Temporal && formData.timeGrainSqla
+      ? { grain: formData.timeGrainSqla as TimeGranularity }
+      : {}),
+  });
   const xAxisFormatter = getAxisFormatter(coltypes[0]);
   const yAxisFormatter = getAxisFormatter(coltypes[1]);
   const percentFormatter = getPercentFormatter(NumberFormats.PERCENT_2_POINT);
@@ -445,5 +456,12 @@ export default function transformProps(
     width,
     height,
     formData,
+    onContextMenu,
+    xAxisColumnName,
+    yAxisColumnName,
+    sortedXAxisValues,
+    sortedYAxisValues,
+    xAxisDrill: axisDrill(coltypes[0], xAxisFormatter),
+    yAxisDrill: axisDrill(coltypes[1], yAxisFormatter),
   };
 }

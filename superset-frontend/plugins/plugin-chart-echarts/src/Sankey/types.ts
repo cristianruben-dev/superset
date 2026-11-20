@@ -34,4 +34,7 @@ export interface SankeyChartProps extends BaseChartProps<SankeyFormData> {
   formData: SankeyFormData;
 }
 
-export type SankeyTransformedProps = BaseTransformedProps<SankeyFormData> & {};
+export type SankeyTransformedProps = BaseTransformedProps<SankeyFormData> & {
+  sourceNodes: string[];
+  targetNodes: string[];
+};
