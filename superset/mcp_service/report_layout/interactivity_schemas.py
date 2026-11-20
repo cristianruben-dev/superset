@@ -131,6 +131,14 @@ class SyncSlicerRequest(_Write):
     )
 
 
+class PageBackgroundInput(BaseModel):
+    type: Literal["none", "color", "image"] = Field(description="none, color or image")
+    color: str | None = Field(None, description="CSS color")
+    image: str | None = Field(None, description="Site picture URL")
+    fit: Literal["cover", "contain", "repeat"] | None = None
+    opacity: float | None = Field(None, ge=0, le=100)
+
+
 class MakeTooltipPageRequest(_Write):
     page: PageRef = Field(description=_PAGE)
     enabled: bool = Field(True, description="false makes it a normal page again")
@@ -142,6 +150,9 @@ class MakeTooltipPageRequest(_Write):
     )
     columns: list[str] | None = Field(
         None, description=f"{_COLUMNS} it is made for; Auto charts match on them"
+    )
+    background: PageBackgroundInput | None = Field(
+        None, description="Tooltip page background"
     )
 
 
@@ -170,6 +181,7 @@ class InteractivityResponse(BaseModel):
     )
     drillthrough_columns: list[str] | None = None
     tooltip_page: dict[str, Any] | None = None
+    page_background: dict[str, Any] | None = None
     filter_bar_auto_apply: bool | None = None
     warnings: list[str] = Field(default_factory=list)
     error: str | None = None

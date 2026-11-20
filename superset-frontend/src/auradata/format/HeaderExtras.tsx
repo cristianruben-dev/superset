@@ -66,6 +66,7 @@ function HeaderIcon({
 
 /** The optional icons a report can show in the header of a chart. */
 export function HeaderExtras({
+  chartId,
   format,
   sliceName,
   description,
@@ -75,6 +76,7 @@ export function HeaderExtras({
   canExplore,
   canDownload,
 }: {
+  chartId?: number;
   format: VisualFormat | undefined;
   sliceName?: string;
   description?: string;
@@ -89,7 +91,7 @@ export function HeaderExtras({
   );
   const header = format?.header;
   const link = format?.link;
-  const runLink = useElementAction(link?.action, !!link?.show);
+  const runLink = useElementAction(link?.action, !!link?.show, { chartId });
 
   const tooltip = header?.tooltip;
   return (
@@ -165,16 +167,18 @@ export function HeaderExtras({
 
 /** The button a report can place in the title area of a chart. */
 export function ChartActionButton({
+  chartId,
   button,
   format,
   enabled,
 }: {
+  chartId?: number;
   button: ActionButtonFormat;
   format: VisualFormat | undefined;
   enabled: boolean;
 }) {
   const theme = useTheme();
-  const run = useElementAction(format?.link?.action, enabled);
+  const run = useElementAction(format?.link?.action, enabled, { chartId });
   const styles = actionButtonStyles(button, format, theme);
   const positioned: CSSProperties = styles.box;
   const { iconOnly } = button;

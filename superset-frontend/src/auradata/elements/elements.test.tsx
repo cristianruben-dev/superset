@@ -32,6 +32,7 @@ import newEntitiesFromDrop from 'src/dashboard/util/newEntitiesFromDrop';
 import { FormatPane } from 'src/auradata/format/FormatPane';
 import { selectVisual } from 'src/auradata/format/selection';
 import { resetAuthenticatedImageCache } from 'src/auradata/format/useAuthenticatedImageUrl';
+import * as exploreUtils from 'src/explore/exploreUtils';
 import { runElementAction, setElementConfig } from './actions';
 import {
   fillBackground,
@@ -251,6 +252,69 @@ test('reset filters puts every filter back to its default', () => {
     stateOf(store),
   );
   expect(stateOf(store).dataMask.f1.filterState?.value).toEqual(['Norte']);
+});
+
+test('an export button downloads its chart, with the report filters, for who may download', () => {
+  const exportChart = jest
+    .spyOn(exploreUtils, 'exportChart')
+    .mockImplementation(() => Promise.resolve());
+  const exportStore = (canDownload: boolean) =>
+    createStore(
+      {
+        dashboardLayout: { present: layout, past: [], future: [] },
+        dashboardState: {
+          editMode: false,
+          activeTabs: ['TAB-a'],
+          sliceIds: [5],
+        },
+        dashboardInfo: {
+          id: 7,
+          superset_can_download: canDownload,
+          metadata: {},
+        },
+        charts: {
+          5: {
+            id: 5,
+            form_data: {
+              slice_id: 5,
+              viz_type: 'table',
+              datasource: '1__table',
+            },
+          },
+        },
+        nativeFilters: { filters: {} },
+        dataMask: {},
+      },
+      reducerIndex,
+    );
+  const action = {
+    type: 'export' as const,
+    chartId: 5,
+    exportFormat: 'csv' as const,
+  };
+
+  const refused = exportStore(false);
+  runElementAction(action, dispatcher(refused) as never, () =>
+    stateOf(refused),
+  );
+  expect(exportChart).not.toHaveBeenCalled();
+  expect(
+    (stateOf(refused) as unknown as { messageToasts: { text: string }[] })
+      .messageToasts[0].text,
+  ).toBe('You do not have permission to export data from this report.');
+
+  const allowed = exportStore(true);
+  runElementAction(action, dispatcher(allowed) as never, () =>
+    stateOf(allowed),
+  );
+  expect(exportChart).toHaveBeenCalledTimes(1);
+  expect(exportChart).toHaveBeenCalledWith(
+    expect.objectContaining({
+      formData: expect.objectContaining({ slice_id: 5, viz_type: 'table' }),
+      resultFormat: 'csv',
+      resultType: 'full',
+    }),
+  );
 });
 
 test('new elements dropped on the grid get a row and keep their width', () => {

@@ -1061,8 +1061,9 @@ Add a design element to a page of a report, as the editor's Design
 elements do: image, shape, button, text or page navigator, with its
 settings over the defaults of a new one (get_format_options with element
 lists them). A button acts with action: {type: page, page: <name or id>},
-{type: bookmark, bookmarkId}, {type: back}, {type: url, url} or
-reset-filters. An image takes image_base64 (never an address). Without x
+{type: bookmark, bookmarkId}, {type: back}, {type: url, url},
+{type: export, chart, exportFormat} or reset-filters. An image takes
+image_base64 (never an address). Without x
 and y it takes the first free cell of the page for its size.
 
 | Parámetro | Tipo | Obligatorio | Por defecto | Descripción |
@@ -1413,6 +1414,7 @@ page whose fields they have. enabled=false makes it a normal page again.
 | `width` | integer |  |  | Tooltip width in cells (10 by default) |
 | `height` | integer |  |  | Tooltip height in cells (8 by default) |
 | `columns` | lista de string |  |  | Dataset columns of the report's charts it is made for; Auto charts match on them |
+| `background` | objeto |  |  | Tooltip page background |
 
 Ejemplo:
 

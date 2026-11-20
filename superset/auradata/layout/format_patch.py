@@ -51,12 +51,14 @@ class FormatPatchError(ValueError):
 
 @dataclass
 class ReportRefs:
-    """Ids of the report a format may point at (pages and bookmarks)."""
+    """Ids of the report a format may point at (pages, bookmarks and charts)."""
 
     pages: set[str] = field(default_factory=set)
     bookmarks: set[str | None] = field(default_factory=set)
     #: Pages that are tooltips, the only ones a chart's tooltip shows
     tooltip_pages: set[str] | None = None
+    #: Chart ids on the report, for export actions
+    charts: set[int] | None = None
 
 
 _HEX = re.compile(r"^#(?:[0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$")
@@ -436,6 +438,18 @@ def _check_object(
             problems.append(f"{where}: unknown setting; known: {sorted(fields)}")
             continue
         clean[key] = _check_field(where, spec, item, refs, problems)
+        if (
+            key == "chartId"
+            and (path == "action" or path.endswith(".action"))
+            and refs.charts is not None
+            and isinstance(item, int)
+            and not isinstance(item, bool)
+            and item not in refs.charts
+        ):
+            problems.append(
+                f"{where}: no chart {item!r} on this report; charts: "
+                f"{sorted(refs.charts)}"
+            )
     return clean
 
 

@@ -17,14 +17,32 @@
  * under the License.
  */
 import { useCallback } from 'react';
-import { useDispatch, useStore } from 'react-redux';
+import { useDispatch, useSelector, useStore } from 'react-redux';
 import type { AnyAction } from 'redux';
 import type { ThunkDispatch } from 'redux-thunk';
-import { SupersetClient } from '@superset-ui/core';
+import { t } from '@apache-superset/core/translation';
+import {
+  FeatureFlag,
+  isFeatureEnabled,
+  SupersetClient,
+  VizType,
+  type QueryFormData,
+} from '@superset-ui/core';
+import { addDangerToast } from 'src/components/MessageToasts/actions';
 import { setDirectPathToChild } from 'src/dashboard/actions/dashboardState';
+import { selectChartCustomizationFromRedux } from 'src/dashboard/components/nativeFilters/state';
 import type { GetState, LayoutItem, RootState } from 'src/dashboard/types';
+import { getAppliedFilterValues } from 'src/dashboard/util/activeDashboardFilters';
+import getFormDataWithExtraFilters from 'src/dashboard/util/charts/getFormDataWithExtraFilters';
+import { CHART_TYPE } from 'src/dashboard/util/componentTypes';
 import { removeDataMask, updateDataMask } from 'src/dataMask/actions';
+import { exportChart } from 'src/explore/exploreUtils';
+import { enforceSharedLabelsColorsArray } from 'src/utils/colorScheme';
 import { updateLayout } from 'src/auradata/format/actions';
+import {
+  layoutChartFormat,
+  withChartFormat,
+} from 'src/auradata/format/chartFormat';
 import { topLevelTabs } from 'src/auradata/present/dashboardTabs';
 import { applyBookmark } from 'src/auradata/report/bookmarks';
 import {
@@ -76,11 +94,55 @@ export async function deleteElementImage(
   });
 }
 
+export interface ElementActionOptions {
+  /** Chart owning the action button or header link; used when action.chartId is omitted */
+  chartId?: number;
+}
+
+function buildExportFormData(
+  state: RootState,
+  chartId: number,
+): QueryFormData | undefined {
+  const chart = state.charts[chartId];
+  if (!chart?.form_data) return undefined;
+  const layout = state.dashboardLayout.present;
+  const metadata = state.dashboardInfo.metadata ?? {};
+  const componentId = Object.values(layout).find(
+    item => item.type === CHART_TYPE && Number(item.meta?.chartId) === chartId,
+  )?.id;
+  const formData = (
+    componentId
+      ? withChartFormat(chart.form_data, layoutChartFormat(layout, componentId))
+      : chart.form_data
+  ) as QueryFormData;
+  return getFormDataWithExtraFilters({
+    chart: { id: chartId, form_data: formData },
+    chartConfiguration: metadata.chart_configuration,
+    chartCustomizationItems: selectChartCustomizationFromRedux(state) as never,
+    filters: getAppliedFilterValues(chartId),
+    colorScheme: state.dashboardState.colorScheme,
+    colorNamespace: (state.dashboardState as { colorNamespace?: string })
+      .colorNamespace,
+    sliceId: chartId,
+    nativeFilters: state.nativeFilters?.filters,
+    allSliceIds: state.dashboardState.sliceIds,
+    dataMask: state.dataMask,
+    extraControls: {},
+    labelsColor: metadata.label_colors || {},
+    labelsColorMap: metadata.map_label_colors || {},
+    sharedLabelsColors: enforceSharedLabelsColorsArray(
+      metadata.shared_label_colors,
+    ),
+    ownColorScheme: chart.form_data.color_scheme as string | undefined,
+  }) as unknown as QueryFormData;
+}
+
 /** Runs what an element does when clicked. */
 export function runElementAction(
   action: ElementAction | undefined,
   dispatch: AppDispatch,
   getState: GetState,
+  options?: ElementActionOptions,
 ) {
   if (!action || action.type === 'none') return;
   const state = getState();
@@ -137,6 +199,69 @@ export function runElementAction(
     }
   } else if (action.type === 'top') {
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  } else if (action.type === 'export') {
+    const canDownload = Boolean(
+      (state.dashboardInfo as { superset_can_download?: boolean })
+        ?.superset_can_download,
+    );
+    if (!canDownload) {
+      dispatch(
+        addDangerToast(
+          t('You do not have permission to export data from this report.'),
+        ),
+      );
+      return;
+    }
+    const targetChartId = action.chartId ?? options?.chartId;
+    if (!targetChartId) return;
+    const baseFormData = buildExportFormData(state, targetChartId);
+    if (!baseFormData) return;
+    const format = action.exportFormat ?? 'xlsx';
+    const isFull = format === 'full_csv' || format === 'full_xlsx';
+    const resultFormat =
+      format === 'csv' || format === 'full_csv' ? 'csv' : 'xlsx';
+    const maxRows = state.dashboardInfo.common?.conf?.SQL_MAX_ROW as
+      | number
+      | undefined;
+    const exportFormData =
+      isFull && isFeatureEnabled(FeatureFlag.AllowFullCsvExport) && maxRows
+        ? { ...baseFormData, row_limit: maxRows }
+        : baseFormData;
+    const isPivot = baseFormData.viz_type === VizType.PivotTable;
+    const resultType = isPivot ? 'post_processed' : 'full';
+    const ownState =
+      (state.dataMask?.[targetChartId]?.ownState as Record<string, unknown>) ||
+      {};
+    Promise.resolve(
+      exportChart({
+        formData: exportFormData,
+        resultType,
+        resultFormat,
+        ownState,
+      }),
+    ).catch(
+      (error: Error & { status?: number; response?: { status?: number } }) => {
+        const status = error?.status || error?.response?.status;
+        if (status === 413) {
+          dispatch(
+            addDangerToast(
+              t(
+                'The chart data is too large to download. Please try reducing the date range, limiting rows, or using fewer columns.',
+              ),
+            ),
+          );
+        } else {
+          dispatch(
+            addDangerToast(
+              error?.message ||
+                t(
+                  'Failed to export chart data. Please try again or contact your administrator.',
+                ),
+            ),
+          );
+        }
+      },
+    );
   }
 }
 
@@ -144,12 +269,31 @@ export function runElementAction(
 export function useElementAction(
   action: ElementAction | undefined,
   enabled: boolean,
+  options?: ElementActionOptions,
 ) {
   const dispatch = useDispatch<AppDispatch>();
   const store = useStore<RootState>();
-  const run = useCallback(
-    () => runElementAction(action, dispatch, store.getState),
-    [action, dispatch, store],
+  const canDownload = useSelector((state: RootState) =>
+    Boolean(
+      (state.dashboardInfo as { superset_can_download?: boolean })
+        ?.superset_can_download,
+    ),
   );
-  return enabled && action && action.type !== 'none' ? run : undefined;
+  const optionChartId = options?.chartId;
+  const run = useCallback(
+    () =>
+      runElementAction(
+        action,
+        dispatch,
+        store.getState,
+        optionChartId ? { chartId: optionChartId } : undefined,
+      ),
+    [action, dispatch, store, optionChartId],
+  );
+  if (!enabled || !action || action.type === 'none') return undefined;
+  if (action.type === 'export') {
+    const targetChartId = action.chartId ?? optionChartId;
+    return canDownload && targetChartId ? run : undefined;
+  }
+  return run;
 }

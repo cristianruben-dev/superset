@@ -71,7 +71,7 @@ type SliceHeaderProps = SliceHeaderControlsProps & {
   width: number;
   height: number;
   queriedDttm?: string | null;
-  exportPivotExcel?: (arg0: string) => void;
+  exportPivotExcel?: (arg0: string, arg1?: string) => void;
   chartHolderRef?: RefObject<HTMLDivElement>;
 };
 
@@ -371,6 +371,7 @@ const SliceHeader = forwardRef<HTMLDivElement, SliceHeaderProps>(
         </div>
         {actionButton?.show && (
           <ChartActionButton
+            chartId={slice.slice_id}
             button={actionButton}
             format={headerFormat}
             enabled={!editMode}
@@ -387,6 +388,20 @@ const SliceHeader = forwardRef<HTMLDivElement, SliceHeaderProps>(
             showFilters={!editMode && showBadges && !uiConfig.hideChartControls}
             isFullSize={isFullSize}
             onToggleFullSize={handleToggleFullSize}
+            canDownload={
+              !editMode &&
+              supersetCanDownload &&
+              !uiConfig.hideChartControls &&
+              !isMobile
+            }
+            vizType={formData.viz_type as string | undefined}
+            sliceName={slice.slice_name}
+            exportCSV={exportCSV}
+            exportXLSX={exportXLSX}
+            exportFullCSV={exportFullCSV}
+            exportFullXLSX={exportFullXLSX}
+            exportPivotCSV={exportPivotCSV}
+            exportPivotExcel={exportPivotExcel}
             menu={
               showMenu &&
               !uiConfig.hideChartControls &&
@@ -457,6 +472,7 @@ const SliceHeader = forwardRef<HTMLDivElement, SliceHeaderProps>(
 
               {iconsShown && (
                 <HeaderExtras
+                  chartId={slice.slice_id}
                   format={headerFormat}
                   sliceName={slice.slice_name}
                   description={slice.description}

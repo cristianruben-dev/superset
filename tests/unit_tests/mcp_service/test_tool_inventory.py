@@ -159,7 +159,7 @@ TOOL_BUDGETS = {
     "delete_bookmark": 1_000,
     "get_filter_defaults": 1_000,
     "list_bookmarks": 1_000,
-    "make_tooltip_page": 1_800,
+    "make_tooltip_page": 2_500,
     "set_drillthrough_page": 1_400,
     "set_filter_bar_auto_apply": 1_200,
     "set_visual_interactions": 1_600,

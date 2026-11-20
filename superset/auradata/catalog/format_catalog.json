@@ -348,6 +348,9 @@
         "seeData": {
           "type": "boolean"
         },
+        "export": {
+          "type": "boolean"
+        },
         "copy": {
           "type": "boolean"
         },
@@ -420,7 +423,8 @@
                 "reset-filters",
                 "top",
                 "bookmark",
-                "back"
+                "back",
+                "export"
               ]
             },
             "tabId": {
@@ -430,6 +434,20 @@
             "bookmarkId": {
               "type": "string",
               "format": "bookmark"
+            },
+            "chartId": {
+              "type": "number",
+              "integer": true,
+              "min": 1
+            },
+            "exportFormat": {
+              "type": "enum",
+              "values": [
+                "csv",
+                "xlsx",
+                "full_csv",
+                "full_xlsx"
+              ]
             },
             "url": {
               "type": "string",
@@ -887,7 +905,8 @@
                 "reset-filters",
                 "top",
                 "bookmark",
-                "back"
+                "back",
+                "export"
               ]
             },
             "tabId": {
@@ -897,6 +916,20 @@
             "bookmarkId": {
               "type": "string",
               "format": "bookmark"
+            },
+            "chartId": {
+              "type": "number",
+              "integer": true,
+              "min": 1
+            },
+            "exportFormat": {
+              "type": "enum",
+              "values": [
+                "csv",
+                "xlsx",
+                "full_csv",
+                "full_xlsx"
+              ]
             },
             "url": {
               "type": "string",
@@ -1746,7 +1779,8 @@
                 "reset-filters",
                 "top",
                 "bookmark",
-                "back"
+                "back",
+                "export"
               ]
             },
             "tabId": {
@@ -1756,6 +1790,20 @@
             "bookmarkId": {
               "type": "string",
               "format": "bookmark"
+            },
+            "chartId": {
+              "type": "number",
+              "integer": true,
+              "min": 1
+            },
+            "exportFormat": {
+              "type": "enum",
+              "values": [
+                "csv",
+                "xlsx",
+                "full_csv",
+                "full_xlsx"
+              ]
             },
             "url": {
               "type": "string",
@@ -2076,7 +2124,8 @@
                 "reset-filters",
                 "top",
                 "bookmark",
-                "back"
+                "back",
+                "export"
               ]
             },
             "tabId": {
@@ -2086,6 +2135,20 @@
             "bookmarkId": {
               "type": "string",
               "format": "bookmark"
+            },
+            "chartId": {
+              "type": "number",
+              "integer": true,
+              "min": 1
+            },
+            "exportFormat": {
+              "type": "enum",
+              "values": [
+                "csv",
+                "xlsx",
+                "full_csv",
+                "full_xlsx"
+              ]
             },
             "url": {
               "type": "string",

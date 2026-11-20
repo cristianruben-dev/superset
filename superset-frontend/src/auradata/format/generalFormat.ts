@@ -114,10 +114,24 @@ const headerTooltip: Described<HeaderTooltipFormat> = {
 export const action: Described<ElementAction> = {
   type: {
     type: 'enum',
-    values: ['none', 'page', 'url', 'reset-filters', 'top', 'bookmark', 'back'],
+    values: [
+      'none',
+      'page',
+      'url',
+      'reset-filters',
+      'top',
+      'bookmark',
+      'back',
+      'export',
+    ],
   },
   tabId: { type: 'string', format: 'page' },
   bookmarkId: { type: 'string', format: 'bookmark' },
+  chartId: { type: 'number', integer: true, min: 1 },
+  exportFormat: {
+    type: 'enum',
+    values: ['csv', 'xlsx', 'full_csv', 'full_xlsx'],
+  },
   url: { type: 'string', format: 'url' },
   newTab: bool,
 };
@@ -265,6 +279,7 @@ export const GENERAL_FORMAT: Described<
       show: bool,
       focus: bool,
       seeData: bool,
+      export: bool,
       copy: bool,
       info: bool,
       warning: bool,

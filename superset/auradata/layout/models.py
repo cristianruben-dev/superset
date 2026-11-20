@@ -97,6 +97,7 @@ class HeaderFormat(LayoutModel):
     badges: bool | None = None
     focus: bool | None = None
     see_data: bool | None = None
+    export: bool | None = None
     copy_: bool | None = Field(None, alias="copy")
     info: bool | None = None
     warning: bool | None = None
@@ -110,9 +111,13 @@ class HeaderFormat(LayoutModel):
 
 
 class ElementAction(LayoutModel):
-    type: Literal["none", "page", "url", "reset-filters", "top", "bookmark", "back"]
+    type: Literal[
+        "none", "page", "url", "reset-filters", "top", "bookmark", "back", "export"
+    ]
     tab_id: str | None = None
     bookmark_id: str | None = None
+    chart_id: int | None = None
+    export_format: Literal["csv", "xlsx", "full_csv", "full_xlsx"] | None = None
     url: str | None = None
     new_tab: bool | None = None
 

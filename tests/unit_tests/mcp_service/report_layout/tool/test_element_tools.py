@@ -290,6 +290,59 @@ async def test_button_actions_name_pages_and_bookmarks(world: dict[str, Any]) ->
 
 
 @pytest.mark.asyncio
+async def test_button_exports_a_chart_of_the_report(world: dict[str, Any]) -> None:
+    button = ok(
+        await as_editor(
+            world,
+            "add_element",
+            kind="button",
+            settings={
+                "action": {"type": "export", "chart": "CHART-1", "format": "csv"}
+            },
+        )
+    )
+    assert button["element"]["action"] == {
+        "type": "export",
+        "chartId": world["chart"].id,
+        "exportFormat": "csv",
+    }
+    saved = layout(world)[button["object"]]["meta"]["auradataElement"]
+    assert saved["action"]["chartId"] == world["chart"].id
+    by_id = ok(
+        await as_editor(
+            world,
+            "update_element",
+            object=button["object"],
+            settings={"action": {"type": "export", "chartId": world["chart"].id}},
+        )
+    )
+    assert by_id["element"]["action"]["chartId"] == world["chart"].id
+    before = layout(world)
+    elsewhere = await as_editor(
+        world,
+        "update_element",
+        object=button["object"],
+        settings={"action": {"type": "export", "chartId": 987654}},
+    )
+    assert "no chart 987654" in elsewhere["error"]
+    not_a_chart = await as_editor(
+        world,
+        "update_element",
+        object=button["object"],
+        settings={"action": {"type": "export", "chart": button["object"]}},
+    )
+    assert "not a chart" in not_a_chart["error"]
+    bad_format = await as_editor(
+        world,
+        "update_element",
+        object=button["object"],
+        settings={"action": {"type": "export", "exportFormat": "pdf"}},
+    )
+    assert bad_format["error"]
+    assert layout(world) == before
+
+
+@pytest.mark.asyncio
 async def test_add_slicer_writes_the_filter_and_its_element(
     world: dict[str, Any],
 ) -> None:

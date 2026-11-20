@@ -21,11 +21,16 @@ import { useDispatch, useSelector } from 'react-redux';
 import { t } from '@apache-superset/core/translation';
 import { logging } from '@apache-superset/core/utils';
 import { css, styled, useTheme } from '@apache-superset/core/theme';
-import { getClientErrorObject } from '@superset-ui/core';
+import {
+  FeatureFlag,
+  getClientErrorObject,
+  isFeatureEnabled,
+} from '@superset-ui/core';
 import { Button, Input, Select, Switch } from '@superset-ui/core/components';
 import { Icons } from '@superset-ui/core/components/Icons';
 import { useToasts } from 'src/components/MessageToasts/withToasts';
 import type { RootState } from 'src/dashboard/types';
+import { CHART_TYPE } from 'src/dashboard/util/componentTypes';
 import { BoxSections } from 'src/auradata/format/BoxSections';
 import {
   ColorField,
@@ -51,6 +56,7 @@ import {
   type ElementAction,
   type ElementConfig,
   type ElementKind,
+  type ExportDataFormat,
   type Fill,
   type HoverEffect,
   type ImageElement,
@@ -154,18 +160,45 @@ const Row = styled.div`
 export function ActionFields({
   action,
   onChange,
+  defaultChartId,
 }: {
   action: ElementAction | undefined;
   onChange: (action: ElementAction) => void;
+  defaultChartId?: number;
 }) {
   const layout = useSelector(
     (state: RootState) => state.dashboardLayout.present,
   );
+  const slices = useSelector(
+    (state: RootState) => state.sliceEntities?.slices ?? {},
+  );
   const tabs = useMemo(() => topLevelTabs(layout), [layout]);
   const bookmarks = useMemo(() => bookmarksOf(layout), [layout]);
+  const chartOptions = useMemo(() => {
+    const seen = new Set<number>();
+    const options: { value: number; label: string }[] = [];
+    Object.values(layout).forEach(item => {
+      if (item.type !== CHART_TYPE) return;
+      const chartId = Number(item.meta?.chartId);
+      if (!Number.isFinite(chartId) || chartId <= 0 || seen.has(chartId)) {
+        return;
+      }
+      seen.add(chartId);
+      const label =
+        String(
+          item.meta?.sliceNameOverride ||
+            item.meta?.sliceName ||
+            slices[chartId]?.slice_name ||
+            '',
+        ).trim() || t('Chart %s', chartId);
+      options.push({ value: chartId, label });
+    });
+    return options;
+  }, [layout, slices]);
   const current = action ?? { type: 'none' as const };
   const urlInvalid =
     current.type === 'url' && !!current.url && !isSafeUrl(current.url);
+  const allowFull = isFeatureEnabled(FeatureFlag.AllowFullCsvExport);
   return (
     <Section>
       <h4>{t('On click')}</h4>
@@ -173,9 +206,20 @@ export function ActionFields({
         ariaLabel={t('On click')}
         value={current.type}
         data-test="auradata-element-action"
-        onChange={value =>
-          onChange({ ...current, type: value as ElementAction['type'] })
-        }
+        onChange={value => {
+          const nextType = value as ElementAction['type'];
+          onChange({
+            ...current,
+            type: nextType,
+            ...(nextType === 'export'
+              ? {
+                  chartId:
+                    current.chartId ?? defaultChartId ?? chartOptions[0]?.value,
+                  exportFormat: current.exportFormat ?? 'xlsx',
+                }
+              : {}),
+          });
+        }}
         options={[
           { value: 'none', label: t('Nothing') },
           ...(tabs.length
@@ -187,9 +231,51 @@ export function ActionFields({
           { value: 'back', label: t('Go back') },
           { value: 'url', label: t('Open a link') },
           { value: 'reset-filters', label: t('Reset the filters') },
+          ...(chartOptions.length || defaultChartId
+            ? [{ value: 'export', label: t('Export chart data') }]
+            : []),
           { value: 'top', label: t('Scroll to the top') },
         ]}
       />
+      {current.type === 'export' && (
+        <>
+          <Field label={t('Chart')} stacked>
+            <Select
+              ariaLabel={t('Chart to export')}
+              data-test="auradata-element-export-chart"
+              value={current.chartId ?? defaultChartId}
+              placeholder={t('Choose a chart')}
+              onChange={value =>
+                onChange({ ...current, chartId: Number(value) })
+              }
+              options={chartOptions}
+            />
+          </Field>
+          <Field label={t('Format')} stacked>
+            <Select
+              ariaLabel={t('Export format')}
+              data-test="auradata-element-export-format"
+              value={current.exportFormat ?? 'xlsx'}
+              onChange={value =>
+                onChange({
+                  ...current,
+                  exportFormat: value as ExportDataFormat,
+                })
+              }
+              options={[
+                { value: 'xlsx', label: t('Excel (.xlsx)') },
+                { value: 'csv', label: t('CSV (.csv)') },
+                ...(allowFull
+                  ? [
+                      { value: 'full_xlsx', label: t('Full Excel (.xlsx)') },
+                      { value: 'full_csv', label: t('Full CSV (.csv)') },
+                    ]
+                  : []),
+              ]}
+            />
+          </Field>
+        </>
+      )}
       {current.type === 'bookmark' && (
         <Select
           ariaLabel={t('Bookmark')}

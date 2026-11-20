@@ -65,6 +65,10 @@ from superset.mcp_service.report_layout.editing import (
     save_report,
     set_box,
 )
+from superset.mcp_service.report_layout.elements import (
+    report_charts,
+    resolve_export_action,
+)
 from superset.mcp_service.report_layout.format_schemas import (
     CopyFormatRequest,
     FormatOptionsResponse,
@@ -144,6 +148,7 @@ def _refs(report: Report) -> ReportRefs:
         pages=set(page_ids(report.layout)),
         bookmarks={b.get("id") for b in bookmarks if isinstance(b, dict)},
         tooltip_pages=set(tooltip_pages(report.layout)),
+        charts=report_charts(report),
     )
 
 
@@ -358,7 +363,10 @@ async def format_visual(request: FormatVisualRequest, ctx: Context) -> FormatRes
             clean = check_chart_patch(viz_type, request.level, request.patch)
             chart = replace_settings(chart, clean)
         else:
-            general, chart_patch = check_general_patch(request.patch, _refs(report))
+            patch = dict(request.patch)
+            if isinstance(patch.get("link"), dict) and "action" in patch["link"]:
+                patch["link"] = resolve_export_action(report, patch["link"])
+            general, chart_patch = check_general_patch(patch, _refs(report))
             if chart_patch and viz_type is None:
                 raise LayoutEditError(
                     f"{cid} is not a chart: tooltip and sampling are chart settings."
