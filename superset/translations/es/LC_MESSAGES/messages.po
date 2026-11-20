@@ -27845,3 +27845,17 @@ msgstr "Un día"
 
 msgid "Choose a day"
 msgstr "Elige un día"
+
+msgid "you do not have permission to edit this dashboard."
+msgstr "no tienes permiso para editar este tablero."
+
+msgid "this dashboard is unavailable or you no longer have access."
+msgstr "este tablero no está disponible o ya no tienes acceso."
+
+#, python-format
+msgid "Your filter changes were not saved: %s"
+msgstr "No se guardaron tus cambios en los filtros: %s"
+
+#, python-format
+msgid "Your display control changes were not saved: %s"
+msgstr "No se guardaron tus cambios en los controles de visualización: %s"
