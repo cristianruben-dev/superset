@@ -325,7 +325,9 @@ const SliceHeader = forwardRef<HTMLDivElement, SliceHeaderProps>(
           role={titleFormat?.heading ? 'heading' : undefined}
           aria-level={titleFormat?.heading}
         >
-          <Tooltip title={headerTooltip}>
+          {/* Below the title: above it sit the buttons of the chart
+              (ObjectActions), which this tooltip would cover */}
+          <Tooltip title={headerTooltip} placement="bottom">
             {/* this div ensures the hover event triggers correctly and prevents flickering */}
             <div>
               <EditableTitle
