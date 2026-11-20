@@ -442,7 +442,8 @@ def _check_object(
             key == "chartId"
             and (path == "action" or path.endswith(".action"))
             and refs.charts is not None
-            and isinstance(item, int)
+            # A whole number given as 12.0 is the same chart id as 12
+            and isinstance(item, (int, float))
             and not isinstance(item, bool)
             and item not in refs.charts
         ):

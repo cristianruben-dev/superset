@@ -16,8 +16,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { BinaryQueryObjectFilterClause } from '@superset-ui/core';
-import { HeatmapTransformedProps } from './types';
+import {
+  BinaryQueryObjectFilterClause,
+  DataRecordValue,
+} from '@superset-ui/core';
+import { HeatmapAxisDrill, HeatmapTransformedProps } from './types';
 import { EventHandlers } from '../types';
 import Echart from '../components/Echart';
 
@@ -33,6 +36,8 @@ export default function Heatmap(props: HeatmapTransformedProps) {
     yAxisColumnName,
     sortedXAxisValues,
     sortedYAxisValues,
+    xAxisDrill,
+    yAxisDrill,
   } = props;
 
   const eventHandlers: EventHandlers = {
@@ -47,22 +52,23 @@ export default function Heatmap(props: HeatmapTransformedProps) {
       const xVal = sortedXAxisValues[xIndex];
       const yVal = sortedYAxisValues[yIndex];
       const drillToDetail: BinaryQueryObjectFilterClause[] = [];
-      if (xAxisColumnName && xVal !== null && xVal !== undefined) {
+      const add = (
+        col: string,
+        val: DataRecordValue | undefined,
+        axis: HeatmapAxisDrill,
+      ) => {
+        if (!col || val === null || val === undefined) return;
         drillToDetail.push({
-          col: xAxisColumnName,
+          col,
           op: '==',
-          val: xVal as string | number | boolean,
-          formattedVal: String(xVal),
+          val: val as string | number | boolean,
+          formattedVal: axis.format(val as string | number),
+          // A date of a grain stands for its whole period
+          ...(axis.grain && { grain: axis.grain }),
         });
-      }
-      if (yAxisColumnName && yVal !== null && yVal !== undefined) {
-        drillToDetail.push({
-          col: yAxisColumnName,
-          op: '==',
-          val: yVal as string | number | boolean,
-          formattedVal: String(yVal),
-        });
-      }
+      };
+      add(xAxisColumnName, xVal, xAxisDrill);
+      add(yAxisColumnName, yVal, yAxisDrill);
       if (!drillToDetail.length) return;
       eventParams.event?.stop();
       onContextMenu(pointerEvent.clientX, pointerEvent.clientY, {

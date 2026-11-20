@@ -26,6 +26,7 @@ import {
   addAlpha,
   tooltipHtml,
   DataRecordValue,
+  TimeGranularity,
 } from '@superset-ui/core';
 import { logging } from '@apache-superset/core/utils';
 import { GenericDataType } from '@apache-superset/core/common';
@@ -225,6 +226,15 @@ export default function transformProps(
       return String(value);
     };
 
+  const axisDrill = (
+    colType: GenericDataType,
+    format: (value: number | string) => string,
+  ) => ({
+    format,
+    ...(colType === GenericDataType.Temporal && formData.timeGrainSqla
+      ? { grain: formData.timeGrainSqla as TimeGranularity }
+      : {}),
+  });
   const xAxisFormatter = getAxisFormatter(coltypes[0]);
   const yAxisFormatter = getAxisFormatter(coltypes[1]);
   const percentFormatter = getPercentFormatter(NumberFormats.PERCENT_2_POINT);
@@ -451,5 +461,7 @@ export default function transformProps(
     yAxisColumnName,
     sortedXAxisValues,
     sortedYAxisValues,
+    xAxisDrill: axisDrill(coltypes[0], xAxisFormatter),
+    yAxisDrill: axisDrill(coltypes[1], yAxisFormatter),
   };
 }

@@ -396,3 +396,43 @@ test('emits drill filters from formatted column headers', () => {
     ],
   });
 });
+
+// AuraData BI: the metric key is never a filter, wherever the layout puts it
+test.each([
+  [MetricsLayoutEnum.COLUMNS, true],
+  [MetricsLayoutEnum.ROWS, false],
+  [MetricsLayoutEnum.ROWS, true],
+])(
+  'drill filters of a value cell name every grouping column (metrics on %s, combined %s)',
+  (metricsLayout, combineMetric) => {
+    const onContextMenu = jest.fn();
+    const props = createProps({
+      data: toQueryData([{ country: 'US', shape: 'circle', value: 1 }], {
+        rows: ['country'],
+        columns: ['shape'],
+      }),
+      groupbyRows: ['country'],
+      groupbyColumns: ['shape'],
+      metricsLayout,
+      combineMetric,
+      onContextMenu,
+    });
+
+    const { container } = renderWithTheme(<PivotTableChart {...props} />);
+    fireEvent.contextMenu(container.querySelector('td.pvtVal')!);
+
+    const { drillToDetail } = onContextMenu.mock.calls[0][2];
+    expect(
+      drillToDetail.map(({ col, val }: { col: string; val: unknown }) => [
+        col,
+        val,
+      ]),
+    ).toEqual(
+      expect.arrayContaining([
+        ['shape', 'circle'],
+        ['country', 'US'],
+      ]),
+    );
+    expect(drillToDetail).toHaveLength(2);
+  },
+);

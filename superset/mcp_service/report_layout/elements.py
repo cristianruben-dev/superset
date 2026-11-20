@@ -109,11 +109,15 @@ def resolve_actions(report: Report, settings: dict[str, Any]) -> dict[str, Any]:
 def resolve_export_action(report: Report, settings: dict[str, Any]) -> dict[str, Any]:
     """Resolve the chart of an export action: ``chart`` (or a ``chartId`` given
     as an object reference) becomes the chart id, and ``format`` maps to
-    ``exportFormat``. Anything else of the action stays as it came."""
+    ``exportFormat``. An action of another type stays as it came, so the patch
+    check refuses those keys there."""
     action = settings.get("action")
-    if not isinstance(action, dict):
+    if not isinstance(action, dict) or action.get("type", "export") != "export":
         return settings
     action = dict(action)
+    chart_number = action.get("chartId")
+    if isinstance(chart_number, float) and chart_number.is_integer():
+        action["chartId"] = int(chart_number)
     fmt = action.pop("format", None)
     if fmt is not None and "exportFormat" not in action:
         action["exportFormat"] = fmt

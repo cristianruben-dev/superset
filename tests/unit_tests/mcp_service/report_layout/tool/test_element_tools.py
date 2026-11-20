@@ -616,3 +616,37 @@ async def test_element_options_list_settings_and_defaults(
     assert result["element"]["defaults"]["width"] == 10
     button = ok(await call("get_format_options", {"element": "button"}))
     assert button["element"]["settings"]["action"]["type"] == "object"
+
+
+@pytest.mark.asyncio
+async def test_export_keys_belong_to_export_actions(world: dict[str, Any]) -> None:
+    button = ok(
+        await as_editor(
+            world,
+            "add_element",
+            kind="button",
+            settings={
+                "action": {"type": "export", "chartId": float(world["chart"].id)}
+            },
+        )
+    )
+    # A chart id written as a whole float is the same chart
+    assert button["element"]["action"]["chartId"] == world["chart"].id
+    assert isinstance(button["element"]["action"]["chartId"], int)
+    before = layout(world)
+    elsewhere = await as_editor(
+        world,
+        "update_element",
+        object=button["object"],
+        settings={"action": {"type": "export", "chartId": 987654.0}},
+    )
+    assert "no chart 987654" in elsewhere["error"]
+    # A link to the top of the page has no export format
+    stray = await as_editor(
+        world,
+        "update_element",
+        object=button["object"],
+        settings={"action": {"type": "top", "format": "csv"}},
+    )
+    assert "format" in stray["error"]
+    assert layout(world) == before

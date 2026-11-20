@@ -22,6 +22,7 @@ import {
   QueryFormColumn,
   QueryFormData,
   QueryFormMetric,
+  TimeGranularity,
   RgbaColor,
 } from '@superset-ui/core';
 import { BaseChartProps, BaseTransformedProps } from '../types';
@@ -60,4 +61,13 @@ export type HeatmapTransformedProps = BaseTransformedProps<HeatmapFormData> & {
   yAxisColumnName: string;
   sortedXAxisValues: DataRecordValue[];
   sortedYAxisValues: DataRecordValue[];
+  /** How a value of each axis names itself in drill filters */
+  xAxisDrill: HeatmapAxisDrill;
+  yAxisDrill: HeatmapAxisDrill;
 };
+
+export interface HeatmapAxisDrill {
+  /** The time grain of a date axis, so a filter takes its whole period */
+  grain?: TimeGranularity;
+  format: (value: string | number) => string;
+}
