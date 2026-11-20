@@ -332,6 +332,23 @@ test('Should render click to edit prompt and run onExploreChart on click', async
   expect(history.location.pathname).toBe('/superset/dashboard/1/');
 });
 
+test('the click to edit prompt shows below the title, off the chart buttons', async () => {
+  const props = createProps();
+  render(
+    <Router history={createMemoryHistory()}>
+      <SliceHeader {...props} />
+    </Router>,
+    { useRedux: true, initialState },
+  );
+  userEvent.hover(screen.getByText('Vaccine Candidates per Phase'));
+  const prompt = await screen.findByText(
+    'Click to edit Vaccine Candidates per Phase.',
+  );
+  expect(prompt.closest('.ant-tooltip')).toHaveClass(
+    'ant-tooltip-placement-bottom',
+  );
+});
+
 test('Should not render click to edit prompt and run onExploreChart on click if supersetCanExplore=false', () => {
   const props = createProps({ supersetCanExplore: false });
   const history = createMemoryHistory({

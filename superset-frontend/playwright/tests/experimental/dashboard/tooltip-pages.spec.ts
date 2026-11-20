@@ -48,7 +48,16 @@ const SALARY = {
 
 type Chart = { name: string; vizType: string; params: Record<string, unknown> };
 
-async function createReport(page: Page, testAssets: TestAssets) {
+/**
+ * A report with a roster, a matrix, a heatmap and an export button. With
+ * ``stacked`` the matrix sits right above the roster, touching it as objects
+ * do on the grid, so the way to the roster's buttons crosses the matrix.
+ */
+async function createReport(
+  page: Page,
+  testAssets: TestAssets,
+  { stacked = false }: { stacked?: boolean } = {},
+) {
   const databaseName = process.env.PLAYWRIGHT_DATABASE || 'examples';
   const database = await getDatabaseByName(page, databaseName);
   expect(database?.id, `${databaseName} database`).toBeTruthy();
@@ -192,7 +201,7 @@ async function createReport(page: Page, testAssets: TestAssets) {
       'CHART-roster',
       pageA,
       roster,
-      { x: 1, y: 1 },
+      stacked ? { x: 1, y: 10 } : { x: 1, y: 1 },
       { width: 18, height: 10 },
       { header: { export: true } },
     ),
@@ -200,7 +209,7 @@ async function createReport(page: Page, testAssets: TestAssets) {
       'CHART-matrix',
       pageA,
       matrix,
-      { x: 20, y: 1 },
+      stacked ? { x: 1, y: 0 } : { x: 20, y: 1 },
       { width: 18, height: 10 },
     ),
     'CHART-heat': chart(
@@ -219,7 +228,7 @@ async function createReport(page: Page, testAssets: TestAssets) {
         componentKey: 'auradata-button',
         width: 8,
         height: 2,
-        auradataPos: { x: 1, y: 13 },
+        auradataPos: stacked ? { x: 1, y: 22 } : { x: 1, y: 13 },
         auradataElement: {
           kind: 'button',
           label: 'Download employees',
@@ -377,4 +386,103 @@ test('the export icon and an export button download the chart data', async ({
   ).readFile((await buttonFile.path())!, 'utf8');
   expect(contents).toContain('Luis Gómez');
   expect(contents).toContain('Marta Díaz');
+});
+
+async function glide(page: Page, x: number, y: number) {
+  await page.mouse.move(x, y, { steps: 1 });
+}
+
+/**
+ * Moves the pointer as a person does: a few pixels at a time, so it touches
+ * whatever lies on the way (each move already takes a while to dispatch).
+ */
+async function glideFrom(
+  page: Page,
+  from: { x: number; y: number },
+  to: { x: number; y: number },
+) {
+  const steps = Math.max(
+    1,
+    Math.ceil(Math.hypot(to.x - from.x, to.y - from.y) / 6),
+  );
+  for (let step = 1; step <= steps; step += 1) {
+    await glide(
+      page,
+      from.x + ((to.x - from.x) * step) / steps,
+      from.y + ((to.y - from.y) * step) / steps,
+    );
+  }
+}
+
+const centerOf = (box: {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}) => ({
+  x: box.x + box.width / 2,
+  y: box.y + box.height / 2,
+});
+
+test('the export icon stays while the pointer crosses the next object to reach it', async ({
+  page,
+  testAssets,
+}) => {
+  test.setTimeout(120_000);
+  const { dashboardId, roster, matrix } = await createReport(page, testAssets, {
+    stacked: true,
+  });
+  await page.goto(`dashboard/${dashboardId}/`);
+  const rosterChart = page.locator(`[data-test-chart-id="${roster}"]`);
+  await expect(rosterChart.getByText('Luis Gómez')).toBeVisible({
+    timeout: TIMEOUT.API_RESPONSE,
+  });
+  const matrixChart = page.locator(`[data-test-chart-id="${matrix}"]`);
+  await expect(matrixChart.locator('th.pvtRowLabel').first()).toBeVisible({
+    timeout: TIMEOUT.API_RESPONSE,
+  });
+
+  // The pointer rests on the roster, then travels to its export icon, which
+  // sits above it, over the matrix
+  const start = centerOf((await rosterChart.boundingBox())!);
+  await glide(page, start.x, start.y);
+  const icon = page.getByTestId('auradata-header-export');
+  await expect(icon).toBeVisible();
+  const iconAt = centerOf((await icon.boundingBox())!);
+  const matrixBox = (await matrixChart.boundingBox())!;
+  expect(iconAt.y, 'the icon sits over the matrix').toBeLessThan(
+    matrixBox.y + matrixBox.height,
+  );
+  // Up past the edge of the roster, next to the bar and so over the matrix,
+  // then right into the bar
+  const bar = (await page
+    .locator('.auradata-object-actions', { has: icon })
+    .boundingBox())!;
+  const corner = { x: bar.x - 6, y: bar.y + bar.height - 4 };
+  await glideFrom(page, start, corner);
+  await glideFrom(page, corner, iconAt);
+  await expect(icon).toBeVisible();
+  await page.mouse.down();
+  await page.mouse.up();
+  const item = page.getByText('Export to .CSV');
+  await expect(item).toBeVisible();
+  await page.screenshot({
+    path: test.info().outputPath('export-icon-reached.png'),
+  });
+
+  // On the way to an item of its menu the bar stays, and so does the menu
+  const itemAt = centerOf((await item.boundingBox())!);
+  await glideFrom(page, iconAt, itemAt);
+  await expect(icon).toBeVisible();
+  const csv = page.waitForEvent('download', {
+    timeout: TIMEOUT.API_RESPONSE * 2,
+  });
+  await page.mouse.down();
+  await page.mouse.up();
+  expect((await csv).suggestedFilename()).toMatch(/\.csv$/);
+
+  // Resting on the matrix moves the buttons to it
+  const matrixAt = centerOf(matrixBox);
+  await glideFrom(page, itemAt, matrixAt);
+  await expect(icon).toBeHidden();
 });

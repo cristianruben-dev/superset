@@ -38,6 +38,11 @@ import { selectedVisual, selectedVisuals } from './selection';
 const GAP = 4;
 /** Time to reach the buttons from the object before they go away. */
 const LEAVE_DELAY = 200;
+/**
+ * Time on another object before it takes the buttons: the way to them may
+ * cross it, as objects touch on the grid and the bar sits over the next one.
+ */
+const SWITCH_DELAY = 400;
 /** A menu or list opened from the bar keeps it on screen while it is open. */
 const OPEN_POPUP =
   '.ant-dropdown-open, .ant-popover-open, [aria-expanded="true"]';
@@ -157,12 +162,56 @@ export function ObjectActionButton({
 // The object under the pointer, shared so that only one set of buttons shows
 let hovered: string | null = null;
 const listeners = new Set<() => void>();
+// The bar of each object, to know whether one of its menus is open
+const bars = new Map<string, HTMLElement>();
+// Another object the pointer entered while the buttons of one were showing
+let pending: { id: string; timer: number } | null = null;
 
 const setHovered = (id: string | null) => {
   if (hovered !== id) {
     hovered = id;
     listeners.forEach(listener => listener());
   }
+};
+
+const hasOpenPopup = (id: string | null): boolean =>
+  Boolean(id && bars.get(id)?.querySelector(OPEN_POPUP));
+
+const cancelPending = () => {
+  if (pending) window.clearTimeout(pending.timer);
+  pending = null;
+};
+
+/**
+ * The pointer entered object ``id``. With the buttons of another one showing,
+ * it takes them only if it stays a moment (SWITCH_DELAY), and never while a
+ * menu of theirs is open.
+ */
+const hoverObject = (id: string) => {
+  cancelPending();
+  if (hovered === null || hovered === id) {
+    setHovered(id);
+    return;
+  }
+  const wait = () => {
+    pending = {
+      id,
+      timer: window.setTimeout(() => {
+        if (hasOpenPopup(hovered)) {
+          wait();
+        } else {
+          pending = null;
+          setHovered(id);
+        }
+      }, SWITCH_DELAY),
+    };
+  };
+  wait();
+};
+
+/** The pointer left object ``id`` before it took the buttons. */
+const unhoverObject = (id: string) => {
+  if (pending?.id === id) cancelPending();
 };
 
 const isObjectActionsOpen = (id: string): boolean =>
@@ -258,17 +307,32 @@ export const ObjectActions = memo(function ObjectActions({
     [id],
   );
 
-  // Leaves the object, unless a menu of the bar is open: its list lives
-  // elsewhere in the page, and closing the bar would orphan it
+  useEffect(() => {
+    const bar = barRef.current;
+    if (!bar) return undefined;
+    bars.set(id, bar);
+    return () => {
+      if (bars.get(id) === bar) bars.delete(id);
+    };
+  }, [id]);
+
+  // Leaves the object, unless a menu of the bar is open (its list lives
+  // elsewhere in the page, and closing the bar would orphan it) or the
+  // pointer is on another object that has not taken the buttons yet
   const leaveSoon = () => {
     window.clearTimeout(leaveTimer.current);
     leaveTimer.current = window.setTimeout(() => {
-      if (barRef.current?.querySelector(OPEN_POPUP)) {
+      if (hasOpenPopup(id) || (hovered === id && pending)) {
         leaveSoon();
       } else if (hovered === id) {
         setHovered(null);
       }
     }, LEAVE_DELAY);
+  };
+
+  const enter = () => {
+    window.clearTimeout(leaveTimer.current);
+    hoverObject(id);
   };
 
   useEffect(() => {
@@ -277,16 +341,17 @@ export const ObjectActions = memo(function ObjectActions({
     );
     if (!element) return undefined;
     holderRef.current = element;
-    const enter = () => {
-      window.clearTimeout(leaveTimer.current);
-      setHovered(id);
+    const leave = () => {
+      unhoverObject(id);
+      leaveSoon();
     };
     element.addEventListener('pointerenter', enter);
-    element.addEventListener('pointerleave', leaveSoon);
+    element.addEventListener('pointerleave', leave);
     return () => {
       element.removeEventListener('pointerenter', enter);
-      element.removeEventListener('pointerleave', leaveSoon);
+      element.removeEventListener('pointerleave', leave);
       window.clearTimeout(leaveTimer.current);
+      unhoverObject(id);
       if (hovered === id) setHovered(null);
     };
   }, [id]);
@@ -331,10 +396,7 @@ export const ObjectActions = memo(function ObjectActions({
           ref={barRef}
           className="auradata-object-actions"
           style={{ visibility: 'hidden' }}
-          onPointerEnter={() => {
-            window.clearTimeout(leaveTimer.current);
-            setHovered(id);
-          }}
+          onPointerEnter={enter}
           onPointerLeave={leaveSoon}
           onPointerDown={stop}
           onMouseDown={stop}
