@@ -79,10 +79,14 @@ export function tooltipPages(layout: DashboardLayout): TooltipTarget[] {
 
 const DIMENSION_KEYS = [
   'x_axis',
+  'y_axis',
   'groupby',
+  'all_columns',
   'columns',
   'series',
   'entity',
+  'source',
+  'target',
   'granularity_sqla',
   'groupbyColumns',
   'groupbyRows',
@@ -99,6 +103,12 @@ export function chartDimensions(
       if (typeof item === 'string' && item) names.add(item);
     });
   });
+  if (formData?.viz_type === 'tree_chart') {
+    ['id', 'name'].forEach(key => {
+      const item = formData[key];
+      if (typeof item === 'string' && item) names.add(item);
+    });
+  }
   return [...names];
 }
 
@@ -233,6 +243,13 @@ export function grainRange(value: unknown, grain: string): string | undefined {
 
 /** The filter of one value of a mark: equal to it, or within its period. */
 function markFilter(field: DrillthroughField) {
+  if (field.temporalRange) {
+    return {
+      col: field.column,
+      op: 'TEMPORAL_RANGE' as const,
+      val: field.temporalRange,
+    };
+  }
   const range = field.grain ? grainRange(field.value, field.grain) : undefined;
   if (field.grain) {
     return range

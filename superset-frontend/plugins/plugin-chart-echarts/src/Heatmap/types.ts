@@ -18,6 +18,7 @@
  */
 import {
   Currency,
+  DataRecordValue,
   QueryFormColumn,
   QueryFormData,
   QueryFormMetric,
@@ -54,4 +55,9 @@ export interface HeatmapChartProps extends BaseChartProps<HeatmapFormData> {
   formData: HeatmapFormData;
 }
 
-export type HeatmapTransformedProps = BaseTransformedProps<HeatmapFormData>;
+export type HeatmapTransformedProps = BaseTransformedProps<HeatmapFormData> & {
+  xAxisColumnName: string;
+  yAxisColumnName: string;
+  sortedXAxisValues: DataRecordValue[];
+  sortedYAxisValues: DataRecordValue[];
+};

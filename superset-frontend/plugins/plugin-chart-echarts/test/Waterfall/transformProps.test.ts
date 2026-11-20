@@ -251,3 +251,26 @@ test('a period keeps its largest breakdowns and adds the rest up', () => {
   // The rest keeps its sum, so the total of the period stays -9 + 2 + 4
   expect(extractSeries(transformedProps)[3]).toEqual(['-', '-', -3]);
 });
+
+// AuraData BI: what a bar of the waterfall tells drill to detail and tooltip pages
+test('each bar names its period and breakdown, totals name nothing', () => {
+  const chartProps = new ChartProps({
+    formData: { ...formData, groupby: 'name' },
+    width: 800,
+    height: 600,
+    queriesData: [{ data }],
+    theme: supersetTheme,
+  });
+  const { drillTargets, echartOptions } = transformProps(
+    chartProps as unknown as EchartsWaterfallChartProps,
+  );
+  const { xAxis } = echartOptions as unknown as { xAxis: { data: unknown[] } };
+  // One entry per bar of the x axis, in the same order
+  expect(drillTargets).toHaveLength(xAxis.data.length);
+  expect(drillTargets?.[0]).toEqual([
+    expect.objectContaining({ col: 'year', val: '2019' }),
+    expect.objectContaining({ col: 'name', val: 'Sylvester' }),
+  ]);
+  const total = drillTargets?.[drillTargets.length - 1] ?? [];
+  expect(total.some(target => target.col === 'name')).toBe(false);
+});

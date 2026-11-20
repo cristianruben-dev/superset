@@ -158,7 +158,7 @@ export default function transformProps(chartProps: EchartsGanttChartProps) {
     ...formData,
   };
 
-  const { setControlValue, onLegendStateChanged } = hooks;
+  const { setControlValue, onLegendStateChanged, onContextMenu } = hooks;
 
   const { data = [], colnames = [], coltypes = [] } = queriesData[0];
   const refs: Refs = {};
@@ -547,5 +547,6 @@ export default function transformProps(chartProps: EchartsGanttChartProps) {
     refs,
     setControlValue,
     onLegendStateChanged,
+    onContextMenu,
   };
 }

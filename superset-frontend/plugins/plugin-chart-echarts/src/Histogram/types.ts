@@ -16,7 +16,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { QueryFormColumn, QueryFormData } from '@superset-ui/core';
+import {
+  DataRecordValue,
+  QueryFormColumn,
+  QueryFormData,
+} from '@superset-ui/core';
 import { BaseChartProps, BaseTransformedProps } from '../types';
 
 export type HistogramFormData = QueryFormData & {
@@ -41,4 +45,6 @@ export interface HistogramChartProps extends BaseChartProps<HistogramFormData> {
 export type HistogramTransformedProps =
   BaseTransformedProps<HistogramFormData> & {
     onFocusedSeries: (index: number | undefined) => void;
+    groupby: QueryFormColumn[];
+    labelMap: Record<string, DataRecordValue[]>;
   };

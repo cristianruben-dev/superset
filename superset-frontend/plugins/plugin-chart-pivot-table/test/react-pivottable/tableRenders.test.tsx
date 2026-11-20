@@ -1373,3 +1373,40 @@ test('a value cell outside a tooltip page does nothing on hover', () => {
   fireEvent.mouseEnter(document.querySelector<HTMLElement>('td.pvtVal')!);
   expect(onContextMenu).not.toHaveBeenCalled();
 });
+
+test('row headers and totals under a tooltip page tell the report their keys', () => {
+  const onContextMenu = jest.fn();
+  const { container } = renderWithTheme(
+    <div data-auradata-tooltip-page="TAB-1">
+      <TableRenderer
+        {...buildDefaultProps({
+          onContextMenu,
+          tableOptions: { rowTotals: true, colTotals: true },
+        })}
+      />
+    </div>,
+  );
+
+  const rowHeader = container.querySelector<HTMLElement>('th.pvtRowLabel')!;
+  fireEvent.mouseEnter(rowHeader);
+  const [, headerCol, headerRow] = onContextMenu.mock.calls[0] as unknown[];
+  expect(headerCol).toBeUndefined();
+  expect(headerRow).toEqual(['blue']);
+
+  const rowTotal = container.querySelector<HTMLElement>('td.pvtTotal')!;
+  fireEvent.mouseEnter(rowTotal);
+  expect(onContextMenu).toHaveBeenCalledTimes(2);
+  const [, totalCol, totalRow] = onContextMenu.mock.calls[1] as unknown[];
+  expect(totalCol).toBeUndefined();
+  expect(totalRow).toEqual(['blue']);
+});
+
+test('row headers outside a tooltip page do nothing on hover', () => {
+  const onContextMenu = jest.fn();
+  const { container } = renderWithTheme(
+    <TableRenderer {...buildDefaultProps({ onContextMenu })} />,
+  );
+
+  fireEvent.mouseEnter(container.querySelector<HTMLElement>('th.pvtRowLabel')!);
+  expect(onContextMenu).not.toHaveBeenCalled();
+});

@@ -23,6 +23,7 @@ import type { CallbackDataParams } from 'echarts/types/src/util/types';
 import { isEmpty } from 'lodash-es';
 import {
   CategoricalColorNamespace,
+  DataRecordValue,
   NumberFormats,
   getColumnLabel,
   getValueFormatter,
@@ -51,7 +52,7 @@ export default function transformProps(
     theme,
     width,
   } = chartProps;
-  const { onLegendStateChanged } = hooks;
+  const { onLegendStateChanged, onContextMenu } = hooks;
   const {
     colorScheme,
     column,
@@ -87,11 +88,15 @@ export default function transformProps(
       const array = key.split(' - ').map(value => parseFloat(value));
       return `${xAxisFormatter(array[0])} - ${xAxisFormatter(array[1])}`;
     });
+  const labelMap: Record<string, DataRecordValue[]> = {};
   const barSeries: BarSeriesOption[] = data.map(datum => {
     const seriesName =
       groupby.length > 0
         ? groupby.map(key => datum[getColumnLabel(key)]).join(', ')
         : getColumnLabel(column);
+    if (groupby.length > 0) {
+      labelMap[seriesName] = groupby.map(key => datum[getColumnLabel(key)]);
+    }
     const seriesData = Object.keys(datum)
       .filter(key => groupbySet.has(key) === false)
       .map(key => datum[key] as number);
@@ -208,5 +213,8 @@ export default function transformProps(
     echartOptions,
     onFocusedSeries,
     onLegendStateChanged,
+    onContextMenu,
+    groupby,
+    labelMap,
   };
 }

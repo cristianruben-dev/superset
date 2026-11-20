@@ -3679,3 +3679,56 @@ test('the header shows the sort saved from the dashboard until a viewer sorts', 
   fireEvent.click(header('name'));
   expect(iconPath(header('sum__num'))).toBe(unsortedPath);
 });
+
+// AuraData BI: tooltip pages over the rows of a raw records table
+test('a raw records row under a tooltip page tells the report all its values', () => {
+  const onContextMenu = jest.fn();
+  const props = transformProps({
+    ...testData.raw,
+    rawFormData: { ...testData.raw.rawFormData },
+    hooks: { onAddFilter: jest.fn(), onContextMenu, setDataMask: jest.fn() },
+  });
+  render(
+    <ProviderWrapper>
+      <div data-auradata-tooltip-page="TAB-1">
+        <TableChart {...props} sticky={false} />
+      </div>
+    </ProviderWrapper>,
+  );
+
+  const cell = screen.getAllByRole('rowgroup')[1].querySelectorAll('td')[0];
+  const title = cell.getAttribute('title');
+  fireEvent.mouseEnter(cell);
+  expect(onContextMenu).toHaveBeenCalledTimes(1);
+  const [, , { drillToDetail }] = onContextMenu.mock.calls[0];
+  expect(drillToDetail).toEqual([
+    expect.objectContaining({ col: 'num', op: '==', val: 1234 }),
+  ]);
+  // The browser's own tooltip of the cell waits while the page shows
+  expect(cell.hasAttribute('title')).toBe(false);
+  fireEvent.mouseLeave(cell);
+  expect(cell.getAttribute('title')).toBe(title);
+
+  // A raw table still has no context menu of its own
+  fireEvent.contextMenu(cell);
+  expect(onContextMenu).toHaveBeenCalledTimes(1);
+});
+
+test('a raw records row outside a tooltip page does nothing on hover', () => {
+  const onContextMenu = jest.fn();
+  const props = transformProps({
+    ...testData.raw,
+    rawFormData: { ...testData.raw.rawFormData },
+    hooks: { onAddFilter: jest.fn(), onContextMenu, setDataMask: jest.fn() },
+  });
+  render(
+    <ProviderWrapper>
+      <TableChart {...props} sticky={false} />
+    </ProviderWrapper>,
+  );
+
+  fireEvent.mouseEnter(
+    screen.getAllByRole('rowgroup')[1].querySelectorAll('td')[0],
+  );
+  expect(onContextMenu).not.toHaveBeenCalled();
+});

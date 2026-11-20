@@ -40,7 +40,7 @@ export default function transformProps(
 ): SankeyTransformedProps {
   const refs: Refs = {};
   const { formData, height, hooks, queriesData, width, theme } = chartProps;
-  const { onLegendStateChanged } = hooks;
+  const { onLegendStateChanged, onContextMenu } = hooks;
   const { colorScheme, metric, source, target, sliceId } = formData;
   const { data } = queriesData[0];
   const colorFn = CategoricalColorNamespace.getScale(colorScheme);
@@ -50,12 +50,16 @@ export default function transformProps(
 
   const links: Link[] = [];
   const set = new Set<string>();
+  const sourceSet = new Set<string>();
+  const targetSet = new Set<string>();
   data.forEach(datum => {
     const sourceName = String(datum[getColumnLabel(source)]);
     const targetName = String(datum[getColumnLabel(target)]);
     const value = datum[metricLabel] as number;
     set.add(sourceName);
     set.add(targetName);
+    sourceSet.add(sourceName);
+    targetSet.add(targetName);
     links.push({
       source: sourceName,
       target: targetName,
@@ -139,5 +143,8 @@ export default function transformProps(
     height,
     echartOptions,
     onLegendStateChanged,
+    onContextMenu,
+    sourceNodes: Array.from(sourceSet),
+    targetNodes: Array.from(targetSet),
   };
 }

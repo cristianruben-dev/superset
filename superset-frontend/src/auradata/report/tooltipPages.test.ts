@@ -18,6 +18,7 @@
  */
 import type { QueryFormData } from '@superset-ui/core';
 import type { DashboardLayout } from 'src/dashboard/types';
+import { pointFields } from 'src/auradata/report/drillthroughScope';
 import { isHiddenPage, topLevelTabs } from 'src/auradata/present/dashboardTabs';
 import {
   chartDimensions,
@@ -164,6 +165,65 @@ test('the dimensions of a chart come from its grouping keys', () => {
     }),
   ).toEqual(['year', 'region']);
   expect(chartDimensions(undefined)).toEqual([]);
+});
+
+test('raw tables, flows, heatmaps and trees name the columns of their marks', () => {
+  expect(
+    chartDimensions({
+      query_mode: 'raw',
+      all_columns: ['employee_id', 'name'],
+    }),
+  ).toEqual(['employee_id', 'name']);
+  expect(chartDimensions({ source: 'origin', target: 'destination' })).toEqual([
+    'origin',
+    'destination',
+  ]);
+  expect(chartDimensions({ x_axis: 'day', y_axis: 'hour' })).toEqual([
+    'day',
+    'hour',
+  ]);
+  expect(
+    chartDimensions({ viz_type: 'tree_chart', id: 'node_id', name: 'label' }),
+  ).toEqual(['node_id', 'label']);
+  // Another chart's id and name settings are not columns of its marks
+  expect(chartDimensions({ viz_type: 'pie', id: 'x', name: 'y' })).toEqual([]);
+});
+
+test('a table date of a grain keeps its period, other clauses keep equality', () => {
+  const fields = pointFields([
+    {
+      col: 'hired',
+      op: 'TEMPORAL_RANGE',
+      val: '2024-01-01T00:00:00.000Z : 2024-02-01T00:00:00.000Z',
+      grain: 'P1M',
+      formattedVal: 'January 2024',
+    },
+    { col: 'name', op: '==', val: 'Ana', formattedVal: 'Ana' },
+    { col: 'name', op: '==', val: 'Ignored repeat' },
+    { col: 'manager', op: 'IS NULL', val: null },
+    { col: 'empty', op: 'TEMPORAL_RANGE', val: '' },
+  ] as never);
+  expect(fields).toEqual([
+    {
+      column: 'hired',
+      value: '2024-01-01T00:00:00.000Z : 2024-02-01T00:00:00.000Z',
+      label: 'January 2024',
+      temporalRange: '2024-01-01T00:00:00.000Z : 2024-02-01T00:00:00.000Z',
+      grain: 'P1M',
+    },
+    { column: 'name', value: 'Ana', label: 'Ana' },
+  ]);
+  expect(
+    withMarkFilters({ viz_type: 'pie' } as QueryFormData, fields)
+      .extra_form_data?.filters,
+  ).toEqual([
+    {
+      col: 'hired',
+      op: 'TEMPORAL_RANGE',
+      val: '2024-01-01T00:00:00.000Z : 2024-02-01T00:00:00.000Z',
+    },
+    { col: 'name', op: 'IN', val: ['Ana'] },
+  ]);
 });
 
 test('a chart shows the page it names, or the best match on Auto', () => {

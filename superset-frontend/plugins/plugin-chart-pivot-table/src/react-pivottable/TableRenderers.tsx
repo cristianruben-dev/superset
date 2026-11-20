@@ -1309,6 +1309,12 @@ export function TableRenderer(props: TableRendererProps) {
                 tableOptions.clickColumnHeaderCallback,
               )}
               onContextMenu={handleContextMenu}
+              onMouseEnter={
+                handleContextMenu
+                  ? e => hoverCell(e, colKey.slice(0, attrIdx + 1), undefined)
+                  : undefined
+              }
+              onMouseLeave={handleContextMenu ? leaveCell : undefined}
             >
               {displayHeaderCell(
                 needToggle,
@@ -1397,6 +1403,8 @@ export function TableRenderer(props: TableRendererProps) {
       tableOptions,
       tableFormat,
       columnConfig,
+      hoverCell,
+      leaveCell,
       onContextMenu,
       collapseAttr,
       expandAttr,
@@ -1599,6 +1607,12 @@ export function TableRenderer(props: TableRendererProps) {
                 tableOptions.clickRowHeaderCallback,
               )}
               onContextMenu={handleContextMenu}
+              onMouseEnter={
+                handleContextMenu
+                  ? e => hoverCell(e, undefined, rowKey.slice(0, i + 1))
+                  : undefined
+              }
+              onMouseLeave={handleContextMenu ? leaveCell : undefined}
             >
               {displayHeaderCell(
                 needRowToggle,
@@ -1758,6 +1772,8 @@ export function TableRenderer(props: TableRendererProps) {
             style={getTableColumnStyle(config, 'total')}
             onClick={rowTotalCallbacks[flatRowKey]}
             onContextMenu={e => onContextMenu(e, undefined, rowKey)}
+            onMouseEnter={e => hoverCell(e, undefined, rowKey)}
+            onMouseLeave={leaveCell}
           >
             {renderValue(
               aggValue,
@@ -1934,6 +1950,8 @@ export function TableRenderer(props: TableRendererProps) {
             key={`total-${flatColKey}`}
             onClick={colTotalCallbacks[flatColKey]}
             onContextMenu={e => onContextMenu(e, colKey, undefined)}
+            onMouseEnter={e => hoverCell(e, colKey, undefined)}
+            onMouseLeave={leaveCell}
             style={{ padding: '5px', ...getTableColumnStyle(config, 'total') }}
           >
             {renderValue(
@@ -1975,6 +1993,8 @@ export function TableRenderer(props: TableRendererProps) {
       clickHeaderHandler,
       rows,
       tableOptions.clickRowHeaderCallback,
+      hoverCell,
+      leaveCell,
       onContextMenu,
       allowRenderHtml,
       columnConfig,
