@@ -74,7 +74,9 @@ import {
 import {
   chartDimensions,
   isLessPrecise,
+  markColumns,
   markKey,
+  pageTakesMark,
   QUERY_ABORTED,
   resolveTooltipPage,
   tooltipObjects,
@@ -86,7 +88,7 @@ import {
   type TooltipObject,
 } from './tooltipPages';
 import { ReportTheme } from './ReportTheme';
-import { PAGE_BACKGROUND_KEY } from './types';
+import { PAGE_BACKGROUND_KEY, type TooltipPage } from './types';
 
 /** Time on a mark before its page is asked for, and off it before it goes. */
 const SHOW_DELAY = 250;
@@ -130,6 +132,7 @@ export function tooltipChartFormData(
   componentId: string,
   chartId: number,
   fields: DrillthroughField[],
+  page?: TooltipPage,
 ): QueryFormData | undefined {
   const chart = state.charts[chartId];
   if (!chart?.form_data) return undefined;
@@ -162,7 +165,7 @@ export function tooltipChartFormData(
   return withMarkFilters(
     { ...base, dashboardId: state.dashboardInfo.id },
     fields,
-    datasetColumns(state, chartId),
+    markColumns(datasetColumns(state, chartId), page),
   );
 }
 
@@ -243,18 +246,21 @@ const Centered = styled.div`
 const TooltipChart = memo(function TooltipChart({
   object,
   fields,
+  page,
 }: {
   object: TooltipObject;
   fields: DrillthroughField[];
+  page: TooltipPage;
 }) {
   const theme = useTheme();
   const store = useStore<RootState>();
   const dataMask = useSelector((state: RootState) => state.dataMask);
   const chartId = object.chartId ?? 0;
   const formData = useMemo(
-    () => tooltipChartFormData(store.getState(), object.id, chartId, fields),
+    () =>
+      tooltipChartFormData(store.getState(), object.id, chartId, fields, page),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [store, object.id, chartId, fields, dataMask],
+    [store, object.id, chartId, fields, page, dataMask],
   );
   const datasource = useSelector((state: RootState) =>
     formData?.datasource ? state.datasources[formData.datasource] : undefined,
@@ -426,7 +432,10 @@ function TooltipPageView({
     (state: RootState) => state.dashboardLayout.present,
   );
   const theme = useTheme();
-  const page = tooltipPageOf(layout[hover.pageId]?.meta);
+  const page = useMemo(
+    () => tooltipPageOf(layout[hover.pageId]?.meta),
+    [layout, hover.pageId],
+  );
   const objects = useMemo(() => {
     const area = tooltipPageOf(layout[hover.pageId]?.meta);
     return area ? tooltipObjects(layout, hover.pageId, area) : [];
@@ -438,7 +447,7 @@ function TooltipPageView({
   );
   useEffect(onSize, [page?.width, page?.height, onSize]);
 
-  if (!page) return null;
+  if (!page || !pageTakesMark(page, hover.fields)) return null;
   const canvas = layout[DASHBOARD_ROOT_ID]?.meta?.auradataCanvas as
     | CanvasFormat
     | undefined;
@@ -462,7 +471,12 @@ function TooltipPageView({
     >
       {objects.map(object =>
         object.type === CHART_TYPE ? (
-          <TooltipChart key={object.id} object={object} fields={hover.fields} />
+          <TooltipChart
+            key={object.id}
+            object={object}
+            fields={hover.fields}
+            page={page}
+          />
         ) : object.kind ? (
           <TooltipElement key={object.id} object={object} />
         ) : (

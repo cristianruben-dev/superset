@@ -688,7 +688,11 @@ async def make_tooltip_page(
 
 
 def _tooltip_page_warnings(
-    report: Report, component_id: str, chart_id: int, pages: Any
+    report: Report,
+    component_id: str,
+    chart_id: int,
+    pages: dict[str, dict[str, Any]],
+    page_id: str | None = None,
 ) -> list[str]:
     """Why a chart set to show a tooltip page would not show it on hover."""
     warnings: list[str] = []
@@ -697,14 +701,15 @@ def _tooltip_page_warnings(
             "The report has no tooltip page yet, so the chart keeps its own "
             "tooltip until one exists."
         )
-    viz_type = next(
+    chart = next(
         (
-            chart.viz_type
-            for chart in getattr(report.dashboard, "slices", None) or []
-            if chart.id == chart_id
+            item
+            for item in getattr(report.dashboard, "slices", None) or []
+            if item.id == chart_id
         ),
         None,
     )
+    viz_type = getattr(chart, "viz_type", None)
     if viz_type and viz_type not in _TOOLTIP_PAGE_VIZ_TYPES:
         warnings.append(
             f"Chart type {viz_type!r} does not show report tooltip pages on hover."
@@ -715,6 +720,16 @@ def _tooltip_page_warnings(
         warnings.append(
             "Tooltips are turned off for this chart (auradata_tooltip.show is "
             "false), so the tooltip page will not appear until they are turned on."
+        )
+    # A page made for some columns opens only over marks that carry one of them
+    page_columns = (pages.get(page_id) or {}).get("columns") if page_id else None
+    chart_columns = set(
+        getattr(getattr(chart, "datasource", None), "column_names", None) or []
+    )
+    if page_columns and chart_columns and not chart_columns & set(page_columns):
+        warnings.append(
+            f"The chart's dataset has none of the columns the tooltip page is made "
+            f"for ({', '.join(page_columns)}), so the page will not open over it."
         )
     return warnings
 
@@ -754,7 +769,9 @@ async def set_visual_tooltip(
         meta[keys.VISUAL_FORMAT_KEY] = fmt
         if request.mode != "default":
             report.warnings.extend(
-                _tooltip_page_warnings(report, component_id, chart_id, pages)
+                _tooltip_page_warnings(
+                    report, component_id, chart_id, pages, setting.get("page")
+                )
             )
         save_report(report)
         return InteractivityResponse(
