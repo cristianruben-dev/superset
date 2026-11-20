@@ -413,3 +413,95 @@ describe('getColorRange', () => {
     ]);
   });
 });
+
+// AuraData BI: a point of a map under a tooltip page tells the report its values
+test('a hovered point under a tooltip page tells the report its row, not the deck tooltip', () => {
+  const holder = document.createElement('div');
+  holder.setAttribute('data-auradata-tooltip-page', 'TAB-1');
+  const canvas = document.createElement('canvas');
+  holder.appendChild(canvas);
+  document.body.appendChild(holder);
+  const probes: (string | undefined)[] = [];
+  const onContextMenu = jest.fn(() => {
+    probes.push(canvas.dataset.auradataProbe);
+  });
+  const setTooltip = jest.fn();
+  const props = commonLayerProps({
+    formData: { dimension: 'Tipología' } as never,
+    setTooltip,
+    setTooltipContent: () => 'deck tooltip',
+    onContextMenu,
+  });
+  const event = { srcEvent: { target: canvas, clientX: 30, clientY: 40 } };
+  (props.onHover as unknown as (o: unknown, e: unknown) => void)(
+    {
+      picked: true,
+      object: {
+        position: [-100.4, 20.6],
+        radius: 4,
+        cat_color: 'ALMACENES',
+        CLUES: 'QTSSA000200',
+        Municipio: 'AMEALCO DE BONFIL',
+        extraProps: {},
+      },
+    },
+    event,
+  );
+  expect(onContextMenu).toHaveBeenCalledWith(30, 40, {
+    drillToDetail: [
+      {
+        col: 'CLUES',
+        op: '==',
+        val: 'QTSSA000200',
+        formattedVal: 'QTSSA000200',
+      },
+      {
+        col: 'Municipio',
+        op: '==',
+        val: 'AMEALCO DE BONFIL',
+        formattedVal: 'AMEALCO DE BONFIL',
+      },
+      {
+        col: 'Tipología',
+        op: '==',
+        val: 'ALMACENES',
+        formattedVal: 'ALMACENES',
+      },
+    ],
+  });
+  expect(probes).toEqual(['true']);
+  expect(canvas.dataset.auradataProbe).toBeUndefined();
+  expect(setTooltip).toHaveBeenLastCalledWith(null);
+
+  // Off the points: an empty mark, which the report reads as leaving
+  (props.onHover as unknown as (o: unknown, e: unknown) => void)(
+    { picked: false },
+    event,
+  );
+  expect(onContextMenu).toHaveBeenLastCalledWith(30, 40, { drillToDetail: [] });
+  holder.remove();
+});
+
+test('a hovered point outside a tooltip page keeps the deck tooltip', () => {
+  const canvas = document.createElement('canvas');
+  document.body.appendChild(canvas);
+  const onContextMenu = jest.fn();
+  const setTooltip = jest.fn();
+  const props = commonLayerProps({
+    formData: {} as never,
+    setTooltip,
+    setTooltipContent: () => 'deck tooltip',
+    onContextMenu,
+  });
+  (props.onHover as unknown as (o: unknown, e: unknown) => void)(
+    { picked: true, x: 1, y: 2, object: { CLUES: 'Q1' } },
+    { srcEvent: { target: canvas, clientX: 1, clientY: 2 } },
+  );
+  expect(onContextMenu).not.toHaveBeenCalled();
+  expect(setTooltip).toHaveBeenLastCalledWith({
+    content: 'deck tooltip',
+    x: 1,
+    y: 2,
+  });
+  canvas.remove();
+});

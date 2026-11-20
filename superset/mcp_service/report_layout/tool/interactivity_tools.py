@@ -601,6 +601,12 @@ _TOOLTIP_PAGE_VIZ_TYPES = frozenset(
         "pop_kpi",
         "table",
         "pivot_table_v2",
+        # Maps whose points carry the columns of their row
+        "deck_scatter",
+        "deck_arc",
+        "deck_path",
+        "deck_polygon",
+        "deck_geojson",
     }
 )
 

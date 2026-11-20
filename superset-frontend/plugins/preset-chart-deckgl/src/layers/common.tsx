@@ -29,8 +29,10 @@ import {
   deviation as d3deviation,
 } from 'd3-array';
 import {
+  BinaryQueryObjectFilterClause,
   CategoricalColorScale,
   FilterState,
+  getColumnLabel,
   HandlerFunction,
   JsonObject,
   JsonValue,
@@ -45,6 +47,64 @@ import { getCrossFilterDataMask } from '../utils/crossFiltersDataMask';
 import { COLOR_SCHEME_TYPES, ColorSchemeType } from '../utilities/utils';
 import { hexToRGB } from '../utils/colors';
 import { DEFAULT_DECKGL_COLOR } from '../utilities/Shared_DeckGL';
+
+/** Keys of a deck.gl point that are drawing details, not columns of its row */
+const DRAWING_KEYS = new Set([
+  'position',
+  'sourcePosition',
+  'targetPosition',
+  'path',
+  'polygon',
+  'points',
+  'radius',
+  'weight',
+  'metric',
+  'color',
+  'cat_color',
+  'extraProps',
+  'elevation',
+  'width',
+]);
+
+/**
+ * AuraData BI: the values of the row behind a point, as drill filters, for
+ * the tooltip page of the report. The category of a point (cat_color) is the
+ * value of the chart's dimension.
+ */
+export function pointFilters(
+  object: JsonObject | undefined,
+  formData: QueryFormData,
+): BinaryQueryObjectFilterClause[] {
+  if (!object) return [];
+  const filters: BinaryQueryObjectFilterClause[] = [];
+  Object.entries(object).forEach(([col, val]) => {
+    if (
+      DRAWING_KEYS.has(col) ||
+      !['string', 'number', 'boolean'].includes(typeof val)
+    ) {
+      return;
+    }
+    filters.push({
+      col,
+      op: '==',
+      val: val as string | number | boolean,
+      formattedVal: String(val),
+    });
+  });
+  const category = object.cat_color;
+  if (formData.dimension && category != null && category !== '') {
+    const col = getColumnLabel(formData.dimension);
+    if (!filters.some(filter => filter.col === col)) {
+      filters.push({
+        col,
+        op: '==',
+        val: String(category),
+        formattedVal: String(category),
+      });
+    }
+  }
+  return filters;
+}
 
 export function commonLayerProps({
   formData,
@@ -70,7 +130,25 @@ export function commonLayerProps({
   if (setTooltipContent) {
     let currentTooltipContent: ReactNode = null;
 
-    onHover = (o: JsonObject) => {
+    onHover = (o: JsonObject, event?: JsonObject) => {
+      // AuraData BI: under a tooltip page the point is told to the report,
+      // which the chart renderer reads as a hover while the probe is on
+      const srcEvent = event?.srcEvent as MouseEvent | undefined;
+      const target = srcEvent?.target as HTMLElement | undefined;
+      if (onContextMenu && target?.closest?.('[data-auradata-tooltip-page]')) {
+        setTooltip(null);
+        target.dataset.auradataProbe = 'true';
+        try {
+          onContextMenu(srcEvent?.clientX ?? 0, srcEvent?.clientY ?? 0, {
+            drillToDetail: o.picked
+              ? pointFilters(o.object as JsonObject | undefined, fd)
+              : [],
+          });
+        } finally {
+          delete target.dataset.auradataProbe;
+        }
+        return true;
+      }
       if (o.picked) {
         currentTooltipContent = setTooltipContent(o);
       }
