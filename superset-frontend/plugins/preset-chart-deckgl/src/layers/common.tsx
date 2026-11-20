@@ -133,7 +133,12 @@ export function commonLayerProps({
     onHover = (o: JsonObject, event?: JsonObject) => {
       // AuraData BI: under a tooltip page the point is told to the report,
       // which the chart renderer reads as a hover while the probe is on
-      const srcEvent = event?.srcEvent as MouseEvent | undefined;
+      // Over MapLibre or Mapbox the overlay hands over the map's own event,
+      // whose DOM event is originalEvent
+      const raw = event?.srcEvent as
+        | (MouseEvent & { originalEvent?: MouseEvent })
+        | undefined;
+      const srcEvent = raw?.originalEvent ?? raw;
       const target = srcEvent?.target as HTMLElement | undefined;
       if (onContextMenu && target?.closest?.('[data-auradata-tooltip-page]')) {
         setTooltip(null);

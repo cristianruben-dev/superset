@@ -505,3 +505,40 @@ test('a hovered point outside a tooltip page keeps the deck tooltip', () => {
   });
   canvas.remove();
 });
+
+test('a point of a map drawn over MapLibre reaches the tooltip page too', () => {
+  // MapboxOverlay hands deck.gl the map's own mouse event, whose DOM event
+  // is originalEvent and whose target is the map, not an element
+  const holder = document.createElement('div');
+  holder.setAttribute('data-auradata-tooltip-page', 'TAB-1');
+  const canvas = document.createElement('canvas');
+  holder.appendChild(canvas);
+  document.body.appendChild(holder);
+  const onContextMenu = jest.fn();
+  const props = commonLayerProps({
+    formData: {} as never,
+    setTooltip: jest.fn(),
+    setTooltipContent: () => 'deck tooltip',
+    onContextMenu,
+  });
+  (props.onHover as unknown as (o: unknown, e: unknown) => void)(
+    { picked: true, object: { CLUES: 'QTSSA000200' } },
+    {
+      srcEvent: {
+        target: { getCanvas: () => canvas },
+        originalEvent: { target: canvas, clientX: 7, clientY: 9 },
+      },
+    },
+  );
+  expect(onContextMenu).toHaveBeenCalledWith(7, 9, {
+    drillToDetail: [
+      {
+        col: 'CLUES',
+        op: '==',
+        val: 'QTSSA000200',
+        formattedVal: 'QTSSA000200',
+      },
+    ],
+  });
+  holder.remove();
+});
