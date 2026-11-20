@@ -66,7 +66,9 @@ function setup(formData: Record<string, unknown> = {}) {
     hooks: { onContextMenu },
     theme: supersetTheme,
   });
-  render(<Heatmap {...transformProps(chartProps as HeatmapChartProps)} />);
+  render(
+    <Heatmap {...transformProps(chartProps as unknown as HeatmapChartProps)} />,
+  );
   const { eventHandlers } = mockedEchart.mock.calls.at(-1)![0] as {
     eventHandlers: EventHandlers;
   };

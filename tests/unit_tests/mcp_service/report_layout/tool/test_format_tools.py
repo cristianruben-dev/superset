@@ -496,3 +496,29 @@ async def test_format_visual_turns_on_export(world: dict[str, Any]) -> None:
     assert elsewhere["error_type"] == "InvalidFormat"
     assert "no chart 987654" in elsewhere["error"]
     assert layout(world) == before
+
+
+@pytest.mark.asyncio
+async def test_export_icon_warns_while_the_header_icons_are_off(
+    world: dict[str, Any],
+) -> None:
+    hidden = ok(
+        await as_editor(
+            world,
+            "format_visual",
+            object="CHART-1",
+            level="general",
+            patch={"header": {"show": False, "export": True}},
+        )
+    )
+    assert any("header icons on" in warning for warning in hidden["warnings"])
+    shown = ok(
+        await as_editor(
+            world,
+            "format_visual",
+            object="CHART-1",
+            level="general",
+            patch={"header": {"show": True, "copy": False, "focus": False}},
+        )
+    )
+    assert not shown["warnings"]

@@ -24,7 +24,9 @@ import {
   chartDimensions,
   grainRange,
   isLessPrecise,
+  markColumns,
   markKey,
+  pageTakesMark,
   QUERY_ABORTED,
   resolveTooltipPage,
   tooltipObjects,
@@ -433,4 +435,41 @@ test('the line of a series does not replace the point under the pointer', () => 
       point,
     ),
   ).toBe(false);
+});
+
+test('a page with columns opens only for marks that carry one of them', () => {
+  const page = { width: 10, height: 8, columns: ['employee_id'] };
+  const employee = [
+    { column: 'employee_id', value: 952793, label: '952793' },
+    { column: 'gender', value: 'Mujer', label: 'Mujer' },
+  ];
+  const position = [{ column: 'position', value: 'Nurse', label: 'Nurse' }];
+  expect(pageTakesMark(page, employee)).toBe(true);
+  // A row of a table without the employee number shows no stranger's detail
+  expect(pageTakesMark(page, position)).toBe(false);
+  // A card has no values: its page covers the whole chart
+  expect(pageTakesMark(page, [])).toBe(true);
+  // A page made for nothing in particular takes every mark
+  expect(pageTakesMark({ ...page, columns: [] }, position)).toBe(true);
+});
+
+test('the columns of a tooltip page filter its charts even when no chart shows them', () => {
+  // The dashboard loads only the columns its charts use
+  const loaded = new Set(['Dato', 'Detalle']);
+  const page = { width: 10, height: 8, columns: ['employee_id'] };
+  const known = markColumns(loaded, page);
+  expect([...known].sort()).toEqual(['Dato', 'Detalle', 'employee_id']);
+  expect(
+    withMarkFilters(
+      { viz_type: 'table' } as QueryFormData,
+      [
+        { column: 'employee_id', value: 952793, label: '952793' },
+        { column: 'gender', value: 'Mujer', label: 'Mujer' },
+      ],
+      known,
+    ).extra_form_data?.filters,
+  ).toEqual([{ col: 'employee_id', op: 'IN', val: [952793] }]);
+  // A dataset not loaded yet keeps every value
+  expect(markColumns(new Set(), page).size).toBe(0);
+  expect(markColumns(loaded, undefined)).toBe(loaded);
 });

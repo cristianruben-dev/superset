@@ -25,6 +25,7 @@ from typing import Any
 
 import pytest
 
+from superset.connectors.sqla.models import TableColumn
 from superset.models.dashboard import Dashboard
 from superset.models.slice import Slice
 from superset.subjects.utils import get_or_create_user_subject
@@ -672,6 +673,44 @@ async def test_set_visual_tooltip_warns_when_it_cannot_show(
         )
     )
     assert not default["warnings"]
+
+
+@pytest.mark.asyncio
+async def test_set_visual_tooltip_warns_when_the_chart_lacks_the_page_columns(
+    report: dict[str, Any],
+) -> None:
+    # The chart of the tooltip page reads employees; the report's chart does not
+    session = report["session"]
+    employees = report["compartido"]
+    employees.columns = [TableColumn(column_name="employee_id", type="INTEGER")]
+    report["other"].datasource_id = employees.id
+    session.commit()
+    ok(
+        await as_editor(
+            report, "make_tooltip_page", page="Detalle", columns=["employee_id"]
+        )
+    )
+    other = ok(
+        await as_editor(
+            report,
+            "set_visual_tooltip",
+            object=report["chart"].id,
+            mode="page",
+            page="Detalle",
+        )
+    )
+    assert any("employee_id" in warning for warning in other["warnings"])
+    ok(await as_editor(report, "make_tooltip_page", page="Detalle", columns=["region"]))
+    shared = ok(
+        await as_editor(
+            report,
+            "set_visual_tooltip",
+            object=report["chart"].id,
+            mode="page",
+            page="Detalle",
+        )
+    )
+    assert not shared["warnings"]
 
 
 @pytest.mark.asyncio

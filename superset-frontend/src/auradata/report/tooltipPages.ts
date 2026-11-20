@@ -264,6 +264,37 @@ function markFilter(field: DrillthroughField) {
 }
 
 /**
+ * Whether a tooltip page is made for a mark: a page that names its columns
+ * opens only over marks carrying one of them, so a mark that shares none (a
+ * row of another table) never shows an unfiltered page. A mark without values
+ * (a card) always opens it.
+ */
+export function pageTakesMark(
+  page: TooltipPage,
+  fields: DrillthroughField[],
+): boolean {
+  return (
+    !page.columns.length ||
+    !fields.length ||
+    fields.some(field => page.columns.includes(field.column))
+  );
+}
+
+/**
+ * The columns a chart of a tooltip page can be filtered by. The dashboard
+ * loads only the columns its charts use, so the page's own columns count too
+ * (a key such as the employee number is often on no chart of the page). An
+ * empty set, a dataset not loaded yet, stays empty: every value applies.
+ */
+export function markColumns(
+  datasetColumns: Set<string>,
+  page: TooltipPage | undefined,
+): Set<string> {
+  if (!datasetColumns.size || !page?.columns.length) return datasetColumns;
+  return new Set([...datasetColumns, ...page.columns]);
+}
+
+/**
  * The form data of a chart with the values of a mark as filters on top, only
  * for the columns its dataset has (all of them when the columns are unknown).
  */

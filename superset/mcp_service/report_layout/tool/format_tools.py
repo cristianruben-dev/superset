@@ -375,6 +375,13 @@ async def format_visual(request: FormatVisualRequest, ctx: Context) -> FormatRes
             _apply_general_chart(chart, chart_patch)
         own["chart"] = chart
         _set_own_format(report, cid, own)
+        header = (visual_format_of(report.layout, cid) or {}).get("header") or {}
+        if header.get("export") and header.get("show") is False:
+            report.warnings.append(
+                f"{cid}: the export icon only shows with the header icons on "
+                "(header.show true); turn the others off one by one (copy, "
+                "focus, menu, badges) to show only it."
+            )
         save_report(report)
         return _done(report, [cid], formats=_resolved(report, [cid]))
 
